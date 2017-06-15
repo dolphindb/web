@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Dolphin DB Deploy Kit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DolphinDB Node Management">
+    <meta name="author" content="DolphinDB">
+    <!-- Le styles -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/custom-theme/jquery-ui-1.10.3.custom.css">
+    <!--<link rel="stylesheet" href="css/custom-theme/jquery-ui-1.10.3.theme.css">-->
+    <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+    <!--[if IE 7]>
+    <link rel="stylesheet" href="assets/css/font-awesome-ie7.min.css">
+    <![endif]-->
+    <!--[if lt IE 9]>
+    <link rel="stylesheet" href="css/custom-theme/jquery.ui.1.10.3.ie.css">
+    <![endif]-->
+    <link rel="stylesheet" href="assets/css/docs.css">
+    <link rel="stylesheet" href="assets/js/google-code-prettify/prettify.css">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="assets/js/vendor/html5shiv.js" type="text/javascript"></script>
+      <script src="assets/js/vendor/respond.min.js" type="text/javascript"></script>
+    <![endif]-->
+    <!-- Le fav and touch icons -->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="assets/ico/apple-touch-icon-57-precomposed.png">
+    <link rel="shortcut icon" href="assets/ico/logo.png">
+
+    <!-- jqGrid-->
+    <link rel="stylesheet" href="third-party/gridmanager/css/GridManager.css" />
+    <!-- end jqGrid -->
+</head>
+
+
+<body data-spy="scroll" data-target=".bs-docs-sidebar" data-twttr-rendered="true">
+
+    <!-- Navbar
+    ================================================== -->
+    <header class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+                <a class="navbar-brand" href="http://www.dolphindb.com">DolphinDB Deploy Kit</a>
+            </div>
+            <nav class="navbar-collapse collapse navbar-right">
+                <ul class="nav navbar-nav">
+                    <li class="active">
+                        <a id="btn_connect_server" href="###">Connect central Server</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container" id="layout">
+        <!-- Docs nav ================================================== -->
+        <div class="row">
+            <div class="col-lg-3 col-sm-3" id="sidebar">
+                <div class="bs-sidebar hidden-print" role="complementary">
+                    <ul class="nav bs-sidenav">
+                        <li>
+                            <a href="###" class="navServer"><i class="icon-chevron-right"></i>all physical servers</a>
+                            <ul id="physicalServerList"></ul>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-9 col-sm-9" id="main">
+                <div class="page-header">
+                    <h3><span id="serverName"></span></h3>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="btn-toolbar" role="toolbar" aria-label="...">
+                            <div class="btn-group" role="group" aria-label="...">
+                                <button type="button" class="btn btn-default" id="btn_run"><span class="glyphicon glyphicon-play"></span></button>
+                                <button type="button" class="btn btn-default" id="btn_stop"><span class="glyphicon glyphicon-stop"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <table grid-manager="grid1"></table>
+                    <div id="jqGridPager01"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Dialog =====================================================-->
+    <div id="modal-message" title="Connect Central Server">
+        <div class="input-group">
+            <span class="input-group-addon" id="basic-addon3">http://</span>
+            <input type="text" class="form-control" id="ag-controller-url" aria-describedby="basic-addon3" placeholder="example: www.haitundb.com/DNMT">
+        </div>
+
+    </div>
+    <!-- Footer================================================== -->
+    <footer class="bs-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-sm-12">
+                    <ul class="list-unstyled">
+                        <li>CopyRight &copy; <strong class="text-info">DolphinDB</strong> 2016 - 2017.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="assets/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script src="assets/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+    <script src="assets/js/vendor/bootstrap.js" type="text/javascript"></script>
+    <script src="assets/js/vendor/holder.js" type="text/javascript"></script>
+    <script src="assets/js/vendor/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+    <script src="assets/js/google-code-prettify/prettify.js" type="text/javascript"></script>
+    <script src="assets/js/docs.js" type="text/javascript"></script>
+    <script src="assets/js/demo.js" type="text/javascript"></script>
+    <script src="third-party/gridmanager/js/GridManager.js" type="text/javascript"></script>
+    <script src="third-party/jquery-tmpl/jquery.tmpl.min.js" type="text/javascript"></script>
+    <script src="assets/js/vendor/jquery.cookie.js" type="text/javascript"></script>
+
+    <script src="js/CallWebApi.js" type="text/javascript"></script>
+    <script src="third-party/linqjs/linq.min.js" type="text/javascript"></script>
+
+</body>
+
+<script type="text/javascript">
+    //=============Create data=======================
+    var serverList = [];
+
+     var wa_getList = "http://" + $.cookie('ck_ag_controller_url');
+     var wa_startnode = "http://" + $.cookie('ck_ag_controller_url');
+     var wa_stopnode = "http://" + $.cookie('ck_ag_controller_url');
+
+    var ALL_NODE = [];
+    var AGENT_LIST = [];
+    var NODE_LIST = [];
+
+    var SESSION_ID = "1234567890";
+    var grid = document.querySelector('table[grid-manager="grid1"]');
+    $(function () {
+
+        if ($.cookie('ck_ag_controller_url') == null) {
+            $("#btn_connect_server").click();
+        } else {
+            GetLocalData($.cookie('ck_ag_controller_url'));
+            LoadLeft(AGENT_LIST);
+            LoadTable(NODE_LIST);
+        }
+
+    });
+
+    function GetLocalData(url) {
+        var p = {
+            "sessionID": SESSION_ID,
+            "functionName": "getList"
+        };
+        CallWebApi(wa_getList, p, connect_server_success, connect_server_error);
+    }
+
+    function LoadLeft(agentList) {
+        $("#physicalServerList").html("");
+        var l = $("#serverTemplate").tmpl(agentList).appendTo("#physicalServerList");
+    }
+
+    function LoadTable(nodeList) {
+        var griddata = {
+            data: nodeList,
+            totals: nodeList.length
+        };
+        grid.GM({
+            ajax_data: griddata,
+            supportAutoOrder:false,
+            query: {
+                "IP": ""
+            },
+            height: '600px',
+            columnData: [{
+                    text: 'Name',
+                    key: 'Name'
+                },
+                {
+                    text: 'IP',
+                    key: 'IP'
+                },
+                {
+                    text: 'Port',
+                    key: 'Port'
+                },
+                {
+                    text: 'Status',
+                    key: 'Status',
+                     template: function (Status, rowObject) {
+                         if(Status=="running"){
+
+                         }else{
+
+                         }
+
+                     }
+                },
+                {
+                    text: 'worker',
+                    key: 'worker'
+                },
+                {
+                    text: 'executor',
+                    key: 'executor'
+                },
+                {
+                    text: 'CPU',
+                    key: 'CPU'
+                },
+                {
+                    text: 'MaxMemory',
+                    key: 'MaxMemory'
+                },
+                {
+                    text: 'action',
+                    key: 'action',
+                    template: function (action, rowObject) {
+                        return '<a href=javascript:window.location.href="NodeDetail.html";><span class="glyphicon glyphicon-indent-left" learnLink-id="' +
+                            rowObject.id + '"></span></a>';
+                    }
+                }
+            ]
+        });
+    }
+
+    function refreshGrid(nodeList) {
+        var griddata = {
+            data: nodeList,
+            totals: nodeList.length
+        };
+        console.log(griddata);
+        grid.GM('setAjaxData', griddata);
+    }
+    //==========================================================================
+    $("#btn_connect_server").click(function () {
+
+        $("#modal-message").dialog({
+            autoOpen: true,
+            width: 600,
+            modal: true,
+            buttons: {
+                Ok: function () {
+                    if ($("#ag-controller-url").val() != '') {
+                        $.cookie('ck_ag_controller_url', $("#ag-controller-url").val());
+                         wa_getList = "http://" + $.cookie('ck_ag_controller_url');
+                         wa_startnode = "http://" + $.cookie('ck_ag_controller_url');
+                         wa_stopnode = "http://" + $.cookie('ck_ag_controller_url');
+						 
+						 var p = {
+					            "sessionID": SESSION_ID,
+					            "functionName": "getList"
+					        };
+                        CallWebApi(wa_getList, p, connect_server_success, connect_server_error);
+
+                        $(this).dialog("close");
+                    }
+                },
+                Cancel: function () {
+                    $(this).dialog("close");
+                }
+            }
+        });
+    });
+
+    function connect_server_success(result) {
+        SESSION_ID = result["sessionID"];
+        if (result) {
+            ALL_NODE = result["data"];
+
+            AGENT_LIST = Enumerable.from(ALL_NODE).where("x=>x.Mode=='ag'").toArray();
+            LoadLeft(AGENT_LIST);
+
+            NODE_LIST = Enumerable.from(ALL_NODE).where("x=>x.Mode=='datanode'").toArray();
+
+            refreshGrid(NODE_LIST)
+        }
+    };
+
+    function connect_server_error(ex) {
+        console.log(ex);
+    };
+    //============================================================================
+
+
+    $("#btn_run").click(function () {
+        var t = grid.GM("getCheckedData");
+        if(t.length>=1)  data = t[0];
+        var p = {
+            "sessionID": SESSION_ID,
+            "functionName": "startNode",
+            "parameters": [{
+                    "name": "host",
+                    "value": data.IP
+                },
+                {
+                    "name": "port",
+                    "value": data.Port
+                }
+            ]
+        };
+
+        console.log(data);
+        CallWebApi(wa_startnode, p, function (re) {
+            console.log(data.Name);
+            console.log(re);
+        }, function (re) {
+            console.log(re);
+        })
+     });
+
+    $("#btn_stop").click(function () {
+        var t = grid.GM("getCheckedData");
+        if(t.length>=1)  data = t[0];
+        var p = {
+            "sessionID": SESSION_ID,
+            "functionName": "stopNode",
+            "parameters": [{
+                    "name": "host",
+                    "value": data.IP
+                },
+                {
+                    "name": "port",
+                    "value": data.Port
+                }
+            ]
+        };
+
+        CallWebApi(wa_stopnode, p, function (re) {
+            console.log(data.Name);
+            console.log(re);
+        }, function () {
+            console.log(re);
+        })
+    });
+</script>
+
+<script id="serverTemplate" type="text/x-jquery-tmpl">
+    <li>${IP}</li>
+</script>
+
+</html>
