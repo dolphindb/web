@@ -248,6 +248,8 @@
     }
     //==========================================================================
     $("#btn_connect_server").click(function () {
+        
+        $("#ag-controller-url").val($.cookie('ck_ag_controller_url'));
 
         $("#modal-message").dialog({
             autoOpen: true,
@@ -265,6 +267,7 @@
 					            "sessionID": SESSION_ID,
 					            "functionName": "getList"
 					        };
+
                         CallWebApi(wa_getList, p, connect_server_success, connect_server_error);
 
                         $(this).dialog("close");
