@@ -139,9 +139,7 @@
     //=============Create data=======================
     var serverList = [];
 
-     var wa_getList = "http://" + $.cookie('ck_ag_controller_url');
-     var wa_startnode = "http://" + $.cookie('ck_ag_controller_url');
-     var wa_stopnode = "http://" + $.cookie('ck_ag_controller_url');
+    var wa_url = "http://" + $.cookie('ck_ag_controller_url');
 
     var ALL_NODE = [];
     var AGENT_LIST = [];
@@ -166,7 +164,7 @@
             "sessionID": SESSION_ID,
             "functionName": "getList"
         };
-        CallWebApi(wa_getList, p, connect_server_success, connect_server_error);
+        CallWebApi(url, p, connect_server_success, connect_server_error);
     }
 
     function LoadLeft(agentList) {
@@ -181,9 +179,9 @@
         };
         grid.GM({
             ajax_data: griddata,
-            supportAutoOrder:false,
+            supportAutoOrder: false,
             query: {
-                "IP": ""
+                "host": ""
             },
             height: '600px',
             columnData: [{
@@ -192,7 +190,7 @@
                 },
                 {
                     text: 'IP',
-                    key: 'IP'
+                    key: 'host'
                 },
                 {
                     text: 'Port',
@@ -201,14 +199,14 @@
                 {
                     text: 'Status',
                     key: 'Status',
-                     template: function (Status, rowObject) {
-                         if(Status=="running"){
+                    template: function (Status, rowObject) {
 
-                         }else{
-
-                         }
-
-                     }
+                        if (Status == "running") {
+                            return '<font style="color:green">running</font>';
+                        } else {
+                            return '<font style="color:red">stopped</font>';
+                        }
+                    }
                 },
                 {
                     text: 'worker',
@@ -246,9 +244,10 @@
         console.log(griddata);
         grid.GM('setAjaxData', griddata);
     }
+
     //==========================================================================
     $("#btn_connect_server").click(function () {
-        
+
         $("#ag-controller-url").val($.cookie('ck_ag_controller_url'));
 
         $("#modal-message").dialog({
@@ -259,16 +258,9 @@
                 Ok: function () {
                     if ($("#ag-controller-url").val() != '') {
                         $.cookie('ck_ag_controller_url', $("#ag-controller-url").val());
-                         wa_getList = "http://" + $.cookie('ck_ag_controller_url');
-                         wa_startnode = "http://" + $.cookie('ck_ag_controller_url');
-                         wa_stopnode = "http://" + $.cookie('ck_ag_controller_url');
-						 
-						 var p = {
-					            "sessionID": SESSION_ID,
-					            "functionName": "getList"
-					        };
+                        wa_url = "http://" + $.cookie('ck_ag_controller_url');
 
-                        CallWebApi(wa_getList, p, connect_server_success, connect_server_error);
+                        GetLocalData(wa_url);
 
                         $(this).dialog("close");
                     }
@@ -302,58 +294,75 @@
 
     $("#btn_run").click(function () {
         var t = grid.GM("getCheckedData");
-        if(t.length>=1)  data = t[0];
-        var p = {
-            "sessionID": SESSION_ID,
-            "functionName": "startNode",
-            "parameters": [{
-                    "name": "host",
-                    "value": data.IP
-                },
-                {
-                    "name": "port",
-                    "value": data.Port
+        for (var i = 0; i < t.length; i++) {
+            data = t[i];
+            if (data.Status == "running") {
+                return false
+            };
+            var p = {
+                "sessionID": SESSION_ID,
+                "functionName": "startNode",
+                "parameters": [{
+                        "name": "host",
+                        "value": data.host
+                    },
+                    {
+                        "name": "port",
+                        "value": data.Port
+                    }
+                ]
+            };
+            CallWebApi(wa_url, p, function (re) {
+                if (re.resultCode == "0") {
+                    GetLocalData(wa_url);
+                } else {
+                    alert(re.msg);
                 }
-            ]
-        };
+            }, function (re) {
+                console.log(re);
+            })
+        }
 
-        console.log(data);
-        CallWebApi(wa_startnode, p, function (re) {
-            console.log(data.Name);
-            console.log(re);
-        }, function (re) {
-            console.log(re);
-        })
-     });
+
+    });
 
     $("#btn_stop").click(function () {
         var t = grid.GM("getCheckedData");
-        if(t.length>=1)  data = t[0];
-        var p = {
-            "sessionID": SESSION_ID,
-            "functionName": "stopNode",
-            "parameters": [{
-                    "name": "host",
-                    "value": data.IP
-                },
-                {
-                    "name": "port",
-                    "value": data.Port
-                }
-            ]
-        };
 
-        CallWebApi(wa_stopnode, p, function (re) {
-            console.log(data.Name);
-            console.log(re);
-        }, function () {
-            console.log(re);
-        })
+        for (var i = 0; i < t.length; i++) {
+            data = t[i];
+            if (data.Status == "running") {
+                var p = {
+                    "sessionID": SESSION_ID,
+                    "functionName": "stopNode",
+                    "parameters": [{
+                            "name": "host",
+                            "value": data.host
+                        },
+                        {
+                            "name": "port",
+                            "value": data.Port
+                        }
+                    ]
+                };
+
+                CallWebApi(wa_url, p, function (re) {
+                    if (re.resultCode == "0") {
+                        GetLocalData(wa_url);
+                    } else {
+                        alert(re.msg);
+                    }
+                }, function (re) {
+                    console.log(re);
+                })
+            }
+        }
+
     });
 </script>
 
 <script id="serverTemplate" type="text/x-jquery-tmpl">
-    <li>${IP}</li>
+    <li>${host}</li>
 </script>
 
 </html>
