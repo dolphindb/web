@@ -228,8 +228,8 @@
                     text: 'action',
                     key: 'action',
                     template: function (action, rowObject) {
-                        return '<a href=javascript:window.location.href="NodeDetail.html";><span class="glyphicon glyphicon-indent-left" learnLink-id="' +
-                            rowObject.id + '"></span></a>';
+                        console.log(rowObject);
+                        return '<a style="padding-left:20px" href=javascript:window.location.href="NodeDetail.html?ip=' + rowObject.host + '&pt=' + rowObject.Port + '";>detail</a>';
                     }
                 }
             ]
