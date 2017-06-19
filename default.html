@@ -161,8 +161,8 @@
 
     function GetLocalData(url) {
         var p = {
-            "sessionID": SESSION_ID,
-            "functionName": "getList"
+            "sessionid": SESSION_ID,
+            "functionName": "getlist"
         };
         CallWebApi(url, p, connect_server_success, connect_server_error);
     }
@@ -228,8 +228,8 @@
                     text: 'action',
                     key: 'action',
                     template: function (action, rowObject) {
-                        return '<a href=javascript:window.location.href="NodeDetail.html";><span class="glyphicon glyphicon-indent-left" learnLink-id="' +
-                            rowObject.id + '"></span></a>';
+                        console.log(rowObject);
+                        return '<a style="padding-left:20px" href=javascript:window.location.href="NodeDetail.html?ip=' + rowObject.host + '&pt=' + rowObject.Port + '";>detail</a>';
                     }
                 }
             ]
@@ -273,7 +273,7 @@
     });
 
     function connect_server_success(result) {
-        SESSION_ID = result["sessionID"];
+        SESSION_ID = result["sessionid"];
         if (result) {
             ALL_NODE = result["data"];
 
@@ -300,8 +300,8 @@
                 return false
             };
             var p = {
-                "sessionID": SESSION_ID,
-                "functionName": "startNode",
+                "sessionid": SESSION_ID,
+                "functionname": "startnode",
                 "parameters": [{
                         "name": "host",
                         "value": data.host
@@ -333,8 +333,8 @@
             data = t[i];
             if (data.Status == "running") {
                 var p = {
-                    "sessionID": SESSION_ID,
-                    "functionName": "stopNode",
+                    "sessionid": SESSION_ID,
+                    "functionname": "stopnode",
                     "parameters": [{
                             "name": "host",
                             "value": data.host
