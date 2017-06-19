@@ -161,8 +161,8 @@
 
     function GetLocalData(url) {
         var p = {
-            "sessionid": SESSION_ID,
-            "functionname": "getlist"
+            "sessionID": SESSION_ID,
+            "functionName": "getNodeList"
         };
         CallWebApi(url, p, connect_server_success, connect_server_error);
     }
@@ -184,24 +184,16 @@
                 "host": ""
             },
             height: '600px',
-            columnData: [{
-                    text: 'Name',
-                    key: 'Name'
+            columnData: [
+                {
+                    text: 'site',
+                    key: 'site'
                 },
                 {
-                    text: 'IP',
-                    key: 'host'
-                },
-                {
-                    text: 'Port',
-                    key: 'Port'
-                },
-                {
-                    text: 'Status',
-                    key: 'Status',
+                    text: 'state',
+                    key: 'state',
                     template: function (Status, rowObject) {
-
-                        if (Status == "running") {
+                        if (Status == "1") {
                             return '<font style="color:green">running</font>';
                         } else {
                             return '<font style="color:red">stopped</font>';
@@ -209,20 +201,8 @@
                     }
                 },
                 {
-                    text: 'worker',
-                    key: 'worker'
-                },
-                {
-                    text: 'executor',
-                    key: 'executor'
-                },
-                {
-                    text: 'CPU',
-                    key: 'CPU'
-                },
-                {
-                    text: 'MaxMemory',
-                    key: 'MaxMemory'
+                    text: 'maxconnections',
+                    key: 'maxconnections'
                 },
                 {
                     text: 'action',
@@ -273,14 +253,14 @@
     });
 
     function connect_server_success(result) {
-        SESSION_ID = result["sessionid"];
+        SESSION_ID = result["sessionID"];
         if (result) {
             ALL_NODE = result["data"];
 
-            AGENT_LIST = Enumerable.from(ALL_NODE).where("x=>x.Mode=='ag'").toArray();
+            AGENT_LIST = Enumerable.from(ALL_NODE).where("x=>x.mode=='ag'").toArray();
             LoadLeft(AGENT_LIST);
 
-            NODE_LIST = Enumerable.from(ALL_NODE).where("x=>x.Mode=='datanode'").toArray();
+            NODE_LIST = Enumerable.from(ALL_NODE).where("x=>x.mode=='datanode'").toArray();
 
             refreshGrid(NODE_LIST)
         }
@@ -296,19 +276,19 @@
         var t = grid.GM("getCheckedData");
         for (var i = 0; i < t.length; i++) {
             data = t[i];
-            if (data.Status == "running") {
+            if (data.state == "1") {
                 return false
             };
             var p = {
-                "sessionid": SESSION_ID,
-                "functionname": "startnode",
+                "sessionID": SESSION_ID,
+                "functionName": "startDataNode",
                 "parameters": [{
                         "name": "host",
                         "value": data.host
                     },
                     {
                         "name": "port",
-                        "value": data.Port
+                        "value": data.port
                     }
                 ]
             };
@@ -331,17 +311,17 @@
 
         for (var i = 0; i < t.length; i++) {
             data = t[i];
-            if (data.Status == "running") {
+            if (data.state == "1") {
                 var p = {
-                    "sessionid": SESSION_ID,
-                    "functionname": "stopnode",
+                    "sessionID": SESSION_ID,
+                    "functionName": "stopDataNode",
                     "parameters": [{
                             "name": "host",
                             "value": data.host
                         },
                         {
                             "name": "port",
-                            "value": data.Port
+                            "value": data.port
                         }
                     ]
                 };
@@ -362,7 +342,7 @@
 </script>
 
 <script id="serverTemplate" type="text/x-jquery-tmpl">
-    <li>${host}</li>
+    <li>${site}</li>
 </script>
 
 </html>
