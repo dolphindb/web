@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Dolphin DB Deploy Kit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DolphinDB Node Management">
+    <meta name="author" content="DolphinDB">
+
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/custom-theme/jquery-ui-1.10.3.custom.css">
+    <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+    <link rel="shortcut icon" href="assets/ico/logo.png">
+</head>
+
+<body>
+
+    <!-- Navbar
+    ================================================== -->
+    <header class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+                <a class="navbar-brand" href="http://www.dolphindb.com">DolphinDB Deploy Kit</a>
+            </div>
+            <nav class="navbar-collapse collapse navbar-right">
+                <ul class="nav navbar-nav">
+                    <li class="active">
+                        <a id="btn_connect_server" href="###">Connect central Server</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container" id="layout">
+        <div class="row">
+            <div class="col-md-12" id="nodeinfo">
+                <ul>
+                    <li>host: 192.168.1.27</li>
+                    <li>port: 8500</li>
+                    <li>cpu: 4 core</li>
+                    <li>memory limit: 4G</li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <textarea id="codetext" placeholder="Code to execute"></textarea>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <button id="btnExecute" class="button-primary">execute code</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                
+            </div>
+            <div class="col-md-4">
+                
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
