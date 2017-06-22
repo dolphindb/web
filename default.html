@@ -129,7 +129,7 @@
     <script src="third-party/gridmanager/js/GridManager.js" type="text/javascript"></script>
     <script src="third-party/jquery-tmpl/jquery.tmpl.min.js" type="text/javascript"></script>
     <script src="assets/js/vendor/jquery.cookie.js" type="text/javascript"></script>
-    <script src="js/JsonHelper.js" type="text/javascript"></script>
+
     <script src="js/CallWebApi.js" type="text/javascript"></script>
     <script src="third-party/linqjs/linq.min.js" type="text/javascript"></script>
 
@@ -161,8 +161,13 @@
 
     function GetLocalData(url) {
         var p = {
+<<<<<<< HEAD
             "sessionid": SESSION_ID,
             "functionname": "getNodeList"
+=======
+            "sessionID": SESSION_ID,
+            "functionName": "getList"
+>>>>>>> origin/master
         };
         CallWebApi(url, p, connect_server_success, connect_server_error);
     }
@@ -184,16 +189,24 @@
                 "host": ""
             },
             height: '600px',
-            columnData: [
-                {
-                    text: 'site',
-                    key: 'site'
+            columnData: [{
+                    text: 'Name',
+                    key: 'Name'
                 },
                 {
-                    text: 'state',
-                    key: 'state',
+                    text: 'IP',
+                    key: 'host'
+                },
+                {
+                    text: 'Port',
+                    key: 'Port'
+                },
+                {
+                    text: 'Status',
+                    key: 'Status',
                     template: function (Status, rowObject) {
-                        if (Status == "1") {
+
+                        if (Status == "running") {
                             return '<font style="color:green">running</font>';
                         } else {
                             return '<font style="color:red">stopped</font>';
@@ -201,8 +214,20 @@
                     }
                 },
                 {
-                    text: 'maxconnections',
-                    key: 'maxconnections'
+                    text: 'worker',
+                    key: 'worker'
+                },
+                {
+                    text: 'executor',
+                    key: 'executor'
+                },
+                {
+                    text: 'CPU',
+                    key: 'CPU'
+                },
+                {
+                    text: 'MaxMemory',
+                    key: 'MaxMemory'
                 },
                 {
                     text: 'action',
@@ -255,16 +280,14 @@
     function connect_server_success(result) {
         SESSION_ID = result["sessionid"];
         if (result) {
-            var data = result["object"];
-            if (data.length <= 0) return;
+            ALL_NODE = result["data"];
 
-            ALL_NODE = VectorArray2Table(data[0].value);
-
-            AGENT_LIST = Enumerable.from(ALL_NODE).where("x=>x.mode=='ag'").toArray();
+            AGENT_LIST = Enumerable.from(ALL_NODE).where("x=>x.Mode=='ag'").toArray();
             LoadLeft(AGENT_LIST);
 
-            NODE_LIST = Enumerable.from(ALL_NODE).where("x=>x.mode=='datanode'").toArray();
-            refreshGrid(NODE_LIST);
+            NODE_LIST = Enumerable.from(ALL_NODE).where("x=>x.Mode=='datanode'").toArray();
+
+            refreshGrid(NODE_LIST)
         }
     };
 
@@ -276,33 +299,31 @@
 
     $("#btn_run").click(function () {
         var t = grid.GM("getCheckedData");
-        var str = "";
         for (var i = 0; i < t.length; i++) {
             data = t[i];
-            if (data.state == "1") {
+            if (data.Status == "running") {
                 return false
             };
             var p = {
                 "sessionid": SESSION_ID,
+<<<<<<< HEAD
                 "functionname": "startDataNode",
+=======
+                "functionname": "startnode",
+>>>>>>> origin/master
                 "parameters": [{
-                    "name": "host",
-                    "DF": "scalar",
-                    "DT": "string",
-                    "value": data.host
-                },
-                {
-                    "name": "port",
-                    "DF": "scalar",
-                    "DT": "string",
-                    "value": data.port
-                }
+                        "name": "host",
+                        "value": data.host
+                    },
+                    {
+                        "name": "port",
+                        "value": data.Port
+                    }
                 ]
             };
             CallWebApi(wa_url, p, function (re) {
                 if (re.resultCode == "0") {
-                    str += data.host + "启动成功" + "\n";
-                    //GetLocalData(wa_url);
+                    GetLocalData(wa_url);
                 } else {
                     alert(re.msg);
                 }
@@ -310,60 +331,51 @@
                 console.log(re);
             })
         }
-        if (str != "") alert(str);
-
 
 
     });
 
     $("#btn_stop").click(function () {
         var t = grid.GM("getCheckedData");
-        var str = "";
+
         for (var i = 0; i < t.length; i++) {
             data = t[i];
-            if (data.state == "1") {
+            if (data.Status == "running") {
                 var p = {
                     "sessionid": SESSION_ID,
+<<<<<<< HEAD
                     "functionname": "stopDataNode",
+=======
+                    "functionname": "stopnode",
+>>>>>>> origin/master
                     "parameters": [{
-                        "name": "host",
-                        "DF": "scalar",
-                        "DT": "string",
-                        "value": data.host
-                    },
-                    {
-                        "name": "port",
-                        "DF": "scalar",
-                        "DT": "string",
-                        "value": data.port
-                    }
+                            "name": "host",
+                            "value": data.host
+                        },
+                        {
+                            "name": "port",
+                            "value": data.Port
+                        }
                     ]
                 };
 
                 CallWebApi(wa_url, p, function (re) {
                     if (re.resultCode == "0") {
-                        str += data.host + "已停止" + "\n";
-                        //GetLocalData(wa_url);
+                        GetLocalData(wa_url);
                     } else {
-                        if (re.msg != "")
-                            alert(re.msg);
-                        else
-                            alert("执行失败");
+                        alert(re.msg);
                     }
                 }, function (re) {
                     console.log(re);
                 })
             }
         }
-        if (str != "") alert(str);
-
 
     });
-
 </script>
 
 <script id="serverTemplate" type="text/x-jquery-tmpl">
-    <li>${site}</li>
+    <li>${host}</li>
 </script>
 
 </html>
