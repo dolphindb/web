@@ -185,8 +185,8 @@
             },
             height: '600px',
             columnData: [{
-                text: 'Name',
-                key: 'Name'
+                text: 'host',
+                key: 'host'
             },
             {
                 text: 'site',
@@ -264,10 +264,10 @@
 
             ALL_NODE = VectorArray2Table(data[0].value);
 
-            AGENT_LIST = Enumerable.from(ALL_NODE).where("x=>x.Mode=='ag'").toArray();
+            AGENT_LIST = Enumerable.from(ALL_NODE).where("x=>x.mode=='ag'").toArray();
             LoadLeft(AGENT_LIST);
 
-            NODE_LIST = Enumerable.from(ALL_NODE).where("x=>x.Mode=='datanode'").toArray();
+            NODE_LIST = Enumerable.from(ALL_NODE).where("x=>x.mode=='datanode'").toArray();
 
             refreshGrid(NODE_LIST)
         }
@@ -281,6 +281,7 @@
 
     $("#btn_run").click(function () {
         var t = grid.GM("getCheckedData");
+        var str="";
         for (var i = 0; i < t.length; i++) {
             data = t[i];
             if (data.state == "1") {
@@ -304,7 +305,7 @@
                 ]
             };
             CallWebApi(wa_url, p, function (re) {
-                if (re.resultCode == "0") {
+                if (re.resultcode == "0") {
                     str += data.host + "启动成功" + "\n";
                     //GetLocalData(wa_url);
                 } else {
@@ -326,7 +327,7 @@
         var str = "";
         for (var i = 0; i < t.length; i++) {
             data = t[i];
-            if (data.Status == "running") {
+            if (data.state == "1") {
                 var p = {
                     "sessionid": SESSION_ID,
                     "functionname": "stopDataNode",
@@ -346,7 +347,7 @@
                 };
 
                 CallWebApi(wa_url, p, function (re) {
-                    if (re.resultCode == "0") {
+                    if (re.resultcode == "0") {
                         str += data.host + "已停止" + "\n";
                         //GetLocalData(wa_url);
                     } else {
