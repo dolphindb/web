@@ -117,11 +117,15 @@
             </div>
         </div>
     </footer>
+
+<div id="wd_start_success" class="alert alert-warning alert-dismissible fade in" role="alert">
+      <strong>启动成功</strong>
+    </div>   
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="assets/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
     <script src="assets/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
     <script src="assets/js/vendor/bootstrap.js" type="text/javascript"></script>
-    <script src="assets/js/vendor/holder.js" type="text/javascript"></script>
+    
     <script src="assets/js/vendor/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
     <script src="assets/js/google-code-prettify/prettify.js" type="text/javascript"></script>
     <script src="assets/js/docs.js" type="text/javascript"></script>
@@ -306,19 +310,20 @@
             };
             CallWebApi(wa_url, p, function (re) {
                 if (re.resultcode == "0") {
-                    str += data.host + "启动成功" + "\n";
-                    //GetLocalData(wa_url);
+                    alert("start node success");
+                    //$('#wd_start_success').alert();
+                    var t=setTimeout("GetLocalData('" + wa_url +  "')",3000);
                 } else {
                     if (re.msg != "")
                             alert(re.msg);
                         else
-                            alert("执行失败");
+                            alert("start node failed");
                 }
             }, function (re) {
                 console.log(re);
             })
         }
-        if (str != "") alert(str);
+       
 
     });
 
@@ -348,13 +353,13 @@
 
                 CallWebApi(wa_url, p, function (re) {
                     if (re.resultcode == "0") {
-                        str += data.host + "已停止" + "\n";
-                        //GetLocalData(wa_url);
+                       alert('stop node success');
+                       var t=setTimeout("GetLocalData('" + wa_url +  "')",3000);
                     } else {
                         if (re.msg != "")
                             alert(re.msg);
                         else
-                            alert("执行失败");
+                            alert("stop node failed");
                     }
                 }, function (re) {
                     console.log(re);
