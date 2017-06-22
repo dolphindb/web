@@ -1,0 +1,43 @@
+{
+    "sessionid": "1212121",
+    "resultcode": "0",
+    "object": [
+        {
+            "name": "employer",
+            "DF": "table",
+            "DT": "Double",
+            "value": [
+                {
+                    "name": "employer",
+                    "DF": "vector",
+                    "DT": "Double",
+                    "value": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8
+                    ]
+                },
+                {
+                    "name": "employer",
+                    "DF": "vector",
+                    "DT": "Double",
+                    "value": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8
+                    ]
+                }
+            ]
+        }
+    ]
+}

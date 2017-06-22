@@ -7,7 +7,7 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc) {
         type: "POST",
         dataType: "json",
         success: function (data, status, xhr) {
-            CurrentSessionID = data["sessionID"];
+            CurrentSessionID = data["sessionid"];
             sucfunc(data);
         },
         error: function(ex){
