@@ -25,16 +25,12 @@ Set stream = nothing
 Set json_obj=parseToJson(s)
 fname = json_obj.functionname
 
+dim out_json
+set fs=server.createobject("scripting.filesystemobject") 
+file=server.mappath("testdata/" & fname & ".txt")
+set txt=fs.opentextfile(file,1,true) 
 
-getList = "{""SessionID"":""1212121"",""resultCode"":""0"",""object"":[]}"
-stopNode = "{""SessionID"":""121212131212"",""resultCode"":""0"",""msg"":""""}"
-startNode = "{""SessionID"":""121212131212"",""resultCode"":""-1"",""msg"":""error""}"
+out_json=txt.readAll
 
-if fname = "getNodeList" then
-    Response.Write getList
-elseif fname = "startDataNode" then
-    Response.Write startNode
-elseif fname = "stopDataNode" then
-    Response.Write stopNode
-end if
+Response.Write out_json
 %>

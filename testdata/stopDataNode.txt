@@ -1,5 +1,5 @@
 {
-    "SessionID": "121212131212",
-    "resultCode": "0",
+    "sessionid": "121212131212",
+    "resultcode": "0",
     "msg": ""
 }
