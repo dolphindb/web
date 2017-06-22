@@ -273,7 +273,7 @@
     });
 
     function connect_server_success(result) {
-        SESSION_ID = result["sessionID"];
+        SESSION_ID = result["sessionid"];
         if (result) {
             ALL_NODE = result["data"];
 
@@ -300,8 +300,8 @@
                 return false
             };
             var p = {
-                "sessionID": SESSION_ID,
-                "functionName": "startNode",
+                "sessionid": SESSION_ID,
+                "functionname": "startnode",
                 "parameters": [{
                         "name": "host",
                         "value": data.host
@@ -333,8 +333,8 @@
             data = t[i];
             if (data.Status == "running") {
                 var p = {
-                    "sessionID": SESSION_ID,
-                    "functionName": "stopNode",
+                    "sessionid": SESSION_ID,
+                    "functionname": "stopnode",
                     "parameters": [{
                             "name": "host",
                             "value": data.host
