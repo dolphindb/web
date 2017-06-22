@@ -118,14 +118,14 @@
         </div>
     </footer>
 
-<div id="wd_start_success" class="alert alert-warning alert-dismissible fade in" role="alert">
-      <strong>启动成功</strong>
-    </div>   
+    <div id="wd_start_success" class="alert alert-warning alert-dismissible fade in" role="alert">
+        <strong>启动成功</strong>
+    </div>
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="assets/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
     <script src="assets/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
     <script src="assets/js/vendor/bootstrap.js" type="text/javascript"></script>
-    
+
     <script src="assets/js/vendor/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
     <script src="assets/js/google-code-prettify/prettify.js" type="text/javascript"></script>
     <script src="assets/js/docs.js" type="text/javascript"></script>
@@ -285,7 +285,7 @@
 
     $("#btn_run").click(function () {
         var t = grid.GM("getCheckedData");
-        var str="";
+        var str = "";
         for (var i = 0; i < t.length; i++) {
             data = t[i];
             if (data.state == "1") {
@@ -309,21 +309,27 @@
                 ]
             };
             CallWebApi(wa_url, p, function (re) {
-                if (re.resultcode == "0") {
-                    alert("start node success");
-                    //$('#wd_start_success').alert();
-                    var t=setTimeout("GetLocalData('" + wa_url +  "')",3000);
-                } else {
-                    if (re.msg != "")
+                if (typeof (re) == "object") {
+
+                    if (re.resultcode == "0") {
+                        alert("start node success");
+                        //$('#wd_start_success').alert();
+                        var t = setTimeout("GetLocalData('" + wa_url + "')", 3000);
+                    } else {
+                        if (re.msg != "")
                             alert(re.msg);
                         else
                             alert("start node failed");
+                    }
+                } else if (typeof (re) == "string") {
+                    alert(re);
                 }
+
             }, function (re) {
                 console.log(re);
             })
         }
-       
+
 
     });
 
@@ -352,14 +358,18 @@
                 };
 
                 CallWebApi(wa_url, p, function (re) {
-                    if (re.resultcode == "0") {
-                       alert('stop node success');
-                       var t=setTimeout("GetLocalData('" + wa_url +  "')",3000);
-                    } else {
-                        if (re.msg != "")
-                            alert(re.msg);
-                        else
-                            alert("stop node failed");
+                    if (typeof (re) == "object") {
+                        if (re.resultcode == "0") {
+                            alert('stop node success');
+                            var t = setTimeout("GetLocalData('" + wa_url + "')", 3000);
+                        } else {
+                            if (re.msg != "")
+                                alert(re.msg);
+                            else
+                                alert("stop node failed");
+                        }
+                    } else if (typeof (re) == "string") {
+                        alert(re);
                     }
                 }, function (re) {
                     console.log(re);
