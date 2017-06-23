@@ -36,7 +36,8 @@
     <!-- jqGrid-->
     <link rel="stylesheet" href="third-party/gridmanager/css/GridManager.css" />
     <!-- end jqGrid -->
-    <link href="third-party/noty/noty.css" rel="stylesheet"></script>
+    <link href="third-party/noty/noty.css" rel="stylesheet">
+    </script>
 </head>
 
 
@@ -119,26 +120,29 @@
             </div>
         </div>
     </footer>
-  
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="assets/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
-    <script src="assets/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
-    <script src="assets/js/vendor/bootstrap.js" type="text/javascript"></script>
-    
-    <script src="assets/js/vendor/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
-    <script src="assets/js/google-code-prettify/prettify.js" type="text/javascript"></script>
-    <script src="assets/js/docs.js" type="text/javascript"></script>
-    <script src="assets/js/demo.js" type="text/javascript"></script>
+    <<<<<<< HEAD=======< div id="wd_start_success" class="alert alert-warning alert-dismissible fade in" role="alert">
+        <strong>启动成功</strong>
+        </div>
+        >>>>>>> origin/master
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="assets/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
+        <script src="assets/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+        <script src="assets/js/vendor/bootstrap.js" type="text/javascript"></script>
+
+        <script src="assets/js/vendor/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+        <script src="assets/js/google-code-prettify/prettify.js" type="text/javascript"></script>
+        <script src="assets/js/docs.js" type="text/javascript"></script>
+        <script src="assets/js/demo.js" type="text/javascript"></script>
 
 
-    <script src="third-party/noty/noty.js" type="text/javascript"></script>
-    <script src="third-party/gridmanager/js/GridManager.js" type="text/javascript"></script>
-    <script src="third-party/jquery-tmpl/jquery.tmpl.min.js" type="text/javascript"></script>
-    <script src="assets/js/vendor/jquery.cookie.js" type="text/javascript"></script>
-    <script src="js/JsonHelper.js" type="text/javascript"></script>
-    <script src="js/CallWebApi.js" type="text/javascript"></script>
-    <script src="js/msgbox.js" type="text/javascript"></script>
-    <script src="third-party/linqjs/linq.min.js" type="text/javascript"></script>
+        <script src="third-party/noty/noty.js" type="text/javascript"></script>
+        <script src="third-party/gridmanager/js/GridManager.js" type="text/javascript"></script>
+        <script src="third-party/jquery-tmpl/jquery.tmpl.min.js" type="text/javascript"></script>
+        <script src="assets/js/vendor/jquery.cookie.js" type="text/javascript"></script>
+        <script src="js/JsonHelper.js" type="text/javascript"></script>
+        <script src="js/CallWebApi.js" type="text/javascript"></script>
+        <script src="js/msgbox.js" type="text/javascript"></script>
+        <script src="third-party/linqjs/linq.min.js" type="text/javascript"></script>
 
 </body>
 
@@ -192,37 +196,38 @@
             },
             height: '600px',
             columnData: [{
-                text: 'host',
-                key: 'host'
-            },
-            {
-                text: 'site',
-                key: 'site'
-            },
-            {
-                text: 'state',
-                key: 'state',
-                template: function (state, rowObject) {
+                    text: 'host',
+                    key: 'host'
+                },
+                {
+                    text: 'site',
+                    key: 'site'
+                },
+                {
+                    text: 'state',
+                    key: 'state',
+                    template: function (state, rowObject) {
 
-                    if (state == "1") {
-                        return '<font style="color:green">running</font>';
-                    } else {
-                        return '<font style="color:red">stopped</font>';
+                        if (state == "1") {
+                            return '<font style="color:green">running</font>';
+                        } else {
+                            return '<font style="color:red">stopped</font>';
+                        }
+                    }
+                },
+                {
+                    text: 'maxconnections',
+                    key: 'maxconnections'
+                },
+                {
+                    text: 'action',
+                    key: 'action',
+                    template: function (action, rowObject) {
+                        console.log(rowObject);
+                        return '<a style="padding-left:20px" href=javascript:window.location.href="NodeDetail.html?ip=' +
+                            rowObject.host + '&pt=' + rowObject.Port + '";>detail</a>';
                     }
                 }
-            },
-            {
-                text: 'maxconnections',
-                key: 'maxconnections'
-            },
-            {
-                text: 'action',
-                key: 'action',
-                template: function (action, rowObject) {
-                    console.log(rowObject);
-                    return '<a style="padding-left:20px" href=javascript:window.location.href="NodeDetail.html?ip=' + rowObject.host + '&pt=' + rowObject.Port + '";>detail</a>';
-                }
-            }
             ]
         });
     }
@@ -288,7 +293,6 @@
 
     $("#btn_run").click(function () {
         var t = grid.GM("getCheckedData");
-        var str="";
         for (var i = 0; i < t.length; i++) {
             data = t[i];
             if (data.state == "1") {
@@ -298,55 +302,6 @@
                 "sessionid": SESSION_ID,
                 "functionname": "startDataNode",
                 "parameters": [{
-                    "name": "host",
-                    "DF": "scalar",
-                    "DT": "string",
-                    "value": data.host
-                },
-                {
-                    "name": "port",
-                    "DF": "scalar",
-                    "DT": "string",
-                    "value": data.port
-                }
-                ]
-            };
-            CallWebApi(wa_url, p, function (re) {
-                if (re.resultcode == "0") {
-                    // new Noty({
-                    //     text: 'start node success',
-                    //     type: 'success',
-                    //     layout:'topCenter',
-                    //     theme :'relax',
-                    //     timeout: 1000
-                    // }).show();
-                    //$('#wd_start_success').alert();
-                    $.msgbox('start node success',function(){GetLocalData(wa_url);});
-                    //var t=setTimeout("GetLocalData('" + wa_url +  "')",3000);
-                } else {
-                    if (re.msg != "")
-                            alert(re.msg);
-                        else
-                            alert("start node failed");
-                }
-            }, function (re) {
-                console.log(re);
-            })
-        }
-       
-
-    });
-
-    $("#btn_stop").click(function () {
-        var t = grid.GM("getCheckedData");
-        var str = "";
-        for (var i = 0; i < t.length; i++) {
-            data = t[i];
-            if (data.state == "1") {
-                var p = {
-                    "sessionid": SESSION_ID,
-                    "functionname": "stopDataNode",
-                    "parameters": [{
                         "name": "host",
                         "DF": "scalar",
                         "DT": "string",
@@ -358,29 +313,82 @@
                         "DT": "string",
                         "value": data.port
                     }
+                ]
+            };
+            CallWebApi(wa_url, p, function (re) {
+                if (typeof (re) == "object") {
+
+                    if (re.resultcode == "0") {
+                        $.msgbox('start node success', function () {
+                            GetLocalData(wa_url);
+                        });
+                    } else {
+                        if (re.msg != "")
+                            $.alert(re.msg);
+                        else
+                            $.alert("start node failed");
+                    }
+                } else if (typeof (re) == "string") {
+                    $.alert(re);
+                }
+
+            }, function (re) {
+                $.alert(re);
+            })
+        }
+
+
+    });
+
+    $("#btn_stop").click(function () {
+        var t = grid.GM("getCheckedData");
+        for (var i = 0; i < t.length; i++) {
+            data = t[i];
+            if (data.state == "1") {
+                var p = {
+                    "sessionid": SESSION_ID,
+                    "functionname": "stopDataNode",
+                    "parameters": [{
+                            "name": "host",
+                            "DF": "scalar",
+                            "DT": "string",
+                            "value": data.host
+                        },
+                        {
+                            "name": "port",
+                            "DF": "scalar",
+                            "DT": "string",
+                            "value": data.port
+                        }
                     ]
                 };
 
                 CallWebApi(wa_url, p, function (re) {
-                    console.log(typeof(re));
-                    if (re.resultcode == "0") {
-                       alert('stop node success');
-                       var t=setTimeout("GetLocalData('" + wa_url +  "')",3000);
-                    } else {
-                        if (re.msg != "")
-                            alert(re.msg);
-                        else
-                            alert("stop node failed");
-                    }
-                }, function (re) {
-                    console.log(re);
-                })
+
+                        if (typeof (re) == "object") {
+                            if (re.resultcode == "0") {
+                                $.msgbox('stop node success', function () {
+                                    GetLocalData(wa_url);
+                                });
+
+                            } else {
+                                if (re.msg != "")
+                                    $.alert(re.msg);
+                                else
+                                    $.alert("stop node failed");
+                            }
+                        }else if (typeof (re) == "string") {
+                                       $.alert(re);
+                        }
+                        
+                    },
+                    function (re) {
+                        $.alert(re);
+                    })
             }
         }
-        if (str != "") alert(str);
 
     });
-
 </script>
 
 <script id="serverTemplate" type="text/x-jquery-tmpl">
