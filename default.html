@@ -120,10 +120,7 @@
             </div>
         </div>
     </footer>
-    <<<<<<< HEAD=======< div id="wd_start_success" class="alert alert-warning alert-dismissible fade in" role="alert">
-        <strong>启动成功</strong>
-        </div>
-        >>>>>>> origin/master
+
         <!-- Placed at the end of the document so the pages load faster -->
         <script src="assets/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
         <script src="assets/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
@@ -172,7 +169,7 @@
 
     function GetLocalData(url) {
         var p = {
-            "sessionid": SESSION_ID,
+            "sessionID": SESSION_ID,
             "functionname": "getNodeList"
         };
         CallWebApi(url, p, connect_server_success, connect_server_error);
@@ -240,7 +237,6 @@
         console.log(griddata);
         grid.GM('setAjaxData', griddata);
     }
-
     //==========================================================================
     $("#btn_connect_server").click(function () {
 
@@ -254,6 +250,7 @@
                 Ok: function () {
                     if ($("#ag-controller-url").val() != '') {
                         $.cookie('ck_ag_controller_url', $("#ag-controller-url").val());
+
                         wa_url = "http://" + $.cookie('ck_ag_controller_url');
 
                         GetLocalData(wa_url);
@@ -269,7 +266,7 @@
     });
 
     function connect_server_success(result) {
-        SESSION_ID = result["sessionid"];
+        SESSION_ID = result["sessionID"];
         if (result) {
             var data = result["object"];
             if (data.length <= 0) return;
@@ -299,7 +296,7 @@
                 return false
             };
             var p = {
-                "sessionid": SESSION_ID,
+                "sessionID": SESSION_ID,
                 "functionname": "startDataNode",
                 "parameters": [{
                         "name": "host",
@@ -317,7 +314,6 @@
             };
             CallWebApi(wa_url, p, function (re) {
                 if (typeof (re) == "object") {
-
                     if (re.resultcode == "0") {
                         $.msgbox('start node success', function () {
                             GetLocalData(wa_url);
@@ -346,7 +342,7 @@
             data = t[i];
             if (data.state == "1") {
                 var p = {
-                    "sessionid": SESSION_ID,
+                    "sessionID": SESSION_ID,
                     "functionname": "stopDataNode",
                     "parameters": [{
                             "name": "host",

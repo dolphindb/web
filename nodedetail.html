@@ -7,17 +7,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="DolphinDB Node Management">
     <meta name="author" content="DolphinDB">
-
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/custom-theme/jquery-ui-1.10.3.custom.css">
     <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/docs.css">
+    <link rel="stylesheet" href="assets/js/google-code-prettify/prettify.css">
+
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="assets/ico/apple-touch-icon-57-precomposed.png">
+
     <link rel="shortcut icon" href="assets/ico/logo.png">
+    <link rel="stylesheet" href="third-party/gridmanager/css/GridManager.css" />
+    <link href="third-party/noty/noty.css" rel="stylesheet">
+ 
+     <link type="text/css" rel="stylesheet" href="http://static.oschina.net/js/syntax-highlighter-2.1.382/styles/shCore.css" />
+    <link type="text/css" rel="stylesheet" href="http://static.oschina.net/js/syntax-highlighter-2.1.382/styles/shThemeDefault.css" />
+
 </head>
 
-<body>
 
-    <!-- Navbar
-    ================================================== -->
+<body data-spy="scroll" data-target=".bs-docs-sidebar" data-twttr-rendered="true">
+
+    <!-- Navbar ================================================== -->
     <header class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
@@ -30,8 +43,14 @@
             </div>
             <nav class="navbar-collapse collapse navbar-right">
                 <ul class="nav navbar-nav">
+                    <li>
+                        <a id="CENTRAL_SERVER"></a>
+                    </li>
+                    <li>
+                        <a><span id="agent_controller_url" class="badge"></span></a>
+                    </li>
                     <li class="active">
-                        <a id="btn_connect_server" href="###">Connect central Server</a>
+                        <a href="default.html">back</a>
                     </li>
                 </ul>
             </nav>
@@ -39,37 +58,68 @@
     </header>
 
     <div class="container" id="layout">
+        <!-- Docs nav ================================================== -->
         <div class="row">
-            <div class="col-md-12" id="nodeinfo">
-                <ul>
-                    <li>host: 192.168.1.27</li>
-                    <li>port: 8500</li>
-                    <li>cpu: 4 core</li>
-                    <li>memory limit: 4G</li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <textarea id="codetext" placeholder="Code to execute"></textarea>
-            </div>
-        </div>
+            <div class="col-lg-12" id="main">
+                <div class="page-header">
+                    <div class="alert alert-info" role="alert">
+                        <ul class="nav nav-pills" role="tablist">
+                            <li role="presentation"><a id="NODE_SITE"><span class="badge">192.168.1.27:5800 rh8500</span></a></li>
+                            <li role="presentation"><a id="MAXCONNECTION"><span class="badge">12</span></a></li>
+                            <li role="presentation"><a id="MAXCORE"><span class="badge">3</span></a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                       
+                        <textarea id="txt_code" rows="5" style="width:100%"></textarea>
+                        <p style="margin-top:20px">
+                            <button id="btn_execode" type="button" class="btn btn-primary">execute code</button>
+                        </p>
+                        </pre>
+                    </div>
 
-        <div class="row">
-            <div class="col-md-12">
-                <button id="btnExecute" class="button-primary">execute code</button>
-            </div>
-        </div>
+                </div>
 
-        <div class="row">
-            <div class="col-md-8">
-                
-            </div>
-            <div class="col-md-4">
-                
             </div>
         </div>
     </div>
+    <!-- Footer================================================== -->
+    <footer class="bs-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-sm-12">
+                    <ul class="list-unstyled">
+                        <li>CopyRight &copy; <strong class="text-info">DolphinDB</strong> 2016 - 2017.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="assets/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script src="assets/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+    <script src="assets/js/vendor/bootstrap.js" type="text/javascript"></script>
+
+    <script src="assets/js/vendor/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+
+
+    <script src="third-party/noty/noty.js" type="text/javascript"></script>
+    <script src="third-party/gridmanager/js/GridManager.js" type="text/javascript"></script>
+    <script src="third-party/jquery-tmpl/jquery.tmpl.min.js" type="text/javascript"></script>
+    <script src="assets/js/vendor/jquery.cookie.js" type="text/javascript"></script>
+    <script src="js/JsonHelper.js" type="text/javascript"></script>
+    <script src="js/CallWebApi.js" type="text/javascript"></script>
+    <script src="js/msgbox.js" type="text/javascript"></script>
+    <script src="third-party/linqjs/linq.min.js" type="text/javascript"></script>
+    <!-- page script-->
+    <script src="js/nodedetail.js?2" type="text/javascript"></script>
+    <script src="js/lang.js" type="text/javascript"></script>
+
+    <script type="text/javascript" src="third-party/codemirror/codemirror.js"></script>
+    
 </body>
 
 </html>
