@@ -1,7 +1,9 @@
 //page load
 var editor = null;
+var wa_url = WebApiUrl();
 $(function () {
     $.cookie("language_file", "js/lang.en.js");
+    
     $('#agent_controller_url').text($.cookie('ck_ag_controller_url'));
 
     editor = CodeMirror.fromTextArea('txt_code', {
@@ -14,8 +16,28 @@ $(function () {
 });
 
 $('#btn_execode').click(function () {
-    editor.save();
-   
-    console.log(editor.getValue());
+    var codestr = editor.getCode();
+    var p = {
+        "sessionid": "0",
+        "functionname": "executeCode",
+        "parameters": [{
+            "name": "script",
+            "DF": "scalar",
+            "DT": "string",
+            "value": codestr
+        }]
+    };
 
+    CallWebApi(wa_url,p,function(re){
+        console.log(re);
+    },
+    function(){
+
+    });
 });
+
+function WebApiUrl() {
+    if ($.cookie('ck_ag_controller_url') != null) {
+        return "http://" + $.cookie('ck_ag_controller_url');
+    }
+}

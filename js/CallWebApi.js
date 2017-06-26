@@ -1,5 +1,7 @@
 var CurrentSessionID = "0";
+
 function CallWebApi(apiurl, paramstr, sucfunc, errfunc) {
+    paramstr['sessionid'] = CurrentSessionID;
     $.ajax({
         url: apiurl,
         async: true,
@@ -10,9 +12,8 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc) {
             CurrentSessionID = data["sessionid"];
             sucfunc(data);
         },
-        error: function(ex){
+        error: function (ex) {
             errfunc(ex);
         }
     });
 };
-

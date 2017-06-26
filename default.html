@@ -169,7 +169,7 @@
 
     function GetLocalData(url) {
         var p = {
-            "sessionID": SESSION_ID,
+            "sessionid": SESSION_ID,
             "functionname": "getNodeList"
         };
         CallWebApi(url, p, connect_server_success, connect_server_error);
@@ -266,7 +266,7 @@
     });
 
     function connect_server_success(result) {
-        SESSION_ID = result["sessionID"];
+        SESSION_ID = result["sessionid"];
         if (result) {
             var data = result["object"];
             if (data.length <= 0) return;
@@ -296,7 +296,7 @@
                 return false
             };
             var p = {
-                "sessionID": SESSION_ID,
+                "sessionid": SESSION_ID,
                 "functionname": "startDataNode",
                 "parameters": [{
                         "name": "host",
@@ -342,7 +342,7 @@
             data = t[i];
             if (data.state == "1") {
                 var p = {
-                    "sessionID": SESSION_ID,
+                    "sessionid": SESSION_ID,
                     "functionname": "stopDataNode",
                     "parameters": [{
                             "name": "host",
