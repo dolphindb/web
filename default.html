@@ -55,13 +55,13 @@
               </button>
                 <a class="navbar-brand" href="http://www.dolphindb.com">DolphinDB Deploy Kit</a>
             </div>
-            <nav class="navbar-collapse collapse navbar-right">
+            <!--<nav class="navbar-collapse collapse navbar-right">
                 <ul class="nav navbar-nav">
                     <li class="active">
                         <a id="btn_connect_server" href="###">Connect central Server</a>
                     </li>
                 </ul>
-            </nav>
+            </nav>-->
         </div>
     </header>
 
@@ -70,13 +70,29 @@
         <div class="row">
             <div class="col-lg-3 col-sm-3" id="sidebar">
                 <div class="bs-sidebar hidden-print" role="complementary">
-                    <ul class="nav bs-sidenav">
-                        <li>
-                            <a href="###" class="navServer"><i class="icon-chevron-right"></i>all physical servers</a>
-                            <ul id="physicalServerList"></ul>
-                        </li>
+                    <div class="page-header">
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            agent node
+                        </div>
+                        <div class="panel-body">
+                            <div class="list-group">
+                                <p id="physicalServerList"></p>
+                            </div>
+                        </div>
+                    </div>
 
-                    </ul>
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            Database
+                        </div>
+                        <div class="panel-body">
+                            <div class="list-group">
+                                <p id="databaseList"></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="col-lg-9 col-sm-9" id="main">
@@ -89,6 +105,7 @@
                             <div class="btn-group" role="group" aria-label="...">
                                 <button type="button" class="btn btn-default" id="btn_run"><span class="glyphicon glyphicon-play"></span></button>
                                 <button type="button" class="btn btn-default" id="btn_stop"><span class="glyphicon glyphicon-stop"></span></button>
+                                <button type="button" class="btn btn-default" id="btn_refresh"><span class="glyphicon glyphicon-refresh"></span></button>
                             </div>
                         </div>
                     </div>
@@ -106,7 +123,6 @@
             <span class="input-group-addon" id="basic-addon3">http://</span>
             <input type="text" class="form-control" id="ag-controller-url" aria-describedby="basic-addon3" placeholder="example: www.haitundb.com/DNMT">
         </div>
-
     </div>
     <!-- Footer================================================== -->
     <footer class="bs-footer">
@@ -114,58 +130,62 @@
             <div class="row">
                 <div class="col-lg-12 col-sm-12">
                     <ul class="list-unstyled">
-                        <li>CopyRight &copy; <strong class="text-info">DolphinDB</strong> 2016 - 2017.</li>
+                        <li>CopyRight &copy; <strong class="text-info">DolphinDB</strong> 2016 - 2017</li>
                     </ul>
                 </div>
             </div>
         </div>
     </footer>
 
-        <!-- Placed at the end of the document so the pages load faster -->
-        <script src="assets/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
-        <script src="assets/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
-        <script src="assets/js/vendor/bootstrap.js" type="text/javascript"></script>
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="assets/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script src="assets/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+    <script src="assets/js/vendor/bootstrap.js" type="text/javascript"></script>
 
-        <script src="assets/js/vendor/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
-        <script src="assets/js/google-code-prettify/prettify.js" type="text/javascript"></script>
-        <script src="assets/js/docs.js" type="text/javascript"></script>
-        <script src="assets/js/demo.js" type="text/javascript"></script>
+    <script src="assets/js/vendor/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+    <script src="assets/js/google-code-prettify/prettify.js" type="text/javascript"></script>
+    <script src="assets/js/docs.js" type="text/javascript"></script>
+    <script src="assets/js/demo.js" type="text/javascript"></script>
 
 
-        <script src="third-party/noty/noty.js" type="text/javascript"></script>
-        <script src="third-party/gridmanager/js/GridManager.js" type="text/javascript"></script>
-        <script src="third-party/jquery-tmpl/jquery.tmpl.min.js" type="text/javascript"></script>
-        <script src="assets/js/vendor/jquery.cookie.js" type="text/javascript"></script>
-        <script src="js/JsonHelper.js" type="text/javascript"></script>
-        <script src="js/CallWebApi.js" type="text/javascript"></script>
-        <script src="js/msgbox.js" type="text/javascript"></script>
-        <script src="third-party/linqjs/linq.min.js" type="text/javascript"></script>
+    <script src="third-party/noty/noty.js" type="text/javascript"></script>
+    <script src="third-party/gridmanager/js/GridManager.js" type="text/javascript"></script>
+    <script src="third-party/jquery-tmpl/jquery.tmpl.min.js" type="text/javascript"></script>
+    <script src="assets/js/vendor/jquery.cookie.js" type="text/javascript"></script>
+    <script src="js/JsonHelper.js" type="text/javascript"></script>
+    <script src="js/CallWebApi.js" type="text/javascript"></script>
+    <script src="js/msgbox.js" type="text/javascript"></script>
+    <script src="third-party/linqjs/linq.min.js" type="text/javascript"></script>
 
 </body>
 
 <script type="text/javascript">
-    //=============Create data=======================
-    var serverList = [];
-
-    var wa_url = "http://" + $.cookie('ck_ag_controller_url');
+    var wa_url = "";
 
     var ALL_NODE = [];
     var AGENT_LIST = [];
     var NODE_LIST = [];
 
-    var SESSION_ID = "1234567890";
+    var SESSION_ID = "0";
     var grid = document.querySelector('table[grid-manager="grid1"]');
     $(function () {
+        wa_url = "http://" + window.location.host;
+        console.log(wa_url);
+        $.cookie('ck_ag_controller_url', wa_url);
 
-        if ($.cookie('ck_ag_controller_url') == null) {
-            $("#btn_connect_server").click();
-        } else {
-            GetLocalData($.cookie('ck_ag_controller_url'));
-            LoadLeft(AGENT_LIST);
-            LoadTable(NODE_LIST);
-        }
+        $.cookie("language_file", "js/lang.en.js");
 
+        GetLocalData($.cookie('ck_ag_controller_url'));
+        LoadLeft(AGENT_LIST);
+        LoadTable(NODE_LIST);
+        //auto refresh 3 seconds 
+        // window.setInterval(function () {
+        //     GetLocalData($.cookie('ck_ag_controller_url'));
+        //     LoadLeft(AGENT_LIST);
+        //     LoadTable(NODE_LIST);
+        // }, 3000);
     });
+
 
     function GetLocalData(url) {
         var p = {
@@ -178,6 +198,11 @@
     function LoadLeft(agentList) {
         $("#physicalServerList").html("");
         var l = $("#serverTemplate").tmpl(agentList).appendTo("#physicalServerList");
+
+
+        var databaseList = [{ "dbname": "database_1" }, { "dbname": "database_2" }, { "dbname": "database_2" }, { "dbname": "database_2" }];
+        $("#databaseList").html("");
+        l = $("#databaseTemplate").tmpl(databaseList).appendTo("#databaseList");
     }
 
     function LoadTable(nodeList) {
@@ -192,10 +217,7 @@
                 "host": ""
             },
             height: '600px',
-            columnData: [{
-                    text: 'host',
-                    key: 'host'
-                },
+            columnData: [
                 {
                     text: 'site',
                     key: 'site'
@@ -217,12 +239,35 @@
                     key: 'maxconnections'
                 },
                 {
+                    text: 'maxmemsize',
+                    key: 'maxmemsize',
+                    template: function (action, rowObject) {
+                        return Number(rowObject.maxmemsize).toFixed(2);
+                    }
+
+                },
+                {
+                    text: 'workernum',
+                    key: 'workernum'
+                },
+                {
+                    text: 'executornum',
+                    key: 'executornum'
+                },
+                {
+                    text: 'connectionsnum',
+                    key: 'connectionsnum'
+                },
+                {
+                    text: 'tasknum',
+                    key: 'tasknum'
+                },
+                {
                     text: 'action',
                     key: 'action',
                     template: function (action, rowObject) {
-                        console.log(rowObject);
-                        return '<a style="padding-left:20px" href=javascript:window.location.href="NodeDetail.html?ip=' +
-                            rowObject.host + '&pt=' + rowObject.Port + '";>detail</a>';
+                        return '<a style="padding-left:20px" href=javascript:window.location.href="nodedetail.html?site=' +
+                            rowObject.site + '";>detail</a>';
                     }
                 }
             ]
@@ -238,32 +283,32 @@
         grid.GM('setAjaxData', griddata);
     }
     //==========================================================================
-    $("#btn_connect_server").click(function () {
+    // $("#btn_connect_server").click(function () {
 
-        $("#ag-controller-url").val($.cookie('ck_ag_controller_url'));
+    //     $("#ag-controller-url").val($.cookie('ck_ag_controller_url'));
 
-        $("#modal-message").dialog({
-            autoOpen: true,
-            width: 600,
-            modal: true,
-            buttons: {
-                Ok: function () {
-                    if ($("#ag-controller-url").val() != '') {
-                        $.cookie('ck_ag_controller_url', $("#ag-controller-url").val());
+    //     $("#modal-message").dialog({
+    //         autoOpen: true,
+    //         width: 600,
+    //         modal: true,
+    //         buttons: {
+    //             Ok: function () {
+    //                 if ($("#ag-controller-url").val() != '') {
+    //                     $.cookie('ck_ag_controller_url', $("#ag-controller-url").val());
 
-                        wa_url = "http://" + $.cookie('ck_ag_controller_url');
+    //                     wa_url = "http://" + $.cookie('ck_ag_controller_url');
 
-                        GetLocalData(wa_url);
+    //                     GetLocalData(wa_url);
 
-                        $(this).dialog("close");
-                    }
-                },
-                Cancel: function () {
-                    $(this).dialog("close");
-                }
-            }
-        });
-    });
+    //                     $(this).dialog("close");
+    //                 }
+    //             },
+    //             Cancel: function () {
+    //                 $(this).dialog("close");
+    //             }
+    //         }
+    //     });
+    // });
 
     function connect_server_success(result) {
         SESSION_ID = result["sessionid"];
@@ -299,17 +344,17 @@
                 "sessionid": SESSION_ID,
                 "functionname": "startDataNode",
                 "parameters": [{
-                        "name": "host",
-                        "DF": "scalar",
-                        "DT": "string",
-                        "value": data.host
-                    },
-                    {
-                        "name": "port",
-                        "DF": "scalar",
-                        "DT": "string",
-                        "value": data.port
-                    }
+                    "name": "host",
+                    "DF": "scalar",
+                    "DT": "string",
+                    "value": data.host
+                },
+                {
+                    "name": "port",
+                    "DF": "scalar",
+                    "DT": "string",
+                    "value": data.port
+                }
                 ]
             };
             CallWebApi(wa_url, p, function (re) {
@@ -345,39 +390,39 @@
                     "sessionid": SESSION_ID,
                     "functionname": "stopDataNode",
                     "parameters": [{
-                            "name": "host",
-                            "DF": "scalar",
-                            "DT": "string",
-                            "value": data.host
-                        },
-                        {
-                            "name": "port",
-                            "DF": "scalar",
-                            "DT": "string",
-                            "value": data.port
-                        }
+                        "name": "host",
+                        "DF": "scalar",
+                        "DT": "string",
+                        "value": data.host
+                    },
+                    {
+                        "name": "port",
+                        "DF": "scalar",
+                        "DT": "string",
+                        "value": data.port
+                    }
                     ]
                 };
 
                 CallWebApi(wa_url, p, function (re) {
 
-                        if (typeof (re) == "object") {
-                            if (re.resultcode == "0") {
-                                $.msgbox('stop node success', function () {
-                                    GetLocalData(wa_url);
-                                });
+                    if (typeof (re) == "object") {
+                        if (re.resultcode == "0") {
+                            $.msgbox('stop node success', function () {
+                                GetLocalData(wa_url);
+                            });
 
-                            } else {
-                                if (re.msg != "")
-                                    $.alert(re.msg);
-                                else
-                                    $.alert("stop node failed");
-                            }
-                        }else if (typeof (re) == "string") {
-                                       $.alert(re);
+                        } else {
+                            if (re.msg != "")
+                                $.alert(re.msg);
+                            else
+                                $.alert("stop node failed");
                         }
-                        
-                    },
+                    } else if (typeof (re) == "string") {
+                        $.alert(re);
+                    }
+
+                },
                     function (re) {
                         $.alert(re);
                     })
@@ -385,10 +430,20 @@
         }
 
     });
+    $("#btn_refresh").click(function () {
+        GetLocalData($.cookie('ck_ag_controller_url'));
+        LoadLeft(AGENT_LIST);
+        LoadTable(NODE_LIST);
+    });
+
 </script>
 
 <script id="serverTemplate" type="text/x-jquery-tmpl">
-    <li>${site}</li>
+    <a class="list-group-item">${site}</a>
+</script>
+
+<script id="databaseTemplate" type="text/x-jquery-tmpl">
+    <a class="list-group-item">${dbname}</a>
 </script>
 
 </html>
