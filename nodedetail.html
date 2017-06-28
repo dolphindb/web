@@ -23,7 +23,8 @@
     <link href="third-party/noty/noty.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="http://static.oschina.net/js/syntax-highlighter-2.1.382/styles/shCore.css" />
-    <link type="text/css" rel="stylesheet" href="http://static.oschina.net/js/syntax-highlighter-2.1.382/styles/shThemeDefault.css" />
+    <link type="text/css" rel="stylesheet" href="http://static.oschina.net/js/syntax-highlighter-2.1.382/styles/shThemeDefault.css"
+    />
 
 </head>
 
@@ -69,6 +70,7 @@
                             </div>
                             <p style="margin-top:20px">
                                 <button id="btn_execode" type="button" class="btn btn-primary">execute code</button>
+                                <button class="btn btn-primary" id="btn_getvaribles">get Variables</button>
                             </p>
                         </div>
                     </div>
@@ -78,7 +80,7 @@
         </div>
         <div class="row">
             <div class="col-lg-8">
-                <div>
+                <div style="height: 400px">
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs" role="tablist">
                         <li role="presentation" class="active"><a href="#log" aria-controls="home" role="tab" data-toggle="tab">log</a></li>
@@ -87,29 +89,53 @@
                     <!-- Tab panes -->
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane active" id="log">
-                            <div class="panel panel-default" style="height: 200px">
+                            <div class="panel panel-default" style="height: 400px">
                                 <div class="panel-body" id="pnl_log">
                                     Log
                                 </div>
                             </div>
                         </div>
                         <div role="tabpanel" class="tab-pane" id="DataWindow">
-                            <div class="panel panel-default"  style="height: 200px">
+                            <div class="panel panel-default" style="height: 400px">
                                 <div class="panel-body" id="pnl_datawindow">
                                     <table grid-manager="grid1"></table>
                                 </div>
                             </div>
-
                         </div>
                     </div>
-
                 </div>
             </div>
             <div class="col-lg-4">
-                <div class="panel panel-default">
-                    <div class="panel-body" id="variables">
-                        <button class="btn btn-primary" id="btn_getvaribles">get Variables</button>
+                <div>
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#local" aria-controls="home" role="tab" data-toggle="tab">local</a></li>
+                        <li role="presentation"><a href="#sharedTable" aria-controls="profile" role="tab" data-toggle="tab">sharedTable</a></li>
+                    </ul>
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="local">
+                            <div id="accordion" style="height: 400px">
+                                <h3>Table</h3>
+                                <div style="height: 300px">Table</div>
+                                <h3>Metrix</h3>
+                                <div style="height: 300px">Metrix</div>
+                                <h3>Vector</h3>
+                                <div style="height: 300px">Vector</div>
+                                <h3>Dictionary</h3>
+                                <div style="height: 300px">Dictionary</div>
+                                <h3>Set</h3>
+                                <div style="height: 300px">Set</div>
+                                <h3>Scalar</h3>
+                                <div style="height: 300px">Scalar</div>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane active" id="sharedTable">
+                            <div style="height: 400px">
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -164,7 +190,12 @@
     <script src="js/lang.js" type="text/javascript"></script>
 
     <script src="js/utils.js" type="text/javascript"></script>
+    <script src="js/executecode.js" type="text/javascript"></script>
 
 </body>
+<script>
+    $("#accordion").accordion({ heightStyle: "fill" });
+
+</script>
 
 </html>

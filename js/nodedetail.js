@@ -10,6 +10,7 @@ $(function () {
     var hostinfo = siteid.split(':');
     HOST = hostinfo[0];
     PORT = hostinfo[1];
+    
     wa_url = "http://" + HOST + ":" + PORT + "/";
     console.log(wa_url);
     $.cookie("language_file", "js/lang.en.js");

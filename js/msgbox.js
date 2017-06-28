@@ -4,7 +4,7 @@ $.msgbox = function(s,callback){
                         type: 'success',
                         layout:'topCenter',
                         theme :'relax',
-                        timeout: 1000,
+                        timeout: 3000,
                         callbacks: {
                             afterClose: callback
                         }
@@ -17,7 +17,7 @@ $.alert = function(s,callback){
                         type: 'alert',
                         layout:'topCenter',
                         theme :'relax',
-                        timeout: 1000,
+                        timeout: 3000,
                         callbacks: {
                             afterClose: callback
                         }
