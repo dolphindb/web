@@ -1,6 +1,6 @@
 //page load
 var editor = null;
-var wa_url = WebApiUrl();
+var wa_url = '';
 var HOST = '';
 var PORT = '';
 
@@ -32,18 +32,24 @@ $(function () {
 function refreshVariables() {
     var executor = new CodeExecutor(wa_url);
     executor.run("objs(true)", function (re) {
-        bindVariables(VectorArray2Table(re[0].value))
+        var rowJson = VectorArray2Table(re[0].value);
+        console.log(rowJson);
+        bindVariables(rowJson)
     });
 }
+
+$('#btn_refresh').click(function () {
+    refreshVariables();
+});
+
 function bindVariables(datalist) {
     var localvariable = [];
-
-
     //TABLE
     var list = Enumerable.from(datalist).where("x=>(x.form=='TABLE' && x.shared==0)").toArray();
     localvariable.push(buildNode(list, "Table"));
     //VECTOR
     list = Enumerable.from(datalist).where("x=>(x.form=='VECTOR' && x.shared==0)").toArray();
+    var tmp = buildNode(list, "Vector");
     localvariable.push(buildNode(list, "Vector"));
     //METRIX
     list = Enumerable.from(datalist).where("x=>(x.form=='METRIX' && x.shared==0)").toArray();
@@ -61,6 +67,9 @@ function bindVariables(datalist) {
     var sharedtable = [];
     list = Enumerable.from(datalist).where("x=>(x.form=='TABLE' && x.shared==1)").toArray();
     sharedtable.push(buildNode(list, "Table"));
+
+
+
     var json_tree = {
         'core': {
             'dblclick_toggle': true,
@@ -88,19 +97,26 @@ function bindVariables(datalist) {
         }
     };
 
+    $('#pnl_variables').data('jstree', false).empty();
     $('#pnl_variables')
         .jstree(json_tree)
         .bind('dblclick.jstree', function (e) {
             var contentid = e.target.parentNode.id;
             var executor = new CodeExecutor(wa_url);
-            executor.run(contentid, function (re) {
-                var grid = document.querySelector('table[grid-manager="gridview"]');
-                bindGrid(re, grid);
+            executor.run(contentid + ';', function (re) {
+                //var grid = document.querySelector('table[grid-manager="gridview"]');
+                var grid = $('#jsgrid2');
+                var dg = new DolphinGrid(grid);
+                dg.loadFromDolphinJson(re[0].value);
                 $("#dialog").dialog({
+                    width:800,
+                    height:600,
+                    position :{ my: "center", at: "center", of: window },
+                    title : re[0].name + ' [ ' + re[0].DF + ' ] ',
                     dialogClass: "no-close",
                     buttons: [
                         {
-                            text: "OK", 
+                            text: "OK",
                             click: function () {
                                 $(this).dialog("close");
                             }
@@ -115,6 +131,7 @@ function buildNode(jsonLst, dataform) {
     var t = [];
     jsonLst.forEach(function (obj, index, arr) {
         t.push({ "a_attr": obj.name, "id": obj.name, "text": obj.name + "&lt;" + obj.type + "&gt;" + obj.rows + " rows [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]", "icon": "jstree-file" });
+        //t.push({ "text": obj.name + "&lt;" + obj.type + "&gt;" + obj.rows + " rows [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]", "icon": "jstree-file" });
     });
     var subtree = {
         "text": dataform,
@@ -128,41 +145,22 @@ function buildNode(jsonLst, dataform) {
 $('#btn_execode').click(function () {
     var codestr = editor.getCode();
     codestr = encodeURIComponent(codestr);
-    var grid = document.querySelector('table[grid-manager="grid1"]');
+    var grid = $('#jsgrid1');
     var executor = new CodeExecutor(wa_url);
     executor.run(codestr, function (re) {
-        bindGrid(re, grid);
+        if (isArray(re) && re.length > 0) {
+            var dg = new DolphinGrid(grid);
+            dg.loadFromDolphinJson(re[0].value);
+        }
         refreshVariables();
     })
 
 });
 
-function bindGrid(jsonarr, grid) {
-    var cols = [];
-    var datalist = VectorArray2Table(jsonarr[0].value);
-    var griddata = {
-        data: datalist,
-        totals: datalist.length
-    };
-    for (var i = 0; i < jsonarr[0].value.length; i++) {
-        obj = jsonarr[0].value[i];
-        cols.push({ text: obj.name, key: obj.name });
 
-    };
-    grid.GM({
-        ajax_data: griddata,
-        supportAutoOrder: false,
-        supportCheckbox: false,
-        columnData: cols
-    });
-
-    grid.GM("refreshGrid");
-};
-
-
-function WebApiUrl() {
-    if ($.cookie('ck_ag_controller_url') != null) {
-        return "http://" + $.cookie('ck_ag_controller_url');
-    }
-}
+// function WebApiUrl() {
+//     if ($.cookie('ck_ag_controller_url') != null) {
+//         return "http://" + $.cookie('ck_ag_controller_url');
+//     }
+// }
 

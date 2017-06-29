@@ -28,37 +28,3 @@ Array.prototype.where =
             // return filtered result
             return res;
       }
-
-
-
-//for dolphinVector2Table
-function VectorArray2Table(jsonVector) {
-      //get row count
-      if(!isArray(jsonVector)) return;
-      if(!isArray(jsonVector[0].value)) return;
-      var rowcount = jsonVector[0].value.length;
-
-      var jTable = [];
-      jsonVector.forEach(function (value, index, array) {
-            var valArr = value["value"];
-            if (isArray(valArr)) {
-                  for(var i=0;i<valArr.length;i++){
-                       jTable.setRow(i,value.name,valArr[i]);
-                  }
-            }
-      });
-      return jTable;
-}
-//if undefine add row and set data,if exists row update data;
-Array.prototype.setRow = function(index,fieldname,value){
-      if(typeof this[index] === 'undefined'){
-            var row = {};
-            this[index] = row;
-      }
-      this[index][fieldname] = value;
-}
-
-function isArray(object) {
-      return object && typeof object === 'object' &&
-            Array == object.constructor;
-}
