@@ -172,6 +172,7 @@ $('#btn_execode').click(function () {
 
 $('#btn_clear').click(function () {
     $('#pnl_log').html('');
+    localStorage.executelog = '';
 });
 
 function appendlog(logstr){
