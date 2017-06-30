@@ -1,23 +1,20 @@
 /*=============================================
-Decription  : Dolphin Datagrid , design for display large data more effective
-ref plugin  : GridManager.js
-ref source  : https://github.com/baukh789/GridManager/issues
-ref website : http://gridmanager.lovejavascript.com/
-dependency  : Gridmanager.js
+Decription  : Dolphin Datagrid , design for display data of DolphinDB API result
+ref plugin  : jsgrid.js
+ref source  : https://github.com/tabalinas/jsgrid
+ref website : http://js-grid.com/
+dependency  : /third-party/jsgrid/jsgrid.js
 Author      : LinL 
 Date        : 2017-06-29
 ==============================================*/
-function DolphinGrid(gridInstance) {
+function DolphinGrid(gridInstance, gridSettings) {
     this.grid = gridInstance;
+    this.settings = gridSettings;
 
     this.loadFromDolphinJson = function (dolphinJson) {
-        if (isArray(dolphinJson) && dolphinJson.length > 0) {
-            cols = [];
-            for (var i = 0; i < dolphinJson.length; i++) {
-                obj = dolphinJson[i];
-                cols.push({ name: obj.name, title: obj.name, type:'text'});
-            };
-            this.loadFromJson(VectorArray2Table(dolphinJson), cols);
+        if (typeof dolphinJson.object != "object") return;
+        if (isArray(dolphinJson.object) && dolphinJson.object.length > 0) {
+            this.loadFromJson(DolphinResult2Grid(dolphinJson));
         }
     }
     // display datagrid (gridmanager)
@@ -31,42 +28,115 @@ function DolphinGrid(gridInstance) {
         };
         if (!cols) {
             cols = [];
-            for (var i = 0; i < datalist[0].keys().length; i++) {
-                var keyname = datalist[0].keys()[i];
-                cols.push({ text: keyname, key: keyname, width: 0 });
+            for (var keyname in datalist[0]) {
+                cols.push({ name: keyname, title: keyname, type: 'text' });
             };
         }
+        var option = {
+            width: "100%",
+            height: "450",
 
-    this.grid.jsGrid({
-        width: "100%",
-        height: "450",
- 
-        inserting: false,
-        editing: false,
-        sorting: false,
-        paging: true,
- 
-        data: datalist,
- 
-        fields: cols
-    });
-        // this.grid.GM({
-        //     ajax_data: griddata,
-        //     supportAutoOrder: false,
-        //     supportCheckbox: false,
-        //     i18n: "en-us",
-        //     supportAjaxPage: true,
-        //     sizeData: [10, 20, 50, 100],
-        //     pageSize: 100,
-        //     columnData: cols
-        // });
-        // var g = this.grid.GM('get');
-        // console.log(g);
-        // this.grid.GM('setAjaxData', griddata);
+            inserting: false,
+            editing: false,
+            sorting: false,
+            paging: true,
+
+            data: datalist,
+
+            fields: cols
+        }
+        if (typeof this.settings === "object") {
+            $.extend(option, this.settings);
+        }
+        this.grid.jsGrid(option);
     }
 }
+// validate parameters and switch Dataform parser
+function DolphinResult2Grid(reJson) {
+    if (typeof reJson != "object") return;
+    if (reJson.resultcode != "0") return;
+    switch (reJson.object[0].DF.toUpperCase()) {
+        case "VECTOR":
+            return VectorSet2Table(reJson.object[0].value);
+            break;
+        case "MATRIX":
+            return Matrix2Table(reJson.object[0].value)
+            break;
+        case "SET":
+            return VectorSet2Table(reJson.object[0].value);
+            break;
+        case "DICTIONARY":
+            return Dictionay2Table(reJson.object[0].value);
+            break;
+        case "TABLE":
+            return VectorArray2Table(reJson.object[0].value);
+            break;
+        case "SCALAR":
+            break;
+        default:
+            break;
+    }
+}
+//convert vector and set result to table data for grid
+function VectorSet2Table(jsonobj) {
+    //get row count
+    if (!isArray(jsonobj)) return;
+    var vectorlength = jsonobj.length;
 
+    var jTable = [];
+    var rowindex = 0;
+    var colindex = 0;
+    for (var i = 0; i < jsonobj.length; i++) {
+        jTable.setRow(rowindex, colindex.toString(), jsonobj[i]);
+        colindex++;
+        if (colindex >= 10) {
+            rowindex++;
+            colindex = 0;
+        }
+    }
+    return jTable;
+}
+//
+function Dictionay2Table(jsonobj) {
+    //get row count
+    if (!isArray(jsonobj)) return;
+    if (!isArray(jsonobj[0].value)) return;
+    var rowcount = jsonobj[0].value.length;
 
+    var jTable = [];
+    jsonobj.forEach(function (value, index, array) {
+        var valArr = value["value"];
+        if (isArray(valArr)) {
+            for (var i = 0; i < valArr.length; i++) {
+                jTable.setRow(i, value.name, valArr[i]);
+            }
+        }
+    });
+    return jTable;
+}
+//
+function Matrix2Table(jsonobj) {
+
+    if (!isArray(jsonobj)) return;
+    //parse json to biz variable
+    var jsonArr = jsonobj[0].value;
+    var rowcount = Number.parseInt(jsonobj[1].value);
+    var colcount = Number.parseInt(jsonobj[2].value);
+
+    var jTable = [];
+    var curIndex = 0;
+    for (var i = 0; i < rowcount; i++) {
+        for (var j = 0; j < colcount; j++) {
+            jTable.setRow(i, "col" + j.toString(), jsonArr[curIndex]);
+            if (curIndex < jsonArr.length - 1) {
+                curIndex++;
+            }
+        }
+    }
+    return jTable;
+}
+
+//
 function VectorArray2Table(jsonVector) {
     //get row count
     if (!isArray(jsonVector)) return;
@@ -85,9 +155,11 @@ function VectorArray2Table(jsonVector) {
     return jTable;
 }
 
+
 function isArray(object) {
     return object && typeof object === 'object' && Array == object.constructor;
 }
+
 Array.prototype.setRow = function (index, fieldname, value) {
     if (typeof this[index] === 'undefined') {
         var row = {};

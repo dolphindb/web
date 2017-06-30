@@ -32,7 +32,7 @@ $(function () {
 function refreshVariables() {
     var executor = new CodeExecutor(wa_url);
     executor.run("objs(true)", function (re) {
-        var rowJson = VectorArray2Table(re[0].value);
+        var rowJson = VectorArray2Table(re.object[0].value);
         console.log(rowJson);
         bindVariables(rowJson)
     });
@@ -52,8 +52,8 @@ function bindVariables(datalist) {
     var tmp = buildNode(list, "Vector");
     localvariable.push(buildNode(list, "Vector"));
     //METRIX
-    list = Enumerable.from(datalist).where("x=>(x.form=='METRIX' && x.shared==0)").toArray();
-    localvariable.push(buildNode(list, "Metrix"));
+    list = Enumerable.from(datalist).where("x=>(x.form=='MATRIX' && x.shared==0)").toArray();
+    localvariable.push(buildNode(list, "Matrix"));
     //SET
     list = Enumerable.from(datalist).where("x=>(x.form=='SET' && x.shared==0)").toArray();
     localvariable.push(buildNode(list, "Set"));
@@ -107,12 +107,12 @@ function bindVariables(datalist) {
                 //var grid = document.querySelector('table[grid-manager="gridview"]');
                 var grid = $('#jsgrid2');
                 var dg = new DolphinGrid(grid);
-                dg.loadFromDolphinJson(re[0].value);
+                dg.loadFromDolphinJson(re);
                 $("#dialog").dialog({
                     width:800,
                     height:600,
                     position :{ my: "center", at: "center", of: window },
-                    title : re[0].name + ' [ ' + re[0].DF + ' ] ',
+                    title : re.object[0].name + ' [ ' + re.object[0].DF + ' ] ',
                     dialogClass: "no-close",
                     buttons: [
                         {
@@ -144,20 +144,28 @@ function buildNode(jsonLst, dataform) {
 
 $('#btn_execode').click(function () {
     var codestr = editor.getCode();
+    writetolog(codestr);
     codestr = encodeURIComponent(codestr);
     var grid = $('#jsgrid1');
     var executor = new CodeExecutor(wa_url);
+    
     executor.run(codestr, function (re) {
-        if (isArray(re) && re.length > 0) {
-            var dg = new DolphinGrid(grid);
-            dg.loadFromDolphinJson(re[0].value);
+        if (isArray(re.object) && re.object.length > 0) {
+            var dg = new DolphinGrid(grid,{height: "300"});
+            dg.loadFromDolphinJson(re);
+            //writetolog(JSON.stringify(re.object));
+            $('#resulttab a[href="#DataWindow"]').tab('show');
         }
         refreshVariables();
     })
 
 });
 
-
+function writetolog(logstr)
+{
+    logstr = new Date().toLocaleString() + ":<pre>" + logstr + "</pre>";
+    $('#pnl_log').append('\n' + $('#pnl_log').html() + '\n' + logstr)
+}
 // function WebApiUrl() {
 //     if ($.cookie('ck_ag_controller_url') != null) {
 //         return "http://" + $.cookie('ck_ag_controller_url');

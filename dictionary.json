@@ -1,0 +1,38 @@
+{
+    "sessionid": "2333906441",
+    "resultcode": "0",
+    "msg": "",
+    "object": [
+        {
+            "name": "dic",
+            "DF": "dictionary",
+            "DT": "any",
+            "value": [
+                {
+                    "name": "",
+                    "DF": "vector",
+                    "type": "string",
+                    "value": [
+                        "MS",
+                        "TOTAL",
+                        "IBM"
+                    ]
+                },
+                {
+                    "name": "",
+                    "DF": "vector",
+                    "type": "any",
+                    "value": [
+                        29.11,
+                        29.03,
+                        29.4,
+                        3,
+                        172.91,
+                        173.45,
+                        171.6
+                    ]
+                }
+            ]
+        }
+    ]
+}
