@@ -13,7 +13,7 @@ $(function () {
 
     wa_url = "http://" + HOST + ":" + PORT + "/";
     if(siteid ==""){
-        wa_url = window.location.url;
+        wa_url = "http://" + window.location.host;
     }
     
 
