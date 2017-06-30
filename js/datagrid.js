@@ -100,18 +100,14 @@ function VectorSet2Table(jsonobj) {
 function Dictionay2Table(jsonobj) {
     //get row count
     if (!isArray(jsonobj)) return;
-    if (!isArray(jsonobj[0].value)) return;
-    var rowcount = jsonobj[0].value.length;
+
+    var keys = jsonobj[0].value;
+    var vals = jsonobj[1].value;
 
     var jTable = [];
-    jsonobj.forEach(function (value, index, array) {
-        var valArr = value["value"];
-        if (isArray(valArr)) {
-            for (var i = 0; i < valArr.length; i++) {
-                jTable.setRow(i, value.name, valArr[i]);
-            }
-        }
-    });
+    for (var i = 0; i < keys.length; i++) {
+        jTable.setRow(i, keys[i], vals[i].toString());
+    }
     return jTable;
 }
 //

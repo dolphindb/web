@@ -12,6 +12,10 @@ $(function () {
     PORT = hostinfo[1];
 
     wa_url = "http://" + HOST + ":" + PORT + "/";
+    if(siteid ==""){
+        wa_url = window.location.url;
+    }
+    
 
     $.cookie("language_file", "js/lang.en.js");
 
@@ -24,7 +28,7 @@ $(function () {
         path: "third-party/codemirror/",
         textWrapping: false
     });
-
+    writelog(localStorage.executelog);
     //get server variables
     refreshVariables();
 });
@@ -130,7 +134,12 @@ function bindVariables(datalist) {
 function buildNode(jsonLst, dataform) {
     var t = [];
     jsonLst.forEach(function (obj, index, arr) {
-        t.push({ "a_attr": obj.name, "id": obj.name, "text": obj.name + "&lt;" + obj.type + "&gt;" + obj.rows + " rows [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]", "icon": "jstree-file" });
+        var showtype = " ";
+        if(obj.form.toUpperCase()!="TABLE") {
+            showtype = "&lt;" + obj.type + "&gt;";
+        }
+            
+        t.push({ "a_attr": obj.name, "id": obj.name, "text": obj.name + showtype + obj.rows + " rows [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]", "icon": "jstree-file" });
         //t.push({ "text": obj.name + "&lt;" + obj.type + "&gt;" + obj.rows + " rows [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]", "icon": "jstree-file" });
     });
     var subtree = {
@@ -144,7 +153,7 @@ function buildNode(jsonLst, dataform) {
 
 $('#btn_execode').click(function () {
     var codestr = editor.getCode();
-    writetolog(codestr);
+    appendlog(codestr);
     codestr = encodeURIComponent(codestr);
     var grid = $('#jsgrid1');
     var executor = new CodeExecutor(wa_url);
@@ -161,10 +170,18 @@ $('#btn_execode').click(function () {
 
 });
 
-function writetolog(logstr)
-{
+$('#btn_clear').click(function () {
+    $('#pnl_log').html('');
+});
+
+function appendlog(logstr){
     logstr = new Date().toLocaleString() + ":<pre>" + logstr + "</pre>";
-    $('#pnl_log').append('\n' + $('#pnl_log').html() + '\n' + logstr)
+    $('#pnl_log').append('\n' + logstr)
+    localStorage.executelog = $('#pnl_log').html();
+}
+
+function writelog(logstr){
+    $('#pnl_log').html(logstr)
 }
 // function WebApiUrl() {
 //     if ($.cookie('ck_ag_controller_url') != null) {
