@@ -1,0 +1,66 @@
+{
+    "sessionid": "1212121",
+    "resultcode": "0",
+    "object": [
+        {
+            "name": "employer",
+            "DF": "table",
+            "DT": "Double",
+            "value": [
+                {
+                    "name": "host",
+                    "DF": "vector",
+                    "DT": "string",
+                    "value": [
+                        "192.168.1.80",
+                        "192.168.1.81"
+                    ]
+                },   {
+                    "name": "port",
+                    "DF": "vector",
+                    "DT": "string",
+                    "value": [
+                        "8500",
+                        "8501"
+                    ]
+                },
+                {
+                    "name": "site",
+                    "DF": "vector",
+                    "DT": "string",
+                    "value": [
+                        "192.168.1.80 rh00",
+                        "192.168.1.81 rh01"
+                    ]
+                },
+                {
+                    "name": "state",
+                    "DF": "vector",
+                    "DT": "string",
+                    "value": [
+                        "1",
+                        "1"
+                    ]
+                },
+                {
+                    "name": "mode",
+                    "DF": "vector",
+                    "DT": "string",
+                    "value": [
+                        "ag",
+                        "ag"
+                    ]
+                },
+                {
+                    "name": "maxconnections",
+                    "DF": "vector",
+                    "DT": "string",
+                    "value": [
+                        "4",
+                        "5"
+                    ]
+                }
+            ]
+        }
+    ]
+}

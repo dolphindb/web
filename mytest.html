@@ -13,18 +13,28 @@
     <link rel="stylesheet" href="assets/css/font-awesome.min.css">
     <link rel="stylesheet" href="assets/css/docs.css">
     <link rel="stylesheet" href="assets/js/google-code-prettify/prettify.css">
+    <link href="third-party/jsgrid/jsgrid.css" rel="stylesheet" />
+    <link href="third-party/jsgrid/jsgrid-theme.css" rel="stylesheet" />
 </head>
 
 <body>
     <div>
         <button id="btn1">opendialog1</button>
         <button id="btn2">opendialog2</button>
+        <button id="btn3">getNodeList</button>
+    </div>
+    <div>
+        <div id="jsgrid1"></div>
     </div>
     <div id="dialogs"></div>
     <script src="assets/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
     <script src="assets/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
     <script src="assets/js/vendor/bootstrap.js" type="text/javascript"></script>
     <script src="assets/js/vendor/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+    <script src="third-party/jsgrid/jsgrid.min.js" type="text/javascript"></script>
+    <script src="assets/js/vendor/jquery.cookie.js" type="text/javascript"></script>
+    <script src="js/CallWebApi.js?2" type="text/javascript"></script>
+    <script src="js/datagrid.js" type="text/javascript"></script>
     <script>
         $('#btn1').click(function () {
             open(this);
@@ -34,13 +44,44 @@
             open(this);
         });
 
+        $('#btn3').click(function () {
+            var dg = new DolphinGrid($('#jsgrid1'), {
+                autoload: true,
+                paging: true,
+                pageLoading: true,
+                pageSize: 2,
+                pageIndex: 1,
+                controller: {
+                    loadData: function (filter) {
+                        var db = VectorArray2Table(getdata(filter.pageIndex));
+                        var startIndex = (filter.pageIndex - 1) * filter.pageSize;
+                        return {
+                            data: db,
+                            itemsCount: 8
+                        };
+                    }
+                }
+            });
+            dg.loadFromJson(VectorArray2Table(getdata(0)));
+        });
+    
+
+        function getdata(pageIndex) {
+            var p = {
+                "functionname": "page" + pageIndex
+            }
+            var data = CallWebApiSync('getList.asp', p);
+            console.log(data);
+            return data.object[0].value;
+        }
+
         function open(srcobj) {
             var divobj = document.createElement("div");
             divobj.id = srcobj.id + '_div';
             divobj.innerHTML = $(this).text();
             $(divobj).appendTo($('#dialogs'));
-            var tblobj =  document.createElement("div");
-            tblobj.id = "jsgrid_"+srcobj.id
+            var tblobj = document.createElement("div");
+            tblobj.id = "jsgrid_" + srcobj.id
             $(tblobj).appendTo($(divobj));
             $(tblobj).text(tblobj.id)
             $("#" + divobj.id).dialog({

@@ -31,3 +31,17 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc) {
         }
     });
 };
+
+function CallWebApiSync(apiurl, paramstr){
+    paramstr['sessionid'] = CurrentSessionID;
+     var d = JSON.stringify(paramstr);
+    //console.log(d);
+    var re = $.ajax({
+        url: apiurl,
+        async: false,
+        data: d,
+        type: "POST",
+        dataType: "json"
+    });
+    return JSON.parse(re.responseText);
+};
