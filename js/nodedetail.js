@@ -130,7 +130,7 @@ function showGrid(gridid, getdatascript, startindex, pagesize) {
         var grid = $('#' + gridid);
         var dg = new DolphinGrid(grid, {
             onPageChanged: function (args) {
-                showGrid(gridid,getdatascript,(args.pageIndex-1) * args.grid.pageSize, args.grid.pageSize);
+                showGrid(gridid, getdatascript, (args.pageIndex - 1) * args.grid.pageSize, args.grid.pageSize);
             }
         });
         dg.loadFromDolphinJson(re);
@@ -186,7 +186,13 @@ $('#btn_execode').click(function () {
 
     executor.run(codestr, function (re) {
         if (isArray(re.object) && re.object.length > 0) {
-            var dg = new DolphinGrid(grid, { height: "300" });
+            var dg = new DolphinGrid(grid, 
+            {
+                onPageChanged: function (args) {
+                    showGrid("jsgrid1", codestr, (args.pageIndex - 1) * args.grid.pageSize, args.grid.pageSize);
+                },
+                "height": "350"
+            });
             dg.loadFromDolphinJson(re);
             //writetolog(JSON.stringify(re.object));
             $('#resulttab a[href="#DataWindow"]').tab('show');
