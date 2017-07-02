@@ -108,7 +108,7 @@ function bindVariables(datalist) {
             console.log("comin");
             var contentid = e.target.parentNode.id;
             var code = contentid + ';';
-            var divid = localStorage.divid ++;
+            var divid = localStorage.divid++;
             var divobj = document.createElement("div");
             divobj.id = "div" + divid;
             console.log(divobj.id);
@@ -117,7 +117,7 @@ function bindVariables(datalist) {
             tblobj.id = "jsgrid_" + divid;
             console.log(tblobj.id);
             $(tblobj).appendTo($(divobj));
-            showGrid(tblobj.id,code, 0, 20);
+            showGrid(tblobj.id, code, 0, 20);
             openDialog(divobj.id);
         });
 }
@@ -128,15 +128,17 @@ function showGrid(gridid, getdatascript, startindex, pagesize) {
     var executor = new CodeExecutor(wa_url);
     executor.run(getdatascript, function (re) {
         var grid = $('#' + gridid);
-        var dg = new DolphinGrid(grid,{}, function (i, len) {
-            showGrid(gridid,getdatascript, i, len);
+        var dg = new DolphinGrid(grid, {
+            onPageChanged: function (args) {
+                showGrid(gridid,getdatascript,(args.pageIndex-1) * args.grid.pageSize, args.grid.pageSize);
+            }
         });
         dg.loadFromDolphinJson(re);
 
     }, { "startindex": startindex, "pagesize": pagesize });
 }
 
-function openDialog(dialog,tit) {
+function openDialog(dialog, tit) {
 
 
     $("#" + dialog).dialog({

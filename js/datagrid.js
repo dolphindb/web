@@ -23,7 +23,7 @@ function DolphinGrid(gridInstance, gridSettings, pageChanged) {
             this.loadFromJson(DolphinResult2Grid(dolphinJson));
         }
     }
-    // display datagrid (gridmanager)
+    // display datagrid (jsgrid)
     this.loadFromJson = function (datalist, cols) {
 
         if (datalist.length <= 0) throw "data empty";
@@ -48,13 +48,7 @@ function DolphinGrid(gridInstance, gridSettings, pageChanged) {
             paging: true,
 
             data: datalist,
-            onPageChanged: function (args) {
-                if (this.PageChanged) {
-                    this.PageChanged(args.pageIndex * args.grid.pageSize, args.grid.pageSize);
-                }
-
-            },
-
+           
             fields: cols
         }
         if (typeof this.settings === "object") {
