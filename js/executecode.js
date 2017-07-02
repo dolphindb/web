@@ -1,6 +1,6 @@
 function CodeExecutor(url) {
     this.apiurl = url;
-    this.run = function (script,callback) {
+    this.run = function (script,callback,params) {
 
         var p = {
             "sessionid": "0",
@@ -12,6 +12,9 @@ function CodeExecutor(url) {
                 "value": script
             }]
         };
+        if(params){
+            $.extend(p, params);
+        }
 
         CallWebApi(this.apiurl, p, function (re) {
             var resultobj = {};

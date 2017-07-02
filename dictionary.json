@@ -11,7 +11,8 @@
                 {
                     "name": "",
                     "DF": "vector",
-                    "type": "string",
+                    "DT": "string",
+                    "size": "3",
                     "value": [
                         "MS",
                         "TOTAL",
@@ -21,15 +22,32 @@
                 {
                     "name": "",
                     "DF": "vector",
-                    "type": "any",
+                    "DT": "any",
+                    "size": "3",
                     "value": [
-                        29.11,
-                        29.03,
-                        29.4,
-                        3,
-                        172.91,
-                        173.45,
-                        171.6
+                        {
+                            "name": "",
+                            "DF": "vector",
+                            "DT": "double",
+                            "size": "3",
+                            "value": [
+                                29.11,
+                                29.03,
+                                29.4
+                            ]
+                        },
+                        "3",
+                        {
+                            "name": "",
+                            "DF": "vector",
+                            "DT": "double",
+                            "size": "3",
+                            "value": [
+                                172.91,
+                                173.45,
+                                171.6
+                            ]
+                        }
                     ]
                 }
             ]

@@ -7,9 +7,15 @@ dependency  : /third-party/jsgrid/jsgrid.js
 Author      : LinL 
 Date        : 2017-06-29
 ==============================================*/
-function DolphinGrid(gridInstance, gridSettings) {
+function DolphinGrid(gridInstance, gridSettings, pageChanged) {
     this.grid = gridInstance;
     this.settings = gridSettings;
+
+
+    this.PageChanged = function (startindex, pagesize) {
+        if (pageChanged)
+            pageChanged(startindex, pagesize);
+    };
 
     this.loadFromDolphinJson = function (dolphinJson) {
         if (typeof dolphinJson.object != "object") return;
@@ -42,6 +48,12 @@ function DolphinGrid(gridInstance, gridSettings) {
             paging: true,
 
             data: datalist,
+            onPageChanged: function (args) {
+                if (this.PageChanged) {
+                    this.PageChanged(args.pageIndex * args.grid.pageSize, args.grid.pageSize);
+                }
+
+            },
 
             fields: cols
         }
@@ -106,7 +118,11 @@ function Dictionay2Table(jsonobj) {
 
     var jTable = [];
     for (var i = 0; i < keys.length; i++) {
-        jTable.setRow(i, keys[i], vals[i].toString());
+        var val = vals[i];
+        if (typeof vals[i] == "object")
+            val = "object";
+        jTable.setRow(i, "key", keys[i])
+        jTable.setRow(i, "value", val);
     }
     return jTable;
 }

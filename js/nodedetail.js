@@ -12,10 +12,10 @@ $(function () {
     PORT = hostinfo[1];
 
     wa_url = "http://" + HOST + ":" + PORT + "/";
-    if(siteid ==""){
+    if (!siteid || siteid == "") {
         wa_url = "http://" + window.location.host;
     }
-    
+
 
     $.cookie("language_file", "js/lang.en.js");
 
@@ -100,45 +100,69 @@ function bindVariables(datalist) {
             ]
         }
     };
-
+    localStorage.divid = 0;
     $('#pnl_variables').data('jstree', false).empty();
     $('#pnl_variables')
         .jstree(json_tree)
         .bind('dblclick.jstree', function (e) {
+            console.log("comin");
             var contentid = e.target.parentNode.id;
-            var executor = new CodeExecutor(wa_url);
-            executor.run(contentid + ';', function (re) {
-                //var grid = document.querySelector('table[grid-manager="gridview"]');
-                var grid = $('#jsgrid2');
-                var dg = new DolphinGrid(grid);
-                dg.loadFromDolphinJson(re);
-                $("#dialog").dialog({
-                    width:800,
-                    height:600,
-                    position :{ my: "center", at: "center", of: window },
-                    title : re.object[0].name + ' [ ' + re.object[0].DF + ' ] ',
-                    dialogClass: "no-close",
-                    buttons: [
-                        {
-                            text: "OK",
-                            click: function () {
-                                $(this).dialog("close");
-                            }
-                        }
-                    ]
-                });
-            });
+            var code = contentid + ';';
+            var divid = localStorage.divid ++;
+            var divobj = document.createElement("div");
+            divobj.id = "div" + divid;
+            console.log(divobj.id);
+            $(divobj).appendTo($('#dialogs'));
+            var tblobj = document.createElement("div");
+            tblobj.id = "jsgrid_" + divid;
+            console.log(tblobj.id);
+            $(tblobj).appendTo($(divobj));
+            showGrid(tblobj.id,code, 0, 20);
+            openDialog(divobj.id);
         });
 }
 
+
+function showGrid(gridid, getdatascript, startindex, pagesize) {
+
+    var executor = new CodeExecutor(wa_url);
+    executor.run(getdatascript, function (re) {
+        var grid = $('#' + gridid);
+        var dg = new DolphinGrid(grid,{}, function (i, len) {
+            showGrid(gridid,getdatascript, i, len);
+        });
+        dg.loadFromDolphinJson(re);
+
+    }, { "startindex": startindex, "pagesize": pagesize });
+}
+
+function openDialog(dialog,tit) {
+
+
+    $("#" + dialog).dialog({
+        width: 800,
+        height: 600,
+        position: { my: "center", at: "center", of: window },
+        title: tit,
+        dialogClass: "no-close",
+        buttons: [
+            {
+                text: "OK",
+                click: function () {
+                    $(this).dialog("close");
+                }
+            }
+        ]
+    });
+}
 function buildNode(jsonLst, dataform) {
     var t = [];
     jsonLst.forEach(function (obj, index, arr) {
         var showtype = " ";
-        if(obj.form.toUpperCase()!="TABLE") {
+        if (obj.form.toUpperCase() != "TABLE") {
             showtype = "&lt;" + obj.type + "&gt;";
         }
-            
+
         t.push({ "a_attr": obj.name, "id": obj.name, "text": obj.name + showtype + obj.rows + " rows [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]", "icon": "jstree-file" });
         //t.push({ "text": obj.name + "&lt;" + obj.type + "&gt;" + obj.rows + " rows [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]", "icon": "jstree-file" });
     });
@@ -157,10 +181,10 @@ $('#btn_execode').click(function () {
     codestr = encodeURIComponent(codestr);
     var grid = $('#jsgrid1');
     var executor = new CodeExecutor(wa_url);
-    
+
     executor.run(codestr, function (re) {
         if (isArray(re.object) && re.object.length > 0) {
-            var dg = new DolphinGrid(grid,{height: "300"});
+            var dg = new DolphinGrid(grid, { height: "300" });
             dg.loadFromDolphinJson(re);
             //writetolog(JSON.stringify(re.object));
             $('#resulttab a[href="#DataWindow"]').tab('show');
@@ -175,13 +199,13 @@ $('#btn_clear').click(function () {
     localStorage.executelog = '';
 });
 
-function appendlog(logstr){
+function appendlog(logstr) {
     logstr = new Date().toLocaleString() + ":<pre>" + logstr + "</pre>";
     $('#pnl_log').append('\n' + logstr)
     localStorage.executelog = $('#pnl_log').html();
 }
 
-function writelog(logstr){
+function writelog(logstr) {
     $('#pnl_log').html(logstr)
 }
 // function WebApiUrl() {
