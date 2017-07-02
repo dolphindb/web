@@ -46,9 +46,14 @@ function DolphinGrid(gridInstance, gridSettings, pageChanged) {
             editing: false,
             sorting: false,
             paging: true,
-
+            pageLoading: true,
+            pageSize: 40,
             data: datalist,
-           
+            controller :{
+                loadData:function(filter){
+                    console.log(filter);
+                }
+            },
             fields: cols
         }
         if (typeof this.settings === "object") {
