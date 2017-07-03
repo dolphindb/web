@@ -21,3 +21,7 @@
   background-color: #428bca;
   border-color: #428bca;
 }
+
+.no-close .ui-dialog-titlebar-close {
+  visibility: hidden;
+}

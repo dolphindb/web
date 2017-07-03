@@ -153,7 +153,6 @@
     <script src="js/datagrid.js" type="text/javascript"></script>
     <script src="js/CallWebApi.js" type="text/javascript"></script>
     <script src="js/msgbox.js" type="text/javascript"></script>
-    <!-- <script src="third-party/linqjs/linq.min.js" type="text/javascript"></script> -->
 
 </body>
 
@@ -316,10 +315,10 @@
 
             ALL_NODE = VectorArray2Table(data[0].value);
 
-            AGENT_LIST = ALL_NODE.filter(function(x) { return x.mode === 'ag'; });
+            AGENT_LIST = Enumerable.from(ALL_NODE).where("x=>x.mode=='ag'").toArray();
             LoadLeft(AGENT_LIST);
 
-            NODE_LIST = ALL_NODE.filter(function(x) { return x.mode === 'datanode'; });
+            NODE_LIST = Enumerable.from(ALL_NODE).where("x=>x.mode=='datanode'").toArray();
 
             refreshGrid(NODE_LIST)
         }

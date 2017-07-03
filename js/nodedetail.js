@@ -103,6 +103,7 @@ function bindVariables(datalist) {
     $('#pnl_variables').data('jstree', false).empty();
     $('#pnl_variables')
         .jstree(json_tree)
+        .unbind('dblclick.jstree')
         .bind('dblclick.jstree', function (e) {
             console.log("comin");
             var contentid = e.target.parentNode.id;
