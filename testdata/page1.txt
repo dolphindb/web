@@ -11,6 +11,7 @@
                     "name": "host",
                     "DF": "vector",
                     "DT": "string",
+                    "size":100,
                     "value": [
                         "192.168.1.80",
                         "192.168.1.81"
@@ -19,6 +20,7 @@
                     "name": "port",
                     "DF": "vector",
                     "DT": "string",
+                    "size":100,
                     "value": [
                         "8500",
                         "8501"
@@ -28,6 +30,7 @@
                     "name": "site",
                     "DF": "vector",
                     "DT": "string",
+                    "size":100,
                     "value": [
                         "192.168.1.80 rh00",
                         "192.168.1.81 rh01"
@@ -37,6 +40,7 @@
                     "name": "state",
                     "DF": "vector",
                     "DT": "string",
+                    "size":100,
                     "value": [
                         "1",
                         "1"
@@ -46,6 +50,7 @@
                     "name": "mode",
                     "DF": "vector",
                     "DT": "string",
+                    "size":100,
                     "value": [
                         "ag",
                         "ag"
@@ -55,6 +60,7 @@
                     "name": "maxconnections",
                     "DF": "vector",
                     "DT": "string",
+                    "size":100,
                     "value": [
                         "4",
                         "5"

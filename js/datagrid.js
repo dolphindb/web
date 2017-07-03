@@ -47,7 +47,7 @@ function DolphinGrid(gridInstance, gridSettings, pageChanged) {
             sorting: false,
             paging: true,
             pageLoading: true,
-            pageSize: 40,
+            pageSize: 20,
             data: datalist,
             fields: cols
         }
