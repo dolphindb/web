@@ -23,8 +23,8 @@
 ```sh
 {
     "sessionid": "65519587",
-    "resultcode": "0",
-    "msg": "",
+    "resultcode": "0", // 0:OK -1:error
+    "msg": "",
     "object": [
         {
             "name": "",
