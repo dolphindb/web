@@ -315,10 +315,10 @@
 
             ALL_NODE = VectorArray2Table(data[0].value);
 
-            AGENT_LIST = Enumerable.from(ALL_NODE).where("x=>x.mode=='ag'").toArray();
+            AGENT_LIST = ALL_NODE.filter(function(x) { return x.mode === 'ag'; });
             LoadLeft(AGENT_LIST);
 
-            NODE_LIST = Enumerable.from(ALL_NODE).where("x=>x.mode=='datanode'").toArray();
+            NODE_LIST = ALL_NODE.filter(function(x) { return x.mode === 'datanode'; });
 
             refreshGrid(NODE_LIST)
         }
