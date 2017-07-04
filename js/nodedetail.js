@@ -49,27 +49,27 @@ $('#btn_refresh').click(function () {
 function bindVariables(datalist) {
     var localvariable = [];
     //TABLE
-    var list = Enumerable.from(datalist).where("x=>(x.form=='TABLE' && x.shared==0)").toArray();
+    var list = datalist.filter(function(x) { return x.form === 'TABLE' && x.shared === 0; });
     localvariable.push(buildNode(list, "Table"));
     //VECTOR
-    list = Enumerable.from(datalist).where("x=>(x.form=='VECTOR' && x.shared==0)").toArray();
+    list = datalist.filter(function(x) { return x.form === 'VECTOR' && x.shared === 0; });
     var tmp = buildNode(list, "Vector");
     localvariable.push(buildNode(list, "Vector"));
     //METRIX
-    list = Enumerable.from(datalist).where("x=>(x.form=='MATRIX' && x.shared==0)").toArray();
+    list = datalist.filter(function(x) { return x.form === 'MATRIX' && x.shared === 0; });
     localvariable.push(buildNode(list, "Matrix"));
     //SET
-    list = Enumerable.from(datalist).where("x=>(x.form=='SET' && x.shared==0)").toArray();
+    list = datalist.filter(function(x) { return x.form === 'SET' && x.shared === 0; });
     localvariable.push(buildNode(list, "Set"));
     //DICTIONARY
-    list = Enumerable.from(datalist).where("x=>(x.form=='DICTIONARY' && x.shared==0)").toArray();
+    list = datalist.filter(function(x) { return x.form === 'DICTIONARY' && x.shared === 0; });
     localvariable.push(buildNode(list, "Dictionary"));
     //SCALAR
-    list = Enumerable.from(datalist).where("x=>(x.form=='SCALAR' && x.shared==0)").toArray();
+    list = datalist.filter(function(x) { return x.form === 'SCALAR' && x.shared === 0; });
     localvariable.push(buildNode(list, "Scalar"));
 
     var sharedtable = [];
-    list = Enumerable.from(datalist).where("x=>(x.form=='TABLE' && x.shared==1)").toArray();
+    list = datalist.filter(function(x) { return x.form === 'TABLE' && x.shared === 1; });
     sharedtable.push(buildNode(list, "Table"));
 
 
@@ -186,6 +186,8 @@ $('#btn_execode').click(function () {
     var executor = new CodeExecutor(wa_url);
 
     executor.run(codestr, function (re) {
+        console.log(re);
+        DolphinPlot(re.object[0]);
         if (isArray(re.object) && re.object.length > 0) {
             var dg = new DolphinGrid(grid, 
             {

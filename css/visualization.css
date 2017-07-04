@@ -1,0 +1,8 @@
+.vis-arc text {
+	font: 10px sans-serif;
+	text-anchor: middle;
+}
+
+.vis-arc path {
+	stroke: #fff;
+}
