@@ -7,60 +7,94 @@ dependency  : /third-party/jsgrid/jsgrid.js
 Author      : LinL 
 Date        : 2017-06-29
 ==============================================*/
-function DolphinGrid(gridInstance, gridSettings, pageChanged) {
+function DolphinGrid(gridInstance, gridSettings) {
     this.grid = gridInstance;
     this.settings = gridSettings;
 
-
-    this.PageChanged = function (startindex, pagesize) {
-        if (pageChanged)
-            pageChanged(startindex, pagesize);
-    };
-
     this.loadFromDolphinJson = function (dolphinJson) {
+        if (typeof dolphinJson != "object") return;
         if (typeof dolphinJson.object != "object") return;
         if (isArray(dolphinJson.object) && dolphinJson.object.length > 0) {
-            this.loadFromJson(DolphinResult2Grid(dolphinJson));
+            $.extend(this.settings, { pageSize: getPageSize(dolphinJson) });
         }
+        this.loadFromJson(DolphinResult2Grid(dolphinJson));
     }
-    // display datagrid (jsgrid)
-    this.loadFromJson = function (datalist, cols) {
 
+    this.setGridPage = function(dolphinJson){
+        if (typeof dolphinJson != "object") return;
+        if (typeof dolphinJson.object != "object") return;
+        if (isArray(dolphinJson.object) && dolphinJson.object.length > 0) {
+            $.extend(this.settings, { pageSize: getPageSize(dolphinJson) });
+        }
+
+    }
+
+    this.loadFromJson = function (datalist, cols) {
+        if (datalist == null) return;
         if (datalist.length <= 0) throw "data empty";
 
         var griddata = {
             data: datalist,
-            totals: datalist.length
+            itemsCount: 1000
         };
+
         if (!cols) {
             cols = [];
             for (var keyname in datalist[0]) {
                 cols.push({ name: keyname, title: keyname, type: 'text' });
             };
         }
+
         var option = {
             width: "100%",
-            height: "450",
-
-            inserting: false,
-            editing: false,
-            sorting: false,
+            autoload: true,
             paging: true,
+            pageLoading: true,
+            pageSize: 20,
+            pageIndex: 1,
 
             data: datalist,
-           
             fields: cols
         }
+
         if (typeof this.settings === "object") {
             $.extend(option, this.settings);
         }
         this.grid.jsGrid(option);
     }
 }
-// validate parameters and switch Dataform parser
+
+function getPageSize(dolphinJson) {
+    if (typeof dolphinJson != "object") return;
+    if (dolphinJson.object == null) return;
+    if (dolphinJson.object.length <= 0) return;
+    switch (dolphinJson.object[0].DF.toUpperCase()) {
+        case "VECTOR":
+            return 100;
+        case "MATRIX":
+            return 100;
+            break;
+        case "SET":
+            return 100;
+            break;
+        case "DICTIONARY":
+            return 100;
+            break;
+        case "TABLE":
+            return 10;
+            break;
+        case "SCALAR":
+            return 100;
+            break;
+        default:
+            break;
+    }
+}
+
 function DolphinResult2Grid(reJson) {
     if (typeof reJson != "object") return;
     if (reJson.resultcode != "0") return;
+    if (reJson.object.length <= 0) return;
     switch (reJson.object[0].DF.toUpperCase()) {
         case "VECTOR":
             return VectorSet2Table(reJson.object[0].value);
@@ -85,7 +119,6 @@ function DolphinResult2Grid(reJson) {
 }
 //convert vector and set result to table data for grid
 function VectorSet2Table(jsonobj) {
-    //get row count
     if (!isArray(jsonobj)) return;
     var vectorlength = jsonobj.length;
 
@@ -102,9 +135,9 @@ function VectorSet2Table(jsonobj) {
     }
     return jTable;
 }
-//
+
 function Dictionay2Table(jsonobj) {
-    //get row count
+
     if (!isArray(jsonobj)) return;
 
     var keys = jsonobj[0].value;
@@ -142,9 +175,8 @@ function Matrix2Table(jsonobj) {
     return jTable;
 }
 
-//
+
 function VectorArray2Table(jsonVector) {
-    //get row count
     if (!isArray(jsonVector)) return;
     if (!isArray(jsonVector[0].value)) return;
     var rowcount = jsonVector[0].value.length;
