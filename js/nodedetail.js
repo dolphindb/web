@@ -246,3 +246,6 @@ function writelog(logstr) {
     $('#pnl_log').html(logstr)
 }
 
+$('#btn_clrcode').click(function(){
+    editor.setCode('');
+});
