@@ -9,7 +9,14 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc) {
         CurrentSessionID = $.cookie('ck_ag_controller_url');
         paramstr['sessionid'] = CurrentSessionID;
     }
+<<<<<<< HEAD
     var d = JSON.stringify(paramstr);
+=======
+    
+
+    var d = JSON.stringify(paramstr);
+    
+>>>>>>> origin/custom-pager
     $.ajax({
         url: apiurl,
         async: true,

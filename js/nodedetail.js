@@ -20,7 +20,7 @@ $(function () {
     $.cookie("language_file", "js/lang.en.js");
 
     editor = CodeMirror.fromTextArea('txt_code', {
-        height: "50px",
+        height: "100px",
         parserfile: "parsesql.js",
         stylesheet: "third-party/codemirror/sqlcolors.css",
         path: "third-party/codemirror/",
@@ -128,12 +128,19 @@ function showGrid(gridid, getdatascript, startindex, pagesize) {
     executor.run(getdatascript, function (re) {
         var grid = $('#' + gridid);
         var dg = new DolphinGrid(grid, {
-            onPageChanged: function (args) {
-                showGrid(gridid, getdatascript, (args.pageIndex - 1) * args.grid.pageSize, args.grid.pageSize);
+            controller: {
+                loadData: function (filter) {
+                    var g = getData(getdatascript, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize);
+                    var total = g.object[0].size;
+                    var d = DolphinResult2Grid(g);
+                    return {
+                        data: d,
+                        itemsCount: total
+                    };
+                }
             }
         });
         dg.loadFromDolphinJson(re);
-
     }, { "startindex": startindex, "pagesize": pagesize });
 }
 
@@ -180,25 +187,50 @@ $('#btn_execode').click(function () {
     appendlog(codestr);
     codestr = encodeURIComponent(codestr);
     var grid = $('#jsgrid1');
-    var executor = new CodeExecutor(wa_url);
+    var dg = new DolphinGrid(grid,
+        {
+            height: "370px",
+            pagesize:10,
+            controller: {
+                loadData: function (filter) {
+                    var g = getData(codestr, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize);
+                    var total = g.object[0].size;
+                    var d = DolphinResult2Grid(g);
 
-    executor.run(codestr, function (re) {
-        if (isArray(re.object) && re.object.length > 0) {
-            var dg = new DolphinGrid(grid, 
-            {
-                onPageChanged: function (args) {
-                    showGrid(gridid, getdatascript, (args.pageIndex - 1) * args.grid.pageSize, args.grid.pageSize);
-                },
-                "height": "300"
-            });
-            dg.loadFromDolphinJson(re);
-            
-            $('#resulttab a[href="#DataWindow"]').tab('show');
-        }
-        refreshVariables();
-    })
+                    return {
+                        data: d,
+                        itemsCount: total
+                    };
+                }
+            }
+
+        });
+    var g = getData(codestr, 0, 10);
+    var d = DolphinResult2Grid(g);
+    dg.loadFromJson(d);
+
+    $('#resulttab a[href="#DataWindow"]').tab('show');
+
+    refreshVariables();
 
 });
+
+function getData(script, startindex, pagesize) {
+    var p = {
+        "sessionid": "0",
+        "functionname": "executeCode",
+        "startindex": startindex.toString(),
+        "pagesize": pagesize.toString(),
+        "parameters": [{
+            "name": "script",
+            "DF": "scalar",
+            "DT": "string",
+            "value": script
+        }]
+    };
+    var re = CallWebApiSync(wa_url, p);
+    return re;
+}
 
 $('#btn_clear').click(function () {
     $('#pnl_log').html('');
@@ -214,5 +246,4 @@ function appendlog(logstr) {
 function writelog(logstr) {
     $('#pnl_log').html(logstr)
 }
-
 
