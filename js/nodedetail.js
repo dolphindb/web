@@ -1,4 +1,4 @@
-//page load
+
 var editor = null;
 var wa_url = '';
 var HOST = '';
@@ -19,8 +19,7 @@ $(function () {
 
     $.cookie("language_file", "js/lang.en.js");
 
-    //$('#agent_controller_url').text($.cookie('ck_ag_controller_url'));
-
+    
     editor = CodeMirror.fromTextArea('txt_code', {
         height: "100px",
         parserfile: "parsesql.js",
