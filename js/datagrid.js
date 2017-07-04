@@ -23,7 +23,7 @@ function DolphinGrid(gridInstance, gridSettings, pageChanged) {
             this.loadFromJson(DolphinResult2Grid(dolphinJson));
         }
     }
-    // display datagrid (jsgrid)
+
     this.loadFromJson = function (datalist, cols) {
 
         if (datalist.length <= 0) throw "data empty";
@@ -85,7 +85,6 @@ function DolphinResult2Grid(reJson) {
 }
 //convert vector and set result to table data for grid
 function VectorSet2Table(jsonobj) {
-    //get row count
     if (!isArray(jsonobj)) return;
     var vectorlength = jsonobj.length;
 
@@ -102,9 +101,8 @@ function VectorSet2Table(jsonobj) {
     }
     return jTable;
 }
-//
+
 function Dictionay2Table(jsonobj) {
-    //get row count
     if (!isArray(jsonobj)) return;
 
     var keys = jsonobj[0].value;
@@ -142,9 +140,9 @@ function Matrix2Table(jsonobj) {
     return jTable;
 }
 
-//
+
 function VectorArray2Table(jsonVector) {
-    //get row count
+    
     if (!isArray(jsonVector)) return;
     if (!isArray(jsonVector[0].value)) return;
     var rowcount = jsonVector[0].value.length;

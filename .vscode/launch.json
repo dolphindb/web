@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "node",
+            "request": "attach",
+            "name": "Attach to Process",
+            "processId": "${command:PickProcess}",
+            "port": 5858
+        },
+        {
+            "type": "node",
             "request": "launch",
             "name": "启动程序",
             "program": "${file}"
@@ -14,8 +21,8 @@
             "type": "node",
             "request": "attach",
             "name": "附加到进程",
-            "address": "localhost",
-            "port": 5858
+            "address": "192.168.1.25",
+            "port": 8900
         }
     ]
 }

@@ -1,4 +1,4 @@
-//page load
+
 var editor = null;
 var wa_url = '';
 var HOST = '';
@@ -19,8 +19,6 @@ $(function () {
 
     $.cookie("language_file", "js/lang.en.js");
 
-    //$('#agent_controller_url').text($.cookie('ck_ag_controller_url'));
-
     editor = CodeMirror.fromTextArea('txt_code', {
         height: "50px",
         parserfile: "parsesql.js",
@@ -29,7 +27,7 @@ $(function () {
         textWrapping: false
     });
     writelog(localStorage.executelog);
-    //get server variables
+
     refreshVariables();
 });
 
@@ -167,7 +165,6 @@ function buildNode(jsonLst, dataform) {
         }
 
         t.push({ "a_attr": obj.name, "id": obj.name, "text": obj.name + showtype + obj.rows + " rows [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]", "icon": "jstree-file" });
-        //t.push({ "text": obj.name + "&lt;" + obj.type + "&gt;" + obj.rows + " rows [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]", "icon": "jstree-file" });
     });
     var subtree = {
         "text": dataform,
@@ -195,7 +192,7 @@ $('#btn_execode').click(function () {
                 "height": "300"
             });
             dg.loadFromDolphinJson(re);
-            //writetolog(JSON.stringify(re.object));
+            
             $('#resulttab a[href="#DataWindow"]').tab('show');
         }
         refreshVariables();
@@ -217,9 +214,5 @@ function appendlog(logstr) {
 function writelog(logstr) {
     $('#pnl_log').html(logstr)
 }
-// function WebApiUrl() {
-//     if ($.cookie('ck_ag_controller_url') != null) {
-//         return "http://" + $.cookie('ck_ag_controller_url');
-//     }
-// }
+
 
