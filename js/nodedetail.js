@@ -49,14 +49,14 @@ $('#btn_refresh').click(function () {
 function bindVariables(datalist) {
     var localvariable = [];
     //TABLE
-    var list = datalist.filter(function(x) { return x.form === 'TABLE' && x.shared === 0 });
+    var list = datalist.filter(function(x) { return x.form === 'TABLE' && x.shared === 0; });
     localvariable.push(buildNode(list, "Table"));
     //VECTOR
-    list = datalist.filter(function(x) { return x.form === 'VECTOR' && x.shared === 0 });
+    list = datalist.filter(function(x) { return x.form === 'VECTOR' && x.shared === 0; });
     var tmp = buildNode(list, "Vector");
     localvariable.push(buildNode(list, "Vector"));
     //METRIX
-    list = datalist.where(function(x) { return x.form === 'MATRIX' && x.shared === 0 });
+    list = datalist.filter(function(x) { return x.form === 'MATRIX' && x.shared === 0; });
     localvariable.push(buildNode(list, "Matrix"));
     //SET
     list = datalist.filter(function(x) { return x.form === 'SET' && x.shared === 0; });
@@ -186,13 +186,15 @@ $('#btn_execode').click(function () {
     var executor = new CodeExecutor(wa_url);
 
     executor.run(codestr, function (re) {
+        console.log(re);
+        DolphinPlot(re.object[0]);
         if (isArray(re.object) && re.object.length > 0) {
             var dg = new DolphinGrid(grid, 
             {
                 onPageChanged: function (args) {
-                    showGrid("jsgrid1", codestr, (args.pageIndex - 1) * args.grid.pageSize, args.grid.pageSize);
+                    showGrid(gridid, getdatascript, (args.pageIndex - 1) * args.grid.pageSize, args.grid.pageSize);
                 },
-                "height": "350"
+                "height": "300"
             });
             dg.loadFromDolphinJson(re);
             //writetolog(JSON.stringify(re.object));

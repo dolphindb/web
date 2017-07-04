@@ -1,5 +1,5 @@
 /*=============================================
-Decription  : Dolphin datagrid , design for display data of DolphinDB API result
+Decription  : Dolphin Datagrid , design for display data of DolphinDB API result
 ref plugin  : jsgrid.js
 ref source  : https://github.com/tabalinas/jsgrid
 ref website : http://js-grid.com/
@@ -46,9 +46,9 @@ function DolphinGrid(gridInstance, gridSettings, pageChanged) {
             editing: false,
             sorting: false,
             paging: true,
-            pageLoading: true,
-            pageSize: 40,
+
             data: datalist,
+           
             fields: cols
         }
         if (typeof this.settings === "object") {
