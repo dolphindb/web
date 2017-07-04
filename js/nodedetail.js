@@ -104,20 +104,21 @@ function bindVariables(datalist) {
         .jstree(json_tree)
         .unbind('dblclick.jstree')
         .bind('dblclick.jstree', function (e) {
-            console.log("comin");
+            var dataform = $(e.target).closest('ul').prev().text();
+            if(dataform=="Scalar") return;
+
             var contentid = e.target.parentNode.id;
+            
             var code = contentid + ';';
             var divid = localStorage.divid++;
             var divobj = document.createElement("div");
             divobj.id = "div" + divid;
-            console.log(divobj.id);
             $(divobj).appendTo($('#dialogs'));
             var tblobj = document.createElement("div");
             tblobj.id = "jsgrid_" + divid;
-            console.log(tblobj.id);
             $(tblobj).appendTo($(divobj));
             showGrid(tblobj.id, code, 0, 20);
-            openDialog(divobj.id);
+            openDialog(divobj.id,'[' + dataform + ']' +  contentid);
         });
 }
 
@@ -126,6 +127,7 @@ function showGrid(gridid, getdatascript, startindex, pagesize) {
 
     var executor = new CodeExecutor(wa_url);
     executor.run(getdatascript, function (re) {
+        if(re&&re.object&&re.object.length>0&&re.object[0].DF=="scalar") return;
         var grid = $('#' + gridid);
         var dg = new DolphinGrid(grid, {
             controller: {
@@ -189,8 +191,7 @@ $('#btn_execode').click(function () {
     var grid = $('#jsgrid1');
     var dg = new DolphinGrid(grid,
         {
-            height: "370px",
-            pagesize:10,
+            pageSize:10,
             controller: {
                 loadData: function (filter) {
                     var g = getData(codestr, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize);
@@ -203,7 +204,6 @@ $('#btn_execode').click(function () {
                     };
                 }
             }
-
         });
     var g = getData(codestr, 0, 10);
     var d = DolphinResult2Grid(g);

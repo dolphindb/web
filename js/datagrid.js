@@ -15,12 +15,13 @@ function DolphinGrid(gridInstance, gridSettings) {
         if (typeof dolphinJson != "object") return;
         if (typeof dolphinJson.object != "object") return;
         if (isArray(dolphinJson.object) && dolphinJson.object.length > 0) {
-            this.loadFromJson(DolphinResult2Grid(dolphinJson));
+            $.extend(this.settings, { pageSize: getPageSize(dolphinJson) });
         }
+        this.loadFromJson(DolphinResult2Grid(dolphinJson));
     }
 
     this.loadFromJson = function (datalist, cols) {
-
+        if (datalist == null) return;
         if (datalist.length <= 0) throw "data empty";
 
         var griddata = {
@@ -43,7 +44,7 @@ function DolphinGrid(gridInstance, gridSettings) {
             pageSize: 20,
             pageIndex: 1,
 
-            data: griddata,
+            data: datalist,
             fields: cols
         }
 
@@ -51,6 +52,33 @@ function DolphinGrid(gridInstance, gridSettings) {
             $.extend(option, this.settings);
         }
         this.grid.jsGrid(option);
+    }
+}
+
+function getPageSize(dolphinJson) {
+    if (typeof dolphinJson != "object") return;
+    if (dolphinJson.object == null) return;
+    if (dolphinJson.object.length <= 0) return;
+    switch (dolphinJson.object[0].DF.toUpperCase()) {
+        case "VECTOR":
+            return 100;
+        case "MATRIX":
+            return 100;
+            break;
+        case "SET":
+            return 100;
+            break;
+        case "DICTIONARY":
+            return 100;
+            break;
+        case "TABLE":
+            return 10;
+            break;
+        case "SCALAR":
+            return 100;
+            break;
+        default:
+            break;
     }
 }
 
