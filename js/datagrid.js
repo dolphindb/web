@@ -82,10 +82,6 @@ function DolphinResult2Grid(reJson) {
 }
 //convert vector and set result to table data for grid
 function VectorSet2Table(jsonobj) {
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/custom-pager
     if (!isArray(jsonobj)) return;
     var vectorlength = jsonobj.length;
 
@@ -104,10 +100,7 @@ function VectorSet2Table(jsonobj) {
 }
 
 function Dictionay2Table(jsonobj) {
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/custom-pager
     if (!isArray(jsonobj)) return;
 
     var keys = jsonobj[0].value;
@@ -145,14 +138,8 @@ function Matrix2Table(jsonobj) {
     return jTable;
 }
 
-<<<<<<< HEAD
 
 function VectorArray2Table(jsonVector) {
-    
-=======
-function VectorArray2Table(jsonVector) {
-
->>>>>>> origin/custom-pager
     if (!isArray(jsonVector)) return;
     if (!isArray(jsonVector[0].value)) return;
     var rowcount = jsonVector[0].value.length;
