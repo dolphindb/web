@@ -20,6 +20,15 @@ function DolphinGrid(gridInstance, gridSettings) {
         this.loadFromJson(DolphinResult2Grid(dolphinJson));
     }
 
+    this.setGridPage = function(dolphinJson){
+        if (typeof dolphinJson != "object") return;
+        if (typeof dolphinJson.object != "object") return;
+        if (isArray(dolphinJson.object) && dolphinJson.object.length > 0) {
+            $.extend(this.settings, { pageSize: getPageSize(dolphinJson) });
+        }
+
+    }
+
     this.loadFromJson = function (datalist, cols) {
         if (datalist == null) return;
         if (datalist.length <= 0) throw "data empty";
