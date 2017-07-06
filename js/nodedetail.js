@@ -121,9 +121,7 @@ function bindVariables(datalist) {
 }
 
 
-function showGrid(gridid, getdatascript, startindex, pagesize) {
-
-    var g = getData(getdatascript, startindex, pagesize);
+function showGrid(gridid, getdatascript, g) {
     var d = DolphinResult2Grid(g);
 
     var grid = $('#' + gridid);
@@ -145,6 +143,14 @@ function showGrid(gridid, getdatascript, startindex, pagesize) {
         });
     dg.setGridPage(g);
     dg.loadFromJson(d);
+}
+
+function showPlot(gridid, getPlotScript) {
+    var result = getData(getPlotScript),
+        chartObj = result.object[0],
+        grid = $('#' + gridid);
+
+    DolphinPlot(chartObj, grid);
 }
 
 function openDialog(dialog, tit) {
@@ -186,10 +192,17 @@ function buildNode(jsonLst, dataform) {
 
 
 $('#btn_execode').click(function () {
-    var codestr = editor.getCode();
+    var codestr = editor.getCode(),
+        g;
     appendlog(codestr);
     codestr = encodeURIComponent(codestr);
-    showGrid('jsgrid1',codestr,0,10);
+
+    g = getData(codestr, 0, 10);
+
+    if (g.object[0].DF === "dictionary") // TODO chart form
+        showPlot('jsgrid1', codestr);
+    else
+        showGrid('jsgrid1', codestr, g);
 
     // executor.run(codestr, function (re) {
     //     console.log(re);
@@ -218,8 +231,6 @@ function getData(script, startindex, pagesize) {
     var p = {
         "sessionid": "0",
         "functionname": "executeCode",
-        "startindex": startindex.toString(),
-        "pagesize": pagesize.toString(),
         "parameters": [{
             "name": "script",
             "DF": "scalar",
@@ -227,6 +238,12 @@ function getData(script, startindex, pagesize) {
             "value": script
         }]
     };
+
+    if (typeof startindex !== "undefined")
+        p.startindex = startindex.toString();
+    if (typeof pagesize !== "undefined")
+        p.pagesize = pagesize.toString();
+
     var re = CallWebApiSync(wa_url, p);
     return re;
 }
