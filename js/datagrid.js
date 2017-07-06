@@ -11,7 +11,7 @@ function DolphinGrid(gridInstance, gridSettings) {
     this.grid = gridInstance;
     this.settings = gridSettings;
 
-    this.loadFromDolphinJson = function (dolphinJson) {
+    this.loadFromDolphinJson = function(dolphinJson) {
         if (typeof dolphinJson != "object") return;
         if (typeof dolphinJson.object != "object") return;
         if (isArray(dolphinJson.object) && dolphinJson.object.length > 0) {
@@ -20,7 +20,7 @@ function DolphinGrid(gridInstance, gridSettings) {
         this.loadFromJson(DolphinResult2Grid(dolphinJson));
     }
 
-    this.setGridPage = function(dolphinJson){
+    this.setGridPage = function(dolphinJson) {
         if (typeof dolphinJson != "object") return;
         if (typeof dolphinJson.object != "object") return;
         if (isArray(dolphinJson.object) && dolphinJson.object.length > 0) {
@@ -29,7 +29,7 @@ function DolphinGrid(gridInstance, gridSettings) {
 
     }
 
-    this.loadFromJson = function (datalist, cols) {
+    this.loadFromJson = function(datalist, cols) {
         if (datalist == null) return;
         if (datalist.length <= 0) throw "data empty";
 
@@ -72,20 +72,15 @@ function getPageSize(dolphinJson) {
         case "VECTOR":
             return 100;
         case "MATRIX":
-            return 100;
-            break;
+            return 100;;
         case "SET":
-            return 100;
-            break;
+            return 100;;
         case "DICTIONARY":
-            return 100;
-            break;
+            return 100;;
         case "TABLE":
-            return 10;
-            break;
+            return 10;;
         case "SCALAR":
-            return 100;
-            break;
+            return 100;;
         default:
             break;
     }
@@ -182,7 +177,7 @@ function VectorArray2Table(jsonVector) {
     var rowcount = jsonVector[0].value.length;
 
     var jTable = [];
-    jsonVector.forEach(function (value, index, array) {
+    jsonVector.forEach(function(value, index, array) {
         var valArr = value["value"];
         if (isArray(valArr)) {
             for (var i = 0; i < valArr.length; i++) {
@@ -198,7 +193,7 @@ function isArray(object) {
     return object && typeof object === 'object' && Array == object.constructor;
 }
 
-Array.prototype.setRow = function (index, fieldname, value) {
+Array.prototype.setRow = function(index, fieldname, value) {
     if (typeof this[index] === 'undefined') {
         var row = {};
         this[index] = row;

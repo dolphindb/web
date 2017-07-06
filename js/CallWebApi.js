@@ -2,12 +2,12 @@ var CurrentSessionID = "0";
 
 function CallWebApi(apiurl, paramstr, sucfunc, errfunc) {
 
-    if($.cookie('ck_ag_controller_url')==null){
-        paramstr['sessionid'] = CurrentSessionID;
-        $.cookie('ck_ag_controller_url',CurrentSessionID)
+    if ($.cookie('ck_ag_controller_url') == null) {
+        paramstr['sessionID'] = CurrentSessionID;
+        $.cookie('ck_ag_controller_url', CurrentSessionID)
     } else {
         CurrentSessionID = $.cookie('ck_ag_controller_url');
-        paramstr['sessionid'] = CurrentSessionID;
+        paramstr['sessionID'] = CurrentSessionID;
     }
     var d = JSON.stringify(paramstr);
     $.ajax({
@@ -16,22 +16,22 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc) {
         data: d,
         type: "POST",
         dataType: "json",
-        success: function (data, status, xhr) {
+        success: function(data, status, xhr) {
 
-            CurrentSessionID = data["sessionid"];
-            $.cookie('ck_ag_controller_url',CurrentSessionID);
-            
+            CurrentSessionID = data["sessionID"];
+            $.cookie('ck_ag_controller_url', CurrentSessionID);
+
             sucfunc(data);
         },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
             errfunc(errorThrown);
         }
     });
 };
 
-function CallWebApiSync(apiurl, paramstr){
-    paramstr['sessionid'] = CurrentSessionID;
-     var d = JSON.stringify(paramstr);
+function CallWebApiSync(apiurl, paramstr) {
+    paramstr['sessionID'] = CurrentSessionID;
+    var d = JSON.stringify(paramstr);
     //console.log(d);
     var re = $.ajax({
         url: apiurl,
