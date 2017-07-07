@@ -7,7 +7,8 @@
 * ## 规划集群
      作为一个集群管理员，首先需要规划好集群的规模和网络。
      DolphinDB的集群管理需要了解几个概念: controller,agent,dataNode。
-     ![集群管理图片] (https://asset1.basecamp.com/3616762/projects/13845420/attachments/293203161/ab671338-62f1-11e7-99ee-e89a8f919fc7/thumbnail.png)
+     ![集群管理图片][dolid]
+     [dolid]: https://asset1.basecamp.com/3616762/projects/13845420/attachments/293203161/ab671338-62f1-11e7-99ee-e89a8f919fc7/thumbnail.png "集群管理图片"
     * controller ：
         * 提供集群管理的管理界面
         * 收集各节点及agent的心跳，提供各节点状态的观测
