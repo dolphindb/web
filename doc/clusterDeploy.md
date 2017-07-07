@@ -29,14 +29,14 @@
     localhost:8511:rh8511,,15,3,3
     ...
     ```   
-* 集群控制器启动
+* ## 集群控制器启动
     ```sh
     DolphinDB -mode controller -localSite localhost:8848 -nodeFile agent.cfg
     ```
     * 访问集群控制管理界面
     用 chrome, firefox等浏览器访问 http://localhost:8848/default.html
 
-* agent 节点代理启动
+* ## agent 节点代理启动
     ```sh
     DolphinDB -mode agent -localSite localhost:8501:rh8501 -port 8501 -controllerSite localhost:8848 -logFile agent8501.log
     ```
