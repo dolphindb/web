@@ -204,23 +204,6 @@ $('#btn_execode').click(function () {
     else
         showGrid('jsgrid1', codestr, g);
 
-    // executor.run(codestr, function (re) {
-    //     console.log(re);
-    //     DolphinPlot(re.object[0]);
-    //     if (isArray(re.object) && re.object.length > 0) {
-    //         var dg = new DolphinGrid(grid, 
-    //         {
-    //             onPageChanged: function (args) {
-    //                 showGrid(gridid, getdatascript, (args.pageIndex - 1) * args.grid.pageSize, args.grid.pageSize);
-    //             },
-    //             "height": "300"
-    //         });
-    //         dg.loadFromDolphinJson(re);
-    //         //writetolog(JSON.stringify(re.object));
-    //         $('#resulttab a[href="#DataWindow"]').tab('show');
-    //     }
-    //     refreshVariables();
-    // })
     $('#resulttab a[href="#DataWindow"]').tab('show');
 
     refreshVariables();

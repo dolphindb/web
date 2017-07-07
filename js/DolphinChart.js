@@ -19,12 +19,169 @@ function DolphinChart(yData, xData, title, chartType, options) {
     this.data = [];
     this.g = null;
     this.width = this.height = this.totalWidth = this.totalHeight = 0;
+    this.xScale = null;
+}
+
+/**
+ * Plot the chart in a DOM element.
+ * @param {Object} elem - A DOM element 
+ */
+DolphinChart.prototype.plot = function(elem, width, height) {
+    $(elem).html("");    // clear element
+    this.totalWidth = width || 680;
+    this.totalHeight = height || 420;
+
+    var i, len, yData,
+        margin = { top: 30, right: 60, bottom: 20, left: 60 },
+        svg = d3.select(elem)
+        .append("svg")
+        .attr("id", "vis-svg")
+        .attr("width", this.totalWidth)
+        .attr("height", this.totalHeight);;
+    var shouldXDataBeNumber = (function() {
+        return this.chartType === "LINE" || this.chartType === "AREA" || this.chartType === "SCATTER";
+    }).bind(this);
+
+    // make title
+    if (this.title !== "") {
+        svg.append("text")
+            .attr("x", this.totalWidth / 2)
+            .attr("y", 40)
+            .attr("text-anchor", "middle")
+            .attr("font-size", 28)
+            .text(this.title)
+        margin.top += 40;
+    }
+
+    this.width = this.totalWidth - margin.left - margin.right;
+    this.height = this.totalHeight - margin.top - margin.bottom;
+
+    // format data
+    for (i = 0, len = this.yData.length; i < len; i++) {
+        yData = this.yData[i];
+        tmpData = this.xData
+            .map(function(data, index) { return { x: data, y: yData[index] }; })
+            .sort(function(a, b) { return a.x - b.x; });
+        this.data.push(tmpData);
+    }
+
+    this.g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Special case
+    if (this.chartType === "PIE") {
+        this.colors = this.genRandColorN(this.yData[0].length);
+        this.options.yLegend = this.xData;
+    }
+    else
+        this.colors = this.genRandColorN(this.yData.length);
+
+    this.plotLegend();
+    
+    switch (this.chartType) {
+        case "LINE": this.plotLineChart(); break;
+        case "AREA": this.plotAreaChart(); break;
+        case "PIE": this.plotPieChart(); break;
+        case "BAR": this.plotBarChart(); break;
+        case "COLUMN": this.plotColumnChart(); break;
+        case "SCATTER": this.plotScatterChart(); break;
+        default: throw new Error("Unknown chart type: " + this.chartType); break;
+    }
+}
+
+DolphinChart.prototype.genXScale = function() {
+    var xScale;
+
+    if (!this.xData) {    // let xData be range 0..length TODO wait for server update
+        this.xData = this.yData[0].map(function(x, i) { return i; });
+    }
+
+    // Process temporal type
+    switch (this.options.xDataType) {
+        case "date":
+        case "month":
+        case "datetime":
+        case "timestamp":
+            this.xData = this.xData.map(function(d) {
+                return new Date(d.replace(/[MT]/, " "));    // Use JavaScript acceptable date format
+            });
+            break;
+        case "time":
+        case "minute":
+        case "second":
+            this.xData = this.xData.map(function(d) {
+                return new Date("2000.01.01 " + d.replace("m", ""));    // Create a pseudo Date object by adding a random date
+            })
+            break;
+        default: break;
+    }
+
+    if (this.chartType === "BAR") {
+        return d3.scaleBand()
+            .domain(this.xData)
+            .rangeRound([0, this.width])
+            .padding(0.2);
+    }
+    else if (this.chartType === "COLUMN") {
+        return d3.scaleBand()
+            .domain(this.xData)
+            .rangeRound([0, this.height])
+            .padding(0.2);
+    }
+    else if (typeof this.options.xDataType === "undefined") {
+        // Numeral xData
+        return d3.scaleLinear()
+            .domain(d3.extent(this.xData))
+            .range([0, this.width]);
+    }
+    else if (typeof this.options.xDataType === "string") {
+        return d3.scalePoint()
+            .domain(this.xData)
+            .range([0, this.width]);
+    }
+    else {
+        xScale = d3.scaleTime()
+            .domain(d3.extent(this.xData))
+            .range([0, this.width]);
+
+        switch (this.options.xDataType) {
+            case "date":
+            case "month":
+            case "time":
+            case "minute":
+            case "second":
+            case "timestamp":
+            case "datetime": break;
+            default: throw new Error("Unknown data type: " + this.chartType); break;
+        }
+
+        return xScale;
+    }
+}
+
+DolphinChart.prototype.genYScale = function() {
+    if (this.chartType === "COLUMN") {
+        return d3.scaleLinear()
+            .domain(d3.extent(d3.merge(this.yData).concat([0])))
+            .range([0, this.width]);
+    }
+    else if (this.chartType === "BAR" || this.chartType === "AREA") {
+        return d3.scaleLinear()
+            .domain(d3.extent(d3.merge(this.yData).concat([0])))
+            .range([this.height, 0]);
+    }
+    else if (this.chartType === "LINE" || this.chartType === "SCATTER") {
+        return d3.scaleLinear()
+            .domain(d3.extent(d3.merge(this.yData)))    // Get extent of all yData
+            .range([this.height, 0]);
+    }
+    else
+        throw new Error("Unknown data type: " + this.chartType);
 }
 
 DolphinChart.prototype.genRandColor = function() {
     var h = parseInt(Math.random() * 360, 10),
-        s = 0.65,
-        l = 0.65;
+        s = Math.random() * 0.15 + 0.5,
+        l = Math.random() * 0.5 + 0.3;
     var color = d3.hsl(h, s, l);
     return color.toString();
 }
@@ -36,6 +193,8 @@ DolphinChart.prototype.genRandColorN = function(n) {
         colors[i] = this.genRandColor();
 
     return colors;
+    return d3.scaleOrdinal()
+        .range(colors);
 }
 
 DolphinChart.prototype.plotAxes = function (xScale, yScale) {
@@ -67,15 +226,15 @@ DolphinChart.prototype.plotAxes = function (xScale, yScale) {
     }
 }
 
-
 DolphinChart.prototype.plotLegend = function() {
     var self = this;
 
     if (!this.options.yLegend)
-        throw new Error("Legend should not be empty");
+        this.options.yLegend = new Array(this.yData.length);
 
     var legend = d3.select("#vis-svg")
         .selectAll(".vis-legend")
+        //.data(this.colors.range())
         .data(this.colors)
         .enter().append("g")
             .attr("class", "vis-legend")
@@ -95,86 +254,10 @@ DolphinChart.prototype.plotLegend = function() {
         .text(function(d, i) { return self.options.yLegend[i]; });
 }
 
-/**
- * Plot the chart in a DOM element.
- * @param {Object} elem - A DOM element 
- */
-DolphinChart.prototype.plot = function(elem, width, height) {
-    $(elem).html("");    // clear element
-    this.totalWidth = width || 680;
-    this.totalHeight = height || 420;
-
-    var i, len, yData,
-        margin = { top: 30, right: 60, bottom: 20, left: 30 },
-        svg = d3.select(elem)
-        .append("svg")
-        .attr("id", "vis-svg")
-        .attr("width", this.totalWidth)
-        .attr("height", this.totalHeight);;
-    var shouldXDataBeNumber = (function() {
-        return this.chartType === "LINE" || this.chartType === "AREA" || this.chartType === "SCATTER";
-    }).bind(this);
-
-    // make title
-    if (this.title !== "") {
-        svg.append("text")
-            .attr("x", this.totalWidth / 2)
-            .attr("y", 40)
-            .attr("text-anchor", "middle")
-            .attr("font-size", 28)
-            .text(this.title)
-        margin.top += 40;
-    }
-
-    this.width = this.totalWidth - margin.left - margin.right;
-    this.height = this.totalHeight - margin.top - margin.bottom;
-
-    if (!this.xData ||
-        (typeof this.xData[0] !== "number" && shouldXDataBeNumber())) {    // let xData be range 0..length
-        this.xData = this.yData[0].map(function(x, i) { return i; });
-    }
-
-    // format data
-    for (i = 0, len = this.yData.length; i < len; i++) {
-        yData = this.yData[i];
-        tmpData = this.xData
-            .map(function(data, index) { return { x: data, y: yData[index] }; })
-            .sort(function(a, b) { return a.x - b.x; });
-        this.data.push(tmpData);
-    }
-
-    this.g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    // Generate colors
-    if (this.chartType !== "PIE")
-        this.colors = this.genRandColorN(this.yData.length);
-    else
-        this.colors = this.genRandColorN(this.yData[0].length);
-
-    if (this.options.yLegend)
-        this.plotLegend();
-    
-    switch (this.chartType) {
-        case "LINE": this.plotLineChart(); break;
-        case "AREA": this.plotAreaChart(); break;
-        case "PIE": this.plotPieChart(); break;
-        case "BAR": this.plotBarChart(); break;
-        case "COLUMN": this.plotColumnChart(); break;
-        case "SCATTER": this.plotScatterChart(); break;
-        default: throw new Error("Unknown chart type: " + this.chartType); break;
-    }
-}
-
 DolphinChart.prototype.plotLineChart = function() {
-    var self = this;
-
-    var xScale = d3.scaleLinear()
-        .domain(d3.extent(this.xData))
-        .range([0, this.width]);
-
-    var yScale = d3.scaleLinear()
-        .domain(d3.extent(d3.merge(this.yData)))    // Get extent of all yData
-        .range([this.height, 0]);
+    var self = this,
+        xScale = this.genXScale(),
+        yScale = this.genYScale();
 
     this.plotAxes(xScale, yScale);
 
@@ -187,23 +270,18 @@ DolphinChart.prototype.plotLineChart = function() {
         .enter().append("path")
             .attr("fill", "none")
             .attr("stroke", function(d, i) { return self.colors[i]; })  // TODO arrow
+            //.attr("stroke", function(d) { console.log(d); self.colors(d); console.log(self.colors.domain()); return self.colors(d); })
             .attr("stroke-linejoin", "round")
             .attr("stroke-linecap", "round")
             .attr("stroke-width", 1.5)
             .attr("class", "vis-line")
             .attr("d", line);
-    }
+}
 
 DolphinChart.prototype.plotAreaChart = function() {
-    var self = this;
-
-    var xScale = d3.scaleLinear()
-        .domain(d3.extent(this.xData))
-        .range([0, this.width]);
-
-    var yScale = d3.scaleLinear()
-        .domain(d3.extent(d3.merge(this.yData).concat([0])))    // Add 0 to y extent
-        .range([this.height, 0]);
+    var self = this,
+        xScale = this.genXScale(),
+        yScale = this.genYScale();
 
     this.plotAxes(xScale, yScale);
 
@@ -223,14 +301,8 @@ DolphinChart.prototype.plotAreaChart = function() {
 
 DolphinChart.prototype.plotScatterChart = function() {
     var self = this;
-
-    var xScale = d3.scaleLinear()
-        .domain(d3.extent(this.xData))
-        .range([0, this.width]);
-
-    var yScale = d3.scaleLinear()
-        .domain(d3.extent(d3.merge(this.yData)))    // Get extent of all yData
-        .range([this.height, 0]);
+        xScale = this.genXScale(),
+        yScale = this.genYScale();
 
     this.plotAxes(xScale, yScale);
 
@@ -292,15 +364,8 @@ DolphinChart.prototype.plotPieChart = function() {
 DolphinChart.prototype.plotBarChart = function() {
     var bandwidth = 0,
         self = this;
-
-    var xScale = d3.scaleBand()
-        .domain(this.xData)
-        .rangeRound([0, this.width])
-        .padding(0.2);
-
-    var yScale = d3.scaleLinear()
-        .domain(d3.extent(d3.merge(this.yData).concat([0])))
-        .range([this.height, 0]);
+        xScale = this.genXScale(),
+        yScale = this.genYScale();
 
     bandwidth = xScale.bandwidth() / this.yData.length;
 
@@ -333,10 +398,7 @@ DolphinChart.prototype.plotColumnChart = function() {
         .domain(d3.extent(d3.merge(this.yData).concat([0])))
         .range([0, this.width]);
 
-    var yScale = d3.scaleBand()
-        .domain(this.xData)
-        .rangeRound([0, this.height])
-        .padding(0.2);
+    var yScale = this.genXScale();
 
     bandwidth = yScale.bandwidth() / this.yData.length;
 
@@ -358,9 +420,9 @@ DolphinChart.prototype.plotColumnChart = function() {
                     .enter().append("rect")
                         .attr("class", "vis-bar")
                         .attr("fill", self.colors[i])
-                        .attr("x", "0")
+                        .attr("x", 1)
                         .attr("y", function(d) { return yScale(d.x) + bandwidth * i; })
-                        .attr("width", function(d) { return xScale(d.y); })
+                        .attr("width", function(d) { return xScale(d.y) - 1; })
                         .attr("height", bandwidth);    // TODO arrow function
             });  
 }
