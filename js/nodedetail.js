@@ -196,7 +196,7 @@ $('#btn_execode').click(function() {
 
     var g = getData(codestr, 0, 10);
 
-    if (g.object[0].DF === "dictionary") // TODO chart form
+    if (g.object[0].form === "chart")
         showPlot('jsgrid1', codestr);
     else
         showGrid('jsgrid1', codestr, g);

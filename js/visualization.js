@@ -22,23 +22,24 @@ function DolphinPlot(chartObject, elem) {
         title = titles[0],
         xTitle = titles[1],
         yTitle = titles[2],
-        i, len,
         yData = [],
         xData = null,
         data = metadata.value[0].value,
         row = parseInt(metadata.value[1].value, 10),
         col = parseInt(metadata.value[2].value, 10),
-        rowLabel = metadata.value[3] && metadata.value[3].value,    // TODO recheck
-        rowDataType = metadata.value[3] && metadata.value[3].DT,    // TODO DT
-        colLabel = metadata.value[4] && metadata.value[4].value,
+        rowDataType = metadata.value[3].type,
+        rowLabel = rowDataType === "void" ? null : metadata.value[3].value,
+        colDataType = metadata.value[4].type,
+        colLabel = colDataType === "void" ? null : metadata.value[4].value,
         chart = null,
-        options = {};
+        options = {},
+        i, len;
 
     // Split array into chunks
     for (i = 0, len = col; i < len; i++) {
         yData.push(data.slice(i * row, i * row + row));
     }
-    xData = rowLabel || null;
+    xData = rowLabel;
 
     chartType = chartTypes[chartType];
 
