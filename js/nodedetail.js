@@ -1,20 +1,21 @@
-
 var editor = null;
 var wa_url = '';
 var HOST = '';
 var PORT = '';
 
-$(function () {
+$(function() {
 
     var siteid = $.getUrlParam('site');
-    var hostinfo = siteid.split(':');
-    HOST = hostinfo[0];
-    PORT = hostinfo[1];
 
-    wa_url = "http://" + HOST + ":" + PORT + "/";
     if (!siteid || siteid == "") {
         wa_url = "http://" + window.location.host;
+    } else {
+        var hostinfo = siteid.split(':');
+        HOST = hostinfo[0];
+        PORT = hostinfo[1];
+        wa_url = "http://" + HOST + ":" + PORT + "/";
     }
+
 
 
     $.cookie("language_file", "js/lang.en.js");
@@ -33,13 +34,13 @@ $(function () {
 
 function refreshVariables() {
     var executor = new CodeExecutor(wa_url);
-    executor.run("objs(true)", function (re) {
+    executor.run("objs(true)", function(re) {
         var rowJson = VectorArray2Table(re.object[0].value);
         bindVariables(rowJson)
     });
 }
 
-$('#btn_refresh').click(function () {
+$('#btn_refresh').click(function() {
     refreshVariables();
 });
 
@@ -74,27 +75,24 @@ function bindVariables(datalist) {
     var json_tree = {
         'core': {
             'dblclick_toggle': true,
-            'data': [
-                {
-                    "text": "variables",
-                    "state": { "opened": true },
-                    "icon": "jstree-folder",
-                    "children": [
-                        {
-                            "text": "local variables",
-                            "state": { "opened": true },
-                            "icon": "jstree-folder",
-                            "children": localvariable
-                        },
-                        {
-                            "text": "shared tables",
-                            "state": { "opened": false },
-                            "icon": "jstree-folder",
-                            "children": sharedtable
-                        }
-                    ]
-                }
-            ]
+            'data': [{
+                "text": "variables",
+                "state": { "opened": true },
+                "icon": "jstree-folder",
+                "children": [{
+                        "text": "local variables",
+                        "state": { "opened": true },
+                        "icon": "jstree-folder",
+                        "children": localvariable
+                    },
+                    {
+                        "text": "shared tables",
+                        "state": { "opened": false },
+                        "icon": "jstree-folder",
+                        "children": sharedtable
+                    }
+                ]
+            }]
         }
     };
     localStorage.divid = 0;
@@ -102,7 +100,7 @@ function bindVariables(datalist) {
     $('#pnl_variables')
         .jstree(json_tree)
         .unbind('dblclick.jstree')
-        .bind('dblclick.jstree', function (e) {
+        .bind('dblclick.jstree', function(e) {
             var dataform = $(e.target).closest('ul').prev().text();
             var contentid = $(e.target).closest('li')[0].id;
             if (dataform == "Scalar") return;
@@ -125,22 +123,21 @@ function showGrid(gridid, getdatascript, g) {
     var d = DolphinResult2Grid(g);
 
     var grid = $('#' + gridid);
-    var dg = new DolphinGrid(grid,
-        {
-            pageSize: 10,
-            controller: {
-                loadData: function (filter) {
-                    var g = getData(getdatascript, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize);
-                    var total = g.object[0].size;
-                    var d = DolphinResult2Grid(g);
+    var dg = new DolphinGrid(grid, {
+        pageSize: 10,
+        controller: {
+            loadData: function(filter) {
+                var g = getData(getdatascript, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize);
+                var total = g.object[0].size;
+                var d = DolphinResult2Grid(g);
 
-                    return {
-                        data: d,
-                        itemsCount: total
-                    };
-                }
+                return {
+                    data: d,
+                    itemsCount: total
+                };
             }
-        });
+        }
+    });
     dg.setGridPage(g);
     dg.loadFromJson(d);
 }
@@ -162,19 +159,18 @@ function openDialog(dialog, tit) {
         position: { my: "center", at: "center", of: window },
         title: tit,
         dialogClass: "no-close",
-        buttons: [
-            {
-                text: "OK",
-                click: function () {
-                    $(this).dialog("close");
-                }
+        buttons: [{
+            text: "OK",
+            click: function() {
+                $(this).dialog("close");
             }
-        ]
+        }]
     });
 }
+
 function buildNode(jsonLst, dataform) {
     var t = [];
-    jsonLst.forEach(function (obj, index, arr) {
+    jsonLst.forEach(function(obj, index, arr) {
         var showtype = " ";
         if (obj.form.toUpperCase() != "TABLE") {
             showtype = "&lt;" + obj.type + "&gt;";
@@ -191,13 +187,14 @@ function buildNode(jsonLst, dataform) {
 }
 
 
-$('#btn_execode').click(function () {
-    var codestr = editor.getCode(),
-        g;
+$('#btn_execode').click(function() {
+    var codestr = editor.getCode();
+
     appendlog(codestr);
+
     codestr = encodeURIComponent(codestr);
 
-    g = getData(codestr, 0, 10);
+    var g = getData(codestr, 0, 10);
 
     if (g.object[0].form === "chart")
         showPlot('jsgrid1', codestr);
@@ -212,26 +209,26 @@ $('#btn_execode').click(function () {
 
 function getData(script, startindex, pagesize) {
     var p = {
-        "sessionid": "0",
-        "functionname": "executeCode",
-        "parameters": [{
+        "sessionID": "0",
+        "functionName": "executeCode",
+        "params": [{
             "name": "script",
-            "DF": "scalar",
-            "DT": "string",
+            "form": "scalar",
+            "type": "string",
             "value": script
         }]
     };
 
     if (typeof startindex !== "undefined")
-        p.startindex = startindex.toString();
+        p.offset = startindex.toString();
     if (typeof pagesize !== "undefined")
-        p.pagesize = pagesize.toString();
+        p.length = pagesize.toString();
 
     var re = CallWebApiSync(wa_url, p);
     return re;
 }
 
-$('#btn_clear').click(function () {
+$('#btn_clear').click(function() {
     $('#pnl_log').html('');
     localStorage.executelog = '';
 });
@@ -246,6 +243,6 @@ function writelog(logstr) {
     $('#pnl_log').html(logstr)
 }
 
-$('#btn_clrcode').click(function(){
+$('#btn_clrcode').click(function() {
     editor.setCode('');
 });

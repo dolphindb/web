@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Dolphin DB Deploy Kit</title>
+    <title>DolphinDB Nodebook</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="DolphinDB Node Management">
     <meta name="author" content="DolphinDB">
@@ -35,14 +35,9 @@
 
     <!-- Navbar ================================================== -->
     <header class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
+        <div class="container-fluid">
             <div class="navbar-header">
-                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="navbar-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-                <a class="navbar-brand" href="http://www.dolphindb.com">DolphinDB Deploy Kit</a>
+                <a class="navbar-brand" href="http://www.dolphindb.com">DolphinDB Nodebook</a>
             </div>
             <nav class="navbar-collapse collapse navbar-right">
 
@@ -50,11 +45,11 @@
         </div>
     </header>
 
-    <div class="container" id="layout">
+    <div class="container-fluid" id="layout" style="width:99vw;padding:10px">
         <!-- Docs nav ================================================== -->
         <div class="row">
             <div class="col-lg-12" id="main">
-                <div class="page-header">
+                <div style="margin-top: 10px">
                     <div class="alert alert-info" role="alert">
                         <div>
                             <div class="panel panel-default" style="margin-bottom: 10px">
@@ -71,7 +66,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-8">
+            <div class="col-lg-9 col-md-9 col-sm-8">
                 <div>
                     <!-- Result Window tabs -->
                     <ul id="resulttab" class="nav nav-tabs" role="tablist">
@@ -82,7 +77,7 @@
                     <div class="tab-content">
                         <div style="position: relative;display: block"><span class="btn-clear" id="btn_clear">clearlog</span></div>
                         <div role="tabpanel" class="tab-pane active" id="log">
-                            <div class="panel panel-default" style="min-height: 500px">
+                            <div class="panel panel-default" style="min-height: 60vh">
                                 <div class="panel-body" id="pnl_log" style="height:500px;overflow:auto">
 
                                 </div>
@@ -100,11 +95,11 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
-                <div style="height:40px">&nbsp;<button type="button" class="btn btn-default hide" id="btn_refresh"></button>                    </div>
-                <div class="panel panel-default">
+            <div class="col-lg-3 col-md-3 col-sm-4">
+                <div style="height:40px">&nbsp;<button type="button" class="btn btn-default hide" id="btn_refresh"></button> </div>
+                <div class="panel panel-default" style="min-height: 60vh">
                     <div class="panel-body">
-                        <div id="pnl_variables" style="height: 460px;overflow:auto">
+                        <div id="pnl_variables">
                         </div>
                     </div>
                 </div>
@@ -126,7 +121,7 @@
 
     </div>
     <!-- Footer================================================== -->
-    <footer class="bs-footer" style="width:100%;position:fixed;bottom:0px;left:0px;">
+    <footer class="bs-footer hide" style="width:100%;position:fixed;bottom:0px;left:0px;">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 col-sm-12">
@@ -177,7 +172,6 @@
 </body>
 <script>
     // $("#accordion").accordion({ heightStyle: "fill" });
-
 </script>
 
 

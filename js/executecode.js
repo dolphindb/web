@@ -1,33 +1,32 @@
 function CodeExecutor(url) {
     this.apiurl = url;
-    this.run = function (script,callback,params) {
+    this.run = function(script, callback, params) {
 
         var p = {
-            "sessionid": "0",
-            "functionname": "executeCode",
-            "parameters": [{
+            "sessionID": "0",
+            "functionName": "executeCode",
+            "params": [{
                 "name": "script",
-                "DF": "scalar",
-                "DT": "string",
+                "form": "scalar",
+                "type": "string",
                 "value": script
             }]
         };
-        if(params){
+        if (params) {
             $.extend(p, params);
         }
 
-        CallWebApi(this.apiurl, p, function (re) {
+        CallWebApi(this.apiurl, p, function(re) {
             var resultobj = {};
             if (typeof re == "string") {
                 resultobj = JSON.parse(re);
-            }
-            else {
+            } else {
                 resultobj = re;
             }
 
             callback(re);
             return false;
-        }, function (re) {
+        }, function(re) {
             console.log(re);
         });
     };

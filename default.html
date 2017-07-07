@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <title>Dolphin DB Deploy Kit</title>
@@ -41,10 +42,11 @@
 
 
 <body data-spy="scroll" data-target=".bs-docs-sidebar" data-twttr-rendered="true">
+
     <!-- Navbar
     ================================================== -->
     <header class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
+        <div class="container-fluid">
             <div class="navbar-header">
                 <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="navbar-collapse">
                 <span class="icon-bar"></span>
@@ -63,13 +65,11 @@
         </div>
     </header>
 
-    <div class="container" id="layout">
+    <div class="container-fluid" id="layout" style="width:99vw;padding:10px">
         <!-- Docs nav ================================================== -->
         <div class="row">
-            <div class="col-lg-3 col-sm-3" id="sidebar">
+            <div class="col-lg-2 col-md-3" id="sidebar">
                 <div class="bs-sidebar hidden-print" role="complementary">
-                    <div class="page-header">
-                    </div>
                     <div class="panel panel-info">
                         <div class="panel-heading">
                             agent node
@@ -93,10 +93,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-9 col-sm-9" id="main">
-                <div class="page-header">
-                    <h3><span id="serverName"></span></h3>
-                </div>
+            <div class="col-lg-10 col-md-9" id="main">
                 <div class="panel panel-default">
                     <div class="panel-body">
                         <div class="btn-toolbar" role="toolbar" aria-label="...">
@@ -123,7 +120,7 @@
         </div>
     </div>
     <!-- Footer================================================== -->
-    <footer class="bs-footer">
+    <footer class="bs-footer navbar-fixed-bottom">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 col-sm-12">
@@ -166,7 +163,7 @@
 
     var SESSION_ID = "0";
     var grid = document.querySelector('table[grid-manager="grid1"]');
-    $(function () {
+    $(function() {
         wa_url = "http://" + window.location.host;
         console.log(wa_url);
         $.cookie('ck_ag_controller_url', wa_url);
@@ -187,8 +184,8 @@
 
     function GetLocalData(url) {
         var p = {
-            "sessionid": SESSION_ID,
-            "functionname": "getNodeList"
+            "sessionID": SESSION_ID,
+            "functionName": "getNodeList"
         };
         CallWebApi(url, p, connect_server_success, connect_server_error);
     }
@@ -198,7 +195,15 @@
         var l = $("#serverTemplate").tmpl(agentList).appendTo("#physicalServerList");
 
 
-        var databaseList = [{ "dbname": "database_1" }, { "dbname": "database_2" }, { "dbname": "database_2" }, { "dbname": "database_2" }];
+        var databaseList = [{
+            "dbname": "database_1"
+        }, {
+            "dbname": "database_2"
+        }, {
+            "dbname": "database_2"
+        }, {
+            "dbname": "database_2"
+        }];
         $("#databaseList").html("");
         l = $("#databaseTemplate").tmpl(databaseList).appendTo("#databaseList");
     }
@@ -211,64 +216,67 @@
         grid.GM({
             ajax_data: griddata,
             supportAutoOrder: false,
+            supportSorting: true,
+
             query: {
                 "host": ""
             },
-            height: '600px',
-            columnData: [
-                {
-                    text: 'site',
-                    key: 'site'
-                },
-                {
-                    text: 'state',
-                    key: 'state',
-                    template: function (state, rowObject) {
+            height: '80vh',
+            columnData: [{
+                text: 'site',
+                key: 'site',
+                width: '100px',
+            }, {
+                text: 'state',
+                key: 'state',
+                width: '40px',
+                template: function(state, rowObject) {
 
-                        if (state == "1") {
-                            return '<font style="color:green">running</font>';
-                        } else {
-                            return '<font style="color:red">stopped</font>';
-                        }
-                    }
-                },
-                {
-                    text: 'maxconnections',
-                    key: 'maxconnections'
-                },
-                {
-                    text: 'maxmemsize',
-                    key: 'maxmemsize',
-                    template: function (action, rowObject) {
-                        return Number(rowObject.maxmemsize).toFixed(2);
-                    }
-
-                },
-                {
-                    text: 'workernum',
-                    key: 'workernum'
-                },
-                {
-                    text: 'executornum',
-                    key: 'executornum'
-                },
-                {
-                    text: 'connectionsnum',
-                    key: 'connectionsnum'
-                },
-                {
-                    text: 'tasknum',
-                    key: 'tasknum'
-                },
-                {
-                    text: 'action',
-                    key: 'action',
-                    template: function (action, rowObject) {
-                        return '<a style="padding-left:20px" href=javascript:window.location.href="nodedetail.html?site=' +
-                            rowObject.site + '";>detail</a>';
+                    if (state == "1") {
+                        return '<font style="color:green">running</font>';
+                    } else {
+                        return '<font style="color:red">stopped</font>';
                     }
                 }
-            ]
+            }, {
+                text: 'maxConnections',
+                key: 'maxConnections',
+                width: '40px',
+            }, {
+                text: 'maxMemSize',
+                key: 'maxMemSize',
+                width: '40px',
+                template: function(maxMemSize, rowObject) {
+                    return Number(maxMemSize).toFixed(2);
+                }
+
+            }, {
+                text: 'workerNum',
+                key: 'workerNum',
+                width: '40px',
+
+            }, {
+                text: 'executorNum',
+                key: 'executorNum',
+                width: '40px',
+            }, {
+                text: 'connectionNum',
+                key: 'connectionNum',
+                width: '40px',
+            }, {
+                text: 'taskNum',
+                key: 'taskNum'
+            }, {
+                text: 'action',
+                key: 'action',
+                template: function(action, rowObject) {
+                    var r = "";
+                    if (rowObject.state == "1") {
+                        r = '<a style="padding-left:20px" href=javascript:window.location.href="nodedetail.html?site=' + rowObject.site + '";>detail</a>';
+                    }
+                    return r;
+                }
+            }]
         });
     }
 
@@ -309,17 +317,21 @@
     // });
 
     function connect_server_success(result) {
-        SESSION_ID = result["sessionid"];
+        SESSION_ID = result["sessionID"];
         if (result) {
             var data = result["object"];
             if (data.length <= 0) return;
 
             ALL_NODE = VectorArray2Table(data[0].value);
 
-            AGENT_LIST = ALL_NODE.filter(function(x) { return x.mode === 'ag'; });
+            AGENT_LIST = ALL_NODE.filter(function(x) {
+                return x.mode === 'agent';
+            });
             LoadLeft(AGENT_LIST);
 
-            NODE_LIST = ALL_NODE.filter(function(x) { return x.mode === 'datanode'; });
+            NODE_LIST = ALL_NODE.filter(function(x) {
+                return x.mode === 'dataNode';
+            });
 
             refreshGrid(NODE_LIST)
         }
@@ -331,46 +343,46 @@
     //============================================================================
 
 
-    $("#btn_run").click(function () {
+    $("#btn_run").click(function() {
         var t = grid.GM("getCheckedData");
         var isAllSuccess = false;
         for (var i = 0; i < t.length; i++) {
             data = t[i];
             if (data.state == "1") {
-                return false
+                continue;
             };
             var p = {
-                "sessionid": SESSION_ID,
-                "functionname": "startDataNode",
-                "parameters": [{
+                "sessionID": SESSION_ID,
+                "functionName": "startDataNode",
+                "params": [{
                     "name": "host",
-                    "DF": "scalar",
-                    "DT": "string",
+                    "form": "scalar",
+                    "type": "string",
                     "value": data.host
-                },
-                {
+                }, {
                     "name": "port",
-                    "DF": "scalar",
-                    "DT": "string",
+                    "form": "scalar",
+                    "type": "string",
                     "value": data.port
-                }
-                ]
+                }]
             };
-            CallWebApi(wa_url, p, function (re) {
-                if (typeof (re) == "object") {
+            // var re = CallWebApiSync(wa_url, p);
+            // console.log(re);
+            CallWebApi(wa_url, p, function(re) {
+                if (typeof(re) == "object") {
                     if (re.resultcode == "0") {
                         isAllSuccess = true;
                     } else {
                         if (re.msg != "")
                             console.log(re.msg);
                         else
-                            console.log("start node failed");
+                            console.log(re);
                     }
-                } else if (typeof (re) == "string") {
+                } else if (typeof(re) == "string") {
                     console.log(re);
                 }
 
-            }, function (re) {
+            }, function(re) {
                 console.log(re);
             })
         }
@@ -382,47 +394,46 @@
 
     });
 
-    $("#btn_stop").click(function () {
+    $("#btn_stop").click(function() {
         var t = grid.GM("getCheckedData");
         var isAllSuccess = false;
         for (var i = 0; i < t.length; i++) {
             data = t[i];
             if (data.state == "1") {
                 var p = {
-                    "sessionid": SESSION_ID,
-                    "functionname": "stopDataNode",
-                    "parameters": [{
+                    "sessionID": SESSION_ID,
+                    "functionName": "stopDataNode",
+                    "params": [{
                         "name": "host",
-                        "DF": "scalar",
-                        "DT": "string",
+                        "form": "scalar",
+                        "type": "string",
                         "value": data.host
-                    },
-                    {
+                    }, {
                         "name": "port",
-                        "DF": "scalar",
-                        "DT": "string",
+                        "form": "scalar",
+                        "type": "string",
                         "value": data.port
-                    }
-                    ]
+                    }]
                 };
+                // var re = CallWebApiSync(wa_url, p);
+                // console.log(re);
+                CallWebApi(wa_url, p, function(re) {
 
-                CallWebApi(wa_url, p, function (re) {
-
-                    if (typeof (re) == "object") {
-                        if (re.resultcode == "0") {
-                            console.log("stop node success");
-                        } else {
-                            if (re.msg != "")
-                                console.log(re.msg);
-                            else
-                                console.log("stop node failed");
+                        if (typeof(re) == "object") {
+                            if (re.resultcode == "0") {
+                                console.log("stop node success");
+                            } else {
+                                if (re.msg != "")
+                                    console.log(re.msg);
+                                else
+                                    console.log(re);
+                            }
+                        } else if (typeof(re) == "string") {
+                            console.log(re);
                         }
-                    } else if (typeof (re) == "string") {
-                        console.log(re);
-                    }
 
-                },
-                    function (re) {
+                    },
+                    function(re) {
                         console.log(re);
                     })
             }
@@ -435,12 +446,11 @@
 
 
     });
-    $("#btn_refresh").click(function () {
+    $("#btn_refresh").click(function() {
         GetLocalData($.cookie('ck_ag_controller_url'));
         LoadLeft(AGENT_LIST);
         LoadTable(NODE_LIST);
     });
-
 </script>
 
 <script id="serverTemplate" type="text/x-jquery-tmpl">
