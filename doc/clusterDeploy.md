@@ -9,8 +9,8 @@
      DolphinDB的集群管理需要了解几个概念: controller,agent,dataNode。
     
     * controller ：
-        * 提供集群管理的管理界面
-        * 收集各节点及agent的心跳，提供各节点状态的观测
+        * 提供WebServer的功能，展示集群管理的Web界面。提供各节点状态的观测,以及启动停止等管理功能
+        * 收集各节点及agent的心跳
     * agent : 
         * agent 的作用是: 执行controller启停节点的命令
         * agent 部署注意点：
