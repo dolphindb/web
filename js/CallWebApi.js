@@ -1,16 +1,17 @@
 var CurrentSessionID = "0";
 
-function CallWebApi(apiurl, paramstr, sucfunc, errfunc) {
+function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
 
-    if ($.cookie('ck_ag_controller_url') == null) {
+    if ($.cookie('sessionID') == null) {
         paramstr['sessionID'] = CurrentSessionID;
-        $.cookie('ck_ag_controller_url', CurrentSessionID)
+        $.cookie('sessionID', CurrentSessionID)
     } else {
-        CurrentSessionID = $.cookie('ck_ag_controller_url');
+        CurrentSessionID = $.cookie('sessionID');
         paramstr['sessionID'] = CurrentSessionID;
     }
     var d = JSON.stringify(paramstr);
-    $.ajax({
+
+    var option = {
         url: apiurl,
         async: true,
         data: d,
@@ -19,14 +20,19 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc) {
         success: function(data, status, xhr) {
 
             CurrentSessionID = data["sessionID"];
-            $.cookie('ck_ag_controller_url', CurrentSessionID);
+            $.cookie('sessionID', CurrentSessionID);
 
             sucfunc(data);
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             errfunc(errorThrown);
         }
-    });
+    }
+
+    if (customOption)
+        $.extend(option, customOption);
+
+    $.ajax(option);
 };
 
 function CallWebApiSync(apiurl, paramstr) {

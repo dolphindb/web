@@ -16,7 +16,7 @@ $(function() {
         wa_url = "http://" + HOST + ":" + PORT + "/";
     }
 
-
+    var logStorageID = "executelog" + siteid;
 
     $.cookie("language_file", "js/lang.en.js");
 
@@ -27,7 +27,7 @@ $(function() {
         path: "third-party/codemirror/",
         textWrapping: false
     });
-    writelog(localStorage.executelog);
+    writelog(localStorage.getItem(logStorageID));
 
     refreshVariables();
 });
@@ -230,13 +230,13 @@ function getData(script, startindex, pagesize) {
 
 $('#btn_clear').click(function() {
     $('#pnl_log').html('');
-    localStorage.executelog = '';
+    localStorage.setItem(logStorageID, '');
 });
 
 function appendlog(logstr) {
     logstr = new Date().toLocaleString() + ":<pre>" + logstr + "</pre>";
     $('#pnl_log').append('\n' + logstr)
-    localStorage.executelog = $('#pnl_log').html();
+    localStorage.setItem(logStorageID, $('#pnl_log').html());
 }
 
 function writelog(logstr) {
