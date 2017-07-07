@@ -272,7 +272,7 @@
                 template: function(action, rowObject) {
                     var r = "";
                     if (rowObject.state == "1") {
-                        r = '<a style="padding-left:20px" href=javascript:window.location.href="nodedetail.html?site=' + rowObject.site + '";>detail</a>';
+                        r = '<a style="padding-left:20px" href=javascript:window.open("nodedetail.html?site=' + rowObject.site + '");>detail</a>';
                     }
                     return r;
                 }
