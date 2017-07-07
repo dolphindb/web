@@ -13,7 +13,7 @@
         * 收集各节点及agent的心跳，提供各节点状态的观测
     * agent : 
         * agent 的作用是: 执行controller启停节点的命令
-        * agent 的部署要点：
+        * agent 部署注意点：
            1. agent 每台物理机只需要部署一个
            1. agent 只能管理本物理机内的节点启动和停止
     * dataNode :
