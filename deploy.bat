@@ -1,0 +1,1 @@
+xcopy /d:06-28-2017 /y /s "F:\Source\dolphindb_manager\*.*" "F:\DolphinDB\web"

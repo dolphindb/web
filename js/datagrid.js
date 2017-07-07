@@ -68,7 +68,7 @@ function getPageSize(dolphinJson) {
     if (typeof dolphinJson != "object") return;
     if (dolphinJson.object == null) return;
     if (dolphinJson.object.length <= 0) return;
-    switch (dolphinJson.object[0].DF.toUpperCase()) {
+    switch (dolphinJson.object[0].form.toUpperCase()) {
         case "VECTOR":
             return 100;
         case "MATRIX":
@@ -88,9 +88,9 @@ function getPageSize(dolphinJson) {
 
 function DolphinResult2Grid(reJson) {
     if (typeof reJson != "object") return;
-    if (reJson.resultcode != "0") return;
+    if (reJson.resultCode != "0") return;
     if (reJson.object.length <= 0) return;
-    switch (reJson.object[0].DF.toUpperCase()) {
+    switch (reJson.object[0].form.toUpperCase()) {
         case "VECTOR":
             return VectorSet2Table(reJson.object[0].value);
             break;
