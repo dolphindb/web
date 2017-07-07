@@ -56,6 +56,30 @@ DolphinChart.prototype.plot = function(elem, width, height) {
     this.width = this.totalWidth - margin.left - margin.right;
     this.height = this.totalHeight - margin.top - margin.bottom;
 
+    if (!this.xData) {    // let xData be range 0..length TODO wait for server update
+        this.xData = this.yData[0].map(function(x, i) { return i; });
+    }
+
+    // Process temporal type
+    switch (this.options.xDataType) {
+        case "date":
+        case "month":
+        case "datetime":
+        case "timestamp":
+            this.xData = this.xData.map(function(d) {
+                return new Date(d.replace(/[MT]/, " "));    // Use JavaScript acceptable date format
+            });
+            break;
+        case "time":
+        case "minute":
+        case "second":
+            this.xData = this.xData.map(function(d) {
+                return new Date("2000.01.01 " + d.replace("m", ""));    // Create a pseudo Date object by adding a random date
+            })
+            break;
+        default: break;
+    }
+
     // format data
     for (i = 0, len = this.yData.length; i < len; i++) {
         yData = this.yData[i];
@@ -91,30 +115,6 @@ DolphinChart.prototype.plot = function(elem, width, height) {
 DolphinChart.prototype.genXScale = function() {
     var xScale;
 
-    if (!this.xData) {    // let xData be range 0..length TODO wait for server update
-        this.xData = this.yData[0].map(function(x, i) { return i; });
-    }
-
-    // Process temporal type
-    switch (this.options.xDataType) {
-        case "date":
-        case "month":
-        case "datetime":
-        case "timestamp":
-            this.xData = this.xData.map(function(d) {
-                return new Date(d.replace(/[MT]/, " "));    // Use JavaScript acceptable date format
-            });
-            break;
-        case "time":
-        case "minute":
-        case "second":
-            this.xData = this.xData.map(function(d) {
-                return new Date("2000.01.01 " + d.replace("m", ""));    // Create a pseudo Date object by adding a random date
-            })
-            break;
-        default: break;
-    }
-
     if (this.chartType === "BAR") {
         return d3.scaleBand()
             .domain(this.xData)
@@ -133,7 +133,7 @@ DolphinChart.prototype.genXScale = function() {
             .domain(d3.extent(this.xData))
             .range([0, this.width]);
     }
-    else if (typeof this.options.xDataType === "string") {
+    else if (this.options.xDataType === "string") {
         return d3.scalePoint()
             .domain(this.xData)
             .range([0, this.width]);
@@ -186,7 +186,7 @@ DolphinChart.prototype.genRandColor = function() {
     return color.toString();
 }
 
-DolphinChart.prototype.genRandColorN = function(n) {
+DolphinChart.prototype.genRandColorN = function(n) { // TODO use color scale
     var colors = new Array(n),
         i;
     for (i = 0; i < n; i++)
@@ -270,7 +270,6 @@ DolphinChart.prototype.plotLineChart = function() {
         .enter().append("path")
             .attr("fill", "none")
             .attr("stroke", function(d, i) { return self.colors[i]; })  // TODO arrow
-            //.attr("stroke", function(d) { console.log(d); self.colors(d); console.log(self.colors.domain()); return self.colors(d); })
             .attr("stroke-linejoin", "round")
             .attr("stroke-linecap", "round")
             .attr("stroke-width", 1.5)
