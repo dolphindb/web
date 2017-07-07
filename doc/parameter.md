@@ -1,5 +1,5 @@
 # 参数格式
-parameters有以下六种类型格式：（标红的为必须有的）
+parameters Json format：
 * Vector:
 ```sh
 {"name":"employer","DF":"vector","DT":"Double","value":[1,2,3,4,5,6,7,8]}   
@@ -8,7 +8,7 @@ parameters有以下六种类型格式：（标红的为必须有的）
 ```sh
 {"name":"employer","DF":"set","DT":"Double","value":[1,2,3]} 
 ```
-* Dictionary: 第一行是key，第二行是value。
+* Dictionary: 
 ```sh
 {"name":"employer","DF":"dictionary","DT":"Double","value":
 [{"name":"employer","DF":"vector","DT":"Double","value":[1,2,3,4,5,6,7,8]},

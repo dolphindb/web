@@ -6,8 +6,8 @@
 
 ```sh
 {
-    "sessionid": "0",
-    "functionname": "executeCode",
+    "sessionID": "0",
+    "functionName": "executeCode",
     "parameters": [
         {
             "name": "script",
@@ -23,8 +23,8 @@
 
 ```sh
 {
-    "sessionid": "65519587",
-    "resultcode": "0",
+    "sessionID": "65519587",
+    "resultCode": "0",
     "msg": "",
     "object": [
         {

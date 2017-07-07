@@ -119,9 +119,7 @@ function bindVariables(datalist) {
 }
 
 
-function showGrid(gridid, getdatascript, startindex, pagesize) {
-
-    var g = getData(getdatascript, startindex, pagesize);
+function showGrid(gridid, getdatascript, g) {
     var d = DolphinResult2Grid(g);
 
     var grid = $('#' + gridid);
@@ -142,6 +140,14 @@ function showGrid(gridid, getdatascript, startindex, pagesize) {
     });
     dg.setGridPage(g);
     dg.loadFromJson(d);
+}
+
+function showPlot(gridid, getPlotScript) {
+    var result = getData(getPlotScript),
+        chartObj = result.object[0],
+        grid = $('#' + gridid);
+
+    DolphinPlot(chartObj, grid);
 }
 
 function openDialog(dialog, tit) {
@@ -183,27 +189,18 @@ function buildNode(jsonLst, dataform) {
 
 $('#btn_execode').click(function() {
     var codestr = editor.getCode();
-    appendlog(codestr);
-    codestr = encodeURIComponent(codestr);
-    showGrid('jsgrid1', codestr, 0, 10);
 
-    // executor.run(codestr, function (re) {
-    //     console.log(re);
-    //     DolphinPlot(re.object[0]);
-    //     if (isArray(re.object) && re.object.length > 0) {
-    //         var dg = new DolphinGrid(grid, 
-    //         {
-    //             onPageChanged: function (args) {
-    //                 showGrid(gridid, getdatascript, (args.pageIndex - 1) * args.grid.pageSize, args.grid.pageSize);
-    //             },
-    //             "height": "300"
-    //         });
-    //         dg.loadFromDolphinJson(re);
-    //         //writetolog(JSON.stringify(re.object));
-    //         $('#resulttab a[href="#DataWindow"]').tab('show');
-    //     }
-    //     refreshVariables();
-    // })
+    appendlog(codestr);
+
+    codestr = encodeURIComponent(codestr);
+
+    var g = getData(codestr, 0, 10);
+
+    if (g.object[0].DF === "dictionary") // TODO chart form
+        showPlot('jsgrid1', codestr);
+    else
+        showGrid('jsgrid1', codestr, g);
+
     $('#resulttab a[href="#DataWindow"]').tab('show');
 
     refreshVariables();
@@ -214,8 +211,6 @@ function getData(script, startindex, pagesize) {
     var p = {
         "sessionID": "0",
         "functionName": "executeCode",
-        "offset": startindex.toString(),
-        "length": pagesize.toString(),
         "params": [{
             "name": "script",
             "form": "scalar",
@@ -223,6 +218,12 @@ function getData(script, startindex, pagesize) {
             "value": script
         }]
     };
+
+    if (typeof startindex !== "undefined")
+        p.offset = startindex.toString();
+    if (typeof pagesize !== "undefined")
+        p.length = pagesize.toString();
+
     var re = CallWebApiSync(wa_url, p);
     return re;
 }

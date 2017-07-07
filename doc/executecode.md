@@ -7,14 +7,14 @@
 
 ```sh
 {
-    "sessionid":"0",
-    "functionname":"executeCode",
+    "sessionID":"0",
+    "functionName":"executeCode",
     "parameters":
     [
         {"name":"script","DF":"scalar","DT":"string","value":"idkfg=take(`ABC`XYZ, 100).sort!();"}
     ],
-    "startindex":0,
-    "pagesize":20
+    "startIndex":0,
+    "pageSize":20
 }
 ```
 
@@ -22,8 +22,8 @@
 
 ```sh
 {
-    "sessionid": "65519587",
-    "resultcode": "0", // 0:OK -1:error
+    "sessionID": "65519587",
+    "resultCode": "0", // 0:OK -1:error
     "msg": "",
     "object": [
         {
