@@ -7,12 +7,13 @@
 * ## 规划集群
      作为一个集群管理员，首先需要规划好集群的规模和网络。
      DolphinDB的集群管理需要了解几个概念: controller,agent,dataNode。
+ 
     * controller ：
-        * 提供集群管理的管理界面
-        * 收集各节点及agent的心跳，提供各节点状态的观测
+        * 提供WebServer的功能，展示集群管理的Web界面。提供各节点状态的观测,以及启动停止等管理功能
+        * 收集各节点及agent的心跳
     * agent : 
-        * agent 的作用是: 执行controller启停节点的命令
-        * agent 的部署要点：
+        *  agent 的作用是: 执行controller启停节点的命令
+        * agent 部署注意点：
            1. agent 每台物理机只需要部署一个
            1. agent 只能管理本物理机内的节点启动和停止
     * dataNode :
