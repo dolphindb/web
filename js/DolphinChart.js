@@ -139,22 +139,9 @@ DolphinChart.prototype.genXScale = function() {
             .range([0, this.width]);
     }
     else {
-        xScale = d3.scaleTime()
+        return xScale = d3.scaleTime()
             .domain(d3.extent(this.xData))
             .range([0, this.width]);
-
-        switch (this.options.xDataType) {
-            case "date":
-            case "month":
-            case "time":
-            case "minute":
-            case "second":
-            case "timestamp":
-            case "datetime": break;
-            default: throw new Error("Unknown data type: " + this.chartType); break;
-        }
-
-        return xScale;
     }
 }
 
@@ -198,14 +185,33 @@ DolphinChart.prototype.genRandColorN = function(n) { // TODO use color scale
 }
 
 DolphinChart.prototype.plotAxes = function (xScale, yScale) {
+    var setTimeFormatForBarAndColumn = (function(axis) {
+        // Set time format for BAR and COLUMN
+        switch (this.options.xDataType) {
+            case "month": axis.tickFormat(d3.timeFormat("%Y.%m")); break;
+            case "second": axis.tickFormat(d3.timeFormat(":%S")); break;
+            case "minute": axis.tickFormat(d3.timeFormat("%H:%M")); break;
+            case "time": axis.tickFormat(d3.timeFormat("%H:%M:%S")); break;
+            case "date": axis.tickFormat(d3.timeFormat("%Y.%m.%d")); break;
+            case "datetime":
+            case "timestamp": axis.tickFormat(d3.timeFormat("%Y.%m.%d %H:%M:%S")); break;
+        }
+    }).bind(this);
+
     // x axis
+    var axis = d3.axisBottom(xScale);
+    if (this.chartType === "BAR")
+        setTimeFormatForBarAndColumn(axis);
     var xAxis = this.g.append("g")
         .attr("transform", "translate(0," + this.height + ")")
-        .call(d3.axisBottom(xScale));
+        .call(axis);
 
     // y axis
+    axis = d3.axisLeft(yScale);
+    if (this.chartType === "COLUMN")
+        setTimeFormatForBarAndColumn(axis);
     var yAxis = this.g.append("g")
-        .call(d3.axisLeft(yScale));
+        .call(axis);
 
     if (this.options.xTitle) {
         xAxis.append("text")
