@@ -28,7 +28,7 @@ function DolphinChart(yData, xData, title, chartType, options) {
  */
 DolphinChart.prototype.plot = function(elem, width, height) {
     $(elem).html("");    // clear element
-    this.totalWidth = width || 680;
+    this.totalWidth = width || 680;    // TODO width and height
     this.totalHeight = height || 420;
 
     var i, len, yData,

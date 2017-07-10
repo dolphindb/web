@@ -2,8 +2,7 @@ var editor = null;
 var wa_url = '';
 var HOST = '';
 var PORT = '';
-var logStorageID = null;
-
+var logStorageID = '';
 $(function() {
 
     var siteid = $.getUrlParam('site');
@@ -139,6 +138,7 @@ function showGrid(gridid, getdatascript, g) {
             }
         }
     });
+    $("#btn_download").hide();
     dg.setGridPage(g);
     dg.loadFromJson(d);
 }

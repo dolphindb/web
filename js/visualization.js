@@ -52,4 +52,24 @@ function DolphinPlot(chartObject, elem) {
     chart = new DolphinChart(yData, xData, title, chartType, options);
 
     chart.plot(elem[0]);    // display result in jQuery element
+
+    downloadVisSVG();
+}
+
+function downloadVisSVG() {
+    var downloadURL,
+        downloadBtn = $("#btn_download");
+
+    downloadBtn.hide();
+
+    if (!isDataURLSupported())
+        return;
+
+    svgToPng(document.getElementById('vis-svg'), function(res) {
+        downloadURL = res;
+        var a = $("#vis-download")
+        a.attr("href", downloadURL);
+        a.attr("download", "plot.png");
+    });
+    downloadBtn.show();
 }
