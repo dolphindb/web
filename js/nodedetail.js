@@ -2,7 +2,7 @@ var editor = null;
 var wa_url = '';
 var HOST = '';
 var PORT = '';
-
+var logStorageID = '';
 $(function() {
 
     var siteid = $.getUrlParam('site');
@@ -16,7 +16,7 @@ $(function() {
         wa_url = "http://" + HOST + ":" + PORT + "/";
     }
 
-    var logStorageID = "executelog" + siteid;
+    logStorageID = "executelog" + siteid;
 
     $.cookie("language_file", "js/lang.en.js");
 
