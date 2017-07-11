@@ -27,6 +27,9 @@ function DolphinChart(yData, xData, title, chartType, options) {
  * @param {Object} elem - A DOM element 
  */
 DolphinChart.prototype.plot = function(elem, width, height) {
+    if (elem.get)    // is jQuery Object
+        elem = elem.get(0);
+
     $(elem).html("");    // clear element
     this.totalWidth = width || 680;    // TODO width and height
     this.totalHeight = height || 420;
@@ -67,14 +70,14 @@ DolphinChart.prototype.plot = function(elem, width, height) {
         case "datetime":
         case "timestamp":
             this.xData = this.xData.map(function(d) {
-                return new Date(d.replace(/[MT]/, " "));    // Use JavaScript acceptable date format
+                return new Date(d.replace(/[MT]/, " "));    // TODO Use JavaScript acceptable date format
             });
             break;
         case "time":
         case "minute":
         case "second":
             this.xData = this.xData.map(function(d) {
-                return new Date("2000.01.01 " + d.replace("m", ""));    // Create a pseudo Date object by adding a random date
+                return new Date("2000.01.01 " + d.replace("m", ""));    // TODO Create a pseudo Date object by adding a random date
             })
             break;
         default: break;

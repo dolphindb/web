@@ -30,7 +30,7 @@ function DolphinGrid(gridInstance, gridSettings) {
     }
 
     this.loadFromJson = function(datalist, cols) {
-        if (datalist == null) return;
+        if (datalist == null) return false;
         if (datalist.length <= 0) throw "data empty";
 
         var griddata = {
@@ -61,6 +61,7 @@ function DolphinGrid(gridInstance, gridSettings) {
             $.extend(option, this.settings);
         }
         this.grid.jsGrid(option);
+        return true;
     }
 }
 
