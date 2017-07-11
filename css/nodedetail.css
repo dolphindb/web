@@ -40,6 +40,10 @@
   display: none;
 }
 
+#custom-vis {
+  margin-top: 1.5em;
+}
+
 .btn-download {
   position: absolute;
   bottom: 0; left: 0;

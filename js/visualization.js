@@ -29,15 +29,15 @@ function DolphinPlot(chartObject, elem) {
         row = parseInt(metadata.value[1].value, 10),
         col = parseInt(metadata.value[2].value, 10),
         xDataType = metadata.value[3].type,
-        rowLabel = xDataType === 'void' ? null : metadata.value[3].value,
+        rowLabel = xDataType === 'void' ? [] : metadata.value[3].value,
         xData = rowLabel,
         yDataType = metadata.value[4].type,
-        colLabel = yDataType === 'void' ? null : metadata.value[4].value,
+        colLabel = yDataType === 'void' ? [] : metadata.value[4].value,
         options = {},
-        i, len;
+        i;
 
     // Split array into chunks
-    for (i = 0, len = col; i < len; i++) {
+    for (i = 0; i < col; i++) {
         yData.push(data.slice(i * row, i * row + row));
     }
 
@@ -80,10 +80,35 @@ function downloadVisSVG(downloadBtn) {
     });
 }
 
-function CustomVis(tableObj) {
-    this.tableObj = tableObj;
+function CustomVis(visObj) {
+    this.data = [];
     this.columns = $('#column-list');
-    this.values = tableObj.value;
+    switch (visObj.form) {
+        case "table": {
+            this.data = visObj.value;
+            break;
+        }
+        case "matrix": {
+            var values = visObj.value,
+                data = values[0].value,
+                row = parseInt(values[1].value, 10),
+                col = parseInt(values[2].value, 10),
+                rowLabel = values[3].type === "void" ? [] : values[3].value,
+                colLabel = values[4].type === "void" ? [] : values[4].value;
+
+            for (var i = 0; i < col; i++) {
+                var newCol = [];
+                for (var j = 0; j < row; j++)
+                    newCol.push(data[i + j * col]);
+                this.data.push({
+                    value: newCol,
+                    name: colLabel[i] || "col" + i,
+                    type: visObj.type
+                });
+            }
+            break;
+        }
+    }
 
     $('#btn-custom-vis-plot')
         .attr("disabled", true)
@@ -100,11 +125,11 @@ function CustomVis(tableObj) {
     this.addColumn();
 
     this.createColumnOptions($('#x-data'), "x");
-    $('#btn-add-column').click(this.addColumn.bind(this));
+    $('#btn-add-column').unbind('click').click(this.addColumn.bind(this));
 }
 
 CustomVis.prototype.addColumn = function() {
-    if (this.values.length <= 0)
+    if (this.data.length <= 0)
         return;
 
     var column;
@@ -116,7 +141,7 @@ CustomVis.prototype.addColumn = function() {
         id: 'vis-column-' + columnId
     });
 
-    var selectWrap = $('<div />', { class: 'col-xs-9' });
+    var selectWrap = $('<div />', { class: 'col-xs-7 col-md-offset-2' });
     var select = $('<select />', { class: 'form-control' });
     
     this.createColumnOptions(select, "y");
@@ -141,8 +166,8 @@ CustomVis.prototype.createColumnOptions = function(select, axis) {
         disableCheck = axis === "y",
         column;
 
-    for (var i = 0, len = this.values.length; i < len; i++) {
-        column = this.values[i];
+    for (var i = 0, len = this.data.length; i < len; i++) {
+        column = this.data[i];
         $('<option />', {
             value: i,
             text: column.name,
@@ -205,7 +230,7 @@ CustomVis.prototype.updateChart = function(e) {
     if (chartType === null)
         return;
 
-    var xDataObj = this.values[xColumn],
+    var xDataObj = this.data[xColumn],
         xDataType = xDataObj.type,
         xData = xDataObj.value,
         yData = [],
@@ -221,8 +246,8 @@ CustomVis.prototype.updateChart = function(e) {
         elem = column.elem;
         val = elem.find('select').val();
         if (val !== null) {
-            yData.push(this.values[val].value)
-            colLabel.push(this.values[val].name)
+            yData.push(this.data[val].value)
+            colLabel.push(this.data[val].name)
         }
     }
 

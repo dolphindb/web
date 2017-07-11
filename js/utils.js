@@ -8,7 +8,9 @@ $.getUrlParam = function(name) {
 function svgToPng(svgElem, callback) {
     var svgData = new XMLSerializer().serializeToString(svgElem);
 
-    var canvas = document.getElementById("vis-canvas")
+    var canvas = document.createElement("canvas");
+    canvas.width = 680;
+    canvas.height = 420;
     var ctx = canvas.getContext("2d");
 
     var img = new Image();

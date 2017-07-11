@@ -121,12 +121,15 @@ function showGrid(gridid, getdatascript, g) {
     var d = DolphinResult2Grid(g),
         btnPlot = $('#btn-plot');
 
+    var res = null;
+
     var grid = $('#' + gridid);
     var dg = new DolphinGrid(grid, {
         pageSize: 10,
         controller: {
             loadData: function(filter) {
                 var g = getData(getdatascript, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize);
+                res = g;
                 var total = g.object[0].size;
                 var d = DolphinResult2Grid(g);
 
@@ -139,12 +142,11 @@ function showGrid(gridid, getdatascript, g) {
     });
     $("#btn-download").hide();
     dg.setGridPage(g);
-    btnPlot.hide();
     if (dg.loadFromJson(d)) {
-        var tableObj = g.object[0];
+        var resObj = res && res.object[0];
 
-        if (tableObj.form && tableObj.form === 'table') {
-            customVis = new CustomVis(tableObj);
+        if (resObj.form && ["table", "matrix"].indexOf(resObj.form) !== -1) {
+            customVis = new CustomVis(resObj);
             btnPlot.show();
         }
     }

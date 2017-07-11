@@ -6,3 +6,9 @@
 .vis-arc path {
 	stroke: #fff;
 }
+
+.vis-line, .vis-area-line {
+	stroke-linejoin: round;
+    stroke-linecap: round;
+    stroke-width: 2;
+}
