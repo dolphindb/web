@@ -33,8 +33,11 @@
 
     <link rel="shortcut icon" href="assets/ico/logo.png">
 
+
     <!-- jqGrid-->
     <link rel="stylesheet" href="third-party/gridmanager/css/GridManager.css" />
+    <link href="third-party/jsgrid/jsgrid.css" rel="stylesheet" />
+    <link href="third-party/jsgrid/jsgrid-theme.css" rel="stylesheet" />
     <!-- end jqGrid -->
     <link href="third-party/noty/noty.css" rel="stylesheet">
     </script>
@@ -119,6 +122,10 @@
             <input type="text" class="form-control" id="ag-controller-url" aria-describedby="basic-addon3" placeholder="example: www.haitundb.com/DNMT">
         </div>
     </div>
+
+    <div id="modal-database" title="Database">
+        <div id="jsGrid_database"></div>
+    </div>
     <!-- Footer================================================== -->
     <footer class="bs-footer navbar-fixed-bottom">
         <div class="container">
@@ -141,13 +148,14 @@
     <script src="assets/js/google-code-prettify/prettify.js" type="text/javascript"></script>
     <script src="assets/js/docs.js" type="text/javascript"></script>
     <script src="assets/js/demo.js" type="text/javascript"></script>
-
-
+    <script src="js/utils.js" type="text/javascript"></script>
+    <script src="third-party/jsgrid/jsgrid.js" type="text/javascript"></script>
     <script src="third-party/noty/noty.js" type="text/javascript"></script>
     <script src="third-party/gridmanager/js/GridManager.js" type="text/javascript"></script>
     <script src="third-party/jquery-tmpl/jquery.tmpl.min.js" type="text/javascript"></script>
     <script src="assets/js/vendor/jquery.cookie.js" type="text/javascript"></script>
     <script src="js/datagrid.js" type="text/javascript"></script>
+    <script src="js/executecode.js" type="text/javascript"></script>
     <script src="js/CallWebApi.js" type="text/javascript"></script>
     <script src="js/msgbox.js" type="text/javascript"></script>
 
@@ -170,7 +178,7 @@
         $.cookie("language_file", "js/lang.en.js");
 
         GetLocalData(wa_url);
-        LoadLeft(AGENT_LIST);
+        //LoadLeft(AGENT_LIST);
         LoadTable(NODE_LIST);
     });
 
@@ -186,19 +194,8 @@
     function LoadLeft(agentList) {
         $("#physicalServerList").html("");
         var l = $("#serverTemplate").tmpl(agentList).appendTo("#physicalServerList");
+        getDatabases();
 
-
-        var databaseList = [{
-            "dbname": "database_1"
-        }, {
-            "dbname": "database_2"
-        }, {
-            "dbname": "database_2"
-        }, {
-            "dbname": "database_2"
-        }];
-        $("#databaseList").html("");
-        l = $("#databaseTemplate").tmpl(databaseList).appendTo("#databaseList");
     }
 
     function LoadTable(nodeList) {
@@ -320,6 +317,7 @@
             AGENT_LIST = ALL_NODE.filter(function(x) {
                 return x.mode === 'agent';
             });
+
             LoadLeft(AGENT_LIST);
 
             NODE_LIST = ALL_NODE.filter(function(x) {
@@ -451,6 +449,151 @@
         LoadLeft(AGENT_LIST);
         LoadTable(NODE_LIST);
     });
+
+
+    var getDatabases = function() {
+        var executor = new CodeExecutor(wa_url);
+        executor.run("getDatabases();", function(re) {
+            if (re.object.length > 0) {
+                var dblist = [];
+                var dbs = re.object[0].value[0].value;
+                $.each(dbs, function(i, v) {
+                    var fi = dblist.findIndex(function(ele, ind, obj) {
+                        if (v == ele.dbName) return ind;
+                    });
+                    //console.log(v);
+                    if (fi < 0) {
+                        var db = {};
+                        db.dbName = v;
+                        db.tableCount = 1;
+                        dblist.push(db);
+                    } else {
+                        var db = dblist[fi];
+                        db.dbName = v;
+                        db.tableCount++;
+                    }
+                });
+                console.log(dblist);
+                //var reobj = VectorArray2Table(re.object[0].value);
+                //var db = getVectorFromTable(reobj, "domainId", true, false);
+
+                $("#databaseList").html("");
+                l = $("#databaseTemplate").tmpl(dblist).appendTo("#databaseList");
+            }
+        });
+    }
+
+    // var tb_src = [{
+    //     "tableName": "tb1",
+    //     "partionId": "1",
+    //     "site": "192.168.1.25:8905",
+    //     "partionType": "SEQ",
+    //     "partionCount": 10
+    // }, {
+    //     "tableName": "tb1",
+    //     "partionId": "2",
+    //     "site": "192.168.1.25:8905",
+    //     "partionType": "LIST",
+    //     "partionCount": 8
+    // }, {
+    //     "tableName": "tb3",
+    //     "partionId": "1",
+    //     "site": "192.168.1.25:8905",
+    //     "partionType": "RANGE",
+    //     "partionCount": 16
+    // }, {
+    //     "tableName": "tb4",
+    //     "partionId": "4",
+    //     "site": "192.168.1.25:8905",
+    //     "partionType": "VALUE",
+    //     "partionCount": 32
+    // }];
+
+    var getAllTableDistributions = function(domainId) {
+        var p = {
+            "sessionID": SESSION_ID,
+            "functionName": "getAllTableDistributions",
+            "params": [{
+                "name": "domainId",
+                "form": "scalar",
+                "type": "string",
+                "value": domainId
+            }]
+        };
+        CallWebApi(wa_url, p, function(re) {
+            if (re.object.length > 0) {
+                var retable = VectorArray2Table(re.object[0].value);
+                openDatabase(retable);
+            }
+        });
+    }
+
+    function openDatabase(tb_src) {
+        var col = [{
+            name: "tableName",
+            type: "select",
+            items: getVectorFromTable(tb_src, "tableName", true, true),
+            valueField: "name",
+            textField: "name",
+            width: 150
+        }, {
+            name: "partionId",
+            type: "select",
+            items: getVectorFromTable(tb_src, "partionId", true, true),
+            valueField: "name",
+            textField: "name",
+            width: 100
+        }, {
+            name: "site",
+            type: "select",
+            items: getVectorFromTable(tb_src, "site", true, true),
+            valueField: "name",
+            textField: "name",
+            width: 200
+        }, {
+            name: "domainType",
+            type: "text",
+            filtering: false
+        }, {
+            name: "partionType",
+            type: "text",
+            filtering: false
+        }, {
+            name: "partionCount",
+            type: "text",
+            filtering: false
+        }];
+        var dg = new DolphinGrid($('#jsGrid_database'), {
+            width: 780,
+            height: 580,
+            filtering: true,
+            sorting: true,
+            autoload: true,
+            controller: {
+                loadData: function(filter) {
+                    return $.grep(tb_src, function(tb) {
+                        return (!filter.tableName || tb.tableName == filter.tableName) &&
+                            (!filter.partionId || tb.partionId == filter.partionId) &&
+                            (!filter.site || tb.site == filter.site);
+                    });
+                }
+            },
+            fields: col
+        });
+
+        dg.load();
+        $("#modal-database").dialog({
+            autoOpen: true,
+            width: 800,
+            height: 600,
+            modal: true,
+            buttons: {
+                Ok: function() {
+                    $(this).dialog("close");
+                }
+            }
+        });
+    }
 </script>
 
 <script id="serverTemplate" type="text/x-jquery-tmpl">
@@ -458,7 +601,7 @@
 </script>
 
 <script id="databaseTemplate" type="text/x-jquery-tmpl">
-    <a class="list-group-item">${dbname}</a>
+    <a class="list-group-item" href="javascript:getAllTableDistributions('${dbName}')">DB (${tableCount} Tables)</a>
 </script>
 
 </html>

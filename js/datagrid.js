@@ -62,7 +62,12 @@ function DolphinGrid(gridInstance, gridSettings) {
         }
         this.grid.jsGrid(option);
     }
+
+    this.load = function() {
+        this.grid.jsGrid(this.settings);
+    }
 }
+
 
 function getPageSize(dolphinJson) {
     if (typeof dolphinJson != "object") return;

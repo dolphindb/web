@@ -39,3 +39,28 @@ var isDataURLSupported = function() {
 
     return supported;
 }
+
+var getVectorFromTable = function(tbData, colName, isDeleteRepeat, isAddEmptyRow) {
+    var re = [];
+    var tmpArr = [];
+    if (isAddEmptyRow)
+        re.push({ name: "" });
+    $.each(tbData, function(index, row) {
+        var item = {};
+        item.name = row[colName];
+        tmpArr.push(item);
+    });
+    console.log(re);
+    if (isDeleteRepeat) {
+        $.each(tmpArr, function(index, row) {
+            if (re.findIndex(function(ele, ind, arr) { if (ele.name == row.name) return ind; }) < 0) {
+                re.push(row);
+            }
+        });
+        return re;
+    } else {
+        return tmpArr;
+    }
+
+
+}

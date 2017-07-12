@@ -33,5 +33,5 @@ parameters Json format：
 ```
 * Scalar:
 ```sh
-{"name":"employer","form":"scalar","type":"Int"," value":"100"}
+{"name":"employer","form":"scalar","type":"Int","value":"100"}
 ```
