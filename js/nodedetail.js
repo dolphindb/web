@@ -142,6 +142,8 @@ function showGrid(gridid, getdatascript, g) {
             }
         }
     });
+
+
     $("#btn-download").hide();
     btnPlot.hide();
     dg.setGridPage(g);
@@ -158,13 +160,22 @@ function showGrid(gridid, getdatascript, g) {
     }
 }
 
-function showPlot(gridid, getPlotScript) {
-    var retrieveRowNumber = parseInt($('#retrieve-row-number').val(), 10),
-        result = null;
-    if (isNaN(retrieveRowNumber) || retrieveRowNumber <= 0)
-        result = getData(getPlotScript);
-    else
-        result = getData(getPlotScript, 0, retrieveRowNumber);
+function showResult(gridid, resobj) {
+
+    var d = DolphinResult2Grid(resobj);
+    var grid = $('#' + gridid);
+    var dg = new DolphinGrid(grid, {
+        pageSize: 10,
+        sorting: true,
+        paging: true,
+        pageLoading: false,
+        autoload: false
+    });
+    dg.loadFromJson(d)
+}
+
+function showPlot(gridid, resobj) {
+
     var chartObj = result.object[0],
         grid = $('#' + gridid);
 
@@ -213,13 +224,18 @@ $('#btn_execode').click(function() {
 
     codestr = encodeURIComponent(codestr);
 
-    var g = getData(codestr, 0, 10);
+    var retrieveRowNumber = parseInt($('#retrieve-row-number').val(), 10);
+    result = null;
+    if (isNaN(retrieveRowNumber) || retrieveRowNumber <= 0)
+        result = getData(codestr);
+    else
+        result = getData(codestr, 0, retrieveRowNumber);
 
-    if (g.object.length > 0) {
-        if (g.object[0].form === "chart")
-            showPlot('jsgrid1', codestr);
+    if (result.object.length > 0) {
+        if (result.object[0].form === "chart")
+            showPlot('jsgrid1', result);
         else
-            showGrid('jsgrid1', codestr, g);
+            showResult('jsgrid1', result);
 
         $('#resulttab a[href="#DataWindow"]').tab('show');
     }
