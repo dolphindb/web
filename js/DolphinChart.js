@@ -20,6 +20,61 @@ function DolphinChart(yData, xData, title, chartType, options) {
     this.g = null;
     this.width = this.height = this.totalWidth = this.totalHeight = 0;
     this.xScale = null;
+
+    var getTimeFormatter = function() {
+        // Set time format for PIE, BAR and COLUMN
+        switch (this.options.xDataType) {
+            case "month": return d3.timeFormat("%Y.%m");
+            case "second": return d3.timeFormat(":%S");
+            case "minute": return d3.timeFormat("%H:%M");
+            case "time": return d3.timeFormat("%H:%M:%S");
+            case "date": return d3.timeFormat("%Y.%m.%d");
+            case "datetime":
+            case "timestamp": return d3.timeFormat("%Y.%m.%d %H:%M:%S");
+            default: return null;
+        }
+    }.bind(this);
+
+    this.timeFormatter = getTimeFormatter();
+
+    if (!this.xData || this.xData.length <= 0) {    // let xData be range 0..length TODO wait for server update
+        this.xData = this.yData[0].map(function(x, i) { return i; });
+    }
+
+    // Process temporal type
+    switch (this.options.xDataType) {
+        case "date":
+        case "month":
+        case "datetime":
+        case "timestamp": {
+            this.xData = this.xData.map(function(d) {
+                return new Date(d.replace(/[MT]/, " "));    // TODO Use JavaScript acceptable date format
+            });
+            break;
+        }
+        case "time":
+        case "minute":
+        case "second": {
+            this.xData = this.xData.map(function(d) {
+                return new Date("2000.01.01 " + d.replace("m", ""));    // TODO Create a pseudo Date object by adding a random date
+            })
+            break;
+        }
+        default: break;
+    }
+
+    // format data
+    for (i = 0, len = this.yData.length; i < len; i++) {
+        yData = this.yData[i];
+        tmpData = this.xData
+            .map(function(data, index) { return { x: data, y: yData[index] }; })
+            .sort(function(a, b) { return a.x - b.x; });
+        this.data.push(tmpData);
+    }
+}
+
+DolphinChart.prototype = {
+
 }
 
 /**
@@ -31,8 +86,9 @@ DolphinChart.prototype.plot = function(elem, width, height) {
         elem = elem.get(0);
 
     $(elem).html("");    // clear element
-    this.totalWidth = width || 680;    // TODO width and height
-    this.totalHeight = height || 420;
+    $('#vis-svg').html("");
+    this.totalWidth = width || CustomVis.width;
+    this.totalHeight = height || CustomVis.height;
 
     var i, len, yData,
         margin = { top: 30, right: 60, bottom: 20, left: 60 },
@@ -58,39 +114,6 @@ DolphinChart.prototype.plot = function(elem, width, height) {
 
     this.width = this.totalWidth - margin.left - margin.right;
     this.height = this.totalHeight - margin.top - margin.bottom;
-
-    if (!this.xData) {    // let xData be range 0..length TODO wait for server update
-        this.xData = this.yData[0].map(function(x, i) { return i; });
-    }
-
-    // Process temporal type
-    switch (this.options.xDataType) {
-        case "date":
-        case "month":
-        case "datetime":
-        case "timestamp":
-            this.xData = this.xData.map(function(d) {
-                return new Date(d.replace(/[MT]/, " "));    // TODO Use JavaScript acceptable date format
-            });
-            break;
-        case "time":
-        case "minute":
-        case "second":
-            this.xData = this.xData.map(function(d) {
-                return new Date("2000.01.01 " + d.replace("m", ""));    // TODO Create a pseudo Date object by adding a random date
-            })
-            break;
-        default: break;
-    }
-
-    // format data
-    for (i = 0, len = this.yData.length; i < len; i++) {
-        yData = this.yData[i];
-        tmpData = this.xData
-            .map(function(data, index) { return { x: data, y: yData[index] }; })
-            .sort(function(a, b) { return a.x - b.x; });
-        this.data.push(tmpData);
-    }
 
     this.g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -136,9 +159,10 @@ DolphinChart.prototype.genXScale = function() {
             .domain(d3.extent(this.xData))
             .range([0, this.width]);
     }
-    else if (this.options.xDataType === "string") {
+    else if (this.options.xDataType === "string" || this.options.xDataType === "symbol") {
         return d3.scalePoint()
             .domain(this.xData)
+            //.domain(d3.range(0, this.xData.length)) TODO x data can be same value
             .range([0, this.width]);
     }
     else {
@@ -188,23 +212,10 @@ DolphinChart.prototype.genRandColorN = function(n) { // TODO use color scale
 }
 
 DolphinChart.prototype.plotAxes = function (xScale, yScale) {
-    var setTimeFormatForBarAndColumn = (function(axis) {
-        // Set time format for BAR and COLUMN
-        switch (this.options.xDataType) {
-            case "month": axis.tickFormat(d3.timeFormat("%Y.%m")); break;
-            case "second": axis.tickFormat(d3.timeFormat(":%S")); break;
-            case "minute": axis.tickFormat(d3.timeFormat("%H:%M")); break;
-            case "time": axis.tickFormat(d3.timeFormat("%H:%M:%S")); break;
-            case "date": axis.tickFormat(d3.timeFormat("%Y.%m.%d")); break;
-            case "datetime":
-            case "timestamp": axis.tickFormat(d3.timeFormat("%Y.%m.%d %H:%M:%S")); break;
-        }
-    }).bind(this);
-
     // x axis
     var axis = d3.axisBottom(xScale);
     if (this.chartType === "BAR")
-        setTimeFormatForBarAndColumn(axis);
+        axis.tickFormat(this.timeFormatter);
     var xAxis = this.g.append("g")
         .attr("transform", "translate(0," + this.height + ")")
         .call(axis);
@@ -212,7 +223,7 @@ DolphinChart.prototype.plotAxes = function (xScale, yScale) {
     // y axis
     axis = d3.axisLeft(yScale);
     if (this.chartType === "COLUMN")
-        setTimeFormatForBarAndColumn(axis);
+        axis.tickFormat(this.timeFormatter);
     var yAxis = this.g.append("g")
         .call(axis);
 
@@ -238,8 +249,9 @@ DolphinChart.prototype.plotAxes = function (xScale, yScale) {
 DolphinChart.prototype.plotLegend = function() {
     var self = this;
 
-    if (!this.options.yLegend)
-        this.options.yLegend = new Array(this.yData.length);
+    if (!this.options.yLegend || this.options.yLegend.length <= 0)
+        //this.options.yLegend = new Array(this.yData.length);
+        return;
 
     var legend = d3.select("#vis-svg")
         .selectAll(".vis-legend")
@@ -260,7 +272,12 @@ DolphinChart.prototype.plotLegend = function() {
         .attr("y", 9)
         .attr("dy", ".35em")
         .style("text-anchor", "end")
-        .text(function(d, i) { return self.options.yLegend[i]; });
+        .text(function(d, i) {
+            if (this.timeFormatter && this.chartType === "PIE")
+                return this.timeFormatter(this.options.yLegend[i]);
+            else
+                return this.options.yLegend[i];
+        }.bind(this));
 }
 
 DolphinChart.prototype.plotLineChart = function() {
@@ -277,12 +294,9 @@ DolphinChart.prototype.plotLineChart = function() {
     this.g.selectAll(".vis-line")
         .data(this.data)
         .enter().append("path")
+            .attr("class", "vis-line")
             .attr("fill", "none")
             .attr("stroke", function(d, i) { return self.colors[i]; })  // TODO arrow
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-width", 1.5)
-            .attr("class", "vis-line")
             .attr("d", line);
 }
 
@@ -298,11 +312,26 @@ DolphinChart.prototype.plotAreaChart = function() {
         .y1(function(d) { return yScale(d.y); })
         .y0(yScale(0));
 
+    if (!this.options.areaWithoutBorder) {
+        var line = d3.line()
+            .x(function(d) { return xScale(d.x); })
+            .y(function(d) { return yScale(d.y); });
+
+        this.g.selectAll(".vis-area-line")
+            .data(this.data)
+            .enter().append("path")
+                .attr("class", "vis-area-line")
+                .attr("fill", "none")
+                .attr("stroke", function(d, i) { return self.colors[i]; })  // TODO arrow
+                .attr("d", line);
+    }
+
     this.g.selectAll(".vis-area")
         .data(this.data)
         .enter().append("path")
-            .attr("fill", function(d, i) { return self.colors[i]; })
             .attr("class", "vis-area")
+            .attr("fill", function(d, i) { return self.colors[i]; })
+            .attr("stroke", function(d, i) { return self.colors[i]; })  // TODO arrow
             .attr("opacity", "0.5")
             .attr("d", area);
 }
@@ -332,8 +361,6 @@ DolphinChart.prototype.plotScatterChart = function() {
 }
 
 DolphinChart.prototype.plotPieChart = function() {
-    var self = this;
-
     var yData = this.yData[this.yData.length-1],    // PIE plot uses first element of yData
         xData = this.xData,
         radius = Math.min(this.width, this.height) / 2;
@@ -360,18 +387,23 @@ DolphinChart.prototype.plotPieChart = function() {
     // Set arcs
     arc.append("path")
         .attr("d", path)
-        .attr("fill", function(d, i) { return self.colors[i]; });
+        .attr("fill", function(d, i) { return this.colors[i]; }.bind(this));
 
     // Set text
     arc.append("text")
         .attr("transform", function(d) { return "translate(" + label.centroid(d) + ")"; })
         .attr("dy", "0.35em")
-        .text(function(d, i) { return xData[i]; });
+        .text(function(d, i) {
+            if (this.timeFormatter)    // temporal
+                return this.timeFormatter(xData[i]);
+            else
+                return xData[i];
+        }.bind(this));
 }
 
 DolphinChart.prototype.plotBarChart = function() {
     var bandwidth = 0,
-        self = this;
+        self = this,
         xScale = this.genXScale(),
         yScale = this.genYScale();
 

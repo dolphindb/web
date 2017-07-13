@@ -40,6 +40,20 @@
   display: none;
 }
 
+.jsgrid td {
+  overflow: auto;
+}
+
+.input-group .retrieve-row-number {
+  display: table-cell;
+  width: auto;
+  color: #333;
+}
+
+#custom-vis {
+  margin-top: 1.5em;
+}
+
 .btn-download {
   position: absolute;
   bottom: 0; left: 0;
