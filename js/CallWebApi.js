@@ -1,6 +1,8 @@
 var CurrentSessionID = "0";
 
 function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
+    if (typeof elem === 'undefined')
+        elem = $('#execute-spin');
 
     if ($.cookie('sessionID') == null) {
         paramstr['sessionID'] = CurrentSessionID;
@@ -22,10 +24,10 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
             CurrentSessionID = data["sessionID"];
             $.cookie('sessionID', CurrentSessionID);
 
-            sucfunc(data);
+            if (sucfunc) sucfunc(data);
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-            errfunc(errorThrown);
+            if (errfunc) errfunc(errorThrown);
         }
     }
 
@@ -36,8 +38,12 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
 };
 
 function CallWebApiSync(apiurl, paramstr) {
+    if (typeof elem === 'undefined')
+        elem = $('#execute-spin');
+
     paramstr['sessionID'] = CurrentSessionID;
     var d = JSON.stringify(paramstr);
+
     //console.log(d);
     var re = $.ajax({
         url: apiurl,

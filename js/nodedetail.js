@@ -36,7 +36,7 @@ function refreshVariables() {
     var executor = new CodeExecutor(wa_url);
     executor.run("objs(true)", function(re) {
         var rowJson = VectorArray2Table(re.object[0].value);
-        bindVariables(rowJson)
+        bindVariables(rowJson);
     });
 }
 
@@ -111,58 +111,70 @@ function bindVariables(datalist) {
             var tblobj = document.createElement("div");
             tblobj.id = "jsgrid_" + divid;
             $(tblobj).appendTo($(divobj));
-            var g = getData(code, 0, 20);
-            showGrid(tblobj.id, code, g);
-            openDialog(divobj.id, '[' + dataform + ']' + contentid);
+            getData(code, 0, 20, function(g) {
+                showGrid(tblobj.id, code, g);
+                openDialog(divobj.id, '[' + dataform + ']' + contentid);
+            }, function(err) {
+                console.log(err);
+            });
         });
 }
 
-
 function showGrid(gridid, getdatascript, g) {
     var d = DolphinResult2Grid(g),
-        btnPlot = $('#btn-plot');
+        grid = $('#' + gridid);
 
-    var res = null;
-
-    var grid = $('#' + gridid);
     var dg = new DolphinGrid(grid, {
         pageSize: 10,
         autoload: true,
         controller: {
             loadData: function(filter) {
-                var g = getData(getdatascript, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize);
-                res = g;
-                var total = g.object[0].size;
-                var d = DolphinResult2Grid(g);
+                var deferred = $.Deferred();
+                getData(getdatascript, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function(g) {
+                    var total = g.object[0].size;
+                    var d = DolphinResult2Grid(g);
 
-                return {
-                    data: d,
-                    itemsCount: total
-                };
+                    deferred.resolve({ data: d, itemsCount: total });
+                });
+
+                return deferred.promise();
             }
-        }
+        },
     });
 
-
-    $("#btn-download").hide();
-    btnPlot.hide();
     dg.setGridPage(g);
     if (dg.loadFromJson(d)) {
-        var resObj = res && res.object[0];
+        var btnPlot = $('<button />', {
+            class: 'btn btn-primary btn-request',
+            id: 'btn-plot-' + gridid,
+            text: 'Plot'
+        }).appendTo(grid);
 
+        var resObj = g && g.object[0];
         if (resObj.form) {
             if (resObj.form === "table" ||
                 (resObj.form === "matrix" && !CustomVis.isNonNumeralType(resObj.type))) {
-                customVis = new CustomVis(resObj);
-                btnPlot.show();
+                btnPlot.click(function() {
+                    getData(getdatascript, 0, resObj.size, function(fullData) {
+                        var fullResObj = fullData.object[0];
+
+                        new CustomVis(fullResObj);
+                        var customVis = $('#custom-vis');
+                        customVis.dialog('option', 'width', Math.max($(window).width() - 200, 600));
+                        customVis.dialog('open');
+                    }, function(err) {
+                        console.error(err);
+                    });    // TODO customized size
+                });
             }
         }
     }
 }
 
 function showResult(gridid, resobj) {
+    var d = DolphinResult2Grid(resobj),
+        btnPlot = $('#btn-plot');
 
-    var d = DolphinResult2Grid(resobj);
     var grid = $('#' + gridid);
     var dg = new DolphinGrid(grid, {
         pageSize: 10,
@@ -171,12 +183,24 @@ function showResult(gridid, resobj) {
         pageLoading: false,
         autoload: false
     });
-    dg.loadFromJson(d)
+
+    $("#btn-download").hide();
+    btnPlot.hide();
+    if (dg.loadFromJson(d)) {
+        var res = resobj.object && resobj.object[0];
+        if (res && res.form) {
+            if (res.form === "table" ||
+                (res.form === "matrix" && !CustomVis.isNonNumeralType(res.type))) {
+                customVis = new CustomVis(res);
+                btnPlot.show();
+            }
+        }
+    }
 }
 
 function showPlot(gridid, resobj) {
 
-    var chartObj = result.object[0],
+    var chartObj = resobj.object[0],
         grid = $('#' + gridid);
 
     DolphinPlot(chartObj, grid);
@@ -216,7 +240,6 @@ function buildNode(jsonLst, dataform) {
     return subtree;
 }
 
-
 $('#btn_execode').click(function() {
     var codestr = editor.getCode();
 
@@ -225,25 +248,25 @@ $('#btn_execode').click(function() {
     codestr = encodeURIComponent(codestr);
 
     var retrieveRowNumber = parseInt($('#retrieve-row-number').val(), 10);
-    result = null;
-    if (isNaN(retrieveRowNumber) || retrieveRowNumber <= 0)
-        result = getData(codestr);
-    else
-        result = getData(codestr, 0, retrieveRowNumber);
+    
+    var showData = function(result) {
+        if (result.object.length > 0) {
+            if (result.object[0].form === "chart")
+                showPlot('jsgrid1', result);
+            else
+                showResult('jsgrid1', result);
 
-    if (result.object.length > 0) {
-        if (result.object[0].form === "chart")
-            showPlot('jsgrid1', result);
-        else
-            showResult('jsgrid1', result);
-
-        $('#resulttab a[href="#DataWindow"]').tab('show');
+            $('#resulttab a[href="#DataWindow"]').tab('show');
+        }
+        refreshVariables();
     }
-    refreshVariables();
-
+    if (isNaN(retrieveRowNumber) || retrieveRowNumber <= 0)
+        getData(codestr, undefined, undefined, showData, function(err) { console.error(err); });
+    else
+        getData(codestr, 0, retrieveRowNumber, showData, function(err) { console.error(err); });
 });
 
-function getData(script, startindex, pagesize) {
+function getData(script, startindex, pagesize, sucfunc, errfunc) {
     var p = {
         "sessionID": "0",
         "functionName": "executeCode",
@@ -260,8 +283,16 @@ function getData(script, startindex, pagesize) {
     if (typeof pagesize !== "undefined")
         p.length = pagesize.toString();
 
-    var re = CallWebApiSync(wa_url, p);
-    return re;
+    var btnRequests = $('.btn-request');
+    btnRequests.attr('disabled', true);
+
+    CallWebApi(wa_url, p, function(re) {
+        btnRequests.attr('disabled', false);
+        sucfunc(re);
+    }, function(err) {
+        btnRequests.attr('disabled', false);
+        errfunc(err);
+    });
 }
 
 $('#btn_clear').click(function() {
