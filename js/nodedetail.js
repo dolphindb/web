@@ -113,7 +113,8 @@ function bindVariables(datalist) {
             var tblobj = document.createElement("div");
             tblobj.id = "jsgrid_" + divid;
             $(tblobj).appendTo($(divobj));
-            showGrid(tblobj.id, code, 0, 20);
+            var g = getData(code, 0, 20);
+            showGrid(tblobj.id, code, g);
             openDialog(divobj.id, '[' + dataform + ']' + contentid);
         });
 }
@@ -125,6 +126,7 @@ function showGrid(gridid, getdatascript, g) {
     var grid = $('#' + gridid);
     var dg = new DolphinGrid(grid, {
         pageSize: 10,
+        autoload: true,
         controller: {
             loadData: function(filter) {
                 var g = getData(getdatascript, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize);
@@ -197,13 +199,14 @@ $('#btn_execode').click(function() {
 
     var g = getData(codestr, 0, 10);
 
-    if (g.object[0].form === "chart")
-        showPlot('jsgrid1', codestr);
-    else
-        showGrid('jsgrid1', codestr, g);
+    if (g.object.length > 0) {
+        if (g.object[0].form === "chart")
+            showPlot('jsgrid1', codestr);
+        else
+            showGrid('jsgrid1', codestr, g);
 
-    $('#resulttab a[href="#DataWindow"]').tab('show');
-
+        $('#resulttab a[href="#DataWindow"]').tab('show');
+    }
     refreshVariables();
 
 });
