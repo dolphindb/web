@@ -157,12 +157,14 @@ function Matrix2Table(jsonobj) {
     var jsonArr = jsonobj[0].value;
     var rowcount = Number.parseInt(jsonobj[1].value);
     var colcount = Number.parseInt(jsonobj[2].value);
+    var colLabels = jsonobj[4].type === "void" ? null : jsonobj[4].value;
 
     var jTable = [];
     var curIndex = 0;
     for (var i = 0; i < rowcount; i++) {
         for (var j = 0; j < colcount; j++) {
-            jTable.setRow(i, "col" + j.toString(), jsonArr[curIndex]);
+            var colName = colLabels ? colLabels[j] : "col" + j;
+            jTable.setRow(i, colName, jsonArr[curIndex]);
             if (curIndex < jsonArr.length - 1) {
                 curIndex++;
             }

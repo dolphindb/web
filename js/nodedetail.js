@@ -141,20 +141,29 @@ function showGrid(gridid, getdatascript, g) {
         }
     });
     $("#btn-download").hide();
+    btnPlot.hide();
     dg.setGridPage(g);
     if (dg.loadFromJson(d)) {
         var resObj = res && res.object[0];
 
-        if (resObj.form && ["table", "matrix"].indexOf(resObj.form) !== -1) {
-            customVis = new CustomVis(resObj);
-            btnPlot.show();
+        if (resObj.form) {
+            if (resObj.form === "table" ||
+                (resObj.form === "matrix" && !CustomVis.isNonNumeralType(resObj.type))) {
+                customVis = new CustomVis(resObj);
+                btnPlot.show();
+            }
         }
     }
 }
 
 function showPlot(gridid, getPlotScript) {
-    var result = getData(getPlotScript),
-        chartObj = result.object[0],
+    var retrieveRowNumber = parseInt($('#retrieve-row-number').val(), 10),
+        result = null;
+    if (isNaN(retrieveRowNumber) || retrieveRowNumber <= 0)
+        result = getData(getPlotScript);
+    else
+        result = getData(getPlotScript, 0, retrieveRowNumber);
+    var chartObj = result.object[0],
         grid = $('#' + gridid);
 
     DolphinPlot(chartObj, grid);

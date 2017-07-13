@@ -1,5 +1,3 @@
-var nonNumeralTypes = ['string', 'second', 'minute', 'date', 'datetime', 'month', 'timestamp', 'time'];
-
 /**
  * Plot the object given by DolphinDB plot function
  * @param {object} chartObject
@@ -50,7 +48,7 @@ function DolphinPlot(chartObject, elem) {
         options.yTitle = yTitle;
     if (colLabel.length > 0)
         options.yLegend = colLabel;
-    if (nonNumeralTypes.indexOf(xDataType) !== -1)
+    if (CustomVis.isNonNumeralType(xDataType))
         options.xDataType = xDataType;
 
     var chart = new DolphinChart(yData, xData, title, chartType, options);
@@ -67,7 +65,7 @@ function downloadVisSVG(downloadBtn) {
     if (!isDataURLSupported())
         return;
 
-    svgToPng(document.getElementById('vis-svg'), function(res) {
+    svgToPng(document.getElementById('vis-svg'), CustomVis.width, CustomVis.height, function(res) {
         downloadURL = res;
         a = document.createElement('a');
         a.href = downloadURL;
@@ -82,7 +80,6 @@ function downloadVisSVG(downloadBtn) {
 
 function CustomVis(visObj) {
     this.data = [];
-    this.columns = $('#column-list');
     switch (visObj.form) {
         case "table": {
             this.data = visObj.value;
@@ -109,165 +106,181 @@ function CustomVis(visObj) {
             break;
         }
     }
-
-    $('#btn-custom-vis-plot')
-        .attr("disabled", true)
-        .unbind('click')
-        .click(this.updateChart.bind(this));
-
-    $('#x-data').html('');
-    $('#custom-vis-plot').html('');
-
-    this.columns.html('');
-    this.columnCount = 0;
-    this.existedColumnCount = 0;
-    this.columnData = [];
-    this.addColumn();
-
-    this.createColumnOptions($('#x-data'), "x");
-    $('#btn-add-column').unbind('click').click(this.addColumn.bind(this));
+    this.init();
 }
 
-CustomVis.prototype.addColumn = function() {
-    if (this.data.length <= 0)
-        return;
-
-    var column;
-    var columnId = this.columnCount++;
-    this.existedColumnCount++;
-
-    var newColumn = $('<div />', {
-        class: 'form-group',
-        id: 'vis-column-' + columnId
-    });
-
-    var selectWrap = $('<div />', { class: 'col-xs-7 col-md-offset-2' });
-    var select = $('<select />', { class: 'form-control' });
-    
-    this.createColumnOptions(select, "y");
-
-    select.appendTo(selectWrap);
-    selectWrap.appendTo(newColumn);
-
-    var btnRemove = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-minus"></span></button>').appendTo(newColumn);
-
-    btnRemove.click(this.removeColumn(columnId).bind(this));
-
-    newColumn.appendTo(this.columns);
-    this.columnData.push({ elem: newColumn, deleted: false });
-}
-
-CustomVis.prototype.createColumnOptions = function(select, axis) {
-    function isNumberType(type) {
-        return ["bool", "char", "short", "int", "long", "float", "double"].indexOf(type) !== -1;
+(function() {
+    CustomVis.isNonNumeralType = function(type) {
+        var nonNumeralTypes = ['symbol', 'string', 'second', 'minute', 'date', 'datetime', 'month', 'timestamp', 'time'];
+        return nonNumeralTypes.indexOf(type) !== -1;
     }
 
-    var firstOption = $('<option disabled selected value> select a column </option>').appendTo(select),
-        disableCheck = axis === "y",
-        column;
+    CustomVis.width = 800;
+    CustomVis.height = 450;
+})();
 
-    for (var i = 0, len = this.data.length; i < len; i++) {
-        column = this.data[i];
-        $('<option />', {
-            value: i,
-            text: column.name,
-            disabled: disableCheck && !isNumberType(column.type)    // TODO pie chart
-        }).appendTo(select);
-    }
+CustomVis.prototype = {
+    init: function() {
+        var columns = $('#column-list');
 
-    select.change(this.checkCanPlot.bind(this));
-    if (axis === "x")
-        select.change(function() {
-            $('#x-title').val(select.find(":selected").text());
+        $('#btn-custom-vis-plot')
+            .attr("disabled", true)
+            .unbind('click')
+            .click(this.updateChart.bind(this));
+
+        $('#x-data').html('');
+        $('#custom-vis-plot').html('');
+
+        columns.html('');
+
+        this.columnCount = 0;
+        this.existedColumnCount = 0;
+        this.columnData = [];
+        this.addColumnTo(columns);
+
+        this.createColumnOptions($('#x-data'), "x");
+        $('#btn-add-column').unbind('click').click(function() { this.addColumnTo(columns); }.bind(this));
+    },
+
+    addColumnTo: function(columns) {
+        if (this.data.length <= 0)
+            return;
+
+        var column;
+        var columnId = this.columnCount++;
+        this.existedColumnCount++;
+
+        var newColumn = $('<div />', {
+            class: 'form-group',
+            id: 'vis-column-' + columnId
         });
-}
 
-CustomVis.prototype.checkCanPlot = function() {
-    var canPlotY = function canPlotY() {
-        var column, elem;
+        // Create select and options
+        var selectWrap = $('<div />', { class: 'col-xs-7 col-md-offset-2' });
+        var select = $('<select />', { class: 'form-control' });
+        this.createColumnOptions(select, "y");
+        select.appendTo(selectWrap);
+        selectWrap.appendTo(newColumn);
+
+        var btnRemove = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-minus"></span></button>').appendTo(newColumn);
+        btnRemove.click(this.removeColumn(columnId).bind(this));
+
+        this.columnData.push({ elem: newColumn, deleted: false });
+        newColumn.appendTo(columns);
+    },
+
+    createColumnOptions: function(select, axis) {
+        function isNumberType(type) {
+            return ["bool", "char", "short", "int", "long", "float", "double"].indexOf(type) !== -1;
+        }
+
+        var firstOption = $('<option disabled selected value> select a column </option>').appendTo(select),
+            disableCheck = axis === "y",
+            column;
+
+        for (var i = 0, len = this.data.length; i < len; i++) {
+            column = this.data[i];
+            $('<option />', {
+                value: i,
+                text: column.name,
+                disabled: disableCheck && !isNumberType(column.type)    // TODO pie chart
+            }).appendTo(select);
+        }
+
+        select.change(this.checkCanPlot.bind(this));
+        if (axis === "x")
+            select.change(function() {
+                $('#x-title').val(select.find(":selected").text());
+            });
+    },
+
+    checkCanPlot: function() {
+        var canPlotY = function canPlotY() {
+            var column, elem;
+            for (var i = 0, len = this.columnData.length; i < len; i++) {
+                column = this.columnData[i];
+                if (column.deleted)
+                    continue;
+
+                elem = column.elem;
+                if (elem.find('select').val() !== null)
+                    return true;
+            }
+        }.bind(this);
+
+        function canPlotX() {
+            return $('#x-data').val() !== null;
+        }
+        
+        if (canPlotX() && canPlotY())
+            $('#btn-custom-vis-plot').attr("disabled", false);
+        else
+            $('#btn-custom-vis-plot').attr("disabled", true);
+    },
+
+    removeColumn: function(columnId) {
+        return function() {
+            $('#vis-column-' + columnId).remove();
+            this.columnData[columnId].deleted = true;
+            this.existedColumnCount--;
+            this.checkCanPlot();
+        }.bind(this);
+    },
+
+    updateChart: function(e) {
+        e.preventDefault();
+
+        var xColumn = $('#x-data').val(),
+            chartType = $('#chart-type').val(),
+            title = $('#chart-title').val() || '',
+            xTitle = $('#x-title').val(),
+            yTitle = $('#y-title').val();
+
+        if (xColumn === null)
+            return;
+
+        if (chartType === null)
+            return;
+
+        var xDataObj = this.data[xColumn],
+            xDataType = xDataObj.type,
+            xData = xDataObj.value,
+            yData = [],
+            colLabel = [];
+
+        var column, elem, val;
+
         for (var i = 0, len = this.columnData.length; i < len; i++) {
             column = this.columnData[i];
             if (column.deleted)
                 continue;
 
             elem = column.elem;
-            if (elem.find('select').val() !== null)
-                return true;
+            val = elem.find('select').val();
+            if (val !== null) {
+                yData.push(this.data[val].value)
+                colLabel.push(this.data[val].name)
+            }
         }
-    }.bind(this);
 
-    function canPlotX() {
-        return $('#x-data').val() !== null;
+        if (yData.length <= 0)
+            return;
+
+        var options = {};
+
+        if (xTitle)
+            options.xTitle = xTitle;
+        if (yTitle)
+            options.yTitle = yTitle;
+        if (colLabel.length > 0)
+            options.yLegend = colLabel;
+        if (CustomVis.isNonNumeralType(xDataType))
+            options.xDataType = xDataType;
+
+        var chart = new DolphinChart(yData, xData, title, chartType, options);
+        chart.plot($('#custom-vis-plot'));
+        downloadVisSVG($('#btn-custom-vis-download'));
     }
-    
-    if (canPlotX() && canPlotY())
-        $('#btn-custom-vis-plot').attr("disabled", false);
-    else
-        $('#btn-custom-vis-plot').attr("disabled", true);
-}
-
-CustomVis.prototype.removeColumn = function(columnId) {
-    return function() {
-        $('#vis-column-' + columnId).remove();
-        this.columnData[columnId].deleted = true;
-        this.existedColumnCount--;
-        this.checkCanPlot();
-    }.bind(this);
-}
-
-CustomVis.prototype.updateChart = function(e) {
-    e.preventDefault();
-
-    var xColumn = $('#x-data').val(),
-        chartType = $('#chart-type').val(),
-        title = $('#chart-title').val() || '',
-        xTitle = $('#x-title').val(),
-        yTitle = $('#y-title').val();
-
-    if (xColumn === null)
-        return;
-
-    if (chartType === null)
-        return;
-
-    var xDataObj = this.data[xColumn],
-        xDataType = xDataObj.type,
-        xData = xDataObj.value,
-        yData = [],
-        colLabel = [];
-
-    var column, elem, val;
-
-    for (var i = 0, len = this.columnData.length; i < len; i++) {
-        column = this.columnData[i];
-        if (column.deleted)
-            continue;
-
-        elem = column.elem;
-        val = elem.find('select').val();
-        if (val !== null) {
-            yData.push(this.data[val].value)
-            colLabel.push(this.data[val].name)
-        }
-    }
-
-    if (yData.length <= 0)
-        return;
-
-    var options = {};
-
-    if (xTitle)
-        options.xTitle = xTitle;
-    if (yTitle)
-        options.yTitle = yTitle;
-    if (colLabel.length > 0)
-        options.yLegend = colLabel;
-    if (nonNumeralTypes.indexOf(xDataType) !== -1)
-        options.xDataType = xDataType;
-
-    var chart = new DolphinChart(yData, xData, title, chartType, options);
-    chart.plot($('#custom-vis-plot'));
-    downloadVisSVG($('#btn-custom-vis-download'));
 }
 
 $(function() {
@@ -275,8 +288,7 @@ $(function() {
 
     $('#custom-vis').dialog({
         autoOpen: false,
-        width: 1200,
-        height: 600,
+        height: 640,
         position: { my: 'center', at: 'center', of: window },
         title: 'Customize visualization',
         dialogClass: 'no-close',
@@ -289,6 +301,8 @@ $(function() {
     });
 
     $('#btn-plot').click(function() {
-        $('#custom-vis').dialog('open');
+        var customVis = $('#custom-vis');
+        customVis.dialog('option', 'width', Math.max($(window).width() - 200, 600));
+        customVis.dialog('open');
     });
 });

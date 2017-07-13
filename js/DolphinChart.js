@@ -37,7 +37,7 @@ function DolphinChart(yData, xData, title, chartType, options) {
 
     this.timeFormatter = getTimeFormatter();
 
-    if (!this.xData) {    // let xData be range 0..length TODO wait for server update
+    if (!this.xData || this.xData.length <= 0) {    // let xData be range 0..length TODO wait for server update
         this.xData = this.yData[0].map(function(x, i) { return i; });
     }
 
@@ -73,6 +73,10 @@ function DolphinChart(yData, xData, title, chartType, options) {
     }
 }
 
+DolphinChart.prototype = {
+
+}
+
 /**
  * Plot the chart in a DOM element.
  * @param {Object} elem - A DOM element 
@@ -83,8 +87,8 @@ DolphinChart.prototype.plot = function(elem, width, height) {
 
     $(elem).html("");    // clear element
     $('#vis-svg').html("");
-    this.totalWidth = width || 680;    // TODO width and height
-    this.totalHeight = height || 420;
+    this.totalWidth = width || CustomVis.width;
+    this.totalHeight = height || CustomVis.height;
 
     var i, len, yData,
         margin = { top: 30, right: 60, bottom: 20, left: 60 },
@@ -155,7 +159,7 @@ DolphinChart.prototype.genXScale = function() {
             .domain(d3.extent(this.xData))
             .range([0, this.width]);
     }
-    else if (this.options.xDataType === "string") {
+    else if (this.options.xDataType === "string" || this.options.xDataType === "symbol") {
         return d3.scalePoint()
             .domain(this.xData)
             //.domain(d3.range(0, this.xData.length)) TODO x data can be same value
