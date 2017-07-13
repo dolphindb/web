@@ -36,7 +36,7 @@ function refreshVariables() {
     var executor = new CodeExecutor(wa_url);
     executor.run("objs(true)", function(re) {
         var rowJson = VectorArray2Table(re.object[0].value);
-        bindVariables(rowJson)
+        bindVariables(rowJson);
     });
 }
 
@@ -120,11 +120,10 @@ function bindVariables(datalist) {
 
 function showGrid(gridid, getdatascript, g) {
     var d = DolphinResult2Grid(g),
-        btnPlot = $('#btn-plot');
+        grid = $('#' + gridid);
 
     var res = null;
 
-    var grid = $('#' + gridid);
     var dg = new DolphinGrid(grid, {
         pageSize: 10,
         autoload: true,
@@ -143,17 +142,30 @@ function showGrid(gridid, getdatascript, g) {
         }
     });
 
-
-    $("#btn-download").hide();
-    btnPlot.hide();
+    //btnDownload.hide();
+    //btnPlot.hide();
     dg.setGridPage(g);
     if (dg.loadFromJson(d)) {
-        var resObj = res && res.object[0];
+        var btnPlot = $('<button />', {
+            class: 'btn btn-primary',
+            id: 'btn-plot-' + gridid,
+            text: 'Plot'
+        }).appendTo(grid);
 
+        var resObj = res && res.object[0];
         if (resObj.form) {
             if (resObj.form === "table" ||
                 (resObj.form === "matrix" && !CustomVis.isNonNumeralType(resObj.type))) {
-                customVis = new CustomVis(resObj);
+                btnPlot.click(function() {
+                    var fullData = getData(getdatascript, 0, resObj.size);    // TODO customized size
+                    var fullResObj = fullData.object[0];
+
+                    new CustomVis(fullResObj);
+                    var customVis = $('#custom-vis');
+                    customVis.dialog('option', 'width', Math.max($(window).width() - 200, 600));
+                    customVis.dialog('open');
+                });
+
                 btnPlot.show();
             }
         }
@@ -161,8 +173,9 @@ function showGrid(gridid, getdatascript, g) {
 }
 
 function showResult(gridid, resobj) {
+    var d = DolphinResult2Grid(resobj),
+        btnPlot = $('#btn-plot');
 
-    var d = DolphinResult2Grid(resobj);
     var grid = $('#' + gridid);
     var dg = new DolphinGrid(grid, {
         pageSize: 10,
@@ -171,12 +184,24 @@ function showResult(gridid, resobj) {
         pageLoading: false,
         autoload: false
     });
-    dg.loadFromJson(d)
+
+    $("#btn-download").hide();
+    btnPlot.hide();
+    if (dg.loadFromJson(d)) {
+        var res = resobj.object && resobj.object[0];
+        if (res && res.form) {
+            if (res.form === "table" ||
+                (res.form === "matrix" && !CustomVis.isNonNumeralType(res.type))) {
+                customVis = new CustomVis(res);
+                btnPlot.show();
+            }
+        }
+    }
 }
 
 function showPlot(gridid, resobj) {
 
-    var chartObj = result.object[0],
+    var chartObj = resobj.object[0],
         grid = $('#' + gridid);
 
     DolphinPlot(chartObj, grid);
