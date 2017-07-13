@@ -70,8 +70,6 @@ function bindVariables(datalist) {
     list = datalist.filter(function(x) { return x.form === 'TABLE' && x.shared === 1; });
     sharedtable.push(buildNode(list, "Table"));
 
-
-
     var json_tree = {
         'core': {
             'dblclick_toggle': true,
@@ -121,7 +119,10 @@ function bindVariables(datalist) {
 
 
 function showGrid(gridid, getdatascript, g) {
-    var d = DolphinResult2Grid(g);
+    var d = DolphinResult2Grid(g),
+        btnPlot = $('#btn-plot');
+
+    var res = null;
 
     var grid = $('#' + gridid);
     var dg = new DolphinGrid(grid, {
@@ -130,6 +131,7 @@ function showGrid(gridid, getdatascript, g) {
         controller: {
             loadData: function(filter) {
                 var g = getData(getdatascript, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize);
+                res = g;
                 var total = g.object[0].size;
                 var d = DolphinResult2Grid(g);
 
@@ -140,22 +142,36 @@ function showGrid(gridid, getdatascript, g) {
             }
         }
     });
-    $("#btn_download").hide();
+    $("#btn-download").hide();
+    btnPlot.hide();
     dg.setGridPage(g);
-    dg.loadFromJson(d);
+    if (dg.loadFromJson(d)) {
+        var resObj = res && res.object[0];
+
+        if (resObj.form) {
+            if (resObj.form === "table" ||
+                (resObj.form === "matrix" && !CustomVis.isNonNumeralType(resObj.type))) {
+                customVis = new CustomVis(resObj);
+                btnPlot.show();
+            }
+        }
+    }
 }
 
 function showPlot(gridid, getPlotScript) {
-    var result = getData(getPlotScript),
-        chartObj = result.object[0],
+    var retrieveRowNumber = parseInt($('#retrieve-row-number').val(), 10),
+        result = null;
+    if (isNaN(retrieveRowNumber) || retrieveRowNumber <= 0)
+        result = getData(getPlotScript);
+    else
+        result = getData(getPlotScript, 0, retrieveRowNumber);
+    var chartObj = result.object[0],
         grid = $('#' + gridid);
 
     DolphinPlot(chartObj, grid);
 }
 
 function openDialog(dialog, tit) {
-
-
     $("#" + dialog).dialog({
         width: 800,
         height: 600,

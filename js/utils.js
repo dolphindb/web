@@ -5,10 +5,12 @@ $.getUrlParam = function(name) {
     return null;
 }
 
-function svgToPng(svgElem, callback) {
+function svgToPng(svgElem, width, height, callback) {
     var svgData = new XMLSerializer().serializeToString(svgElem);
 
-    var canvas = document.getElementById("vis-canvas")
+    var canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
     var ctx = canvas.getContext("2d");
 
     var img = new Image();
