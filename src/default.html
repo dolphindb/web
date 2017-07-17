@@ -211,21 +211,18 @@
 
         grid.GM({
             ajax_data: griddata,
-            supportAutoOrder: true,
+            supportAutoOrder: false,
             supportSorting: true,
-
-            query: {
-                "host": ""
-            },
+			supportDrag: false,
+			emptyTemplate: '<div class="gm-emptyTemplate">empty</div>',
             height: '80vh',
             columnData: [{
                 text: 'site',
-                key: 'site',
-                width: '100px'
+                key: 'site'
             }, {
                 text: 'state',
                 key: 'state',
-                width: '40px',
+                width: '80px',
                 template: function(state, rowObject) {
                     console.log(rowObject)
                     if (state == "1") {
@@ -237,11 +234,11 @@
             }, {
                 text: 'maxConnections',
                 key: 'maxConnections',
-                width: '40px',
+                width: '80px',
             }, {
                 text: 'maxMemSize',
                 key: 'maxMemSize',
-                width: '40px',
+                width: '80px',
                 template: function(maxMemSize, rowObject) {
                     return Number(maxMemSize).toFixed(2);
                 }
@@ -249,22 +246,24 @@
             }, {
                 text: 'workerNum',
                 key: 'workerNum',
-                width: '40px',
+                width: '80px',
 
             }, {
                 text: 'executorNum',
                 key: 'executorNum',
-                width: '40px',
+                width: '80px',
             }, {
                 text: 'connectionNum',
                 key: 'connectionNum',
-                width: '40px',
+                width: '80px',
             }, {
                 text: 'taskNum',
-                key: 'taskNum'
+                key: 'taskNum',
+				width: '80px',
             }, {
                 text: 'action',
                 key: 'action',
+				width: '80px',
                 template: function(action, rowObject) {
                     var r = "";
                     if (rowObject.state == "1") {
