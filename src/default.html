@@ -104,11 +104,11 @@
                                 <button type="button" class="btn btn-default" id="btn_run"><span class="glyphicon glyphicon-play"></span></button>
                                 <button type="button" class="btn btn-default" id="btn_stop"><span class="glyphicon glyphicon-stop"></span></button>
                                 <button type="button" class="btn btn-default" id="btn_refresh"><span class="glyphicon glyphicon-refresh"></span></button>
-								
-								<div class="input-group">
-                                            <div class="input-group-addon retrieve-row-number">Filter</div>
-                                            <input class="form-control" id="txtFilter" type="text" placeholder="">
-                                        </div>
+
+                                <div class="input-group">
+                                    <div class="input-group-addon retrieve-row-number">Filter</div>
+                                    <input class="form-control" id="txtFilter" type="text" placeholder="">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -213,8 +213,8 @@
             ajax_data: griddata,
             supportAutoOrder: false,
             supportSorting: true,
-			supportDrag: false,
-			emptyTemplate: '<div class="gm-emptyTemplate">empty</div>',
+            supportDrag: false,
+            emptyTemplate: '<div class="gm-emptyTemplate">empty</div>',
             height: '80vh',
             columnData: [{
                 text: 'site',
@@ -259,11 +259,11 @@
             }, {
                 text: 'taskNum',
                 key: 'taskNum',
-				width: '80px',
+                width: '80px',
             }, {
                 text: 'action',
                 key: 'action',
-				width: '80px',
+                width: '80px',
                 template: function(action, rowObject) {
                     var r = "";
                     if (rowObject.state == "1") {
@@ -341,128 +341,112 @@
     $("#btn_run").click(function() {
         var t = grid.GM("getCheckedData");
         var isAllSuccess = false;
+        var valarr = [];
         for (var i = 0; i < t.length; i++) {
             data = t[i];
             if (data.state == "1") {
                 continue;
             };
-            var p = {
-                "sessionID": SESSION_ID,
-                "functionName": "startDataNode",
-                "params": [{
-                    "name": "host",
-                    "form": "scalar",
-                    "type": "string",
-                    "value": data.host
-                }, {
-                    "name": "port",
-                    "form": "scalar",
-                    "type": "string",
-                    "value": data.port
-                }]
-            };
-            // var re = CallWebApiSync(wa_url, p);
-            // console.log(re);
-            CallWebApi(wa_url, p,
-                function(re) {
-                    if (typeof(re) == "object") {
-                        if (re.resultcode == "0") {
-                            isAllSuccess = true;
-                        } else {
-                            if (re.msg != "")
-                                console.log(re.msg);
-                            else
-                                console.log(re);
-                        }
-                    } else if (typeof(re) == "string") {
-                        console.log(re);
-                    }
-                },
-                function(re) {
-                    console.log(re);
-                }, {
-                    timeout: 1000,
-                    complete: function(XMLHttpRequest, status) { //请求完成后最终执行参数
-                            if (status == 'timeout') {
-                                console.log('timeout');
-                            }
-                        }
-                        // if (isAllSuccess) {
-                        //     $.msgbox('start node success', function () {
-                        //         GetLocalData(wa_url);
-                        //     });
-                        // }
-                }
-            );
+            valarr.push(data.host + ":" + data.port);
+
+
         }
+        var p = {
+            "sessionID": SESSION_ID,
+            "functionName": "startDataNode",
+            "params": [{
+                "name": "port",
+                "form": "vector",
+                "type": "string",
+                "value": valarr
+            }]
+        }
+        CallWebApi(wa_url, p,
+            function(re) {
+                if (typeof(re) == "object") {
+                    if (re.resultcode == "0") {
+                        //refreshNodeState();
+                    } else {
+                        if (re.msg != "")
+                            console.log(re.msg);
+                        else
+                            console.log(re);
+                    }
+                } else if (typeof(re) == "string") {
+                    console.log(re);
+                }
+            },
+            function(re) {
+                console.log(re);
+            }, {
+                timeout: 1000,
+                complete: function(XMLHttpRequest, status) { //请求完成后最终执行参数
+                    if (status == 'timeout') {
+                        console.log('timeout');
+                    }
+                }
+            }
+        );
+
     });
     $("#btn_stop").click(function() {
         var t = grid.GM("getCheckedData");
         var isAllSuccess = false;
+        var valarr = [];
         for (var i = 0; i < t.length; i++) {
             data = t[i];
             if (data.state == "1") {
-                var p = {
-                    "sessionID": SESSION_ID,
-                    "functionName": "stopDataNode",
-                    "params": [{
-                        "name": "host",
-                        "form": "scalar",
-                        "type": "string",
-                        "value": data.host
-                    }, {
-                        "name": "port",
-                        "form": "scalar",
-                        "type": "string",
-                        "value": data.port
-                    }]
-                };
+                valarr.push(data.host + ":" + data.port);
                 // var re = CallWebApiSync(wa_url, p);
                 // console.log(re);
-                CallWebApi(wa_url, p, function(re) {
 
-                        if (typeof(re) == "object") {
-                            if (re.resultcode == "0") {
-                                console.log("stop node success");
-                            } else {
-                                if (re.msg != "")
-                                    console.log(re.msg);
-                                else
-                                    console.log(re);
-                            }
-                        } else if (typeof(re) == "string") {
-                            console.log(re);
-                        }
-
-                    },
-                    function(re) {
-                        console.log(re);
-                    })
             }
         }
-        // if (isAllSuccess) {
-        //     $.msgbox('stop node success', function () {
-        //         GetLocalData(wa_url);
-        //     });
-        // }
+        var p = {
+            "sessionID": SESSION_ID,
+            "functionName": "stopDataNode",
+            "params": [{
+                "name": "port",
+                "form": "vector",
+                "type": "string",
+                "value": valarr
+            }]
+        }
+        CallWebApi(wa_url, p, function(re) {
+                if (typeof(re) == "object") {
+                    if (re.resultcode == "0") {
+                        //refreshNodeState();
+                    } else {
+                        if (re.msg != "")
+                            console.log(re.msg);
+                        else
+                            console.log(re);
+                    }
+                } else if (typeof(re) == "string") {
+                    console.log(re);
+                }
 
-
+            },
+            function(re) {
+                console.log(re);
+            })
     });
+
     $("#btn_refresh").click(function() {
         GetLocalData(wa_url);
         LoadLeft(AGENT_LIST);
         LoadTable(NODE_LIST);
     });
 
-	$("#txtFilter").keypress(function(e){
-		if (e.keyCode == 13){
-			var fv = $(this).val();
-			NODE_LIST = ALL_NODE.filter(function(x) {
-                return x.mode === 'dataNode'&&x.site.indexOf(fv)>=0;
+    $("#txtFilter").keypress(function(e) {
+        if (e.keyCode == 13) {
+            var fv = $(this).val();
+            NODE_LIST = ALL_NODE.filter(function(x) {
+                return x.mode === 'dataNode' && x.site.indexOf(fv) >= 0;
             });
-			refreshGrid(NODE_LIST);
-		}
-	});
+            refreshGrid(NODE_LIST);
+        }
+    });
 
     var getDatabases = function() {
         var executor = new CodeExecutor(wa_url);
