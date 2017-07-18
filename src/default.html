@@ -104,6 +104,11 @@
                                 <button type="button" class="btn btn-default" id="btn_run"><span class="glyphicon glyphicon-play"></span></button>
                                 <button type="button" class="btn btn-default" id="btn_stop"><span class="glyphicon glyphicon-stop"></span></button>
                                 <button type="button" class="btn btn-default" id="btn_refresh"><span class="glyphicon glyphicon-refresh"></span></button>
+
+                                <div class="input-group">
+                                    <div class="input-group-addon retrieve-row-number">Filter</div>
+                                    <input class="form-control" id="txtFilter" type="text" placeholder="">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -208,19 +213,16 @@
             ajax_data: griddata,
             supportAutoOrder: false,
             supportSorting: true,
-
-            query: {
-                "host": ""
-            },
+            supportDrag: false,
+            emptyTemplate: '<div class="gm-emptyTemplate">empty</div>',
             height: '80vh',
             columnData: [{
                 text: 'site',
-                key: 'site',
-                width: '100px',
+                key: 'site'
             }, {
                 text: 'state',
                 key: 'state',
-                width: '40px',
+                width: '80px',
                 template: function(state, rowObject) {
                     console.log(rowObject)
                     if (state == "1") {
@@ -232,11 +234,11 @@
             }, {
                 text: 'maxConnections',
                 key: 'maxConnections',
-                width: '40px',
+                width: '80px',
             }, {
                 text: 'maxMemSize',
                 key: 'maxMemSize',
-                width: '40px',
+                width: '80px',
                 template: function(maxMemSize, rowObject) {
                     return Number(maxMemSize).toFixed(2);
                 }
@@ -244,22 +246,24 @@
             }, {
                 text: 'workerNum',
                 key: 'workerNum',
-                width: '40px',
+                width: '80px',
 
             }, {
                 text: 'executorNum',
                 key: 'executorNum',
-                width: '40px',
+                width: '80px',
             }, {
                 text: 'connectionNum',
                 key: 'connectionNum',
-                width: '40px',
+                width: '80px',
             }, {
                 text: 'taskNum',
-                key: 'taskNum'
+                key: 'taskNum',
+                width: '80px',
             }, {
                 text: 'action',
                 key: 'action',
+                width: '80px',
                 template: function(action, rowObject) {
                     var r = "";
                     if (rowObject.state == "1") {
@@ -343,21 +347,6 @@
             if (data.state == "1") {
                 continue;
             };
-            // var p = {
-            //     "sessionID": SESSION_ID,
-            //     "functionName": "startDataNode",
-            //     "params": [{
-            //         "name": "host",
-            //         "form": "scalar",
-            //         "type": "string",
-            //         "value": data.host
-            //     }, {
-            //         "name": "port",
-            //         "form": "scalar",
-            //         "type": "string",
-            //         "value": data.port
-            //     }]
-            // };
             valarr.push(data.host + ":" + data.port);
 
 
@@ -376,7 +365,7 @@
             function(re) {
                 if (typeof(re) == "object") {
                     if (re.resultcode == "0") {
-                        refreshNodeState();
+                        //refreshNodeState();
                     } else {
                         if (re.msg != "")
                             console.log(re.msg);
@@ -426,7 +415,7 @@
         CallWebApi(wa_url, p, function(re) {
                 if (typeof(re) == "object") {
                     if (re.resultcode == "0") {
-                        refreshNodeState();
+                        //refreshNodeState();
                     } else {
                         if (re.msg != "")
                             console.log(re.msg);
@@ -443,29 +432,21 @@
             })
     });
 
-    var refreshNodeState = function(result) {
-        if (result.object.length > 0) {
-            var tb = VectorArray2Table(result.object[0].value);
-            $.each(NODE_LIST, function(i, ele) {
-                var s = sele.host + ":" + ele.port;
-                var reItem = tb.filter(function(x) {
-                    return x.sites === s;
-                });
-                if (reItem.length > 0) {
-                    ele.state = reItem[0].result;
-                }
-            })
-            LoadTable(NODE_LIST);
-        }
-
-    }
-
     $("#btn_refresh").click(function() {
         GetLocalData(wa_url);
-        //LoadLeft(AGENT_LIST);
+        LoadLeft(AGENT_LIST);
         LoadTable(NODE_LIST);
     });
 
+    $("#txtFilter").keypress(function(e) {
+        if (e.keyCode == 13) {
+            var fv = $(this).val();
+            NODE_LIST = ALL_NODE.filter(function(x) {
+                return x.mode === 'dataNode' && x.site.indexOf(fv) >= 0;
+            });
+            refreshGrid(NODE_LIST);
+        }
+    });
 
     var getDatabases = function() {
         var executor = new CodeExecutor(wa_url);
