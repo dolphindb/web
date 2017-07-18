@@ -383,9 +383,17 @@
             this._clear();
 
             this._container.addClass(this.containerClass)
-                .css("position", "relative")
+                .css("position", "relative");
+
+            this._tableContainer = $('<div>')
+                .css("overflow-x", "auto")
+                .css("overflow-y", "scroll")
+                .appendTo(this._container);
+
+            this._table = $('<table>').addClass(this.tableClass)
                 .append(this._createHeader())
-                .append(this._createBody());
+                .append(this._createBody())
+                .appendTo(this._tableContainer);
 
             this._pagerContainer = this._createPagerContainer();
             this._loadIndicator = this._createLoadIndicator();
@@ -422,31 +430,20 @@
                 $filterRow = this._filterRow = this._createFilterRow(),
                 $insertRow = this._insertRow = this._createInsertRow();
 
-            var $headerGrid = this._headerGrid = $("<table>").addClass(this.tableClass)
+            var $headerGrid = this._headerGrid = $("<thead>")
+                .addClass(this.gridHeaderClass)
+                .addClass(this._scrollBarWidth() ? "jsgrid-header-scrollbar" : "")
                 .append($headerRow)
                 .append($filterRow)
                 .append($insertRow);
 
-            var $header = this._header = $("<div>").addClass(this.gridHeaderClass)
-                .addClass(this._scrollBarWidth() ? "jsgrid-header-scrollbar" : "")
-                .append($headerGrid);
-
-            return $header;
+            return $headerGrid;
         },
 
         _createBody: function() {
             var $content = this._content = $("<tbody>");
 
-            var $bodyGrid = this._bodyGrid = $("<table>").addClass(this.tableClass)
-                .append($content);
-
-            var $body = this._body = $("<div>").addClass(this.gridBodyClass)
-                .append($bodyGrid)
-                .on("scroll", $.proxy(function(e) {
-                    this._header.scrollLeft(e.target.scrollLeft);
-                }, this));
-
-            return $body;
+            return $content;
         },
 
         _createPagerContainer: function() {

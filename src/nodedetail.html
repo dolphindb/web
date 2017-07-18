@@ -57,14 +57,13 @@
                             </div>
                             <div style="margin-bottom: 0px">
                                 <form class="form-inline">
-                                    <button id="btn_execode" type="button" class="btn btn-primary btn-request">execute code</button>
-                                    <button id="btn_clrcode" type="button" class="btn btn-default">clear code</button>
+                                    <button id="btn_execode" type="button" class="btn btn-primary btn-request">Execute Code</button>
+                                    <button id="btn_clrcode" type="button" class="btn btn-default">Clear Code</button>
                                     <div class="form-group">
-                                        <label class="sr-only" for="retrieve-data-number">Retrive row number</label>
+                                        <label class="sr-only" for="retrieve-data-number">Retrive Row Number</label>
                                         <div class="input-group">
-                                            <div class="input-group-addon retrieve-row-number">Retrieve</div>
-                                            <input class="form-control" id="retrieve-row-number" type="number"  min="0" step="1" placeholder="default 1024">
-                                            <div class="input-group-addon retrieve-row-number">rows</div>
+                                            <div class="input-group-addon retrieve-row-number">Limit</div>
+                                            <input class="form-control" id="retrieve-row-number" type="number"  min="0" step="1" placeholder="default 1024 rows">
                                         </div>
                                     </div>
                                 </form>
@@ -80,15 +79,15 @@
                 <div>
                     <!-- Result Window tabs -->
                     <ul id="resulttab" class="nav nav-tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#log" aria-controls="log" role="tab" data-toggle="tab">log</a></li>
-                        <li role="presentation"><a href="#DataWindow" aria-controls="DataWindow" role="tab" data-toggle="tab">DataWindow</a></li>
+                        <li role="presentation" class="active"><a href="#log" aria-controls="log" role="tab" data-toggle="tab">Log</a></li>
+                        <li role="presentation"><a href="#DataWindow" aria-controls="DataWindow" role="tab" data-toggle="tab">Data Browser</a></li>
                     </ul>
                     <!-- Result panes -->
                     <div class="tab-content" style="position: relative">
                         <div role="tabpanel" class="tab-pane active" id="log">
                             <div class="panel panel-default" style="min-height: 60vh">
                                 <div class="btn-log-group">
-                                    <span class="btn-log btn-clear" id="btn_clear">clearlog</span>
+                                    <span class="btn-log btn-clear" id="btn_clear">Clear Log</span>
                                 </div>
                                 <div class="panel-body" id="pnl_log" style="height:500px;overflow:auto"></div>
                             </div>
@@ -96,10 +95,10 @@
                         <div role="tabpanel" class="tab-pane" id="DataWindow">
                             <div class="panel panel-default">
                                 <div class="btn-log-group">
-                                    <span class="btn-log btn-plot" id="btn-plot">plot</span>
+                                    <span class="btn-log btn-plot" id="btn-plot">Plot</span>
                                 </div>
                                 <div class="btn-log-group">
-                                    <span class="btn-log btn-download" id="btn-download">download</span>
+                                    <span class="btn-log btn-download" id="btn-download">Download</span>
                                 </div>
                                 <div class="panel-body" id="pnl_datawindow">
                                     <p></p>
@@ -156,44 +155,55 @@
             <form class="form-horizontal">
                 <div class="col-lg-3 col-md-6 col-xs-12">
                     <div class="form-group">
-                        <label class="col-xs-5 control-label" for="chart-type">Chart type *</label>
+                        <label class="col-xs-5 control-label" for="chart-type">Chart Type *</label>
                         <div class="col-xs-7">
                             <select class="form-control" id="chart-type">
-                                <option value="LINE" selected>Line chart</option>
-                                <option value="AREA">Area chart</option>
-                                <option value="PIE">Pie chart</option>
-                                <option value="BAR">Bar chart</option>
-                                <option value="COLUMN">Column chart</option>
-                                <option value="SCATTER">Scatter chart</option>
+                                <option value="LINE" selected>Line Chart</option>
+                                <option value="AREA">Area Chart</option>
+                                <option value="PIE">Pie Chart</option>
+                                <option value="BAR">Bar Chart</option>
+                                <option value="COLUMN">Column Chart</option>
+                                <option value="SCATTER">Scatter Chart</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="col-xs-5 control-label" for="x-data">X axis data *</label>
+                        <label class="col-xs-5 control-label" for="x-data">X Axis Data *</label>
                         <div class="col-xs-7">
                             <select class="form-control" id="x-data"></select>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="col-xs-5 control-label" for="chart-title">Chart title</label>
+                        <label class="col-xs-5 control-label" for="chart-title">Chart Title</label>
                         <div class="col-xs-7">
                             <input type="text" class="form-control" id="chart-title" name="chart-title">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="col-xs-5 control-label" for="y-title">Y axis title</label>
+                        <label class="col-xs-5 control-label" for="y-title">Y Axis Title</label>
                         <div class="col-xs-7">
                             <input type="text" class="form-control" id="y-title" name="y-title">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="col-xs-5 control-label" for="x-title">X axis title</label>
+                        <label class="col-xs-5 control-label" for="x-title">X Axis Title</label>
                         <div class="col-xs-7">
                             <input type="text" class="form-control" id="x-title" name="x-title">
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="download-format-container">
+                        <label class="col-xs-5 control-label" for="download-format">Download Format</label>
+                        <div class="col-xs-7">
+                            <select class="form-control" id="download-format">
+                                <option value="png" selected>png</option>
+                                <option value="jpeg">jpeg</option>
+                                <option value="svg">svg</option>
+                            </select>
                         </div>
                     </div>
 
@@ -205,7 +215,7 @@
 
                 <div class="col-lg-3 col-md-6 col-xs-12">
                     <div class="form-group">
-                        <label class="col-xs-9 control-label" for="btn-add-column">Add a column</label>
+                        <label class="col-xs-9 control-label" for="btn-add-column">Add Column</label>
                         <button type="button" class="btn btn-default" id="btn-add-column"><span class="glyphicon glyphicon-plus"></span></button>
                     </div>
 
@@ -218,7 +228,22 @@
     </div>
 
     <!-- modal dialog -->
-    <!-- <canvas id="vis-canvas" width="680" height="420" style="display: none"></canvas> -->
+    <div class="modal fade" id="bar-modal" tabindex="-1" role="dialog" aria-labelledby="bar-modal-label" aria-hidden="true" style="z-index: 2000;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bar-modal-label">Warning</h5>
+                </div>
+                <div class="modal-body">
+                    There might be no enough space for plotting a bar chart or a column chart. Continue?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Continue</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="third-party/bootstrap/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>

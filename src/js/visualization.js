@@ -62,14 +62,19 @@ function downloadVisSVG(downloadBtn) {
 
     downloadBtn.hide().unbind('click');
 
-    if (!isDataURLSupported())
+    if (!Utils.isDataURLSupported() || !Utils.isBase64Supported()) {
+        $('#download-format-container').hide();
         return;
+    }
 
-    svgToPng(document.getElementById('vis-svg'), CustomVis.width, CustomVis.height, function(res) {
+    var format = $('#download-format').val();
+    format = typeof format === "undefined" ? "png" : format;
+
+    svgToPic(document.getElementById('vis-svg'), CustomVis.width, CustomVis.height, format, function(res) {
         downloadURL = res;
         a = document.createElement('a');
         a.href = downloadURL;
-        a.download = 'plot.png';
+        a.download = 'plot.' + format;
     });
     downloadBtn.show();
     downloadBtn.click(function(e) {
@@ -305,4 +310,8 @@ $(function() {
         customVis.dialog('option', 'width', Math.max($(window).width() - 200, 600));
         customVis.dialog('open');
     });
+
+    $('#download-format').change(function() {
+        downloadVisSVG($('#btn-download'));
+    })
 });

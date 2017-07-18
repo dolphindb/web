@@ -242,8 +242,7 @@ function buildNode(jsonLst, dataform) {
 
 $('#btn_execode').click(function() {
     var codestr = editor.getCode();
-
-    appendlog(codestr);
+    var logstr = codestr;
 
     codestr = encodeURIComponent(codestr);
 
@@ -251,14 +250,23 @@ $('#btn_execode').click(function() {
     
     var showData = function(result) {
         if (result.object.length > 0) {
-            if (result.object[0].form === "chart")
+            var res = result.object[0];
+            if (res.form === "chart") {
                 showPlot('jsgrid1', result);
-            else
+                $('#resulttab a[href="#DataWindow"]').tab('show');
+            }
+            else if (res.form === "scalar") {
+                logstr = 'Input:\n' + logstr + '\nOutput:\n' + res.value;
+                $('#resulttab a[href="#log"]').tab('show');
+            }
+            else {
                 showResult('jsgrid1', result);
-
-            $('#resulttab a[href="#DataWindow"]').tab('show');
+                $('#resulttab a[href="#DataWindow"]').tab('show');
+            }
         }
         refreshVariables();
+
+        appendlog(logstr);
     }
     if (isNaN(retrieveRowNumber) || retrieveRowNumber <= 0)
         getData(codestr, undefined, undefined, showData, function(err) { console.error(err); });
@@ -302,7 +310,7 @@ $('#btn_clear').click(function() {
 
 function appendlog(logstr) {
     logstr = new Date().toLocaleString() + ":<pre>" + logstr + "</pre>";
-    $('#pnl_log').append('\n' + logstr)
+    $('#pnl_log').prepend(logstr)
     localStorage.setItem(logStorageID, $('#pnl_log').html());
 }
 

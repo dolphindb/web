@@ -10,26 +10,27 @@ Date        : 2017-06-29
 function DolphinGrid(gridInstance, gridSettings) {
     this.grid = gridInstance;
     this.settings = gridSettings;
+}
 
-    this.loadFromDolphinJson = function(dolphinJson) {
+DolphinGrid.prototype = {
+    loadFromDolphinJson: function(dolphinJson) {
         if (typeof dolphinJson != "object") return;
         if (typeof dolphinJson.object != "object") return;
         if (isArray(dolphinJson.object) && dolphinJson.object.length > 0) {
             $.extend(this.settings, { pageSize: getPageSize(dolphinJson) });
         }
         this.loadFromJson(DolphinResult2Grid(dolphinJson));
-    }
+    },
 
-    this.setGridPage = function(dolphinJson) {
+    setGridPage: function(dolphinJson) {
         if (typeof dolphinJson != "object") return;
         if (typeof dolphinJson.object != "object") return;
         if (isArray(dolphinJson.object) && dolphinJson.object.length > 0) {
             $.extend(this.settings, { pageSize: getPageSize(dolphinJson) });
         }
+    },
 
-    }
-
-    this.loadFromJson = function(datalist, cols) {
+    loadFromJson: function(datalist, cols) {
         if (datalist == null) return false;
         if (datalist.length <= 0) throw "data empty";
 
@@ -62,13 +63,12 @@ function DolphinGrid(gridInstance, gridSettings) {
         }
         this.grid.jsGrid(option);
         return true;
-    }
+    },
 
-    this.load = function() {
+    load: function() {
         this.grid.jsGrid(this.settings);
     }
 }
-
 
 function getPageSize(dolphinJson) {
     if (typeof dolphinJson != "object") return;

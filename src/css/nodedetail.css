@@ -1,3 +1,9 @@
+.input-group .retrieve-row-number {
+  display: table-cell;
+  width: auto;
+  color: #333;
+}
+
 .btn-log {
   z-index: 10;
   display: inline-block;
@@ -40,34 +46,31 @@
   display: none;
 }
 
-.jsgrid td {
-  overflow: auto;
-}
-
-.input-group .retrieve-row-number {
-  display: table-cell;
-  width: auto;
-  color: #333;
-}
-
-#custom-vis {
-  margin-top: 1.5em;
-}
-
 .btn-download {
   position: absolute;
   bottom: 0; left: 0;
   display: none;
 }
 
+/* Visualization styles */
+#custom-vis {
+  margin-top: 1.5em;
+}
+
 #btn-custom-vis-download {
   display: none;
 }
 
-#custom-vis-alert {
-  display: none;
+/* Rewrite jsgrid styles */
+.jsgrid .jsgrid-table {
+  table-layout: auto;
 }
 
+.jsgrid td {
+  overflow: auto;
+}
+
+/* jQuery Dialog */
 .no-close .ui-dialog-titlebar-close {
   visibility: hidden;
 }
