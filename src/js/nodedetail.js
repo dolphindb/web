@@ -249,7 +249,7 @@ $('#btn_execode').click(function() {
     var retrieveRowNumber = parseInt($('#retrieve-row-number').val(), 10);
     
     var showData = function(result) {
-        if (result.object.length > 0) {
+        if (result.resultCode === "0") {
             var res = result.object[0];
             if (res.form === "chart") {
                 showPlot('jsgrid1', result);
@@ -263,6 +263,10 @@ $('#btn_execode').click(function() {
                 showResult('jsgrid1', result);
                 $('#resulttab a[href="#DataWindow"]').tab('show');
             }
+        }
+        else {
+            logstr = 'Input:\n' + logstr + '\nError Message:\n' + result.msg;
+            $('#resulttab a[href="#log"]').tab('show');
         }
         refreshVariables();
 
