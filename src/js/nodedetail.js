@@ -164,7 +164,7 @@ function showGrid(gridid, getdatascript, g) {
                         customVis.dialog('open');
                     }, function(err) {
                         console.error(err);
-                    });    // TODO customized size
+                    }); // TODO customized size
                 });
             }
         }
@@ -247,24 +247,23 @@ $('#btn_execode').click(function() {
     codestr = encodeURIComponent(codestr);
 
     var retrieveRowNumber = parseInt($('#retrieve-row-number').val(), 10);
-    
+
     var showData = function(result) {
         if (result.resultCode === "0") {
             var res = result.object[0];
-            if (res.form === "chart") {
-                showPlot('jsgrid1', result);
-                $('#resulttab a[href="#DataWindow"]').tab('show');
+            if (res) {
+                if (res.form === "chart") {
+                    showPlot('jsgrid1', result);
+                    $('#resulttab a[href="#DataWindow"]').tab('show');
+                } else if (res.form === "scalar") {
+                    logstr = 'Input:\n' + logstr + '\nOutput:\n' + res.value;
+                    $('#resulttab a[href="#log"]').tab('show');
+                } else {
+                    showResult('jsgrid1', result);
+                    $('#resulttab a[href="#DataWindow"]').tab('show');
+                }
             }
-            else if (res.form === "scalar") {
-                logstr = 'Input:\n' + logstr + '\nOutput:\n' + res.value;
-                $('#resulttab a[href="#log"]').tab('show');
-            }
-            else {
-                showResult('jsgrid1', result);
-                $('#resulttab a[href="#DataWindow"]').tab('show');
-            }
-        }
-        else {
+        } else {
             logstr = 'Input:\n' + logstr + '\nError Message:\n' + result.msg;
             $('#resulttab a[href="#log"]').tab('show');
         }
