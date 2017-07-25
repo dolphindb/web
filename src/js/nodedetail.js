@@ -226,11 +226,16 @@ function buildNode(jsonLst, dataform) {
     var t = [];
     jsonLst.forEach(function(obj, index, arr) {
         var showtype = " ";
-        if (obj.form.toUpperCase() != "TABLE") {
+        if (obj.form.toUpperCase() !== "TABLE") {
             showtype = "&lt;" + obj.type + "&gt;";
         }
 
-        t.push({ "a_attr": obj.name, "id": obj.name, "text": obj.name + showtype + obj.rows + " rows [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]", "icon": "jstree-file" });
+        var node = { "a_attr": obj.name, "id": obj.name, "icon": "jstree-file" };
+        if (obj.form === "SCALAR")
+            node.text = obj.name + showtype + " [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]";
+        else
+            node.text = obj.name + showtype + obj.rows + " rows [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]";
+        t.push(node);
     });
     var subtree = {
         "text": dataform,
