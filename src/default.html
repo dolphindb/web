@@ -311,10 +311,15 @@
             NODE_LIST = ALL_NODE.filter(function(x) {
                 return x.mode === 'dataNode';
             });
+            NODE_LIST.sort(up);
 
             refreshGrid(NODE_LIST)
         }
     };
+
+    function up(x, y) {
+        return (x.port > y.port) ? 1 : -1
+    }
 
     function connect_server_error(ex) {
         console.log(ex);
