@@ -121,15 +121,29 @@
         </div>
     </div>
     <!-- Dialog =====================================================-->
-    <div id="modal-message" title="Connect Central Server">
+    <div id="modal-message" class="hide" title="Connect Central Server">
         <div class="input-group">
             <span class="input-group-addon" id="basic-addon3">http://</span>
             <input type="text" class="form-control" id="ag-controller-url" aria-describedby="basic-addon3" placeholder="example: www.haitundb.com/DNMT">
         </div>
     </div>
 
-    <div id="modal-database" title="Database">
-        <div id="jsGrid_database"></div>
+    <div class="modal fade" id="modal-database" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="width:820px">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span  
+                        aria-hidden="true">×</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">Database</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="jsGrid_database"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- Footer================================================== -->
     <footer class="bs-footer navbar-fixed-bottom">
@@ -148,9 +162,7 @@
     <script src="third-party/bootstrap/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
     <script src="third-party/bootstrap/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
     <script src="third-party/bootstrap/js/vendor/bootstrap.js" type="text/javascript"></script>
-
     <script src="third-party/bootstrap/js/vendor/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
-    <script src="third-party/bootstrap/js/google-code-prettify/prettify.js" type="text/javascript"></script>
     <script src="third-party/bootstrap/js/docs.js" type="text/javascript"></script>
     <script src="third-party/bootstrap/js/demo.js" type="text/javascript"></script>
     <script src="js/utils.js" type="text/javascript"></script>
@@ -177,13 +189,11 @@
     var grid = document.querySelector('table[grid-manager="grid1"]');
     $(function() {
         wa_url = "http://" + window.location.host;
-        //console.log(wa_url);
         $.cookie('ck_ag_controller_url', wa_url);
 
         $.cookie("language_file", "js/lang.en.js");
 
         GetLocalData(wa_url);
-        //LoadLeft(AGENT_LIST);
         LoadTable(NODE_LIST);
     });
 
@@ -282,33 +292,7 @@
         };
         grid.GM('setAjaxData', griddata);
     }
-    //==========================================================================
-    // $("#btn_connect_server").click(function () {
 
-    //     $("#ag-controller-url").val($.cookie('ck_ag_controller_url'));
-
-    //     $("#modal-message").dialog({
-    //         autoOpen: true,
-    //         width: 600,
-    //         modal: true,
-    //         buttons: {
-    //             Ok: function () {
-    //                 if ($("#ag-controller-url").val() != '') {
-    //                     $.cookie('ck_ag_controller_url', $("#ag-controller-url").val());
-
-    //                     wa_url = "http://" + $.cookie('ck_ag_controller_url');
-
-    //                     GetLocalData(wa_url);
-
-    //                     $(this).dialog("close");
-    //                 }
-    //             },
-    //             Cancel: function () {
-    //                 $(this).dialog("close");
-    //             }
-    //         }
-    //     });
-    // });
 
     function connect_server_success(result) {
         SESSION_ID = result["sessionID"];
@@ -380,7 +364,7 @@
                 console.log(re);
             }, {
                 timeout: 1000,
-                complete: function(XMLHttpRequest, status) { //请求完成后最终执行参数
+                complete: function(XMLHttpRequest, status) {
                     if (status == 'timeout') {
                         console.log('timeout');
                     }
@@ -397,9 +381,6 @@
             data = t[i];
             if (data.state == "1") {
                 valarr.push(data.host + ":" + data.port);
-                // var re = CallWebApiSync(wa_url, p);
-                // console.log(re);
-
             }
         }
         var p = {
@@ -453,25 +434,26 @@
             if (re.object.length > 0) {
                 var dblist = [];
                 var dbs = re.object[0].value[0].value;
+                var tbs = re.object[0].value[1].value;
                 $.each(dbs, function(i, v) {
+                    var tbname = tbs[i];
                     var fi = dblist.findIndex(function(ele, ind, obj) {
                         if (v == ele.dbName) return ind;
                     });
-                    //console.log(v);
                     if (fi < 0) {
                         var db = {};
                         db.dbName = v;
                         db.tableCount = 1;
+                        db.tableNames = tbname;
                         dblist.push(db);
                     } else {
                         var db = dblist[fi];
                         db.dbName = v;
                         db.tableCount++;
+                        db.tableNames = db.tableCount + " tables";
                     }
                 });
-                console.log(dblist);
-                //var reobj = VectorArray2Table(re.object[0].value);
-                //var db = getVectorFromTable(reobj, "domainId", true, false);
+                console.log(dbs);
 
                 $("#databaseList").html("");
                 l = $("#databaseTemplate").tmpl(dblist).appendTo("#databaseList");
@@ -561,10 +543,9 @@
         }];
         var dg = new DolphinGrid($('#jsGrid_database'), {
             width: 780,
-            height: 580,
             filtering: true,
             sorting: true,
-            autoload: true,
+            autoload: false,
             controller: {
                 loadData: function(filter) {
                     return $.grep(tb_src, function(tb) {
@@ -578,18 +559,22 @@
         });
 
         dg.load();
-        $("#modal-database").dialog({
-            autoOpen: true,
-            width: 800,
-            height: 600,
-            modal: true,
-            buttons: {
-                Ok: function() {
-                    $(this).dialog("close");
-                }
-            }
-        });
+        // $("#modal-database").modal({
+        //     backdrop: false,
+        //     width: 800,
+        //     height: 600,
+        //     buttons: {
+        //         Ok: function() {
+        //             $(this).dialog("close");
+        //         }
+        //     }
+        // });
     }
+
+    $("#modal-database").on("show.bs.modal", function(e) {
+        getAllTableDistributions($(e.relatedTarget).attr('ref'));
+        //href = "javascript:getAllTableDistributions('${dbName}')";
+    });
 </script>
 
 <script id="serverTemplate" type="text/x-jquery-tmpl">
@@ -597,7 +582,7 @@
 </script>
 
 <script id="databaseTemplate" type="text/x-jquery-tmpl">
-    <a class="list-group-item" href="javascript:getAllTableDistributions('${dbName}')">DB (${tableCount} Tables)</a>
+    <a class="list-group-item" data-toggle="modal" data-target="#modal-database" ref="${dbName}" href="##">DB [<font color='blue'>${tableNames}</font>]</a>
 </script>
 
 </html>
