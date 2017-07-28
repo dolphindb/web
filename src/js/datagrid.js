@@ -30,7 +30,7 @@ DolphinGrid.prototype = {
         }
     },
 
-    loadFromJson: function(datalist, cols) {
+    loadFromJson: function(datalist, isVector, cols) {
         if (datalist == null) return false;
         if (datalist.length <= 0) throw "data empty";
 
@@ -41,7 +41,11 @@ DolphinGrid.prototype = {
 
         if (!cols) {
             cols = [];
+            if (isVector)
+                cols.push({ name: 'offset', title: 'offset', type: 'text'})
             for (var keyname in datalist[0]) {
+                if (isVector && keyname === 'offset')
+                    continue;
                 cols.push({ name: keyname, title: keyname, type: 'text' });
             };
         }
@@ -93,13 +97,13 @@ function getPageSize(dolphinJson) {
     }
 }
 
-function DolphinResult2Grid(reJson) {
+function DolphinResult2Grid(reJson, pageOffset) {
     if (typeof reJson != "object") return;
     if (reJson.resultCode != "0") return;
     if (reJson.object.length <= 0) return;
     switch (reJson.object[0].form.toUpperCase()) {
         case "VECTOR":
-            return VectorSet2Table(reJson.object[0].value);
+            return VectorSet2Table(reJson.object[0].value, pageOffset);
             break;
         case "MATRIX":
             return Matrix2Table(reJson.object[0].value)
@@ -120,13 +124,20 @@ function DolphinResult2Grid(reJson) {
     }
 }
 //convert vector and set result to table data for grid
-function VectorSet2Table(jsonobj) {
+function VectorSet2Table(jsonobj, pageOffset) {
     if (!isArray(jsonobj)) return;
     var vectorlength = jsonobj.length;
 
     var jTable = [];
     var rowindex = 0;
     var colindex = 0;
+
+    // Set offset
+    if (typeof pageOffset === "undefined")
+        pageOffset = 0;
+    for (var i = 0; i < jsonobj.length / 10; i++)
+        jTable.setRow(i, "offset", (i + pageOffset * 10) * 10);
+
     for (var i = 0; i < jsonobj.length; i++) {
         jTable.setRow(rowindex, colindex.toString(), jsonobj[i]);
         colindex++;

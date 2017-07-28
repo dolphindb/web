@@ -132,7 +132,7 @@ function showGrid(gridid, getdatascript, g) {
                 var deferred = $.Deferred();
                 getData(getdatascript, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function(g) {
                     var total = g.object[0].size;
-                    var d = DolphinResult2Grid(g);
+                    var d = DolphinResult2Grid(g, filter.pageIndex - 1);
 
                     deferred.resolve({ data: d, itemsCount: total });
                 });
@@ -143,7 +143,8 @@ function showGrid(gridid, getdatascript, g) {
     });
 
     dg.setGridPage(g);
-    if (dg.loadFromJson(d)) {
+    var resObj = g && g.object[0];
+    if (dg.loadFromJson(d, resObj.form === "vector")) {
         var btnPlot = $('<button />', {
             class: 'btn btn-primary btn-request',
             id: 'btn-plot-' + gridid,
@@ -186,8 +187,8 @@ function showResult(gridid, resobj) {
 
     $("#btn-download").hide();
     btnPlot.hide();
-    if (dg.loadFromJson(d)) {
-        var res = resobj.object && resobj.object[0];
+    var res = resobj.object && resobj.object[0];
+    if (dg.loadFromJson(d, res.form === "vector")) {
         if (res && res.form) {
             if (res.form === "table" ||
                 (res.form === "matrix" && !CustomVis.isNonNumeralType(res.type))) {
