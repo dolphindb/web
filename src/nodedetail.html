@@ -53,7 +53,7 @@
                     <div class="alert alert-info" role="alert">
                         <div>
                             <div class="panel panel-default" style="margin-bottom: 10px">
-                                <textarea id="txt_code" rows="5" style="width:100%"></textarea>
+                                <textarea id="txt_code" rows="5" style="width:100%;"></textarea>
                             </div>
                             <div style="margin-bottom: 0px">
                                 <form class="form-inline">
@@ -83,13 +83,13 @@
                         <li role="presentation"><a href="#DataWindow" aria-controls="DataWindow" role="tab" data-toggle="tab">Data Browser</a></li>
                     </ul>
                     <!-- Result panes -->
-                    <div class="tab-content" style="position: relative">
+                    <div class="tab-content" style="position: relative;">
                         <div role="tabpanel" class="tab-pane active" id="log">
-                            <div class="panel panel-default" style="min-height: 60vh">
+                            <div class="panel panel-default" style="min-height: 50vh">
                                 <div class="btn-log-group">
                                     <span class="btn-log btn-clear" id="btn_clear">Clear Log</span>
                                 </div>
-                                <div class="panel-body" id="pnl_log" style="height:500px;overflow:auto"></div>
+                                <div class="panel-body" id="pnl_log" style="max-height: 50vh; overflow:auto"></div>
                             </div>
                         </div>
                         <div role="tabpanel" class="tab-pane" id="DataWindow">
@@ -112,7 +112,7 @@
             </div>
             <div class="col-lg-3 col-md-3 col-sm-4">
                 <div style="height:40px">&nbsp;<button type="button" class="btn btn-default hide" id="btn_refresh"></button> </div>
-                <div class="panel panel-default" style="min-height: 60vh">
+                <div class="panel panel-default" style="min-height: 50vh">
                     <div class="panel-body">
                         <div id="pnl_variables">
                         </div>
@@ -150,7 +150,7 @@
     </footer>
 
     <!-- customize visualization dialog -->
-    <div class="container-fluid" id="custom-vis">
+    <div class="container-fluid" id="custom-vis" style="display: none">
         <div class="row">
             <form class="form-horizontal">
                 <div class="col-lg-3 col-md-6 col-xs-12">
@@ -224,24 +224,6 @@
                 </div>
             </form>
             <div class="col-lg-6 col-md-12 col-xs-12" id="custom-vis-plot"></div>
-        </div>
-    </div>
-
-    <!-- modal dialog -->
-    <div class="modal fade" id="bar-modal" tabindex="-1" role="dialog" aria-labelledby="bar-modal-label" aria-hidden="true" style="z-index: 2000;">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="bar-modal-label">Warning</h5>
-                </div>
-                <div class="modal-body">
-                    There might be no enough space for plotting a bar chart or a column chart. Continue?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Continue</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                </div>
-            </div>
         </div>
     </div>
 

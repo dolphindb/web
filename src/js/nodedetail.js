@@ -21,7 +21,7 @@ $(function() {
     $.cookie("language_file", "js/lang.en.js");
 
     editor = CodeMirror.fromTextArea('txt_code', {
-        height: "100px",
+        height: "15%",
         parserfile: "parsesql.js",
         stylesheet: "third-party/codemirror/sqlcolors.css",
         path: "third-party/codemirror/",

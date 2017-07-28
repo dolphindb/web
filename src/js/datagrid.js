@@ -79,15 +79,15 @@ function getPageSize(dolphinJson) {
         case "VECTOR":
             return 100;
         case "MATRIX":
-            return 100;;
+            return 100;
         case "SET":
-            return 100;;
+            return 100;
         case "DICTIONARY":
-            return 100;;
+            return 100;
         case "TABLE":
-            return 10;;
+            return 10;
         case "SCALAR":
-            return 100;;
+            return 100;
         default:
             break;
     }
