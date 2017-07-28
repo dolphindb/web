@@ -27,7 +27,10 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
             if (sucfunc) sucfunc(data);
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-            if (errfunc) errfunc(errorThrown);
+            if (errfunc)
+                errfunc(errorThrown);
+            else
+                throw errorThrown;
         }
     }
 

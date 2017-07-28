@@ -144,6 +144,54 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="modal-showlog" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="width:820px">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span  
+                        aria-hidden="true">×</span></button>
+                    <h4 class="modal-title" id="log_node"></h4>
+                </div>
+                <div class="modal-body" style="height:600px">
+                    <div class="well" id="pnllog" style="font-size:12px;height:580px;overflow:auto">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <div class="col-md-2">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <div class="input-group-addon">From</div>
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span id="btnFrom" >Tail</span> <span class="caret"></span></button>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a href="#" id="btnFromHead">Head</a></li>
+                                        <li><a href="#" id="btnFromTail">Tail</a></li>
+                                    </ul>
+                                </div>
+                                <div class="input-group-addon">File Offset</div>
+                                <input class="form-control" id="txtOffset" type="text" placeholder="0" value="0">
+                                <div class="input-group-addon" style="width:50px">Size</div>
+                                <input class="form-control" style="width:50px" id="txtLength" type="text" placeholder="2000" value="2000">
+                                <span class="input-group-btn">
+                                <button type="button" class="btn btn-default" id="btnReadmore">Load More</button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
     <!-- Footer================================================== -->
     <footer class="bs-footer navbar-fixed-bottom">
         <div class="container">
@@ -186,6 +234,9 @@
 
     var SESSION_ID = "0";
     var grid = document.querySelector('table[grid-manager="grid1"]');
+
+
+
     $(function() {
         wa_url = "http://" + window.location.host;
         $.cookie('ck_ag_controller_url', wa_url);
@@ -233,7 +284,7 @@
                 key: 'state',
                 width: '80px',
                 template: function(state, rowObject) {
-                    console.log(rowObject)
+                    //console.log(rowObject)
                     if (state == "1") {
                         return '<font style="color:green">running</font>';
                     } else {
@@ -241,9 +292,27 @@
                     }
                 }
             }, {
+                text: 'connectionNum',
+                key: 'connectionNum',
+                width: '80px',
+            }, {
                 text: 'maxConnections',
                 key: 'maxConnections',
                 width: '80px',
+            }, {
+                text: 'memoryUsed',
+                key: 'memoryUsed',
+                width: '80px',
+                template: function(memoryUsed, rowObject) {
+                    return bytesToSize(memoryUsed);
+                }
+            }, {
+                text: 'memoryAlloc',
+                key: 'memoryAlloc',
+                width: '80px',
+                template: function(memoryAlloc, rowObject) {
+                    return bytesToSize(memoryAlloc);
+                }
             }, {
                 text: 'maxMemSize',
                 key: 'maxMemSize',
@@ -258,16 +327,12 @@
                 width: '80px',
 
             }, {
-                text: 'executorNum',
-                key: 'executorNum',
-                width: '80px',
-            }, {
-                text: 'connectionNum',
-                key: 'connectionNum',
-                width: '80px',
-            }, {
                 text: 'taskNum',
                 key: 'taskNum',
+                width: '80px',
+            }, {
+                text: 'executorNum',
+                key: 'executorNum',
                 width: '80px',
             }, {
                 text: 'action',
@@ -277,6 +342,7 @@
                     var r = "";
                     if (rowObject.state == "1") {
                         r = '<a style="padding-left:20px" href=javascript:window.open("nodedetail.html?site=' + rowObject.site + '");>detail</a>';
+                        r += '<a style="padding-left:20px" data-toggle="modal" data-target="#modal-showlog" ref="http://' + rowObject.host + ':' + rowObject.port + '" href="##">view server log</a>'
                     }
                     return r;
                 }
@@ -519,7 +585,7 @@
             textField: "name",
             width: 150
         }, {
-            name: "partionId",
+            name: "partitionId",
             type: "select",
             items: getVectorFromTable(tb_src, "partionId", true, true),
             valueField: "name",
@@ -537,11 +603,11 @@
             type: "text",
             filtering: false
         }, {
-            name: "partionType",
+            name: "partitionType",
             type: "text",
             filtering: false
         }, {
-            name: "partionCount",
+            name: "partitionCount",
             type: "text",
             filtering: false
         }];
@@ -563,22 +629,106 @@
         });
 
         dg.load();
-        // $("#modal-database").modal({
-        //     backdrop: false,
-        //     width: 800,
-        //     height: 600,
-        //     buttons: {
-        //         Ok: function() {
-        //             $(this).dialog("close");
-        //         }
-        //     }
-        // });
+
     }
 
     $("#modal-database").on("show.bs.modal", function(e) {
         getAllTableDistributions($(e.relatedTarget).attr('ref'));
         //href = "javascript:getAllTableDistributions('${dbName}')";
     });
+
+    $("#modal-showlog").on("show.bs.modal", function(e) {
+        var svr_url = $(e.relatedTarget).attr('ref');
+        $('#btnReadmore').attr('ref', svr_url);
+        $('#log_node').text(svr_url.replace('http://', ''));
+        //bindLog(log_src.object[0].value);
+        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead);
+    });
+
+    $('#btnReadmore').bind('click', function() {
+        var svr_url = $('#btnReadmore').attr('ref');
+        var len = $('#txtLength').val();
+        var currentpostion = $('#txtOffset').val();
+        $('#txtOffset').val(parseInt(len) + parseInt(currentpostion));
+        //bindLog(log_src.object[0].value);
+        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead);
+    });
+    var logFromhead = false;
+    $('#btnFromHead').bind('click', function() {
+        var svr_url = $('#btnReadmore').attr('ref');
+        $('#btnFrom').text($('#btnFromHead').text());
+        logFromhead = true;
+        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead);
+    });
+
+    $('#btnFromTail').bind('click', function() {
+        var svr_url = $('#btnReadmore').attr('ref');
+        logFromhead = false;
+        $('#btnFrom').text($('#btnFromTail').text());
+        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead);
+    });
+    var getLog = function(svr_url, offset, length, fromhead) {
+        var p = {
+            "sessionID": SESSION_ID,
+            "functionName": "getServerLog",
+            "params": [{
+                "name": "length",
+                "form": "scalar",
+                "type": "int",
+                "value": length
+            }, {
+                "name": "offset",
+                "form": "scalar",
+                "type": "int",
+                "value": offset
+            }, {
+                "name": "fromhead",
+                "form": "scalar",
+                "type": "bool",
+                "value": fromhead
+            }]
+        };
+        //var deferred = $.Deferred();
+        console.log(svr_url);
+        CallWebApi(svr_url, p, function(re) {
+            console.log(re.object.length);
+            if (re.resultCode == "0") {
+                if (re.object.length > 0) {
+                    var retable = re.object[0].value;
+                    bindLog(retable);
+                    //deferred.resolve(retable);
+                }
+            } else {
+                alert(re.msg);
+            }
+        });
+        //return deferred.promise();
+    }
+    var bindLog = function(json) {
+        // var grid = $('#jsgrid_log');
+        // var dg = new DolphinGrid(grid);
+        // dg.loadFromJson(json);
+        $('#pnllog').html('');
+        console.log(json);
+        json.forEach(function(element) {
+            $('#pnllog').append(HTMLEncode(element) + "<br/>");
+        }, this);
+    }
+
+    function bytesToSize(bytes) {
+        console.log(bytes);
+        if (bytes === 0) return '0 MB';
+        var k = 1024;
+        return (bytes / Math.pow(k, 2)).toPrecision(3) + ' MB';
+    }
+
+    function HTMLEncode(html) {
+        var temp = document.createElement("div");
+        (temp.textContent != null) ? (temp.textContent = html) : (temp.innerText = html);
+        var output = temp.innerHTML;
+        temp = null;
+        return output;
+    }
 </script>
 
 <script id="serverTemplate" type="text/x-jquery-tmpl">
@@ -587,6 +737,10 @@
 
 <script id="databaseTemplate" type="text/x-jquery-tmpl">
     <a class="list-group-item" data-toggle="modal" data-target="#modal-database" ref="${dbName}" href="##">DB [<font color='blue'>${tableNames}</font>]</a>
+</script>
+
+<script id="serverLogTemplate" type="text/x-jquery-tmpl">
+    <li>${log}</li>
 </script>
 
 </html>
