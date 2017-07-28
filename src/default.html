@@ -719,7 +719,7 @@
         console.log(bytes);
         if (bytes === 0) return '0 MB';
         var k = 1024;
-        return (bytes / Math.pow(k, 2)).toPrecision(3) + ' MB';
+        return (bytes / Math.pow(k, 2)).toFixed(1) + ' MB';
     }
 
     function HTMLEncode(html) {
