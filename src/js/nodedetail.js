@@ -246,7 +246,7 @@ function buildNode(jsonLst, dataform) {
 }
 
 $('#btn_execode').click(function() {
-    var codestr = editor.getCode();
+    var codestr = editor.selection() || editor.getCode();
     var logstr = codestr;
 
     codestr = encodeURIComponent(codestr);
@@ -261,15 +261,20 @@ $('#btn_execode').click(function() {
                     showPlot('jsgrid1', result);
                     $('#resulttab a[href="#DataWindow"]').tab('show');
                 } else if (res.form === "scalar") {
-                    logstr = 'Input:\n' + logstr + '\nOutput:\n' + res.value;
+                    logstr = '<span style="color: #999">Input: </span>'
+                        + (logstr.indexOf('\n') !== -1 ? '\n' : '')    // Contains newline
+                        + logstr
+                        + '\n<span style="color: #999">Output: </span>'
+                        + res.value;
                     $('#resulttab a[href="#log"]').tab('show');
                 } else {
                     showResult('jsgrid1', result);
                     $('#resulttab a[href="#DataWindow"]').tab('show');
                 }
-            }
+            } else
+                $('#resulttab a[href="#log"]').tab('show');
         } else {
-            logstr = 'Input:\n' + logstr + '\nError Message:\n' + result.msg;
+            logstr = '<span style="color: #999">Input: </span>' + logstr + '\n<span style="color: red">Error Message: </span>' + result.msg;
             $('#resulttab a[href="#log"]').tab('show');
         }
         refreshVariables();
