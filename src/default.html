@@ -393,6 +393,7 @@
 
 
     $("#btn_run").click(function() {
+
         var t = grid.GM("getCheckedData");
         var isAllSuccess = false;
         var valarr = [];
@@ -402,8 +403,6 @@
                 continue;
             };
             valarr.push(data.host + ":" + data.port);
-
-
         }
         var p = {
             "sessionID": SESSION_ID,
@@ -415,6 +414,9 @@
                 "value": valarr
             }]
         }
+
+        var c = window.confirm("are you sure  you want to start nodes : \n" + valarr.join('\n'));
+        if (c == false) return;
         CallWebApi(wa_url, p,
             function(re) {
                 if (typeof(re) == "object") {
@@ -463,6 +465,9 @@
                 "value": valarr
             }]
         }
+        var c = window.confirm("are you sure  you want to stop nodes : \n" + valarr.join('\n'));
+        if (c == false) return;
+
         CallWebApi(wa_url, p, function(re) {
                 if (typeof(re) == "object") {
                     if (re.resultcode == "0") {
@@ -530,32 +535,6 @@
             }
         });
     }
-
-    // var tb_src = [{
-    //     "tableName": "tb1",
-    //     "partionId": "1",
-    //     "site": "192.168.1.25:8905",
-    //     "partionType": "SEQ",
-    //     "partionCount": 10
-    // }, {
-    //     "tableName": "tb1",
-    //     "partionId": "2",
-    //     "site": "192.168.1.25:8905",
-    //     "partionType": "LIST",
-    //     "partionCount": 8
-    // }, {
-    //     "tableName": "tb3",
-    //     "partionId": "1",
-    //     "site": "192.168.1.25:8905",
-    //     "partionType": "RANGE",
-    //     "partionCount": 16
-    // }, {
-    //     "tableName": "tb4",
-    //     "partionId": "4",
-    //     "site": "192.168.1.25:8905",
-    //     "partionType": "VALUE",
-    //     "partionCount": 32
-    // }];
 
     var getAllTableDistributions = function(domainId) {
         var p = {
