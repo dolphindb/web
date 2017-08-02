@@ -19,6 +19,12 @@ $(function() {
             document.title = ALIAS;
     }
 
+    controllerUrl = $.cookie('ck_ag_controller_url');
+    if (controllerUrl)
+        $('#link-to-controller').attr('href', controllerUrl);
+    else
+        $('#link-to-controller').attr('href', "http://" + window.location.host);
+
     logStorageID = "executelog" + siteid;
 
     $.cookie("language_file", "js/lang.en.js");
