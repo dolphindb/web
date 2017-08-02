@@ -19,11 +19,10 @@ $(function() {
             document.title = ALIAS;
     }
 
-    controllerUrl = $.cookie('ck_ag_controller_url');
-    if (controllerUrl)
-        $('#link-to-controller').attr('href', controllerUrl);
+    if (siteid || siteid == '')
+        $('#link-to-controller').attr('href', 'http://' + window.location.host);
     else
-        $('#link-to-controller').attr('href', "http://" + window.location.host);
+        $('#link-to-controller').attr('href', '');
 
     logStorageID = "executelog" + siteid;
 
