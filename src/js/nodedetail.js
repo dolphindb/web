@@ -13,7 +13,10 @@ $(function() {
         var hostinfo = siteid.split(':');
         HOST = hostinfo[0];
         PORT = hostinfo[1];
+        ALIAS = hostinfo[2];
         wa_url = "http://" + HOST + ":" + PORT + "/";
+        if (ALIAS)
+            document.title = ALIAS;
     }
 
     logStorageID = "executelog" + siteid;
