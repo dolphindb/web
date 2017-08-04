@@ -1582,6 +1582,26 @@
 	   且ajax_beforeSend、ajax_error、ajax_complete将失效，仅有ajax_success会被执行
 	   */
 			if (settings.ajax_data) {
+				if (settings.supportSorting) {
+					var sortKey = Object.keys(settings.sortData)[0];
+					var sortAsc = settings.sortUpText === settings.sortData[sortKey];
+					var sortColumn = settings.columnData.filter(function(d) { return d.key === sortKey; })[0];
+					var sortFilter = sortColumn && sortColumn.sortFilter;
+					if (typeof sortKey !== 'undefined') {
+						settings.ajax_data.data.sort(function(d1, d2) {
+							if (typeof sortFilter !== 'undefined') {
+								d1 = sortFilter(d1[sortKey]);
+								d2 = sortFilter(d2[sortKey]);
+							} else {
+								d1 = d1[sortKey];
+								d2 = d2[sortKey];
+							}
+							if (d1 === d2) return 0;
+							var res = d1 > d2 ? 1 : -1;
+							return sortAsc ? res : -res;
+						})
+					}
+				}
 				driveDomForSuccessAfter(settings.ajax_data);
 				settings.ajax_success(settings.ajax_data);
 				removeRefreshingClass();
@@ -2079,6 +2099,7 @@
 			var _body = (0, _jTool2.default)('body');
 			_body.append(menuHTML);
 			//绑定打开右键菜单栏
+			/*
 			var menuDOM = (0, _jTool2.default)('.grid-menu[grid-master="' + Settings.gridManagerName + '"]');
 			tableWarp.unbind('contextmenu');
 			tableWarp.bind('contextmenu', function (e) {
@@ -2118,6 +2139,7 @@
 					menuDOM.hide();
 				});
 			});
+			*/
 
 			//绑定事件：上一页、下一页、重新加载
 			var refreshPage = (0, _jTool2.default)('[grid-action="refresh-page"]');
@@ -2749,7 +2771,7 @@
 	  $.table: table [jTool object]
 	  */
 		, bindSortingEvent: function bindSortingEvent(table) {
-			var Settings = _Cache2.default.getSettings(table);
+			//var Settings = _Cache2.default.getSettings(table);
 			// 所有包含排序的列
 			var _thList = (0, _jTool2.default)('th[sorting]', table);
 			var _action = void 0,
@@ -2763,6 +2785,7 @@
 			//绑定排序事件
 			(0, _jTool2.default)('.sorting-action', _thList).unbind('mouseup');
 			(0, _jTool2.default)('.sorting-action', _thList).bind('mouseup', function () {
+				var Settings = _Cache2.default.getSettings(table);
 				_action = (0, _jTool2.default)(this);
 				_th = _action.closest('th');
 				_table = _th.closest('table');
@@ -2931,6 +2954,7 @@
 				var _thIndex = 0; //存储移动时的th所处的位置
 				(0, _jTool2.default)('body').unbind('mousemove');
 				(0, _jTool2.default)('body').bind('mousemove', function (e2) {
+					var Settings = _Cache2.default.getSettings(table);
 					_thIndex = _th.index(_allTh);
 					_prevTh = undefined;
 					//当前移动的非第一列
@@ -2979,7 +3003,6 @@
 				//绑定拖拽停止事件
 				(0, _jTool2.default)('body').unbind('mouseup');
 				(0, _jTool2.default)('body').bind('mouseup', function (event) {
-					var Settings = _Cache2.default.getSettings(table);
 					(0, _jTool2.default)('body').unbind('mousemove');
 					//清除临时展示被移动的列
 					_dreamlandDIV = (0, _jTool2.default)('.dreamland-div');

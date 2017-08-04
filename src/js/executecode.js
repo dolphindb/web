@@ -27,7 +27,7 @@ function CodeExecutor(url) {
             callback(re);
             return false;
         }, function(re) {
-            console.log(re);
+            
         });
     };
 }

@@ -47,7 +47,6 @@ function CallWebApiSync(apiurl, paramstr) {
     paramstr['sessionID'] = CurrentSessionID;
     var d = JSON.stringify(paramstr);
 
-    //console.log(d);
     var re = $.ajax({
         url: apiurl,
         async: false,
