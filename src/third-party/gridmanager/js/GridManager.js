@@ -2099,6 +2099,7 @@
 			var _body = (0, _jTool2.default)('body');
 			_body.append(menuHTML);
 			//绑定打开右键菜单栏
+			/*
 			var menuDOM = (0, _jTool2.default)('.grid-menu[grid-master="' + Settings.gridManagerName + '"]');
 			tableWarp.unbind('contextmenu');
 			tableWarp.bind('contextmenu', function (e) {
@@ -2138,6 +2139,7 @@
 					menuDOM.hide();
 				});
 			});
+			*/
 
 			//绑定事件：上一页、下一页、重新加载
 			var refreshPage = (0, _jTool2.default)('[grid-action="refresh-page"]');

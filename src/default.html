@@ -299,6 +299,17 @@
                     }
                 }
             }, {
+                text: 'action',
+                key: 'action',
+                width: '80px',
+                template: function(action, rowObject) {
+                    var r = "";
+                    if (rowObject.state === "1") {
+                        r += '<a style="padding-left:20px" data-toggle="modal" data-target="#modal-showlog" ref="http://' + rowObject.host + ':' + rowObject.port + '" href="##">view</a>'
+                    }
+                    return r;
+                }
+            }, {
                 text: 'connectionNum',
                 key: 'connectionNum',
                 sorting: '',
@@ -355,18 +366,6 @@
                 sorting: '',
                 sortFilter: function(d) { return d.trim() !== '' ? parseInt(d, 10) : -1; },
                 width: '80px',
-            }, {
-                text: 'action',
-                key: 'action',
-                width: '80px',
-                template: function(action, rowObject) {
-                    var r = "";
-                    if (rowObject.state === "1") {
-                        r = '<a style="padding-left:20px" href=javascript:window.open("nodedetail.html?site=' + rowObject.site + '");>detail</a>';
-                        r += '<a style="padding-left:20px" data-toggle="modal" data-target="#modal-showlog" ref="http://' + rowObject.host + ':' + rowObject.port + '" href="##">view server log</a>'
-                    }
-                    return r;
-                }
             }]
         });
     }
