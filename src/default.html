@@ -280,9 +280,9 @@
                 sorting: '',
                 template: function(action, rowObject) {
                     if (rowObject.state === "1")
-                        r = '<a href=javascript:window.open("nodedetail.html?site=' + rowObject.site + '");>' + rowObject.site + '</a>'
+                        r = '<a href=javascript:window.open("nodedetail.html?site=' + rowObject.site + '");>' + rowObject.site.split(':')[2] + '</a>'
                     else
-                        r = '<span>' + rowObject.site + '</span>'
+                        r = '<span>' + rowObject.site.split(':')[2] + '</span>'
                     return r;
                 },
             }, {
@@ -740,7 +740,7 @@
                 loadData: function(filter) {
                     return $.grep(tb_src, function(tb) {
                         return (!filter.tableName || tb.tableName == filter.tableName) &&
-                            (!filter.partionId || tb.partionId == filter.partionId) &&
+                            (!filter.partitionId || tb.partitionId == filter.partitionId) &&
                             (!filter.site || tb.site == filter.site);
                     });
                 }
@@ -809,7 +809,7 @@
             }]
         };
         //var deferred = $.Deferred();
-        console.log(svr_url);
+
         CallWebApi(svr_url, p, function(re) {
             console.log(re.object.length);
             if (re.resultCode == "0") {
