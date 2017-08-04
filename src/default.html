@@ -59,7 +59,7 @@
             </div>
             <nav class="navbar-collapse collapse navbar-right">
                 <p class="navbar-text navbar-right">
-                    <a class="navbar-link" href="http://dolphindb.com/help/" target="_blank">Help Doc</a>
+                    <a class="navbar-link" href="http://dolphindb.com/help/" target="_blank">Help</a>
                 </p>
             </nav>
         </div>
@@ -74,7 +74,7 @@
                         <div class="panel-heading">
                             agent node
                         </div>
-                        <div class="panel-body">
+                        <div class="panel-body" style="max-height: 25vh; overflow-y: scroll;">
                             <div class="list-group">
                                 <p id="physicalServerList"></p>
                             </div>
@@ -85,7 +85,7 @@
                         <div class="panel-heading">
                             Database
                         </div>
-                        <div class="panel-body">
+                        <div class="panel-body" style="max-height: 55vh; overflow-y: scroll;">
                             <div class="list-group">
                                 <p id="databaseList"></p>
                             </div>
@@ -284,11 +284,10 @@
                     else
                         r = '<span>' + rowObject.site + '</span>'
                     return r;
-                }
+                },
             }, {
                 text: 'state',
                 key: 'state',
-                width: '80px',
                 sorting: '',
                 template: function(state, rowObject) {
                     //console.log(rowObject)
@@ -297,75 +296,67 @@
                     } else {
                         return '<font style="color:red">stopped</font>';
                     }
-                }
+                },
+                width: '100px'
             }, {
-                text: 'action',
-                key: 'action',
-                width: '80px',
+                text: 'serverLog',
+                key: 'serverLog',
                 template: function(action, rowObject) {
                     var r = "";
                     if (rowObject.state === "1") {
                         r += '<a style="padding-left:20px" data-toggle="modal" data-target="#modal-showlog" ref="http://' + rowObject.host + ':' + rowObject.port + '" href="##">view</a>'
                     }
                     return r;
-                }
+                },
             }, {
                 text: 'connectionNum',
                 key: 'connectionNum',
                 sorting: '',
                 sortFilter: function(d) { return d.trim() !== '' ? parseInt(d, 10) : -1; },
-                width: '80px',
-            }, {
-                text: 'maxConnections',
-                key: 'maxConnections',
-                sorting: '',
-                sortFilter: function(d) { return d.trim() !== '' ? parseInt(d, 10) : -1; },
-                width: '80px',
-            }, {
-                text: 'memoryUsed',
-                key: 'memoryUsed',
-                sorting: '',
-                width: '80px',
-                template: function(memoryUsed, rowObject) {
-                    return bytesToSize(memoryUsed);
-                }
-            }, {
-                text: 'memoryAlloc',
-                key: 'memoryAlloc',
-                sorting: '',
-                width: '80px',
-                template: function(memoryAlloc, rowObject) {
-                    return bytesToSize(memoryAlloc);
-                }
-            }, {
-                text: 'maxMemSize',
-                key: 'maxMemSize',
-                sorting: '',
-                width: '80px',
-                sortFilter: function(d) { return d.trim() !== '' ? parseFloat(d) : -1; },
-                template: function(maxMemSize, rowObject) {
-                    return Number(maxMemSize).toFixed(2);
-                }
-
-            }, {
-                text: 'workerNum',
-                key: 'workerNum',
-                sorting: '',
-                sortFilter: function(d) { return d.trim() !== '' ? parseInt(d, 10) : -1; },
-                width: '80px',
-
+                width: '80px'
             }, {
                 text: 'taskNum',
                 key: 'taskNum',
                 sorting: '',
                 sortFilter: function(d) { return d.trim() !== '' ? parseInt(d, 10) : -1; },
-                width: '80px',
+                width: '80px'
+            }, {
+                text: 'memoryUsed',
+                key: 'memoryUsed',
+                sorting: '',
+                template: function(memoryUsed, rowObject) {
+                    return bytesToSize(memoryUsed);
+                },
+            }, {
+                text: 'memoryAlloc',
+                key: 'memoryAlloc',
+                sorting: '',
+                template: function(memoryAlloc, rowObject) {
+                    return bytesToSize(memoryAlloc);
+                },
+            }, {
+                text: 'maxConnections',
+                key: 'maxConnections',
+                sorting: '',
+                sortFilter: function(d) { return d.trim() !== '' ? parseInt(d, 10) : -1; },
+            }, {
+                text: 'maxMemSize',
+                key: 'maxMemSize',
+                sorting: '',
+                sortFilter: function(d) { return d.trim() !== '' ? parseFloat(d) : -1; },
+                template: function(maxMemSize, rowObject) {
+                    return Number(maxMemSize).toFixed(2);
+                }
+            }, {
+                text: 'workerNum',
+                key: 'workerNum',
+                sorting: '',
+                sortFilter: function(d) { return d.trim() !== '' ? parseInt(d, 10) : -1; },
             }, {
                 text: 'executorNum',
                 key: 'executorNum',
                 sorting: '',
                 sortFilter: function(d) { return d.trim() !== '' ? parseInt(d, 10) : -1; },
-                width: '80px',
             }]
         });
     }
@@ -439,18 +430,7 @@
         if (c == false) return;
         CallWebApi(wa_url, p,
             function(re) {
-                if (typeof(re) == "object") {
-                    if (re.resultcode == "0") {
-                        //refreshNodeState();
-                    } else {
-                        if (re.msg != "")
-                            console.log(re.msg);
-                        else
-                            console.log(re);
-                    }
-                } else if (typeof(re) == "string") {
-                    console.log(re);
-                }
+                
             },
             function(re) {
                 console.log(re);
@@ -489,19 +469,7 @@
         if (c == false) return;
 
         CallWebApi(wa_url, p, function(re) {
-                if (typeof(re) == "object") {
-                    if (re.resultcode == "0") {
-                        //refreshNodeState();
-                    } else {
-                        if (re.msg != "")
-                            console.log(re.msg);
-                        else
-                            console.log(re);
-                    }
-                } else if (typeof(re) == "string") {
-                    console.log(re);
-                }
-
+                
             },
             function(re) {
                 console.log(re);
@@ -548,7 +516,6 @@
                         db.tableNames = db.tableCount + " tables";
                     }
                 });
-                console.log(dbs);
 
                 $("#databaseList").html("");
                 l = $("#databaseTemplate").tmpl(dblist).appendTo("#databaseList");
@@ -708,14 +675,12 @@
         // var dg = new DolphinGrid(grid);
         // dg.loadFromJson(json);
         $('#pnllog').html('');
-        console.log(json);
         json.forEach(function(element) {
             $('#pnllog').append(HTMLEncode(element) + "<br/>");
         }, this);
     }
 
     function bytesToSize(bytes) {
-        console.log(bytes);
         if (bytes === 0) return '0 MB';
         var k = 1024;
         return (bytes / Math.pow(k, 2)).toFixed(1) + ' MB';
