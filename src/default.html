@@ -696,6 +696,8 @@
         });
     }
 
+    var PARTITIONTYPE = ["SEQ", "VALUE", "RANGE", "LIST"];
+
     function openDatabase(tb_src) {
         var col = [{
             name: "tableName",
@@ -719,13 +721,12 @@
             textField: "name",
             width: 200
         }, {
-            name: "domainType",
-            type: "text",
-            filtering: false
-        }, {
             name: "partitionType",
             type: "text",
-            filtering: false
+            filtering: false,
+            itemTemplate: function(value) {
+                return PARTITIONTYPE[value];
+            }
         }, {
             name: "partitionCount",
             type: "text",
