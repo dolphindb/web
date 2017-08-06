@@ -72,7 +72,7 @@
                 <div class="bs-sidebar hidden-print" role="complementary">
                     <div class="panel panel-info">
                         <div class="panel-heading">
-                            agent node
+                            Agent nodes
                         </div>
                         <div class="panel-body" style="max-height: 25vh; overflow-y: scroll;">
                             <div class="list-group">
@@ -83,7 +83,7 @@
 
                     <div class="panel panel-info">
                         <div class="panel-heading">
-                            Database
+                            Databases
                         </div>
                         <div class="panel-body" style="max-height: 55vh; overflow-y: scroll;">
                             <div class="list-group">
@@ -275,7 +275,7 @@
             emptyTemplate: '<div class="gm-emptyTemplate">empty</div>',
             height: '80vh',
             columnData: [{
-                text: 'site',
+                text: 'Site',
                 key: 'site',
                 sorting: '',
                 template: function(action, rowObject) {
@@ -286,7 +286,7 @@
                     return r;
                 },
             }, {
-                text: 'state',
+                text: 'Status',
                 key: 'state',
                 sorting: '',
                 template: function(state, rowObject) {
@@ -309,7 +309,7 @@
                     return r;
                 },
             }, {
-                text: 'connectionNum',
+                text: 'Connections',
                 key: 'connectionNum',
                 sorting: '',
                 sortFilter: function(d) {
@@ -317,7 +317,7 @@
                 },
                 width: '80px'
             }, {
-                text: 'taskNum',
+                text: 'Tasks',
                 key: 'taskNum',
                 sorting: '',
                 sortFilter: function(d) {
@@ -325,14 +325,14 @@
                 },
                 width: '80px'
             }, {
-                text: 'memoryUsed',
+                text: 'MemUsed',
                 key: 'memoryUsed',
                 sorting: '',
                 template: function(memoryUsed, rowObject) {
                     return bytesToSize(memoryUsed);
                 },
             }, {
-                text: 'memoryAlloc',
+                text: 'MemAlloc',
                 key: 'memoryAlloc',
                 sorting: '',
                 template: function(memoryAlloc, rowObject) {
@@ -356,14 +356,14 @@
                     return Number(maxMemSize).toFixed(2);
                 }
             }, {
-                text: 'workerNum',
+                text: 'Workers',
                 key: 'workerNum',
                 sorting: '',
                 sortFilter: function(d) {
                     return d.trim() !== '' ? parseInt(d, 10) : -1;
                 },
             }, {
-                text: 'executorNum',
+                text: 'Executors',
                 key: 'executorNum',
                 sorting: '',
                 sortFilter: function(d) {

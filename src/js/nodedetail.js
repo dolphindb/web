@@ -82,17 +82,17 @@ function bindVariables(datalist) {
         'core': {
             'dblclick_toggle': true,
             'data': [{
-                "text": "variables",
+                "text": "Variables",
                 "state": { "opened": true },
                 "icon": "jstree-folder",
                 "children": [{
-                        "text": "local variables",
+                        "text": "Local variables",
                         "state": { "opened": true },
                         "icon": "jstree-folder",
                         "children": localvariable
                     },
                     {
-                        "text": "shared tables",
+                        "text": "Shared tables",
                         "state": { "opened": false },
                         "icon": "jstree-folder",
                         "children": sharedtable
