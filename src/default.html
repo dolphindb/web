@@ -55,7 +55,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
               </button>
-                <span class="navbar-brand">DolphinDB Deployment Kit</a>
+                <span class="navbar-brand">DolphinDB Cluster Management</a>
             </div>
             <nav class="navbar-collapse collapse navbar-right">
                 <p class="navbar-text navbar-right">
@@ -420,12 +420,14 @@
         var t = grid.GM("getCheckedData");
         var isAllSuccess = false;
         var valarr = [];
+        var aliasarr = [];
         for (var i = 0; i < t.length; i++) {
             data = t[i];
             if (data.state == "1") {
                 continue;
             };
             valarr.push(data.host + ":" + data.port);
+            aliasarr.push(data.site.split(":")[2]);
         }
         var p = {
             "sessionID": SESSION_ID,
@@ -438,7 +440,7 @@
             }]
         }
 
-        var c = window.confirm("are you sure  you want to start nodes : \n" + valarr.join('\n'));
+        var c = window.confirm("are you sure  you want to start nodes : \n" + aliasarr.join('\n'));
         if (c == false) return;
         CallWebApi(wa_url, p,
             function(re) {
@@ -461,10 +463,12 @@
         var t = grid.GM("getCheckedData");
         var isAllSuccess = false;
         var valarr = [];
+        var aliasarr = [];
         for (var i = 0; i < t.length; i++) {
             data = t[i];
             if (data.state == "1") {
                 valarr.push(data.host + ":" + data.port);
+                aliasarr.push(data.site.split(":")[2]);
             }
         }
         var p = {
@@ -477,7 +481,7 @@
                 "value": valarr
             }]
         }
-        var c = window.confirm("are you sure  you want to stop nodes : \n" + valarr.join('\n'));
+        var c = window.confirm("are you sure  you want to stop nodes : \n" + aliasarr.join('\n'));
         if (c == false) return;
 
         CallWebApi(wa_url, p, function(re) {
@@ -502,145 +506,7 @@
             refreshGrid(NODE_LIST);
         }
     });
-    /*
-     [
-            {
-                "name": "",
-                "form": "table",
-                "size": "8",
-                "value": [
-                    {
-                        "name": "databaseName",
-                        "form": "vector",
-                        "type": "string",
-                        "size": "8",
-                        "value": [
-                            "dbHistorical",
-                            "dbHistorical",
-                            "dbActive",
-                            "dbHistorical",
-                            "dbActive",
-                            "dbHistorical",
-                            "dbActive",
-                            "dbActive"
-                        ]
-                    },
-                    {
-                        "name": "domainId",
-                        "form": "vector",
-                        "type": "string",
-                        "size": "8",
-                        "value": [
-                            "5b7d3b17-0a19-c441-bbd3-b687dfc1aa55",
-                            "205fe3d5-2acc-7242-9c91-96a7033563ae",
-                            "22ef5f92-1b1e-7a42-9a25-ac70f6e1bffb",
-                            "d307bb88-882e-3949-8332-015b21285273",
-                            "7fe07166-7883-1444-b27e-0759b048f67e",
-                            "05c0e16f-8137-3246-9bed-d0307b0adc9b",
-                            "93c6dc06-8a45-bd40-9ded-294a01efc9bc",
-                            "fe96204b-741a-074b-be1f-5a2ad186336e"
-                        ]
-                    },
-                    {
-                        "name": "tableName",
-                        "form": "vector",
-                        "type": "string",
-                        "size": "8",
-                        "value": [
-                            "Trades",
-                            "Trades",
-                            "Trades",
-                            "Trades",
-                            "Trades",
-                            "Trades",
-                            "Trades",
-                            "Trades"
-                        ]
-                    },
-                    {
-                        "name": "partionId",
-                        "form": "vector",
-                        "type": "string",
-                        "size": "8",
-                        "value": [
-                            "ACMR_AIH",
-                            "ACMR_AIH",
-                            "A_M",
-                            "ACMR_AIH",
-                            "M_ZZZ",
-                            "A_ACMR",
-                            "A_M",
-                            "A_M"
-                        ]
-                    },
-                    {
-                        "name": "site",
-                        "form": "vector",
-                        "type": "string",
-                        "size": "8",
-                        "value": [
-                            "localhost:8807",
-                            "localhost:8808",
-                            "localhost:8802",
-                            "localhost:8807",
-                            "localhost:8805",
-                            "localhost:8804",
-                            "localhost:8802",
-                            "localhost:8802"
-                        ]
-                    },
-                    {
-                        "name": "domainType",
-                        "form": "vector",
-                        "type": "int",
-                        "size": "8",
-                        "value": [
-                            0,
-                            0,
-                            0,
-                            0,
-                            0,
-                            0,
-                            0,
-                            0
-                        ]
-                    },
-                    {
-                        "name": "partionType",
-                        "form": "vector",
-                        "type": "int",
-                        "size": "8",
-                        "value": [
-                            2,
-                            2,
-                            2,
-                            2,
-                            2,
-                            2,
-                            2,
-                            2
-                        ]
-                    },
-                    {
-                        "name": "partionCount",
-                        "form": "vector",
-                        "type": "int",
-                        "size": "8",
-                        "value": [
-                            2,
-                            2,
-                            2,
-                            2,
-                            2,
-                            2,
-                            2,
-                            2
-                        ]
-                    }
-                ]
-            }
-        ]
-    */
+
     var getDatabases = function() {
         var executor = new CodeExecutor(wa_url);
         executor.run("getDatabases();", function(re) {
