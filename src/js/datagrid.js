@@ -125,7 +125,7 @@ function DolphinResult2Grid(reJson, pageOffset) {
 }
 
 function loadCols(jsonobj) {
-    var jsonVector = jsonobj[0] && jsonobj[0].value;
+    var jsonVector = jsonobj.value;
     if (typeof jsonVector === 'undefined')
         return undefined;
     if (!isArray(jsonVector)) return;

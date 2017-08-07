@@ -154,7 +154,7 @@ function showGrid(gridid, getdatascript, g) {
     var resObj = g && g.object[0];
     var cols = undefined;
     if (d.length === 0)
-        cols = loadCols(g);
+        cols = loadCols(resObj);
     if (dg.loadFromJson(d, resObj.form === "vector", cols)) {
         var btnPlot = $('<button />', {
             class: 'btn btn-primary btn-request',
