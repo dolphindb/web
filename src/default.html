@@ -353,7 +353,7 @@
                     return d.trim() !== '' ? parseFloat(d) : -1;
                 },
                 template: function(maxMemSize, rowObject) {
-                    return Number(maxMemSize).toFixed(2);
+                    return Number(maxMemSize).toFixed(1) + " GB";
                 }
             }, {
                 text: 'Workers',
@@ -585,7 +585,14 @@
             items: getVectorFromTable(tb_src, "site", true, true),
             valueField: "name",
             textField: "name",
-            width: 200
+            width: 200,
+            itemTemplate: function(value) {
+                var s = value.split(":");
+                if (s.length > 2)
+                    return s[2];
+                else
+                    return value;
+            }
         }, {
             name: "partitionType",
             type: "text",

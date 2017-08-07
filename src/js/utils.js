@@ -7,13 +7,12 @@ $.getUrlParam = function(name) {
 
 function svgToPic(svgElem, width, height, format, callback) {
     if (format === "svg") {
-        $(svgElem).attr({ version: '1.1' , xmlns:"http://www.w3.org/2000/svg"});
+        $(svgElem).attr({ version: '1.1', xmlns: "http://www.w3.org/2000/svg" });
         var svg = $('#custom-vis-plot').html();
         var b64 = Utils.btoa(svg);
         callback('data:image/svg+xml;base64,\n' + b64);
         return;
-    }
-    else {
+    } else {
         var svgData = new XMLSerializer().serializeToString(svgElem);
         var img = new Image();
 
@@ -25,7 +24,7 @@ function svgToPic(svgElem, width, height, format, callback) {
 
             if (format === "jpeg") {
                 ctx.fillStyle = "#ffffff";
-                ctx.fillRect(0, 0, width, height);    // Make background white
+                ctx.fillRect(0, 0, width, height); // Make background white
             }
             ctx.drawImage(this, 0, 0);
             callback(canvas.toDataURL("image/" + format));
@@ -98,8 +97,17 @@ var getVectorFromTable = function(tbData, colName, isDeleteRepeat, isAddEmptyRow
                 re.push(row);
             }
         });
+        re.sort(sortup);
         return re;
     } else {
         return tmpArr;
     }
+}
+
+function sortup(x, y) {
+    return (x.name > y.name) ? 1 : -1
+}
+
+function sortdown(x, y) {
+    return (x.name < y.name) ? 1 : -1
 }
