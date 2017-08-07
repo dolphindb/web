@@ -32,7 +32,7 @@ DolphinGrid.prototype = {
 
     loadFromJson: function(datalist, isVector, cols) {
         if (datalist == null) return false;
-        if (datalist.length <= 0) throw "data empty";
+        if (datalist.length <= 0 && typeof cols === 'undefined') throw "data empty";
 
         var griddata = {
             data: datalist,
@@ -123,6 +123,21 @@ function DolphinResult2Grid(reJson, pageOffset) {
             break;
     }
 }
+
+function loadCols(jsonobj) {
+    var jsonVector = jsonobj[0] && jsonobj[0].value;
+    if (typeof jsonVector === 'undefined')
+        return undefined;
+    if (!isArray(jsonVector)) return;
+    if (!isArray(jsonVector[0].value)) return;
+
+    var cols = [];
+    jsonVector.forEach(function(value, index, array) {
+        cols.push({ name: value.name, title: value.name, type: 'text' });
+    });
+    return cols;
+}
+
 //convert vector and set result to table data for grid
 function VectorSet2Table(jsonobj, pageOffset) {
     if (!isArray(jsonobj)) return;
