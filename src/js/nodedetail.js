@@ -3,6 +3,9 @@ var wa_url = '';
 var HOST = '';
 var PORT = '';
 var logStorageID = '';
+
+var PAGESIZE = 20;
+
 $(function() {
 
     var siteid = $.getUrlParam('site');
@@ -110,7 +113,7 @@ function bindVariables(datalist) {
             var dataform = $(e.target).closest('ul').prev().text();
             var contentid = $(e.target).closest('li')[0].id;
             if (dataform == "Scalar") return;
-            //get variables code "variablename;"
+
             var code = contentid + ';';
             var divid = localStorage.divid++;
             var divobj = document.createElement("div");
@@ -119,18 +122,109 @@ function bindVariables(datalist) {
             var tblobj = document.createElement("div");
             tblobj.id = "jsgrid_" + divid;
             $(tblobj).appendTo($(divobj));
-            getData(code, 0, 20, function(g) {
-                showGrid(tblobj.id, code, g);
-                openDialog(divobj.id, '[' + dataform + ']' + contentid);
-            }, function(err) {
-                console.log(err);
-            });
+
+            if (dataform == "Table") {
+                var tablesize = $(e.target).closest('li').context.innerText.split(" ")[1];
+                getShareTableData(contentid, 0, PAGESIZE, function(g) {
+                    showTableGrid(tblobj.id, contentid, tablesize, g);
+                    openDialog(divobj.id, '[' + dataform + ']' + contentid);
+                });
+            } else {
+                //get variables code "variablename;"
+                getData(code, 0, 20, function(g) {
+                    showGrid(tblobj.id, code, g);
+                    openDialog(divobj.id, '[' + dataform + ']' + contentid);
+                }, function(err) {
+                    console.log(err);
+                });
+
+            }
         });
 }
 
+function getShareTableData(tableName, startindex, pagesize, sucfunc, errfunc) {
+    var script = tableName + '[' + startindex + ':' + (startindex + pagesize) + '];';
+    var p = {
+        "sessionID": "0",
+        "functionName": "executeCode",
+        "params": [{
+            "name": "script",
+            "form": "scalar",
+            "type": "string",
+            "value": script
+        }]
+    };
+
+    var btnRequests = $('.btn-request');
+    btnRequests.attr('disabled', true);
+
+    CallWebApi(wa_url, p, function(re) {
+        btnRequests.attr('disabled', false);
+        sucfunc(re);
+    }, function(err) {
+        btnRequests.attr('disabled', false);
+        errfunc(err);
+    });
+}
+
+function showTableGrid(gridid, tablename, totalcount, g) {
+
+    var d = DolphinResult2Grid(g);
+    grid = $('#' + gridid);
+    var dg = new DolphinGrid(grid, {
+
+        autoload: true,
+        controller: {
+            loadData: function(filter) {
+                var deferred = $.Deferred();
+                console.log(filter);
+                getShareTableData(tablename, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function(g) {
+                    var d = DolphinResult2Grid(g, filter.pageIndex - 1);
+                    deferred.resolve({ data: d, itemsCount: totalcount });
+                });
+
+                return deferred.promise();
+            }
+        },
+    });
+
+    dg.setGridPage(g);
+    var resObj = g && g.object[0];
+    var cols = undefined;
+    if (d.length === 0)
+        cols = loadCols(resObj);
+    if (dg.loadFromJson(d, resObj.form === "vector", cols)) {
+        var btnPlot = $('<button />', {
+            class: 'btn btn-primary btn-request',
+            id: 'btn-plot-' + gridid,
+            text: 'Plot'
+        }).appendTo(grid);
+
+        var resObj = g && g.object[0];
+        if (resObj.form) {
+            if (resObj.form === "table" ||
+                (resObj.form === "matrix" && !CustomVis.isNonNumeralType(resObj.type))) {
+                btnPlot.click(function() {
+                    getData(getdatascript, 0, resObj.size, function(fullData) {
+                        var fullResObj = fullData.object[0];
+
+                        new CustomVis(fullResObj);
+                        var customVis = $('#custom-vis');
+                        customVis.dialog('option', 'width', Math.max($(window).width() - 200, 600));
+                        customVis.dialog('open');
+                    }, function(err) {
+                        console.error(err);
+                    }); // TODO customized size
+                });
+            }
+        }
+    }
+
+}
+
 function showGrid(gridid, getdatascript, g) {
-    var d = DolphinResult2Grid(g),
-        grid = $('#' + gridid);
+    var d = DolphinResult2Grid(g);
+    grid = $('#' + gridid);
 
     var dg = new DolphinGrid(grid, {
         autoload: true,
