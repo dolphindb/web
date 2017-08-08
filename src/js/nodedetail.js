@@ -273,11 +273,12 @@ $('#btn_execode').click(function() {
                     showPlot('jsgrid1', result);
                     $('#resulttab a[href="#DataWindow"]').tab('show');
                 } else if (res.form === "scalar") {
-                    logstr = '<span style="color: #999">Input: </span>'
-                        + (logstr.indexOf('\n') !== -1 ? '\n' : '')    // Contains newline
-                        + logstr
-                        + '\n<span style="color: #999">Output: </span>'
-                        + res.value;
+                    logstr = '<span style="color: #999">Input: </span>' +
+                        (logstr.indexOf('\n') !== -1 ? '\n' : '') // Contains newline
+                        +
+                        logstr +
+                        '\n<span style="color: #999">Output: </span>' +
+                        res.value;
                     $('#resulttab a[href="#log"]').tab('show');
                 } else {
                     showResult('jsgrid1', result);

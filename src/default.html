@@ -303,9 +303,9 @@
                 key: 'serverLog',
                 template: function(action, rowObject) {
                     var r = "";
-                    if (rowObject.state === "1") {
-                        r += '<a style="padding-left:20px" data-toggle="modal" data-target="#modal-showlog" ref="http://' + rowObject.host + ':' + rowObject.port + '" href="##">view</a>'
-                    }
+                    // if (rowObject.state === "1") {
+                    r += '<a style="padding-left:20px" data-toggle="modal" data-target="#modal-showlog" ref="' + rowObject.agentSite + '@' + rowObject.site + '" href="##">view</a>'
+                        // }
                     return r;
                 },
             }, {
@@ -639,11 +639,16 @@
     });
 
     $("#modal-showlog").on("show.bs.modal", function(e) {
-        var svr_url = $(e.relatedTarget).attr('ref');
+        var param = $(e.relatedTarget).attr('ref');
+        var urlArr = param.split('@');
+        var svrArr = urlArr[0].split(':');
+        if (svrArr.length < 2) return;
+        var svr_url = "http://" + svrArr[0] + ":" + svrArr[1];
+        var nodeAlias = urlArr[1].split(':')[2];
         $('#btnReadmore').attr('ref', svr_url);
-        $('#log_node').text(svr_url.replace('http://', ''));
+        $('#log_node').text(nodeAlias);
         //bindLog(log_src.object[0].value);
-        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead);
+        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text());
     });
 
     $('#btnReadmore').bind('click', function() {
@@ -652,23 +657,23 @@
         var currentpostion = $('#txtOffset').val();
         $('#txtOffset').val(parseInt(len) + parseInt(currentpostion));
         //bindLog(log_src.object[0].value);
-        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead);
+        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text());
     });
     var logFromhead = false;
     $('#btnFromHead').bind('click', function() {
         var svr_url = $('#btnReadmore').attr('ref');
         $('#btnFrom').text($('#btnFromHead').text());
         logFromhead = true;
-        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead);
+        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text());
     });
 
     $('#btnFromTail').bind('click', function() {
         var svr_url = $('#btnReadmore').attr('ref');
         logFromhead = false;
         $('#btnFrom').text($('#btnFromTail').text());
-        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead);
+        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text());
     });
-    var getLog = function(svr_url, offset, length, fromhead) {
+    var getLog = function(svr_url, offset, length, fromhead, nodeAlias) {
         var p = {
             "sessionID": SESSION_ID,
             "functionName": "getServerLog",
@@ -687,6 +692,11 @@
                 "form": "scalar",
                 "type": "bool",
                 "value": fromhead
+            }, {
+                "name": "nodeAlias",
+                "form": "scalar",
+                "type": "string",
+                "value": nodeAlias
             }]
         };
         //var deferred = $.Deferred();
