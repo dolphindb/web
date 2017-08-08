@@ -351,6 +351,14 @@ function buildNode(jsonLst, dataform) {
     return subtree;
 }
 
+$('#retrieve-row-number').keypress(function(e) {
+    if (e.key == "Enter") {
+        $('#btn_execode').click();
+        return false;
+    }
+})
+
+
 $('#btn_execode').click(function() {
     var codestr = editor.selection() || editor.getCode();
     var logstr = codestr;
