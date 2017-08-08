@@ -133,7 +133,6 @@ function showGrid(gridid, getdatascript, g) {
         grid = $('#' + gridid);
 
     var dg = new DolphinGrid(grid, {
-        pageSize: 10,
         autoload: true,
         controller: {
             loadData: function(filter) {
@@ -189,7 +188,7 @@ function showResult(gridid, resobj) {
 
     var grid = $('#' + gridid);
     var dg = new DolphinGrid(grid, {
-        pageSize: 10,
+        pageSize: 50,
         sorting: true,
         paging: true,
         pageLoading: false,
@@ -199,7 +198,10 @@ function showResult(gridid, resobj) {
     $("#btn-download").hide();
     btnPlot.hide();
     var res = resobj.object && resobj.object[0];
-    if (dg.loadFromJson(d, res.form === "vector")) {
+    var cols = undefined;
+    if (d.length === 0)
+        cols = loadCols(res);
+    if (dg.loadFromJson(d, res.form === "vector", cols)) {
         if (res && res.form) {
             if (res.form === "table" ||
                 (res.form === "matrix" && !CustomVis.isNonNumeralType(res.type))) {

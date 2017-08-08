@@ -205,8 +205,6 @@ DolphinChart.prototype = {
             colors[i] = this.genRandColor();
 
         return colors;
-        return d3.scaleOrdinal()
-            .range(colors);
     },
 
     plotAxes: function (xScale, yScale) {

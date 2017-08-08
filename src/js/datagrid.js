@@ -23,8 +23,8 @@ DolphinGrid.prototype = {
     },
 
     setGridPage: function(dolphinJson) {
-        if (typeof dolphinJson != "object") return;
-        if (typeof dolphinJson.object != "object") return;
+        if (typeof dolphinJson !== "object") return;
+        if (typeof dolphinJson.object !== "object") return;
         if (isArray(dolphinJson.object) && dolphinJson.object.length > 0) {
             $.extend(this.settings, { pageSize: getPageSize(dolphinJson) });
         }
@@ -76,8 +76,8 @@ DolphinGrid.prototype = {
 }
 
 function getPageSize(dolphinJson) {
-    if (typeof dolphinJson != "object") return;
-    if (dolphinJson.object == null) return;
+    if (typeof dolphinJson !== "object") return;
+    if (dolphinJson.object === null) return;
     if (dolphinJson.object.length <= 0) return;
     switch (dolphinJson.object[0].form.toUpperCase()) {
         case "VECTOR":
@@ -89,7 +89,7 @@ function getPageSize(dolphinJson) {
         case "DICTIONARY":
             return 100;
         case "TABLE":
-            return 10;
+            return 50;
         case "SCALAR":
             return 100;
         default:

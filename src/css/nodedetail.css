@@ -61,14 +61,11 @@
   display: none;
 }
 
-/* Rewrite jsgrid styles */
-.jsgrid .jsgrid-table {
-  table-layout: auto;
-}
 
+/*
 .jsgrid td {
   overflow: auto;
-}
+}*/
 
 /* jQuery Dialog */
 .no-close .ui-dialog-titlebar-close {

@@ -387,7 +387,6 @@
 
             this._tableContainer = $('<div>')
                 .css("overflow-x", "auto")
-                .css("overflow-y", "scroll")
                 .appendTo(this._container);
 
             this._table = $('<table>').addClass(this.tableClass)
@@ -401,6 +400,21 @@
 
             this.refresh();
         },
+
+        // _renderGrid: function() {
+        //     this._clear();
+
+        //     this._container.addClass(this.containerClass)
+        //         .css("position", "relative")
+        //         .append(this._createHeader())
+        //         .append(this._createBody());
+
+        //     this._pagerContainer = this._createPagerContainer();
+        //     this._loadIndicator = this._createLoadIndicator();
+        //     this._validation = this._createValidation();
+
+        //     this.refresh();
+        // },
 
         _createLoadIndicator: function() {
             return getOrApply(this.loadIndicator, this, {
@@ -425,12 +439,44 @@
                 .css({ position: "", width: "", height: "" });
         },
 
+        // _createHeader: function() {
+        //     var $headerRow = this._headerRow = this._createHeaderRow(),
+        //         $filterRow = this._filterRow = this._createFilterRow(),
+        //         $insertRow = this._insertRow = this._createInsertRow();
+
+        //     var $headerGrid = this._headerGrid = $("<table>").addClass(this.tableClass)
+        //         .append($headerRow)
+        //         .append($filterRow)
+        //         .append($insertRow);
+
+        //     var $header = this._header = $("<div>").addClass(this.gridHeaderClass)
+        //         .addClass(this._scrollBarWidth() ? "jsgrid-header-scrollbar" : "")
+        //         .append($headerGrid);
+
+        //     return $header;
+        // },
+
+        // _createBody: function() {
+        //     var $content = this._content = $("<tbody>");
+
+        //     var $bodyGrid = this._bodyGrid = $("<table>").addClass(this.tableClass)
+        //         .append($content);
+
+        //     var $body = this._body = $("<div>").addClass(this.gridBodyClass)
+        //         .append($bodyGrid)
+        //         .on("scroll", $.proxy(function(e) {
+        //             this._header.scrollLeft(e.target.scrollLeft);
+        //         }, this));
+
+        //     return $body;
+        // },
+
         _createHeader: function() {
             var $headerRow = this._headerRow = this._createHeaderRow(),
                 $filterRow = this._filterRow = this._createFilterRow(),
                 $insertRow = this._insertRow = this._createInsertRow();
 
-            var $headerGrid = this._headerGrid = $("<thead>")
+            var $headerGrid = this._header = this._headerGrid = $("<thead>")
                 .addClass(this.gridHeaderClass)
                 .addClass(this._scrollBarWidth() ? "jsgrid-header-scrollbar" : "")
                 .append($headerRow)
@@ -441,7 +487,7 @@
         },
 
         _createBody: function() {
-            var $content = this._content = $("<tbody>");
+            var $content = this._body = this._content = $("<tbody>").addClass(this.gridBodyClass);
 
             return $content;
         },
