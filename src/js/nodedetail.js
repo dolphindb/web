@@ -57,23 +57,22 @@ $('#btn_refresh').click(function() {
 
 function bindVariables(datalist) {
     var localvariable = [];
-    //TABLE
+
     var list = datalist.filter(function(x) { return x.form === 'TABLE' && x.shared === 0; });
     localvariable.push(buildNode(list, "Table"));
-    //VECTOR
+
     list = datalist.filter(function(x) { return x.form === 'VECTOR' && x.shared === 0; });
-    var tmp = buildNode(list, "Vector");
     localvariable.push(buildNode(list, "Vector"));
-    //METRIX
+
     list = datalist.filter(function(x) { return x.form === 'MATRIX' && x.shared === 0; });
     localvariable.push(buildNode(list, "Matrix"));
-    //SET
+
     list = datalist.filter(function(x) { return x.form === 'SET' && x.shared === 0; });
     localvariable.push(buildNode(list, "Set"));
-    //DICTIONARY
+
     list = datalist.filter(function(x) { return x.form === 'DICTIONARY' && x.shared === 0; });
     localvariable.push(buildNode(list, "Dictionary"));
-    //SCALAR
+
     list = datalist.filter(function(x) { return x.form === 'SCALAR' && x.shared === 0; });
     localvariable.push(buildNode(list, "Scalar"));
 
@@ -130,7 +129,6 @@ function bindVariables(datalist) {
                     openDialog(divobj.id, '[' + dataform + ']' + contentid);
                 });
             } else {
-                //get variables code "variablename;"
                 getData(code, 0, 20, function(g) {
                     showGrid(tblobj.id, code, g);
                     openDialog(divobj.id, '[' + dataform + ']' + contentid);
@@ -214,7 +212,7 @@ function showTableGrid(gridid, tablename, totalcount, g) {
                         customVis.dialog('open');
                     }, function(err) {
                         console.error(err);
-                    }); // TODO customized size
+                    });
                 });
             }
         }
@@ -269,7 +267,7 @@ function showGrid(gridid, getdatascript, g) {
                         customVis.dialog('open');
                     }, function(err) {
                         console.error(err);
-                    }); // TODO customized size
+                    });
                 });
             }
         }

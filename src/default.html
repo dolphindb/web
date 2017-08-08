@@ -656,17 +656,18 @@
         var nodeAlias = urlArr[1].split(':')[2];
         $('#btnReadmore').attr('ref', svr_url);
         $('#log_node').text(nodeAlias);
-        //bindLog(log_src.object[0].value);
+
         getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text());
+
     });
 
     $('#btnReadmore').bind('click', function() {
         var svr_url = $('#btnReadmore').attr('ref');
         var len = $('#txtLength').val();
         var currentpostion = $('#txtOffset').val();
-        $('#txtOffset').val(parseInt(len) + parseInt(currentpostion));
-        //bindLog(log_src.object[0].value);
+
         getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text());
+        $('#txtOffset').val(parseInt(len) + parseInt(currentpostion));
     });
     var logFromhead = false;
     $('#btnFromHead').bind('click', function() {
