@@ -28,3 +28,4 @@ hs_err_pid*
 .vscode/launch.json
 =======
 >>>>>>> origin/custom-pager
+.vscode/settings.json
