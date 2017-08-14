@@ -158,9 +158,9 @@
                     </div>
                     <div class="modal-footer">
                         <div class="row">
-                            <div class="col-md-2">
+                            <div class="col-md-1">
                             </div>
-                            <div class="col-md-8">
+                            <div class="col-md-2">
                                 <div class="input-group">
                                     <div class="input-group-addon">From</div>
                                     <div class="input-group-btn">
@@ -170,24 +170,30 @@
                                             <li><a href="#" id="btnFromTail">Tail</a></li>
                                         </ul>
                                     </div>
-                                    <div class="input-group-addon">File Offset</div>
-                                    <input class="form-control" id="txtOffset" type="text" placeholder="0" value="0">
-                                    <div class="input-group-addon" style="width:50px">Size</div>
-                                    <input class="form-control" style="width:50px" id="txtLength" type="text" placeholder="2000" value="2000">
-                                    <span class="input-group-btn">
-                                <button type="button" class="btn btn-default" id="btnReadmore">Load More</button>
-                                </span>
                                 </div>
                             </div>
-                            <div class="col-md-2">
-
+                            <div class="col-md-3">
+                                <div class="input-group">
+                                    <div class="input-group-addon">File Offset</div>
+                                    <input class="form-control" style="width:50px" id="txtOffset" type="text" placeholder="0" value="0">
+                                    <div class="input-group-addon" style="width:50px">Size</div>
+                                    <input class="form-control" style="width:50px" id="txtLength" type="text" placeholder="2000" value="2000">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-default" id="btnBackward"><span class="glyphicon glyphicon-backward"></button>
+                                    <button type="button" class="btn btn-default" id="btnReload"><span class="glyphicon glyphicon-refresh"></span></button>
+                                    <button type="button" class="btn btn-default" id="btnForward"><span class="glyphicon glyphicon-forward"></button>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         </div>
 
         <!-- Footer================================================== -->
@@ -644,7 +650,6 @@
 
     $("#modal-database").on("show.bs.modal", function(e) {
         getAllTableDistributions($(e.relatedTarget).attr('ref'));
-        //href = "javascript:getAllTableDistributions('${dbName}')";
     });
 
     $("#modal-showlog").on("show.bs.modal", function(e) {
@@ -654,35 +659,52 @@
         if (svrArr.length < 2) return;
         var svr_url = "http://" + svrArr[0] + ":" + svrArr[1];
         var nodeAlias = urlArr[1].split(':')[2];
-        $('#btnReadmore').attr('ref', svr_url);
+        $('#modal-showlog').attr('ref', svr_url);
         $('#log_node').text(nodeAlias);
 
         getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text());
 
     });
 
-    $('#btnReadmore').bind('click', function() {
-        var svr_url = $('#btnReadmore').attr('ref');
+    var logFromhead = false;
+    $("#btnForward").bind('click', function() {
         var len = $('#txtLength').val();
         var currentpostion = $('#txtOffset').val();
-
-        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text());
-        $('#txtOffset').val(parseInt(len) + parseInt(currentpostion));
+        $('#txtOffset').val(parseInt(currentpostion) + parseInt(len));
+        LoadLog();
     });
-    var logFromhead = false;
+
+    $("#btnBackward").bind('click', function() {
+        var len = $('#txtLength').val();
+        var currentpostion = $('#txtOffset').val();
+        var nextPosition = parseInt(currentpostion) - parseInt(len);
+        if (nextPosition < 0)
+            nextPosition = 0;
+        $('#txtOffset').val(nextPosition);
+        LoadLog();
+    });
+
+    $('#btnReload').bind('click', function() {
+        LoadLog();
+    });
+
     $('#btnFromHead').bind('click', function() {
-        var svr_url = $('#btnReadmore').attr('ref');
         $('#btnFrom').text($('#btnFromHead').text());
         logFromhead = true;
-        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text());
+        LoadLog();
     });
 
     $('#btnFromTail').bind('click', function() {
-        var svr_url = $('#btnReadmore').attr('ref');
-        logFromhead = false;
         $('#btnFrom').text($('#btnFromTail').text());
-        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text());
+        logFromhead = false;
+        LoadLog();
     });
+
+    var LoadLog = function() {
+        var svr_url = $('#modal-showlog').attr('ref');
+        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text());
+    }
+
     var getLog = function(svr_url, offset, length, fromhead, nodeAlias) {
         var p = {
             "sessionID": SESSION_ID,
@@ -709,7 +731,6 @@
                 "value": nodeAlias
             }]
         };
-        //var deferred = $.Deferred();
 
         CallWebApi(svr_url, p, function(re) {
             console.log(re.object.length);
@@ -717,18 +738,13 @@
                 if (re.object.length > 0) {
                     var retable = re.object[0].value;
                     bindLog(retable);
-                    //deferred.resolve(retable);
                 }
             } else {
                 alert(re.msg);
             }
         });
-        //return deferred.promise();
     }
     var bindLog = function(json) {
-        // var grid = $('#jsgrid_log');
-        // var dg = new DolphinGrid(grid);
-        // dg.loadFromJson(json);
         $('#pnllog').html('');
         json.forEach(function(element) {
             $('#pnllog').append(HTMLEncode(element) + "<br/>");
