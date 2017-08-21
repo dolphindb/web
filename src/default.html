@@ -320,9 +320,23 @@
                     if (rowObject.host.toUpperCase() == "LOCALHOST") {
                         ref = ref.replace(rowObject.host, window.location.host.split(':')[0]);
                     }
-                    r += '<a style="padding-left:20px" data-toggle="modal" data-target="#modal-showlog" ref="' + ref + '" href="##">view</a>'
+                    r += '<a style="padding-left:20px" data-toggle="modal" data-target="#modal-showlog" ref="getServerLog@' + ref + '" href="##">view</a>'
                     return r;
                 },
+                width: '80px'
+            }, {
+                text: 'perfLog',
+                key: 'perfLog',
+                template: function(action, rowObject) {
+                    var r = "";
+                    var ref = rowObject.agentSite + '@' + rowObject.site;
+                    if (rowObject.host.toUpperCase() == "LOCALHOST") {
+                        ref = ref.replace(rowObject.host, window.location.host.split(':')[0]);
+                    }
+                    r += '<a style="padding-left:20px" data-toggle="modal" data-target="#modal-showlog" ref="getPerfLog@' + ref + '" href="##">view</a>'
+                    return r;
+                },
+                width: '80px'
             }, {
                 text: 'Connections',
                 key: 'connectionNum',
@@ -383,6 +397,41 @@
                 sorting: '',
                 sortFilter: function(d) {
                     return d.trim() !== '' ? parseInt(d, 10) : -1;
+                },
+            }, {
+                text: 'MedLast10QueryTime',
+                key: 'medLast10QueryTime',
+                sorting: '',
+                template: function(medLast10QueryTime, rowObject) {
+                    return Number(medLast10QueryTime / 1000000).toFixed(1) + " ms";
+                },
+            }, {
+                text: 'MaxLast10QueryTime',
+                key: 'maxLast10QueryTime',
+                sorting: '',
+                template: function(maxLast10QueryTime, rowObject) {
+                    return Number(maxLast10QueryTime / 1000000).toFixed(1) + " ms";
+                },
+            }, {
+                text: 'MedLast100QueryTime',
+                key: 'medLast100QueryTime',
+                sorting: '',
+                template: function(medLast100QueryTime, rowObject) {
+                    return Number(medLast100QueryTime / 1000000).toFixed(1) + " ms";
+                },
+            }, {
+                text: 'MaxLast100QueryTime',
+                key: 'maxLast100QueryTime',
+                sorting: '',
+                template: function(maxLast100QueryTime, rowObject) {
+                    return Number(maxLast100QueryTime / 1000000).toFixed(1) + " ms";
+                },
+            }, {
+                text: 'MaxRunningQueryTime',
+                key: 'maxRunningQueryTime ',
+                sorting: '',
+                template: function(maxRunningQueryTime, rowObject) {
+                    return Number(maxRunningQueryTime / 1000000).toFixed(1) + " ms";
                 },
             }]
         });
@@ -654,15 +703,18 @@
 
     $("#modal-showlog").on("show.bs.modal", function(e) {
         var param = $(e.relatedTarget).attr('ref');
+
         var urlArr = param.split('@');
-        var svrArr = urlArr[0].split(':');
+        var funcName = urlArr[0];
+        var svrArr = urlArr[1].split(':');
         if (svrArr.length < 2) return;
         var svr_url = "http://" + svrArr[0] + ":" + svrArr[1];
-        var nodeAlias = urlArr[1].split(':')[2];
+        var nodeAlias = urlArr[2].split(':')[2];
         $('#modal-showlog').attr('ref', svr_url);
+        $('#modal-showlog').attr('funcName', funcName);
         $('#log_node').text(nodeAlias);
 
-        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text());
+        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text(), funcName);
 
     });
 
@@ -702,13 +754,14 @@
 
     var LoadLog = function() {
         var svr_url = $('#modal-showlog').attr('ref');
-        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text());
+        var funcName = $('#modal-showlog').attr('funcName');
+        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text(), funcName);
     }
 
-    var getLog = function(svr_url, offset, length, fromhead, nodeAlias) {
+    var getLog = function(svr_url, offset, length, fromhead, nodeAlias, funcName) {
         var p = {
             "sessionID": SESSION_ID,
-            "functionName": "getServerLog",
+            "functionName": funcName,
             "params": [{
                 "name": "length",
                 "form": "scalar",
