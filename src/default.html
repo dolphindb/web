@@ -155,6 +155,7 @@
                         <div class="well" id="pnllog" style="font-size:12px;height:580px;overflow:auto">
 
                         </div>
+                        <div id="jsGrid_perflog"></div>
                     </div>
                     <div class="modal-footer">
                         <div class="row">
@@ -703,7 +704,6 @@
 
     $("#modal-showlog").on("show.bs.modal", function(e) {
         var param = $(e.relatedTarget).attr('ref');
-
         var urlArr = param.split('@');
         var funcName = urlArr[0];
         var svrArr = urlArr[1].split(':');
@@ -715,7 +715,6 @@
         $('#log_node').text(nodeAlias);
 
         getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text(), funcName);
-
     });
 
     var logFromhead = false;
@@ -790,19 +789,61 @@
             if (re.resultCode == "0") {
                 if (re.object.length > 0) {
                     var retable = re.object[0].value;
-                    bindLog(retable);
+                    if (funcName == "getServerLog") {
+                        bindLog(retable);
+                    } else if (funcName == "getPerfLog") {
+                        bindPerfLog(re);
+                    }
+
                 }
             } else {
                 alert(re.msg);
             }
         });
     }
+
     var bindLog = function(json) {
+        $('#pnllog').show();
+        $('#jsGrid_perflog').hide();
         $('#pnllog').html('');
         json.forEach(function(element) {
             $('#pnllog').append(HTMLEncode(element) + "<br/>");
         }, this);
     }
+
+    var bindPerfLog = function(json) {
+        $('#pnllog').hide();
+        $('#jsGrid_perflog').show();
+        var col = [{
+            name: "userID",
+            type: "text",
+            width: 60
+        }, {
+            name: "sessionID",
+            type: "text",
+            width: 80
+        }, {
+            name: "startTime",
+            type: "text",
+        }, {
+            name: "endTime",
+            type: "text",
+        }, {
+            name: "command",
+            type: "text",
+
+        }]
+        var dg = new DolphinGrid($('#jsGrid_perflog'), {
+            width: 750,
+            autoload: false,
+            paging: false,
+            fields: col
+        });
+        var griddata = DolphinResult2Grid(json);
+        //console.log(griddata);
+        dg.loadFromJson(griddata);
+    }
+
 
     function bytesToSize(bytes) {
         if (bytes === 0) return '0 MB';
