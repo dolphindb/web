@@ -123,18 +123,14 @@ function bindVariables(datalist) {
             $(tblobj).appendTo($(divobj));
 
             if (dataform == "Table") {
-                var tablesize = $(e.target).closest('li').context.innerText.split(" ")[1];
-                var script = 'select * from ' + contentid + ';';
+                var tablesize = $(e.target).closest('a').context.innerText.split(" ")[1];
+                var script = contentid + '[' + 0 + ':' + tablesize + ']';
                 getData(script, 0, PAGESIZE, function(g) {
                     showTableGrid(tblobj.id, contentid, tablesize, g);
                     openDialog(divobj.id, '[' + dataform + ']' + contentid);
                 }, function(err) {
                     console.log(err);
-                })
-                // getShareTableData(contentid, 0, PAGESIZE, function(g) {
-                //     showTableGrid(tblobj.id, contentid, tablesize, g);
-                //     openDialog(divobj.id, '[' + dataform + ']' + contentid);
-                // });
+                });
             } else {
                 getData(code, 0, PAGESIZE, function(g) {
                     showGrid(tblobj.id, code, g);
@@ -147,30 +143,6 @@ function bindVariables(datalist) {
         });
 }
 
-function getShareTableData(tableName, startindex, pagesize, sucfunc, errfunc) {
-    var script = tableName + '[' + startindex + ':' + (startindex + pagesize) + '];';
-    var p = {
-        "sessionID": "0",
-        "functionName": "executeCode",
-        "params": [{
-            "name": "script",
-            "form": "scalar",
-            "type": "string",
-            "value": script
-        }]
-    };
-
-    var btnRequests = $('.btn-request');
-    btnRequests.attr('disabled', true);
-
-    CallWebApi(wa_url, p, function(re) {
-        btnRequests.attr('disabled', false);
-        sucfunc(re);
-    }, function(err) {
-        btnRequests.attr('disabled', false);
-        errfunc(err);
-    });
-}
 
 function showTableGrid(gridid, tablename, totalcount, g) {
     // In variable panel
@@ -183,11 +155,7 @@ function showTableGrid(gridid, tablename, totalcount, g) {
             loadData: function(filter) {
                 var deferred = $.Deferred();
                 console.log(filter);
-                var script = 'select * from ' + tablename + ';';
-                // getShareTableData(tablename, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function(g) {
-                //     var d = DolphinResult2Grid(g, filter.pageIndex - 1);
-                //     deferred.resolve({ data: d, itemsCount: totalcount });
-                // });
+                var script = tablename + '[' + 0 + ':' + totalcount + ']';
                 getData(script, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function(g) {
                     var d = DolphinResult2Grid(g, filter.pageIndex - 1);
                     deferred.resolve({ data: d, itemsCount: totalcount });
@@ -228,7 +196,6 @@ function showTableGrid(gridid, tablename, totalcount, g) {
             }
         }
     }
-
 }
 
 function showGrid(gridid, getdatascript, g) {
