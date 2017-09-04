@@ -83,14 +83,18 @@ function downloadVisSVG(downloadBtn) {
     });
 }
 
-function CustomVis(visObj) {
+function CustomVis(visObj, script) {
     this.data = [];
+    this.script = script;
+
     switch (visObj.form) {
         case "table": {
+            $('#auto-refresh-container').show();
             this.data = visObj.value;
             break;
         }
         case "matrix": {
+            $('#auto-refresh-container').hide();
             var values = visObj.value,
                 data = values[0].value,
                 row = parseInt(values[1].value, 10),
@@ -122,6 +126,8 @@ function CustomVis(visObj) {
 
     CustomVis.width = 800;
     CustomVis.height = 450;
+    CustomVis.refreshInterval = 1000;
+    CustomVis.refreshIntervalId = 0;
 })();
 
 CustomVis.prototype = {
@@ -235,61 +241,83 @@ CustomVis.prototype = {
     updateChart: function(e) {
         e.preventDefault();
 
+        if (CustomVis.refreshIntervalId !== 0)
+            clearInterval(CustomVis.refreshIntervalId)
+
         var xColumn = $('#x-data').val(),
             chartType = $('#chart-type').val(),
             title = $('#chart-title').val() || '',
             xTitle = $('#x-title').val(),
-            yTitle = $('#y-title').val();
+            yTitle = $('#y-title').val(),
+            autoRefresh = $('#auto-refresh').is(':checked');
 
-        if (xColumn === null)
-            return;
+        var update = (function() {
+            if (xColumn === null)
+                return;
 
-        if (chartType === null)
-            return;
+            if (chartType === null)
+                return;
 
-        var xDataObj = this.data[xColumn],
-            xDataType = xDataObj.type,
-            xData = xDataObj.value,
-            yData = [],
-            colLabel = [];
+            var xDataObj = this.data[xColumn],
+                xDataType = xDataObj.type,
+                xData = xDataObj.value,
+                yData = [],
+                colLabel = [];
 
-        var column, elem, val;
+            var column, elem, val;
 
-        for (var i = 0, len = this.columnData.length; i < len; i++) {
-            column = this.columnData[i];
-            if (column.deleted)
-                continue;
+            for (var i = 0, len = this.columnData.length; i < len; i++) {
+                column = this.columnData[i];
+                if (column.deleted)
+                    continue;
 
-            elem = column.elem;
-            val = elem.find('select').val();
-            if (val !== null) {
-                yData.push(this.data[val].value)
-                colLabel.push(this.data[val].name)
+                elem = column.elem;
+                val = elem.find('select').val();
+                if (val !== null) {
+                    yData.push(this.data[val].value)
+                    colLabel.push(this.data[val].name)
+                }
             }
+
+            if (yData.length <= 0)
+                return;
+
+            var options = {};
+
+            if (xTitle)
+                options.xTitle = xTitle;
+            if (yTitle)
+                options.yTitle = yTitle;
+            if (colLabel.length > 0)
+                options.yLegend = colLabel;
+            if (CustomVis.isNonNumeralType(xDataType))
+                options.xDataType = xDataType;
+
+            var chart = new DolphinChart(yData, xData, title, chartType, options);
+            chart.plot($('#custom-vis-plot'));
+            downloadVisSVG($('#btn-custom-vis-download'));
+        }).bind(this);
+
+        if (autoRefresh && typeof this.script !== 'undefined') {
+            update();
+            CustomVis.refreshIntervalId = setInterval((function() {
+                getData(this.script, 0, undefined, (function(fullData) {
+                    var fullResObj = fullData.object[0];
+                    this.data = fullResObj.value;
+                }).bind(this), function(err) {
+                    console.log(err);
+                });
+                update();
+            }).bind(this), CustomVis.refreshInterval);
+        } else {
+            update();
         }
-
-        if (yData.length <= 0)
-            return;
-
-        var options = {};
-
-        if (xTitle)
-            options.xTitle = xTitle;
-        if (yTitle)
-            options.yTitle = yTitle;
-        if (colLabel.length > 0)
-            options.yLegend = colLabel;
-        if (CustomVis.isNonNumeralType(xDataType))
-            options.xDataType = xDataType;
-
-        var chart = new DolphinChart(yData, xData, title, chartType, options);
-        chart.plot($('#custom-vis-plot'));
-        downloadVisSVG($('#btn-custom-vis-download'));
     }
 }
 
 $(function() {
     var columnCount = 1;
+    var customVis = $('#custom-vis');
 
     $('#custom-vis').dialog({
         autoOpen: false,
@@ -300,13 +328,14 @@ $(function() {
         buttons: [{
             text: 'OK',
             click: function() {
+                if (CustomVis.refreshIntervalId !== 0)
+                    clearInterval(CustomVis.refreshIntervalId)
                 $(this).dialog('close');
             }
         }]
     });
 
     $('#btn-plot').click(function() {
-        var customVis = $('#custom-vis');
         customVis.dialog('option', 'width', Math.max($(window).width() - 200, 600));
         customVis.dialog('open');
     });

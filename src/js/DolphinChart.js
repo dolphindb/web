@@ -15,6 +15,8 @@ function DolphinChart(yData, xData, title, chartType, options) {
     this.chartType = chartType || "LINE";
     this.options = options || null;
 
+    this.seed = 100;
+
     this.colors = null;
     this.data = [];
     this.g = null;
@@ -191,9 +193,14 @@ DolphinChart.prototype = {
     },
 
     genRandColor: function() {
-        var h = parseInt(Math.random() * 360, 10),
-            s = Math.random() * 0.15 + 0.5,
-            l = Math.random() * 0.5 + 0.3;
+        var random = (function() {
+            this.seed = this.seed * 16807 % 2147483647;
+            return (this.seed - 1) / 2147483647;
+        }).bind(this);
+
+        var h = parseInt(random() * 360, 10),
+            s = random() * 0.15 + 0.5,
+            l = random() * 0.5 + 0.3;
         var color = d3.hsl(h, s, l);
         return color.toString();
     },

@@ -124,12 +124,19 @@ function bindVariables(datalist) {
 
             if (dataform == "Table") {
                 var tablesize = $(e.target).closest('li').context.innerText.split(" ")[1];
-                getShareTableData(contentid, 0, PAGESIZE, function(g) {
+                var script = 'select * from ' + contentid + ';';
+                getData(script, 0, PAGESIZE, function(g) {
                     showTableGrid(tblobj.id, contentid, tablesize, g);
                     openDialog(divobj.id, '[' + dataform + ']' + contentid);
-                });
+                }, function(err) {
+                    console.log(err);
+                })
+                // getShareTableData(contentid, 0, PAGESIZE, function(g) {
+                //     showTableGrid(tblobj.id, contentid, tablesize, g);
+                //     openDialog(divobj.id, '[' + dataform + ']' + contentid);
+                // });
             } else {
-                getData(code, 0, 20, function(g) {
+                getData(code, 0, PAGESIZE, function(g) {
                     showGrid(tblobj.id, code, g);
                     openDialog(divobj.id, '[' + dataform + ']' + contentid);
                 }, function(err) {
@@ -166,7 +173,7 @@ function getShareTableData(tableName, startindex, pagesize, sucfunc, errfunc) {
 }
 
 function showTableGrid(gridid, tablename, totalcount, g) {
-
+    // In variable panel
     var d = DolphinResult2Grid(g);
     grid = $('#' + gridid);
     var dg = new DolphinGrid(grid, {
@@ -176,10 +183,15 @@ function showTableGrid(gridid, tablename, totalcount, g) {
             loadData: function(filter) {
                 var deferred = $.Deferred();
                 console.log(filter);
-                getShareTableData(tablename, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function(g) {
+                var script = 'select * from ' + tablename + ';';
+                // getShareTableData(tablename, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function(g) {
+                //     var d = DolphinResult2Grid(g, filter.pageIndex - 1);
+                //     deferred.resolve({ data: d, itemsCount: totalcount });
+                // });
+                getData(script, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function(g) {
                     var d = DolphinResult2Grid(g, filter.pageIndex - 1);
                     deferred.resolve({ data: d, itemsCount: totalcount });
-                });
+                })
 
                 return deferred.promise();
             }
@@ -198,15 +210,14 @@ function showTableGrid(gridid, tablename, totalcount, g) {
             text: 'Plot'
         }).appendTo(grid);
 
-        var resObj = g && g.object[0];
         if (resObj.form) {
             if (resObj.form === "table" ||
                 (resObj.form === "matrix" && !CustomVis.isNonNumeralType(resObj.type))) {
                 btnPlot.click(function() {
-                    getData(getdatascript, 0, resObj.size, function(fullData) {
+                    getData(tablename, 0, resObj.size, function(fullData) {
                         var fullResObj = fullData.object[0];
 
-                        new CustomVis(fullResObj);
+                        new CustomVis(fullResObj, tablename);
                         var customVis = $('#custom-vis');
                         customVis.dialog('option', 'width', Math.max($(window).width() - 200, 600));
                         customVis.dialog('open');
@@ -221,6 +232,7 @@ function showTableGrid(gridid, tablename, totalcount, g) {
 }
 
 function showGrid(gridid, getdatascript, g) {
+    // In variable panel
     var d = DolphinResult2Grid(g);
     grid = $('#' + gridid);
 
@@ -261,7 +273,7 @@ function showGrid(gridid, getdatascript, g) {
                     getData(getdatascript, 0, resObj.size, function(fullData) {
                         var fullResObj = fullData.object[0];
 
-                        new CustomVis(fullResObj);
+                        new CustomVis(fullResObj, getdatascript);
                         var customVis = $('#custom-vis');
                         customVis.dialog('option', 'width', Math.max($(window).width() - 200, 600));
                         customVis.dialog('open');
@@ -275,6 +287,7 @@ function showGrid(gridid, getdatascript, g) {
 }
 
 function showResult(gridid, resobj) {
+    // In data browser
     var d = DolphinResult2Grid(resobj),
         btnPlot = $('#btn-plot');
 
