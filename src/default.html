@@ -287,12 +287,13 @@
                 key: 'site',
                 sorting: '',
                 template: function(action, rowObject) {
-                    if (rowObject.state === "1") {
+                    if (rowObject.state === 1) {
                         var h = rowObject.host;
                         if (rowObject.host.toUpperCase() == "LOCALHOST") {
                             h = window.location.host.split(':')[0];
                         }
-                        r = '<a href=javascript:window.open("nodedetail.html?site=' + h + ':' + rowObject.port + '");>' + rowObject.site.split(':')[2] + '</a>'
+
+                        r = '<a href=javascript:window.open("nodedetail.html?site=' + h + ':' + rowObject.port + ':' + rowObject.site.split(':')[2] + '");>' + rowObject.site.split(':')[2] + '</a>'
                         return r;
                     } else {
                         return rowObject.site.split(':')[2];
@@ -456,13 +457,13 @@
             ALL_NODE = VectorArray2Table(data[0].value);
 
             AGENT_LIST = ALL_NODE.filter(function(x) {
-                return x.mode === 'agent';
+                return x.mode === 1;
             });
 
             LoadLeft(AGENT_LIST);
 
             NODE_LIST = ALL_NODE.filter(function(x) {
-                return x.mode === 'dataNode';
+                return x.mode === 0;
             });
             NODE_LIST.sort(up);
 
