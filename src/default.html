@@ -760,6 +760,8 @@
     }
 
     var getLog = function(svr_url, offset, length, fromhead, nodeAlias, funcName) {
+        $('#pnllog').hide();
+        $('#jsGrid_perflog').hide();
         var p = {
             "sessionID": SESSION_ID,
             "functionName": funcName,
@@ -799,8 +801,6 @@
                 }
             } else {
                 alert(re.msg);
-                $('#pnllog').hide();
-                $('#jsGrid_perflog').hide();
                 return false;
             }
         });
