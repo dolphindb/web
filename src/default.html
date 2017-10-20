@@ -715,7 +715,8 @@
         $('#modal-showlog').attr('funcName', funcName);
         $('#log_node').text(nodeAlias);
 
-        getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text(), funcName);
+        re = getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text(), funcName);
+
     });
 
     var logFromhead = false;
@@ -786,7 +787,6 @@
         };
 
         CallWebApi(svr_url, p, function(re) {
-            console.log(re.object.length);
             if (re.resultCode == "0") {
                 if (re.object.length > 0) {
                     var retable = re.object[0].value;
@@ -799,6 +799,9 @@
                 }
             } else {
                 alert(re.msg);
+                $('#pnllog').hide();
+                $('#jsGrid_perflog').hide();
+                return false;
             }
         });
     }
@@ -816,23 +819,22 @@
         $('#pnllog').hide();
         $('#jsGrid_perflog').show();
         var col = [{
-            name: "userID",
+            name: "UserId",
             type: "text",
             width: 60
         }, {
-            name: "sessionID",
+            name: "SessionId",
             type: "text",
             width: 80
         }, {
-            name: "startTime",
+            name: "StartTime",
             type: "text",
         }, {
-            name: "endTime",
+            name: "EndTime",
             type: "text",
         }, {
-            name: "command",
+            name: "JobDesc",
             type: "text",
-
         }]
         var dg = new DolphinGrid($('#jsGrid_perflog'), {
             width: 750,
