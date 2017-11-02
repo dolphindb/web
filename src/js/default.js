@@ -184,7 +184,7 @@ function LoadTable(nodeList) {
                 } else {//controller
                     ref = rowObject.site.replace(rowObject.host, getControllerIp()) + '@' + rowObject.site;
                 }
-                r += '<a style="padding-left:20px" data-toggle="modal" data-target="#modal-showlog" ref="getServerLog@' + ref + '" href="##">view</a>'
+                r += '<a style="padding-left:20px"  ref="getServerLog@' + ref + '" href="javascript:void(0)" onclick="showServerLog()">view</a>'
                 return r;
             },
         }, {
@@ -199,7 +199,7 @@ function LoadTable(nodeList) {
                 } else {//controller
                     ref = rowObject.site.replace(rowObject.host, getControllerIp()) + '@' + rowObject.site;
                 }
-                r += '<a style="padding-left:20px" data-toggle="modal" data-target="#modal-showlog" ref="getPerfLog@' + ref + '" href="##">view</a>'
+                r += '<a style="padding-left:20px" ref="getPerfLog@' + ref + '" href="javascript:void(0)" onclick="showPerfLog()">view</a>'
                 return r;
             },
 
@@ -633,75 +633,6 @@ var getAllTableDistributions = function(domainId) {
         }
     });
 }
-
-var PARTITIONTYPE = ["SEQ", "VALUE", "RANGE", "LIST"];
-
-function openDatabase(tb_src) {
-    var col = [{
-        name: "tableName",
-        type: "select",
-        items: getVectorFromTable(tb_src, "tableName", true, true),
-        valueField: "name",
-        textField: "name",
-        width: 150
-    }, {
-        name: "partitionId",
-        type: "select",
-        items: getVectorFromTable(tb_src, "partitionId", true, true),
-        valueField: "name",
-        textField: "name",
-        width: 100
-    }, {
-        name: "site",
-        type: "select",
-        items: getVectorFromTable(tb_src, "site", true, true),
-        valueField: "name",
-        textField: "name",
-        width: 200,
-        itemTemplate: function(value) {
-            var s = value.split(":");
-            if (s.length > 2)
-                return s[2];
-            else
-                return value;
-        }
-    }, {
-        name: "partitionType",
-        type: "text",
-        filtering: false,
-        itemTemplate: function(value) {
-            return PARTITIONTYPE[value];
-        }
-    }, {
-        name: "partitionCount",
-        type: "text",
-        filtering: false
-    }];
-    var dg = new DolphinGrid($('#jsGrid_database'), {
-        width: 780,
-        filtering: true,
-        sorting: true,
-        autoload: false,
-        controller: {
-            loadData: function(filter) {
-                return $.grep(tb_src, function(tb) {
-                    return (!filter.tableName || tb.tableName == filter.tableName) &&
-                        (!filter.partitionId || tb.partitionId == filter.partitionId) &&
-                        (!filter.site || tb.site == filter.site);
-                });
-            }
-        },
-        fields: col
-    });
-
-    dg.load();
-
-}
-
-$("#modal-database").on("shown.bs.modal", function(e) {
-    getAllTableDistributions($(e.relatedTarget).attr('ref'));
-});
-
 $("#modal-showlog").on("shown.bs.modal", function(e) {
     var param = $(e.relatedTarget).attr('ref');
     var urlArr = param.split('@');
@@ -949,6 +880,17 @@ function hideCtlSel() {
     $("td:contains('controller')").parent().children().first().html('');
 }
 
+function showServerLog(e){
+    var apiUrl = "";
+    var nodeAlias = "datanode1";
+    var divobj = document.createElement("div");
+    divobj.id = "svrlog_" + nodeAlias;
+    var iframe = document.createElement("iframe");
+    iframe.setAttribute("src","dialogs/svrlog.html");
+    $(iframe).appendTo($(divobj));
+    $(divobj).appendTo($('#dialogs'));
+    openDialog(divobj.id,nodeAlias);
+}
 //==============================================================util function============================================
 function isUrl(u) {
     var reg = /^([\/][\w-]*)*$/i;
@@ -965,3 +907,19 @@ function fmoney(s, n) {
     }
     return t.split("").reverse().join("") + "." + r;
 }  
+
+function openDialog(dialog, tit) {
+    $("#" + dialog).dialog({
+        width: 800,
+        height: 600,
+        position: { my: "center", at: "center", of: window },
+        title: tit,
+        dialogClass: "no-close",
+        buttons: [{
+            text: "OK",
+            click: function() {
+                $(this).dialog("close");
+            }
+        }]
+    });
+}

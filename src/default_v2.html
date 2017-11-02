@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="third-party/bootstrap/css/docs.css">
     <link href="third-party/jsgrid/jsgrid.css" rel="stylesheet" />
     <link href="third-party/jsgrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="third-party/jqueryui/jquery-ui.min.css" rel="stylesheet" />
     <link href="css/default.css" rel="stylesheet" />
 </head>
 
@@ -82,13 +83,7 @@
 
             </div>
             <div role="tabpanel" class="tab-pane fade" id="controller" aria-labelledby="controller-tab">
-                <p>Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1
-                    labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft
-                    beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad
-                    vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit. Keytar helvetica
-                    VHS salvia yr, vero magna velit sapiente labore stumptown. Vegan fanny pack odio cillum wes anderson
-                    8-bit, sustainable jean shorts beard ut DIY ethical culpa terry richardson biodiesel. Art party scenester
-                    stumptown, tumblr butcher vero sint qui sapiente accusamus tattooed echo park.</p>
+               <a href="javascript:void(0)" onclick="showLog();">view</a>
             </div>
             <div role="tabpanel" class="tab-pane fade" id="agent" aria-labelledby="agent-tab">
                 <p>Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic lomo retro fanny
@@ -107,7 +102,9 @@
             </div>
         </div>
     </div>
+<div id="serverLogDialog" title="Server log">
 
+</div>
     <!-- Footer================================================== -->
     <footer class="bs-footer navbar-fixed-bottom">
         <div class="container">
@@ -130,6 +127,7 @@
     <script src="third-party/bootstrap/js/vendor/bootstrap.js" type="text/javascript"></script>
     <script src="js/utils.js" type="text/javascript"></script>
     <script src="third-party/jsgrid/jsgrid.js" type="text/javascript"></script>
+    <script src="third-party/jqueryui/jquery-ui.min.js" type="text/javascript"></script>
     <script src="third-party/bootstrap/js/vendor/jquery.cookie.js" type="text/javascript"></script>
     <script src="js/datagrid.js" type="text/javascript"></script>
     <script src="js/executecode.js" type="text/javascript"></script>

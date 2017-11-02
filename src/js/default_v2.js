@@ -106,8 +106,14 @@ function up(x, y) {
 function connect_server_error(ex) {
     console.log(ex);
 };
+//=================================Server Log================================
+function showLog(){
+    $("#serverLogDialog").dialog({
+height:780,
+width:580
+    });
+}
 //============================================================================
-
 
 $("#btn_run").click(function() {
 
