@@ -16,6 +16,7 @@
     <link href="third-party/jsgrid/jsgrid.css" rel="stylesheet" />
     <link href="third-party/jsgrid/jsgrid-theme.css" rel="stylesheet" />
     <link href="third-party/noty/noty.css" rel="stylesheet">
+    <link href="css/default.css" rel="stylesheet" />
     </script>
 </head>
 
@@ -28,10 +29,10 @@
         <div class="container-fluid">
             <div class="navbar-header">
                 <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="navbar-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
                 <span class="navbar-brand">DolphinDB Cluster Manager</a>
             </div>
             <nav class="navbar-collapse collapse navbar-right">
@@ -44,6 +45,57 @@
 
     <div class="container-fluid" id="layout" style="width:99vw;padding:10px">
         <!-- Docs nav ================================================== -->
+        <div class="row">
+            <div class="col-lg-12" id="pnlMasterInfo">
+                <div class="stat-container">
+
+                    <div class="stat-holder">
+                        <div class="stat">
+                            <span>4</span>
+Connections
+                        </div>
+                        <!-- /stat -->
+                    </div>
+                    <!-- /stat-holder -->
+
+                    <div class="stat-holder">
+                        <div class="stat">
+                            <span>26%</span>
+                            CPU
+                        </div>
+                        <!-- /stat -->
+                    </div>
+                    <!-- /stat-holder -->
+
+                    <div class="stat-holder">
+                        <div class="stat">
+                            <span>10025MB</span>
+                            Memory
+                        </div>
+                        <!-- /stat -->
+                    </div>
+                    <!-- /stat-holder -->
+
+                    <div class="stat-holder">
+                        <div class="stat">
+                            <span>2</span>
+                            Thread
+                        </div>
+                        <!-- /stat -->
+                    </div>
+
+                    <div class="stat-holder">
+                        <div class="stat">
+                            <span>2500MB</span>
+                            max Memory
+                        </div>
+                        <!-- /stat -->
+                    </div>
+                    <!-- /stat-holder -->
+
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="col-lg-2 col-md-3" id="sidebar">
                 <div class="bs-sidebar hidden-print" role="complementary">
@@ -75,136 +127,160 @@
                     <div class="panel-body">
                         <div class="btn-toolbar" role="toolbar" aria-label="...">
                             <div class="btn-group" role="group" aria-label="...">
-                                <button type="button" class="btn btn-default" id="btn_run"><span class="glyphicon glyphicon-play"></span></button>
-                <button type="button" class="btn btn-default" id="btn_stop"><span class="glyphicon glyphicon-stop"></span></button>
-                <button type="button" class="btn btn-default" id="btn_refresh"><span class="glyphicon glyphicon-refresh"></span></button>
+                                <button type="button" class="btn btn-default" id="btn_run">
+                                    <span class="glyphicon glyphicon-play"></span>
+                                </button>
+                                <button type="button" class="btn btn-default" id="btn_stop">
+                                    <span class="glyphicon glyphicon-stop"></span>
+                                </button>
+                                <button type="button" class="btn btn-default" id="btn_refresh">
+                                    <span class="glyphicon glyphicon-refresh"></span>
+                                </button>
 
-                <div class="input-group">
-                    <div class="input-group-addon retrieve-row-number">Filter</div>
-                    <input class="form-control" id="txtFilter" type="text" placeholder="">
-                </div>
-            </div>
-        </div>
-        </div>
-        </div>
-        <div class="panel panel-default">
-            <table grid-manager="grid1"></table>
-            <div id="jqGridPager01"></div>
-        </div>
-        </div>
-        </div>
-        </div>
-        <!-- Dialog =====================================================-->
-        <div id="modal-message" class="hide" title="Connect Central Server">
-            <div class="input-group">
-                <span class="input-group-addon" id="basic-addon3">http://</span>
-                <input type="text" class="form-control" id="ag-controller-url" aria-describedby="basic-addon3" placeholder="example: www.haitundb.com/DNMT">
-            </div>
-        </div>
-
-        <div class="modal fade" id="modal-database" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content" style="width:820px">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span  
-                        aria-hidden="true">×</span></button>
-                        <h4 class="modal-title" id="exampleModalLabel">Database</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div id="jsGrid_database"></div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="modal-showlog" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content" style="width:820px">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span  
-                        aria-hidden="true">×</span></button>
-                        <h4 class="modal-title" id="log_node"></h4>
-                    </div>
-                    <div class="modal-body" style="height:600px">
-                        <div class="well" id="pnllog" style="font-size:12px;height:580px;overflow:auto">
-
-                        </div>
-                        <div id="jsGrid_perflog"></div>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="row">
-                            <div class="col-md-1">
-                            </div>
-                            <div class="col-md-2">
                                 <div class="input-group">
-                                    <div class="input-group-addon">From</div>
-                                    <div class="input-group-btn">
-                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span id="btnFrom" >Tail</span> <span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-right">
-                                            <li><a href="#" id="btnFromHead">Head</a></li>
-                                            <li><a href="#" id="btnFromTail">Tail</a></li>
-                                        </ul>
-                                    </div>
+                                    <div class="input-group-addon retrieve-row-number">Filter</div>
+                                    <input class="form-control" id="txtFilter" type="text" placeholder="">
                                 </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="input-group">
-                                    <div class="input-group-addon">File Offset</div>
-                                    <input class="form-control" style="width:50px" id="txtOffset" type="text" placeholder="0" value="0">
-                                    <div class="input-group-addon" style="width:50px">Size</div>
-                                    <input class="form-control" style="width:50px" id="txtLength" type="text" placeholder="2000" value="2000">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-default" id="btnBackward"><span class="glyphicon glyphicon-backward"></button>
-                                    <button type="button" class="btn btn-default" id="btnReload"><span class="glyphicon glyphicon-refresh"></span></button>
-                                    <button type="button" class="btn btn-default" id="btnForward"><span class="glyphicon glyphicon-forward"></button>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="panel panel-default">
+                    <table grid-manager="grid1"></table>
+                    <div id="jqGridPager01"></div>
+                </div>
             </div>
         </div>
+    </div>
+    <!-- Dialog =====================================================-->
+    <div id="modal-message" class="hide" title="Connect Central Server">
+        <div class="input-group">
+            <span class="input-group-addon" id="basic-addon3">http://</span>
+            <input type="text" class="form-control" id="ag-controller-url" aria-describedby="basic-addon3" placeholder="example: www.haitundb.com/DNMT">
+        </div>
+    </div>
 
-        <!-- Footer================================================== -->
-        <footer class="bs-footer navbar-fixed-bottom">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 col-sm-12">
-                        <ul class="list-unstyled">
-                            <li>CopyRight &copy; <a href="http://www.dolphindb.com" target="_blank"><strong class="text-info">DolphinDB</strong></a> 2016 - 2017</li>
-                        </ul>
+    <div class="modal fade" id="modal-database" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="width:820px">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">Database</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="jsGrid_database"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-showlog" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="width:820px">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title" id="log_node"></h4>
+                </div>
+                <div class="modal-body" style="height:600px">
+                    <div class="well" id="pnllog" style="font-size:12px;height:580px;overflow:auto">
+
+                    </div>
+                    <div id="jsGrid_perflog"></div>
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <div class="col-md-1">
+                        </div>
+                        <div class="col-md-2">
+                            <div class="input-group">
+                                <div class="input-group-addon">From</div>
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span id="btnFrom">Tail</span>
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li>
+                                            <a href="#" id="btnFromHead">Head</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" id="btnFromTail">Tail</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <div class="input-group-addon">File Offset</div>
+                                <input class="form-control" style="width:50px" id="txtOffset" type="text" placeholder="0" value="0">
+                                <div class="input-group-addon" style="width:50px">Size</div>
+                                <input class="form-control" style="width:50px" id="txtLength" type="text" placeholder="2000" value="2000">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-default" id="btnBackward">
+                                    <span class="glyphicon glyphicon-backward">
+                                </button>
+                                <button type="button" class="btn btn-default" id="btnReload">
+                                    <span class="glyphicon glyphicon-refresh"></span>
+                                </button>
+                                <button type="button" class="btn btn-default" id="btnForward">
+                                    <span class="glyphicon glyphicon-forward">
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </footer>
+        </div>
+    </div>
 
-        <!-- Placed at the end of the document so the pages load faster -->
-        <script src="third-party/bootstrap/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
-        <script src="third-party/bootstrap/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
-        <script src="third-party/bootstrap/js/vendor/bootstrap.js" type="text/javascript"></script>
-        <script src="third-party/bootstrap/js/vendor/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
-        <script src="third-party/bootstrap/js/docs.js" type="text/javascript"></script>
-        <script src="third-party/bootstrap/js/demo.js" type="text/javascript"></script>
-        <script src="js/utils.js" type="text/javascript"></script>
-        <script src="third-party/jsgrid/jsgrid.js" type="text/javascript"></script>
-        <script src="third-party/noty/noty.js" type="text/javascript"></script>
-        <script src="third-party/gridmanager/js/GridManager.js" type="text/javascript"></script>
-        <script src="third-party/jquery-tmpl/jquery.tmpl.min.js" type="text/javascript"></script>
-        <script src="third-party/bootstrap/js/vendor/jquery.cookie.js" type="text/javascript"></script>
-        <script src="js/datagrid.js" type="text/javascript"></script>
-        <script src="js/executecode.js" type="text/javascript"></script>
-        <script src="js/CallWebApi.js" type="text/javascript"></script>
-        <script src="js/msgbox.js" type="text/javascript"></script>
-        <script src="js/default.js" type="text/javascript"></script>
+    <!-- Footer================================================== -->
+    <footer class="bs-footer navbar-fixed-bottom">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-sm-12">
+                    <ul class="list-unstyled">
+                        <li>CopyRight &copy;
+                            <a href="http://www.dolphindb.com" target="_blank">
+                                <strong class="text-info">DolphinDB</strong>
+                            </a> 2016 - 2017</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="third-party/bootstrap/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script src="third-party/bootstrap/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+    <script src="third-party/bootstrap/js/vendor/bootstrap.js" type="text/javascript"></script>
+    <script src="third-party/bootstrap/js/vendor/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+    <script src="third-party/bootstrap/js/docs.js" type="text/javascript"></script>
+    <script src="third-party/bootstrap/js/demo.js" type="text/javascript"></script>
+    <script src="js/utils.js" type="text/javascript"></script>
+    <script src="third-party/jsgrid/jsgrid.js" type="text/javascript"></script>
+    <script src="third-party/noty/noty.js" type="text/javascript"></script>
+    <script src="third-party/gridmanager/js/GridManager.js" type="text/javascript"></script>
+    <script src="third-party/jquery-tmpl/jquery.tmpl.min.js" type="text/javascript"></script>
+    <script src="third-party/bootstrap/js/vendor/jquery.cookie.js" type="text/javascript"></script>
+    <script src="js/datagrid.js" type="text/javascript"></script>
+    <script src="js/executecode.js" type="text/javascript"></script>
+    <script src="js/CallWebApi.js" type="text/javascript"></script>
+    <script src="js/msgbox.js" type="text/javascript"></script>
+    <script src="js/default.js" type="text/javascript"></script>
 </body>
 
 <script id="serverTemplate" type="text/x-jquery-tmpl">

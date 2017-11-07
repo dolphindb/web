@@ -29,3 +29,8 @@ hs_err_pid*
 =======
 >>>>>>> origin/custom-pager
 .vscode/settings.json
+.idea/workspace.xml
+.idea/vcs.xml
+.idea/modules.xml
+.idea/misc.xml
+.idea/dolphindb_manager.iml
