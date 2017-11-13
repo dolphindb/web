@@ -280,11 +280,13 @@
             supportAutoOrder: false,
             supportSorting: true,
             supportDrag: false,
+            supportRemind:true,
             emptyTemplate: '<div class="gm-emptyTemplate">empty</div>',
             height: '80vh',
             columnData: [{
-                text: 'Site',
+                text: 'node',
                 key: 'site',
+                remind: 'datanode name',
                 sorting: '',
                 template: function(action, rowObject) {
                     if (rowObject.state === 1) {
@@ -301,8 +303,9 @@
 
                 },
             }, {
-                text: 'Status',
+                text: 'status',
                 key: 'state',
+                remind: 'state of datanode',
                 sorting: '',
                 template: function(state, rowObject) {
                     //console.log(rowObject)
@@ -314,8 +317,9 @@
                 },
                 width: '100px'
             }, {
-                text: 'serverLog',
+                text: 'svrLog',
                 key: 'serverLog',
+                remind: 'server log',
                 template: function(action, rowObject) {
                     var r = "";
                     var ref = rowObject.agentSite + '@' + rowObject.site;
@@ -327,8 +331,83 @@
                 },
                 width: '80px'
             }, {
+                text: 'conn',
+                key: 'connectionNum',
+                remind: 'current connection number',
+                sorting: '',
+                sortFilter: function(d) {
+                    return d.trim() !== '' ? parseInt(d, 10) : -1;
+                },
+                width: '80px'
+            }, {
+                text: 'Tasks',
+                key: 'taskNum',
+                remind: 'current task number',
+                sorting: '',
+                sortFilter: function(d) {
+                    return d.trim() !== '' ? parseInt(d, 10) : -1;
+                },
+                width: '80px'
+            }, {
+                text: 'MemUsed',
+                key: 'memoryUsed',
+                remind: 'Memory Used',
+                sorting: '',
+                template: function(memoryUsed, rowObject) {
+                    return bytesToSize(memoryUsed);
+                },
+            }, {
+                text: 'MemAlloc',
+                key: 'memoryAlloc',
+                remind: 'Memory Allocated',
+                sorting: '',
+                template: function(memoryAlloc, rowObject) {
+                    return bytesToSize(memoryAlloc);
+                },
+            }, {
+                text: 'ALQT10',
+                key: 'medLast10QueryTime',
+                remind: 'average time consuming of last 10 querys',
+                sorting: '',
+                template: function(medLast10QueryTime, rowObject) {
+                    return Number(medLast10QueryTime / 1000000).toFixed(1) + " ms";
+                },
+            }, {
+                text: 'MLQT10',
+                key: 'maxLast10QueryTime',
+                remind: 'max time consuming of last 10 querys',
+                sorting: '',
+                template: function(maxLast10QueryTime, rowObject) {
+                    return Number(maxLast10QueryTime / 1000000).toFixed(1) + " ms";
+                },
+            }, {
+                text: 'ALQT100',
+                key: 'medLast100QueryTime',
+                remind: 'average time consuming of last 100 querys',
+                sorting: '',
+                template: function(medLast100QueryTime, rowObject) {
+                    return Number(medLast100QueryTime / 1000000).toFixed(1) + " ms";
+                },
+            }, {
+                text: 'MLQT100',
+                key: 'maxLast100QueryTime',
+                remind: 'max time consuming of last 100 querys',
+                sorting: '',
+                template: function(maxLast100QueryTime, rowObject) {
+                    return Number(maxLast100QueryTime / 1000000).toFixed(1) + " ms";
+                },
+            }, {
+                text: 'MRQT',
+                key: 'maxRunningQueryTime ',
+                remind: 'max time consuming of running querys',
+                sorting: '',
+                template: function(maxRunningQueryTime, rowObject) {
+                    return Number(maxRunningQueryTime / 1000000).toFixed(1) + " ms";
+                },
+            },{
                 text: 'perfLog',
                 key: 'perfLog',
+                remind: 'server performance log',
                 template: function(action, rowObject) {
                     var r = "";
                     var ref = rowObject.agentSite + '@' + rowObject.site;
@@ -340,55 +419,9 @@
                 },
                 width: '80px'
             }, {
-                text: 'Connections',
-                key: 'connectionNum',
-                sorting: '',
-                sortFilter: function(d) {
-                    return d.trim() !== '' ? parseInt(d, 10) : -1;
-                },
-                width: '80px'
-            }, {
-                text: 'Tasks',
-                key: 'taskNum',
-                sorting: '',
-                sortFilter: function(d) {
-                    return d.trim() !== '' ? parseInt(d, 10) : -1;
-                },
-                width: '80px'
-            }, {
-                text: 'MemUsed',
-                key: 'memoryUsed',
-                sorting: '',
-                template: function(memoryUsed, rowObject) {
-                    return bytesToSize(memoryUsed);
-                },
-            }, {
-                text: 'MemAlloc',
-                key: 'memoryAlloc',
-                sorting: '',
-                template: function(memoryAlloc, rowObject) {
-                    return bytesToSize(memoryAlloc);
-                },
-            }, {
-                text: 'maxConnections',
-                key: 'maxConnections',
-                sorting: '',
-                sortFilter: function(d) {
-                    return d.trim() !== '' ? parseInt(d, 10) : -1;
-                },
-            }, {
-                text: 'maxMemSize',
-                key: 'maxMemSize',
-                sorting: '',
-                sortFilter: function(d) {
-                    return d.trim() !== '' ? parseFloat(d) : -1;
-                },
-                template: function(maxMemSize, rowObject) {
-                    return Number(maxMemSize).toFixed(1) + " GB";
-                }
-            }, {
                 text: 'Workers',
                 key: 'workerNum',
+                remind: 'Workers',
                 sorting: '',
                 sortFilter: function(d) {
                     return d.trim() !== '' ? parseInt(d, 10) : -1;
@@ -396,45 +429,30 @@
             }, {
                 text: 'Executors',
                 key: 'executorNum',
+                remind: 'Executors',
                 sorting: '',
                 sortFilter: function(d) {
                     return d.trim() !== '' ? parseInt(d, 10) : -1;
                 },
             }, {
-                text: 'MedLast10QueryTime',
-                key: 'medLast10QueryTime',
+                text: 'maxConnections',
+                key: 'maxConnections',
+                remind: 'max Connections',
                 sorting: '',
-                template: function(medLast10QueryTime, rowObject) {
-                    return Number(medLast10QueryTime / 1000000).toFixed(1) + " ms";
+                sortFilter: function(d) {
+                    return d.trim() !== '' ? parseInt(d, 10) : -1;
                 },
             }, {
-                text: 'MaxLast10QueryTime',
-                key: 'maxLast10QueryTime',
+                text: 'maxMemSize',
+                key: 'maxMemSize',
+                remind: 'max memory size',
                 sorting: '',
-                template: function(maxLast10QueryTime, rowObject) {
-                    return Number(maxLast10QueryTime / 1000000).toFixed(1) + " ms";
+                sortFilter: function(d) {
+                    return d.trim() !== '' ? parseFloat(d) : -1;
                 },
-            }, {
-                text: 'MedLast100QueryTime',
-                key: 'medLast100QueryTime',
-                sorting: '',
-                template: function(medLast100QueryTime, rowObject) {
-                    return Number(medLast100QueryTime / 1000000).toFixed(1) + " ms";
-                },
-            }, {
-                text: 'MaxLast100QueryTime',
-                key: 'maxLast100QueryTime',
-                sorting: '',
-                template: function(maxLast100QueryTime, rowObject) {
-                    return Number(maxLast100QueryTime / 1000000).toFixed(1) + " ms";
-                },
-            }, {
-                text: 'MaxRunningQueryTime',
-                key: 'maxRunningQueryTime ',
-                sorting: '',
-                template: function(maxRunningQueryTime, rowObject) {
-                    return Number(maxRunningQueryTime / 1000000).toFixed(1) + " ms";
-                },
+                template: function(maxMemSize, rowObject) {
+                    return Number(maxMemSize).toFixed(1) + " GB";
+                }
             }]
         });
     }

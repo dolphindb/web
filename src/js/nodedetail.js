@@ -124,7 +124,8 @@ function bindVariables(datalist) {
 
             if (dataform == "Table") {
                 var tablesize = $(e.target).closest('a').context.innerText.split(" ")[1];
-                var script = contentid + '[' + 0 + ':' + tablesize + ']';
+
+                var script = "select top " + (tablesize>1024?1024:tablesize) + " * from " + contentid;
                 getData(script, 0, PAGESIZE, function(g) {
                     showTableGrid(tblobj.id, contentid, tablesize, g);
                     openDialog(divobj.id, '[' + dataform + ']' + contentid);
@@ -138,7 +139,6 @@ function bindVariables(datalist) {
                 }, function(err) {
                     console.log(err);
                 });
-
             }
         });
 }
@@ -154,8 +154,8 @@ function showTableGrid(gridid, tablename, totalcount, g) {
         controller: {
             loadData: function(filter) {
                 var deferred = $.Deferred();
-                console.log(filter);
-                var script = tablename + '[' + 0 + ':' + totalcount + ']';
+                
+                var script = "select top " + (totalcount>1024?1024:totalcount) + " * from " + tablename;
                 getData(script, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function(g) {
                     var d = DolphinResult2Grid(g, filter.pageIndex - 1);
                     deferred.resolve({ data: d, itemsCount: totalcount });
