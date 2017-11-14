@@ -114,6 +114,20 @@ function LoadTable(nodeList) {
                 return r;
             },
         }, {
+            text: 'perfLog',
+            key: 'perfLog',
+            remind: 'server performance log',
+            template: function(action, rowObject) {
+                var r = "";
+                var ref = rowObject.agentSite + '@' + rowObject.site;
+                if (rowObject.host.toUpperCase() == "LOCALHOST") {
+                    ref = ref.replace(rowObject.host, window.location.host.split(':')[0]);
+                }
+                r += '<a style="padding-left:20px" data-toggle="modal" data-target="#modal-showlog" ref="getPerfLog@' + ref + '" href="##">view</a>'
+                return r;
+            },
+
+        }, {
             text: 'conn',
             key: 'connectionNum',
             remind: 'current connection number',
@@ -156,6 +170,14 @@ function LoadTable(nodeList) {
                 return Number(cpuUsage).toFixed(2) + "%";
             },
         }, {
+            text: 'avgLoad',
+            key: 'avgLoad',
+            remind: 'average load',
+            sorting: '',
+            template: function(avgLoad, rowObject) {
+                return Number(avgLoad).toFixed(2);
+            },
+        }, {
             text: 'ALQT10',
             key: 'medLast10QueryTime',
             remind: 'average time consuming of last 10 querys',
@@ -195,20 +217,6 @@ function LoadTable(nodeList) {
             template: function(maxRunningQueryTime, rowObject) {
                 return Number(rowObject.maxRunningQueryTime / 1000000).toFixed(1) + " ms";
             },
-        }, {
-            text: 'perfLog',
-            key: 'perfLog',
-            remind: 'server performance log',
-            template: function(action, rowObject) {
-                var r = "";
-                var ref = rowObject.agentSite + '@' + rowObject.site;
-                if (rowObject.host.toUpperCase() == "LOCALHOST") {
-                    ref = ref.replace(rowObject.host, window.location.host.split(':')[0]);
-                }
-                r += '<a style="padding-left:20px" data-toggle="modal" data-target="#modal-showlog" ref="getPerfLog@' + ref + '" href="##">view</a>'
-                return r;
-            },
-
         }, {
             text: 'Workers',
             key: 'workerNum',
