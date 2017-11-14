@@ -3,7 +3,7 @@ var wa_url = "";
 var ALL_NODE = [];
 var AGENT_LIST = [];
 var NODE_LIST = [];
-
+var CTL_LIST = [];
 var SESSION_ID = "0";
 var grid = document.querySelector('table[grid-manager="grid1"]');
 
@@ -18,15 +18,20 @@ $(function() {
 
     GetLocalData(wa_url);
     LoadTable(NODE_LIST);
-    fillMasterInfo();
-    //setInterval(fillMasterInfo, 3000);
+
 });
 
 
 function GetLocalData(url) {
     var p = {
         "sessionID": SESSION_ID,
-        "functionName": "getNodeList"
+        "functionName": "getNodeList",
+        "params": [{
+            "name": "isShowController",
+            "form": "scalar",
+            "type": "bool",
+            "value": true
+        }]
     };
     CallWebApi(url, p, connect_server_success, connect_server_error);
 }
@@ -53,18 +58,29 @@ function LoadTable(nodeList) {
         emptyTemplate: '<div class="gm-emptyTemplate">empty</div>',
         width: '80vw',
         height: '80vh',
+
         columnData: [{
+            text: 'mode',
+            key: 'mode',
+            template: function(mode, rowObject) {
+                if (mode === 0) {
+                    return "datanode"
+                } else {
+                    return "controller"
+                }
+            }
+
+        }, {
             text: 'node',
             key: 'site',
             remind: 'datanode name',
             sorting: '',
-            template: function(action, rowObject) {
+            template: function(site, rowObject) {
                 if (rowObject.state === 1) {
                     var h = rowObject.host;
                     if (rowObject.host.toUpperCase() == "LOCALHOST") {
                         h = window.location.host.split(':')[0];
                     }
-
                     r = '<a href=javascript:window.open("nodedetail.html?site=' + h + ':' + rowObject.port + ':' + rowObject.site.split(':')[2] + '");>' + rowObject.site.split(':')[2] + '</a>'
                     return r;
                 } else {
@@ -78,7 +94,6 @@ function LoadTable(nodeList) {
             remind: 'state of datanode',
             sorting: '',
             template: function(state, rowObject) {
-                //console.log(rowObject)
                 if (state == "1") {
                     return '<font style="color:green">running</font>';
                 } else {
@@ -178,7 +193,7 @@ function LoadTable(nodeList) {
             remind: 'max time consuming of running querys',
             sorting: '',
             template: function(maxRunningQueryTime, rowObject) {
-                return Number(maxRunningQueryTime / 1000000).toFixed(1) + " ms";
+                return Number(rowObject.maxRunningQueryTime / 1000000).toFixed(1) + " ms";
             },
         }, {
             text: 'perfLog',
@@ -229,7 +244,10 @@ function LoadTable(nodeList) {
             template: function(maxMemSize, rowObject) {
                 return Number(maxMemSize).toFixed(1) + " GB";
             }
-        }]
+        }],
+        sortingAfter: function(querys) {
+            hideCtlSel();
+        }
     });
 }
 
@@ -240,7 +258,8 @@ function refreshGrid(nodeList) {
     };
     grid.GM('setAjaxData', griddata);
 
-    fillMasterInfo();
+    hideCtlSel();
+    //fillMasterInfo();
 }
 
 
@@ -261,13 +280,20 @@ function connect_server_success(result) {
         NODE_LIST = ALL_NODE.filter(function(x) {
             return x.mode === 0;
         });
-        NODE_LIST.sort(up);
+
+        CTL_LIST = ALL_NODE.filter(function(x) {
+            return x.mode === 2;
+        });
+        NODE_LIST = NODE_LIST.sort(byPortUp);
+        $(CTL_LIST).each(function(i, e) {
+            NODE_LIST.splice(0, 0, e);
+        });
 
         refreshGrid(NODE_LIST)
     }
 };
 
-function up(x, y) {
+function byPortUp(x, y) {
     return (x.port > y.port) ? 1 : -1
 }
 
@@ -362,9 +388,11 @@ $("#btn_refresh").click(function() {
 $("#txtFilter").keypress(function(e) {
     if (e.keyCode == 13) {
         var fv = $(this).val();
+
         NODE_LIST = ALL_NODE.filter(function(x) {
-            return x.mode === 'dataNode' && x.site.indexOf(fv) >= 0;
+            return (x.mode === 0 || x.mode === 2) && x.site.indexOf(fv) >= 0;
         });
+
         refreshGrid(NODE_LIST);
     }
 });
@@ -510,7 +538,6 @@ $("#modal-showlog").on("show.bs.modal", function(e) {
     $('#modal-showlog').attr('ref', svr_url);
     $('#modal-showlog').attr('funcName', funcName);
     $('#log_node').text(nodeAlias);
-
     re = getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text(), funcName);
 
 });
@@ -682,4 +709,12 @@ function fillMasterInfo() {
             return false;
         }
     });
+}
+
+$(document).ready(function() {
+    setTimeout(hideCtlSel, 10);
+});
+
+function hideCtlSel() {
+    $("td:contains('controller')").parent().children().first().html('');
 }

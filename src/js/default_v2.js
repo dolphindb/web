@@ -38,29 +38,30 @@ function LoadLeft(agentList) {
 
 function LoadTable(nodeList) {
     console.log(nodeList);
-    var dg = new DolphinGrid($("#jsgrid1"),{
-        
+    var dg = new DolphinGrid($("#jsgrid1"), {
+
     });
     col = [
-        { name:  "site", title:"Site"},
-        { name:  "state",title:"Status"},
-        { name:  "serverLog"},
-        { name:  "perfLog"},
-        { name:  "connectionNum"},
-        { name:  "taskNum"},
-        { name:  "memoryUsed"},
-        { name:  "memoryAlloc"},
-        { name:  "maxConnections"},
-        { name:  "maxMemSize"},
-        { name:  "workerNum"},
-        { name:  "executorNum"},
-        { name:  "medLast10QueryTime"},
-        { name:  "maxLast10QueryTime"},
-        { name:  "medLast100QueryTime"},
-        { name:  "maxLast100QueryTime"},
-        { name:  "maxRunningQueryTime"}
+        { name: "select", type: "checkbox" },
+        { name: "site", title: "Site" },
+        { name: "state", title: "Status" },
+        { name: "serverLog" },
+        { name: "perfLog" },
+        { name: "connectionNum" },
+        { name: "taskNum" },
+        { name: "memoryUsed" },
+        { name: "memoryAlloc" },
+        { name: "maxConnections" },
+        { name: "maxMemSize" },
+        { name: "workerNum" },
+        { name: "executorNum" },
+        { name: "medLast10QueryTime" },
+        { name: "maxLast10QueryTime" },
+        { name: "medLast100QueryTime" },
+        { name: "maxLast100QueryTime" },
+        { name: "maxRunningQueryTime" }
     ]
-    dg.loadFromJson(nodeList, false,col)
+    dg.loadFromJson(nodeList, false, col)
 }
 
 function refreshGrid(nodeList) {
@@ -77,7 +78,7 @@ function connect_server_success(result) {
 
     if (result) {
         var data = result["object"];
-        
+
         if (data.length <= 0) return;
         ALL_NODE = VectorArray2Table(data[0].value);
         console.log("ALL_NODE");
