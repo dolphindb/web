@@ -19,7 +19,7 @@ $(function() {
     GetLocalData(wa_url);
     LoadTable(NODE_LIST);
     fillMasterInfo();
-    setInterval(fillMasterInfo, 3000);
+    //setInterval(fillMasterInfo, 3000);
 });
 
 
@@ -239,6 +239,8 @@ function refreshGrid(nodeList) {
         totals: nodeList.length
     };
     grid.GM('setAjaxData', griddata);
+
+    fillMasterInfo();
 }
 
 
