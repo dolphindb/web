@@ -1,9 +1,12 @@
 var a = [{ "id": 1, "text": "Root node", "children": [{ "id": 2, "text": "Child node 1" }, { "id": 3, "text": "Child node 2" }] }];
-
+var wa_url = "http://" + window.location.host;
 //jstree1 
 var getDfsByPath = function(url) {
+    var executor = new CodeExecutor(wa_url);
+    executor.run("getDFSDirectoryContent",refreshTreeAndGrid,url);
     //ajax revoke
 }
+
 var refreshTreeAndGrid = function(json) {
     //bindpath
     //bindtree
