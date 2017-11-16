@@ -32,11 +32,12 @@ $(function() {
     $.cookie("language_file", "js/lang.en.js");
 
     editor = CodeMirror.fromTextArea('txt_code', {
-        height: "15%",
-        parserfile: "parsesql.js",
-        stylesheet: "third-party/codemirror/sqlcolors.css",
-        path: "third-party/codemirror/",
-        textWrapping: false
+        //parserfile: "parsesql.js",
+        //stylesheet: "third-party/codemirror/sqlcolors.css",
+        //path: "third-party/codemirror/",
+        //textWrapping: false,
+        lineNumbers: true,
+        viewportMargin: Infinity
     });
     writelog(localStorage.getItem(logStorageID));
 
@@ -125,7 +126,7 @@ function bindVariables(datalist) {
             if (dataform == "Table") {
                 var tablesize = $(e.target).closest('a').context.innerText.split(" ")[1];
 
-                var script = "select top " + (tablesize>1024?1024:tablesize) + " * from " + contentid;
+                var script = "select top " + (tablesize > 1024 ? 1024 : tablesize) + " * from " + contentid;
                 getData(script, 0, PAGESIZE, function(g) {
                     showTableGrid(tblobj.id, contentid, tablesize, g);
                     openDialog(divobj.id, '[' + dataform + ']' + contentid);
@@ -154,8 +155,8 @@ function showTableGrid(gridid, tablename, totalcount, g) {
         controller: {
             loadData: function(filter) {
                 var deferred = $.Deferred();
-                
-                var script = "select top " + (totalcount>1024?1024:totalcount) + " * from " + tablename;
+
+                var script = "select top " + (totalcount > 1024 ? 1024 : totalcount) + " * from " + tablename;
                 getData(script, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function(g) {
                     var d = DolphinResult2Grid(g, filter.pageIndex - 1);
                     deferred.resolve({ data: d, itemsCount: totalcount });

@@ -21,8 +21,8 @@
     <link rel="shortcut icon" href="third-party/bootstrap/ico/logo.png">
 
     <link href="css/nodedetail.css" rel="stylesheet" />
-    <link rel="stylesheet" href="third-party/gridmanager/css/GridManager.css" />
     <link href="third-party/noty/noty.css" rel="stylesheet">
+    <link href="third-party/codemirror/codemirror.css" rel="stylesheet">
 
     <link href="third-party/jstree/themes/default/style.css" rel="stylesheet" />
     <link href="third-party/jsgrid/jsgrid.css" rel="stylesheet" />
@@ -55,7 +55,7 @@
                     <div class="alert alert-info" role="alert">
                         <div>
                             <div class="panel panel-default" style="margin-bottom: 10px">
-                                <textarea id="txt_code" rows="5" style="width:100%;"></textarea>
+                                <textarea id="txt_code" style="width:100%;"></textarea>
                             </div>
                             <div style="margin-bottom: 0px">
                                 <form class="form-inline">
@@ -65,7 +65,7 @@
                                         <label class="sr-only" for="retrieve-data-number">Retrive Row Number</label>
                                         <div class="input-group">
                                             <div class="input-group-addon retrieve-row-number">Limit</div>
-                                            <input class="form-control" id="retrieve-row-number" type="number"  min="0" step="1" placeholder="default 1024 rows">
+                                            <input class="form-control" id="retrieve-row-number" type="number" min="0" step="1" placeholder="default 1024 rows">
                                         </div>
                                     </div>
                                 </form>
@@ -123,7 +123,7 @@
             </div>
         </div>
     </div>
-   
+
     <div id="dialogs" title="Table">
 
     </div>
@@ -264,9 +264,9 @@
     <script src="js/utils.js" type="text/javascript"></script>
     <script src="js/executecode.js" type="text/javascript"></script>
 
-<script>
-    // $("#accordion").accordion({ heightStyle: "fill" });
-</script>
+    <script>
+        // $("#accordion").accordion({ heightStyle: "fill" });
+    </script>
 </body>
 
 </html>

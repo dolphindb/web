@@ -39,7 +39,7 @@ function GetLocalData(url) {
 function LoadLeft(agentList) {
     $("#physicalServerList").html("");
     var l = $("#serverTemplate").tmpl(agentList).appendTo("#physicalServerList");
-    getDatabases();
+    //getDatabases();
 
 }
 
@@ -593,6 +593,7 @@ var LoadLog = function() {
 var getLog = function(svr_url, offset, length, fromhead, nodeAlias, funcName) {
     $('#pnllog').hide();
     $('#jsGrid_perflog').hide();
+    if (funcName == "getPerfLog") { length = 50 }
     var p = {
         "sessionID": SESSION_ID,
         "functionName": funcName,
