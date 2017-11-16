@@ -32,12 +32,11 @@ $(function() {
     $.cookie("language_file", "js/lang.en.js");
 
     editor = CodeMirror.fromTextArea('txt_code', {
-        //parserfile: "parsesql.js",
-        //stylesheet: "third-party/codemirror/sqlcolors.css",
-        //path: "third-party/codemirror/",
-        //textWrapping: false,
-        lineNumbers: true,
-        viewportMargin: Infinity
+        height: "15%",
+        parserfile: "parsesql.js",
+        stylesheet: "third-party/codemirror/sqlcolors.css",
+        path: "third-party/codemirror/",
+        textWrapping: false
     });
     writelog(localStorage.getItem(logStorageID));
 
