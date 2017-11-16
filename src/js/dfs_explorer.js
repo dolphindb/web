@@ -1,3 +1,5 @@
+var a = [{ "id": 1, "text": "Root node", "children": [{ "id": 2, "text": "Child node 1" }, { "id": 3, "text": "Child node 2" }] }];
+
 //jstree1 
 var getDfsByPath = function(url) {
     //ajax revoke
@@ -7,12 +9,16 @@ var refreshTreeAndGrid = function(json) {
     //bindtree
     //bindgrid
 }
+
+var getData = function() {
+    return a;
+}
+
 $('#jstree1').jstree({
     "core": {
         "animation": 0,
         "check_callback": true,
-        "themes": { "stripes": true },
-        'data': [{ "id": 1, "text": "Root node", "children": [{ "id": 2, "text": "Child node 1" }, { "id": 3, "text": "Child node 2" }] }]
+        "themes": { "stripes": true }
     },
     "types": {
         "#": {
@@ -38,12 +44,13 @@ $('#jstree1').jstree({
     ]
 });
 $('#jstree1').on("changed.jstree", function(e, data) {
-    //console.log(data);
+    var re = a.filter(function(obj) { obj.text == data.text });
+    console.log(re.id);
 });
 $('#jstree1').on("dblclick.jstree", function(e) {
     console.log(e.target);
 });
 //jsgrid1
-$('#jsgrid1').jsgrid({
+// $('#jsgrid1').jsgrid({
 
-});
+// });
