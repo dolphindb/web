@@ -1,17 +1,22 @@
 var a = [{ "id": 1, "text": "Root node", "children": [{ "id": 2, "text": "Child node 1" }, { "id": 3, "text": "Child node 2" }] }];
 var wa_url = "http://" + window.location.host;
 //jstree1 
+
+$(function() {
+    getDfsByPath("/");
+});
 var getDfsByPath = function(url) {
     var executor = new CodeExecutor(wa_url);
-    var script = "(\"" + url + "\")";
-    executor.run("getDFSDirectoryContent" + script, refreshTreeAndGrid, url);
+    var script = 'getDFSDirectoryContent("' + url + '")';
+    codestr = encodeURIComponent(script);
+    executor.run(codestr, refreshTreeAndGrid);
     //ajax revoke
 }
 
 var refreshTreeAndGrid = function(json) {
-    console.log(json);
     //bindpath
     //bindtree
+
     //bindgrid
 }
 

@@ -17,6 +17,7 @@ function CodeExecutor(url) {
         }
 
         CallWebApi(this.apiurl, p, function(re) {
+            console.log(re);
             var resultobj = {};
             if (typeof re == "string") {
                 resultobj = JSON.parse(re);
@@ -27,7 +28,7 @@ function CodeExecutor(url) {
             callback(re);
             return false;
         }, function(re) {
-            
+            console.log(re);
         });
     };
 }
