@@ -16,7 +16,6 @@ var getDfsByPath = function(url) {
 var refreshTreeAndGrid = function(json) {
     //bindpath
     //bindtree
-
     //bindgrid
 }
 

@@ -224,8 +224,8 @@ function LoadTable(nodeList) {
             remind: 'the number of running jobs',
             sorting: '',
             width: 110,
-            template: function(maxRunningQueryTime, rowObject) {
-                return Number(rowObject.maxRunningQueryTime / 1000000).toFixed(1) + " ms";
+            template: function(runningJobs, rowObject) {
+                return Number(runningJobs);
             },
         }, {
             text: 'queuedJobs',
@@ -233,17 +233,26 @@ function LoadTable(nodeList) {
             remind: 'the number of jobs in the queue',
             sorting: '',
             width: 110,
-            template: function(maxRunningQueryTime, rowObject) {
-                return Number(rowObject.maxRunningQueryTime / 1000000).toFixed(1) + " ms";
+            template: function(queuedJobs, rowObject) {
+                return Number(queuedJobs);
             },
         }, {
+            text: 'runningTasks',
+            key: 'runningTasks',
+            remind: 'the number of running sub tasks',
+            sorting: '',
+            width: 110,
+            template: function(runningTasks, rowObject) {
+                return Number(runningTasks);
+            },
+        },{
             text: 'queuedTasks',
             key: 'queuedTasks',
             remind: 'the number of sub tasks in the queue',
             sorting: '',
             width: 110,
-            template: function(maxRunningQueryTime, rowObject) {
-                return Number(rowObject.maxRunningQueryTime / 1000000).toFixed(1) + " ms";
+            template: function(queuedTasks, rowObject) {
+                return Number(queuedTasks);
             },
         }, {
             text: 'jobLoad',
@@ -251,8 +260,8 @@ function LoadTable(nodeList) {
             remind: 'the ratio of total jobs to number of workers',
             sorting: '',
             width: 90,
-            template: function(maxRunningQueryTime, rowObject) {
-                return Number(rowObject.maxRunningQueryTime / 1000000).toFixed(1) + " ms";
+            template: function(jobLoad, rowObject) {
+                return Number(jobLoad);
             },
         }, {
             text: 'workers',
