@@ -2484,7 +2484,7 @@
                 if (Settings.supportAjaxPage) {
                     menuHTML += '<span grid-action="refresh-page" refresh-type="previous">\n\t\t\t\t\t\t\t' + _I18n2.default.i18nText($table, "previous-page") + '\n\t\t\t\t\t\t\t<i class="iconfont icon-sanjiao2"></i>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span grid-action="refresh-page" refresh-type="next">\n\t\t\t\t\t\t\t' + _I18n2.default.i18nText($table, "next-page") + '\n\t\t\t\t\t\t\t<i class="iconfont icon-sanjiao1"></i>\n\t\t\t\t\t\t</span>';
                 }
-                menuHTML += '<span grid-action="refresh-page" refresh-type="refresh">\n\t\t\t\t\t\t' + _I18n2.default.i18nText($table, "refresh") + '\n\t\t\t\t\t\t<i class="iconfont icon-31shuaxin"></i>\n\t\t\t\t\t</span>';
+                //LINL hide refresh: menuHTML += '<span grid-action="refresh-page" refresh-type="refresh">\n\t\t\t\t\t\t' + _I18n2.default.i18nText($table, "refresh") + '\n\t\t\t\t\t\t<i class="iconfont icon-31shuaxin"></i>\n\t\t\t\t\t</span>';
                 //导出类
                 if (Settings.supportExport) {
                     menuHTML += '<span class="grid-line"></span>\n\t\t\t\t\t\t<span grid-action="export-excel" only-checked="false">\n\t\t\t\t\t\t\t' + _I18n2.default.i18nText($table, "save-as-excel") + '\n\t\t\t\t\t\t\t<i class="iconfont icon-baocun"></i>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span grid-action="export-excel" only-checked="true">\n\t\t\t\t\t\t\t' + _I18n2.default.i18nText($table, "save-as-excel-for-checked") + '\n\t\t\t\t\t\t\t<i class="iconfont icon-saveas24"></i>\n\t\t\t\t\t\t</span>';
@@ -2497,47 +2497,47 @@
                 var _body = (0, _jTool2.default)('body');
                 _body.append(menuHTML);
                 //绑定打开右键菜单栏
-                /*
+
                 var menuDOM = (0, _jTool2.default)('.grid-menu[grid-master="' + Settings.gridManagerName + '"]');
                 tableWarp.unbind('contextmenu');
-                tableWarp.bind('contextmenu', function (e) {
-                	e.preventDefault();
-                	e.stopPropagation();
-                	//验证：如果不是tbdoy或者是tbody的子元素，直接跳出
-                	if (e.target.nodeName !== 'TBODY' && (0, _jTool2.default)(e.target).closest('tbody').length === 0) {
-                		return;
-                	}
-                	//验证：当前是否存在已选中的项
-                	var exportExcelOfChecked = (0, _jTool2.default)('[grid-action="export-excel"][only-checked="true"]');
-                	if ((0, _jTool2.default)('tbody tr[checked="true"]', (0, _jTool2.default)('table[grid-manager="' + Settings.gridManagerName + '"]')).length === 0) {
-                		exportExcelOfChecked.addClass('disabled');
-                	} else {
-                		exportExcelOfChecked.removeClass('disabled');
-                	}
-                	var menuWidth = menuDOM.width(),
-                	    menuHeight = menuDOM.height(),
-                	    offsetHeight = document.documentElement.offsetHeight,
-                	    offsetWidth = document.documentElement.offsetWidth;
-                	var top = offsetHeight < e.clientY + menuHeight ? e.clientY - menuHeight : e.clientY;
-                	var left = offsetWidth < e.clientX + menuWidth ? e.clientX - menuWidth : e.clientX;
-                	menuDOM.css({
-                		'top': top + tableWarp.get(0).scrollTop + (document.body.scrollTop || document.documentElement.scrollTop),
-                		'left': left + tableWarp.get(0).scrollLeft + (document.body.scrollLeft || document.documentElement.scrollLeft)
-                	});
-                	//隐藏非当前展示表格的菜单项
-                	(0, _jTool2.default)('.grid-menu[grid-master]').hide();
-                	menuDOM.show();
-                	_body.off('mousedown.gridMenu');
-                	_body.on('mousedown.gridMenu', function (e) {
-                		var eventSource = (0, _jTool2.default)(e.target);
-                		if (eventSource.hasClass('.grid-menu') || eventSource.closest('.grid-menu').length === 1) {
-                			return;
-                		}
-                		_body.off('mousedown.gridMenu');
-                		menuDOM.hide();
-                	});
+                tableWarp.bind('contextmenu', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    //验证：如果不是tbdoy或者是tbody的子元素，直接跳出
+                    if (e.target.nodeName !== 'TBODY' && (0, _jTool2.default)(e.target).closest('tbody').length === 0) {
+                        return;
+                    }
+                    //验证：当前是否存在已选中的项
+                    var exportExcelOfChecked = (0, _jTool2.default)('[grid-action="export-excel"][only-checked="true"]');
+                    if ((0, _jTool2.default)('tbody tr[checked="true"]', (0, _jTool2.default)('table[grid-manager="' + Settings.gridManagerName + '"]')).length === 0) {
+                        exportExcelOfChecked.addClass('disabled');
+                    } else {
+                        exportExcelOfChecked.removeClass('disabled');
+                    }
+                    var menuWidth = menuDOM.width(),
+                        menuHeight = menuDOM.height(),
+                        offsetHeight = document.documentElement.offsetHeight,
+                        offsetWidth = document.documentElement.offsetWidth;
+                    var top = offsetHeight < e.clientY + menuHeight ? e.clientY - menuHeight : e.clientY;
+                    var left = offsetWidth < e.clientX + menuWidth ? e.clientX - menuWidth : e.clientX;
+                    menuDOM.css({
+                        'top': top + tableWarp.get(0).scrollTop + (document.body.scrollTop || document.documentElement.scrollTop),
+                        'left': left + tableWarp.get(0).scrollLeft + (document.body.scrollLeft || document.documentElement.scrollLeft)
+                    });
+                    //隐藏非当前展示表格的菜单项
+                    (0, _jTool2.default)('.grid-menu[grid-master]').hide();
+                    menuDOM.show();
+                    _body.off('mousedown.gridMenu');
+                    _body.on('mousedown.gridMenu', function(e) {
+                        var eventSource = (0, _jTool2.default)(e.target);
+                        if (eventSource.hasClass('.grid-menu') || eventSource.closest('.grid-menu').length === 1) {
+                            return;
+                        }
+                        _body.off('mousedown.gridMenu');
+                        menuDOM.hide();
+                    });
                 });
-                */
+
 
                 //绑定事件：上一页、下一页、重新加载
                 var refreshPage = (0, _jTool2.default)('[grid-action="refresh-page"]');

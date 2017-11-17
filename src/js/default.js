@@ -52,13 +52,15 @@ function LoadTable(nodeList) {
     grid.GM({
         ajax_data: griddata,
         supportAutoOrder: false,
+        supportAjaxPage: false,
+        supportExport: false,
         supportSorting: true,
         supportDrag: false,
         supportRemind: false,
+        i18n: 'en-us',
         emptyTemplate: '<div class="gm-emptyTemplate">empty</div>',
         width: '80vw',
         height: '80vh',
-
         columnData: [{
             text: 'mode',
             key: 'mode',
