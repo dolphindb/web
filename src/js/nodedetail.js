@@ -31,12 +31,29 @@ $(function() {
 
     $.cookie("language_file", "js/lang.en.js");
 
-    editor = CodeMirror.fromTextArea('txt_code', {
-        height: "15%",
-        parserfile: "parsesql.js",
-        stylesheet: "third-party/codemirror/sqlcolors.css",
-        path: "third-party/codemirror/",
-        textWrapping: false
+    // editor = CodeMirror.fromTextArea('txt_code', {
+    //     height: "15%",
+    //     parserfile: "parsesql.js",
+    //     stylesheet: "third-party/codemirror/sqlcolors.css",
+    //     path: "third-party/codemirror/",
+    //     textWrapping: false
+    // });
+    var mime = 'text/x-mariadb';
+    editor = CodeMirror.fromTextArea(document.getElementById('txt_code'), {
+        mode: mime,
+        indentWithTabs: true,
+        smartIndent: true,
+        lineNumbers: true,
+        matchBrackets: true,
+        autofocus: true,
+        viewportMargin: Infinity,
+        extraKeys: { "Ctrl-Alt-Space": "autocomplete" },
+        hintOptions: {
+            tables: {
+                //users: ["name", "score", "birthDate"],
+                //countries: ["name", "population", "size"]
+            }
+        }
     });
     writelog(localStorage.getItem(logStorageID));
 

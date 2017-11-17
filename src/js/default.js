@@ -54,7 +54,7 @@ function LoadTable(nodeList) {
         supportAutoOrder: false,
         supportSorting: true,
         supportDrag: false,
-        supportRemind: true,
+        supportRemind: false,
         emptyTemplate: '<div class="gm-emptyTemplate">empty</div>',
         width: '80vw',
         height: '80vh',
@@ -62,6 +62,7 @@ function LoadTable(nodeList) {
         columnData: [{
             text: 'mode',
             key: 'mode',
+            width: 80,
             template: function(mode, rowObject) {
                 if (mode === 0) {
                     return "datanode"
@@ -69,11 +70,10 @@ function LoadTable(nodeList) {
                     return "controller"
                 }
             }
-
         }, {
             text: 'node',
             key: 'site',
-            remind: 'datanode name',
+            remind: 'node name',
             sorting: '',
             template: function(site, rowObject) {
                 if (rowObject.state === 1) {
@@ -86,12 +86,14 @@ function LoadTable(nodeList) {
                 } else {
                     return rowObject.site.split(':')[2];
                 }
-
             },
+            sortFilter: function(d) {
+                return d.split(':')[2];
+            }
         }, {
-            text: 'status',
+            text: 'state',
             key: 'state',
-            remind: 'state of datanode',
+            remind: ' state of the node',
             sorting: '',
             template: function(state, rowObject) {
                 if (state == "1") {
@@ -99,7 +101,7 @@ function LoadTable(nodeList) {
                 } else {
                     return '<font style="color:red">stopped</font>';
                 }
-            },
+            }
         }, {
             text: 'svrLog',
             key: 'serverLog',
@@ -128,44 +130,35 @@ function LoadTable(nodeList) {
             },
 
         }, {
-            text: 'conn',
+            text: 'conns',
             key: 'connectionNum',
-            remind: 'current connection number',
+            remind: ' number of current connections',
             sorting: '',
-            sortFilter: function(d) {
-                return d.trim() !== '' ? parseInt(d, 10) : -1;
-            },
-
+            width: 80
         }, {
-            text: 'Tasks',
-            key: 'taskNum',
-            remind: 'current task number',
-            sorting: '',
-            sortFilter: function(d) {
-                return d.trim() !== '' ? parseInt(d, 10) : -1;
-            },
-
-        }, {
-            text: 'MemUsed',
+            text: 'memUsed',
             key: 'memoryUsed',
             remind: 'Memory Used',
             sorting: '',
+            width: 100,
             template: function(memoryUsed, rowObject) {
                 return bytesToSize(memoryUsed);
             },
         }, {
-            text: 'MemAlloc',
+            text: 'memAlloc',
             key: 'memoryAlloc',
             remind: 'Memory Allocated',
             sorting: '',
+            width: 100,
             template: function(memoryAlloc, rowObject) {
                 return bytesToSize(memoryAlloc);
             },
         }, {
-            text: 'CpuUsage',
+            text: 'cpuUsage',
             key: 'cpuUsage',
             remind: 'cpu usage',
             sorting: '',
+            width: 100,
             template: function(cpuUsage, rowObject) {
                 return Number(cpuUsage).toFixed(2) + "%";
             },
@@ -174,81 +167,115 @@ function LoadTable(nodeList) {
             key: 'avgLoad',
             remind: 'average load',
             sorting: '',
+            width: 100,
             template: function(avgLoad, rowObject) {
                 return Number(avgLoad).toFixed(2);
             },
         }, {
-            text: 'ALQT10',
+            text: 'medQT10',
             key: 'medLast10QueryTime',
-            remind: 'average time consuming of last 10 querys',
+            remind: 'median execution time of the previous 10 finished queries',
             sorting: '',
+            width: 90,
             template: function(medLast10QueryTime, rowObject) {
                 return Number(medLast10QueryTime / 1000000).toFixed(1) + " ms";
             },
         }, {
-            text: 'MLQT10',
+            text: 'maxQT10',
             key: 'maxLast10QueryTime',
-            remind: 'max time consuming of last 10 querys',
+            remind: 'max execution time of the previous 10 finished queries',
             sorting: '',
+            width: 90,
             template: function(maxLast10QueryTime, rowObject) {
                 return Number(maxLast10QueryTime / 1000000).toFixed(1) + " ms";
             },
         }, {
-            text: 'ALQT100',
+            text: 'medQT100',
             key: 'medLast100QueryTime',
-            remind: 'average time consuming of last 100 querys',
+            remind: 'median execution time of the previous 100 finished queries',
             sorting: '',
+            width: 100,
             template: function(medLast100QueryTime, rowObject) {
                 return Number(medLast100QueryTime / 1000000).toFixed(1) + " ms";
             },
         }, {
-            text: 'MLQT100',
+            text: 'maxQT100',
             key: 'maxLast100QueryTime',
-            remind: 'max time consuming of last 100 querys',
+            remind: 'max execution time of the previous 100 finished queries',
             sorting: '',
+            width: 100,
             template: function(maxLast100QueryTime, rowObject) {
                 return Number(maxLast100QueryTime / 1000000).toFixed(1) + " ms";
             },
         }, {
-            text: 'MRQT',
+            text: 'maxRunningQT',
             key: 'maxRunningQueryTime ',
-            remind: 'max time consuming of running querys',
+            remind: 'the maximum elapsed time of currently running queries',
             sorting: '',
+            width: 120,
+            template: function(maxRunningQueryTime, rowObject) {
+                return Number(rowObject.maxRunningQueryTime / 1000000).toFixed(1) + " ms";
+            }
+        }, {
+            text: 'runningJobs',
+            key: 'runningJobs',
+            remind: 'the number of running jobs',
+            sorting: '',
+            width: 110,
             template: function(maxRunningQueryTime, rowObject) {
                 return Number(rowObject.maxRunningQueryTime / 1000000).toFixed(1) + " ms";
             },
         }, {
-            text: 'Workers',
+            text: 'queuedJobs',
+            key: 'queuedJobs',
+            remind: 'the number of jobs in the queue',
+            sorting: '',
+            width: 110,
+            template: function(maxRunningQueryTime, rowObject) {
+                return Number(rowObject.maxRunningQueryTime / 1000000).toFixed(1) + " ms";
+            },
+        }, {
+            text: 'queuedTasks',
+            key: 'queuedTasks',
+            remind: 'the number of sub tasks in the queue',
+            sorting: '',
+            width: 110,
+            template: function(maxRunningQueryTime, rowObject) {
+                return Number(rowObject.maxRunningQueryTime / 1000000).toFixed(1) + " ms";
+            },
+        }, {
+            text: 'jobLoad',
+            key: 'jobLoad',
+            remind: 'the ratio of total jobs to number of workers',
+            sorting: '',
+            width: 90,
+            template: function(maxRunningQueryTime, rowObject) {
+                return Number(rowObject.maxRunningQueryTime / 1000000).toFixed(1) + " ms";
+            },
+        }, {
+            text: 'workers',
             key: 'workerNum',
-            remind: 'Workers',
+            remind: 'number of executors',
             sorting: '',
-            sortFilter: function(d) {
-                return d.trim() !== '' ? parseInt(d, 10) : -1;
-            },
+            width: 90
         }, {
-            text: 'Executors',
+            text: 'executors',
             key: 'executorNum',
-            remind: 'Executors',
+            remind: 'number of executors',
             sorting: '',
-            sortFilter: function(d) {
-                return d.trim() !== '' ? parseInt(d, 10) : -1;
-            },
+            width: 100
         }, {
-            text: 'maxConnections',
+            text: 'connLimit',
             key: 'maxConnections',
             remind: 'max Connections',
             sorting: '',
-            sortFilter: function(d) {
-                return d.trim() !== '' ? parseInt(d, 10) : -1;
-            },
+            width: 90
         }, {
-            text: 'maxMemSize',
+            text: 'memLimit',
             key: 'maxMemSize',
             remind: 'max memory size',
             sorting: '',
-            sortFilter: function(d) {
-                return d.trim() !== '' ? parseFloat(d) : -1;
-            },
+            width: 90,
             template: function(maxMemSize, rowObject) {
                 return Number(maxMemSize).toFixed(1) + " GB";
             }
@@ -722,6 +749,8 @@ function fillMasterInfo() {
 
 $(document).ready(function() {
     setTimeout(hideCtlSel, 10);
+
+    grid.GM('clear');
 });
 
 function hideCtlSel() {

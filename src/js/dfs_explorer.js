@@ -3,11 +3,13 @@ var wa_url = "http://" + window.location.host;
 //jstree1 
 var getDfsByPath = function(url) {
     var executor = new CodeExecutor(wa_url);
-    executor.run("getDFSDirectoryContent",refreshTreeAndGrid,url);
+    var script = "(\"" + url + "\")";
+    executor.run("getDFSDirectoryContent" + script, refreshTreeAndGrid, url);
     //ajax revoke
 }
 
 var refreshTreeAndGrid = function(json) {
+    console.log(json);
     //bindpath
     //bindtree
     //bindgrid

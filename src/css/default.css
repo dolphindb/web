@@ -3,10 +3,12 @@
     margin-bottom: 1.5em;
     width: 100%;
 }
+
 .stat-holder {
     display: table-cell;
     width: 20%;
 }
+
 .stat {
     margin-right: 1em;
     font-style: italic;
@@ -16,6 +18,7 @@
     border: 1px solid #CCC;
     border-radius: 5px;
 }
+
 .stat span {
     display: block;
     margin-top: .4em;
@@ -38,9 +41,10 @@
     position: relative;
     display: block;
     padding: 3px 3px;
+    margin: 3px;
     background-color: #fff;
     border-bottom: 1px solid #ddd;
-    border-top:0px;
-    border-left:0px;
-    border-right:0px;
+    border-top: 0px;
+    border-left: 0px;
+    border-right: 0px;
 }
