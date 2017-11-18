@@ -445,5 +445,5 @@ function writelog(logstr) {
 }
 
 $('#btn_clrcode').click(function() {
-    editor.setCode('');
+    editor.setValue('');
 });
