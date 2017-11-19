@@ -22,8 +22,8 @@ var refreshTreeAndGrid = function(json) {
     //console.log(tree);
     var treeJson = DolphinResult2Grid(json);
     $(treeJson).each(function(i,e){
-        var s = tree.get_children_dom(sel);
-        if(s.length===0){
+        if(tree.is_loaded(sel)==false)
+        {
             var nodeid = tree.create_node(sel, {"text":e.filename});
         }
         //console.log(e.filename);
