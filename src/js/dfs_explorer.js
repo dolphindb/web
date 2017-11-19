@@ -22,11 +22,14 @@ var refreshTreeAndGrid = function(json) {
     //console.log(tree);
     var treeJson = DolphinResult2Grid(json);
     $(treeJson).each(function(i,e){
-        var nodeid = tree.create_node(sel, {"text":e.filename});
-        console.log(e.filename);
+        var s = tree.get_children_dom(sel);
+        if(s.length===0){
+            var nodeid = tree.create_node(sel, {"text":e.filename});
+        }
+        //console.log(e.filename);
     });
     var sPath = tree.get_path(sel,'/',false)
-    //console.log(sPath);
+    //bindgrid()
     var grid = $('#jsgrid1');
     var dg = new DolphinGrid(grid, {
         pageSize: 50,
@@ -35,14 +38,37 @@ var refreshTreeAndGrid = function(json) {
         pageLoading: false,
         autoload: false
     });
-    dg.loadFromJson(treeJson,false);
+    var col = [
+        { 
+            name: 'filename',
+            title: 'name',
+            type: 'text',
+            itemTemplate:function(value,item){
+                if(item.filetype==0){
+                    return "<span class='glyphicon glyphicon-file'></span>" + value
+                }else{
+                    return value;
+                }
+            }
+    },{ 
+        name: 'size',
+        title: 'size',
+        type: 'text'
+    }
+
+    ]
+    dg.loadFromJson(treeJson,false,col);
     //bindpath
-    //bindtree
-    //bindgrid
+    $("#dfsPath").html('<li></li>');
+    var pathItem = '<li><a href="#">{p}</a></li>';
+    $.each(sPath.split('/'),function(i,e){
+        if(e.length>0){
+            //console.log(e);
+            $("#dfsPath").append(pathItem.replace("{p}",e));
+        }
+    });
 }
-var onCreated = function(e){
-    console.log("node created" + e);
-}
+
 
 var getData = function() {
     return a;
@@ -53,7 +79,7 @@ $('#jstree1').jstree({
         "animation": 0,
         "check_callback": true,
         "themes": { "stripes": true },
-        "data":{"id":0,"text":"/"}
+        "data":{"text":"/"}
     },
     "types": {
         "#": {
@@ -85,11 +111,15 @@ $('#jstree1').on("changed.jstree", function(e, data) {
         if(!sel.length) { return false; }
         sel = sel[0];
 
-        getDfsByPath(data.node.text);
+        //getDfsByPath(data.node.text);
         var sPath = tree.get_path(sel,'/',false)
-        console.log(sPath);
+        //console.log(sPath);
+        if(sPath.indexOf("/")===0){
+            getDfsByPath(sPath);
+        }else{
+            getDfsByPath("/"+ sPath);
+        }      
     }
-
 });
 // $('#jstree1').on("dblclick.jstree", function(e) {
 //     console.log(e.target);
