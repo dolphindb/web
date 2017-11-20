@@ -1,11 +1,26 @@
-var a = [{ "id": 1, "text": "Root node", "children": [{ "id": 2, "text": "Child node 1" }, { "id": 3, "text": "Child node 2" }] }];
+var treeJson = [{ "id": 1, "text": "Root node", "children": [{ "id": 2, "text": "Child node 1" }, { "id": 3, "text": "Child node 2" }] }];
 var wa_url = "http://" + window.location.host;
 //jstree1 
 
 $(function() {
-    //getDfsByPath("/");
+    getDfsByPath("/");
 });
 
+var buildTreeJson = function(node,subTree){
+    var subNode = treeJson.filter(function(e){
+        return e.filename === node.filename;
+    });
+    subNode.children = subTree;
+}
+
+var ParseTable2Tree = function(table){
+    var subTreeJson = [];
+    $(table).each(function(i,row){
+        subTreeItem = {"id":row.fileid,"text":row.filename};
+        subTreeJson.push(subTreeItem);
+    });
+    return subTreeJson;
+}
 var getDfsByPath = function(url) {
     var executor = new CodeExecutor(wa_url);
     var script = 'getDFSDirectoryContent("' + url + '")';
@@ -19,13 +34,11 @@ var refreshTreeAndGrid = function(json) {
     sel = tree.get_selected();
     if(!sel.length) { return false; }
     sel = sel[0];
-    //console.log(tree);
+    var children = tree.get_children_dom(sel)
+
     var treeJson = DolphinResult2Grid(json);
     $(treeJson).each(function(i,e){
-        if(tree.is_loaded(sel)==false)
-        {
             var nodeid = tree.create_node(sel, {"text":e.filename});
-        }
         //console.log(e.filename);
     });
     var sPath = tree.get_path(sel,'/',false)
