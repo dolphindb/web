@@ -17,19 +17,18 @@ var getDfsByPath = function(url) {
 var refreshTreeAndGrid = function(json) {
     var tree = $('#jstree1').jstree(true);
     sel = tree.get_selected();
-    if(!sel.length) { return false; }
+    if (!sel.length) { return false; }
     sel = sel[0];
     //console.log(tree);
     var treeJson = DolphinResult2Grid(json);
-    $(treeJson).each(function(i,e){
-        if(tree.is_loaded(sel)==false)
-        {
-            var nodeid = tree.create_node(sel, {"text":e.filename});
+    $(treeJson).each(function(i, e) {
+        if (tree.is_loaded(sel) == false) {
+            var nodeid = tree.create_node(sel, { "text": e.filename });
         }
         //console.log(e.filename);
     });
-    var sPath = tree.get_path(sel,'/',false)
-    //bindgrid()
+    var sPath = tree.get_path(sel, '/', false)
+        //bindgrid()
     var grid = $('#jsgrid1');
     var dg = new DolphinGrid(grid, {
         pageSize: 50,
@@ -38,33 +37,32 @@ var refreshTreeAndGrid = function(json) {
         pageLoading: false,
         autoload: false
     });
-    var col = [
-        { 
+    var col = [{
             name: 'filename',
             title: 'name',
             type: 'text',
-            itemTemplate:function(value,item){
-                if(item.filetype==0){
-                    return "<span class='glyphicon glyphicon-file'></span>" + value
-                }else{
+            itemTemplate: function(value, item) {
+                if (item.filetype == 0) {
+                    return "<span class='jstree-icon jstree-themeicon'></span> " + value
+                } else {
                     return value;
                 }
             }
-    },{ 
-        name: 'size',
-        title: 'size',
-        type: 'text'
-    }
+        }, {
+            name: 'size',
+            title: 'size',
+            type: 'text'
+        }
 
     ]
-    dg.loadFromJson(treeJson,false,col);
+    dg.loadFromJson(treeJson, false, col);
     //bindpath
     $("#dfsPath").html('<li></li>');
     var pathItem = '<li><a href="#">{p}</a></li>';
-    $.each(sPath.split('/'),function(i,e){
-        if(e.length>0){
+    $.each(sPath.split('/'), function(i, e) {
+        if (e.length > 0) {
             //console.log(e);
-            $("#dfsPath").append(pathItem.replace("{p}",e));
+            $("#dfsPath").append(pathItem.replace("{p}", e));
         }
     });
 }
@@ -79,7 +77,7 @@ $('#jstree1').jstree({
         "animation": 0,
         "check_callback": true,
         "themes": { "stripes": true },
-        "data":{"text":"/"}
+        "data": { "text": "/" }
     },
     "types": {
         "#": {
@@ -105,20 +103,20 @@ $('#jstree1').jstree({
     ]
 });
 $('#jstree1').on("changed.jstree", function(e, data) {
-    if(data&&data.node){
+    if (data && data.node) {
         var tree = $('#jstree1').jstree(true);
         sel = tree.get_selected();
-        if(!sel.length) { return false; }
+        if (!sel.length) { return false; }
         sel = sel[0];
 
         //getDfsByPath(data.node.text);
-        var sPath = tree.get_path(sel,'/',false)
-        //console.log(sPath);
-        if(sPath.indexOf("/")===0){
+        var sPath = tree.get_path(sel, '/', false)
+            //console.log(sPath);
+        if (sPath.indexOf("/") === 0) {
             getDfsByPath(sPath);
-        }else{
-            getDfsByPath("/"+ sPath);
-        }      
+        } else {
+            getDfsByPath("/" + sPath);
+        }
     }
 });
 // $('#jstree1').on("dblclick.jstree", function(e) {
