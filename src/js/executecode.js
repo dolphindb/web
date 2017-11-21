@@ -31,4 +31,18 @@ function CodeExecutor(url) {
             console.log(re);
         });
     };
+
+    this.runSync = function(script) {
+        var p = {
+            "sessionID": "0",
+            "functionName": "executeCode",
+            "params": [{
+                "name": "script",
+                "form": "scalar",
+                "type": "string",
+                "value": script
+            }]
+        };
+        return CallWebApiSync(this.apiurl, p)
+    };
 }

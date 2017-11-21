@@ -1,31 +1,45 @@
-var a = [{ "id": 1, "text": "Root node", "children": [{ "id": 2, "text": "Child node 1" }, { "id": 3, "text": "Child node 2" }] }];
+var treeJson = [{ "id": 1, "text": "Root node", "children": [{ "id": 2, "text": "Child node 1" }, { "id": 3, "text": "Child node 2" }] }];
 var wa_url = "http://" + window.location.host;
 //jstree1 
 
 $(function() {
-    //getDfsByPath("/");
+    var client = new DolphinDBDFSClient(wa_url);
+    console.log(client.getTreeJson("/"));
 });
 
-var getDfsByPath = function(url) {
-    var executor = new CodeExecutor(wa_url);
-    var script = 'getDFSDirectoryContent("' + url + '")';
-    codestr = encodeURIComponent(script);
-    executor.run(codestr, refreshTreeAndGrid);
-    //ajax revoke
-}
 
+var getFullPathDfsFileByPath = function() {
+
+};
+
+
+var buildTreeJson = function(node, subTree) {
+    var subNode = treeJson.filter(function(e) {
+        return e.filename === node.filename;
+    });
+    subNode.children = subTree;
+};
+
+var ParseTable2Tree = function(table) {
+    var subTreeJson = [];
+    $(table).each(function(i, row) {
+        subTreeItem = { "id": row.fileid, "text": row.filename };
+        subTreeJson.push(subTreeItem);
+    });
+    return subTreeJson;
+};
+
+//handle json result
 var refreshTreeAndGrid = function(json) {
     var tree = $('#jstree1').jstree(true);
     sel = tree.get_selected();
     if (!sel.length) { return false; }
     sel = sel[0];
-    //console.log(tree);
+    var children = tree.get_children_dom(sel)
+
     var treeJson = DolphinResult2Grid(json);
     $(treeJson).each(function(i, e) {
-        if (tree.is_loaded(sel) == false) {
-            var nodeid = tree.create_node(sel, { "text": e.filename });
-        }
-        //console.log(e.filename);
+        var nodeid = tree.create_node(sel, { "text": e.filename });
     });
     var sPath = tree.get_path(sel, '/', false)
         //bindgrid()
@@ -113,13 +127,117 @@ $('#jstree1').on("changed.jstree", function(e, data) {
         var sPath = tree.get_path(sel, '/', false)
             //console.log(sPath);
         if (sPath.indexOf("/") === 0) {
-            getDfsByPath(sPath);
+            //getDfsByPath(sPath);
         } else {
-            getDfsByPath("/" + sPath);
+            //getDfsByPath("/" + sPath);
         }
     }
 });
+/**
+ * design for parsing path
+ * @param {fullPath} path 
+ */
+function PathObject(path) {
+    this.fullPath = path;
+    this.pathItems = path.split("/");
+    this.depth = this.pathItems.length;
+
+    this.getPath = function(depth) {
+        var p = "";
+        for (var i = depth - 1; i >= 0; i--) {
+            p = this.pathItems(i) + "/" + p;
+        }
+        return p;
+    }
+}
+
 // $('#jstree1').on("dblclick.jstree", function(e) {
 //     console.log(e.target);
 // });
 //jsgrid1
+function DolphinDBDFSClient(webApiUrl) {
+    var url = webApiUrl;
+    var tableJson = null;
+    var treeJson = null;
+
+    function getDfsByPath(path) {
+        var executor = new CodeExecutor(url);
+        var script = 'getDFSDirectoryContent("' + path + '")';
+        codestr = encodeURIComponent(script);
+        var re = executor.runSync(codestr);
+        tableJson = DolphinResult2Grid(re);
+        treeJson = parseTreeJson(tableJson);
+    }
+
+    function parseTreeJson(tblJson) {
+        var j = [];
+        $(tblJson).each(function(i, e) {
+            j.push({ "id": e.filename, "text": e.filename });
+        });
+    }
+
+    var pNode = null;
+    var cNode = null;
+    /**
+     * 根据NodeID查找当前节点以及父节点
+     */
+    function getNode(json, nodeId) {
+
+        //.recursive search node
+        for (var i = 0; i < json.length; i++) {
+            if (cNode) {
+                break;
+            }
+            var obj = json[i];
+
+            if (!obj || !obj.id) {
+                continue;
+            }
+            //find and return 
+            if (obj.id == nodeId) {
+                cNode = obj;
+                break;
+            } else {
+                if (obj.children) {
+                    pNode = obj;
+                    getNode(obj.children, nodeId);
+                } else {
+                    continue;
+                }
+            }
+        }
+
+        return {
+            parentNode: pNode,
+            currentNode: cNode
+        };
+    }
+
+    this.getTreeJson = function(fullPath) {
+        var po = new PathObject(fullPath);
+        if (treeJson != null) {
+            for (var i = 0; i < po.depth; i++) {
+                var treeNode = getNode(treeJson, po.pathItems[i]);
+                if (treeNode.currentNode) {
+
+                }
+            }
+
+        }
+        // rebuild all tree json
+        //     getDfsByPath("/");
+        // } else { // find json node and append sub tree json
+        //     // var pathArray = fullPath.split("/");
+        //     getDfsByPath(fullPath);
+        // }
+    }
+
+    this.getGridJson = function(fullPath) {
+        if (tableJson == null) { // rebuild all tree json
+            getDfsByPath("/");
+        } else { // find json node and append sub tree json
+
+        }
+    }
+
+}
