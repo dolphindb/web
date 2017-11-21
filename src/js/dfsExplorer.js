@@ -212,8 +212,9 @@ function DolphinDBDFSClient(webApiUrl) {
             currentNode: cNode
         };
     }
-
+    //todo: 
     this.getTreeJson = function(fullPath) {
+
         var po = new PathObject(fullPath);
         if (treeJson != null) {
             for (var i = 0; i < po.depth; i++) {

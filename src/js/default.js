@@ -245,7 +245,7 @@ function LoadTable(nodeList) {
             template: function(runningTasks, rowObject) {
                 return Number(runningTasks);
             },
-        },{
+        }, {
             text: 'queuedTasks',
             key: 'queuedTasks',
             remind: 'the number of sub tasks in the queue',
@@ -761,7 +761,7 @@ function fillMasterInfo() {
 $(document).ready(function() {
     setTimeout(hideCtlSel, 10);
 
-    grid.GM('clear');
+    //grid.GM('clear');
 });
 
 function hideCtlSel() {
