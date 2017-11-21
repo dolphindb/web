@@ -1,18 +1,75 @@
 var treeJson = [{ "id": 1, "text": "Root node", "children": [{ "id": 2, "text": "Child node 1" }, { "id": 3, "text": "Child node 2" }] }];
 var wa_url = "http://" + window.location.host;
 //jstree1 
+//testcase :
+//db = database("dfs://root/node1/node1_1/node1_1_1")
+//db = database("dfs://root/node1/node1_1/node1_1_2")
+//db = database("dfs://root/node1/node1_2/node1_2_1")
+//db = database("dfs://root/node1/node1_2/node1_2_2")
+//db = database("dfs://root/node2/node2_1/node2_1_1")
+//db = database("dfs://root/node2/node2_2/node2_2_1")
+//db = database("dfs://root/node2/node2_2/node2_2_2")
+//db = database("dfs://root/node2/node2_3/node2_3_1")
+//db = database("dfs://root/node2/node2_3/node2_3_2")
 
+var client = null;
 $(function() {
-    var client = new DolphinDBDFSClient(wa_url);
-    console.log(client.getTreeJson("/"));
+    client = new DolphinDBDFSClient(wa_url);
+    client.getGridJson("/");
 });
+var bindPath=function(fullPath){
+    $(fullPath.split("/")).each(function(i,e){
+        var li = document.createElement("li");
+        li.innerHTML = "<a href='#' onclick='pathClick'>" + e + "</a>"
+        $("#dfsPath").append(li);
+    });
+}
+var getCurrentPath = function(){
+    var p = "";
+    $("#dfsPath").children().each(function(i,e){
+        p = p + "/" + e.innerText;
+    });
+    return p;
+}
+var appendPath=function(path){
+    var li = document.createElement("li");
+    li.innerHTML = "<a href='#' onclick='pathClick'>" + e + "</a>"
+    $("#dfsPath").append(li);
+}
+var bindGrid=function(tableJson){
+    var grid = $('#jsgrid1');
+    var dg = new DolphinGrid(grid, {
+        pageSize: 50,
+        sorting: true,
+        paging: true,
+        pageLoading: false,
+        autoload: false,
+        rowDoubleClick:function(arg){
+            appendPath(arg.item.filename);
+            json = client.getGridJson(getCurrentPath());
+            bindGrid(json);
+        }
+    });
+    var col = [{
+            name: 'filename',
+            title: 'name',
+            type: 'text',
+            itemTemplate: function(value, item) {
+                if (item.filetype == 0) {
+                    return "<span class='jstree-icon jstree-themeicon'></span> " + value
+                } else {
+                    return value;
+                }
+            }
+        }, {
+            name: 'size',
+            title: 'size',
+            type: 'text'
+        }
 
-
-var getFullPathDfsFileByPath = function() {
-
-};
-
-
+    ]
+    dg.loadFromJson(tableJson, false, col);
+}
 var buildTreeJson = function(node, subTree) {
     var subNode = treeJson.filter(function(e) {
         return e.filename === node.filename;
@@ -43,33 +100,7 @@ var refreshTreeAndGrid = function(json) {
     });
     var sPath = tree.get_path(sel, '/', false)
         //bindgrid()
-    var grid = $('#jsgrid1');
-    var dg = new DolphinGrid(grid, {
-        pageSize: 50,
-        sorting: true,
-        paging: true,
-        pageLoading: false,
-        autoload: false
-    });
-    var col = [{
-            name: 'filename',
-            title: 'name',
-            type: 'text',
-            itemTemplate: function(value, item) {
-                if (item.filetype == 0) {
-                    return "<span class='jstree-icon jstree-themeicon'></span> " + value
-                } else {
-                    return value;
-                }
-            }
-        }, {
-            name: 'size',
-            title: 'size',
-            type: 'text'
-        }
-
-    ]
-    dg.loadFromJson(treeJson, false, col);
+    
     //bindpath
     $("#dfsPath").html('<li></li>');
     var pathItem = '<li><a href="#">{p}</a></li>';
@@ -159,27 +190,25 @@ function DolphinDBDFSClient(webApiUrl) {
     var url = webApiUrl;
     var tableJson = null;
     var treeJson = null;
+    var treeCacheTable = [];
 
-    function getDfsByPath(path) {
+    function setCacheByPath(path) {
         var executor = new CodeExecutor(url);
         var script = 'getDFSDirectoryContent("' + path + '")';
         codestr = encodeURIComponent(script);
         var re = executor.runSync(codestr);
         tableJson = DolphinResult2Grid(re);
-        treeJson = parseTreeJson(tableJson);
-    }
-
-    function parseTreeJson(tblJson) {
-        var j = [];
-        $(tblJson).each(function(i, e) {
-            j.push({ "id": e.filename, "text": e.filename });
+        //cacheTreeJson
+        $(tableJson).each(function(i, e) {
+            cacheTreeJson.push({"filename":e.filename,"filetype":e.filetype,"filepath":path + e.filename});
         });
+        return tableJson;
     }
 
     var pNode = null;
     var cNode = null;
     /**
-     * 根据NodeID查找当前节点以及父节点
+     * NodeID Child
      */
     function getNode(json, nodeId) {
 
@@ -214,17 +243,7 @@ function DolphinDBDFSClient(webApiUrl) {
     }
     //todo: 
     this.getTreeJson = function(fullPath) {
-
-        var po = new PathObject(fullPath);
-        if (treeJson != null) {
-            for (var i = 0; i < po.depth; i++) {
-                var treeNode = getNode(treeJson, po.pathItems[i]);
-                if (treeNode.currentNode) {
-
-                }
-            }
-
-        }
+        setCacheByPath(fullPath);
         // rebuild all tree json
         //     getDfsByPath("/");
         // } else { // find json node and append sub tree json
@@ -234,11 +253,8 @@ function DolphinDBDFSClient(webApiUrl) {
     }
 
     this.getGridJson = function(fullPath) {
-        if (tableJson == null) { // rebuild all tree json
-            getDfsByPath("/");
-        } else { // find json node and append sub tree json
-
-        }
+        setCacheByPath(fullPath);
+        return this.tableJson;
     }
 
 }
