@@ -34,3 +34,12 @@ hs_err_pid*
 .idea/modules.xml
 .idea/misc.xml
 .idea/dolphindb_manager.iml
+/src/.vs
+/src/.vs/config/applicationhost.config
+/src/.vs/ProjectSettings.json
+/src/.vs/slnx.sqlite
+/src/.vs/config
+/src/.vs
+/src/.vs/slnx.sqlite
+/src/.vs/ProjectSettings.json
+/src/.vs/config/applicationhost.config
