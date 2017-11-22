@@ -623,11 +623,11 @@ function openDatabase(tb_src) {
 
 }
 
-$("#modal-database").on("show.bs.modal", function(e) {
+$("#modal-database").on("shown.bs.modal", function(e) {
     getAllTableDistributions($(e.relatedTarget).attr('ref'));
 });
 
-$("#modal-showlog").on("show.bs.modal", function(e) {
+$("#modal-showlog").on("shown.bs.modal", function(e) {
     var param = $(e.relatedTarget).attr('ref');
     var urlArr = param.split('@');
     var funcName = urlArr[0];
@@ -749,21 +749,27 @@ var bindPerfLog = function(json) {
     }, {
         name: "SessionId",
         type: "text",
-        width: 80
+        width: 30
     }, {
         name: "StartTime",
         type: "text",
+        width: 80
     }, {
         name: "EndTime",
         type: "text",
+        width: 80
     }, {
         name: "JobDesc",
         type: "text",
+        width: 300
     }]
     var dg = new DolphinGrid($('#jsGrid_perflog'), {
-        width: 750,
-        autoload: false,
-        paging: false,
+        width: "100%",
+        autoload: true,
+        paging: true,
+        pageLoading: false,
+        pageSize: 100,
+        pageIndex: 1,
         fields: col
     });
     var griddata = DolphinResult2Grid(json);

@@ -39,14 +39,13 @@
 
 .jsgrid-table {
     width: 100%;
-    table-layout: auto;
+    table-layout: fixed;
     border-collapse: collapse;
     border-spacing: 0;
 }
 
 .jsgrid-cell {
     padding: 0.5em 0.5em;
-    font-size: 0.9em;
 }
 
 .jsgrid-сell,
