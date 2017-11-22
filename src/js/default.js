@@ -162,7 +162,7 @@ function LoadTable(nodeList) {
             sorting: '',
             width: 100,
             template: function(cpuUsage, rowObject) {
-                return Number(cpuUsage).toFixed(2) + "%";
+                return Number(cpuUsage).toFixed(1) + "%";
             },
         }, {
             text: 'avgLoad',
@@ -171,7 +171,7 @@ function LoadTable(nodeList) {
             sorting: '',
             width: 100,
             template: function(avgLoad, rowObject) {
-                return Number(avgLoad).toFixed(2);
+                return Number(avgLoad * 100).toFixed(1) + "%";
             },
         }, {
             text: 'medQT10',
@@ -262,6 +262,60 @@ function LoadTable(nodeList) {
             width: 90,
             template: function(jobLoad, rowObject) {
                 return Number(jobLoad);
+            },
+        }, {
+            text: 'diskCapacity',
+            key: 'diskCapacity',
+            remind: 'disk space of all volumes for the node',
+            sorting: '',
+            width: 90,
+            template: function(diskCapacity, rowObject) {
+                return Number(diskCapacity / 1024).toFixed(2) + "GB";
+            },
+        }, {
+            text: 'diskFreeSpace',
+            key: 'diskFreeSpace',
+            remind: 'available disk space of all volumes for the node',
+            sorting: '',
+            width: 90,
+            template: function(diskFreeSpace, rowObject) {
+                return Number(diskFreeSpace / 1024).toFixed(2) + "GB";
+            },
+        }, {
+            text: 'diskFreeSpaceRatio',
+            key: 'diskFreeSpaceRatio',
+            remind: 'the percentage of free space out of the disk capacity',
+            sorting: '',
+            width: 90,
+            template: function(diskFreeSpaceRatio, rowObject) {
+                return Number(diskFreeSpaceRatio) + "%";
+            },
+        }, {
+            text: 'diskWirtePerSecond',
+            key: 'diskWirtePerSecond',
+            remind: 'the speed of saving a tablet or a file block to disk',
+            sorting: '',
+            width: 90,
+            template: function(diskWirtePerSecond, rowObject) {
+                return Number(diskWirtePerSecond) + "MB/s";
+            },
+        }, {
+            text: 'diskReadPerSecond',
+            key: 'diskReadPerSecond',
+            remind: 'the speed of reading a tablet or a file block from disk',
+            sorting: '',
+            width: 90,
+            template: function(diskReadPerSecond, rowObject) {
+                return Number(diskReadPerSecond) + "MB/s";
+            },
+        }, {
+            text: 'diskWirtePerMinute',
+            key: 'diskWirtePerMinute',
+            remind: 'the average amount of saving a tablet or a file block from disk a minute',
+            sorting: '',
+            width: 90,
+            template: function(diskWirtePerMinute, rowObject) {
+                return Number(diskWirtePerMinute) + "MB";
             },
         }, {
             text: 'workers',
@@ -767,3 +821,19 @@ $(document).ready(function() {
 function hideCtlSel() {
     $("td:contains('controller')").parent().children().first().html('');
 }
+
+
+$("#btn_collapse").bind("click", function() {
+    var span = $("#icon_collapse");
+    console.log(span);
+    if (span.attr('class') === "glyphicon glyphicon-step-backward") {
+        span.attr('class', 'glyphicon glyphicon-step-forward');
+        $("#main").attr('class', 'col-lg-12 col-md-12');
+        $("#sidebar").hide();
+    } else {
+        span.attr('class', 'glyphicon glyphicon-step-backward');
+        $("#main").attr('class', 'col-lg-10 col-md-9');
+        $("#sidebar").show();
+    }
+
+});
