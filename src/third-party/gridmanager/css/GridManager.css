@@ -323,14 +323,16 @@ table[grid-manager].GridManager-ready {
     margin: 0px;
 }
 
-.table-wrap .config-area .config-list>li {
-    display: inline-block;
-    padding: 4px 10px;
-    line-height: 20px;
-    background-color: #e8e8e8;
-    margin-right: 2px;
-    margin-bottom: 2px;
-}
+    .table-wrap .config-area .config-list > li {
+        display: inline-block;
+        padding: 4px 10px;
+        line-height: 20px;
+        background-color: #e8e8e8;
+        margin-right: 2px;
+        margin-bottom: 2px;
+        width: 48%;
+        height: 30px;
+    }
 
 .table-wrap .config-area .config-list>li>label {
     margin: 0px;
@@ -349,8 +351,17 @@ table[grid-manager].GridManager-ready {
 }
 
 .table-wrap .config-area .config-list li label {
+
     cursor: pointer;
+    color: #000;
+    font-weight: 500;
+}
+    
+.table-wrap .config-area .config-list li label .remind-label {
+    cursor: default;
     color: #666;
+    margin: 5px;
+    padding-left: 5px;
     font-weight: 500;
 }
 

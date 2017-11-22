@@ -25,7 +25,7 @@ $(function() {
 function GetLocalData(url) {
     var p = {
         "sessionID": SESSION_ID,
-        "functionName": "getNodeList",
+        "functionName": "getClusterPerf",
         "params": [{
             "name": "isShowController",
             "form": "scalar",
@@ -64,6 +64,7 @@ function LoadTable(nodeList) {
         columnData: [{
             text: 'mode',
             key: 'mode',
+            remind: 'the role of node(controller,agent,datanode)',
             width: 80,
             template: function(mode, rowObject) {
                 if (mode === 0) {
@@ -211,7 +212,7 @@ function LoadTable(nodeList) {
             },
         }, {
             text: 'maxRunningQT',
-            key: 'maxRunningQueryTime ',
+            key: 'maxRunningQueryTime',
             remind: 'the maximum elapsed time of currently running queries',
             sorting: '',
             width: 120,
@@ -821,7 +822,8 @@ function fillMasterInfo() {
 $(document).ready(function() {
     setTimeout(hideCtlSel, 10);
 
-    //grid.GM('clear');
+    var localSet = grid.GM('getLocalStorage');
+    console.log(localSet)
 });
 
 function hideCtlSel() {

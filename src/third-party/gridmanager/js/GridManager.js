@@ -1118,7 +1118,9 @@
                         _thData.th_width = $v.width();
                     }
                     if (Settings.supportConfig) {
-                        _thData.isShow = (0, _jTool2.default)('.config-area li[th-name="' + _thData.th_name + '"]', _table.closest('.table-wrap')).find('input[type="checkbox"]').get(0).checked;
+                        if (_thData.th_name != "gm_checkbox") {
+                            _thData.isShow = (0, _jTool2.default)('.config-area li[th-name="' + _thData.th_name + '"]', _table.closest('.table-wrap')).find('input[type="checkbox"]').get(0).checked;
+                        }
                     }
                     _thCache.push(_thData);
                 });
@@ -2254,7 +2256,14 @@
                         onlyThWarp = (0, _jTool2.default)('<div class="th-wrap"></div>');
                         //嵌入配置列表项
                         if (settings.supportConfig) {
-                            (0, _jTool2.default)('.config-list', tableWarp).append('<li th-name="' + onlyTH.attr('th-name') + '" class="checked-li">' + '<input type="checkbox" checked="checked"/>' + '<label>' + '<span class="fake-checkbox"></span>' + onlyTH.text() + '</label>' + '</li>');
+                            var remind = "";
+                            if (onlyTH.attr("title")) {
+                                remind = onlyTH.attr("title");
+                            }
+                            if (onlyTH.attr('th-name') != "gm_checkbox") {
+                                (0, _jTool2.default)('.config-list', tableWarp).append('<li th-name="' + onlyTH.attr('th-name') + '" class="checked-li">' + '<input type="checkbox" checked="checked"/>' + '<label>' + '<span class="fake-checkbox"></span>' + onlyTH.text().replace('\n', '').replace('\t', '') + '<span class="remind-label">' + remind + '</span></label>' + '</li>');
+                            }
+                            
                         }
                         // 嵌入拖拽事件源
                         // 插件自动生成的排序与选择列不做事件绑定
@@ -2968,7 +2977,7 @@
              * table: table [jTool Object]
              * */
             html: function html($table) {
-                    var checkboxHtml = '<th th-name="gm_checkbox" gm-checkbox="true" gm-create="true">\n\t\t\t\t\t\t\t\t<input type="checkbox"/>\n\t\t\t\t\t\t\t\t<span style="display: none">\n\t\t\t\t\t\t\t\t\t' + _I18n2.default.i18nText($table, 'checkall-text') + '\n\t\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t</th>';
+                    var checkboxHtml = '<th th-name="gm_checkbox" gm-checkbox="true" gm-create="true">\n\t\t\t\t\t\t\t\t<input type="checkbox"/>\n\t\t\t\t\t\t\t\t<span style="display: none">' + _I18n2.default.i18nText($table, 'checkall-text') + '</span>\n\t\t\t\t\t\t\t</th>';
                     return checkboxHtml;
                 }
                 /*
