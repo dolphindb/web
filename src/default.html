@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -74,36 +74,37 @@
                 </div>
             </div>
             <div class="col-lg-10 col-md-9" id="main">
-                
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <div class="btn-toolbar" role="toolbar" aria-label="...">
-                    <div class="btn-group" role="group" aria-label="...">                <button type="button" class="btn btn-default" id="btn_collapse">  <span id="icon_collapse" class="glyphicon glyphicon-step-backward"></span>
-                </button>
-            </div>
-            <div class="btn-group" role="group" aria-label="...">
-                <button type="button" class="btn btn-default" id="btn_run">
-                                            <span class="glyphicon glyphicon-play"></span>
-                </button>
-                <button type="button" class="btn btn-default" id="btn_stop">
-                                            <span class="glyphicon glyphicon-stop"></span>
-                                        </button>
-                <button type="button" class="btn btn-default" id="btn_refresh">
-                                            <span class="glyphicon glyphicon-refresh"></span>
-                                        </button>
-                <div class="input-group">
-                    <div class="input-group-addon retrieve-row-number">Filter</div>
-                    <input class="form-control" id="txtFilter" type="text" placeholder="">
+
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="btn-toolbar" role="toolbar" aria-label="...">
+                            <div class="btn-group" role="group" aria-label="...">
+                                <button type="button" class="btn btn-default" id="btn_collapse">
+                                    <span id="icon_collapse" class="glyphicon glyphicon-step-backward"></span>
+                                </button>
+                            </div>
+                            <div class="btn-group" role="group" aria-label="...">
+                                <button type="button" class="btn btn-default" id="btn_run">
+                                    <span class="glyphicon glyphicon-play"></span>
+                                </button>
+                                <button type="button" class="btn btn-default" id="btn_stop">
+                                    <span class="glyphicon glyphicon-stop"></span>
+                                </button>
+                                <button type="button" class="btn btn-default" id="btn_refresh">
+                                    <span class="glyphicon glyphicon-refresh"></span>
+                                </button>
+                            </div>
+                            <div class="btn-group" role="group" aria-label="...">
+                                 <input class="form-control" id="txtFilter" type="text" style="width:auto;height:32px" placeholder="input search text">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <table grid-manager="grid1"></table>
+                    <div id="jqGridPager01"></div>
                 </div>
             </div>
-        </div>
-        </div>
-        </div>
-        <div class="panel panel-default">
-            <table grid-manager="grid1"></table>
-            <div id="jqGridPager01"></div>
-        </div>
-        </div>
         </div>
         <!-- Dialog =====================================================-->
         <div id="modal-message" class="hide" title="Connect Central Server">
@@ -118,8 +119,8 @@
                 <div class="modal-content" style="width:820px">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
+                            <span aria-hidden="true">×</span>
+                        </button>
                         <h4 class="modal-title" id="exampleModalLabel">Database</h4>
                     </div>
                     <div class="modal-body">
@@ -137,8 +138,8 @@
                 <div class="modal-content" style="width:820px">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
+                            <span aria-hidden="true">×</span>
+                        </button>
                         <h4 class="modal-title" id="log_node"></h4>
                     </div>
                     <div class="modal-body" style="height:600px">
@@ -156,9 +157,9 @@
                                     <div class="input-group-addon">From</div>
                                     <div class="input-group-btn">
                                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <span id="btnFrom">Tail</span>
-                                        <span class="caret"></span>
-                                    </button>
+                                            <span id="btnFrom">Tail</span>
+                                            <span class="caret"></span>
+                                        </button>
                                         <ul class="dropdown-menu dropdown-menu-right">
                                             <li>
                                                 <a href="#" id="btnFromHead">Head</a>
@@ -181,14 +182,14 @@
                             <div class="col-md-3">
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-default" id="btnBackward">
-                                    <span class="glyphicon glyphicon-backward">
-                                </button>
+                                        <span class="glyphicon glyphicon-backward">
+                                    </button>
                                     <button type="button" class="btn btn-default" id="btnReload">
-                                    <span class="glyphicon glyphicon-refresh"></span>
-                                </button>
+                                        <span class="glyphicon glyphicon-refresh"></span>
+                                    </button>
                                     <button type="button" class="btn btn-default" id="btnForward">
-                                    <span class="glyphicon glyphicon-forward">
-                                </button>
+                                        <span class="glyphicon glyphicon-forward">
+                                    </button>
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -206,10 +207,12 @@
                 <div class="row">
                     <div class="col-lg-12 col-sm-12">
                         <ul class="list-unstyled">
-                            <li>CopyRight &copy;
+                            <li>
+                                CopyRight &copy;
                                 <a href="http://www.dolphindb.com" target="_blank">
                                     <strong class="text-info">DolphinDB</strong>
-                                </a> 2016 - 2017</li>
+                                </a> 2016 - 2017
+                            </li>
                         </ul>
                     </div>
                 </div>
