@@ -271,7 +271,7 @@ function LoadTable(nodeList) {
             sorting: '',
             width: 90,
             template: function(diskCapacity, rowObject) {
-                return Number(diskCapacity / 1024).toFixed(2) + "GB";
+                return fmoney((diskCapacity/1024),2) + " GB";
             },
         }, {
             text: 'diskFreeSpace',
@@ -280,7 +280,7 @@ function LoadTable(nodeList) {
             sorting: '',
             width: 90,
             template: function(diskFreeSpace, rowObject) {
-                return Number(diskFreeSpace / 1024).toFixed(2) + "GB";
+                return fmoney((diskFreeSpace / 1024),2) + " GB";
             },
         }, {
             text: 'diskFreeSpaceRatio',
@@ -288,8 +288,8 @@ function LoadTable(nodeList) {
             remind: 'the percentage of free space out of the disk capacity',
             sorting: '',
             width: 90,
-            template: function(diskFreeSpaceRatio, rowObject) {
-                return Number(diskFreeSpaceRatio) + "%";
+            template: function (diskFreeSpaceRatio, rowObject) {
+                return Number(diskFreeSpaceRatio * 100).toFixed(1) + " %";
             },
         }, {
             text: 'diskWirtePerSecond',
@@ -297,8 +297,8 @@ function LoadTable(nodeList) {
             remind: 'the speed of saving a tablet or a file block to disk',
             sorting: '',
             width: 90,
-            template: function(diskWirtePerSecond, rowObject) {
-                return Number(diskWirtePerSecond) + "MB/s";
+            template: function (diskWirtePerSecond, rowObject) {
+                return fmoney((diskWirtePerSecond / (1024 * 1024)),2) + " MB/s";
             },
         }, {
             text: 'diskReadPerSecond',
@@ -306,8 +306,8 @@ function LoadTable(nodeList) {
             remind: 'the speed of reading a tablet or a file block from disk',
             sorting: '',
             width: 90,
-            template: function(diskReadPerSecond, rowObject) {
-                return Number(diskReadPerSecond) + "MB/s";
+            template: function (diskReadPerSecond, rowObject) {
+                return fmoney((diskReadPerSecond / (1024 * 1024)),2) + " MB/s";
             },
         }, {
             text: 'diskWirtePerMinute',
@@ -315,8 +315,8 @@ function LoadTable(nodeList) {
             remind: 'the average amount of saving a tablet or a file block from disk a minute',
             sorting: '',
             width: 90,
-            template: function(diskWirtePerMinute, rowObject) {
-                return Number(diskWirtePerMinute) + "MB";
+            template: function (diskWirtePerMinute, rowObject) {
+                return fmoney((diskWirtePerMinute / (1024 * 1024)),2) + " MB";
             },
         }, {
             text: 'workers',
@@ -845,3 +845,14 @@ $("#btn_collapse").bind("click", function() {
     }
 
 });
+
+function fmoney(s, n) {
+    n = n > 0 && n <= 20 ? n : 2;
+    s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
+    var l = s.split(".")[0].split("").reverse(), r = s.split(".")[1];
+    t = "";
+    for (i = 0; i < l.length; i++) {
+        t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
+    }
+    return t.split("").reverse().join("") + "." + r;
+}  

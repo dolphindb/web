@@ -43,3 +43,4 @@ hs_err_pid*
 /src/.vs/slnx.sqlite
 /src/.vs/ProjectSettings.json
 /src/.vs/config/applicationhost.config
+src/.vs/slnx.sqlite

@@ -15,7 +15,9 @@ var wa_url = "http://" + window.location.host;
 var client = null;
 $(function() {
     client = new DolphinDBDFSClient(wa_url);
-    client.getGridJson("/");
+    var json = client.getGridJson("/");
+    bindGrid(json);
+    bindPath("/")
 });
 var bindPath=function(fullPath){
     $(fullPath.split("/")).each(function(i,e){
@@ -33,7 +35,7 @@ var getCurrentPath = function(){
 }
 var appendPath=function(path){
     var li = document.createElement("li");
-    li.innerHTML = "<a href='#' onclick='pathClick'>" + e + "</a>"
+    li.innerHTML = "<a href='#' onclick='pathClick'>" + path + "</a>"
     $("#dfsPath").append(li);
 }
 var bindGrid=function(tableJson){
@@ -44,10 +46,12 @@ var bindGrid=function(tableJson){
         paging: true,
         pageLoading: false,
         autoload: false,
-        rowDoubleClick:function(arg){
-            appendPath(arg.item.filename);
-            json = client.getGridJson(getCurrentPath());
-            bindGrid(json);
+        rowDoubleClick: function (arg) {
+            if (arg.item.filetype == 0) { //you can only expanded filetype==0 
+                appendPath(arg.item.filename);
+                json = client.getGridJson(getCurrentPath());
+                bindGrid(json);
+            }
         }
     });
     var col = [{
@@ -61,12 +65,15 @@ var bindGrid=function(tableJson){
                     return value;
                 }
             }
-        }, {
+    }, {
+        name: 'filetype',
+        title: 'filetype',
+        type: 'text'
+    }, {
             name: 'size',
             title: 'size',
             type: 'text'
         }
-
     ]
     dg.loadFromJson(tableJson, false, col);
 }
@@ -199,10 +206,11 @@ function DolphinDBDFSClient(webApiUrl) {
         var re = executor.runSync(codestr);
         tableJson = DolphinResult2Grid(re);
         //cacheTreeJson
-        $(tableJson).each(function(i, e) {
-            cacheTreeJson.push({"filename":e.filename,"filetype":e.filetype,"filepath":path + e.filename});
+        $(tableJson).each(function (i, e) {
+            if (!treeCacheTable) treeCacheTable = [];
+            treeCacheTable.push({"filename":e.filename,"filetype":e.filetype,"filepath":path + e.filename});
         });
-        return tableJson;
+        console.log(treeCacheTable);
     }
 
     var pNode = null;
@@ -254,7 +262,7 @@ function DolphinDBDFSClient(webApiUrl) {
 
     this.getGridJson = function(fullPath) {
         setCacheByPath(fullPath);
-        return this.tableJson;
+        return tableJson;
     }
 
 }
