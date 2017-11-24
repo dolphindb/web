@@ -12,7 +12,7 @@ var wa_url = "http://" + window.location.host;
 //db = database("dfs://root/node2/node2_3/node2_3_2")
 
 var client = null;
-$(function() {
+$(function () {
     client = new DolphinDBDFSClient(wa_url);
     var json = client.getGridJson("/");
     bindGrid(json);
@@ -26,7 +26,7 @@ var bindPath = function (fullPath) {
         if (i === 0) {//if root path
             pathStr = "/";
             cp = "/";
-        } else if (i===1) {
+        } else if (i === 1) {
             pathStr = pathStr + e;
         } else {
             pathStr = pathStr + "/" + e;
@@ -49,7 +49,7 @@ var bindPath = function (fullPath) {
         pathStr = getCurrentPath();
     });
 }
-var getCurrentPath = function(){
+var getCurrentPath = function () {
     var cp = "";
     $("#dfsPath").children().each(function (i, e) {
         if (cp === "") {//if root path
@@ -71,7 +71,7 @@ var getCurrentPath = function(){
 //    } else {
 //        cp = cp + "/" + path;
 //    }
-    
+
 //    var li = document.createElement("li");
 //    var archor = document.createElement("a");
 //    archor.href = '#';
@@ -87,7 +87,7 @@ var getCurrentPath = function(){
 //    li.append(archor);
 //    $("#dfsPath").append(li);
 //}
-var bindGrid=function(tableJson){
+var bindGrid = function (tableJson) {
     var grid = $('#jsgrid1');
     var dg = new DolphinGrid(grid, {
         pageSize: 50,
@@ -100,7 +100,7 @@ var bindGrid=function(tableJson){
                 var cp = getCurrentPath();
                 var fpath = "";
                 if (cp === "") {//if root path
-                     fpath= "/";
+                    fpath = "/";
                 } else if (cp === "/") {
                     fpath = cp + arg.item.filename;
                 } else {
@@ -113,106 +113,62 @@ var bindGrid=function(tableJson){
         }
     });
     var col = [{
-            name: 'filename',
-            title: 'name',
-            type: 'text',
-            itemTemplate: function(value, item) {
-                if (item.filetype == 0) {
-                    return "<span class='glyphicon glyphicon-folder-close' style='color:rgb(239,222,7)' title='directory'></span> " + value
-                } else if (item.filetype == 1) {
-                    return "<span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " + value
-                } else if (item.filetype == 2) {
-                    return  "<span class='glyphicon glyphicon-file' style='color:rgb(190,190,190)' title='file'></span> " + value
-                }
-            }
-    }, {
-            name: 'size',
-            title: 'size',
-            type: 'text'
-        }, {
-            name: 'filename',
-            title: 'distribution',
-            type: 'text',
-            itemTemplate: function (value, item) {
-                if (item.filetype > 0) {
-                    return "<span class='glyphicon glyphicon-th-large' style= 'color:rgb(190,190,190)' title= 'file' >"
-                }
-                
+        name: 'filename',
+        title: 'filename',
+        type: 'text',
+        itemTemplate: function (value, item) {
+            if (item.filetype == 0) {
+                return "<span class='glyphicon glyphicon-folder-close' style='color:rgb(239,222,7)' title='directory'></span> " + value
+            } else if (item.filetype == 1) {
+                return "<span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " + value
+            } else if (item.filetype == 2) {
+                return "<span class='glyphicon glyphicon-file' style='color:rgb(190,190,190)' title='file'></span> " + value
             }
         }
+    }, {
+        name: 'size',
+        title: 'size',
+        type: 'text'
+    }, {
+        name: 'sites',
+        title: 'sites',
+        type: 'text',
+        itemTemplate: function (value, item) {
+            if (item.filetype > 0) {
+                return value;
+            }
+
+        }
+    }
 
 
     ]
     dg.loadFromJson(tableJson, false, col);
 }
-//var buildTreeJson = function(node, subTree) {
-//    var subNode = treeJson.filter(function(e) {
-//        return e.filename === node.filename;
-//    });
-//    subNode.children = subTree;
-//};
+//=================================================================Filter====================================================================
+$("#executeSQL").bind("click", function () {
+    doQuery($("#txtSQL").val());
+});
+$("#txtSQL").bind("keypress", function (e) {
+    if (e.keyCode == 13) {
+        doQuery($("#txtSQL").val());
+    }
+});
 
-//var ParseTable2Tree = function(table) {
-//    var subTreeJson = [];
-//    $(table).each(function(i, row) {
-//        subTreeItem = { "id": row.fileid, "text": row.filename };
-//        subTreeJson.push(subTreeItem);
-//    });
-//    return subTreeJson;
-//};
-
-
-//var pathClick= function (fullpath) {
-//    console.log(fullpath);
-//}
-
-//$('#jstree1').jstree({
-//    "core": {
-//        "animation": 0,
-//        "check_callback": true,
-//        "themes": { "stripes": true },
-//        "data": { "text": "/" }
-//    },
-//    "types": {
-//        "#": {
-//            "max_children": 1,
-//            "max_depth": 4,
-//            "valid_children": ["root"]
-//        },
-//        "root": {
-//            "icon": "/static/3.3.4/assets/images/tree_icon.png",
-//            "valid_children": ["default"]
-//        },
-//        "default": {
-//            "valid_children": ["default", "file"]
-//        },
-//        "file": {
-//            "icon": "glyphicon glyphicon-file",
-//            "valid_children": []
-//        }
-//    },
-//    "plugins": [
-//        "contextmenu", "dnd", "search",
-//        "state", "types", "wholerow"
-//    ]
-//});
-//$('#jstree1').on("changed.jstree", function(e, data) {
-//    if (data && data.node) {
-//        var tree = $('#jstree1').jstree(true);
-//        sel = tree.get_selected();
-//        if (!sel.length) { return false; }
-//        sel = sel[0];
-
-//        //getDfsByPath(data.node.text);
-//        var sPath = tree.get_path(sel, '/', false)
-//            //console.log(sPath);
-//        if (sPath.indexOf("/") === 0) {
-//            //getDfsByPath(sPath);
-//        } else {
-//            //getDfsByPath("/" + sPath);
-//        }
-//    }
-//});
+var doQuery = function (sql) {
+    var executor = new CodeExecutor(wa_url);
+    var path = getCurrentPath();
+    if (sql != "") {
+        var script = 'select * from getDFSDirectoryContent("' + path + '") where ' + sql;
+        codestr = encodeURIComponent(script);
+        var re = executor.runSync(codestr);
+        tableJson = DolphinResult2Grid(re);
+        bindGrid(tableJson);
+    } else {
+        bindGrid(client.getGridJson(path));
+    }
+}
+//=================================================================Path Object===============================================================
 /**
  * design for parsing path
  * @param {fullPath} path 
@@ -222,7 +178,7 @@ function PathObject(path) {
     this.pathItems = path.split("/");
     this.depth = this.pathItems.length;
 
-    this.getPath = function(depth) {
+    this.getPath = function (depth) {
         var p = "";
         for (var i = depth - 1; i >= 0; i--) {
             p = this.pathItems(i) + "/" + p;
@@ -230,11 +186,9 @@ function PathObject(path) {
         return p;
     }
 }
-
-// $('#jstree1').on("dblclick.jstree", function(e) {
-//     console.log(e.target);
-// });
-//jsgrid1
+//================================================================DolphinDB DFS Client===============================================================
+//DolphinDB DFS Client 
+//get dfs data from Dolphindb server
 function DolphinDBDFSClient(webApiUrl) {
     var url = webApiUrl;
     var tableJson = null;
@@ -248,11 +202,11 @@ function DolphinDBDFSClient(webApiUrl) {
         var re = executor.runSync(codestr);
         tableJson = DolphinResult2Grid(re);
         //cacheTreeJson
-        $(tableJson).each(function (i, e) {
-            if (!treeCacheTable) treeCacheTable = [];
-            treeCacheTable.push({"filename":e.filename,"filetype":e.filetype,"filepath":path + e.filename});
-        });
-        console.log(treeCacheTable);
+        //$(tableJson).each(function (i, e) {
+        //    if (!treeCacheTable) treeCacheTable = [];
+        //    //treeCacheTable.push({ "filename": e.filename, "filetype": e.filetype, "filepath": path + e.filename });
+        //});
+        //console.log(treeCacheTable);
     }
 
     var pNode = null;
@@ -292,7 +246,7 @@ function DolphinDBDFSClient(webApiUrl) {
         };
     }
     //todo: 
-    this.getTreeJson = function(fullPath) {
+    this.getTreeJson = function (fullPath) {
         setCacheByPath(fullPath);
         // rebuild all tree json
         //     getDfsByPath("/");
@@ -302,7 +256,7 @@ function DolphinDBDFSClient(webApiUrl) {
         // }
     }
 
-    this.getGridJson = function(fullPath) {
+    this.getGridJson = function (fullPath) {
         setCacheByPath(fullPath);
         return tableJson;
     }
