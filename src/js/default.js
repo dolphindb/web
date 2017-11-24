@@ -163,7 +163,7 @@ function LoadTable(nodeList) {
             sorting: '',
             width: 100,
             template: function(cpuUsage, rowObject) {
-                return Number(cpuUsage).toFixed(1) + "%";
+                return fmoney(cpuUsage,1) + "%";
             },
         }, {
             text: 'avgLoad',
@@ -172,7 +172,7 @@ function LoadTable(nodeList) {
             sorting: '',
             width: 100,
             template: function(avgLoad, rowObject) {
-                return Number(avgLoad * 100).toFixed(1) + "%";
+                return fmoney(avgLoad,2);
             },
         }, {
             text: 'medQT10',
@@ -181,7 +181,7 @@ function LoadTable(nodeList) {
             sorting: '',
             width: 90,
             template: function(medLast10QueryTime, rowObject) {
-                return Number(medLast10QueryTime / 1000000).toFixed(1) + " ms";
+                return fmoney(medLast10QueryTime / 1000000,1) + " ms";
             },
         }, {
             text: 'maxQT10',
@@ -190,7 +190,7 @@ function LoadTable(nodeList) {
             sorting: '',
             width: 90,
             template: function(maxLast10QueryTime, rowObject) {
-                return Number(maxLast10QueryTime / 1000000).toFixed(1) + " ms";
+                return fmoney(maxLast10QueryTime / 1000000,1) + " ms";
             },
         }, {
             text: 'medQT100',
@@ -199,7 +199,7 @@ function LoadTable(nodeList) {
             sorting: '',
             width: 100,
             template: function(medLast100QueryTime, rowObject) {
-                return Number(medLast100QueryTime / 1000000).toFixed(1) + " ms";
+                return fmoney(medLast100QueryTime / 1000000,1) + " ms";
             },
         }, {
             text: 'maxQT100',
@@ -208,7 +208,7 @@ function LoadTable(nodeList) {
             sorting: '',
             width: 100,
             template: function(maxLast100QueryTime, rowObject) {
-                return Number(maxLast100QueryTime / 1000000).toFixed(1) + " ms";
+                return fmoney(maxLast100QueryTime / 1000000,1) + " ms";
             },
         }, {
             text: 'maxRunningQT',
@@ -217,7 +217,7 @@ function LoadTable(nodeList) {
             sorting: '',
             width: 120,
             template: function(maxRunningQueryTime, rowObject) {
-                return Number(rowObject.maxRunningQueryTime / 1000000).toFixed(1) + " ms";
+                return fmoney(rowObject.maxRunningQueryTime/1000000,1) + " ms";
             }
         }, {
             text: 'runningJobs',
@@ -271,7 +271,7 @@ function LoadTable(nodeList) {
             sorting: '',
             width: 90,
             template: function(diskCapacity, rowObject) {
-                return fmoney((diskCapacity/1024),2) + " GB";
+                return fmoney((diskCapacity / Math.pow(1024,3)),1) + " GB";
             },
         }, {
             text: 'diskFreeSpace',
@@ -280,7 +280,7 @@ function LoadTable(nodeList) {
             sorting: '',
             width: 90,
             template: function(diskFreeSpace, rowObject) {
-                return fmoney((diskFreeSpace / 1024),2) + " GB";
+                return fmoney((diskFreeSpace / Math.pow(1024, 3)),1) + " GB";
             },
         }, {
             text: 'diskFreeSpaceRatio',
@@ -292,31 +292,31 @@ function LoadTable(nodeList) {
                 return Number(diskFreeSpaceRatio * 100).toFixed(1) + " %";
             },
         }, {
-            text: 'diskWirtePerSecond',
+            text: 'diskWirteRate',
             key: 'diskWirtePerSecond',
             remind: 'the speed of saving a tablet or a file block to disk',
             sorting: '',
             width: 90,
             template: function (diskWirtePerSecond, rowObject) {
-                return fmoney((diskWirtePerSecond / (1024 * 1024)),2) + " MB/s";
+                return fmoney((diskWirtePerSecond / (1024 * 1024)),1) + " MB/s";
             },
         }, {
-            text: 'diskReadPerSecond',
+            text: 'diskReadRate',
             key: 'diskReadPerSecond',
             remind: 'the speed of reading a tablet or a file block from disk',
             sorting: '',
             width: 90,
             template: function (diskReadPerSecond, rowObject) {
-                return fmoney((diskReadPerSecond / (1024 * 1024)),2) + " MB/s";
+                return fmoney((diskReadPerSecond / (1024 * 1024)),1) + " MB/s";
             },
         }, {
-            text: 'diskWirtePerMinute',
+            text: 'lastMinuteWriteVolume',
             key: 'diskWirtePerMinute',
-            remind: 'the average amount of saving a tablet or a file block from disk a minute',
+            remind: 'the amount of saving a tablet or a file block to disk last minute',
             sorting: '',
             width: 90,
             template: function (diskWirtePerMinute, rowObject) {
-                return fmoney((diskWirtePerMinute / (1024 * 1024)),2) + " MB";
+                return fmoney((diskWirtePerMinute / (1024 * 1024)),1) + " MB";
             },
         }, {
             text: 'workers',
@@ -343,7 +343,7 @@ function LoadTable(nodeList) {
             sorting: '',
             width: 90,
             template: function(maxMemSize, rowObject) {
-                return Number(maxMemSize).toFixed(1) + " GB";
+                return fmoney(maxMemSize,1) + " GB";
             }
         }],
         sortingAfter: function(querys) {
@@ -782,7 +782,7 @@ var bindPerfLog = function(json) {
 function bytesToSize(bytes) {
     if (bytes === 0) return '0 MB';
     var k = 1024;
-    return (bytes / Math.pow(k, 2)).toFixed(1) + ' MB';
+    return fmoney(bytes / Math.pow(k, 2),1) + ' MB';
 }
 
 function HTMLEncode(html) {
@@ -836,11 +836,13 @@ $("#btn_collapse").bind("click", function() {
     console.log(span);
     if (span.attr('class') === "glyphicon glyphicon-step-backward") {
         span.attr('class', 'glyphicon glyphicon-step-forward');
+        span.attr('title', 'expand agent panel');
         $("#main").attr('class', 'col-lg-12 col-md-12');
         $("#sidebar").hide();
     } else {
         span.attr('class', 'glyphicon glyphicon-step-backward');
         $("#main").attr('class', 'col-lg-10 col-md-9');
+        span.attr('title', 'collapse agent panel');
         $("#sidebar").show();
     }
 

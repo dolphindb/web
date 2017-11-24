@@ -1,4 +1,3 @@
-var treeJson = [{ "id": 1, "text": "Root node", "children": [{ "id": 2, "text": "Child node 1" }, { "id": 3, "text": "Child node 2" }] }];
 var wa_url = "http://" + window.location.host;
 //jstree1 
 //testcase :
@@ -19,25 +18,75 @@ $(function() {
     bindGrid(json);
     bindPath("/")
 });
-var bindPath=function(fullPath){
-    $(fullPath.split("/")).each(function(i,e){
+var bindPath = function (fullPath) {
+    $("#dfsPath").empty();
+    var pathStr = "";
+    $(fullPath.split("/")).each(function (i, e) {
+        var cp = e;
+        if (i === 0) {//if root path
+            pathStr = "/";
+            cp = "/";
+        } else if (i===1) {
+            pathStr = pathStr + e;
+        } else {
+            pathStr = pathStr + "/" + e;
+        }
         var li = document.createElement("li");
-        li.innerHTML = "<a href='#' onclick='pathClick'>" + e + "</a>"
+        var archor = document.createElement("a");
+        archor.href = '#';
+        archor.name = 'pItem';
+        $(archor).attr("ref", pathStr);
+        $(archor).text(cp);
+
+        $(archor).bind("click", function () {
+            var p = $(this).attr("ref");
+            var json = client.getGridJson(p);
+            bindGrid(json);
+            bindPath(p);
+        });
+        li.append(archor);
         $("#dfsPath").append(li);
+        pathStr = getCurrentPath();
     });
 }
 var getCurrentPath = function(){
-    var p = "";
-    $("#dfsPath").children().each(function(i,e){
-        p = p + "/" + e.innerText;
+    var cp = "";
+    $("#dfsPath").children().each(function (i, e) {
+        if (cp === "") {//if root path
+            cp = "/";
+        } else if (cp === "/") {
+            cp = cp + e.innerText;
+        } else {
+            cp = cp + "/" + e.innerText;
+        }
     });
-    return p;
+    return cp;
 }
-var appendPath=function(path){
-    var li = document.createElement("li");
-    li.innerHTML = "<a href='#' onclick='pathClick'>" + path + "</a>"
-    $("#dfsPath").append(li);
-}
+//var appendPath = function (path) {
+//    var cp = getCurrentPath();
+//    if (cp === "") {//if root path
+//        cp = "/";
+//    } else if(cp==="/"){
+//        cp = cp + path;
+//    } else {
+//        cp = cp + "/" + path;
+//    }
+    
+//    var li = document.createElement("li");
+//    var archor = document.createElement("a");
+//    archor.href = '#';
+//    archor.name = 'pItem';
+//    $(archor).attr("ref", cp);
+//    archor.innerText = path;
+//    $(archor).bind("click", function () {
+//        var p = $(this).attr("ref");
+//        var json = client.getGridJson(p);
+//        bindGrid(json);
+//        bindPath(p);
+//    });
+//    li.append(archor);
+//    $("#dfsPath").append(li);
+//}
 var bindGrid=function(tableJson){
     var grid = $('#jsgrid1');
     var dg = new DolphinGrid(grid, {
@@ -47,9 +96,18 @@ var bindGrid=function(tableJson){
         pageLoading: false,
         autoload: false,
         rowDoubleClick: function (arg) {
-            if (arg.item.filetype == 0) { //you can only expanded filetype==0 
-                appendPath(arg.item.filename);
-                json = client.getGridJson(getCurrentPath());
+            if (arg.item.filetype == 0 || arg.item.filetype == 1) { //expanded directory or partition directory
+                var cp = getCurrentPath();
+                var fpath = "";
+                if (cp === "") {//if root path
+                     fpath= "/";
+                } else if (cp === "/") {
+                    fpath = cp + arg.item.filename;
+                } else {
+                    fpath = cp + "/" + arg.item.filename;;
+                }
+                bindPath(fpath);
+                json = client.getGridJson(fpath);
                 bindGrid(json);
             }
         }
@@ -60,117 +118,101 @@ var bindGrid=function(tableJson){
             type: 'text',
             itemTemplate: function(value, item) {
                 if (item.filetype == 0) {
-                    return "<span class='jstree-icon jstree-themeicon'></span> " + value
-                } else {
-                    return value;
+                    return "<span class='glyphicon glyphicon-folder-close' style='color:rgb(239,222,7)' title='directory'></span> " + value
+                } else if (item.filetype == 1) {
+                    return "<span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " + value
+                } else if (item.filetype == 2) {
+                    return  "<span class='glyphicon glyphicon-file' style='color:rgb(190,190,190)' title='file'></span> " + value
                 }
             }
-    }, {
-        name: 'filetype',
-        title: 'filetype',
-        type: 'text'
     }, {
             name: 'size',
             title: 'size',
             type: 'text'
+        }, {
+            name: 'filename',
+            title: 'distribution',
+            type: 'text',
+            itemTemplate: function (value, item) {
+                if (item.filetype > 0) {
+                    return "<span class='glyphicon glyphicon-th-large' style= 'color:rgb(190,190,190)' title= 'file' >"
+                }
+                
+            }
         }
+
+
     ]
     dg.loadFromJson(tableJson, false, col);
 }
-var buildTreeJson = function(node, subTree) {
-    var subNode = treeJson.filter(function(e) {
-        return e.filename === node.filename;
-    });
-    subNode.children = subTree;
-};
+//var buildTreeJson = function(node, subTree) {
+//    var subNode = treeJson.filter(function(e) {
+//        return e.filename === node.filename;
+//    });
+//    subNode.children = subTree;
+//};
 
-var ParseTable2Tree = function(table) {
-    var subTreeJson = [];
-    $(table).each(function(i, row) {
-        subTreeItem = { "id": row.fileid, "text": row.filename };
-        subTreeJson.push(subTreeItem);
-    });
-    return subTreeJson;
-};
-
-//handle json result
-var refreshTreeAndGrid = function(json) {
-    var tree = $('#jstree1').jstree(true);
-    sel = tree.get_selected();
-    if (!sel.length) { return false; }
-    sel = sel[0];
-    var children = tree.get_children_dom(sel)
-
-    var treeJson = DolphinResult2Grid(json);
-    $(treeJson).each(function(i, e) {
-        var nodeid = tree.create_node(sel, { "text": e.filename });
-    });
-    var sPath = tree.get_path(sel, '/', false)
-        //bindgrid()
-    
-    //bindpath
-    $("#dfsPath").html('<li></li>');
-    var pathItem = '<li><a href="#">{p}</a></li>';
-    $.each(sPath.split('/'), function(i, e) {
-        if (e.length > 0) {
-            //console.log(e);
-            $("#dfsPath").append(pathItem.replace("{p}", e));
-        }
-    });
-}
+//var ParseTable2Tree = function(table) {
+//    var subTreeJson = [];
+//    $(table).each(function(i, row) {
+//        subTreeItem = { "id": row.fileid, "text": row.filename };
+//        subTreeJson.push(subTreeItem);
+//    });
+//    return subTreeJson;
+//};
 
 
-var getData = function() {
-    return a;
-}
+//var pathClick= function (fullpath) {
+//    console.log(fullpath);
+//}
 
-$('#jstree1').jstree({
-    "core": {
-        "animation": 0,
-        "check_callback": true,
-        "themes": { "stripes": true },
-        "data": { "text": "/" }
-    },
-    "types": {
-        "#": {
-            "max_children": 1,
-            "max_depth": 4,
-            "valid_children": ["root"]
-        },
-        "root": {
-            "icon": "/static/3.3.4/assets/images/tree_icon.png",
-            "valid_children": ["default"]
-        },
-        "default": {
-            "valid_children": ["default", "file"]
-        },
-        "file": {
-            "icon": "glyphicon glyphicon-file",
-            "valid_children": []
-        }
-    },
-    "plugins": [
-        "contextmenu", "dnd", "search",
-        "state", "types", "wholerow"
-    ]
-});
-$('#jstree1').on("changed.jstree", function(e, data) {
-    if (data && data.node) {
-        var tree = $('#jstree1').jstree(true);
-        sel = tree.get_selected();
-        if (!sel.length) { return false; }
-        sel = sel[0];
+//$('#jstree1').jstree({
+//    "core": {
+//        "animation": 0,
+//        "check_callback": true,
+//        "themes": { "stripes": true },
+//        "data": { "text": "/" }
+//    },
+//    "types": {
+//        "#": {
+//            "max_children": 1,
+//            "max_depth": 4,
+//            "valid_children": ["root"]
+//        },
+//        "root": {
+//            "icon": "/static/3.3.4/assets/images/tree_icon.png",
+//            "valid_children": ["default"]
+//        },
+//        "default": {
+//            "valid_children": ["default", "file"]
+//        },
+//        "file": {
+//            "icon": "glyphicon glyphicon-file",
+//            "valid_children": []
+//        }
+//    },
+//    "plugins": [
+//        "contextmenu", "dnd", "search",
+//        "state", "types", "wholerow"
+//    ]
+//});
+//$('#jstree1').on("changed.jstree", function(e, data) {
+//    if (data && data.node) {
+//        var tree = $('#jstree1').jstree(true);
+//        sel = tree.get_selected();
+//        if (!sel.length) { return false; }
+//        sel = sel[0];
 
-        //getDfsByPath(data.node.text);
-        var sPath = tree.get_path(sel, '/', false)
-            //console.log(sPath);
-        if (sPath.indexOf("/") === 0) {
-            //getDfsByPath(sPath);
-        } else {
-            //getDfsByPath("/" + sPath);
-        }
-    }
-});
+//        //getDfsByPath(data.node.text);
+//        var sPath = tree.get_path(sel, '/', false)
+//            //console.log(sPath);
+//        if (sPath.indexOf("/") === 0) {
+//            //getDfsByPath(sPath);
+//        } else {
+//            //getDfsByPath("/" + sPath);
+//        }
+//    }
+//});
 /**
  * design for parsing path
  * @param {fullPath} path 
