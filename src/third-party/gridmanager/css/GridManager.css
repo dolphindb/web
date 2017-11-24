@@ -534,6 +534,10 @@ table[grid-manager].GridManager-ready {
     padding: 6px 4px;
 }
 
+.table-wrap thead[grid-manager-thead] th {
+    box-shadow: 0 -1px 0 #ccc;
+    border-bottom: 1px solid #ccc;
+}
 
 /*宽度调整*/
 
@@ -572,6 +576,10 @@ table[grid-manager].GridManager-ready {
 
 
 /*排序*/
+.table-wrap .th-wrap  {
+    cursor: pointer;
+}
+
 
 .table-wrap table[grid-manager] .sorting-action {
     display: block;
@@ -580,7 +588,6 @@ table[grid-manager].GridManager-ready {
     position: absolute;
     top: 6px;
     right: 5px;
-    cursor: default;
     z-index: 2;
     color: #444;
 }
@@ -608,11 +615,13 @@ table[grid-manager].GridManager-ready {
 .table-wrap table[grid-manager] .sorting-action .sa-up {
     top: 0px;
     right: 0px;
+    opacity: 0;
 }
 
 .table-wrap table[grid-manager] .sorting-action .sa-down {
     bottom: 0px;
     right: 0px;
+    opacity: 0;
 }
 
 .table-wrap table[grid-manager] .sorting-action.sorting-up .sa-up {
@@ -620,11 +629,11 @@ table[grid-manager].GridManager-ready {
 }
 
 .table-wrap table[grid-manager] .sorting-action.sorting-up .sa-down {
-    opacity: 0.1;
+    opacity: 0;
 }
 
 .table-wrap table[grid-manager] .sorting-action.sorting-down .sa-up {
-    opacity: 0.1;
+    opacity: 0;
 }
 
 .table-wrap table[grid-manager] .sorting-action.sorting-down .sa-down {
@@ -711,7 +720,7 @@ table[grid-manager].GridManager-ready {
 
 .table-wrap table[grid-manager] th[gm-create="true"] {
     background-color: #e6eeee !important;
-    opacity: 0.4;
+    /*opacity: 0.4;*/
 }
 
 .table-wrap table[grid-manager] tr td[gm-create="true"] {

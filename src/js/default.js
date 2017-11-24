@@ -55,7 +55,7 @@ function LoadTable(nodeList) {
         supportAjaxPage: false,
         supportExport: false,
         supportSorting: true,
-        supportDrag: true,
+        supportDrag: false,
         supportRemind: false,
         i18n: 'en-us',
         emptyTemplate: '<div class="gm-emptyTemplate">empty</div>',

@@ -3217,11 +3217,16 @@
                     _thName = void 0; //th对应的名称
 
                 //绑定排序事件
-                (0, _jTool2.default)('.sorting-action', _thList).unbind('mouseup');
-                (0, _jTool2.default)('.sorting-action', _thList).bind('mouseup', function() {
+                //(0, _jTool2.default)('.sorting-action', _thList).unbind('mouseup');
+                //(0, _jTool2.default)('.sorting-action', _thList).bind('mouseup', function() {
+                _thList.unbind('mouseup');
+                _thList.bind('mouseup', function() {
                     var Settings = _Cache2.default.getSettings(table);
-                    _action = (0, _jTool2.default)(this);
-                    _th = _action.closest('th');
+                    //_action = (0, _jTool2.default)(this);
+                    //_th = _action.closest('th');
+                    _th = (0, _jTool2.default)(this);
+                    _action = (0, _jTool2.default)('.sorting-action', _th);
+                    console.log(_action)
                     _table = _th.closest('table');
                     _thName = _th.attr('th-name');
                     if (!_thName || _jTool2.default.trim(_thName) == '') {
@@ -3523,6 +3528,7 @@
                         return true;
                     }
                     //配置吸顶区的宽度
+                    /*
                     if (_setTopHead.length == 0 || _isWindowResize_) {
                         _setTopHead.length == 0 ? table.append(_thead.clone(true).addClass('set-top')) : '';
                         _setTopHead = (0, _jTool2.default)('.set-top', table);
@@ -3537,7 +3543,11 @@
                             (0, _jTool2.default)('th', _setTopHead).eq(i).width((0, _jTool2.default)(v).width());
                         });
                     }
+                    */
                     if (_setTopHead.length === 0) {
+                        var translate = "translate(0," + (_scrollDOMTop) + "px)";
+                        console.log(translate);
+                        _thead.css('transform', translate);
                         return;
                     }
                     // 删除表头置顶
