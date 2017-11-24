@@ -834,13 +834,13 @@ function hideCtlSel() {
 $("#btn_collapse").bind("click", function() {
     var span = $("#icon_collapse");
     console.log(span);
-    if (span.attr('class') === "glyphicon glyphicon-step-backward") {
-        span.attr('class', 'glyphicon glyphicon-step-forward');
+    if (span.attr('class') === "glyphicon glyphicon-arrow-left") {
+        span.attr('class', 'glyphicon glyphicon-arrow-right');
         span.attr('title', 'expand agent panel');
         $("#main").attr('class', 'col-lg-12 col-md-12');
         $("#sidebar").hide();
     } else {
-        span.attr('class', 'glyphicon glyphicon-step-backward');
+        span.attr('class', 'glyphicon glyphicon-arrow-left');
         $("#main").attr('class', 'col-lg-10 col-md-9');
         span.attr('title', 'collapse agent panel');
         $("#sidebar").show();
