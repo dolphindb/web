@@ -66,7 +66,7 @@ function LoadTable(nodeList) {
         width: '80vw',
         height: '80vh',
         columnData: [{
-            text: 'mode',
+            text: 'Mode',
             key: 'mode',
             remind: 'the role of node(controller,agent,datanode)',
             width: 80,
@@ -78,7 +78,7 @@ function LoadTable(nodeList) {
                 }
             }
         }, {
-            text: 'node',
+            text: 'Node',
             key: 'site',
             remind: 'node name',
             sorting: '',
@@ -98,7 +98,7 @@ function LoadTable(nodeList) {
                 return d.split(':')[2];
             }
         }, {
-            text: 'state',
+            text: 'State',
             key: 'state',
             remind: ' state of the node',
             sorting: '',
@@ -110,7 +110,7 @@ function LoadTable(nodeList) {
                 }
             }
         }, {
-            text: 'svrLog',
+            text: 'ServerLog',
             key: 'serverLog',
             remind: 'server log',
             template: function(action, rowObject) {
@@ -123,7 +123,7 @@ function LoadTable(nodeList) {
                 return r;
             },
         }, {
-            text: 'perfLog',
+            text: 'PerfLog',
             key: 'perfLog',
             remind: 'query performance log',
             template: function(action, rowObject) {
@@ -137,13 +137,13 @@ function LoadTable(nodeList) {
             },
 
         }, {
-            text: 'conns',
+            text: 'Conns',
             key: 'connectionNum',
             remind: ' number of current connections',
             sorting: '',
             width: 80
         }, {
-            text: 'memUsed',
+            text: 'MemUsed',
             key: 'memoryUsed',
             remind: 'Memory Used',
             sorting: '',
@@ -152,7 +152,7 @@ function LoadTable(nodeList) {
                 return bytesToSize(memoryUsed);
             },
         }, {
-            text: 'memAlloc',
+            text: 'MemAlloc',
             key: 'memoryAlloc',
             remind: 'Memory Allocated',
             sorting: '',
@@ -161,7 +161,7 @@ function LoadTable(nodeList) {
                 return bytesToSize(memoryAlloc);
             },
         }, {
-            text: 'cpuUsage',
+            text: 'CpuUsage',
             key: 'cpuUsage',
             remind: 'cpu usage',
             sorting: '',
@@ -170,7 +170,7 @@ function LoadTable(nodeList) {
                 return fmoney(cpuUsage,1) + "%";
             },
         }, {
-            text: 'avgLoad',
+            text: 'AvgLoad',
             key: 'avgLoad',
             remind: 'average load',
             sorting: '',
@@ -179,7 +179,7 @@ function LoadTable(nodeList) {
                 return fmoney(avgLoad,2);
             },
         }, {
-            text: 'medQT10',
+            text: 'MedQT10',
             key: 'medLast10QueryTime',
             remind: 'median execution time of the previous 10 finished queries',
             sorting: '',
@@ -188,7 +188,7 @@ function LoadTable(nodeList) {
                 return fmoney(medLast10QueryTime / 1000000,1) + " ms";
             },
         }, {
-            text: 'maxQT10',
+            text: 'MaxQT10',
             key: 'maxLast10QueryTime',
             remind: 'max execution time of the previous 10 finished queries',
             sorting: '',
@@ -197,7 +197,7 @@ function LoadTable(nodeList) {
                 return fmoney(maxLast10QueryTime / 1000000,1) + " ms";
             },
         }, {
-            text: 'medQT100',
+            text: 'MedQT100',
             key: 'medLast100QueryTime',
             remind: 'median execution time of the previous 100 finished queries',
             sorting: '',
@@ -206,7 +206,7 @@ function LoadTable(nodeList) {
                 return fmoney(medLast100QueryTime / 1000000,1) + " ms";
             },
         }, {
-            text: 'maxQT100',
+            text: 'MaxQT100',
             key: 'maxLast100QueryTime',
             remind: 'max execution time of the previous 100 finished queries',
             sorting: '',
@@ -215,7 +215,7 @@ function LoadTable(nodeList) {
                 return fmoney(maxLast100QueryTime / 1000000,1) + " ms";
             },
         }, {
-            text: 'maxRunningQT',
+            text: 'MaxRunningQT',
             key: 'maxRunningQueryTime',
             remind: 'the maximum elapsed time of currently running queries',
             sorting: '',
@@ -224,7 +224,7 @@ function LoadTable(nodeList) {
                 return fmoney(rowObject.maxRunningQueryTime/1000000,1) + " ms";
             }
         }, {
-            text: 'runningJobs',
+            text: 'RunningJobs',
             key: 'runningJobs',
             remind: 'the number of running jobs',
             sorting: '',
@@ -233,7 +233,7 @@ function LoadTable(nodeList) {
                 return Number(runningJobs);
             },
         }, {
-            text: 'queuedJobs',
+            text: 'QueuedJobs',
             key: 'queuedJobs',
             remind: 'the number of jobs in the queue',
             sorting: '',
@@ -242,7 +242,7 @@ function LoadTable(nodeList) {
                 return Number(queuedJobs);
             },
         }, {
-            text: 'runningTasks',
+            text: 'RunningTasks',
             key: 'runningTasks',
             remind: 'the number of running sub tasks',
             sorting: '',
@@ -251,7 +251,7 @@ function LoadTable(nodeList) {
                 return Number(runningTasks);
             },
         }, {
-            text: 'queuedTasks',
+            text: 'QueuedTasks',
             key: 'queuedTasks',
             remind: 'the number of sub tasks in the queue',
             sorting: '',
@@ -260,7 +260,7 @@ function LoadTable(nodeList) {
                 return Number(queuedTasks);
             },
         }, {
-            text: 'jobLoad',
+            text: 'JobLoad',
             key: 'jobLoad',
             remind: 'the ratio of total jobs to number of workers',
             sorting: '',
@@ -269,7 +269,7 @@ function LoadTable(nodeList) {
                 return Number(jobLoad);
             },
         }, {
-            text: 'diskCapacity',
+            text: 'DiskCapacity',
             key: 'diskCapacity',
             remind: 'disk space of all volumes for the node',
             sorting: '',
@@ -278,7 +278,7 @@ function LoadTable(nodeList) {
                 return fmoney((diskCapacity / Math.pow(1024,3)),1) + " GB";
             },
         }, {
-            text: 'diskFreeSpace',
+            text: 'DiskFreeSpace',
             key: 'diskFreeSpace',
             remind: 'available disk space of all volumes for the node',
             sorting: '',
@@ -287,7 +287,7 @@ function LoadTable(nodeList) {
                 return fmoney((diskFreeSpace / Math.pow(1024, 3)),1) + " GB";
             },
         }, {
-            text: 'diskFreeSpaceRatio',
+            text: 'DiskFreeSpaceRatio',
             key: 'diskFreeSpaceRatio',
             remind: 'the percentage of free space out of the disk capacity',
             sorting: '',
@@ -296,7 +296,7 @@ function LoadTable(nodeList) {
                 return Number(diskFreeSpaceRatio * 100).toFixed(1) + " %";
             },
         }, {
-            text: 'diskWirteRate',
+            text: 'DiskWirteRate',
             key: 'diskWirtePerSecond',
             remind: 'the rate of disk write',
             sorting: '',
@@ -305,7 +305,7 @@ function LoadTable(nodeList) {
                 return fmoney((diskWirtePerSecond / (1024 * 1024)),1) + " MB/s";
             },
         }, {
-            text: 'diskReadRate',
+            text: 'DiskReadRate',
             key: 'diskReadPerSecond',
             remind: 'the rate of disk read',
             sorting: '',
@@ -314,7 +314,7 @@ function LoadTable(nodeList) {
                 return fmoney((diskReadPerSecond / (1024 * 1024)),1) + " MB/s";
             },
         }, {
-            text: 'lastMinuteWriteVolume',
+            text: 'LastMinuteWriteVolume',
             key: 'diskWirtePerMinute',
             remind: 'the size of disk writing last minute',
             sorting: '',
@@ -323,25 +323,25 @@ function LoadTable(nodeList) {
                 return fmoney((diskWirtePerMinute / (1024 * 1024)),1) + " MB";
             },
         }, {
-            text: 'workers',
+            text: 'Workers',
             key: 'workerNum',
             remind: 'number of job workers',
             sorting: '',
             width: 90
         }, {
-            text: 'executors',
+            text: 'Executors',
             key: 'executorNum',
             remind: 'number of local task executors',
             sorting: '',
             width: 100
         }, {
-            text: 'connLimit',
+            text: 'ConnLimit',
             key: 'maxConnections',
             remind: 'max incoming connections',
             sorting: '',
             width: 90
         }, {
-            text: 'memLimit',
+            text: 'MemLimit',
             key: 'maxMemSize',
             remind: 'max memory size',
             sorting: '',
