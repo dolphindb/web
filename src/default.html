@@ -49,9 +49,16 @@
         <div class="row">
             <div class="col-lg-2 col-md-3" id="sidebar">
                 <div class="bs-sidebar hidden-print" role="complementary">
+                    <!--<div class="panel">
+                        <div class="panel-body">
+                            <button type="button" class="btn btn-primary" id="btn_dfsexplorer" title="open DFS explorer">
+                                DFS explorer
+                            </button>
+                            </div>
+                    </div>-->
                     <div class="panel panel-info">
                         <div class="panel-heading">
-                            Agent nodes
+                            Agent Nodes
                         </div>
                         <div class="panel-body" style="overflow-y: scroll;">
                             <div class="list-group">
@@ -84,10 +91,10 @@
                                 </button>
                             </div>
                             <div class="btn-group" role="group" aria-label="...">
-                                <button type="button" class="btn btn-default" id="btn_run" title="start selected datanodes">
+                                <button type="button" class="btn btn-default" id="btn_run" title="start selected data nodes">
                                     <span class="glyphicon glyphicon-play"></span>
                                 </button>
-                                <button type="button" class="btn btn-default" id="btn_stop" title="stop selected datanodes">
+                                <button type="button" class="btn btn-default" id="btn_stop" title="stop selected data nodes">
                                     <span class="glyphicon glyphicon-stop"></span>
                                 </button>
                                 <button type="button" class="btn btn-default" id="btn_refresh" title="refresh data of all nodes">
@@ -149,7 +156,7 @@
                         <div class="well" id="pnllog" style="font-size:12px;height:580px;overflow:auto">
 
                         </div>
-                        <div style="font-size:12px;height:580px;overflow:auto">
+                        <div id="pnlperflog" style="font-size:12px;height:580px;overflow:auto">
                             <div id="jsGrid_perflog"></div>
                         </div>
                     </div>

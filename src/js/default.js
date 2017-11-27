@@ -7,6 +7,7 @@ var CTL_LIST = [];
 var SESSION_ID = "0";
 var grid = document.querySelector('table[grid-manager="grid1"]');
 
+var filterStorageId = "dolphindb_default_gridfilter"
 
 
 $(function() {
@@ -16,9 +17,12 @@ $(function() {
 
     $.cookie("language_file", "js/lang.en.js");
 
+    $("#txtFilter").val(localStorage.getItem(filterStorageId));
+
     GetLocalData(wa_url);
     LoadTable(NODE_LIST);
 
+    
 });
 
 
@@ -121,7 +125,7 @@ function LoadTable(nodeList) {
         }, {
             text: 'perfLog',
             key: 'perfLog',
-            remind: 'server performance log',
+            remind: 'query performance log',
             template: function(action, rowObject) {
                 var r = "";
                 var ref = rowObject.agentSite + '@' + rowObject.site;
@@ -294,7 +298,7 @@ function LoadTable(nodeList) {
         }, {
             text: 'diskWirteRate',
             key: 'diskWirtePerSecond',
-            remind: 'the speed of saving a tablet or a file block to disk',
+            remind: 'the rate of disk write',
             sorting: '',
             width: 90,
             template: function (diskWirtePerSecond, rowObject) {
@@ -303,7 +307,7 @@ function LoadTable(nodeList) {
         }, {
             text: 'diskReadRate',
             key: 'diskReadPerSecond',
-            remind: 'the speed of reading a tablet or a file block from disk',
+            remind: 'the rate of disk read',
             sorting: '',
             width: 90,
             template: function (diskReadPerSecond, rowObject) {
@@ -312,7 +316,7 @@ function LoadTable(nodeList) {
         }, {
             text: 'lastMinuteWriteVolume',
             key: 'diskWirtePerMinute',
-            remind: 'the amount of saving a tablet or a file block to disk last minute',
+            remind: 'the size of disk writing last minute',
             sorting: '',
             width: 90,
             template: function (diskWirtePerMinute, rowObject) {
@@ -321,19 +325,19 @@ function LoadTable(nodeList) {
         }, {
             text: 'workers',
             key: 'workerNum',
-            remind: 'number of executors',
+            remind: 'number of job workers',
             sorting: '',
             width: 90
         }, {
             text: 'executors',
             key: 'executorNum',
-            remind: 'number of executors',
+            remind: 'number of local task executors',
             sorting: '',
             width: 100
         }, {
             text: 'connLimit',
             key: 'maxConnections',
-            remind: 'max Connections',
+            remind: 'max incoming connections',
             sorting: '',
             width: 90
         }, {
@@ -353,8 +357,14 @@ function LoadTable(nodeList) {
 }
 
 function refreshGrid(nodeList) {
+    //add filter 
+    var fv = $("#txtFilter").val();
+
+    var list = nodeList.filter(function (x) {
+        return (x.mode === 0 || x.mode === 2) && x.site.indexOf(fv) >= 0;
+    });
     var griddata = {
-        data: nodeList,
+        data: list,
         totals: nodeList.length
     };
     grid.GM('setAjaxData', griddata);
@@ -488,13 +498,9 @@ $("#btn_refresh").click(function() {
 
 $("#txtFilter").keypress(function(e) {
     if (e.keyCode == 13) {
-        var fv = $(this).val();
-
-        NODE_LIST = ALL_NODE.filter(function(x) {
-            return (x.mode === 0 || x.mode === 2) && x.site.indexOf(fv) >= 0;
-        });
-
         refreshGrid(NODE_LIST);
+
+        localStorage.setItem(filterStorageId, $("#txtFilter").val());
     }
 });
 
@@ -685,7 +691,7 @@ var LoadLog = function() {
 
 var getLog = function(svr_url, offset, length, fromhead, nodeAlias, funcName) {
     $('#pnllog').hide();
-    $('#jsGrid_perflog').hide();
+    $('#jsGrid_perflog').closest().hide();
     if (funcName == "getPerfLog") { length = 50 }
     var p = {
         "sessionID": SESSION_ID,
@@ -725,6 +731,8 @@ var getLog = function(svr_url, offset, length, fromhead, nodeAlias, funcName) {
 
             }
         } else {
+            $('#pnllog').hide();
+            $('#pnlperflog').hide();
             alert(re.msg);
             return false;
         }
@@ -733,7 +741,7 @@ var getLog = function(svr_url, offset, length, fromhead, nodeAlias, funcName) {
 
 var bindLog = function(json) {
     $('#pnllog').show();
-    $('#jsGrid_perflog').hide();
+    $('#pnlperflog').hide();
     $('#pnllog').html('');
     json.forEach(function(element) {
         $('#pnllog').append(HTMLEncode(element) + "<br/>");
@@ -742,7 +750,7 @@ var bindLog = function(json) {
 
 var bindPerfLog = function(json) {
     $('#pnllog').hide();
-    $('#jsGrid_perflog').show();
+    $('#pnlperflog').show();
     var col = [{
         name: "UserId",
         type: "text",

@@ -1976,6 +1976,12 @@
 	   */
                     if (settings.ajax_data) {
                         if (settings.supportSorting) {
+
+                            var cacheSortData = JSON.parse(localStorage.getItem("dolphindb_gridsorting"));//LINL:20171127
+                            console.log("getSortingData", cacheSortData);
+                            if (cacheSortData) {
+                                settings.sortData = cacheSortData;
+                            }
                             var sortKey = Object.keys(settings.sortData)[0];
                             var sortAsc = settings.sortUpText === settings.sortData[sortKey];
                             var sortColumn = settings.columnData.filter(function(d) { return d.key === sortKey; })[0];
@@ -3169,10 +3175,12 @@
                  * */
                 ,
             __setSort: function __setSort($table, sortJson, callback, refresh) {
+                    debugger;
                     var settings = _Cache2.default.getSettings($table);
                     if (!sortJson || _jTool2.default.type(sortJson) !== 'object' || _jTool2.default.isEmptyObject(sortJson)) {
                         return false;
                     }
+           
                     _jTool2.default.extend(settings.sortData, sortJson);
                     _Cache2.default.updateSettings($table, settings);
 
@@ -3226,7 +3234,7 @@
                     //_th = _action.closest('th');
                     _th = (0, _jTool2.default)(this);
                     _action = (0, _jTool2.default)('.sorting-action', _th);
-                    console.log(_action)
+                    //console.log(_action)
                     _table = _th.closest('table');
                     _thName = _th.attr('th-name');
                     if (!_thName || _jTool2.default.trim(_thName) == '') {
@@ -3266,9 +3274,13 @@
                             }
                         });
                     }
+                    localStorage.setItem("dolphindb_gridsorting", JSON.stringify(Settings.sortData));//LINL:20171127
+                    console.log("setSortingData", Settings.sortData);
+                    
                     //调用事件、渲染tbody
                     _Cache2.default.updateSettings(table, Settings);
                     var query = _jTool2.default.extend({}, Settings.query, Settings.sortData, Settings.pageData);
+                    
                     Settings.sortingBefore(query);
                     _Core2.default.__refreshGrid(table, function() {
                         Settings.sortingAfter(query, _th);
@@ -3718,7 +3730,7 @@
             };
             this['setting-grid'] = {
                 'zh-cn': '配置表',
-                'en-us': 'Setting Grid'
+                'en-us': 'Column Selection'
             };
             this['checkall-text'] = {
                 'zh-cn': '全选',
@@ -3868,6 +3880,7 @@
                  * */
                 ,
             setSort: function setSort($table, sortJson, callback, refresh) {
+                debugger;
                     _Sort2.default.__setSort($table, sortJson, callback, refresh);
                 }
                 /*
@@ -3923,8 +3936,8 @@
                  */
                 ,
             setAjaxData: function setAjaxData($table, ajaxData) {
-                    var settings = _Cache2.default.getSettings($table);
-                    _jTool2.default.extend(settings, { ajax_data: ajaxData });
+                var settings = _Cache2.default.getSettings($table);
+                _jTool2.default.extend(settings, { ajax_data: ajaxData });
                     _Cache2.default.updateSettings($table, settings);
                     _Core2.default.__refreshGrid($table);
                 }

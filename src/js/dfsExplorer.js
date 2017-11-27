@@ -1,5 +1,5 @@
 var wa_url = "http://" + window.location.host;
-//jstree1 
+var homeTitle = "[Home]"
 //testcase :
 //db = database("dfs://root/node1/node1_1/node1_1_1")
 //db = database("dfs://root/node1/node1_1/node1_1_2")
@@ -48,6 +48,7 @@ var bindPath = function (fullPath) {
         $("#dfsPath").append(li);
         pathStr = getCurrentPath();
     });
+    $("#dfsPathInput").val(pathStr);
 }
 var getCurrentPath = function () {
     var cp = "";
@@ -62,31 +63,7 @@ var getCurrentPath = function () {
     });
     return cp;
 }
-//var appendPath = function (path) {
-//    var cp = getCurrentPath();
-//    if (cp === "") {//if root path
-//        cp = "/";
-//    } else if(cp==="/"){
-//        cp = cp + path;
-//    } else {
-//        cp = cp + "/" + path;
-//    }
 
-//    var li = document.createElement("li");
-//    var archor = document.createElement("a");
-//    archor.href = '#';
-//    archor.name = 'pItem';
-//    $(archor).attr("ref", cp);
-//    archor.innerText = path;
-//    $(archor).bind("click", function () {
-//        var p = $(this).attr("ref");
-//        var json = client.getGridJson(p);
-//        bindGrid(json);
-//        bindPath(p);
-//    });
-//    li.append(archor);
-//    $("#dfsPath").append(li);
-//}
 var bindGrid = function (tableJson) {
     var grid = $('#jsgrid1');
     var dg = new DolphinGrid(grid, {
@@ -96,7 +73,7 @@ var bindGrid = function (tableJson) {
         pageLoading: false,
         autoload: false,
         rowDoubleClick: function (arg) {
-            if (arg.item.filetype == 0 || arg.item.filetype == 1) { //expanded directory or partition directory
+            if (arg.item.filetype == 0) { //expanded common directory
                 var cp = getCurrentPath();
                 var fpath = "";
                 if (cp === "") {//if root path
@@ -114,7 +91,7 @@ var bindGrid = function (tableJson) {
     });
     var col = [{
         name: 'filename',
-        title: 'filename',
+        title: 'Filename',
         type: 'text',
         itemTemplate: function (value, item) {
             if (item.filetype == 0) {
@@ -127,22 +104,53 @@ var bindGrid = function (tableJson) {
         }
     }, {
         name: 'size',
-        title: 'size',
+        title: 'Size',
         type: 'text'
     }, {
+        name: 'filetype',
+        title: 'Filetype',
+        type: 'text',
+        itemTemplate: function (value, item) {
+            if (item.filetype == 0) {
+                return "directory";
+            } else if (item.filetype == 1) {
+                return "partition chunk";
+            } else {
+                return "file";
+            }
+        }
+    }, {
         name: 'sites',
-        title: 'sites',
+        title: 'Sites',
         type: 'text',
         itemTemplate: function (value, item) {
             if (item.filetype > 0) {
-                return value;
+                var chunkArr = item.sites.split(";");
+                var re = "";
+                if (chunkArr.length < 1) {
+                    return re;
+                }
+                $(chunkArr).each(function (i, chunkItem) {
+                    var chunkRepArr = chunkItem.split(",");
+                    if (chunkRepArr.length >= 1) {
+                        $(chunkRepArr).each(function (j, chunkRepItem) {
+                            var arr = chunkRepItem.split(":");
+                            
+                            if (arr.length ==3 ) {
+                                re = arr[0] + "[V" + arr[1] + "]";
+                                if (arr[2] == 1) {
+                                    re = re + "<span class='glyphicon glyphicon-exclamation-sign' title'chunk is corrupted'></span> ";
+                                } else {
+                                    re = re + " ";
+                                }
+                            }
+                        });
+                    };
+                });
+                return re;
             }
-
         }
-    }
-
-
-    ]
+    }]
     dg.loadFromJson(tableJson, false, col);
 }
 //=================================================================Filter====================================================================
@@ -152,6 +160,36 @@ $("#executeSQL").bind("click", function () {
 $("#txtSQL").bind("keypress", function (e) {
     if (e.keyCode == 13) {
         doQuery($("#txtSQL").val());
+    }
+});
+
+
+var result = [];
+$("#dfsPathInput").bind("keydown", function (e) {
+    console.log(e.keyCode);
+    if (e.keyCode == 13) {
+        var fpath = $("#dfsPathInput").val();
+        bindPath(fpath);
+        json = client.getGridJson(fpath);
+        bindGrid(json);
+        return false;
+    } else if (e.keyCode == 9) {
+        if (result && result.length == 1) {
+            var fpath = $("#dfsPathInput").val();
+            var last = fpath.lastIndexOf("/");
+            $("#dfsPathInput").val(fpath.substr(0, last + 1) + result[0].filename);
+        }
+        return false;
+    } else {
+        var cpath = $("#dfsPathInput").val() + e.key;
+        var json = client.getTableJson();
+        if (json) {
+            result = json.filter(function (x) {
+                var i = cpath.lastIndexOf("/");
+                var exp = cpath.substr(i + 1, cpath.length - i - 1);
+                return x.filename.indexOf(exp) == 0;
+            });
+        }
     }
 });
 
@@ -245,15 +283,8 @@ function DolphinDBDFSClient(webApiUrl) {
             currentNode: cNode
         };
     }
-    //todo: 
-    this.getTreeJson = function (fullPath) {
-        setCacheByPath(fullPath);
-        // rebuild all tree json
-        //     getDfsByPath("/");
-        // } else { // find json node and append sub tree json
-        //     // var pathArray = fullPath.split("/");
-        //     getDfsByPath(fullPath);
-        // }
+    this.getTableJson = function () {
+        return tableJson;
     }
 
     this.getGridJson = function (fullPath) {
