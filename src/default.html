@@ -48,14 +48,18 @@
 
         <div class="row">
             <div class="col-lg-2 col-md-3" id="sidebar">
-                <div class="bs-sidebar hidden-print" role="complementary">
-                    <!--<div class="panel">
-                        <div class="panel-body">
-                            <button type="button" class="btn btn-primary" id="btn_dfsexplorer" title="open DFS explorer">
-                                DFS explorer
-                            </button>
+                <div class="bs-sidebar hidden-print" style="border:1px solid;resize:horizontal" role="complementary">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            DFS Explorer
+                        </div>
+                        <div class="panel-body" style="max-height: 55vh; overflow-y: scroll;">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="basic-addon3">dfs:/</span>
+                                <input type="text" class="form-control" id="dfsUrl" aria-describedby="basic-addon3" placeholder="example: /root/directory1/db1">
                             </div>
-                    </div>-->
+                        </div>
+                    </div>
                     <div class="panel panel-info">
                         <div class="panel-heading">
                             Agent Nodes
@@ -66,18 +70,6 @@
                             </div>
                         </div>
                     </div>
-                    <!--
-                    <div class="panel panel-info">
-                        <div class="panel-heading">
-                            Databases
-                        </div>
-                        <div class="panel-body" style="max-height: 55vh; overflow-y: scroll;">
-                            <div class="list-group">
-                                <p id="databaseList"></p>
-                            </div>
-                        </div>
-                    </div>
-                    -->
                 </div>
             </div>
             <div class="col-lg-10 col-md-9" id="main">
@@ -104,9 +96,9 @@
                             <div class="btn-group" role="group" aria-label="...">
                                 <input class="form-control" id="txtFilter" type="text" style="width:auto;height:32px" placeholder="input search text">
                             </div>
-                            <!--<div class="btn-group navbar-right" role="group" aria-label="...">
+                            <div class="btn-group navbar-right" role="group" aria-label="...">
                                 <button type="button" class="btn btn-default" id="btn_explorer">DFS Explorer</button>
-                            </div>-->
+                            </div>
                         </div>
                     </div>
                 </div>

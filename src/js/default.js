@@ -827,17 +827,14 @@ function fillMasterInfo() {
     });
 }
 
-$(document).ready(function() {
+
+//================================================================page event==========================================
+$(document).ready(function () {
     setTimeout(hideCtlSel, 10);
 
     var localSet = grid.GM('getLocalStorage');
     console.log(localSet)
 });
-
-function hideCtlSel() {
-    $("td:contains('controller')").parent().children().first().html('');
-}
-
 
 $("#btn_collapse").bind("click", function() {
     var span = $("#icon_collapse");
@@ -856,6 +853,14 @@ $("#btn_collapse").bind("click", function() {
 
 });
 
+$("#btn_explorer").bind("click", function () {
+    window.open("dfsExplorer.html");
+});
+function hideCtlSel() {
+    $("td:contains('controller')").parent().children().first().html('');
+}
+
+//==============================================================util function============================================
 function fmoney(s, n) {
     n = n > 0 && n <= 20 ? n : 2;
     s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
