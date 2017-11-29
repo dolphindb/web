@@ -32,7 +32,7 @@ function CodeExecutor(url) {
         });
     };
 
-    this.runSync = function(script) {
+    this.runSync = function(script,param) {
         var p = {
             "sessionID": "0",
             "functionName": "executeCode",
@@ -43,6 +43,9 @@ function CodeExecutor(url) {
                 "value": script
             }]
         };
+        if (param) {
+            $.extend(p, param);
+        }
         return CallWebApiSync(this.apiurl, p)
     };
 }

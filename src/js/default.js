@@ -84,11 +84,23 @@ function LoadTable(nodeList) {
             sorting: '',
             template: function(site, rowObject) {
                 if (rowObject.state === 1) {
-                    var h = rowObject.host;
-                    if (rowObject.host.toUpperCase() == "LOCALHOST") {
-                        h = window.location.host.split(':')[0];
+                    var addrHost = window.location.host.split(':')[0];
+                    var nodeHost = rowObject.host;
+                    if (nodeHost.toUpperCase() == "LOCALHOST") {
+                        nodeHost = addrHost.split(':')[0];
+                    } 
+                    if (nodeHost != addrHost) {
+                         var ethArr = rowObject.ethernetInfo.split(";")
+                         var h = addrHost.split(".");
+                        var iphead = h[0] + "." + h[1];
+                        $(ethArr).each(function (i, e) {
+                            var h = e.split(".");
+                            if (iphead === h[0]+ "." + h[1]){
+                                nodeHost = e;
+                            }
+                        })
                     }
-                    r = '<a href=javascript:window.open("nodedetail.html?site=' + h + ':' + rowObject.port + ':' + rowObject.site.split(':')[2] + '");>' + rowObject.site.split(':')[2] + '</a>'
+                    r = '<a href=javascript:window.open("nodedetail.html?site=' + nodeHost + ':' + rowObject.port + ':' + rowObject.site.split(':')[2] + '");>' + rowObject.site.split(':')[2] + '</a>'
                     return r;
                 } else {
                     return rowObject.site.split(':')[2];
@@ -297,7 +309,7 @@ function LoadTable(nodeList) {
             },
         }, {
             text: 'DiskWirteRate',
-            key: 'diskWirtePerSecond',
+            key: 'diskWriteRate',
             remind: 'the rate of disk write',
             sorting: '',
             width: 90,
@@ -306,7 +318,7 @@ function LoadTable(nodeList) {
             },
         }, {
             text: 'DiskReadRate',
-            key: 'diskReadPerSecond',
+            key: 'diskReadRate',
             remind: 'the rate of disk read',
             sorting: '',
             width: 90,
@@ -315,7 +327,7 @@ function LoadTable(nodeList) {
             },
         }, {
             text: 'LastMinuteWriteVolume',
-            key: 'diskWirtePerMinute',
+            key: 'lastMinuteWriteVolume',
             remind: 'the size of disk writing last minute',
             sorting: '',
             width: 90,
@@ -853,14 +865,31 @@ $("#btn_collapse").bind("click", function() {
 
 });
 
-$("#btn_explorer").bind("click", function () {
-    window.open("dfsExplorer.html");
+$("#dfsUrl").bind("keypress", function (e) {
+    if (e.keyCode == 13) {
+        var url = $("#dfsUrl").val();
+        if (url.toUpperCase().indexOf("DFS://") == 0) {
+            url = url.replace("dfs:/","");
+        }
+        if (isUrl(url)) {
+            window.open("dfsExplorer.html?dfs=" + url,"dfsExplorer");
+        } else {
+            alert("error path! example:/root/directory1/db1");
+        }
+    }
+
 });
+
 function hideCtlSel() {
     $("td:contains('controller')").parent().children().first().html('');
 }
 
 //==============================================================util function============================================
+function isUrl(u) {
+    var reg = /^([\/][\w-]*)*$/i;
+    var isurl = reg.test(u);
+    return isurl;
+}
 function fmoney(s, n) {
     n = n > 0 && n <= 20 ? n : 2;
     s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";

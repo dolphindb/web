@@ -14,9 +14,19 @@ var homeTitle = "[Home]"
 var client = null;
 $(function () {
     client = new DolphinDBDFSClient(wa_url);
-    var json = client.getGridJson("/");
+
+    var url = $.getUrlParam('dfs');
+    var defaultPath = "/";
+    if (url) {
+        defaultPath = url;
+    }
+    console.log(defaultPath);
+    //========default url================
+    var json = client.getGridJson(defaultPath);
     bindGrid(json);
-    bindPath("/")
+    bindPath(defaultPath)
+
+    
 });
 var bindPath = function (fullPath) {
     $("#dfsPath").empty();
@@ -67,6 +77,8 @@ var getCurrentPath = function () {
 var bindGrid = function (tableJson) {
     var grid = $('#jsgrid1');
     var dg = new DolphinGrid(grid, {
+        height: "70%",
+        width: "100%",
         pageSize: 50,
         sorting: true,
         paging: true,
@@ -91,7 +103,7 @@ var bindGrid = function (tableJson) {
     });
     var col = [{
         name: 'filename',
-        title: 'Filename',
+        title: 'Name',
         type: 'text',
         itemTemplate: function (value, item) {
             if (item.filetype == 0) {
@@ -108,7 +120,7 @@ var bindGrid = function (tableJson) {
         type: 'text'
     }, {
         name: 'filetype',
-        title: 'Filetype',
+        title: 'Type',
         type: 'text',
         itemTemplate: function (value, item) {
             if (item.filetype == 0) {
@@ -137,7 +149,7 @@ var bindGrid = function (tableJson) {
                             var arr = chunkRepItem.split(":");
                             
                             if (arr.length ==3 ) {
-                                re = arr[0] + "[V" + arr[1] + "]";
+                                re = arr[0] + " [V" + arr[1] + "]";
                                 if (arr[2] == 1) {
                                     re = re + "<span class='glyphicon glyphicon-exclamation-sign' title'chunk is corrupted'></span> ";
                                 } else {
@@ -237,7 +249,8 @@ function DolphinDBDFSClient(webApiUrl) {
         var executor = new CodeExecutor(url);
         var script = 'getDFSDirectoryContent("' + path + '")';
         codestr = encodeURIComponent(script);
-        var re = executor.runSync(codestr);
+        var p = { "offset": 0, "length": 10000 };
+        var re = executor.runSync(codestr,p);
         tableJson = DolphinResult2Grid(re);
         //cacheTreeJson
         //$(tableJson).each(function (i, e) {
