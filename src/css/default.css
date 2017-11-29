@@ -48,3 +48,7 @@
     border-left: 0px;
     border-right: 0px;
 }
+.ui-button-text {
+    display: block;
+    line-height: inherit
+}

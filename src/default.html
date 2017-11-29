@@ -8,7 +8,6 @@
     <meta name="description" content="DolphinDB Node Management">
     <meta name="author" content="DolphinDB">
     <link rel="stylesheet" href="third-party/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/custom-theme/jquery-ui-1.10.3.custom.css">
     <link rel="stylesheet" href="third-party/bootstrap/css/font-awesome.min.css">
     <link rel="stylesheet" href="third-party/bootstrap/css/docs.css">
     <link rel="shortcut icon" href="third-party/bootstrap/ico/logo.png">
@@ -53,8 +52,13 @@
                         <div class="panel-heading">
                             DFS Explorer
                         </div>
-                        <div class="panel-body" style="overflow-y: scroll;">
-                                <input type="text" class="form-control" id="dfsUrl" spellcheck="false" aria-describedby="basic-addon3" placeholder="example: /root/directory1/db1">
+                        <div class="panel-body">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="dfsUrl" spellcheck="false" aria-describedby="basic-addon3" placeholder="e.g. /mydb/20170621">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="button" id="btnOpenDFS">Go!</button>
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div class="panel panel-info">
@@ -91,7 +95,7 @@
                                 </button>
                             </div>
                             <div class="btn-group" role="group" aria-label="...">
-                                <input class="form-control" id="txtFilter" type="text" style="width:auto;height:32px" placeholder="input search text">
+                                <input class="form-control" id="txtFilter" type="text" style="width:auto;height:32px" placeholder="type text for node filtering">
                             </div>
                         </div>
                     </div>

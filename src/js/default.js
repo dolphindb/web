@@ -313,8 +313,8 @@ function LoadTable(nodeList) {
             remind: 'the rate of disk write',
             sorting: '',
             width: 90,
-            template: function (diskWirtePerSecond, rowObject) {
-                return fmoney((diskWirtePerSecond / (1024 * 1024)),1) + " MB/s";
+            template: function (diskWriteRate, rowObject) {
+                return fmoney((diskWriteRate / (1024 * 1024)),1) + " MB/s";
             },
         }, {
             text: 'DiskReadRate',
@@ -322,8 +322,8 @@ function LoadTable(nodeList) {
             remind: 'the rate of disk read',
             sorting: '',
             width: 90,
-            template: function (diskReadPerSecond, rowObject) {
-                return fmoney((diskReadPerSecond / (1024 * 1024)),1) + " MB/s";
+            template: function (diskReadRate, rowObject) {
+                return fmoney((diskReadRate / (1024 * 1024)),1) + " MB/s";
             },
         }, {
             text: 'LastMinuteWriteVolume',
@@ -867,19 +867,21 @@ $("#btn_collapse").bind("click", function() {
 
 $("#dfsUrl").bind("keypress", function (e) {
     if (e.keyCode == 13) {
-        var url = $("#dfsUrl").val();
-        if (url.toUpperCase().indexOf("DFS://") == 0) {
-            url = url.replace("dfs:/","");
-        }
-        if (isUrl(url)) {
-            window.open("dfsExplorer.html?dfs=" + url,"dfsExplorer");
-        } else {
-            alert("error path! example:/root/directory1/db1");
-        }
+        $("#btnOpenDFS").click();
     }
-
 });
 
+$("#btnOpenDFS").bind("click", function (e) {
+    var url = $("#dfsUrl").val();
+    if (url.toUpperCase().indexOf("DFS://") == 0) {
+        url = url.replace("dfs:/", "");
+    }
+    if (isUrl(url)) {
+        window.open("dfsExplorer.html?dfs=" + url, "dfsExplorer");
+    } else {
+        alert("error path! example:/root/directory1/db1");
+    }
+});
 function hideCtlSel() {
     $("td:contains('controller')").parent().children().first().html('');
 }
