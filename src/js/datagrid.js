@@ -52,7 +52,6 @@ DolphinGrid.prototype = {
 
         var option = {
             width: "100%",
-            height: "auto",
             autoload: true,
             paging: true,
             pageLoading: true,

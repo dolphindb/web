@@ -77,8 +77,7 @@ var getCurrentPath = function () {
 var bindGrid = function (tableJson) {
     var grid = $('#jsgrid1');
     var dg = new DolphinGrid(grid, {
-        height: "70%",
-        width: "100%",
+        height:"80vh",
         pageSize: 50,
         sorting: true,
         paging: true,

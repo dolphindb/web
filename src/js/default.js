@@ -786,6 +786,7 @@ var bindPerfLog = function(json) {
     }]
     var dg = new DolphinGrid($('#jsGrid_perflog'), {
         width: "100%",
+        height:"580px",
         autoload: true,
         paging: true,
         pageLoading: false,
