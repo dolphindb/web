@@ -18,13 +18,80 @@ $(function() {
     $.cookie("language_file", "js/lang.en.js");
 
     $("#txtFilter").val(localStorage.getItem(filterStorageId));
-
+    cacheControllerIp(wa_url);
     GetLocalData(wa_url);
     LoadTable(NODE_LIST);
 
     
 });
+function cacheControllerIp(url) {
+    if (localStorage.getItem("dolphindb_controller_ip")) return;
+    var p = {
+        "sessionID": SESSION_ID,
+        "functionName": "getServerAddressByHost",
+        "params": [{
+            "name": "hostname",
+            "form": "scalar",
+            "type": "string",
+            "value": window.location.host.split(":")[0]
+        }]
+    };
+    CallWebApi(url, p, cache_success, cache_error);
+}
+function cache_success(result) {
+    if (result && result.resultCode==0) {
+        var ctlIP = result.object[0].value;
+        localStorage.setItem("dolphindb_controller_ip", ctlIP);
+    }
+}
+function cache_error(result) {
+    console.error(result);
+}
+function getControllerIp() {
+    var ctlIP = localStorage.getItem("dolphindb_controller_ip");
+    if (!ctlIP) {
+        cacheControllerIp(wa_url);
+        return window.location.host;
+    }
+    else {
+        return ctlIP;
+    }
+};
 
+function getDatanodeApiUrl(controllerIP, rowObject) {
+    var addrHost = controllerIP.split(':')[0];
+    var nodeHost = rowObject.host;
+    if (nodeHost.toUpperCase() == "LOCALHOST") {
+        nodeHost = addrHost.split(':')[0];
+    }
+    if (nodeHost != addrHost) {
+        var ethArr = rowObject.ethernetInfo.split(";")
+        var h = addrHost.split(".");
+        var iphead = h[0] + "." + h[1];
+        $(ethArr).each(function (i, e) {
+            var h = e.split(".");
+            if (iphead === h[0] + "." + h[1]) {
+                nodeHost = e;
+            }
+        })
+    }
+    return nodeHost;
+}
+function getAgentSite(controllerIP,rowObject) {
+    var agentRows = AGENT_LIST.filter(function (x) {
+        return x.host === rowObject.host;
+    });
+    var agentRow = null;
+    if (agentRows.length > 0) {
+        agentRow = agentRows[0];
+    } else {
+        return rowObject.agentSite;
+    }
+    var agentIP = getDatanodeApiUrl(controllerIP, agentRow);
+    var agentOldIP = rowObject.agentSite.split(":")[0];
+    var agentUrl = rowObject.agentSite.replace(agentOldIP, agentIP);
+    return agentUrl;
+}
 
 function GetLocalData(url) {
     var p = {
@@ -43,8 +110,6 @@ function GetLocalData(url) {
 function LoadLeft(agentList) {
     $("#physicalServerList").html("");
     var l = $("#serverTemplate").tmpl(agentList).appendTo("#physicalServerList");
-    //getDatabases();
-
 }
 
 function LoadTable(nodeList) {
@@ -84,22 +149,7 @@ function LoadTable(nodeList) {
             sorting: '',
             template: function(site, rowObject) {
                 if (rowObject.state === 1) {
-                    var addrHost = window.location.host.split(':')[0];
-                    var nodeHost = rowObject.host;
-                    if (nodeHost.toUpperCase() == "LOCALHOST") {
-                        nodeHost = addrHost.split(':')[0];
-                    } 
-                    if (nodeHost != addrHost) {
-                         var ethArr = rowObject.ethernetInfo.split(";")
-                         var h = addrHost.split(".");
-                        var iphead = h[0] + "." + h[1];
-                        $(ethArr).each(function (i, e) {
-                            var h = e.split(".");
-                            if (iphead === h[0]+ "." + h[1]){
-                                nodeHost = e;
-                            }
-                        })
-                    }
+                    var nodeHost = getDatanodeApiUrl(getControllerIp(), rowObject);
                     r = '<a href=javascript:window.open("nodedetail.html?site=' + nodeHost + ':' + rowObject.port + ':' + rowObject.site.split(':')[2] + '");>' + rowObject.site.split(':')[2] + '</a>'
                     return r;
                 } else {
@@ -127,9 +177,12 @@ function LoadTable(nodeList) {
             remind: 'server log',
             template: function(action, rowObject) {
                 var r = "";
-                var ref = rowObject.agentSite + '@' + rowObject.site;
-                if (rowObject.host.toUpperCase() == "LOCALHOST") {
-                    ref = ref.replace(rowObject.host, window.location.host.split(':')[0]);
+                var ref = "";
+                if (rowObject.mode == 0) {
+                    var agentUrl = getAgentSite(getControllerIp(), rowObject);
+                    ref = agentUrl + '@' + rowObject.site;
+                } else {//controller
+                    ref = rowObject.site.replace(rowObject.host, getControllerIp()) + '@' + rowObject.site;
                 }
                 r += '<a style="padding-left:20px" data-toggle="modal" data-target="#modal-showlog" ref="getServerLog@' + ref + '" href="##">view</a>'
                 return r;
@@ -140,9 +193,11 @@ function LoadTable(nodeList) {
             remind: 'query performance log',
             template: function(action, rowObject) {
                 var r = "";
-                var ref = rowObject.agentSite + '@' + rowObject.site;
-                if (rowObject.host.toUpperCase() == "LOCALHOST") {
-                    ref = ref.replace(rowObject.host, window.location.host.split(':')[0]);
+                if (rowObject.mode == 0) {
+                    var agentUrl = getAgentSite(getControllerIp(), rowObject);
+                    ref = agentUrl + '@' + rowObject.site;
+                } else {//controller
+                    ref = rowObject.site.replace(rowObject.host, getControllerIp()) + '@' + rowObject.site;
                 }
                 r += '<a style="padding-left:20px" data-toggle="modal" data-target="#modal-showlog" ref="getPerfLog@' + ref + '" href="##">view</a>'
                 return r;
@@ -387,8 +442,9 @@ function refreshGrid(nodeList) {
 
 
 function connect_server_success(result) {
-    SESSION_ID = result["sessionID"];
-    if (result) {
+        if (result) {
+        SESSION_ID = result["sessionID"];
+
         var data = result["object"];
         if (data.length <= 0) return;
 
@@ -704,7 +760,13 @@ var LoadLog = function() {
 var getLog = function(svr_url, offset, length, fromhead, nodeAlias, funcName) {
     $('#pnllog').hide();
     $('#jsGrid_perflog').closest().hide();
-    if (funcName == "getPerfLog") { length = 50 }
+    if (funcName == "getPerfLog") {
+        length = 50;
+        $('#txtLength').val("50");
+    } else {
+        length = 2000;
+        $('#txtLength').val("2000");
+    }
     var p = {
         "sessionID": SESSION_ID,
         "functionName": funcName,
