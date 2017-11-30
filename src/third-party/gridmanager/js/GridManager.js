@@ -3227,8 +3227,8 @@
                 //绑定排序事件
                 //(0, _jTool2.default)('.sorting-action', _thList).unbind('mouseup');
                 //(0, _jTool2.default)('.sorting-action', _thList).bind('mouseup', function() {
-                _thList.unbind('mouseup');
-                _thList.bind('mouseup', function() {
+                _thList.unbind('dblclick');
+                _thList.bind('dblclick', function() {
                     var Settings = _Cache2.default.getSettings(table);
                     //_action = (0, _jTool2.default)(this);
                     //_th = _action.closest('th');
