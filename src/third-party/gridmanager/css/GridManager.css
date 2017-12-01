@@ -644,7 +644,8 @@ table[grid-manager].GridManager-ready {
 /*拖拽换位*/
 
 .table-wrap table[grid-manager] th .drag-action {
-    cursor: all-scroll;
+    /*cursor: all-scroll;*/
+    cursor: default;
 }
 
 .table-wrap table[grid-manager] .drag-ongoing {

@@ -148,16 +148,20 @@ var bindGrid = function (tableJson) {
                             var arr = chunkRepItem.split(":");
                             
                             if (arr.length ==3 ) {
-                                re = arr[0] + " [V" + arr[1] + "]";
+                                re = re + arr[0] + " [V" + arr[1] + "]";
                                 if (arr[2] == 1) {
                                     re = re + "<span class='glyphicon glyphicon-exclamation-sign' title'chunk is corrupted'></span> ";
                                 } else {
-                                    re = re + " ";
+                                    re = re + ", ";
                                 }
                             }
                         });
                     };
                 });
+                if (re.length > 0) {
+                    var tailIndex = re.lastIndexOf(",");
+                    re = re.substr(0, tailIndex);
+                }
                 return re;
             }
         }
