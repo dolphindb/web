@@ -10,7 +10,7 @@ $(function() {
 
     var siteid = $.getUrlParam('site');
 
-    if (!siteid || siteid == "") {
+    if (!siteid || siteid === "") {
         wa_url = "http://" + window.location.host;
     } else {
         var hostinfo = siteid.split(':');
@@ -22,7 +22,7 @@ $(function() {
             document.title = ALIAS;
     }
 
-    if (siteid || siteid == '')
+    if (siteid || siteid === '')
         $('#link-to-controller').attr('href', 'http://' + window.location.host);
     else
         $('#link-to-controller').attr('href', '');
@@ -128,7 +128,7 @@ function bindVariables(datalist) {
         .bind('dblclick.jstree', function(e) {
             var dataform = $(e.target).closest('ul').prev().text();
             var contentid = $(e.target).closest('li')[0].id;
-            if (dataform == "Scalar") return;
+            if (dataform === "Scalar") return;
 
             var code = contentid + ';';
             var divid = localStorage.divid++;
@@ -139,7 +139,7 @@ function bindVariables(datalist) {
             tblobj.id = "jsgrid_" + divid;
             $(tblobj).appendTo($(divobj));
 
-            if (dataform == "Table") {
+            if (dataform === "Table") {
                 var tablesize = $(e.target).closest('a').context.innerText.split(" ")[1];
 
                 var script = "select top " + (tablesize > 1024 ? 1024 : tablesize) + " * from " + contentid;
@@ -249,7 +249,7 @@ function showGrid(gridid, getdatascript, g) {
             text: 'Plot'
         }).appendTo(grid);
 
-        var resObj = g && g.object[0];
+        resObj = g && g.object[0];
         if (resObj.form) {
             if (resObj.form === "table" ||
                 (resObj.form === "matrix" && !CustomVis.isNonNumeralType(resObj.type))) {
@@ -349,7 +349,7 @@ function buildNode(jsonLst, dataform) {
 }
 
 $('#retrieve-row-number').keypress(function(e) {
-    if (e.key == "Enter") {
+    if (e.key === "Enter") {
         $('#btn_execode').click();
         return false;
     }

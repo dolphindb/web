@@ -1,7 +1,7 @@
 $.getUrlParam = function(name) {
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
     var r = window.location.search.substr(1).match(reg);
-    if (r != null) return unescape(r[2]);
+    if (r !== null) return unescape(r[2]);
     return null;
 }
 
@@ -79,7 +79,7 @@ Utils.isBase64Supported = function() {
 
     return supported;
 }
-
+//=========================================================
 var getVectorFromTable = function(tbData, colName, isDeleteRepeat, isAddEmptyRow) {
     var re = [];
     var tmpArr = [];
@@ -93,7 +93,7 @@ var getVectorFromTable = function(tbData, colName, isDeleteRepeat, isAddEmptyRow
     console.log(re);
     if (isDeleteRepeat) {
         $.each(tmpArr, function(index, row) {
-            if (re.findIndex(function(ele, ind, arr) { if (ele.name == row.name) return ind; }) < 0) {
+            if (re.findIndex(function(ele, ind, arr) { if (ele.name === row.name) return ind; }) < 0) {
                 re.push(row);
             }
         });
@@ -110,4 +110,28 @@ function sortup(x, y) {
 
 function sortdown(x, y) {
     return (x.name < y.name) ? 1 : -1
+}
+//============================================================
+
+var ServerObject = function (sites) {
+    var strSite = sites;
+    var svrArr = sites.split(":");
+
+    this.getSites = function () {
+        return sites;
+    }
+
+    this.getServer = function () {
+        return svrArr[0] + ":" + svrArr[1];
+    }
+
+    this.getHttpServer = function () {
+        return "http://" + this.getServer();
+    }
+
+    this.getAlias = function () {
+        return svrArr[2];
+    }
+
+
 }

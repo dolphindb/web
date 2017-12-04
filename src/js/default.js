@@ -178,13 +178,17 @@ function LoadTable(nodeList) {
             template: function(action, rowObject) {
                 var r = "";
                 var ref = "";
+                var api_url = "";
+                var node_alias = rowObject.site.split(":")[2];
                 if (rowObject.mode == 0) {
                     var agentUrl = getAgentSite(getControllerIp(), rowObject);
+                    api_url = agentUrl;
                     ref = agentUrl + '@' + rowObject.site;
                 } else {//controller
+                    api_url = getControllerIp();
                     ref = rowObject.site.replace(rowObject.host, getControllerIp()) + '@' + rowObject.site;
                 }
-                r += '<a style="padding-left:20px"  ref="getServerLog@' + ref + '" href="javascript:void(0)" onclick="showServerLog()">view</a>'
+                r += '<a style="padding-left:20px"  ref="getServerLog@' + ref + '" href="javascript:void(0)" onclick="showServerLog(\''+ api_url + '\',\'' + node_alias + '\')">view</a>'
                 return r;
             },
         }, {
@@ -193,13 +197,17 @@ function LoadTable(nodeList) {
             remind: 'query performance log',
             template: function(action, rowObject) {
                 var r = "";
+                var api_url = "";
+                var node_alias = rowObject.site.split(":")[2];
                 if (rowObject.mode == 0) {
                     var agentUrl = getAgentSite(getControllerIp(), rowObject);
+                    api_url = agentUrl;
                     ref = agentUrl + '@' + rowObject.site;
                 } else {//controller
+                    api_url = getControllerIp();
                     ref = rowObject.site.replace(rowObject.host, getControllerIp()) + '@' + rowObject.site;
                 }
-                r += '<a style="padding-left:20px" ref="getPerfLog@' + ref + '" href="javascript:void(0)" onclick="showPerfLog()">view</a>'
+                r += '<a style="padding-left:20px" ref="getPerfLog@' + ref + '" href="javascript:void(0)" onclick="showPerfLog(\'' + api_url + '\',\'' + node_alias + '\')">view</a>'
                 return r;
             },
 
@@ -572,280 +580,17 @@ $("#txtFilter").keypress(function(e) {
     }
 });
 
-var getDatabases = function() {
-    var executor = new CodeExecutor(wa_url);
-    executor.run("getDatabases();", function(re) {
-        if (re.object.length > 0) {
-            var dblist = [];
-            var databaseNames = re.object[0].value[0].value; //databaseName
-            var domainIds = re.object[0].value[1].value; //domainId
-            var tableNames = re.object[0].value[2].value; //tableName
-
-            $.each(domainIds, function(i, v) {
-                var tbname = tableNames[i];
-                var domainId = v;
-                var dbname = databaseNames[i];
-                var fi = dblist.findIndex(function(ele, ind, obj) {
-                    if (domainId == ele.domainId) return ind;
-                });
-                if (fi < 0) {
-                    var db = {};
-                    db.dbName = dbname;
-                    db.domainId = domainId;
-                    db.tableCount = 1;
-                    db.tableNames = tbname;
-                    dblist.push(db);
-                } else {
-                    var db = dblist[fi];
-                    db.dbName = dbname;
-                    db.tableCount++;
-                    db.tableNames = db.tableCount + " tables";
-                }
-            });
-            $("#databaseList").html("");
-            l = $("#databaseTemplate").tmpl(dblist).appendTo("#databaseList");
-        }
-    });
-}
-
-var getAllTableDistributions = function(domainId) {
-    var p = {
-        "sessionID": SESSION_ID,
-        "functionName": "getAllTableDistributions",
-        "params": [{
-            "name": "domainId",
-            "form": "scalar",
-            "type": "string",
-            "value": domainId
-        }]
-    };
-    CallWebApi(wa_url, p, function(re) {
-        if (re.object.length > 0) {
-            var retable = VectorArray2Table(re.object[0].value);
-
-            for (var i = 0; i < retable.length; i++) {
-                var s = retable[i].site.split(":");
-                if (s.length > 2) {
-                    retable.site = s[2];
-                }
-            }
-            openDatabase(retable);
-        }
-    });
-}
-$("#modal-showlog").on("shown.bs.modal", function(e) {
-    var param = $(e.relatedTarget).attr('ref');
-    var urlArr = param.split('@');
-    var funcName = urlArr[0];
-    var svrArr = urlArr[1].split(':');
-    if (svrArr.length < 2) return;
-    var svr_url = "http://" + svrArr[0] + ":" + svrArr[1];
-    var nodeAlias = urlArr[2].split(':')[2];
-    $('#modal-showlog').attr('ref', svr_url);
-    $('#modal-showlog').attr('funcName', funcName);
-    $('#log_node').text(nodeAlias);
-    re = getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text(), funcName);
-
-});
-
-var logFromhead = false;
-$("#btnForward").bind('click', function() {
-    var len = $('#txtLength').val();
-    var currentpostion = $('#txtOffset').val();
-    $('#txtOffset').val(parseInt(currentpostion) + parseInt(len));
-    LoadLog();
-});
-
-$("#btnBackward").bind('click', function() {
-    var len = $('#txtLength').val();
-    var currentpostion = $('#txtOffset').val();
-    var nextPosition = parseInt(currentpostion) - parseInt(len);
-    if (nextPosition < 0)
-        nextPosition = 0;
-    $('#txtOffset').val(nextPosition);
-    LoadLog();
-});
-
-$('#btnReload').bind('click', function() {
-    LoadLog();
-});
-
-$('#btnFromHead').bind('click', function() {
-    $('#btnFrom').text($('#btnFromHead').text());
-    logFromhead = true;
-    LoadLog();
-});
-
-$('#btnFromTail').bind('click', function() {
-    $('#btnFrom').text($('#btnFromTail').text());
-    logFromhead = false;
-    LoadLog();
-});
-
-var LoadLog = function() {
-    var svr_url = $('#modal-showlog').attr('ref');
-    var funcName = $('#modal-showlog').attr('funcName');
-    getLog(svr_url, $('#txtOffset').val(), $('#txtLength').val(), logFromhead, $('#log_node').text(), funcName);
-}
-
-var getLog = function(svr_url, offset, length, fromhead, nodeAlias, funcName) {
-    $('#pnllog').hide();
-    $('#jsGrid_perflog').closest().hide();
-    if (funcName == "getPerfLog") {
-        length = 50;
-        $('#txtLength').val("50");
-    } else {
-        length = 2000;
-        $('#txtLength').val("2000");
-    }
-    var p = {
-        "sessionID": SESSION_ID,
-        "functionName": funcName,
-        "params": [{
-            "name": "length",
-            "form": "scalar",
-            "type": "int",
-            "value": length
-        }, {
-            "name": "offset",
-            "form": "scalar",
-            "type": "int",
-            "value": offset
-        }, {
-            "name": "fromhead",
-            "form": "scalar",
-            "type": "bool",
-            "value": fromhead
-        }, {
-            "name": "nodeAlias",
-            "form": "scalar",
-            "type": "string",
-            "value": nodeAlias
-        }]
-    };
-
-    CallWebApi(svr_url, p, function(re) {
-        if (re.resultCode == "0") {
-            if (re.object.length > 0) {
-                var retable = re.object[0].value;
-                if (funcName == "getServerLog") {
-                    bindLog(retable);
-                } else if (funcName == "getPerfLog") {
-                    bindPerfLog(re);
-                }
-
-            }
-        } else {
-            $('#pnllog').hide();
-            $('#pnlperflog').hide();
-            alert(re.msg);
-            return false;
-        }
-    });
-}
-
-var bindLog = function(json) {
-    $('#pnllog').show();
-    $('#pnlperflog').hide();
-    $('#pnllog').html('');
-    json.forEach(function(element) {
-        $('#pnllog').append(HTMLEncode(element) + "<br/>");
-    }, this);
-}
-
-var bindPerfLog = function(json) {
-    $('#pnllog').hide();
-    $('#pnlperflog').show();
-    var col = [{
-        name: "UserId",
-        type: "text",
-        width: 60
-    }, {
-        name: "SessionId",
-        type: "text",
-        width: 30
-    }, {
-        name: "StartTime",
-        type: "text",
-        width: 80
-    }, {
-        name: "EndTime",
-        type: "text",
-        width: 80
-    }, {
-        name: "JobDesc",
-        type: "text",
-        width: 300
-    }]
-    var dg = new DolphinGrid($('#jsGrid_perflog'), {
-        width: "100%",
-        height:"580px",
-        autoload: true,
-        paging: true,
-        pageLoading: false,
-        pageSize: 100,
-        pageIndex: 1,
-        fields: col
-    });
-    var griddata = DolphinResult2Grid(json);
-    //console.log(griddata);
-    dg.loadFromJson(griddata);
-}
-
-
-function bytesToSize(bytes) {
-    if (bytes === 0) return '0 MB';
-    var k = 1024;
-    return fmoney(bytes / Math.pow(k, 2),1) + ' MB';
-}
-
-function HTMLEncode(html) {
-    var temp = document.createElement("div");
-    (temp.textContent != null) ? (temp.textContent = html) : (temp.innerText = html);
-    var output = temp.innerHTML;
-    temp = null;
-    return output;
-}
-
-//fill master info 
-function fillMasterInfo() {
-    var p = {
-        "sessionID": SESSION_ID,
-        "functionName": "getMasterPerfInfo"
-    };
-    CallWebApi(wa_url, p, function(re) {
-        if (re.resultCode == "0") {
-            //debugger;
-            var conn = re.object[0].value[1].value[2]; //connectionNum;
-            var tasks = re.object[0].value[1].value[3];
-            var memory = Number(re.object[0].value[1].value[0] / 1000).toFixed(2) + "GB\/" + Number(re.object[0].value[1].value[1]).toFixed(2) + "GB";
-            var cpu = re.object[0].value[1].value[4];
-            var load = re.object[0].value[1].value[5];
-            $("#mst_conn").text(conn);
-            $("#mst_tasks").text(tasks);
-            $("#mst_memory").text(memory);
-            $("#mst_cpu").text(cpu);
-            $("#mst_load").text(load);
-        } else {
-            alert(re.msg);
-            return false;
-        }
-    });
-}
-
 
 //================================================================page event==========================================
 $(document).ready(function () {
     setTimeout(hideCtlSel, 10);
 
     var localSet = grid.GM('getLocalStorage');
-    console.log(localSet)
 });
 
 $("#btn_collapse").bind("click", function() {
     var span = $("#icon_collapse");
-    console.log(span);
-    if (span.attr('class') === "glyphicon glyphicon-arrow-left") {
+     if (span.attr('class') === "glyphicon glyphicon-arrow-left") {
         span.attr('class', 'glyphicon glyphicon-arrow-right');
         span.attr('title', 'expand agent panel');
         $("#main").attr('class', 'col-lg-12 col-md-12');
@@ -880,17 +625,44 @@ function hideCtlSel() {
     $("td:contains('controller')").parent().children().first().html('');
 }
 
-function showServerLog(e){
-    var apiUrl = "";
-    var nodeAlias = "datanode1";
-    var divobj = document.createElement("div");
-    divobj.id = "svrlog_" + nodeAlias;
-    var iframe = document.createElement("iframe");
-    iframe.setAttribute("src","dialogs/svrlog.html");
-    $(iframe).appendTo($(divobj));
-    $(divobj).appendTo($('#dialogs'));
-    openDialog(divobj.id,nodeAlias);
+function showServerLog(url,alias) {
+    var apiUrl = url;
+    var nodeAlias = alias;
+    var did = "svrlog_" + nodeAlias;
+    var divobj = document.getElementById(did);
+    if (!divobj) {
+        divobj = document.createElement("div");
+        divobj.id = did;
+        divobj.setAttribute("style", "overflow:hidden");
+        var iframe = document.createElement("iframe");
+        iframe.setAttribute("src", "dialogs/svrlog.html?svr=" + apiUrl + "&node=" + nodeAlias + "&sessid=" + SESSION_ID);
+        iframe.setAttribute("style", "height:100%;width:98%;border:0;overflow:hidden");
+        $(iframe).appendTo($(divobj));
+        $(divobj).appendTo($('#dialogs'));
+    }
+        openDialog(divobj.id,nodeAlias);
+        $(divobj).children("iframe")[0].contentWindow.refreshMe();
+ }
+function showPerfLog(url, alias) {
+    var apiUrl = url;
+    var nodeAlias = alias;
+    var did = "perflog_" + nodeAlias;
+    var divobj = document.getElementById(did);
+    if (!divobj) {
+        divobj = document.createElement("div");
+        divobj.id = did;
+        divobj.setAttribute("style", "overflow:hidden");
+        var iframe = document.createElement("iframe");
+        iframe.setAttribute("src", "dialogs/perflog.html?svr=" + apiUrl + "&node=" + nodeAlias + "&sessid=" + SESSION_ID);
+        iframe.setAttribute("style", "height:100%;width:98%;border:0;overflow:hidden");
+        $(iframe).appendTo($(divobj));
+        $(divobj).appendTo($('#dialogs'));
+    }
+        openDialog(divobj.id, nodeAlias);
+        $(divobj).children("iframe")[0].contentWindow.refreshMe();
+ 
 }
+
 //==============================================================util function============================================
 function isUrl(u) {
     var reg = /^([\/][\w-]*)*$/i;
@@ -908,18 +680,22 @@ function fmoney(s, n) {
     return t.split("").reverse().join("") + "." + r;
 }  
 
+function bytesToSize(bytes) {
+    if (bytes === 0) return '0 MB';
+    var k = 1024;
+    return fmoney(bytes / Math.pow(k, 2),1) + ' MB';
+}
+
 function openDialog(dialog, tit) {
     $("#" + dialog).dialog({
-        width: 800,
-        height: 600,
+        width: 900,
+        height: 650,
         position: { my: "center", at: "center", of: window },
         title: tit,
         dialogClass: "no-close",
-        buttons: [{
-            text: "OK",
-            click: function() {
-                $(this).dialog("close");
-            }
-        }]
     });
+}
+
+function closeDialog(dialog) {
+    $("#" + dialog).dialog("close");
 }
