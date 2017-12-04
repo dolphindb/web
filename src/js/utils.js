@@ -135,3 +135,14 @@ var ServerObject = function (sites) {
 
 
 }
+//==================================================String========================================
+String.prototype.trimEnd = function(c)  
+{  
+    if(c!==null&&c!==""){  
+        var str= this;  
+        var rg = new RegExp(c);  
+        var i = str.length;  
+        while (rg.test(str.charAt(--i)));  
+        return str.slice(0, i + 1);  
+    }  
+}  

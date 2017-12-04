@@ -39,7 +39,7 @@ function cacheControllerIp(url) {
     CallWebApi(url, p, cache_success, cache_error);
 }
 function cache_success(result) {
-    if (result && result.resultCode==0) {
+    if (result && result.resultCode===0) {
         var ctlIP = result.object[0].value;
         localStorage.setItem("dolphindb_controller_ip", ctlIP);
     }
@@ -61,10 +61,10 @@ function getControllerIp() {
 function getDatanodeApiUrl(controllerIP, rowObject) {
     var addrHost = controllerIP.split(':')[0];
     var nodeHost = rowObject.host;
-    if (nodeHost.toUpperCase() == "LOCALHOST") {
+    if (nodeHost.toUpperCase() === "LOCALHOST") {
         nodeHost = addrHost.split(':')[0];
     }
-    if (nodeHost != addrHost) {
+    if (nodeHost !== addrHost) {
         var ethArr = rowObject.ethernetInfo.split(";")
         var h = addrHost.split(".");
         var iphead = h[0] + "." + h[1];
@@ -165,7 +165,7 @@ function LoadTable(nodeList) {
             remind: ' state of the node',
             sorting: '',
             template: function(state, rowObject) {
-                if (state == "1") {
+                if (state === "1") {
                     return '<font style="color:green">running</font>';
                 } else {
                     return '<font style="color:red">stopped</font>';
@@ -180,7 +180,7 @@ function LoadTable(nodeList) {
                 var ref = "";
                 var api_url = "";
                 var node_alias = rowObject.site.split(":")[2];
-                if (rowObject.mode == 0) {
+                if (rowObject.mode === 0) {
                     var agentUrl = getAgentSite(getControllerIp(), rowObject);
                     api_url = agentUrl;
                     ref = agentUrl + '@' + rowObject.site;
@@ -199,7 +199,7 @@ function LoadTable(nodeList) {
                 var r = "";
                 var api_url = "";
                 var node_alias = rowObject.site.split(":")[2];
-                if (rowObject.mode == 0) {
+                if (rowObject.mode === 0) {
                     var agentUrl = getAgentSite(getControllerIp(), rowObject);
                     api_url = agentUrl;
                     ref = agentUrl + '@' + rowObject.site;
@@ -498,7 +498,7 @@ $("#btn_run").click(function() {
     var aliasarr = [];
     for (var i = 0; i < t.length; i++) {
         data = t[i];
-        if (data.state == "1") {
+        if (data.state === "1") {
             continue;
         };
         valarr.push(data.host + ":" + data.port);
@@ -516,7 +516,7 @@ $("#btn_run").click(function() {
     }
 
     var c = window.confirm("are you sure  you want to start nodes : \n" + aliasarr.join('\n'));
-    if (c == false) return;
+    if (c === false) return;
     CallWebApi(wa_url, p,
         function(re) {
 
@@ -526,7 +526,7 @@ $("#btn_run").click(function() {
         }, {
             timeout: 1000,
             complete: function(XMLHttpRequest, status) {
-                if (status == 'timeout') {
+                if (status === 'timeout') {
                     console.log('timeout');
                 }
             }
@@ -541,7 +541,7 @@ $("#btn_stop").click(function() {
     var aliasarr = [];
     for (var i = 0; i < t.length; i++) {
         data = t[i];
-        if (data.state == "1") {
+        if (data.state === "1") {
             valarr.push(data.host + ":" + data.port);
             aliasarr.push(data.site.split(":")[2]);
         }
@@ -557,7 +557,7 @@ $("#btn_stop").click(function() {
         }]
     }
     var c = window.confirm("are you sure  you want to stop nodes : \n" + aliasarr.join('\n'));
-    if (c == false) return;
+    if (c === false) return;
 
     CallWebApi(wa_url, p, function(re) {
 
@@ -573,7 +573,7 @@ $("#btn_refresh").click(function() {
 });
 
 $("#txtFilter").keypress(function(e) {
-    if (e.keyCode == 13) {
+    if (e.keyCode === 13) {
         refreshGrid(NODE_LIST);
 
         localStorage.setItem(filterStorageId, $("#txtFilter").val());
@@ -605,14 +605,14 @@ $("#btn_collapse").bind("click", function() {
 });
 
 $("#dfsUrl").bind("keypress", function (e) {
-    if (e.keyCode == 13) {
+    if (e.keyCode === 13) {
         $("#btnOpenDFS").click();
     }
 });
 
 $("#btnOpenDFS").bind("click", function (e) {
     var url = $("#dfsUrl").val();
-    if (url.toUpperCase().indexOf("DFS://") == 0) {
+    if (url.toUpperCase().indexOf("DFS://") === 0) {
         url = url.replace("dfs:/", "");
     }
     if (isUrl(url)) {
@@ -675,7 +675,7 @@ function fmoney(s, n) {
     var l = s.split(".")[0].split("").reverse(), r = s.split(".")[1];
     t = "";
     for (i = 0; i < l.length; i++) {
-        t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
+        t += l[i] + ((i + 1) % 3 === 0 && (i + 1) != l.length ? "," : "");
     }
     return t.split("").reverse().join("") + "." + r;
 }  

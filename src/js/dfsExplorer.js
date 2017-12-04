@@ -84,7 +84,7 @@ var bindGrid = function (tableJson) {
         pageLoading: false,
         autoload: false,
         rowDoubleClick: function (arg) {
-            if (arg.item.filetype == 0) { //expanded common directory
+            if (arg.item.filetype === 0) { //expanded common directory
                 var cp = getCurrentPath();
                 var fpath = "";
                 if (cp === "") {//if root path
@@ -92,7 +92,7 @@ var bindGrid = function (tableJson) {
                 } else if (cp === "/") {
                     fpath = cp + arg.item.filename;
                 } else {
-                    fpath = cp + "/" + arg.item.filename;;
+                    fpath = cp.trimEnd('/') + "/" + arg.item.filename;;
                 }
                 bindPath(fpath);
                 json = client.getGridJson(fpath);
@@ -105,11 +105,11 @@ var bindGrid = function (tableJson) {
         title: 'Name',
         type: 'text',
         itemTemplate: function (value, item) {
-            if (item.filetype == 0) {
+            if (item.filetype === 0) {
                 return "<span class='glyphicon glyphicon-folder-close' style='color:rgb(239,222,7)' title='directory'></span> " + value
-            } else if (item.filetype == 1) {
+            } else if (item.filetype === 1) {
                 return "<span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " + value
-            } else if (item.filetype == 2) {
+            } else if (item.filetype === 2) {
                 return "<span class='glyphicon glyphicon-file' style='color:rgb(190,190,190)' title='file'></span> " + value
             }
         }
@@ -122,9 +122,9 @@ var bindGrid = function (tableJson) {
         title: 'Type',
         type: 'text',
         itemTemplate: function (value, item) {
-            if (item.filetype == 0) {
+            if (item.filetype === 0) {
                 return "directory";
-            } else if (item.filetype == 1) {
+            } else if (item.filetype === 1) {
                 return "partition chunk";
             } else {
                 return "file";
@@ -147,9 +147,9 @@ var bindGrid = function (tableJson) {
                         $(chunkRepArr).each(function (j, chunkRepItem) {
                             var arr = chunkRepItem.split(":");
                             
-                            if (arr.length ==3 ) {
+                            if (arr.length ===3 ) {
                                 re = re + arr[0] + " [V" + arr[1] + "]";
-                                if (arr[2] == 1) {
+                                if (arr[2] === 1) {
                                     re = re + "<span class='glyphicon glyphicon-exclamation-sign' title'chunk is corrupted'></span> ";
                                 } else {
                                     re = re + ", ";
@@ -173,7 +173,7 @@ $("#executeSQL").bind("click", function () {
     doQuery($("#txtSQL").val());
 });
 $("#txtSQL").bind("keypress", function (e) {
-    if (e.keyCode == 13) {
+    if (e.keyCode === 13) {
         doQuery($("#txtSQL").val());
     }
 });
@@ -181,16 +181,14 @@ $("#txtSQL").bind("keypress", function (e) {
 
 var result = [];
 $("#dfsPathInput").bind("keydown", function (e) {
-    console.log(e.keyCode);
-    if (e.keyCode == 13) {
-        var fpath = $("#dfsPathInput").val();
+    var fpath = $("#dfsPathInput").val();
+    if (e.keyCode === 13) {
         bindPath(fpath);
         json = client.getGridJson(fpath);
         bindGrid(json);
         return false;
-    } else if (e.keyCode == 9) {
-        if (result && result.length == 1) {
-            var fpath = $("#dfsPathInput").val();
+    } else if (e.keyCode === 9) {
+        if (result && result.length === 1) {
             var last = fpath.lastIndexOf("/");
             $("#dfsPathInput").val(fpath.substr(0, last + 1) + result[0].filename);
         }
@@ -202,7 +200,7 @@ $("#dfsPathInput").bind("keydown", function (e) {
             result = json.filter(function (x) {
                 var i = cpath.lastIndexOf("/");
                 var exp = cpath.substr(i + 1, cpath.length - i - 1);
-                return x.filename.indexOf(exp) == 0;
+                return x.filename.indexOf(exp) === 0;
             });
         }
     }
@@ -211,7 +209,7 @@ $("#dfsPathInput").bind("keydown", function (e) {
 var doQuery = function (sql) {
     var executor = new CodeExecutor(wa_url);
     var path = getCurrentPath();
-    if (sql != "") {
+    if (sql !== "") {
         var script = 'select * from getDFSDirectoryContent("' + path + '") where ' + sql;
         codestr = encodeURIComponent(script);
         var re = executor.runSync(codestr);
@@ -222,10 +220,7 @@ var doQuery = function (sql) {
     }
 }
 //=================================================================Path Object===============================================================
-/**
- * design for parsing path
- * @param {fullPath} path 
- */
+
 function PathObject(path) {
     this.fullPath = path;
     this.pathItems = path.split("/");
@@ -265,9 +260,7 @@ function DolphinDBDFSClient(webApiUrl) {
 
     var pNode = null;
     var cNode = null;
-    /**
-     * NodeID Child
-     */
+
     function getNode(json, nodeId) {
 
         //.recursive search node
@@ -281,7 +274,7 @@ function DolphinDBDFSClient(webApiUrl) {
                 continue;
             }
             //find and return 
-            if (obj.id == nodeId) {
+            if (obj.id === nodeId) {
                 cNode = obj;
                 break;
             } else {
