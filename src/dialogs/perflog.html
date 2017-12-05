@@ -187,8 +187,6 @@
         //===============page utils=====================
 
         function closeMe() {
-            var e = jQuery.Event("keydown");
-            e.keyCode = 27;
             var container = window.parent;
             container.closeDialog("perflog_" + nodeAlias);
         }

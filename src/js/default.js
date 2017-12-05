@@ -56,7 +56,7 @@ function getControllerIp() {
     else {
         return ctlIP;
     }
-};
+}
 
 function getDatanodeApiUrl(controllerIP, rowObject) {
     var addrHost = controllerIP.split(':')[0];
@@ -65,7 +65,7 @@ function getDatanodeApiUrl(controllerIP, rowObject) {
         nodeHost = addrHost.split(':')[0];
     }
     if (nodeHost !== addrHost) {
-        var ethArr = rowObject.ethernetInfo.split(";")
+        var ethArr = rowObject.ethernetInfo.split(";");
         var h = addrHost.split(".");
         var iphead = h[0] + "." + h[1];
         $(ethArr).each(function (i, e) {
@@ -73,7 +73,7 @@ function getDatanodeApiUrl(controllerIP, rowObject) {
             if (iphead === h[0] + "." + h[1]) {
                 nodeHost = e;
             }
-        })
+        });
     }
     return nodeHost;
 }
@@ -137,9 +137,9 @@ function LoadTable(nodeList) {
             width: 80,
             template: function(mode, rowObject) {
                 if (mode === 0) {
-                    return "datanode"
+                    return "datanode";
                 } else {
-                    return "controller"
+                    return "controller";
                 }
             }
         }, {
@@ -150,7 +150,7 @@ function LoadTable(nodeList) {
             template: function(site, rowObject) {
                 if (rowObject.state === 1) {
                     var nodeHost = getDatanodeApiUrl(getControllerIp(), rowObject);
-                    r = '<a href=javascript:window.open("nodedetail.html?site=' + nodeHost + ':' + rowObject.port + ':' + rowObject.site.split(':')[2] + '");>' + rowObject.site.split(':')[2] + '</a>'
+                    r = '<a href=javascript:window.open("nodedetail.html?site=' + nodeHost + ':' + rowObject.port + ':' + rowObject.site.split(':')[2] + '");>' + rowObject.site.split(':')[2] + '</a>';
                     return r;
                 } else {
                     return rowObject.site.split(':')[2];
@@ -188,9 +188,9 @@ function LoadTable(nodeList) {
                     api_url = getControllerIp();
                     ref = rowObject.site.replace(rowObject.host, getControllerIp()) + '@' + rowObject.site;
                 }
-                r += '<a style="padding-left:20px"  ref="getServerLog@' + ref + '" href="javascript:void(0)" onclick="showServerLog(\''+ api_url + '\',\'' + node_alias + '\')">view</a>'
+                r += '<a style="padding-left:20px"  ref="getServerLog@' + ref + '" href="javascript:void(0)" onclick="showServerLog(\''+ api_url + '\',\'' + node_alias + '\')">view</a>';
                 return r;
-            },
+            }
         }, {
             text: 'PerfLog',
             key: 'perfLog',
@@ -207,10 +207,9 @@ function LoadTable(nodeList) {
                     api_url = getControllerIp();
                     ref = rowObject.site.replace(rowObject.host, getControllerIp()) + '@' + rowObject.site;
                 }
-                r += '<a style="padding-left:20px" ref="getPerfLog@' + ref + '" href="javascript:void(0)" onclick="showPerfLog(\'' + api_url + '\',\'' + node_alias + '\')">view</a>'
+                r += '<a style="padding-left:20px" ref="getPerfLog@' + ref + '" href="javascript:void(0)" onclick="showPerfLog(\'' + api_url + '\',\'' + node_alias + '\')">view</a>';
                 return r;
-            },
-
+            }
         }, {
             text: 'Conns',
             key: 'connectionNum',
@@ -225,7 +224,7 @@ function LoadTable(nodeList) {
             width: 100,
             template: function(memoryUsed, rowObject) {
                 return bytesToSize(memoryUsed);
-            },
+            }
         }, {
             text: 'MemAlloc',
             key: 'memoryAlloc',
@@ -234,7 +233,7 @@ function LoadTable(nodeList) {
             width: 100,
             template: function(memoryAlloc, rowObject) {
                 return bytesToSize(memoryAlloc);
-            },
+            }
         }, {
             text: 'CpuUsage',
             key: 'cpuUsage',
@@ -243,7 +242,7 @@ function LoadTable(nodeList) {
             width: 100,
             template: function(cpuUsage, rowObject) {
                 return fmoney(cpuUsage,1) + "%";
-            },
+            }
         }, {
             text: 'AvgLoad',
             key: 'avgLoad',
@@ -252,7 +251,7 @@ function LoadTable(nodeList) {
             width: 100,
             template: function(avgLoad, rowObject) {
                 return fmoney(avgLoad,2);
-            },
+            }
         }, {
             text: 'MedQT10',
             key: 'medLast10QueryTime',
@@ -261,7 +260,7 @@ function LoadTable(nodeList) {
             width: 90,
             template: function(medLast10QueryTime, rowObject) {
                 return fmoney(medLast10QueryTime / 1000000,1) + " ms";
-            },
+            }
         }, {
             text: 'MaxQT10',
             key: 'maxLast10QueryTime',
@@ -270,7 +269,7 @@ function LoadTable(nodeList) {
             width: 90,
             template: function(maxLast10QueryTime, rowObject) {
                 return fmoney(maxLast10QueryTime / 1000000,1) + " ms";
-            },
+            }
         }, {
             text: 'MedQT100',
             key: 'medLast100QueryTime',
@@ -279,7 +278,7 @@ function LoadTable(nodeList) {
             width: 100,
             template: function(medLast100QueryTime, rowObject) {
                 return fmoney(medLast100QueryTime / 1000000,1) + " ms";
-            },
+            }
         }, {
             text: 'MaxQT100',
             key: 'maxLast100QueryTime',
@@ -288,7 +287,7 @@ function LoadTable(nodeList) {
             width: 100,
             template: function(maxLast100QueryTime, rowObject) {
                 return fmoney(maxLast100QueryTime / 1000000,1) + " ms";
-            },
+            }
         }, {
             text: 'MaxRunningQT',
             key: 'maxRunningQueryTime',
@@ -306,7 +305,7 @@ function LoadTable(nodeList) {
             width: 110,
             template: function(runningJobs, rowObject) {
                 return Number(runningJobs);
-            },
+            }
         }, {
             text: 'QueuedJobs',
             key: 'queuedJobs',
@@ -315,7 +314,7 @@ function LoadTable(nodeList) {
             width: 110,
             template: function(queuedJobs, rowObject) {
                 return Number(queuedJobs);
-            },
+            }
         }, {
             text: 'RunningTasks',
             key: 'runningTasks',
@@ -324,7 +323,7 @@ function LoadTable(nodeList) {
             width: 110,
             template: function(runningTasks, rowObject) {
                 return Number(runningTasks);
-            },
+            }
         }, {
             text: 'QueuedTasks',
             key: 'queuedTasks',
@@ -333,7 +332,7 @@ function LoadTable(nodeList) {
             width: 110,
             template: function(queuedTasks, rowObject) {
                 return Number(queuedTasks);
-            },
+            }
         }, {
             text: 'JobLoad',
             key: 'jobLoad',
@@ -342,7 +341,7 @@ function LoadTable(nodeList) {
             width: 90,
             template: function(jobLoad, rowObject) {
                 return Number(jobLoad);
-            },
+            }
         }, {
             text: 'DiskCapacity',
             key: 'diskCapacity',
@@ -351,7 +350,7 @@ function LoadTable(nodeList) {
             width: 90,
             template: function(diskCapacity, rowObject) {
                 return fmoney((diskCapacity / Math.pow(1024,3)),1) + " GB";
-            },
+            }
         }, {
             text: 'DiskFreeSpace',
             key: 'diskFreeSpace',
@@ -360,7 +359,7 @@ function LoadTable(nodeList) {
             width: 90,
             template: function(diskFreeSpace, rowObject) {
                 return fmoney((diskFreeSpace / Math.pow(1024, 3)),1) + " GB";
-            },
+            }
         }, {
             text: 'DiskFreeSpaceRatio',
             key: 'diskFreeSpaceRatio',
@@ -369,7 +368,7 @@ function LoadTable(nodeList) {
             width: 90,
             template: function (diskFreeSpaceRatio, rowObject) {
                 return Number(diskFreeSpaceRatio * 100).toFixed(1) + " %";
-            },
+            }
         }, {
             text: 'DiskWirteRate',
             key: 'diskWriteRate',
@@ -378,7 +377,7 @@ function LoadTable(nodeList) {
             width: 90,
             template: function (diskWriteRate, rowObject) {
                 return fmoney((diskWriteRate / (1024 * 1024)),1) + " MB/s";
-            },
+            }
         }, {
             text: 'DiskReadRate',
             key: 'diskReadRate',
@@ -387,7 +386,7 @@ function LoadTable(nodeList) {
             width: 90,
             template: function (diskReadRate, rowObject) {
                 return fmoney((diskReadRate / (1024 * 1024)),1) + " MB/s";
-            },
+            }
         }, {
             text: 'LastMinuteWriteVolume',
             key: 'lastMinuteWriteVolume',
@@ -396,7 +395,7 @@ function LoadTable(nodeList) {
             width: 90,
             template: function (diskWirtePerMinute, rowObject) {
                 return fmoney((diskWirtePerMinute / (1024 * 1024)),1) + " MB";
-            },
+            }
         }, {
             text: 'Workers',
             key: 'workerNum',
@@ -476,17 +475,17 @@ function connect_server_success(result) {
             NODE_LIST.splice(0, 0, e);
         });
 
-        refreshGrid(NODE_LIST)
+        refreshGrid(NODE_LIST);
     }
-};
+}
 
 function byPortUp(x, y) {
-    return (x.port > y.port) ? 1 : -1
+    return (x.port > y.port) ? 1 : -1;
 }
 
 function connect_server_error(ex) {
     console.log(ex);
-};
+}
 //============================================================================
 
 
@@ -640,8 +639,12 @@ function showServerLog(url,alias) {
         $(iframe).appendTo($(divobj));
         $(divobj).appendTo($('#dialogs'));
     }
-        openDialog(divobj.id,nodeAlias);
-        $(divobj).children("iframe")[0].contentWindow.refreshMe();
+    openDialog(divobj.id,nodeAlias);
+    var frameWindow = $(divobj).children("iframe")[0].contentWindow;
+    if(typeof frameWindow.refreshMe === "function"){
+        frameWindow.refreshMe();
+    }
+        
  }
 function showPerfLog(url, alias) {
     var apiUrl = url;
@@ -659,7 +662,10 @@ function showPerfLog(url, alias) {
         $(divobj).appendTo($('#dialogs'));
     }
         openDialog(divobj.id, nodeAlias);
-        $(divobj).children("iframe")[0].contentWindow.refreshMe();
+        var frameWindow = $(divobj).children("iframe")[0].contentWindow;
+        if(typeof frameWindow.refreshMe === "function"){
+            frameWindow.refreshMe();
+        }
  
 }
 

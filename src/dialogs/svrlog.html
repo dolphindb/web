@@ -112,7 +112,7 @@
                     }
                 } else {
                     alert(re.msg);
-                    return false;
+                    closeMe();
                 }
             });
         }
@@ -160,8 +160,6 @@
         }
 
         function closeMe() {
-            var e = jQuery.Event("keydown");
-            e.keyCode = 27;
             var container = window.parent;
             container.closeDialog("svrlog_" + nodeAlias);
         }
