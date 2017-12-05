@@ -141,18 +141,35 @@ function bindVariables(datalist) {
 
             if (dataform === "Table") {
                 var tablesize = $(e.target).closest('a').context.innerText.split(" ")[1];
-
-                var script = "select top " + (tablesize > 1024 ? 1024 : tablesize) + " * from " + contentid;
+                if(tablesize === "0"){
+                    if($('#retrieve-row-number').val()==="")
+                        tablesize = 0;
+                    else
+                        tablesize = parseInt($('#retrieve-row-number').val(), 10);
+                }
+                //var script = "select top " + (tablesize > 1024 ? 1024 : tablesize) + " * from " + contentid;
+                var script = contentid + "[0:" + tablesize + "]";
                 getData(script, 0, PAGESIZE, function(g) {
-                    showTableGrid(tblobj.id, contentid, tablesize, g);
-                    openDialog(divobj.id, '[' + dataform + ']' + contentid);
+                    if(g.resultCode==="0"){
+                        showTableGrid(tblobj.id, contentid, tablesize, g);
+                        openDialog(divobj.id, '[' + dataform + ']' + contentid);
+                    }else{
+                        appendError(g.msg);
+                        $('#resulttab a[href="#log"]').tab('show');
+                    }
                 }, function(err) {
+                    appendlog(err);
                     console.log(err);
                 });
             } else {
                 getData(code, 0, PAGESIZE, function(g) {
-                    showGrid(tblobj.id, code, g);
-                    openDialog(divobj.id, '[' + dataform + ']' + contentid);
+                    if(g.resultCode==="0"){
+                        showGrid(tblobj.id, code, g);
+                        openDialog(divobj.id, '[' + dataform + ']' + contentid);
+                    }else{
+                        appendError(g.msg);
+                        $('#resulttab a[href="#log"]').tab('show');
+                    }
                 }, function(err) {
                     console.log(err);
                 });
@@ -171,12 +188,14 @@ function showTableGrid(gridid, tablename, totalcount, g) {
         controller: {
             loadData: function(filter) {
                 var deferred = $.Deferred();
-
-                var script = "select top " + (totalcount > 1024 ? 1024 : totalcount) + " * from " + tablename;
+                //var script = "select top " + (totalcount > 1024 ? 1024 : totalcount) + " * from " + tablename;
+                var script = tablename + "[0:" + totalcount + "]";
                 getData(script, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function(g) {
                     var d = DolphinResult2Grid(g, filter.pageIndex - 1);
                     deferred.resolve({ data: d, itemsCount: totalcount });
-                })
+                },function(e){
+                    appendlog(e);
+                });
 
                 return deferred.promise();
             }
@@ -436,10 +455,16 @@ $('#btn_clear').click(function() {
 
 function appendlog(logstr) {
     logstr = new Date().toLocaleString() + ":<pre>" + logstr + "</pre>";
-    $('#pnl_log').prepend(logstr)
+    $('#pnl_log').prepend(logstr);
     localStorage.setItem(logStorageID, $('#pnl_log').html());
 }
 
+function appendError(logstr){
+    var err = "<span style='color: red'>Error Message: </span>";
+    logstr = new Date().toLocaleString() + ":<pre>" + err + logstr + "</pre>";
+    $('#pnl_log').prepend(logstr);
+    localStorage.setItem(logStorageID, $('#pnl_log').html());
+}
 function writelog(logstr) {
     $('#pnl_log').html(logstr)
 }
