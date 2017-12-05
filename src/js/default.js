@@ -498,7 +498,7 @@ $("#btn_run").click(function() {
     var aliasarr = [];
     for (var i = 0; i < t.length; i++) {
         data = t[i];
-        if (data.state === "1") {
+        if (data.state === 1) {
             continue;
         };
         valarr.push(data.host + ":" + data.port);
@@ -541,7 +541,7 @@ $("#btn_stop").click(function() {
     var aliasarr = [];
     for (var i = 0; i < t.length; i++) {
         data = t[i];
-        if (data.state === "1") {
+        if (data.state === 1) {
             valarr.push(data.host + ":" + data.port);
             aliasarr.push(data.site.split(":")[2]);
         }
