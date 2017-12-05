@@ -165,7 +165,7 @@ function LoadTable(nodeList) {
             remind: ' state of the node',
             sorting: '',
             template: function(state, rowObject) {
-                if (state === "1") {
+                if (rowObject.state === 1) {
                     return '<font style="color:green">running</font>';
                 } else {
                     return '<font style="color:red">stopped</font>';
