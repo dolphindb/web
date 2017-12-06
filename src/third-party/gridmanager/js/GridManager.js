@@ -3336,6 +3336,7 @@
                 //指定拖拽换位事件源,配置拖拽样式
                 dragAction.unbind('mousedown');
                 dragAction.bind('mousedown', function(event) {
+                    //console.log("dragstart",event);
                     // 获取设置项
                     var Settings = _Cache2.default.getSettings(table);
 

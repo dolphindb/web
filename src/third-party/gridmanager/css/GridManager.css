@@ -649,7 +649,8 @@ table[grid-manager].GridManager-ready {
 }
 
 .table-wrap table[grid-manager] .drag-ongoing {
-    cursor: all-scroll;
+    /*cursor: all-scroll;*/
+    cursor: default;
     background: #666 !important;
     border-color: #ccc !important;
     color: #fff !important;
@@ -669,7 +670,8 @@ table[grid-manager].GridManager-ready {
     border: 1px solid #ccc;
     padding: 0;
     background: #fff;
-    cursor: all-scroll;
+    /*cursor: all-scroll;*/
+    cursor: default;
     z-index: 9;
 }
 

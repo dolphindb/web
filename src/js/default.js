@@ -421,7 +421,43 @@ function LoadTable(nodeList) {
             sorting: '',
             width: 90,
             template: function(maxMemSize, rowObject) {
-                return fmoney(maxMemSize,1) + " GB";
+                return fmoney(rowObject.maxMemSize,1) + " GB";
+            }
+        },{
+            text: 'NetworkSendRate',
+            key: 'networkSendRate',
+            remind: 'the rate of sending',
+            sorting: '',
+            width: 90,
+            template: function(networkSendRate, rowObject) {
+                return fmoney(rowObject.networkSendRate/(1024 * 1024),1) + " MB/s";
+            }
+        },{
+            text: 'NetworkRecvRate',
+            key: 'networkRecvRate',
+            remind: 'the rate of receiving',
+            sorting: '',
+            width: 90,
+            template: function(networkRecvRate, rowObject) {
+                return fmoney(rowObject.networkRecvRate/(1024 * 1024),1) + " MB/s";
+            }
+        },{
+            text: 'LastMinuteNetworkSend',
+            key: 'lastMinuteNetworkSend',
+            remind: 'the size of network sending last minute',
+            sorting: '',
+            width: 90,
+            template: function(lastMinuteNetworkSend, rowObject) {
+                return fmoney(rowObject.lastMinuteNetworkSend/(1024 * 1024),1) + " MB";
+            }
+        },{
+            text: 'LastMinuteNetworkRecv',
+            key: 'lastMinuteNetworkRecv',
+            remind: 'the size of network receiving last minute',
+            sorting: '',
+            width: 90,
+            template: function(lastMinuteNetworkRecv, rowObject) {
+                return fmoney(rowObject.lastMinuteNetworkRecv/(1024 * 1024),1) + " MB";
             }
         }],
         sortingAfter: function(querys) {

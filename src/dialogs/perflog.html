@@ -48,7 +48,7 @@
                 </div>
             </div>
             <div class="col-lg-2 col-md-2 col-sm-2">
-                <button type="button" class="btn btn-default" onclick="closeMe()">Close</button>
+                <button type="button" class="btn btn-default" onclick="closeMe()" id="btnClose">Close</button>
             </div>
         </div>
     </div>
@@ -67,6 +67,7 @@
         var SESSION_ID = "";
         var grid = $("#jsGrid_perflog");
         $(function() {
+            $("#btnForward").focus();
             var svr_obj = new ServerObject($.getUrlParam('svr'));
             svr_url = svr_obj.getHttpServer();
             SESSION_ID = $.getUrlParam('sessid');
@@ -138,7 +139,6 @@
                     "value": nodeAlias
                 }]
             };
-            console.log("URL", svr_url);
             CallWebApi(svr_url, p, function (re) {
                 if (re.resultCode == "0") {
                     if (re.object.length > 0) {
@@ -146,7 +146,6 @@
                     }
                 } else {
                     alert(re.msg);
-                    return false;
                 }
             });
         }

@@ -62,6 +62,7 @@
         var nodeAlias = "";
         var SESSION_ID = "";
         $(function() {
+            $("#btnForward").focus();
             var svr_obj = new ServerObject($.getUrlParam('svr'));
             svr_url = svr_obj.getHttpServer();
             SESSION_ID = $.getUrlParam('sessid');
@@ -103,7 +104,6 @@
                     "value": nodeAlias
                 }]
             };
-            console.log("URL", svr_url);
             CallWebApi(svr_url, p, function (re) {
                 if (re.resultCode == "0") {
                     if (re.object.length > 0) {
@@ -112,7 +112,6 @@
                     }
                 } else {
                     alert(re.msg);
-                    closeMe();
                 }
             });
         }
