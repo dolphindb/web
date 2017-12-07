@@ -62,7 +62,6 @@
         var nodeAlias = "";
         var SESSION_ID = "";
         $(function() {
-            $("#btnForward").focus();
             var svr_obj = new ServerObject($.getUrlParam('svr'));
             svr_url = svr_obj.getHttpServer();
             SESSION_ID = $.getUrlParam('sessid');
@@ -147,7 +146,9 @@
             LoadLog();
         });
         var LoadLog = function () {
+             $("#btnForward").focus();
              getLog($('#txtOffset').val(), $('#txtLength').val(), logFromhead);
+
         }
         //===============page utils=====================
         function HTMLEncode(html) {
