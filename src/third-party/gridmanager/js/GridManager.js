@@ -3336,7 +3336,7 @@
                 //指定拖拽换位事件源,配置拖拽样式
                 dragAction.unbind('dragstart');
                 dragAction.bind('dragstart', function(event) {
-                    currentDragCol = event.target.innerText;
+                    currentDragCol = event.target.innerText.trim();
                     //console.log("dragstart",event);
                     // 获取设置项
                     var Settings = _Cache2.default.getSettings(table);
@@ -3391,7 +3391,12 @@
                     (0, _jTool2.default)('body').unbind('dragover');
                     (0, _jTool2.default)('body').bind('dragover', function(e2) {
                         e2.preventDefault();
-                        if(currentDragCol === e2.target.innerText) return;
+                        if(e2.target.innerText === "") return;
+                        if(currentDragCol === e2.target.innerText.trim()) return;
+                        
+                        console.log("dragover1",currentDragCol);
+                        console.log("dragover2",e2.target.innerText);
+                        console.log("currentDragCol == e2.target.innerText",currentDragCol.trim() === e2.target.innerText.trim())
                         var Settings = _Cache2.default.getSettings(table);
                         _thIndex = _th.index(_allTh);
                         _prevTh = undefined;
@@ -3411,7 +3416,7 @@
                             _nextTh = undefined;
                         }
                         //处理向左拖拽
-                        if (_prevTh && _prevTh.length != 0 && _prevTh.DOMList[0].innerText===e2.target.innerText) {
+                        if (_prevTh && _prevTh.length != 0 && _prevTh.DOMList[0].innerText.trim()===e2.target.innerText.trim()) {
                             _prevTd = _Base2.default.getColTd(_prevTh);
                             _prevTh.before(_th);
                             _jTool2.default.each(_td, function(i, v) {
@@ -3420,7 +3425,7 @@
                             _allTh = _tr.find('th'); //重置TH对象数据
                         }
                         //处理向右拖拽
-                        if (_nextTh && _nextTh.length != 0 && _nextTh.DOMList[0].innerText===e2.target.innerText) {
+                        if (_nextTh && _nextTh.length != 0 && _nextTh.DOMList[0].innerText.trim()===e2.target.innerText.trim()) {
                             _nextTd = _Base2.default.getColTd(_nextTh);
                             _nextTh.after(_th);
                             _jTool2.default.each(_td, function(i, v) {
