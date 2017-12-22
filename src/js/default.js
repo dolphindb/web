@@ -57,26 +57,53 @@ function getControllerIp() {
         return ctlIP;
     }
 }
-
+/*
+场景
+1、节点配localhost，无法远端连接
+2、controller使用外网IP和域名，外网访问时datanode的链接是内网ip，浏览器无法访问
+*/
 function getDatanodeApiUrl(controllerIP, rowObject) {
     var addrHost = controllerIP.split(':')[0];
     var nodeHost = rowObject.host;
     if (nodeHost.toUpperCase() === "LOCALHOST") {
         nodeHost = addrHost.split(':')[0];
     }
-    if (nodeHost !== addrHost) {
+    if (isEqualIPAddress(nodeHost,addrHost,"255.255.0.0")===false) {
         var ethArr = rowObject.ethernetInfo.split(";");
-        var h = addrHost.split(".");
-        var iphead = h[0] + "." + h[1];
         $(ethArr).each(function (i, e) {
-            var h = e.split(".");
-            if (iphead === h[0] + "." + h[1]) {
+            if (isEqualIPAddress(addrHost,e,"255.255.0.0")) {
                 nodeHost = e;
             }
         });
     }
     return nodeHost;
 }
+//is same net area
+function isEqualIPAddress(addr1, addr2, mask) {
+    if (!addr1 || !addr2 || !mask) {
+        console.log("invalid paramter");
+        return false;
+    }
+    var
+        res1 = [],
+        res2 = [];
+    addr1 = addr1.split(".");
+    addr2 = addr2.split(".");
+    mask = mask.split(".");
+    for (var i = 0, ilen = addr1.length; i < ilen; i += 1) {
+        res1.push(parseInt(addr1[i]) & parseInt(mask[i]));
+        res2.push(parseInt(addr2[i]) & parseInt(mask[i]));
+    }
+    if (res1.join(".") == res2.join(".")) {
+        console.log("same net area");
+        return true;
+    } else {
+        console.log("different net area");
+        return false;
+    }
+}
+
+
 function getAgentSite(controllerIP,rowObject) {
     var agentRows = AGENT_LIST.filter(function (x) {
         return x.host === rowObject.host;
@@ -702,7 +729,6 @@ function showPerfLog(url, alias) {
         if(typeof frameWindow.refreshMe === "function"){
             frameWindow.refreshMe();
         }
- 
 }
 
 //==============================================================util function============================================
