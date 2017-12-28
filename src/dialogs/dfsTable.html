@@ -10,7 +10,233 @@
     <link rel="stylesheet" href="../third-party/bootstrap/css/bootstrap.min.css">
     <link href="../third-party/jsgrid/jsgrid.css" rel="stylesheet" />
     <link href="../third-party/jsgrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="../third-party/jstree/themes/default/style.css" rel="stylesheet" />
 </head>
 <body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-4 col-md-3 col-lg-2">
+                <div id="pnl_partition">
+                </div>
+            </div>
+            <div class="col-sm-8 col-md-9 col-lg-10">
+                <div id="jsgrid1">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../third-party/bootstrap/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script src="../third-party/bootstrap/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+    <script src="../third-party/bootstrap/js/vendor/bootstrap.js" type="text/javascript"></script>
+    <script src="../third-party/bootstrap/js/vendor/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+    <script src="../third-party/jsgrid/jsgrid.js" type="text/javascript"></script>
+    <script src="../third-party/jstree/jstree.js" type="text/javascript"></script>
+    <script src="../third-party/bootstrap/js/vendor/jquery.cookie.js" type="text/javascript"></script>
+    <script src="../js/utils.js" type="text/javascript"></script>
+    <script src="../js/executecode.js" type="text/javascript"></script>
+    <script src="../js/CallWebApi.js" type="text/javascript"></script>
+    <script src="../js/datagrid.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js" type="text/javascript"></script>
 </body>
 </html>
+
+<script>
+    var db = ""; //dfs://DFS_T_HIER_RANGE_VALUE/TABLENAME
+    var tb = ""; //TB1
+    var dbPath = ""; // dfs://DFS_T_HIER_RANGE_VALUE
+    var curPath = ""; //dfs://DFS_T_HIER_RANGE_VALUE/1_100000/A
+    var dfsPath = ""; // /DFS_T_HIER_RANGE_VALUE/
+    var site = "";     
+    var realTableName = "";
+    $(document).ready(function () {
+        db= $.getUrlParam('db');
+        tb = $.getUrlParam('tb');
+        site = $.getUrlParam('site');
+        var i = db.lastIndexOf("/");
+        dbPath = db.substr(0, i);
+        realTableName = db.substr(i+1);
+        dfsPath = dbPath;
+
+        console.log("realTableName", realTableName);
+        console.log("dfsPath", dfsPath);
+
+        if (dbPath.startWith("dfs://")) {
+            dfsPath = dbPath.replace("dfs://", "/");
+        }
+        curPath = dfsPath;
+        getPartition(dfsPath, buildRootTree);
+    });
+
+    var getPartition = function (path,callback) {
+
+        var controller = "http://" + window.location.host;
+        var getTopPartitionScript = "select * from getDFSDirectoryContent('" + path + "') where filetype<2"
+        var scriptExecutor = new CodeExecutor(controller);
+        scriptExecutor.run(getTopPartitionScript, callback);
+    }
+
+    var buildRootTree = function (json) {
+        var list = DolphinResult2Grid(json);
+        var rootNodes = []
+        $.each(list, function (i, e) {
+            var n = {
+                "a_attr": $.extend(e, { "fullpath": curPath + "/" + e.filename }),
+                "text": e.filename,
+                "state": { "opened": false },
+                "icon": e.filetype == 0 ? "jstree-folder" : "jstree-file",
+            }
+            rootNodes.push(n);
+        });
+
+
+        var json_tree = {
+            'core': {
+                'dblclick_toggle': true,
+                'check_callback': true,
+                'data': [{
+                    "text": tb,
+                    "state": { "opened": true },
+                    "icon": "jstree-folder",
+                    "children": rootNodes
+                    }]
+            }
+        };
+        $('#pnl_partition')
+            .jstree(json_tree)
+            .unbind('dblclick.jstree')
+            .bind('dblclick.jstree', function (e) {
+                var ref = $('#pnl_partition').jstree(true),
+                    sel = ref.get_selected();
+                if (!sel.length) { return false; }
+                sel = sel[0];
+                var curNode = ref.get_node(sel);
+                if (!e.target.attributes.fullpath) return;
+                curPath = e.target.attributes.fullpath.value;
+                var filetype = e.target.attributes.filetype.value;
+                var chunkid = e.target.attributes.chunks.value;
+                var sitesStr = e.target.attributes.sites.value;
+                var sites = [];
+                var chunkArr = sitesStr.split(";");
+                if (chunkArr.length >= 1) {
+                    $(chunkArr).each(function (i, chunkItem) {
+                        var chunkRepArr = chunkItem.split(",");
+                        if (chunkRepArr.length >= 1) {
+                            $(chunkRepArr).each(function (j, chunkRepItem) {
+                                var arr = chunkRepItem.split(":");
+                                sites.push(arr[0]);
+                            });
+                        }
+                    });
+                }
+                var partitionPath = curPath.replace(dfsPath, "");
+                var tablename = realTableName;
+                if (filetype == 0) {
+                    getPartition(curPath, buildSubTree);
+                } else {
+                    loadGrid(chunkid, dbPath, partitionPath, tablename, sites);
+                }
+               
+            });
+    }
+    var loadGrid = function (chunkid, dbPath, partitionPath, tablename,sites) {
+        //var p = {
+        //    "sessionID": 0,
+        //    "functionName": "readTabletChunk",
+        //    "params": [{
+        //        "name": "sites",
+        //        "form": "vector",
+        //        "type": "string",
+        //        "value": sites
+        //    },{
+        //        "name": "chunkid",
+        //        "form": "scalar",
+        //        "type": "string",
+        //        "value": chunkid
+        //    }, {
+        //        "name": "dbPath",
+        //        "form": "scalar",
+        //        "type": "string",
+        //        "value": dbPath
+        //    }, {
+        //        "name": "partitionPath",
+        //        "form": "scalar",
+        //        "type": "string",
+        //        "value": partitionPath
+        //    }, {
+        //       "name": "tableName",
+        //       "form": "scalar",
+        //       "type": "string",
+        //       "value": realTableName
+        //    },  {
+        //        "name": "offset",
+        //        "form": "scalar",
+        //        "type": "int",
+        //        "value": 0
+        //    }, {
+        //        "name": "length",
+        //        "form": "scalar",
+        //        "type": "int",
+        //        "value": 10000
+        //    }]
+        //}
+        //CallWebApi(wa_url, p, function (json) {
+        //    if (json.resultCode == 0) {
+        //        var d = DolphinResult2Grid(json);
+        //        var grid = $('#jsgrid1');
+        //        var dg = new DolphinGrid(grid, {
+        //            pageSize: 50,
+        //            sorting: true,
+        //            paging: true,
+        //            pageLoading: false,
+        //            autoload: false
+        //        });
+        //        dg.loadFromJson(d);
+        //    }
+        //},
+        //    function (re) {console.log(re);
+        //});
+
+
+        var script = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "','" + tablename + "',0,1000)";
+        var nodeUrl = new ServerObject(site).getHttpServer();
+        var scriptExecutor = new CodeExecutor(nodeUrl);
+        scriptExecutor.run(script, function (json) {
+        if (json.resultCode == 0) {
+            var d = DolphinResult2Grid(json);
+            var grid = $('#jsgrid1');
+            var dg = new DolphinGrid(grid, {
+                pageSize: 15,
+                sorting: true,
+                paging: true,
+                pageLoading: false,
+                autoload: false
+            });
+            dg.loadFromJson(d);
+        } else {
+            alert(json.msg);
+        }
+        });
+    }
+    var buildSubTree = function (json) {
+        var list = DolphinResult2Grid(json);
+        var subNodes = []
+        var ref = $('#pnl_partition').jstree(true),
+            sel = ref.get_selected();
+        if (!sel.length) { return false; }
+        sel = sel[0];
+        var childs = ref.get_children_dom(sel);
+        if(childs.length<=0){
+        $.each(list, function (i, e) {
+            var n = {
+                "a_attr": $.extend(e, { "fullpath": curPath + "/" + e.filename }),
+                "text": e.filename,
+                "state": { "opened": false },
+                "icon": e.filetype == 0 ? "jstree-folder" : "jstree-file",
+            }
+            var tmp = ref.create_node(sel, n);
+            });
+        }
+        ref.open_node(sel);
+      }
+</script>

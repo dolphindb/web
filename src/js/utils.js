@@ -90,7 +90,7 @@ var getVectorFromTable = function(tbData, colName, isDeleteRepeat, isAddEmptyRow
         item.name = row[colName];
         tmpArr.push(item);
     });
-    console.log(re);
+
     if (isDeleteRepeat) {
         $.each(tmpArr, function(index, row) {
             if (re.findIndex(function(ele, ind, arr) { if (ele.name === row.name) return ind; }) < 0) {
@@ -146,3 +146,19 @@ String.prototype.trimEnd = function(c)
         return str.slice(0, i + 1);  
     }  
 }  
+String.prototype.startWith = function (str) {
+    var reg = new RegExp("^" + str);
+    return reg.test(this);
+}
+
+String.prototype.endWith = function (str) {
+    var reg = new RegExp(str + "$");
+    return reg.test(this);
+}
+//================================================================================================
+function S4() {
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+}
+function guid() {
+    return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+}

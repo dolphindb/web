@@ -125,12 +125,21 @@ function bindVariables(datalist) {
     $('#pnl_variables')
         .jstree(json_tree)
         .unbind('dblclick.jstree')
-        .bind('dblclick.jstree', function(e) {
-            var dataform = $(e.target).closest('ul').prev().text();
-            var contentid = $(e.target).closest('li')[0].id;
-            if (dataform === "Scalar") return;
+        .bind('dblclick.jstree', function (e) {
+            //get server object value
+            var so_form = e.target.attributes.form.value;
+            var so_name = e.target.attributes.name.value;
+            var so_type = e.target.attributes.type.value;
+            var so_rows = e.target.attributes.rows.value;
+            var so_columns = e.target.attributes.columns.value;
+            var so_bytes = e.target.attributes.bytes.value;
+            var so_shared = e.target.attributes.shared.value;
+            var so_extra = e.target.attributes.extra.value;
 
-            var code = contentid + ';';
+            
+            if (so_form === "SCALAR") return;
+
+            var code = so_name + ';';
             var divid = localStorage.divid++;
             var divobj = document.createElement("div");
             divobj.id = "div" + divid;
@@ -139,8 +148,12 @@ function bindVariables(datalist) {
             tblobj.id = "jsgrid_" + divid;
             $(tblobj).appendTo($(divobj));
 
-            if (dataform === "Table") {
-                var tablesize = $(e.target).closest('a').context.innerText.split(" ")[1];
+            if (so_form === "TABLE") {
+                if (so_extra.startWith("dfs://")) {
+                    new DolphinDialog("dfstable_" + so_name, { title: so_name }).openUrl("dialogs/dfsTable.html?site=" + $.getUrlParam('site') +"&db=" + so_extra + "&tb=" + so_name);
+                    return;
+                }
+                var tablesize = so_bytes;
                 if(tablesize === "0"){
                     if($('#retrieve-row-number').val()==="")
                         tablesize = 0;
@@ -148,24 +161,23 @@ function bindVariables(datalist) {
                         tablesize = parseInt($('#retrieve-row-number').val(), 10);
                 }
                 //var script = "select top " + (tablesize > 1024 ? 1024 : tablesize) + " * from " + contentid;
-                var script = contentid + "[0:" + tablesize + "]";
+                var script = so_name + "[0:" + tablesize + "]";
                 getData(script, 0, PAGESIZE, function(g) {
                     if(g.resultCode==="0"){
-                        showTableGrid(tblobj.id, contentid, tablesize, g);
-                        openDialog(divobj.id, '[' + dataform + ']' + contentid);
+                        showTableGrid(tblobj.id, so_name, tablesize, g);
+                        openDialog(divobj.id, '[' + so_form + ']' + so_name);
                     }else{
                         appendError(g.msg);
                         $('#resulttab a[href="#log"]').tab('show');
                     }
                 }, function(err) {
                     appendlog(err);
-                    console.log(err);
-                });
+                 });
             } else {
                 getData(code, 0, PAGESIZE, function(g) {
                     if(g.resultCode==="0"){
                         showGrid(tblobj.id, code, g);
-                        openDialog(divobj.id, '[' + dataform + ']' + contentid);
+                        openDialog(divobj.id, '[' + so_form + ']' + so_name);
                     }else{
                         appendError(g.msg);
                         $('#resulttab a[href="#log"]').tab('show');
@@ -352,7 +364,7 @@ function buildNode(jsonLst, dataform) {
             showtype = "&lt;" + obj.type + "&gt;";
         }
 
-        var node = { "a_attr": obj.name, "id": obj.name, "icon": "jstree-file" };
+        var node = { "a_attr": obj, "id": obj.name, "icon": "jstree-file" };
         if (obj.form === "SCALAR")
             node.text = obj.name + showtype + " [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]";
         else
