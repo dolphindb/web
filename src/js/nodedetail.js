@@ -127,6 +127,7 @@ function bindVariables(datalist) {
         .unbind('dblclick.jstree')
         .bind('dblclick.jstree', function (e) {
             //get server object value
+            console.log("jstree.e", e.target);
             var so_form = e.target.attributes.form.value;
             var so_name = e.target.attributes.name.value;
             var so_type = e.target.attributes.type.value;
@@ -150,10 +151,10 @@ function bindVariables(datalist) {
 
             if (so_form === "TABLE") {
                 if (so_extra.startWith("dfs://")) {
-                    new DolphinDialog("dfstable_" + so_name, { title: so_name }).openUrl("dialogs/dfsTable.html?site=" + $.getUrlParam('site') +"&db=" + so_extra + "&tb=" + so_name);
+                    new DolphinDialog("dfstable_" + so_name, { title: so_extra,width:1000 }).openUrl("dialogs/dfsTable.html?site=" + $.getUrlParam('site') +"&db=" + so_extra + "&tb=" + so_name);
                     return;
                 }
-                var tablesize = so_bytes;
+                var tablesize = so_rows;
                 if(tablesize === "0"){
                     if($('#retrieve-row-number').val()==="")
                         tablesize = 0;
@@ -346,13 +347,13 @@ function openDialog(dialog, tit) {
         height: 600,
         position: { my: "center", at: "center", of: window },
         title: tit,
-        dialogClass: "no-close",
-        buttons: [{
-            text: "OK",
-            click: function() {
-                $(this).dialog("close");
-            }
-        }]
+        //dialogClass: "no-close",
+        //buttons: [{
+        //    text: "OK",
+        //    click: function() {
+        //        $(this).dialog("close");
+        //    }
+        //}]
     });
 }
 
@@ -364,7 +365,7 @@ function buildNode(jsonLst, dataform) {
             showtype = "&lt;" + obj.type + "&gt;";
         }
 
-        var node = { "a_attr": obj, "id": obj.name, "icon": "jstree-file" };
+        var node = { "a_attr": obj, "li_attr":obj, "id": obj.name, "icon": "jstree-file" };
         if (obj.form === "SCALAR")
             node.text = obj.name + showtype + " [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]";
         else

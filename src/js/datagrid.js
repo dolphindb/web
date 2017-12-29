@@ -57,7 +57,7 @@ DolphinGrid.prototype = {
             pageLoading: true,
             pageSize: 20,
             pageIndex: 1,
-
+            pageButtonCount :10,
             data: datalist,
             fields: cols
         }

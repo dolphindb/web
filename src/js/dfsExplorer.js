@@ -97,6 +97,8 @@ var bindGrid = function (tableJson) {
                 bindPath(fpath);
                 json = client.getGridJson(fpath);
                 bindGrid(json);
+            } else if (arg.item.filetype === 1) { //if partitionChunk open data browser
+
             }
         }
     });

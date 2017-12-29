@@ -10,8 +10,8 @@ function DolphinDialog(dialogId, dialogSetting) {
     this.Id = dialogId;
     this.settings = {};
     var defaultSettings = {
-        width: 900,
-        height: 650,
+        width: 1000,
+        height: 720,
         position: { my: "center", at: "center", of: window },
         title: "[DolphinDB]",
         //dialogClass: "no-close",
@@ -34,10 +34,10 @@ DolphinDialog.prototype = {
         $.extend(this.settings, dialogSetting);
         divobj = document.createElement("div");
         divobj.id = did;
-        divobj.setAttribute("style", "overflow:hidden");
+        divobj.setAttribute("style", "overflow:hidden;width:100%");
         var iframe = document.createElement("iframe");
         iframe.setAttribute("src", url);
-        iframe.setAttribute("style", "height:100%;width:98%;border:0;overflow:hidden");
+        iframe.setAttribute("style", "height:100%;width:100%;border:0;overflow:hidden");
         $(iframe).appendTo($(divobj));
         $(divobj).appendTo($('body'));
         $("#" + did).dialog(this.settings);

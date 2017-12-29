@@ -11,12 +11,15 @@
     <link href="../third-party/jsgrid/jsgrid.css" rel="stylesheet" />
     <link href="../third-party/jsgrid/jsgrid-theme.css" rel="stylesheet" />
     <link href="../third-party/jstree/themes/default/style.css" rel="stylesheet" />
+    <link href="../css/dialog.css" rel="stylesheet"/>
 </head>
 <body>
-    <div class="container-fluid">
+    <div class="dd_mainbody">
         <div class="row">
             <div class="col-sm-4 col-md-3 col-lg-2">
-                <div id="pnl_partition">
+                <div class="dd_panel">
+                    <div id="pnl_partition">
+                    </div>
                 </div>
             </div>
             <div class="col-sm-8 col-md-9 col-lg-10">
@@ -37,7 +40,6 @@
     <script src="../js/executecode.js" type="text/javascript"></script>
     <script src="../js/CallWebApi.js" type="text/javascript"></script>
     <script src="../js/datagrid.js" type="text/javascript"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js" type="text/javascript"></script>
 </body>
 </html>
 
@@ -45,7 +47,7 @@
     var db = ""; //dfs://DFS_T_HIER_RANGE_VALUE/TABLENAME
     var tb = ""; //TB1
     var dbPath = ""; // dfs://DFS_T_HIER_RANGE_VALUE
-    var curPath = ""; //dfs://DFS_T_HIER_RANGE_VALUE/1_100000/A
+    var curPath = ""; ///DFS_T_HIER_RANGE_VALUE/1_100000/A
     var dfsPath = ""; // /DFS_T_HIER_RANGE_VALUE/
     var site = "";     
     var realTableName = "";
@@ -57,9 +59,6 @@
         dbPath = db.substr(0, i);
         realTableName = db.substr(i+1);
         dfsPath = dbPath;
-
-        console.log("realTableName", realTableName);
-        console.log("dfsPath", dfsPath);
 
         if (dbPath.startWith("dfs://")) {
             dfsPath = dbPath.replace("dfs://", "/");
@@ -82,6 +81,7 @@
         $.each(list, function (i, e) {
             var n = {
                 "a_attr": $.extend(e, { "fullpath": curPath + "/" + e.filename }),
+                "li_attr": $.extend(e, { "fullpath": curPath + "/" + e.filename }),
                 "text": e.filename,
                 "state": { "opened": false },
                 "icon": e.filetype == 0 ? "jstree-folder" : "jstree-file",
@@ -117,6 +117,7 @@
                 var chunkid = e.target.attributes.chunks.value;
                 var sitesStr = e.target.attributes.sites.value;
                 var sites = [];
+                var version = []
                 var chunkArr = sitesStr.split(";");
                 if (chunkArr.length >= 1) {
                     $(chunkArr).each(function (i, chunkItem) {
@@ -125,6 +126,7 @@
                             $(chunkRepArr).each(function (j, chunkRepItem) {
                                 var arr = chunkRepItem.split(":");
                                 sites.push(arr[0]);
+                                version.push(arr[1]);
                             });
                         }
                     });
@@ -134,83 +136,52 @@
                 if (filetype == 0) {
                     getPartition(curPath, buildSubTree);
                 } else {
-                    loadGrid(chunkid, dbPath, partitionPath, tablename, sites);
+                    loadGrid(chunkid, dbPath, partitionPath, tablename, sites, version[0]);
                 }
                
             });
     }
-    var loadGrid = function (chunkid, dbPath, partitionPath, tablename,sites) {
-        //var p = {
-        //    "sessionID": 0,
-        //    "functionName": "readTabletChunk",
-        //    "params": [{
-        //        "name": "sites",
-        //        "form": "vector",
-        //        "type": "string",
-        //        "value": sites
-        //    },{
-        //        "name": "chunkid",
-        //        "form": "scalar",
-        //        "type": "string",
-        //        "value": chunkid
-        //    }, {
-        //        "name": "dbPath",
-        //        "form": "scalar",
-        //        "type": "string",
-        //        "value": dbPath
-        //    }, {
-        //        "name": "partitionPath",
-        //        "form": "scalar",
-        //        "type": "string",
-        //        "value": partitionPath
-        //    }, {
-        //       "name": "tableName",
-        //       "form": "scalar",
-        //       "type": "string",
-        //       "value": realTableName
-        //    },  {
-        //        "name": "offset",
-        //        "form": "scalar",
-        //        "type": "int",
-        //        "value": 0
-        //    }, {
-        //        "name": "length",
-        //        "form": "scalar",
-        //        "type": "int",
-        //        "value": 10000
-        //    }]
-        //}
-        //CallWebApi(wa_url, p, function (json) {
-        //    if (json.resultCode == 0) {
-        //        var d = DolphinResult2Grid(json);
-        //        var grid = $('#jsgrid1');
-        //        var dg = new DolphinGrid(grid, {
-        //            pageSize: 50,
-        //            sorting: true,
-        //            paging: true,
-        //            pageLoading: false,
-        //            autoload: false
-        //        });
-        //        dg.loadFromJson(d);
-        //    }
-        //},
-        //    function (re) {console.log(re);
-        //});
+    var loadGrid = function (chunkid, dbPath, partitionPath, tablename, sites,version) {
+       
+        var pgSize = 16;
+        var nodeSite = new ServerObject(site);
+        var isLocal = $.inArray(nodeSite.getAlias(), sites)
 
-
-        var script = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "','" + tablename + "',0,1000)";
-        var nodeUrl = new ServerObject(site).getHttpServer();
+        var script = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "','" + tablename + "',0," + pgSize + ")";
+        if (isLocal>=0) {
+            script = "readTabletChunk('" + chunkid + "', '" + dbPath + "', '" + partitionPath + "', '" + tablename + "', 0, " + pgSize + ")";
+        }
+        var nodeUrl = nodeSite.getHttpServer();
         var scriptExecutor = new CodeExecutor(nodeUrl);
+
+        var totalcount = getTableSize(nodeUrl,chunkid, version);
+        console.log("script", script);
         scriptExecutor.run(script, function (json) {
         if (json.resultCode == 0) {
             var d = DolphinResult2Grid(json);
             var grid = $('#jsgrid1');
             var dg = new DolphinGrid(grid, {
-                pageSize: 15,
-                sorting: true,
-                paging: true,
-                pageLoading: false,
-                autoload: false
+                data: d,
+                itemsCount: totalcount,
+                pageSize: pgSize,
+                autoload: true,
+                controller: {
+                    loadData: function (filter) {
+                        var deferred = $.Deferred();
+                        var s = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "','" + tablename + "'," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
+                        if (isLocal) {
+                            s = "readTabletChunk('" + chunkid + "', '" + dbPath + "', '" + partitionPath + "', '" + tablename + "'," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
+                        }
+                        getTableData(s, function (g) {
+                            var d = DolphinResult2Grid(g);
+                            deferred.resolve({ data: d, itemsCount: totalcount });
+                        }, function (e) {
+                            appendlog(e);
+                        });
+
+                        return deferred.promise();
+                    }
+                },
             });
             dg.loadFromJson(d);
         } else {
@@ -218,6 +189,21 @@
         }
         });
     }
+    var getTableSize = function (nodeUrl,chunk, version) {
+        var script = "getTablePartitionSizeAndPath(chunkMeta('" + curPath + "','" + chunk + "', true, " + version + ", -1, ,-1), '" + dfsPath + "', '" + + "')";
+        var scriptExecutor = new CodeExecutor(nodeUrl);
+        var re = scriptExecutor.runSync(script);
+        console.log("re", re);
+        return 100000;
+       
+    }
+
+    var getTableData = function(script,sucCallback){
+        var nodeUrl = new ServerObject(site).getHttpServer();
+        var scriptExecutor = new CodeExecutor(nodeUrl);
+        scriptExecutor.run(script, sucCallback);
+    };
+
     var buildSubTree = function (json) {
         var list = DolphinResult2Grid(json);
         var subNodes = []
@@ -230,6 +216,7 @@
         $.each(list, function (i, e) {
             var n = {
                 "a_attr": $.extend(e, { "fullpath": curPath + "/" + e.filename }),
+                "li_attr": $.extend(e, { "fullpath": curPath + "/" + e.filename }),
                 "text": e.filename,
                 "state": { "opened": false },
                 "icon": e.filetype == 0 ? "jstree-folder" : "jstree-file",
