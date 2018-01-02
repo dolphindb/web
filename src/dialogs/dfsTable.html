@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -154,7 +154,7 @@
         var nodeUrl = nodeSite.getHttpServer();
         var scriptExecutor = new CodeExecutor(nodeUrl);
 
-        var totalcount = getTableSize(nodeUrl,chunkid, version);
+        var totalcount = getTableSize(nodeUrl, chunkid, version, tablename);
         console.log("script", script);
         scriptExecutor.run(script, function (json) {
         if (json.resultCode == 0) {
@@ -189,12 +189,16 @@
         }
         });
     }
-    var getTableSize = function (nodeUrl,chunk, version) {
-        var script = "getTablePartitionSizeAndPath(chunkMeta('" + curPath + "','" + chunk + "', true, " + version + ", -1, ,-1), '" + dfsPath + "', '" + + "')";
+    var getTableSize = function (nodeUrl,chunk, version,tableName) {
+        var script = "getTablePartitionSizeAndPath(chunkMeta('" + curPath + "','" + chunk + "', true, " + version + ", -1, ,-1), '" + dfsPath + "', '" + tableName + "')";
         var scriptExecutor = new CodeExecutor(nodeUrl);
         var re = scriptExecutor.runSync(script);
-        console.log("re", re);
-        return 100000;
+        if (re.resultCode === "0") {
+            var v = re.object[0].value[0];
+            return v;
+        } else {
+            return 0;
+        }
        
     }
 
