@@ -15,7 +15,7 @@
 </head>
 <body>
     <div class="dd_mainbody">
-        <div class="row">
+        <div>
             <div class="col-sm-4 col-md-3 col-lg-2">
                 <div class="dd_panel">
                     <div id="pnl_partition">
@@ -143,7 +143,7 @@
     }
     var loadGrid = function (chunkid, dbPath, partitionPath, tablename, sites,version) {
        
-        var pgSize = 16;
+        var pgSize = 20;
         var nodeSite = new ServerObject(site);
         var isLocal = $.inArray(nodeSite.getAlias(), sites)
 

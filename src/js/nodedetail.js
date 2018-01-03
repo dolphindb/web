@@ -151,7 +151,7 @@ function bindVariables(datalist) {
 
             if (so_form === "TABLE") {
                 if (so_extra.startWith("dfs://")) {
-                    new DolphinDialog("dfstable_" + so_name, { title: so_extra,width:1000 }).openUrl("dialogs/dfsTable.html?site=" + $.getUrlParam('site') +"&db=" + so_extra + "&tb=" + so_name);
+                    new DolphinDialog("dfstable_" + so_name, { title: "Dfs Table Browser [" + so_extra + "]",width:1000 }).openUrl("dialogs/dfsTable.html?site=" + $.getUrlParam('site') +"&db=" + so_extra + "&tb=" + so_name);
                     return;
                 }
                 var tablesize = so_rows;

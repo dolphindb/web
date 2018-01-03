@@ -1,5 +1,5 @@
 .dd_mainbody {
-    width:95%;
+    width:100%;
 }
 .dd_panel {
     margin-bottom: 10px;
@@ -8,4 +8,5 @@
     border: 1px solid #eee;
     border-radius: 2px;
     height: 96vh;
+    overflow:auto;
 }
