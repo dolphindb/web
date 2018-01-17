@@ -28,6 +28,7 @@ $(function () {
 
     
 });
+
 var bindPath = function (fullPath) {
     $("#dfsPath").empty();
     var pathStr = "";
@@ -60,6 +61,7 @@ var bindPath = function (fullPath) {
     });
     $("#dfsPathInput").val(pathStr);
 }
+
 var getCurrentPath = function () {
     var cp = "";
     $("#dfsPath").children().each(function (i, e) {
@@ -72,6 +74,31 @@ var getCurrentPath = function () {
         }
     });
     return cp;
+}
+
+var getUpPath = function () {
+    var up = getCurrentPath();
+    slashIndex = up.lastIndexOf("/");
+    if (slashIndex == 0 && up.length > 1) { //root
+        return "/";
+    } else if (slashIndex > 0) {
+        up = up.substr(0, slashIndex);
+    }
+    return up;
+}
+
+var isRootPath = function (path) {
+    if (path === "/" || path === "dfs://") {
+        return true;
+    } else {
+        return false;
+    }
+}
+var upDirectory = function () {
+    pathStr = getUpPath();
+    bindPath(pathStr);
+    json = client.getGridJson(pathStr);
+    bindGrid(json);
 }
 
 var bindGrid = function (tableJson) {
@@ -113,12 +140,21 @@ var bindGrid = function (tableJson) {
                 return "<span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " + value
             } else if (item.filetype === 2) {
                 return "<span class='glyphicon glyphicon-file' style='color:rgb(190,190,190)' title='file'></span> " + value
+            } else if (item.filetype === 9) {
+                return " <a href='###' onclick='upDirectory()'><span class='glyphicon glyphicon-folder-open' style='color:rgb(239,222,7)' title='parent directory'></span> <b> . . </b> </a>"
             }
         }
     }, {
         name: 'size',
         title: 'Size',
-        type: 'text'
+        type: 'text',
+        itemTemplate: function (value, item) {
+            if (item.filetype === 2) {//file
+                return item.size;
+            } else {
+                return "";
+            }
+        }
     }, {
         name: 'filetype',
         title: 'Type',
@@ -128,6 +164,8 @@ var bindGrid = function (tableJson) {
                 return "directory";
             } else if (item.filetype === 1) {
                 return "partition chunk";
+            } else if (item.filetype === 9) { // parent
+                return "";
             } else {
                 return "file";
             }
@@ -148,7 +186,6 @@ var bindGrid = function (tableJson) {
                     if (chunkRepArr.length >= 1) {
                         $(chunkRepArr).each(function (j, chunkRepItem) {
                             var arr = chunkRepItem.split(":");
-                            
                             if (arr.length ===3 ) {
                                 re = re + arr[0] + " [V" + arr[1] + "]";
                                 if (arr[2] === 1) {
@@ -170,7 +207,9 @@ var bindGrid = function (tableJson) {
     }]
     dg.loadFromJson(tableJson, false, col);
 }
+
 //=================================================================Filter====================================================================
+/*
 $("#executeSQL").bind("click", function () {
     doQuery($("#txtSQL").val());
 });
@@ -179,7 +218,7 @@ $("#txtSQL").bind("keypress", function (e) {
         doQuery($("#txtSQL").val());
     }
 });
-
+*/
 
 var result = [];
 $("#dfsPathInput").bind("keydown", function (e) {
@@ -300,6 +339,10 @@ function DolphinDBDFSClient(webApiUrl) {
 
     this.getGridJson = function (fullPath) {
         setCacheByPath(fullPath);
+        if (!isRootPath(fullPath)) {
+            tableJson.unshift({ "filename": "..", "filetype": 9, "size": 0, "chunks": "", "sites": "" })
+        }
+        console.log("tableJson", tableJson);
         return tableJson;
     }
 
