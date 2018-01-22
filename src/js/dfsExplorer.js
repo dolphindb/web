@@ -291,6 +291,9 @@ function DolphinDBDFSClient(webApiUrl) {
         var p = { "offset": 0, "length": 10000 };
         var re = executor.runSync(codestr,p);
         tableJson = DolphinResult2Grid(re);
+        if (!tableJson) {
+            alert("path '" + path + "' does not exist!");
+        }
         //cacheTreeJson
         //$(tableJson).each(function (i, e) {
         //    if (!treeCacheTable) treeCacheTable = [];
@@ -340,7 +343,8 @@ function DolphinDBDFSClient(webApiUrl) {
     this.getGridJson = function (fullPath) {
         setCacheByPath(fullPath);
         if (!isRootPath(fullPath)) {
-            tableJson.unshift({ "filename": "..", "filetype": 9, "size": 0, "chunks": "", "sites": "" })
+            if (tableJson)
+                tableJson.unshift({ "filename": "..", "filetype": 9, "size": 0, "chunks": "", "sites": "" })
         }
         console.log("tableJson", tableJson);
         return tableJson;
