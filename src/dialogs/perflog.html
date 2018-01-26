@@ -21,7 +21,7 @@
         </div>
         <div class="row">
             <div class="col-lg-5 col-md-3 col-sm-3">
-                <input type="text" id="txtLength" class="hide" value="50" />
+                <input type="text" id="txtLength" class="hide" value="3000" />
                 <input type="text" id="txtOffset" class="hide" value="0" />
             </div>
             <div class="col-lg-3 col-md-4 col-sm-4">
@@ -81,21 +81,17 @@
                 type: "text",
                 width: 60
             }, {
-                name: "SessionId",
-                type: "text",
-                width: 30
-            }, {
                 name: "StartTime",
                 type: "text",
-                width: 80
+                width: 180
             }, {
                 name: "EndTime",
                 type: "text",
-                width: 80
+                width: 180
             }, {
                 name: "JobDesc",
                 type: "text",
-                width: 300
+                width: 380
             }]
             var dg = new DolphinGrid($('#jsGrid_perflog'), {
                 width: "100%",
@@ -113,7 +109,7 @@
         }
 
         var getLog = function (offset, length, fromhead) {
-            length = 2000;
+            length = 3000;
             var p = {
                 "sessionID": SESSION_ID,
                 "functionName": "getPerfLog",
