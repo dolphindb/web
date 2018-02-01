@@ -10,3 +10,11 @@
     height: 96vh;
     overflow:auto;
 }
+
+#text-dn-config-rule-saved {
+	color: #999;
+}
+
+#text-cnt-config-rule-saved {
+	color: #999;
+}

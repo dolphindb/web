@@ -634,6 +634,66 @@ $("#btn_refresh").click(function() {
     LoadTable(NODE_LIST);
 });
 
+$('#btn-datanode-config').click(function() {
+    var divobj = document.getElementById("datanode-config")
+    if (!divobj) {
+        divobj = document.createElement("div");
+        divobj.id = "datanode-config";
+        divobj.setAttribute("style", "overflow:hidden");
+        var iframe = document.createElement("iframe");
+        iframe.setAttribute("src", "dialogs/datanodeConfig.html");
+        iframe.setAttribute("style", "height:100%;width:98%;border:0;overflow:hidden");
+        $(iframe).appendTo($(divobj));
+        $(divobj).appendTo($('#dialogs'))
+    }
+    openDialog("datanode-config", "Datanode Configuration");
+
+    var frameWindow = $(divobj).children("iframe")[0].contentWindow;
+    if(typeof frameWindow.refreshMe === "function"){
+        frameWindow.refreshMe();
+    }
+})
+
+$('#btn-controller-config').click(function() {
+    var divobj = document.getElementById("controller-config")
+    if (!divobj) {
+        divobj = document.createElement("div");
+        divobj.id = "controller-config";
+        divobj.setAttribute("style", "overflow:hidden");
+        var iframe = document.createElement("iframe");
+        iframe.setAttribute("src", "dialogs/controllerConfig.html");
+        iframe.setAttribute("style", "height:100%;width:98%;border:0;overflow:hidden");
+        $(iframe).appendTo($(divobj));
+        $(divobj).appendTo($('#dialogs'))
+    }
+    openDialog("controller-config", "Controller Configuration");
+
+    var frameWindow = $(divobj).children("iframe")[0].contentWindow;
+    if(typeof frameWindow.refreshMe === "function"){
+        frameWindow.refreshMe();
+    }
+})
+
+$('#btn-datanode-management').click(function() {
+    var divobj = document.getElementById("datanode-management")
+    if (!divobj) {
+        divobj = document.createElement("div");
+        divobj.id = "datanode-management";
+        divobj.setAttribute("style", "overflow:hidden");
+        var iframe = document.createElement("iframe");
+        iframe.setAttribute("src", "dialogs/datanodeManagement.html");
+        iframe.setAttribute("style", "height:100%;width:98%;border:0;overflow:hidden");
+        $(iframe).appendTo($(divobj));
+        $(divobj).appendTo($('#dialogs'))
+    }
+    openDialog("datanode-management", "Datanode Management");
+
+    var frameWindow = $(divobj).children("iframe")[0].contentWindow;
+    if(typeof frameWindow.refreshMe === "function"){
+        frameWindow.refreshMe();
+    }
+})
+
 $("#txtFilter").keypress(function(e) {
     if (e.keyCode === 13) {
         refreshGrid(NODE_LIST);
