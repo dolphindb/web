@@ -110,6 +110,10 @@
                     sel = ref.get_selected();
                 if (!sel.length) { return false; }
                 sel = sel[0];
+                if (ref.is_open(sel)) {
+                    ref.close_node(sel);
+                    return false;
+                }
                 var curNode = ref.get_node(sel);
                 if (!e.target.attributes.fullpath) return;
                 curPath = e.target.attributes.fullpath.value;
