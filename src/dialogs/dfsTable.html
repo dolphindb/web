@@ -215,19 +215,21 @@
             sel = ref.get_selected();
         if (!sel.length) { return false; }
         sel = sel[0];
-        var childs = ref.get_children_dom(sel);
-        if(childs.length<=0){
-        $.each(list, function (i, e) {
-            var n = {
-                "a_attr": $.extend(e, { "fullpath": curPath + "/" + e.filename }),
-                "li_attr": $.extend(e, { "fullpath": curPath + "/" + e.filename }),
-                "text": e.filename,
-                "state": { "opened": false },
-                "icon": e.filetype == 0 ? "jstree-folder" : "jstree-file",
+        ref.open_node(sel, function () {
+            var childs = ref.get_children_dom(sel);
+            console.log("childs", childs.length);
+            if (childs.length <= 0) {
+                $.each(list, function (i, e) {
+                    var n = {
+                        "a_attr": $.extend(e, { "fullpath": curPath + "/" + e.filename }),
+                        "li_attr": $.extend(e, { "fullpath": curPath + "/" + e.filename }),
+                        "text": e.filename,
+                        "state": { "opened": false },
+                        "icon": e.filetype == 0 ? "jstree-folder" : "jstree-file",
+                    }
+                    var tmp = ref.create_node(sel, n);
+                });
             }
-            var tmp = ref.create_node(sel, n);
-            });
-        }
-        ref.open_node(sel);
+        });
       }
 </script>
