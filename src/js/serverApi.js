@@ -388,7 +388,7 @@ function DatanodeManagement() {
 		var agentInput = $('<input />', {
 			class: 'form-control agent-host',
 			type: 'text',
-			placeholder: 'Agent Host'
+			placeholder: 'Agent host:port:alias'
 		});
 		agentInput.appendTo(agentWrap);
 		agentWrap.appendTo(datanodeLine);
@@ -441,12 +441,16 @@ function DatanodeManagement() {
 			if (datanodeRule.deleted)
 				continue;
 			var datanodeElem = datanodeRule.elem;
-			var agentHost = datanodeElem.find('.agent-host').val();
+			var agentSite = datanodeElem.find('.agent-host').val();
 			var dnnum = datanodeElem.find('.dnnum').val();
 			var dnprefix = datanodeElem.find('.dnprefix').val();
 			var startPort = datanodeElem.find('.start-port').val();
 
-			if (agentHost !== null && dnnum !== null && dnprefix !== null && startPort !== null) {
+			var agentHost = agentSite.split(':')[0];
+
+			if (agentHost && dnnum && dnprefix && startPort) {
+				var agentLine = '"' + agentSite + ', agent"';
+				datanodeLines.push(agentLine)
 				for (var j = 0; j < dnnum; j++) {
 					var datanodeLine = '"' + agentHost + ':' + (parseInt(startPort, 10) + j) + ':' + dnprefix + j + ',"';
 					datanodeLines.push(datanodeLine);
@@ -459,7 +463,7 @@ function DatanodeManagement() {
 
 		scriptExecutor.run(script, function(res) {
 		 	if (res.resultCode === '0') {
-		 		$('#text-cnt-config-rule-saved').attr('style', '');
+		 		$('#text-datanodes-saved').attr('style', '');
 		 	}
 		})
 	}

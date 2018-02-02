@@ -11,10 +11,8 @@
     overflow:auto;
 }
 
-#text-dn-config-rule-saved {
-	color: #999;
-}
-
-#text-cnt-config-rule-saved {
+#text-dn-config-rule-saved,
+#text-cnt-config-rule-saved,
+#text-datanodes-saved {
 	color: #999;
 }
