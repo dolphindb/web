@@ -12,17 +12,17 @@ function DatanodeConfig() {
 		{ name: 'logFile', value: '', default: 'DolphinDB.log' },
 		{ name: 'maxBatchJobWorker', value: 'int', default: '= workerNum' },
 		{ name: 'maxConnections', value: 'int', default: '' },
-        { name: 'maxConnectionPerSite', value: 'int', default: '' },
-        { name: 'maxDynamicWorker', value: 'int', default: '= workerNum' },
-        { name: 'maxMemSize', value: 'int', default: '' },
-        { name: 'perfMonitoring', value: [0, 1], default: 1 },
-        { name: 'regularArrayMemoryLimit', value: 'int', default: 512 },
-        { name: 'run', value: '', default: '' },
-        { name: 'script', value: '', default: 'dolphindb.dos' },
-        { name: 'tcpNoDelay', value: [0, 1], default: '0' },
-        { name: 'webRoot', value: '', default: '' },
-        { name: 'webWorkerNum', value: 'int', default: '2' },
-        { name: 'workerNum', value: 'int', default: '4' },
+    { name: 'maxConnectionPerSite', value: 'int', default: '' },
+    { name: 'maxDynamicWorker', value: 'int', default: '= workerNum' },
+    { name: 'maxMemSize', value: 'int', default: '' },
+    { name: 'perfMonitoring', value: [0, 1], default: 1 },
+    { name: 'regularArrayMemoryLimit', value: [256, 512], default: 512 },
+    { name: 'run', value: '', default: '' },
+    { name: 'script', value: '', default: 'dolphindb.dos' },
+    { name: 'tcpNoDelay', value: [0, 1], default: '0' },
+    { name: 'webRoot', value: '', default: '' },
+    { name: 'webWorkerNum', value: 'int', default: '1' },
+    { name: 'workerNum', value: 'int', default: '4' },
 		{ name: 'allowVolumeCreation', value: [0, 1], default: '1' },
 		{ name: 'volumes', value: '', default: '' },
 		{ name: 'maxPubConnections', value: 'int', default: '' },
@@ -192,6 +192,9 @@ function DatanodeConfig() {
 			if (res.resultCode === '0') {
 				$('#text-dn-config-rule-saved').attr('style', '');
 			}
+			else {
+				alert(res.msg);
+			}
 		})
 	}
 
@@ -207,14 +210,14 @@ function ControllerConfig() {
 	var scriptExecutor = new CodeExecutor(controller);
 	var ruleData = [];
 	var configs = [
-        { name: 'mode', value: ['controller'], default: 'controller' },
-        { name: 'localSite', value: '', default: '' },
+    { name: 'mode', value: ['controller'], default: 'controller' },
+    { name: 'localSite', value: '', default: '' },
 		{ name: 'clusterConfig', value: '', default: 'cluster.cfg' },
 		{ name: 'clusterUser', value: '', default: '' },
 		{ name: 'clusterPwd', value: '', default: '' },
 		{ name: 'nodesFile', value: '', default: 'nodes.cfg' },
 		{ name: 'dfsMetaDir', value: '', default: '' },
-		{ name: 'dfsReplicationFactor', value: 'int', default: '1' },
+		{ name: 'dfsReplicationFactor', value: 'int', default: '2' },
 		{ name: 'dfsReplicaReliabilityLevel', value: [0, 1], default: '0' },
 		{ name: 'dfsRecoveryWaitTime', value: 'int', default: '30000' },
 		{ name: 'enableDFS', value: [0, 1], default: '1' }
@@ -353,6 +356,9 @@ function ControllerConfig() {
 			if (res.resultCode === '0') {
 				$('#text-cnt-config-rule-saved').attr('style', '');
 			}
+			else {
+		 		alert(res.msg);
+		 	}
 		})
 	}
 
@@ -465,10 +471,16 @@ function DatanodeManagement() {
 		 	if (res.resultCode === '0') {
 		 		$('#text-datanodes-saved').attr('style', '');
 		 	}
+		 	else {
+		 		alert(res.msg);
+		 	}
 		})
 	}
 
 	$('#btn-add-datanodes').click(addDatanodes);
-	$('#btn-save-datanodes').click(saveDatanodes);
+	$('#btn-save-datanodes').click(function() {
+		if (confirm("This operation will rewrite your cluster.nodes file. Continue saving?"))
+			saveDatanodes();
+	});
 	refreshMe = initDatanodes;
 }
