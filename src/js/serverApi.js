@@ -4,25 +4,25 @@ function DatanodeConfig() {
 	var scriptExecutor = new CodeExecutor(controller);
 	var ruleData = [];
 	var configs = [
-		{ name: 'batchJobDir', value: '', default: '<HomeDir>/batchJobs' },
-		{ name: 'console', value: [0, 1], default: '0' },
+		//{ name: 'batchJobDir', value: '', default: '<HomeDir>/batchJobs' },
+		//{ name: 'console', value: [0, 1], default: '0' },
 		{ name: 'home', value: '', default: '' },
 		{ name: 'jobLogFile', value: '', default: 'nodeAlias_job.log' },
 		{ name: 'localExecutor', value: 'int', default: 'CPU core number - 1' },
 		{ name: 'logFile', value: '', default: 'DolphinDB.log' },
 		{ name: 'maxBatchJobWorker', value: 'int', default: '= workerNum' },
 		{ name: 'maxConnections', value: 'int', default: '' },
-    { name: 'maxConnectionPerSite', value: 'int', default: '' },
-    { name: 'maxDynamicWorker', value: 'int', default: '= workerNum' },
-    { name: 'maxMemSize', value: 'int', default: '' },
-    { name: 'perfMonitoring', value: [0, 1], default: 1 },
-    { name: 'regularArrayMemoryLimit', value: [256, 512], default: 512 },
-    { name: 'run', value: '', default: '' },
-    { name: 'script', value: '', default: 'dolphindb.dos' },
-    { name: 'tcpNoDelay', value: [0, 1], default: '0' },
-    { name: 'webRoot', value: '', default: '' },
-    { name: 'webWorkerNum', value: 'int', default: '1' },
-    { name: 'workerNum', value: 'int', default: '4' },
+		{ name: 'maxConnectionPerSite', value: 'int', default: '' },
+		{ name: 'maxDynamicWorker', value: 'int', default: '= workerNum' },
+		{ name: 'maxMemSize', value: 'int', default: '' },
+		{ name: 'perfMonitoring', value: [0, 1], default: 1 },
+		{ name: 'regularArrayMemoryLimit', value: [256, 512], default: 512 },
+		//{ name: 'run', value: '', default: '' },
+		//{ name: 'script', value: '', default: 'dolphindb.dos' },
+		//{ name: 'tcpNoDelay', value: [0, 1], default: '0' },
+		//{ name: 'webRoot', value: '', default: '' },
+		{ name: 'webWorkerNum', value: 'int', default: '1' },
+		{ name: 'workerNum', value: 'int', default: '4' },
 		{ name: 'allowVolumeCreation', value: [0, 1], default: '1' },
 		{ name: 'volumes', value: '', default: '' },
 		{ name: 'maxPubConnections', value: 'int', default: '' },
@@ -125,7 +125,7 @@ function DatanodeConfig() {
 						text: value[i]
 					}).appendTo(ruleValueContent);
 				}
-                ruleValueContent.val(configs[selected].default);
+            ruleValueContent.val(configs[selected].default);
 			}
 			else if (value === 'int') {
 				ruleValueContent = $('<input />', {
@@ -133,6 +133,14 @@ function DatanodeConfig() {
 					id: 'rule-value-content-' + ruleId,
 					type: 'number',
 					min: '0',
+					placeholder: configs[selected].default
+				})
+			}
+			else if (value === 'password') {
+				ruleValueContent = $('<input />', {
+					class: 'form-control rule-value-content',
+					id: 'rule-value-content-' + ruleId,
+					type: 'password',
 					placeholder: configs[selected].default
 				})
 			}
@@ -210,11 +218,11 @@ function ControllerConfig() {
 	var scriptExecutor = new CodeExecutor(controller);
 	var ruleData = [];
 	var configs = [
-    { name: 'mode', value: ['controller'], default: 'controller' },
-    { name: 'localSite', value: '', default: '' },
+		{ name: 'mode', value: ['controller'], default: 'controller' },
+		{ name: 'localSite', value: '', default: '' },
 		{ name: 'clusterConfig', value: '', default: 'cluster.cfg' },
 		{ name: 'clusterUser', value: '', default: '' },
-		{ name: 'clusterPwd', value: '', default: '' },
+		{ name: 'clusterPwd', value: 'password', default: '' },
 		{ name: 'nodesFile', value: '', default: 'nodes.cfg' },
 		{ name: 'dfsMetaDir', value: '', default: '' },
 		{ name: 'dfsReplicationFactor', value: 'int', default: '2' },
@@ -292,7 +300,7 @@ function ControllerConfig() {
 						text: value[i]
 					}).appendTo(ruleValueContent);
 				}
-                ruleValueContent.val(configs[selected].default);
+            ruleValueContent.val(configs[selected].default);
 			}
 			else if (value === 'int') {
 				ruleValueContent = $('<input />', {
@@ -300,6 +308,14 @@ function ControllerConfig() {
 					id: 'rule-value-content-' + ruleId,
 					type: 'number',
 					min: '0',
+					placeholder: configs[selected].default
+				})
+			}
+			else if (value === 'password') {
+				ruleValueContent = $('<input />', {
+					class: 'form-control rule-value-content',
+					id: 'rule-value-content-' + ruleId,
+					type: 'password',
 					placeholder: configs[selected].default
 				})
 			}
