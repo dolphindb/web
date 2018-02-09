@@ -17,13 +17,27 @@ $(function() {
 
     $.cookie("language_file", "js/lang.en.js");
 
+    //detectUsers()
+
     $("#txtFilter").val(localStorage.getItem(filterStorageId));
     cacheControllerIp(wa_url);
     GetLocalData(wa_url);
     LoadTable(NODE_LIST);
-
-    
 });
+
+function detectUsers() {
+    var scriptExecutor = new CodeExecutor(wa_url);
+    var script = "getAllRealUsers().size() > 0 and !false"
+    scriptExecutor.run(script, function(res) {
+        if (res.resultCode === '0') {
+            if (res.object.value === '1') {    // user detect
+                var url = wa_url + '/login.html'
+                window.location.replace(url);
+            }
+        }
+    })
+}
+
 function cacheControllerIp(url) {
     if (localStorage.getItem("dolphindb_controller_ip")) return;
     var p = {
@@ -674,19 +688,19 @@ $('#btn-controller-config').click(function() {
     }
 })
 
-$('#btn-datanode-management').click(function() {
-    var divobj = document.getElementById("datanode-management")
+$('#btn-nodes-setup').click(function() {
+    var divobj = document.getElementById("nodes-setup")
     if (!divobj) {
         divobj = document.createElement("div");
-        divobj.id = "datanode-management";
+        divobj.id = "nodes-setup";
         divobj.setAttribute("style", "overflow:hidden");
         var iframe = document.createElement("iframe");
-        iframe.setAttribute("src", "dialogs/datanodeManagement.html");
+        iframe.setAttribute("src", "dialogs/nodesSetup.html");
         iframe.setAttribute("style", "height:100%;width:98%;border:0;overflow:hidden");
         $(iframe).appendTo($(divobj));
         $(divobj).appendTo($('#dialogs'))
     }
-    openDialog("datanode-management", "Datanode Management");
+    openDialog("nodes-setup", "Nodes Setup");
 
     var frameWindow = $(divobj).children("iframe")[0].contentWindow;
     if(typeof frameWindow.refreshMe === "function"){

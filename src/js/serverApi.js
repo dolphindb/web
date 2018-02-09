@@ -1,502 +1,621 @@
 function DatanodeConfig() {
-	var ruleNumber = 0;
-	var controller = "http://" + window.location.host;
-	var scriptExecutor = new CodeExecutor(controller);
-	var ruleData = [];
-	var configs = [
-		//{ name: 'batchJobDir', value: '', default: '<HomeDir>/batchJobs' },
-		//{ name: 'console', value: [0, 1], default: '0' },
-		{ name: 'home', value: '', default: '' },
-		{ name: 'jobLogFile', value: '', default: 'nodeAlias_job.log' },
-		{ name: 'localExecutor', value: 'int', default: 'CPU core number - 1' },
-		{ name: 'logFile', value: '', default: 'DolphinDB.log' },
-		{ name: 'maxBatchJobWorker', value: 'int', default: '= workerNum' },
-		{ name: 'maxConnections', value: 'int', default: '' },
-		{ name: 'maxConnectionPerSite', value: 'int', default: '' },
-		{ name: 'maxDynamicWorker', value: 'int', default: '= workerNum' },
-		{ name: 'maxMemSize', value: 'int', default: '' },
-		{ name: 'perfMonitoring', value: [0, 1], default: 1 },
-		{ name: 'regularArrayMemoryLimit', value: [256, 512], default: 512 },
-		//{ name: 'run', value: '', default: '' },
-		//{ name: 'script', value: '', default: 'dolphindb.dos' },
-		//{ name: 'tcpNoDelay', value: [0, 1], default: '0' },
-		//{ name: 'webRoot', value: '', default: '' },
-		{ name: 'webWorkerNum', value: 'int', default: '1' },
-		{ name: 'workerNum', value: 'int', default: '4' },
-		{ name: 'allowVolumeCreation', value: [0, 1], default: '1' },
-		{ name: 'volumes', value: '', default: '' },
-		{ name: 'maxPubConnections', value: 'int', default: '' },
-		{ name: 'maxSubConnections', value: 'int', default: '' },
-		{ name: 'subExecutors', value: 'int', default: '0' },
-		{ name: 'subPort', value: 'int', default: '' }
-	]
+    var ruleNumber = 0;
+    var controller = "http://" + window.location.host;
+    var scriptExecutor = new CodeExecutor(controller);
+    var ruleData = [];
+    var configs = [
+        //{ name: 'batchJobDir', value: '', default: '<HomeDir>/batchJobs' },
+        //{ name: 'console', value: [0, 1], default: '0' },
+        { name: 'home', value: '', default: '', tip: 'The DolphinDB home directory, where the configuration file, the license file, the log file and other related files are located.' },
+        { name: 'jobLogFile', value: '', default: 'nodeAlias_job.log', tip: 'The path and name of the job log file that contains descriptive information of all the queries that have been executed for each node. It must be a csv file. The default folder for the job log file is the log folder. The default name of the job log file is nodeAlias_job.log.' },
+        { name: 'localExecutor', value: 'int', default: 'CPU core number - 1', tip: 'The number of local executors.The default value is the number of cores of the CPU - 1.' },
+        { name: 'logFile', value: '', default: 'DolphinDB.log', tip: 'The path and name of the log file. It displays the server configuration specifications, warnings and error messages.' },
+        { name: 'maxBatchJobWorker', value: 'int', default: '= workerNum', tip: 'The maximum number of workers to process batch jobs. The default value is the value of workerNum.' },
+        { name: 'maxConnections', value: 'int', default: '', tip: 'The maximum number of connections.' },
+        { name: 'maxConnectionPerSite', value: 'int', default: '', tip: 'The maximum number of remote connections per node.' },
+        { name: 'maxDynamicWorker', value: 'int', default: '= workerNum', tip: 'The maximum number of dynamic workers. The default value is the value of workerNum.' },
+        { name: 'maxMemSize', value: 'int', default: '', tip: 'The maximum memory (in terms of Gigabytes) allocated to DolphinDB. If set to 0, it means no limits on memory usage.' },
+        { name: 'perfMonitoring', value: [0, 1], default: 1, tip: 'Enable performance monitoring. The default value is false for a stand alone DolphinDB application. The default value is true on a DolphinDB cluster management web interface.' },
+        { name: 'regularArrayMemoryLimit', value: [256, 512], default: 512, tip: 'The limit on the memory size (MB) of a regular array. This number must be a power of 2. The default value is 512.' },
+        //{ name: 'run', value: '', default: '' },
+        //{ name: 'script', value: '', default: 'dolphindb.dos' },
+        //{ name: 'tcpNoDelay', value: [0, 1], default: '0' },
+        //{ name: 'webRoot', value: '', default: '' },
+        { name: 'webWorkerNum', value: 'int', default: '1', tip: 'The size of the worker pool to process http requests. The default value is 1.' },
+        { name: 'workerNum', value: 'int', default: '= number of CPU cores', tip: 'The size of worker pool for regular interactive jobs. The default value is the number of cores of the CPU.' },
+        { name: 'allowVolumeCreation', value: [0, 1], default: '1', tip: 'Whether to automatically create the storage locations in the distributed file system if the parameter volumes is not specified. The default value is 1.' },
+        { name: 'volumes', value: '', default: '', tip: 'The folder where data chunks are saved in the distributed file system on a data node.' },
+        { name: 'maxPubConnections', value: 'int', default: '', tip: 'The maximum number of socket connections the publisher can establish for message publishing. This parameter must be specified for this node to serve as a publisher.' },
+        { name: 'maxSubConnections', value: 'int', default: '', tip: 'The maximum number of subscription connections the server can receive.' },
+        { name: 'subExecutors', value: 'int', default: '0', tip: 'The number of message processing threads in a subscriber. The default value is 0, which means the thread that conducts message parsing also processes messages.' },
+        { name: 'subPort', value: 'int', default: '', tip: 'The port number that the subscription thread is listening on. This paramter must be specified for this node to serve as a subscriber.' }
+    ]
 
-	function loadRules() {
-		ruleNumber = 0;
-		for (var i = 0, len = ruleData.length; i < len; i++)
-			ruleData[i].elem.remove();
-		ruleData = [];
+    function loadRules() {
+        ruleNumber = 0;
+        for (var i = 0, len = ruleData.length; i < len; i++)
+            ruleData[i].elem.remove();
+        ruleData = [];
 
-		scriptExecutor.run('loadClusterNodesConfigs()', function(res) {
-			if (res.resultCode === '0') {
-				var confs = res.object[0].value;
-				for (var i = 0, len = confs.length; i < len; i++) {
-					var config = confs[i].split('=');
-					if (config.length !== 2) {
-						console.log('Unknown datanode config: ' + confs[i])
-						continue;
-					}
-					var datanodeConf = config[0].split('.');
-					if (datanodeConf.length > 2) {
-						console.log('Unknown datanode config: ' + confs[i])
-						continue;
-					}
-					else if (datanodeConf.length === 2) {
-						var datanode = datanodeConf[0];
-						var ruleTypeText = datanodeConf[1]; 
-					}
-					else {
-						var datanode = '';
-						var ruleTypeText = datanodeConf[0];
-					}
+        scriptExecutor.run('loadClusterNodesConfigs()', function(res) {
+            if (res.resultCode === '0') {
+                var confs = res.object[0].value;
+                for (var i = 0, len = confs.length; i < len; i++) {
+                    var config = confs[i].split('=');
+                    if (config.length !== 2) {
+                        console.log('Unknown datanode config: ' + confs[i])
+                        continue;
+                    }
+                    var datanodeConf = config[0].split('.');
+                    if (datanodeConf.length > 2) {
+                        console.log('Unknown datanode config: ' + confs[i])
+                        continue;
+                    }
+                    else if (datanodeConf.length === 2) {
+                        var datanode = datanodeConf[0];
+                        var ruleTypeText = datanodeConf[1]; 
+                    }
+                    else {
+                        var datanode = '';
+                        var ruleTypeText = datanodeConf[0];
+                    }
 
-					for (var j = 0, clen = configs.length; j < clen; j++) {
-						if (configs[j].name == ruleTypeText) {
-							addRule(datanode, j, config[1]);
-							break;
-						}
-					}
-				}
-			}
-		})
-	}
+                    for (var j = 0, clen = configs.length; j < clen; j++) {
+                        if (configs[j].name == ruleTypeText) {
+                            addRule(datanode, j, config[1]);
+                            break;
+                        }
+                    }
+                }
+            }
+        })
+    }
 
-	function addRule(datanode, ruleType, ruleValue) {
-		$('#text-dn-config-rule-saved').attr('style', 'display: none;');
-		var ruleId = ruleNumber++;
-		var newRule = $('<div />', {
-			class: 'form-group',
-			id: 'datanode-config-' + ruleId
-		});
+    function addRule(datanode, ruleType, ruleValue) {
+        $('#text-dn-config-rule-saved').attr('style', 'display: none;');
+        var ruleId = ruleNumber++;
+        var newRule = $('<div />', {
+            class: 'form-group',
+            id: 'datanode-config-' + ruleId
+        });
 
-		var datanodeWrap = $('<div />', { class: 'col-xs-4 col-md-4 col-lg-4' });
-		var datanodeInput = $('<input />', {
-			type: 'text',
-			class: 'form-control datanode-pattern',
-			id: 'datanode-config-datanode-' + ruleId,
-			name: 'datanode-config-datanode-' + ruleId,
-			placeholder: 'e.g. dn1 or dn% or empty'
-		});
-		if (datanode)
-			datanodeInput.val(datanode)
-		datanodeInput.appendTo(datanodeWrap);
-		datanodeWrap.appendTo(newRule);
+        var datanodeWrap = $('<div />', { class: 'col-xs-4' });
+        var datanodeInput = $('<input />', {
+            type: 'text',
+            class: 'form-control datanode-pattern',
+            id: 'datanode-config-datanode-' + ruleId,
+            name: 'datanode-config-datanode-' + ruleId,
+            placeholder: 'e.g. dn1 or dn% or empty'
+        });
+        if (datanode)
+            datanodeInput.val(datanode)
+        datanodeInput.appendTo(datanodeWrap);
+        datanodeWrap.appendTo(newRule);
 
-		var ruleTypeWrap = $('<div />', { class: 'col-xs-3 col-md-3 col-lg-3' });
-		var ruleTypeSelect = $('<select />', { class: 'form-control config-type' });
-		$('<option value selected disabled>Configuration parameter</option>').appendTo(ruleTypeSelect);
-		for (var i = 0, len = configs.length; i < len; i++) {
-			$('<option />', {
-				value: i,
-				text: configs[i].name
-			}).appendTo(ruleTypeSelect);
-		}
-		if (typeof ruleType !== 'undefined')
-			ruleTypeSelect.val(ruleType)
-		ruleTypeSelect.appendTo(ruleTypeWrap);
-		ruleTypeWrap.appendTo(newRule);
+        var ruleTypeWrap = $('<div />', { class: 'col-xs-3' });
+        var ruleTypeSelect = $('<select />', { class: 'form-control config-type' });
+        $('<option value selected disabled>Configuration parameter</option>').appendTo(ruleTypeSelect);
+        for (var i = 0, len = configs.length; i < len; i++) {
+            $('<option />', {
+                value: i,
+                text: configs[i].name,
+                title: configs[i].tip
+            }).appendTo(ruleTypeSelect);
+        }
+        if (typeof ruleType !== 'undefined')
+            ruleTypeSelect.val(ruleType)
+        ruleTypeSelect.appendTo(ruleTypeWrap);
+        ruleTypeWrap.appendTo(newRule);
 
-		var ruleValueWrap = $('<div />', { class: 'col-xs-4 col-md-4 col-lg-4' });
-		var ruleValueContent;
+        var ruleValueWrap = $('<div />', { class: 'col-xs-4' });
+        var ruleValueContent;
 
-		function setRuleValue(ruleType, ruleValue) {
-			$('#text-dn-config-rule-saved').attr('style', 'display: none;');
-			$('#rule-value-content-' + ruleId).remove();
-			var selected = typeof ruleType !== 'undefined' ? ruleType : $(this).val();
-			var value = configs[selected].value;
-			if (Array.isArray(value)) {
-				ruleValueContent = $('<select />', {
-					class: 'form-control rule-value-content',
-					id: 'rule-value-content-' + ruleId
-				});
-				for (var i = 0, len = value.length; i < len; i++) {
-					$('<option />', {
-						value: value[i],
-						text: value[i]
-					}).appendTo(ruleValueContent);
-				}
+        function setRuleValue(ruleType, ruleValue) {
+            $('#rule-value-content-' + ruleId).remove();
+            var selected = typeof ruleType !== 'undefined' ? ruleType : $(this).val();
+            var value = configs[selected].value;
+            if (Array.isArray(value)) {
+                ruleValueContent = $('<select />', {
+                    class: 'form-control rule-value-content',
+                    id: 'rule-value-content-' + ruleId
+                });
+                for (var i = 0, len = value.length; i < len; i++) {
+                    $('<option />', {
+                        value: value[i],
+                        text: value[i],
+                        title: configs[selected].tip
+                    }).appendTo(ruleValueContent);
+                }
             ruleValueContent.val(configs[selected].default);
-			}
-			else if (value === 'int') {
-				ruleValueContent = $('<input />', {
-					class: 'form-control rule-value-content',
-					id: 'rule-value-content-' + ruleId,
-					type: 'number',
-					min: '0',
-					placeholder: configs[selected].default
-				})
-			}
-			else if (value === 'password') {
-				ruleValueContent = $('<input />', {
-					class: 'form-control rule-value-content',
-					id: 'rule-value-content-' + ruleId,
-					type: 'password',
-					placeholder: configs[selected].default
-				})
-			}
-			else if (value === '') {
-				ruleValueContent = $('<input />', {
-					class: 'form-control rule-value-content',
-					id: 'rule-value-content-' + ruleId,
-					type: 'text',
-					placeholder: configs[selected].default
-				})
-			}
-			if (ruleValue)
-				ruleValueContent.val(ruleValue)
-			ruleValueContent.appendTo(ruleValueWrap);
-			ruleValueWrap.appendTo(newRule);
-		}
-		ruleTypeSelect.change(function() { setRuleValue.bind(this)(); });
-		if (typeof ruleType !== 'undefined')
-			setRuleValue(ruleType, ruleValue);
+            }
+            else if (value === 'int') {
+                ruleValueContent = $('<input />', {
+                    class: 'form-control rule-value-content',
+                    id: 'rule-value-content-' + ruleId,
+                    type: 'number',
+                    min: '0',
+                    placeholder: configs[selected].default,
+                    title: configs[selected].tip
+                })
+            }
+            else if (value === 'password') {
+                ruleValueContent = $('<input />', {
+                    class: 'form-control rule-value-content',
+                    id: 'rule-value-content-' + ruleId,
+                    type: 'password',
+                    placeholder: configs[selected].default,
+                    title: configs[selected].tip
+                })
+            }
+            else if (value === '') {
+                ruleValueContent = $('<input />', {
+                    class: 'form-control rule-value-content',
+                    id: 'rule-value-content-' + ruleId,
+                    type: 'text',
+                    placeholder: configs[selected].default,
+                    title: configs[selected].tip
+                })
+            }
+            if (ruleValue)
+                ruleValueContent.val(ruleValue)
+            ruleValueContent.appendTo(ruleValueWrap);
+            ruleValueWrap.appendTo(newRule);
+        }
+        ruleTypeSelect.change(function() { setRuleValue.bind(this)(); });
+        if (typeof ruleType !== 'undefined')
+            setRuleValue(ruleType, ruleValue);
 
-		var btnRemove = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-minus"></span></button>').appendTo(newRule);
-		btnRemove.click(function() {
-			$('#text-dn-config-rule-saved').attr('style', 'display: none;');
-			$('#datanode-config-' + ruleId).remove();
-			ruleData[ruleId].deleted = true;
-		})
+        var btnRemove = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-minus"></span></button>').appendTo(newRule);
+        btnRemove.click(function() {
+            $('#text-dn-config-rule-saved').attr('style', 'display: none;');
+            $('#datanode-config-' + ruleId).remove();
+            ruleData[ruleId].deleted = true;
+        })
 
-		ruleData.push({ elem: newRule, deleted: false })
-		newRule.appendTo($('#dn-config-rule-list'))
-	}
+        ruleData.push({ elem: newRule, deleted: false })
+        newRule.appendTo($('#dn-config-rule-list'))
+    }
 
-	function saveRules() {
-		var script = "saveClusterNodesConfigs([";
-		var ruleLines = [];
-		for (var i = 0, len = ruleData.length; i < len; i++) {
-			var rule = ruleData[i];
-			if (rule.deleted)
-				continue;
-			var ruleElem = rule.elem;
-			var datanodePattern = ruleElem.find('.datanode-pattern').val();
-			var configIndex = ruleElem.find('.config-type').val();
-			var configValue = ruleElem.find('.rule-value-content').val();
-			var ruleLine = '"';
-			if (datanodePattern !== '')
-				ruleLine += datanodePattern + '.'
-			if (configIndex !== null && configValue !== '')
-				ruleLine += configs[configIndex].name + '=' + configValue + '"';
-			else
-				continue;
-			ruleLines.push(ruleLine)
-		}
-		script += ruleLines.join(',');
-		script += '])';
-		script = encodeURIComponent(script);
-		
-		scriptExecutor.run(script, function(res) {
-			if (res.resultCode === '0') {
-				$('#text-dn-config-rule-saved').attr('style', '');
-			}
-			else {
-				alert(res.msg);
-			}
-		})
-	}
+    function saveRules() {
+        var script = "saveClusterNodesConfigs([";
+        var ruleLines = [];
+        for (var i = 0, len = ruleData.length; i < len; i++) {
+            var rule = ruleData[i];
+            if (rule.deleted)
+                continue;
+            var ruleElem = rule.elem;
+            var datanodePattern = ruleElem.find('.datanode-pattern').val();
+            var configIndex = ruleElem.find('.config-type').val();
+            var configValue = ruleElem.find('.rule-value-content').val();
+            var ruleLine = '"';
+            if (datanodePattern !== '')
+                ruleLine += datanodePattern + '.'
+            if (configIndex !== null && configValue !== '')
+                ruleLine += configs[configIndex].name + '=' + configValue + '"';
+            else
+                continue;
+            ruleLines.push(ruleLine)
+        }
+        script += ruleLines.join(',');
+        script += '])';
+        script = encodeURIComponent(script);
+        
+        scriptExecutor.run(script, function(res) {
+            if (res.resultCode === '0') {
+                $('#text-dn-config-rule-saved').attr('style', '');
+            }
+            else {
+                alert(res.msg);
+            }
+        })
+    }
 
-	$('#btn-add-dn-config-rule').click(function() { addRule(); });
-	$('#btn-save-dn-config-rule').click(saveRules);
-	loadRules();
-	refreshMe = loadRules;
+    $('#dn-config-rule-list').change() {
+        $('#text-dn-config-rule-saved').attr('style', 'display: none;');
+    }
+    $('#btn-add-dn-config-rule').click(function() { addRule(); });
+    $('#btn-save-dn-config-rule').click(saveRules);
+    loadRules();
+    refreshMe = loadRules;
 }
 
 function ControllerConfig() {
-	var ruleNumber = 0;
-	var controller = "http://" + window.location.host;
-	var scriptExecutor = new CodeExecutor(controller);
-	var ruleData = [];
-	var configs = [
-		{ name: 'mode', value: ['controller'], default: 'controller' },
-		{ name: 'localSite', value: '', default: '' },
-		{ name: 'clusterConfig', value: '', default: 'cluster.cfg' },
-		{ name: 'clusterUser', value: '', default: '' },
-		{ name: 'clusterPwd', value: 'password', default: '' },
-		{ name: 'nodesFile', value: '', default: 'nodes.cfg' },
-		{ name: 'dfsMetaDir', value: '', default: '' },
-		{ name: 'dfsReplicationFactor', value: 'int', default: '2' },
-		{ name: 'dfsReplicaReliabilityLevel', value: [0, 1], default: '0' },
-		{ name: 'dfsRecoveryWaitTime', value: 'int', default: '30000' },
-		{ name: 'enableDFS', value: [0, 1], default: '1' }
-	]
-
-	function loadRules() {
-		ruleNumber = 0;
-		for (var i = 0, len = ruleData.length; i < len; i++)
-			ruleData[i].elem.remove();
-		ruleData = [];
-
-		scriptExecutor.run('loadControllerConfigs()', function(res) {
-			if (res.resultCode === '0') {
-				var confs = res.object[0].value;
-				for (var i = 0, len = confs.length; i < len; i++) {
-					var config = confs[i].split('=');
-					if (config.length !== 2) {
-						console.log('Unknown datanode config: ' + confs[i])
-						continue;
-					}
-					var ruleTypeText = config[0];
-
-					for (var j = 0, clen = configs.length; j < clen; j++) {
-						if (configs[j].name == ruleTypeText) {
-							addRule(j, config[1]);
-							break;
-						}
-					}
-				}
-			}
-		})
-	}
-
-	function addRule(ruleType, ruleValue) {
-		$('#text-cnt-config-rule-saved').attr('style', 'display: none;');
-		var ruleId = ruleNumber++;
-		var newRule = $('<div />', {
-			class: 'form-group',
-			id: 'controller-config-' + ruleId
-		});
-
-		var ruleTypeWrap = $('<div />', { class: 'col-xs-5 col-md-5 col-lg-5' });
-		var ruleTypeSelect = $('<select />', { class: 'form-control config-type' });
-		$('<option value selected disabled>Choose a configuration parameter</option>').appendTo(ruleTypeSelect);
-		for (var i = 0, len = configs.length; i < len; i++) {
-			$('<option />', {
-				value: i,
-				text: configs[i].name
-			}).appendTo(ruleTypeSelect);
-		}
-		if (typeof ruleType !== 'undefined')
-			ruleTypeSelect.val(ruleType)
-		ruleTypeSelect.appendTo(ruleTypeWrap);
-		ruleTypeWrap.appendTo(newRule);
-
-		var ruleValueWrap = $('<div />', { class: 'col-xs-6 col-md-6 col-lg-6' });
-		var ruleValueContent;
-
-		function setRuleValue(ruleType, ruleValue) {
-			$('#text-cnt-config-rule-saved').attr('style', 'display: none;');
-			$('#rule-value-content-' + ruleId).remove();
-			var selected = typeof ruleType !== 'undefined' ? ruleType : $(this).val();
-			var value = configs[selected].value;
-			if (Array.isArray(value)) {
-				ruleValueContent = $('<select />', {
-					class: 'form-control rule-value-content',
-					id: 'rule-value-content-' + ruleId
-				});
-				for (var i = 0, len = value.length; i < len; i++) {
-					$('<option />', {
-						value: value[i],
-						text: value[i]
-					}).appendTo(ruleValueContent);
-				}
-            ruleValueContent.val(configs[selected].default);
-			}
-			else if (value === 'int') {
-				ruleValueContent = $('<input />', {
-					class: 'form-control rule-value-content',
-					id: 'rule-value-content-' + ruleId,
-					type: 'number',
-					min: '0',
-					placeholder: configs[selected].default
-				})
-			}
-			else if (value === 'password') {
-				ruleValueContent = $('<input />', {
-					class: 'form-control rule-value-content',
-					id: 'rule-value-content-' + ruleId,
-					type: 'password',
-					placeholder: configs[selected].default
-				})
-			}
-			else if (value === '') {
-				ruleValueContent = $('<input />', {
-					class: 'form-control rule-value-content',
-					id: 'rule-value-content-' + ruleId,
-					type: 'text',
-					placeholder: configs[selected].default
-				})
-			}
-			if (ruleValue)
-				ruleValueContent.val(ruleValue)
-			ruleValueContent.appendTo(ruleValueWrap);
-			ruleValueWrap.appendTo(newRule);
-		}
-		ruleTypeSelect.change(function() { setRuleValue.bind(this)(); });
-		if (typeof ruleType !== 'undefined')
-			setRuleValue(ruleType, ruleValue);
-
-		var btnRemove = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-minus"></span></button>').appendTo(newRule);
-		btnRemove.click(function() {
-			$('#text-cnt-config-rule-saved').attr('style', 'display: none;');
-			$('#controller-config-' + ruleId).remove();
-			ruleData[ruleId].deleted = true;
-		});
-
-		ruleData.push({ elem: newRule, deleted: false })
-		newRule.appendTo($('#cnt-config-rule-list'))
-	}
-
-	function saveRules() {
-		var script = "saveControllerConfigs([";
-		var ruleLines = [];
-		for (var i = 0, len = ruleData.length; i < len; i++) {
-			var rule = ruleData[i];
-			if (rule.deleted)
-				continue;
-			var ruleElem = rule.elem;
-			var configIndex = ruleElem.find('.config-type').val();
-			var configValue = ruleElem.find('.rule-value-content').val();
-			var ruleLine = '"';
-			if (configIndex !== null && configValue !== '')
-				ruleLine += configs[configIndex].name + '=' + configValue + '"';
-			else
-				continue;
-			ruleLines.push(ruleLine)
-		}
-		script += ruleLines.join(',');
-		script += '])';
-		script = encodeURIComponent(script);
-
-		scriptExecutor.run(script, function(res) {
-			if (res.resultCode === '0') {
-				$('#text-cnt-config-rule-saved').attr('style', '');
-			}
-			else {
-		 		alert(res.msg);
-		 	}
-		})
-	}
-
-	$('#btn-add-cnt-config-rule').click(function() { addRule(); });
-	$('#btn-save-cnt-config-rule').click(saveRules);
-	loadRules();
-	refreshMe = loadRules;
-}
-
-function DatanodeManagement() {
-	var datanodeNum = 0;
+    var ruleNumber = 0;
     var controller = "http://" + window.location.host;
     var scriptExecutor = new CodeExecutor(controller);
-	var datanodes = [];
+    var ruleData = [];
+    var configs = [
+        { name: 'mode', value: ['controller'], default: 'controller', tip: 'Node mode. Possible modes are controller / agent / dataNode.' },
+        { name: 'localSite', value: '', default: '', tip: 'Specify host address, port number and alias of the local node.' },
+        //{ name: 'clusterConfig', value: '', default: 'cluster.cfg' },
+        //{ name: 'clusterUser', value: '', default: '' },
+        //{ name: 'clusterPwd', value: 'password', default: '' },
+        //{ name: 'nodesFile', value: '', default: 'nodes.cfg' },
+        //{ name: 'dfsMetaDir', value: '', default: '' },
+        { name: 'dfsReplicationFactor', value: 'int', default: '2', tip: 'The number of replicas for each table partition or file block (not including the original copy). The default value is 2.' },
+        { name: 'dfsReplicaReliabilityLevel', value: [0, 1], default: '0', tip: 'Whether multiple replicas can reside on a node. 0: Yes; 1: No. The default value is 0.' },
+        { name: 'dfsRecoveryWaitTime', value: 'int', default: '30000', tip: 'The time (in milliseconds) the controller waits after a table partition or file block goes offline before recovering it. The default value is 30000 (ms).' },
+        { name: 'enableDFS', value: [0, 1], default: '1', tip: 'Enable the distributed file system. The default value is 1.' }
+    ]
 
-	function initDatanodes() {
-		datanodeNum = 0;
-		for (var i = 0, len = datanodes.length; i < len; i++)
-			datanodes[i].elem.remove();
-		datanodes = [];
-	}
+    function loadRules() {
+        ruleNumber = 0;
+        for (var i = 0, len = ruleData.length; i < len; i++)
+            ruleData[i].elem.remove();
+        ruleData = [];
 
-	function addDatanodes() {
-		$('#text-datanodes-saved').attr('style', 'display: none;');
-		var datanodeId = datanodeNum++;
+        scriptExecutor.run('loadControllerConfigs()', function(res) {
+            if (res.resultCode === '0') {
+                var confs = res.object[0].value;
+                for (var i = 0, len = confs.length; i < len; i++) {
+                    var config = confs[i].split('=');
+                    if (config.length !== 2) {
+                        console.log('Unknown datanode config: ' + confs[i])
+                        continue;
+                    }
+                    var ruleTypeText = config[0];
 
-		var datanodeLine = $('<div />', {
-			class: 'form-group',
-			id: 'datanode-line-' + datanodeId
-		});
+                    for (var j = 0, clen = configs.length; j < clen; j++) {
+                        if (configs[j].name == ruleTypeText) {
+                            addRule(j, config[1]);
+                            break;
+                        }
+                    }
+                }
+            }
+        })
+    }
 
-		var agentWrap = $('<div />', { class: 'col-xs-3 col-md-3 col-lg-3' });
-		var agentInput = $('<input />', {
-			class: 'form-control agent-host',
-			type: 'text',
-			placeholder: 'Agent host:port:alias'
-		});
-		agentInput.appendTo(agentWrap);
-		agentWrap.appendTo(datanodeLine);
+    function addRule(ruleType, ruleValue) {
+        $('#text-cnt-config-rule-saved').attr('style', 'display: none;');
+        var ruleId = ruleNumber++;
+        var newRule = $('<div />', {
+            class: 'form-group',
+            id: 'controller-config-' + ruleId
+        });
 
-		var dnnumWrap = $('<div />', { class: 'col-xs-3 col-md-3 col-lg-3' });
-		var dnnumInput = $('<input />', {
-			class: 'form-control dnnum',
-			type: 'number',
-			placeholder: 'Datanode Number',
-			min: '0'
-		});
-		dnnumInput.appendTo(dnnumWrap);
-		dnnumWrap.appendTo(datanodeLine);
+        var ruleTypeWrap = $('<div />', { class: 'col-xs-5' });
+        var ruleTypeSelect = $('<select />', { class: 'form-control config-type' });
+        $('<option value selected disabled>Choose a configuration parameter</option>').appendTo(ruleTypeSelect);
+        for (var i = 0, len = configs.length; i < len; i++) {
+            $('<option />', {
+                value: i,
+                text: configs[i].name,
+                title: configs[i].tip
+            }).appendTo(ruleTypeSelect);
+        }
+        if (typeof ruleType !== 'undefined')
+            ruleTypeSelect.val(ruleType)
+        ruleTypeSelect.appendTo(ruleTypeWrap);
+        ruleTypeWrap.appendTo(newRule);
 
-		var dnprefixWrap = $('<div />', { class: 'col-xs-3 col-md-3 col-lg-3' });
-		var dnprefixInput = $('<input />', {
-			class: 'form-control dnprefix',
-			type: 'text',
-			placeholder: 'Datanode Prefix'
-		});
-		dnprefixInput.appendTo(dnprefixWrap);
-		dnprefixWrap.appendTo(datanodeLine);
+        var ruleValueWrap = $('<div />', { class: 'col-xs-6' });
+        var ruleValueContent;
 
-		var portWrap = $('<div />', { class: 'col-xs-2 col-md-2 col-lg-2' });
-		var portInput = $('<input />', {
-			class: 'form-control start-port',
-			type: 'number',
-			placeholder: 'Start port',
-			min: '0'
-		});
-		portInput.appendTo(portWrap);
-		portWrap.appendTo(datanodeLine);
+        function setRuleValue(ruleType, ruleValue) {
+            $('#rule-value-content-' + ruleId).remove();
+            var selected = typeof ruleType !== 'undefined' ? ruleType : $(this).val();
+            var value = configs[selected].value;
+            if (Array.isArray(value)) {
+                ruleValueContent = $('<select />', {
+                    class: 'form-control rule-value-content',
+                    id: 'rule-value-content-' + ruleId
+                });
+                for (var i = 0, len = value.length; i < len; i++) {
+                    $('<option />', {
+                        value: value[i],
+                        text: value[i],
+                        title: configs[selected].tip
+                    }).appendTo(ruleValueContent);
+                }
+            ruleValueContent.val(configs[selected].default);
+            }
+            else if (value === 'int') {
+                ruleValueContent = $('<input />', {
+                    class: 'form-control rule-value-content',
+                    id: 'rule-value-content-' + ruleId,
+                    type: 'number',
+                    min: '0',
+                    placeholder: configs[selected].default,
+                    title: configs[selected].tip
+                })
+            }
+            else if (value === 'password') {
+                ruleValueContent = $('<input />', {
+                    class: 'form-control rule-value-content',
+                    id: 'rule-value-content-' + ruleId,
+                    type: 'password',
+                    placeholder: configs[selected].default,
+                    title: configs[selected].tip
+                })
+            }
+            else if (value === '') {
+                ruleValueContent = $('<input />', {
+                    class: 'form-control rule-value-content',
+                    id: 'rule-value-content-' + ruleId,
+                    type: 'text',
+                    placeholder: configs[selected].default,
+                    title: configs[selected].tip
+                })
+            }
+            if (ruleValue)
+                ruleValueContent.val(ruleValue)
+            ruleValueContent.appendTo(ruleValueWrap);
+            ruleValueWrap.appendTo(newRule);
+        }
+        ruleTypeSelect.change(function() { setRuleValue.bind(this)(); });
+        if (typeof ruleType !== 'undefined')
+            setRuleValue(ruleType, ruleValue);
 
-		var btnRemove = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-minus"></span></button>').appendTo(datanodeLine);
-		btnRemove.click(function() {
-			$('#text-datanodes-saved').attr('style', 'display: none;');
-			$('#datanode-line-' + datanodeId).remove();
-			datanodes[datanodeId].deleted = true;
-		});
+        var btnRemove = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-minus"></span></button>').appendTo(newRule);
+        btnRemove.click(function() {
+            $('#text-cnt-config-rule-saved').attr('style', 'display: none;');
+            $('#controller-config-' + ruleId).remove();
+            ruleData[ruleId].deleted = true;
+        });
 
-		datanodes.push({ elem: datanodeLine, deleted: false });
-		datanodeLine.appendTo($('#datanodes-list'));
-	}
+        ruleData.push({ elem: newRule, deleted: false })
+        newRule.appendTo($('#cnt-config-rule-list'))
+    }
 
-	function saveDatanodes() {
-		var script = "saveClusterNodes([";
-		var datanodeLines = [];
-		for (var i = 0, len = datanodes.length; i < len; i++) {
-			var datanodeRule = datanodes[i];
-			if (datanodeRule.deleted)
-				continue;
-			var datanodeElem = datanodeRule.elem;
-			var agentSite = datanodeElem.find('.agent-host').val();
-			var dnnum = datanodeElem.find('.dnnum').val();
-			var dnprefix = datanodeElem.find('.dnprefix').val();
-			var startPort = datanodeElem.find('.start-port').val();
+    function saveRules() {
+        var script = "saveControllerConfigs([";
+        var ruleLines = [];
+        for (var i = 0, len = ruleData.length; i < len; i++) {
+            var rule = ruleData[i];
+            if (rule.deleted)
+                continue;
+            var ruleElem = rule.elem;
+            var configIndex = ruleElem.find('.config-type').val();
+            var configValue = ruleElem.find('.rule-value-content').val();
+            var ruleLine = '"';
+            if (configIndex !== null && configValue !== '')
+                ruleLine += configs[configIndex].name + '=' + configValue + '"';
+            else
+                continue;
+            ruleLines.push(ruleLine)
+        }
+        script += ruleLines.join(',');
+        script += '])';
+        script = encodeURIComponent(script);
 
-			var agentHost = agentSite.split(':')[0];
+        scriptExecutor.run(script, function(res) {
+            if (res.resultCode === '0') {
+                $('#text-cnt-config-rule-saved').attr('style', '');
+            }
+            else {
+                alert(res.msg);
+            }
+        })
+    }
 
-			if (agentHost && dnnum && dnprefix && startPort) {
-				var agentLine = '"' + agentSite + ', agent"';
-				datanodeLines.push(agentLine)
-				for (var j = 0; j < dnnum; j++) {
-					var datanodeLine = '"' + agentHost + ':' + (parseInt(startPort, 10) + j) + ':' + dnprefix + j + ',"';
-					datanodeLines.push(datanodeLine);
-				}
-			}
-		}
-		script += datanodeLines.join(',');
-		script += '])';
-		script = encodeURIComponent(script);
+    $('#cnt-config-rule-list').change() {
+        $('#text-cnt-config-rule-saved').attr('style', 'display: none;');
+    }
+    $('#btn-add-cnt-config-rule').click(function() { addRule(); });
+    $('#btn-save-cnt-config-rule').click(saveRules);
+    loadRules();
+    refreshMe = loadRules;
+}
 
-		scriptExecutor.run(script, function(res) {
-		 	if (res.resultCode === '0') {
-		 		$('#text-datanodes-saved').attr('style', '');
-		 	}
-		 	else {
-		 		alert(res.msg);
-		 	}
-		})
-	}
+function NodesSetup() {
+    var datanodeNum = 0;
+    var controller = "http://" + window.location.host;
+    var scriptExecutor = new CodeExecutor(controller);
+    var datanodes = [];
+    var existingAgents = [];
+    var existingDatanodes = [];
 
-	$('#btn-add-datanodes').click(addDatanodes);
-	$('#btn-save-datanodes').click(function() {
-		if (confirm("This operation will rewrite your cluster.nodes file. Continue saving?"))
-			saveDatanodes();
-	});
-	refreshMe = initDatanodes;
+    function loadDatanodes() {
+        scriptExecutor.run("getClusterPerf()", function(res) {
+            existingAgents = [];
+            existingDatanodes = [];
+            if (res.resultCode === '0') {
+                var nodes = res.object[0].value[2].value;
+                var modes = res.object[0].value[3].value;
+                for (var i = 0, len = nodes.length; i < len; i++) {
+                    if (modes[i] === 1)
+                        existingAgents.push(nodes[i]);
+                    else if (modes[i] === 0)
+                        existingDatanodes.push(nodes[i]);
+                }
+                genNodeTable();
+                if (existingAgents.length > 0)
+                    useExistingAgent();    // default 'new agent' not checked
+                else {
+                    newAgentInput.attr('checked', 'checked');
+                    useNewAgent();
+                }
+            }
+            else {
+                alert(res.msg)
+            }
+        });
+        datanodeNum = 0;
+        for (var i = 0, len = datanodes.length; i < len; i++)
+            datanodes[i].elem.remove();
+        datanodes = [];
+    }
+
+    function genNodeTable() {
+        var nodes = [];
+        for (var i = 0, len = existingAgents.length; i < len; i++) {
+            var datanodeDetails = existingAgents[i].split(':');
+            if (datanodeDetails.length !== 3)
+                continue;
+            nodes.push({
+                Host: datanodeDetails[0],
+                Port: datanodeDetails[1],
+                Alias: datanodeDetails[2],
+                Mode: 'agent'
+            })
+        }
+        for (var i = 0, len = existingDatanodes.length; i < len; i++) {
+            var datanodeDetails = existingDatanodes[i].split(':');
+            if (datanodeDetails.length !== 3)
+                continue;
+            nodes.push({
+                Host: datanodeDetails[0],
+                Port: datanodeDetails[1],
+                Alias: datanodeDetails[2],
+                Mode: 'datanode'
+            })
+        }
+        $('#node-list').jsGrid({
+            height: "480px",
+            width: "100%",
+
+            editing: true,
+            inserting: true,
+            sorting: true,
+            paging: true,
+
+            pageSize: 15,
+            pageButtonCount: 5,
+
+            confirmDeleting: false,
+
+            data: nodes,
+
+            fields: [
+                { name: 'Host', type: 'text' },
+                { name: 'Port', type: 'number' },
+                { name: 'Alias', type: 'text' },
+                { name: 'Mode', type: 'select', items: [{ name: 'agent' }, { name: 'datanode'}], valueField: 'name', textField: 'name' },
+                { type: 'control' }
+            ]
+        });
+    }
+
+    function batchAddDatanodes() {
+        var agentSite = $('#batch-add-agent-site').val();
+        var numOfNodes = $('#batch-add-number-of-nodes').val();
+        var datanodePrefix = $('#batch-add-datanode-prefix').val();
+        var startingPort = $('#batch-add-starting-port').val();
+
+        var agentHostPortAlias = agentSite.split(':');
+        if (agentSite === null || agentHostPortAlias.length !== 3) {
+            alert('Invalid agent site');
+            return;
+        }
+        var agentHost = agentHostPortAlias[0];
+        var agentPort = parseInt(agentHostPortAlias[1], 10);
+        var agentAlias = agentHostPortAlias[2];
+
+        if (isNaN(agentPort) || agentPort < 0) {
+            alert('Invalid agent port');
+            return;
+        }
+
+        numOfNodes = parseInt(numOfNodes, 10);
+        if (numOfNodes === null || numOfNodes > 1000) {
+            alert('Please input a valid number of datanodes');
+            return;
+        }
+
+        if (datanodePrefix === null) {
+            alert('Please input datanode prefix');
+            return;
+        }
+
+        startingPort = parseInt(startingPort, 10);
+        if (startingPort === null) {
+            alert('Please input starting port');
+            return;
+        }
+
+        var nodeList = $('#node-list').jsGrid('option', 'data');
+        if ($('#batch-add-new-agent').is(':checked')) {
+            var agentLine = { Host: agentHost, Port: agentPort, Alias: agentAlias, Mode: 'agent' };
+            existingAgents.push(agentSite);
+            nodeList.push(agentLine);
+        }
+        for (var i = 0; i < numOfNodes; i++) {
+            var datanodeLine = { Host: agentHost, Port: startingPort + i, Alias: datanodePrefix + (i + 1), Mode: 'datanode' };
+            var datanodeSite = datanodeLine.Host + ':' + datanodeLine.Port + ':' + datanodeLine.Alias;
+            existingDatanodes.push(datanodeSite)
+            nodeList.push(datanodeLine);
+        }
+        $('#node-list').jsGrid('option', 'data', nodeList);
+    }
+
+    function saveDatanodes() {
+        var script = "saveClusterNodes([";
+        var nodeLines = [];
+        var nodeList = $('#node-list').jsGrid("option", "data");
+
+        for (var i = 0, len = nodeList.length; i < len; i++) {
+            var node = nodeList[i];
+            var host = node.Host;
+            var port = node.Port;
+            var alias = node.Alias;
+            var mode = node.Mode;
+
+            if (host && port && alias && mode) {
+                var nodeLine = '"' + host + ':' + port + ':' + alias + ',' + mode + '"';
+                nodeLines.push(nodeLine)
+            }
+        }
+
+        script += nodeLines.join(',');
+        script += '])';
+        script = encodeURIComponent(script);
+
+        scriptExecutor.run(script, function(res) {
+            if (res.resultCode === '0') {
+                $('#text-datanodes-saved').attr('style', '');
+            }
+            else {
+                alert(res.msg);
+            }
+        })
+    }
+
+    function useNewAgent() {
+        var agentWrap = $('#batch-add-agent-wrap')
+        agentWrap.empty();
+        var agentContent = $('<input />', {
+            class: 'form-control',
+            id: 'batch-add-agent-site',
+            type: 'text',
+            placeholder: 'AgentNode (host:port:alias)',
+            title: 'e.g. localhost:8800:agent1'
+        });
+        agentContent.appendTo(agentWrap);
+    }
+
+    function useExistingAgent() {
+        var agentWrap = $('#batch-add-agent-wrap')
+        agentWrap.empty();
+        var agentContent = $('<select />', {
+            class: 'form-control agent-host',
+            id: 'batch-add-agent-site'
+        });
+        $('<option value selected disabled>Choose an agent site</option>').appendTo(agentContent);
+        for (var i = 0, len = existingAgents.length; i < len; i++) {
+            $('<option />', {
+                value: existingAgents[i],
+                text: existingAgents[i]
+            }).appendTo(agentContent);
+        }
+        agentContent.appendTo(agentWrap);
+    }
+
+    $('#batch-add-new-agent').change(function() {
+        if (this.checked)
+            useNewAgent();
+        else
+            useExistingAgent();
+    });
+
+    $('#batch-add-datanodes').change(function() {
+        $('#text-datanodes-saved').attr('style', 'display: none;');
+    })
+    $('#btn-batch-add-datanodes').click(batchAddDatanodes);
+    $('#btn-save-datanodes').click(function() {
+        if (confirm("This operation will rewrite your cluster.nodes file. Continue saving?"))
+            saveDatanodes();
+    });
+    loadDatanodes()
+    refreshMe = loadDatanodes;
 }
