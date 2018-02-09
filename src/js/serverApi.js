@@ -210,9 +210,9 @@ function DatanodeConfig() {
         })
     }
 
-    $('#dn-config-rule-list').change() {
+    $('#dn-config-rule-list').change(function() {
         $('#text-dn-config-rule-saved').attr('style', 'display: none;');
-    }
+    });
     $('#btn-add-dn-config-rule').click(function() { addRule(); });
     $('#btn-save-dn-config-rule').click(saveRules);
     loadRules();
@@ -389,9 +389,9 @@ function ControllerConfig() {
         })
     }
 
-    $('#cnt-config-rule-list').change() {
+    $('#cnt-config-rule-list').change(function() {
         $('#text-cnt-config-rule-saved').attr('style', 'display: none;');
-    }
+    });
     $('#btn-add-cnt-config-rule').click(function() { addRule(); });
     $('#btn-save-cnt-config-rule').click(saveRules);
     loadRules();
