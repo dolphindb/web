@@ -462,7 +462,7 @@ function NodesSetup() {
             })
         }
         $('#node-list').jsGrid({
-            height: "480px",
+            height: "540px",
             width: "100%",
 
             editing: true,
@@ -502,11 +502,13 @@ function NodesSetup() {
         var agentPort = parseInt(agentHostPortAlias[1], 10);
         var agentAlias = agentHostPortAlias[2];
 
-        for (var i = 0, len = existingAgents.length; i < len; i++) {
-            var host = existingAgents[i].split(':')[0];
-            if (agentHost === host) {
-                alert('Agent host already existed');
-                return;
+        if ($('#batch-add-new-agent').is(':checked')) {
+            for (var i = 0, len = existingAgents.length; i < len; i++) {
+                var host = existingAgents[i].split(':')[0];
+                if (agentHost === host) {
+                    alert('Agent host already existed');
+                    return;
+                }
             }
         }
 
@@ -544,6 +546,10 @@ function NodesSetup() {
             existingDatanodes.push(datanodeSite)
             nodeList.push(datanodeLine);
         }
+        $('#batch-add-agent-site').val(null);
+        $('#batch-add-number-of-nodes').val(null);
+        $('#batch-add-datanode-prefix').val(null);
+        $('#batch-add-starting-port').val(null);
         $('#node-list').jsGrid('option', 'data', nodeList);
     }
 

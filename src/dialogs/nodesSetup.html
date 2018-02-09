@@ -17,42 +17,41 @@
 <body>
     <div style="width: 95%; margin-left: 20px; margin-right: 20px;">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-xs-9">
                 <div id="node-list"></div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-12">
-                <div>
+            <div class="col-xs-3">
+                <form>
                     <div class="form-group" id="batch-add-datanodes">
-                        <div class="col-xs-2 checkbox">
-                            <label><input type="checkbox" id="batch-add-new-agent" />New Agent</label>
+                        <div class="checkbox">
+                            <label><input type="checkbox" id="batch-add-new-agent" />Use New Agent</label>
                         </div>
-                        <div class="col-xs-3" id="batch-add-agent-wrap"></div>
-                        <div class="col-xs-2">
+                        <div class="form-group" id="batch-add-agent-wrap"></div>
+                        <div class="form-group">
+                            <label for="batch-add-number-of-nodes">Number of Nodes</label>
                             <input class="form-control" id="batch-add-number-of-nodes" type="number" placeholder="Number of Nodes" min="0" title="e.g. 10" />
                         </div>
-                        <div class="col-xs-3">
+                        <div class="form-group">
+                            <label for="batch-add-datanode-prefix">Datanode Prefix</label>
                             <input class="form-control" id="batch-add-datanode-prefix" type="text" placeholder="Datanode Prefix" title="e.g. datanode-" />
                         </div>
-                        <div class="col-xs-2">
+                        <div class="form-group">
+                            <label for="batch-add-starting-port">Starting Port</label>
                             <input class="form-control" id="batch-add-starting-port" type="number" placeholder="Starting Port" min="0" title="e.g. 8801" />
                         </div>
+                        <button type="button" class="btn btn-default" id="btn-batch-add-datanodes" title="Batch add datanodes">
+                            <span>Batch Add Datanodes</span>
+                        </button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
         <div class="row">
             <div class="col-xs-12">
-                <div class="form-group">
-                    <button type="button" class="btn btn-default" id="btn-batch-add-datanodes" title="add rule">
-                        <span>Batch Add Datanodes</span>
-                    </button>
-                    <button type="button" class="btn btn-default" id="btn-save-datanodes" title="add rule">
-                        <span>Save</span>
-                    </button>
-                    <span id="text-datanodes-saved" style="display: none;">Saved. Restart controller to make changes take effect</span>
-                </div>
+                <button type="button" class="btn btn-default" id="btn-save-datanodes" title="add rule">
+                    <span>Save</span>
+                </button>
+                <span id="text-datanodes-saved" style="display: none;">Saved. Restart controller to make changes take effect</span>
             </div>
         </div>
     </div>
