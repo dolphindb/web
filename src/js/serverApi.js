@@ -493,14 +493,22 @@ function NodesSetup() {
         var datanodePrefix = $('#batch-add-datanode-prefix').val();
         var startingPort = $('#batch-add-starting-port').val();
 
-        var agentHostPortAlias = agentSite.split(':');
-        if (agentSite === null || agentHostPortAlias.length !== 3) {
+        if (agentSite === null || agentSite.split(':').length !== 3) {
             alert('Invalid agent site');
             return;
         }
+        var agentHostPortAlias = agentSite.split(':');
         var agentHost = agentHostPortAlias[0];
         var agentPort = parseInt(agentHostPortAlias[1], 10);
         var agentAlias = agentHostPortAlias[2];
+
+        for (var i = 0, len = existingAgents.length; i < len; i++) {
+            var host = existingAgents[i].split(':')[0];
+            if (agentHost === host) {
+                alert('Agent host already existed');
+                return;
+            }
+        }
 
         if (isNaN(agentPort) || agentPort < 0) {
             alert('Invalid agent port');
