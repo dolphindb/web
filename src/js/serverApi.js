@@ -4,31 +4,56 @@ function DatanodeConfig() {
     var scriptExecutor = new CodeExecutor(controller);
     var ruleData = [];
     var configs = [
-        //{ name: 'batchJobDir', value: '', default: '<HomeDir>/batchJobs' },
-        //{ name: 'console', value: [0, 1], default: '0' },
-        { name: 'home', value: '', default: '', tip: 'The DolphinDB home directory, where the configuration file, the license file, the log file and other related files are located.' },
-        { name: 'jobLogFile', value: '', default: 'nodeAlias_job.log', tip: 'The path and name of the job log file that contains descriptive information of all the queries that have been executed for each node. It must be a csv file. The default folder for the job log file is the log folder. The default name of the job log file is nodeAlias_job.log.' },
-        { name: 'localExecutor', value: 'int', default: 'CPU core number - 1', tip: 'The number of local executors.The default value is the number of cores of the CPU - 1.' },
-        { name: 'logFile', value: '', default: 'DolphinDB.log', tip: 'The path and name of the log file. It displays the server configuration specifications, warnings and error messages.' },
-        { name: 'maxBatchJobWorker', value: 'int', default: '= workerNum', tip: 'The maximum number of workers to process batch jobs. The default value is the value of workerNum.' },
-        { name: 'maxConnections', value: 'int', default: '', tip: 'The maximum number of connections.' },
-        { name: 'maxConnectionPerSite', value: 'int', default: '', tip: 'The maximum number of remote connections per node.' },
-        { name: 'maxDynamicWorker', value: 'int', default: '= workerNum', tip: 'The maximum number of dynamic workers. The default value is the value of workerNum.' },
-        { name: 'maxMemSize', value: 'int', default: '', tip: 'The maximum memory (in terms of Gigabytes) allocated to DolphinDB. If set to 0, it means no limits on memory usage.' },
-        { name: 'perfMonitoring', value: [0, 1], default: 1, tip: 'Enable performance monitoring. The default value is false for a stand alone DolphinDB application. The default value is true on a DolphinDB cluster management web interface.' },
-        { name: 'regularArrayMemoryLimit', value: [256, 512], default: 512, tip: 'The limit on the memory size (MB) of a regular array. This number must be a power of 2. The default value is 512.' },
-        //{ name: 'run', value: '', default: '' },
-        //{ name: 'script', value: '', default: 'dolphindb.dos' },
-        //{ name: 'tcpNoDelay', value: [0, 1], default: '0' },
-        //{ name: 'webRoot', value: '', default: '' },
-        { name: 'webWorkerNum', value: 'int', default: '1', tip: 'The size of the worker pool to process http requests. The default value is 1.' },
-        { name: 'workerNum', value: 'int', default: '= number of CPU cores', tip: 'The size of worker pool for regular interactive jobs. The default value is the number of cores of the CPU.' },
-        { name: 'allowVolumeCreation', value: [0, 1], default: '1', tip: 'Whether to automatically create the storage locations in the distributed file system if the parameter volumes is not specified. The default value is 1.' },
-        { name: 'volumes', value: '', default: '', tip: 'The folder where data chunks are saved in the distributed file system on a data node.' },
-        { name: 'maxPubConnections', value: 'int', default: '', tip: 'The maximum number of socket connections the publisher can establish for message publishing. This parameter must be specified for this node to serve as a publisher.' },
-        { name: 'maxSubConnections', value: 'int', default: '', tip: 'The maximum number of subscription connections the server can receive.' },
-        { name: 'subExecutors', value: 'int', default: '0', tip: 'The number of message processing threads in a subscriber. The default value is 0, which means the thread that conducts message parsing also processes messages.' },
-        { name: 'subPort', value: 'int', default: '', tip: 'The port number that the subscription thread is listening on. This paramter must be specified for this node to serve as a subscriber.' }
+        {
+            configCategory: 'Home',
+            configs: [
+                //{ name: 'batchJobDir', value: '', default: '<HomeDir>/batchJobs' },
+                //{ name: 'console', value: [0, 1], default: '0' },
+                { name: 'home', value: '', default: '', tip: 'The DolphinDB home directory, where the configuration file, the license file, the log file and other related files are located.' },
+            ]
+        },
+        {
+            configCategory: 'Log',
+            configs: [
+                { name: 'jobLogFile', value: '', default: 'nodeAlias_job.log', tip: 'The path and name of the job log file that contains descriptive information of all the queries that have been executed for each node. It must be a csv file. The default folder for the job log file is the log folder. The default name of the job log file is nodeAlias_job.log.' },
+            ]
+        },
+        {
+            configCategory: 'System',
+            configs: [
+                { name: 'localExecutor', value: 'int', default: 'CPU core number - 1', tip: 'The number of local executors.The default value is the number of cores of the CPU - 1.' },
+                { name: 'logFile', value: '', default: 'DolphinDB.log', tip: 'The path and name of the log file. It displays the server configuration specifications, warnings and error messages.' },
+                { name: 'maxBatchJobWorker', value: 'int', default: '= workerNum', tip: 'The maximum number of workers to process batch jobs. The default value is the value of workerNum.' },
+                { name: 'maxConnections', value: 'int', default: '', tip: 'The maximum number of connections.' },
+                { name: 'maxConnectionPerSite', value: 'int', default: '', tip: 'The maximum number of remote connections per node.' },
+                { name: 'maxDynamicWorker', value: 'int', default: '= workerNum', tip: 'The maximum number of dynamic workers. The default value is the value of workerNum.' },
+                { name: 'maxMemSize', value: 'int', default: '', tip: 'The maximum memory (in terms of Gigabytes) allocated to DolphinDB. If set to 0, it means no limits on memory usage.' },
+                { name: 'perfMonitoring', value: [0, 1], default: 1, tip: 'Enable performance monitoring. The default value is false for a stand alone DolphinDB application. The default value is true on a DolphinDB cluster management web interface.' },
+                { name: 'regularArrayMemoryLimit', value: [256, 512], default: 512, tip: 'The limit on the memory size (MB) of a regular array. This number must be a power of 2. The default value is 512.' },
+                //{ name: 'run', value: '', default: '' },
+                //{ name: 'script', value: '', default: 'dolphindb.dos' },
+                //{ name: 'tcpNoDelay', value: [0, 1], default: '0' },
+                //{ name: 'webRoot', value: '', default: '' },
+                { name: 'webWorkerNum', value: 'int', default: '1', tip: 'The size of the worker pool to process http requests. The default value is 1.' },
+                { name: 'workerNum', value: 'int', default: '= number of CPU cores', tip: 'The size of worker pool for regular interactive jobs. The default value is the number of cores of the CPU.' },
+            ]
+        },
+        {
+            configCategory: 'Storage',
+            configs: [
+                { name: 'allowVolumeCreation', value: [0, 1], default: '1', tip: 'Whether to automatically create the storage locations in the distributed file system if the parameter volumes is not specified. The default value is 1.' },
+                { name: 'volumes', value: '', default: '', tip: 'The folder where data chunks are saved in the distributed file system on a data node.' },
+            ]
+        },
+        {
+            configCategory: 'Streaming',
+            configs: [
+                { name: 'maxPubConnections', value: 'int', default: '', tip: 'The maximum number of socket connections the publisher can establish for message publishing. This parameter must be specified for this node to serve as a publisher.' },
+                { name: 'maxSubConnections', value: 'int', default: '', tip: 'The maximum number of subscription connections the server can receive.' },
+                { name: 'subExecutors', value: 'int', default: '0', tip: 'The number of message processing threads in a subscriber. The default value is 0, which means the thread that conducts message parsing also processes messages.' },
+                { name: 'subPort', value: 'int', default: '', tip: 'The port number that the subscription thread is listening on. This paramter must be specified for this node to serve as a subscriber.' }
+            ]
+        }
     ]
 
     function loadRules() {
@@ -60,10 +85,13 @@ function DatanodeConfig() {
                         var ruleTypeText = datanodeConf[0];
                     }
 
-                    for (var j = 0, clen = configs.length; j < clen; j++) {
-                        if (configs[j].name == ruleTypeText) {
-                            addRule(datanode, j, config[1]);
-                            break;
+                    for (var j = 0, jlen = configs.length; j < jlen; j++) {
+                        var configCategory = configs[j].configs;
+                        for (var k = 0, klen = configCategory.length; k < klen; k++) {
+                            if (configCategory[k].name == ruleTypeText) {
+                                addRule(datanode, j + ',' + k, config[1]);
+                                break;
+                            }
                         }
                     }
                 }
@@ -96,11 +124,17 @@ function DatanodeConfig() {
         var ruleTypeSelect = $('<select />', { class: 'form-control config-type' });
         $('<option value selected disabled>Configuration parameter</option>').appendTo(ruleTypeSelect);
         for (var i = 0, len = configs.length; i < len; i++) {
-            $('<option />', {
-                value: i,
-                text: configs[i].name,
-                title: configs[i].tip
-            }).appendTo(ruleTypeSelect);
+            var optGroup = $('<optgroup />', { label: configs[i].configCategory });
+            var configsInCatagory = configs[i].configs;
+
+            for (var j = 0, jlen = configsInCatagory.length; j < jlen; j++) {
+                $('<option />', {
+                    value: i + ',' + j,
+                    text: configsInCatagory[j].name,
+                    title: configsInCatagory[j].tip
+                }).appendTo(optGroup);
+            }
+            optGroup.appendTo(ruleTypeSelect);
         }
         if (typeof ruleType !== 'undefined')
             ruleTypeSelect.val(ruleType)
@@ -113,7 +147,9 @@ function DatanodeConfig() {
         function setRuleValue(ruleType, ruleValue) {
             $('#rule-value-content-' + ruleId).remove();
             var selected = typeof ruleType !== 'undefined' ? ruleType : $(this).val();
-            var value = configs[selected].value;
+            selected = selected.split(',');
+            var selectedConfig = configs[selected[0]].configs[selected[1]];
+            var value = selectedConfig.value;
             if (Array.isArray(value)) {
                 ruleValueContent = $('<select />', {
                     class: 'form-control rule-value-content',
@@ -123,10 +159,10 @@ function DatanodeConfig() {
                     $('<option />', {
                         value: value[i],
                         text: value[i],
-                        title: configs[selected].tip
+                        title: selectedConfig.tip
                     }).appendTo(ruleValueContent);
                 }
-            ruleValueContent.val(configs[selected].default);
+            ruleValueContent.val(selectedConfig.default);
             }
             else if (value === 'int') {
                 ruleValueContent = $('<input />', {
@@ -134,8 +170,8 @@ function DatanodeConfig() {
                     id: 'rule-value-content-' + ruleId,
                     type: 'number',
                     min: '0',
-                    placeholder: configs[selected].default,
-                    title: configs[selected].tip
+                    placeholder: selectedConfig.default,
+                    title: selectedConfig.tip
                 })
             }
             else if (value === 'password') {
@@ -143,8 +179,8 @@ function DatanodeConfig() {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
                     type: 'password',
-                    placeholder: configs[selected].default,
-                    title: configs[selected].tip
+                    placeholder: selectedConfig.default,
+                    title: selectedConfig.tip
                 })
             }
             else if (value === '') {
@@ -152,8 +188,8 @@ function DatanodeConfig() {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
                     type: 'text',
-                    placeholder: configs[selected].default,
-                    title: configs[selected].tip
+                    placeholder: selectedConfig.default,
+                    title: selectedConfig.tip
                 })
             }
             if (ruleValue)
@@ -187,11 +223,13 @@ function DatanodeConfig() {
             var datanodePattern = ruleElem.find('.datanode-pattern').val();
             var configIndex = ruleElem.find('.config-type').val();
             var configValue = ruleElem.find('.rule-value-content').val();
+            configIndex = configIndex.split(',');
+            var selectedConfig = configs[configIndex[0]].configs[configIndex[1]];
             var ruleLine = '"';
             if (datanodePattern !== '')
                 ruleLine += datanodePattern + '.'
             if (configIndex !== null && configValue !== '')
-                ruleLine += configs[configIndex].name + '=' + configValue + '"';
+                ruleLine += selectedConfig.name + '=' + configValue + '"';
             else
                 continue;
             ruleLines.push(ruleLine)
@@ -227,11 +265,12 @@ function ControllerConfig() {
     var configs = [
         { name: 'mode', value: ['controller'], default: 'controller', tip: 'Node mode. Possible modes are controller / agent / dataNode.' },
         { name: 'localSite', value: '', default: '', tip: 'Specify host address, port number and alias of the local node.' },
-        //{ name: 'clusterConfig', value: '', default: 'cluster.cfg' },
+        { name: 'clusterConfig', value: '', default: 'cluster.cfg' },
         //{ name: 'clusterUser', value: '', default: '' },
         //{ name: 'clusterPwd', value: 'password', default: '' },
+        { name: 'nodesFile', value: '', default: 'cluster.nodes' },
         //{ name: 'nodesFile', value: '', default: 'nodes.cfg' },
-        //{ name: 'dfsMetaDir', value: '', default: '' },
+        { name: 'dfsMetaDir', value: '', default: '= DolphinDB home directory' },
         { name: 'dfsReplicationFactor', value: 'int', default: '2', tip: 'The number of replicas for each table partition or file block (not including the original copy). The default value is 2.' },
         { name: 'dfsReplicaReliabilityLevel', value: [0, 1], default: '0', tip: 'Whether multiple replicas can reside on a node. 0: Yes; 1: No. The default value is 0.' },
         { name: 'dfsRecoveryWaitTime', value: 'int', default: '30000', tip: 'The time (in milliseconds) the controller waits after a table partition or file block goes offline before recovering it. The default value is 30000 (ms).' },
@@ -247,20 +286,21 @@ function ControllerConfig() {
         scriptExecutor.run('loadControllerConfigs()', function(res) {
             if (res.resultCode === '0') {
                 var confs = res.object[0].value;
-                for (var i = 0, len = confs.length; i < len; i++) {
-                    var config = confs[i].split('=');
-                    if (config.length !== 2) {
-                        console.log('Unknown datanode config: ' + confs[i])
-                        continue;
-                    }
-                    var ruleTypeText = config[0];
-
-                    for (var j = 0, clen = configs.length; j < clen; j++) {
-                        if (configs[j].name == ruleTypeText) {
-                            addRule(j, config[1]);
+                for (var i = 0, len = configs.length; i < len; i++) {
+                    for (var j = 0, jlen = confs.length; j < jlen; j++) {
+                        var config = confs[j].split('=')
+                        if (config.length !== 2) {
+                            console.log('Unknown datanode config: ' + confs[i])
+                            continue;
+                        }
+                        var ruleTypeText = config[0];
+                        if (configs[i].name === ruleTypeText) {
+                            addRule(i, config[1]);
                             break;
                         }
                     }
+                    if (j === jlen)
+                        addRule(i, '');
                 }
             }
         })
@@ -274,22 +314,25 @@ function ControllerConfig() {
             id: 'controller-config-' + ruleId
         });
 
-        var ruleTypeWrap = $('<div />', { class: 'col-xs-5' });
-        var ruleTypeSelect = $('<select />', { class: 'form-control config-type' });
-        $('<option value selected disabled>Choose a configuration parameter</option>').appendTo(ruleTypeSelect);
-        for (var i = 0, len = configs.length; i < len; i++) {
-            $('<option />', {
-                value: i,
-                text: configs[i].name,
-                title: configs[i].tip
-            }).appendTo(ruleTypeSelect);
-        }
-        if (typeof ruleType !== 'undefined')
-            ruleTypeSelect.val(ruleType)
-        ruleTypeSelect.appendTo(ruleTypeWrap);
-        ruleTypeWrap.appendTo(newRule);
+        // var ruleTypeSelect = $('<select />', { class: 'form-control config-type' });
+        // $('<option value selected disabled>Choose a configuration parameter</option>').appendTo(ruleTypeSelect);
+        // for (var i = 0, len = configs.length; i < len; i++) {
+        //     $('<option />', {
+        //         value: i,
+        //         text: configs[i].name,
+        //         title: configs[i].tip
+        //     }).appendTo(ruleTypeSelect);
+        // }
+        // if (typeof ruleType !== 'undefined')
+        //     ruleTypeSelect.val(ruleType)
+        // ruleTypeSelect.appendTo(ruleTypeWrap);
+        ruleTypeLabel = $('<label />', {
+            class: 'col-xs-3 control-label',
+            text: configs[ruleType].name
+        });
+        ruleTypeLabel.appendTo(newRule);
 
-        var ruleValueWrap = $('<div />', { class: 'col-xs-6' });
+        var ruleValueWrap = $('<div />', { class: 'col-xs-9' });
         var ruleValueContent;
 
         function setRuleValue(ruleType, ruleValue) {
@@ -343,19 +386,19 @@ function ControllerConfig() {
             ruleValueContent.appendTo(ruleValueWrap);
             ruleValueWrap.appendTo(newRule);
         }
-        ruleTypeSelect.change(function() { setRuleValue.bind(this)(); });
+        //ruleTypeSelect.change(function() { setRuleValue.bind(this)(); });
         if (typeof ruleType !== 'undefined')
             setRuleValue(ruleType, ruleValue);
 
-        var btnRemove = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-minus"></span></button>').appendTo(newRule);
-        btnRemove.click(function() {
-            $('#text-cnt-config-rule-saved').attr('style', 'display: none;');
-            $('#controller-config-' + ruleId).remove();
-            ruleData[ruleId].deleted = true;
-        });
+        // var btnRemove = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-minus"></span></button>').appendTo(newRule);
+        // btnRemove.click(function() {
+        //     $('#text-cnt-config-rule-saved').attr('style', 'display: none;');
+        //     $('#controller-config-' + ruleId).remove();
+        //     ruleData[ruleId].deleted = true;
+        // });
 
-        ruleData.push({ elem: newRule, deleted: false })
-        newRule.appendTo($('#cnt-config-rule-list'))
+        ruleData.push({ elem: newRule });//, deleted: false })
+        newRule.appendTo($('#cnt-config-rule-list'));
     }
 
     function saveRules() {
@@ -363,14 +406,13 @@ function ControllerConfig() {
         var ruleLines = [];
         for (var i = 0, len = ruleData.length; i < len; i++) {
             var rule = ruleData[i];
-            if (rule.deleted)
-                continue;
+            // if (rule.deleted)
+            //     continue;
             var ruleElem = rule.elem;
-            var configIndex = ruleElem.find('.config-type').val();
             var configValue = ruleElem.find('.rule-value-content').val();
             var ruleLine = '"';
-            if (configIndex !== null && configValue !== '')
-                ruleLine += configs[configIndex].name + '=' + configValue + '"';
+            if (configValue !== '')
+                ruleLine += configs[i].name + '=' + configValue + '"';
             else
                 continue;
             ruleLines.push(ruleLine)
@@ -389,10 +431,10 @@ function ControllerConfig() {
         })
     }
 
-    $('#cnt-config-rule-list').change(function() {
+    $('#cnt-config-rule-list').change(function(e) {
         $('#text-cnt-config-rule-saved').attr('style', 'display: none;');
     });
-    $('#btn-add-cnt-config-rule').click(function() { addRule(); });
+    //$('#btn-add-cnt-config-rule').click(function() { addRule(); });
     $('#btn-save-cnt-config-rule').click(saveRules);
     loadRules();
     refreshMe = loadRules;
@@ -518,7 +560,7 @@ function NodesSetup() {
         }
 
         numOfNodes = parseInt(numOfNodes, 10);
-        if (numOfNodes === null || numOfNodes > 1000) {
+        if (isNaN(numOfNodes) || numOfNodes > 1000) {
             alert('Please input a valid number of datanodes');
             return;
         }
