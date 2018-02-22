@@ -4,14 +4,14 @@ function DatanodeConfig() {
     var scriptExecutor = new CodeExecutor(controller);
     var ruleData = [];
     var configs = [
-        {
-            configCategory: 'Home',
-            configs: [
-                //{ name: 'batchJobDir', value: '', default: '<HomeDir>/batchJobs' },
-                //{ name: 'console', value: [0, 1], default: '0' },
-                { name: 'home', value: '', default: '', tip: 'The DolphinDB home directory, where the configuration file, the license file, the log file and other related files are located.' },
-            ]
-        },
+        // {
+        //     configCategory: 'Home',
+        //     configs: [
+        //         //{ name: 'batchJobDir', value: '', default: '<HomeDir>/batchJobs' },
+        //         //{ name: 'console', value: [0, 1], default: '0' },
+        //         { name: 'home', value: '', default: '', tip: 'The DolphinDB home directory, where the configuration file, the license file, the log file and other related files are located.' },
+        //     ]
+        // },
         {
             configCategory: 'Log',
             configs: [
@@ -21,8 +21,8 @@ function DatanodeConfig() {
         {
             configCategory: 'System',
             configs: [
-                { name: 'localExecutor', value: 'int', default: 'CPU core number - 1', tip: 'The number of local executors.The default value is the number of cores of the CPU - 1.' },
-                { name: 'logFile', value: '', default: 'DolphinDB.log', tip: 'The path and name of the log file. It displays the server configuration specifications, warnings and error messages.' },
+                { name: 'localExecutors', value: 'int', default: 'CPU core number - 1', tip: 'The number of local executors.The default value is the number of cores of the CPU - 1.' },
+                //{ name: 'logFile', value: '', default: 'DolphinDB.log', tip: 'The path and name of the log file. It displays the server configuration specifications, warnings and error messages.' },
                 { name: 'maxBatchJobWorker', value: 'int', default: '= workerNum', tip: 'The maximum number of workers to process batch jobs. The default value is the value of workerNum.' },
                 { name: 'maxConnections', value: 'int', default: '', tip: 'The maximum number of connections.' },
                 { name: 'maxConnectionPerSite', value: 'int', default: '', tip: 'The maximum number of remote connections per node.' },
@@ -51,7 +51,11 @@ function DatanodeConfig() {
                 { name: 'maxPubConnections', value: 'int', default: '', tip: 'The maximum number of socket connections the publisher can establish for message publishing. This parameter must be specified for this node to serve as a publisher.' },
                 { name: 'maxSubConnections', value: 'int', default: '', tip: 'The maximum number of subscription connections the server can receive.' },
                 { name: 'subExecutors', value: 'int', default: '0', tip: 'The number of message processing threads in a subscriber. The default value is 0, which means the thread that conducts message parsing also processes messages.' },
-                { name: 'subPort', value: 'int', default: '', tip: 'The port number that the subscription thread is listening on. This paramter must be specified for this node to serve as a subscriber.' }
+                { name: 'subPort', value: 'int', default: '', tip: 'The port number that the subscription thread is listening on. This paramter must be specified for this node to serve as a subscriber.' },
+                { name: 'maxMsgNumPerBlock', value: 'int', default: '1024', tip: '' },
+                { name: 'subExecutorPool', value: [0, 1], default: 0, tip: '' },
+                { name: 'persistenceDir', value: '', default: '', tip: '' },
+                { name: 'persistenceWorkerNum', value: 'int', default: '0', tip: '' }
             ]
         }
     ]
@@ -252,7 +256,10 @@ function DatanodeConfig() {
         $('#text-dn-config-rule-saved').attr('style', 'display: none;');
     });
     $('#btn-add-dn-config-rule').click(function() { addRule(); });
-    $('#btn-save-dn-config-rule').click(saveRules);
+    $('#btn-save-dn-config-rule').click(function() {
+        if (confirm("This operation will rewrite your datanode config file. Continue saving?"))
+            saveRules();
+    });
     loadRules();
     refreshMe = loadRules;
 }
@@ -435,7 +442,10 @@ function ControllerConfig() {
         $('#text-cnt-config-rule-saved').attr('style', 'display: none;');
     });
     //$('#btn-add-cnt-config-rule').click(function() { addRule(); });
-    $('#btn-save-cnt-config-rule').click(saveRules);
+    $('#btn-save-cnt-config-rule').click(function() {
+        if (confirm("This operation will rewrite your controller config file. Continue saving?"))
+            saveRules();
+    });
     loadRules();
     refreshMe = loadRules;
 }
