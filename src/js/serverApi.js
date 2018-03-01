@@ -52,10 +52,10 @@ function DatanodeConfig() {
                 { name: 'maxSubConnections', value: 'int', default: '', tip: 'The maximum number of subscription connections the server can receive.' },
                 { name: 'subExecutors', value: 'int', default: '0', tip: 'The number of message processing threads in a subscriber. The default value is 0, which means the thread that conducts message parsing also processes messages.' },
                 { name: 'subPort', value: 'int', default: '', tip: 'The port number that the subscription thread is listening on. This paramter must be specified for this node to serve as a subscriber.' },
-                { name: 'maxMsgNumPerBlock', value: 'int', default: '1024', tip: '' },
-                { name: 'subExecutorPool', value: [0, 1], default: 0, tip: '' },
-                { name: 'persistenceDir', value: '', default: '', tip: '' },
-                { name: 'persistenceWorkerNum', value: 'int', default: '0', tip: '' }
+                { name: 'maxMsgNumPerBlock', value: 'int', default: '1024', tip: 'The maximum number of messages in a message block when a server publishes or combines messages.' },
+                { name: 'subExecutorPooling', value: [0, 1], default: 0, tip: 'Whether the streaming executor is in pooling mode.' },
+                { name: 'persistenceDir', value: '', default: '', tip: 'The directory where a streaming table is persisted.' },
+                { name: 'persistenceWorkerNum', value: 'int', default: '0', tip: 'The number of workers to persist streaming tables.' }
             ]
         }
     ]
