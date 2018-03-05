@@ -24,8 +24,8 @@ function DatanodeConfig() {
                 { name: 'localExecutors', value: 'int', default: 'CPU core number - 1', tip: 'The number of local executors.The default value is the number of cores of the CPU - 1.' },
                 //{ name: 'logFile', value: '', default: 'DolphinDB.log', tip: 'The path and name of the log file. It displays the server configuration specifications, warnings and error messages.' },
                 { name: 'maxBatchJobWorker', value: 'int', default: '= workerNum', tip: 'The maximum number of workers to process batch jobs. The default value is the value of workerNum.' },
-                { name: 'maxConnections', value: 'int', default: '', tip: 'The maximum number of connections.' },
-                { name: 'maxConnectionPerSite', value: 'int', default: '', tip: 'The maximum number of remote connections per node.' },
+                { name: 'maxConnections', value: 'int', default: '64', tip: 'The maximum number of connections.' },
+                { name: 'maxConnectionPerSite', value: 'int', default: '= number of CPU cores', tip: 'The maximum number of remote connections per node.' },
                 { name: 'maxDynamicWorker', value: 'int', default: '= workerNum', tip: 'The maximum number of dynamic workers. The default value is the value of workerNum.' },
                 { name: 'maxMemSize', value: 'int', default: '', tip: 'The maximum memory (in terms of Gigabytes) allocated to DolphinDB. If set to 0, it means no limits on memory usage.' },
                 { name: 'perfMonitoring', value: [0, 1], default: 1, tip: 'Enable performance monitoring. The default value is false for a stand alone DolphinDB application. The default value is true on a DolphinDB cluster management web interface.' },
@@ -270,18 +270,23 @@ function ControllerConfig() {
     var scriptExecutor = new CodeExecutor(controller);
     var ruleData = [];
     var configs = [
-        { name: 'mode', value: ['controller'], default: 'controller', tip: 'Node mode. Possible modes are controller / agent / dataNode.' },
+        // { name: 'mode', value: ['controller'], default: 'controller', tip: 'Node mode. Possible modes are controller / agent / dataNode.' },
         { name: 'localSite', value: '', default: '', tip: 'Specify host address, port number and alias of the local node.' },
-        { name: 'clusterConfig', value: '', default: 'cluster.cfg' },
-        //{ name: 'clusterUser', value: '', default: '' },
-        //{ name: 'clusterPwd', value: 'password', default: '' },
-        { name: 'nodesFile', value: '', default: 'cluster.nodes' },
-        //{ name: 'nodesFile', value: '', default: 'nodes.cfg' },
-        { name: 'dfsMetaDir', value: '', default: '= DolphinDB home directory' },
+        { name: 'clusterConfig', value: '', default: 'cluster.cfg', tip: 'Specify the location for Nodes Config file.' },
+        { name: 'nodesFile', value: '', default: 'cluster.nodes', tip: 'Specify the location for Nodes Setup file.' },
+        { name: 'localExecutors', value: 'int', default: 'CPU core number - 1', tip: 'The number of local executors.The default value is the number of cores of the CPU - 1.' },
+        { name: 'maxBatchJobWorker', value: 'int', default: '= workerNum', tip: 'The maximum number of workers to process batch jobs. The default value is the value of workerNum.' },
+        { name: 'maxConnections', value: 'int', default: '64', tip: 'The maximum number of connections.' },
+        { name: 'maxConnectionPerSite', value: 'int', default: '= number of CPU cores', tip: 'The maximum number of remote connections per node.' },
+        { name: 'maxDynamicWorker', value: 'int', default: '= workerNum', tip: 'The maximum number of dynamic workers. The default value is the value of workerNum.' },
+        { name: 'maxMemSize', value: 'int', default: '', tip: 'The maximum memory (in terms of Gigabytes) allocated to DolphinDB. If set to 0, it means no limits on memory usage.' },
+        { name: 'webWorkerNum', value: 'int', default: '1', tip: 'The size of the worker pool to process http requests. The default value is 1.' },
+        { name: 'workerNum', value: 'int', default: '= number of CPU cores', tip: 'The size of worker pool for regular interactive jobs. The default value is the number of cores of the CPU.' },
+        { name: 'dfsMetaDir', value: '', default: '= DolphinDB home directory', tip: 'Relative path of dfs Meta data store location' },
         { name: 'dfsReplicationFactor', value: 'int', default: '2', tip: 'The number of replicas for each table partition or file block (not including the original copy). The default value is 2.' },
-        { name: 'dfsReplicaReliabilityLevel', value: [0, 1], default: '0', tip: 'Whether multiple replicas can reside on a node. 0: Yes; 1: No. The default value is 0.' },
-        { name: 'dfsRecoveryWaitTime', value: 'int', default: '30000', tip: 'The time (in milliseconds) the controller waits after a table partition or file block goes offline before recovering it. The default value is 30000 (ms).' },
-        { name: 'enableDFS', value: [0, 1], default: '1', tip: 'Enable the distributed file system. The default value is 1.' }
+        { name: 'dfsReplicaReliabilityLevel', text: ['Multiple Replications Per Node (value 0)', 'One Replication Per Node (value 1)'], value: [0, 1], default: '0', tip: 'Whether multiple replicas can reside on a node. 0: Yes; 1: No. The default value is 0.' },
+        { name: 'dfsRecoveryWaitTime', value: 'int', default: '', tip: 'The time (in milliseconds) the controller waits after a table partition or file block goes offline before recovering it. The default value is 30000 (ms).' },
+        { name: 'enableDFS', value: [0, 1], default: '1', tip: 'Enable the distributed file system. The default value is 1.' },
     ]
 
     function loadRules() {
@@ -346,6 +351,7 @@ function ControllerConfig() {
             $('#rule-value-content-' + ruleId).remove();
             var selected = typeof ruleType !== 'undefined' ? ruleType : $(this).val();
             var value = configs[selected].value;
+            var text = configs[selected].text;
             if (Array.isArray(value)) {
                 ruleValueContent = $('<select />', {
                     class: 'form-control rule-value-content',
@@ -354,7 +360,7 @@ function ControllerConfig() {
                 for (var i = 0, len = value.length; i < len; i++) {
                     $('<option />', {
                         value: value[i],
-                        text: value[i],
+                        text: typeof text === 'undefined' ? value[i] : text[i],
                         title: configs[selected].tip
                     }).appendTo(ruleValueContent);
                 }
@@ -543,6 +549,7 @@ function NodesSetup() {
         var agentSite = $('#batch-add-agent-site').val();
         var numOfNodes = $('#batch-add-number-of-nodes').val();
         var datanodePrefix = $('#batch-add-datanode-prefix').val();
+        var prefixStartNumber = $('#batch-add-prefix-start-num').val();
         var startingPort = $('#batch-add-starting-port').val();
 
         if (agentSite === null || agentSite.split(':').length !== 3) {
@@ -576,13 +583,17 @@ function NodesSetup() {
         }
 
         if (datanodePrefix === null) {
-            alert('Please input datanode prefix');
+            alert('Please input a valid datanode prefix');
             return;
         }
 
+        prefixStartNumber = parseInt(prefixStartNumber, 10);
+        if (isNaN(prefixStartNumber))
+            prefixStartNumber = 1;
+
         startingPort = parseInt(startingPort, 10);
-        if (startingPort === null) {
-            alert('Please input starting port');
+        if (isNaN(startingPort) || startingPort === null) {
+            alert('Please input a valid starting port');
             return;
         }
 
@@ -593,7 +604,7 @@ function NodesSetup() {
             nodeList.push(agentLine);
         }
         for (var i = 0; i < numOfNodes; i++) {
-            var datanodeLine = { Host: agentHost, Port: startingPort + i, Alias: datanodePrefix + (i + 1), Mode: 'datanode' };
+            var datanodeLine = { Host: agentHost, Port: startingPort + i, Alias: datanodePrefix + (i + prefixStartNumber), Mode: 'datanode' };
             var datanodeSite = datanodeLine.Host + ':' + datanodeLine.Port + ':' + datanodeLine.Alias;
             existingDatanodes.push(datanodeSite)
             nodeList.push(datanodeLine);

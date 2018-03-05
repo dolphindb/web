@@ -660,7 +660,7 @@ $('#btn-datanode-config').click(function() {
         $(iframe).appendTo($(divobj));
         $(divobj).appendTo($('#dialogs'))
     }
-    openDialog("datanode-config", "Datanode Configuration");
+    openDialog("datanode-config", "Nodes Configuration");
 
     var frameWindow = $(divobj).children("iframe")[0].contentWindow;
     if(typeof frameWindow.refreshMe === "function"){
