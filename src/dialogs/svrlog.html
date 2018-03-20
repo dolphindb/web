@@ -61,11 +61,15 @@
         var svr_url = "";
         var nodeAlias = "";
         var SESSION_ID = "";
+        var logLength = 0;
         $(function() {
             var svr_obj = new ServerObject($.getUrlParam('svr'));
             svr_url = svr_obj.getHttpServer();
             SESSION_ID = $.getUrlParam('sessid');
             nodeAlias = $.getUrlParam('node');
+            logLength = getLogLength();
+            var len = $('#txtLength').val();
+            $('#txtOffset').val(logLength - len);
             LoadLog();
         });
 
@@ -95,7 +99,7 @@
                     "name": "fromhead",
                     "form": "scalar",
                     "type": "bool",
-                    "value": fromhead
+                    "value": true
                 }, {
                     "name": "nodeAlias",
                     "form": "scalar",
@@ -114,34 +118,82 @@
                 }
             });
         }
+
+        var getLogLength = function() {
+            var p = {
+                "sessionID": SESSION_ID,
+                "functionName": "getServerLogLength",
+                "params": [{
+                    "name": "nodeAlias",
+                    "form": "scalar",
+                    "type": "string",
+                    "value": nodeAlias
+                }]
+            };
+            var re = CallWebApiSync(svr_url, p);
+            if (re.resultCode == "0") {
+                if (re.object.length > 0) {
+                    return re.object[0].value;
+                }
+            }
+        }
         var logFromhead = false;
+
         $("#btnForward").bind('click', function() {
             var len = $('#txtLength').val();
             var currentpostion = $('#txtOffset').val();
-            $('#txtOffset').val(parseInt(currentpostion) + parseInt(len));
+            var nextPosition = 0;
+            if (logFromhead) {
+                nextPosition = parseInt(currentpostion) + parseInt(len);
+            } else {
+                nextPosition = parseInt(currentpostion) - parseInt(len);
+            }
+            if (nextPosition < 0) {
+                nextPosition = 0;
+            } else if (nextPosition > logLength) {
+                nextPosition = logLength;
+            }
+            $('#txtOffset').val(nextPosition);
             LoadLog();
         });
 
         $("#btnBackward").bind('click', function() {
             var len = $('#txtLength').val();
             var currentpostion = $('#txtOffset').val();
-            var nextPosition = parseInt(currentpostion) - parseInt(len);
-            if (nextPosition < 0)
+            var nextPosition = 0;
+            if (logFromhead) {
+                nextPosition = parseInt(currentpostion) - parseInt(len);
+            } else {
+                nextPosition = parseInt(currentpostion) + parseInt(len);
+            }
+            if (nextPosition < 0) {
                 nextPosition = 0;
+            } else if (nextPosition > logLength) {
+                nextPosition = logLength;
+            }
             $('#txtOffset').val(nextPosition);
             LoadLog();
         });
 
         $('#btnReload').bind('click', function() {
+            logLength = getLogLength();
             LoadLog();
         });
 
         $("[name='rdoFromHead']").bind("click", function() {
             var isFormHead = $("[name='rdoFromHead']:checked").val();
             if (isFormHead === "0") {
-                logFromhead = false;
+                if (logFromhead == true) {
+                    logFromhead = false; //
+                    logLength = getLogLength();
+                    var len = $('#txtLength').val();
+                    $('#txtOffset').val(logLength - len);
+                }
             } else {
-                logFromhead = true;
+                if (logFromhead == false) {
+                    logFromhead = true;
+                    $('#txtOffset').val(0);
+                }
             }
             LoadLog();
         });

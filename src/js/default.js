@@ -30,7 +30,7 @@ function detectUsers() {
     var script = "getAllRealUsers().size() > 0 and !false"
     scriptExecutor.run(script, function(res) {
         if (res.resultCode === '0') {
-            if (res.object.value === '1') {    // user detect
+            if (res.object.value === '1') { // user detect
                 var url = wa_url + '/login.html'
                 window.location.replace(url);
             }
@@ -52,40 +52,38 @@ function cacheControllerIp(url) {
     };
     CallWebApi(url, p, cache_success, cache_error);
 }
+
 function cache_success(result) {
-    if (result && result.resultCode===0) {
+    if (result && result.resultCode === 0) {
         var ctlIP = result.object[0].value;
         localStorage.setItem("dolphindb_controller_ip", ctlIP);
     }
 }
+
 function cache_error(result) {
     console.error(result);
 }
+
 function getControllerIp() {
     var ctlIP = localStorage.getItem("dolphindb_controller_ip");
     if (!ctlIP) {
         cacheControllerIp(wa_url);
         return window.location.host;
-    }
-    else {
+    } else {
         return ctlIP;
     }
 }
-/*
-场景
-1、节点配localhost，无法远端连接
-2、controller使用外网IP和域名，外网访问时datanode的链接是内网ip，浏览器无法访问
-*/
+
 function getDatanodeApiUrl(controllerIP, rowObject) {
     var addrHost = controllerIP.split(':')[0];
     var nodeHost = rowObject.host;
     if (nodeHost.toUpperCase() === "LOCALHOST") {
         nodeHost = addrHost.split(':')[0];
     }
-    if (isEqualIPAddress(nodeHost,addrHost,"255.255.0.0")===false) {
+    if (isEqualIPAddress(nodeHost, addrHost, "255.255.0.0") === false) {
         var ethArr = rowObject.ethernetInfo.split(";");
-        $(ethArr).each(function (i, e) {
-            if (isEqualIPAddress(addrHost,e,"255.255.0.0")) {
+        $(ethArr).each(function(i, e) {
+            if (isEqualIPAddress(addrHost, e, "255.255.0.0")) {
                 nodeHost = e;
             }
         });
@@ -118,8 +116,8 @@ function isEqualIPAddress(addr1, addr2, mask) {
 }
 
 
-function getAgentSite(controllerIP,rowObject) {
-    var agentRows = AGENT_LIST.filter(function (x) {
+function getAgentSite(controllerIP, rowObject) {
+    var agentRows = AGENT_LIST.filter(function(x) {
         return x.host === rowObject.host;
     });
     var agentRow = null;
@@ -172,335 +170,355 @@ function LoadTable(nodeList) {
         width: '80vw',
         height: '80vh',
         columnData: [{
-            text: 'Mode',
-            key: 'mode',
-            remind: 'the role of node(controller,agent,datanode)',
-            width: 80,
-            template: function(mode, rowObject) {
-                if (mode === 0) {
-                    return "datanode";
-                } else {
-                    return "controller";
+                text: 'Mode',
+                key: 'mode',
+                remind: 'the role of node(controller,agent,datanode)',
+                width: 80,
+                template: function(mode, rowObject) {
+                    if (mode === 0) {
+                        return "datanode";
+                    } else {
+                        return "controller";
+                    }
                 }
-            }
-        }, {
-            text: 'Node',
-            key: 'site',
-            remind: 'node name',
-            sorting: '',
-            template: function(site, rowObject) {
-                if (rowObject.state === 1) {
-                    var nodeHost = getDatanodeApiUrl(getControllerIp(), rowObject);
-                    r = '<a href=javascript:window.open("nodedetail.html?site=' + nodeHost + ':' + rowObject.port + ':' + rowObject.site.split(':')[2] + '");>' + rowObject.site.split(':')[2] + '</a>';
+            }, {
+                text: 'Node',
+                key: 'site',
+                remind: 'node name',
+                sorting: '',
+                template: function(site, rowObject) {
+                    if (rowObject.state === 1) {
+                        var nodeHost = getDatanodeApiUrl(getControllerIp(), rowObject);
+                        r = '<a href=javascript:window.open("nodedetail.html?site=' + nodeHost + ':' + rowObject.port + ':' + rowObject.site.split(':')[2] + '");>' + rowObject.site.split(':')[2] + '</a>';
+                        return r;
+                    } else {
+                        return rowObject.site.split(':')[2];
+                    }
+                },
+                sortFilter: function(d) {
+                    return d.split(':')[2];
+                }
+            }, {
+                text: 'State',
+                key: 'state',
+                remind: ' state of the node',
+                sorting: '',
+                template: function(state, rowObject) {
+                    if (rowObject.state === 1) {
+                        return '<font style="color:green">running</font>';
+                    } else {
+                        return '<font style="color:red">stopped</font>';
+                    }
+                }
+            }, {
+                text: 'ServerLog',
+                key: 'serverLog',
+                remind: 'server log',
+                template: function(action, rowObject) {
+                    var r = "";
+                    var ref = "";
+                    var api_url = "";
+                    var node_alias = rowObject.site.split(":")[2];
+                    if (rowObject.mode === 0) {
+                        var agentUrl = getAgentSite(getControllerIp(), rowObject);
+                        api_url = agentUrl;
+                        ref = agentUrl + '@' + rowObject.site;
+                    } else { //controller
+                        api_url = getControllerIp();
+                        ref = rowObject.site.replace(rowObject.host, getControllerIp()) + '@' + rowObject.site;
+                    }
+                    r += '<a style="padding-left:20px"  ref="getServerLog@' + ref + '" href="javascript:void(0)" onclick="showServerLog(\'' + api_url + '\',\'' + node_alias + '\')">view</a>';
                     return r;
-                } else {
-                    return rowObject.site.split(':')[2];
+                }
+            }, {
+                text: 'PerfLog',
+                key: 'perfLog',
+                remind: 'query performance log',
+                template: function(action, rowObject) {
+                    var r = "";
+                    var api_url = "";
+                    var node_alias = rowObject.site.split(":")[2];
+                    if (rowObject.mode === 0) {
+                        var agentUrl = getAgentSite(getControllerIp(), rowObject);
+                        api_url = agentUrl;
+                        ref = agentUrl + '@' + rowObject.site;
+                    } else { //controller
+                        api_url = getControllerIp();
+                        ref = rowObject.site.replace(rowObject.host, getControllerIp()) + '@' + rowObject.site;
+                    }
+                    r += '<a style="padding-left:20px" ref="getPerfLog@' + ref + '" href="javascript:void(0)" onclick="showPerfLog(\'' + api_url + '\',\'' + node_alias + '\')">view</a>';
+                    return r;
+                }
+            }, {
+                text: 'Conns',
+                key: 'connectionNum',
+                remind: ' number of current connections',
+                sorting: '',
+                width: 80
+            }, {
+                text: 'MemUsed',
+                key: 'memoryUsed',
+                remind: 'Memory Used',
+                sorting: '',
+                width: 100,
+                template: function(memoryUsed, rowObject) {
+                    return bytesToSize(memoryUsed);
+                }
+            }, {
+                text: 'MemAlloc',
+                key: 'memoryAlloc',
+                remind: 'Memory Allocated',
+                sorting: '',
+                width: 100,
+                template: function(memoryAlloc, rowObject) {
+                    return bytesToSize(memoryAlloc);
+                }
+            }, {
+                text: 'CpuUsage',
+                key: 'cpuUsage',
+                remind: 'cpu usage',
+                sorting: '',
+                width: 100,
+                template: function(cpuUsage, rowObject) {
+                    return fmoney(cpuUsage, 1) + "%";
+                }
+            }, {
+                text: 'AvgLoad',
+                key: 'avgLoad',
+                remind: 'average load',
+                sorting: '',
+                width: 100,
+                template: function(avgLoad, rowObject) {
+                    return fmoney(avgLoad, 2);
+                }
+            }, {
+                text: 'MedQT10',
+                key: 'medLast10QueryTime',
+                remind: 'median execution time of the previous 10 finished queries',
+                sorting: '',
+                width: 90,
+                template: function(medLast10QueryTime, rowObject) {
+                    return fmoney(medLast10QueryTime / 1000000, 1) + " ms";
+                }
+            }, {
+                text: 'MaxQT10',
+                key: 'maxLast10QueryTime',
+                remind: 'max execution time of the previous 10 finished queries',
+                sorting: '',
+                width: 90,
+                template: function(maxLast10QueryTime, rowObject) {
+                    return fmoney(maxLast10QueryTime / 1000000, 1) + " ms";
+                }
+            }, {
+                text: 'MedQT100',
+                key: 'medLast100QueryTime',
+                remind: 'median execution time of the previous 100 finished queries',
+                sorting: '',
+                width: 100,
+                template: function(medLast100QueryTime, rowObject) {
+                    return fmoney(medLast100QueryTime / 1000000, 1) + " ms";
+                }
+            }, {
+                text: 'MaxQT100',
+                key: 'maxLast100QueryTime',
+                remind: 'max execution time of the previous 100 finished queries',
+                sorting: '',
+                width: 100,
+                template: function(maxLast100QueryTime, rowObject) {
+                    return fmoney(maxLast100QueryTime / 1000000, 1) + " ms";
+                }
+            }, {
+                text: 'MaxRunningQT',
+                key: 'maxRunningQueryTime',
+                remind: 'the maximum elapsed time of currently running queries',
+                sorting: '',
+                width: 120,
+                template: function(maxRunningQueryTime, rowObject) {
+                    return fmoney(rowObject.maxRunningQueryTime / 1000000, 1) + " ms";
+                }
+            }, {
+                text: 'RunningJobs',
+                key: 'runningJobs',
+                remind: 'the number of running jobs',
+                sorting: '',
+                width: 110,
+                template: function(runningJobs, rowObject) {
+                    return Number(runningJobs);
+                }
+            }, {
+                text: 'QueuedJobs',
+                key: 'queuedJobs',
+                remind: 'the number of jobs in the queue',
+                sorting: '',
+                width: 110,
+                template: function(queuedJobs, rowObject) {
+                    return Number(queuedJobs);
+                }
+            }, {
+                text: 'RunningTasks',
+                key: 'runningTasks',
+                remind: 'the number of running sub tasks',
+                sorting: '',
+                width: 110,
+                template: function(runningTasks, rowObject) {
+                    return Number(runningTasks);
+                }
+            }, {
+                text: 'QueuedTasks',
+                key: 'queuedTasks',
+                remind: 'the number of sub tasks in the queue',
+                sorting: '',
+                width: 110,
+                template: function(queuedTasks, rowObject) {
+                    return Number(queuedTasks);
+                }
+            }, {
+                text: 'JobLoad',
+                key: 'jobLoad',
+                remind: 'the ratio of total jobs to number of workers',
+                sorting: '',
+                width: 90,
+                template: function(jobLoad, rowObject) {
+                    return Number(jobLoad);
+                }
+            }, {
+                text: 'DiskCapacity',
+                key: 'diskCapacity',
+                remind: 'disk space of all volumes for the node',
+                sorting: '',
+                width: 90,
+                template: function(diskCapacity, rowObject) {
+                    return fmoney((diskCapacity / Math.pow(1024, 3)), 1) + " GB";
+                }
+            }, {
+                text: 'DiskFreeSpace',
+                key: 'diskFreeSpace',
+                remind: 'available disk space of all volumes for the node',
+                sorting: '',
+                width: 90,
+                template: function(diskFreeSpace, rowObject) {
+                    return fmoney((diskFreeSpace / Math.pow(1024, 3)), 1) + " GB";
+                }
+            }, {
+                text: 'DiskFreeSpaceRatio',
+                key: 'diskFreeSpaceRatio',
+                remind: 'the percentage of free space out of the disk capacity',
+                sorting: '',
+                width: 90,
+                template: function(diskFreeSpaceRatio, rowObject) {
+                    return Number(diskFreeSpaceRatio * 100).toFixed(1) + " %";
+                }
+            }, {
+                text: 'DiskWirteRate',
+                key: 'diskWriteRate',
+                remind: 'the rate of disk write',
+                sorting: '',
+                width: 90,
+                template: function(diskWriteRate, rowObject) {
+                    return fmoney((diskWriteRate / (1024 * 1024)), 1) + " MB/s";
+                }
+            }, {
+                text: 'DiskReadRate',
+                key: 'diskReadRate',
+                remind: 'the rate of disk read',
+                sorting: '',
+                width: 90,
+                template: function(diskReadRate, rowObject) {
+                    return fmoney((diskReadRate / (1024 * 1024)), 1) + " MB/s";
+                }
+            }, {
+                text: 'LastMinuteWriteVolume',
+                key: 'lastMinuteWriteVolume',
+                remind: 'the size of disk writing last minute',
+                sorting: '',
+                width: 90,
+                template: function(diskWirtePerMinute, rowObject) {
+                    return fmoney((diskWirtePerMinute / (1024 * 1024)), 1) + " MB";
+                }
+            }, {
+                text: 'Workers',
+                key: 'workerNum',
+                remind: 'number of job workers',
+                sorting: '',
+                width: 90
+            }, {
+                text: 'Executors',
+                key: 'executorNum',
+                remind: 'number of local task executors',
+                sorting: '',
+                width: 100
+            }, {
+                text: 'ConnLimit',
+                key: 'maxConnections',
+                remind: 'max incoming connections',
+                sorting: '',
+                width: 90
+            }, {
+                text: 'MemLimit',
+                key: 'maxMemSize',
+                remind: 'max memory size',
+                sorting: '',
+                width: 90,
+                template: function(maxMemSize, rowObject) {
+                    return fmoney(rowObject.maxMemSize, 1) + " GB";
+                }
+            }, {
+                text: 'NetworkSendRate',
+                key: 'networkSendRate',
+                remind: 'the rate of sending',
+                sorting: '',
+                width: 90,
+                template: function(networkSendRate, rowObject) {
+                    return fmoney(rowObject.networkSendRate / (1024 * 1024), 1) + " MB/s";
+                }
+            }, {
+                text: 'NetworkRecvRate',
+                key: 'networkRecvRate',
+                remind: 'the rate of receiving',
+                sorting: '',
+                width: 90,
+                template: function(networkRecvRate, rowObject) {
+                    return fmoney(rowObject.networkRecvRate / (1024 * 1024), 1) + " MB/s";
+                }
+            }, {
+                text: 'LastMinuteNetworkSend',
+                key: 'lastMinuteNetworkSend',
+                remind: 'the size of network sending last minute',
+                sorting: '',
+                width: 90,
+                template: function(lastMinuteNetworkSend, rowObject) {
+                    return fmoney(rowObject.lastMinuteNetworkSend / (1024 * 1024), 1) + " MB";
+                }
+            }, {
+                text: 'LastMinuteNetworkRecv',
+                key: 'lastMinuteNetworkRecv',
+                remind: 'the size of network receiving last minute',
+                sorting: '',
+                width: 90,
+                template: function(lastMinuteNetworkRecv, rowObject) {
+                    return fmoney(rowObject.lastMinuteNetworkRecv / (1024 * 1024), 1) + " MB";
+                }
+            }, {
+                text: 'LastMsgLatency',
+                key: 'lastMsgLatency',
+                remind: 'the last latency of streaming message',
+                sorting: '',
+                width: 90,
+                template: function(lastMsgLatency, rowObject) {
+                    return fmoney(rowObject.lastMsgLatency / 1000000, 1) + " ms";
                 }
             },
-            sortFilter: function(d) {
-                return d.split(':')[2];
-            }
-        }, {
-            text: 'State',
-            key: 'state',
-            remind: ' state of the node',
-            sorting: '',
-            template: function(state, rowObject) {
-                if (rowObject.state === 1) {
-                    return '<font style="color:green">running</font>';
-                } else {
-                    return '<font style="color:red">stopped</font>';
+            {
+                text: 'CumMsgLatency',
+                key: 'cumMsgLatency',
+                remind: 'the cum latency of streaming message',
+                sorting: '',
+                width: 90,
+                template: function(cumMsgLatency, rowObject) {
+                    return fmoney(rowObject.cumMsgLatency / 1000000, 1) + " ms";
                 }
             }
-        }, {
-            text: 'ServerLog',
-            key: 'serverLog',
-            remind: 'server log',
-            template: function(action, rowObject) {
-                var r = "";
-                var ref = "";
-                var api_url = "";
-                var node_alias = rowObject.site.split(":")[2];
-                if (rowObject.mode === 0) {
-                    var agentUrl = getAgentSite(getControllerIp(), rowObject);
-                    api_url = agentUrl;
-                    ref = agentUrl + '@' + rowObject.site;
-                } else {//controller
-                    api_url = getControllerIp();
-                    ref = rowObject.site.replace(rowObject.host, getControllerIp()) + '@' + rowObject.site;
-                }
-                r += '<a style="padding-left:20px"  ref="getServerLog@' + ref + '" href="javascript:void(0)" onclick="showServerLog(\''+ api_url + '\',\'' + node_alias + '\')">view</a>';
-                return r;
-            }
-        }, {
-            text: 'PerfLog',
-            key: 'perfLog',
-            remind: 'query performance log',
-            template: function(action, rowObject) {
-                var r = "";
-                var api_url = "";
-                var node_alias = rowObject.site.split(":")[2];
-                if (rowObject.mode === 0) {
-                    var agentUrl = getAgentSite(getControllerIp(), rowObject);
-                    api_url = agentUrl;
-                    ref = agentUrl + '@' + rowObject.site;
-                } else {//controller
-                    api_url = getControllerIp();
-                    ref = rowObject.site.replace(rowObject.host, getControllerIp()) + '@' + rowObject.site;
-                }
-                r += '<a style="padding-left:20px" ref="getPerfLog@' + ref + '" href="javascript:void(0)" onclick="showPerfLog(\'' + api_url + '\',\'' + node_alias + '\')">view</a>';
-                return r;
-            }
-        }, {
-            text: 'Conns',
-            key: 'connectionNum',
-            remind: ' number of current connections',
-            sorting: '',
-            width: 80
-        }, {
-            text: 'MemUsed',
-            key: 'memoryUsed',
-            remind: 'Memory Used',
-            sorting: '',
-            width: 100,
-            template: function(memoryUsed, rowObject) {
-                return bytesToSize(memoryUsed);
-            }
-        }, {
-            text: 'MemAlloc',
-            key: 'memoryAlloc',
-            remind: 'Memory Allocated',
-            sorting: '',
-            width: 100,
-            template: function(memoryAlloc, rowObject) {
-                return bytesToSize(memoryAlloc);
-            }
-        }, {
-            text: 'CpuUsage',
-            key: 'cpuUsage',
-            remind: 'cpu usage',
-            sorting: '',
-            width: 100,
-            template: function(cpuUsage, rowObject) {
-                return fmoney(cpuUsage,1) + "%";
-            }
-        }, {
-            text: 'AvgLoad',
-            key: 'avgLoad',
-            remind: 'average load',
-            sorting: '',
-            width: 100,
-            template: function(avgLoad, rowObject) {
-                return fmoney(avgLoad,2);
-            }
-        }, {
-            text: 'MedQT10',
-            key: 'medLast10QueryTime',
-            remind: 'median execution time of the previous 10 finished queries',
-            sorting: '',
-            width: 90,
-            template: function(medLast10QueryTime, rowObject) {
-                return fmoney(medLast10QueryTime / 1000000,1) + " ms";
-            }
-        }, {
-            text: 'MaxQT10',
-            key: 'maxLast10QueryTime',
-            remind: 'max execution time of the previous 10 finished queries',
-            sorting: '',
-            width: 90,
-            template: function(maxLast10QueryTime, rowObject) {
-                return fmoney(maxLast10QueryTime / 1000000,1) + " ms";
-            }
-        }, {
-            text: 'MedQT100',
-            key: 'medLast100QueryTime',
-            remind: 'median execution time of the previous 100 finished queries',
-            sorting: '',
-            width: 100,
-            template: function(medLast100QueryTime, rowObject) {
-                return fmoney(medLast100QueryTime / 1000000,1) + " ms";
-            }
-        }, {
-            text: 'MaxQT100',
-            key: 'maxLast100QueryTime',
-            remind: 'max execution time of the previous 100 finished queries',
-            sorting: '',
-            width: 100,
-            template: function(maxLast100QueryTime, rowObject) {
-                return fmoney(maxLast100QueryTime / 1000000,1) + " ms";
-            }
-        }, {
-            text: 'MaxRunningQT',
-            key: 'maxRunningQueryTime',
-            remind: 'the maximum elapsed time of currently running queries',
-            sorting: '',
-            width: 120,
-            template: function(maxRunningQueryTime, rowObject) {
-                return fmoney(rowObject.maxRunningQueryTime/1000000,1) + " ms";
-            }
-        }, {
-            text: 'RunningJobs',
-            key: 'runningJobs',
-            remind: 'the number of running jobs',
-            sorting: '',
-            width: 110,
-            template: function(runningJobs, rowObject) {
-                return Number(runningJobs);
-            }
-        }, {
-            text: 'QueuedJobs',
-            key: 'queuedJobs',
-            remind: 'the number of jobs in the queue',
-            sorting: '',
-            width: 110,
-            template: function(queuedJobs, rowObject) {
-                return Number(queuedJobs);
-            }
-        }, {
-            text: 'RunningTasks',
-            key: 'runningTasks',
-            remind: 'the number of running sub tasks',
-            sorting: '',
-            width: 110,
-            template: function(runningTasks, rowObject) {
-                return Number(runningTasks);
-            }
-        }, {
-            text: 'QueuedTasks',
-            key: 'queuedTasks',
-            remind: 'the number of sub tasks in the queue',
-            sorting: '',
-            width: 110,
-            template: function(queuedTasks, rowObject) {
-                return Number(queuedTasks);
-            }
-        }, {
-            text: 'JobLoad',
-            key: 'jobLoad',
-            remind: 'the ratio of total jobs to number of workers',
-            sorting: '',
-            width: 90,
-            template: function(jobLoad, rowObject) {
-                return Number(jobLoad);
-            }
-        }, {
-            text: 'DiskCapacity',
-            key: 'diskCapacity',
-            remind: 'disk space of all volumes for the node',
-            sorting: '',
-            width: 90,
-            template: function(diskCapacity, rowObject) {
-                return fmoney((diskCapacity / Math.pow(1024,3)),1) + " GB";
-            }
-        }, {
-            text: 'DiskFreeSpace',
-            key: 'diskFreeSpace',
-            remind: 'available disk space of all volumes for the node',
-            sorting: '',
-            width: 90,
-            template: function(diskFreeSpace, rowObject) {
-                return fmoney((diskFreeSpace / Math.pow(1024, 3)),1) + " GB";
-            }
-        }, {
-            text: 'DiskFreeSpaceRatio',
-            key: 'diskFreeSpaceRatio',
-            remind: 'the percentage of free space out of the disk capacity',
-            sorting: '',
-            width: 90,
-            template: function (diskFreeSpaceRatio, rowObject) {
-                return Number(diskFreeSpaceRatio * 100).toFixed(1) + " %";
-            }
-        }, {
-            text: 'DiskWirteRate',
-            key: 'diskWriteRate',
-            remind: 'the rate of disk write',
-            sorting: '',
-            width: 90,
-            template: function (diskWriteRate, rowObject) {
-                return fmoney((diskWriteRate / (1024 * 1024)),1) + " MB/s";
-            }
-        }, {
-            text: 'DiskReadRate',
-            key: 'diskReadRate',
-            remind: 'the rate of disk read',
-            sorting: '',
-            width: 90,
-            template: function (diskReadRate, rowObject) {
-                return fmoney((diskReadRate / (1024 * 1024)),1) + " MB/s";
-            }
-        }, {
-            text: 'LastMinuteWriteVolume',
-            key: 'lastMinuteWriteVolume',
-            remind: 'the size of disk writing last minute',
-            sorting: '',
-            width: 90,
-            template: function (diskWirtePerMinute, rowObject) {
-                return fmoney((diskWirtePerMinute / (1024 * 1024)),1) + " MB";
-            }
-        }, {
-            text: 'Workers',
-            key: 'workerNum',
-            remind: 'number of job workers',
-            sorting: '',
-            width: 90
-        }, {
-            text: 'Executors',
-            key: 'executorNum',
-            remind: 'number of local task executors',
-            sorting: '',
-            width: 100
-        }, {
-            text: 'ConnLimit',
-            key: 'maxConnections',
-            remind: 'max incoming connections',
-            sorting: '',
-            width: 90
-        }, {
-            text: 'MemLimit',
-            key: 'maxMemSize',
-            remind: 'max memory size',
-            sorting: '',
-            width: 90,
-            template: function(maxMemSize, rowObject) {
-                return fmoney(rowObject.maxMemSize,1) + " GB";
-            }
-        },{
-            text: 'NetworkSendRate',
-            key: 'networkSendRate',
-            remind: 'the rate of sending',
-            sorting: '',
-            width: 90,
-            template: function(networkSendRate, rowObject) {
-                return fmoney(rowObject.networkSendRate/(1024 * 1024),1) + " MB/s";
-            }
-        },{
-            text: 'NetworkRecvRate',
-            key: 'networkRecvRate',
-            remind: 'the rate of receiving',
-            sorting: '',
-            width: 90,
-            template: function(networkRecvRate, rowObject) {
-                return fmoney(rowObject.networkRecvRate/(1024 * 1024),1) + " MB/s";
-            }
-        },{
-            text: 'LastMinuteNetworkSend',
-            key: 'lastMinuteNetworkSend',
-            remind: 'the size of network sending last minute',
-            sorting: '',
-            width: 90,
-            template: function(lastMinuteNetworkSend, rowObject) {
-                return fmoney(rowObject.lastMinuteNetworkSend/(1024 * 1024),1) + " MB";
-            }
-        },{
-            text: 'LastMinuteNetworkRecv',
-            key: 'lastMinuteNetworkRecv',
-            remind: 'the size of network receiving last minute',
-            sorting: '',
-            width: 90,
-            template: function(lastMinuteNetworkRecv, rowObject) {
-                return fmoney(rowObject.lastMinuteNetworkRecv/(1024 * 1024),1) + " MB";
-            }
-        }],
+        ],
         sortingAfter: function(querys) {
             hideCtlSel();
         }
@@ -511,7 +529,7 @@ function refreshGrid(nodeList) {
     //add filter 
     var fv = $("#txtFilter").val();
 
-    var list = nodeList.filter(function (x) {
+    var list = nodeList.filter(function(x) {
         return (x.mode === 0 || x.mode === 2) && x.site.indexOf(fv) >= 0;
     });
     var griddata = {
@@ -526,7 +544,7 @@ function refreshGrid(nodeList) {
 
 
 function connect_server_success(result) {
-        if (result) {
+    if (result) {
         SESSION_ID = result["sessionID"];
 
         var data = result["object"];
@@ -663,7 +681,7 @@ $('#btn-datanode-config').click(function() {
     openDialog("datanode-config", "Nodes Configuration");
 
     var frameWindow = $(divobj).children("iframe")[0].contentWindow;
-    if(typeof frameWindow.refreshMe === "function"){
+    if (typeof frameWindow.refreshMe === "function") {
         frameWindow.refreshMe();
     }
 })
@@ -683,7 +701,7 @@ $('#btn-controller-config').click(function() {
     openDialog("controller-config", "Controller Configuration");
 
     var frameWindow = $(divobj).children("iframe")[0].contentWindow;
-    if(typeof frameWindow.refreshMe === "function"){
+    if (typeof frameWindow.refreshMe === "function") {
         frameWindow.refreshMe();
     }
 })
@@ -703,7 +721,7 @@ $('#btn-nodes-setup').click(function() {
     openDialog("nodes-setup", "Nodes Setup");
 
     var frameWindow = $(divobj).children("iframe")[0].contentWindow;
-    if(typeof frameWindow.refreshMe === "function"){
+    if (typeof frameWindow.refreshMe === "function") {
         frameWindow.refreshMe();
     }
 })
@@ -718,7 +736,7 @@ $("#txtFilter").keypress(function(e) {
 
 
 //================================================================page event==========================================
-$(document).ready(function () {
+$(document).ready(function() {
     setTimeout(hideCtlSel, 10);
 
     var localSet = grid.GM('getLocalStorage');
@@ -726,7 +744,7 @@ $(document).ready(function () {
 
 $("#btn_collapse").bind("click", function() {
     var span = $("#icon_collapse");
-     if (span.attr('class') === "glyphicon glyphicon-arrow-left") {
+    if (span.attr('class') === "glyphicon glyphicon-arrow-left") {
         span.attr('class', 'glyphicon glyphicon-arrow-right');
         span.attr('title', 'expand agent panel');
         $("#main").attr('class', 'col-lg-12 col-md-12');
@@ -740,13 +758,13 @@ $("#btn_collapse").bind("click", function() {
 
 });
 
-$("#dfsUrl").bind("keypress", function (e) {
+$("#dfsUrl").bind("keypress", function(e) {
     if (e.keyCode === 13) {
         $("#btnOpenDFS").click();
     }
 });
 
-$("#btnOpenDFS").bind("click", function (e) {
+$("#btnOpenDFS").bind("click", function(e) {
     var url = $("#dfsUrl").val();
     if (url.toUpperCase().indexOf("DFS://") === 0) {
         url = url.replace("dfs:/", "");
@@ -757,11 +775,12 @@ $("#btnOpenDFS").bind("click", function (e) {
         alert("error path! example:/root/directory1/db1");
     }
 });
+
 function hideCtlSel() {
     $("td:contains('controller')").parent().children().first().html('');
 }
 
-function showServerLog(url,alias) {
+function showServerLog(url, alias) {
     var apiUrl = url;
     var nodeAlias = alias;
     var did = "svrlog_" + nodeAlias;
@@ -776,13 +795,14 @@ function showServerLog(url,alias) {
         $(iframe).appendTo($(divobj));
         $(divobj).appendTo($('#dialogs'));
     }
-    openDialog(divobj.id,nodeAlias);
+    openDialog(divobj.id, nodeAlias);
     var frameWindow = $(divobj).children("iframe")[0].contentWindow;
-    if(typeof frameWindow.refreshMe === "function"){
+    if (typeof frameWindow.refreshMe === "function") {
         frameWindow.refreshMe();
     }
-        
- }
+
+}
+
 function showPerfLog(url, alias) {
     var apiUrl = url;
     var nodeAlias = alias;
@@ -798,11 +818,11 @@ function showPerfLog(url, alias) {
         $(iframe).appendTo($(divobj));
         $(divobj).appendTo($('#dialogs'));
     }
-        openDialog(divobj.id, nodeAlias);
-        var frameWindow = $(divobj).children("iframe")[0].contentWindow;
-        if(typeof frameWindow.refreshMe === "function"){
-            frameWindow.refreshMe();
-        }
+    openDialog(divobj.id, nodeAlias);
+    var frameWindow = $(divobj).children("iframe")[0].contentWindow;
+    if (typeof frameWindow.refreshMe === "function") {
+        frameWindow.refreshMe();
+    }
 }
 
 //==============================================================util function============================================
@@ -811,21 +831,23 @@ function isUrl(u) {
     var isurl = reg.test(u);
     return isurl;
 }
+
 function fmoney(s, n) {
     n = n > 0 && n <= 20 ? n : 2;
     s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
-    var l = s.split(".")[0].split("").reverse(), r = s.split(".")[1];
+    var l = s.split(".")[0].split("").reverse(),
+        r = s.split(".")[1];
     t = "";
     for (i = 0; i < l.length; i++) {
         t += l[i] + ((i + 1) % 3 === 0 && (i + 1) != l.length ? "," : "");
     }
     return t.split("").reverse().join("") + "." + r;
-}  
+}
 
 function bytesToSize(bytes) {
     if (bytes === 0) return '0 MB';
     var k = 1024;
-    return fmoney(bytes / Math.pow(k, 2),1) + ' MB';
+    return fmoney(bytes / Math.pow(k, 2), 1) + ' MB';
 }
 
 function openDialog(dialog, tit) {
