@@ -11,13 +11,13 @@
 </head>
 
 <body>
-    <div style="width:95%;margin-left:20px">
-        <div class="row">
-            <div class="well" id="pnllog" style="font-size:12px;min-height:500px;_height:90vh;overflow:auto">
+    <div class="container-fluid">
+        <div>
+            <div class="well" id="pnllog" style="margin-left:20px;font-size:12px;min-height:500px;_height:90vh;overflow:auto">
 
             </div>
         </div>
-        <div class="row">
+        <div>
             <div class="col-lg-5 col-md-3 col-sm-3">
                 <input type="text" id="txtLength" class="hide" value="2000" />
                 <input type="text" id="txtOffset" class="hide" value="0" />
@@ -69,14 +69,14 @@
             LoadLog();
         });
 
-        var bindLog = function (json) {
+        var bindLog = function(json) {
             $('#pnllog').html('');
-            json.forEach(function (element) {
+            json.forEach(function(element) {
                 $('#pnllog').append(HTMLEncode(element) + "<br/>");
             }, this);
         }
 
-        var getLog = function (offset, length, fromhead) {
+        var getLog = function(offset, length, fromhead) {
             length = 2000;
             var p = {
                 "sessionID": SESSION_ID,
@@ -103,7 +103,7 @@
                     "value": nodeAlias
                 }]
             };
-            CallWebApi(svr_url, p, function (re) {
+            CallWebApi(svr_url, p, function(re) {
                 if (re.resultCode == "0") {
                     if (re.object.length > 0) {
                         var retable = re.object[0].value;
@@ -115,14 +115,14 @@
             });
         }
         var logFromhead = false;
-        $("#btnForward").bind('click', function () {
+        $("#btnForward").bind('click', function() {
             var len = $('#txtLength').val();
             var currentpostion = $('#txtOffset').val();
             $('#txtOffset').val(parseInt(currentpostion) + parseInt(len));
             LoadLog();
         });
 
-        $("#btnBackward").bind('click', function () {
+        $("#btnBackward").bind('click', function() {
             var len = $('#txtLength').val();
             var currentpostion = $('#txtOffset').val();
             var nextPosition = parseInt(currentpostion) - parseInt(len);
@@ -132,11 +132,11 @@
             LoadLog();
         });
 
-        $('#btnReload').bind('click', function () {
+        $('#btnReload').bind('click', function() {
             LoadLog();
         });
 
-        $("[name='rdoFromHead']").bind("click", function () {
+        $("[name='rdoFromHead']").bind("click", function() {
             var isFormHead = $("[name='rdoFromHead']:checked").val();
             if (isFormHead === "0") {
                 logFromhead = false;
@@ -145,12 +145,12 @@
             }
             LoadLog();
         });
-        var LoadLog = function () {
-             $("#btnForward").focus();
-             getLog($('#txtOffset').val(), $('#txtLength').val(), logFromhead);
+        var LoadLog = function() {
+                $("#btnForward").focus();
+                getLog($('#txtOffset').val(), $('#txtLength').val(), logFromhead);
 
-        }
-        //===============page utils=====================
+            }
+            //===============page utils=====================
         function HTMLEncode(html) {
             var temp = document.createElement("div");
             (temp.textContent != null) ? (temp.textContent = html) : (temp.innerText = html);
@@ -163,9 +163,11 @@
             var container = window.parent;
             container.closeDialog("svrlog_" + nodeAlias);
         }
+
         function refreshMe() {
             LoadLog();
         }
     </script>
 </body>
+
 </html>
