@@ -189,7 +189,7 @@ var bindGrid = function (tableJson) {
                             if (arr.length ===3 ) {
                                 re = re + arr[0] + " [V" + arr[1] + "]";
                                 if (arr[2] === 1) {
-                                    re = re + "<span class='glyphicon glyphicon-exclamation-sign' title'chunk is corrupted'></span> ";
+                                    re = re + "<span class='glyphicon glyphicon-exclamation-sign' title='chunk is corrupted'></span> ";
                                 } else {
                                     re = re + ", ";
                                 }
@@ -204,21 +204,51 @@ var bindGrid = function (tableJson) {
                 return re;
             }
         }
+    }, {
+        name: 'action',
+        title: 'Action',
+        type: 'text',
+        itemTemplate: function (value, item) {
+            var re = "";
+            if (item.filetype == 1) {
+                if (item.chunks != "") {
+                    re = "<a id='btnShowTabletData' onclick='showTabletData(this)' value='" + item.chunks + "' site='" + item.sites + "' partition='/" + item.filename + "'><span class='glyphicon glyphicon-search' title='click to show chunk data'></span></a>";
+                }
+            }
+            return re;
+        }
     }]
     dg.loadFromJson(tableJson, false, col);
 }
 
 //=================================================================Filter====================================================================
-/*
-$("#executeSQL").bind("click", function () {
-    doQuery($("#txtSQL").val());
-});
-$("#txtSQL").bind("keypress", function (e) {
-    if (e.keyCode === 13) {
-        doQuery($("#txtSQL").val());
-    }
-});
-*/
+var showTabletData = function (e) {
+    var chunkId = $(e).attr("value");
+    var sitesstr = $(e).attr("site");
+    var partition = $(e).attr("partition");
+    var nodesite = sitesstr.split(":")[0];
+    var version = sitesstr.split(":")[1];
+    var site = getSiteByAlias(nodesite);
+    var datanode = new ServerObject(site);
+    var dnServer = new DatanodeServer(datanode.getHttpServer());
+    dnServer.getDBIdByTabletChunk(chunkId, function (re) {
+        console.log("re",re);
+        var reEntity = new DolphinEntity(re);
+        var dbid = reEntity.toScalar();
+        var tableids = "";
+        dnServer.getTablesByTabletChunk(chunkId, function (re1) {
+            console.log("re1", re1);
+            reEntity = new DolphinEntity(re1);
+            var tables = reEntity.toVector();
+            console.log(tables);
+            tableids = tables.join(",");
+            var dialog = new DolphinDialog("showChunkData_" + chunkId, { title: "Chunk Data Browser[" + chunkId +"]" });
+            dialog.openUrl("dialogs/dfsChunkDataBrowser.html?chunkid=" + chunkId +"&alias=" + getSiteByAlias(nodesite) + "&dbid=" + dbid + "&tables=" + tableids + "&partition=" + partition + "&v=" + version);
+        })
+    }, function (re) {
+        console.log(re);
+    })
+}
 
 var result = [];
 $("#dfsPathInput").bind("keydown", function (e) {

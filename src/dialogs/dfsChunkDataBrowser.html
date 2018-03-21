@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>DolphinDB Cluster Manager</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="DolphinDB Node Management">
+	<meta name="author" content="DolphinDB">
+	<link rel="stylesheet" href="../third-party/bootstrap/css/bootstrap.min.css">
+	<link href="../third-party/jsgrid/jsgrid.css" rel="stylesheet" />
+	<link href="../third-party/jsgrid/jsgrid-theme.css" rel="stylesheet" />
+	<link href="../third-party/jstree/themes/default/style.css" rel="stylesheet" />
+	<link href="../css/dialog.css" rel="stylesheet" />
+</head>
+<body>
+	<div class="dd_mainbody">
+		<div>
+			<div class="col-sm-3 col-md-3 col-lg-2">
+              <div class="list-group" id="lst_tables">
+                  <a class='list-group-item active'>Tables</a>
+              </div>
+			</div>
+			<div class="col-sm-9 col-md-9 col-lg-10">
+				<div id="jsgrid1">
+
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="../third-party/bootstrap/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
+	<script src="../third-party/bootstrap/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+	<script src="../third-party/bootstrap/js/vendor/bootstrap.js" type="text/javascript"></script>
+	<script src="../third-party/bootstrap/js/vendor/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+	<script src="../third-party/jsgrid/jsgrid.js" type="text/javascript"></script>
+	<script src="../third-party/jstree/jstree.js" type="text/javascript"></script>
+	<script src="../third-party/bootstrap/js/vendor/jquery.cookie.js" type="text/javascript"></script>
+	<script src="../js/utils.js" type="text/javascript"></script>
+	<script src="../js/executecode.js" type="text/javascript"></script>
+	<script src="../js/CallWebApi.js" type="text/javascript"></script>
+	<script src="../js/datagrid.js" type="text/javascript"></script>
+</body>
+</html>
+
+<script>
+    var tables = ""; //TB1
+    var dbPath = ""; // dfs://DFS_T_HIER_RANGE_VALUE
+    var chunkid = ""; ///DFS_T_HIER_RANGE_VALUE/1_100000/A
+    var partitionPath = ""; // /DFS_T_HIER_RANGE_VALUE/
+    var site = "";
+    var version = "";
+    var curPath = "";
+    var dfsPath = "";
+    $(document).ready(function () {
+        dbPath = $.getUrlParam('dbid');
+        tables = $.getUrlParam('tables');
+        dfsPath = "dfs:/" + dbPath;
+        site = $.getUrlParam('alias');
+        chunkid = $.getUrlParam('chunkid');
+        partitionPath = $.getUrlParam('partition');
+        version = $.getUrlParam('v');
+        curPath = dbPath + partitionPath;
+        buildLeftTree(tables);
+    });
+
+    var buildLeftTree = function (tbs) {
+        var tables = tbs.split(",");
+
+        for (var i = 0; i < tables.length;i++) {
+            $("#lst_tables").append("<a class='list-group-item' onclick='btnTableClick(this)' tablename='" + tables[i] + "'>" + tables[i] + "</a>");
+        }
+    }
+
+    var btnTableClick = function (e) {
+        var tb = $(e).attr("tablename");
+        loadGrid(chunkid, dbPath, partitionPath, tb, 0, version)
+    }
+
+    var loadGrid = function (chunkid, dbPath, partitionPath, tablename, sites,version) {
+
+        var pgSize = 20;
+        var nodeSite = new ServerObject(site);
+
+        var script = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" + partitionPath + "','" + tablename + "',0," + pgSize + ")";
+
+        var nodeUrl = nodeSite.getHttpServer();
+        var scriptExecutor = new CodeExecutor(nodeUrl);
+
+        var totalcount = getTableSize(nodeUrl, chunkid, version, tablename);
+        console.log("script", script);
+        scriptExecutor.run(script, function (json) {
+        if (json.resultCode == 0) {
+            var d = DolphinResult2Grid(json);
+            var grid = $('#jsgrid1');
+            var dg = new DolphinGrid(grid, {
+                data: d,
+                itemsCount: totalcount,
+                pageSize: pgSize,
+                autoload: true,
+                controller: {
+                    loadData: function (filter) {
+                        var deferred = $.Deferred();
+                        var s = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" + partitionPath + "','" + tablename + "'," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
+                        getTableData(s, function (g) {
+                            var d = DolphinResult2Grid(g);
+                            deferred.resolve({ data: d, itemsCount: totalcount });
+                        }, function (e) {
+                            appendlog(e);
+                        });
+
+                        return deferred.promise();
+                    }
+                },
+            });
+            dg.loadFromJson(d);
+        } else {
+            alert(json.msg);
+        }
+        });
+    }
+    var getTableSize = function (nodeUrl, chunk, version, tableName) {
+        var svr = new ServerObject(site);
+        var script = "getTablePartitionSizeAndPath(chunkMeta('" + curPath + "','" + chunk + "', true, " + version + ", -1, ,-1), '" + dbPath + "', '" + tableName + "')";
+        var scriptExecutor = new CodeExecutor(svr.getHttpServer());
+        console.log(script);
+        var re = scriptExecutor.runSync(script);
+        if (re.resultCode === "0") {
+            var v = re.object[0].value[0];
+            return v;
+        } else {
+            return 0;
+        }
+
+    }
+
+    var getTableData = function (script, sucCallback) {
+        var svr = new ServerObject(site);
+        var scriptExecutor = new CodeExecutor(svr.getHttpServer());
+        scriptExecutor.run(script, sucCallback);
+    };
+</script>
