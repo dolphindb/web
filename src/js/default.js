@@ -501,7 +501,7 @@ function LoadTable(nodeList) {
             }, {
                 text: 'LastMsgLatency',
                 key: 'lastMsgLatency',
-                remind: 'the last latency of streaming message',
+                remind: 'the latency of last received streaming message',
                 sorting: '',
                 width: 90,
                 template: function(lastMsgLatency, rowObject) {
@@ -511,7 +511,7 @@ function LoadTable(nodeList) {
             {
                 text: 'CumMsgLatency',
                 key: 'cumMsgLatency',
-                remind: 'the cum latency of streaming message',
+                remind: 'the weighed average latency of all recieved message since the subscription',
                 sorting: '',
                 width: 90,
                 template: function(cumMsgLatency, rowObject) {
