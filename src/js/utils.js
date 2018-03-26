@@ -155,6 +155,14 @@ String.prototype.endWith = function (str) {
     var reg = new RegExp(str + "$");
     return reg.test(this);
 }
+String.prototype.isNumber = function() {
+    var patrn = /^[0-9]*$/;
+    if (patrn.exec(this) == null || this == "") {
+        return false
+    } else {
+        return true
+    }
+}
 //================================================================================================
 function S4() {
     return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);

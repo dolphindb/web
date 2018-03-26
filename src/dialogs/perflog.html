@@ -74,8 +74,12 @@
             SESSION_ID = $.getUrlParam('sessid');
             nodeAlias = $.getUrlParam('node');
             logLength = getLogLength();
+            if (!logLength.isNumber()) logLength = 0;
             var len = $('#txtLength').val();
-            $('#txtOffset').val(logLength - len);
+            if (Number(logLength)>Number(len))
+                $('#txtOffset').val(Number(logLength) - Number(len));
+            else
+                $('#txtOffset').val("0");
             LoadLog();
         });
 
@@ -163,9 +167,9 @@
             };
             var re = CallWebApiSync(svr_url, p);
             if (re.resultCode == "0") {
-                if (re.object.length > 0) {
-                    return re.object[0].value;
-                }
+               if (re.object.length > 0) {
+                   return re.object[0].value;
+               }
             }
         }
         var logFromhead = false;
