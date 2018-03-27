@@ -18,7 +18,7 @@
 		<div>
 			<div class="col-sm-3 col-md-3 col-lg-2">
               <div class="list-group" id="lst_tables">
-                  <a class='list-group-item active'>Tables</a>
+                  <a class="list-group-item" style="color: #777;cursor: not-allowed;background-color: #eee;">partitioned tables</a>
               </div>
 			</div>
 			<div class="col-sm-9 col-md-9 col-lg-10">
@@ -72,6 +72,8 @@
     }
 
     var btnTableClick = function (e) {
+        $("#lst_tables").children().each(function (e1) { $(e1).removeClass("active"); });
+        $(e).addClass("active")
         var tb = $(e).attr("tablename");
         loadGrid(chunkid, dbPath, partitionPath, tb, 0, version)
     }
