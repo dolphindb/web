@@ -47,3 +47,4 @@ src/.vs/slnx.sqlite
 src/.vs/slnx.sqlite
 src/.vs/slnx.sqlite
 src/.vs/slnx.sqlite
+*.sqlite
