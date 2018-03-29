@@ -1,7 +1,12 @@
+///
+
 function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
+
     if (typeof elem === 'undefined')
         elem = $('#execute-spin');
-
+    if (typeof CurrentSessionID === 'undefined') {
+        var CurrentSessionID = 0;
+    }
     if ($.cookie('sessionID') == null) {
         paramstr['sessionID'] = CurrentSessionID;
         $.cookie('sessionID', CurrentSessionID)
@@ -41,6 +46,9 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
 function CallWebApiSync(apiurl, paramstr) {
     if (typeof elem === 'undefined')
         elem = $('#execute-spin');
+    if (typeof CurrentSessionID === 'undefined') {
+        var CurrentSessionID = 0;
+    }
     if ($.cookie('sessionID') == null) {
         $.cookie('sessionID', CurrentSessionID)
     } else {
@@ -53,7 +61,7 @@ function CallWebApiSync(apiurl, paramstr) {
         url: apiurl,
         async: false,
         data: d,
-        timeout:1000,
+        timeout: 1000,
         type: "POST",
         dataType: "json"
     });
