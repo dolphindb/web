@@ -254,6 +254,10 @@ function DatanodeConfig() {
         if (confirm("This operation will rewrite your datanode config file. Continue saving?"))
             saveRules();
     });
+    $('#btn-close-dn-config-rule').click(function() {
+        var container = window.parent;
+        container.closeDialog('datanode-config');
+    });
     loadRules();
     refreshMe = loadRules;
 }
@@ -445,6 +449,10 @@ function ControllerConfig() {
     $('#btn-save-cnt-config-rule').click(function() {
         if (confirm("This operation will rewrite your controller config file. Continue saving?"))
             saveRules();
+    });
+    $('#btn-close-cnt-config-rule').click(function() {
+        var container = window.parent;
+        container.closeDialog('controller-config');
     });
     loadRules();
     refreshMe = loadRules;
@@ -684,6 +692,10 @@ function NodesSetup() {
     $('#btn-save-datanodes').click(function() {
         if (confirm("This operation will rewrite your cluster.nodes file. Continue saving?"))
             saveDatanodes();
+    });
+    $('#btn-close-datanodes').click(function() {
+        var container = window.parent;
+        container.closeDialog('nodes-setup');
     });
     loadDatanodes()
     refreshMe = loadDatanodes;
