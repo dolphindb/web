@@ -90,8 +90,8 @@ function bindVariables(datalist) {
     list = datalist.filter(function(x) { return x.form === 'DICTIONARY' && x.shared === 0; });
     localvariable.push(buildNode(list, "Dictionary"));
 
-    list = datalist.filter(function(x) { return x.form === 'SCALAR' && x.shared === 0; });
-    localvariable.push(buildNode(list, "Scalar"));
+    list = datalist.filter(function (x) { return (x.form === 'SCALAR' || x.form === "PAIR") && x.shared === 0; });
+    localvariable.push(buildNode(list, "Scalar/Pair"));
 
     var sharedtable = [];
     list = datalist.filter(function(x) { return x.form === 'TABLE' && x.shared === 1; });
@@ -365,8 +365,8 @@ function buildNode(jsonLst, dataform) {
             showtype = "&lt;" + obj.type + "&gt;";
         }
 
-        var node = { "a_attr": obj, "li_attr":obj, "id": obj.name, "icon": "jstree-file" };
-        if (obj.form === "SCALAR")
+        var node = { "a_attr": obj, "li_attr": obj, "id": obj.name, "icon": "jstree-file" };
+        if (obj.form === "SCALAR" || obj.form==="PAIR")
             node.text = obj.name + showtype + " [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]";
         else
             node.text = obj.name + showtype + obj.rows + " rows [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]";
@@ -404,7 +404,7 @@ $('#btn_execode').click(function() {
                 if (res.form === "chart") {
                     showPlot('jsgrid1', result);
                     $('#resulttab a[href="#DataWindow"]').tab('show');
-                } else if (res.form === "scalar") {
+                } else if (res.form === "scalar" || res.form === "pair") {
                     logstr = '<span style="color: #999">Input: </span>' +
                         (logstr.indexOf('\n') !== -1 ? '\n' : '') // Contains newline
                         +

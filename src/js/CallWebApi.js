@@ -1,5 +1,3 @@
-var CurrentSessionID = "0";
-
 function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
     if (typeof elem === 'undefined')
         elem = $('#execute-spin');
@@ -43,7 +41,11 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
 function CallWebApiSync(apiurl, paramstr) {
     if (typeof elem === 'undefined')
         elem = $('#execute-spin');
-
+    if ($.cookie('sessionID') == null) {
+        $.cookie('sessionID', CurrentSessionID)
+    } else {
+        CurrentSessionID = $.cookie('sessionID');
+    }
     paramstr['sessionID'] = CurrentSessionID;
     var d = JSON.stringify(paramstr);
 
@@ -51,6 +53,7 @@ function CallWebApiSync(apiurl, paramstr) {
         url: apiurl,
         async: false,
         data: d,
+        timeout:1000,
         type: "POST",
         dataType: "json"
     });

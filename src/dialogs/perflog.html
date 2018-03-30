@@ -66,16 +66,24 @@
         var nodeAlias = "";
         var SESSION_ID = "";
         var grid = $("#jsGrid_perflog");
+        var logLength = 0;
         $(function() {
-            
+
             var svr_obj = new ServerObject($.getUrlParam('svr'));
             svr_url = svr_obj.getHttpServer();
             SESSION_ID = $.getUrlParam('sessid');
             nodeAlias = $.getUrlParam('node');
+            logLength = getLogLength();
+            if (!logLength.isNumber()) logLength = 0;
+            var len = $('#txtLength').val();
+            if (Number(logLength)>Number(len))
+                $('#txtOffset').val(Number(logLength) - Number(len));
+            else
+                $('#txtOffset').val("0");
             LoadLog();
         });
 
-        var bindLog = function (json) {
+        var bindLog = function(json) {
             var col = [{
                 name: "UserId",
                 type: "text",
@@ -108,7 +116,7 @@
             dg.loadFromJson(griddata);
         }
 
-        var getLog = function (offset, length, fromhead) {
+        var getLog = function(offset, length, fromhead) {
             length = 3000;
             var p = {
                 "sessionID": SESSION_ID,
@@ -127,7 +135,7 @@
                     "name": "fromhead",
                     "form": "scalar",
                     "type": "bool",
-                    "value": fromhead
+                    "value": true
                 }, {
                     "name": "nodeAlias",
                     "form": "scalar",
@@ -135,7 +143,7 @@
                     "value": nodeAlias
                 }]
             };
-            CallWebApi(svr_url, p, function (re) {
+            CallWebApi(svr_url, p, function(re) {
                 if (re.resultCode == "0") {
                     if (re.object.length > 0) {
                         bindLog(re);
@@ -145,42 +153,89 @@
                 }
             });
         }
-        var logFromhead = false;
-        $("#btnForward").bind('click', function () {
-            var len = $('#txtLength').val();
-            var currentpostion = $('#txtOffset').val();
-            $('#txtOffset').val(parseInt(currentpostion) + parseInt(len));
-            LoadLog();
-        });
 
-        $("#btnBackward").bind('click', function () {
+        var getLogLength = function() {
+            var p = {
+                "sessionID": SESSION_ID,
+                "functionName": "getPerfLogLength",
+                "params": [{
+                    "name": "nodeAlias",
+                    "form": "scalar",
+                    "type": "string",
+                    "value": nodeAlias
+                }]
+            };
+            var re = CallWebApiSync(svr_url, p);
+            if (re.resultCode == "0") {
+               if (re.object.length > 0) {
+                   return re.object[0].value;
+               }
+            }
+        }
+        var logFromhead = false;
+        $("#btnForward").bind('click', function() {
             var len = $('#txtLength').val();
             var currentpostion = $('#txtOffset').val();
-            var nextPosition = parseInt(currentpostion) - parseInt(len);
-            if (nextPosition < 0)
+            var nextPosition = 0;
+            if (logFromhead) {
+                nextPosition = parseInt(currentpostion) + parseInt(len);
+            } else {
+                nextPosition = parseInt(currentpostion) - parseInt(len);
+            }
+            if (nextPosition < 0) {
                 nextPosition = 0;
+            } else if (nextPosition > logLength) {
+                nextPosition = logLength;
+            }
             $('#txtOffset').val(nextPosition);
             LoadLog();
         });
 
-        $('#btnReload').bind('click', function () {
+        $("#btnBackward").bind('click', function() {
+            var len = $('#txtLength').val();
+            var currentpostion = $('#txtOffset').val();
+            var nextPosition = 0;
+            if (logFromhead) {
+                nextPosition = parseInt(currentpostion) - parseInt(len);
+            } else {
+                nextPosition = parseInt(currentpostion) + parseInt(len);
+            }
+            if (nextPosition < 0) {
+                nextPosition = 0;
+            } else if (nextPosition > logLength) {
+                nextPosition = logLength;
+            }
+            $('#txtOffset').val(nextPosition);
             LoadLog();
         });
 
-        $("[name='rdoFromHead']").bind("click", function () {
+        $('#btnReload').bind('click', function() {
+            logLength = getLogLength();
+            LoadLog();
+        });
+
+        $("[name='rdoFromHead']").bind("click", function() {
             var isFormHead = $("[name='rdoFromHead']:checked").val();
             if (isFormHead === "0") {
-                logFromhead = false;
+                if (logFromhead == true) {
+                    logFromhead = false; //
+                    logLength = getLogLength();
+                    var len = $('#txtLength').val();
+                    $('#txtOffset').val(logLength - len);
+                }
             } else {
-                logFromhead = true;
+                if (logFromhead == false) {
+                    logFromhead = true;
+                    $('#txtOffset').val(0);
+                }
             }
             LoadLog();
         });
-        var LoadLog = function () {
-            $("#btnForward").focus();
-             getLog($('#txtOffset').val(), $('#txtLength').val(), logFromhead);
-        }
-        //===============page utils=====================
+        var LoadLog = function() {
+                $("#btnForward").focus();
+                getLog($('#txtOffset').val(), $('#txtLength').val(), logFromhead);
+            }
+            //===============page utils=====================
 
         function closeMe() {
             var container = window.parent;
@@ -192,4 +247,5 @@
         }
     </script>
 </body>
+
 </html>

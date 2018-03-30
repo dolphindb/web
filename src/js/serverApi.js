@@ -79,12 +79,10 @@ function DatanodeConfig() {
                     if (datanodeConf.length > 2) {
                         console.log('Unknown datanode config: ' + confs[i])
                         continue;
-                    }
-                    else if (datanodeConf.length === 2) {
+                    } else if (datanodeConf.length === 2) {
                         var datanode = datanodeConf[0];
-                        var ruleTypeText = datanodeConf[1]; 
-                    }
-                    else {
+                        var ruleTypeText = datanodeConf[1];
+                    } else {
                         var datanode = '';
                         var ruleTypeText = datanodeConf[0];
                     }
@@ -166,9 +164,8 @@ function DatanodeConfig() {
                         title: selectedConfig.tip
                     }).appendTo(ruleValueContent);
                 }
-            ruleValueContent.val(selectedConfig.default);
-            }
-            else if (value === 'int') {
+                ruleValueContent.val(selectedConfig.default);
+            } else if (value === 'int') {
                 ruleValueContent = $('<input />', {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
@@ -177,8 +174,7 @@ function DatanodeConfig() {
                     placeholder: selectedConfig.default,
                     title: selectedConfig.tip
                 })
-            }
-            else if (value === 'password') {
+            } else if (value === 'password') {
                 ruleValueContent = $('<input />', {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
@@ -186,8 +182,7 @@ function DatanodeConfig() {
                     placeholder: selectedConfig.default,
                     title: selectedConfig.tip
                 })
-            }
-            else if (value === '') {
+            } else if (value === '') {
                 ruleValueContent = $('<input />', {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
@@ -241,12 +236,11 @@ function DatanodeConfig() {
         script += ruleLines.join(',');
         script += '])';
         script = encodeURIComponent(script);
-        
+
         scriptExecutor.run(script, function(res) {
             if (res.resultCode === '0') {
                 $('#text-dn-config-rule-saved').attr('style', '');
-            }
-            else {
+            } else {
                 alert(res.msg);
             }
         })
@@ -364,9 +358,8 @@ function ControllerConfig() {
                         title: configs[selected].tip
                     }).appendTo(ruleValueContent);
                 }
-            ruleValueContent.val(configs[selected].default);
-            }
-            else if (value === 'int') {
+                ruleValueContent.val(configs[selected].default);
+            } else if (value === 'int') {
                 ruleValueContent = $('<input />', {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
@@ -375,8 +368,7 @@ function ControllerConfig() {
                     placeholder: configs[selected].default,
                     title: configs[selected].tip
                 })
-            }
-            else if (value === 'password') {
+            } else if (value === 'password') {
                 ruleValueContent = $('<input />', {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
@@ -384,8 +376,7 @@ function ControllerConfig() {
                     placeholder: configs[selected].default,
                     title: configs[selected].tip
                 })
-            }
-            else if (value === '') {
+            } else if (value === '') {
                 ruleValueContent = $('<input />', {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
@@ -410,7 +401,7 @@ function ControllerConfig() {
         //     ruleData[ruleId].deleted = true;
         // });
 
-        ruleData.push({ elem: newRule });//, deleted: false })
+        ruleData.push({ elem: newRule }); //, deleted: false })
         newRule.appendTo($('#cnt-config-rule-list'));
     }
 
@@ -441,8 +432,7 @@ function ControllerConfig() {
         scriptExecutor.run(script, function(res) {
             if (res.resultCode === '0') {
                 $('#text-cnt-config-rule-saved').attr('style', '');
-            }
-            else {
+            } else {
                 alert(res.msg);
             }
         })
@@ -483,13 +473,12 @@ function NodesSetup() {
                 }
                 genNodeTable();
                 if (existingAgents.length > 0)
-                    useExistingAgent();    // default 'new agent' not checked
+                    useExistingAgent(); // default 'new agent' not checked
                 else {
                     newAgentInput.attr('checked', 'checked');
                     useNewAgent();
                 }
-            }
-            else {
+            } else {
                 alert(res.msg)
             }
         });
@@ -543,7 +532,7 @@ function NodesSetup() {
                 { name: 'Host', type: 'text' },
                 { name: 'Port', type: 'number' },
                 { name: 'Alias', type: 'text' },
-                { name: 'Mode', type: 'select', items: [{ name: 'agent' }, { name: 'datanode'}], valueField: 'name', textField: 'name' },
+                { name: 'Mode', type: 'select', items: [{ name: 'agent' }, { name: 'datanode' }], valueField: 'name', textField: 'name' },
                 { type: 'control' }
             ]
         });
@@ -645,8 +634,7 @@ function NodesSetup() {
         scriptExecutor.run(script, function(res) {
             if (res.resultCode === '0') {
                 $('#text-datanodes-saved').attr('style', '');
-            }
-            else {
+            } else {
                 alert(res.msg);
             }
         })
@@ -659,7 +647,7 @@ function NodesSetup() {
             class: 'form-control',
             id: 'batch-add-agent-site',
             type: 'text',
-            placeholder: 'AgentNode (host:port:alias)',
+            placeholder: 'host:port:alias',
             title: 'e.g. localhost:8800:agent1'
         });
         agentContent.appendTo(agentWrap);
