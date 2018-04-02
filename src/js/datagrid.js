@@ -42,7 +42,7 @@ DolphinGrid.prototype = {
         if (!cols) {
             cols = [];
             if (isVector)
-                cols.push({ name: 'offset', title: 'offset', type: 'text'})
+                cols.push({ name: 'offset', title: 'offset', type: 'text' })
             for (var keyname in datalist[0]) {
                 if (isVector && keyname === 'offset')
                     continue;
@@ -56,8 +56,9 @@ DolphinGrid.prototype = {
             paging: true,
             pageLoading: true,
             pageSize: 20,
+            resizing: true,
             pageIndex: 1,
-            pageButtonCount :10,
+            pageButtonCount: 10,
             data: datalist,
             fields: cols
         }
