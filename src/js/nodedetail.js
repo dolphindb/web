@@ -366,10 +366,15 @@ function buildNode(jsonLst, dataform) {
         }
 
         var node = { "a_attr": obj, "li_attr": obj, "id": obj.name, "icon": "jstree-file" };
-        if (obj.form === "SCALAR" || obj.form==="PAIR")
-            node.text = obj.name + showtype + " [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]";
-        else
+        if (obj.form === "SCALAR" || obj.form === "PAIR") {
+            node.text = obj.name + showtype;
+            var scriptExecutor = new DatanodeServer(wa_url);
+            var dolphindbObj = new DolphinEntity(scriptExecutor.runSync(obj.name));
+                node.text = node.text + " : " + dolphindbObj.toScalar();
+        }
+        else {
             node.text = obj.name + showtype + obj.rows + " rows [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]";
+        }   
         t.push(node);
     });
     var subtree = {

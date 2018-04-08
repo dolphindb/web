@@ -39,7 +39,7 @@ function detectUsers() {
 }
 
 function cacheControllerIp(url) {
-    if (localStorage.getItem("dolphindb_controller_ip")) return;
+    if (localStorage.getItem("dolphindb_controller_ip") === null) return;
     var p = {
         "sessionID": SESSION_ID,
         "functionName": "getServerAddressByHost",

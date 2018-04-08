@@ -57,6 +57,15 @@ DatanodeServer.prototype = {
             }]
         };
         CallWebApi(this._url, p, succallback, failcallback);
+    },
+
+    run: function (script,succallback) {
+        var exec = new CodeExecutor(this._url);
+        exec.run(script, succallback);
+    },
+    runSync: function (script) {
+        var exec = new CodeExecutor(this._url);
+        return exec.runSync(script);
     }
 }
 
