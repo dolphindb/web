@@ -77,5 +77,14 @@ var AgentServer = function (url) {
 var ControllerServer = function (url) {
     this._url = url;
 }
+ControllerServer.prototype = {
+    getDBIdByTabletChunk: function (alias, chunkId, succallback, failcallback) {
+        var exec = new CodeExecutor(this._url);
+        exec.run("rpc('" + alias + "',getDBIdByTabletChunk,'" + chunkId + "')",succallback);
+    },
+    getTablesByTabletChunk: function (alias,chunkId, succallback, failcallback) {
+        var exec = new CodeExecutor(this._url);
+        exec.run("rpc('" + alias + "',getTablesByTabletChunk,'" + chunkId + "')",succallback);    }
+}
 
 
