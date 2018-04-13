@@ -132,9 +132,8 @@ var ServerObject = function (sites) {
     this.getAlias = function () {
         return svrArr[2];
     }
-
-
 }
+
 //==================================================String========================================
 String.prototype.trimEnd = function(c)  
 {  

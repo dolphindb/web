@@ -22,7 +22,8 @@ $(function() {
     $("#txtFilter").val(localStorage.getItem(filterStorageId));
     cacheControllerIp(wa_url);
     GetLocalData(wa_url);
-    LoadTable(NODE_LIST);
+    require(["js/clusterNodeManager"],function(){LoadTable(NODE_LIST);});
+    
 });
 
 function detectUsers() {
@@ -107,10 +108,8 @@ function isEqualIPAddress(addr1, addr2, mask) {
         res2.push(parseInt(addr2[i]) & parseInt(mask[i]));
     }
     if (res1.join(".") == res2.join(".")) {
-        console.log("same net area");
         return true;
     } else {
-        console.log("different net area");
         return false;
     }
 }
@@ -188,11 +187,12 @@ function LoadTable(nodeList) {
                 sorting: '',
                 template: function(site, rowObject) {
                     if (rowObject.state === 1) {
-                        var nodeHost = getDatanodeApiUrl(getControllerIp(), rowObject);
-                        r = '<a href=javascript:window.open("nodedetail.html?site=' + nodeHost + ':' + rowObject.port + ':' + rowObject.site.split(':')[2] + '");>' + rowObject.site.split(':')[2] + '</a>';
+                        var nodeManager = new ClusterNodeManager();
+                        var nodeHost = nodeManager.getNodeApiUrl(rowObject.name);
+                        r = '<a href=javascript:window.open("nodedetail.html?site=' + nodeHost + ':' + rowObject.port + ':' + rowObject.name + '");>' + rowObject.name + '</a>';
                         return r;
                     } else {
-                        return rowObject.site.split(':')[2];
+                        return rowObject.name;
                     }
                 },
                 sortFilter: function(d) {
@@ -551,7 +551,12 @@ function connect_server_success(result) {
         if (data.length <= 0) return;
 
         ALL_NODE = VectorArray2Table(data[0].value);
-
+        require(["js/clusterNodeManager"],function(){
+            var nodeManager = new ClusterNodeManager();
+            nodeManager.setCache(ALL_NODE);
+        });
+        
+       
         AGENT_LIST = ALL_NODE.filter(function(x) {
             return x.mode === 1;
         });
@@ -621,7 +626,7 @@ $("#btn_run").click(function() {
             timeout: 1000,
             complete: function(XMLHttpRequest, status) {
                 if (status === 'timeout') {
-                    console.log('timeout');
+                    console.log('startDataNode timeout');
                 }
             }
         }
