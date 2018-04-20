@@ -43,6 +43,7 @@ function DatanodeConfig() {
             configs: [
                 { name: 'allowVolumeCreation', value: [0, 1], default: '1', tip: 'Whether to automatically create the storage locations in the distributed file system if the parameter volumes is not specified. The default value is 1.' },
                 { name: 'volumes', value: '', default: '', tip: 'The folder where data chunks are saved in the distributed file system on a data node.' },
+                { name: 'diskIOConcurrencyLevel', value: 'int', default: '1', tip: 'Indicating how many threads can read from/write to disks concurrently.' }
             ]
         },
         {
@@ -55,7 +56,10 @@ function DatanodeConfig() {
                 { name: 'maxMsgNumPerBlock', value: 'int', default: '1024', tip: 'The maximum number of messages in a message block when a server publishes or combines messages.' },
                 { name: 'subExecutorPooling', value: [0, 1], default: 0, tip: 'Whether the streaming executor is in pooling mode.' },
                 { name: 'persistenceDir', value: '', default: '', tip: 'The directory where a streaming table is persisted.' },
-                { name: 'persistenceWorkerNum', value: 'int', default: '0', tip: 'The number of workers to persist streaming tables.' }
+                { name: 'persistenceWorkerNum', value: 'int', default: '0', tip: 'The number of workers to persist streaming tables.' },
+                { name: 'maxPersistenceQueueDepth', value: 'int', default: '10000000', tip: 'The limit of message numbers for each queue of persistence workers.' },
+                { name: 'maxSubQueueDepth', value: 'int', default: '10000000', tip: 'The limit of message numbers for each queue of subscription executors.' },
+                { name: 'maxPubQueueDepthPerSite', value: 'int', default: '10000000', tip: 'The limit of message numbers for publishing queue to each client site.' }
             ]
         }
     ]
@@ -103,6 +107,7 @@ function DatanodeConfig() {
 
     function addRule(datanode, ruleType, ruleValue) {
         $('#text-dn-config-rule-saved').attr('style', 'display: none;');
+        $('#btn-save-dn-config-rule').attr('disabled', false);
         var ruleId = ruleNumber++;
         var newRule = $('<div />', {
             class: 'form-group',
@@ -118,7 +123,15 @@ function DatanodeConfig() {
             placeholder: 'e.g. dn1 or dn% or empty'
         });
         if (datanode)
-            datanodeInput.val(datanode)
+            datanodeInput.val(datanode);
+        datanodeInput.keyup(function() {
+            $('#text-cnt-config-rule-saved').attr('style', 'display: none');
+            $('#btn-save-dn-config-rule').attr('disabled', false);
+        });
+        datanodeInput.change(function() {
+            $('#text-cnt-config-rule-saved').attr('style', 'display: none');
+            $('#btn-save-dn-config-rule').attr('disabled', false);
+        });
         datanodeInput.appendTo(datanodeWrap);
         datanodeWrap.appendTo(newRule);
 
@@ -191,8 +204,17 @@ function DatanodeConfig() {
                     title: selectedConfig.tip
                 })
             }
-            if (ruleValue)
-                ruleValueContent.val(ruleValue)
+            if (ruleValue) {
+                ruleValueContent.val(ruleValue);
+            }
+            ruleValueContent.change(function() {
+                $('#text-cnt-config-rule-saved').attr('style', 'display: none');
+                $('#btn-save-dn-config-rule').attr('disabled', false);
+            });
+            ruleValueContent.keyup(function() {
+                $('#text-cnt-config-rule-saved').attr('style', 'display: none');
+                $('#btn-save-dn-config-rule').attr('disabled', false);
+            })
             ruleValueContent.appendTo(ruleValueWrap);
             ruleValueWrap.appendTo(newRule);
         }
@@ -203,6 +225,7 @@ function DatanodeConfig() {
         var btnRemove = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-minus"></span></button>').appendTo(newRule);
         btnRemove.click(function() {
             $('#text-dn-config-rule-saved').attr('style', 'display: none;');
+            $('#btn-save-dn-config-rule').attr('disabled', false);
             $('#datanode-config-' + ruleId).remove();
             ruleData[ruleId].deleted = true;
         })
@@ -240,6 +263,7 @@ function DatanodeConfig() {
         scriptExecutor.run(script, function(res) {
             if (res.resultCode === '0') {
                 $('#text-dn-config-rule-saved').attr('style', '');
+                $('#btn-save-dn-config-rule').attr('disabled', true);
             } else {
                 alert(res.msg);
             }
@@ -391,6 +415,14 @@ function ControllerConfig() {
             }
             if (ruleValue)
                 ruleValueContent.val(ruleValue)
+            ruleValueContent.keyup(function() {
+                $('#text-cnt-config-rule-saved').attr('style', 'display: none');
+                $('#btn-save-cnt-config-rule').attr('disabled', false);
+            });
+            ruleValueContent.change(function() {
+                $('#text-cnt-config-rule-saved').attr('style', 'display: none');
+                $('#btn-save-cnt-config-rule').attr('disabled', false);
+            });
             ruleValueContent.appendTo(ruleValueWrap);
             ruleValueWrap.appendTo(newRule);
         }
@@ -436,6 +468,7 @@ function ControllerConfig() {
         scriptExecutor.run(script, function(res) {
             if (res.resultCode === '0') {
                 $('#text-cnt-config-rule-saved').attr('style', '');
+                $('#btn-save-cnt-config-rule').attr('disabled', true);
             } else {
                 alert(res.msg);
             }
@@ -542,7 +575,16 @@ function NodesSetup() {
                 { name: 'Alias', type: 'text' },
                 { name: 'Mode', type: 'select', items: [{ name: 'agent' }, { name: 'datanode' }], valueField: 'name', textField: 'name' },
                 { type: 'control' }
-            ]
+            ],
+
+            insertTemplate: function() {
+                var $insertControl = jsGrid.fields.select.prototype.insertTemplate.call(this);
+                $insertControl.on('change', function() {
+                    $('#text-datanodes-saved').attr('style', 'display: none');
+                    $('#btn-save-datanodes').attr('disabled', false);
+                });
+                //return $insertControl;
+            }
         });
     }
 
@@ -642,6 +684,7 @@ function NodesSetup() {
         scriptExecutor.run(script, function(res) {
             if (res.resultCode === '0') {
                 $('#text-datanodes-saved').attr('style', '');
+                $('#btn-save-datanodes').attr('disabled', true);
             } else {
                 alert(res.msg);
             }
