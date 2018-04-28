@@ -16,3 +16,8 @@
 #text-datanodes-saved {
 	color: #999;
 }
+
+.form-group.required .control-label:after {
+	content: '*';
+	color: red;
+}
