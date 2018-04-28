@@ -436,6 +436,15 @@ function LoadTable(nodeList) {
                     return fmoney((diskWirtePerMinute / (1024 * 1024)), 1) + " MB";
                 }
             }, {
+                text: 'LastMinuteReadVolume',
+                key: 'lastMinuteReadVolume',
+                remind: 'the size of disk reading last minute',
+                sorting: '',
+                width: 90,
+                template: function(lastMinuteReadVolume, rowObject) {
+                    return fmoney((lastMinuteReadVolume / (1024 * 1024)), 1) + " MB";
+                }
+            },{
                 text: 'Workers',
                 key: 'workerNum',
                 remind: 'number of job workers',
