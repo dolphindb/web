@@ -7,22 +7,26 @@ var CTL_LIST = [];
 var SESSION_ID = "0";
 var grid = document.querySelector('table[grid-manager="grid1"]');
 
-var filterStorageId = "dolphindb_default_gridfilter"
+var filterStorageId = "dolphindb_default_gridfilter";
 
-
-$(function() {
+$(document).ready(function() {
     wa_url = "http://" + window.location.host;
-
-    $.cookie('ck_ag_controller_url', wa_url);
-
-    $.cookie("language_file", "js/lang.en.js");
-
-    //detectUsers()
-
-    $("#txtFilter").val(localStorage.getItem(filterStorageId));
-    cacheControllerIp(wa_url);
-    GetLocalData(wa_url);
-    require(["js/clusterNodeManager"],function(){LoadTable(NODE_LIST);});
+    
+        $.cookie('ck_ag_controller_url', wa_url);
+    
+        $.cookie("language_file", "js/lang.en.js");
+    
+        //detectUsers()
+    
+        $("#txtFilter").val(localStorage.getItem(filterStorageId));
+    
+        require(["js/clusterNodeManager"],function(){
+            cacheControllerIp(wa_url);
+            GetLocalData(wa_url);
+            LoadTable(NODE_LIST);
+            setTimeout(hideCtlSel, 10);
+            var localSet = grid.GM('getLocalStorage');
+        });
     
 });
 
@@ -750,11 +754,7 @@ $("#txtFilter").keypress(function(e) {
 
 
 //================================================================page event==========================================
-$(document).ready(function() {
-    setTimeout(hideCtlSel, 10);
 
-    var localSet = grid.GM('getLocalStorage');
-});
 
 $("#btn_collapse").bind("click", function() {
     var span = $("#icon_collapse");

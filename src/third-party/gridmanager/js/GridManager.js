@@ -1978,7 +1978,7 @@
                         if (settings.supportSorting) {
 
                             var cacheSortData = JSON.parse(localStorage.getItem("dolphindb_gridsorting"));//LINL:20171127
-                            console.log("getSortingData", cacheSortData);
+                            
                             if (cacheSortData) {
                                 settings.sortData = cacheSortData;
                             }
