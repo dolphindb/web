@@ -149,19 +149,20 @@
        
         var pgSize = 20;
         var nodeSite = new ServerObject(site);
-       
+    
         var script = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "','" + tablename + "',0," + pgSize + ")";
-       
+      
         var nodeUrl = nodeSite.getHttpServer();
         var scriptExecutor = new CodeExecutor(nodeUrl);
 
-        var totalcount = getTableSize(nodeUrl, chunkid, version, tablename);
-        console.log("script", script);
+        var totalcount = getTableSize(sites[0], nodeUrl, chunkid, version, tablename);
+    
         scriptExecutor.run(script, function (json) {
         if (json.resultCode == 0) {
             var d = DolphinResult2Grid(json);
             var grid = $('#jsgrid1');
             var dg = new DolphinGrid(grid, {
+                height:$(window).height(),
                 data: d,
                 itemsCount: totalcount,
                 pageSize: pgSize,
@@ -170,8 +171,7 @@
                     loadData: function (filter) {
                         var deferred = $.Deferred();
                         var s = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "','" + tablename + "'," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
-                    
-                        getTableData(s, function (g) {
+                            getTableData(s, function (g) {
                             var d = DolphinResult2Grid(g);
                             deferred.resolve({ data: d, itemsCount: totalcount });
                         }, function (e) {
@@ -188,8 +188,8 @@
         }
         });
     }
-    var getTableSize = function (nodeUrl,chunk, version,tableName) {
-        var script = "getTablePartitionSizeAndPath(chunkMeta('" + curPath + "','" + chunk + "', true, " + version + ", -1, ,-1), '" + dfsPath + "', '" + tableName + "')";
+    var getTableSize = function (alias, nodeUrl,chunk, version,tableName) {
+        var script = "rpc('" + alias + "', getTablePartitionSizeAndPath,chunkMeta('" + curPath + "','" + chunk + "', true, " + version + ", -1, ,-1), '" + dfsPath + "', '" + tableName + "')";
         var scriptExecutor = new CodeExecutor(nodeUrl);
         var re = scriptExecutor.runSync(script);
         if (re.resultCode === "0") {
