@@ -211,9 +211,12 @@ var bindGrid = function (tableJson) {
         itemTemplate: function (value, item) {
             var re = "";
             if (item.filetype == 1) {
-                if (item.chunks != "") {
+                if (item.chunks != "" && item.sites != "") {
                     re = "<a id='btnShowTabletData' onclick='showTabletData(this)' value='" + item.chunks + "' site='" + item.sites + "' partition='/" + item.filename + "'><span class='glyphicon glyphicon-search' title='click to show chunk data'></span></a>";
+                }else{
+                    re = "<span style='color:red'>the data is not distributed to any datanodes.</span>";
                 }
+
             }
             return re;
         }
@@ -228,15 +231,13 @@ var showTabletData = function (e) {
     var partition = $(e).attr("partition");
     var nodesite = sitesstr.split(":")[0];
     var version = sitesstr.split(":")[1];
-    var site = getSiteByAlias(nodesite);
-    var datanode = new ServerObject(site);
-    var dnServer = new DatanodeServer(datanode.getHttpServer());
-    dnServer.getDBIdByTabletChunk(chunkId, function (re) {
+    var ctlServer= new ControllerServer(wa_url);
+    ctlServer.getDBIdByTabletChunk(nodesite,chunkId, function (re) {
         console.log("re",re);
         var reEntity = new DolphinEntity(re);
         var dbid = reEntity.toScalar();
         var tableids = "";
-        dnServer.getTablesByTabletChunk(chunkId, function (re1) {
+        ctlServer.getTablesByTabletChunk(nodesite,chunkId, function (re1) {
             console.log("re1", re1);
             reEntity = new DolphinEntity(re1);
             var tables = reEntity.toVector();

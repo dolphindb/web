@@ -7,22 +7,27 @@ var CTL_LIST = [];
 var SESSION_ID = "0";
 var grid = document.querySelector('table[grid-manager="grid1"]');
 
-var filterStorageId = "dolphindb_default_gridfilter"
+var filterStorageId = "dolphindb_default_gridfilter";
 
-
-$(function() {
+$(document).ready(function() {
     wa_url = "http://" + window.location.host;
-
-    $.cookie('ck_ag_controller_url', wa_url);
-
-    $.cookie("language_file", "js/lang.en.js");
-
-    //detectUsers()
-
-    $("#txtFilter").val(localStorage.getItem(filterStorageId));
-    cacheControllerIp(wa_url);
-    GetLocalData(wa_url);
-    LoadTable(NODE_LIST);
+    
+        $.cookie('ck_ag_controller_url', wa_url);
+    
+        $.cookie("language_file", "js/lang.en.js");
+    
+        //detectUsers()
+    
+        $("#txtFilter").val(localStorage.getItem(filterStorageId));
+    
+        require(["js/clusterNodeManager"],function(){
+            cacheControllerIp(wa_url);
+            GetLocalData(wa_url);
+            LoadTable(NODE_LIST);
+            setTimeout(hideCtlSel, 10);
+            var localSet = grid.GM('getLocalStorage');
+        });
+    
 });
 
 function detectUsers() {
@@ -107,10 +112,8 @@ function isEqualIPAddress(addr1, addr2, mask) {
         res2.push(parseInt(addr2[i]) & parseInt(mask[i]));
     }
     if (res1.join(".") == res2.join(".")) {
-        console.log("same net area");
         return true;
     } else {
-        console.log("different net area");
         return false;
     }
 }
@@ -188,11 +191,12 @@ function LoadTable(nodeList) {
                 sorting: '',
                 template: function(site, rowObject) {
                     if (rowObject.state === 1) {
-                        var nodeHost = getDatanodeApiUrl(getControllerIp(), rowObject);
-                        r = '<a href=javascript:window.open("nodedetail.html?site=' + nodeHost + ':' + rowObject.port + ':' + rowObject.site.split(':')[2] + '");>' + rowObject.site.split(':')[2] + '</a>';
+                        var nodeManager = new ClusterNodeManager();
+                        var nodeHost = nodeManager.getNodeApiUrl(rowObject.name);
+                        r = '<a href=javascript:window.open("nodedetail.html?site=' + nodeHost + ':' + rowObject.port + ':' + rowObject.name + '");>' + rowObject.name + '</a>';
                         return r;
                     } else {
-                        return rowObject.site.split(':')[2];
+                        return rowObject.name;
                     }
                 },
                 sortFilter: function(d) {
@@ -435,7 +439,11 @@ function LoadTable(nodeList) {
                 template: function(diskWirtePerMinute, rowObject) {
                     return fmoney((diskWirtePerMinute / (1024 * 1024)), 1) + " MB";
                 }
+<<<<<<< HEAD
             }, {
+=======
+            },  {
+>>>>>>> heads/origin/release/product
                 text: 'LastMinuteReadVolume',
                 key: 'lastMinuteReadVolume',
                 remind: 'the size of disk reading last minute',
@@ -444,7 +452,11 @@ function LoadTable(nodeList) {
                 template: function(lastMinuteReadVolume, rowObject) {
                     return fmoney((lastMinuteReadVolume / (1024 * 1024)), 1) + " MB";
                 }
+<<<<<<< HEAD
             },{
+=======
+            },  {
+>>>>>>> heads/origin/release/product
                 text: 'Workers',
                 key: 'workerNum',
                 remind: 'number of job workers',
@@ -560,7 +572,12 @@ function connect_server_success(result) {
         if (data.length <= 0) return;
 
         ALL_NODE = VectorArray2Table(data[0].value);
-
+        require(["js/clusterNodeManager"],function(){
+            var nodeManager = new ClusterNodeManager();
+            nodeManager.setCache(ALL_NODE);
+        });
+        
+       
         AGENT_LIST = ALL_NODE.filter(function(x) {
             return x.mode === 1;
         });
@@ -630,7 +647,7 @@ $("#btn_run").click(function() {
             timeout: 1000,
             complete: function(XMLHttpRequest, status) {
                 if (status === 'timeout') {
-                    console.log('timeout');
+                    console.log('startDataNode timeout');
                 }
             }
         }
@@ -745,11 +762,7 @@ $("#txtFilter").keypress(function(e) {
 
 
 //================================================================page event==========================================
-$(document).ready(function() {
-    setTimeout(hideCtlSel, 10);
 
-    var localSet = grid.GM('getLocalStorage');
-});
 
 $("#btn_collapse").bind("click", function() {
     var span = $("#icon_collapse");

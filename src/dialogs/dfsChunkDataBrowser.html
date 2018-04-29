@@ -18,7 +18,7 @@
 		<div>
 			<div class="col-sm-3 col-md-3 col-lg-2">
               <div class="list-group" id="lst_tables">
-                  <a class="list-group-item" style="color: #777;cursor: not-allowed;background-color: #eee;">partitioned tables</a>
+                  <a class="list-group-item" style="color: #777;cursor: not-allowed;background-color: #eee;">Partitioned Tables</a>
               </div>
 			</div>
 			<div class="col-sm-9 col-md-9 col-lg-10">
@@ -43,6 +43,7 @@
 </html>
 
 <script>
+    var wa_url = "http://" + window.location.host;
     var tables = ""; //TB1
     var dbPath = ""; // dfs://DFS_T_HIER_RANGE_VALUE
     var chunkid = ""; ///DFS_T_HIER_RANGE_VALUE/1_100000/A
@@ -67,7 +68,7 @@
         var tables = tbs.split(",");
 
         for (var i = 0; i < tables.length;i++) {
-            $("#lst_tables").append("<a class='list-group-item' onclick='btnTableClick(this)' tablename='" + tables[i] + "'>" + tables[i] + "</a>");
+            $("#lst_tables").append("<a class='list-group-item' href='###' onclick='btnTableClick(this)' tablename='" + tables[i] + "'>" + tables[i] + "</a>");
         }
     }
 
@@ -86,7 +87,7 @@
         var script = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" + partitionPath + "','" + tablename + "',0," + pgSize + ")";
 
         var nodeUrl = nodeSite.getHttpServer();
-        var scriptExecutor = new CodeExecutor(nodeUrl);
+        var scriptExecutor = new CodeExecutor(wa_url);
 
         var totalcount = getTableSize(nodeUrl, chunkid, version, tablename);
         console.log("script", script);
@@ -95,6 +96,7 @@
             var d = DolphinResult2Grid(json);
             var grid = $('#jsgrid1');
             var dg = new DolphinGrid(grid, {
+                height:$(window).height(),
                 data: d,
                 itemsCount: totalcount,
                 pageSize: pgSize,
@@ -122,8 +124,8 @@
     }
     var getTableSize = function (nodeUrl, chunk, version, tableName) {
         var svr = new ServerObject(site);
-        var script = "getTablePartitionSizeAndPath(chunkMeta('" + curPath + "','" + chunk + "', true, " + version + ", -1, ,-1), '" + dbPath + "', '" + tableName + "')";
-        var scriptExecutor = new CodeExecutor(svr.getHttpServer());
+        var script = "rpc('" + svr.getAlias() + "',getTablePartitionSizeAndPath,chunkMeta('" + curPath + "','" + chunk + "', true, " + version + ", -1, ,-1), '" + dbPath + "', '" + tableName + "')";
+        var scriptExecutor = new CodeExecutor(wa_url);
         console.log(script);
         var re = scriptExecutor.runSync(script);
         if (re.resultCode === "0") {
@@ -136,8 +138,7 @@
     }
 
     var getTableData = function (script, sucCallback) {
-        var svr = new ServerObject(site);
-        var scriptExecutor = new CodeExecutor(svr.getHttpServer());
+        var scriptExecutor = new CodeExecutor(wa_url);
         scriptExecutor.run(script, sucCallback);
     };
 </script>
