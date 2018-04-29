@@ -149,12 +149,9 @@
        
         var pgSize = 20;
         var nodeSite = new ServerObject(site);
-        var isLocal = $.inArray(nodeSite.getAlias(), sites)
-
+       
         var script = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "','" + tablename + "',0," + pgSize + ")";
-        if (isLocal>=0) {
-            script = "readTabletChunk('" + chunkid + "', '" + dbPath + "', '" + partitionPath + "', '" + tablename + "', 0, " + pgSize + ")";
-        }
+       
         var nodeUrl = nodeSite.getHttpServer();
         var scriptExecutor = new CodeExecutor(nodeUrl);
 
@@ -173,9 +170,7 @@
                     loadData: function (filter) {
                         var deferred = $.Deferred();
                         var s = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "','" + tablename + "'," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
-                        if (isLocal) {
-                            s = "readTabletChunk('" + chunkid + "', '" + dbPath + "', '" + partitionPath + "', '" + tablename + "'," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
-                        }
+                    
                         getTableData(s, function (g) {
                             var d = DolphinResult2Grid(g);
                             deferred.resolve({ data: d, itemsCount: totalcount });
