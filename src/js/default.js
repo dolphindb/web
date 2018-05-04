@@ -439,11 +439,7 @@ function LoadTable(nodeList) {
                 template: function(diskWirtePerMinute, rowObject) {
                     return fmoney((diskWirtePerMinute / (1024 * 1024)), 1) + " MB";
                 }
-<<<<<<< HEAD
             }, {
-=======
-            },  {
->>>>>>> heads/origin/release/product
                 text: 'LastMinuteReadVolume',
                 key: 'lastMinuteReadVolume',
                 remind: 'the size of disk reading last minute',
@@ -452,11 +448,7 @@ function LoadTable(nodeList) {
                 template: function(lastMinuteReadVolume, rowObject) {
                     return fmoney((lastMinuteReadVolume / (1024 * 1024)), 1) + " MB";
                 }
-<<<<<<< HEAD
             },{
-=======
-            },  {
->>>>>>> heads/origin/release/product
                 text: 'Workers',
                 key: 'workerNum',
                 remind: 'number of job workers',
