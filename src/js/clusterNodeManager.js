@@ -18,7 +18,9 @@ var ClusterNodeManager = function () {
 //     };
 
     this.getCache = function () {
-        return JSON.parse(localStorage.getItem("dolphinDB_ClusterNodeList"));
+        if(localStorage.getItem("dolphinDB_ClusterNodeList")!=null){
+            return JSON.parse(localStorage.getItem("dolphinDB_ClusterNodeList"));
+        }
     };
 
     this.getControllerHost = function () {

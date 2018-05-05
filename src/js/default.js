@@ -564,11 +564,8 @@ function connect_server_success(result) {
         if (data.length <= 0) return;
 
         ALL_NODE = VectorArray2Table(data[0].value);
-        require(["js/clusterNodeManager"],function(){
-            var nodeManager = new ClusterNodeManager();
-            nodeManager.setCache(ALL_NODE);
-        });
-        
+        var nodeManager = new ClusterNodeManager();
+        nodeManager.setCache(ALL_NODE); 
        
         AGENT_LIST = ALL_NODE.filter(function(x) {
             return x.mode === 1;
