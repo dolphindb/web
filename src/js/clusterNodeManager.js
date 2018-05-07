@@ -42,7 +42,7 @@ var ClusterNodeManager = function () {
         if (isEqualIPAddress(nodeHost, addrHost, "255.255.0.0") === false) {
             var ethArr = rowObject.ethernetInfo.split(";");
             $(ethArr).each(function(i, e) {
-                if (isEqualIPAddress(addrHost, e, "255.255.0.0")) {
+                if (isInnerIP(e)==false) {
                     nodeHost = e;
                 }
             });
