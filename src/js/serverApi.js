@@ -500,17 +500,20 @@ function NodesSetup() {
     var existingDatanodes = [];
 
     function loadDatanodes() {
-        scriptExecutor.run("getClusterPerf()", function(res) {
+
+        scriptExecutor.run("getClusterNodes()", function(res) {
             existingAgents = [];
             existingDatanodes = [];
             if (res.resultCode === '0') {
-                var nodes = res.object[0].value[2].value;
-                var modes = res.object[0].value[3].value;
+                var nodes = res.object[0].value;
                 for (var i = 0, len = nodes.length; i < len; i++) {
-                    if (modes[i] === 1)
-                        existingAgents.push(nodes[i]);
-                    else if (modes[i] === 0)
-                        existingDatanodes.push(nodes[i]);
+                    var site = nodes[i].split(",")[0];
+                    var mode = nodes[i].split(",")[1];
+
+                    if (mode === "agent")
+                        existingAgents.push(site);
+                    else if (mode === "datanode")
+                        existingDatanodes.push(site);
                 }
                 genNodeTable();
                 if (existingAgents.length > 0)
@@ -527,6 +530,8 @@ function NodesSetup() {
         for (var i = 0, len = datanodes.length; i < len; i++)
             datanodes[i].elem.remove();
         datanodes = [];
+
+        $('#btn-save-datanodes').attr('disabled', false);
     }
 
     function genNodeTable() {
