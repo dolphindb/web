@@ -99,6 +99,7 @@ function DatanodeConfig() {
                                 break;
                             }
                         }
+                        addRule(datanode, ruleTypeText, config[1]);
                     }
                 }
             }
@@ -501,7 +502,7 @@ function NodesSetup() {
 
     function loadDatanodes() {
 
-        scriptExecutor.run("getClusterNodeCfg()", function(res) {
+        scriptExecutor.run("getClusterNodesCfg()", function(res) {
             existingAgents = [];
             existingDatanodes = [];
             if (res.resultCode === '0') {
