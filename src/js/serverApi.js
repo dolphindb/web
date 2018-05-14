@@ -64,6 +64,20 @@ function DatanodeConfig() {
         }
     ]
 
+    function checkRuleExists(rule) {
+        for (var j = 0; j< configs.length; j++) {
+            var configCategory = configs[j].configs;
+            for (var k = 0; k < configCategory.length; k++) {
+                if (configCategory[k].name == rule) {
+                    return;
+                }
+            }
+        }
+        if (configs[4] === undefined)
+            configs.push({ configCategory: 'Unknown',configs:[] })
+        configs[4].configs.push({ name: rule, value: '', default: '', tip: '' });
+    }
+
     function loadRules() {
         ruleNumber = 0;
         for (var i = 0, len = ruleData.length; i < len; i++)
@@ -90,6 +104,8 @@ function DatanodeConfig() {
                         var datanode = '';
                         var ruleTypeText = datanodeConf[0];
                     }
+
+                    checkRuleExists(ruleTypeText);
 
                     for (var j = 0, jlen = configs.length; j < jlen; j++) {
                         var configCategory = configs[j].configs;
