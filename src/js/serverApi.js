@@ -3,6 +3,8 @@ function DatanodeConfig() {
     var controller = "http://" + window.location.host;
     var scriptExecutor = new CodeExecutor(controller);
     var ruleData = [];
+
+    var UNKNOWN_INDEX = 4;
     var configs = [
         // {
         //     configCategory: 'Home',
@@ -64,6 +66,20 @@ function DatanodeConfig() {
         }
     ]
 
+    function checkRuleExists(rule) {
+        for (var j = 0; j < configs.length; j++) {
+            var configCategory = configs[j].configs;
+            for (var k = 0; k < configCategory.length; k++) {
+                if (configCategory[k].name == rule) {
+                    return;
+                }
+            }
+        }
+        if (configs[UNKNOWN_INDEX] === undefined)
+            configs.push({ configCategory: 'Unknown', configs: [] })
+        configs[UNKNOWN_INDEX].configs.push({ name: rule, value: '', default: '', tip: '' });
+    }
+
     function loadRules() {
         ruleNumber = 0;
         for (var i = 0, len = ruleData.length; i < len; i++)
@@ -90,6 +106,8 @@ function DatanodeConfig() {
                         var datanode = '';
                         var ruleTypeText = datanodeConf[0];
                     }
+
+                    checkRuleExists(ruleTypeText);
 
                     for (var j = 0, jlen = configs.length; j < jlen; j++) {
                         var configCategory = configs[j].configs;
@@ -533,6 +551,7 @@ function NodesSetup() {
         datanodes = [];
 
         $('#btn-save-datanodes').attr('disabled', false);
+        $('#text-datanodes-saved').attr('style', 'display: none');
     }
 
     function genNodeTable() {
