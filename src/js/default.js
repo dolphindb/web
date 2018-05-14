@@ -86,7 +86,7 @@ function getDatanodeApiUrl(controllerIP, rowObject) {
         nodeHost = addrHost.split(':')[0];
     }
     if (isEqualIPAddress(nodeHost, addrHost, "255.255.0.0") === false) {
-        var ethArr = rowObject.ethernetInfo.split(";");
+        var ethArr = rowObject.publicName.split(";");
         $(ethArr).each(function(i, e) {
             if (isInnerIP(e)==false) {
                 nodeHost = e;

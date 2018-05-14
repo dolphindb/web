@@ -501,7 +501,7 @@ function NodesSetup() {
 
     function loadDatanodes() {
 
-        scriptExecutor.run("getClusterNodes()", function(res) {
+        scriptExecutor.run("getClusterNodeCfg()", function(res) {
             existingAgents = [];
             existingDatanodes = [];
             if (res.resultCode === '0') {
