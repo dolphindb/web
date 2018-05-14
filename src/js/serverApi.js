@@ -543,6 +543,9 @@ function NodesSetup() {
         for (var i = 0, len = datanodes.length; i < len; i++)
             datanodes[i].elem.remove();
         datanodes = [];
+
+        $('#btn-save-datanodes').attr('disabled', false);
+        $('#text-datanodes-saved').attr('style', 'display: none');
     }
 
     function genNodeTable() {
