@@ -296,6 +296,17 @@ function DatanodeConfig() {
         if (confirm("This operation will rewrite your datanode config file. Continue saving?"))
             saveRules();
     });
+    $('#btn-apply-dn-config-rule').click(function() {
+        var script = "reloadClusterConfig()";
+        scriptExecutor.run(script, function (res) {
+            if (res.resultCode === '0') {
+                alert("reload configuration success. Restart the datanode to apply new configuration");
+            } else {
+                alert(res.msg);
+            }
+        })
+    });
+    
     $('#btn-close-dn-config-rule').click(function() {
         var container = window.parent;
         container.closeDialog('datanode-config');
@@ -760,6 +771,7 @@ function NodesSetup() {
         if (confirm("This operation will rewrite your cluster.nodes file. Continue saving?"))
             saveDatanodes();
     });
+    
     $('#btn-close-datanodes').click(function() {
         var container = window.parent;
         container.closeDialog('nodes-setup');

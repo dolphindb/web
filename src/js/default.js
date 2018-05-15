@@ -681,19 +681,6 @@ $("#btn_refresh").click(function() {
     LoadTable(NODE_LIST);
 });
 
-$("#btn_reload_config").click(function () {
-    var scriptExecutor = new CodeExecutor(wa_url);
-    var script = "reloadClusterConfig()";
-    scriptExecutor.run(script, function (res) {
-        if (res.resultCode === '0') {
-            alert("Reload configuration success .");
-        } else {
-            alert(res.msg);
-        }
-    })
-});
-
-
 $('#btn-datanode-config').click(function() {
     var divobj = document.getElementById("datanode-config")
     if (!divobj) {
