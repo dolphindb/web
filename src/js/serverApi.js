@@ -117,7 +117,6 @@ function DatanodeConfig() {
                                 break;
                             }
                         }
-                        addRule(datanode, ruleTypeText, config[1]);
                     }
                 }
             }
