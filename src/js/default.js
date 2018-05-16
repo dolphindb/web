@@ -193,7 +193,7 @@ function LoadTable(nodeList) {
                     if (rowObject.state === 1) {
                         var nodeManager = new ClusterNodeManager();
                         var nodeHost = nodeManager.getNodeApiUrl(rowObject.name);
-                        r = '<a href=javascript:window.open("nodedetail.html?site=' + nodeHost + ':' + rowObject.port + ':' + rowObject.name + '");>' + rowObject.name + '</a>';
+                        r = '<a href="###" onclick=javascript:window.open("nodedetail.html?site=' + nodeHost + ':' + rowObject.port + ':' + rowObject.name + '");>' + rowObject.name + '</a>';
                         return r;
                     } else {
                         return rowObject.name;
