@@ -27,6 +27,8 @@ $(document).ready(function() {
             setTimeout(hideCtlSel, 10);
             var localSet = grid.GM('getLocalStorage');
         });
+
+        $("button#btnOpenDFS").removeClass("ui-button");
     
 });
 
@@ -246,12 +248,10 @@ function LoadTable(nodeList) {
                         var agentUrl = getAgentSite(getControllerIp(), rowObject);
                         api_url = agentUrl;
                         ref = agentUrl + '@' + rowObject.site;
-                    } else { //controller
-                        api_url = getControllerIp();
-                        ref = rowObject.site.replace(rowObject.host, getControllerIp()) + '@' + rowObject.site;
-                    }
-                    r += '<a style="padding-left:20px" ref="getPerfLog@' + ref + '" href="javascript:void(0)" onclick="showPerfLog(\'' + api_url + '\',\'' + node_alias + '\')">view</a>';
-                    return r;
+                        r += '<a style="padding-left:20px" ref="getPerfLog@' + ref + '" href="javascript:void(0)" onclick="showPerfLog(\'' + api_url + '\',\'' + node_alias + '\')">view</a>';
+                        return r;
+                    } else
+                        return ""
                 }
             }, {
                 text: 'Conns',
