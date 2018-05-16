@@ -3,6 +3,8 @@ function DatanodeConfig() {
     var controller = "http://" + window.location.host;
     var scriptExecutor = new CodeExecutor(controller);
     var ruleData = [];
+
+    var UNKNOWN_INDEX = 4;
     var configs = [
         // {
         //     configCategory: 'Home',
@@ -65,7 +67,7 @@ function DatanodeConfig() {
     ]
 
     function checkRuleExists(rule) {
-        for (var j = 0; j< configs.length; j++) {
+        for (var j = 0; j < configs.length; j++) {
             var configCategory = configs[j].configs;
             for (var k = 0; k < configCategory.length; k++) {
                 if (configCategory[k].name == rule) {
@@ -73,9 +75,9 @@ function DatanodeConfig() {
                 }
             }
         }
-        if (configs[4] === undefined)
-            configs.push({ configCategory: 'Unknown',configs:[] })
-        configs[4].configs.push({ name: rule, value: '', default: '', tip: '' });
+        if (configs[UNKNOWN_INDEX] === undefined)
+            configs.push({ configCategory: 'Unknown', configs: [] })
+        configs[UNKNOWN_INDEX].configs.push({ name: rule, value: '', default: '', tip: '' });
     }
 
     function loadRules() {
@@ -294,6 +296,17 @@ function DatanodeConfig() {
         if (confirm("This operation will rewrite your datanode config file. Continue saving?"))
             saveRules();
     });
+    $('#btn-apply-dn-config-rule').click(function() {
+        var script = "reloadClusterConfig()";
+        scriptExecutor.run(script, function (res) {
+            if (res.resultCode === '0') {
+                alert("reload configuration success. Restart the datanode to apply new configuration");
+            } else {
+                alert(res.msg);
+            }
+        })
+    });
+    
     $('#btn-close-dn-config-rule').click(function() {
         var container = window.parent;
         container.closeDialog('datanode-config');
@@ -516,17 +529,20 @@ function NodesSetup() {
     var existingDatanodes = [];
 
     function loadDatanodes() {
-        scriptExecutor.run("getClusterPerf()", function(res) {
+
+        scriptExecutor.run("getClusterNodesCfg()", function(res) {
             existingAgents = [];
             existingDatanodes = [];
             if (res.resultCode === '0') {
-                var nodes = res.object[0].value[2].value;
-                var modes = res.object[0].value[3].value;
+                var nodes = res.object[0].value;
                 for (var i = 0, len = nodes.length; i < len; i++) {
-                    if (modes[i] === 1)
-                        existingAgents.push(nodes[i]);
-                    else if (modes[i] === 0)
-                        existingDatanodes.push(nodes[i]);
+                    var site = nodes[i].split(",")[0];
+                    var mode = nodes[i].split(",")[1];
+
+                    if (mode === "agent")
+                        existingAgents.push(site);
+                    else if (mode === "datanode")
+                        existingDatanodes.push(site);
                 }
                 genNodeTable();
                 if (existingAgents.length > 0)
@@ -755,6 +771,7 @@ function NodesSetup() {
         if (confirm("This operation will rewrite your cluster.nodes file. Continue saving?"))
             saveDatanodes();
     });
+    
     $('#btn-close-datanodes').click(function() {
         var container = window.parent;
         container.closeDialog('nodes-setup');
