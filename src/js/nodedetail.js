@@ -31,13 +31,6 @@ $(function() {
 
     $.cookie("language_file", "js/lang.en.js");
 
-    // editor = CodeMirror.fromTextArea('txt_code', {
-    //     height: "15%",
-    //     parserfile: "parsesql.js",
-    //     stylesheet: "third-party/codemirror/sqlcolors.css",
-    //     path: "third-party/codemirror/",
-    //     textWrapping: false
-    // });
     var mime = 'text/x-mariadb';
     editor = CodeMirror.fromTextArea(document.getElementById('txt_code'), {
         mode: mime,
@@ -50,8 +43,7 @@ $(function() {
         extraKeys: { "Ctrl-Alt-Space": "autocomplete" },
         hintOptions: {
             tables: {
-                //users: ["name", "score", "birthDate"],
-                //countries: ["name", "population", "size"]
+
             }
         }
     });
@@ -166,7 +158,7 @@ function bindVariables(datalist) {
                 getData(script, 0, PAGESIZE, function(g) {
                     if(g.resultCode==="0"){
                         showTableGrid(tblobj.id, so_name, tablesize, g);
-                        openDialog(divobj.id, '[' + so_form + ']' + so_name);
+                        new DolphinDialog(divobj.id, { title: '[' + so_form + ']' + so_name }).open();
                     }else{
                         appendError(g.msg);
                         $('#resulttab a[href="#log"]').tab('show');
@@ -190,13 +182,13 @@ function bindVariables(datalist) {
         });
 }
 
-
+//
 function showTableGrid(gridid, tablename, totalcount, g) {
     // In variable panel
     var d = DolphinResult2Grid(g);
     grid = $('#' + gridid);
     var dg = new DolphinGrid(grid, {
-
+        height: 600,
         autoload: true,
         controller: {
             loadData: function(filter) {
