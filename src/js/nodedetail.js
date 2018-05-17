@@ -157,8 +157,8 @@ function bindVariables(datalist) {
                 var script = so_name + "[0:" + tablesize + "]";
                 getData(script, 0, PAGESIZE, function(g) {
                     if(g.resultCode==="0"){
-                        showTableGrid(tblobj.id, so_name, tablesize, g);
-                        new DolphinDialog(divobj.id, { title: '[' + so_form + ']' + so_name }).open();
+                        //showTableGrid(tblobj.id, so_name, tablesize, g);
+                        new DolphinDialog(divobj.id, { title: '[' + so_form + ']' + so_name }).openUrl("dialogs/table.html?site=" + $.getUrlParam('site') + "&tb=" + so_name + "&size=" + tablesize);
                     }else{
                         appendError(g.msg);
                         $('#resulttab a[href="#log"]').tab('show');

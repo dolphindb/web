@@ -36,3 +36,62 @@
     <script src="../js/datagrid.js" type="text/javascript"></script>
 </body>
 </html>
+<script>
+    var controller = "";
+    var scriptExecutor = null;
+    $(document).ready(function () {
+        controller = "http://" + window.location.host;
+        var site = $.getUrlParam('site');
+        var tablename = $.getUrlParam('tb');
+        var tablesize = $.getUrlParam('size');
+        var serverObj = new ServerObject(site);
+        var script = tablename + "[0:" + tablesize + "]";
+        scriptExecutor = new CodeExecutor(serverObj.getHttpServer());
+        getData(script, 0, 20, function (g) {
+            if (g.resultCode === "0") {
+                showTableGrid(tablename, tablesize, g);
+            } else {
+                alert(g.msg);
+            }
+        });
+    });
+
+    function showTableGrid(tablename, totalcount, g) {
+        // In variable panel
+        var d = DolphinResult2Grid(g);
+        grid = $('#jsgrid1');
+        var dg = new DolphinGrid(grid, {
+            height: $(window).height(),
+            width: $(window).width(),
+            autoload: true,
+            controller: {
+                loadData: function (filter) {
+                    var deferred = $.Deferred();
+                    //var script = "select top " + (totalcount > 1024 ? 1024 : totalcount) + " * from " + tablename;
+                    var script = tablename + "[0:" + totalcount + "]";
+                    getData(script, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function (g) {
+                        var d = DolphinResult2Grid(g, filter.pageIndex - 1);
+                        deferred.resolve({ data: d, itemsCount: totalcount });
+                    });
+
+                    return deferred.promise();
+                }
+            },
+        });
+
+        dg.setGridPage(g);
+        var resObj = g && g.object[0];
+        var cols = undefined;
+        if (d.length === 0)
+            cols = loadCols(resObj);
+        dg.loadFromJson(d, resObj.form === "vector", cols);
+    }
+    function getData(script, startindex, pagesize, sucfunc) {
+        p = {}
+        if (typeof startindex !== "undefined")
+            p.offset = startindex.toString();
+        if (typeof pagesize !== "undefined")
+            p.length = pagesize.toString();
+        scriptExecutor.run(script, sucfunc, p);
+    }
+</script>
