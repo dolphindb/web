@@ -190,13 +190,13 @@ function Matrix2Table(jsonobj) {
     var rowcount = Number.parseInt(jsonobj[1].value);
     var colcount = Number.parseInt(jsonobj[2].value);
     var colLabels = jsonobj[4].type === "void" ? null : jsonobj[4].value;
-
+    //var rowLables = jsonobj[5].type === "void" ? null : jsonobj[5].value;
     var jTable = [];
     var curIndex = 0;
-    for (var i = 0; i < rowcount; i++) {
-        for (var j = 0; j < colcount; j++) {
-            var colName = colLabels ? colLabels[j] : "col" + j;
-            jTable.setRow(i, colName, jsonArr[curIndex]);
+    for (var i = 0; i < colcount; i++) {
+        var colName = colLabels ? colLabels[i] : "col" + i;
+        for (var j = 0; j < rowcount; j++) {
+            jTable.setRow(j, colName, jsonArr[curIndex]);
             if (curIndex < jsonArr.length - 1) {
                 curIndex++;
             }

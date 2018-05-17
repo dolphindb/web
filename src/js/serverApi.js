@@ -300,7 +300,7 @@ function DatanodeConfig() {
         var script = "reloadClusterConfig()";
         scriptExecutor.run(script, function (res) {
             if (res.resultCode === '0') {
-                alert("reload configuration success. Restart the datanode to apply new configuration");
+                alert("Restart all datanodes to apply the new configration!");
             } else {
                 alert(res.msg);
             }
