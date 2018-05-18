@@ -237,7 +237,7 @@ function LoadTable(nodeList) {
                     return r;
                 }
             }, {
-                text: 'PerfLog',
+                text: 'QueryLog',
                 key: 'perfLog',
                 remind: 'query performance log',
                 template: function(action, rowObject) {

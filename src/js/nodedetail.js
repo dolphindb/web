@@ -169,8 +169,9 @@ function bindVariables(datalist) {
             } else {
                 getData(code, 0, PAGESIZE, function(g) {
                     if(g.resultCode==="0"){
-                        showGrid(tblobj.id, code, g);
-                        openDialog(divobj.id, '[' + so_form + ']' + so_name);
+                        //showGrid(tblobj.id, code, g);
+                        new DolphinDialog(divobj.id, { title: '[' + so_form + ']' + so_name }).openUrl("dialogs/vector.html?site=" + $.getUrlParam('site') + "&v=" + so_name + "&size=" + tablesize);
+                        //openDialog(divobj.id, '[' + so_form + ']' + so_name);
                     }else{
                         appendError(g.msg);
                         $('#resulttab a[href="#log"]').tab('show');
@@ -267,6 +268,7 @@ function showGrid(gridid, getdatascript, g) {
     if (d.length === 0)
         cols = loadCols(resObj);
     if (dg.loadFromJson(d, resObj.form === "vector", cols)) {
+        /*
         var btnPlot = $('<button />', {
             class: 'btn btn-primary btn-request',
             id: 'btn-plot-' + gridid,
@@ -291,6 +293,7 @@ function showGrid(gridid, getdatascript, g) {
                 });
             }
         }
+        */
     }
 }
 
