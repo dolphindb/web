@@ -61,8 +61,8 @@
         var d = DolphinResult2Grid(g);
         grid = $('#jsgrid1');
         var dg = new DolphinGrid(grid, {
-            height: $(window).height(),
-            width: $(window).width(),
+            height: $(window).height()-30,
+            width: $(window).width()-30,
             autoload: true,
             controller: {
                 loadData: function (filter) {

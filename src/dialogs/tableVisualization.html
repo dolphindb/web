@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>DolphinDB Cluster Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DolphinDB Node Management">
+    <meta name="author" content="DolphinDB">
+    <link rel="stylesheet" href="../third-party/bootstrap/css/bootstrap.min.css">
+    <link href="../third-party/jsgrid/jsgrid.css" rel="stylesheet" />
+    <link href="../third-party/jsgrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="../third-party/jstree/themes/default/style.css" rel="stylesheet" />
+    <link href="../css/dialog.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="dd_mainbody">
+        <div>
+            <!-- customize visualization dialog -->
+            <div class="container-fluid" id="custom-vis" style="display: none">
+                <div class="row">
+                    <form class="form-horizontal">
+                        <div class="col-lg-3 col-md-6 col-xs-12">
+                            <div class="form-group">
+                                <label class="col-xs-5 control-label" for="chart-type">Chart Type *</label>
+                                <div class="col-xs-7">
+                                    <select class="form-control" id="chart-type">
+                                        <option value="LINE" selected>Line Chart</option>
+                                        <option value="AREA">Area Chart</option>
+                                        <option value="PIE">Pie Chart</option>
+                                        <option value="BAR">Bar Chart</option>
+                                        <option value="COLUMN">Column Chart</option>
+                                        <option value="SCATTER">Scatter Chart</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-xs-5 control-label" for="x-data">X Axis Data *</label>
+                                <div class="col-xs-7">
+                                    <select class="form-control" id="x-data"></select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-xs-5 control-label" for="chart-title">Chart Title</label>
+                                <div class="col-xs-7">
+                                    <input type="text" class="form-control" id="chart-title" name="chart-title">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-xs-5 control-label" for="y-title">Y Axis Title</label>
+                                <div class="col-xs-7">
+                                    <input type="text" class="form-control" id="y-title" name="y-title">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-xs-5 control-label" for="x-title">X Axis Title</label>
+                                <div class="col-xs-7">
+                                    <input type="text" class="form-control" id="x-title" name="x-title">
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="download-format-container">
+                                <label class="col-xs-5 control-label" for="download-format">Download Format</label>
+                                <div class="col-xs-7">
+                                    <select class="form-control" id="download-format">
+                                        <option value="png" selected>png</option>
+                                        <option value="jpeg">jpeg</option>
+                                        <option value="svg">svg</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="auto-refresh-container">
+                                <div class="col-md-offset-5 col-md-7 col-xs-offset-5 col-xs-7">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="auto-refresh"> Auto Refresh
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="text-align: center">
+                                <button class="btn btn-primary btn-request" id="btn-custom-vis-plot" disabled>Plot</button>
+                                <button class="btn btn-default" id="btn-custom-vis-download">Download</button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6 col-xs-12">
+                            <div class="form-group">
+                                <label class="col-xs-9 control-label" for="btn-add-column">Add Column</label>
+                                <button type="button" class="btn btn-default" id="btn-add-column"><span class="glyphicon glyphicon-plus"></span></button>
+                            </div>
+
+                            <div id="column-list">
+                            </div>
+                        </div>
+                    </form>
+                    <div class="col-lg-6 col-md-12 col-xs-12" id="custom-vis-plot"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../third-party/bootstrap/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script src="../third-party/bootstrap/js/vendor/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+    <script src="../third-party/bootstrap/js/vendor/bootstrap.js" type="text/javascript"></script>
+    <script src="../third-party/bootstrap/js/vendor/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+    <script src="../third-party/jsgrid/jsgrid.js" type="text/javascript"></script>
+    <script src="../third-party/jstree/jstree.js" type="text/javascript"></script>
+    <script src="../third-party/bootstrap/js/vendor/jquery.cookie.js" type="text/javascript"></script>
+    <script src="../js/utils.js" type="text/javascript"></script>
+    <script src="../js/executecode.js" type="text/javascript"></script>
+    <script src="../js/CallWebApi.js" type="text/javascript"></script>
+    <script src="../js/datagrid.js" type="text/javascript"></script>
+</body>
+</html>
+  
