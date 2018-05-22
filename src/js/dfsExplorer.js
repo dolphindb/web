@@ -212,7 +212,7 @@ var bindGrid = function (tableJson) {
             var re = "";
             if (item.filetype == 1) {
                 if (item.chunks != "" && item.sites != "") {
-                    re = "<a id='btnShowTabletData' onclick='showTabletData(this)' value='" + item.chunks + "' site='" + item.sites + "' partition='/" + item.filename + "'><span class='glyphicon glyphicon-search' title='click to show chunk data'></span></a>";
+                    re = "<a id='btnShowTabletData' href='javascript:void(0)' onclick='showTabletData(this)' value='" + item.chunks + "' site='" + item.sites + "' partition='/" + item.filename + "'><span class='glyphicon glyphicon-search' title='click to show chunk data'></span></a>";
                 }else{
                     re = "<span style='color:red'>the data is not distributed to any datanodes.</span>";
                 }
@@ -232,23 +232,16 @@ var showTabletData = function (e) {
     var nodesite = sitesstr.split(":")[0];
     var version = sitesstr.split(":")[1];
     var ctlServer= new ControllerServer(wa_url);
-    ctlServer.getDBIdByTabletChunk(nodesite,chunkId, function (re) {
-        console.log("re",re);
-        var reEntity = new DolphinEntity(re);
-        var dbid = reEntity.toScalar();
-        var tableids = "";
-        ctlServer.getTablesByTabletChunk(nodesite,chunkId, function (re1) {
-            console.log("re1", re1);
-            reEntity = new DolphinEntity(re1);
-            var tables = reEntity.toVector();
-            console.log(tables);
-            tableids = tables.join(",");
-            var dialog = new DolphinDialog("showChunkData_" + chunkId, { title: "Chunk Data Browser[" + chunkId +"]" });
-            dialog.openUrl("dialogs/dfsChunkDataBrowser.html?chunkid=" + chunkId +"&alias=" + getSiteByAlias(nodesite) + "&dbid=" + dbid + "&tables=" + tableids + "&partition=" + partition + "&v=" + version);
-        })
-    }, function (re) {
-        console.log(re);
-    })
+    var re = ctlServer.getDBIdByTabletChunkSync(nodesite,chunkId);
+    var reEntity = new DolphinEntity(re);
+    var dbid = reEntity.toScalar();
+    var tableids = "";
+    var re1 = ctlServer.getTablesByTabletChunkSync(nodesite,chunkId);
+    reEntity = new DolphinEntity(re1);
+    var tables = reEntity.toVector();
+    tableids = tables.join(",");
+    var dialog = new DolphinDialog("showChunkData_" + chunkId, { title: "Chunk Data Browser[" + chunkId +"]" });
+    dialog.openSingleWindow("dialogs/dfsChunkDataBrowser.html?chunkid=" + chunkId +"&alias=" + getSiteByAlias(nodesite) + "&dbid=" + dbid + "&tables=" + tableids + "&partition=" + partition + "&v=" + version);
 }
 
 var result = [];

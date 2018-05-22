@@ -82,9 +82,20 @@ ControllerServer.prototype = {
         var exec = new CodeExecutor(this._url);
         exec.run("rpc('" + alias + "',getDBIdByTabletChunk,'" + chunkId + "')",succallback);
     },
+
+    getDBIdByTabletChunkSync:function(alias,chunkId){
+        var exec = new CodeExecutor(this._url);
+        return exec.runSync("rpc('" + alias + "',getTablesByTabletChunk,'" + chunkId + "')");   
+    },
+
     getTablesByTabletChunk: function (alias,chunkId, succallback, failcallback) {
         var exec = new CodeExecutor(this._url);
-        exec.run("rpc('" + alias + "',getTablesByTabletChunk,'" + chunkId + "')",succallback);    }
+        exec.run("rpc('" + alias + "',getTablesByTabletChunk,'" + chunkId + "')",succallback);    
+    },
+    getTablesByTabletChunkSync: function (alias,chunkId) {
+        var exec = new CodeExecutor(this._url);
+        return exec.runSync("rpc('" + alias + "',getTablesByTabletChunk,'" + chunkId + "')");    
+    }
 }
 
 

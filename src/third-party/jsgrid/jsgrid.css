@@ -7,7 +7,8 @@
 .jsgrid {
     position: relative;
     overflow: hidden;
-    font-size: 1em;
+    font-size: 12px;
+    border-spacing: 1px;
 }
 
 .jsgrid,

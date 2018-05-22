@@ -15,13 +15,26 @@
 </head>
 <body>
 	<div class="dd_mainbody">
-		<div>
-			<div class="col-sm-3 col-md-3 col-lg-2">
-              <div class="list-group" id="lst_tables">
-                  <a class="list-group-item" style="color: #777;cursor: not-allowed;background-color: #eee;">Partitioned Tables</a>
-              </div>
-			</div>
-			<div class="col-sm-9 col-md-9 col-lg-10">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel">
+                    <label >Select table </label>
+                        <select id="drpTable">
+                        </select>
+                    <label> Select number of display rows per page </label>
+                    <select id="drpPagesize">
+                        <option value="20">20</option>
+                        <option value="20">50</option>
+                        <option value="20">100</option>
+                        <option value="20">200</option>
+                        <option value="20">1000</option>
+                    </select>
+                </div>
+                
+            </div>
+        </div>
+		<div class="row">
+			<div class="col-md-12 text-center">
 				<div id="jsgrid1">
 
 				</div>
@@ -52,51 +65,75 @@
     var version = "";
     var curPath = "";
     var dfsPath = "";
+    var pgSize = 30;
+    var currentSelectedTable = "";
     $(document).ready(function () {
         dbPath = $.getUrlParam('dbid');
+        dbPath = dbPath.startsWith("/")?dbPath:"/" + dbPath;
+        console.log("DBPATH ",dbPath);
         tables = $.getUrlParam('tables');
-        dfsPath = "dfs:/" + dbPath;
+        dfsPath = dbPath.startsWith("/")?"dfs:/" + dbPath:"dfs://" + dbPath;
         site = $.getUrlParam('alias');
         chunkid = $.getUrlParam('chunkid');
         partitionPath = $.getUrlParam('partition');
         version = $.getUrlParam('v');
         curPath = dbPath + partitionPath;
         buildLeftTree(tables);
+        if($("#drpTable").find("option:selected").length>0){
+            currentSelectedTable = $("#drpTable").find("option:selected")[0].value;
+            loadGrid(chunkid, dbPath, partitionPath, currentSelectedTable, 0, version)    
+        }
+    });
+    
+    $(window).resize(function() {
+        reloadGrid();
     });
 
+    $("#drpPagesize").bind("change",function(){
+        pgSize = $("#drpPagesize").find("option:selected")[0].value;
+        reloadGrid();
+    });
+
+    var reloadGrid=function(){
+        var grid = $('#jsgrid1');
+        grid.jsGrid("option","height", $(window).height()-50);
+        grid.jsGrid("option","width", $(window).width()-30);
+        grid.jsGrid("option","pageSize",pgSize);
+    }
     var buildLeftTree = function (tbs) {
         var tables = tbs.split(",");
 
         for (var i = 0; i < tables.length;i++) {
-            $("#lst_tables").append("<a class='list-group-item' href='###' onclick='btnTableClick(this)' tablename='" + tables[i] + "'>" + tables[i] + "</a>");
+            $("#drpTable").append("<option href='###' onchange='btnTableClick(this)' value='" + tables[i] + "'>" + tables[i] + "</option>");
         }
     }
 
     var btnTableClick = function (e) {
-        $("#lst_tables").children().each(function (e1) { $(e1).removeClass("active"); });
-        $(e).addClass("active")
-        var tb = $(e).attr("tablename");
-        loadGrid(chunkid, dbPath, partitionPath, tb, 0, version)
+        // $("#lst_tables").children().each(function (e1) { $(e1).removeClass("active"); });
+        // $(e).addClass("active")
+        currentSelectedTable = $(e).attr("tablename");
+        loadGrid(chunkid, dbPath, partitionPath, currentSelectedTable, 0, version)
     }
 
     var loadGrid = function (chunkid, dbPath, partitionPath, tablename, sites,version) {
 
-        var pgSize = 20;
+        
         var nodeSite = new ServerObject(site);
 
         var script = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" + partitionPath + "','" + tablename + "',0," + pgSize + ")";
-
+        console.log("script==",script);
         var nodeUrl = nodeSite.getHttpServer();
         var scriptExecutor = new CodeExecutor(wa_url);
 
         var totalcount = getTableSize(nodeUrl, chunkid, version, tablename);
-        console.log("script", script);
+        console.log("totalcount", totalcount);
         scriptExecutor.run(script, function (json) {
         if (json.resultCode == 0) {
             var d = DolphinResult2Grid(json);
             var grid = $('#jsgrid1');
             var dg = new DolphinGrid(grid, {
-                height:$(window).height(),
+                height:$(window).height()-50,
+                width:$(window).width()-30,
                 data: d,
                 itemsCount: totalcount,
                 pageSize: pgSize,
