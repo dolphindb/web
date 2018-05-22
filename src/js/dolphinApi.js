@@ -85,7 +85,7 @@ ControllerServer.prototype = {
 
     getDBIdByTabletChunkSync:function(alias,chunkId){
         var exec = new CodeExecutor(this._url);
-        return exec.runSync("rpc('" + alias + "',getTablesByTabletChunk,'" + chunkId + "')");   
+        return exec.runSync("rpc('" + alias + "',getDBIdByTabletChunk,'" + chunkId + "')");   
     },
 
     getTablesByTabletChunk: function (alias,chunkId, succallback, failcallback) {

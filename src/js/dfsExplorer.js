@@ -233,6 +233,7 @@ var showTabletData = function (e) {
     var version = sitesstr.split(":")[1];
     var ctlServer= new ControllerServer(wa_url);
     var re = ctlServer.getDBIdByTabletChunkSync(nodesite,chunkId);
+    console.log("getDBIdByTabletChunkSync",re)
     var reEntity = new DolphinEntity(re);
     var dbid = reEntity.toScalar();
     var tableids = "";

@@ -24,10 +24,10 @@
                     <label> Select number of display rows per page </label>
                     <select id="drpPagesize">
                         <option value="20">20</option>
-                        <option value="20">50</option>
-                        <option value="20">100</option>
-                        <option value="20">200</option>
-                        <option value="20">1000</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="1000">1000</option>
                     </select>
                 </div>
                 
@@ -93,18 +93,23 @@
         pgSize = $("#drpPagesize").find("option:selected")[0].value;
         reloadGrid();
     });
+    $("#drpTable").bind("change",function(){
+        currentSelectedTable = $("#drpTable").find("option:selected")[0].value;
+        loadGrid(chunkid, dbPath, partitionPath, currentSelectedTable, 0, version)
+    });
 
     var reloadGrid=function(){
         var grid = $('#jsgrid1');
         grid.jsGrid("option","height", $(window).height()-50);
         grid.jsGrid("option","width", $(window).width()-50);
         grid.jsGrid("option","pageSize",pgSize);
+        grid.jsGrid("refresh");
     }
     var buildLeftTree = function (tbs) {
         var tables = tbs.split(",");
 
         for (var i = 0; i < tables.length;i++) {
-            $("#drpTable").append("<option href='###' onchange='btnTableClick(this)' value='" + tables[i] + "'>" + tables[i] + "</option>");
+            $("#drpTable").append("<option value='" + tables[i] + "'>" + tables[i] + "</option>");
         }
     }
 
