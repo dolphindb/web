@@ -34,7 +34,7 @@
             </div>
         </div>
 		<div class="row">
-			<div class="col-md-12 text-center">
+			<div class="col-md-12">
 				<div id="jsgrid1">
 
 				</div>
@@ -97,7 +97,7 @@
     var reloadGrid=function(){
         var grid = $('#jsgrid1');
         grid.jsGrid("option","height", $(window).height()-50);
-        grid.jsGrid("option","width", $(window).width()-30);
+        grid.jsGrid("option","width", $(window).width()-50);
         grid.jsGrid("option","pageSize",pgSize);
     }
     var buildLeftTree = function (tbs) {
@@ -133,7 +133,7 @@
             var grid = $('#jsgrid1');
             var dg = new DolphinGrid(grid, {
                 height:$(window).height()-50,
-                width:$(window).width()-30,
+                width:$(window).width()-50,
                 data: d,
                 itemsCount: totalcount,
                 pageSize: pgSize,
