@@ -107,7 +107,7 @@
                 $('#txtOffset').val(Number(logLength) - Number(len));
             else
                 $('#txtOffset').val("0");
-            currentpostion =  $('#txtOffset').val();
+            currentpostion = $('#txtOffset').val();
             LoadLog();
         });
 
@@ -334,7 +334,7 @@
 
 
 
-        var ShowMoreCompleteQueryLog = function(){
+        var ShowMoreCompleteQueryLog = function () {
             var len = $('#txtLength').val();
             currentpostion = parseInt(currentpostion) - parseInt(len);
             if (currentpostion < 0) {
@@ -344,6 +344,20 @@
             }
             $('#txtOffset').val(currentpostion);
             getLog(currentpostion, logLength - currentpostion, false);
+        }
+
+        $(window).resize(function () {
+            reloadGrid();
+        });
+        var reloadGrid = function () {
+            var grid = $('#jsGridCompleteQueryLog');
+            grid.jsGrid("option", "height", $(window).height() - 60);
+            grid.jsGrid("option", "width", $(window).width() - 40);
+            grid.jsGrid("refresh");
+            var grid1 = $('#jsGridRunningQueryLog');
+            grid1.jsGrid("option", "height", $(window).height() - 60);
+            grid1.jsGrid("option", "width", $(window).width() - 40);
+            grid1.jsGrid("refresh");
         }
     </script>
 </body>
