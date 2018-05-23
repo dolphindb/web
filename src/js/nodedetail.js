@@ -143,7 +143,7 @@ function bindVariables(datalist) {
 
             if (so_form === "TABLE") {
                 if (so_extra.startWith("dfs://")) {
-                    new DolphinDialog("dfstable_" + so_name, { title: "Dfs Table Browser [" + so_extra + "]",width:1000 }).openUrl("dialogs/dfsTable.html?site=" + $.getUrlParam('site') +"&db=" + so_extra + "&tb=" + so_name);
+                    new DolphinDialog("dfstable_" + so_name, { title: "Dfs Table Browser [" + so_extra + "]",width:1000 }).openSingleWindow("dialogs/dfsTable.html?site=" + $.getUrlParam('site') +"&db=" + so_extra + "&tb=" + so_name);
                     return;
                 }
                 var tablesize = so_rows;
@@ -158,7 +158,7 @@ function bindVariables(datalist) {
                 getData(script, 0, PAGESIZE, function(g) {
                     if(g.resultCode==="0"){
                         //showTableGrid(tblobj.id, so_name, tablesize, g);
-                        new DolphinDialog(divobj.id, { title: '[' + so_form + ']' + so_name }).openUrl("dialogs/table.html?site=" + $.getUrlParam('site') + "&tb=" + so_name + "&size=" + tablesize);
+                        new DolphinDialog(divobj.id, { title: '[' + so_form + ']' + so_name }).openSingleWindow("dialogs/table.html?site=" + $.getUrlParam('site') + "&tb=" + so_name + "&size=" + tablesize);
                     }else{
                         appendError(g.msg);
                         $('#resulttab a[href="#log"]').tab('show');
@@ -211,8 +211,8 @@ function showTableGrid(gridid, tablename, totalcount, g) {
     dg.setGridPage(g);
     var resObj = g && g.object[0];
     var cols = undefined;
-    if (d.length === 0)
-        cols = loadCols(resObj);
+    if (d.length >= 0)
+        cols = dg.loadCols(resObj);
     if (dg.loadFromJson(d, resObj.form === "vector", cols)) {
         var btnPlot = $('<button />', {
             class: 'btn btn-primary btn-request',
@@ -265,8 +265,8 @@ function showGrid(gridid, getdatascript, g) {
     dg.setGridPage(g);
     var resObj = g && g.object[0];
     var cols = undefined;
-    if (d.length === 0)
-        cols = loadCols(resObj);
+    if (d.length >= 0)
+        cols = dg.loadCols(resObj);
     if (dg.loadFromJson(d, resObj.form === "vector", cols)) {
         /*
         var btnPlot = $('<button />', {
@@ -301,12 +301,17 @@ function showResult(gridid, resobj) {
     // In data browser
     var d = DolphinResult2Grid(resobj),
         btnPlot = $('#btn-plot');
-
+    var h = $(window).height() - $("#resulttab").offset().top-200;
+    console.log("$(window).height():",$(window).height());
+    console.log("resulttab.offset().top:",$("#resulttab").offset().top);
+    console.log("gridheight:",h);
     var grid = $('#' + gridid);
     var dg = new DolphinGrid(grid, {
         pageSize: 50,
+        height:h,
         sorting: true,
         paging: true,
+        pagerContainer:$("#jsgridpager"),
         pageLoading: false,
         autoload: false
     });
@@ -315,8 +320,8 @@ function showResult(gridid, resobj) {
     btnPlot.hide();
     var res = resobj.object && resobj.object[0];
     var cols = undefined;
-    if (d.length === 0)
-        cols = loadCols(res);
+    if (d.length >= 0)
+        cols = dg.loadCols(res);
     if (dg.loadFromJson(d, res.form === "vector", cols)) {
         if (res && res.form) {
             if (res.form === "table" ||

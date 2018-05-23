@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -10,59 +10,70 @@
     <link rel="stylesheet" href="../third-party/bootstrap/css/bootstrap.min.css">
     <link href="../third-party/jsgrid/jsgrid.css" rel="stylesheet" />
     <link href="../third-party/jsgrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="../css/dialog.css" rel="stylesheet" />
 </head>
 
 <body>
-    <div style="width:95%;margin-left:20px;margin-right:20px">
-        <div class="row">
+    <div class="dd_mainbody">
+        <div>
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#completedQuery" aria-controls="completedQuery" role="tab" data-toggle="tab">Completed</a></li>
-                <li role="presentation"><a href="#runningQuery" aria-controls="runningQuery" role="tab" data-toggle="tab">Running</a></li>
+                <li role="presentation" class="active">
+                    <a href="#completedQuery" aria-controls="completedQuery" role="tab" data-toggle="tab">Completed</a>
+                </li>
+                <li role="presentation">
+                    <a href="#runningQuery" aria-controls="runningQuery" role="tab" data-toggle="tab">Running</a>
+                </li>
             </ul>
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="completedQuery">
-                    <div id="pnlperflog" style="overflow:hidden">
+                    <div id="pnlperflog">
                         <div id="jsGridCompleteQueryLog"></div>
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="runningQuery">
-                    <div id="pnlRunningQueryLog" style="overflow:hidden">
+                    <div id="pnlRunningQueryLog">
                         <div id="jsGridRunningQueryLog"></div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row" id="pager">
-            <div class="col-lg-5 col-md-3 col-sm-3">
-                <input type="text" id="txtLength" class="hide" value="3000" />
-                <input type="text" id="txtOffset" class="hide" value="0" />
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-4">
-                <div class="btn-group" role="group" style="margin-top:5px">
-                    <label class="radio-inline">
-                        <input type="radio" name="rdoFromHead" id="rdoFromHead1" value="0" checked />From Tail
-                    </label>
-                    <label class="radio-inline">
-                        <input type="radio" name="rdoFromHead" id="rdoFromHead2" value="1" />From Head
-                    </label>
+        <div id="pager">
+            <div style="display: none">
+                <div class="col-lg-5 col-md-3 col-sm-3">
+                    <input type="text" id="txtLength" class="hide" value="3000" />
+                    <input type="text" id="txtOffset" class="hide" value="0" />
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-4">
+                    <div class="btn-group" role="group" style="margin-top:5px">
+                        <label class="radio-inline">
+                            <input type="radio" name="rdoFromHead" id="rdoFromHead1" value="0" checked />From Tail
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="rdoFromHead" id="rdoFromHead2" value="1" />From Head
+                        </label>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-sm-3">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default" id="btnBackward">
+                            <span class="glyphicon glyphicon-backward">
+                        </button>
+                        <button type="button" class="btn btn-default" id="btnReload">
+                            <span class="glyphicon glyphicon-refresh"></span>
+                        </button>
+                        <button type="button" class="btn btn-default" id="btnForward">
+                            <span class="glyphicon glyphicon-forward">
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-2 col-md-3 col-sm-3">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-default" id="btnBackward">
-                        <span class="glyphicon glyphicon-backward">
-                    </button>
-                    <button type="button" class="btn btn-default" id="btnReload">
-                        <span class="glyphicon glyphicon-refresh"></span>
-                    </button>
-                    <button type="button" class="btn btn-default" id="btnForward">
-                        <span class="glyphicon glyphicon-forward">
-                    </button>
+            <footer class="footer navbar-fixed-bottom" style="bottom: 0.2em;margin-bottom: 0.2em;" id="CompleteQueryPager">
+                <div class="container" style="width: 100%;text-align: center">
+                    <button type="button" class="btn btn-primary" onclick="ShowMoreCompleteQueryLog()" id="btnShowMore">Show more</button>
+                    <button type="button" class="btn btn-default" onclick="refreshMe()" id="btnRefreshLog">Refresh log</button>
+                    <button type="button" class="btn btn-default" onclick="closeMe()" id="btnClose">Close</button>
                 </div>
-            </div>
-            <div class="col-lg-2 col-md-2 col-sm-2">
-                <button type="button" class="btn btn-default" onclick="closeMe()" id="btnClose">Close</button>
-            </div>
+            </footer>
         </div>
     </div>
 
@@ -82,8 +93,8 @@
         var grid = $("#jsGridCompleteQueryLog");
         var controller = "";
         var logLength = 0;
+        var currentpostion = logLength;
         $(function () {
-            
             var svr_obj = new ServerObject($.getUrlParam('svr'));
             svr_url = svr_obj.getHttpServer();
             controller = "http://" + window.location.host;
@@ -92,14 +103,15 @@
             logLength = getLogLength();
             if (!logLength.isNumber()) logLength = 0;
             var len = $('#txtLength').val();
-            if (Number(logLength)>Number(len))
+            if (Number(logLength) > Number(len))
                 $('#txtOffset').val(Number(logLength) - Number(len));
             else
                 $('#txtOffset').val("0");
+            currentpostion =  $('#txtOffset').val();
             LoadLog();
         });
 
-        var bindLog = function(json) {
+        var bindLog = function (json) {
             var col = [{
                 name: "UserId",
                 type: "text",
@@ -115,12 +127,12 @@
             }, {
                 name: "JobDesc",
                 type: "text",
-                width: 380
+                width: "50%"
             }]
 
             var dg = new DolphinGrid($('#jsGridCompleteQueryLog'), {
-                width: $(window).width()-20,
-                height: $(window).height()-80,
+                width: $(window).width() - 20,
+                height: $(window).height() - 80,
                 autoload: true,
                 paging: true,
                 pageLoading: false,
@@ -130,7 +142,7 @@
             });
             var griddata = DolphinResult2Grid(json);
             //console.log(griddata);
-            dg.loadFromJson(griddata,false,col);
+            dg.loadFromJson(griddata, false, col);
         }
 
         var bindRunningLog = function (json) {
@@ -149,11 +161,10 @@
             }, {
                 name: "JobDesc",
                 type: "text",
-                width: 380
+                width: "50%"
             }]
 
             var dg = new DolphinGrid($('#jsGridRunningQueryLog'), {
-                width: $(window).width() - 20,
                 height: $(window).height() - 80,
                 autoload: true,
                 paging: false,
@@ -166,8 +177,7 @@
             dg.loadFromJson(griddata, false, col);
         }
 
-        var getLog = function(offset, length, fromhead) {
-            length = 3000;
+        var getLog = function (offset, length, fromhead) {
             var p = {
                 "sessionID": SESSION_ID,
                 "functionName": "getPerfLog",
@@ -193,7 +203,7 @@
                     "value": nodeAlias
                 }]
             };
-            CallWebApi(svr_url, p, function(re) {
+            CallWebApi(svr_url, p, function (re) {
                 if (re.resultCode == "0") {
                     if (re.object.length > 0) {
                         bindLog(re);
@@ -217,7 +227,7 @@
             });
         }
 
-        var getLogLength = function() {
+        var getLogLength = function () {
             var p = {
                 "sessionID": SESSION_ID,
                 "functionName": "getPerfLogLength",
@@ -230,13 +240,13 @@
             };
             var re = CallWebApiSync(svr_url, p);
             if (re.resultCode == "0") {
-               if (re.object.length > 0) {
-                   return re.object[0].value;
-               }
+                if (re.object.length > 0) {
+                    return re.object[0].value;
+                }
             }
         }
         var logFromhead = false;
-        $("#btnForward").bind('click', function() {
+        $("#btnForward").bind('click', function () {
             var len = $('#txtLength').val();
             var currentpostion = $('#txtOffset').val();
             var nextPosition = 0;
@@ -254,7 +264,7 @@
             LoadLog();
         });
 
-        $("#btnBackward").bind('click', function() {
+        $("#btnBackward").bind('click', function () {
             var len = $('#txtLength').val();
             var currentpostion = $('#txtOffset').val();
             var nextPosition = 0;
@@ -272,12 +282,14 @@
             LoadLog();
         });
 
-        $('#btnReload').bind('click', function() {
+        $('#btnReload').bind('click', function () {
             logLength = getLogLength();
-            LoadLog();
+            len = $('#txtLength').val();
+            currentpostion = logLength;
+            ShowMoreCompleteQueryLog();
         });
 
-        $("[name='rdoFromHead']").bind("click", function() {
+        $("[name='rdoFromHead']").bind("click", function () {
             var isFormHead = $("[name='rdoFromHead']:checked").val();
             if (isFormHead === "0") {
                 if (logFromhead == true) {
@@ -294,29 +306,45 @@
             }
             LoadLog();
         });
-        var LoadLog = function() {
-                $("#btnForward").focus();
-                getLog($('#txtOffset').val(), $('#txtLength').val(), logFromhead);
-            }
-            //===============page utils=====================
+        var LoadLog = function () {
+            $("#btnForward").focus();
+            getLog($('#txtOffset').val(), $('#txtLength').val(), logFromhead);
+        }
+        //===============page utils=====================
 
         function closeMe() {
-            var container = window.parent;
-            container.closeDialog("perflog_" + nodeAlias);
+            window.close();
         }
 
         function refreshMe() {
-            LoadLog();
+            logLength = getLogLength();
+            len = $('#txtLength').val();
+            currentpostion = logLength;
+            ShowMoreCompleteQueryLog();
         }
 
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             if (e.target.innerHTML === "Running") {
-                $("#pager").hide();
+                $("#CompleteQueryPager").hide();
                 getRunningLog();
-            } else if(e.target.innerHTML === "Completed") {
-                $("#pager").show();
+            } else if (e.target.innerHTML === "Completed") {
+                $("#CompleteQueryPager").show();
             }
         })
+
+
+
+        var ShowMoreCompleteQueryLog = function(){
+            var len = $('#txtLength').val();
+            currentpostion = parseInt(currentpostion) - parseInt(len);
+            if (currentpostion < 0) {
+                currentpostion = 0;
+            } else if (currentpostion > logLength) {
+                currentpostion = logLength;
+            }
+            $('#txtOffset').val(currentpostion);
+            getLog(currentpostion, logLength - currentpostion, false);
+        }
     </script>
 </body>
 

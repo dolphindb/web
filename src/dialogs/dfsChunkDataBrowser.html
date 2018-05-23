@@ -20,8 +20,8 @@
 
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <div class="col-md-4">
-                        <div style="padding:1px">
+                    <div class="col-md-12">
+                        <div style="padding:5px;float:left">
                             <span>Table</span>
                             <select id="drpTable">
                             </select>
@@ -34,14 +34,14 @@
                                 <option value="1000">1000</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="col-md-8">
-                        <div id="pager" class="col-md-9">
+                        <div id="pager" style="padding:5px;float: left;">
 
                         </div>
-                        <div style="padding:1px" class="col-md-3">
+                        <div style="padding: 5px; float: left; display: block;" class="jsgrid-pager-container">
+                            <div class="jsgrid-pager">
                             go to
-                            <input type="text" id="curPageIndex" value="1" style="width:30px" />
+                            <input type="text" id="curPageIndex" value="1" style="width:60px;height:18px">
+                        </div>
                         </div>
                     </div>
 
@@ -125,9 +125,11 @@
     $("#curPageIndex").bind("keypress", function (e) {
         if (e.keyCode === 13) {
             var cpi =  $("#curPageIndex").val();
-            var grid = $('#jsgrid1');
-            grid.jsGrid("option","pageIndex",cpi);
-            grid.jsGrid("refresh");
+            if(cpi.isNumber()){
+                var grid = $('#jsgrid1');
+                grid.jsGrid("openPage",parseInt(cpi));
+                grid.jsGrid("refresh");
+            }
         }
 
     });
@@ -170,8 +172,7 @@
                 var d = DolphinResult2Grid(json);
                 var grid = $('#jsgrid1');
                 var dg = new DolphinGrid(grid, {
-                    height: $(window).height() - 60,
-                    //width:$(window).width()-50,
+                    height: $(window).height() - 50,
                     data: d,
                     itemsCount: totalcount,
                     pageSize: pgSize,
@@ -195,7 +196,7 @@
                         }
                     },
                 });
-                dg.loadFromJson(d);
+                dg.loadFromJson(d,false,dg.loadCols(json.object[0]));
             } else {
                 alert(json.msg);
             }

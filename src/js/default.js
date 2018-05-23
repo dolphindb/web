@@ -811,29 +811,31 @@ function showServerLog(url, alias) {
     if (typeof frameWindow.refreshMe === "function") {
         frameWindow.refreshMe();
     }
-
+   
 }
 
 function showPerfLog(url, alias) {
     var apiUrl = url;
     var nodeAlias = alias;
     var did = "perflog_" + nodeAlias;
-    var divobj = document.getElementById(did);
-    if (!divobj) {
-        divobj = document.createElement("div");
-        divobj.id = did;
-        divobj.setAttribute("style", "overflow:hidden");
-        var iframe = document.createElement("iframe");
-        iframe.setAttribute("src", "dialogs/perflog.html?svr=" + apiUrl + "&node=" + nodeAlias + "&sessid=" + SESSION_ID);
-        iframe.setAttribute("style", "height:100%;width:98%;border:0;overflow:hidden");
-        $(iframe).appendTo($(divobj));
-        $(divobj).appendTo($('#dialogs'));
-    }
-    openDialog(divobj.id, nodeAlias);
-    var frameWindow = $(divobj).children("iframe")[0].contentWindow;
-    if (typeof frameWindow.refreshMe === "function") {
-        frameWindow.refreshMe();
-    }
+    console.log("queryLog",did);
+    // var divobj = document.getElementById(did);
+    // if (!divobj) {
+    //     divobj = document.createElement("div");
+    //     divobj.id = did;
+    //     divobj.setAttribute("style", "overflow:hidden");
+    //     var iframe = document.createElement("iframe");
+    //     iframe.setAttribute("src", "dialogs/perflog.html?svr=" + apiUrl + "&node=" + nodeAlias + "&sessid=" + SESSION_ID);
+    //     iframe.setAttribute("style", "height:100%;width:98%;border:0;overflow:hidden");
+    //     $(iframe).appendTo($(divobj));
+    //     $(divobj).appendTo($('#dialogs'));
+    // }
+    // openDialog(divobj.id, nodeAlias);
+    // var frameWindow = $(divobj).children("iframe")[0].contentWindow;
+    // if (typeof frameWindow.refreshMe === "function") {
+    //     frameWindow.refreshMe();
+    // }
+    new DolphinDialog(did, { title: 'QueryLog[' + nodeAlias + ']'}).openSingleWindow("dialogs/perflog.html?svr=" + apiUrl + "&node=" + nodeAlias + "&sessid=" + SESSION_ID);
 }
 
 //==============================================================util function============================================

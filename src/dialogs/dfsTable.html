@@ -11,8 +11,9 @@
     <link href="../third-party/jsgrid/jsgrid.css" rel="stylesheet" />
     <link href="../third-party/jsgrid/jsgrid-theme.css" rel="stylesheet" />
     <link href="../third-party/jstree/themes/default/style.css" rel="stylesheet" />
-    <link href="../css/dialog.css" rel="stylesheet"/>
+    <link href="../css/dialog.css" rel="stylesheet" />
 </head>
+
 <body>
     <div class="dd_mainbody">
         <div>
@@ -41,6 +42,7 @@
     <script src="../js/CallWebApi.js" type="text/javascript"></script>
     <script src="../js/datagrid.js" type="text/javascript"></script>
 </body>
+
 </html>
 
 <script>
@@ -49,15 +51,15 @@
     var dbPath = ""; // dfs://DFS_T_HIER_RANGE_VALUE
     var curPath = ""; ///DFS_T_HIER_RANGE_VALUE/1_100000/A
     var dfsPath = ""; // /DFS_T_HIER_RANGE_VALUE/
-    var site = "";     
+    var site = "";
     var realTableName = "";
     $(document).ready(function () {
-        db= $.getUrlParam('db');
+        db = $.getUrlParam('db');
         tb = $.getUrlParam('tb');
         site = $.getUrlParam('site');
         var i = db.lastIndexOf("/");
         dbPath = db.substr(0, i);
-        realTableName = db.substr(i+1);
+        realTableName = db.substr(i + 1);
         dfsPath = dbPath;
 
         if (dbPath.startWith("dfs://")) {
@@ -67,7 +69,7 @@
         getPartition(dfsPath, buildRootTree);
     });
 
-    var getPartition = function (path,callback) {
+    var getPartition = function (path, callback) {
 
         var controller = "http://" + window.location.host;
         var getTopPartitionScript = "select * from getDFSDirectoryContent('" + path + "') where filetype<2"
@@ -99,7 +101,7 @@
                     "state": { "opened": true },
                     "icon": "jstree-folder",
                     "children": rootNodes
-                    }]
+                }]
             }
         };
         $('#pnl_partition')
@@ -142,53 +144,55 @@
                 } else {
                     loadGrid(chunkid, dbPath, partitionPath, tablename, sites, version[0]);
                 }
-               
+
             });
     }
-    var loadGrid = function (chunkid, dbPath, partitionPath, tablename, sites,version) {
-       
+    var loadGrid = function (chunkid, dbPath, partitionPath, tablename, sites, version) {
+
         var pgSize = 20;
         var nodeSite = new ServerObject(site);
-    
+
         var script = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "','" + tablename + "',0," + pgSize + ")";
-      
+
         var nodeUrl = nodeSite.getHttpServer();
         var scriptExecutor = new CodeExecutor(nodeUrl);
 
         var totalcount = getTableSize(sites[0], nodeUrl, chunkid, version, tablename);
-    
-        scriptExecutor.run(script, function (json) {
-        if (json.resultCode == 0) {
-            var d = DolphinResult2Grid(json);
-            var grid = $('#jsgrid1');
-            var dg = new DolphinGrid(grid, {
-                height:$(window).height(),
-                data: d,
-                itemsCount: totalcount,
-                pageSize: pgSize,
-                autoload: true,
-                controller: {
-                    loadData: function (filter) {
-                        var deferred = $.Deferred();
-                        var s = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "','" + tablename + "'," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
-                            getTableData(s, function (g) {
-                            var d = DolphinResult2Grid(g);
-                            deferred.resolve({ data: d, itemsCount: totalcount });
-                        }, function (e) {
-                            appendlog(e);
-                        });
 
-                        return deferred.promise();
-                    }
-                },
-            });
-            dg.loadFromJson(d);
-        } else {
-            alert(json.msg);
-        }
+        scriptExecutor.run(script, function (json) {
+            if (json.resultCode == 0) {
+
+                var d = DolphinResult2Grid(json);
+                var grid = $('#jsgrid1');
+                var dg = new DolphinGrid(grid, {
+                    height:$(window).height() - 30,
+                    data: d,
+                    itemsCount: totalcount,
+                    pageSize: pgSize,
+                    autoload: true,
+                    controller: {
+                        loadData: function (filter) {
+                            var deferred = $.Deferred();
+                            var s = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "','" + tablename + "'," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
+                            getTableData(s, function (g) {
+                                var d = DolphinResult2Grid(g);
+                                deferred.resolve({ data: d, itemsCount: totalcount });
+                            }, function (e) {
+                                appendlog(e);
+                            });
+
+                            return deferred.promise();
+                        }
+                    },
+                });
+                var cols = dg.loadCols(json.object[0]);
+                dg.loadFromJson(d, false, cols);
+            } else {
+                alert(json.msg);
+            }
         });
     }
-    var getTableSize = function (alias, nodeUrl,chunk, version,tableName) {
+    var getTableSize = function (alias, nodeUrl, chunk, version, tableName) {
         var script = "rpc('" + alias + "', getTablePartitionSizeAndPath,chunkMeta('" + curPath + "','" + chunk + "', true, " + version + ", -1, ,-1), '" + dfsPath + "', '" + tableName + "')";
         var scriptExecutor = new CodeExecutor(nodeUrl);
         var re = scriptExecutor.runSync(script);
@@ -198,10 +202,10 @@
         } else {
             return 0;
         }
-       
+
     }
 
-    var getTableData = function(script,sucCallback){
+    var getTableData = function (script, sucCallback) {
         var nodeUrl = new ServerObject(site).getHttpServer();
         var scriptExecutor = new CodeExecutor(nodeUrl);
         scriptExecutor.run(script, sucCallback);
@@ -230,5 +234,18 @@
                 });
             }
         });
-      }
+    }
+
+    $(window).resize(function () {
+        reloadGrid();
+    });
+
+    var reloadGrid = function () {
+        var grid = $('#jsgrid1');
+        grid.jsGrid("option", "height", $(window).height() - 30);
+        //grid.jsGrid("option","width", $(window).width()-50);
+        grid.jsGrid("option", "pageSize", pgSize);
+        grid.jsGrid("refresh");
+    }
+
 </script>

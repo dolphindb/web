@@ -110,7 +110,7 @@ var bindGrid = function (tableJson) {
         paging: true,
         pageLoading: false,
         autoload: false,
-        rowDoubleClick: function (arg) {
+        rowClick: function (arg) {
             if (arg.item.filetype === 0) { //expanded common directory
                 var cp = getCurrentPath();
                 var fpath = "";
@@ -133,11 +133,18 @@ var bindGrid = function (tableJson) {
         name: 'filename',
         title: 'Name',
         type: 'text',
+        width:200,
+        css:"jsgrid-cell-cut",
         itemTemplate: function (value, item) {
             if (item.filetype === 0) {
                 return "<span class='glyphicon glyphicon-folder-close' style='color:rgb(239,222,7)' title='directory'></span> " + value
             } else if (item.filetype === 1) {
-                return "<span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " + value
+                    if (item.chunks != "" && item.sites != "") {
+                        re = "<a id='btnShowTabletData' href='javascript:void(0)' onclick='showTabletData(this)' value='" + item.chunks + "' site='" + item.sites + "' partition='/" + item.filename + "'><span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " + value + "</a>";
+                    }else{
+                        re = "<span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " + value;
+                    }
+                return re;
             } else if (item.filetype === 2) {
                 return "<span class='glyphicon glyphicon-file' style='color:rgb(190,190,190)' title='file'></span> " + value
             } else if (item.filetype === 9) {
@@ -145,35 +152,11 @@ var bindGrid = function (tableJson) {
             }
         }
     }, {
-        name: 'size',
-        title: 'Size',
-        type: 'text',
-        itemTemplate: function (value, item) {
-            if (item.filetype === 2) {//file
-                return item.size;
-            } else {
-                return "";
-            }
-        }
-    }, {
-        name: 'filetype',
-        title: 'Type',
-        type: 'text',
-        itemTemplate: function (value, item) {
-            if (item.filetype === 0) {
-                return "directory";
-            } else if (item.filetype === 1) {
-                return "partition chunk";
-            } else if (item.filetype === 9) { // parent
-                return "";
-            } else {
-                return "file";
-            }
-        }
-    }, {
         name: 'sites',
         title: 'Sites',
         type: 'text',
+        width:200,
+        css:"jsgrid-cell-cut",
         itemTemplate: function (value, item) {
             if (item.filetype > 0) {
                 var chunkArr = item.sites.split(";");
@@ -205,21 +188,38 @@ var bindGrid = function (tableJson) {
             }
         }
     }, {
-        name: 'action',
-        title: 'Action',
+        name: 'size',
+        title: 'Size',
+        width:80,
         type: 'text',
         itemTemplate: function (value, item) {
-            var re = "";
-            if (item.filetype == 1) {
-                if (item.chunks != "" && item.sites != "") {
-                    re = "<a id='btnShowTabletData' href='javascript:void(0)' onclick='showTabletData(this)' value='" + item.chunks + "' site='" + item.sites + "' partition='/" + item.filename + "'><span class='glyphicon glyphicon-search' title='click to show chunk data'></span></a>";
-                }else{
-                    re = "<span style='color:red'>the data is not distributed to any datanodes.</span>";
-                }
-
+            if (item.filetype === 2) {//file
+                return item.size;
+            } else {
+                return "";
             }
-            return re;
         }
+    }, {
+        name: 'filetype',
+        title: 'Type',
+        width: 100,
+        type: 'text',
+        itemTemplate: function (value, item) {
+            if (item.filetype === 0) {
+                return "directory";
+            } else if (item.filetype === 1) {
+                return "partition chunk";
+            } else if (item.filetype === 9) { // parent
+                return "";
+            } else {
+                return "file";
+            }
+        }
+    }, {
+        name: 'action',
+        width:"50%",
+        title: '',
+        type: 'text'
     }]
     dg.loadFromJson(tableJson, false, col);
 }
@@ -371,7 +371,7 @@ function DolphinDBDFSClient(webApiUrl) {
             if (tableJson)
                 tableJson.unshift({ "filename": "..", "filetype": 9, "size": 0, "chunks": "", "sites": "" })
         }
-        console.log("tableJson", tableJson);
+//         console.log("tableJson", tableJson);
         return tableJson;
     }
 

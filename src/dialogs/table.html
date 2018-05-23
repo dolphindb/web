@@ -82,8 +82,8 @@
         dg.setGridPage(g);
         var resObj = g && g.object[0];
         var cols = undefined;
-        if (d.length === 0)
-            cols = loadCols(resObj);
+        if (d.length >= 0)
+            cols = dg.loadCols(resObj);
         dg.loadFromJson(d, resObj.form === "vector", cols);
     }
     function getData(script, startindex, pagesize, sucfunc) {

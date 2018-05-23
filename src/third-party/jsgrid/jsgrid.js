@@ -495,10 +495,10 @@
 
                     var onMove = $.proxy(function(e) {
                         var newWidth = columnStartingWidth + (e.clientX - dragStartPosition)
-                        console.log("newWidth", newWidth);
-                        console.log("columnStartingWidth", columnStartingWidth);
-                        console.log("e.clientX", e.clientX);
-                        console.log("dragStartPosition", dragStartPosition);
+//                         console.log("newWidth", newWidth);
+//                         console.log("columnStartingWidth", columnStartingWidth);
+//                         console.log("e.clientX", e.clientX);
+//                         console.log("dragStartPosition", dragStartPosition);
 
                         $th.css("width", newWidth + "px")
                         var childIndex = $th.parent().children().index($th)

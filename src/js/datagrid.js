@@ -19,7 +19,9 @@ DolphinGrid.prototype = {
         if (isArray(dolphinJson.object) && dolphinJson.object.length > 0) {
             $.extend(this.settings, { pageSize: getPageSize(dolphinJson) });
         }
-        this.loadFromJson(DolphinResult2Grid(dolphinJson));
+        var isVector = getDataForm(dolphinJson.object[0])==="vector";
+        var cols = loadCols(dolphinJson.object[0]);
+        this.loadFromJson(DolphinResult2Grid(dolphinJson),isVector,cols);
     },
 
     setGridPage: function(dolphinJson) {
@@ -33,19 +35,18 @@ DolphinGrid.prototype = {
     loadFromJson: function(datalist, isVector, cols) {
         if (datalist == null) return false;
         if (datalist.length <= 0 && typeof cols === 'undefined') throw "data empty";
-
         var griddata = {
             data: datalist,
             itemsCount: 1000
         };
-
+        if (isVector)
+        cols.push({ name: 'offset', title: 'offset', type: 'text' })
         if (!cols) {
             cols = [];
-            if (isVector)
-                cols.push({ name: 'offset', title: 'offset', type: 'text' })
             for (var keyname in datalist[0]) {
                 if (isVector && keyname === 'offset')
                     continue;
+                
                 cols.push({ name: keyname, title: keyname, type: 'text' });
             };
         }
@@ -56,7 +57,9 @@ DolphinGrid.prototype = {
             paging: true,
             pageLoading: true,
             pageSize: 20,
+            sorting: true,
             resizing: true,
+            noDataContent:"No Record Found",
             pageIndex: 1,
             pageButtonCount: 10,
             data: datalist,
@@ -72,6 +75,41 @@ DolphinGrid.prototype = {
 
     load: function() {
         this.grid.jsGrid(this.settings);
+    },
+
+    loadCols: function(jsonobj) {
+        var jsonVector = jsonobj.value;
+        if (typeof jsonVector === 'undefined')
+            return undefined;
+        if (!isArray(jsonVector)) return;
+        if (!isArray(jsonVector[0].value)) return;
+    
+        var cols = [];
+        jsonVector.forEach(function(value, index, array) {
+            var w = 100;
+            var style = "jsgrid-cell"
+            if(value.type==="string"||value.type==="symbol"){
+                w = 0;
+                style = "jsgrid-cell-cut";
+            }else if(value.type ==="datetime"){
+                w = 140;
+            }else if(value.type === "time"){
+                w = 80;
+            }else if(value.type === "date"  || value.type ==="month"||value.type==="minute"||value.type==="second"){
+                w=100;
+            }else if(value.type === "timestamp"||value.type==="nanotime"){
+                w = 160;
+            }else if( value.type === "nanotimestamp"){
+                w = 200
+            }
+            if(w>0){
+                cols.push({ name: value.name, width:w,css: style,title: value.name, type: 'text' });
+            }else{
+                cols.push({ name: value.name, css: style,title: value.name, type: 'text' });
+            }
+            
+        });
+        return cols;
     }
 }
 
@@ -123,20 +161,12 @@ function DolphinResult2Grid(reJson, pageOffset) {
             break;
     }
 }
-
-function loadCols(jsonobj) {
-    var jsonVector = jsonobj.value;
-    if (typeof jsonVector === 'undefined')
-        return undefined;
-    if (!isArray(jsonVector)) return;
-    if (!isArray(jsonVector[0].value)) return;
-
-    var cols = [];
-    jsonVector.forEach(function(value, index, array) {
-        cols.push({ name: value.name, title: value.name, type: 'text' });
-    });
-    return cols;
+//jsonobj == result.object[0]
+function getDataForm(jsonobj){
+    return jsonobj.form;
 }
+//jsonobj == result.object[0]
+
 
 //convert vector and set result to table data for grid
 function VectorSet2Table(jsonobj, pageOffset) {
@@ -223,6 +253,19 @@ function VectorArray2Table(jsonVector) {
     return jTable;
 }
 
+function DolphinTypeToJsgridType(typstr){
+    switch(typestr){
+        case "int":
+        case "double":
+        case "float":
+        case "long":
+        case "short":
+        case "int":
+            return "number";
+        default:
+            return "text";
+    }
+}
 
 function isArray(object) {
     return object && typeof object === 'object' && Array == object.constructor;
