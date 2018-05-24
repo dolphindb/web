@@ -15,6 +15,8 @@ var client = null;
 $(function () {
     client = new DolphinDBDFSClient(wa_url);
 
+    $("#dfsPathInput").width($(window).width()-120);
+
     var url = $.getUrlParam('dfs');
     var defaultPath = "/";
     if (url) {
@@ -93,6 +95,11 @@ var isRootPath = function (path) {
         return false;
     }
 }
+
+$("#btnBack").bind("click",function(){
+    upDirectory();
+});
+
 var upDirectory = function () {
     pathStr = getUpPath();
     bindPath(pathStr);
@@ -362,8 +369,11 @@ function DolphinDBDFSClient(webApiUrl) {
     this.getGridJson = function (fullPath) {
         setCacheByPath(fullPath);
         if (!isRootPath(fullPath)) {
-            if (tableJson)
-                tableJson.unshift({ "filename": "..", "filetype": 9, "size": 0, "chunks": "", "sites": "" })
+            $("#btnBack").removeAttr("disabled");
+            // if (tableJson)
+            //     tableJson.unshift({ "filename": "..", "filetype": 9, "size": 0, "chunks": "", "sites": "" })
+        }else{
+            $("#btnBack").attr("disabled","disabled");
         }
 //         console.log("tableJson", tableJson);
         return tableJson;
