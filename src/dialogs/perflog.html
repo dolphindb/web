@@ -88,6 +88,8 @@
                 $('#txtOffset').val("0");
             currentpostion = $('#txtOffset').val();
             LoadLog();
+
+            document.title = "Query Log Browser[" + nodeAlias + "]";
         });
 
         var bindLog = function (json) {
