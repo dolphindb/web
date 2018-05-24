@@ -20,7 +20,6 @@ $(function () {
     if (url) {
         defaultPath = url;
     }
-    console.log(defaultPath);
     //========default url================
     var json = client.getGridJson(defaultPath);
     bindGrid(json);
@@ -319,12 +318,7 @@ function DolphinDBDFSClient(webApiUrl) {
         if (!tableJson) {
             alert("path '" + path + "' does not exist!");
         }
-        //cacheTreeJson
-        //$(tableJson).each(function (i, e) {
-        //    if (!treeCacheTable) treeCacheTable = [];
-        //    //treeCacheTable.push({ "filename": e.filename, "filetype": e.filetype, "filepath": path + e.filename });
-        //});
-        //console.log(treeCacheTable);
+
     }
 
     var pNode = null;

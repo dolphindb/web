@@ -12,68 +12,47 @@
     <link href="../third-party/jsgrid/jsgrid-theme.css" rel="stylesheet" />
     <link href="../css/dialog.css" rel="stylesheet" />
 </head>
+<style>
+    .navbar {
+        position: relative;
+        z-index: 1000;
+        border: 1px solid #f3f3f3;
+        min-height: 30px;
+        margin-bottom: 2px;
+    }
+
+    .dd_row {
+        margin: 2px;
+        padding: 2px;
+    }
+</style>
 
 <body>
     <div class="dd_mainbody">
         <div>
-            <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active">
-                    <a href="#completedQuery" aria-controls="completedQuery" role="tab" data-toggle="tab">Completed</a>
-                </li>
-                <li role="presentation">
-                    <a href="#runningQuery" aria-controls="runningQuery" role="tab" data-toggle="tab">Running</a>
-                </li>
-            </ul>
-            <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="completedQuery">
-                    <div id="pnlperflog">
-                        <div id="jsGridCompleteQueryLog"></div>
+            <nav class="navbar">
+                <div class="container-fluid">
+                    <div class="dd_row">
+                        <input type="radio" name="rdoQueryType" checked value="1"> Completed Query
+                        <input type="radio" name="rdoQueryType" value="2"> Running Query
+                        <button type="button" id="btnShowmore" onclick="ShowMoreCompleteQueryLog()" class="btn btn-link">Show more</button>
+                        <button type="button" id="btnRefreshLog" onclick="refreshMe()" class="btn btn-link">Refresh log</button>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="runningQuery">
-                    <div id="pnlRunningQueryLog">
-                        <div id="jsGridRunningQueryLog"></div>
-                    </div>
-                </div>
+
+            </nav>
+
+            <div id="pnlperflog" class="dd_row">
+                <div id="jsGridCompleteQueryLog"></div>
             </div>
-        </div>
-        <div id="pager">
-            <div style="display: none">
-                <div class="col-lg-5 col-md-3 col-sm-3">
-                    <input type="text" id="txtLength" class="hide" value="3000" />
-                    <input type="text" id="txtOffset" class="hide" value="0" />
-                </div>
-                <div class="col-lg-3 col-md-4 col-sm-4">
-                    <div class="btn-group" role="group" style="margin-top:5px">
-                        <label class="radio-inline">
-                            <input type="radio" name="rdoFromHead" id="rdoFromHead1" value="0" checked />From Tail
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="rdoFromHead" id="rdoFromHead2" value="1" />From Head
-                        </label>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-3 col-sm-3">
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" id="btnBackward">
-                            <span class="glyphicon glyphicon-backward">
-                        </button>
-                        <button type="button" class="btn btn-default" id="btnReload">
-                            <span class="glyphicon glyphicon-refresh"></span>
-                        </button>
-                        <button type="button" class="btn btn-default" id="btnForward">
-                            <span class="glyphicon glyphicon-forward">
-                        </button>
-                    </div>
-                </div>
+
+            <div id="pnlRunningQueryLog" class="dd_row">
+                <div id="jsGridRunningQueryLog" class="hide"></div>
             </div>
-            <footer class="footer navbar-fixed-bottom" style="bottom: 0.2em;margin-bottom: 0.2em;" id="CompleteQueryPager">
-                <div class="container" style="width: 100%;text-align: center">
-                    <button type="button" class="btn btn-primary" onclick="ShowMoreCompleteQueryLog()" id="btnShowMore">Show more</button>
-                    <button type="button" class="btn btn-default" onclick="refreshMe()" id="btnRefreshLog">Refresh log</button>
-                    <button type="button" class="btn btn-default" onclick="closeMe()" id="btnClose">Close</button>
-                </div>
-            </footer>
+            <div class="hide">
+                <input type="text" id="txtLength" class="hide" value="3000" />
+                <input type="text" id="txtOffset" class="hide" value="0" />
+            </div>
         </div>
     </div>
 
@@ -112,56 +91,69 @@
         });
 
         var bindLog = function (json) {
+            var griddata = DolphinResult2Grid(json);
             var col = [{
                 name: "UserId",
                 type: "text",
-                width: 60
+                width: getColumnWidth(griddata,"UserId")
             }, {
                 name: "StartTime",
                 type: "text",
-                width: 180
+                width: getColumnWidth(griddata,"StartTime")
             }, {
                 name: "EndTime",
                 type: "text",
-                width: 180
+                width: getColumnWidth(griddata,"EndTime")
             }, {
                 name: "JobDesc",
+                title: "Query",
                 type: "text",
-                width: "50%"
+                width: getColumnWidth(griddata,"JobDesc")
             }]
 
             var dg = new DolphinGrid($('#jsGridCompleteQueryLog'), {
-                width: $(window).width() - 20,
-                height: $(window).height() - 80,
+                //width: $(window).width() - 20,
+                height: $(window).height() - 60,
                 autoload: true,
-                paging: true,
+                paging: false,
                 pageLoading: false,
-                pageSize: 100,
-                pageIndex: 1,
                 fields: col
             });
-            var griddata = DolphinResult2Grid(json);
-            //console.log(griddata);
+            
+            griddata.sort(sortTimeDesc);
             dg.loadFromJson(griddata, false, col);
         }
 
+        var getColumnWidth = function (rows, columnName) {
+            var maxLength = columnName.toString().length;
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i][columnName] != null) {
+                    maxLength = rows[i][columnName].toString().length > maxLength ? rows[i][columnName].toString().length : maxLength;
+                }
+            }
+
+            return maxLength * 7;
+        };
+
         var bindRunningLog = function (json) {
+            var griddata = DolphinResult2Grid(json);
             var col = [{
                 name: "UserId",
                 type: "text",
-                width: 60
+                width: getColumnWidth(griddata,"UserId")
             }, {
                 name: "StartTime",
                 type: "text",
-                width: 180
+                width: getColumnWidth(griddata,"StartTime")
             }, {
                 name: "EndTime",
                 type: "text",
-                width: 180
+                width: getColumnWidth(griddata,"EndTime")
             }, {
                 name: "JobDesc",
+                title: "Query",
                 type: "text",
-                width: "50%"
+                width: getColumnWidth(griddata,"JobDesc")
             }]
 
             var dg = new DolphinGrid($('#jsGridRunningQueryLog'), {
@@ -172,8 +164,8 @@
                 fields: col
             });
 
-            var griddata = DolphinResult2Grid(json);
-            //console.log(griddata);
+            
+            griddata.sort(sortTimeDesc);
             dg.loadFromJson(griddata, false, col);
         }
 
@@ -317,18 +309,29 @@
         }
 
         function refreshMe() {
-            logLength = getLogLength();
-            len = $('#txtLength').val();
-            currentpostion = logLength;
-            ShowMoreCompleteQueryLog();
+            var t = $("[name='rdoQueryType']:checked").val();
+            if (t == "1") {
+                logLength = getLogLength();
+                len = $('#txtLength').val();
+                currentpostion = logLength;
+                ShowMoreCompleteQueryLog();
+            } else {
+                getRunningLog();
+            }
+
         }
 
-        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-            if (e.target.innerHTML === "Running") {
-                $("#CompleteQueryPager").hide();
+        $('[name="rdoQueryType"]').on('click', function (e) {
+            if (e.target.value === "1") {
+                $("#jsGridCompleteQueryLog").show();
+                $("#jsGridRunningQueryLog").hide();
+                $("#btnShowmore").show();
+                $("#jsGridCompleteQueryLog").jsGrid("refresh");
+            } else if (e.target.value === "2") {
+                $("#jsGridCompleteQueryLog").hide();
+                $("#jsGridRunningQueryLog").show();
+                $("#btnShowmore").hide();
                 getRunningLog();
-            } else if (e.target.innerHTML === "Completed") {
-                $("#CompleteQueryPager").show();
             }
         })
 
@@ -352,12 +355,23 @@
         var reloadGrid = function () {
             var grid = $('#jsGridCompleteQueryLog');
             grid.jsGrid("option", "height", $(window).height() - 60);
-            grid.jsGrid("option", "width", $(window).width() - 40);
+            grid.jsGrid("option", "width", $(window).width() - 20);
             grid.jsGrid("refresh");
             var grid1 = $('#jsGridRunningQueryLog');
             grid1.jsGrid("option", "height", $(window).height() - 60);
-            grid1.jsGrid("option", "width", $(window).width() - 40);
+            grid1.jsGrid("option", "width", $(window).width() - 20);
             grid1.jsGrid("refresh");
+        }
+
+        var sortTimeDesc = function (a, b) {
+            var timeStamp_b = (new Date(b.StartTime).getTime());
+            var timeStamp_a = (new Date(a.StartTime).getTime());
+            return timeStamp_b - timeStamp_a;
+        }
+
+
+        var moveOutCompleteDiv = function () {
+
         }
     </script>
 </body>
