@@ -13,7 +13,15 @@
     <link href="../third-party/jstree/themes/default/style.css" rel="stylesheet" />
     <link href="../css/dialog.css" rel="stylesheet" />
 </head>
+<style>
 
+.jsgrid-header-title {
+    padding-left: 0.5em;padding-top: 0.2em;padding-bottom: 0.2em
+}
+.jsgrid-cell {
+    padding: 0.3em;
+}
+</style>
 <body style="overflow-x:hidden">
     <div class="dd_mainbody">
         <div class="row">
@@ -25,7 +33,7 @@
                             <span>Table</span>
                             <select id="drpTable">
                             </select>
-                            <span style="padding-left:10px">Number of display rows per page </span>
+                            <span style="padding-left:25px">Show</span>
                             <select id="drpPagesize">
                                 <option value="20">20</option>
                                 <option value="50">50</option>
@@ -33,14 +41,16 @@
                                 <option value="200">200</option>
                                 <option value="1000">1000</option>
                             </select>
+                            <span>entries</span>
                         </div>
-                        <div id="pager" style="padding:5px;float: left;">
+                        <div id="pager" style="padding:5px 5px 5px 25px ;float: right;">
+
 
                         </div>
-                        <div style="padding: 5px; float: left; display: block;" class="jsgrid-pager-container">
+                        <div style="padding: 5px; float: right; display: block;" class="jsgrid-pager-container">
                             <div class="jsgrid-pager">
-                            go to
-                            <input type="text" id="curPageIndex" value="1" style="width:60px;height:19px">
+                            Go to page: 
+                            <input type="text" id="curPageIndex" value="1" style="width:60px;height:20px">
                         </div>
                         </div>
                     </div>

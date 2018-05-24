@@ -97,7 +97,6 @@
 .jsgrid-cell {
     border: #a7a3a3 1px solid;
     white-space:nowrap;
-
     /* width:auto !important; */
 }
 .jsgrid-cell-cut{
@@ -125,7 +124,7 @@
 }
 
 .jsgrid-alt-row > .jsgrid-cell {
-    background: #fcfcfc;
+    background: #F0F0F0;
 }
 
 .jsgrid-header-row > .jsgrid-header-cell {
