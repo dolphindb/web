@@ -253,7 +253,7 @@ table[grid-manager].GridManager-ready {
 }
 
 .table-wrap table[grid-manager] thead tr th {
-    background-color: #e6eeee;
+    background-color: #f8f8f8;
 }
 
 .table-wrap table[grid-manager] thead tr th:hover {
@@ -268,11 +268,11 @@ table[grid-manager].GridManager-ready {
 }
 
 .table-wrap table[grid-manager] tbody tr td[col-hover="true"] {
-    background-color: #e6eeee;
+    background-color: #f8f8f8;
 }
 
 .table-wrap table[grid-manager] tbody tr[row-hover="true"] td {
-    background-color: #e6eeee;
+    background-color: #f8f8f8;
     color: #000;
 }
 
@@ -693,7 +693,7 @@ table[grid-manager].GridManager-ready {
 }
 
 .table-wrap .dreamland-div .dreamland-table thead tr th {
-    background-color: #e6eeee;
+    background-color: #f8f8f8;
     text-align: center;
 }
 
@@ -722,7 +722,7 @@ table[grid-manager].GridManager-ready {
 }
 
 .table-wrap table[grid-manager] th[gm-create="true"] {
-    background-color: #e6eeee !important;
+    background-color: #f8f8f8 !important;
     /*opacity: 0.4;*/
 }
 
