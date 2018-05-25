@@ -49,7 +49,7 @@
                         </div>
                         <div style="padding: 5px; float: right; display: block;" class="jsgrid-pager-container">
                             <div class="jsgrid-pager">
-                            Go to page: 
+                            Go to page
                             <input type="text" id="curPageIndex" value="1" style="width:60px;height:20px">
                         </div>
                         </div>
@@ -94,7 +94,7 @@
     var version = "";
     var curPath = "";
     var dfsPath = "";
-    var pgSize = 30;
+    var pgSize = 20;
     var currentSelectedTable = "";
     $(document).ready(function () {
         document.title = "Chunk Data Browser"
@@ -130,6 +130,7 @@
     $("#drpTable").bind("change", function () {
         currentSelectedTable = $("#drpTable").find("option:selected")[0].value;
         loadGrid(chunkid, dbPath, partitionPath, currentSelectedTable, 0, version)
+        $("#curPageIndex").val("1");
     });
 
     $("#curPageIndex").bind("keypress", function (e) {
