@@ -18,7 +18,9 @@
     <link href="third-party/noty/noty.css" rel="stylesheet">
     <link href="css/default.css" rel="stylesheet" />
 </head>
-
+<style>
+    .iconfont{-webkit-text-stroke-width: 0.2px;}
+</style>
 
 <body data-spy="scroll" data-target=".bs-docs-sidebar" data-twttr-rendered="true">
 
@@ -87,28 +89,31 @@
                                 <button type="button" class="btn btn-default" id="btn_run" title="start selected data nodes">
                                     <span class="glyphicon glyphicon-play"></span>
                                 </button>
-                                <button type="button" class="btn btn-default" id="btn_stop" title="stop selected data nodes">
+                                <button type="button" class="btn btn-default" id="btn_stop" title="stop selected data nodes" style="margin-left:1px">
                                     <span class="glyphicon glyphicon-stop"></span>
                                 </button>
-                                <button type="button" class="btn btn-default" id="btn_refresh" title="refresh performance data of all nodes">
+                                <button type="button" class="btn btn-default" id="btn_refresh" title="refresh performance data of all nodes" style="margin-left:1px">
                                     <span class="glyphicon glyphicon-refresh"></span>
                                 </button>
-                                
+
+                            </div>
+
+                            <div class="btn-group" role="group" aria-label="...">
+                                <button type="button" class="btn btn-default" id="btn-controller-config" style="height: 32px;margin-left:1px">
+                                    <span>Controller Config</span>
+                                </button>
+                                <button type="button" class="btn btn-default" id="btn-nodes-setup" style="height: 32px;margin-left:1px">
+                                    <span>Nodes Setup</span>
+                                </button>
+                                <button type="button" class="btn btn-default" id="btn-datanode-config" style="height: 32px;margin-left:1px">
+                                    <span>Nodes Config</span>
+                                </button>
+
                             </div>
                             <div class="btn-group" role="group" aria-label="...">
                                 <input class="form-control" id="txtFilter" type="text" style="width:auto;height:32px" placeholder="type text for node filtering">
                             </div>
-                            <div class="btn-group" role="group" aria-label="...">
-                                <button type="button" class="btn btn-default" id="btn-controller-config" style="height: 32px">
-                                    <span>Controller Config</span>
-                                </button>
-                                <button type="button" class="btn btn-default" id="btn-nodes-setup" style="height: 32px">
-                                    <span>Nodes Setup</span>
-                                </button>
-                            	<button type="button" class="btn btn-default" id="btn-datanode-config" style="height: 32px">
-                            		<span>Nodes Config</span>
-                            	</button>
-                            </div>
+                        
                         </div>
                     </div>
                 </div>
@@ -256,10 +261,13 @@
 </body>
 
 <script id="serverTemplate" type="text/x-jquery-tmpl">
-    <a class="list-group-item" title="${site}">${site.split(':')[2]} &nbsp; {{if state==1}}[<font style="color:green">running</font>] {{else}} [<font style="color:red">stopped</font>] {{/if}}</a>
+    <a class="list-group-item" title="${site}">${site.split(':')[2]} &nbsp; {{if state==1}}<img style='margin-left:2px;margin-right:2px' title='running' src='images/running.png' /> {{else}} <img style='margin-left:2px;margin-right:2px' title='stopped' src='images/stopped.png' /> {{/if}}</a>
 </script>
 
 <script id="databaseTemplate" type="text/x-jquery-tmpl">
     <a class="list-group-item" data-toggle="modal" data-target="#modal-database" ref="${domainId}" href="##">${dbName} [<font color='blue'>${tableNames}</font>]</a>
+</script>
+<script>
+
 </script>
 </html>

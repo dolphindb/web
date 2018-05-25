@@ -29,9 +29,14 @@ $(document).ready(function() {
         });
 
         $("button#btnOpenDFS").removeClass("ui-button");
-    
 });
 
+function setGridStyle(){
+    $("td[align='center']").each(function(i,e){
+        $(e).css("text-align","center");
+        console.log(e);
+    });
+}
 function detectUsers() {
     var scriptExecutor = new CodeExecutor(wa_url);
     var script = "getAllRealUsers().size() > 0 and !false"
@@ -208,12 +213,14 @@ function LoadTable(nodeList) {
                 text: 'State',
                 key: 'state',
                 remind: ' state of the node',
+                align:'center',
                 sorting: '',
                 template: function(state, rowObject) {
                     if (rowObject.state === 1) {
-                        return '<font style="color:green">running</font>';
+                        //return '<font style="color:green">running</font>';
+                        return "<img style='margin: 0 auto' title='running' src='images/running.png' />"
                     } else {
-                        return '<font style="color:red">stopped</font>';
+                        return "<img style='margin: 0 auto' title='stopped' src='images/stopped.png' />";
                     }
                 }
             }, {
@@ -251,7 +258,7 @@ function LoadTable(nodeList) {
                         r += '<a style="padding-left:20px" ref="getPerfLog@' + ref + '" href="javascript:void(0)" onclick="showPerfLog(\'' + api_url + '\',\'' + node_alias + '\')">view</a>';
                         return r;
                     } else
-                        return ""
+                        return "<span style='padding-left:20px;color:gray'>N/A</span>"
                 }
             }, {
                 text: 'Conns',
@@ -789,52 +796,22 @@ $("#btnOpenDFS").bind("click", function(e) {
 
 function hideCtlSel() {
     $("td:contains('controller')").parent().children().first().html('');
+    setGridStyle();
 }
 
 function showServerLog(url, alias) {
     var apiUrl = url;
     var nodeAlias = alias;
     var did = "svrlog_" + nodeAlias;
-    var divobj = document.getElementById(did);
-    if (!divobj) {
-        divobj = document.createElement("div");
-        divobj.id = did;
-        divobj.setAttribute("style", "overflow:hidden");
-        var iframe = document.createElement("iframe");
-        iframe.setAttribute("src", "dialogs/svrlog.html?svr=" + apiUrl + "&node=" + nodeAlias + "&sessid=" + SESSION_ID);
-        iframe.setAttribute("style", "height:100%;width:98%;border:0;overflow:hidden");
-        $(iframe).appendTo($(divobj));
-        $(divobj).appendTo($('#dialogs'));
-    }
-    openDialog(divobj.id, nodeAlias);
-    var frameWindow = $(divobj).children("iframe")[0].contentWindow;
-    if (typeof frameWindow.refreshMe === "function") {
-        frameWindow.refreshMe();
-    }
-   
+
+    new DolphinDialog(did, { title: 'ServerLog[' + nodeAlias + ']'}).openSingleWindow("dialogs/svrlog.html?svr=" + apiUrl + "&node=" + nodeAlias + "&sessid=" + SESSION_ID);
 }
 
 function showPerfLog(url, alias) {
     var apiUrl = url;
     var nodeAlias = alias;
     var did = "perflog_" + nodeAlias;
-    console.log("queryLog",did);
-    // var divobj = document.getElementById(did);
-    // if (!divobj) {
-    //     divobj = document.createElement("div");
-    //     divobj.id = did;
-    //     divobj.setAttribute("style", "overflow:hidden");
-    //     var iframe = document.createElement("iframe");
-    //     iframe.setAttribute("src", "dialogs/perflog.html?svr=" + apiUrl + "&node=" + nodeAlias + "&sessid=" + SESSION_ID);
-    //     iframe.setAttribute("style", "height:100%;width:98%;border:0;overflow:hidden");
-    //     $(iframe).appendTo($(divobj));
-    //     $(divobj).appendTo($('#dialogs'));
-    // }
-    // openDialog(divobj.id, nodeAlias);
-    // var frameWindow = $(divobj).children("iframe")[0].contentWindow;
-    // if (typeof frameWindow.refreshMe === "function") {
-    //     frameWindow.refreshMe();
-    // }
+  
     new DolphinDialog(did, { title: 'QueryLog[' + nodeAlias + ']'}).openSingleWindow("dialogs/perflog.html?svr=" + apiUrl + "&node=" + nodeAlias + "&sessid=" + SESSION_ID);
 }
 

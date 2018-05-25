@@ -67,6 +67,8 @@
         }
         curPath = dfsPath;
         getPartition(dfsPath, buildRootTree);
+
+        document.title = "DFS Table Browser[" + realTableName + "]";
     });
 
     var getPartition = function (path, callback) {
@@ -149,7 +151,7 @@
     }
     var loadGrid = function (chunkid, dbPath, partitionPath, tablename, sites, version) {
 
-        var pgSize = 20;
+        var pgSize = 50;
         var nodeSite = new ServerObject(site);
 
         var script = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "','" + tablename + "',0," + pgSize + ")";
@@ -165,7 +167,7 @@
                 var d = DolphinResult2Grid(json);
                 var grid = $('#jsgrid1');
                 var dg = new DolphinGrid(grid, {
-                    height:$(window).height() - 30,
+                    height: $(window).height() - 30,
                     data: d,
                     itemsCount: totalcount,
                     pageSize: pgSize,

@@ -13,6 +13,7 @@
     <link href="../third-party/jstree/themes/default/style.css" rel="stylesheet" />
     <link href="../css/dialog.css" rel="stylesheet" />
 </head>
+
 <body>
     <div class="dd_mainbody">
         <div>
@@ -35,6 +36,7 @@
     <script src="../js/CallWebApi.js" type="text/javascript"></script>
     <script src="../js/datagrid.js" type="text/javascript"></script>
 </body>
+
 </html>
 <script>
     var controller = "";
@@ -54,6 +56,8 @@
                 alert(g.msg);
             }
         });
+
+        document.title = "Table Browser[" + tablename + "]";
     });
 
     function showTableGrid(tablename, totalcount, g) {
@@ -61,9 +65,10 @@
         var d = DolphinResult2Grid(g);
         grid = $('#jsgrid1');
         var dg = new DolphinGrid(grid, {
-            height: $(window).height()-30,
-            width: $(window).width()-30,
+            height: $(window).height() - 20,
+            width: $(window).width() - 30,
             autoload: true,
+            pageSize: 50,
             controller: {
                 loadData: function (filter) {
                     var deferred = $.Deferred();
@@ -93,5 +98,15 @@
         if (typeof pagesize !== "undefined")
             p.length = pagesize.toString();
         scriptExecutor.run(script, sucfunc, p);
+    }
+
+    $(window).resize(function () {
+        reloadGrid();
+    });
+    var reloadGrid = function () {
+        var grid = $('#jsgrid1');
+        grid.jsGrid("option", "height", $(window).height() - 20);
+        grid.jsGrid("option", "width", $(window).width() - 30);
+        grid.jsGrid("refresh");
     }
 </script>

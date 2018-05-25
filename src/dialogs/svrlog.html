@@ -8,20 +8,43 @@
     <meta name="description" content="DolphinDB Node Management">
     <meta name="author" content="DolphinDB">
     <link rel="stylesheet" href="../third-party/bootstrap/css/bootstrap.min.css">
+    <link href="../css/dialog.css" rel="stylesheet" />
 </head>
+<style>
+    .navbar {
+        position: relative;
+        z-index: 1000;
+        border: 1px solid #f3f3f3;
+        min-height: 30px;
+        margin-bottom: 2px;
+    }
 
-<body>
-    <div class="container-fluid">
+    .dd_row {
+        margin: 2px;
+        padding: 2px;
+    }
+</style>
+
+<body style="overflow: hidden;">
+    <div class="dd-mainbody">
         <div>
-            <div class="well" id="pnllog" style="margin-left:20px;font-size:12px;min-height:500px;_height:90vh;overflow:auto">
+            <nav class="navbar">
+                <div class="container-fluid">
+                    <div class="dd_row">
+                        <button type="button" id="btnShowmore" onclick="ShowMoreCompleteQueryLog()" class="btn btn-link">Show more</button>
+                        <button type="button" id="btnRefreshLog" onclick="refreshMe()" class="btn btn-link">Refresh log</button>
+                    </div>
+                </div>
+
+            </nav>
+            <div class="well" id="pnllog" style="overflow-y: auto">
 
             </div>
+
         </div>
-        <div>
-            <div class="col-lg-5 col-md-3 col-sm-3">
-                <input type="text" id="txtLength" class="hide" value="2000" />
-                <input type="text" id="txtOffset" class="hide" value="0" />
-            </div>
+        <div class="hide">
+                        <input type="text" id="txtLength" class="hide" value="10000" />
+                        <input type="text" id="txtOffset" class="hide" value="0" />
             <div class="col-lg-3 col-md-4 col-sm-4">
                 <div class="btn-group" role="group" style="margin-top:5px">
                     <label class="radio-inline">
@@ -62,7 +85,7 @@
         var nodeAlias = "";
         var SESSION_ID = "";
         var logLength = 0;
-        $(function() {
+        $(function () {
             var svr_obj = new ServerObject($.getUrlParam('svr'));
             svr_url = svr_obj.getHttpServer();
             SESSION_ID = $.getUrlParam('sessid');
@@ -74,18 +97,18 @@
                 $('#txtOffset').val(Number(logLength) - Number(len));
             else
                 $('#txtOffset').val("0");
+            currentpostion = $('#txtOffset').val();
             LoadLog();
         });
 
-        var bindLog = function(json) {
+        var bindLog = function (json) {
             $('#pnllog').html('');
-            json.forEach(function(element) {
+            json.forEach(function (element) {
                 $('#pnllog').append(HTMLEncode(element) + "<br/>");
             }, this);
         }
 
-        var getLog = function(offset, length, fromhead) {
-            length = 2000;
+        var getLog = function (offset, length, fromhead) {
             var p = {
                 "sessionID": SESSION_ID,
                 "functionName": "getServerLog",
@@ -111,7 +134,7 @@
                     "value": nodeAlias
                 }]
             };
-            CallWebApi(svr_url, p, function(re) {
+            CallWebApi(svr_url, p, function (re) {
                 if (re.resultCode == "0") {
                     if (re.object.length > 0) {
                         var retable = re.object[0].value;
@@ -123,7 +146,7 @@
             });
         }
 
-        var getLogLength = function() {
+        var getLogLength = function () {
             var p = {
                 "sessionID": SESSION_ID,
                 "functionName": "getServerLogLength",
@@ -143,7 +166,7 @@
         }
         var logFromhead = false;
 
-        $("#btnForward").bind('click', function() {
+        $("#btnForward").bind('click', function () {
             var len = $('#txtLength').val();
             var currentpostion = $('#txtOffset').val();
             var nextPosition = 0;
@@ -161,7 +184,7 @@
             LoadLog();
         });
 
-        $("#btnBackward").bind('click', function() {
+        $("#btnBackward").bind('click', function () {
             var len = $('#txtLength').val();
             var currentpostion = $('#txtOffset').val();
             var nextPosition = 0;
@@ -179,12 +202,12 @@
             LoadLog();
         });
 
-        $('#btnReload').bind('click', function() {
+        $('#btnReload').bind('click', function () {
             logLength = getLogLength();
             LoadLog();
         });
 
-        $("[name='rdoFromHead']").bind("click", function() {
+        $("[name='rdoFromHead']").bind("click", function () {
             var isFormHead = $("[name='rdoFromHead']:checked").val();
             if (isFormHead === "0") {
                 if (logFromhead == true) {
@@ -201,12 +224,14 @@
             }
             LoadLog();
         });
-        var LoadLog = function() {
-                $("#btnForward").focus();
-                getLog($('#txtOffset').val(), $('#txtLength').val(), logFromhead);
+        var LoadLog = function () {
+            $("#btnForward").focus();
+            $("#pnllog").height($(window).height() - 90);
+            
+            getLog($('#txtOffset').val(), $('#txtLength').val(), logFromhead);
 
-            }
-            //===============page utils=====================
+        }
+        //===============page utils=====================
         function HTMLEncode(html) {
             var temp = document.createElement("div");
             (temp.textContent != null) ? (temp.textContent = html) : (temp.innerText = html);
@@ -215,14 +240,30 @@
             return output;
         }
 
-        function closeMe() {
-            var container = window.parent;
-            container.closeDialog("svrlog_" + nodeAlias);
-        }
-
         function refreshMe() {
             LoadLog();
         }
+        var currentpostion = 0;
+        var ShowMoreCompleteQueryLog = function(){
+            var len = $('#txtLength').val();
+            currentpostion = parseInt(currentpostion) - parseInt(len);
+            if (currentpostion < 0) {
+                currentpostion = 0;
+            } else if (currentpostion > logLength) {
+                currentpostion = logLength;
+            }
+            $('#txtOffset').val(currentpostion);
+            getLog(currentpostion, logLength - currentpostion, false);
+        }
+
+        $(window).resize(function () {
+            reloadGrid();
+        });
+        var reloadGrid = function () {
+            console.log("$(window).height()",$(window).height());
+            $("#pnllog").height($(window).height() - 90);
+        }
+
     </script>
 </body>
 
