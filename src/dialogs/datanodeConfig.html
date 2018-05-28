@@ -12,28 +12,23 @@
 </head>
 
 <body>
-	<div style="width: 95%; margin-left: 20px; margin-right: 20px;">
-		<div class="row">
+	<div class="dd_mainbody">
+		<div >
 			<div class="col-xs-12">
-				<div id="dn-config-rule-list"></div>
+				<div id="dn-config-rule-list" style="overflow-y: auto;overflow-x: hidden"></div>
 			</div>
 		</div>
-		<div class="row">
+		<div class="row navbar-fixed-bottom">
 			<div class="col-xs-11">
 				<div class="form-group">
-					<button type="button" class="btn btn-default" id="btn-add-dn-config-rule">
-						<span>Add Config</span>
+					
+					<button type="button" class="btn btn-default" id="btn-save-dn-config-rule" title="Save to config file and apply the configuration when the datanode restrart">
+						<span>Save&amp;Apply</span>
 					</button>
-					<button type="button" class="btn btn-default" id="btn-save-dn-config-rule">
-						<span>Save</span>
-					</button>
-					<button type="button" class="btn btn-default" id="btn-apply-dn-config-rule">
-						<span>Apply Config</span>
-					</button>
-					<button type="button" class="btn btn-default" id="btn-close-dn-config-rule">
-					    <span>Close</span>
-					</button>
-					<span id="text-dn-config-rule-saved" style="display: none;">Saved. Restart controller to make changes take effect</span>
+					<button type="button" class="btn btn-default" id="btn-add-dn-config-rule" title="Add a new config item">
+							<span>Add</span>
+						</button>
+					<span id="text-dn-config-rule-saved" style="display: none;">saved success!</span>
 				</div>
 			</div>
             <div class="col-xs-1">
@@ -53,6 +48,7 @@
 	<script src="../js/serverApi.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		DatanodeConfig();
+		$("#dn-config-rule-list").height($(window).height()-60);
 	</script>
 </body>
 

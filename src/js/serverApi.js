@@ -288,15 +288,7 @@ function DatanodeConfig() {
         })
     }
 
-    $('#dn-config-rule-list').change(function() {
-        $('#text-dn-config-rule-saved').attr('style', 'display: none;');
-    });
-    $('#btn-add-dn-config-rule').click(function() { addRule(); });
-    $('#btn-save-dn-config-rule').click(function() {
-        if (confirm("This operation will rewrite your datanode config file. Continue saving?"))
-            saveRules();
-    });
-    $('#btn-apply-dn-config-rule').click(function() {
+    function applyRules(){
         var script = "reloadClusterConfig()";
         scriptExecutor.run(script, function (res) {
             if (res.resultCode === '0') {
@@ -305,13 +297,24 @@ function DatanodeConfig() {
                 alert(res.msg);
             }
         })
+    }
+
+    $('#dn-config-rule-list').change(function() {
+        $('#text-dn-config-rule-saved').attr('style', 'display: none;');
     });
-    
-    $('#btn-close-dn-config-rule').click(function() {
-        var container = window.parent;
-        container.closeDialog('datanode-config');
+    $('#btn-add-dn-config-rule').click(function() { addRule(); });
+    $('#btn-save-dn-config-rule').click(function() {
+        if (confirm("This operation will rewrite your datanode config file and take effect when you restart the datanode. Continue saving?"))
+        {
+            saveRules();
+            applyRules();
+        }  
     });
     loadRules();
+
+    console.log("$(window).height()",$(window).height());
+    $("#frmContent").height($(window).height() - 100);
+    
     refreshMe = loadRules;
 }
 

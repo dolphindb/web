@@ -15,7 +15,7 @@ var client = null;
 $(function () {
     client = new DolphinDBDFSClient(wa_url);
 
-    $("#dfsPathInput").width($(window).width()-120);
+    $("#dfsPathInput").width($(window).width()-140);
 
     var url = $.getUrlParam('dfs');
     var defaultPath = "/";

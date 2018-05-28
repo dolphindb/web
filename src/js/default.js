@@ -200,7 +200,7 @@ function LoadTable(nodeList) {
                     if (rowObject.state === 1) {
                         var nodeManager = new ClusterNodeManager();
                         var nodeHost = nodeManager.getNodeApiUrl(rowObject.name);
-                        r = '<a href="###" onclick=javascript:window.open("nodedetail.html?site=' + nodeHost + ':' + rowObject.port + ':' + rowObject.name + '");>' + rowObject.name + '</a>';
+                        r = '<a href="###" class="a-link" onclick=javascript:window.open("nodedetail.html?site=' + nodeHost + ':' + rowObject.port + ':' + rowObject.name + '");>' + rowObject.name + '</a>';
                         return r;
                     } else {
                         return rowObject.name;
@@ -212,7 +212,7 @@ function LoadTable(nodeList) {
             }, {
                 text: 'State',
                 key: 'state',
-                remind: ' state of the node',
+                remind: 'state of the node',
                 align:'center',
                 sorting: '',
                 template: function(state, rowObject) {
@@ -240,7 +240,7 @@ function LoadTable(nodeList) {
                         api_url = getControllerIp();
                         ref = rowObject.site.replace(rowObject.host, getControllerIp()) + '@' + rowObject.site;
                     }
-                    r += '<a style="padding-left:20px"  ref="getServerLog@' + ref + '" href="javascript:void(0)" onclick="showServerLog(\'' + api_url + '\',\'' + node_alias + '\')">view</a>';
+                    r += '<a style="padding-left:20px" class="a-link"  ref="getServerLog@' + ref + '" href="javascript:void(0)" onclick="showServerLog(\'' + api_url + '\',\'' + node_alias + '\')">view</a>';
                     return r;
                 }
             }, {
@@ -255,7 +255,7 @@ function LoadTable(nodeList) {
                         var agentUrl = getAgentSite(getControllerIp(), rowObject);
                         api_url = agentUrl;
                         ref = agentUrl + '@' + rowObject.site;
-                        r += '<a style="padding-left:20px" ref="getPerfLog@' + ref + '" href="javascript:void(0)" onclick="showPerfLog(\'' + api_url + '\',\'' + node_alias + '\')">view</a>';
+                        r += '<a style="padding-left:20px" class="a-link" ref="getPerfLog@' + ref + '" href="javascript:void(0)" onclick="showPerfLog(\'' + api_url + '\',\'' + node_alias + '\')">view</a>';
                         return r;
                     } else
                         return "<span style='padding-left:20px;color:gray'>N/A</span>"
@@ -541,6 +541,9 @@ function LoadTable(nodeList) {
         ],
         sortingAfter: function(querys) {
             hideCtlSel();
+        },
+        sortingBefore:function(query){
+            console.log(query);
         }
     });
 }
