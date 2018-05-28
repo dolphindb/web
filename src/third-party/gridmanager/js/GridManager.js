@@ -829,6 +829,7 @@
                     // 监听鼠标调整列宽度
                     thList.off('mousedown', '.adjust-action');
                     thList.on('mousedown', '.adjust-action', function(event) {
+
                         var Settings = _Cache2.default.getSettings($table);
                         var _dragAction = (0, _jTool2.default)(this);
                         // 事件源所在的th
@@ -3228,7 +3229,11 @@
                 //(0, _jTool2.default)('.sorting-action', _thList).unbind('mouseup');
                 //(0, _jTool2.default)('.sorting-action', _thList).bind('mouseup', function() {
                 _thList.unbind('mouseup');
-                _thList.bind('mouseup', function() {
+                _thList.bind('mouseup', function(event) {
+                    //LINL fix event bubble
+                    if($(event.target)[0].className==="adjust-action"){
+                        return false;
+                    }
                     var Settings = _Cache2.default.getSettings(table);
                     //_action = (0, _jTool2.default)(this);
                     //_th = _action.closest('th');
@@ -3275,7 +3280,6 @@
                         });
                     }
                     localStorage.setItem("dolphindb_gridsorting", JSON.stringify(Settings.sortData));//LINL:20171127
-                    console.log("setSortingData", Settings.sortData);
                     
                     //调用事件、渲染tbody
                     _Cache2.default.updateSettings(table, Settings);
@@ -3376,7 +3380,6 @@
 
                     // 列拖拽触发回调事件
                     Settings.dragBefore(event);
-                    console.log("dragstart",_table);
                     //禁用文字选中效果
                     (0, _jTool2.default)('body').addClass('no-select-text');
                     //父级DIV使用相对定位
@@ -3394,9 +3397,6 @@
                         if(e2.target.innerText === "") return;
                         if(currentDragCol === e2.target.innerText.trim()) return;
                         
-                        console.log("dragover1",currentDragCol);
-                        console.log("dragover2",e2.target.innerText);
-                        console.log("currentDragCol == e2.target.innerText",currentDragCol.trim() === e2.target.innerText.trim())
                         var Settings = _Cache2.default.getSettings(table);
                         _thIndex = _th.index(_allTh);
                         _prevTh = undefined;
@@ -3525,7 +3525,7 @@
                     */
                     if (_setTopHead.length === 0) {
                         var translate = "translate(0," + (_scrollDOMTop) + "px)";
-                        console.log(translate);
+
                         _thead.css('transform', translate);
                         return;
                     }
