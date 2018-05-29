@@ -509,7 +509,7 @@ function ControllerConfig() {
     });
     //$('#btn-add-cnt-config-rule').click(function() { addRule(); });
     $('#btn-save-cnt-config-rule').click(function() {
-        if (confirm("This operation will rewrite your controller config file. Continue saving?"))
+        //if (confirm("This operation will rewrite your controller config file. Continue saving?"))
             saveRules();
     });
     $('#btn-close-cnt-config-rule').click(function() {
