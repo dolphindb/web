@@ -1,4 +1,4 @@
-var wa_url = "http://" + window.location.host;
+var wa_url = GetFullUrl(window.location.host);
 var homeTitle = "[Home]"
 //testcase :
 //db = database("dfs://root/node1/node1_1/node1_1_1")

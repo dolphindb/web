@@ -126,14 +126,23 @@ var ServerObject = function (sites) {
     }
 
     this.getHttpServer = function () {
-        return "http://" + this.getServer();
+        return window.location.protocol + "//" + this.getServer();
     }
 
+    this.getServerHttpRestrict = function () {
+        return "http://" + this.getServer();
+    }
     this.getAlias = function () {
         return svrArr[2];
     }
 }
 
+function GetFullUrl(host){
+    return window.location.protocol + "//" + host;
+}
+function GetFullUrlHttpRestrict(host){
+    return "http://" + host;
+}
 //==================================================String========================================
 String.prototype.trimEnd = function(c)  
 {  

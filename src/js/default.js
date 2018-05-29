@@ -10,8 +10,8 @@ var grid = document.querySelector('table[grid-manager="grid1"]');
 var filterStorageId = "dolphindb_default_gridfilter";
 
 $(document).ready(function() {
-    wa_url = "http://" + window.location.host;
-    
+
+    wa_url = GetFullUrl(window.location.host);
         $.cookie('ck_ag_controller_url', wa_url);
     
         $.cookie("language_file", "js/lang.en.js");
@@ -806,8 +806,8 @@ function showServerLog(url, alias) {
     var apiUrl = url;
     var nodeAlias = alias;
     var did = "svrlog_" + nodeAlias;
-
-    new DolphinDialog(did, { title: 'ServerLog[' + nodeAlias + ']'}).openSingleWindow("dialogs/svrlog.html?svr=" + apiUrl + "&node=" + nodeAlias + "&sessid=" + SESSION_ID);
+    var pageUrl = GetFullUrlHttpRestrict(window.location.host);
+    new DolphinDialog(did, { title: 'ServerLog[' + nodeAlias + ']'}).openSingleWindow(pageUrl + "/dialogs/svrlog.html?svr=" + apiUrl + "&node=" + nodeAlias + "&sessid=" + SESSION_ID);
 }
 
 function showPerfLog(url, alias) {

@@ -1,4 +1,8 @@
-
+/*=============================================
+Decription  : Dolphin API
+Author      : LinL 
+Date        : 2018-05-27
+==============================================*/
 var DolphinEntity = function (json) {
     this._json = json;
 }
@@ -18,7 +22,7 @@ DolphinEntity.prototype = {
 }
 
 var getSiteByAlias = function (alias) {
-    var exec = new CodeExecutor("http://" + window.location.host);
+    var exec = new CodeExecutor(GetFullUrl(window.location.host));
     var re = exec.runSync("rpc('" + alias + "',getNodeHost)");
     var getHost = new DolphinEntity(re).toScalar();
     re = exec.runSync("rpc('" + alias + "',getNodePort)");

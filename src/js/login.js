@@ -1,5 +1,5 @@
 $('#btn-login').click(function() {
-    var controller = "http://" + window.location.host;
+    var controller = GetFullUrl(window.location.host);
     var scriptExecutor = new CodeExecutor(controller);
 
     var username = $('#username').val();

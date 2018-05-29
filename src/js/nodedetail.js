@@ -11,19 +11,19 @@ $(function() {
     var siteid = $.getUrlParam('site');
 
     if (!siteid || siteid === "") {
-        wa_url = "http://" + window.location.host;
+        wa_url = GetFullUrl(window.location.host);
     } else {
         var hostinfo = siteid.split(':');
         HOST = hostinfo[0];
         PORT = hostinfo[1];
         ALIAS = hostinfo[2];
-        wa_url = "http://" + HOST + ":" + PORT + "/";
+        wa_url = GetFullUrl(HOST + ":" + PORT + "/");
         if (ALIAS)
             document.title = ALIAS;
     }
 
     if (siteid || siteid === '')
-        $('#link-to-controller').attr('href', 'http://' + window.location.host);
+        $('#link-to-controller').attr('href', GetFullUrl(window.location.host));
     else
         $('#link-to-controller').attr('href', '');
 
