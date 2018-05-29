@@ -280,6 +280,7 @@ function DatanodeConfig() {
 
         scriptExecutor.run(script, function(res) {
             if (res.resultCode === '0') {
+                applyRules();
                 $('#text-dn-config-rule-saved').attr('style', '');
                 $('#btn-save-dn-config-rule').attr('disabled', true);
             } else {
@@ -292,7 +293,7 @@ function DatanodeConfig() {
         var script = "reloadClusterConfig()";
         scriptExecutor.run(script, function (res) {
             if (res.resultCode === '0') {
-                alert("Restart all datanodes to apply the new configration!");
+                //alert("Restart all datanodes to apply the new configration!");
             } else {
                 alert(res.msg);
             }
@@ -304,11 +305,7 @@ function DatanodeConfig() {
     });
     $('#btn-add-dn-config-rule').click(function() { addRule(); });
     $('#btn-save-dn-config-rule').click(function() {
-        if (confirm("This operation will rewrite your datanode config file and take effect when you restart the datanode. Continue saving?"))
-        {
             saveRules();
-            applyRules();
-        }  
     });
     loadRules();
 
