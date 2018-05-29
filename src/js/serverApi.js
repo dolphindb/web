@@ -608,9 +608,9 @@ function NodesSetup() {
             data: nodes,
 
             fields: [
-                { name: 'Host', type: 'text' },
+                { name: 'Host', type: 'text',align:"center"},
                 { name: 'Port', type: 'number' },
-                { name: 'Alias', type: 'text' },
+                { name: 'Alias', type: 'text',align:"center" },
                 { name: 'Mode', type: 'select', items: [{ name: 'agent' }, { name: 'datanode' }], valueField: 'name', textField: 'name' },
                 { type: 'control' }
             ],
