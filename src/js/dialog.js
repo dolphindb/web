@@ -43,9 +43,6 @@ DolphinDialog.prototype = {
         $("#" + did).dialog(this.settings);
     },
     openSingleWindow: function(url,height,width){
-
-        console.log("window.height:",$(window).height());
-        console.log("window.width:", $(window).width());
         var h;
         var w;
         if(height){
@@ -53,17 +50,14 @@ DolphinDialog.prototype = {
         }else{
             h= $(window).height()-200;
         }
-        console.log("h",h);
         if(width){
             w = width;
         }else{
             w= $(window).width()*0.85;
         }
-        console.log("w",w);
+
         var iTop = ($(window).height()-h)/2;  
-        console.log("iTop",iTop);
         var iLeft = ($(window).width()-w)/2;
-        console.log("iLeft",iLeft);
         window.open(url,this.id,'height=' + h + ',width=' + w + ',top=' + iTop + ',left=' + iLeft + ',status=no,toolbar=no,menubar=no,location=no,resizable=no,scrollbars=0,titlebar=no');
     }
 }

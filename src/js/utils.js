@@ -212,4 +212,16 @@ function getIpNum(ipAddress) {
   
 function isInner(userIp,begin,end){        
     return (userIp>=begin) && (userIp<=end);        
-}   
+}
+
+function HandleUrlOverHttp(){
+    var protocal = window.location.protocol;
+    if(protocal.toLowerCase()==="http:"){
+        var ctlUrl = GetFullUrlHttpRestrict(window.location.host);
+        var controller = new ControllerServer(ctlUrl);
+        var re = new DolphinEntity(controller.getIsEnableHttps());
+        if(re.toScalar() === "1"){
+            window.location.href = window.location.href.replace("http","https");
+        }
+    }
+}

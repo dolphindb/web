@@ -1,4 +1,5 @@
 ///
+var session_storage_id = "dolphindb_session_id";
 
 function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
 
@@ -7,11 +8,11 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
     if (typeof CurrentSessionID === 'undefined') {
         var CurrentSessionID = 0;
     }
-    if ($.cookie('sessionID') == null) {
+    if (localStorage.getItem(session_storage_id) == null) {
         paramstr['sessionID'] = CurrentSessionID;
-        $.cookie('sessionID', CurrentSessionID)
+        localStorage.setItem(session_storage_id, CurrentSessionID)
     } else {
-        CurrentSessionID = $.cookie('sessionID');
+        CurrentSessionID = localStorage.getItem(session_storage_id);
         paramstr['sessionID'] = CurrentSessionID;
     }
     var d = JSON.stringify(paramstr);
@@ -25,7 +26,7 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
         success: function(data, status, xhr) {
 
             CurrentSessionID = data["sessionID"];
-            $.cookie('sessionID', CurrentSessionID);
+            localStorage.setItem(session_storage_id, CurrentSessionID);
 
             if (sucfunc) sucfunc(data);
         },
@@ -49,10 +50,10 @@ function CallWebApiSync(apiurl, paramstr) {
     if (typeof CurrentSessionID === 'undefined') {
         var CurrentSessionID = 0;
     }
-    if ($.cookie('sessionID') == null) {
-        $.cookie('sessionID', CurrentSessionID)
+    if (localStorage.getItem(session_storage_id) == null) {
+        localStorage.setItem(session_storage_id, CurrentSessionID)
     } else {
-        CurrentSessionID = $.cookie('sessionID');
+        CurrentSessionID = localStorage.getItem(session_storage_id);
     }
     paramstr['sessionID'] = CurrentSessionID;
     var d = JSON.stringify(paramstr);

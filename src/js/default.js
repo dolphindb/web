@@ -10,11 +10,11 @@ var grid = document.querySelector('table[grid-manager="grid1"]');
 var filterStorageId = "dolphindb_default_gridfilter";
 
 $(document).ready(function() {
-
+    HandleUrlOverHttp();
     wa_url = GetFullUrl(window.location.host);
-        $.cookie('ck_ag_controller_url', wa_url);
+        // $.cookie('ck_ag_controller_url', wa_url);
     
-        $.cookie("language_file", "js/lang.en.js");
+        // $.cookie("language_file", "js/lang.en.js");
     
         //detectUsers()
     

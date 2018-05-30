@@ -119,7 +119,6 @@ function bindVariables(datalist) {
         .unbind('dblclick.jstree')
         .bind('dblclick.jstree', function (e) {
             //get server object value
-            console.log("jstree.e", e.target);
             var so_form = e.target.attributes.form.value;
             var so_name = e.target.attributes.name.value;
             var so_type = e.target.attributes.type.value;
@@ -302,9 +301,7 @@ function showResult(gridid, resobj) {
     var d = DolphinResult2Grid(resobj),
         btnPlot = $('#btn-plot');
     var h = $(window).height() - $("#resulttab").offset().top-200;
-    console.log("$(window).height():",$(window).height());
-    console.log("resulttab.offset().top:",$("#resulttab").offset().top);
-    console.log("gridheight:",h);
+    
     var grid = $('#' + gridid);
     var dg = new DolphinGrid(grid, {
         pageSize: 50,

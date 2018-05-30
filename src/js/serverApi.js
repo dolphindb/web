@@ -1,6 +1,6 @@
 function DatanodeConfig() {
     var ruleNumber = 0;
-    var controller = "http://" + window.location.host;
+    var controller = GetFullUrl(window.location.host);
     var scriptExecutor = new CodeExecutor(controller);
     var ruleData = [];
 
@@ -317,7 +317,7 @@ function DatanodeConfig() {
 
 function ControllerConfig() {
     var ruleNumber = 0;
-    var controller = "http://" + window.location.host;
+    var controller = GetFullUrl(window.location.host);
     var scriptExecutor = new CodeExecutor(controller);
     var ruleData = [];
     var configs = [
@@ -522,7 +522,7 @@ function ControllerConfig() {
 
 function NodesSetup() {
     var datanodeNum = 0;
-    var controller = "http://" + window.location.host;
+    var controller = GetFullUrl(window.location.host);
     var scriptExecutor = new CodeExecutor(controller);
     var datanodes = [];
     var existingAgents = [];
@@ -548,6 +548,7 @@ function NodesSetup() {
                 if (existingAgents.length > 0)
                     useExistingAgent(); // default 'new agent' not checked
                 else {
+                    var newAgentInput = $("#batch-add-new-agent");
                     newAgentInput.attr('checked', 'checked');
                     useNewAgent();
                 }

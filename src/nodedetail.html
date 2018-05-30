@@ -79,8 +79,12 @@
                 <div>
                     <!-- Result Window tabs -->
                     <ul id="resulttab" class="nav nav-tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#log" aria-controls="log" role="tab" data-toggle="tab">Log</a></li>
-                        <li role="presentation"><a href="#DataWindow" aria-controls="DataWindow" role="tab" data-toggle="tab">Data Browser</a></li>
+                        <li role="presentation" class="active">
+                            <a href="#log" aria-controls="log" role="tab" data-toggle="tab">Log</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#DataWindow" aria-controls="DataWindow" role="tab" data-toggle="tab">Data Browser</a>
+                        </li>
                     </ul>
                     <!-- Result panes -->
                     <div class="tab-content" style="position: relative;">
@@ -101,10 +105,12 @@
                                     <span class="btn-log btn-download" id="btn-download">Download</span>
                                 </div>
                                 <div class="panel-body" id="pnl_datawindow">
-                                    <p></p>
-
-                                    <div id="jsgrid1"></div>
-                                    <div id="jsgridpager"></div>
+                                    <div>
+                                        <div id="jsgrid1"></div>
+                                    </div>
+                                    <div>
+                                        <div id="jsgridpager"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -112,7 +118,9 @@
                 </div>
             </div>
             <div class="col-lg-3 col-md-3 col-sm-4">
-                <div style="height:40px">&nbsp;<button type="button" class="btn btn-default hide" id="btn_refresh"></button> </div>
+                <div style="height:40px">&nbsp;
+                    <button type="button" class="btn btn-default hide" id="btn_refresh"></button>
+                </div>
                 <div class="panel panel-default" style="min-height: 50vh">
                     <div class="panel-body">
                         <div id="pnl_variables">
@@ -133,7 +141,10 @@
             <div class="row">
                 <div class="col-lg-12 col-sm-12">
                     <ul class="list-unstyled">
-                        <li>CopyRight &copy; <a href="http://www.dolphindb.com"><strong class="text-info">DolphinDB</strong></a> 2016 - 2018</li>
+                        <li>CopyRight &copy;
+                            <a href="http://www.dolphindb.com">
+                                <strong class="text-info">DolphinDB</strong>
+                            </a> 2016 - 2018</li>
                     </ul>
                 </div>
             </div>
@@ -217,7 +228,9 @@
                 <div class="col-lg-3 col-md-6 col-xs-12">
                     <div class="form-group">
                         <label class="col-xs-9 control-label" for="btn-add-column">Add Column</label>
-                        <button type="button" class="btn btn-default" id="btn-add-column"><span class="glyphicon glyphicon-plus"></span></button>
+                        <button type="button" class="btn btn-default" id="btn-add-column">
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
                     </div>
 
                     <div id="column-list">
