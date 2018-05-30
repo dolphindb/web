@@ -99,7 +99,11 @@ ControllerServer.prototype = {
     getTablesByTabletChunkSync: function (alias,chunkId) {
         var exec = new CodeExecutor(this._url);
         return exec.runSync("rpc('" + alias + "',getTablesByTabletChunk,'" + chunkId + "')");    
-    }
+    },
+    getIsEnableHttps: function () {
+        var exec = new CodeExecutor(this._url);
+        return exec.runSync("isEnableHTTPS()");
+    },
 }
 
 
