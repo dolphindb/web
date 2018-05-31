@@ -144,3 +144,7 @@
 .jsgrid-pager-page {
     padding: .2em .6em;
 }
+
+::-webkit-scrollbar {
+    width: 5px;
+}

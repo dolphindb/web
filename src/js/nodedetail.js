@@ -305,12 +305,21 @@ function showResult(gridid, resobj) {
     var grid = $('#' + gridid);
     var dg = new DolphinGrid(grid, {
         pageSize: 50,
+        paging:true,
         height:h,
         sorting: true,
-        paging: true,
         pagerContainer:$("#jsgridpager"),
-        pageLoading: false,
-        autoload: false
+        autoload: true,
+        pageLoading:true,
+        controller: {
+            loadData: function (filter) {
+                console.log("filter",filter);
+                var start = (filter.pageIndex - 1) * filter.pageSize;
+                var end = (start + filter.pageSize > d.length)?d.length:start + filter.pageSize;
+                console.log("d.slice",d.slice(start,end));
+                return {data: d.slice(start,end),itemsCount: d.length}
+            }
+        },
     });
 
     $("#btn-download").hide();
