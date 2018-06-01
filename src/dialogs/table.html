@@ -40,15 +40,19 @@
 </html>
 <script>
     var controller = "";
+    var nodeUrl = "";
     var scriptExecutor = null;
     $(document).ready(function () {
-        controller = "http://" + window.location.host;
+       
         var site = $.getUrlParam('site');
+        var serverObj = new ServerObject(site);
+        controller = serverObj.getHttpServer();
+
         var tablename = $.getUrlParam('tb');
         var tablesize = $.getUrlParam('size');
-        var serverObj = new ServerObject(site);
+        nodeUrl = GetFullUrl(window.location.host);
         var script = tablename + "[0:" + tablesize + "]";
-        scriptExecutor = new CodeExecutor(serverObj.getHttpServer());
+        scriptExecutor = new CodeExecutor(nodeUrl);
         getData(script, 0, 20, function (g) {
             if (g.resultCode === "0") {
                 showTableGrid(tablename, tablesize, g);

@@ -72,8 +72,8 @@
     });
 
     var getPartition = function (path, callback) {
-
-        var controller = "http://" + window.location.host;
+        var serverObj = new ServerObject(site);
+        var controller = serverObj.getHttpServer();
         var getTopPartitionScript = "select * from getDFSDirectoryContent('" + path + "') where filetype<2"
         var scriptExecutor = new CodeExecutor(controller);
         scriptExecutor.run(getTopPartitionScript, callback);
@@ -152,7 +152,7 @@
     var loadGrid = function (chunkid, dbPath, partitionPath, tablename, sites, version) {
 
         var pgSize = 50;
-        var nodeSite = new ServerObject(site);
+        var nodeSite = new ServerObject(window.location.hostname,window.location.port);
 
         var script = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "','" + tablename + "',0," + pgSize + ")";
 
@@ -208,7 +208,7 @@
     }
 
     var getTableData = function (script, sucCallback) {
-        var nodeUrl = new ServerObject(site).getHttpServer();
+        var nodeUrl = new ServerObject(window.location.hostname,window.location.port).getHttpServer();
         var scriptExecutor = new CodeExecutor(nodeUrl);
         scriptExecutor.run(script, sucCallback);
     };

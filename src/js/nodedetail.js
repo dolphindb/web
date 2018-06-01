@@ -1,26 +1,29 @@
 var editor = null;
-var wa_url = '';
+var controllerUrl ='';
+var nodeUrl = '';
 var HOST = '';
 var PORT = '';
 var logStorageID = '';
 
 var PAGESIZE = 20;
+var nodeManager = null;
 
 $(function() {
-
+    nodeUrl = GetFullUrl(window.location.host);
+    nodeManager =  new ClusterNodeManager();    
     var siteid = $.getUrlParam('site');
 
     if (!siteid || siteid === "") {
-        wa_url = GetFullUrl(window.location.host);
+        controllerUrl = nodeUrl;
     } else {
         var hostinfo = siteid.split(':');
         HOST = hostinfo[0];
         PORT = hostinfo[1];
-        ALIAS = hostinfo[2];
-        wa_url = GetFullUrl(HOST + ":" + PORT + "/");
-        if (ALIAS)
-            document.title = ALIAS;
+        controllerUrl = GetFullUrl(HOST + ":" + PORT + "/");
     }
+    var ALIAS  = nodeManager.getNodeAlias(window.location.hostname,window.location.port);
+    if (ALIAS)
+        document.title = ALIAS;
 
     if (siteid || siteid === '')
         $('#link-to-controller').attr('href', GetFullUrl(window.location.host));
@@ -53,7 +56,7 @@ $(function() {
 });
 
 function refreshVariables() {
-    var executor = new CodeExecutor(wa_url);
+    var executor = new CodeExecutor(nodeUrl);
     executor.run("objs(true)", function(re) {
         var rowJson = VectorArray2Table(re.object[0].value);
         bindVariables(rowJson);
@@ -353,13 +356,7 @@ function openDialog(dialog, tit) {
         height: 600,
         position: { my: "center", at: "center", of: window },
         title: tit,
-        //dialogClass: "no-close",
-        //buttons: [{
-        //    text: "OK",
-        //    click: function() {
-        //        $(this).dialog("close");
-        //    }
-        //}]
+
     });
 }
 
@@ -463,7 +460,7 @@ function getData(script, startindex, pagesize, sucfunc, errfunc) {
     var btnRequests = $('.btn-request');
     btnRequests.attr('disabled', true);
 
-    CallWebApi(wa_url, p, function(re) {
+    CallWebApi(nodeUrl, p, function(re) {
         btnRequests.attr('disabled', false);
         sucfunc(re);
     }, function(err) {

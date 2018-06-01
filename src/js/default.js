@@ -200,7 +200,8 @@ function LoadTable(nodeList) {
                     if (rowObject.state === 1) {
                         var nodeManager = new ClusterNodeManager();
                         var nodeHost = nodeManager.getNodeApiUrl(rowObject.name);
-                        r = '<a href="###" class="a-link" onclick=javascript:window.open("nodedetail.html?site=' + nodeHost + ':' + rowObject.port + ':' + rowObject.name + '");>' + rowObject.name + '</a>';
+                        var nodeUrl = GetFullUrl(nodeHost + ':' + rowObject.port + '/nodedetail.html?site=' + nodeManager.getControllerSite());
+                        r = '<a href="###" class="a-link" onclick=javascript:window.open("'+nodeUrl+'");>' + rowObject.name + '</a>';
                         return r;
                     } else {
                         return rowObject.name;

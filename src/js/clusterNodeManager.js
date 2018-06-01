@@ -6,7 +6,6 @@ var ClusterNodeManager = function () {
     var ctlPort = ctl.length>1?ctl[1]:"";
 
     this.setCache = function (data) {
-//         addAliasColumn(data);
         localStorage.setItem("dolphinDB_ClusterNodeList",JSON.stringify(data));
         this.nodes = data;
     };
@@ -26,6 +25,25 @@ var ClusterNodeManager = function () {
     this.getControllerHost = function () {
         return ctlHost;
     };
+
+    this.getControllerSite = function(){
+        var nodelistJson = this.getCache();
+        var f = nodelistJson.filter(function(x){
+            return x.mode === 2;
+        });
+        if(f!=null || f.length>0) return f[0].site;
+    }
+
+    this.getNodeAlias = function(host,port){
+        var nodelistJson = this.getCache();
+        var f = nodelistJson.filter(function(x){
+            return x.host === host && x.port===port;
+        });
+        if(f!=null || f.length>0){
+            var svr = new ServerObject(f[0].site);
+            return svr.getAlias();
+        } 
+    }
 
     this.getNodeApiUrl = function(nodeAlias){
         var nodes = this.getCache();
