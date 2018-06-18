@@ -26,12 +26,18 @@ var ClusterNodeManager = function () {
         return ctlHost;
     };
 
+    //not work in nodedetail.js
     this.getControllerSite = function(){
         var nodelistJson = this.getCache();
         var f = nodelistJson.filter(function(x){
             return x.mode === 2;
         });
-        if(f!=null || f.length>0) return f[0].site;
+        if(f!=null || f.length>0)
+        {
+             var siteObject = new ServerObject(f[0].site);
+             var alias = siteObject.getAlias();
+             return window.location.host + ":" + alias;
+        }
     }
 
     this.getNodeAlias = function(host,port){

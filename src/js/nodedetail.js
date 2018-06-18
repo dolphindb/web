@@ -156,6 +156,8 @@ function bindVariables(datalist) {
                         tablesize = parseInt($('#retrieve-row-number').val(), 10);
                 }
                 //var script = "select top " + (tablesize > 1024 ? 1024 : tablesize) + " * from " + contentid;
+                new DolphinDialog(divobj.id, { title: '[' + so_form + ']' + so_name }).openSingleWindow("dialogs/table.html?site=" + $.getUrlParam('site') + "&tb=" + so_name + "&size=" + tablesize);
+                /*
                 var script = so_name + "[0:" + tablesize + "]";
                 getData(script, 0, PAGESIZE, function(g) {
                     if(g.resultCode==="0"){
@@ -168,6 +170,7 @@ function bindVariables(datalist) {
                 }, function(err) {
                     appendlog(err);
                  });
+                 */
             } else {
                 getData(code, 0, PAGESIZE, function(g) {
                     if(g.resultCode==="0"){

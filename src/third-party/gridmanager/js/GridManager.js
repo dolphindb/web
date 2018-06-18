@@ -3441,7 +3441,6 @@
            				var Settings = _Cache2.default.getSettings(table);
 					    Settings.dragAfter(event);
                         // 存储用户记忆
-                        //console.log("dragend",_table);
                         _Cache2.default.saveUserMemory(_table);
 
                         //重置调整宽度事件源
