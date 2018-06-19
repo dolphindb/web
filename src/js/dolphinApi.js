@@ -104,6 +104,42 @@ ControllerServer.prototype = {
         var exec = new CodeExecutor(this._url);
         return exec.runSync("isEnableHTTPS()");
     },
+    createUser:function(userId){
+        var exec = new CodeExecutor(this._url);
+        return exec.runSync("createUser('" + userId + "')");
+    },
+    createGroup:function(groupId){
+
+    },
+    deleteUser:function(userId){
+
+    },
+    deleteGroup:function(groupId){
+
+    },
+    addGroupMember:function(groupId,userId){
+
+    },
+    deleteGroupMember:function(groupId,userId){
+
+    },
+    changeUserPwd:function(userId,pass){
+
+    },
+    getUserGrant:function(userId){
+
+    },
+    getUserList:function(callback){
+        var exec = new CodeExecutor(this._url);
+        exec.run("getAclUsers()",callback);
+    },
+    getUserAndGroupList:function(callback){
+        var exec = new CodeExecutor(this._url);
+        exec.run("getUserAndGroup()",callback);
+    },
+    isUserLogin:function(userId){
+
+    },
 }
 
 
