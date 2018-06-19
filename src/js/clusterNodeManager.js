@@ -10,17 +10,33 @@ var ClusterNodeManager = function () {
         this.nodes = data;
     };
 
-//     var addAliasColumn = function(data){
-//         $(data).each(function(i, e) {
-//             data[i].nodeAlias = e.site.split(":")[2];
-//         });
-//     };
-
     this.getCache = function () {
         if(localStorage.getItem("dolphinDB_ClusterNodeList")!=null){
             return JSON.parse(localStorage.getItem("dolphinDB_ClusterNodeList"));
         }
     };
+
+    this.refreshCache = function(controllerUrl){
+        var p = {
+            "sessionID": 0,
+            "functionName": "getClusterPerf",
+            "params": [{
+                "name": "isShowController",
+                "form": "scalar",
+                "type": "bool",
+                "value": true
+            }]
+        };
+        CallWebApi(controllerUrl, p, refreshCallback);
+    }
+
+    refreshCallback = function(result){
+        if(result&&result["object"]!=null&&result["object"].length>0){
+            var data = result["object"][0].value;
+            localStorage.setItem("dolphinDB_ClusterNodeList",JSON.stringify(data));
+        }
+        
+    }
 
     this.getControllerHost = function () {
         return ctlHost;
@@ -42,13 +58,15 @@ var ClusterNodeManager = function () {
 
     this.getNodeAlias = function(host,port){
         var nodelistJson = this.getCache();
-        var f = nodelistJson.filter(function(x){
-            return x.host === host && x.port===port;
-        });
-        if(f!=null || f.length>0){
-            var svr = new ServerObject(f[0].site);
-            return svr.getAlias();
-        } 
+        if(nodelistJson){
+            var f = nodelistJson.filter(function(x){
+                return x.host === host && x.port===port;
+            });
+            if(f!=null || f.length>0){
+                var svr = new ServerObject(f[0].site);
+                return svr.getAlias();
+            } 
+        }
     }
 
     this.getNodeApiUrl = function(nodeAlias){

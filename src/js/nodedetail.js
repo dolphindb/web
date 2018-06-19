@@ -21,9 +21,8 @@ $(function() {
         PORT = hostinfo[1];
         controllerUrl = GetFullUrl(HOST + ":" + PORT + "/");
     }
-    var ALIAS  = nodeManager.getNodeAlias(window.location.hostname,window.location.port);
-    if (ALIAS)
-        document.title = ALIAS;
+
+    nodeManager.refreshCache(controllerUrl);
 
     if (siteid || siteid === '')
         $('#link-to-controller').attr('href', GetFullUrl(window.location.host));
@@ -53,6 +52,10 @@ $(function() {
     writelog(localStorage.getItem(logStorageID));
 
     refreshVariables();
+
+    var ALIAS  = nodeManager.getNodeAlias(window.location.hostname,window.location.port);
+    if (ALIAS)
+        document.title = ALIAS;
 });
 
 function refreshVariables() {

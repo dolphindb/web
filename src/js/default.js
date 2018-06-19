@@ -12,24 +12,40 @@ var filterStorageId = "dolphindb_default_gridfilter";
 $(document).ready(function() {
     HandleUrlOverHttp();
     wa_url = GetFullUrl(window.location.host);
-        // $.cookie('ck_ag_controller_url', wa_url);
-    
-        // $.cookie("language_file", "js/lang.en.js");
-    
-        //detectUsers()
-    
-        $("#txtFilter").val(localStorage.getItem(filterStorageId));
-    
-        require(["js/clusterNodeManager"],function(){
-            cacheControllerIp(wa_url);
-            GetLocalData(wa_url);
-            LoadTable(NODE_LIST);
-            setTimeout(hideCtlSel, 10);
-            var localSet = grid.GM('getLocalStorage');
-        });
+    var controller = new ControllerServer(wa_url);
+    var currentUser = controller.getCurrentUser();
+    if(currentUser.username=="guest"){
+        $("#btnLogin").show();
+        $("#btnLogout").hide();
+        $("#lblLogin").text("");
+    }else{
+        $("#btnLogin").hide();
+        $("#btnLogout").show();
+        $("#lblLogin").text("[" + currentUser.username + "]");
+        if(currentUser.isAdmin==true){
+            $("#btnAdmin").show();
+        }else{
+            $("#btnAdmin").hide();
+        }
+    }
 
-        $("button#btnOpenDFS").removeClass("ui-button");
+    $("#btnLogout").bind("click",function(){
+        localStorage.setItem("DolphinDB_CurrentUsername","");
+        window.location.reload();
+    });
+    $("#txtFilter").val(localStorage.getItem(filterStorageId));
+    
+    require(["js/clusterNodeManager"],function(){
+        cacheControllerIp(wa_url);
+        GetLocalData(wa_url);
+        LoadTable(NODE_LIST);
+        setTimeout(hideCtlSel, 10);
+        var localSet = grid.GM('getLocalStorage');
+    });
+
+    $("button#btnOpenDFS").removeClass("ui-button");
 });
+
 
 function setGridStyle(){
     $("td[align='center']").each(function(i,e){
@@ -37,6 +53,7 @@ function setGridStyle(){
         console.log(e);
     });
 }
+
 function detectUsers() {
     var scriptExecutor = new CodeExecutor(wa_url);
     var script = "getAllRealUsers().size() > 0 and !false"

@@ -138,8 +138,27 @@ ControllerServer.prototype = {
         exec.run("getUserAndGroup()",callback);
     },
     isUserLogin:function(userId){
-
+        return true;
     },
+    login:function(userId,password,callback){
+        //doLogin
+        var userobj = {username:userId,isAdmin:true};
+
+        if(true){
+            localStorage.setItem("DolphinDB_CurrentUsername",JSON.stringify(userobj));
+            callback();
+        }
+        return true;
+    },
+    getCurrentUser:function(){
+        var user = JSON.parse(localStorage.getItem("DolphinDB_CurrentUsername"));
+        if(user){
+            return user;
+        }else{
+            return {username:"guest",isAdmin:false};
+        }
+        
+    }
 }
 
 
