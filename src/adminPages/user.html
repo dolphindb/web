@@ -38,6 +38,7 @@
     <script src="../js/utils.js" type="text/javascript"></script>
     <script src="../js/executecode.js" type="text/javascript"></script>
     <script src="../js/CallWebApi.js" type="text/javascript"></script>
+    <script src="../js/dialog.js" type="text/javascript"></script>
     <script src="../third-party/bootstrap/js/vendor/jquery.cookie.js" type="text/javascript"></script>
     <script src="../js/serverApi.js" type="text/javascript"></script>
     <script type="text/javascript">
@@ -49,16 +50,22 @@
                 sorting: true,
                 data: clients,
                 fields: [
-                    { name: "Name", type: "text", width: 150 },
+                    { name: "Name", title:"User Name", type: "text", width: 150 },
                     {
                         name: "action", type: "text", width: 50,
-                        itemTemplate: function (item, value) {
-                            return "<a href='###'>Set Grant</a>"
+                        itemTemplate: function (value,item) {
+                            return "<a href='###' onclick='showUserGrant('" + item.Name + "')'>Set Grant</a>"
                         }
                     }
                 ]
             });
         });
+
+
+        var showUserGrant = function(userId){
+            //var dialog = new DolphinDialog("userGrantEditDialog");
+            //dialog.openUrl("userGrant.html?userId=" + userId);
+        }
     </script>
 </body>
 
