@@ -108,8 +108,9 @@ ControllerServer.prototype = {
         var exec = new CodeExecutor(this._url);
         return exec.runSync("createUser('" + userId + "')");
     },
-    createGroup:function(groupId){
-
+    createGroup:function(groupId,callback){
+        var exec = new CodeExecutor(this._url);
+        exec.run("createGroup('" + groupId + "')",callback);
     },
     deleteUser:function(userId){
 
@@ -131,11 +132,11 @@ ControllerServer.prototype = {
     },
     getUserList:function(callback){
         var exec = new CodeExecutor(this._url);
-        exec.run("getAclUsers()",callback);
+        exec.run("select * from getAclUsersAndGroups() where role='user'",callback);
     },
-    getUserAndGroupList:function(callback){
+    getGroupList:function(callback){
         var exec = new CodeExecutor(this._url);
-        exec.run("getUserAndGroup()",callback);
+        exec.run("select * from getAclUsersAndGroups() where role='group'",callback);
     },
     isUserLogin:function(userId){
         return true;
