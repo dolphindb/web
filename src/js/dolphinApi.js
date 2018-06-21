@@ -63,7 +63,7 @@ DatanodeServer.prototype = {
         CallWebApi(this._url, p, succallback, failcallback);
     },
 
-    run: function (script,succallback) {
+    run: function (script, succallback) {
         var exec = new CodeExecutor(this._url);
         exec.run(script, succallback);
     },
@@ -84,82 +84,90 @@ var ControllerServer = function (url) {
 ControllerServer.prototype = {
     getDBIdByTabletChunk: function (alias, chunkId, succallback, failcallback) {
         var exec = new CodeExecutor(this._url);
-        exec.run("rpc('" + alias + "',getDBIdByTabletChunk,'" + chunkId + "')",succallback);
+        exec.run("rpc('" + alias + "',getDBIdByTabletChunk,'" + chunkId + "')", succallback);
     },
 
-    getDBIdByTabletChunkSync:function(alias,chunkId){
+    getDBIdByTabletChunkSync: function (alias, chunkId) {
         var exec = new CodeExecutor(this._url);
-        return exec.runSync("rpc('" + alias + "',getDBIdByTabletChunk,'" + chunkId + "')");   
+        return exec.runSync("rpc('" + alias + "',getDBIdByTabletChunk,'" + chunkId + "')");
     },
 
-    getTablesByTabletChunk: function (alias,chunkId, succallback, failcallback) {
+    getTablesByTabletChunk: function (alias, chunkId, succallback, failcallback) {
         var exec = new CodeExecutor(this._url);
-        exec.run("rpc('" + alias + "',getTablesByTabletChunk,'" + chunkId + "')",succallback);    
+        exec.run("rpc('" + alias + "',getTablesByTabletChunk,'" + chunkId + "')", succallback);
     },
-    getTablesByTabletChunkSync: function (alias,chunkId) {
+    getTablesByTabletChunkSync: function (alias, chunkId) {
         var exec = new CodeExecutor(this._url);
-        return exec.runSync("rpc('" + alias + "',getTablesByTabletChunk,'" + chunkId + "')");    
+        return exec.runSync("rpc('" + alias + "',getTablesByTabletChunk,'" + chunkId + "')");
     },
     getIsEnableHttps: function () {
         var exec = new CodeExecutor(this._url);
         return exec.runSync("isEnableHTTPS()");
     },
-    createUser:function(userId){
+    createUser: function (userId) {
         var exec = new CodeExecutor(this._url);
         return exec.runSync("createUser('" + userId + "')");
     },
-    createGroup:function(groupId,callback){
+    createGroup: function (groupId, callback) {
         var exec = new CodeExecutor(this._url);
-        exec.run("createGroup('" + groupId + "')",callback);
+        exec.run("createGroup('" + groupId + "')", callback);
     },
-    deleteUser:function(userId){
+    deleteUser: function (userId) {
 
     },
-    deleteGroup:function(groupId){
+    deleteGroup: function (groupId) {
 
     },
-    addGroupMember:function(groupId,userId){
+    addGroupMember: function (groupId, userId) {
 
     },
-    deleteGroupMember:function(groupId,userId){
+    deleteGroupMember: function (groupId, userId) {
 
     },
-    changeUserPwd:function(userId,pass){
+    changeUserPwd: function (userId, pass) {
 
     },
-    getUserGrant:function(userId){
+    getUserGrant: function (userId) {
 
     },
-    getUserList:function(callback){
+    getUserList: function (callback) {
         var exec = new CodeExecutor(this._url);
-        exec.run("select * from getAclUsersAndGroups() where role='user'",callback);
+        exec.run("select * from getAclUsersAndGroups() where role='user'", callback);
     },
-    getGroupList:function(callback){
+    getGroupList: function (callback) {
         var exec = new CodeExecutor(this._url);
-        exec.run("select * from getAclUsersAndGroups() where role='group'",callback);
+        exec.run("select * from getAclUsersAndGroups() where role='group'", callback);
     },
-    isUserLogin:function(userId){
+    isUserLogin: function (userId) {
         return true;
     },
-    login:function(userId,password,callback){
+    login: function (userId, password, callback) {
         //doLogin
-        var userobj = {username:userId,isAdmin:true};
+        var userobj = { username: userId, isAdmin: true };
 
-        if(true){
-            localStorage.setItem("DolphinDB_CurrentUsername",JSON.stringify(userobj));
+        if (true) {
+            localStorage.setItem("DolphinDB_CurrentUsername", JSON.stringify(userobj));
             callback();
         }
         return true;
     },
-    getCurrentUser:function(){
+    getCurrentUser: function () {
         var user = JSON.parse(localStorage.getItem("DolphinDB_CurrentUsername"));
-        if(user){
+        if (user) {
             return user;
-        }else{
-            return {username:"guest",isAdmin:false};
+        } else {
+            return { username: "guest", isAdmin: false };
         }
-        
-    }
+
+    },
+    grant: function (id, permisionType, objs,callback) {
+        var exec = new CodeExecutor(this._url);
+        exec.run("grant('" + id + "'," + permisionType + ",'" + objs + "')", callback);
+    },
+    deny: function(id, permisionType, objs,callback) {
+        var exec = new CodeExecutor(this._url);
+        exec.run("deny('" + id + "'," + permisionType + ",'" + objs + "')", callback);
+    },
 }
 
 

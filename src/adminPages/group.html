@@ -13,6 +13,15 @@
     <link href="../third-party/jsgrid/jsgrid-theme.css" rel="stylesheet" />
     <link rel="stylesheet" href="../css/dialog.css">
 </head>
+<style>
+    .bs-callout {
+        padding: 20px;
+        margin: 20px 0;
+        border: 1px solid #eee;
+        border-left-width: 5px;
+        border-radius: 3px;
+    }
+</style>
 
 <body>
     <div class="dd_mainbody" style="height:95vh">
@@ -39,8 +48,87 @@
         </div>
     </div>
 
-    <div id="dialogGrant" class="modal fade" role="dialog">
+    <div id="dialogGrant" title="Set Group Grant" class="modal">
+        <p></p>
+        <!-- checkbox-->
+        <div class="panel">
+            <div class="panel-body">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <input type="checkbox" aria-label="..."> Execute Script
+                    </span>
+                    <span class="input-group-addon">
+                        <input type="checkbox" aria-label="..."> Test Script
+                    </span>
+                    <span class="input-group-addon">
+                        <input type="checkbox" aria-label="..."> Database Manage
+                    </span>
+                </div>
+            </div>
+        </div>
+        <!---->
+        <div class="panel">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#TABLE_READ" aria-controls="TABLE_READ" role="tab" data-toggle="tab">TABLE_READ</a>
+                </li>
+                <li role="presentation">
+                    <a href="#TABLE_WRITE" aria-controls="TABLE_WRITE" role="tab" data-toggle="tab">TABLE_WRITE</a>
+                </li>
+                <li role="presentation">
+                    <a href="#DBOBJ_CREATE" aria-controls="DBOBJ_CREATE" role="tab" data-toggle="tab">DBOBJ_CREATE</a>
+                </li>
+                <li role="presentation">
+                    <a href="#DBOBJ_DELETE" aria-controls="DBOBJ_DELETE" role="tab" data-toggle="tab">DBOBJ_DELETE</a>
+                </li>
+                <li role="presentation">
+                    <a href="#VIEW_EXEC" aria-controls="VIEW_EXEC" role="tab" data-toggle="tab">VIEW_EXEC</a>
+                </li>
+            </ul>
 
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="TABLE_READ">
+                    <div class="bs-callout bs-callout-info" id="tbrGrant">
+                        <div class="input-group">
+                            <input id="txtTableReadGrant" type="text" class="form-control" placeholder="input table object name">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" onclick="grant(0,$('#txtTableReadGrant').text())">Append</button>
+                                <button class="btn btn-default" type="button">Clear</button>
+                            </span>
+                        </div>
+                        <div class="well">
+                            show some grant
+                        </div>
+
+                    </div>
+                    <div class="bs-callout bs-callout-info" id="tbrDeny">
+                        <div class="input-group">
+                            <input  id="txtTableReadDeny" type="text" class="form-control" placeholder="input table object name">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button">Append</button>
+                                <button class="btn btn-default" type="button">Clear</button>
+                            </span>
+                        </div>
+                        <div class="well">
+                            show some deny
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="TABLE_WRITE">
+
+                </div>
+                <div role="tabpanel" class="tab-pane" id="DBOBJ_CREATE">
+
+                </div>
+                <div role="tabpanel" class="tab-pane" id="DBOBJ_DELETE">
+
+                </div>
+                <div role="tabpanel" class="tab-pane" id="VIEW_EXEC">
+
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="../third-party/bootstrap/js/vendor/jquery-1.9.1.min.js" type="text/javascript"></script>
@@ -60,8 +148,8 @@
         $(function () {
             ctlApi = new ControllerServer(controllerUrl);
             ctlApi.getGroupList(function (re) {
-                //var ent = new DolphinEntity(re).toVector();
-                var ent = DolphinResult2Grid(re);
+                var ent = [{ name: "llin" }, { name: "psui" }, { name: "xiaodan" }]
+                //var ent = DolphinResult2Grid(re);
                 $('#jsgrid').jsGrid({
                     width: "100%",
                     height: "400px",
@@ -87,8 +175,9 @@
                         { name: "name", title: "Group Name", type: "text", width: 150 },
                         {
                             name: "action", type: "text", width: 50,
-                            itemTemplate: function (item, value) {
-                                return "<a href='###'>Grant</a>"
+                            itemTemplate: function (value, item) {
+                                console.log(item);
+                                return "<a href='###' onclick='setGrant()' value='" + item.name + "'>Grant</a>"
                             }
                         }
                     ]
@@ -125,7 +214,7 @@
                     modal: true,
                     buttons: {
                         "Save": function () {
-                            ctlApi.createGroup($("#txtGroupname").val(),function(){
+                            ctlApi.createGroup($("#txtGroupname").val(), function () {
                                 $('#jsgrid').jsGrid("refresh");
                             });
                         },
@@ -140,6 +229,31 @@
         $("#btn_Del").bind("click", function () {
 
         });
+        var selectedGroupId ="";
+
+        var setGrant = function () {
+            selectedGroupId = $(event.target).attr("value");
+            
+            var dialog = new DolphinDialog("dialogGrant");
+            dialog.open({
+                modal: true,
+                buttons: {
+                    "Save": function () {
+
+                    },
+                    "Cancel": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        }
+
+        var grant = function(type,objs){
+            var groupId = selectedGroupId;
+            ctlApi.grant(groupId,type,objs,function(re){
+                console.log(re);
+            });
+        }
     </script>
 </body>
 

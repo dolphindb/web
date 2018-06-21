@@ -116,7 +116,6 @@ function sortdown(x, y) {
 var ServerObject = function (sites) {
     var strSite = sites;
     var svrArr = sites.split(":");
-
     this.getSites = function () {
         return sites;
     }
