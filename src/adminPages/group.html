@@ -42,11 +42,11 @@
 
     <div id="dialogAdd" title="Add Group" class="modal">
         <p>
-        <div class="input-group">
-            <span class="input-group-addon" id="basic-addon1">Name</span>
-            <input id="txtGroupname" type="text" class="form-control" placeholder="Group Name" aria-describedby="basic-addon1">
-        </div>
-        <p>
+            <div class="input-group">
+                <span class="input-group-addon" id="basic-addon1">Name</span>
+                <input id="txtGroupname" type="text" class="form-control" placeholder="Group Name" aria-describedby="basic-addon1">
+            </div>
+            <p>
     </div>
 
     <div id="dialogGrant" title="Set Group Grant" class="modal">
@@ -159,58 +159,47 @@
                     fields: [
                         {
                             width: 3,
-                            align:"center",
+                            align: "center",
                             headerTemplate: function () {
-                                return $("<input>").attr("type", "checkbox")
-                                    .on("click", function () {
-                                        selectAllItems($(this).attr("checked"));
-                                    });
+                                //return $("<input>").attr("type", "checkbox").attr("id", "chkAll");
                             },
                             itemTemplate: function (_, item) {
-                                return $("<input>").attr("type", "checkbox").attr("name", "chkSelect")
-                                    .on("change", function () {
-                                        $(this).is(":checked") ? selectItem(item) : unselectItem(item);
-                                    });
+                                return $("<input>").attr("type", "checkbox").attr("name", "chkSelect").attr("id", "chkSelect").attr("value",item.groupId);
                             },
                             align: "center",
                             width: 50
                         },
-                        { 
-                            name: "groupId", title: "Group Name", type: "text", align:"center", width: 150 
+                        {
+                            name: "groupId", title: "Group Name", type: "text", align: "center", width: 150
                         },
                         {
-                            name: "Script Execute", type: "text", width: 50,align:"center",
+                            name: "Script Execute", type: "text", width: 50, align: "center",
                             itemTemplate: function (value, item) {
-                                console.log(item);
                                 return "<input type='checkbox' />"
                             }
                         },
                         {
-                            name: "Unit Test", type: "text", width: 50,align:"center",
+                            name: "Unit Test", type: "text", width: 50, align: "center",
                             itemTemplate: function (value, item) {
-                                console.log(item);
                                 return "<input type='checkbox' />"
                             }
                         },
                         {
-                            name: "DB Create/Drop", type: "text", width: 50,align:"center",
+                            name: "DB Create/Drop", type: "text", width: 50, align: "center",
                             itemTemplate: function (value, item) {
-                                console.log(item);
                                 return "<input type='checkbox' />"
                             }
                         },
                         {
-                            name: "Table Access", type: "text", width: 200,align:"center",
+                            name: "Table Access", type: "text", width: 200, align: "center",
                             itemTemplate: function (value, item) {
-                                console.log(item);
-                                return "<a href='###' onclick='setReadGrant()' value='" + item.name + "'>Read</a> | <a href='###' onclick='setWriteGrant()' value='" + item.name + "'>Write</a> | <a href='###' onclick='setCreateGrant()' value='" + item.name + "'>Create</a> | <a href='###' onclick='setDeleteGrant()' value='" + item.name + "'>Delete</a>"
+                                return "<a href='###' onclick='setReadGrant()' value='" + item.groupId + "'>Read</a> | <a href='###' onclick='setWriteGrant()' value='" + item.name + "'>Write</a> | <a href='###' onclick='setCreateGrant()' value='" + item.name + "'>Create</a> | <a href='###' onclick='setDeleteGrant()' value='" + item.name + "'>Delete</a>"
                             }
                         },
                         {
-                            name: "Member", type: "text", width: 50,align:"center",
+                            name: "Member", type: "text", width: 50, align: "center",
                             itemTemplate: function (value, item) {
-                                console.log(item);
-                                return "<a href='###' onclick='setMember()' value='" + item.name + "'>Manage</a>"
+                                return "<a href='###' onclick='setMember()' value='" + item.groupId + "'>Manage</a>"
                             }
                         }
                     ]
@@ -218,25 +207,7 @@
             });
         });
 
-        var selectItem = function (item) {
 
-        };
-
-        var selectAllItems = function (isSel) {
-            $("[name='chkSelect']").each(function (i, e) {
-                if (isSel)
-                    $(e).attr("checked");
-                else
-                    $(e).removeAttr("checked");
-            });
-
-        };
-
-        var unselectItem = function (item) {
-            selectedItems = $.grep(selectedItems, function (i) {
-                return i !== item;
-            });
-        };
 
         $("#btn_Add").bind("click", function () {
             var dialog = new DolphinDialog("dialogAdd");
@@ -248,9 +219,9 @@
                     buttons: {
                         "Save": function () {
                             ctlApi.createGroup($("#txtGroupname").val(), function () {
-                                $('#jsgrid').jsGrid("refresh");
-                                $(this).dialog("close");
+                                window.location.reload();
                             });
+                            $(this).dialog("close");
                         },
                         "Cancel": function () {
                             $(this).dialog("close");
@@ -260,8 +231,22 @@
             );
         });
 
-        $("#btn_Del").bind("click", function () {
+        $("#chkAll").bind("click", function (re) {
+            //alert('aaaa');
+            //var chk = event.target;
+            //$("#chkSelect").attr("chected", chk.checked);
+        });
 
+        $("#chkSelect").bind("click", function () {
+            //alert("bbbbb");
+        });
+
+        $("#btn_Del").bind("click", function () {
+            $.each($("#chkSelect:checked"),function(i,e){
+                ctlApi.deleteGroup(e.value,function(re){
+                    console.log(re);
+                });
+            });
         });
         var selectedGroupId = "";
 
@@ -289,16 +274,16 @@
             });
         }
 
-        var setReadGrant = function(){
+        var setReadGrant = function () {
             selectedGroupId = $(event.target).attr("value");
             var dialog = new DolphinDialog("dialog_setReadGrant");
-            dialog.openSingleWindow("setAccess.html?type=group&id=" + selectedGroupId + "&grantType=0",400,600);
+            dialog.openSingleWindow("setAccess.html?type=group&id=" + selectedGroupId + "&grantType=0", 400, 600);
         }
 
-        var setMember = function(){
+        var setMember = function () {
             selectedGroupId = $(event.target).attr("value");
             var dialog = new DolphinDialog("dialog_setReadGrant");
-            dialog.openSingleWindow("setMemberAdd.html?type=group&id=" + selectedGroupId + "&grantType=0",400,600);
+            dialog.openSingleWindow("setMemberAdd.html?type=group&id=" + selectedGroupId + "&grantType=0", 400, 600);
         }
     </script>
 </body>

@@ -5,7 +5,12 @@ $('#btn-login').click(function() {
     var password = $('#password').val();
     var controller = new ControllerServer(ctlUrl);
     controller.login(username,password,function(re){
-        location.href = "default.html";
+        if(re){
+            location.href = "default.html";
+        }else{
+            $("#lblMsg").text("The user name or password is incorrect.")
+        }
+        
     });
     
 })

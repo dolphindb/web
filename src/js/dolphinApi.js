@@ -18,6 +18,24 @@ DolphinEntity.prototype = {
         if (this._json.resultCode != "0") return "";
         if (this._json.object.length <= 0) return "";
         return this._json.object[0].value;
+    },
+
+    toTable: function () {
+        if (typeof this._json != "object") return "";
+        if (this._json.resultCode != "0") return "";
+        if (this._json.object.length <= 0) return "";
+        var rowcount = this._json.object.length;
+
+        var jTable = [];
+        this._json.object[0].value.forEach(function (value, index, array) {
+            var valArr = value["value"];
+            if (isArray(valArr)) {
+                for (var i = 0; i < valArr.length; i++) {
+                    jTable.setRow(i, value.name, valArr[i]);
+                }
+            }
+        });
+        return jTable;
     }
 }
 
@@ -80,6 +98,7 @@ var AgentServer = function (url) {
 
 var ControllerServer = function (url) {
     this._url = url;
+    this.exec = new CodeExecutor(this._url);
 }
 ControllerServer.prototype = {
     getDBIdByTabletChunk: function (alias, chunkId, succallback, failcallback) {
@@ -102,34 +121,86 @@ ControllerServer.prototype = {
     },
     getIsEnableHttps: function () {
         var exec = new CodeExecutor(this._url);
-        return exec.runSync("isEnableHTTPS()");
+        return exec.runSync("isHttpsOn()");
     },
     createUser: function (userId, password, isAdmin, callback) {
         var exec = new CodeExecutor(this._url);
         //return exec.run("createUser('" + userId + "','"+password+"',NULL," + isAdmin + ")",callback);
-        return exec.run("createUser('" + userId + "','" + password + "')", callback);
+        exec.run("createUser('" + userId + "','" + password + "')", callback);
     },
     createGroup: function (groupId, callback) {
-        var exec = new CodeExecutor(this._url);
-        exec.run("createGroup('" + groupId + "')", callback);
+        this.exec.run("createGroup('" + groupId + "')", callback);
     },
     deleteUser: function (userId) {
 
     },
-    deleteGroup: function (groupId) {
-
+    deleteGroup: function (groupId,callback) {
+        this.exec.run("deleteGroup('" + groupId + "')", callback);
     },
-    addGroupMember: function (groupId, userId) {
+    addGroupMember: function (groupId, userIds, callback) {
+        var p = {
+            "sessionID": 0,
+            "functionName": "addGroupMember",
+            "params": [{
+                "name": "userId",
+                "form": "vector",
+                "type": "string",
+                "value": userIds
+            }, {
+                "name": "groupId",
+                "form": "scalar",
+                "type": "string",
+                "value": groupId
+            }
+            ]
+        };
 
+        CallWebApi(this._url, p, callback);
     },
-    deleteGroupMember: function (groupId, userId) {
+    deleteGroupMember: function (groupId, userIds,callback) {
+        var p = {
+            "sessionID": 0,
+            "functionName": "deleteGroupMember",
+            "params": [{
+                "name": "userId",
+                "form": "vector",
+                "type": "string",
+                "value": userIds
+            }, {
+                "name": "groupId",
+                "form": "scalar",
+                "type": "string",
+                "value": groupId
+            }
+            ]
+        };
+
+        CallWebApi(this._url, p, callback);
+    },
+
+    getUsersByGroupId: function (groupId, callback) {
+        this.exec.run("getUsersByGroupId('" + userId + "')", function (re) {
+            var entity = new DolphinEntity(re);
+            callback(entity.toTable());
+        });
+    },
+
+    getExistsUserByGroupId: function (groupId, callback) {
+        var script = "t = getUsersByGroupId('" + groupId + "');s = take(1,size(t));select * from  lj(table(getUserList()  as userId),table(t as userId,s as selected),`userId)"
+        this.exec.run(script, function (re) {
+            var reTable = new DolphinEntity(re).toTable();
+            callback(reTable);
+        });
 
     },
     changeUserPwd: function (userId, pass) {
 
     },
-    getUserGrant: function (userId) {
-
+    getUserAccess: function (userId, callback) {
+        this.exec.run("getUserAccess('" + userId + "')", function (re) {
+            var entity = new DolphinEntity(re);
+            callback(entity.toTable());
+        });
     },
     getUserList: function (callback) {
         var exec = new CodeExecutor(this._url);
@@ -143,32 +214,101 @@ ControllerServer.prototype = {
         return true;
     },
     login: function (userId, password, callback) {
-        //doLogin
-        var userobj = { username: userId, isAdmin: true };
+        this.exec.run("login('" + userId + "','" + password + "')", function (re) {
+            var userobj = { userId: userId, loginTimestamp: "" };
+            if (re.resultCode === "0") {
+                localStorage.setItem("DolphinDB_CurrentUsername", JSON.stringify(userobj));
+                callback(true);
+            } else if (re.resultCode === "1") {
+                localStorage.setItem("DolphinDB_CurrentUsername", "");
+                callback(false);
+            }
+        }, function (exception) {
+            console.log(exception);
+        });
 
-        if (true) {
-            localStorage.setItem("DolphinDB_CurrentUsername", JSON.stringify(userobj));
-            callback();
-        }
-        return true;
+        // var userobj = { username: userId, isAdmin: false, loginTimestamp: "" };
+        // if (true) {
+        //     localStorage.setItem("DolphinDB_CurrentUsername", JSON.stringify(userobj));
+        //     callback();
+        // }
     },
     getCurrentUser: function () {
-        var user = JSON.parse(localStorage.getItem("DolphinDB_CurrentUsername"));
-        if (user) {
-            return user;
-        } else {
-            return { username: "guest", isAdmin: false };
+        var cache = localStorage.getItem("DolphinDB_CurrentUsername");
+        if (cache && cache != "") {
+            var user = JSON.parse(cache);
+            if (user) {
+                var re = this.exec.runSync("getUserAccess('" + user.userId + "')");
+                if (re.resultCode === "0") {
+                    var reTb = new DolphinEntity(re).toTable();
+                    if (reTb && reTb.length > 0) {
+                        return reTb[0];
+                    }
+                }
+                return user;
+            }
         }
-
+        return { userId: "guest", isAdmin: false };
     },
     grant: function (id, permisionType, objs, callback) {
-        var exec = new CodeExecutor(this._url);
-        exec.run("grant('" + id + "'," + permisionType + ",'" + objs + "')", callback);
+        var p = {
+            "sessionID": 0,
+            "functionName": "grant",
+            "params": [{
+                "name": "Id",
+                "form": "scalar",
+                "type": "string",
+                "value": id
+            }, {
+                "name": "permission",
+                "form": "scalar",
+                "type": "int",
+                "value": permisionType
+            }, {
+                "name": "objs",
+                "form": "vector",
+                "type": "string",
+                "value": objs
+            }
+            ]
+        };
+        CallWebApi(this._url, p, callback);
     },
     deny: function (id, permisionType, objs, callback) {
-        var exec = new CodeExecutor(this._url);
-        exec.run("deny('" + id + "'," + permisionType + ",'" + objs + "')", callback);
+        var p = {
+            "sessionID": 0,
+            "functionName": "deny",
+            "params": [{
+                "name": "Id",
+                "form": "scalar",
+                "type": "string",
+                "value": id
+            }, {
+                "name": "permission",
+                "form": "scalar",
+                "type": "int",
+                "value": permisionType
+            }, {
+                "name": "objs",
+                "form": "vector",
+                "type": "string",
+                "value": objs
+            }
+            ]
+        };
+        CallWebApi(this._url, p, callback);
     },
+    revoke: function (id, permisionType, callback) {
+        this.exec.run("revoke('" + id + "'," + permisionType + "')", function (re) {
+            callback();
+        });
+    },
+    getAllDistributedTables: function (callback) {
+        this.exec.run("getAllDdistributedTables()", function (re) {
+            var entity = new DolphinEntity(re);
+            callback(entity.toTable());
+        });
+    }
 }
 
 

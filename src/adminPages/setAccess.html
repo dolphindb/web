@@ -3,21 +3,48 @@
 
 <head>
     <meta charset="utf-8">
-    <title>DolphinDB Notebook</title>
+    <title>DolphinDB</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="DolphinDB Node Management">
     <meta name="author" content="DolphinDB">
     <link rel="stylesheet" href="../third-party/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/custom-theme/jquery-ui.css">
-    <link rel="stylesheet" href="../third-party/bootstrap/css/font-awesome.min.css">
-    <link rel="stylesheet" href="../third-party/bootstrap/css/docs.css">
-    <link rel="stylesheet" href="../third-party/bootstrap/js/google-code-prettify/prettify.css">
-
+    <!-- <link rel="stylesheet" href="../third-party/bootstrap/css/font-awesome.min.css"> -->
+    <!-- <link rel="stylesheet" href="../third-party/bootstrap/css/docs.css"> -->
+    <!-- <link rel="stylesheet" href="../third-party/bootstrap/js/google-code-prettify/prettify.css"> -->
     <link rel="shortcut icon" href="../third-party/bootstrap/ico/logo.png">
     <link href="../third-party/jsgrid/jsgrid.css" rel="stylesheet" />
     <link href="../third-party/jsgrid/jsgrid-theme.css" rel="stylesheet" />
 </head>
+<style>
+    fieldset {
+        display: block;
+        -webkit-margin-start: 2px;
+        -webkit-margin-end: 2px;
+        -webkit-padding-before: 0.35em;
+        -webkit-padding-start: 0.75em;
+        -webkit-padding-end: 0.75em;
+        -webkit-padding-after: 0.625em;
+        min-width: -webkit-min-content;
+        border-width: 1px;
+        border-style: groove;
+        border-image: initial;
+    }
 
+    legend {
+        display: block;
+        width: auto;
+        padding: 0;
+        margin-bottom: 10px;
+        font-size: 16px;
+        -webkit-padding-start: 2px;
+        -webkit-padding-end: 2px;
+        border-width: initial;
+        border-style: none;
+        border-color: initial;
+        border-image: initial;
+    }
+</style>
 
 <body data-spy="scroll" data-target=".bs-docs-sidebar" data-twttr-rendered="true">
     <div class="container-fluid">
@@ -34,7 +61,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-sm-6 col-md-6">
                 <button class="button_default" id="btnToGrant"> to grant</button>
                 <div class="panel">
                     <fieldset>
@@ -45,13 +72,13 @@
                     </fieldset>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-sm-6 col-md-6">
                 <button class="button_default" id="btnToDeny"> to deny</button>
                 <div class="panel">
                     <fieldset>
                         <legend>deny</legend>
                         <div id="ctlDeny">
-                            
+
                         </div>
                     </fieldset>
                 </div>
@@ -59,7 +86,7 @@
         </div>
     </div>
     <script id="scriptTemplate" type="text/x-jquery-tmpl">
-        <label for="chk_${tbid}">${tbid}
+        <label class="ui-checkboxradio-label" for="chk_${tbid}">${tbid}
             <input type="checkbox" name="chk_${tbid}" value="${tbid}" id="chk_${tbid}">
         </label>
     </script>
@@ -76,61 +103,120 @@
     <script src="../js/CallWebApi.js" type="text/javascript"></script>
     <script src="../third-party/jstree/jstree.js" type="text/javascript"></script>
     <script src="../js/clusterNodeManager.js" type="text/javascript"></script>
-    
+
     <script src="../js/utils.js" type="text/javascript"></script>
     <script src="../js/executecode.js" type="text/javascript"></script>
     <script src="../js/dialog.js" type="text/javascript"></script>
     <script src="../js/dolphinApi.js" type="text/javascript"></script>
 
     <script>
+        var controllerUrl = GetFullUrl(window.location.host);
+        var ctlApi = null;
+        var userId = $.getUrlParam('userId');
+        var accessType = $.getUrlParam('accType');
+
         var revokeList = [{ tbid: "dfs://db1/tb1" }, { tbid: "dfs://db1/tb2" }, { tbid: "dfs://db2/tb1" }, { tbid: "dfs://db2/tb2" }, { tbid: "dfs://db3/tb1" }, { tbid: "dfs://db3/tb2" }, { tbid: "dfs://db2/tb1" }, { tbid: "dfs://db2/tb2" }, { tbid: "dfs://db4/tb1" }, { tbid: "dfs://db4/tb2" }];
 
         var grantList = [{ tbid: "dfs://db1/tb1" }];
 
         var denyList = [{ tbid: "dfs://db3/tb2" }];
 
-        var bindRevoke=function(){
+        var bindRevoke = function () {
             $("#ctlRevoke").empty();
             $("#scriptTemplate").tmpl(revokeList).appendTo("#ctlRevoke");
         }
-       
-        var bindGrant = function(){
+
+        var bindGrant = function () {
             $("#ctlGrant").empty();
             $("#scriptTemplate").tmpl(grantList).appendTo("#ctlGrant");
         }
-        
-        var bindDeny = function(){
+
+        var bindDeny = function () {
             $("#ctlDeny").empty();
             $("#scriptTemplate").tmpl(denyList).appendTo("#ctlDeny");
         }
-        
-        $("#btnToGrant").bind("click",function(){
-            var revokeLst = getAllSelectedRevoke();
-            
-            $.each(revokeLst,function(i,e){
-                grantList.push({tbid:e.value});
-            });
 
+        $("#btnToGrant").bind("click", function () {
+            setGrant();
+            var revokeLst = getAllSelectedRevoke();
+            $.each(revokeLst, function (i, e) {
+                grantList.push({ tbid: e.value });
+            });
             bindGrant();
         });
 
-        $("#btnToDeny").bind("click",function(){
+        $("#btnToDeny").bind("click", function () {
             var revokeLst = getAllSelectedRevoke();
-            $.each(revokeLst,function(i,e){
-                denyList.push({tbid:e.value});
+            $.each(revokeLst, function (i, e) {
+                denyList.push({ tbid: e.value });
             });
             bindDeny();
         });
-        
-        var getAllSelectedRevoke = function(){
-            return $("#ctlRevoke").find("input:checked");
+
+        var getAllSelectedRevoke = function () {
+            var selected =  $("#ctlRevoke").find("input:checked");
+            var jsonObj = [];
+            $.each(selected,function(i,e){
+                jsonObj.push(e.value);
+            });
+            return jsonObj;
         }
 
-        $(function(){
-            bindRevoke();
-            bindGrant();
-            bindDeny();
-        })
+        var setGrant = function () {
+            var selectedObj = getAllSelectedRevoke();
+            ctlApi.grant(userId,accessType,selectedObj,function(){
+                
+            });
+        }
+
+        var setDeny = function () {
+            var selectedObj = getAllSelectedRevoke();
+            ctlApi.deny(userId,accessType,selectedObj,function(){
+                
+            });
+        }
+
+        var revokeAll = function () {
+            ctlApi.revoke(userId,accessType);
+        }
+
+        $(function () {
+            ctlApi = new ControllerServer(controllerUrl);
+            loadData();
+            if (accessType && accessType != null) {
+                accessType = parseInt(accessType);
+            }
+            ctlApi.getUserAccess(userId, function (resultTable) {
+                setAccessByType(resultTable, accessType)
+                bindRevoke();
+                bindGrant();
+                bindDeny();
+            });
+
+        });
+
+        var loadData = function(){
+            ctlApi.getAllDistributedTables(function(resultTable){
+                console.log("resultTable",resultTable);
+            });
+        }
+        var setAccessByType = function (resultTable, type) {
+            if(resultTable.length<=0) return;
+            var accObj = resultTable[0];
+            var grant = null;
+            var deny = null;
+
+            if (type === 0) { //READ
+                grant = accObj.readTables;
+                deny = accObj.unReadTables;
+            } else if (type === 1) { //WRITE
+
+            } else if (type === 2) { //CREATE
+
+            } else if (type === 3) { //DELETE
+
+            }
+        }
     </script>
 </body>
 

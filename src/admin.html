@@ -51,11 +51,11 @@
                 <div class="panel">
                     <div class="panel-body" style="height:90vh">
                         <ul class="nav nav-pills nav-stacked">
-                            <li role="presentation">
-                                <a href="adminPages/group.html" target="mainFrame">Group</a>
+                            <li role="presentation" class="active">
+                                <a id="lnkGroup" href="adminPages/group.html" target="mainFrame">Group</a>
                             </li>
                             <li role="presentation">
-                                <a href="adminPages/user.html" target="mainFrame">User</a>
+                                <a id="lnkUser" href="adminPages/user.html" target="mainFrame">User</a>
                             </li>
                         </ul>
                     </div>
@@ -131,9 +131,18 @@
     <script src="js/dolphinApi.js" type="text/javascript"></script>
     <script>
         $(function(){
-            $("li[role='presentation']").bind("onclick",function(){
-                $(event.target).addClass("active");
-            })
+            $("#lnkUser").bind("click",function(){
+                var liUser = $("#lnkUser").closest("li")[0];
+                var liGoruip = $("#lnkGroup").closest("li")[0]
+                $(liGoruip).removeClass("active");
+                $(liUser).addClass("active");
+            });
+            $("#lnkGroup").bind("click",function(){
+                var liUser = $("#lnkUser").closest("li")[0];
+                var liGoruip = $("#lnkGroup").closest("li")[0]
+                $(liGoruip).addClass("active");
+                $(liUser).removeClass("active");
+            });
         })
         // $("#accordion").accordion({ heightStyle: "fill" });
     </script>
