@@ -104,9 +104,10 @@ ControllerServer.prototype = {
         var exec = new CodeExecutor(this._url);
         return exec.runSync("isEnableHTTPS()");
     },
-    createUser: function (userId) {
+    createUser: function (userId, password, isAdmin, callback) {
         var exec = new CodeExecutor(this._url);
-        return exec.runSync("createUser('" + userId + "')");
+        //return exec.run("createUser('" + userId + "','"+password+"',NULL," + isAdmin + ")",callback);
+        return exec.run("createUser('" + userId + "','" + password + "')", callback);
     },
     createGroup: function (groupId, callback) {
         var exec = new CodeExecutor(this._url);
@@ -132,11 +133,11 @@ ControllerServer.prototype = {
     },
     getUserList: function (callback) {
         var exec = new CodeExecutor(this._url);
-        exec.run("select * from getAclUsersAndGroups() where role='user'", callback);
+        exec.run("getUserAccess()", callback);
     },
     getGroupList: function (callback) {
         var exec = new CodeExecutor(this._url);
-        exec.run("select * from getAclUsersAndGroups() where role='group'", callback);
+        exec.run("getGroupAccess()", callback);
     },
     isUserLogin: function (userId) {
         return true;
@@ -160,11 +161,11 @@ ControllerServer.prototype = {
         }
 
     },
-    grant: function (id, permisionType, objs,callback) {
+    grant: function (id, permisionType, objs, callback) {
         var exec = new CodeExecutor(this._url);
         exec.run("grant('" + id + "'," + permisionType + ",'" + objs + "')", callback);
     },
-    deny: function(id, permisionType, objs,callback) {
+    deny: function (id, permisionType, objs, callback) {
         var exec = new CodeExecutor(this._url);
         exec.run("deny('" + id + "'," + permisionType + ",'" + objs + "')", callback);
     },

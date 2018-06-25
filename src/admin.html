@@ -51,7 +51,7 @@
                 <div class="panel">
                     <div class="panel-body" style="height:90vh">
                         <ul class="nav nav-pills nav-stacked">
-                            <li role="presentation" class="active">
+                            <li role="presentation">
                                 <a href="adminPages/group.html" target="mainFrame">Group</a>
                             </li>
                             <li role="presentation">
@@ -130,6 +130,11 @@
     <script src="js/dialog.js" type="text/javascript"></script>
     <script src="js/dolphinApi.js" type="text/javascript"></script>
     <script>
+        $(function(){
+            $("li[role='presentation']").bind("onclick",function(){
+                $(event.target).addClass("active");
+            })
+        })
         // $("#accordion").accordion({ heightStyle: "fill" });
     </script>
 </body>

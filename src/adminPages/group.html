@@ -41,11 +41,12 @@
     </div>
 
     <div id="dialogAdd" title="Add Group" class="modal">
-        <p></p>
+        <p>
         <div class="input-group">
             <span class="input-group-addon" id="basic-addon1">Name</span>
             <input id="txtGroupname" type="text" class="form-control" placeholder="Group Name" aria-describedby="basic-addon1">
         </div>
+        <p>
     </div>
 
     <div id="dialogGrant" title="Set Group Grant" class="modal">
@@ -104,7 +105,7 @@
                     </div>
                     <div class="bs-callout bs-callout-info" id="tbrDeny">
                         <div class="input-group">
-                            <input  id="txtTableReadDeny" type="text" class="form-control" placeholder="input table object name">
+                            <input id="txtTableReadDeny" type="text" class="form-control" placeholder="input table object name">
                             <span class="input-group-btn">
                                 <button class="btn btn-default" type="button">Append</button>
                                 <button class="btn btn-default" type="button">Clear</button>
@@ -148,8 +149,8 @@
         $(function () {
             ctlApi = new ControllerServer(controllerUrl);
             ctlApi.getGroupList(function (re) {
-                var ent = [{ name: "llin" }, { name: "psui" }, { name: "xiaodan" }]
-                //var ent = DolphinResult2Grid(re);
+                //var ent = [{ groupId: "dev" }, { groupId: "dolphindbGroup" }, { groupId: "hangzhou" }]
+                var ent = DolphinResult2Grid(re);
                 $('#jsgrid').jsGrid({
                     width: "100%",
                     height: "400px",
@@ -157,6 +158,8 @@
                     resize: true,
                     fields: [
                         {
+                            width: 3,
+                            align:"center",
                             headerTemplate: function () {
                                 return $("<input>").attr("type", "checkbox")
                                     .on("click", function () {
@@ -172,12 +175,42 @@
                             align: "center",
                             width: 50
                         },
-                        { name: "name", title: "Group Name", type: "text", width: 150 },
+                        { 
+                            name: "groupId", title: "Group Name", type: "text", align:"center", width: 150 
+                        },
                         {
-                            name: "action", type: "text", width: 50,
+                            name: "Script Execute", type: "text", width: 50,align:"center",
                             itemTemplate: function (value, item) {
                                 console.log(item);
-                                return "<a href='###' onclick='setGrant()' value='" + item.name + "'>Grant</a>"
+                                return "<input type='checkbox' />"
+                            }
+                        },
+                        {
+                            name: "Unit Test", type: "text", width: 50,align:"center",
+                            itemTemplate: function (value, item) {
+                                console.log(item);
+                                return "<input type='checkbox' />"
+                            }
+                        },
+                        {
+                            name: "DB Create/Drop", type: "text", width: 50,align:"center",
+                            itemTemplate: function (value, item) {
+                                console.log(item);
+                                return "<input type='checkbox' />"
+                            }
+                        },
+                        {
+                            name: "Table Access", type: "text", width: 200,align:"center",
+                            itemTemplate: function (value, item) {
+                                console.log(item);
+                                return "<a href='###' onclick='setReadGrant()' value='" + item.name + "'>Read</a> | <a href='###' onclick='setWriteGrant()' value='" + item.name + "'>Write</a> | <a href='###' onclick='setCreateGrant()' value='" + item.name + "'>Create</a> | <a href='###' onclick='setDeleteGrant()' value='" + item.name + "'>Delete</a>"
+                            }
+                        },
+                        {
+                            name: "Member", type: "text", width: 50,align:"center",
+                            itemTemplate: function (value, item) {
+                                console.log(item);
+                                return "<a href='###' onclick='setMember()' value='" + item.name + "'>Manage</a>"
                             }
                         }
                     ]
@@ -210,12 +243,13 @@
             dialog.open(
                 {
                     width: 300,
-                    height: 200,
+                    height: 230,
                     modal: true,
                     buttons: {
                         "Save": function () {
                             ctlApi.createGroup($("#txtGroupname").val(), function () {
                                 $('#jsgrid').jsGrid("refresh");
+                                $(this).dialog("close");
                             });
                         },
                         "Cancel": function () {
@@ -229,11 +263,11 @@
         $("#btn_Del").bind("click", function () {
 
         });
-        var selectedGroupId ="";
+        var selectedGroupId = "";
 
         var setGrant = function () {
             selectedGroupId = $(event.target).attr("value");
-            
+
             var dialog = new DolphinDialog("dialogGrant");
             dialog.open({
                 modal: true,
@@ -248,11 +282,23 @@
             });
         }
 
-        var grant = function(type,objs){
+        var grant = function (type, objs) {
             var groupId = selectedGroupId;
-            ctlApi.grant(groupId,type,objs,function(re){
+            ctlApi.grant(groupId, type, objs, function (re) {
                 console.log(re);
             });
+        }
+
+        var setReadGrant = function(){
+            selectedGroupId = $(event.target).attr("value");
+            var dialog = new DolphinDialog("dialog_setReadGrant");
+            dialog.openSingleWindow("setAccess.html?type=group&id=" + selectedGroupId + "&grantType=0",400,600);
+        }
+
+        var setMember = function(){
+            selectedGroupId = $(event.target).attr("value");
+            var dialog = new DolphinDialog("dialog_setReadGrant");
+            dialog.openSingleWindow("setMemberAdd.html?type=group&id=" + selectedGroupId + "&grantType=0",400,600);
         }
     </script>
 </body>
