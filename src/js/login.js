@@ -19,3 +19,9 @@ $(document).ready(function() {
     HandleUrlOverHttp();
     
 });
+
+$('#password').bind("keypress",function(e){
+    if(e.keyCode===13){
+        $('#btn-login').click();
+    }
+})

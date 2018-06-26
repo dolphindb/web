@@ -233,17 +233,17 @@ ControllerServer.prototype = {
         });
     },
     getCurrentUser: function () {
-        var guestUser = { userId: "guest", isAdmin: false };
+        var guestUser = { userId: "guest", isAdmin: true };
         var cache = localStorage.getItem("DolphinDB_CurrentUsername");
         if (cache && cache != "") {
             var user = JSON.parse(cache);
             if (user) {
-                var re = this.exec.runSync("getUserAccess('" + user.userId + "')");
+                var re = this.exec.runSync("getUserSelfAccess()");
                 if (re.resultCode === "0") {
-                    var reTb = new DolphinEntity(re).toTable();
-                    if (reTb && reTb.length > 0) {
-                        return reTb[0];
-                    }
+                    var reTb = new DolphinEntity(re).toScalar();
+                    var user = reTb[0];
+                    var admin = (parseInt(reTb[2])&1===1);
+                    return { userId: user, isAdmin: admin };
                 }
                 return guestUser;
             }
