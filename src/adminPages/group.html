@@ -180,19 +180,32 @@
                         {
                             name: "Script Execute", type: "text", width: 50, align: "center",
                             itemTemplate: function (value, item) {
-                                return "<input type='checkbox' />"
+                                var s = "";
+                                if (item.execScript == "allow") {
+                                    s = "checked"
+                                }
+                                return "<input type='checkbox' " + s + " onclick=\"setScriptExec('" + item.groupId + "')\"/>"
+
                             }
                         },
                         {
                             name: "Unit Test", type: "text", width: 50, align: "center",
                             itemTemplate: function (value, item) {
-                                return "<input type='checkbox' />"
+                                var s = "";
+                                if (item.unitTest == "allow") {
+                                    s = "checked"
+                                }
+                                return "<input type='checkbox' " + s + " onclick=\"setUnitTest('" + item.groupId + "')\"/>"
                             }
                         },
                         {
                             name: "DB Create/Drop", type: "text", width: 50, align: "center",
                             itemTemplate: function (value, item) {
-                                return "<input type='checkbox' />"
+                                var s = "";
+                                if (item.dbManage == "allow") {
+                                    s = "checked"
+                                }
+                                return "<input type='checkbox' " + s + " onclick=\"setDBCreate('" + item.groupId + "')\"/>"
                             }
                         },
                         {
@@ -241,6 +254,8 @@
                 });
             });
         });
+
+
         var selectedGroupId = "";
 
         var setGrant = function () {
@@ -277,6 +292,14 @@
             selectedGroupId = $(event.target).attr("value");
             var dialog = new DolphinDialog("dialog_setReadGrant");
             dialog.openSingleWindow("setMemberAdd.html?type=group&id=" + selectedGroupId + "&grantType=0", 400, 600);
+        }
+
+        var setScriptExec = function (groupId) {
+            if (event.target.checked) {
+                ctlApi.grant(groupId, 6, [], function (re) {
+                    bindGrid();
+                });
+            }
         }
     </script>
 </body>

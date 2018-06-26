@@ -164,8 +164,9 @@
 
         var setGrant = function () {
             var selectedObj = getAllSelectedRevoke();
-            ctlApi.grant(userId,accessType,selectedObj,function(){
-                
+            
+            ctlApi.grant(userId,accessType,selectedObj,function(re){
+                console.log(re);
             });
         }
 

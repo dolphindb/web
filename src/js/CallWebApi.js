@@ -17,6 +17,16 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
     }
     var d = JSON.stringify(paramstr);
 
+    var slash = apiurl.charAt(apiurl.length -1);
+
+    var sessId = CurrentSessionID==0?"":CurrentSessionID;
+    if(slash=="/"){
+        apiurl = apiurl + sessId;
+    }else{
+        apiurl = apiurl + "/" + sessId;
+    }
+    console.log(paramstr.functionName,apiurl)
+    
     var option = {
         url: apiurl,
         async: true,
@@ -60,6 +70,15 @@ function CallWebApiSync(apiurl, paramstr) {
     paramstr['sessionID'] = CurrentSessionID;
     var d = JSON.stringify(paramstr);
 
+    var slash = apiurl.charAt(apiurl.length -1);
+
+    var sessId = CurrentSessionID==0?"":CurrentSessionID;
+    if(slash=="/"){
+        apiurl = apiurl + sessId;
+    }else{
+        apiurl = apiurl + "/" + sessId;
+    }
+    console.log(paramstr.functionName,apiurl)
     var re = $.ajax({
         url: apiurl,
         async: false,
