@@ -299,6 +299,34 @@
                 ctlApi.grant(groupId, 6, [], function (re) {
                     bindGrid();
                 });
+            } else {
+                ctlApi.revoke(groupId, 6, function (re) {
+                    bindGrid();
+                });
+            }
+        }
+
+        var setUnitTest = function (groupId) {
+            if (event.target.checked) {
+                ctlApi.grant(groupId, 7, [], function (re) {
+                    bindGrid();
+                });
+            } else {
+                ctlApi.revoke(groupId, 7, function (re) {
+                    bindGrid();
+                });
+            }
+        }
+
+        var setDBCreate = function (groupId) {
+            if (event.target.checked) {
+                ctlApi.grant(groupId, 4, [], function (re) {
+                    bindGrid();
+                });
+            } else {
+                ctlApi.revoke(groupId, 4, function (re) {
+                    bindGrid();
+                });
             }
         }
     </script>

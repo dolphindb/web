@@ -299,7 +299,7 @@ ControllerServer.prototype = {
         CallWebApi(this._url, p, callback);
     },
     revoke: function (id, permisionType, callback) {
-        this.exec.run("revoke('" + id + "'," + permisionType + "')", function (re) {
+        this.exec.run("revoke('" + id + "'," + permisionType + ")", function (re) {
             callback();
         });
     },

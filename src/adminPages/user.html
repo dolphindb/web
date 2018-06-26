@@ -109,29 +109,38 @@
                         {
                             name: "Script Execute", type: "text", width: 50, align: "center",
                             itemTemplate: function (value, item) {
-                                console.log(item);
-                                return "<input type='checkbox' />"
+                                var s = "";
+                                if (item.execScript == "allow") {
+                                    s = "checked"
+                                }
+                                return "<input type='checkbox' " + s + " onclick=\"setScriptExec('" + item.userId + "')\"/>"
                             }
                         },
                         {
                             name: "Unit Test", type: "text", width: 50, align: "center",
                             itemTemplate: function (value, item) {
-                                console.log(item);
-                                return "<input type='checkbox' />"
+                                var s = "";
+                                if (item.unitTest == "allow") {
+                                    s = "checked"
+                                }
+                                return "<input type='checkbox' " + s + " onclick=\"setUnitTest('" + item.userId + "')\"/>"
                             }
                         },
                         {
                             name: "DB Create/Drop", type: "text", width: 50, align: "center",
                             itemTemplate: function (value, item) {
-                                console.log(item);
-                                return "<input type='checkbox' />"
+                                var s = "";
+                                if (item.dbManage == "allow") {
+                                    s = "checked"
+                                }
+                                return "<input type='checkbox' " + s + " onclick=\"setDBCreate('" + item.userId + "')\"/>"
                             }
                         },
                         {
                             name: "Table Access", type: "text", width: 200, align: "center",
                             itemTemplate: function (value, item) {
                                 console.log(item);
-                                return "<a href='###' onclick='setReadGrant()' value='" + item.name + "'>Read</a> | <a href='###' onclick='setWriteGrant()' value='" + item.name + "'>Write</a> | <a href='###' onclick='setCreateGrant()' value='" + item.name + "'>Create</a> | <a href='###' onclick='setDeleteGrant()' value='" + item.name + "'>Delete</a>"
+                                return "<a href='###' onclick='setReadGrant()' value='" + item.userId + "'>Read</a> | <a href='###' onclick='setWriteGrant()' value='" + item.name + "'>Write</a> | <a href='###' onclick='setCreateGrant()' value='" + item.name + "'>Create</a> | <a href='###' onclick='setDeleteGrant()' value='" + item.name + "'>Delete</a>"
                             }
                         }
                     ]
@@ -200,7 +209,41 @@
             var dialog = new DolphinDialog("dialog_setReadGrant");
             dialog.openSingleWindow("setAccess.html?type=user&id=" + selectedUserId + "&grantType=0", 400, 600);
         }
+        var setScriptExec = function (userId) {
+            if (event.target.checked) {
+                ctlApi.grant(userId, 6, [], function (re) {
+                    bindGrid();
+                });
+            } else {
+                ctlApi.revoke(userId, 6, function (re) {
+                    bindGrid();
+                });
+            }
+        }
 
+        var setUnitTest = function (userId) {
+            if (event.target.checked) {
+                ctlApi.grant(userId, 7, [], function (re) {
+                    bindGrid();
+                });
+            } else {
+                ctlApi.revoke(userId, 7, function (re) {
+                    bindGrid();
+                });
+            }
+        }
+
+        var setDBCreate = function (userId) {
+            if (event.target.checked) {
+                ctlApi.grant(userId, 4, [], function (re) {
+                    bindGrid();
+                });
+            } else {
+                ctlApi.revoke(userId, 4, function (re) {
+                    bindGrid();
+                });
+            }
+        }
     </script>
 </body>
 
