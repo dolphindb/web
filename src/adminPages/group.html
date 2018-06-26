@@ -147,6 +147,11 @@
         var controllerUrl = GetFullUrl(window.location.host);
         var ctlApi = null;
         $(function () {
+            bindGrid();
+        });
+
+
+        var bindGrid = function () {
             ctlApi = new ControllerServer(controllerUrl);
             ctlApi.getGroupList(function (re) {
                 //var ent = [{ groupId: "dev" }, { groupId: "dolphindbGroup" }, { groupId: "hangzhou" }]
@@ -164,7 +169,7 @@
                                 //return $("<input>").attr("type", "checkbox").attr("id", "chkAll");
                             },
                             itemTemplate: function (_, item) {
-                                return $("<input>").attr("type", "checkbox").attr("name", "chkSelect").attr("id", "chkSelect").attr("value",item.groupId);
+                                return $("<input>").attr("type", "checkbox").attr("name", "chkSelect").attr("id", "chkSelect").attr("value", item.groupId);
                             },
                             align: "center",
                             width: 50
@@ -205,9 +210,7 @@
                     ]
                 });
             });
-        });
-
-
+        }
 
         $("#btn_Add").bind("click", function () {
             var dialog = new DolphinDialog("dialogAdd");
@@ -242,9 +245,9 @@
         });
 
         $("#btn_Del").bind("click", function () {
-            $.each($("#chkSelect:checked"),function(i,e){
-                ctlApi.deleteGroup(e.value,function(re){
-                    console.log(re);
+            $.each($("#chkSelect:checked"), function (i, e) {
+                ctlApi.deleteGroup(e.value, function (re) {
+                    bindGrid();
                 });
             });
         });
