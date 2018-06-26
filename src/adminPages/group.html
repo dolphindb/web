@@ -222,7 +222,7 @@
                     buttons: {
                         "Save": function () {
                             ctlApi.createGroup($("#txtGroupname").val(), function () {
-                                window.location.reload();
+                                bindGrid();
                             });
                             $(this).dialog("close");
                         },
@@ -232,16 +232,6 @@
                     }
                 }
             );
-        });
-
-        $("#chkAll").bind("click", function (re) {
-            //alert('aaaa');
-            //var chk = event.target;
-            //$("#chkSelect").attr("chected", chk.checked);
-        });
-
-        $("#chkSelect").bind("click", function () {
-            //alert("bbbbb");
         });
 
         $("#btn_Del").bind("click", function () {

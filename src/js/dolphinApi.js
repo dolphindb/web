@@ -131,8 +131,8 @@ ControllerServer.prototype = {
     createGroup: function (groupId, callback) {
         this.exec.run("createGroup('" + groupId + "')", callback);
     },
-    deleteUser: function (userId) {
-
+    deleteUser: function (userId,callback) {
+        this.exec.run("deleteUser('" + userId + "')", callback);
     },
     deleteGroup: function (groupId,callback) {
         this.exec.run("deleteGroup('" + groupId + "')", callback);
@@ -226,14 +226,14 @@ ControllerServer.prototype = {
         }, function (exception) {
             console.log(exception);
         });
-
-        // var userobj = { username: userId, isAdmin: false, loginTimestamp: "" };
-        // if (true) {
-        //     localStorage.setItem("DolphinDB_CurrentUsername", JSON.stringify(userobj));
-        //     callback();
-        // }
+    },
+    logout:function(userId,callback){
+        this.exec.run("logout('" + userId + "')", function (re){
+            callback(re);
+        });
     },
     getCurrentUser: function () {
+        var guestUser = { userId: "guest", isAdmin: false };
         var cache = localStorage.getItem("DolphinDB_CurrentUsername");
         if (cache && cache != "") {
             var user = JSON.parse(cache);
@@ -245,10 +245,10 @@ ControllerServer.prototype = {
                         return reTb[0];
                     }
                 }
-                return user;
+                return guestUser;
             }
         }
-        return { userId: "guest", isAdmin: false };
+        return guestUser
     },
     grant: function (id, permisionType, objs, callback) {
         var p = {

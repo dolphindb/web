@@ -77,6 +77,10 @@
         var controllerUrl = GetFullUrl(window.location.host);
         var ctlApi = null;
         $(function () {
+            bindGrid();
+        });
+
+        var bindGrid = function () {
             ctlApi = new ControllerServer(controllerUrl);
             ctlApi.getUserList(function (re) {
                 //var ent = [{ userId: "llin" }, { userId: "psui" }, { userId: "xiaodan" }]
@@ -91,16 +95,10 @@
                             width: 3,
                             align: "center",
                             headerTemplate: function () {
-                                return $("<input>").attr("type", "checkbox")
-                                    .on("click", function () {
-                                        selectAllItems($(this).attr("checked"));
-                                    });
+
                             },
                             itemTemplate: function (_, item) {
-                                return $("<input>").attr("type", "checkbox").attr("name", "chkSelect")
-                                    .on("change", function () {
-                                        $(this).is(":checked") ? selectItem(item) : unselectItem(item);
-                                    });
+                                return $("<input>").attr("type", "checkbox").attr("name", "chkSelect").attr("id", "chkSelect").attr("value", item.userId);
                             },
                             align: "center",
                             width: 50
@@ -139,27 +137,8 @@
                     ]
                 });
             });
-        });
+        }
 
-        var selectItem = function (item) {
-
-        };
-
-        var selectAllItems = function (isSel) {
-            $("[name='chkSelect']").each(function (i, e) {
-                if (isSel)
-                    $(e).attr("checked");
-                else
-                    $(e).removeAttr("checked");
-            });
-
-        };
-
-        var unselectItem = function (item) {
-            selectedItems = $.grep(selectedItems, function (i) {
-                return i !== item;
-            });
-        };
 
         $("#btn_Add").bind("click", function () {
             var dialog = new DolphinDialog("dialogAdd");
@@ -170,8 +149,8 @@
                     modal: true,
                     buttons: {
                         "Save": function () {
-                            ctlApi.createUser($("#txtUsername").val(), $("#txtPassword").val(),$("#chkIsAdmin").prop("checked"), function () {
-                                window.location.reload();
+                            ctlApi.createUser($("#txtUsername").val(), $("#txtPassword").val(), $("#chkIsAdmin").prop("checked"), function () {
+                                bindGrid();
                             });
                             $(this).dialog("close");
                         },
@@ -184,7 +163,11 @@
         });
 
         $("#btn_Del").bind("click", function () {
-
+            $.each($("#chkSelect:checked"), function (i, e) {
+                ctlApi.deleteUser(e.value, function (re) {
+                    bindGrid();
+                });
+            });
         });
         var selectedGroupId = "";
 

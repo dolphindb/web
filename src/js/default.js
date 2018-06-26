@@ -47,8 +47,19 @@ $(document).ready(function () {
     }
 
     $("#btnLogout").bind("click", function () {
-        localStorage.setItem("DolphinDB_CurrentUsername", "");
-        window.location = "login.html";
+
+        var user = JSON.parse(localStorage.getItem("DolphinDB_CurrentUsername"));
+
+        var controller = new ControllerServer(wa_url);
+        controller.logout(user.userId,function(re){
+            if(re.resultCode=="0"){
+                localStorage.setItem("DolphinDB_CurrentUsername", "");
+                localStorage.setItem(session_storage_id, "");
+                window.location = "login.html";
+            }else{
+                alert(re.msg);
+            }
+        })
     });
     $("#txtFilter").val(localStorage.getItem(filterStorageId));
 
@@ -67,7 +78,7 @@ $(document).ready(function () {
 function setGridStyle() {
     $("td[align='center']").each(function (i, e) {
         $(e).css("text-align", "center");
-        console.log(e);
+        //console.log(e);
     });
 }
 
@@ -603,34 +614,38 @@ function refreshGrid(nodeList) {
 
 function connect_server_success(result) {
     if (result) {
-        SESSION_ID = result["sessionID"];
+        if(result.resultCode=="0"){
+            SESSION_ID = result["sessionID"];
 
-        var data = result["object"];
-        if (data.length <= 0) return;
-
-        ALL_NODE = VectorArray2Table(data[0].value);
-        var nodeManager = new ClusterNodeManager();
-        nodeManager.setCache(ALL_NODE);
-
-        AGENT_LIST = ALL_NODE.filter(function (x) {
-            return x.mode === 1;
-        });
-
-        LoadLeft(AGENT_LIST);
-
-        NODE_LIST = ALL_NODE.filter(function (x) {
-            return x.mode === 0;
-        });
-
-        CTL_LIST = ALL_NODE.filter(function (x) {
-            return x.mode === 2;
-        });
-        NODE_LIST = NODE_LIST.sort(byPortUp);
-        $(CTL_LIST).each(function (i, e) {
-            NODE_LIST.splice(0, 0, e);
-        });
-
-        refreshGrid(NODE_LIST);
+            var data = result["object"];
+            if (data.length <= 0) return;
+    
+            ALL_NODE = VectorArray2Table(data[0].value);
+            var nodeManager = new ClusterNodeManager();
+            nodeManager.setCache(ALL_NODE);
+    
+            AGENT_LIST = ALL_NODE.filter(function (x) {
+                return x.mode === 1;
+            });
+    
+            LoadLeft(AGENT_LIST);
+    
+            NODE_LIST = ALL_NODE.filter(function (x) {
+                return x.mode === 0;
+            });
+    
+            CTL_LIST = ALL_NODE.filter(function (x) {
+                return x.mode === 2;
+            });
+            NODE_LIST = NODE_LIST.sort(byPortUp);
+            $(CTL_LIST).each(function (i, e) {
+                NODE_LIST.splice(0, 0, e);
+            });
+    
+            refreshGrid(NODE_LIST);
+        }else if(result.resultCode=="1"){
+            alert(result.msg)
+        }
     }
 }
 
@@ -673,15 +688,19 @@ $("#btn_run").click(function () {
     if (c === false) return;
     CallWebApi(wa_url, p,
         function (re) {
+            if(re.resultCode=="0"){
 
+            }else if(re.resultCode=="1"){
+                alert(re.msg)
+            }
         },
         function (re) {
-            console.log(re);
+            alert(re);
         }, {
             timeout: 1000,
             complete: function (XMLHttpRequest, status) {
                 if (status === 'timeout') {
-                    console.log('startDataNode timeout');
+                    alert('startDataNode timeout');
                 }
             }
         }
@@ -714,10 +733,14 @@ $("#btn_stop").click(function () {
     if (c === false) return;
 
     CallWebApi(wa_url, p, function (re) {
+        if(re.resultCode=="0"){
 
+        }else if(r.resultCode=="1"){
+            alert(re.msg)
+        }
     },
         function (re) {
-            console.log(re);
+            alert(re);
         })
 });
 

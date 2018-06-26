@@ -17,4 +17,5 @@ $('#btn-login').click(function() {
 
 $(document).ready(function() {
     HandleUrlOverHttp();
+    
 });

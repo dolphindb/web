@@ -8,7 +8,7 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
     if (typeof CurrentSessionID === 'undefined') {
         var CurrentSessionID = 0;
     }
-    if (localStorage.getItem(session_storage_id) == null) {
+    if (localStorage.getItem(session_storage_id) == null||localStorage.getItem(session_storage_id)=="") {
         paramstr['sessionID'] = CurrentSessionID;
         localStorage.setItem(session_storage_id, CurrentSessionID)
     } else {
@@ -50,10 +50,12 @@ function CallWebApiSync(apiurl, paramstr) {
     if (typeof CurrentSessionID === 'undefined') {
         var CurrentSessionID = 0;
     }
-    if (localStorage.getItem(session_storage_id) == null) {
+    if (localStorage.getItem(session_storage_id) == null||localStorage.getItem(session_storage_id)=="") {
+        paramstr['sessionID'] = CurrentSessionID;
         localStorage.setItem(session_storage_id, CurrentSessionID)
     } else {
         CurrentSessionID = localStorage.getItem(session_storage_id);
+        paramstr['sessionID'] = CurrentSessionID;
     }
     paramstr['sessionID'] = CurrentSessionID;
     var d = JSON.stringify(paramstr);
