@@ -238,12 +238,11 @@ ControllerServer.prototype = {
         if (cache && cache != "") {
             var user = JSON.parse(cache);
             if (user) {
-                var re = this.exec.runSync("getUserSelfAccess()");
+                var re = this.exec.runSync("getUserAccess()");
                 if (re.resultCode === "0") {
-                    var reTb = new DolphinEntity(re).toScalar();
-                    var user = reTb[0];
-                    var admin = (parseInt(reTb[2])&1===1);
-                    return { userId: user, isAdmin: admin };
+                    var reTb = new DolphinEntity(re).toTable();
+                    var admin = reTb[0].isAdmin;
+                    return { userId: reTb[0].userId, isAdmin: admin };
                 }
                 return guestUser;
             }

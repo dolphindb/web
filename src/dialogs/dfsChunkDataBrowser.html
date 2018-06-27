@@ -171,7 +171,7 @@
 
         var nodeSite = new ServerObject(site);
 
-        var script = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" + partitionPath + "','" + tablename + "',0," + pgSize + ")";
+        var script = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" + partitionPath + "',`" + tablename + ",0," + pgSize + ")";
         console.log("script==", script);
         var nodeUrl = nodeSite.getHttpServer();
         var scriptExecutor = new CodeExecutor(wa_url);
@@ -195,7 +195,7 @@
                     controller: {
                         loadData: function (filter) {
                             var deferred = $.Deferred();
-                            var s = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" + partitionPath + "','" + tablename + "'," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
+                            var s = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" + partitionPath + "',`" + tablename + "," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
                             getTableData(s, function (g) {
                                 var d = DolphinResult2Grid(g);
                                 deferred.resolve({ data: d, itemsCount: totalcount });
