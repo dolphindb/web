@@ -172,12 +172,10 @@
         var nodeSite = new ServerObject(site);
 
         var script = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" + partitionPath + "',`" + tablename + ",0," + pgSize + ")";
-        console.log("script==", script);
         var nodeUrl = nodeSite.getHttpServer();
         var scriptExecutor = new CodeExecutor(wa_url);
 
         var totalcount = getTableSize(nodeUrl, chunkid, version, tablename);
-        console.log("totalcount", totalcount);
         scriptExecutor.run(script, function (json) {
             if (json.resultCode == 0) {
                 var d = DolphinResult2Grid(json);
@@ -215,9 +213,8 @@
     }
     var getTableSize = function (nodeUrl, chunk, version, tableName) {
         var svr = new ServerObject(site);
-        var script = "rpc('" + svr.getAlias() + "',getTablePartitionSizeAndPath,chunkMeta('" + curPath + "','" + chunk + "', true, " + version + ", -1, ,-1), '" + dbPath + "', '" + tableName + "')";
+        var script = "rpc('" + svr.getAlias() + "',getTablePartitionSizeAndPath,chunkMeta('" + curPath + "','" + chunk + "', true, " + version + ", -1, ,-1), '" + dbPath + "', `" + tableName + ")";
         var scriptExecutor = new CodeExecutor(wa_url);
-        console.log(script);
         var re = scriptExecutor.runSync(script);
         if (re.resultCode === "0") {
             var v = re.object[0].value[0];

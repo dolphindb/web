@@ -12,7 +12,8 @@ var ClusterNodeManager = function () {
 
     this.getCache = function () {
         if(localStorage.getItem("dolphinDB_ClusterNodeList")!=null){
-            return JSON.parse(localStorage.getItem("dolphinDB_ClusterNodeList"));
+            var obj = JSON.parse(localStorage.getItem("dolphinDB_ClusterNodeList"));
+            return obj;
         }
     };
 

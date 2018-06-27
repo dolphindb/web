@@ -25,7 +25,6 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
     }else{
         apiurl = apiurl + "/" + sessId;
     }
-    console.log(paramstr.functionName,apiurl)
     
     var option = {
         url: apiurl,
@@ -78,7 +77,6 @@ function CallWebApiSync(apiurl, paramstr) {
     }else{
         apiurl = apiurl + "/" + sessId;
     }
-    console.log(paramstr.functionName,apiurl)
     var re = $.ajax({
         url: apiurl,
         async: false,

@@ -53,7 +53,7 @@ $(function() {
 
     refreshVariables();
 
-    var ALIAS  = nodeManager.getNodeAlias(window.location.hostname,window.location.port);
+    var ALIAS  = $.getUrlParam('alias');
     if (ALIAS)
         document.title = ALIAS;
 });
@@ -276,32 +276,7 @@ function showGrid(gridid, getdatascript, g) {
     if (d.length >= 0)
         cols = dg.loadCols(resObj);
     if (dg.loadFromJson(d, resObj.form === "vector", cols)) {
-        /*
-        var btnPlot = $('<button />', {
-            class: 'btn btn-primary btn-request',
-            id: 'btn-plot-' + gridid,
-            text: 'Plot'
-        }).appendTo(grid);
-
-        resObj = g && g.object[0];
-        if (resObj.form) {
-            if (resObj.form === "table" ||
-                (resObj.form === "matrix" && !CustomVis.isNonNumeralType(resObj.type))) {
-                btnPlot.click(function() {
-                    getData(getdatascript, 0, resObj.size, function(fullData) {
-                        var fullResObj = fullData.object[0];
-
-                        new CustomVis(fullResObj, getdatascript);
-                        var customVis = $('#custom-vis');
-                        customVis.dialog('option', 'width', Math.max($(window).width() - 200, 600));
-                        customVis.dialog('open');
-                    }, function(err) {
-                        console.error(err);
-                    });
-                });
-            }
-        }
-        */
+      
     }
 }
 
@@ -377,7 +352,7 @@ function buildNode(jsonLst, dataform) {
         var node = { "a_attr": obj, "li_attr": obj, "id": obj.name, "icon": "jstree-file" };
         if (obj.form === "SCALAR" || obj.form === "PAIR") {
             node.text = obj.name + showtype;
-            var scriptExecutor = new DatanodeServer(wa_url);
+            var scriptExecutor = new DatanodeServer(nodeUrl);
             var dolphindbObj = new DolphinEntity(scriptExecutor.runSync(obj.name));
                 node.text = node.text + " : " + dolphindbObj.toScalar();
         }

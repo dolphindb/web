@@ -53,7 +53,9 @@
     var dfsPath = ""; // /DFS_T_HIER_RANGE_VALUE/
     var site = "";
     var realTableName = "";
+    var nodeUrl = "";
     $(document).ready(function () {
+        nodeUrl = GetFullUrl(window.location.host);
         db = $.getUrlParam('db');
         tb = $.getUrlParam('tb');
         site = $.getUrlParam('site');
@@ -152,11 +154,9 @@
     var loadGrid = function (chunkid, dbPath, partitionPath, tablename, sites, version) {
 
         var pgSize = 50;
-        var nodeSite = new ServerObject(window.location.hostname,window.location.port);
+        
+        var script = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "',`" + tablename + ",0," + pgSize + ")";
 
-        var script = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "','" + tablename + "',0," + pgSize + ")";
-
-        var nodeUrl = nodeSite.getHttpServer();
         var scriptExecutor = new CodeExecutor(nodeUrl);
 
         var totalcount = getTableSize(sites[0], nodeUrl, chunkid, version, tablename);
@@ -175,7 +175,7 @@
                     controller: {
                         loadData: function (filter) {
                             var deferred = $.Deferred();
-                            var s = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "','" + tablename + "'," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
+                            var s = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "',`" + tablename + "," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
                             getTableData(s, function (g) {
                                 var d = DolphinResult2Grid(g);
                                 deferred.resolve({ data: d, itemsCount: totalcount });
@@ -195,7 +195,7 @@
         });
     }
     var getTableSize = function (alias, nodeUrl, chunk, version, tableName) {
-        var script = "rpc('" + alias + "', getTablePartitionSizeAndPath,chunkMeta('" + curPath + "','" + chunk + "', true, " + version + ", -1, ,-1), '" + dfsPath + "', '" + tableName + "')";
+        var script = "rpc('" + alias + "', getTablePartitionSizeAndPath,chunkMeta('" + curPath + "','" + chunk + "', true, " + version + ", -1, ,-1), '" + dfsPath + "', `" + tableName + ")";
         var scriptExecutor = new CodeExecutor(nodeUrl);
         var re = scriptExecutor.runSync(script);
         if (re.resultCode === "0") {
@@ -208,7 +208,6 @@
     }
 
     var getTableData = function (script, sucCallback) {
-        var nodeUrl = new ServerObject(window.location.hostname,window.location.port).getHttpServer();
         var scriptExecutor = new CodeExecutor(nodeUrl);
         scriptExecutor.run(script, sucCallback);
     };
