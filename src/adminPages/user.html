@@ -84,7 +84,7 @@
             ctlApi = new ControllerServer(controllerUrl);
             ctlApi.getUserList(function (re) {
                 //var ent = [{ userId: "llin" }, { userId: "psui" }, { userId: "xiaodan" }]
-                var ent = DolphinResult2Grid(re);
+                var ent = re;
                 $('#jsgrid').jsGrid({
                     width: "100%",
                     height: "400px",
@@ -141,6 +141,13 @@
                             itemTemplate: function (value, item) {
                                 console.log(item);
                                 return "<a href='###' onclick='setReadGrant()' value='" + item.userId + "'>Read</a> | <a href='###' onclick='setWriteGrant()' value='" + item.name + "'>Write</a> | <a href='###' onclick='setCreateGrant()' value='" + item.name + "'>Create</a> | <a href='###' onclick='setDeleteGrant()' value='" + item.name + "'>Delete</a>"
+                            }
+                        },
+                        {
+                            name: "View Access", type: "text", width: 50, align: "center",
+                            itemTemplate: function (value, item) {
+                                console.log(item);
+                                return "<a href='###' onclick='setViewGrant()' value='" + item.userId + "'>set</a>"
                             }
                         }
                     ]

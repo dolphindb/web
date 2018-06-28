@@ -59,8 +59,8 @@
     $(function () {
         groupId = $.getUrlParam('id');
         ctlApi = new ControllerServer(controllerUrl);
-        ctlApi.getExistsUserByGroupId(groupId,function (re) {
-            console.log("re",re);
+        ctlApi.getExistsUserByGroupId(groupId, function (re) {
+            console.log("re", re);
             $("#userTemplate").tmpl(re).appendTo("#pnlUserList");
         });
 
@@ -75,15 +75,15 @@
         $.each($("#chkUser:not(:checked)"), function (i, e) {
             unChkUserArr.push(e.value);
         });
-        
-        ctlApi.addGroupMember(groupId,userArr,function(re){
-           // window.close();
+
+        ctlApi.addGroupMember(groupId, userArr, function (re) {
+            ctlApi.deleteGroupMember(groupId, unChkUserArr, function (re) {
+                window.close();
+            })
         });
 
-        ctlApi.deleteGroupMember(groupId,unChkUserArr,function(re){
-            console.log("delArr",re);
-        })
-        
+
+
     });
 
     $("#btnClose").bind("click", function () {

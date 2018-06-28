@@ -85,5 +85,8 @@ function CallWebApiSync(apiurl, paramstr) {
         type: "POST",
         dataType: "json"
     });
-    return JSON.parse(re.responseText);
+    var reobj = JSON.parse(re.responseText);
+    CurrentSessionID = reobj["sessionID"];
+    localStorage.setItem(session_storage_id, CurrentSessionID);
+    return reobj
 };

@@ -204,11 +204,21 @@ ControllerServer.prototype = {
     },
     getUserList: function (callback) {
         var exec = new CodeExecutor(this._url);
-        exec.run("getUserAccess()", callback);
+        exec.run("lj(table(getUserList() as userId), getUserAccess(), `userId)", function(re){
+            var tb = new DolphinEntity(re).toTable();
+            callback(tb);
+        });
     },
     getGroupList: function (callback) {
         var exec = new CodeExecutor(this._url);
-        exec.run("getGroupAccess()", callback);
+        exec.run("getGroupList()", function(re){
+            var vec = new DolphinEntity(re).toVector();
+            var reobj = [];
+            $.each(vec,function(i,e){
+                reobj.push({groupId:e});
+            });
+            callback(reobj);
+        });
     },
     isUserLogin: function (userId) {
         return true;
@@ -307,7 +317,14 @@ ControllerServer.prototype = {
             var entity = new DolphinEntity(re);
             callback(entity.toTable());
         });
+    },
+    getAuthenticatedUserTicket:function(callback){
+        this.exec.run("getAuthenticatedUserTicket()",function(re){
+
+        });
     }
+
+
 }
 
 
