@@ -170,6 +170,11 @@ String.prototype.isNumber = function() {
         return true
     }
 }
+String.prototype.replaceAll = function(pattern,replaceStr){
+    var reg = new RegExp(pattern,"g")
+    var newstr = this.replace(reg,replaceStr);
+    return newstr;
+}
 //================================================================================================
 function S4() {
     return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);

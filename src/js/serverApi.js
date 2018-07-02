@@ -24,7 +24,6 @@ function DatanodeConfig() {
             configCategory: 'System',
             configs: [
                 { name: 'localExecutors', value: 'int', default: 'CPU core number - 1', tip: 'The number of local executors.The default value is the number of cores of the CPU - 1.' },
-                //{ name: 'logFile', value: '', default: 'DolphinDB.log', tip: 'The path and name of the log file. It displays the server configuration specifications, warnings and error messages.' },
                 { name: 'maxBatchJobWorker', value: 'int', default: '= workerNum', tip: 'The maximum number of workers to process batch jobs. The default value is the value of workerNum.' },
                 { name: 'maxConnections', value: 'int', default: '64', tip: 'The maximum number of connections.' },
                 { name: 'maxConnectionPerSite', value: 'int', default: '= number of CPU cores', tip: 'The maximum number of remote connections per node.' },
@@ -32,10 +31,6 @@ function DatanodeConfig() {
                 { name: 'maxMemSize', value: 'int', default: '', tip: 'The maximum memory (in terms of Gigabytes) allocated to DolphinDB. If set to 0, it means no limits on memory usage.' },
                 { name: 'perfMonitoring', value: [0, 1], default: 1, tip: 'Enable performance monitoring. The default value is false for a stand alone DolphinDB application. The default value is true on a DolphinDB cluster management web interface.' },
                 { name: 'regularArrayMemoryLimit', value: [256, 512], default: 512, tip: 'The limit on the memory size (MB) of a regular array. This number must be a power of 2. The default value is 512.' },
-                //{ name: 'run', value: '', default: '' },
-                //{ name: 'script', value: '', default: 'dolphindb.dos' },
-                //{ name: 'tcpNoDelay', value: [0, 1], default: '0' },
-                //{ name: 'webRoot', value: '', default: '' },
                 { name: 'webWorkerNum', value: 'int', default: '1', tip: 'The size of the worker pool to process http requests. The default value is 1.' },
                 { name: 'workerNum', value: 'int', default: '= number of CPU cores', tip: 'The size of worker pool for regular interactive jobs. The default value is the number of cores of the CPU.' },
                 { name: 'publicName', value: '', default: '= ', tip: '' },

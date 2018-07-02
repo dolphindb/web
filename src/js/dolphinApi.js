@@ -51,6 +51,7 @@ var getSiteByAlias = function (alias) {
 var DatanodeServer = function (url) {
     this._url = url;
     this._sessionid = 0;   //get session from cookie
+    this.exec = new CodeExecutor(this._url);
 }
 DatanodeServer.prototype = {
     getDBIdByTabletChunk: function (chunkId, succallback, failcallback) {
@@ -88,6 +89,11 @@ DatanodeServer.prototype = {
     runSync: function (script) {
         var exec = new CodeExecutor(this._url);
         return exec.runSync(script);
+    },
+    authenticateByTicket:function(ticket,callback){
+        this.exec.run("authenticateByTicket('"+ticket+"')",function(re){
+            callback(re);
+        });
     }
 }
 
@@ -238,7 +244,7 @@ ControllerServer.prototype = {
         });
     },
     logout:function(userId,callback){
-        this.exec.run("logout('" + userId + "')", function (re){
+        this.exec.run("logout()", function (re){
             callback(re);
         });
     },
@@ -318,13 +324,10 @@ ControllerServer.prototype = {
             callback(entity.toTable());
         });
     },
-    getAuthenticatedUserTicket:function(callback){
-        this.exec.run("getAuthenticatedUserTicket()",function(re){
-
-        });
+    getAuthenticatedUserTicket:function(){
+        var re = this.exec.runSync("getAuthenticatedUserTicket()");
+        return re;
     }
-
-
 }
 
 

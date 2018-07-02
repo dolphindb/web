@@ -1,5 +1,5 @@
 var editor = null;
-var controllerUrl ='';
+var controllerUrl = '';
 var nodeUrl = '';
 var HOST = '';
 var PORT = '';
@@ -7,10 +7,15 @@ var logStorageID = '';
 
 var PAGESIZE = 20;
 var nodeManager = null;
+var nodeApi = null;
+$(function () {
 
-$(function() {
     nodeUrl = GetFullUrl(window.location.host);
-    nodeManager =  new ClusterNodeManager();    
+    //login
+
+    nodeApi = new DatanodeServer(nodeUrl);
+
+    nodeManager = new ClusterNodeManager();
     var siteid = $.getUrlParam('site');
 
     if (!siteid || siteid === "") {
@@ -49,50 +54,63 @@ $(function() {
             }
         }
     });
+
     writelog(localStorage.getItem(logStorageID));
 
     refreshVariables();
 
-    var ALIAS  = $.getUrlParam('alias');
-    if (ALIAS)
+    var ALIAS = $.getUrlParam('alias');
+    if (ALIAS) {
         document.title = ALIAS;
+    }
+
+    var ticket = window.name;//.replaceAll("_NEWLINE_","\n");
+    appendlog("received log " + ticket)
+    nodeApi.authenticateByTicket(ticket, function (re) {
+        if (re.resultCode === "1") {
+            console.log("login by ticket failed : ", re.msg);
+        }else{
+            console.log("login success ", re)
+        }
+    });
+
 });
 
 function refreshVariables() {
     var executor = new CodeExecutor(nodeUrl);
-    executor.run("objs(true)", function(re) {
+    executor.run("objs(true)", function (re) {
         var rowJson = VectorArray2Table(re.object[0].value);
         bindVariables(rowJson);
     });
 }
 
-$('#btn_refresh').click(function() {
+$('#btn_refresh').click(function () {
     refreshVariables();
 });
 
 function bindVariables(datalist) {
     var localvariable = [];
 
-    var list = datalist.filter(function(x) { return x.form === 'TABLE' && x.shared === 0; });
+    var list = datalist.filter(function (x) { return x.form === 'TABLE' && x.shared === 0; });
     localvariable.push(buildNode(list, "Table"));
 
-    list = datalist.filter(function(x) { return x.form === 'VECTOR' && x.shared === 0; });
+    list = datalist.filter(function (x) { return x.form === 'VECTOR' && x.shared === 0; });
     localvariable.push(buildNode(list, "Vector"));
 
-    list = datalist.filter(function(x) { return x.form === 'MATRIX' && x.shared === 0; });
+    list = datalist.filter(function (x) { return x.form === 'MATRIX' && x.shared === 0; });
     localvariable.push(buildNode(list, "Matrix"));
 
-    list = datalist.filter(function(x) { return x.form === 'SET' && x.shared === 0; });
+    list = datalist.filter(function (x) { return x.form === 'SET' && x.shared === 0; });
     localvariable.push(buildNode(list, "Set"));
 
-    list = datalist.filter(function(x) { return x.form === 'DICTIONARY' && x.shared === 0; });
+    list = datalist.filter(function (x) { return x.form === 'DICTIONARY' && x.shared === 0; });
     localvariable.push(buildNode(list, "Dictionary"));
 
     list = datalist.filter(function (x) { return (x.form === 'SCALAR' || x.form === "PAIR") && x.shared === 0; });
     localvariable.push(buildNode(list, "Scalar/Pair"));
 
     var sharedtable = [];
-    list = datalist.filter(function(x) { return x.form === 'TABLE' && x.shared === 1; });
+    list = datalist.filter(function (x) { return x.form === 'TABLE' && x.shared === 1; });
     sharedtable.push(buildNode(list, "Table"));
 
     var json_tree = {
@@ -103,17 +121,17 @@ function bindVariables(datalist) {
                 "state": { "opened": true },
                 "icon": "jstree-folder",
                 "children": [{
-                        "text": "Local variables",
-                        "state": { "opened": true },
-                        "icon": "jstree-folder",
-                        "children": localvariable
-                    },
-                    {
-                        "text": "Shared tables",
-                        "state": { "opened": false },
-                        "icon": "jstree-folder",
-                        "children": sharedtable
-                    }
+                    "text": "Local variables",
+                    "state": { "opened": true },
+                    "icon": "jstree-folder",
+                    "children": localvariable
+                },
+                {
+                    "text": "Shared tables",
+                    "state": { "opened": false },
+                    "icon": "jstree-folder",
+                    "children": sharedtable
+                }
                 ]
             }]
         }
@@ -134,7 +152,7 @@ function bindVariables(datalist) {
             var so_shared = e.target.attributes.shared.value;
             var so_extra = e.target.attributes.extra.value;
 
-            
+
             if (so_form === "SCALAR") return;
 
             var code = so_name + ';';
@@ -148,12 +166,12 @@ function bindVariables(datalist) {
 
             if (so_form === "TABLE") {
                 if (so_extra.startWith("dfs://")) {
-                    new DolphinDialog("dfstable_" + so_name, { title: "Dfs Table Browser [" + so_extra + "]",width:1000 }).openSingleWindow("dialogs/dfsTable.html?site=" + $.getUrlParam('site') +"&db=" + so_extra + "&tb=" + so_name);
+                    new DolphinDialog("dfstable_" + so_name, { title: "Dfs Table Browser [" + so_extra + "]", width: 1000 }).openSingleWindow("dialogs/dfsTable.html?site=" + $.getUrlParam('site') + "&db=" + so_extra + "&tb=" + so_name);
                     return;
                 }
                 var tablesize = so_rows;
-                if(tablesize === "0"){
-                    if($('#retrieve-row-number').val()==="")
+                if (tablesize === "0") {
+                    if ($('#retrieve-row-number').val() === "")
                         tablesize = 0;
                     else
                         tablesize = parseInt($('#retrieve-row-number').val(), 10);
@@ -175,16 +193,16 @@ function bindVariables(datalist) {
                  });
                  */
             } else {
-                getData(code, 0, PAGESIZE, function(g) {
-                    if(g.resultCode==="0"){
+                getData(code, 0, PAGESIZE, function (g) {
+                    if (g.resultCode === "0") {
                         //showGrid(tblobj.id, code, g);
                         new DolphinDialog(divobj.id, { title: '[' + so_form + ']' + so_name }).openUrl("dialogs/vector.html?site=" + $.getUrlParam('site') + "&v=" + so_name + "&size=" + tablesize);
                         //openDialog(divobj.id, '[' + so_form + ']' + so_name);
-                    }else{
+                    } else {
                         appendError(g.msg);
                         $('#resulttab a[href="#log"]').tab('show');
                     }
-                }, function(err) {
+                }, function (err) {
                     console.log(err);
                 });
             }
@@ -200,14 +218,14 @@ function showTableGrid(gridid, tablename, totalcount, g) {
         height: 600,
         autoload: true,
         controller: {
-            loadData: function(filter) {
+            loadData: function (filter) {
                 var deferred = $.Deferred();
                 //var script = "select top " + (totalcount > 1024 ? 1024 : totalcount) + " * from " + tablename;
                 var script = tablename + "[0:" + totalcount + "]";
-                getData(script, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function(g) {
+                getData(script, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function (g) {
                     var d = DolphinResult2Grid(g, filter.pageIndex - 1);
                     deferred.resolve({ data: d, itemsCount: totalcount });
-                },function(e){
+                }, function (e) {
                     appendlog(e);
                 });
 
@@ -231,15 +249,15 @@ function showTableGrid(gridid, tablename, totalcount, g) {
         if (resObj.form) {
             if (resObj.form === "table" ||
                 (resObj.form === "matrix" && !CustomVis.isNonNumeralType(resObj.type))) {
-                btnPlot.click(function() {
-                    getData(tablename, 0, resObj.size, function(fullData) {
+                btnPlot.click(function () {
+                    getData(tablename, 0, resObj.size, function (fullData) {
                         var fullResObj = fullData.object[0];
 
                         new CustomVis(fullResObj, tablename);
                         var customVis = $('#custom-vis');
                         customVis.dialog('option', 'width', Math.max($(window).width() - 200, 600));
                         customVis.dialog('open');
-                    }, function(err) {
+                    }, function (err) {
                         console.error(err);
                     });
                 });
@@ -256,9 +274,9 @@ function showGrid(gridid, getdatascript, g) {
     var dg = new DolphinGrid(grid, {
         autoload: true,
         controller: {
-            loadData: function(filter) {
+            loadData: function (filter) {
                 var deferred = $.Deferred();
-                getData(getdatascript, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function(g) {
+                getData(getdatascript, (filter.pageIndex - 1) * filter.pageSize, filter.pageSize, function (g) {
                     var total = g.object[0].size;
                     var d = DolphinResult2Grid(g, filter.pageIndex - 1);
 
@@ -276,7 +294,7 @@ function showGrid(gridid, getdatascript, g) {
     if (d.length >= 0)
         cols = dg.loadCols(resObj);
     if (dg.loadFromJson(d, resObj.form === "vector", cols)) {
-      
+
     }
 }
 
@@ -284,24 +302,24 @@ function showResult(gridid, resobj) {
     // In data browser
     var d = DolphinResult2Grid(resobj),
         btnPlot = $('#btn-plot');
-    var h = $(window).height() - $("#resulttab").offset().top-200;
-    
+    var h = $(window).height() - $("#resulttab").offset().top - 200;
+
     var grid = $('#' + gridid);
     var dg = new DolphinGrid(grid, {
         pageSize: 50,
-        paging:true,
-        height:h,
+        paging: true,
+        height: h,
         sorting: true,
-        pagerContainer:$("#jsgridpager"),
+        pagerContainer: $("#jsgridpager"),
         autoload: true,
-        pageLoading:true,
+        pageLoading: true,
         controller: {
             loadData: function (filter) {
-                console.log("filter",filter);
+                console.log("filter", filter);
                 var start = (filter.pageIndex - 1) * filter.pageSize;
-                var end = (start + filter.pageSize > d.length)?d.length:start + filter.pageSize;
-                console.log("d.slice",d.slice(start,end));
-                return {data: d.slice(start,end),itemsCount: d.length}
+                var end = (start + filter.pageSize > d.length) ? d.length : start + filter.pageSize;
+                console.log("d.slice", d.slice(start, end));
+                return { data: d.slice(start, end), itemsCount: d.length }
             }
         },
     });
@@ -343,7 +361,7 @@ function openDialog(dialog, tit) {
 
 function buildNode(jsonLst, dataform) {
     var t = [];
-    jsonLst.forEach(function(obj, index, arr) {
+    jsonLst.forEach(function (obj, index, arr) {
         var showtype = " ";
         if (obj.form.toUpperCase() !== "TABLE") {
             showtype = "&lt;" + obj.type + "&gt;";
@@ -354,11 +372,11 @@ function buildNode(jsonLst, dataform) {
             node.text = obj.name + showtype;
             var scriptExecutor = new DatanodeServer(nodeUrl);
             var dolphindbObj = new DolphinEntity(scriptExecutor.runSync(obj.name));
-                node.text = node.text + " : " + dolphindbObj.toScalar();
+            node.text = node.text + " : " + dolphindbObj.toScalar();
         }
         else {
             node.text = obj.name + showtype + obj.rows + " rows [" + (Number(obj.bytes) / 1024).toFixed(0) + "k]";
-        }   
+        }
         t.push(node);
     });
     var subtree = {
@@ -369,7 +387,7 @@ function buildNode(jsonLst, dataform) {
     return subtree;
 }
 
-$('#retrieve-row-number').keypress(function(e) {
+$('#retrieve-row-number').keypress(function (e) {
     if (e.key === "Enter") {
         $('#btn_execode').click();
         return false;
@@ -377,7 +395,7 @@ $('#retrieve-row-number').keypress(function(e) {
 })
 
 
-$('#btn_execode').click(function() {
+$('#btn_execode').click(function () {
     var codestr = editor.getSelection() || editor.getValue();
 
     var logstr = codestr;
@@ -386,7 +404,7 @@ $('#btn_execode').click(function() {
 
     var retrieveRowNumber = parseInt($('#retrieve-row-number').val(), 10);
 
-    var showData = function(result) {
+    var showData = function (result) {
         if (result.resultCode === "0") {
             var res = result.object[0];
             if (res) {
@@ -416,9 +434,9 @@ $('#btn_execode').click(function() {
         appendlog(logstr);
     }
     if (isNaN(retrieveRowNumber) || retrieveRowNumber <= 0)
-        getData(codestr, undefined, undefined, showData, function(err) { console.error(err); });
+        getData(codestr, undefined, undefined, showData, function (err) { console.error(err); });
     else
-        getData(codestr, 0, retrieveRowNumber, showData, function(err) { console.error(err); });
+        getData(codestr, 0, retrieveRowNumber, showData, function (err) { console.error(err); });
 });
 
 function getData(script, startindex, pagesize, sucfunc, errfunc) {
@@ -441,16 +459,16 @@ function getData(script, startindex, pagesize, sucfunc, errfunc) {
     var btnRequests = $('.btn-request');
     btnRequests.attr('disabled', true);
 
-    CallWebApi(nodeUrl, p, function(re) {
+    CallWebApi(nodeUrl, p, function (re) {
         btnRequests.attr('disabled', false);
         sucfunc(re);
-    }, function(err) {
+    }, function (err) {
         btnRequests.attr('disabled', false);
         errfunc(err);
     });
 }
 
-$('#btn_clear').click(function() {
+$('#btn_clear').click(function () {
     $('#pnl_log').html('');
     localStorage.setItem(logStorageID, '');
 });
@@ -461,7 +479,7 @@ function appendlog(logstr) {
     localStorage.setItem(logStorageID, $('#pnl_log').html());
 }
 
-function appendError(logstr){
+function appendError(logstr) {
     var err = "<span style='color: red'>Error Message: </span>";
     logstr = new Date().toLocaleString() + ":<pre>" + err + logstr + "</pre>";
     $('#pnl_log').prepend(logstr);
@@ -471,6 +489,6 @@ function writelog(logstr) {
     $('#pnl_log').html(logstr)
 }
 
-$('#btn_clrcode').click(function() {
+$('#btn_clrcode').click(function () {
     editor.setValue('');
 });

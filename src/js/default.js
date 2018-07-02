@@ -55,12 +55,13 @@ $(document).ready(function () {
             if(re.resultCode=="0"){
                 localStorage.setItem("DolphinDB_CurrentUsername", "");
                 localStorage.setItem(session_storage_id, "");
-                window.location = "login.html";
+                window.location.reload();
             }else{
                 alert(re.msg);
             }
         })
     });
+
     $("#txtFilter").val(localStorage.getItem(filterStorageId));
 
     require(["js/clusterNodeManager"], function () {
@@ -246,7 +247,7 @@ function LoadTable(nodeList) {
                     var nodeManager = new ClusterNodeManager();
                     var nodeHost = nodeManager.getNodeApiUrl(rowObject.name);
                     var nodeUrl = GetFullUrl(nodeHost + ':' + rowObject.port + '/nodedetail.html?alias='+rowObject.name+'&site=' + nodeManager.getControllerSite());
-                    r = '<a href="###" class="a-link" onclick=javascript:window.open("' + nodeUrl + '");>' + rowObject.name + '</a>';
+                    r = '<a href="###" class="a-link" onclick=javascript:openNodebook("' + nodeUrl + '");>' + rowObject.name + '</a>';
                     return r;
                 } else {
                     return rowObject.name;
@@ -592,6 +593,10 @@ function LoadTable(nodeList) {
             console.log(query);
         }
     });
+}
+function openNodebook(url){
+    var win = window.open(url);
+    win.name = localStorage.getItem("dolphindb_ticket");
 }
 
 function refreshGrid(nodeList) {
