@@ -64,11 +64,11 @@ $(function () {
         document.title = ALIAS;
     }
 
-    var ticket = window.name;//.replaceAll("_NEWLINE_","\n");
-    appendlog("received log " + ticket)
+    var ticket = window.name;
+    
     nodeApi.authenticateByTicket(ticket, function (re) {
         if (re.resultCode === "1") {
-            console.log("login by ticket failed : ", re.msg);
+            appendlog("login by ticket failed : " + re);
         }else{
             console.log("login success ", re)
         }

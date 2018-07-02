@@ -91,9 +91,17 @@ DatanodeServer.prototype = {
         return exec.runSync(script);
     },
     authenticateByTicket:function(ticket,callback){
-        this.exec.run("authenticateByTicket('"+ticket+"')",function(re){
-            callback(re);
-        });
+        var p = {
+            "sessionID": this._sessionid,
+            "functionName": "authenticateByTicket",
+            "params": [{
+                "name": "ticket",
+                "form": "scalar",
+                "type": "string",
+                "value": ticket
+            }]
+        };
+        CallWebApi(this._url, p, callback);
     }
 }
 

@@ -8,10 +8,7 @@ $('#btn-login').click(function () {
         if (re) {
             var re = controller.getAuthenticatedUserTicket();
             if (re.resultCode === "0") {
-                var ticketstr = re.object[0].value.replaceAll("\n","\r\n");
-                
-                ticketstr = ticketstr.substr(0,ticketstr.length-2)
-                ticketstr = "XTt65lDlhYonCoFEbWsuyBTdD66dIsMLhEb8FilTSaqzG88LU5NNt9cmCNAszz5aQ85PdhI0OzrZ\r\nPhMk3CTeBvCw9mpdbySQN1K5VPNPA2lmZcJNSpbtuJr/LxsRmaCD9TfJ4Ph863eiRlKWlUdvo7N6\r\nTrLwQbrr9jL9pfzKPnM="
+                var ticketstr = re.object[0].value;               
                 localStorage.setItem("dolphindb_ticket", ticketstr);
             }
             location.href = "default.html";
