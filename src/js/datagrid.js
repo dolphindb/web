@@ -13,18 +13,18 @@ function DolphinGrid(gridInstance, gridSettings) {
 }
 
 DolphinGrid.prototype = {
-    loadFromDolphinJson: function(dolphinJson) {
+    loadFromDolphinJson: function (dolphinJson) {
         if (typeof dolphinJson != "object") return;
         if (typeof dolphinJson.object != "object") return;
         if (isArray(dolphinJson.object) && dolphinJson.object.length > 0) {
             $.extend(this.settings, { pageSize: getPageSize(dolphinJson) });
         }
-        var isVector = getDataForm(dolphinJson.object[0])==="vector";
+        var isVector = getDataForm(dolphinJson.object[0]) === "vector";
         var cols = loadCols(dolphinJson.object[0]);
-        this.loadFromJson(DolphinResult2Grid(dolphinJson),isVector,cols);
+        this.loadFromJson(DolphinResult2Grid(dolphinJson), isVector, cols);
     },
 
-    setGridPage: function(dolphinJson) {
+    setGridPage: function (dolphinJson) {
         if (typeof dolphinJson !== "object") return;
         if (typeof dolphinJson.object !== "object") return;
         if (isArray(dolphinJson.object) && dolphinJson.object.length > 0) {
@@ -32,21 +32,22 @@ DolphinGrid.prototype = {
         }
     },
 
-    loadFromJson: function(datalist, isVector, cols) {
+    loadFromJson: function (datalist, isVector, cols) {
         if (datalist == null) return false;
         if (datalist.length <= 0 && typeof cols === 'undefined') throw "data empty";
         var griddata = {
             data: datalist,
             itemsCount: 1000
         };
-        if (isVector)
-        cols.push({ name: 'offset', title: 'offset', type: 'text' })
         if (!cols) {
             cols = [];
+            if (isVector)
+                cols.push({ name: 'offset', title: 'offset', type: 'text' })
+
             for (var keyname in datalist[0]) {
                 if (isVector && keyname === 'offset')
                     continue;
-                
+
                 cols.push({ name: keyname, title: keyname, type: 'text' });
             };
         }
@@ -59,7 +60,7 @@ DolphinGrid.prototype = {
             pageSize: 20,
             sorting: true,
             resizing: true,
-            noDataContent:"No Record Found",
+            noDataContent: "No Record Found",
             pageIndex: 1,
             pageButtonCount: 10,
             data: datalist,
@@ -73,41 +74,41 @@ DolphinGrid.prototype = {
         return true;
     },
 
-    load: function() {
+    load: function () {
         this.grid.jsGrid(this.settings);
     },
 
-    loadCols: function(jsonobj) {
+    loadCols: function (jsonobj) {
         var jsonVector = jsonobj.value;
         if (typeof jsonVector === 'undefined')
             return undefined;
         if (!isArray(jsonVector)) return;
         if (!isArray(jsonVector[0].value)) return;
-    
+
         var cols = [];
-        jsonVector.forEach(function(value, index, array) {
+        jsonVector.forEach(function (value, index, array) {
             var w = 100;
             var style = "jsgrid-cell"
-            if(value.type==="string"||value.type==="symbol"){
+            if (value.type === "string" || value.type === "symbol") {
                 w = 0;
                 style = "jsgrid-cell-cut";
-            }else if(value.type ==="datetime"){
+            } else if (value.type === "datetime") {
                 w = 140;
-            }else if(value.type === "time"){
+            } else if (value.type === "time") {
                 w = 80;
-            }else if(value.type === "date"  || value.type ==="month"||value.type==="minute"||value.type==="second"){
-                w=100;
-            }else if(value.type === "timestamp"||value.type==="nanotime"){
+            } else if (value.type === "date" || value.type === "month" || value.type === "minute" || value.type === "second") {
+                w = 100;
+            } else if (value.type === "timestamp" || value.type === "nanotime") {
                 w = 160;
-            }else if( value.type === "nanotimestamp"){
+            } else if (value.type === "nanotimestamp") {
                 w = 200
             }
-            if(w>0){
-                cols.push({ name: value.name, width:w,css: style,title: value.name, type: 'text' });
-            }else{
-                cols.push({ name: value.name, css: style,title: value.name, type: 'text' });
+            if (w > 0) {
+                cols.push({ name: value.name, width: w, css: style, title: value.name, type: 'text' });
+            } else {
+                cols.push({ name: value.name, css: style, title: value.name, type: 'text' });
             }
-            
+
         });
         return cols;
     }
@@ -162,7 +163,7 @@ function DolphinResult2Grid(reJson, pageOffset) {
     }
 }
 //jsonobj == result.object[0]
-function getDataForm(jsonobj){
+function getDataForm(jsonobj) {
     return jsonobj.form;
 }
 //jsonobj == result.object[0]
@@ -242,7 +243,7 @@ function VectorArray2Table(jsonVector) {
     var rowcount = jsonVector[0].value.length;
 
     var jTable = [];
-    jsonVector.forEach(function(value, index, array) {
+    jsonVector.forEach(function (value, index, array) {
         var valArr = value["value"];
         if (isArray(valArr)) {
             for (var i = 0; i < valArr.length; i++) {
@@ -253,8 +254,8 @@ function VectorArray2Table(jsonVector) {
     return jTable;
 }
 
-function DolphinTypeToJsgridType(typstr){
-    switch(typestr){
+function DolphinTypeToJsgridType(typstr) {
+    switch (typestr) {
         case "int":
         case "double":
         case "float":
@@ -271,7 +272,7 @@ function isArray(object) {
     return object && typeof object === 'object' && Array == object.constructor;
 }
 
-Array.prototype.setRow = function(index, fieldname, value) {
+Array.prototype.setRow = function (index, fieldname, value) {
     if (typeof this[index] === 'undefined') {
         var row = {};
         this[index] = row;
