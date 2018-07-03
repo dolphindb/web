@@ -23,8 +23,11 @@ function CodeExecutor(url) {
             } else {
                 resultobj = re;
             }
-
-            callback(re);
+            if(resultobj.resultCode=="1"){
+                alert(resultobj.msg);
+            }else{
+                callback(re);
+            }
             return false;
         }, function(re) {
             console.log(re);

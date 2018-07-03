@@ -195,8 +195,12 @@
                             var deferred = $.Deferred();
                             var s = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" + partitionPath + "',`" + tablename + "," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
                             getTableData(s, function (g) {
-                                var d = DolphinResult2Grid(g);
-                                deferred.resolve({ data: d, itemsCount: totalcount });
+                                if(g.resultCode==0){
+                                    var d = DolphinResult2Grid(g);
+                                    deferred.resolve({ data: d, itemsCount: totalcount });
+                                }else{
+                                    alert(g.msg);
+                                }
                             }, function (e) {
                                 appendlog(e);
                             });

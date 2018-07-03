@@ -81,7 +81,7 @@ function CallWebApiSync(apiurl, paramstr) {
         url: apiurl,
         async: false,
         data: d,
-        timeout: 1000,
+        timeout: 30000,
         type: "POST",
         dataType: "json"
     });
