@@ -701,13 +701,6 @@ $("#btn_run").click(function () {
         },
         function (re) {
             alert(re);
-        }, {
-            timeout: 1000,
-            complete: function (XMLHttpRequest, status) {
-                if (status === 'timeout') {
-                    alert('startDataNode timeout');
-                }
-            }
         }
     );
 
