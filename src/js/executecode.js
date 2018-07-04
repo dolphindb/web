@@ -23,11 +23,11 @@ function CodeExecutor(url) {
             } else {
                 resultobj = re;
             }
-            if(resultobj.resultCode=="1"){
-                alert(resultobj.msg);
-            }else{
+            // if(resultobj.resultCode=="1"){
+            //     alert(resultobj.msg);
+            // }else{
                 callback(re);
-            }
+            // }
             return false;
         }, function(re) {
             console.log(re);

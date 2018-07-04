@@ -199,6 +199,7 @@
                                     var d = DolphinResult2Grid(g);
                                     deferred.resolve({ data: d, itemsCount: totalcount });
                                 }else{
+                                    deferred.resolve({ data: [], itemsCount: 0 });
                                     alert(g.msg);
                                 }
                             }, function (e) {
