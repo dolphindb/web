@@ -319,7 +319,7 @@ function ControllerConfig() {
     var ruleData = [];
     var configs = [
         // { name: 'mode', value: ['controller'], default: 'controller', tip: 'Node mode. Possible modes are controller / agent / dataNode.' },
-        { name: 'localSite', value: '', default: '', tip: 'Specify host address, port number and alias of the local node.' },
+        // { name: 'localSite', value: '', default: '', tip: 'Specify host address, port number and alias of the local node.' },
         { name: 'clusterConfig', value: '', default: 'cluster.cfg', tip: 'Specify the location for Nodes Config file.' },
         { name: 'nodesFile', value: '', default: 'cluster.nodes', tip: 'Specify the location for Nodes Setup file.' },
         { name: 'localExecutors', value: 'int', default: 'CPU core number - 1', tip: 'The number of local executors.The default value is the number of cores of the CPU - 1.' },
