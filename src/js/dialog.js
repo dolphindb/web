@@ -34,10 +34,10 @@ DolphinDialog.prototype = {
         $.extend(this.settings, dialogSetting);
         divobj = document.createElement("div");
         divobj.id = did;
-        divobj.setAttribute("style", "overflow:hidden;width:100%");
+        divobj.setAttribute("style", "overflow-y:hidden;width:100%");
         var iframe = document.createElement("iframe");
         iframe.setAttribute("src", url);
-        iframe.setAttribute("style", "height:100%;width:100%;border:0;overflow:hidden");
+        iframe.setAttribute("style", "height:100%;width:100%;border:0;overflow-y:hidden");
         $(iframe).appendTo($(divobj));
         $(divobj).appendTo($('body'));
         $("#" + did).dialog(this.settings);

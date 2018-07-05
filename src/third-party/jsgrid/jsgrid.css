@@ -147,4 +147,8 @@
 
 ::-webkit-scrollbar {
     width: 5px;
+    height: 5px;
+}
+::-webkit-scrollbar-thumb {
+    background: #a0a0a0;
 }

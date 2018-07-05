@@ -68,7 +68,7 @@ $(function () {
     
     nodeApi.authenticateByTicket(ticket, function (re) {
         if (re.resultCode === "1") {
-            appendlog("login by ticket failed : " + re);
+            console.log("login as a guest");
         }else{
             console.log("login success ", re)
         }
@@ -163,13 +163,13 @@ function bindVariables(datalist) {
             var tblobj = document.createElement("div");
             tblobj.id = "jsgrid_" + divid;
             $(tblobj).appendTo($(divobj));
-
+            var tablesize = so_rows;
             if (so_form === "TABLE") {
                 if (so_extra.startWith("dfs://")) {
                     new DolphinDialog("dfstable_" + so_name, { title: "Dfs Table Browser [" + so_extra + "]", width: 1000 }).openSingleWindow("dialogs/dfsTable.html?site=" + $.getUrlParam('site') + "&db=" + so_extra + "&tb=" + so_name);
                     return;
                 }
-                var tablesize = so_rows;
+                
                 if (tablesize === "0") {
                     if ($('#retrieve-row-number').val() === "")
                         tablesize = 0;
@@ -301,10 +301,8 @@ function showResult(gridid, resobj) {
         pageLoading: true,
         controller: {
             loadData: function (filter) {
-                console.log("filter", filter);
                 var start = (filter.pageIndex - 1) * filter.pageSize;
                 var end = (start + filter.pageSize > d.length) ? d.length : start + filter.pageSize;
-                console.log("d.slice", d.slice(start, end));
                 return { data: d.slice(start, end), itemsCount: d.length }
             }
         },
@@ -314,7 +312,7 @@ function showResult(gridid, resobj) {
     btnPlot.hide();
     var res = resobj.object && resobj.object[0];
     var cols = undefined;
-    if (d.length >= 0)
+    if (d.length >= 0&&res.form!=="matrix")
         cols = dg.loadCols(res);
     if (dg.loadFromJson(d, res.form === "vector", cols)) {
         if (res && res.form) {
