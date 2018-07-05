@@ -312,7 +312,7 @@ function showResult(gridid, resobj) {
     btnPlot.hide();
     var res = resobj.object && resobj.object[0];
     var cols = undefined;
-    if (d.length >= 0&&res.form!=="matrix")
+    if (d.length >= 0&&res.form==="table")
         cols = dg.loadCols(res);
     if (dg.loadFromJson(d, res.form === "vector", cols)) {
         if (res && res.form) {
