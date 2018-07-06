@@ -537,9 +537,9 @@ function NodesSetup() {
                     var site = nodes[i].split(",")[0];
                     var mode = nodes[i].split(",")[1];
 
-                    if (mode === "agent")
+                    if (mode.toLowerCase() === "agent")
                         existingAgents.push(site);
-                    else if (mode === "datanode")
+                    else if (mode.toLowerCase() === "datanode")
                         existingDatanodes.push(site);
                 }
                 genNodeTable();

@@ -51,12 +51,12 @@ $(document).ready(function () {
         var user = JSON.parse(localStorage.getItem("DolphinDB_CurrentUsername"));
 
         var controller = new ControllerServer(wa_url);
-        controller.logout(user.userId,function(re){
-            if(re.resultCode=="0"){
+        controller.logout(user.userId, function (re) {
+            if (re.resultCode == "0") {
                 localStorage.setItem("DolphinDB_CurrentUsername", "");
                 localStorage.setItem(session_storage_id, "");
                 window.location.reload();
-            }else{
+            } else {
                 alert(re.msg);
             }
         })
@@ -246,7 +246,7 @@ function LoadTable(nodeList) {
                 if (rowObject.state === 1) {
                     var nodeManager = new ClusterNodeManager();
                     var nodeHost = nodeManager.getNodeApiUrl(rowObject.name);
-                    var nodeUrl = GetFullUrl(nodeHost + ':' + rowObject.port + '/nodedetail.html?alias='+rowObject.name+'&site=' + nodeManager.getControllerSite());
+                    var nodeUrl = GetFullUrl(nodeHost + ':' + rowObject.port + '/nodedetail.html?alias=' + rowObject.name + '&site=' + nodeManager.getControllerSite());
                     r = '<a href="###" class="a-link" onclick=javascript:openNodebook("' + nodeUrl + '");>' + rowObject.name + '</a>';
                     return r;
                 } else {
@@ -594,7 +594,7 @@ function LoadTable(nodeList) {
         }
     });
 }
-function openNodebook(url){
+function openNodebook(url) {
     var win = window.open(url);
     win.name = localStorage.getItem("dolphindb_ticket");
 }
@@ -619,26 +619,26 @@ function refreshGrid(nodeList) {
 
 function connect_server_success(result) {
     if (result) {
-        if(result.resultCode=="0"){
+        if (result.resultCode == "0") {
             SESSION_ID = result["sessionID"];
 
             var data = result["object"];
             if (data.length <= 0) return;
-    
+
             ALL_NODE = VectorArray2Table(data[0].value);
             var nodeManager = new ClusterNodeManager();
             nodeManager.setCache(ALL_NODE);
-    
+
             AGENT_LIST = ALL_NODE.filter(function (x) {
                 return x.mode === 1;
             });
-    
+
             LoadLeft(AGENT_LIST);
-    
+
             NODE_LIST = ALL_NODE.filter(function (x) {
                 return x.mode === 0;
             });
-    
+
             CTL_LIST = ALL_NODE.filter(function (x) {
                 return x.mode === 2;
             });
@@ -646,9 +646,9 @@ function connect_server_success(result) {
             $(CTL_LIST).each(function (i, e) {
                 NODE_LIST.splice(0, 0, e);
             });
-    
+
             refreshGrid(NODE_LIST);
-        }else if(result.resultCode=="1"){
+        } else if (result.resultCode == "1") {
             alert(result.msg)
         }
     }
@@ -693,11 +693,12 @@ $("#btn_run").click(function () {
     if (c === false) return;
     CallWebApi(wa_url, p,
         function (re) {
-            if(re.resultCode=="0"){
+            if (re.resultCode == "0") {
 
-            }else if(re.resultCode=="1"){
+            } else if (re.resultCode == "1") {
                 alert(re.msg)
             }
+            refreshUserPanel(re);
         },
         function (re) {
             alert(re);
@@ -731,11 +732,12 @@ $("#btn_stop").click(function () {
     if (c === false) return;
 
     CallWebApi(wa_url, p, function (re) {
-        if(re.resultCode=="0"){
+        if (re.resultCode == "0") {
 
-        }else if(r.resultCode=="1"){
+        } else if (r.resultCode == "1") {
             alert(re.msg)
         }
+        refreshUserPanel(re);
     },
         function (re) {
             alert(re);
@@ -911,4 +913,23 @@ function openDialog(dialog, tit) {
 
 function closeDialog(dialog) {
     $("#" + dialog).dialog("close");
+}
+
+
+function refreshUserPanel(ajaxResult) {
+    if (ajaxResult && typeof ajaxResult.userId !== undefined) {
+        var userId = ajaxResult.userId;
+        if (userId == "") {
+            $("#btnLogin").show();
+            $("#btnLogout").hide();
+            $("#btnAdmin").hide();
+            $("#btn_run").hide();
+            $("#btn_stop").hide();
+            $("#btn-controller-config").hide();
+            $("#btn-nodes-setup").hide();
+            $("#btn-datanode-config").hide();
+            $("#btnAdmin").hide();
+            $("#lblLogin").text("");
+        }
+    }
 }
