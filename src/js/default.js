@@ -651,6 +651,7 @@ function connect_server_success(result) {
         } else if (result.resultCode == "1") {
             alert(result.msg)
         }
+        refreshUserPanel(result);
     }
 }
 
