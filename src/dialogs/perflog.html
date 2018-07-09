@@ -140,6 +140,7 @@
 
         var bindRunningLog = function (json) {
             var griddata = DolphinResult2Grid(json);
+
             var col = [{
                 name: "UserId",
                 type: "text",
@@ -197,7 +198,7 @@
                     "value": nodeAlias
                 }]
             };
-            CallWebApi(svr_url, p, function (re) {
+            CallWebApiWithoutSession(svr_url, p, function (re) {
                 if (re.resultCode == "0") {
                     if (re.object.length > 0) {
                         bindLog(re);
@@ -232,7 +233,7 @@
                     "value": nodeAlias
                 }]
             };
-            var re = CallWebApiSync(svr_url, p);
+            var re = CallWebApiSyncWithoutSession(svr_url, p);
             if (re.resultCode == "0") {
                 if (re.object.length > 0) {
                     return re.object[0].value;
