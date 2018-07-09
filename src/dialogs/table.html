@@ -45,7 +45,11 @@
     $(document).ready(function () {
        
         var site = $.getUrlParam('site');
-        var serverObj = new ServerObject(site);
+        var serverObj = new ServerObject(window.location.host);
+        if(site != "null"){
+            serverObj = new ServerObject(site);
+        }
+        
         controller = serverObj.getHttpServer();
 
         var tablename = $.getUrlParam('tb');
