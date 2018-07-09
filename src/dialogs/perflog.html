@@ -78,6 +78,7 @@
             svr_url = svr_obj.getHttpServer();
             controller = "http://" + window.location.host;
             SESSION_ID = $.getUrlParam('sessid');
+            localStorage.setItem(session_storage_id, SESSION_ID)
             nodeAlias = $.getUrlParam('node');
             logLength = getLogLength();
             if (!logLength.isNumber()) logLength = 0;
@@ -165,7 +166,6 @@
                 pageLoading: false,
                 fields: col
             });
-
             
             griddata.sort(sortTimeDesc);
             dg.loadFromJson(griddata, false, col);
