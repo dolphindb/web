@@ -873,8 +873,8 @@ function showPerfLog(url, alias) {
     var apiUrl = url;
     var nodeAlias = alias;
     var did = "perflog_" + nodeAlias;
-
-    new DolphinDialog(did, { title: 'QueryLog[' + nodeAlias + ']' }).openSingleWindow("dialogs/perflog.html?svr=" + apiUrl + "&node=" + nodeAlias + "&sessid=" + SESSION_ID);
+    var pageUrl = GetFullUrlHttpRestrict(window.location.host);
+    new DolphinDialog(did, { title: 'QueryLog[' + nodeAlias + ']' }).openSingleWindow(pageUrl + "/dialogs/perflog.html?svr=" + apiUrl + "&node=" + nodeAlias + "&sessid=" + SESSION_ID);
 }
 
 //==============================================================util function============================================
