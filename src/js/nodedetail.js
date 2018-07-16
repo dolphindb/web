@@ -382,7 +382,7 @@ $('#retrieve-row-number').keypress(function (e) {
 $('#btn_execode').click(function () {
     var codestr = editor.getSelection() || editor.getValue();
 
-    var logstr = codestr;
+    var logstr = HtmlEncode(codestr);
 
     codestr = encodeURIComponent(codestr);
 

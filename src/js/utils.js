@@ -229,3 +229,12 @@ function HandleUrlOverHttp(){
         }
     }
 }
+
+
+function HtmlEncode(str){
+    var temp = document.createElement ("div");
+    (temp.textContent != undefined ) ? (temp.textContent = str) : (temp.innerText = str);
+    var output = temp.innerHTML;
+    temp = null;
+    return output;
+}
