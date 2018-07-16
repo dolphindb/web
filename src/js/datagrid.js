@@ -34,7 +34,7 @@ DolphinGrid.prototype = {
 
     loadFromJson: function (datalist, isVector, cols) {
         if (datalist == null) return false;
-        if (datalist.length <= 0 && typeof cols === 'undefined') throw "data empty";
+        if (datalist.length <= 0 && typeof cols === 'undefined'&&isVector===false) throw "data empty";
         var griddata = {
             data: datalist,
             itemsCount: 1000
@@ -58,7 +58,7 @@ DolphinGrid.prototype = {
             paging: true,
             pageLoading: true,
             pageSize: 20,
-            sorting: true,
+            sorting: false,
             resizing: true,
             noDataContent: "No Record Found",
             pageIndex: 1,

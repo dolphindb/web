@@ -295,7 +295,7 @@ function showResult(gridid, resobj) {
         pageSize: 50,
         paging: true,
         height: h,
-        sorting: true,
+        sorting: false,
         pagerContainer: $("#jsgridpager"),
         autoload: true,
         pageLoading: true,
