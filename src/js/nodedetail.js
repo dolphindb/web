@@ -65,11 +65,11 @@ $(function () {
     }
 
     var ticket = window.name;
-    
+
     nodeApi.authenticateByTicket(ticket, function (re) {
         if (re.resultCode === "1") {
             console.log("login as a guest");
-        }else{
+        } else {
             console.log("login success ", re)
         }
     });
@@ -153,7 +153,7 @@ function bindVariables(datalist) {
             var so_extra = e.target.attributes.extra.value;
 
 
-            if (so_form === "SCALAR") return;
+            if (so_form === "SCALAR" || so_form === "PAIR") return;
 
             var code = so_name + ';';
             var divid = localStorage.divid++;
@@ -169,7 +169,7 @@ function bindVariables(datalist) {
                     new DolphinDialog("dfstable_" + so_name, { title: "Dfs Table Browser [" + so_extra + "]", width: 1000 }).openSingleWindow("dialogs/dfsTable.html?site=" + $.getUrlParam('site') + "&db=" + so_extra + "&tb=" + so_name);
                     return;
                 }
-                
+
                 if (tablesize === "0") {
                     if ($('#retrieve-row-number').val() === "")
                         tablesize = 0;
@@ -312,7 +312,7 @@ function showResult(gridid, resobj) {
     btnPlot.hide();
     var res = resobj.object && resobj.object[0];
     var cols = undefined;
-    if (d.length >= 0&&res.form==="table")
+    if (d.length >= 0 && res.form === "table")
         cols = dg.loadCols(res);
     if (dg.loadFromJson(d, res.form === "vector", cols)) {
         if (res && res.form) {
