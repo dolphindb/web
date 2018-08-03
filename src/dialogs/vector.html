@@ -36,16 +36,20 @@
     var controller = "";
     var scriptExecutor = null;
     $(document).ready(function () {
-        controller = "http://" + window.location.host;
-        var site = $.getUrlParam('site');
-        var variableName = $.getUrlParam('v');
-		var tablesize = $.getUrlParam('size');
-		var serverObj = new ServerObject(window.location.host);
+        
+		var site = $.getUrlParam('site');
+        var serverObj = new ServerObject(window.location.host);
         if(site != "null"){
             serverObj = new ServerObject(site);
         }
-        var script = variableName + ";";
-        scriptExecutor = new CodeExecutor(serverObj.getHttpServer());
+        
+		controller = serverObj.getHttpServer();
+		
+        var variableName = $.getUrlParam('v');
+		var tablesize = $.getUrlParam('size');
+		var script = variableName + ";";
+		nodeUrl = GetFullUrl(window.location.host);
+        scriptExecutor = new CodeExecutor(nodeUrl);
         getData(script, 0, 20, function (g) {
             if (g.resultCode === "0") {
                 showGrid(script, g);
