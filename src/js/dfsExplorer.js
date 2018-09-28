@@ -239,13 +239,17 @@ var showTabletData = function (e) {
     var version = sitesstr.split(":")[1];
     var ctlServer= new ControllerServer(wa_url);
     var re = ctlServer.getDBIdByTabletChunkSync(nodesite,chunkId);
-    console.log("getDBIdByTabletChunkSync",re)
+
     var reEntity = new DolphinEntity(re);
     var dbid = reEntity.toScalar();
     var tableids = "";
     var re1 = ctlServer.getTablesByTabletChunkSync(nodesite,chunkId);
     reEntity = new DolphinEntity(re1);
+
     var tables = reEntity.toVector();
+    if(tables.length==0){
+        return;
+    }
     tableids = tables.join(",");
     var dialog = new DolphinDialog("showChunkData_" + chunkId, { title: "Chunk Data Browser[" + chunkId +"]" });
     dialog.openSingleWindow("dialogs/dfsChunkDataBrowser.html?chunkid=" + chunkId +"&alias=" + getSiteByAlias(nodesite) + "&dbid=" + dbid + "&tables=" + tableids + "&partition=" + partition + "&v=" + version);
