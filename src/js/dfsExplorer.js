@@ -141,7 +141,7 @@ var bindGrid = function (tableJson) {
         type: 'text',
         width:200,
         css:"jsgrid-cell-cut",
-        itemTemplate: function (value, item) {
+        itemTemplate: function (value, item) {   
             if (item.filetype === 0) {
                 return "<span class='glyphicon glyphicon-folder-close' style='color:rgb(239,222,7)' title='directory'></span> " + value
             } else if (item.filetype === 1) {
@@ -230,7 +230,7 @@ var bindGrid = function (tableJson) {
     dg.loadFromJson(tableJson, false, col);
 }
 
-//=================================================================Filter====================================================================
+//=================================================================Function====================================================================
 var showTabletData = function (e) {
     var chunkId = $(e).attr("value");
     var sitesstr = $(e).attr("site");
