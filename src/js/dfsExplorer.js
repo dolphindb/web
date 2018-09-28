@@ -248,6 +248,8 @@ var showTabletData = function (e) {
 
     var tables = reEntity.toVector();
     if(tables.length==0){
+        alert("Can not find any table for this chunk");
+        e.outerHTML = "<span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " +  $(e).text();
         return;
     }
     tableids = tables.join(",");
