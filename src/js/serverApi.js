@@ -318,8 +318,8 @@ function ControllerConfig() {
     var scriptExecutor = new CodeExecutor(controller);
     var ruleData = [];
     var configs = [
-        // { name: 'mode', value: ['controller'], default: 'controller', tip: 'Node mode. Possible modes are controller / agent / dataNode.' },
-        // { name: 'localSite', value: '', default: '', tip: 'Specify host address, port number and alias of the local node.' },
+         { name: 'mode', value: ['controller'], default: 'controller', tip: 'Node mode. Possible modes are controller / agent / dataNode.' ,disabled:true},
+         { name: 'localSite', value: '', default: '', tip: 'Specify host address, port number and alias of the local node.' ,disabled:true},
         { name: 'clusterConfig', value: '', default: 'cluster.cfg', tip: 'Specify the location for Nodes Config file.' },
         { name: 'nodesFile', value: '', default: 'cluster.nodes', tip: 'Specify the location for Nodes Setup file.' },
         { name: 'localExecutors', value: 'int', default: 'CPU core number - 1', tip: 'The number of local executors.The default value is the number of cores of the CPU - 1.' },
@@ -404,6 +404,7 @@ function ControllerConfig() {
             if (Array.isArray(value)) {
                 ruleValueContent = $('<select />', {
                     class: 'form-control rule-value-content',
+					disabled:configs[selected].disabled?true:false,
                     id: 'rule-value-content-' + ruleId
                 });
                 for (var i = 0, len = value.length; i < len; i++) {
@@ -420,6 +421,7 @@ function ControllerConfig() {
                     id: 'rule-value-content-' + ruleId,
                     type: 'number',
                     min: '0',
+					disabled:configs[selected].disabled?true:false,
                     placeholder: configs[selected].default,
                     title: configs[selected].tip
                 })
@@ -428,6 +430,7 @@ function ControllerConfig() {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
                     type: 'password',
+					disabled:configs[selected].disabled?true:false,						
                     placeholder: configs[selected].default,
                     title: configs[selected].tip
                 })
@@ -436,6 +439,7 @@ function ControllerConfig() {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
                     type: 'text',
+					disabled:configs[selected].disabled?true:false,
                     placeholder: configs[selected].default,
                     title: configs[selected].tip
                 })
