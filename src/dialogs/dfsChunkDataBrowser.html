@@ -168,7 +168,9 @@
 
     var loadGrid = function (chunkid, dbPath, partitionPath, tablename, sites, version) {
 
-
+        if(tablename==""){
+            return;
+        }
         var nodeSite = new ServerObject(site);
 
         var script = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" + partitionPath + "',`" + tablename + ",0," + pgSize + ")";

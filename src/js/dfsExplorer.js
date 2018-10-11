@@ -247,11 +247,11 @@ var showTabletData = function (e) {
     reEntity = new DolphinEntity(re1);
 
     var tables = reEntity.toVector();
-    if(tables.length==0){
-        alert("Can not find any table for this chunk");
-        e.outerHTML = "<span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " +  $(e).text();
-        return;
-    }
+    // if(tables.length==0){
+    //     alert("Can not find any table for this chunk");
+    //     e.outerHTML = "<span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " +  $(e).text();
+    //     return;
+    // }
     tableids = tables.join(",");
     var dialog = new DolphinDialog("showChunkData_" + chunkId, { title: "Chunk Data Browser[" + chunkId +"]" });
     dialog.openSingleWindow("dialogs/dfsChunkDataBrowser.html?chunkid=" + chunkId +"&alias=" + getSiteByAlias(nodesite) + "&dbid=" + dbid + "&tables=" + tableids + "&partition=" + partition + "&v=" + version);
