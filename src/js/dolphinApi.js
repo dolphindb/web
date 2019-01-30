@@ -262,7 +262,24 @@ ControllerServer.prototype = {
         return true;
     },
     login: function (userId, password, callback) {
-        this.exec.run("login('" + userId + "','" + password + "')", function (re) {
+        var p = {
+            "sessionID": 0,
+            "functionName": "login",
+            "params": [{
+                "name": "userId",
+                "form": "scalar",
+                "type": "string",
+                "value": userId
+            }, {
+                "name": "password",
+                "form": "scalar",
+                "type": "string",
+                "value": password
+            }
+            ]
+        };
+
+        CallWebApi(this._url, p, function (re) {
             var userobj = { userId: userId, loginTimestamp: "" };
             if (re.resultCode === "0") {
                 localStorage.setItem("DolphinDB_CurrentUsername", JSON.stringify(userobj));
@@ -274,6 +291,8 @@ ControllerServer.prototype = {
         }, function (exception) {
             console.log(exception);
         });
+
+        //this.exec.run("login('" + userId + "','" + password + "')", 
     },
     logout:function(userId,callback){
         this.exec.run("logout()", function (re){
@@ -281,7 +300,7 @@ ControllerServer.prototype = {
         });
     },
     getCurrentUser: function () {
-        var guestUser = { userId: "guest", isAdmin: true };
+        var guestUser = { userId: "guest", isAdmin: false };
         var cache = localStorage.getItem("DolphinDB_CurrentUsername");
         if (cache && cache != "") {
             var user = JSON.parse(cache);
