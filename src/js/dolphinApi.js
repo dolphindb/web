@@ -159,8 +159,15 @@ ControllerServer.prototype = {
     },
     getIsEnableHttps: function () {
         var exec = new CodeExecutor(this._url);
-        return exec.runSync("isHttpsOn()");
+        var p = {
+            "sessionID": 0,
+            "functionName": "isHttpsOn",
+            "params": []
+        };
+
+        return CallWebApiSync(this._url, p);
     },
+    
     createUser: function (userId, password, isAdmin, callback) {
         var exec = new CodeExecutor(this._url);
         //return exec.run("createUser('" + userId + "','"+password+"',NULL," + isAdmin + ")",callback);
