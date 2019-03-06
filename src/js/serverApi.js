@@ -34,7 +34,9 @@ function DatanodeConfig() {
                 { name: 'webWorkerNum', value: 'int', default: '1', tip: 'The size of the worker pool to process http requests. The default value is 1.' },
                 { name: 'workerNum', value: 'int', default: '= number of CPU cores', tip: 'The size of worker pool for regular interactive jobs. The default value is the number of cores of the CPU.' },
                 { name: 'publicName', value: '', default: '= ', tip: '' },
-                { name: 'lanCluster', value: 'int', default: '= 0', tip: '' }
+                { name: 'lanCluster', value: 'int', default: '= 0', tip: '' },
+                { name: 'maxPartitionNumPerQuery', value: 'int', default: '= 65536', tip: '' }
+                 
             ]
         },
         {
