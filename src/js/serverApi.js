@@ -35,8 +35,12 @@ function DatanodeConfig() {
                 { name: 'workerNum', value: 'int', default: '= number of CPU cores', tip: 'The size of worker pool for regular interactive jobs. The default value is the number of cores of the CPU.' },
                 { name: 'publicName', value: '', default: '= ', tip: '' },
                 { name: 'lanCluster', value: 'int', default: '= 0', tip: '' },
-                { name: 'maxPartitionNumPerQuery', value: 'int', default: '= 65536', tip: '' }
-                 
+                { name: 'maxPartitionNumPerQuery', value: 'int', default: '= 65536', tip: '' },
+                { name: 'newValuePartitionPolicy', value: '[add,skip,fail]', default: '= skip', tip: '' },
+                { name: 'logLevel', value: '[DEBUG,INFO,WARNING,ERROR]', default: '= INFO', tip: '' },
+                { name: 'redoLogPurgeInterval', value: '', default: '= 10', tip: '' },
+                { name: 'redoLogPurgeLimit', value: '', default: '= 4000', tip: '' },
+                { name: 'maxLogSize', value: '', default: '= 1024', tip: '' },
             ]
         },
         {
@@ -596,7 +600,7 @@ function NodesSetup() {
         $('#node-list').jsGrid({
             height: "540px",
             width: "100%",
-
+            
             editing: true,
             inserting: true,
             sorting: true,
@@ -608,13 +612,28 @@ function NodesSetup() {
             confirmDeleting: false,
 
             data: nodes,
-
+            rowClick: function(args) {
+                return false;
+            },
             fields: [
                 { name: 'Host', type: 'text',align:"center"},
                 { name: 'Port', type: 'number' },
                 { name: 'Alias', type: 'text',align:"center" },
                 { name: 'Mode', type: 'select', items: [{ name: 'agent' }, { name: 'datanode' }], valueField: 'name', textField: 'name' },
-                { type: 'control' }
+                { type: 'control' , 
+                itemTemplate: function(value, item) {
+                    var $result = $([]);
+            
+                    if(item.Mode=="datanode") {
+                        $result = $result.add(this._createEditButton(item));
+                    }
+            
+                    if(item.Mode=="datanode") {
+                        $result = $result.add(this._createDeleteButton(item));
+                    }
+            
+                    return $result;
+                }}
             ],
 
             insertTemplate: function() {
