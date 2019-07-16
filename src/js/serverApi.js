@@ -720,16 +720,21 @@ function NodesSetup() {
 
     function saveDatanodes() {
         var script = "saveClusterNodes([";
+
         var nodeLines = [];
         var nodeList = $('#node-list').jsGrid("option", "data");
-
+        var ctlServer = new ControllerServer(controller);
+        var currentNodes = new DolphinEntity(ctlServer.getClusterPerf()).toScalar()[11].value;
+        console.log(currentNodes);
         for (var i = 0, len = nodeList.length; i < len; i++) {
             var node = nodeList[i];
             var host = node.Host;
             var port = node.Port;
             var alias = node.Alias;
             var mode = node.Mode;
-
+            if(currentNodes.indexOf(node.Alias)<0){
+                ctlServer.addNode(host,port,alias);
+            }
             if (host && port && alias && mode) {
                 var nodeLine = '"' + host + ':' + port + ':' + alias + ',' + mode + '"';
                 nodeLines.push(nodeLine)

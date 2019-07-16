@@ -166,7 +166,47 @@ ControllerServer.prototype = {
         };
         return CallWebApiSync(this._url, p);
     },
-
+    addNode:function(host,port,alias){
+        var p = {
+            "sessionID": this._sessionid,
+            "functionName": "addNode",
+            "params": [{
+                "name": "host",
+                "form": "scalar",
+                "type": "string",
+                "value": host
+            },{
+                "name": "port",
+                "form": "scalar",
+                "type": "int",
+                "value": port
+            },{
+                "name": "alias",
+                "form": "scalar",
+                "type": "string",
+                "value": alias
+            },{
+                "name": "isSave",
+                "form": "scalar",
+                "type": "bool",
+                "value": false
+            }]
+        };
+        return CallWebApi(this._url, p);
+    },
+    getClusterPerf:function(){
+        var p = {
+            "sessionID": this._sessionid,
+            "functionName": "getClusterPerf",
+            "params": [{
+                "name": "isShowController",
+                "form": "scalar",
+                "type": "bool",
+                "value": true
+            }]
+        };
+        return CallWebApiSync(this._url, p);
+    },
     createUser: function (userId, password, isAdmin, callback) {
         var exec = new CodeExecutor(this._url);
         //return exec.run("createUser('" + userId + "','"+password+"',NULL," + isAdmin + ")",callback);
