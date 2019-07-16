@@ -2,38 +2,57 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <title>DolphinDB Cluster Manager</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="DolphinDB Node Management">
-    <meta name="author" content="DolphinDB">
-    <link rel="stylesheet" href="../third-party/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../css/dialog.css">
+	<meta charset="utf-8">
+	<title>DolphinDB Cluster Manager</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="DolphinDB Node Management">
+	<meta name="author" content="DolphinDB">
+	<link rel="stylesheet" href="../third-party/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../css/dialog.css">
 </head>
 
 <body>
 	<div class="dd_mainbody">
-		<div >
+		<div>
 			<div class="col-xs-12">
-				<div id="dn-config-rule-list" style="overflow-y: auto;overflow-x: hidden"></div>
+				<div style="overflow-y: auto;overflow-x: hidden">
+					<table class="table">
+						<thead>
+							<td style="width:33%;text-align: center">data node qualifier</td>
+							<td style="width:25%;text-align: center">name</td>
+							<td style="text-align: center">value</td>
+							<td width="90">delete</td>
+						</thead>
+						<tbody>
+							<tr>
+								<td colspan="4">
+									<div id="dn-config-rule-list" style="overflow-y: auto;overflow-x: hidden"></div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 		<div class="row navbar-fixed-bottom">
 			<div class="col-xs-11">
 				<div class="form-group">
-					
-					<button type="button" class="btn btn-default" id="btn-save-dn-config-rule" title="Save to config file and apply the configuration after restarting the datanode(s)">
+
+					<button type="button" class="btn btn-default" id="btn-save-dn-config-rule"
+						title="Save to config file and apply the configuration after restarting the datanode(s)">
 						<span>Save</span>
 					</button>
-					<button type="button" class="btn btn-default" id="btn-add-dn-config-rule" title="Add a new config parameter">
-							<span>Add</span>
-						</button>
-					<span id="text-dn-config-rule-saved" style="display: none;">Overwrite the config file for data nodes. New configuration will apply after data nodes are restarted.</span>
+					<button type="button" class="btn btn-default" id="btn-add-dn-config-rule"
+						title="Add a new config parameter">
+						<span>Add</span>
+					</button>
+					<span id="text-dn-config-rule-saved" style="display: none;">Overwrite the config file for data
+						nodes. New configuration will apply after data nodes are restarted.</span>
 				</div>
 			</div>
-            <div class="col-xs-1">
-                <a target="_blank" href="http://dolphindb.com/help/ClusterSetup.html">Help</a>
-            </div>
+			<div class="col-xs-1">
+				<a target="_blank" href="http://dolphindb.com/help/ClusterSetup.html">Help</a>
+			</div>
 		</div>
 	</div>
 
@@ -42,13 +61,13 @@
 	<script src="../third-party/bootstrap/js/vendor/bootstrap.js" type="text/javascript"></script>
 	<script src="../third-party/jsgrid/jsgrid.js" type="text/javascript"></script>
 	<script src="../js/utils.js" type="text/javascript"></script>
-    <script src="../js/executecode.js" type="text/javascript"></script>
+	<script src="../js/executecode.js" type="text/javascript"></script>
 	<script src="../js/CallWebApi.js" type="text/javascript"></script>
 	<script src="../third-party/bootstrap/js/vendor/jquery.cookie.js" type="text/javascript"></script>
 	<script src="../js/serverApi.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		DatanodeConfig();
-		$("#dn-config-rule-list").height($(window).height()-60);
+		$("#dn-config-rule-list").height($(window).height() - 100);
 	</script>
 </body>
 
