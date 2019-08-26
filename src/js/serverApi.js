@@ -36,8 +36,8 @@ function DatanodeConfig() {
                 { name: 'publicName', value: '', default: '= ', tip: '' },
                 { name: 'lanCluster', value: 'int', default: '= 0', tip: '' },
                 { name: 'maxPartitionNumPerQuery', value: 'int', default: '= 65536', tip: '' },
-                { name: 'newValuePartitionPolicy', value: ['add','skip','fail'], default: '= skip', tip: '' },
-                { name: 'logLevel', value: ['DEBUG','INFO','WARNING','ERROR'], default: '= INFO', tip: '' },
+                { name: 'newValuePartitionPolicy', value: ['add', 'skip', 'fail'], default: '= skip', tip: '' },
+                { name: 'logLevel', value: ['DEBUG', 'INFO', 'WARNING', 'ERROR'], default: '= INFO', tip: '' },
                 { name: 'redoLogPurgeInterval', value: '', default: '= 10', tip: '' },
                 { name: 'redoLogPurgeLimit', value: '', default: '= 4000', tip: '' },
                 { name: 'maxLogSize', value: '', default: '= 1024', tip: '' },
@@ -89,7 +89,7 @@ function DatanodeConfig() {
             ruleData[i].elem.remove();
         ruleData = [];
 
-        scriptExecutor.run('loadClusterNodesConfigs()', function(res) {
+        scriptExecutor.run('loadClusterNodesConfigs()', function (res) {
             if (res.resultCode === '0') {
                 var confs = res.object[0].value;
                 for (var i = 0, len = confs.length; i < len; i++) {
@@ -145,11 +145,11 @@ function DatanodeConfig() {
         });
         if (datanode)
             datanodeInput.val(datanode);
-        datanodeInput.keyup(function() {
+        datanodeInput.keyup(function () {
             $('#text-cnt-config-rule-saved').attr('style', 'display: none');
             $('#btn-save-dn-config-rule').attr('disabled', false);
         });
-        datanodeInput.change(function() {
+        datanodeInput.change(function () {
             $('#text-cnt-config-rule-saved').attr('style', 'display: none');
             $('#btn-save-dn-config-rule').attr('disabled', false);
         });
@@ -228,23 +228,23 @@ function DatanodeConfig() {
             if (ruleValue) {
                 ruleValueContent.val(ruleValue);
             }
-            ruleValueContent.change(function() {
+            ruleValueContent.change(function () {
                 $('#text-cnt-config-rule-saved').attr('style', 'display: none');
                 $('#btn-save-dn-config-rule').attr('disabled', false);
             });
-            ruleValueContent.keyup(function() {
+            ruleValueContent.keyup(function () {
                 $('#text-cnt-config-rule-saved').attr('style', 'display: none');
                 $('#btn-save-dn-config-rule').attr('disabled', false);
             })
             ruleValueContent.appendTo(ruleValueWrap);
             ruleValueWrap.appendTo(newRule);
         }
-        ruleTypeSelect.change(function() { setRuleValue.bind(this)(); });
+        ruleTypeSelect.change(function () { setRuleValue.bind(this)(); });
         if (typeof ruleType !== 'undefined')
             setRuleValue(ruleType, ruleValue);
 
         var btnRemove = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-minus"></span></button>').appendTo(newRule);
-        btnRemove.click(function() {
+        btnRemove.click(function () {
             $('#text-dn-config-rule-saved').attr('style', 'display: none;');
             $('#btn-save-dn-config-rule').attr('disabled', false);
             $('#datanode-config-' + ruleId).remove();
@@ -281,7 +281,7 @@ function DatanodeConfig() {
         script += '])';
         script = encodeURIComponent(script);
 
-        scriptExecutor.run(script, function(res) {
+        scriptExecutor.run(script, function (res) {
             if (res.resultCode === '0') {
                 applyRules();
                 $('#text-dn-config-rule-saved').attr('style', '');
@@ -292,7 +292,7 @@ function DatanodeConfig() {
         })
     }
 
-    function applyRules(){
+    function applyRules() {
         var script = "reloadClusterConfig()";
         scriptExecutor.run(script, function (res) {
             if (res.resultCode === '0') {
@@ -303,18 +303,18 @@ function DatanodeConfig() {
         })
     }
 
-    $('#dn-config-rule-list').change(function() {
+    $('#dn-config-rule-list').change(function () {
         $('#text-dn-config-rule-saved').attr('style', 'display: none;');
     });
-    $('#btn-add-dn-config-rule').click(function() { addRule(); });
-    $('#btn-save-dn-config-rule').click(function() {
-            saveRules();
+    $('#btn-add-dn-config-rule').click(function () { addRule(); });
+    $('#btn-save-dn-config-rule').click(function () {
+        saveRules();
     });
     loadRules();
 
-    console.log("$(window).height()",$(window).height());
+    console.log("$(window).height()", $(window).height());
     $("#frmContent").height($(window).height() - 100);
-    
+
     refreshMe = loadRules;
 }
 
@@ -324,8 +324,8 @@ function ControllerConfig() {
     var scriptExecutor = new CodeExecutor(controller);
     var ruleData = [];
     var configs = [
-         { name: 'mode', value: ['controller'], default: 'controller', tip: 'Node mode. Possible modes are controller / agent / dataNode.' ,disabled:true},
-         { name: 'localSite', value: '', default: '', tip: 'Specify host address, port number and alias of the local node.' ,disabled:true},
+        { name: 'mode', value: ['controller'], default: 'controller', tip: 'Node mode. Possible modes are controller / agent / dataNode.', disabled: true },
+        { name: 'localSite', value: '', default: '', tip: 'Specify host address, port number and alias of the local node.', disabled: true },
         { name: 'clusterConfig', value: '', default: 'cluster.cfg', tip: 'Specify the location for Nodes Config file.' },
         { name: 'nodesFile', value: '', default: 'cluster.nodes', tip: 'Specify the location for Nodes Setup file.' },
         { name: 'localExecutors', value: 'int', default: 'CPU core number - 1', tip: 'The number of local executors.The default value is the number of cores of the CPU - 1.' },
@@ -351,7 +351,7 @@ function ControllerConfig() {
             ruleData[i].elem.remove();
         ruleData = [];
 
-        scriptExecutor.run('loadControllerConfigs()', function(res) {
+        scriptExecutor.run('loadControllerConfigs()', function (res) {
             if (res.resultCode === '0') {
                 var confs = res.object[0].value;
                 for (var i = 0, len = configs.length; i < len; i++) {
@@ -411,7 +411,7 @@ function ControllerConfig() {
             if (Array.isArray(value)) {
                 ruleValueContent = $('<select />', {
                     class: 'form-control rule-value-content',
-					disabled:configs[selected].disabled?true:false,
+                    disabled: configs[selected].disabled ? true : false,
                     id: 'rule-value-content-' + ruleId
                 });
                 for (var i = 0, len = value.length; i < len; i++) {
@@ -428,7 +428,7 @@ function ControllerConfig() {
                     id: 'rule-value-content-' + ruleId,
                     type: 'number',
                     min: '0',
-					disabled:configs[selected].disabled?true:false,
+                    disabled: configs[selected].disabled ? true : false,
                     placeholder: configs[selected].default,
                     title: configs[selected].tip
                 })
@@ -437,7 +437,7 @@ function ControllerConfig() {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
                     type: 'password',
-					disabled:configs[selected].disabled?true:false,						
+                    disabled: configs[selected].disabled ? true : false,
                     placeholder: configs[selected].default,
                     title: configs[selected].tip
                 })
@@ -446,18 +446,18 @@ function ControllerConfig() {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
                     type: 'text',
-					disabled:configs[selected].disabled?true:false,
+                    disabled: configs[selected].disabled ? true : false,
                     placeholder: configs[selected].default,
                     title: configs[selected].tip
                 })
             }
             if (ruleValue)
                 ruleValueContent.val(ruleValue)
-            ruleValueContent.keyup(function() {
+            ruleValueContent.keyup(function () {
                 $('#text-cnt-config-rule-saved').attr('style', 'display: none');
                 $('#btn-save-cnt-config-rule').attr('disabled', false);
             });
-            ruleValueContent.change(function() {
+            ruleValueContent.change(function () {
                 $('#text-cnt-config-rule-saved').attr('style', 'display: none');
                 $('#btn-save-cnt-config-rule').attr('disabled', false);
             });
@@ -503,7 +503,7 @@ function ControllerConfig() {
         script += '])';
         script = encodeURIComponent(script);
 
-        scriptExecutor.run(script, function(res) {
+        scriptExecutor.run(script, function (res) {
             if (res.resultCode === '0') {
                 $('#text-cnt-config-rule-saved').attr('style', '');
                 $('#btn-save-cnt-config-rule').attr('disabled', true);
@@ -513,15 +513,15 @@ function ControllerConfig() {
         })
     }
 
-    $('#cnt-config-rule-list').change(function(e) {
+    $('#cnt-config-rule-list').change(function (e) {
         $('#text-cnt-config-rule-saved').attr('style', 'display: none;');
     });
     //$('#btn-add-cnt-config-rule').click(function() { addRule(); });
-    $('#btn-save-cnt-config-rule').click(function() {
+    $('#btn-save-cnt-config-rule').click(function () {
         //if (confirm("This operation will rewrite your controller config file. Continue saving?"))
-            saveRules();
+        saveRules();
     });
-    $('#btn-close-cnt-config-rule').click(function() {
+    $('#btn-close-cnt-config-rule').click(function () {
         var container = window.parent;
         container.closeDialog('controller-config');
     });
@@ -539,7 +539,7 @@ function NodesSetup() {
     var existingControllers = [];
     function loadDatanodes() {
 
-        scriptExecutor.run("getClusterNodesCfg()", function(res) {
+        scriptExecutor.run("getClusterNodesCfg()", function (res) {
             existingAgents = [];
             existingDatanodes = [];
             existingControllers = [];
@@ -615,7 +615,7 @@ function NodesSetup() {
         $('#node-list').jsGrid({
             height: "540px",
             width: "100%",
-            
+
             editing: true,
             inserting: true,
             sorting: true,
@@ -627,33 +627,35 @@ function NodesSetup() {
             confirmDeleting: false,
 
             data: nodes,
-            rowClick: function(args) {
+            rowClick: function (args) {
                 return false;
             },
             fields: [
-                { name: 'Host', type: 'text',align:"center"},
+                { name: 'Host', type: 'text', align: "center" },
                 { name: 'Port', type: 'number' },
-                { name: 'Alias', type: 'text',align:"center" },
-                { name: 'Mode', type: 'select', items: [{ name: 'agent' }, { name: 'datanode' },{ name: 'controller' }], valueField: 'name', textField: 'name' },
-                { type: 'control' , 
-                itemTemplate: function(value, item) {
-                    var $result = $([]);
-            
-                    if(item.Mode=="datanode") {
-                        $result = $result.add(this._createEditButton(item));
+                { name: 'Alias', type: 'text', align: "center" },
+                { name: 'Mode', type: 'select', items: [{ name: 'agent' }, { name: 'datanode' }, { name: 'controller' }], valueField: 'name', textField: 'name' },
+                {
+                    type: 'control',
+                    itemTemplate: function (value, item) {
+                        var $result = $([]);
+
+                        if (item.Mode == "datanode") {
+                            $result = $result.add(this._createEditButton(item));
+                        }
+
+                        if (item.Mode == "datanode") {
+                            $result = $result.add(this._createDeleteButton(item));
+                        }
+
+                        return $result;
                     }
-            
-                    if(item.Mode=="datanode") {
-                        $result = $result.add(this._createDeleteButton(item));
-                    }
-            
-                    return $result;
-                }}
+                }
             ],
 
-            insertTemplate: function() {
+            insertTemplate: function () {
                 var $insertControl = jsGrid.fields.select.prototype.insertTemplate.call(this);
-                $insertControl.on('change', function() {
+                $insertControl.on('change', function () {
                     $('#text-datanodes-saved').attr('style', 'display: none');
                     $('#btn-save-datanodes').attr('disabled', false);
                 });
@@ -742,25 +744,29 @@ function NodesSetup() {
         var currentNodes = new DolphinEntity(ctlServer.getClusterPerf()).toScalar()[11].value;
         console.log(currentNodes);
         for (var i = 0, len = nodeList.length; i < len; i++) {
+
             var node = nodeList[i];
             var host = node.Host;
             var port = node.Port;
             var alias = node.Alias;
             var mode = node.Mode;
-            if(currentNodes.indexOf(node.Alias)<0){
-                ctlServer.addNode(host,port,alias);
+            if (node.mode == 0) {
+                if (currentNodes.indexOf(node.Alias) < 0) {
+                    ctlServer.addNode(host, port, alias);
+                }
             }
             if (host && port && alias && mode) {
                 var nodeLine = '"' + host + ':' + port + ':' + alias + ',' + mode + '"';
                 nodeLines.push(nodeLine)
             }
+
         }
 
         script += nodeLines.join(',');
         script += '])';
         script = encodeURIComponent(script);
 
-        scriptExecutor.run(script, function(res) {
+        scriptExecutor.run(script, function (res) {
             if (res.resultCode === '0') {
                 $('#text-datanodes-saved').attr('style', '');
                 $('#btn-save-datanodes').attr('disabled', true);
@@ -800,23 +806,23 @@ function NodesSetup() {
         agentContent.appendTo(agentWrap);
     }
 
-    $('#batch-add-new-agent').change(function() {
+    $('#batch-add-new-agent').change(function () {
         if (this.checked)
             useNewAgent();
         else
             useExistingAgent();
     });
 
-    $('#batch-add-datanodes').change(function() {
+    $('#batch-add-datanodes').change(function () {
         $('#text-datanodes-saved').attr('style', 'display: none;');
     })
     $('#btn-batch-add-datanodes').click(batchAddDatanodes);
-    $('#btn-save-datanodes').click(function() {
+    $('#btn-save-datanodes').click(function () {
         if (confirm("This operation will rewrite your cluster.nodes file. Continue saving?"))
             saveDatanodes();
     });
-    
-    $('#btn-close-datanodes').click(function() {
+
+    $('#btn-close-datanodes').click(function () {
         var container = window.parent;
         container.closeDialog('nodes-setup');
     });
