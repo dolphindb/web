@@ -15,9 +15,7 @@ $('#btn-login').click(function () {
         } else {
             $("#lblMsg").text("The user name or password is incorrect.")
         }
-
     });
-
 })
 
 $(document).ready(function () {

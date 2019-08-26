@@ -88,7 +88,8 @@ DolphinGrid.prototype = {
         var cols = [];
         jsonVector.forEach(function (value, index, array) {
             var w = 100;
-            var style = "jsgrid-cell"
+            var style = "jsgrid-cell";
+            var t = "text";
             if (value.type === "string" || value.type === "symbol") {
                 w = 0;
                 style = "jsgrid-cell-cut";
@@ -102,9 +103,11 @@ DolphinGrid.prototype = {
                 w = 160;
             } else if (value.type === "nanotimestamp") {
                 w = 200
+            } else if (["int","short","long","double","float"].indexOf(value.type)>=0){
+                t = "number";
             }
             if (w > 0) {
-                cols.push({ name: value.name, width: w, css: style, title: value.name, type: 'text' });
+                cols.push({ name: value.name, width: w, css: style, title: value.name, type: t });
             } else {
                 cols.push({ name: value.name, css: style, title: value.name, type: 'text' });
             }

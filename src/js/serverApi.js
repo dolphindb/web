@@ -35,8 +35,12 @@ function DatanodeConfig() {
                 { name: 'workerNum', value: 'int', default: '= number of CPU cores', tip: 'The size of worker pool for regular interactive jobs. The default value is the number of cores of the CPU.' },
                 { name: 'publicName', value: '', default: '= ', tip: '' },
                 { name: 'lanCluster', value: 'int', default: '= 0', tip: '' },
-                { name: 'maxPartitionNumPerQuery', value: 'int', default: '= 65536', tip: '' }
-                 
+                { name: 'maxPartitionNumPerQuery', value: 'int', default: '= 65536', tip: '' },
+                { name: 'newValuePartitionPolicy', value: ['add','skip','fail'], default: '= skip', tip: '' },
+                { name: 'logLevel', value: ['DEBUG','INFO','WARNING','ERROR'], default: '= INFO', tip: '' },
+                { name: 'redoLogPurgeInterval', value: '', default: '= 10', tip: '' },
+                { name: 'redoLogPurgeLimit', value: '', default: '= 4000', tip: '' },
+                { name: 'maxLogSize', value: '', default: '= 1024', tip: '' },
             ]
         },
         {
@@ -338,6 +342,7 @@ function ControllerConfig() {
         { name: 'dfsRecoveryWaitTime', value: 'int', default: '', tip: 'The time (in milliseconds) the controller waits after a table partition or file block goes offline before recovering it. The default value is 30000 (ms).' },
         { name: 'enableDFS', value: [0, 1], default: '1', tip: 'Enable the distributed file system. The default value is 1.' },
         { name: 'enableHTTPS', value: [0, 1], default: '0', tip: 'Enable the HTTPS Protocal for cluster manager. The default value is 0.' },
+        { name: 'dataSync', value: [0, 1], default: '0', tip: 'Whether to enable data recovery after power outage. The default value is 0.' }
     ]
 
     function loadRules() {
@@ -531,12 +536,13 @@ function NodesSetup() {
     var datanodes = [];
     var existingAgents = [];
     var existingDatanodes = [];
-
+    var existingControllers = [];
     function loadDatanodes() {
 
         scriptExecutor.run("getClusterNodesCfg()", function(res) {
             existingAgents = [];
             existingDatanodes = [];
+            existingControllers = [];
             if (res.resultCode === '0') {
                 var nodes = res.object[0].value;
                 for (var i = 0, len = nodes.length; i < len; i++) {
@@ -547,6 +553,8 @@ function NodesSetup() {
                         existingAgents.push(site);
                     else if (mode.toLowerCase() === "datanode")
                         existingDatanodes.push(site);
+                    else if (mode.toLowerCase() === "controller")
+                        existingControllers.push(site);
                 }
                 genNodeTable();
                 if (existingAgents.length > 0)
@@ -593,10 +601,21 @@ function NodesSetup() {
                 Mode: 'datanode'
             })
         }
+        for (var i = 0, len = existingControllers.length; i < len; i++) {
+            var datanodeDetails = existingControllers[i].split(':');
+            if (datanodeDetails.length !== 3)
+                continue;
+            nodes.push({
+                Host: datanodeDetails[0],
+                Port: datanodeDetails[1],
+                Alias: datanodeDetails[2],
+                Mode: 'controller'
+            })
+        }
         $('#node-list').jsGrid({
             height: "540px",
             width: "100%",
-
+            
             editing: true,
             inserting: true,
             sorting: true,
@@ -608,13 +627,28 @@ function NodesSetup() {
             confirmDeleting: false,
 
             data: nodes,
-
+            rowClick: function(args) {
+                return false;
+            },
             fields: [
                 { name: 'Host', type: 'text',align:"center"},
                 { name: 'Port', type: 'number' },
                 { name: 'Alias', type: 'text',align:"center" },
-                { name: 'Mode', type: 'select', items: [{ name: 'agent' }, { name: 'datanode' }], valueField: 'name', textField: 'name' },
-                { type: 'control' }
+                { name: 'Mode', type: 'select', items: [{ name: 'agent' }, { name: 'datanode' },{ name: 'controller' }], valueField: 'name', textField: 'name' },
+                { type: 'control' , 
+                itemTemplate: function(value, item) {
+                    var $result = $([]);
+            
+                    if(item.Mode=="datanode") {
+                        $result = $result.add(this._createEditButton(item));
+                    }
+            
+                    if(item.Mode=="datanode") {
+                        $result = $result.add(this._createDeleteButton(item));
+                    }
+            
+                    return $result;
+                }}
             ],
 
             insertTemplate: function() {
@@ -701,16 +735,21 @@ function NodesSetup() {
 
     function saveDatanodes() {
         var script = "saveClusterNodes([";
+
         var nodeLines = [];
         var nodeList = $('#node-list').jsGrid("option", "data");
-
+        var ctlServer = new ControllerServer(controller);
+        var currentNodes = new DolphinEntity(ctlServer.getClusterPerf()).toScalar()[11].value;
+        console.log(currentNodes);
         for (var i = 0, len = nodeList.length; i < len; i++) {
             var node = nodeList[i];
             var host = node.Host;
             var port = node.Port;
             var alias = node.Alias;
             var mode = node.Mode;
-
+            if(currentNodes.indexOf(node.Alias)<0){
+                ctlServer.addNode(host,port,alias);
+            }
             if (host && port && alias && mode) {
                 var nodeLine = '"' + host + ':' + port + ':' + alias + ',' + mode + '"';
                 nodeLines.push(nodeLine)

@@ -55,6 +55,10 @@ $(function () {
         }
     });
 
+    editor.on('change', function(cm, change) {
+        var div = document.getElementById('cm_container');
+        div.scrollTop = div.scrollHeight;
+    });
     writelog(localStorage.getItem(logStorageID));
 
     refreshVariables();
