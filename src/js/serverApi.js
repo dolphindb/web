@@ -343,6 +343,7 @@ function ControllerConfig() {
         { name: 'enableDFS', value: [0, 1], default: '1', tip: 'Enable the distributed file system. The default value is 1.' },
         { name: 'enableHTTPS', value: [0, 1], default: '0', tip: 'Enable the HTTPS Protocal for cluster manager. The default value is 0.' },
         { name: 'dataSync', value: [0, 1], default: '0', tip: 'Whether to enable data recovery after power outage. The default value is 0.' }
+        { name: 'webLoginRequired',value: [false, true], default: 'false', tip: 'Whether a user must log in before using the web-based cluster manager. The default value is false.' }}
     ]
 
     function loadRules() {
