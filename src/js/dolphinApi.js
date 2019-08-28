@@ -424,6 +424,10 @@ ControllerServer.prototype = {
     getAuthenticatedUserTicket:function(){
         var re = this.exec.runSync("getAuthenticatedUserTicket()");
         return re;
+    },
+    getNodeType:function(){
+        var re = this.exec.runSync("getNodeType()");
+        return re;
     }
 }
 

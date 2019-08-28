@@ -11,7 +11,16 @@ $('#btn-login').click(function () {
                 var ticketstr = re.object[0].value;               
                 localStorage.setItem("dolphindb_ticket", ticketstr);
             }
-            location.href = "default.html";
+            var re = controller.getNodeType();
+            if (re.resultCode === "0") {
+                var nodeType = re.object[0].value;
+                if(nodeType =="0" || nodeType=="3"){
+                    location.href = "nodedetail.html";
+                }
+                else
+                    location.href = "default.html";
+            }
+            
         } else {
             $("#lblMsg").text("The user name or password is incorrect.")
         }
