@@ -342,8 +342,8 @@ function ControllerConfig() {
         { name: 'dfsRecoveryWaitTime', value: 'int', default: '', tip: 'The time (in milliseconds) the controller waits after a table partition or file block goes offline before recovering it. The default value is 30000 (ms).' },
         { name: 'enableDFS', value: [0, 1], default: '1', tip: 'Enable the distributed file system. The default value is 1.' },
         { name: 'enableHTTPS', value: [0, 1], default: '0', tip: 'Enable the HTTPS Protocal for cluster manager. The default value is 0.' },
-        { name: 'dataSync', value: [0, 1], default: '0', tip: 'Whether to enable data recovery after power outage. The default value is 0.' }
-        { name: 'webLoginRequired',value: [false, true], default: 'false', tip: 'Whether a user must log in before using the web-based cluster manager. The default value is false.' }}
+        { name: 'dataSync', value: [0, 1], default: '0', tip: 'Whether to enable data recovery after power outage. The default value is 0.' },
+        { name: 'webLoginRequired',value: [false, true], default: 'false', tip: 'Whether a user must log in before using the web-based cluster manager. The default value is false.' }
     ]
 
     function loadRules() {
