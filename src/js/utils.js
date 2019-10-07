@@ -230,7 +230,6 @@ function HandleUrlOverHttp(){
     }
 }
 
-
 function HtmlEncode(str){
     var temp = document.createElement ("div");
     (temp.textContent != undefined ) ? (temp.textContent = str) : (temp.innerText = str);

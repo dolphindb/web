@@ -11,8 +11,12 @@ var filterStorageId = "dolphindb_default_gridfilter";
 
 $(document).ready(function () {
     HandleUrlOverHttp();
+    
     wa_url = GetFullUrl(window.location.host);
     var controller = new ControllerServer(wa_url);
+    //ha
+    var leaderUrl = GetFullUrl(controller.getLeaderUrl());
+    if(leaderUrl!=wa_url) window.localtion.href = leaderUrl;
     var currentUser = controller.getCurrentUser();
     if (currentUser.userId == "guest") {
         $("#btnLogin").show();

@@ -166,6 +166,48 @@ ControllerServer.prototype = {
         };
         return CallWebApiSync(this._url, p);
     },
+    getLeaderUrl: function(){
+        webUrl = this._url.split('//')[1]
+        var exec = new CodeExecutor(this._url);
+        var script = `def isSameSubnet(host1,host2){
+            p1 = host1.split('.')[0]
+            s1 =host1.split('.')[1]
+            p2 = host2.split('.')[0]
+            s2 =host2.split('.')[1]
+            if(p1 ==p2 && s1==s2){
+                return true
+            }else{
+                return false
+            }
+        }
+        def getLeaderUrl(currWebUrl){
+            c = currWebUrl.split(':')
+            chost = c[0]
+            cport = c[1]
+            leaderAlias = getActiveMaster()
+            t = select host,port,publicName from rpc(leaderAlias,getClusterPerf, true) where name = leaderAlias
+            if(size(t)==0) return currWebUrl
+            host = t[0].host
+            port = t[0].port
+            public = t[0].publicName
+            if(host == chost && port == cport){
+                return currWebUrl
+            }else{
+                if(isSameSubnet(chost,host)){
+                    return host + ":" + string(port)
+                }else{
+                    for(ip in public.split(';')){
+                        if(isSameSubnet(chost,ip)){
+                            return ip + ":" + port
+                        }
+                    }
+                }
+            }
+             
+        }
+        getLeaderUrl('${webUrl}')`
+        return exec.runSync(script);
+    },    
     addNode:function(host,port,alias){
         var p = {
             "sessionID": this._sessionid,
