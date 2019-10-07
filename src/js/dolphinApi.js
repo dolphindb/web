@@ -194,11 +194,11 @@ ControllerServer.prototype = {
                 return currWebUrl
             }else{
                 if(isSameSubnet(chost,host)){
-                    return host + ":" + string(port)
+                    return host + ':' + string(port)
                 }else{
                     for(ip in public.split(';')){
                         if(isSameSubnet(chost,ip)){
-                            return ip + ":" + port
+                            return ip + ':' + port
                         }
                     }
                 }
