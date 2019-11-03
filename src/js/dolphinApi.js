@@ -206,7 +206,15 @@ ControllerServer.prototype = {
              
         }
         getLeaderUrl('${webUrl}')`
-        return exec.runSync(script);
+
+        var re = exec.runSync(encodeURIComponent(script));
+        if(re.resultCode=="0") {
+            return re.object[0].value;
+        }
+        else{
+            console.log(re.msg)
+            return ""
+        }
     },    
     addNode:function(host,port,alias){
         var p = {

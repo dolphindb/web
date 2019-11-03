@@ -16,7 +16,7 @@ $(document).ready(function () {
     var controller = new ControllerServer(wa_url);
     //ha
     var leaderUrl = GetFullUrl(controller.getLeaderUrl());
-    if(leaderUrl!=wa_url) window.localtion.href = leaderUrl;
+    if(leaderUrl!=wa_url) window.location.href = leaderUrl;
     var currentUser = controller.getCurrentUser();
     if (currentUser.userId == "guest") {
         $("#btnLogin").show();

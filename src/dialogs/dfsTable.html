@@ -76,7 +76,7 @@
     var getPartition = function (path, callback) {
         var serverObj = new ServerObject(site);
         var controller = serverObj.getHttpServer();
-        var getTopPartitionScript = "select * from getDFSDirectoryContent('" + path + "') where filetype<2"
+        var getTopPartitionScript = "select * from getDFSDirectoryContent('" + path + "') where filetype<2 or filetype==4"
         var scriptExecutor = new CodeExecutor(controller);
         scriptExecutor.run(getTopPartitionScript, callback);
     }
@@ -154,8 +154,11 @@
     var loadGrid = function (chunkid, dbPath, partitionPath, tablename, sites, version) {
 
         var pgSize = 50;
-        
-        var script = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "',`" + tablename + ",0," + pgSize + ")";
+        var tblName = tablename;
+        if(tablename.startWith("__")){
+            tblName = tablename.substr(2);
+        }
+        var script = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "',`" + tblName + ",0," + pgSize + ")";
 
         var scriptExecutor = new CodeExecutor(nodeUrl);
 
@@ -175,7 +178,7 @@
                     controller: {
                         loadData: function (filter) {
                             var deferred = $.Deferred();
-                            var s = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "',`" + tablename + "," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
+                            var s = "rpc('" + sites[0] + "',readTabletChunk,'" + chunkid + "','" + dbPath + "','" + partitionPath + "',`" + tblName + "," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
                             getTableData(s, function (g) {
                                 var d = DolphinResult2Grid(g);
                                 deferred.resolve({ data: d, itemsCount: totalcount });

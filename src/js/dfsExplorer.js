@@ -130,9 +130,7 @@ var bindGrid = function (tableJson) {
                 bindPath(fpath);
                 json = client.getGridJson(fpath);
                 bindGrid(json);
-            } else if (arg.item.filetype === 1) { //if partitionChunk open data browser
-
-            }
+            } 
         }
     });
     var col = [{
@@ -144,14 +142,14 @@ var bindGrid = function (tableJson) {
         itemTemplate: function (value, item) {   
             if (item.filetype === 0) {
                 return "<span class='glyphicon glyphicon-folder-close' style='color:rgb(239,222,7)' title='directory'></span> " + value
-            } else if (item.filetype === 1) {
+            } else if (item.filetype === 1 || item.filetype ===4 ) {
                     if (item.chunks != "" && item.sites != "") {
                         re = "<a id='btnShowTabletData' href='javascript:void(0)' onclick='showTabletData(this)' value='" + item.chunks + "' site='" + item.sites + "' partition='/" + item.filename + "'><span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " + value + "</a>";
                     }else{
                         re = "<span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " + value;
                     }
                 return re;
-            } else if (item.filetype === 2) {
+            } else if (item.filetype === 2 || item.filetype===5 ) {
                 return "<span class='glyphicon glyphicon-file' style='color:rgb(190,190,190)' title='file'></span> " + value
             } else if (item.filetype === 9) {
                 return " <a href='###' onclick='upDirectory()'><span class='glyphicon glyphicon-folder-open' style='color:rgb(239,222,7)' title='parent directory'></span> <b> . . </b> </a>"
@@ -213,7 +211,7 @@ var bindGrid = function (tableJson) {
         itemTemplate: function (value, item) {
             if (item.filetype === 0) {
                 return "directory";
-            } else if (item.filetype === 1) {
+            } else if (item.filetype === 1 ||item.filetype===4) {
                 return "partition chunk";
             } else if (item.filetype === 9) { // parent
                 return "";
