@@ -580,6 +580,17 @@ function NodesSetup() {
 
     function genNodeTable() {
         var nodes = [];
+        for (var i = 0, len = existingControllers.length; i < len; i++) {
+            var datanodeDetails = existingControllers[i].split(':');
+            if (datanodeDetails.length !== 3)
+                continue;
+            nodes.push({
+                Host: datanodeDetails[0],
+                Port: datanodeDetails[1],
+                Alias: datanodeDetails[2],
+                Mode: 'controller'
+            })
+        }
         for (var i = 0, len = existingAgents.length; i < len; i++) {
             var datanodeDetails = existingAgents[i].split(':');
             if (datanodeDetails.length !== 3)
@@ -602,17 +613,7 @@ function NodesSetup() {
                 Mode: 'datanode'
             })
         }
-        for (var i = 0, len = existingControllers.length; i < len; i++) {
-            var datanodeDetails = existingControllers[i].split(':');
-            if (datanodeDetails.length !== 3)
-                continue;
-            nodes.push({
-                Host: datanodeDetails[0],
-                Port: datanodeDetails[1],
-                Alias: datanodeDetails[2],
-                Mode: 'controller'
-            })
-        }
+
         $('#node-list').jsGrid({
             height: "540px",
             width: "100%",
