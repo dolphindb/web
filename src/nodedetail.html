@@ -28,7 +28,19 @@
     <link href="css/nodedetail.css" rel="stylesheet" />
 </head>
 
-
+<style>
+.alert-info {
+    /* color: #3a87ad; */
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+}
+.alert {
+    padding: 5px;
+    margin-bottom: 1px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+</style>
 <body data-spy="scroll" data-target=".bs-docs-sidebar" data-twttr-rendered="true">
 
     <!-- Navbar ================================================== -->
@@ -49,7 +61,8 @@
         <!-- Docs nav ================================================== -->
         <div class="row">
             <div class="col-lg-12" id="main">
-                <div style="margin-top: 10px">
+                
+                <div style="margin-top: 5px">
                     <div class="alert alert-info" role="alert">
                         <div>
                             <div id="cm_container" class="panel panel-default" style="margin-bottom: 10px;min-height:150px;max-height:255px; overflow-y:auto">
@@ -66,14 +79,20 @@
                                             <input class="form-control" id="retrieve-row-number" type="number" min="0" step="1" placeholder="default 1024 rows">
                                         </div>
                                     </div>
+                                    <div class="form-group" style="padding:5px ;margin-top: 5px; margin-bottom: 5px;margin-right: 0; margin-left: 0; background-color: #fff; border:solid 1px #ddd; border-radius: 4px 4px 0 0;">
+                                        <div class="btn-group" role="group" id="pnlPerf">
+                                        
+                                        </div>
+                                    </div>
                                 </form>
                             </div>
                         </div>
                     </div>
                 </div>
-
+                
             </div>
         </div>
+ 
         <div class="row">
             <div class="col-lg-9 col-md-9 col-sm-8">
                 <div>

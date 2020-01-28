@@ -77,8 +77,38 @@ $(function () {
             console.log("login success ", re)
         }
     });
-
+    getPerfomance();
 });
+function getPerfomance(){
+    var perfTable = nodeApi.getSingleClusterPerf();
+    if(perfTable.length>0){
+        var perfRow =  perfTable[0];
+        console.log(perfRow);
+        $("#pnlPerf").append("<a class='btn btn-xs'>Connections : <span class='badge' data-toggle='tooltip' title='connectionNum/maxConnections'>" + perfRow["connectionNum"] + " / " + perfRow["maxConnections"] + "<span></a>");
+        $("#pnlPerf").append("<a class='btn btn-xs'>Memory usage : <span class='badge' data-toggle='tooltip' title='memoryUsed(memoryAlloc)/maxMemSize'>" + bytesToSize(perfRow["memoryUsed"]) + " (" + bytesToSize(perfRow["memoryAlloc"]) + ") / " + perfRow["maxMemSize"] + " GB" + " </span></a>");
+        $("#pnlPerf").append("<a class='btn btn-xs '>Cpu usage : <span class='badge' data-toggle='tooltip' title='cpuUsage/avgLoad'>" + fmoney(perfRow["cpuUsage"], 1) + "%" + " / " + fmoney(perfRow["avgLoad"], 2) + "</span></a>");
+        $("#pnlPerf").append("<a class='btn btn-xs'> Disk rate : <span class='badge' data-toggle='tooltip' title='diskWriteRate|diskReadRate'>" + fmoney((perfRow["diskWriteRate"] / (1024 * 1024)), 1) + " MB/s" + " | " +fmoney((perfRow["diskReadRate"] / (1024 * 1024)), 1) + " MB/s" + "</span></a>");
+    }
+    console.log(perfTable);
+}
+
+function bytesToSize(bytes) {
+    if (bytes === 0) return '0 MB';
+    var k = 1024;
+    return fmoney(bytes / Math.pow(k, 2), 1) + ' MB';
+}
+
+function fmoney(s, n) {
+    n = n > 0 && n <= 20 ? n : 2;
+    s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
+    var l = s.split(".")[0].split("").reverse(),
+        r = s.split(".")[1];
+    t = "";
+    for (i = 0; i < l.length; i++) {
+        t += l[i] + ((i + 1) % 3 === 0 && (i + 1) != l.length ? "," : "");
+    }
+    return t.split("").reverse().join("") + "." + r;
+}
 
 function refreshVariables() {
     var executor = new CodeExecutor(nodeUrl);

@@ -114,6 +114,11 @@ DatanodeServer.prototype = {
         var exec = new CodeExecutor(this._url);
         return exec.runSync(script);
     },
+    getSingleClusterPerf:function(){
+        var re = this.runSync("select * from getClusterPerf() where mode = 3");
+        var entity = new DolphinEntity(re);
+        return entity.toTable();
+    },
     authenticateByTicket:function(ticket,callback){
         var p = {
             "sessionID": this._sessionid,
@@ -194,11 +199,11 @@ ControllerServer.prototype = {
                 return currWebUrl
             }else{
                 if(isSameSubnet(chost,host)){
-                    return host + string(':') + string(port)
+                    return host + ":" + string(port)
                 }else{
                     for(ip in public.split(';')){
                         if(isSameSubnet(chost,ip)){
-                            return ip + string(':') + port
+                            return ip + ":" + port
                         }
                     }
                 }
