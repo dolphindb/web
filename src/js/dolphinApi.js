@@ -131,6 +131,10 @@ DatanodeServer.prototype = {
             }]
         };
         CallWebApi(this._url, p, callback);
+    },
+    getNodeType:function(){
+        var re = this.exec.runSync("getNodeType()");
+        return re;
     }
 }
 

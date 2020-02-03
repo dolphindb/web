@@ -59,6 +59,8 @@ $(function () {
         var div = document.getElementById('cm_container');
         div.scrollTop = div.scrollHeight;
     });
+
+
     writelog(localStorage.getItem(logStorageID));
 
     refreshVariables();
@@ -77,17 +79,38 @@ $(function () {
             console.log("login success ", re)
         }
     });
-    getPerfomance();
+    
+    var re = nodeApi.getNodeType();
+    if (re.resultCode === "0") {
+        var nodeType = re.object[0].value;
+        if(nodeType=="3"){
+            getPerfomance();
+            $("#btn_refresh").on("click", function(e){
+                getPerfomance();
+            });
+        } else {
+            $("#nav-btns").hide();
+            $("#pnlPerfContainer").hide();
+        }
+    }
+
+    
 });
 function getPerfomance(){
     var perfTable = nodeApi.getSingleClusterPerf();
     if(perfTable.length>0){
+        var divNode = $("#pnlPerf");
+        divNode.children().remove();
         var perfRow =  perfTable[0];
         console.log(perfRow);
-        $("#pnlPerf").append("<a class='btn btn-xs'>Connections : <span class='badge' data-toggle='tooltip' title='connectionNum/maxConnections'>" + perfRow["connectionNum"] + " / " + perfRow["maxConnections"] + "<span></a>");
-        $("#pnlPerf").append("<a class='btn btn-xs'>Memory usage : <span class='badge' data-toggle='tooltip' title='memoryUsed(memoryAlloc)/maxMemSize'>" + bytesToSize(perfRow["memoryUsed"]) + " (" + bytesToSize(perfRow["memoryAlloc"]) + ") / " + perfRow["maxMemSize"] + " GB" + " </span></a>");
-        $("#pnlPerf").append("<a class='btn btn-xs '>Cpu usage : <span class='badge' data-toggle='tooltip' title='cpuUsage/avgLoad'>" + fmoney(perfRow["cpuUsage"], 1) + "%" + " / " + fmoney(perfRow["avgLoad"], 2) + "</span></a>");
-        $("#pnlPerf").append("<a class='btn btn-xs'> Disk rate : <span class='badge' data-toggle='tooltip' title='diskWriteRate|diskReadRate'>" + fmoney((perfRow["diskWriteRate"] / (1024 * 1024)), 1) + " MB/s" + " | " +fmoney((perfRow["diskReadRate"] / (1024 * 1024)), 1) + " MB/s" + "</span></a>");
+        divNode.append("<a class='btn btn-xs'>Connections : <span class='badge' data-toggle='tooltip' title='ConnectionNum/MaxConnections'>" + perfRow["connectionNum"] + " / " + perfRow["maxConnections"] + "<span></a>");
+        divNode.append("<a class='btn btn-xs'>Memory usage : <span class='badge' data-toggle='tooltip' title='MemoryUsed(MemoryAlloc)/MaxMemSize'>" + bytesToSize(perfRow["memoryUsed"]) + " (" + bytesToSize(perfRow["memoryAlloc"]) + ") / " + perfRow["maxMemSize"] + " GB" + " </span></a>");
+        divNode.append("<a class='btn btn-xs '>Cpu usage : <span class='badge' data-toggle='tooltip' title='CpuUsage/AvgLoad'>" + fmoney(perfRow["cpuUsage"], 1) + "%" + " / " + fmoney(perfRow["avgLoad"], 2) + "</span></a>");
+        divNode.append("<a class='btn btn-xs'> Disk rate : <span class='badge' data-toggle='tooltip' title='DiskWriteRate|DiskReadRate'>" + fmoney((perfRow["diskWriteRate"] / (1024 * 1024)), 1) + " MB/s" + " | " +fmoney((perfRow["diskReadRate"] / (1024 * 1024)), 1) + " MB/s" + "</span></a>");
+        divNode.append("<a class='btn btn-xs'> Network : <span class='badge' data-toggle='tooltip' title='NetworkSendRate|NetworkRecvRate'>" + fmoney(perfRow["networkSendRate"] / (1024 * 1024), 1) + " MB/s" + " | " + fmoney(perfRow["networkRecvRate"] / (1024 * 1024), 1) + " MB/s" + "</span></a>");
+        divNode.append("<a class='btn btn-xs'> Job&Task : <span class='badge' data-toggle='tooltip' title='RunningJobs(QueuedJobs) | RunningTasks(QueuedTasks) '>" + Number(perfRow["runningJobs"]) + " (" + Number(perfRow["queuedJobs"]) + ") | " + Number(perfRow["runningTasks"]) + " (" + Number(perfRow["queuedTasks"]) + ")</span></a>");
+        divNode.append("<a class='btn btn-xs'> Worker : <span class='badge' data-toggle='tooltip' title='Workers|Executors|JobLoad'>" + Number(perfRow["workerNum"]) + " | " + Number(perfRow["executorNum"]) + " | " + Number(perfRow["jobLoad"]) +  "</span></a>");
+
     }
     console.log(perfTable);
 }
