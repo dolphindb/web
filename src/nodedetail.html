@@ -28,9 +28,25 @@
     <link href="css/nodedetail.css" rel="stylesheet" />
 </head>
 
-
+<style>
+.alert-info {
+    /* color: #3a87ad; */
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+}
+.alert {
+    padding: 5px;
+    margin-bottom: 1px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+.btn-icon  {
+    padding: 1px 5px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+</style>
 <body data-spy="scroll" data-target=".bs-docs-sidebar" data-twttr-rendered="true">
-
     <!-- Navbar ================================================== -->
     <header class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
@@ -38,8 +54,16 @@
                 <a class="navbar-brand" id="link-to-controller">DolphinDB Notebook</a>
             </div>
             <nav class="navbar-collapse collapse navbar-right">
-                <p class="navbar-text navbar-right">
-
+                <p class="navbar-text navbar-right" id="nav-btns">
+                   <a href="#" class="btn-icon">
+                        <span id="icon_collapse" class="glyphicon glyphicon-stats accordion-toggle" data-toggle="collapse" data-parent="#main" title="server running status" href="#pnlPerfContainer"></span>
+                    </a>
+                    <a href="dfsExplorer.html" class="btn-icon" target="_blank" >
+                        <span class="glyphicon glyphicon-hdd" title="DFS Explorer" ></span>
+                    </a>
+                    <a href="login.html" class="btn-icon" >
+                        <span class="glyphicon glyphicon-user" title="Login" ></span>
+                    </a>
                 </p>
             </nav>
         </div>
@@ -55,7 +79,15 @@
         <!-- Docs nav ================================================== -->
         <div class="row">
             <div class="col-lg-12" id="main">
-                <div style="margin-top: 10px">
+                <div id="pnlPerfContainer" class="accordion-body collapse" style="padding:5px ;margin-top: -5px; margin-bottom: 5px; margin-right: 0; margin-left: 0; background-color: #fff; border:solid 1px #ddd; border-radius: 4px 4px 0 0;">
+                    <div class="accordion-inner" role="group" id="pnlPerf" style="display: inline;">
+                        
+                    </div>
+                    <div style="display: inline;" class="navbar-right">
+                        <button id='btn_refresh' class='btn-xs'><span class='glyphicon glyphicon-refresh'></span></button>
+                    </div>
+                </div>
+                <div style="margin-top: 5px">
                     <div class="alert alert-info" role="alert">
                         <div>
                             <div id="cm_container" class="panel panel-default" style="margin-bottom: 10px;min-height:150px;max-height:255px; overflow-y:auto">
@@ -72,14 +104,17 @@
                                             <input class="form-control" id="retrieve-row-number" type="number" min="0" step="1" placeholder="default 1024 rows">
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                    </div>
                                 </form>
                             </div>
                         </div>
                     </div>
                 </div>
-
+                
             </div>
         </div>
+ 
         <div class="row">
             <div class="col-lg-9 col-md-9 col-sm-8">
                 <div>

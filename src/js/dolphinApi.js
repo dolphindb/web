@@ -133,6 +133,10 @@ DatanodeServer.prototype = {
             }]
         };
         CallWebApi(this._url, p, callback);
+    },
+    getNodeType:function(){
+        var re = this.exec.runSync("getNodeType()");
+        return re;
     }
     
 }
@@ -202,11 +206,11 @@ ControllerServer.prototype = {
                 return currWebUrl
             }else{
                 if(isSameSubnet(chost,host)){
-                    return host + string(':') + string(port)
+                    return host + ":" + string(port)
                 }else{
                     for(ip in public.split(';')){
                         if(isSameSubnet(chost,ip)){
-                            return ip + string(':') + port
+                            return ip + ":" + port
                         }
                     }
                 }
