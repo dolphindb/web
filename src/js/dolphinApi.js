@@ -110,9 +110,16 @@ DatanodeServer.prototype = {
         var exec = new CodeExecutor(this._url);
         exec.run(script, succallback);
     },
+
+    
     runSync: function (script) {
         var exec = new CodeExecutor(this._url);
         return exec.runSync(script);
+    },
+    getSingleClusterPerf:function(){
+        var re = this.runSync("select * from getClusterPerf() where mode = 3");
+        var entity = new DolphinEntity(re);
+        return entity.toTable();
     },
     authenticateByTicket:function(ticket,callback){
         var p = {
@@ -127,6 +134,7 @@ DatanodeServer.prototype = {
         };
         CallWebApi(this._url, p, callback);
     }
+    
 }
 
 var AgentServer = function (url) {
