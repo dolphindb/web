@@ -110,8 +110,6 @@ DatanodeServer.prototype = {
         var exec = new CodeExecutor(this._url);
         exec.run(script, succallback);
     },
-
-    
     runSync: function (script) {
         var exec = new CodeExecutor(this._url);
         return exec.runSync(script);
@@ -138,7 +136,6 @@ DatanodeServer.prototype = {
         var re = this.exec.runSync("getNodeType()");
         return re;
     }
-    
 }
 
 var AgentServer = function (url) {

@@ -93,6 +93,8 @@ $(function () {
             $("#pnlPerfContainer").hide();
         }
     }
+
+    
 });
 function getPerfomance(){
     var perfTable = nodeApi.getSingleClusterPerf();
@@ -131,17 +133,6 @@ function fmoney(s, n) {
     return t.split("").reverse().join("") + "." + r;
 }
 
-function getPerfomance(){
-    var perfTable = nodeApi.getSingleClusterPerf();
-    if(perfTable.length>0){
-        $("#ulPerf").remove();
-        var perfRow = perfTable[0];
-        for(var key in perfRow){
-            $("#ulPerf").append("li", key + " : " + perfRow[key]);
-        }
-    }
-    console.log(perfTable);
-}
 function refreshVariables() {
     var executor = new CodeExecutor(nodeUrl);
     executor.run("objs(true)", function (re) {
