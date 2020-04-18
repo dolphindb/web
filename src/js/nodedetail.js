@@ -102,7 +102,7 @@ function getPerfomance(){
         var divNode = $("#pnlPerf");
         divNode.children().remove();
         var perfRow =  perfTable[0];
-        console.log(perfRow);
+        //console.log(perfRow);
         divNode.append("<a class='btn btn-xs'>Connections : <span class='badge' data-toggle='tooltip' title='ConnectionNum/MaxConnections'>" + perfRow["connectionNum"] + " / " + perfRow["maxConnections"] + "<span></a>");
         divNode.append("<a class='btn btn-xs'>Memory usage : <span class='badge' data-toggle='tooltip' title='MemoryUsed(MemoryAlloc)/MaxMemSize'>" + bytesToSize(perfRow["memoryUsed"]) + " (" + bytesToSize(perfRow["memoryAlloc"]) + ") / " + perfRow["maxMemSize"] + " GB" + " </span></a>");
         divNode.append("<a class='btn btn-xs '>Cpu usage : <span class='badge' data-toggle='tooltip' title='CpuUsage/AvgLoad'>" + fmoney(perfRow["cpuUsage"], 1) + "%" + " / " + fmoney(perfRow["avgLoad"], 2) + "</span></a>");
@@ -112,7 +112,7 @@ function getPerfomance(){
         divNode.append("<a class='btn btn-xs'> Worker : <span class='badge' data-toggle='tooltip' title='Workers|Executors|JobLoad'>" + Number(perfRow["workerNum"]) + " | " + Number(perfRow["executorNum"]) + " | " + Number(perfRow["jobLoad"]) +  "</span></a>");
 
     }
-    console.log(perfTable);
+    //console.log(perfTable);
 }
 
 function bytesToSize(bytes) {

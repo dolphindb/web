@@ -1,0 +1,2 @@
+REVIEWBOARD_URL = 'http://115.239.209.223/'
+REPOSITORY = 'dolphindb_web'
