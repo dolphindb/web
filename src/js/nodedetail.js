@@ -112,7 +112,6 @@ function getPerfomance(){
         divNode.append("<a class='btn btn-xs'> Worker : <span class='badge' data-toggle='tooltip' title='Workers|Executors|JobLoad'>" + Number(perfRow["workerNum"]) + " | " + Number(perfRow["executorNum"]) + " | " + Number(perfRow["jobLoad"]) +  "</span></a>");
 
     }
-    //console.log(perfTable);
 }
 
 function bytesToSize(bytes) {
