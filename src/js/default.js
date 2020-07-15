@@ -15,6 +15,9 @@ $(document).ready(function () {
     wa_url = GetFullUrl(window.location.host);
     var controller = new ControllerServer(wa_url);
     //ha
+    if(!controller.isLeader()){
+        alert("This node is offline. The current leader is : " + controller.getCurrentLeader());
+    }
     //var leaderUrl = GetFullUrl(controller.getLeaderUrl());
     //if(leaderUrl!=wa_url) window.location.href = leaderUrl;
     var currentUser = controller.getCurrentUser();

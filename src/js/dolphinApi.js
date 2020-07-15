@@ -224,7 +224,34 @@ ControllerServer.prototype = {
             console.log(re.msg)
             return ""
         }
-    },    
+    },
+    isLeader: function(){
+        var exec = new CodeExecutor(this._url);
+        var script = "getActiveMaster()==getNodeAlias()"
+        var re = exec.runSync(encodeURIComponent(script))
+        if(re.resultCode=="0") {
+            if(re.object[0].value=="1"){
+                return true;
+            } else {
+                return false;
+            }
+        }
+        else{
+            console.log(re.msg)
+            return false
+        }
+    },
+    getCurrentLeader: function(){
+        var exec = new CodeExecutor(this._url);
+        var script = "exec first(site) from rpc(getActiveMaster(),getClusterPerf,true) where mode=2"
+        var re = exec.runSync(encodeURIComponent(script))
+        if(re.resultCode=="0") {
+            return re.object[0].value;
+        }
+        else{
+            alert(re.msg)            
+        }
+    },
     addNode:function(host,port,alias){
         var p = {
             "sessionID": this._sessionid,
