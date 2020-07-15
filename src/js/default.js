@@ -16,7 +16,7 @@ $(document).ready(function () {
     var controller = new ControllerServer(wa_url);
     //ha
     if(!controller.isLeader()){
-        alert("This node is offline. The current leader is : " + controller.getCurrentLeader());
+        alert("The specified controller is a follower of a raft group. The active leader is : " + controller.getCurrentLeader());
     }
     //var leaderUrl = GetFullUrl(controller.getLeaderUrl());
     //if(leaderUrl!=wa_url) window.location.href = leaderUrl;
