@@ -752,7 +752,7 @@ function NodesSetup() {
             var port = node.Port;
             var alias = node.Alias;
             var mode = node.Mode;
-            if (mode == 0) {
+            if (mode == "datanode") {
                 if (currentNodes.indexOf(node.Alias) < 0) {
                     ctlServer.addNode(host, port, alias);
                 }
