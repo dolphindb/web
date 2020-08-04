@@ -415,10 +415,14 @@ ControllerServer.prototype = {
             var userobj = { userId: userId, loginTimestamp: "" };
             if (re.resultCode === "0") {
                 localStorage.setItem("DolphinDB_CurrentUsername", JSON.stringify(userobj));
-                callback(true);
+                callback({"result":true, "msg":""});
             } else if (re.resultCode === "1") {
                 localStorage.setItem("DolphinDB_CurrentUsername", "");
-                callback(false);
+                var haMsgIndex = re.msg.indexOf("<NotLeader>");
+                var reMsg = "The user name or password is incorrect."
+                if(haMsgIndex>=0)
+                    reMsg = "Login is only supported on the active master : " + re.msg.replace("<NotLeader>","")
+                callback({"result":false, "msg":reMsg});
             }
         }, function (exception) {
             console.log(exception);
