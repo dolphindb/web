@@ -1,15 +1,5 @@
 var wa_url = GetFullUrl(window.location.host);
 var homeTitle = "[Home]"
-//testcase :
-//db = database("dfs://root/node1/node1_1/node1_1_1")
-//db = database("dfs://root/node1/node1_1/node1_1_2")
-//db = database("dfs://root/node1/node1_2/node1_2_1")
-//db = database("dfs://root/node1/node1_2/node1_2_2")
-//db = database("dfs://root/node2/node2_1/node2_1_1")
-//db = database("dfs://root/node2/node2_2/node2_2_1")
-//db = database("dfs://root/node2/node2_2/node2_2_2")
-//db = database("dfs://root/node2/node2_3/node2_3_1")
-//db = database("dfs://root/node2/node2_3/node2_3_2")
 
 var client = null;
 $(function () {
