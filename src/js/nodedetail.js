@@ -8,6 +8,8 @@ var logStorageID = '';
 var PAGESIZE = 20;
 var nodeManager = null;
 var nodeApi = null;
+// var precision = 6;
+
 $(function () {
 
     nodeUrl = GetFullUrl(window.location.host);
@@ -136,6 +138,12 @@ function refreshVariables() {
     var executor = new CodeExecutor(nodeUrl);
     executor.run("objs(true)", function (re) {
         var rowJson = VectorArray2Table(re.object[0].value);
+        // console.log('=========');
+        // console.log(re);
+        // console.log(re.object);
+        // console.log(re.object[0]);
+        // console.log(re.object[0].value);
+        // console.log(rowJson);
         bindVariables(rowJson);
     });
 }
@@ -434,6 +442,12 @@ $('#retrieve-row-number').keypress(function (e) {
     }
 })
 
+$('#retrieve-decimal-place').keypress(function (e) {
+    if (e.key === "Enter") {
+        $('#btn_execode').click();
+        return false;
+    }
+})
 
 $('#btn_execode').click(function () {
     var codestr = editor.getSelection() || editor.getValue();
@@ -443,6 +457,8 @@ $('#btn_execode').click(function () {
     codestr = encodeURIComponent(codestr);
 
     var retrieveRowNumber = parseInt($('#retrieve-row-number').val(), 10);
+    
+    var precision = $('#retrieve-decimal-place').val() === "" ? 6 : $('#retrieve-decimal-place').val();
 
     var showData = function (result) {
         if (result.resultCode === "0") {
@@ -451,15 +467,47 @@ $('#btn_execode').click(function () {
                 if (res.form === "chart") {
                     showPlot('jsgrid1', result);
                     $('#resulttab a[href="#DataWindow"]').tab('show');
-                } else if (res.form === "scalar" || res.form === "pair") {
+                } else if (res.form === "scalar"|| res.form === "pair") {
                     logstr = '<span style="color: #999">Input: </span>' +
-                        (logstr.indexOf('\n') !== -1 ? '\n' : '') // Contains newline
-                        +
-                        logstr +
-                        '\n<span style="color: #999">Output: </span>' +
-                        res.value;
+                    (logstr.indexOf('\n') !== -1 ? '\n' : '') // Contains newline
+                    +
+                    logstr +
+                    '\n<span style="color: #999">Output: </span>';
+                    if (res.type === 'double') {
+                        if(res.form === 'scalar') {
+                            logstr += parseFloat(parseFloat(res.value).toFixed(precision));
+                        } else {
+                            for (var i = 0; i < res.value.length; i++) {
+                                res.value[i] = parseFloat(res.value[i].toFixed(precision));
+                            }
+                            logstr += res.value;                           
+                        }
+                    } else {
+                        logstr += res.value;
+                    }
                     $('#resulttab a[href="#log"]').tab('show');
                 } else {
+                    if (res.form === 'table' || res.form === 'dictionary') {
+                        for(var i = 0; i < res.value.length; i++) {
+                            if(res.value[i].type === 'double') {
+                                for (var j = 0; j < res.value[i].value.length; j++) {
+                                    res.value[i].value[j] = parseFloat(res.value[i].value[j].toFixed(precision));
+                                }
+                            }
+                        }
+                    } else if (res.form === 'vector' || res.form === 'set') {
+                        if (res.type === 'double') {
+                            for (var i = 0; i < res.value.length; i++) {
+                                res.value[i] = parseFloat(res.value[i].toFixed(precision));
+                            }
+                        }
+                    } else if (res.form === 'matrix') {
+                        if (res.type == 'double') {
+                            for (var i = 0; i < res.value[0].value.length; i++) {
+                                res.value[0].value[i] = parseFloat(res.value[0].value[i].toFixed(precision));
+                            }
+                        }
+                    }
                     showResult('jsgrid1', result);
                     $('#resulttab a[href="#DataWindow"]').tab('show');
                 }
