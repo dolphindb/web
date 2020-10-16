@@ -8,6 +8,7 @@ var logStorageID = '';
 var PAGESIZE = 20;
 var nodeManager = null;
 var nodeApi = null;
+// var precision = 6;
 
 $(function () {
 
@@ -137,6 +138,12 @@ function refreshVariables() {
     var executor = new CodeExecutor(nodeUrl);
     executor.run("objs(true)", function (re) {
         var rowJson = VectorArray2Table(re.object[0].value);
+        // console.log('=========');
+        // console.log(re);
+        // console.log(re.object);
+        // console.log(re.object[0]);
+        // console.log(re.object[0].value);
+        // console.log(rowJson);
         bindVariables(rowJson);
     });
 }
