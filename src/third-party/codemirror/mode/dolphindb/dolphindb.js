@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -16,35 +16,37 @@
   }
 
   var wordOperators = wordRegexp(["and", "or", "not", "is"]);
-  var commonKeywords = ["as", "assert", "break", "class", "continue",
-                        "def", "del", "elif", "else", "except", "finally",
-                        "for", "from", "global", "if", "import",
-                        "lambda", "pass", "raise", "return",
-                        "try", "while", "with", "yield", "in"];
-  var commonBuiltins = ["abs", "all", "any", "bin", "bool", "bytearray", "callable", "chr",
-                        "classmethod", "compile", "complex", "delattr", "dict", "dir", "divmod",
-                        "enumerate", "eval", "filter", "float", "format", "frozenset",
-                        "getattr", "globals", "hasattr", "hash", "help", "hex", "id",
-                        "input", "int", "isinstance", "issubclass", "iter", "len",
-                        "list", "locals", "map", "max", "memoryview", "min", "next",
-                        "object", "oct", "open", "ord", "pow", "property", "range",
-                        "repr", "reversed", "round", "set", "setattr", "slice",
-                        "sorted", "staticmethod", "str", "sum", "super", "tuple",
-                        "type", "vars", "zip", "__import__", "NotImplemented",
-                        "Ellipsis", "__debug__"];
-  CodeMirror.registerHelper("hintWords", "python", commonKeywords.concat(commonBuiltins));
+
+  var commonKeywords = ["assert", "const", "mutable", "def", "defg", "mapr", "cgroup",
+                        "if", "else", "do", "for", "continue", "break", "select", "exec", "update", "while",
+                        "insert", "into", "from", "where", "group", "context", "by", "pivot", "map",
+                        "order", "as", "in", "asc", "desc", "having", "timer", "top", "try", "catch", 
+                        "throw", "use", "module", "set", "form", "delete", "csort", "limit", "go", "return"];
+
+  var commonBuiltins = ["VAR", "GLOBAL", "DEF", "HEAD", "CURRENT", "TAIL", "LINE", "PIE",
+                        "COLUMN", "BAR", "AREA", "HISTOGRAM", "SCATTER", "KLINE", "SCALAR", "PAIR", 
+                        "VECTOR", "MATRIX", "SET", "DICT", "TABLE", "VOID", "BOOL", "CHAR", "SHORT", "OBJECT", 
+                        "DICTIONARY", "INT", "INDEX", "LONG", "DATE", "MONTH", "TIME", "MINUTE", "FUNCTIONDEF", 
+                        "STRING", "SYMBOL", "DOUBLE", "UUID", "IPADDR", "INT128", "BLOB", "pi", "e", "FLOAT", "TIMESTAMP", 
+                        "DATETIME", "ANY", "HANDLE", "SHARED", "NANOTIME", "NANOTIMESTAMP", "SECOND", "TABLE_READ", 
+                        "TABLE_WRITE", "DBOBJ_CREATE", "DBOBJ_DELETE", "DB_MANAGE", "VIEW_EXEC", "SCRIPT_EXEC", 
+                        "TEST_EXEC", "HASH", "HASH_PTN", "HINT_KEEPORDER", "HINT_HASH", "HINT_SNAPSHOT", "HINT_SEQ",
+                        "VALUE", "RANGE", "LIST", "COMPO", "FIRST", "LAST","NULL", "NONE"];
+
+  CodeMirror.registerHelper("hintWords", "dolphindb", commonKeywords.concat(commonBuiltins));
 
   function top(state) {
     return state.scopes[state.scopes.length - 1];
   }
 
-  CodeMirror.defineMode("python", function(conf, parserConf) {
+  CodeMirror.defineMode("dolphindb", function(conf, parserConf) {
     var ERRORCLASS = "error";
 
-    var delimiters = parserConf.delimiters || parserConf.singleDelimiters || /^[\(\)\[\]\{\}@,:`=;\.]/;
+    var delimiters = parserConf.delimiters || parserConf.singleDelimiters || /^[\(\)\[\]\{\},;\.\\]/;
     //               (Backwards-compatiblity with old, cumbersome config system)
     var operators = [parserConf.singleOperators, parserConf.doubleOperators, parserConf.doubleDelimiters, parserConf.tripleDelimiters,
-                     parserConf.operators || /^([-+*/%\/&|^]=?|[<>=]+|\/\/=?|\*\*=?|!=|[~!@])/]
+                     parserConf.operators || /^([-+:*/$%\/&|^?]=?|[<>=\\]+|\/\/=?|\*\*=?|!=|[~!@]|\.\.\.)/];
+
     for (var i = 0; i < operators.length; i++) if (!operators[i]) operators.splice(i--, 1)
 
     var hangingIndent = parserConf.hangingIndent || conf.indentUnit;
@@ -62,7 +64,7 @@
       var identifiers = parserConf.identifiers|| /^[_A-Za-z\u00A1-\uFFFF][_A-Za-z0-9\u00A1-\uFFFF]*/;
       myKeywords = myKeywords.concat(["nonlocal", "False", "True", "None", "async", "await"]);
       myBuiltins = myBuiltins.concat(["ascii", "bytes", "exec", "print"]);
-      var stringPrefixes = new RegExp("^(([rbuf]|(br))?('{3}|\"{3}|['\"]))", "i");
+      var stringPrefixes = new RegExp("^(([rbuf]|(br)|(fr))?('{3}|\"{3}|['\"]))", "i");
     } else {
       var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*/;
       myKeywords = myKeywords.concat(["exec", "print"]);
@@ -76,15 +78,16 @@
 
     // tokenizers
     function tokenBase(stream, state) {
-      if (stream.sol()) state.indent = stream.indentation()
+      var sol = stream.sol() && state.lastToken != "\\"
+      if (sol) state.indent = stream.indentation()
       // Handle scope changes
-      if (stream.sol() && top(state).type == "py") {
+      if (sol && top(state).type == "py") {
         var scopeOffset = top(state).offset;
         if (stream.eatSpace()) {
           var lineOffset = stream.indentation();
           if (lineOffset > scopeOffset)
             pushPyScope(state);
-          else if (lineOffset < scopeOffset && dedent(stream, state) && stream.peek() != "#")
+          else if (lineOffset < scopeOffset && dedent(stream, state) && !stream.match("//"))
             state.errorToken = true;
           return null;
         } else {
@@ -100,10 +103,8 @@
     function tokenBaseInner(stream, state) {
       if (stream.eatSpace()) return null;
 
-      var ch = stream.peek();
-
       // Handle Comments
-      if (ch == "#") {
+      if (stream.match("//")) {
         stream.skipToEnd();
         return "comment";
       }
@@ -146,8 +147,14 @@
 
       // Handle Strings
       if (stream.match(stringPrefixes)) {
-        state.tokenize = tokenStringFactory(stream.current());
-        return state.tokenize(stream, state);
+        var isFmtString = stream.current().toLowerCase().indexOf('f') !== -1;
+        if (!isFmtString) {
+          state.tokenize = tokenStringFactory(stream.current(), state.tokenize);
+          return state.tokenize(stream, state);
+        } else {
+          state.tokenize = formatStringFactory(stream.current(), state.tokenize);
+          return state.tokenize(stream, state);
+        }
       }
 
       for (var i = 0; i < operators.length; i++)
@@ -178,7 +185,68 @@
       return ERRORCLASS;
     }
 
-    function tokenStringFactory(delimiter) {
+    function formatStringFactory(delimiter, tokenOuter) {
+      while ("rubf".indexOf(delimiter.charAt(0).toLowerCase()) >= 0)
+        delimiter = delimiter.substr(1);
+
+      var singleline = delimiter.length == 1;
+      var OUTCLASS = "string";
+
+      function tokenNestedExpr(depth) {
+        return function(stream, state) {
+          var inner = tokenBaseInner(stream, state)
+          if (inner == "punctuation") {
+            if (stream.current() == "{") {
+              state.tokenize = tokenNestedExpr(depth + 1)
+            } else if (stream.current() == "}") {
+              if (depth > 1) state.tokenize = tokenNestedExpr(depth - 1)
+              else state.tokenize = tokenString
+            }
+          }
+          return inner
+        }
+      }
+
+      function tokenString(stream, state) {
+        while (!stream.eol()) {
+          stream.eatWhile(/[^'"\{\}\\]/);
+          if (stream.eat("\\")) {
+            stream.next();
+            if (singleline && stream.eol())
+              return OUTCLASS;
+          } else if (stream.match(delimiter)) {
+            state.tokenize = tokenOuter;
+            return OUTCLASS;
+          } else if (stream.match('{{')) {
+            // ignore {{ in f-str
+            return OUTCLASS;
+          } else if (stream.match('{', false)) {
+            // switch to nested mode
+            state.tokenize = tokenNestedExpr(0)
+            if (stream.current()) return OUTCLASS;
+            else return state.tokenize(stream, state)
+          } else if (stream.match('}}')) {
+            return OUTCLASS;
+          } else if (stream.match('}')) {
+            // single } in f-string is an error
+            return ERRORCLASS;
+          } else {
+            stream.eat(/['"]/);
+          }
+        }
+        if (singleline) {
+          if (parserConf.singleLineStringErrors)
+            return ERRORCLASS;
+          else
+            state.tokenize = tokenOuter;
+        }
+        return OUTCLASS;
+      }
+      tokenString.isString = true;
+      return tokenString;
+    }
+
+    function tokenStringFactory(delimiter, tokenOuter) {
       while ("rubf".indexOf(delimiter.charAt(0).toLowerCase()) >= 0)
         delimiter = delimiter.substr(1);
 
@@ -193,7 +261,7 @@
             if (singleline && stream.eol())
               return OUTCLASS;
           } else if (stream.match(delimiter)) {
-            state.tokenize = tokenBase;
+            state.tokenize = tokenOuter;
             return OUTCLASS;
           } else {
             stream.eat(/['"]/);
@@ -203,7 +271,7 @@
           if (parserConf.singleLineStringErrors)
             return ERRORCLASS;
           else
-            state.tokenize = tokenBase;
+            state.tokenize = tokenOuter;
         }
         return OUTCLASS;
       }
@@ -258,14 +326,16 @@
       if (current == ":" && !state.lambda && top(state).type == "py")
         pushPyScope(state);
 
-      var delimiter_index = current.length == 1 ? "[({".indexOf(current) : -1;
-      if (delimiter_index != -1)
-        pushBracketScope(stream, state, "])}".slice(delimiter_index, delimiter_index+1));
+      if (current.length == 1 && !/string|comment/.test(style)) {
+        var delimiter_index = "[({".indexOf(current);
+        if (delimiter_index != -1)
+          pushBracketScope(stream, state, "])}".slice(delimiter_index, delimiter_index+1));
 
-      delimiter_index = "])}".indexOf(current);
-      if (delimiter_index != -1) {
-        if (top(state).type == current) state.indent = state.scopes.pop().offset - hangingIndent
-        else return ERRORCLASS;
+        delimiter_index = "])}".indexOf(current);
+        if (delimiter_index != -1) {
+          if (top(state).type == current) state.indent = state.scopes.pop().offset - hangingIndent
+          else return ERRORCLASS;
+        }
       }
       if (state.dedent > 0 && stream.eol() && top(state).type == "py") {
         if (state.scopes.length > 1) state.scopes.pop();
@@ -314,21 +384,12 @@
 
       electricInput: /^\s*[\}\]\)]$/,
       closeBrackets: {triples: "'\""},
-      lineComment: "#",
+      lineComment: "//",
       fold: "indent"
     };
     return external;
   });
 
-  CodeMirror.defineMIME("text/x-python", "python");
-
-  var words = function(str) { return str.split(" "); };
-
-  CodeMirror.defineMIME("text/x-cython", {
-    name: "python",
-    extra_keywords: words("by cdef cimport cpdef ctypedef enum except "+
-                          "extern gil include nogil property public "+
-                          "readonly struct union DEF IF ELIF ELSE")
-  });
+  CodeMirror.defineMIME("text/x-ddb", "dolphindb");
 
 });

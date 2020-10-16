@@ -40,7 +40,7 @@ $(function () {
 
     $.cookie("language_file", "js/lang.en.js");
 
-    var mime = 'text/x-mariadb';
+    var mime = 'text/x-ddb';
     editor = CodeMirror.fromTextArea(document.getElementById('txt_code'), {
         mode: mime,
         indentWithTabs: true,
