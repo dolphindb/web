@@ -135,6 +135,20 @@ DatanodeServer.prototype = {
     getNodeType:function(){
         var re = this.exec.runSync("getNodeType()");
         return re;
+    },
+    addFunction:function(funcDef) {
+        this.exec.runSync(funcDef);
+    },
+    getFunctionViews:function() {
+        var re = this.exec.runSync("getFunctionViews()");
+        // console.log(re);
+        return re;
+    },
+    addFunctionView:function(funcName) {
+        this.exec.runSync("addFunctionView(" + funcName + ")");
+    },
+    dropFunctionView:function(funcName) {
+        this.exec.runSync("dropFunctionView('" + funcName + "')");
     }
 }
 
