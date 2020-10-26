@@ -16,6 +16,10 @@
     <link href="third-party/jstree/themes/default/style.css" rel="stylesheet" />
     <link href="third-party/jsgrid/jsgrid.css" rel="stylesheet" />
     <link href="third-party/jsgrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="third-party/codemirror/lib/codemirror.css" rel="stylesheet">
+    <link href="third-party/codemirror/addon/hint/show-hint.css" rel="stylesheet">
+    <script type="text/javascript" src="third-party/codemirror/lib/codemirror.js"></script>
+    <script type="text/javascript" src="third-party/codemirror/mode/dolphindb/dolphindb.js"></script>
 </head>
 
 <style>
@@ -88,8 +92,8 @@
               </div>
         </p>
           <menu>
-            <button id="confirmFuncViewBtn" value="default">Confirm</button>
-            <button value="cancel">Cancel</button>
+            <button class="btn btn-sm btn-success" id="confirmFuncViewBtn" value="default">Confirm</button>
+            <button class="btn btn-sm btn-light" value="cancel">Cancel</button>
           </menu>
         </form>
     </dialog>
@@ -104,8 +108,8 @@
               </div>
         </p>
           <menu>
-            <button id="confirmUpdateBtn" value="default">Confirm</button>
-            <button value="cancel">Cancel</button>
+            <button class="btn btn-sm btn-success" id="confirmUpdateBtn" value="default">Confirm</button>
+            <button class="btn btn-sm btn-light" value="cancel">Cancel</button>
           </menu>
         </form>
     </dialog>
