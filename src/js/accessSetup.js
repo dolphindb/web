@@ -90,10 +90,11 @@ $("#btnCheck").bind("click", function (e) {
         re = nodeApi.getUserAccess(selectedUser);
     }
     var res = re.object[0].value;
+    $("#checkTable").empty();
     for (var i = 0; i < res.length; i++) {
         $("#checkTable").append("<tr>\
                                                                     <td>" + res[i].name + "</td>\
-                                                                    <td>" + res[i].value[0] + "</td>\
+                                                                    <td style='padding-left:50px'>" + res[i].value[0] + "</td>\
                                                                 </tr>");
     }
     checkDialog[0].showModal();
