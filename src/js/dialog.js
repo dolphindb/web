@@ -2,7 +2,7 @@
 Decription  : Dolphin Dialog
 ref plugin  : jquery.ui.js
 ref website : http://jqueryui.com/dialog/
-dependency  : /third-party/bootstrap/js/vendor/jquery-ui-1.10.3.custom.min.js
+dependency  : /third-party/bootstrap/js/vendor/jquery-ui.js
 Author      : LinL 
 Date        : 2017-12-27
 ==============================================*/
