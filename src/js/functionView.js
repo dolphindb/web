@@ -66,10 +66,6 @@ var swapCheck = function() {
             selectedFuncViews.push({"name": name, "body": body});
         }
     }
-    console.log("selected");
-    console.log(selectedFuncViews);
-    console.log("all");
-    console.log(allFunctionViews);
 }
 
 var getAllFuncViews = function() {
@@ -95,6 +91,7 @@ var getAllFuncViews = function() {
                                                                                         <th scope='col'><input type='checkbox' onClick='swapCheck()'></th>\
                                                                                          <th scope='col'>Name</th>\
                                                                                          <th scope='col'>body</th>\
+                                                                                         <th scope='col'></th>\
                                                                                     </tr>\
                                                                                 </thead>");
         if (allFunctionViews.length !== "0") {
@@ -106,6 +103,7 @@ var getAllFuncViews = function() {
                                                                                                         <td><input type='checkbox' class='funcView' value=" + name + "></td>\
                                                                                                         <td>" + name + "</td>\
                                                                                                         <td>" + body + "</td>\
+                                                                                                        <td><button class='btn btn-sm btn-info btnUpdateFunctionView' value=" + name + ">Update</button></td>\
                                                                                                     </tr>");
             }
             $("#functionViewTable").append("</tbody>");
@@ -147,23 +145,19 @@ $("#btnDeleteFunctionView").bind("click", function (e) {
     }
 });
 
-$("#btnUpdateFunctionView").bind("click", function (e) {
-    if (selectedFuncViews.length === 0) {
-        alert("Please select one function view to be updated");
-        return;
-    }
-    if (selectedFuncViews.length !== 1) {
-        alert("Please update only one function view at a time");
-        return;
-    }
-    var updateFuncViewDialog = $("#updateFuncViewDialog");
-    // $("#updateFuncView").val(selectedFuncViews[0]["body"]);
-    updateFuncEditor.setValue(selectedFuncViews[0]["body"]);
+$("#functionViewTable").on("click", ".btnUpdateFunctionView", function (e) {
     // previous function name
-    var selectedFuncName = selectedFuncViews[0]["name"];
+    var selectedFuncName = $(this).val();
+    console.log(selectedFuncName);
+    var updateFuncViewDialog = $("#updateFuncViewDialog");
+    for (var i = 0; i < allFunctionViews.length; i++) {
+        var currFuncName = allFunctionViews[i]["name"];
+        if (currFuncName === selectedFuncName) {
+            updateFuncEditor.setValue(allFunctionViews[i]["body"]);
+        }
+    }
     updateFuncViewDialog[0].showModal();
     $("#confirmUpdateBtn").bind("click", function (e) {
-        // var updatedInput = $("#updateFuncView").val();
         var updatedInput = updateFuncEditor.getValue();
         var i = updatedInput.indexOf("def");
         var j = updatedInput.indexOf("(");

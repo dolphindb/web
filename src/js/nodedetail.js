@@ -8,7 +8,6 @@ var logStorageID = '';
 var PAGESIZE = 20;
 var nodeManager = null;
 var nodeApi = null;
-// var precision = 6;
 
 $(function () {
 
@@ -95,9 +94,8 @@ $(function () {
             $("#pnlPerfContainer").hide();
         }
     }
-
-    
 });
+
 function getPerfomance(){
     var perfTable = nodeApi.getSingleClusterPerf();
     if(perfTable.length>0){
@@ -525,6 +523,14 @@ $('#btn_execode').click(function () {
         getData(codestr, undefined, undefined, showData, function (err) { console.error(err); });
     else
         getData(codestr, 0, retrieveRowNumber, showData, function (err) { console.error(err); });
+});
+
+$("#btn_access").click(function() {
+    window.open("accessSetup.html", "accessSetup");
+});
+
+$("#btnOpenFunctionView").bind("click", function (e) {
+    window.open("functionView.html", "functionView");
 });
 
 function getData(script, startindex, pagesize, sucfunc, errfunc) {

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>DolphinDB FunctionView Manager</title>
+    <title>DolphinDB Access Manager</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="DolphinDB Node Management">
     <meta name="author" content="DolphinDB">
@@ -36,7 +36,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <span class="navbar-brand">DolphinDB FunctionView Manager</a>
+                <span class="navbar-brand">DolphinDB Access Setup</a>
             </div>
             <nav class="navbar-collapse collapse navbar-right">
                 <p class="navbar-text navbar-right">
@@ -49,28 +49,40 @@
         </div>
     </header>
 
-    <!-- function view operation buttons -->
     <div class="container-fluid" id="layout" style="width:99vw;padding:10px">
         <div class="row">
-            <!-- buttons for function views operations -->
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <div class="btn-toolbar" role="toolbar" aria-label="...">
+                    <div class="btn-toolbar col-lg-6" role="toolbar" aria-label="...">
                         <div class="btn-group" role="group" aria-label="...">
-                            <button type="button" class="btn btn-default ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnAddFunctionView" title="add a new function" role="button" aria-disabled="false">New</button>
+                            <button type="button" class="btn btn-default ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnGroupList" title="display all groups" role="button" aria-disabled="false">Groups</button>
                         </div>
                         <div class="btn-group" role="group" aria-label="...">
-                            <button type="button" class="btn btn-default ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnDeleteFunctionView" title="delete function(s)" role="button" aria-disabled="false">Delete</button>
+                            <button type="button" class="btn btn-default ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnUserList" title="display all users" role="button" aria-disabled="false">Users</button>
+                        </div>
+                    </div>
+                    <div class="btn-toolbar col-lg-6" role="toolbar" aria-label="...">
+                        <div class="btn-group" role="group" aria-label="...">
+                            <button type="button" class="btn btn-default ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnCheck" title="check access" role="button" aria-disabled="false">Check</button>
+                        </div>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <button type="button" class="btn btn-default ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnGrant" value="grant" title="grant access" role="button" aria-disabled="false">Grant</button>
+                        </div>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <button type="button" class="btn btn-default ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnDeny" value="deny" title="deny access" role="button" aria-disabled="false">Deny</button>
+                        </div>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <button type="button" class="btn btn-default ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnRevoke" value="revoke" title="revoke access" role="button" aria-disabled="false">Revoke</button>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- table displaying function views-->
+            <!-- table for displaying purpose-->
             <div class="panel panel-default">
                 <div class="panel panel-default">
                     <div class="table-wrap">
                         <div class="table-div" style="height: calc(80vh - 40px)">
-                            <table class="table table-hover GridManager - ready" id="functionViewTable" width="100%" cellspacing="1" cellpadding="0">
+                            <table class="table table-hover GridManager - ready" id="displayingTable" width="100%" cellspacing="1" cellpadding="0">
                             </table>       
                         </div>              
                     </div>
@@ -79,34 +91,55 @@
         </div>
     </div>
 
-    <!-- dialog for new function view -->
-    <dialog id="newFuncViewDialog">
+    <!-- dialog for checking access -->
+    <dialog id="checkDialog">
         <form method="dialog">
           <p>
-              <label>Add new function to DolphinDB Function View:</label>
-              <div>
-                <textarea id="newFuncView" cols="43" rows="5"></textarea>
+              <label>Check access:</label>
+              <div class="table-wrap">
+                  <table class="table table-hover GridManager - ready" id="checkTable" width="100%" cellspacing="1" cellpadding="0">
+                  </table>  
               </div>
         </p>
-          <menu>
-            <button class="btn btn-sm btn-success" id="confirmFuncViewBtn" value="default">Confirm</button>
-            <button class="btn btn-sm btn-light" value="cancel">Cancel</button>
-          </menu>
+        <menu>
+            <button class="btn btn-sm btn-light" value="cancel">Close</button>
+        </menu>
         </form>
     </dialog>
 
-    <!-- dialog for updating function view -->
-    <dialog id="updateFuncViewDialog">
+    <!-- dialog for access management: grant, deny, revoke -->
+    <dialog id="accessDialog">
         <form method="dialog">
           <p>
-              <label>Update function in DolphinDB Function View:</label>
-              <div>
-                <textarea id="updateFuncView" cols="43" rows="5"></textarea>
+              <label id="accessLabel"></label>
+              <div id="types">
+                  <label>Access type:
+                      <select>
+                          <option></option>
+                          <option>TABLE_READ</option>
+                          <option>TABLE_WRITE</option>
+                          <option>DBOBJ_CREATE</option>
+                          <option>DBOBJ_DELETE</option>
+                          <option>DB_MANAGE</option>
+                          <option>VIEW_EXEC</option>
+                          <option>SCRIPT_EXEC</option>
+                          <option>TEST_EXEC</option>
+                    </select>
+                  </label>
               </div>
+              <div id="tables">
+
+              </div>
+              <div id="databases">
+
+              </div>
+              <div id="functionviews">
+
+            </div>
         </p>
           <menu>
-            <button class="btn btn-sm btn-success" id="confirmUpdateBtn" value="default">Confirm</button>
-            <button class="btn btn-sm btn-light" value="cancel">Cancel</button>
+              <button class="btn btn-sm btn-success" id="confirmAccessBtn" value="default">Confirm</button>
+              <button class="btn btn-sm btn-light" value="cancel">Cancel</button>
           </menu>
         </form>
     </dialog>
@@ -141,7 +174,7 @@
     <script src="js/utils.js" type="text/javascript"></script>
     <script src="js/dfsExplorer.js" type="text/javascript"></script>
     <script src="js/dolphinApi.js" type="text/javascript"></script>
-    <script src="js/functionView.js" type="text/javascript"></script>
+    <script src="js/accessSetup.js" type="text/javascript"></script>
 </body>
 
 </html>

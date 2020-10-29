@@ -141,7 +141,6 @@ DatanodeServer.prototype = {
     },
     getFunctionViews:function() {
         var re = this.exec.runSync("getFunctionViews()");
-        // console.log(re);
         return re;
     },
     addFunctionView:function(funcName) {
@@ -149,12 +148,39 @@ DatanodeServer.prototype = {
     },
     dropFunctionView:function(funcName) {
         this.exec.runSync("dropFunctionView('" + funcName + "')");
+    },
+    getGroupList: function() {
+        var re = this.exec.runSync("getGroupList()");
+        return re;
+    },
+    getUsersByGroupId: function(groupId) {
+        var re = this.exec.runSync("getUsersByGroupId('" + groupId + "')");
+        return re;
+    },
+    getUserList: function() {
+        var re = this.exec.runSync("getUserList()");
+        return re;
+    },
+    getClusterDFSTables: function() {
+        var re = this.exec.runSync("getClusterDFSTables()");
+        return re;
+    },
+    getClusterDFSDatabases: function() {
+        var re = this.exec.runSync("getClusterDFSDatabases()");
+        return re;
+    },
+    getGroupAccess: function(groupId) {
+        var re = this.exec.runSync("getGroupAccess('" + groupId + "')");
+        return re;
+    },
+    getUserAccess: function(userId) {
+        var re = this.exec.runSync("getUserAccess('" + userId + "')");
+        return re;
     }
 }
 
 var AgentServer = function (url) {
     this._url = url;
-
 }
 
 var ControllerServer = function (url) {
