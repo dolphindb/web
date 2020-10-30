@@ -55,6 +55,9 @@
                         <div class="btn-group" role="group" aria-label="...">
                             <button type="button" class="btn btn-default ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnNew" title="create a new user/group" role="button" aria-disabled="false">New</button>
                         </div>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <button type="button" class="btn btn-default ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnMember" title="add/remove group member" role="button" aria-disabled="false">Group Member</button>
+                        </div>
                     </div>
                     <div class="btn-toolbar col-lg-6" role="toolbar" aria-label="...">
                         <div class="btn-group" role="group" aria-label="...">
@@ -115,6 +118,31 @@
             </p>
             <menu class="text-center" style="padding-inline-start: 0px;">
                 <button class="btn btn-sm btn-success" id="confirmNewBtn" value="default">Create</button>
+                <button class="btn btn-sm btn-light" value="cancel">Close</button>
+            </menu>
+        </form>
+    </dialog>
+
+    <!-- dialog for adding/removing group member(s) -->
+    <dialog id="memberDialog">
+        <form method="dialog">
+            <p>
+                <label id="memberLabel"></label>
+                <div id="opType">
+                    <label>Operation: 
+                        <select>
+                            <option></option>
+                            <option>Add new member(s)</option>
+                            <option>Remove existing member(s)</option>
+                        </select>
+                    </label>
+                </div>
+                <div id="member">
+
+                </div>
+            </p>
+            <menu class="text-center" style="padding-inline-start: 0px;">
+                <button class="btn btn-sm btn-success" id="confirmMemberBtn" value="default">Confirm</button>
                 <button class="btn btn-sm btn-light" value="cancel">Close</button>
             </menu>
         </form>

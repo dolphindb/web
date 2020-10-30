@@ -6,6 +6,7 @@ var allFunctionViews = null;
 
 var createType = null;
 var operationType = null;
+var opType = null;
 
 var selectedHeader = null;
 var selectedGroup = null;
@@ -292,6 +293,76 @@ $("#confirmNewBtn").bind("click", function (e) {
     displayAll(re, createType + "Id");
 });
 
+$("#btnMember").bind("click", function (e) {
+    if (selectedHeader !== "groupId") {
+        alert("Please select a group to add or remove member");
+        return;
+    }
+    var memberDialog = $("#memberDialog");
+    document.getElementById('memberLabel').innerHTML = "Group member manager:";
+    $("#opType").show();
+    $("#opType select").val("");
+    $("#member").hide();
+    memberDialog[0].showModal();
+});
+
+$("#opType select").bind("change", function (e) {
+    opType = $("#opType select").val();
+    var existingUsers = nodeApi.getUsersByGroupId(selectedGroup).object[0].value;
+    var allUsers = nodeApi.getUserList().object[0].value;
+    var availableUsers = [];
+    for (var currUser of allUsers) {
+        if (!existingUsers.includes(currUser)) {
+            availableUsers.push(currUser);
+        }
+    }
+    if (opType === "Add new member(s)" || opType === "Remove existing member(s)") {
+        document.getElementById('memberLabel').innerHTML = opType;
+        $("#opType").hide();
+        $("#member").show();
+        $("#member").empty();
+        $("#member").append("<select multiple='true'></select>");
+        if (opType === "Add new member(s)") {
+            for (var i = 0; i < availableUsers.length; i++) {
+                $("#member select").append("<option>" + availableUsers[i] + "</option>");
+            }
+        } else {
+            for (var i = 0; i < existingUsers.length; i++) {
+                $("#member select").append("<option>" + existingUsers[i] + "</option>");
+            }
+        }
+    }
+});
+
+$("#confirmMemberBtn").bind("click", function (e) {
+    if (opType === null || opType === "") {
+        alert("Please select operation type: add or remove");
+        return;
+    }
+    var selectedUsers = $("#member select").val();
+    if (selectedUsers.length === 0) {
+        alert("Please select user(s) to add or remove");
+        return;
+    }
+    var script;
+    if (opType === "Add new member(s)") {
+        script = "addGroupMember([";
+    } else {
+        script = "deleteGroupMember([";
+    }
+    for (var i = 0; i < selectedUsers.length; i++) {
+        script += "'" + selectedUsers[i] + "',";
+    }
+    script = script.substring(0, script.length - 1);
+    script += "],'" + selectedGroup + "')";
+    var re = nodeApi.runSync(script);
+    if (re.resultCode === "1") {
+        alert(re.msg);
+        return;
+    }
+    alert(script);
+});
+
 $("#btnDelete").bind("click", function (e) {
     var script;
     if (selectedHeader === "groupId") {
@@ -308,4 +379,5 @@ $("#btnDelete").bind("click", function (e) {
         re = nodeApi.getUserList();
     }
     displayAll(re, selectedHeader);
+    $("#btnCheck, #btnGrant, #btnDeny, #btnRevoke, #btnDelete").hide();
 });
