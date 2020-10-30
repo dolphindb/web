@@ -203,6 +203,7 @@ $("#displayingTable").on("change", ".item", function () {
 
 $("#btnNew").bind("click", function (e) {
     var newDialog = $("#newDialog");
+    $("#newDialog label").show();
     $("#createType").show();
     $("#createType select").val("");
     $("#field1").empty();
@@ -217,6 +218,7 @@ $("#createType select").bind("change", function(e) {
     $("#field2").empty();
     $("#field3").empty();
     if (createType === "user" || createType === "group") {
+        $("#newDialog label").hide();
         $("#createType").hide();
     }
     if (createType === "user") {
@@ -281,6 +283,13 @@ $("#confirmNewBtn").bind("click", function (e) {
         return;
     }
     alert(successInfo);
+    var re;
+    if (createType === "group") {
+        re = nodeApi.getGroupList();
+    } else if (createType === "user") {
+        re = nodeApi.getUserList();
+    }
+    displayAll(re, createType + "Id");
 });
 
 $("#btnDelete").bind("click", function (e) {
