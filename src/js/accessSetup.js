@@ -19,26 +19,10 @@ var selectedFunc = null;
 $(document).ready(function () {
     nodeUrl = GetFullUrl(window.location.host);
     nodeApi = new DatanodeServer(nodeUrl);
-    var controller = new ControllerServer(nodeUrl);
-    var currentUser = controller.getCurrentUser();
     allDFSTables = nodeApi.getClusterDFSTables().object[0].value;
     allDFSDatabases = nodeApi.getClusterDFSDatabases().object[0].value;
     allFunctionViews = nodeApi.getFunctionViews().object[0].value[0].value;
     $("#btnCheck, #btnGrant, #btnDeny, #btnRevoke, #btnDelete").hide();
-    if (currentUser.userId == "guest") {
-        $("#btnLogin").show();
-        $("#btnLogout").hide();
-        $("#btnAdmin").hide();
-    } else {
-        $("#btnLogin").hide();
-        $("#btnLogout").show();
-        $("#lblLogin").text("[" + currentUser.userId + "]");
-        if (currentUser.isAdmin == true) {
-            $("#btnAdmin").show();
-        } else {
-            $("#btnAdmin").hide();
-        }
-    }
 });
 
 var displayAll = function(re, header) {
@@ -114,6 +98,17 @@ $("#btnGrant, #btnDeny, #btnRevoke").bind("click", function (e) {
     accessDialog[0].showModal();
 });
 
+var generateList = function(labelText, idSelector, allItems) {
+    $(idSelector).append("<label>" + labelText + "<select multiple='true'><option></option>");
+    if (allItems.length !== 0) {
+        $(idSelector + " select").append("<option>*</option>");
+        for (var i = 0; i < allItems.length; i++) {
+            $(idSelector + " select").append("<option>" + allItems[i] + "</option>");
+        }
+    }
+    $(idSelector).append("</select></label>");
+};
+
 $("#types select").bind("change", function(e) {
     selectedAccessType = $("#types select").val();
     // clear first
@@ -122,34 +117,13 @@ $("#types select").bind("change", function(e) {
     $("#functionviews").empty();
     // tables
     if (selectedAccessType === "TABLE_READ" || selectedAccessType === "TABLE_WRITE") {
-        $("#tables").append("<label>DFS Table: <select multiple='true'><option></option>");
-        if (allDFSTables.length !== 0) {
-            $("#tables select").append("<option>*</option>");
-            for (var i = 0; i < allDFSTables.length; i++) {
-                $("#tables select").append("<option>" + allDFSTables[i] + "</option>");
-            }
-        }
-        $("#tables").append("</select></label>");
+        generateList("DFS Tables: ", "#tables", allDFSTables);
     // databases
     } else if (selectedAccessType === "DBOBJ_CREATE" || selectedAccessType === "DBOBJ_DELETE") {
-        $("#databases").append("<label>DFS Databases: <select multiple='true'><option></option>");
-        if (allDFSDatabases.length !== 0) {
-            $("#databases select").append("<option>*</option>");
-            for (var i = 0; i < allDFSDatabases.length; i++) {
-                $("#databases select").append("<option>" + allDFSDatabases[i] + "</option>");
-            }
-        }
-        $("#databases").append("</select></label>");
+        generateList("DFS Databases: ", "#databases", allDFSDatabases);
     // function views
     } else if (selectedAccessType === "VIEW_EXEC") {
-        $("#functionviews").append("<label>Functions: <select multiple='true'><option></option>");
-        if (allFunctionViews.length !== 0) {
-            $("#functionviews select").append("<option>*</option>");
-            for (var i = 0; i < allFunctionViews.length; i++) {
-                $("#functionviews select").append("<option>" + allFunctionViews[i] + "</option>");
-            }
-        }
-        $("#functionviews").append("</select></label>");
+        generateList("Functions: ", "#functionviews", allFunctionViews);
     }
 });
 
@@ -164,6 +138,24 @@ $("#databases").bind("change", "select", function(e) {
 $("#functionviews").bind("change", "select", function(e) {
     selectedFunc = $("#functionviews select").val();
 });
+
+var generateScript = function(script, selectedItem, operationType, itemType) {
+    if (selectedItem === null || selectedItem === "") {
+        alert("Please select the " + itemType + " to " + operationType + " access");
+        return;
+    }
+    if (selectedItem.includes("*")) {
+        script += ", '*')";
+    } else {
+        script += ", [";
+        for (var i = 0; i < selectedItem.length; i++) {
+            script += "'" + selectedItem[i] + "', ";
+        }
+        script = script.substring(0, script.length - 2);
+        script += "])";
+    }
+    return script;
+};
 
 $("#confirmAccessBtn").bind("click", function(e) {
     if (selectedAccessType === null || selectedAccessType === "") {
@@ -183,57 +175,20 @@ $("#confirmAccessBtn").bind("click", function(e) {
     }
     // table
     else if (selectedAccessType === "TABLE_READ" || selectedAccessType === "TABLE_WRITE") {
-        if (selectedTable === null || selectedTable === "") {
-            alert("Please select the DFS table to " + operationType + " access");
-            return;
-        }
-        if (selectedTable.includes("*")) {
-            script += ", '*')";
-        } else {
-            script += ", [";
-            for (var i = 0; i < selectedTable.length; i++) {
-                script += "'" + selectedTable[i] + "', ";
-            }
-            script = script.substring(0, script.length - 2);
-            script += "])";
-        }
+        script = generateScript(script, selectedTable, operationType, "DFS table(s)");
     }
     // database
     else if (selectedAccessType === "DBOBJ_CREATE" || selectedAccessType === "DBOBJ_DELETE") {
-        if (selectedDatabase === null || selectedDatabase === "") {
-            alert("Please select the DFS database to " + operationType + " access");
-            return;
-        }
-        if (selectedDatabase.includes("*")) {
-            script += ", '*')";
-        } else {
-            script += ", [";
-            for (var i = 0; i < selectedDatabase.length; i++) {
-                script += "'" + selectedDatabase[i] + "', ";
-            }
-            script = script.substring(0, script.length - 2);
-            script += "])";
-        }
+        script = generateScript(script, selectedDatabase, operationType, "DFS database(s)");
     }
     // function view
     else if (selectedAccessType === "VIEW_EXEC") {
-        if (selectedFunc === null || selectedFunc === "") {
-            alert("Please select the function to " +  operationType + " access");
-            return;
-        }
-        if (selectedFunc.includes("*")) {
-            script += ", '*')";
-        } else {
-            script += ", [";
-            for (var i = 0; i < selectedFunc.length; i++) {
-                script += "'" + selectedFunc[i] + "', ";
-            }
-            script = script.substring(0, script.length - 2);
-            script += "])"
-        }
+        script = generateScript(script, selectedFunc, operationType, "function(s)");
     }
-    nodeApi.runSync(script);
-    alert(script);
+    if (script) {
+        nodeApi.runSync(script);
+        alert(script);
+    }
 });
 
 $("#displayingTable").on("change", ".item", function () {
