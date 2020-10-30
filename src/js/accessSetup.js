@@ -4,6 +4,7 @@ var allDFSTables = null;
 var allDFSDatabases = null;
 var allFunctionViews = null;
 
+var createType = null;
 var operationType = null;
 
 var selectedHeader = null;
@@ -23,7 +24,7 @@ $(document).ready(function () {
     allDFSTables = nodeApi.getClusterDFSTables().object[0].value;
     allDFSDatabases = nodeApi.getClusterDFSDatabases().object[0].value;
     allFunctionViews = nodeApi.getFunctionViews().object[0].value[0].value;
-    $("#btnCheck, #btnGrant, #btnDeny, #btnRevoke").hide();
+    $("#btnCheck, #btnGrant, #btnDeny, #btnRevoke, #btnDelete").hide();
     if (currentUser.userId == "guest") {
         $("#btnLogin").show();
         $("#btnLogout").hide();
@@ -68,7 +69,7 @@ var displayAll = function(re, header) {
 };
 
 $("#displayingTable").bind("change", ".item", function (e) {
-    $("#btnCheck, #btnGrant, #btnDeny, #btnRevoke").show();
+    $("#btnCheck, #btnGrant, #btnDeny, #btnRevoke, #btnDelete").show();
 });
 
 $("#btnGroupList").bind("click", function (e) {
@@ -121,23 +122,32 @@ $("#types select").bind("change", function(e) {
     $("#functionviews").empty();
     // tables
     if (selectedAccessType === "TABLE_READ" || selectedAccessType === "TABLE_WRITE") {
-        $("#tables").append("<label>DFS Table:<select><option></option>");
-        for (var i = 0; i < allDFSTables.length; i++) {
-            $("#tables select").append("<option>" + allDFSTables[i] + "</option>");
+        $("#tables").append("<label>DFS Table: <select multiple='true'><option></option>");
+        if (allDFSTables.length !== 0) {
+            $("#tables select").append("<option>*</option>");
+            for (var i = 0; i < allDFSTables.length; i++) {
+                $("#tables select").append("<option>" + allDFSTables[i] + "</option>");
+            }
         }
         $("#tables").append("</select></label>");
     // databases
     } else if (selectedAccessType === "DBOBJ_CREATE" || selectedAccessType === "DBOBJ_DELETE") {
-        $("#databases").append("<label>DFS Databases:<select><option></option>");
-        for (var i = 0; i < allDFSDatabases.length; i++) {
-            $("#databases select").append("<option>" + allDFSDatabases[i] + "</option>");
+        $("#databases").append("<label>DFS Databases: <select multiple='true'><option></option>");
+        if (allDFSDatabases.length !== 0) {
+            $("#databases select").append("<option>*</option>");
+            for (var i = 0; i < allDFSDatabases.length; i++) {
+                $("#databases select").append("<option>" + allDFSDatabases[i] + "</option>");
+            }
         }
         $("#databases").append("</select></label>");
     // function views
     } else if (selectedAccessType === "VIEW_EXEC") {
-        $("#functionviews").append("<label>Functions:<select><option></option>");
-        for (var i = 0; i < allFunctionViews.length; i++) {
-            $("#functionviews select").append("<option>" + allFunctionViews[i] + "</option>");
+        $("#functionviews").append("<label>Functions: <select multiple='true'><option></option>");
+        if (allFunctionViews.length !== 0) {
+            $("#functionviews select").append("<option>*</option>");
+            for (var i = 0; i < allFunctionViews.length; i++) {
+                $("#functionviews select").append("<option>" + allFunctionViews[i] + "</option>");
+            }
         }
         $("#functionviews").append("</select></label>");
     }
@@ -177,7 +187,16 @@ $("#confirmAccessBtn").bind("click", function(e) {
             alert("Please select the DFS table to " + operationType + " access");
             return;
         }
-        script += ","+ "'" + selectedTable + "')";
+        if (selectedTable.includes("*")) {
+            script += ", '*')";
+        } else {
+            script += ", [";
+            for (var i = 0; i < selectedTable.length; i++) {
+                script += "'" + selectedTable[i] + "', ";
+            }
+            script = script.substring(0, script.length - 2);
+            script += "])";
+        }
     }
     // database
     else if (selectedAccessType === "DBOBJ_CREATE" || selectedAccessType === "DBOBJ_DELETE") {
@@ -185,7 +204,16 @@ $("#confirmAccessBtn").bind("click", function(e) {
             alert("Please select the DFS database to " + operationType + " access");
             return;
         }
-        script += ","+ "'" + selectedDatabase + "')";
+        if (selectedDatabase.includes("*")) {
+            script += ", '*')";
+        } else {
+            script += ", [";
+            for (var i = 0; i < selectedDatabase.length; i++) {
+                script += "'" + selectedDatabase[i] + "', ";
+            }
+            script = script.substring(0, script.length - 2);
+            script += "])";
+        }
     }
     // function view
     else if (selectedAccessType === "VIEW_EXEC") {
@@ -193,7 +221,16 @@ $("#confirmAccessBtn").bind("click", function(e) {
             alert("Please select the function to " +  operationType + " access");
             return;
         }
-        script += ","+ "'" + selectedFunc + "')";
+        if (selectedFunc.includes("*")) {
+            script += ", '*')";
+        } else {
+            script += ", [";
+            for (var i = 0; i < selectedFunc.length; i++) {
+                script += "'" + selectedFunc[i] + "', ";
+            }
+            script = script.substring(0, script.length - 2);
+            script += "])"
+        }
     }
     nodeApi.runSync(script);
     alert(script);
@@ -207,4 +244,104 @@ $("#displayingTable").on("change", ".item", function () {
     } else if (selectedHeader === "userId") {
         selectedUser = vals[1];
     }
+});
+
+$("#btnNew").bind("click", function (e) {
+    var newDialog = $("#newDialog");
+    $("#createType").show();
+    $("#createType select").val("");
+    $("#field1").empty();
+    $("#field2").empty();
+    $("#field3").empty();
+    newDialog[0].showModal();
+});
+
+$("#createType select").bind("change", function(e) {
+    createType = $("#createType select").val();
+    $("#field1").empty();
+    $("#field2").empty();
+    $("#field3").empty();
+    if (createType === "user" || createType === "group") {
+        $("#createType").hide();
+    }
+    if (createType === "user") {
+        $("#field1").append("<label>username:\
+                                                        <input type='text'>\
+                                                    </label>");
+        $("#field2").append("<label>password:\
+                                                        <input type='password'>\
+                                                    </label>");
+         $("#field3").append("<label>confirm password:\
+                                                        <input type='password'>\
+                                                    </label>");
+    } else if (createType === "group") {
+        $("#field1").append("<label>group name:\
+                                                        <input type='text'>\
+                                                    </label>");
+        $("#field2").append("<label>Add members:\
+                                                        <select multiple='true'>\
+                                                        </select>\
+                                                    </label>");
+        var res = nodeApi.getUserList().object[0].value;
+        for (var i = 0; i < res.length; i++) {
+            $("#field2 select").append("<option>" + res[i] + "</option>");
+        }                                
+    }
+});
+
+$("#confirmNewBtn").bind("click", function (e) {
+    if (createType === null || createType === "") {
+        alert("Please select user/group");
+        return;
+    }
+    var re;
+    var name = $("#field1 input[type='text']").val();
+    var successInfo = "Successfully created a new " + createType +" [" + name + "]";
+    if (createType === "user") {
+        var password1 = $("#field2 input[type='password']").val();
+        var password2 = $("#field3 input[type='password']").val();
+        if (password1 !== password2) {
+            alert("Please confirm your password");
+            return;
+        }
+        re = nodeApi.runSync("createUser('" + name + "','" + password1 + "')");
+    } else if (createType === "group") {
+        options = $("#field2 select").val();
+        var script = "createGroup('" + name + "'";
+        if (options.length !== 0) {
+            script += ",";
+            successInfo += " with " + options.length + " members: [";
+            for (var i = 0; i < options.length; i++) {
+                script += "`" + options[i];
+                successInfo += options[i] + ", "
+            }
+            successInfo = successInfo.substring(0, successInfo.length - 2);
+            successInfo += "]";
+        }
+        script += ")";
+        re = nodeApi.runSync(script);
+    }
+    if (re.resultCode === "1") {
+        alert(re.msg);
+        return;
+    }
+    alert(successInfo);
+});
+
+$("#btnDelete").bind("click", function (e) {
+    var script;
+    if (selectedHeader === "groupId") {
+        script = "deleteGroup(`" + selectedGroup + ")";
+    } else if (selectedHeader === "userId") {
+        script = "deleteUser(`" + selectedUser + ")";
+    }
+    nodeApi.runSync(script);
+    alert(script);
+    var re;
+    if (selectedHeader === "groupId") {
+        re = nodeApi.getGroupList();
+    } else if (selectedHeader === "userId") {
+        re = nodeApi.getUserList();
+    }
+    displayAll(re, selectedHeader);
 });

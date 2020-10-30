@@ -36,7 +36,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <span class="navbar-brand">DolphinDB Access Setup</a>
+                <span class="navbar-brand">DolphinDB Access Manager</a>
             </div>
             <nav class="navbar-collapse collapse navbar-right">
                 <p class="navbar-text navbar-right">
@@ -60,6 +60,9 @@
                         <div class="btn-group" role="group" aria-label="...">
                             <button type="button" class="btn btn-default ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnUserList" title="display all users" role="button" aria-disabled="false">Users</button>
                         </div>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <button type="button" class="btn btn-default ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnNew" title="create a new user/group" role="button" aria-disabled="false">New</button>
+                        </div>
                     </div>
                     <div class="btn-toolbar col-lg-6" role="toolbar" aria-label="...">
                         <div class="btn-group" role="group" aria-label="...">
@@ -73,6 +76,9 @@
                         </div>
                         <div class="btn-group" role="group" aria-label="...">
                             <button type="button" class="btn btn-default ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnRevoke" value="revoke" title="revoke access" role="button" aria-disabled="false">Revoke</button>
+                        </div>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <button type="button" class="btn btn-default ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnDelete" value="revoke" title="delete user/group" role="button" aria-disabled="false">Delete</button>
                         </div>
                     </div>
                 </div>
@@ -91,6 +97,37 @@
         </div>
     </div>
 
+    <!-- dialog for creating new user/group -->
+    <dialog id="newDialog">
+        <form method="dialog">
+            <p>
+                <label>Create new user/group:</label>
+                <div id="createType">
+                    <label>Type:
+                        <select>
+                            <option></option>
+                            <option>user</option>
+                            <option>group</option>
+                        </select>
+                    </label>
+                </div>
+                <div id="field1">
+
+                </div>
+                <div id="field2">
+
+                </div>
+                <div id="field3">
+
+                </div>
+            </p>
+            <menu class="text-center" style="padding-inline-start: 0px;">
+                <button class="btn btn-sm btn-success" id="confirmNewBtn" value="default">Create</button>
+                <button class="btn btn-sm btn-light" value="cancel">Close</button>
+            </menu>
+        </form>
+    </dialog>
+
     <!-- dialog for checking access -->
     <dialog id="checkDialog">
         <form method="dialog">
@@ -101,8 +138,8 @@
                   </table>  
               </div>
         </p>
-        <menu>
-            <button class="btn btn-sm btn-light" value="cancel">Close</button>
+        <menu class="text-center" style="padding-inline-start: 0px;">
+            <button class="btn btn-sm btn-light" value="cancel" >Close</button>
         </menu>
         </form>
     </dialog>
@@ -137,7 +174,7 @@
 
             </div>
         </p>
-          <menu>
+          <menu class="text-center" style="padding-inline-start: 0px;">
               <button class="btn btn-sm btn-success" id="confirmAccessBtn" value="default">Confirm</button>
               <button class="btn btn-sm btn-light" value="cancel">Cancel</button>
           </menu>
