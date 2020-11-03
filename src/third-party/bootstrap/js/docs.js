@@ -19,7 +19,7 @@
       $body.scrollspy('refresh')
     })
 
-    $('section [href^=#]').click(function (e) {
+    $('section [href^=\\#]').click(function (e) {
       e.preventDefault()
     })
 
