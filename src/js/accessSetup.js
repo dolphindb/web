@@ -20,10 +20,40 @@ var selectedFunc = null;
 $(document).ready(function () {
     nodeUrl = GetFullUrl(window.location.host);
     nodeApi = new DatanodeServer(nodeUrl);
+    var controller = new ControllerServer(nodeUrl);
+    var currentUser = controller.getCurrentUser();
+    if (currentUser.userId == "guest") {
+        $("#btnLogin").show();
+        $("#btnLogout").hide();
+        $("#btnAdmin").hide();
+    } else {
+        $("#btnLogin").hide();
+        $("#btnLogout").show();
+        $("#lblLogin").text("[" + currentUser.userId + "]");
+        if (currentUser.isAdmin == true) {
+            $("#btnAdmin").show();
+        } else {
+            $("#btnAdmin").hide();
+        }
+    }
     allDFSTables = nodeApi.getClusterDFSTables().object[0].value;
     allDFSDatabases = nodeApi.getClusterDFSDatabases().object[0].value;
     allFunctionViews = nodeApi.getFunctionViews().object[0].value[0].value;
     $("#btnCheck, #btnGrant, #btnDeny, #btnRevoke, #btnDelete").hide();
+});
+
+$("#btnLogout").bind("click", function () {
+    var user = JSON.parse(localStorage.getItem("DolphinDB_CurrentUsername"));
+    var controller = new ControllerServer(wa_url);
+    controller.logout(user.userId, function (re) {
+        if (re.resultCode == "0") {
+            localStorage.setItem("DolphinDB_CurrentUsername", "");
+            localStorage.setItem(session_storage_id, "");
+            window.location.reload();
+        } else {
+            alert(re.msg);
+        }
+    })
 });
 
 var displayAll = function(re, header) {

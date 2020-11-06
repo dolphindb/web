@@ -868,6 +868,10 @@ $("#btnOpenFunctionView").bind("click", function (e) {
     window.open("functionView.html", "functionView");
 });
 
+$("#btnOpenMemory").bind("click", function (e) {
+    window.open("memoryManager.html", "memoryManager");
+});
+
 function hideCtlSel() {
     $("td:contains('controller')").parent().children().first().html('');
     setGridStyle();

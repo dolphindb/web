@@ -25,6 +25,20 @@ $(document).ready(function () {
     getAllFuncViews();
 });
 
+$("#btnLogout").bind("click", function () {
+    var user = JSON.parse(localStorage.getItem("DolphinDB_CurrentUsername"));
+    var controller = new ControllerServer(wa_url);
+    controller.logout(user.userId, function (re) {
+        if (re.resultCode === "0") {
+            localStorage.setItem("DolphinDB_CurrentUsername", "");
+            localStorage.setItem(session_storage_id, "");
+            window.location.reload();
+        } else {
+            alert(re.msg);
+        }
+    })
+});
+
 var codeMirrorEditor = function(element, width, height) {
     var editor = CodeMirror.fromTextArea(element, {
         showCursorWhenSelecting: true,
