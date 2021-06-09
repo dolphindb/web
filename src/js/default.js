@@ -286,7 +286,7 @@ function LoadTable(nodeList) {
                 var ref = "";
                 var api_url = "";
                 var node_alias = rowObject.site.split(":")[2];
-                if (rowObject.mode === 0) {
+                if (rowObject.mode === 0 || rowObject.mode === 4) {
                     var agentUrl = getAgentSite(getControllerIp(), rowObject);
                     api_url = agentUrl;
                     ref = agentUrl + '@' + rowObject.site;
@@ -305,7 +305,7 @@ function LoadTable(nodeList) {
                 var r = "";
                 var api_url = "";
                 var node_alias = rowObject.site.split(":")[2];
-                if (rowObject.mode === 0) {
+                if (rowObject.mode === 0 || rowObject.mode === 4) {
                     var agentUrl = getAgentSite(getControllerIp(), rowObject);
                     api_url = agentUrl;
                     ref = agentUrl + '@' + rowObject.site;
@@ -612,7 +612,7 @@ function refreshGrid(nodeList) {
     var fv = $("#txtFilter").val();
 
     var list = nodeList.filter(function (x) {
-        return (x.mode === 0 || x.mode === 2) && x.site.indexOf(fv) >= 0;
+        return (x.mode === 0 || x.mode === 2 || x.mode === 4) && x.site.indexOf(fv) >= 0;
     });
     var griddata = {
         data: list,
@@ -644,7 +644,7 @@ function connect_server_success(result) {
             LoadLeft(AGENT_LIST);
 
             NODE_LIST = ALL_NODE.filter(function (x) {
-                return x.mode === 0;
+                return x.mode === 0 || x.mode === 4;
             });
 
             CTL_LIST = ALL_NODE.filter(function (x) {

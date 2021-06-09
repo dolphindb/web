@@ -51,7 +51,7 @@ $(function () {
         extraKeys: { "Ctrl-Alt-Space": "autocomplete" },
         hintOptions: {
             tables: {
-
+                
             }
         }
     });
