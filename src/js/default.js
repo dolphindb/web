@@ -240,8 +240,10 @@ function LoadTable(nodeList) {
             template: function (mode, rowObject) {
                 if (mode === 0) {
                     return "datanode";
-                } else {
+                } else if(mode === 2) {
                     return "controller";
+                } else if(mode === 4) {
+                    return "computenode"
                 }
             }
         }, {
