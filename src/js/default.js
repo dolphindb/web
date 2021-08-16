@@ -618,7 +618,7 @@ function refreshGrid(nodeList) {
     var fv = $("#txtFilter").val();
 
     var list = nodeList.filter(function (x) {
-        return (x.mode === 0 || x.mode === 2 || x.mode === 1 || x.mode === 4) && x.site.indexOf(fv) >= 0;
+        return (x.mode === 0 || x.mode === 2 || x.mode === 4) && x.site.indexOf(fv) >= 0;
     });
     var griddata = {
         data: list,
