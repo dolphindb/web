@@ -18,6 +18,12 @@ function DatanodeConfig() {
             configCategory: 'Log',
             configs: [
                 { name: 'jobLogFile', value: '', default: 'nodeAlias_job.log', tip: 'The path and name of the job log file that contains descriptive information of all the queries that have been executed for each node. It must be a csv file. The default folder for the job log file is the log folder. The default name of the job log file is nodeAlias_job.log.' },
+                { name: 'logFile', value: '', default: 'DolphinDBlog', tip: 'The path and name of the log file'},
+                { name: 'logLevel', value: '', default: 'INFO', tip: 'The retention hierarchy of log files.'},
+                { name: 'redoLogPurgeInterval', value: 'int', default: '30', tip: ' The time interval (s) for deleting redo logs.'},
+                { name: 'redoLogPurgeLimit', value: 'int', default: '4000', tip: 'The maximum amount of disk space (MB) used by redo logs.'},
+                { name: 'maxLogSize', value: [100, 1024], default: '1024', tip: 'When the log file reaches a specified level (MB), the log file will be archived.'},
+                { name: 'redoLogDir', value: '', default: '', tip: 'The directory of redo logs.'}
             ]
         },
         {
@@ -41,6 +47,26 @@ function DatanodeConfig() {
                 { name: 'redoLogPurgeInterval', value: '', default: '= 10', tip: '' },
                 { name: 'redoLogPurgeLimit', value: '', default: '= 4000', tip: '' },
                 { name: 'maxLogSize', value: '', default: '= 1024', tip: '' },
+                { name: 'chunkCacheEngineMemSize', value: 'int', default: '0', tip: 'The volume (GB) of cache engine.'},
+                { name: 'memoryReleaseRate', value: 'float', default: '5', tip: 'The rate at which unused memory is released to the operating system is a floating-point number between 0 and 10.'},
+                { name: 'warningMemSize', value: '', default: '', tip: 'When the memory usage exceeds warningmemsize (in GB), the system will automatically clean up the cache of some databases to avoid OOM exceptions.'},
+                { name: 'enableHTTPS', value: [0, 1], default: 1, tip: 'Enable HTTPS security protocol.'},
+                { name: 'localSite', value: '', default: '', tip: 'The LAN information of the node in the format of host:port:alias.'},
+                { name: 'tcpNoDelay', value: [0, 1], default: 1, tip: 'Start TCP_NODELAY socket option.'},
+                { name: 'console', value: [0,1], default: 1, tip: 'Indicates whether to start the dolphin DB command line window.'},
+                { name: 'config', value: '', default: 'dolphindb.cfg', tip: 'The profile of node.'},
+                { name: 'home', value: '', default: 'C:DolphinDBserver', tip: 'The home directory of dolphin dB and the location of configuration files, license files, log files and other related files.'},
+                { name: 'mode', value: '', default: 'single', tip: 'The mode of the node. Single represents stand-alone mode, datanode represents data node, controller represents control node and agent represents agent node.'},
+                { name: 'moduleDir', value: '', default: 'modules', tip: 'Module directory of node.'},
+                { name: 'pluginDir', value: '', default: 'plugins', tip: 'Plug directory of node.'},
+                { name: 'preloadModules', value: '', default: '', tip: 'Modules or plug-ins loaded automatically after system startup.'},
+                { name: 'init', value: '', default: 'dolphindb.dos', tip: 'This file is executed at system startup.'},
+                { name: 'startup', value: '', default: 'startup.dos', tip: 'This file is executed after system startup.'},
+                { name: 'run', value: '', default: 'dailyJobs.dos', tip: 'The file is executed after the system executes the file specified by the startup parameter.'},
+                { name: 'tzdb', value: '', default: 'C:DolphinDBservertzdb', tip: 'The directory of time zone database.'},
+                { name: 'webRoot', value: '', default: 'C:DolphinDBserverweb', tip: 'The directory of the web server.'},
+                { name: 'webLoginRequired', value: [0,1], default: 0, tip: 'Whether you must sign in before you can use the Web Cluster Manager.'},
+                { name: 'useHardLink', value: [0, 1], default: 1, tip: 'Whether to use the function of file system hardlink.'},
             ]
         },
         {
@@ -48,7 +74,10 @@ function DatanodeConfig() {
             configs: [
                 { name: 'allowVolumeCreation', value: [0, 1], default: '1', tip: 'Whether to automatically create the storage locations in the distributed file system if the parameter volumes is not specified. The default value is 1.' },
                 { name: 'volumes', value: '', default: '', tip: 'The folder where data chunks are saved in the distributed file system on a data node.' },
-                { name: 'diskIOConcurrencyLevel', value: 'int', default: '1', tip: 'Indicating how many threads can read from/write to disks concurrently.' }
+                { name: 'diskIOConcurrencyLevel', value: 'int', default: '1', tip: 'Indicating how many threads can read from/write to disks concurrently.' },
+                { name: 'batchJobDir', value: '', default: '', tip: 'The folder directory of bulk job logs and results.'},
+                { name: 'chunkMetaDir', value: '', default:'', tip: 'The directory of metadata.'},
+                { name: 'dataSync', value: [0,1], default:'0', tip: 'Indicates whether a data-forced brushing policy is adopted. The default value is 0, which means that it is up to the operating system to decide when to swipe the disk.'}
             ]
         },
         {
@@ -64,7 +93,9 @@ function DatanodeConfig() {
                 { name: 'persistenceWorkerNum', value: 'int', default: '0', tip: 'The number of workers to persist streaming tables.' },
                 { name: 'maxPersistenceQueueDepth', value: 'int', default: '10000000', tip: 'The limit of message numbers for each queue of persistence workers.' },
                 { name: 'maxSubQueueDepth', value: 'int', default: '10000000', tip: 'The limit of message numbers for each queue of subscription executors.' },
-                { name: 'maxPubQueueDepthPerSite', value: 'int', default: '10000000', tip: 'The limit of message numbers for publishing queue to each client site.' }
+                { name: 'maxPubQueueDepthPerSite', value: 'int', default: '10000000', tip: 'The limit of message numbers for publishing queue to each client site.' },
+                { name: 'persistOffsetDir', value: '', default: '', tip: 'The save path that persists the consumer data offset at the subscription end.'}
+
             ]
         }
     ]
@@ -323,6 +354,7 @@ function ControllerConfig() {
     var controller = GetFullUrl(window.location.host);
     var scriptExecutor = new CodeExecutor(controller);
     var ruleData = [];
+    var configsName = []
     var configs = [
         { name: 'mode', value: ['controller'], default: 'controller', tip: 'Node mode. Possible modes are controller / agent / dataNode.', disabled: true },
         { name: 'localSite', value: '', default: '', tip: 'Specify host address, port number and alias of the local node.', disabled: true },
@@ -337,14 +369,21 @@ function ControllerConfig() {
         { name: 'webWorkerNum', value: 'int', default: '1', tip: 'The size of the worker pool to process http requests. The default value is 1.' },
         { name: 'workerNum', value: 'int', default: '= number of CPU cores', tip: 'The size of worker pool for regular interactive jobs. The default value is the number of cores of the CPU.' },
         { name: 'dfsMetaDir', value: '', default: '= DolphinDB home directory', tip: 'Relative path of dfs Meta data store location' },
+        { name: 'dfsMetaLogFilename', value: '', default: 'DFSMetaLog', tip: 'Edit log file of distributed file system metadata on controller node.'},
         { name: 'dfsReplicationFactor', value: 'int', default: '2', tip: 'The number of replicas for each table partition or file block (not including the original copy). The default value is 2.' },
         { name: 'dfsReplicaReliabilityLevel', text: ['Multiple Replications Per Node (value 0)', 'One Replication Per Node (value 1)'], value: [0, 1], default: '0', tip: 'Whether multiple replicas can reside on a node. 0: Yes; 1: No. The default value is 0.' },
         { name: 'dfsRecoveryWaitTime', value: 'int', default: '', tip: 'The time (in milliseconds) the controller waits after a table partition or file block goes offline before recovering it. The default value is 30000 (ms).' },
         { name: 'enableDFS', value: [0, 1], default: '1', tip: 'Enable the distributed file system. The default value is 1.' },
         { name: 'enableHTTPS', value: [0, 1], default: '0', tip: 'Enable the HTTPS Protocal for cluster manager. The default value is 0.' },
         { name: 'dataSync', value: [0, 1], default: '0', tip: 'Whether to enable data recovery after power outage. The default value is 0.' },
-        { name: 'webLoginRequired',value: [false, true], default: 'false', tip: 'Whether a user must log in before using the web-based cluster manager. The default value is false.' }
+        { name: 'webLoginRequired',value: [false, true], default: 'false', tip: 'Whether a user must log in before using the web-based cluster manager. The default value is false.' },
+        { name: 'PublicName', value: '', default: '', tip: 'Control node extranet IP or domain name.'},
+        { name: 'datanodeRestartInterval', value: 'int', default: '', tip: ''},
+        { name: 'dfsHAMode', value: '', default: '=Raft', tip: 'Whether multiple control nodes form a Raft group.'}
     ]
+    for (var item of configs){
+        configsName.push(item.name)
+    }
 
     function loadRules() {
         ruleNumber = 0;
@@ -353,10 +392,12 @@ function ControllerConfig() {
         ruleData = [];
 
         scriptExecutor.run('loadControllerConfigs()', function (res) {
+            console.log(res);
             if (res.resultCode === '0') {
                 var confs = res.object[0].value;
                 for (var i = 0, len = configs.length; i < len; i++) {
                     for (var j = 0, jlen = confs.length; j < jlen; j++) {
+
                         var config = confs[j].split('=')
                         if (config.length !== 2) {
                             console.log('Unknown datanode config: ' + confs[i])
@@ -483,6 +524,12 @@ function ControllerConfig() {
     function saveRules() {
         var script = "saveControllerConfigs([";
         var ruleLines = [];
+        var origin = scriptExecutor.runSync('loadControllerConfigs()')
+        var originConfig = origin.object[0].value
+        var originConfigName = []
+        for (var item of originConfig){
+            originConfigName.push(item.split('=')[0])
+        }
         for (var i = 0, len = ruleData.length; i < len; i++) {
             var rule = ruleData[i];
             // if (rule.deleted)
@@ -500,6 +547,16 @@ function ControllerConfig() {
                 continue;
             ruleLines.push(ruleLine)
         }
+        // ADD ORINGIN CONFIG WHICH WEB HAS NOT UPDATE
+        console.log(configsName);
+        console.log(originConfigName);
+        for (var k = 0,lenk = originConfigName.length;k<lenk;k++){
+            if (configsName.indexOf(originConfigName[k])===-1){
+                ruleLines.push(`"${originConfig[k]}"`)
+            }
+        }
+
+        console.log(ruleLines);
         script += ruleLines.join(',');
         script += '])';
         script = encodeURIComponent(script);
@@ -529,6 +586,7 @@ function ControllerConfig() {
     loadRules();
     refreshMe = loadRules;
 }
+
 
 function NodesSetup() {
     var datanodeNum = 0;
