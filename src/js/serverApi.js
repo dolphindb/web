@@ -354,6 +354,7 @@ function ControllerConfig() {
     var controller = GetFullUrl(window.location.host);
     var scriptExecutor = new CodeExecutor(controller);
     var ruleData = [];
+    var configsName = []
     var configs = [
         { name: 'mode', value: ['controller'], default: 'controller', tip: 'Node mode. Possible modes are controller / agent / dataNode.', disabled: true },
         { name: 'localSite', value: '', default: '', tip: 'Specify host address, port number and alias of the local node.', disabled: true },
@@ -380,6 +381,9 @@ function ControllerConfig() {
         { name: 'datanodeRestartInterval', value: 'int', default: '', tip: ''},
         { name: 'dfsHAMode', value: '', default: '=Raft', tip: 'Whether multiple control nodes form a Raft group.'}
     ]
+    for (var item of configs){
+        configsName.push(item.name)
+    }
 
     function loadRules() {
         ruleNumber = 0;
@@ -388,10 +392,12 @@ function ControllerConfig() {
         ruleData = [];
 
         scriptExecutor.run('loadControllerConfigs()', function (res) {
+            console.log(res);
             if (res.resultCode === '0') {
                 var confs = res.object[0].value;
                 for (var i = 0, len = configs.length; i < len; i++) {
                     for (var j = 0, jlen = confs.length; j < jlen; j++) {
+
                         var config = confs[j].split('=')
                         if (config.length !== 2) {
                             console.log('Unknown datanode config: ' + confs[i])
@@ -518,6 +524,12 @@ function ControllerConfig() {
     function saveRules() {
         var script = "saveControllerConfigs([";
         var ruleLines = [];
+        var origin = scriptExecutor.runSync('loadControllerConfigs()')
+        var originConfig = origin.object[0].value
+        var originConfigName = []
+        for (var item of originConfig){
+            originConfigName.push(item.split('=')[0])
+        }
         for (var i = 0, len = ruleData.length; i < len; i++) {
             var rule = ruleData[i];
             // if (rule.deleted)
@@ -535,6 +547,16 @@ function ControllerConfig() {
                 continue;
             ruleLines.push(ruleLine)
         }
+        // ADD ORINGIN CONFIG WHICH WEB HAS NOT UPDATE
+        console.log(configsName);
+        console.log(originConfigName);
+        for (var k = 0,lenk = originConfigName.length;k<lenk;k++){
+            if (configsName.indexOf(originConfigName[k])===-1){
+                ruleLines.push(`"${originConfig[k]}"`)
+            }
+        }
+
+        console.log(ruleLines);
         script += ruleLines.join(',');
         script += '])';
         script = encodeURIComponent(script);
