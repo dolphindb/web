@@ -94,8 +94,9 @@ function DatanodeConfig() {
                 { name: 'maxPersistenceQueueDepth', value: 'int', default: '10000000', tip: 'The limit of message numbers for each queue of persistence workers.' },
                 { name: 'maxSubQueueDepth', value: 'int', default: '10000000', tip: 'The limit of message numbers for each queue of subscription executors.' },
                 { name: 'maxPubQueueDepthPerSite', value: 'int', default: '10000000', tip: 'The limit of message numbers for publishing queue to each client site.' },
-                { name: 'persistOffsetDir', value: '', default: '', tip: 'The save path that persists the consumer data offset at the subscription end.'}
-
+                { name: 'persistOffsetDir', value: '', default: '', tip: 'The save path that persists the consumer data offset at the subscription end.'},
+                { name: 'streamingHAMode', value: '', default: 'raft', tip: 'enalbe streaming raft mode'},
+                { name: 'streamingRaftGroups', value: '', default: '', tip: 'raft groups' }
             ]
         }
     ]
@@ -392,12 +393,10 @@ function ControllerConfig() {
         ruleData = [];
 
         scriptExecutor.run('loadControllerConfigs()', function (res) {
-            console.log(res);
             if (res.resultCode === '0') {
                 var confs = res.object[0].value;
                 for (var i = 0, len = configs.length; i < len; i++) {
                     for (var j = 0, jlen = confs.length; j < jlen; j++) {
-
                         var config = confs[j].split('=')
                         if (config.length !== 2) {
                             console.log('Unknown datanode config: ' + confs[i])
@@ -586,7 +585,6 @@ function ControllerConfig() {
     loadRules();
     refreshMe = loadRules;
 }
-
 
 function NodesSetup() {
     var datanodeNum = 0;
