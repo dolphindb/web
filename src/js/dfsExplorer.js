@@ -163,7 +163,7 @@ var bindGrid = function (tableJson) {
                     if (chunkRepArr.length >= 1) {
                         $(chunkRepArr).each(function (j, chunkRepItem) {
                             var arr = chunkRepItem.split(":");
-                            if (arr.length ===3 ) {
+                            if (arr.length >=3 ) {
                                 re = re + arr[0] + " [V" + arr[1] + "]";
                                 if (arr[2] === 1) {
                                     re = re + "<span class='glyphicon glyphicon-exclamation-sign' title='chunk is corrupted'></span> ";
