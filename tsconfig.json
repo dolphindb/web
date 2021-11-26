@@ -1,0 +1,83 @@
+{
+    "include": [
+        "./index.tsx",
+        "./server.ts"
+    ],
+    
+    "compilerOptions": {
+        // 关闭绝对路径引入
+        // "baseUrl": ".",
+        
+        // --- 用来控制输出文件结构
+        // "rootDir": "./lib/",
+        // "outDir": "./build/",
+        // "outFile": "",
+        
+        
+        // --- module
+        "module": "ESNext", // none, CommonJS, amd, system, umd, es6, es2015, ESNext
+        "moduleResolution": "Node",
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": false,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        
+        // --- build
+        "target": "ESNext",
+        "allowJs": false,
+        "checkJs": false,
+        "pretty": true,
+        "newLine": "lf",
+        "lib": ["ESNext", "DOM"],
+        "importHelpers": true,
+        // "watch": false
+        // "incremental": true,
+        // "tsBuildInfoFile": "./build/.tsbuildinfo",
+        
+        
+        // --- emit
+        "declaration": false,
+        "emitDeclarationOnly": false,
+        "noEmitOnError": false,
+        "listEmittedFiles": true,
+        
+        // --- source maps
+        "sourceMap": true,
+        "inlineSourceMap": false,
+        "inlineSources": false,
+        
+        // --- features
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "preserveSymlinks": true,
+        "jsx": "react",
+        "removeComments": false,
+        "preserveConstEnums": true,
+        "forceConsistentCasingInFileNames": true,
+        
+        
+        // --- type checking
+        "strict": false,
+        "alwaysStrict": false,
+        "noImplicitAny": false,
+        "noImplicitReturns": false,
+        "noImplicitThis": true,
+        "noImplicitOverride": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "skipLibCheck": true,
+    },
+    
+    // --- watch options
+    "watchOptions": {
+        "excludeDirectories": [
+            "**/node_modules",
+        ],
+        
+        "watchFile": "useFsEvents",
+        "watchDirectory": "useFsEvents",
+        
+        "fallbackPolling": "dynamicPriority"
+    }
+}
+

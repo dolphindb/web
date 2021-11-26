@@ -1,0 +1,18 @@
+{
+    "extends": "./tsconfig.json",
+    
+    "include": [
+        "./server.ts",
+        "./**/*.!(browser.)ts",
+        "./test/test.ts",
+    ],
+    
+    "exclude": [
+        "**/node_modules",
+    ],
+    
+    "compilerOptions": {
+        "incremental": true,
+        "tsBuildInfoFile": "./node_modules/.tsbuildinfo"
+    },
+}
