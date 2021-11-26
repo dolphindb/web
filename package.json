@@ -3,11 +3,11 @@
     "description": "DolphinDB console",
     "version": "0.0.1",
     "type": "module",
-    "main": "./index.js",
+    "main": "./index.tsx",
     "scripts": {
-        "start": "tsc --watch",
-        "typecheck": "tsc --noEmit",
-        "build": "tsc"
+        "compile": "tsc --project ./tsconfig.lib.json --watch",
+        "server": "node ./server.js",
+        "typecheck": "tsc --noEmit"
     },
     "engines": {
         "node": ">=17.1.0"
