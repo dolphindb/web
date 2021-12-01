@@ -5,3 +5,6 @@ node_modules
 *.d.ts
 
 /package-lock.json
+
+/i18n/scanneds.json
+/i18n/stats.json

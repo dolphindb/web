@@ -1,5 +1,5 @@
 import 'xshell/prototype.browser'
-import { concat } from 'xshell/utils.browser'
+import { concat, delay } from 'xshell/utils.browser'
 
 import { blue, yellow } from 'xshell/chalk.browser'
 
@@ -942,6 +942,28 @@ export class DdbObj <T extends DdbValue = DdbValue> {
         
         return `${blue(type)}(${ this.name ? `'${yellow(this.name)}', ` : '' }${data})\n`
     }
+    
+    
+    to_cols () {
+        return (this.value as DdbObj[]).map(col => ({
+            title: col.name,
+            dataIndex: col.name,
+        }))
+    }
+    
+    
+    to_rows () {
+        let rows = [ ]
+        for (let i = 0;  i < this.rows;  i++) {
+            let row: Record<string, any> = { }
+            for (let j = 0;  j < this.cols;  j++) {
+                const c = this.value[j]
+                row[c.name] = c.value[i]
+            }
+            rows.push(row)
+        }
+        return rows
+    }
 }
 
 
@@ -1064,8 +1086,15 @@ export let ddb = {
     
     ws: null as WebSocket,
     
-    /** little endian */
+    /** little endian (server) */
     le: true,
+    
+    /** little endian (client) */
+    le_client: Boolean(
+        new Uint8Array(
+            Uint32Array.of(1).buffer
+        )[0]
+    ),
     
     resolvers: [ ] as ((buf: Uint8Array) => void)[],
     rejectors: [ ] as ((error: Error) => void)[],
@@ -1079,7 +1108,7 @@ export let ddb = {
         
         const url = new URL(location.href)
         
-        const ws_url = `${ url.searchParams.get('tls') ? 'wss' : 'ws' }://${ url.searchParams.get('hostname') || '192.168.1.137' }:${ url.searchParams.get('port') || '8848' }/`
+        const ws_url = `${ url.searchParams.get('tls') ? 'wss' : 'ws' }://${ url.searchParams.get('hostname') || '192.168.1.137' }:${ url.searchParams.get('port') || '8848' }${url.searchParams.get('path') || '/'}`
         // const ws_url = 'ws://localhost/ddb'
         // const ws_url = 'ws://192.168.1.137:8848/'
         
@@ -1120,6 +1149,15 @@ export let ddb = {
                     if (first) {
                         first = false
                         resolve()
+                        
+                        // 疏通 server socket
+                        ;(async () => {
+                            for (;  ws.readyState === WebSocket.OPEN;) {
+                                await delay(1000)
+                                if (this.iresolver >= this.resolvers.length) continue
+                                await this.eval('1')
+                            }
+                        })()
                         return
                     }
                     
@@ -1133,7 +1171,7 @@ export let ddb = {
     
     
     /** rpc through websocket (function command) */
-    async rpc (
+    async rpc <T extends DdbObj = DdbObj> (
         type: 'script' | 'function' | 'variable',
         {
             script,
@@ -1205,7 +1243,7 @@ export let ddb = {
                                 return 'function\n' +
                                     `${func}\n` +
                                     `${args.length}\n` +
-                                    `1\n`
+                                    `${Number(this.le_client)}\n`
                                 
                             case 'script':
                                 return 'script\n' +
@@ -1215,7 +1253,7 @@ export let ddb = {
                                 return 'variable\n' +
                                     `${vars.join(',')}\n` +
                                     `${vars.length}\n` +
-                                    `1\n`
+                                    `${Number(this.le_client)}\n`
                         }
                     })()
                 )
@@ -1230,19 +1268,19 @@ export let ddb = {
                     ])
                 )
             })
-        )
+        ) as T
     },
     
     
     /** eval script through websocket (script command) */
-    async eval (script: string) {
-        return this.rpc('script', { script })
+    async eval <T extends DdbObj> (script: string) {
+        return this.rpc<T>('script', { script })
     },
     
     
     /** call function through websocket (function command) */
-    async call (func: string, args: any[] = [ ]) {
-        return this.rpc('function', { func, args })
+    async call <T extends DdbObj> (func: string, args: any[] = [ ]) {
+        return this.rpc<T>('function', { func, args })
     },
     
     
