@@ -1,3 +1,5 @@
+node_modules/
+
 # Compiled class file
 *.class
 
@@ -24,10 +26,6 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 .vscode/launch.json
-<<<<<<< HEAD
-.vscode/launch.json
-=======
->>>>>>> origin/custom-pager
 .vscode/settings.json
 .idea/workspace.xml
 .idea/vcs.xml
