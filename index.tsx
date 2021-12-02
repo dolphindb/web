@@ -4,7 +4,7 @@ import 'xshell/scroll-bar.sass'
 import 'xshell/myfont.sass'
 
 
-import { default as React, useEffect, useRef, useState } from 'react'
+import { default as React, useEffect, useRef, useState} from 'react'
 import ReactDOM from 'react-dom'
 import {
     Layout, 
@@ -114,7 +114,6 @@ function Tasks () {
     const [cjobs, set_cjobs] = useState<DdbObj<DdbObj[]>>()
     const [bjobs, set_bjobs] = useState<DdbObj<DdbObj[]>>()
     const [sjobs, set_sjobs] = useState<DdbObj<DdbObj[]>>()
-    
     const [perf, set_perf] = useState<DdbObj>()
     
     useEffect(() => {
@@ -131,15 +130,32 @@ function Tasks () {
         })()
         
         ;(async () => {
-            set_sjobs(
+            await set_sjobs(
                 await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getScheduledJobs)')
             )
+            
         })()
     }, [ ])
+
+
+    function fixScols(sjobs:DdbObj<DdbObj[]>){
+        let cols=sjobs.to_cols();
+        let index=0;
+        for(let item of cols){
+            if(item.title==='node') break
+            else index++
+        }
+        if(index){
+            let a=cols.slice(0,index)
+            let b=cols.slice(index+1,cols.length)
+            cols=[cols[index],...a,...b]
+        }
+        return cols
+    }
     
     if (!cjobs || !bjobs || !sjobs)
         return null
-        
+    
     
     return <>
         <Row className='stats' gutter={16}>
@@ -177,7 +193,7 @@ function Tasks () {
                 columns={cjobs.to_cols()}
                 dataSource={cjobs.to_rows()}
                 rowKey='rootJobId'
-                pagination={false}
+                pagination={{pageSize:5,position:['none','bottomRight']}}
             />
         </div>
         
@@ -189,7 +205,7 @@ function Tasks () {
                 columns={bjobs.to_cols()}
                 dataSource={bjobs.to_rows()}
                 rowKey='jobId'
-                pagination={false}
+                pagination={{pageSize:5,position:['none','bottomRight']}}
                 expandable={{
                     expandedRowRender (row) {
                         return 'expanded'
@@ -206,10 +222,10 @@ function Tasks () {
             
             <Table
                 bordered
-                columns={sjobs.to_cols()}
+                columns={fixScols(sjobs)}
                 dataSource={sjobs.to_rows()}
                 rowKey='jobId'
-                pagination={false}
+                pagination={{pageSize:5,position:['none','bottomRight']}}
             />
         </div>
     </>
