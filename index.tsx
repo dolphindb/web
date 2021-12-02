@@ -135,12 +135,30 @@ function Tasks () {
             set_sjobs(
                 await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getScheduledJobs)')
             )
+            
         })()
     }, [ ])
+
+
+    function fix_scols (sjobs: DdbObj<DdbObj[]>) {
+        let cols = sjobs.to_cols()
+        let index = 0
+        for (let item of cols) {
+            if (item.title === 'node') break
+            else index++
+        }
+        if (index) {
+            let a = cols.slice(0, index)
+            let b = cols.slice(index + 1, cols.length)
+            cols = [cols[index], ...a, ...b]
+        }
+        return cols
+    }
+    
     
     if (!cjobs || !bjobs || !sjobs)
         return null
-        
+    
     
     return <>
         <Row className='stats' gutter={16}>
@@ -178,7 +196,7 @@ function Tasks () {
                 columns={cjobs.to_cols()}
                 dataSource={cjobs.to_rows()}
                 rowKey='rootJobId'
-                pagination={false}
+                pagination={{ defaultPageSize: 5, position: ['none', 'bottomRight'] }}
             />
         </div>
         
@@ -190,7 +208,7 @@ function Tasks () {
                 columns={bjobs.to_cols()}
                 dataSource={bjobs.to_rows()}
                 rowKey='jobId'
-                pagination={false}
+                pagination={{ defaultPageSize: 5, position: ['none', 'bottomRight'] }}
                 expandable={{
                     expandedRowRender (row) {
                         return 'expanded'
@@ -207,15 +225,13 @@ function Tasks () {
             
             <Table
                 bordered
-                columns={sjobs.to_cols()}
+                columns={fix_scols(sjobs)}
                 dataSource={sjobs.to_rows()}
                 rowKey='jobId'
-                pagination={false}
+                pagination={{ defaultPageSize: 5, position: ['none', 'bottomRight'] }}
             />
         </div>
     </>
-    
-    
 }
 
 
