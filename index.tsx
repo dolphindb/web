@@ -135,7 +135,6 @@ function Tasks () {
             set_sjobs(
                 await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getScheduledJobs)')
             )
-            
         })()
     }, [ ])
 
@@ -158,36 +157,10 @@ function Tasks () {
     
     if (!cjobs || !bjobs || !sjobs)
         return null
-    
+        
+    const pagination = { defaultPageSize: 5, pageSizeOptions: ['5', '10', '20', '50', '100'] }
     
     return <>
-        <Row className='stats' gutter={16}>
-            <Col span={8}>
-                <Card>
-                    <Statistic
-                        title='同步作业（交互作业）'
-                        value={cjobs.rows}
-                    />
-                </Card>
-            </Col>
-            <Col span={8}>
-                <Card>
-                    <Statistic
-                        title='异步作业'
-                        value={bjobs.rows}
-                    />
-                </Card>
-            </Col>
-            <Col span={8}>
-                <Card>
-                    <Statistic
-                        title='定时作业'
-                        value={sjobs.rows}
-                    />
-                </Card>
-            </Col>
-        </Row>
-        
         <div className='cjobs'>
             <Title level={4}>同步作业 (getConsoleJobs) ({cjobs.rows})</Title>
             
@@ -196,7 +169,7 @@ function Tasks () {
                 columns={cjobs.to_cols()}
                 dataSource={cjobs.to_rows()}
                 rowKey='rootJobId'
-                pagination={{ defaultPageSize: 5, position: ['none', 'bottomRight'] }}
+                pagination={pagination}
             />
         </div>
         
@@ -208,7 +181,7 @@ function Tasks () {
                 columns={bjobs.to_cols()}
                 dataSource={bjobs.to_rows()}
                 rowKey='jobId'
-                pagination={{ defaultPageSize: 5, position: ['none', 'bottomRight'] }}
+                pagination={pagination}
                 expandable={{
                     expandedRowRender (row) {
                         return 'expanded'
@@ -228,7 +201,7 @@ function Tasks () {
                 columns={fix_scols(sjobs)}
                 dataSource={sjobs.to_rows()}
                 rowKey='jobId'
-                pagination={{ defaultPageSize: 5, position: ['none', 'bottomRight'] }}
+                pagination={pagination}
             />
         </div>
     </>
