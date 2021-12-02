@@ -14,6 +14,7 @@ import {
     Table,
     Typography,
     type TablePaginationConfig,
+    Popconfirm,
 } from 'antd'
 import { AppstoreOutlined, DatabaseOutlined, ProfileOutlined, RightSquareOutlined, TableOutlined, ReloadOutlined } from '@ant-design/icons'
 
@@ -118,7 +119,24 @@ function Jobs () {
     const [bjobs, set_bjobs] = useState<DdbObj<DdbObj[]>>()
     const [sjobs, set_sjobs] = useState<DdbObj<DdbObj[]>>()
     
-    
+
+    const getcjobs = (async () => {
+        set_cjobs(
+            await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getConsoleJobs)')
+        )
+    })
+    const getbjobs = (async () => {
+        set_bjobs(
+            await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getRecentJobs)')
+        )
+    })
+    const getsjobs = (async () => {
+        set_sjobs(
+            await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getScheduledJobs)')
+        )
+    })
+
+
     useEffect(() => {
         ;(async () => {
             set_cjobs(
@@ -140,8 +158,44 @@ function Jobs () {
     }, [refresher])
     
     
+
+
+    
+
+    function addAction (jobs : DdbObj<DdbObj[]>, func: string){
+        let cols = jobs.to_cols();
+        const action: Record<string, any> = { title: 'Action', fixed: 'right', width: 100 ,render: (_, record: { jobId?:string, rootJobId?: string }) => (
+            <Popconfirm title="Sure to delete?" onConfirm={() => {
+                const { jobId, rootJobId, ...others } = record
+                let args = []
+                
+                (async () => {
+                    await ddb.call(func, args)
+                    switch(func){
+                        case 'deleteScheduledJob':
+                            getsjobs()
+                            break
+                        case 'cancelJob':
+                            getbjobs
+                            break
+                        case 'cancelConsoleJob':
+                            getcjobs()
+                            break
+                    }
+                })()
+
+            }}>
+                <a>Cancel</a>
+            </Popconfirm>
+        ) }
+        cols.push(action)
+        return cols
+    }
+
     function fix_scols (sjobs: DdbObj<DdbObj[]>) {
-        let cols = sjobs.to_cols()
+        console.log(sjobs.to_rows())
+        let cols = addAction(sjobs, 'deleteScheduledJob')
+        console.log(cols)
         let index = 0
         for (let item of cols) {
             if (item.title === 'node') break
@@ -152,6 +206,7 @@ function Jobs () {
             let b = cols.slice(index + 1, cols.length)
             cols = [cols[index], ...a, ...b]
         }
+        
         return cols
     }
     
@@ -186,7 +241,7 @@ function Jobs () {
             
             <Table
                 bordered
-                columns={cjobs.to_cols()}
+                columns={addAction(cjobs, 'cancelConsoleJob')}
                 dataSource={cjobs.to_rows()}
                 rowKey='rootJobId'
                 pagination={pagination}
@@ -198,7 +253,7 @@ function Jobs () {
             
             <Table
                 bordered
-                columns={bjobs.to_cols()}
+                columns={addAction(bjobs, 'cancelJob')}
                 dataSource={bjobs.to_rows()}
                 rowKey='jobId'
                 pagination={pagination}
