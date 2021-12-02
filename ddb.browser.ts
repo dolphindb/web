@@ -1,3 +1,7 @@
+import type { ColumnType } from 'antd/lib/table'
+
+import dayjs from 'dayjs'
+
 import 'xshell/prototype.browser'
 import { concat, delay } from 'xshell/utils.browser'
 
@@ -945,10 +949,23 @@ export class DdbObj <T extends DdbValue = DdbValue> {
     
     
     to_cols () {
-        return (this.value as DdbObj[]).map(col => ({
-            title: col.name,
-            dataIndex: col.name,
-        }))
+        return (this.value as DdbObj[]).map(col => {
+            let col_: ColumnType<Record<string, any>> = {
+                title: col.name,
+                dataIndex: col.name,
+            }
+            
+            switch (col.type) {
+                case DdbType.timestamp:
+                    col_.render = value =>
+                        dayjs(
+                            Number(value as bigint)
+                        ).format('YYYY.MM.DD HH:mm:ss.SSS')
+                    break
+            }
+            
+            return col_
+        })
     }
     
     

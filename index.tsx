@@ -28,7 +28,6 @@ import Shell from './shell'
 import {
     ddb,
     DdbObj,
-    type DdbValue
 } from './ddb.browser'
 
 
@@ -67,7 +66,9 @@ function DolphinDB () {
         <Layout className='body'>
             <DdbSider />
             <Layout.Content className='view'>
-                <DdbContent />
+                <div className='view-card'>
+                    <DdbContent />
+                </div>
             </Layout.Content>
         </Layout>
     </Layout>
