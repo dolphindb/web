@@ -7,15 +7,15 @@ import 'xshell/myfont.sass'
 import { default as React, useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import {
+    Button,
+    Input,
     Layout, 
     Menu, 
-    Card, 
-    Statistic, 
-    Row, Col, 
     Table,
-    Typography
+    Typography,
+    type TablePaginationConfig,
 } from 'antd'
-import { AppstoreOutlined, DatabaseOutlined, ProfileOutlined, RightSquareOutlined, TableOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, DatabaseOutlined, ProfileOutlined, RightSquareOutlined, TableOutlined, ReloadOutlined } from '@ant-design/icons'
 
 
 import { delay } from 'xshell/utils.browser'
@@ -28,13 +28,13 @@ import Shell from './shell'
 import {
     ddb,
     DdbObj,
-} from './ddb.browser'
+} from './ddb.browser' 
 
 
 const { Title } = Typography
 
 class DdbModel extends Model <DdbModel> {
-    view = 'tasks' as 'overview' | 'shell' | 'tables' | 'tasks'
+    view = 'jobs' as 'overview' | 'shell' | 'tables' | 'jobs'
 }
 
 let model = new DdbModel()
@@ -91,7 +91,7 @@ function DdbSider () {
             <Menu.SubMenu key='data' title='数据' icon={<DatabaseOutlined />}>
                 <Menu.Item key='tables' icon={<TableOutlined />}>数据表</Menu.Item>
             </Menu.SubMenu>
-            <Menu.Item key='tasks' icon={<ProfileOutlined />}>任务管理</Menu.Item>
+            <Menu.Item key='jobs' icon={<ProfileOutlined />}>作业管理</Menu.Item>
         </Menu>
     </Layout.Sider>
 }
@@ -103,20 +103,21 @@ function DdbContent () {
     switch (view) {
         case 'shell':
             return <Shell />
-        case 'tasks':
-            return <Tasks />
+        case 'jobs':
+            return <Jobs />
         default:
             return null
     }
 }
 
 
-function Tasks () {
+function Jobs () {
+    const [refresher, set_refresher] = useState({ })
+    
     const [cjobs, set_cjobs] = useState<DdbObj<DdbObj[]>>()
     const [bjobs, set_bjobs] = useState<DdbObj<DdbObj[]>>()
     const [sjobs, set_sjobs] = useState<DdbObj<DdbObj[]>>()
     
-    const [perf, set_perf] = useState<DdbObj>()
     
     useEffect(() => {
         ;(async () => {
@@ -136,9 +137,9 @@ function Tasks () {
                 await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getScheduledJobs)')
             )
         })()
-    }, [ ])
-
-
+    }, [refresher])
+    
+    
     function fix_scols (sjobs: DdbObj<DdbObj[]>) {
         let cols = sjobs.to_cols()
         let index = 0
@@ -158,9 +159,28 @@ function Tasks () {
     if (!cjobs || !bjobs || !sjobs)
         return null
         
-    const pagination = { defaultPageSize: 5, pageSizeOptions: ['5', '10', '20', '50', '100'] }
+    const pagination: TablePaginationConfig = {
+        defaultPageSize: 5,
+        pageSizeOptions: ['5', '10', '20', '50', '100'],
+        size: 'small',
+        showSizeChanger: true,
+        showQuickJumper: true,
+    }
     
     return <>
+        <div className='actions'>
+            <Button
+                className='refresh'
+                icon={<ReloadOutlined/>}
+                onClick={() => { set_refresher({ }) }}
+            >{t('刷新')}</Button>
+            <Input.Search
+                className='search'
+                placeholder='输入作业 ID 或作业描述'
+                onSearch={() => { }}
+            />
+        </div>
+        
         <div className='cjobs'>
             <Title level={4}>同步作业 (getConsoleJobs) ({cjobs.rows})</Title>
             
