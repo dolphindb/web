@@ -4,7 +4,7 @@ import 'xshell/scroll-bar.sass'
 import 'xshell/myfont.sass'
 
 
-import { default as React, useEffect, useRef, useState} from 'react'
+import { default as React, useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import {
     Layout, 
@@ -28,7 +28,6 @@ import Shell from './shell'
 import {
     ddb,
     DdbObj,
-    type DdbValue
 } from './ddb.browser'
 
 
@@ -67,7 +66,9 @@ function DolphinDB () {
         <Layout className='body'>
             <DdbSider />
             <Layout.Content className='view'>
-                <DdbContent />
+                <div className='view-card'>
+                    <DdbContent />
+                </div>
             </Layout.Content>
         </Layout>
     </Layout>
@@ -114,6 +115,7 @@ function Tasks () {
     const [cjobs, set_cjobs] = useState<DdbObj<DdbObj[]>>()
     const [bjobs, set_bjobs] = useState<DdbObj<DdbObj[]>>()
     const [sjobs, set_sjobs] = useState<DdbObj<DdbObj[]>>()
+    
     const [perf, set_perf] = useState<DdbObj>()
     
     useEffect(() => {
@@ -130,7 +132,7 @@ function Tasks () {
         })()
         
         ;(async () => {
-            await set_sjobs(
+            set_sjobs(
                 await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getScheduledJobs)')
             )
             
@@ -138,20 +140,21 @@ function Tasks () {
     }, [ ])
 
 
-    function fixScols(sjobs:DdbObj<DdbObj[]>){
-        let cols=sjobs.to_cols();
-        let index=0;
-        for(let item of cols){
-            if(item.title==='node') break
+    function fix_scols (sjobs: DdbObj<DdbObj[]>) {
+        let cols = sjobs.to_cols()
+        let index = 0
+        for (let item of cols) {
+            if (item.title === 'node') break
             else index++
         }
-        if(index){
-            let a=cols.slice(0,index)
-            let b=cols.slice(index+1,cols.length)
-            cols=[cols[index],...a,...b]
+        if (index) {
+            let a = cols.slice(0, index)
+            let b = cols.slice(index + 1, cols.length)
+            cols = [cols[index], ...a, ...b]
         }
         return cols
     }
+    
     
     if (!cjobs || !bjobs || !sjobs)
         return null
@@ -193,7 +196,7 @@ function Tasks () {
                 columns={cjobs.to_cols()}
                 dataSource={cjobs.to_rows()}
                 rowKey='rootJobId'
-                pagination={{pageSize:5,position:['none','bottomRight']}}
+                pagination={{ defaultPageSize: 5, position: ['none', 'bottomRight'] }}
             />
         </div>
         
@@ -205,7 +208,7 @@ function Tasks () {
                 columns={bjobs.to_cols()}
                 dataSource={bjobs.to_rows()}
                 rowKey='jobId'
-                pagination={{pageSize:5,position:['none','bottomRight']}}
+                pagination={{ defaultPageSize: 5, position: ['none', 'bottomRight'] }}
                 expandable={{
                     expandedRowRender (row) {
                         return 'expanded'
@@ -222,15 +225,13 @@ function Tasks () {
             
             <Table
                 bordered
-                columns={fixScols(sjobs)}
+                columns={fix_scols(sjobs)}
                 dataSource={sjobs.to_rows()}
                 rowKey='jobId'
-                pagination={{pageSize:5,position:['none','bottomRight']}}
+                pagination={{ defaultPageSize: 5, position: ['none', 'bottomRight'] }}
             />
         </div>
     </>
-    
-    
 }
 
 
