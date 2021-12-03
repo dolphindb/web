@@ -16,7 +16,7 @@ import {
     type TablePaginationConfig,
     Popconfirm,
 } from 'antd'
-import { AppstoreOutlined, DatabaseOutlined, ProfileOutlined, RightSquareOutlined, TableOutlined, ReloadOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, DatabaseOutlined, ProfileOutlined, RightSquareOutlined, TableOutlined, ReloadOutlined, RadiusSettingOutlined } from '@ant-design/icons'
 
 
 import { delay } from 'xshell/utils.browser'
@@ -86,6 +86,7 @@ function DdbSider () {
             onSelect={({ key }) => {
                 model.set({ view: key as DdbModel['view'] })
             }}
+            
         >
             <Menu.Item key='overview' icon={<AppstoreOutlined />}>总览</Menu.Item>
             <Menu.Item key='shell' icon={<RightSquareOutlined />}>Shell</Menu.Item>
@@ -118,7 +119,7 @@ function Jobs () {
     const [cjobs, set_cjobs] = useState<DdbObj<DdbObj[]>>()
     const [bjobs, set_bjobs] = useState<DdbObj<DdbObj[]>>()
     const [sjobs, set_sjobs] = useState<DdbObj<DdbObj[]>>()
-    
+    const [searchValue, set_sValue] = useState('')
 
     const getcjobs = (async () => {
         set_cjobs(
@@ -136,6 +137,9 @@ function Jobs () {
         )
     })
 
+    let cjobsRows 
+    let bjobsRows 
+    let sjobsRows 
 
     useEffect(() => {
         ;(async () => {
@@ -155,10 +159,44 @@ function Jobs () {
                 await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getScheduledJobs)')
             )
         })()
+        set_sValue('')
     }, [refresher])
     
-    
+    function showTable(jobs: DdbObj<DdbObj[]>, searchValue: string, jobType: string): string{
+       let rows = getRows(jobs, searchValue, jobType)
+       switch(jobType){
+            case 'cjobs':
+                cjobsRows = rows
+                break
+            case 'bjobs':
+                bjobsRows = rows
+                break
+            case 'sjobs':
+                sjobsRows = rows
+                break 
+        }
+        if(searchValue!='' && !rows.length) return 'none'
+        else return 'block' 
+    }
 
+    function getRows(jobs: DdbObj<DdbObj[]>, searchValue: string, jobType: string){
+        let rows = jobs.to_rows()
+        if(searchValue != ''){
+            rows = rows.filter((item) => {
+                const {rootJobId, jobId, ...others} = item
+                console.log(rootJobId,jobId)
+                if(rootJobId != undefined){
+                    return rootJobId.search(searchValue) != -1? true : false
+                }
+                if(jobId != undefined){
+                    return jobId.search(searchValue) != -1? true : false
+                }
+                return false
+            })
+        }
+        console.log(rows)
+        return rows
+    }
 
     
 
@@ -167,16 +205,17 @@ function Jobs () {
         const action: Record<string, any> = { title: 'Action', fixed: 'right', width: 100 ,render: (_, record: { jobId?:string, rootJobId?: string }) => (
             <Popconfirm title="Sure to delete?" onConfirm={() => {
                 const { jobId, rootJobId, ...others } = record
-                let args = []
-                
-                (async () => {
+                let args:string[] = []
+                if(jobId != undefined) args.push(jobId)
+                if(rootJobId != undefined) args.push(rootJobId)
+                ;(async () => {
                     await ddb.call(func, args)
                     switch(func){
                         case 'deleteScheduledJob':
                             getsjobs()
                             break
                         case 'cancelJob':
-                            getbjobs
+                            getbjobs()
                             break
                         case 'cancelConsoleJob':
                             getcjobs()
@@ -193,9 +232,7 @@ function Jobs () {
     }
 
     function fix_scols (sjobs: DdbObj<DdbObj[]>) {
-        console.log(sjobs.to_rows())
         let cols = addAction(sjobs, 'deleteScheduledJob')
-        console.log(cols)
         let index = 0
         for (let item of cols) {
             if (item.title === 'node') break
@@ -232,29 +269,32 @@ function Jobs () {
             <Input.Search
                 className='search'
                 placeholder='输入作业 ID 或作业描述'
-                onSearch={() => { }}
+                onSearch={(value) => { 
+                    console.log(value)
+                    set_sValue(value)
+                }}
             />
         </div>
         
-        <div className='cjobs'>
-            <Title level={4}>同步作业 (getConsoleJobs) ({cjobs.rows})</Title>
+        <div className='cjobs' style={{display: showTable(cjobs, searchValue, 'cjobs')}}>
+            <Title level={4}>同步作业 (getConsol eJobs) ({cjobs.rows})</Title>
             
             <Table
                 bordered
                 columns={addAction(cjobs, 'cancelConsoleJob')}
-                dataSource={cjobs.to_rows()}
+                dataSource={cjobsRows}
                 rowKey='rootJobId'
                 pagination={pagination}
             />
         </div>
         
-        <div className='bjobs'>
+        <div className='bjobs' style={{display: showTable(bjobs, searchValue, 'bjobs')}}>
             <Title level={4}>异步作业 (getRecentJobs) ({bjobs.rows})</Title>
             
             <Table
                 bordered
                 columns={addAction(bjobs, 'cancelJob')}
-                dataSource={bjobs.to_rows()}
+                dataSource={bjobsRows}
                 rowKey='jobId'
                 pagination={pagination}
                 expandable={{
@@ -268,13 +308,13 @@ function Jobs () {
             />
         </div>
         
-        <div className='sjobs'>
+        <div className='sjobs' style={{display: showTable(sjobs, searchValue, 'sjobs')}}>
             <Title level={4}>定时作业 (getScheduledJobs) ({sjobs.rows})</Title>
             
             <Table
                 bordered
                 columns={fix_scols(sjobs)}
-                dataSource={sjobs.to_rows()}
+                dataSource={sjobsRows}
                 rowKey='jobId'
                 pagination={pagination}
             />
