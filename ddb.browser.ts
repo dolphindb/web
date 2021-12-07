@@ -68,6 +68,13 @@ export type DdbValue = null | boolean | number | [number, number] | bigint | str
 export type DdbVectorValue = string | string[] | Uint8Array | Int16Array | Int32Array | Float32Array | Float64Array | BigInt64Array | Uint8Array[] | DdbObj[]
 
 
+export const nulls = {
+    char: '\x80',
+    int16: -0x80_00,  // -32768
+    int32: -0x80_00_00_00,  // -21_4748_3648
+    int64: -0x80_00_00_00_00_00_00_00n,  // -922_3372_0368_5477_5808
+} as const
+
 export class DdbObj <T extends DdbValue = DdbValue> {
     static dec = new TextDecoder('utf-8')
     
@@ -957,10 +964,29 @@ export class DdbObj <T extends DdbValue = DdbValue> {
             
             switch (col.type) {
                 case DdbType.timestamp:
-                    col_.render = value =>
-                        dayjs(
-                            Number(value as bigint)
+                    col_.render = (value: bigint) => {
+                        if (value === nulls.int64)
+                            return ''
+                        
+                        return dayjs(
+                            Number(value)
                         ).format('YYYY.MM.DD HH:mm:ss.SSS')
+                    }
+                    break
+                    
+                case DdbType.date:
+                    col_.render = (value: number) => {
+                        if (value === nulls.int32)
+                            return ''
+                        return dayjs(
+                            Number(1000 * 3600 * 24 * value)
+                        ).format('YYYY.MM.DD')
+                    }
+                    break
+                    
+                case DdbType.ipaddr:
+                    col_.render = value =>
+                        (value as Uint8Array).slice().reverse().join('.').replace(/^(0\.)+/, '')
                     break
             }
             
@@ -974,7 +1000,13 @@ export class DdbObj <T extends DdbValue = DdbValue> {
         for (let i = 0;  i < this.rows;  i++) {
             let row: Record<string, any> = { }
             for (let j = 0;  j < this.cols;  j++) {
-                const c = this.value[j]
+                const c: DdbObj = this.value[j]
+                
+                if (c.type === DdbType.ipaddr) {
+                    row[c.name] = (c.value as Uint8Array).subarray(16 * i, 16 * (i + 1))
+                    continue
+                }
+                
                 row[c.name] = c.value[i]
             }
             rows.push(row)
@@ -1125,7 +1157,7 @@ export let ddb = {
         
         const url = new URL(location.href)
         
-        const ws_url = `${ url.searchParams.get('tls') ? 'wss' : 'ws' }://${ url.searchParams.get('hostname') || '192.168.1.137' }:${ url.searchParams.get('port') || '8848' }${url.searchParams.get('path') || '/'}`
+        const ws_url = `${ url.searchParams.get('tls') ? 'wss' : 'ws' }://${ url.searchParams.get('hostname') || '115.239.209.253' }:${ url.searchParams.get('port') || '51720' }${url.searchParams.get('path') || '/'}`
         // const ws_url = 'ws://localhost/ddb'
         // const ws_url = 'ws://192.168.1.137:8848/'
         
@@ -1150,6 +1182,10 @@ export let ddb = {
         
         ws.addEventListener('close', ev => {
             console.log('ws closed', ev)
+            // 自动重连
+            // delay(5000).then(() => {
+            //     this.connect()
+            // })
         })
         
         ws.addEventListener('error', ev => {
@@ -1187,7 +1223,12 @@ export let ddb = {
     },
     
     
-    /** rpc through websocket (function command) */
+    /** rpc through websocket (function command)
+        - type: API 类型: 'script' | 'function' | 'variable'
+        - options:
+            - urgent?: 决定 `行为标识` 那一行字符串的取值（只适用于 script 和 funciton）
+            - vars?: type === 'variable' 时必传，variable 指令中待上传的变量名
+    */
     async rpc <T extends DdbObj = DdbObj> (
         type: 'script' | 'function' | 'variable',
         {
@@ -1195,16 +1236,19 @@ export let ddb = {
             func,
             args = [ ],
             vars = [ ],
+            urgent,
         }: {
             script?: string
             func?: string
             args?: any[]
-            
-            /** variable 指令中待上传的变量名 */
             vars?: string[]
+            urgent?: boolean
     }) {
         if (!this.ws)
             await this.connect()
+        
+        if (urgent && type !== 'script' && type !== 'function')
+            throw new Error('urgent 只适用于 script 和 funciton')
         
         // 转换 args 参数为 DdbObj[]
         for (let i = 0;  i < args.length;  i++) {
@@ -1277,7 +1321,9 @@ export let ddb = {
                 
                 this.ws.send(
                     concat([
-                        this.enc.encode(`API ${this.sid} ${command.length}\n`),
+                        this.enc.encode(
+                            `API ${this.sid} ${command.length}${ urgent ? ` / 1_1_8_8` : '' }\n`
+                        ),
                         command,
                         ... args.map(arg => 
                             arg.pack()
@@ -1290,14 +1336,21 @@ export let ddb = {
     
     
     /** eval script through websocket (script command) */
-    async eval <T extends DdbObj> (script: string) {
-        return this.rpc<T>('script', { script })
+    async eval <T extends DdbObj> (
+        script: string,
+        { urgent }: { urgent?: boolean } = { }
+    ) {
+        return this.rpc<T>('script', { script, urgent })
     },
     
     
     /** call function through websocket (function command) */
-    async call <T extends DdbObj> (func: string, args: any[] = [ ]) {
-        return this.rpc<T>('function', { func, args })
+    async call <T extends DdbObj> (
+        func: string,
+        args: any[] = [ ],
+        { urgent }: { urgent?: boolean } = { }
+    ) {
+        return this.rpc<T>('function', { func, args, urgent })
     },
     
     
