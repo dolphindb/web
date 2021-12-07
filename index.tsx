@@ -13,10 +13,15 @@ import {
     Menu, 
     Table,
     Typography,
+    message,
     type TablePaginationConfig,
     Popconfirm,
 } from 'antd'
-import { AppstoreOutlined, DatabaseOutlined, ProfileOutlined, RightSquareOutlined, TableOutlined, ReloadOutlined, RadiusSettingOutlined } from '@ant-design/icons'
+
+
+import type { ColumnType } from 'antd/lib/table'
+import type { BaseType } from 'antd/lib/typography/Base'
+import { AppstoreOutlined, DatabaseOutlined, ProfileOutlined, RightSquareOutlined, TableOutlined, ReloadOutlined } from '@ant-design/icons'
 
 
 import { delay } from 'xshell/utils.browser'
@@ -29,10 +34,11 @@ import Shell from './shell'
 import {
     ddb,
     DdbObj,
+    nulls,
 } from './ddb.browser' 
 
 
-const { Title } = Typography
+const { Title, Text, Link } = Typography
 
 class DdbModel extends Model <DdbModel> {
     view = 'jobs' as 'overview' | 'shell' | 'tables' | 'jobs'
@@ -49,7 +55,7 @@ function DolphinDB () {
             console.log(t('添加', { language: 'en' }))
             
             await ddb.connect()
-            await ddb.call('login', ['admin', '123456'])
+            await ddb.call('login', ['admin', '123456'], { urgent: true })
             set_connected(true)
         })()
     }, [ ])
@@ -119,48 +125,8 @@ function Jobs () {
     const [cjobs, set_cjobs] = useState<DdbObj<DdbObj[]>>()
     const [bjobs, set_bjobs] = useState<DdbObj<DdbObj[]>>()
     const [sjobs, set_sjobs] = useState<DdbObj<DdbObj[]>>()
-    const [searchValue, set_sValue] = useState('')
 
-    const getcjobs = (async () => {
-        set_cjobs(
-            await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getConsoleJobs)')
-        )
-    })
-    const getbjobs = (async () => {
-        set_bjobs(
-            await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getRecentJobs)')
-        )
-    })
-    const getsjobs = (async () => {
-        set_sjobs(
-            await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getScheduledJobs)')
-        )
-    })
-
-    let cjobsRows 
-    let bjobsRows 
-    let sjobsRows 
-
-    useEffect(() => {
-        ;(async () => {
-            set_cjobs(
-                await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getConsoleJobs)')
-            )
-        })()
-        
-        ;(async () => {
-            set_bjobs(
-                await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getRecentJobs)')
-            )
-        })()
-        
-        ;(async () => {
-            set_sjobs(
-                await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getScheduledJobs)')
-            )
-        })()
-        set_sValue('')
-    }, [refresher])
+    const [query, set_query] = useState('')
     
 
     function getRows(jobs: DdbObj<DdbObj[]>, searchValue: string, jobType: string){
@@ -189,58 +155,30 @@ function Jobs () {
     }
 
     
-
-    function addAction (jobs : DdbObj<DdbObj[]>, func: string){
-        let cols = jobs.to_cols();
-        const action: Record<string, any> = { title: 'Action', fixed: 'right', width: 100 ,render: (_, record: { jobId?:string, rootJobId?: string }) => (
-            <Popconfirm title="Sure to delete?" onConfirm={() => {
-                const { jobId, rootJobId, ...others } = record
-                let args:string[] = []
-                if(jobId != undefined) args.push(jobId)
-                if(rootJobId != undefined) args.push(rootJobId)
-                ;(async () => {
-                    await ddb.call(func, args)
-                    switch(func){
-                        case 'deleteScheduledJob':
-                            getsjobs()
-                            break
-                        case 'cancelJob':
-                            getbjobs()
-                            break
-                        case 'cancelConsoleJob':
-                            getcjobs()
-                            break
-                    }
-                })()
-
-            }}>
-                <a>Cancel</a>
-            </Popconfirm>
-        ) }
-        cols.push(action)
-        return cols
-    }
-
-    function fix_scols (sjobs: DdbObj<DdbObj[]>) {
-        let cols = addAction(sjobs, 'deleteScheduledJob')
-        let index = 0
-        for (let item of cols) {
-            if (item.title === 'node') break
-            else index++
-        }
-        if (index) {
-            let a = cols.slice(0, index)
-            let b = cols.slice(index + 1, cols.length)
-            cols = [cols[index], ...a, ...b]
-        }
-        
-        return cols
+    async function get_cjobs () {
+        set_cjobs(
+            await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getConsoleJobs)', { urgent: true })
+        )
     }
     
+    async function get_bjobs () {
+        set_bjobs(
+            await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getRecentJobs)', { urgent: true })
+        )
+    }
     
-    if (!cjobs || !bjobs || !sjobs)
-        return null
-        
+    async function get_sjobs () {
+        set_sjobs(
+            await ddb.eval<DdbObj<DdbObj[]>>('pnodeRun(getScheduledJobs)', { urgent: true })
+        )
+    }
+    
+    useEffect(() => {
+        get_cjobs()
+        get_bjobs()
+        get_sjobs()
+    }, [refresher])
+    
     const pagination: TablePaginationConfig = {
         defaultPageSize: 5,
         pageSizeOptions: ['5', '10', '20', '50', '100'],
@@ -249,66 +187,100 @@ function Jobs () {
         showQuickJumper: true,
     }
     
-    cjobsRows = getRows(cjobs, searchValue, 'cjobs')
-    bjobsRows = getRows(bjobs, searchValue, 'bjobs')
-    sjobsRows = getRows(sjobs, searchValue, 'sjobs')
 
+    if (!cjobs || !bjobs || !sjobs)
+        return null
+    
+    const cjob_rows = filter_job_rows(
+        cjobs.to_rows(),
+        query
+    )
+    
+    const bjob_rows = filter_job_rows(
+        bjobs.to_rows()
+            .map(compute_status_info),
+        query
+    )
+    
+    const sjob_rows = filter_job_rows(
+        sjobs.to_rows(),
+        query
+    )
+    
     return <>
         <div className='actions'>
             <Button
                 className='refresh'
                 icon={<ReloadOutlined/>}
-                onClick={() => { set_refresher({ }) }}
+                onClick={() => {
+                    set_refresher({ })
+                }}
             >{t('刷新')}</Button>
             <Input.Search
                 className='search'
-                placeholder='输入作业 ID 或作业描述'
-                onSearch={(value) => { 
-                    console.log(value)
-                    set_sValue(value)
+                placeholder='输入关键字搜索'
+                onSearch={ value => {
+                    set_query(value)
                 }}
             />
         </div>
         
-        <div className='cjobs' style={{display: searchValue !== '' && !cjobsRows.length? 'none' : 'block'}}>
-            <Title level={4}>同步作业 (getConsol eJobs) ({cjobs.rows})</Title>
+
+        <div className='cjobs' style={{ display: cjob_rows.length ? 'block' : 'none' }}>
+            <Title level={4}>{t('同步作业')} (getConsoleJobs) ({cjob_rows.length})</Title>
             
             <Table
-                bordered
-                columns={addAction(cjobs, 'cancelConsoleJob')}
-                dataSource={cjobsRows}
+                columns={
+                    append_action_col(
+                        cjobs.to_cols(),
+                        async ({ rootJobId }) => {
+                            await ddb.call('cancelConsoleJob', [rootJobId], { urgent: true })
+                            await get_cjobs()
+                        }
+                    )
+                }
+                dataSource={cjob_rows}
                 rowKey='rootJobId'
                 pagination={pagination}
             />
         </div>
         
-        <div className='bjobs' style={{display:  searchValue !== '' && !bjobsRows.length? 'none' : 'block'}}>
-            <Title level={4}>异步作业 (getRecentJobs) ({bjobs.rows})</Title>
+
+        <div className='bjobs' style={{ display: bjob_rows.length ? 'block' : 'none' }}>
+            <Title level={4}>{t('异步作业')} (getRecentJobs) ({bjob_rows.length})</Title>
             
             <Table
-                bordered
-                columns={addAction(bjobs, 'cancelJob')}
-                dataSource={bjobsRows}
+                columns={
+                    add_status_col(
+                        append_action_col(
+                            bjobs.to_cols(),
+                            async ({ jobId }) => {
+                                await ddb.call('cancelJob', [jobId], { urgent: true })
+                                await get_bjobs()
+                            }
+                        )
+                    )
+                }
+                dataSource={bjob_rows}
                 rowKey='jobId'
                 pagination={pagination}
-                expandable={{
-                    expandedRowRender (row) {
-                        return 'expanded'
-                    },
-                    rowExpandable () {
-                        return true
-                    },
-                }}
             />
         </div>
         
-        <div className='sjobs' style={{display:  searchValue !== '' && !sjobsRows.length? 'none' : 'block'}}>
-            <Title level={4}>定时作业 (getScheduledJobs) ({sjobs.rows})</Title>
+        <div className='sjobs' style={{ display: sjob_rows.length ? 'block' : 'none' }}>
+            <Title level={4}>{t('定时作业')} (getScheduledJobs) ({sjob_rows.length})</Title>
             
             <Table
-                bordered
-                columns={fix_scols(sjobs)}
-                dataSource={sjobsRows}
+                columns={
+                    append_action_col(
+                        fix_scols(sjobs),
+                        async ({ jobId }) => {
+                            await ddb.call('deleteScheduledJob', [jobId], { urgent: true })
+                            await get_sjobs()
+                        }
+                    )
+                }
+                dataSource={sjobs.to_rows()}
                 rowKey='jobId'
                 pagination={pagination}
             />
@@ -316,5 +288,134 @@ function Jobs () {
     </>
 }
 
+
+function fix_scols (sjobs: DdbObj<DdbObj[]>) {
+    let cols = sjobs.to_cols()
+    let index = 0
+    for (let item of cols) {
+        if (item.title === 'node') break
+        else index++
+    }
+    if (index) {
+        let a = cols.slice(0, index)
+        let b = cols.slice(index + 1, cols.length)
+        cols = [cols[index], ...a, ...b]
+    }
+    return cols
+}
+
+function append_action_col (
+    cols: ColumnType<Job>[],
+    cancel: (record: { jobId?: string, rootJobId?: string }) => any
+) {
+    cols.push(
+        {
+            title: 'action',
+            render: (value, job) => (
+                <Popconfirm
+                    title={t('确认取消作业')}
+                    onConfirm={async () => {
+                        try {
+                            await cancel(job)
+                            message.success(t('取消作业成功'))
+                        } catch (error) {
+                            message.error(error.message)
+                        }
+                    }}
+                >
+                    <Link disabled={job.status && job.status !== 'queuing' && job.status !== 'running'}>{t('取消')}</Link>
+                </Popconfirm>
+            )
+        }
+    )
+    
+    return cols
+}
+
+
+/**
+    异步作业更清晰的展示作业状态（根据 receivedTime, startTime, endTime 展示），增加 status 列，放到 jobDesc 后面
+    - 如果无 startTime 说明还未开始 -> 排队中 (queuing) 黑色
+    - 如果有 endTime 说明已完成 -> 已完成 (completed)  绿色 success
+    - 有 startTime 无 endTime -> 执行中 (running)  黄色 warning
+    - 有 errorMsg -> 出错了 (error)  红色 danger
+ */
+function add_status_col (
+    cols: ColumnType<Job>[]
+) {
+    const i_priority = cols.findIndex(col => 
+        col.title === 'priority')
+    
+    const col_status: ColumnType<Job> = {
+        title: 'status',
+        key: 'status',
+        render: (value, job) => 
+            <Text type={job.theme}>{job.status}</Text>
+    }
+    
+    cols.splice(i_priority, 0, col_status)
+    
+    return cols
+}
+
+
+function filter_job_rows (jobs: Job[], query: string) {
+    return jobs.filter(({ jobId, rootJobId, desc, jobDesc, status, node, userId, userID }) =>
+        !query ||
+        (jobId || rootJobId)?.includes(query) || 
+        (desc || jobDesc)?.includes(query) ||
+        status?.includes(query) ||
+        node?.includes(query) ||
+        (userId || userID)?.includes(query)
+    )
+}
+
+function compute_status_info (job: Job) {
+    const { startTime, endTime, errorMsg } = job
+    
+    if (startTime === nulls.int64) {
+        job.status = 'queuing'
+        return job
+    }
+    
+    if (errorMsg) {
+        job.status = 'error'
+        job.theme = 'danger'
+        return job
+    }
+    
+    if (endTime === nulls.int64) {
+        job.status = 'running'
+        job.theme = 'warning'
+        return job
+    }
+    
+    job.status = 'completed'
+    job.theme = 'success'
+    
+    return job
+}
+
+
+interface Job {
+    startTime?: bigint
+    endTime?: bigint
+    errorMsg?: string
+    
+    jobId?: string
+    rootJobId?: string
+    
+    jobDesc?: string
+    desc?: string
+    
+    node?: string
+    
+    userId?: string
+    userID?: string
+    
+    // -- computed
+    status: 'queuing' | 'error' | 'running' | 'completed'
+    theme: BaseType
+}
 
 ReactDOM.render(<DolphinDB/>, document.querySelector('.root'))
