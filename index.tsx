@@ -162,36 +162,26 @@ function Jobs () {
         set_sValue('')
     }, [refresher])
     
-    function showTable(jobs: DdbObj<DdbObj[]>, searchValue: string, jobType: string): string{
-       let rows = getRows(jobs, searchValue, jobType)
-       switch(jobType){
-            case 'cjobs':
-                cjobsRows = rows
-                break
-            case 'bjobs':
-                bjobsRows = rows
-                break
-            case 'sjobs':
-                sjobsRows = rows
-                break 
-        }
-        if(searchValue!='' && !rows.length) return 'none'
-        else return 'block' 
-    }
 
     function getRows(jobs: DdbObj<DdbObj[]>, searchValue: string, jobType: string){
         let rows = jobs.to_rows()
         if(searchValue != ''){
             rows = rows.filter((item) => {
-                const {rootJobId, jobId, ...others} = item
-                console.log(rootJobId,jobId)
-                if(rootJobId != undefined){
-                    return rootJobId.search(searchValue) != -1? true : false
+                const {rootJobId, jobId, desc, jobDesc} = item
+                let flag = false
+                if(rootJobId !== undefined){
+                    flag = flag || rootJobId.includes(searchValue) ? true : false
                 }
-                if(jobId != undefined){
-                    return jobId.search(searchValue) != -1? true : false
+                if(desc !== undefined){
+                    flag = flag || desc.includes(searchValue) ? true : false
                 }
-                return false
+                if(jobId !== undefined){
+                    flag = flag || jobId.includes(searchValue) ? true : false
+                }
+                if(jobDesc !== undefined){
+                    flag = flag || jobDesc.includes(searchValue) ? true : false
+                }
+                return flag
             })
         }
         console.log(rows)
@@ -259,6 +249,10 @@ function Jobs () {
         showQuickJumper: true,
     }
     
+    cjobsRows = getRows(cjobs, searchValue, 'cjobs')
+    bjobsRows = getRows(bjobs, searchValue, 'bjobs')
+    sjobsRows = getRows(sjobs, searchValue, 'sjobs')
+
     return <>
         <div className='actions'>
             <Button
@@ -276,7 +270,7 @@ function Jobs () {
             />
         </div>
         
-        <div className='cjobs' style={{display: showTable(cjobs, searchValue, 'cjobs')}}>
+        <div className='cjobs' style={{display: searchValue !== '' && !cjobsRows.length? 'none' : 'block'}}>
             <Title level={4}>同步作业 (getConsol eJobs) ({cjobs.rows})</Title>
             
             <Table
@@ -288,7 +282,7 @@ function Jobs () {
             />
         </div>
         
-        <div className='bjobs' style={{display: showTable(bjobs, searchValue, 'bjobs')}}>
+        <div className='bjobs' style={{display:  searchValue !== '' && !bjobsRows.length? 'none' : 'block'}}>
             <Title level={4}>异步作业 (getRecentJobs) ({bjobs.rows})</Title>
             
             <Table
@@ -308,7 +302,7 @@ function Jobs () {
             />
         </div>
         
-        <div className='sjobs' style={{display: showTable(sjobs, searchValue, 'sjobs')}}>
+        <div className='sjobs' style={{display:  searchValue !== '' && !sjobsRows.length? 'none' : 'block'}}>
             <Title level={4}>定时作业 (getScheduledJobs) ({sjobs.rows})</Title>
             
             <Table

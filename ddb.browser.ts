@@ -6,6 +6,7 @@ import 'xshell/prototype.browser'
 import { concat, delay } from 'xshell/utils.browser'
 
 import { blue, yellow } from 'xshell/chalk.browser'
+import { ConsoleSqlOutlined } from '@ant-design/icons'
 
 export enum DdbForm {
     scalar = 0,
@@ -184,6 +185,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                     buf_data.subarray(8, i_name_tail)
                 )
                 
+           
                 const i_items_start = i_name_tail + 1
                 
                 const [len_items, colnames] = this.parse_vector_items(
