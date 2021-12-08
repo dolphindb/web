@@ -1,4 +1,6 @@
 node_modules/
+/i18n/scanneds.json
+/i18n/stats.json
 
 # Compiled class file
 *.class
