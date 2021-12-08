@@ -50,3 +50,5 @@ src/.vs/slnx.sqlite
 *.sqlite
 *.sqlite
 src/.vscode/tasks.json
+
+node_modules/
