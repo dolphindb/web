@@ -19,7 +19,7 @@ function DatanodeConfig() {
             configs: [
                 { name: 'jobLogFile', value: '', default: 'nodeAlias_job.log', tip: 'The path and name of the job log file that contains descriptive information of all the queries that have been executed for each node. It must be a csv file. The default folder for the job log file is the log folder. The default name of the job log file is nodeAlias_job.log.' },
                 { name: 'logFile', value: '', default: 'DolphinDBlog', tip: 'The path and name of the log file'},
-                { name: 'logLevel', value: '', default: 'INFO', tip: 'The retention hierarchy of log files.'},
+                { name: 'logLevel', value: ['DEBUG', 'INFO', 'WARNING', 'ERROR'], default: '= INFO', tip: 'The retention hierarchy of log files.' },
                 { name: 'redoLogPurgeInterval', value: 'int', default: '30', tip: ' The time interval (s) for deleting redo logs.'},
                 { name: 'redoLogPurgeLimit', value: 'int', default: '4000', tip: 'The maximum amount of disk space (MB) used by redo logs.'},
                 { name: 'maxLogSize', value: [100, 1024], default: '1024', tip: 'When the log file reaches a specified level (MB), the log file will be archived.'},
@@ -43,12 +43,11 @@ function DatanodeConfig() {
                 { name: 'lanCluster', value: 'int', default: '= 0', tip: '' },
                 { name: 'maxPartitionNumPerQuery', value: 'int', default: '= 65536', tip: '' },
                 { name: 'newValuePartitionPolicy', value: ['add', 'skip', 'fail'], default: '= skip', tip: '' },
-                { name: 'logLevel', value: ['DEBUG', 'INFO', 'WARNING', 'ERROR'], default: '= INFO', tip: '' },
                 { name: 'redoLogPurgeInterval', value: '', default: '= 10', tip: '' },
                 { name: 'redoLogPurgeLimit', value: '', default: '= 4000', tip: '' },
                 { name: 'maxLogSize', value: '', default: '= 1024', tip: '' },
                 { name: 'chunkCacheEngineMemSize', value: 'int', default: '0', tip: 'The volume (GB) of cache engine.'},
-                { name: 'memoryReleaseRate', value: 'float', default: '5', tip: 'The rate at which unused memory is released to the operating system is a floating-point number between 0 and 10.'},
+                { name: 'memoryReleaseRate', value: '', default: '5', tip: 'The rate at which unused memory is released to the operating system is a floating-point number between 0 and 10.'},
                 { name: 'warningMemSize', value: '', default: '', tip: 'When the memory usage exceeds warningmemsize (in GB), the system will automatically clean up the cache of some databases to avoid OOM exceptions.'},
                 { name: 'enableHTTPS', value: [0, 1], default: 1, tip: 'Enable HTTPS security protocol.'},
                 { name: 'localSite', value: '', default: '', tip: 'The LAN information of the node in the format of host:port:alias.'},
@@ -97,6 +96,7 @@ function DatanodeConfig() {
                 { name: 'persistOffsetDir', value: '', default: '', tip: 'The save path that persists the consumer data offset at the subscription end.'},
                 { name: 'streamingHAMode', value: '', default: 'raft', tip: 'enalbe streaming raft mode'},
                 { name: 'streamingRaftGroups', value: '', default: '', tip: 'raft groups' }
+
             ]
         }
     ]
@@ -122,6 +122,7 @@ function DatanodeConfig() {
         ruleData = [];
 
         scriptExecutor.run('loadClusterNodesConfigs()', function (res) {
+            console.log(res);
             if (res.resultCode === '0') {
                 var confs = res.object[0].value;
                 for (var i = 0, len = confs.length; i < len; i++) {
@@ -258,6 +259,7 @@ function DatanodeConfig() {
                 })
             }
             if (ruleValue) {
+                console.log(ruleValueContent);
                 ruleValueContent.val(ruleValue);
             }
             ruleValueContent.change(function () {
@@ -393,10 +395,12 @@ function ControllerConfig() {
         ruleData = [];
 
         scriptExecutor.run('loadControllerConfigs()', function (res) {
+            console.log(res);
             if (res.resultCode === '0') {
                 var confs = res.object[0].value;
                 for (var i = 0, len = configs.length; i < len; i++) {
                     for (var j = 0, jlen = confs.length; j < jlen; j++) {
+
                         var config = confs[j].split('=')
                         if (config.length !== 2) {
                             console.log('Unknown datanode config: ' + confs[i])

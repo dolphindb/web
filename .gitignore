@@ -1,3 +1,7 @@
+node_modules/
+/i18n/scanneds.json
+/i18n/stats.json
+
 # Compiled class file
 *.class
 
@@ -24,10 +28,6 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 .vscode/launch.json
-<<<<<<< HEAD
-.vscode/launch.json
-=======
->>>>>>> origin/custom-pager
 .vscode/settings.json
 .idea/workspace.xml
 .idea/vcs.xml
@@ -50,5 +50,3 @@ src/.vs/slnx.sqlite
 *.sqlite
 *.sqlite
 src/.vscode/tasks.json
-
-node_modules/
