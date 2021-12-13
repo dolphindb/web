@@ -19,11 +19,18 @@ html, body
         line-height: 50px
         background: #262f3e
         
+        display: flex
+        
+        
         .logo
             display: flex
+            
+            flex: 1
+            
             align-items: center
             
             user-select: none
+            
             
             img
                 width: 22px
@@ -34,7 +41,15 @@ html, body
                 font-weight: bold
                 margin-left: 16px
                 font-size: 16px
-            
+        
+        .user
+            .avatar
+                background-color: #666666
+                
+            .username
+                color: #eeeeee
+                font-size: 14px
+        
     .body
         height: 100%
         
@@ -85,19 +100,16 @@ html, body
             
             background-color: #f0f2f5
             
+            display: flex
+            
+            flex-direction: column
+            
             .view-card
                 margin: 20px
                 
                 padding: 20px
                 
                 background-color: #ffffff
-                
-            .actions
-                margin-bottom: 20px
-                
-                display: flex
-                
-                .search
-                    margin-left: 20px
-                
+            
+            
     

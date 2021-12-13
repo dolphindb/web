@@ -477,20 +477,17 @@ ControllerServer.prototype = {
     },
     getCurrentUser: function () {
         var guestUser = { userId: "guest", isAdmin: false };
-        var cache = localStorage.getItem("DolphinDB_CurrentUsername");
-        if (cache && cache != "") {
-            var user = JSON.parse(cache);
-            if (user) {
-                var re = this.exec.runSync("getUserAccess()");
-                if (re.resultCode === "0") {
-                    var reTb = new DolphinEntity(re).toTable();
-                    var admin = reTb[0].isAdmin;
-                    return { userId: reTb[0].userId, isAdmin: admin };
-                }
-                return guestUser;
-            }
+        var username = localStorage.getItem('ddb.username');
+        if (!username || username === 'guest')
+            return guestUser
+        
+        var re = this.exec.runSync("getUserAccess()");
+        if (re.resultCode === "0") {
+            var reTb = new DolphinEntity(re).toTable();
+            var admin = reTb[0].isAdmin;
+            return { userId: reTb[0].userId, isAdmin: admin };
         }
-        return guestUser
+        return guestUser;
     },
     grant: function (id, permisionType, objs, callback) {
         var p = {

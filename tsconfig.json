@@ -1,7 +1,8 @@
 {
     "include": [
         "./index.tsx",
-        "./server.ts"
+        "./server.ts",
+        "./build.ts"
     ],
     
     "compilerOptions": {

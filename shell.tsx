@@ -93,10 +93,10 @@ export function Shell () {
         })()
     }, [ ])
     
-    return <div className='shell'>
+    return <>
         <div className='term' ref={rterminal} />
         <Editor />
-    </div>
+    </>
 }
 
 const default_code = '' as const

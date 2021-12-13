@@ -20,7 +20,24 @@ $(document).ready(function () {
     }
     //var leaderUrl = GetFullUrl(controller.getLeaderUrl());
     //if(leaderUrl!=wa_url) window.location.href = leaderUrl;
+    
+    const ticket = localStorage.getItem('ddb.ticket')
+    
+    if (ticket)
+        CallWebApiSync(wa_url, {
+            "sessionID": localStorage.getItem('ddb.session_id') || '0',
+            "functionName": "authenticateByTicket",
+            "params": [{
+                "name": "ticket",
+                "form": "scalar",
+                "type": "string",
+                "value": ticket
+            }]
+        })
+    
     var currentUser = controller.getCurrentUser();
+    console.log('iframe.user', currentUser.userId)
+    
     if (currentUser.userId == "guest") {
         $("#btnLogin").show();
         $("#btnLogout").hide();
@@ -250,15 +267,13 @@ function LoadTable(nodeList) {
             remind: 'node name',
             sorting: '',
             template: function (site, rowObject) {
-                if (rowObject.state === 1) {
-                    var nodeManager = new ClusterNodeManager();
-                    var nodeHost = nodeManager.getNodeApiUrl(rowObject.name);
-                    var nodeUrl = GetFullUrl(nodeHost + ':' + rowObject.port + '/nodedetail.html?alias=' + rowObject.name + '&site=' + nodeManager.getControllerSite());
-                    r = '<a href="###" class="a-link" onclick=javascript:openNodebook("' + nodeUrl + '");>' + rowObject.name + '</a>';
-                    return r;
-                } else {
-                    return rowObject.name;
-                }
+                if (rowObject.state !== 1)
+                    return rowObject.name
+                
+                var nodeManager = new ClusterNodeManager()
+                var nodeHost = nodeManager.getNodeApiUrl(rowObject.name)
+                var nodeUrl = GetFullUrl(`${nodeHost}:${rowObject.port}/index.html?alias=${rowObject.name}&site=${nodeManager.getControllerSite()}`)
+                return `<a class="a-link" href="${nodeUrl}" target="_blank">${rowObject.name}</a>`
             },
             sortFilter: function (d) {
                 return d.split(':')[2];
@@ -604,7 +619,7 @@ function LoadTable(nodeList) {
 
 function openNodebook(url) {
     var win = window.open(url);
-    win.name = localStorage.getItem("dolphindb_ticket");
+    win.name = localStorage.getItem("ddb.ticket");
 }
 
 function refreshGrid(nodeList) {

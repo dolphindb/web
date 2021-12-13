@@ -33,8 +33,10 @@
 
 body {
     position: relative;
+    
     /* For scrollyspy */
-    padding-top: 50px;
+    /* padding-top: 50px; */
+    
     /* Account for fixed navbar */
 }
 
@@ -417,7 +419,7 @@ body {
     .bs-sidebar.affix {
         position: fixed;
         /* Undo the static from mobile first approach */
-        top: 80px;
+        /* top: 80px; */
     }
     .bs-sidebar.affix-bottom {
         position: absolute;

@@ -12,16 +12,6 @@ import { fp_root } from './config.js'
 import { webpack } from './webpack.js'
 
 
-;(async function main () {
-    console.log('fp_root:', fp_root)
-    global.repl_router = repl_router
-    await start_repl()
-    await webpack.start()
-    
-    console.log('console.server 启动完成')
-})()
-
-
 async function repl_router (ctx: Context): Promise<boolean> {
     const {
         response,
@@ -40,3 +30,11 @@ async function repl_router (ctx: Context): Promise<boolean> {
     
     return server.try_send(ctx, path, { root: fp_root })
 }
+
+
+console.log('fp_root:', fp_root)
+global.repl_router = repl_router
+await start_repl()
+await webpack.start()
+
+console.log('console.server 启动完成')

@@ -995,10 +995,10 @@ export class DdbObj <T extends DdbValue = DdbValue> {
     }
     
     
-    to_rows () {
-        let rows = [ ]
+    to_rows <T extends Record<string, any> = Record<string, any>> () {
+        let rows: T[] = [ ]
         for (let i = 0;  i < this.rows;  i++) {
-            let row: Record<string, any> = { }
+            let row = { }
             for (let j = 0;  j < this.cols;  j++) {
                 const c: DdbObj = this.value[j]
                 
@@ -1009,7 +1009,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                 
                 row[c.name] = c.value[i]
             }
-            rows.push(row)
+            rows.push(row as T)
         }
         return rows
     }
@@ -1157,10 +1157,11 @@ export let ddb = {
         
         const url = new URL(location.href)
         
-        const ws_url = `${ url.searchParams.get('tls') ? 'wss' : 'ws' }://${ url.searchParams.get('hostname') || '115.239.209.253' }:${ url.searchParams.get('port') || '51720' }${url.searchParams.get('path') || '/'}`
-        // const ws_url = 'ws://localhost/ddb'
-        // const ws_url = 'ws://192.168.1.137:8848/'
+        const hostname = url.searchParams.get('hostname') || location.hostname
         
+        const port = url.searchParams.get('port') || location.port
+        
+        const ws_url = `${ location.protocol === 'https:' ? 'wss' : 'ws' }://${hostname}${ port ? `:${port}` : '' }/`
         
         let ws = new WebSocket(ws_url)
         
@@ -1249,6 +1250,9 @@ export let ddb = {
         
         if (urgent && type !== 'script' && type !== 'function')
             throw new Error('urgent 只适用于 script 和 funciton')
+        
+        if (this.ws.readyState !== WebSocket.OPEN)
+            throw new Error('ws 连接已断开')
         
         // 转换 args 参数为 DdbObj[]
         for (let i = 0;  i < args.length;  i++) {
@@ -1410,3 +1414,7 @@ export let ddb = {
             script
     },
 }
+
+;(window as any).ddb = ddb
+
+export default ddb
