@@ -53,7 +53,6 @@ function DolphinDB () {
     useEffect(() => {
         (async () => {
             console.log(t('添加', { language: 'en' }))
-            
             await ddb.connect()
             await ddb.call('login', ['admin', '123456'], { urgent: true })
             set_connected(true)
@@ -74,7 +73,7 @@ function DolphinDB () {
             <DdbSider />
             <Layout.Content className='view'>
                 <div className='view-card'>
-                    <DdbContent />
+                    <DdbContent /> 
                 </div>
             </Layout.Content>
         </Layout>
@@ -187,6 +186,9 @@ function Jobs () {
         showQuickJumper: true,
     }
     
+    const cols_width_cjobs = [80, 80, 100, 100, 120, 50, 50, 200, 200, 200, 200, 80, 80, 200, 200, 100, 80] 
+    const cols_width_bjobs = [80, 60, 100, 300, 200, 100, 50, 80, 300, 300, 300, 200, 80]
+    const cols_width_sjobs = [80, 80, 100, 200, 300, 300, 100, 300, 100, 80]
 
     if (!cjobs || !bjobs || !sjobs)
         return null
@@ -232,13 +234,14 @@ function Jobs () {
             <Table
                 columns={
                     append_action_col(
-                        cjobs.to_cols(),
+                        head_cols_fixed(cjobs.to_cols()),
                         async ({ rootJobId }) => {
                             await ddb.call('cancelConsoleJob', [rootJobId], { urgent: true })
                             await get_cjobs()
                         }
                     )
                 }
+                scroll={{ x: 'max-content' }}
                 dataSource={cjob_rows}
                 rowKey='rootJobId'
                 pagination={pagination}
@@ -253,7 +256,7 @@ function Jobs () {
                 columns={
                     add_status_col(
                         append_action_col(
-                            bjobs.to_cols(),
+                            head_cols_fixed(bjobs.to_cols()),
                             async ({ jobId }) => {
                                 await ddb.call('cancelJob', [jobId], { urgent: true })
                                 await get_bjobs()
@@ -261,25 +264,27 @@ function Jobs () {
                         )
                     )
                 }
+                scroll={{ x: 'max-content' }}
                 dataSource={bjob_rows}
                 rowKey='jobId'
                 pagination={pagination}
             />
         </div>
         
-        <div className='sjobs' style={{ display: sjob_rows.length ? 'block' : 'none' }}>
+        <div className='sjobs' style={{ display: !query || sjob_rows.length ? 'block' : 'none' }}>
             <Title level={4}>{t('定时作业')} (getScheduledJobs) ({sjob_rows.length})</Title>
             
             <Table
                 columns={
                     append_action_col(
-                        fix_scols(sjobs),
+                        head_cols_fixed(fix_scols(sjobs)),
                         async ({ jobId }) => {
                             await ddb.call('deleteScheduledJob', [jobId], { urgent: true })
                             await get_sjobs()
                         }
                     )
                 }
+                scroll={{ x: 'max-content' }}
                 dataSource={sjobs.to_rows()}
                 rowKey='jobId'
                 pagination={pagination}
@@ -288,6 +293,14 @@ function Jobs () {
     </>
 }
 
+function head_cols_fixed(cols: ColumnType<Job>[]){
+    cols.map((col, index) => {
+        if(index < 3){
+            col.fixed = 'left' 
+        }
+    })
+    return cols
+}
 
 function fix_scols (sjobs: DdbObj<DdbObj[]>) {
     let cols = sjobs.to_cols()
@@ -311,6 +324,7 @@ function append_action_col (
     cols.push(
         {
             title: 'action',
+            fixed: 'right',
             render: (value, job) => (
                 <Popconfirm
                     title={t('确认取消作业')}
@@ -343,7 +357,7 @@ function append_action_col (
 function add_status_col (
     cols: ColumnType<Job>[]
 ) {
-    const i_priority = cols.findIndex(col => 
+    const i_priority = cols.findIndex(col =>
         col.title === 'priority')
     
     const col_status: ColumnType<Job> = {
