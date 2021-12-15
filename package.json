@@ -7,7 +7,8 @@
     "scripts": {
         "compile": "tsc --project ./tsconfig.lib.json --watch",
         "server": "node ./server.js",
-        "typecheck": "tsc --noEmit"
+        "typecheck": "tsc --noEmit",
+        "build": "node ./build.js"
     },
     "engines": {
         "node": ">=17.1.0"
@@ -60,6 +61,7 @@
         "react-object-model": "^0.0.9",
         "react-simple-code-editor": "^0.11.0",
         "tslib": "^2.3.1",
+        "xsh": "^0.4.5",
         "xshell": "^0.0.23",
         "xterm": "^4.15.0",
         "xterm-addon-fit": "^0.5.0"

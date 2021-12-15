@@ -3,6 +3,7 @@
     
     "include": [
         "./server.ts",
+        "./build.ts",
         "./**/*.!(browser.)ts",
         "./test/test.ts",
     ],

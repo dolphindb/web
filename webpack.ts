@@ -68,10 +68,8 @@ const config: Webpack.Configuration = {
     externals: {
         react: 'React',
         'react-dom': 'ReactDOM',
-        swiper: 'Swiper',
         jquery: '$',
         lodash: '_',
-        localforage: 'localforage',
     },
     
     
@@ -147,7 +145,7 @@ const config: Webpack.Configuration = {
     
     
     plugins: [
-        new Webpack.HotModuleReplacementPlugin(),
+        // new Webpack.HotModuleReplacementPlugin(),
         
         // new Webpack.DefinePlugin({
         //     process: { env: { }, argv: [] }
@@ -232,6 +230,28 @@ export let webpack = {
         if (!this.watcher) return
         return new Promise<Error>(resolve => {
             this.watcher.close(resolve)
+        })
+    },
+    
+    async build () {
+        config.mode = 'production'
+        
+        config.output.path += 'build/'
+        
+        config.devtool = false
+        
+        this.compiler = Webpack(config)
+        
+        return new Promise<void>((resolve, reject) => {
+            this.compiler.run((error, stats) => {
+                if (error) {
+                    reject(error)
+                    return
+                }
+                
+                console.log(stats.toString(config.stats))
+                resolve()
+            })
         })
     }
 }
