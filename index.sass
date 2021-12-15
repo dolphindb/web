@@ -15,11 +15,17 @@ html, body
     
     .header
         padding: 0px 20px
-        height: 50px
-        line-height: 50px
-        background: #262f3e
+        
+        height: 46px
+        line-height: 46px
         
         display: flex
+        
+        background: #ffffff
+        
+        box-shadow: 0 1.5px 3px 0.5px rgb(0 0 0 / 10%)
+        
+        z-index: 10
         
         
         .logo
@@ -37,17 +43,17 @@ html, body
                 height: 22px
                 
             .title
-                color: #eeeeee
                 font-weight: bold
                 margin-left: 16px
                 font-size: 16px
+                color: #444444
         
         .user
             .avatar
-                background-color: #666666
+                background-color: #888888
                 
             .username
-                color: #eeeeee
+                color: #000000
                 font-size: 14px
         
     .body
@@ -63,25 +69,10 @@ html, body
             .menu
                 height: 100%
                 
-                background: #1e222d
-                
                 .ant-menu-item
-                    color: #c1c6c8
                     margin-top: unset
                     margin-bottom: unset
                     
-                .ant-menu-item-active
-                    background: #262f3e
-                
-                .ant-menu-submenu
-                    color: #c1c6c8
-                
-                .ant-menu-submenu-active
-                    background: #262f3e
-                
-                .ant-menu-item-selected
-                    background-color: #006eff
-                
                 .ant-menu-item:not(:last-child)
                     margin-top: unset
                     margin-bottom: unset
@@ -90,8 +81,6 @@ html, body
                     margin-top: unset
                     margin-bottom: unset
                 
-                .ant-menu-submenu-open .ant-menu-submenu-title
-                    background: #000c17
             
             
             

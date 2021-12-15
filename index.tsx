@@ -116,11 +116,11 @@ function DdbHeader () {
 function DdbSider () {
     const { view, node_type } = model.use(['view', 'node_type'])
     
-    return <Layout.Sider width={200} className='sider' theme='dark'>
+    return <Layout.Sider width={200} className='sider' theme='light' collapsible>
         <Menu
             className='menu'
             mode='inline'
-            theme='dark'
+            theme='light'
             selectedKeys={[view]}
             onSelect={({ key }) => {
                 model.set({ view: key as DdbModel['view'] })

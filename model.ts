@@ -86,6 +86,7 @@ export class DdbModel extends Model <DdbModel> {
             this.set({
                 logined: true
             })
+            console.log(`${this.username} 使用 ticket 登陆成功`)
         } catch (error) {
             this.set({
                 logined: false,

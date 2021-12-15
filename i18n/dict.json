@@ -88,5 +88,11 @@
     },
     "已定时作业": {
         "en": "Scheduled Jobs"
+    },
+    "登录成功": {
+        "en": "Logined successsfully"
+    },
+    "用户名或密码错误": {
+        "en": "Incorrect username or password"
     }
 }

@@ -86,10 +86,17 @@ export function Job () {
     
     const rjob_rows = filter_job_rows(
         rjobs.to_rows()
-            .map(compute_status_info_by_time),
+            .map(compute_status_info),
         query
-    ).sort((l, r) =>
-        -Number(l.receivedTime - r.receivedTime))
+    ).sort((l, r) => {
+        if (l.status !== r.status) {
+            if (l.status === 'running')
+                return -1
+            if (r.status === 'running')
+                return 1
+        }
+        return -Number(l.receivedTime - r.receivedTime)
+    })
     
     const sjob_rows = filter_job_rows(
         sjobs.to_rows(),
@@ -158,6 +165,7 @@ export function Job () {
                                     job.rootJobId === gjob.rootJobId)
                             }
                             rowKey={(job: DdbJob) => `${job.rootJobId}.${job.node}`}
+                            pagination={false}
                         />
                 }}
             />
@@ -336,7 +344,7 @@ function filter_job_rows (jobs: DdbJob[], query: string) {
     )
 }
 
-function compute_status_info_by_time (job: DdbJob) {
+function compute_status_info (job: DdbJob) {
     const { startTime, endTime, errorMsg } = job
     
     if (startTime === nulls.int64) {
