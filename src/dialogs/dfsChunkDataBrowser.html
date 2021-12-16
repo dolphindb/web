@@ -103,10 +103,10 @@
         dbPath = dbPath.startsWith("/") ? dbPath : "/" + dbPath;
 
         tables = $.getUrlParam('tables');
-        dfsPath = dbPath.startsWith("/") ? "dfs:/" + dbPath : "dfs://" + dbPath;
+        dfsPath =  "dfs:/" + dbPath;
         site = $.getUrlParam('alias');
         chunkid = $.getUrlParam('chunkid');
-        partitionPath = $.getUrlParam('partition');
+        partitionPath = dbPath +  $.getUrlParam('partition');
 
         version = $.getUrlParam('v');
         curPath = dbPath + partitionPath;
@@ -173,7 +173,7 @@
         }
         var nodeSite = new ServerObject(site);
 
-        var script = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" + partitionPath + "',`" + tablename + ",0," + pgSize + ")";
+        var script = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" +  partitionPath + "',`" + tablename + ",0," + pgSize + ")";
         var nodeUrl = nodeSite.getHttpServer();
         var scriptExecutor = new CodeExecutor(wa_url);
 
@@ -196,7 +196,7 @@
                     controller: {
                         loadData: function (filter) {
                             var deferred = $.Deferred();
-                            var s = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" + partitionPath + "',`" + tablename + "," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
+                            var s = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" +  partitionPath + "',`" + tablename + "," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
                             getTableData(s, function (g) {
                                 if(g.resultCode==0){
                                     var d = DolphinResult2Grid(g);
