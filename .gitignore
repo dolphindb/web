@@ -1,11 +1,10 @@
 node_modules/
 /build/
+/web/
 
 /*.js
 *.map
 *.d.ts
-
-/package-lock.json
 
 /i18n/scanneds.json
 /i18n/stats.json
