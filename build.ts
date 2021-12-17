@@ -3,11 +3,12 @@
 import xsh from 'xshell'
 
 import { webpack } from './webpack.js'
-import { fp_root } from './config.js'
+import { fp_root, fpd_out } from './config.js'
 
-const { fcopy } = xsh
+const { fcopy, fdelete } = xsh
 
-await fcopy(`${fp_root}src/`, `${fp_root}build/`, { overwrite: true })
-await fcopy(`${fp_root}index.html`, `${fp_root}build/index.html`, { overwrite: true })
+await fdelete(fpd_out)
+await fcopy(`${fp_root}src/`, fpd_out, { overwrite: true })
+await fcopy(`${fp_root}index.html`, `${fpd_out}index.html`, { overwrite: true })
 
 await webpack.build()

@@ -8,7 +8,7 @@ import type { Options as SassOptions } from 'sass-loader'
 
 import sass from 'sass'
 
-import { fp_root } from './config.js'
+import { fp_root, fpd_out } from './config.js'
 import xshell from 'xshell'
 
 
@@ -236,16 +236,23 @@ export let webpack = {
     async build () {
         config.mode = 'production'
         
-        config.output.path += 'build/'
+        config.output.path = fpd_out
         
         config.devtool = false
+        
+        ;(config.stats as any).colors = false
+        ;(config.stats as any).assets = true
+        ;(config.stats as any).assetsSpace = 20
+        ;(config.stats as any).modules = true
+        ;(config.stats as any).modulesSpace = 20
         
         this.compiler = Webpack(config)
         
         return new Promise<void>((resolve, reject) => {
             this.compiler.run((error, stats) => {
-                if (error) {
-                    reject(error)
+                if (error || stats.hasErrors()) {
+                    console.log(stats.toString(config.stats))
+                    reject(error || stats)
                     return
                 }
                 
