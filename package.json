@@ -34,7 +34,7 @@
         "object-oriented"
     ],
     "devDependencies": {
-        "@types/node": "^16.11.11",
+        "@types/node": "^17.0.0",
         "@types/react": "^17.0.37",
         "@types/react-dom": "^17.0.11",
         "@types/sass-loader": "^8.0.2",
@@ -42,27 +42,27 @@
         "memfs": "^3.4.0",
         "raw-loader": "^4.0.2",
         "react": "^17.0.2",
-        "sass": "^1.44.0",
-        "sass-loader": "^12.3.0",
+        "sass": "^1.45.0",
+        "sass-loader": "^12.4.0",
         "source-map-loader": "^3.0.0",
         "style-loader": "^3.3.1",
         "ts-loader": "^9.2.6",
-        "typescript": "^4.5.2",
+        "typescript": "^4.5.4",
         "url-loader": "^4.1.1",
-        "webpack": "^5.64.4"
+        "webpack": "^5.65.0"
     },
     "dependencies": {
         "@ant-design/icons": "^4.7.0",
-        "antd": "^4.17.2",
+        "antd": "^4.17.3",
         "dayjs": "^1.10.7",
-        "final-form": "^4.20.4",
+        "final-form": "^4.20.6",
         "prismjs": "^1.25.0",
         "react-dom": "^17.0.2",
         "react-object-model": "^0.0.9",
         "react-simple-code-editor": "^0.11.0",
         "tslib": "^2.3.1",
         "xsh": "^0.4.5",
-        "xshell": "^0.0.23",
+        "xshell": "^0.0.28",
         "xterm": "^4.15.0",
         "xterm-addon-fit": "^0.5.0"
     }

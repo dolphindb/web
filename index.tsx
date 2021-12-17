@@ -57,7 +57,7 @@ function DolphinDB () {
     if (!inited)
         return null
     
-    return <ConfigProvider locale={locales[language]}>
+    return <ConfigProvider locale={locales[language]} autoInsertSpaceInButton={false}>
         <Layout className='root-layout'>
             <Layout.Header className='header'>
                 <DdbHeader />
@@ -136,7 +136,9 @@ function DdbSider () {
                 <Menu.Item key='table' icon={<TableOutlined />}>数据表</Menu.Item>
             </Menu.SubMenu> */}
             <Menu.Item key='job' icon={<ProfileOutlined />}>{t('作业管理')}</Menu.Item>
-            <Menu.Item key='dfs' icon={<DatabaseOutlined />}>{t('文件系统')}</Menu.Item>
+            { (node_type === NodeType.controller || node_type === NodeType.single) && 
+                <Menu.Item key='dfs' icon={<DatabaseOutlined />}>{t('文件系统')}</Menu.Item>
+            }
             {/* <Menu.Item key='log' icon={<DatabaseOutlined />}>{t('日志查看')}</Menu.Item> */}
         </Menu>
     </Layout.Sider>

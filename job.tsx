@@ -12,17 +12,18 @@ import {
     type TablePaginationConfig,
 } from 'antd'
 import type { ColumnType } from 'antd/lib/table'
-import type { BaseType } from 'antd/lib/typography/Base'
 import { ReloadOutlined } from '@ant-design/icons'
 
 import {
-    ddb,
     DdbObj,
     nulls,
 } from './ddb.browser' 
 
 import { t } from './i18n'
-import model from './model'
+import {
+    model,
+    type DdbJob,
+} from './model'
 
 
 const { Title, Text, Link } = Typography
@@ -84,6 +85,11 @@ export function Job () {
         
     const gjobs = group_cjob_rows_by_rootid(cjob_rows)
     
+    // finishedTasks 大的排在前面
+    const gjob_rows = Object.values(gjobs)
+        .sort((l, r) => 
+            -(l.finishedTasks - r.finishedTasks))
+    
     const rjob_rows = filter_job_rows(
         rjobs.to_rows()
             .map(compute_status_info),
@@ -126,8 +132,8 @@ export function Job () {
             />
         </div>
         
-        <div className='cjobs' style={{ display: (!query || cjob_rows.length) ? 'block' : 'none' }}>
-            <Title level={4}>{t('运行中作业')} (getConsoleJobs) ({cjob_rows.length})</Title>
+        <div className='cjobs' style={{ display: (!query || gjob_rows.length) ? 'block' : 'none' }}>
+            <Title level={4}>{t('运行中作业')} (getConsoleJobs) ({gjob_rows.length})</Title>
             
             <Table
                 columns={
@@ -138,19 +144,14 @@ export function Job () {
                                     group_cjob_columns.has(col.title as string))
                             ,
                             'stop',
-                            async ({ rootJobId }) => {
-                                await ddb.call('cancelConsoleJob', [rootJobId], { urgent: true })
+                            async job => {
+                                await model.cancel_console_job(job)
                                 await get_cjobs()
                             }
                         )
                     )
                 }
-                dataSource={
-                    // finishedTasks 大的排在前面
-                    Object.values(gjobs)
-                        .sort((l, r) => 
-                            -(l.finishedTasks - r.finishedTasks))
-                }
+                dataSource={gjob_rows}
                 rowKey='rootJobId'
                 pagination={pagination}
                 expandable={{
@@ -164,7 +165,7 @@ export function Job () {
                                 cjob_rows.filter(job => 
                                     job.rootJobId === gjob.rootJobId)
                             }
-                            rowKey={(job: DdbJob) => `${job.rootJobId}.${job.node}`}
+                            rowKey={(job: DdbJob) => `${job.rootJobId}.${job.node || ''}`}
                             pagination={false}
                         />
                 }}
@@ -180,15 +181,15 @@ export function Job () {
                         append_action_col(
                             rjobs.to_cols(),
                             'stop',
-                            async ({ jobId }) => {
-                                await ddb.call('cancelJob', [jobId], { urgent: true })
+                            async job => {
+                                await model.cancel_job(job)
                                 await get_rjobs()
                             }
                         )
                     )
                 }
                 dataSource={rjob_rows}
-                rowKey='jobId'
+                rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
                 pagination={pagination}
             />
         </div>
@@ -201,14 +202,14 @@ export function Job () {
                     append_action_col(
                         fix_scols(sjobs),
                         'delete',
-                        async ({ jobId }) => {
-                            await ddb.call('deleteScheduledJob', [jobId], { urgent: true })
+                        async job => {
+                            await model.delete_scheduled_job(job)
                             await get_sjobs()
                         }
                     )
                 }
                 dataSource={sjob_rows}
-                rowKey='jobId'
+                rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
                 pagination={pagination}
             />
         </div>
@@ -258,7 +259,7 @@ function fix_scols (sjobs: DdbObj<DdbObj[]>) {
 function append_action_col (
     cols: ColumnType<DdbJob>[],
     type: 'stop' | 'delete',
-    action: (record: { jobId?: string, rootJobId?: string }) => any
+    action: (record: DdbJob) => any
 ) {
     cols.push(
         {
@@ -272,7 +273,7 @@ function append_action_col (
                         try {
                             await action(job)
                             message.success(
-                                type === 'stop' ? t('停止作业成功') : t('删除作业成功')
+                                type === 'stop' ? t('停止作业指令发送成功') : t('删除作业成功')
                             )
                         } catch (error) {
                             message.error(error.message)
@@ -368,50 +369,5 @@ function compute_status_info (job: DdbJob) {
     job.theme = 'success'
     
     return job
-}
-
-
-interface DdbJob {
-    startTime?: bigint
-    endTime?: bigint
-    errorMsg?: string
-    
-    jobId?: string
-    rootJobId?: string
-    
-    jobDesc?: string
-    desc?: string
-    
-    jobType?: string
-    
-    priority?: number
-    parallelism?: number
-    
-    node?: string
-    
-    userId?: string
-    userID?: string
-    
-    receiveTime?: bigint
-    receivedTime?: bigint
-    
-    sessionId?: string
-    
-    remoteIP?: Uint8Array
-    
-    remotePort?: number
-    
-    totalTasks?: number
-    
-    finishedTasks?: number
-    
-    runningTask?: number
-    
-    // --- computed (getRecentJobs)
-    status?: 'queuing' | 'error' | 'running' | 'completed'
-    theme?: BaseType
-    
-    // --- computed (getConsoleJobs)
-    progress?: string
 }
 

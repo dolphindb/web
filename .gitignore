@@ -1,7 +1,7 @@
 node_modules/
 /build/
 
-*.js
+/*.js
 *.map
 *.d.ts
 
@@ -9,4 +9,5 @@ node_modules/
 
 /i18n/scanneds.json
 /i18n/stats.json
+
 /web.zip

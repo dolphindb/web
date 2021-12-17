@@ -35,11 +35,11 @@ export function Login () {
                 }}
             >
                 <Form.Item name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
-                    <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder={t(' 用户名 (默认: admin)')} />
+                    <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder={t(' 用户名')} />
                 </Form.Item>
                 
                 <Form.Item name='password' rules={[{ required: true, message: t('请输入密码') }]}>
-                    <Input.Password prefix={<LockOutlined className="site-form-item-icon" />} placeholder={t(' 密码 (默认: 123456)')} />
+                    <Input.Password prefix={<LockOutlined className="site-form-item-icon" />} placeholder={t(' 密码')} />
                 </Form.Item>
                 
                 <Form.Item>

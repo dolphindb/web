@@ -94,5 +94,14 @@
     },
     "用户名或密码错误": {
         "en": "Incorrect username or password"
+    },
+    " 用户名": {
+        "en": " Username"
+    },
+    " 密码": {
+        "en": " Password"
+    },
+    "停止作业指令发送成功": {
+        "en": "The command of stopping the job was sent successfully"
     }
 }

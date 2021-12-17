@@ -1,3 +1,5 @@
+import type { BaseType } from 'antd/lib/typography/Base'
+
 import Model from 'react-object-model'
 
 import { ddb, DdbObj } from './ddb.browser'
@@ -21,6 +23,8 @@ export class DdbModel extends Model <DdbModel> {
     
     node_type: NodeType
     
+    node_alias: string
+    
     nodes: DdbNode[]
     
     
@@ -33,7 +37,10 @@ export class DdbModel extends Model <DdbModel> {
             console.log('ticket 登录失败')
         }
         
-        await model.get_node_type()
+        await Promise.all([
+            model.get_node_type(),
+            model.get_node_alias()
+        ])
         
         if (this.node_type === NodeType.controller)
             await this.get_cluster_perf()
@@ -119,9 +126,21 @@ export class DdbModel extends Model <DdbModel> {
     
     async get_node_type () {
         const { value: node_type } = await ddb.call<DdbObj<NodeType>>('getNodeType', [ ], { urgent: true })
-        this.set({ node_type })
+        this.set({
+            node_type
+        })
         console.log('node_type:', NodeType[node_type])
         return node_type
+    }
+    
+    
+    async get_node_alias () {
+        const { value: node_alias } = await ddb.call<DdbObj<string>>('getNodeAlias', [ ], { urgent: true })
+        this.set({
+            node_alias
+        })
+        console.log('node_alias:', node_alias)
+        return node_alias
     }
     
     
@@ -142,6 +161,7 @@ export class DdbModel extends Model <DdbModel> {
         ).to_rows<DdbNode>()
     }
     
+    
     async get_console_jobs () {
         if (this.node_type === NodeType.controller) {
             const active_node_names = this.nodes.filter(node => 
@@ -154,6 +174,7 @@ export class DdbModel extends Model <DdbModel> {
         
         return ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', [ ], { urgent: true })
     }
+    
     
     async get_recent_jobs () {
         if (this.node_type === NodeType.controller) {
@@ -168,6 +189,7 @@ export class DdbModel extends Model <DdbModel> {
         return ddb.call<DdbObj<DdbObj[]>>('getRecentJobs', [ ], { urgent: true })
     }
     
+    
     async get_scheduled_jobs () {
         if (this.node_type === NodeType.controller) {
             const active_node_names = this.nodes.filter(node => 
@@ -179,6 +201,25 @@ export class DdbModel extends Model <DdbModel> {
         }
         
         return ddb.call<DdbObj<DdbObj[]>>('getScheduledJobs', [ ], { urgent: true })
+    }
+    
+    
+    async cancel_console_job (job: DdbJob) {
+        return ddb.call('cancelConsoleJob', [job.rootJobId], { urgent: true })
+    }
+    
+    
+    async cancel_job (job: DdbJob) {
+        if (!job.node || this.node_alias === job.node)
+            return ddb.call('cancelJob', [job.jobId], { urgent: true })
+        return ddb.eval(`pnodeRun(cancelJob{"${job.jobId}"}, ${JSON.stringify([job.node])})`, { urgent: true })
+    }
+    
+    
+    async delete_scheduled_job (job: DdbJob) {
+        if (!job.node || this.node_alias === job.node)
+            return ddb.call('deleteScheduledJob', [job.jobId], { urgent: true })
+        return ddb.eval(`pnodeRun(deleteScheduledJob{"${job.jobId}"}, ${JSON.stringify([job.node])})`, { urgent: true })
     }
 }
 
@@ -214,6 +255,51 @@ interface DdbNode {
     publicName: string
     
     // ... 省略了一些
+}
+
+
+export interface DdbJob {
+    startTime?: bigint
+    endTime?: bigint
+    errorMsg?: string
+    
+    jobId?: string
+    rootJobId?: string
+    
+    jobDesc?: string
+    desc?: string
+    
+    jobType?: string
+    
+    priority?: number
+    parallelism?: number
+    
+    node?: string
+    
+    userId?: string
+    userID?: string
+    
+    receiveTime?: bigint
+    receivedTime?: bigint
+    
+    sessionId?: string
+    
+    remoteIP?: Uint8Array
+    
+    remotePort?: number
+    
+    totalTasks?: number
+    
+    finishedTasks?: number
+    
+    runningTask?: number
+    
+    // --- computed (getRecentJobs)
+    status?: 'queuing' | 'error' | 'running' | 'completed'
+    theme?: BaseType
+    
+    // --- computed (getConsoleJobs)
+    progress?: string
 }
 
 
