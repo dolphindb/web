@@ -8,7 +8,7 @@
         "compile": "tsc --project ./tsconfig.lib.json --watch",
         "server": "node ./server.js",
         "typecheck": "tsc --noEmit",
-        "build": "node ./build.js"
+        "build": "tsc --project ./tsconfig.lib.json && node ./build.js"
     },
     "engines": {
         "node": ">=17.1.0"

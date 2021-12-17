@@ -2,6 +2,6 @@
 # curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
 # sudo apt-get install -y nodejs
 
-npm ci && node ./build.js
+npm ci && npm run build
 
 # 构建结束后 ./build/ 文件夹中的所有文件作为 dolphindb server 目录中的 web/
