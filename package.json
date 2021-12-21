@@ -1,6 +1,6 @@
 {
-    "name": "dolphindb-console",
-    "description": "DolphinDB console",
+    "name": "dolphindb-web",
+    "description": "DolphinDB Web",
     "version": "0.0.1",
     "type": "module",
     "main": "./index.tsx",
@@ -8,7 +8,8 @@
         "compile": "tsc --project ./tsconfig.lib.json --watch",
         "server": "node ./server.js",
         "typecheck": "tsc --noEmit",
-        "build": "tsc --project ./tsconfig.lib.json && node ./build.js"
+        "build": "tsc --project ./tsconfig.lib.json && node ./build.js",
+        "build.cloud": "tsc --project ./tsconfig.lib.json && node ./build.js cloud"
     },
     "engines": {
         "node": ">=17.1.0"
@@ -35,7 +36,7 @@
         "web"
     ],
     "devDependencies": {
-        "@types/node": "^17.0.0",
+        "@types/node": "^17.0.2",
         "@types/react": "^17.0.37",
         "@types/react-dom": "^17.0.11",
         "@types/sass-loader": "^8.0.2",
@@ -43,7 +44,7 @@
         "memfs": "^3.4.0",
         "raw-loader": "^4.0.2",
         "react": "^17.0.2",
-        "sass": "^1.45.0",
+        "sass": "^1.45.1",
         "sass-loader": "^12.4.0",
         "source-map-loader": "^3.0.0",
         "style-loader": "^3.3.1",
@@ -54,7 +55,7 @@
     },
     "dependencies": {
         "@ant-design/icons": "^4.7.0",
-        "antd": "^4.17.3",
+        "antd": "^4.17.4",
         "dayjs": "^1.10.7",
         "final-form": "^4.20.6",
         "prismjs": "^1.25.0",

@@ -1,8 +1,10 @@
 {
     "include": [
-        "./index.tsx",
+        "./console/index.tsx",
+        "./cloud/index.tsx",
         "./server.ts",
-        "./build.ts"
+        "./build.ts",
+        "./global.d.ts",
     ],
     
     "compilerOptions": {

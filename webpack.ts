@@ -8,19 +8,20 @@ import type { Options as SassOptions } from 'sass-loader'
 
 import sass from 'sass'
 
-import { fp_root, fpd_out } from './config.js'
+import { fp_root, fpd_out_console, fpd_out_cloud } from './config.js'
 import xshell from 'xshell'
 
 
 const config: Webpack.Configuration = {
-    name: 'MyWebpackCompiler',
+    name: 'DdbWebpackCompiler',
     
     mode: 'development',
     
     devtool: 'source-map',
     
     entry: {
-        'index.js': './index.tsx',
+        'console/index.js': './console/index.tsx',
+        'cloud/index.js': './cloud/index.tsx',
     },
     
     
@@ -226,6 +227,7 @@ export let webpack = {
         })
     },
     
+    
     async stop () {
         if (!this.watcher) return
         return new Promise<Error>(resolve => {
@@ -233,10 +235,15 @@ export let webpack = {
         })
     },
     
-    async build () {
+    
+    async build (is_cloud: boolean) {
+        config.entry = {
+            'index.js': is_cloud ? './cloud/index.tsx' : './console/index.tsx',
+        }
+        
         config.mode = 'production'
         
-        config.output.path = fpd_out
+        config.output.path = is_cloud ? fpd_out_cloud : fpd_out_console
         
         config.devtool = false
         

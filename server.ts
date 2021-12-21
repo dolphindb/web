@@ -19,7 +19,6 @@ async function repl_router (ctx: Context): Promise<boolean> {
     const {
         response,
         request: {
-            path,
             query,
             method,
             body,
@@ -32,6 +31,8 @@ async function repl_router (ctx: Context): Promise<boolean> {
         },
     } = ctx
     
+    let path = ctx.request.path
+    
     if (dapi && method === 'POST') {
         const data = await request_json(`http://ddb253.shenhongfei.com:8850${path}`, { body })
         log_section(`${body.functionName}(${inspect(body.params?.[0]?.value)})`)
@@ -39,10 +40,22 @@ async function repl_router (ctx: Context): Promise<boolean> {
         return true
     }
     
+    if (path.startsWith('/v1/dolphindbs')) {
+        response.body = await request_json(`http://192.168.1.241:31551${path}`, {
+            method: method as any,
+            queries: query,
+            body,
+        })
+        
+        return true
+    }
+    
+    if (path === '/cloud/react.production.min.js' || path === '/cloud/react-dom.production.min.js')
+        path = `/third-party/react/${path.slice('/cloud/'.length)}`
     
     return await server.try_send(
         ctx,
-        path,
+        path.replace(/^\/console\//, ''),
         {
             root: `${fp_root}src/`,
             fs,
@@ -64,6 +77,10 @@ global.repl_router = repl_router
 await start_repl()
 await webpack.start()
 
-console.log('console.server 启动完成')
-console.log('请使用浏览器打开 http://localhost:8421/index.html?hostname=ddb253.shenhongfei.com&port=8850')
+console.log(
+    'console.server 启动完成\n' +
+    '请使用浏览器打开:\n' +
+    'http://localhost:8421/console/index.html?hostname=ddb253.shenhongfei.com&port=8850\n' +
+    'http://localhost:8421/cloud/index.html'
+)
 

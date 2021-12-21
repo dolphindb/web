@@ -1207,7 +1207,7 @@ export let ddb = {
                         // 疏通 server socket
                         ;(async () => {
                             for (;  ws.readyState === WebSocket.OPEN;) {
-                                await delay(1000)
+                                await delay(500)
                                 if (this.iresolver >= this.resolvers.length) continue
                                 await this.eval('1')
                             }

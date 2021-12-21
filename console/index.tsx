@@ -39,7 +39,7 @@ import ShellOld from './shell.old'
 import Job from './job'
 import DFS from './dfs'
 
-import { language, t } from './i18n'
+import { language, t } from '../i18n'
 
 
 const locales = { zh, en, ja, ko }

@@ -19,7 +19,7 @@ import {
     nulls,
 } from './ddb.browser' 
 
-import { t } from './i18n'
+import { t } from '../i18n'
 import {
     model,
     type DdbJob,
