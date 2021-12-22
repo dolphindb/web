@@ -263,7 +263,7 @@ function append_action_col (
 ) {
     cols.push(
         {
-            title: 'action',
+            title: 'actions',
             render: (value, job) => {
                 const disabled = job.status && job.status !== 'queuing' && job.status !== 'running'
                 

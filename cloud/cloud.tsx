@@ -2,7 +2,7 @@ import './cloud.sass'
 
 import { default as React, useEffect, useState } from 'react'
 
-import { Badge, Button, Form, Input, Select, Table, Typography, InputNumber, message, Tooltip, Popconfirm } from 'antd'
+import { Badge, Button, Form, Input, Select, Table, Typography, InputNumber, message, Tooltip, Popconfirm, Divider, PageHeader, Descriptions } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors'
 
@@ -23,6 +23,72 @@ const { Title, Text, Link } = Typography
 
 
 export function Cloud () {
+    const { cluster } = model.use(['cluster'])
+    
+    if (cluster)
+        return <ClusterDetail />
+    
+    return <Clusters />
+}
+
+
+function ClusterDetail () {
+    const { cluster } = model.use(['cluster'])
+    
+    const { namespace, name, log_mode, version, storage_class_name, Services: services, status } = cluster
+    
+    return <div className='cluster'>
+        <PageHeader
+            className='cluster-header'
+            title={
+                <Title level={4}>{name}</Title>
+            }
+            onBack={() => {
+                model.set({ cluster: null })
+            }}
+        />
+        
+        <Descriptions
+            title={
+                <Title level={4}>Configuration</Title>
+            }
+            column={2}
+            bordered
+        >
+            <Descriptions.Item label='namespace'>{namespace}</Descriptions.Item>
+            <Descriptions.Item label='name'>{name}</Descriptions.Item>
+            <Descriptions.Item label='status'>
+                <ClusterStatus {...status}/>
+            </Descriptions.Item>
+            <Descriptions.Item label='version'>{version}</Descriptions.Item>
+            <Descriptions.Item label='mode'>
+                <Mode cluster={cluster} />
+            </Descriptions.Item>
+            <Descriptions.Item label='log mode'>{log_modes[log_mode] || log_mode}</Descriptions.Item>
+            <Descriptions.Item label='storage class'>{storage_class_name}</Descriptions.Item>
+        </Descriptions>
+        
+        <Descriptions
+            title={
+                <Title level={4}>Service</Title>
+            }
+            column={2}
+            bordered
+        >
+            { services.Controller && <Descriptions.Item label='controller'>
+                <ServiceNode {...services.Controller} />
+            </Descriptions.Item> }
+            <Descriptions.Item label='datanode'>
+                <ServiceNode {...services.Datanode} />
+            </Descriptions.Item>
+        </Descriptions>
+        
+        <ClusterNodes cluster={cluster} />
+    </div>
+}
+
+
+function Clusters () {
     const { clusters } = model.use(['clusters'])
     
     const [creating, set_creating] = useState(false)
@@ -32,7 +98,9 @@ export function Cloud () {
     const [cluster_type, set_cluster_type] = useState<ClusterType>('multicontroller')
     
     
-    return <>
+    return <div className='clusters'>
+        <Title className='title-overview' level={3}>{t('集群总览')}</Title>
+        
         <div className='actions'>
             <Button
                 type='primary'
@@ -60,18 +128,18 @@ export function Cloud () {
             columns={[
                 {
                     title: 'name',
-                    dataIndex: 'name'
+                    dataIndex: 'name',
+                    render (name, cluster: Cluster) {
+                        return <Link
+                            onClick={async () => {
+                                await model.get_cluster(cluster)
+                            }}>{name}</Link>
+                    }
                 },
                 {
                     title: 'mode',
                     key: 'mode',
-                    render (value, cluster) {
-                        const {
-                            mode,
-                            cluster_type
-                        } = cluster
-                        return `${mode}${ mode === 'standalone' ? '' : `/${cluster_type}` }`
-                    }
+                    render: (value, cluster) => <Mode cluster={cluster} />
                 },
                 {
                     title: 'version',
@@ -248,7 +316,7 @@ export function Cloud () {
                 >{t('取消')}</Button>
             </Form.Item>
         </Form> }
-    </>
+    </div>
 }
 
 function ServiceNode ({
@@ -256,15 +324,24 @@ function ServiceNode ({
     ip,
     port
 }: {
-    type: 'controller' | 'datanode'
+    type?: 'controller' | 'datanode'
     ip: string
     port: string
 }) {
     const link = `${ip}:${port}`
     return <div className='service-node'>
-        <span className='type'>{type}: </span>
+        {type && <span className='type'>{type}: </span> }
         <a className='link' target='_blank' href={`//${link}`}>{link}</a>
     </div>
+}
+
+
+function Mode ({
+    cluster: { mode, cluster_type }
+}: {
+    cluster?: Cluster
+}) {
+    return <>{`${mode}${ mode === 'standalone' ? '' : `/${cluster_type}` }`}</>
 }
 
 
@@ -315,7 +392,7 @@ function ClusterNodes ({
                await model.get_cluster_nodes(cluster)
            )
         })()
-    }, [ ])
+    }, [cluster])
     
     return <div className='cluster-nodes'>
             <div className='controllers'>
@@ -389,5 +466,11 @@ function ClusterStatus ({
     />
 }
 
+
+const log_modes = {
+    0: 'file',
+    1: 'stdout',
+    2: 'file and stdout'
+} as const
 
 export default Cloud

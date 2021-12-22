@@ -14,6 +14,8 @@ export class CloudModel extends Model <CloudModel> {
     
     clusters: Cluster[] = [ ]
     
+    cluster: Cluster
+    
     async init () {
         await this.get_clusters()
         
@@ -106,6 +108,15 @@ export class CloudModel extends Model <CloudModel> {
         
         return nodes
     }
+    
+    
+    async get_cluster (cluster_overview: Cluster) {
+        const cluster = await request_json(`/v1/dolphindbs/${cluster_overview.namespace}/${cluster_overview.name}`)
+        console.log('cluster:', cluster)
+        this.set({
+            cluster
+        })
+    }
 }
 
 
@@ -113,6 +124,7 @@ export interface Cluster {
     name: string
     namespace: string
     mode: 'cluster' | 'standalone'
+    log_mode: string
     cluster_type?: string
     version: string
     storage_class_name: string
