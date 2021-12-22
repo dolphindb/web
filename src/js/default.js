@@ -20,7 +20,24 @@ $(document).ready(function () {
     }
     //var leaderUrl = GetFullUrl(controller.getLeaderUrl());
     //if(leaderUrl!=wa_url) window.location.href = leaderUrl;
+    
+    const ticket = localStorage.getItem('ddb.ticket')
+    
+    if (ticket)
+        CallWebApiSync(wa_url, {
+            "sessionID": localStorage.getItem('ddb.session_id') || '0',
+            "functionName": "authenticateByTicket",
+            "params": [{
+                "name": "ticket",
+                "form": "scalar",
+                "type": "string",
+                "value": ticket
+            }]
+        })
+    
     var currentUser = controller.getCurrentUser();
+    console.log('iframe.user', currentUser.userId)
+    
     if (currentUser.userId == "guest") {
         $("#btnLogin").show();
         $("#btnLogout").hide();
@@ -215,11 +232,11 @@ function LoadLeft(agentList) {
 }
 
 function LoadTable(nodeList) {
+    // console.log(nodeList);
     var griddata = {
         data: nodeList,
         totals: nodeList.length
     };
-
     grid.GM({
         ajax_data: griddata,
         supportAutoOrder: false,
@@ -238,10 +255,13 @@ function LoadTable(nodeList) {
             remind: 'the role of node(controller,agent,datanode)',
             width: 80,
             template: function (mode, rowObject) {
+                // console.log(rowObject);
                 if (mode === 0) {
-                    return "datanode";
-                } else {
-                    return "controller";
+                    return "Datanode";
+                } else if(mode === 2) {
+                    return "Controller";
+                } else if(mode === 4){
+                    return 'Computenode'
                 }
             }
         }, {
@@ -250,15 +270,13 @@ function LoadTable(nodeList) {
             remind: 'node name',
             sorting: '',
             template: function (site, rowObject) {
-                if (rowObject.state === 1) {
-                    var nodeManager = new ClusterNodeManager();
-                    var nodeHost = nodeManager.getNodeApiUrl(rowObject.name);
-                    var nodeUrl = GetFullUrl(nodeHost + ':' + rowObject.port + '/nodedetail.html?alias=' + rowObject.name + '&site=' + nodeManager.getControllerSite());
-                    r = '<a href="###" class="a-link" onclick=javascript:openNodebook("' + nodeUrl + '");>' + rowObject.name + '</a>';
-                    return r;
-                } else {
-                    return rowObject.name;
-                }
+                if (rowObject.state !== 1)
+                    return rowObject.name
+                
+                var nodeManager = new ClusterNodeManager()
+                var nodeHost = nodeManager.getNodeApiUrl(rowObject.name)
+                var nodeUrl = GetFullUrl(`${nodeHost}:${rowObject.port}/index.html?alias=${rowObject.name}&site=${nodeManager.getControllerSite()}`)
+                return `<a class="a-link" href="${nodeUrl}" target="_blank">${rowObject.name}</a>`
             },
             sortFilter: function (d) {
                 return d.split(':')[2];
@@ -268,13 +286,14 @@ function LoadTable(nodeList) {
             key: 'state',
             remind: 'state of the node',
             align: 'center',
-            sorting: '',
+            // sorting: '',
+            width: 80,
             template: function (state, rowObject) {
                 if (rowObject.state === 1) {
                     //return '<font style="color:green">running</font>';
-                    return "<img style='margin: 0 auto' title='running' src='images/running.png' />"
+                    return "<img style='margin: 0 auto;display:block' title='running' src='images/running.png' />"
                 } else {
-                    return "<img style='margin: 0 auto' title='stopped' src='images/stopped.png' />";
+                    return "<img style='margin: 0 autodisplay:block' title='stopped' src='images/stopped.png' />";
                 }
             }
         }, {
@@ -289,6 +308,7 @@ function LoadTable(nodeList) {
                 if (rowObject.mode === 0 || rowObject.mode === 4) {
                     var agentUrl = getAgentSite(getControllerIp(), rowObject);
                     api_url = agentUrl;
+                    // console.log(agentUrl);
                     ref = agentUrl + '@' + rowObject.site;
                 } else { //controller
                     api_url = getControllerIp();
@@ -406,7 +426,7 @@ function LoadTable(nodeList) {
             key: 'runningJobs',
             remind: 'the number of running jobs',
             sorting: '',
-            width: 110,
+            width: 100,
             template: function (runningJobs, rowObject) {
                 return Number(runningJobs);
             }
@@ -604,7 +624,7 @@ function LoadTable(nodeList) {
 
 function openNodebook(url) {
     var win = window.open(url);
-    win.name = localStorage.getItem("dolphindb_ticket");
+    win.name = localStorage.getItem("ddb.ticket");
 }
 
 function refreshGrid(nodeList) {
@@ -625,6 +645,7 @@ function refreshGrid(nodeList) {
 }
 
 
+
 function connect_server_success(result) {
     if (result) {
         if (result.resultCode == "0") {
@@ -634,6 +655,7 @@ function connect_server_success(result) {
             if (data.length <= 0) return;
 
             ALL_NODE = VectorArray2Table(data[0].value);
+            // console.log(ALL_NODE);
             var nodeManager = new ClusterNodeManager();
             nodeManager.setCache(ALL_NODE);
 
@@ -655,7 +677,7 @@ function connect_server_success(result) {
                 NODE_LIST.splice(0, 0, e);
             });
 
-            refreshGrid(NODE_LIST);
+            refreshGrid(ALL_NODE);
         } else if (result.resultCode == "1") {
             alert(result.msg)
         }
@@ -820,7 +842,7 @@ $('#btn-nodes-setup').click(function () {
 
 $("#txtFilter").keypress(function (e) {
     if (e.keyCode === 13) {
-        refreshGrid(NODE_LIST);
+        refreshGrid(ALL_NODE);
 
         localStorage.setItem(filterStorageId, $("#txtFilter").val());
     }

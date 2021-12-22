@@ -114,6 +114,10 @@ DatanodeServer.prototype = {
         var exec = new CodeExecutor(this._url);
         return exec.runSync(script);
     },
+    getLicense: function(){
+        var re = this.exec.runSync("license()")
+        return re
+    },
     getSingleClusterPerf:function(){
         var re = this.runSync("select * from getClusterPerf() where mode = 3");
         var entity = new DolphinEntity(re);
@@ -188,6 +192,16 @@ var ControllerServer = function (url) {
     this.exec = new CodeExecutor(this._url);
 }
 ControllerServer.prototype = {
+    getLicense: function(){
+        var re = this.exec.runSync("license()")
+        return re
+        // var entity = new DolphinEntity(re);
+        // return entity.toTable()
+    },
+    getVersion: function(){
+        var re = this.exec.runSync("version()")
+        return re
+    },
     getDBIdByTabletChunk: function (alias, chunkId, succallback, failcallback) {
         var exec = new CodeExecutor(this._url);
         exec.run("rpc('" + alias + "',getDBIdByTabletChunk,'" + chunkId + "')", succallback);
@@ -320,6 +334,40 @@ ControllerServer.prototype = {
         };
         return CallWebApi(this._url, p);
     },
+    // add computenode addNode(host, port, alias, [saveConfig], [nodeType='datanode'])
+    addComputeNode: function(host,port,alias){
+        var p = {
+            "sessionID": this._sessionid,
+            "functionName": "addNode",
+            "params": [{
+                "name": "host",
+                "form": "scalar",
+                "type": "string",
+                "value": host
+            },{
+                "name": "port",
+                "form": "scalar",
+                "type": "int",
+                "value": port
+            },{
+                "name": "alias",
+                "form": "scalar",
+                "type": "string",
+                "value": alias
+            },{
+                "name": "isSave",
+                "form": "scalar",
+                "type": "bool",
+                "value": true
+            },{
+                "name": "nodeType",
+                "form": "scalar",
+                "type": "string",
+                "value": "computenode"
+            }]
+        };
+        return CallWebApi(this._url, p);
+    },
     getClusterPerf:function(){
         var p = {
             "sessionID": this._sessionid,
@@ -343,6 +391,20 @@ ControllerServer.prototype = {
     },
     deleteUser: function (userId,callback) {
         this.exec.run("deleteUser('" + userId + "')", callback);
+    },
+    cancelJob: function (node,jobId,callback) {
+        // console.log("excuting...");
+        this.exec.run("rpc('"+ node + "',cancelJob,'"+ jobId+"')",callback)
+        
+        // this.exec.run("cancelJob('"+ jobid + "')",callback)
+    },
+    cancelConsoleJob: function(node,rootJobId,callback){
+        // this.exec.run("cancelConsoleJob('"+ rootJobId +"')",callback)
+        this.exec.run("rpc('"+ node + "',cancelConsoleJob,'"+ rootJobId+"')",callback)
+    },
+    deleteScheduledJob: function(node,jobId,callback){
+        // this.exec.run("deleteScheduledJob('"+jobId+"')",callback)
+        this.exec.run("rpc('"+ node + "',deleteScheduledJob,'"+ jobId+"')",callback)
     },
     deleteGroup: function (groupId,callback) {
         this.exec.run("deleteGroup('" + groupId + "')", callback);
@@ -414,19 +476,43 @@ ControllerServer.prototype = {
     },
     getUserList: function (callback) {
         var exec = new CodeExecutor(this._url);
-        exec.run("lj(table(getUserList() as userId), getUserAccess(), `userId)", function(re){
+        exec.run("getUserAccess(getUserList())", function(re){
+            // console.log(new DolphinEntity(re));
             var tb = new DolphinEntity(re).toTable();
             callback(tb);
         });
     },
+    getRecentJobs: function (callback) {
+        var exec = new CodeExecutor(this._url);
+        exec.run("pnodeRun(getRecentJobs)", function(re){
+            // console.log(new DolphinEntity(re));
+            var tb = new DolphinEntity(re).toTable()
+            callback(tb);
+        });
+    },
+    getConsoleJobs: function (callback) {
+        this.exec.run("pnodeRun(getConsoleJobs)",function(re){
+            var tb = new DolphinEntity(re).toTable()
+            callback(tb);
+        })
+    },
+    getScheduledJobs: function(callback){
+        this.exec.run("pnodeRun(getScheduledJobs)",function(re){
+            // console.log(new DolphinEntity(re));
+            var tb = new DolphinEntity(re).toTable()
+            callback(tb);
+        })
+    },
     getGroupList: function (callback) {
         var exec = new CodeExecutor(this._url);
-        exec.run("getGroupList()", function(re){
-            var vec = new DolphinEntity(re).toVector();
+        exec.run("getGroupAccess(getGroupList())", function(re){
+            var vec = new DolphinEntity(re).toTable();
             var reobj = [];
             $.each(vec,function(i,e){
-                reobj.push({groupId:e});
+                reobj.push(e);
             });
+            //
+            // console.log(reobj);
             callback(reobj);
         });
     },
@@ -477,68 +563,80 @@ ControllerServer.prototype = {
     },
     getCurrentUser: function () {
         var guestUser = { userId: "guest", isAdmin: false };
-        var cache = localStorage.getItem("DolphinDB_CurrentUsername");
-        if (cache && cache != "") {
-            var user = JSON.parse(cache);
-            if (user) {
-                var re = this.exec.runSync("getUserAccess()");
-                if (re.resultCode === "0") {
-                    var reTb = new DolphinEntity(re).toTable();
-                    var admin = reTb[0].isAdmin;
-                    return { userId: reTb[0].userId, isAdmin: admin };
-                }
-                return guestUser;
-            }
+        var username = localStorage.getItem('ddb.username');
+        if (!username || username === 'guest')
+            return guestUser
+        
+        var re = this.exec.runSync("getUserAccess()");
+        if (re.resultCode === "0") {
+            var reTb = new DolphinEntity(re).toTable();
+            var admin = reTb[0].isAdmin;
+            return { userId: reTb[0].userId, isAdmin: admin };
         }
-        return guestUser
+        return guestUser;
     },
     grant: function (id, permisionType, objs, callback) {
-        var p = {
-            "sessionID": 0,
-            "functionName": "grant",
-            "params": [{
-                "name": "Id",
-                "form": "scalar",
-                "type": "string",
-                "value": id
-            }, {
-                "name": "permission",
-                "form": "scalar",
-                "type": "int",
-                "value": permisionType
-            }, {
-                "name": "objs",
-                "form": "vector",
-                "type": "string",
-                "value": objs
-            }
-            ]
-        };
-        CallWebApi(this._url, p, callback);
+        // var p = {
+        //     "sessionID": 0,
+        //     "functionName": "grant",
+        //     "params": [{
+        //         "name": "Id",
+        //         "form": "scalar",
+        //         "type": "string",
+        //         "value": id
+        //     }, {
+        //         "name": "permission",
+        //         "form": "scalar",
+        //         "type": "int",
+        //         "value": permisionType
+        //     }, {
+        //         "name": "objs",
+        //         "form": "vector",
+        //         "type": "string",
+        //         "value": objs
+        //     }
+        //     ]
+        // };
+        // CallWebApi(this._url, p, callback);
+
+        this.exec.run("grant('" + id + "'," + permisionType + ", '" + objs + "')", function (re) {
+            callback();
+        });
     },
     deny: function (id, permisionType, objs, callback) {
-        var p = {
-            "sessionID": 0,
-            "functionName": "deny",
-            "params": [{
-                "name": "Id",
-                "form": "scalar",
-                "type": "string",
-                "value": id
-            }, {
-                "name": "permission",
-                "form": "scalar",
-                "type": "int",
-                "value": permisionType
-            }, {
-                "name": "objs",
-                "form": "vector",
-                "type": "string",
-                "value": objs
-            }
-            ]
-        };
-        CallWebApi(this._url, p, callback);
+        // var p = {
+        //     "sessionID": 0,
+        //     "functionName": "deny",
+        //     "params": [{
+        //         "name": "Id",
+        //         "form": "scalar",
+        //         "type": "string",
+        //         "value": id
+        //     }, {
+        //         "name": "permission",
+        //         "form": "scalar",
+        //         "type": "int",
+        //         "value": permisionType
+        //     }, {
+        //         "name": "objs",
+        //         "form": "vector",
+        //         "type": "string",
+        //         "value": objs
+        //     }
+        //     ]
+        // };
+        // CallWebApi(this._url, p, callback);
+        if (objs.length===0){
+            this.exec.run("deny('" + id + "'," + permisionType + ")", function (re) {
+                callback();
+            });
+        }else{
+            this.exec.run("deny('" + id + "'," + permisionType + ", '" + objs + "')", function (re) {
+                callback();
+            });
+        }
+       
+
     },
     revoke: function (id, permisionType, callback) {
         this.exec.run("revoke('" + id + "'," + permisionType + ")", function (re) {

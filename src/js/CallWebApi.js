@@ -1,7 +1,9 @@
 ///
-var session_storage_id = "dolphindb_session_id";
+var session_storage_id = "ddb.session_id";
 
 function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
+    // console.log('callWebApi');
+    // console.log(localStorage.getItem(session_storage_id));
 
     if (typeof elem === 'undefined')
         elem = $('#execute-spin');
@@ -32,6 +34,10 @@ function CallWebApi(apiurl, paramstr, sucfunc, errfunc, customOption) {
         data: d,
         type: "POST",
         dataType: "json",
+        contentType: 'application/json',
+        headers: {
+            'x-ddb': '1'
+        },
         success: function (data, status, xhr) {
 
             CurrentSessionID = data["sessionID"];
@@ -59,6 +65,9 @@ function CallWebApiSync(apiurl, paramstr) {
     if (typeof CurrentSessionID === 'undefined') {
         var CurrentSessionID = 0;
     }
+
+    // console.log('callWebApiSync');
+    // console.log(localStorage.getItem(session_storage_id),apiurl);
     if (localStorage.getItem(session_storage_id) == null || localStorage.getItem(session_storage_id) == "") {
         paramstr['sessionID'] = CurrentSessionID;
         localStorage.setItem(session_storage_id, CurrentSessionID)
@@ -83,7 +92,11 @@ function CallWebApiSync(apiurl, paramstr) {
         data: d,
         timeout: 30000,
         type: "POST",
-        dataType: "json"
+        dataType: "json",
+        contentType: 'application/json',
+        headers: {
+            'x-ddb': '1'
+        },
     });
     var reobj = JSON.parse(re.responseText);
     CurrentSessionID = reobj["sessionID"];
@@ -116,6 +129,10 @@ function CallWebApiWithoutSession(apiurl, paramstr, sucfunc, errfunc, customOpti
         data: d,
         type: "POST",
         dataType: "json",
+        contentType: 'application/json',
+        headers: {
+            'x-ddb': '1'
+        },
         success: function (data, status, xhr) {
             if (sucfunc) sucfunc(data);
         },
@@ -157,7 +174,11 @@ function CallWebApiSyncWithoutSession(apiurl, paramstr) {
         data: d,
         timeout: 30000,
         type: "POST",
-        dataType: "json"
+        dataType: "json",
+        contentType: 'application/json',
+        headers: {
+            'x-ddb': '1'
+        },
     });
     var reobj = JSON.parse(re.responseText);
     return reobj

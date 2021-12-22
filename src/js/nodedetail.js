@@ -70,9 +70,9 @@ $(function () {
     if (ALIAS) {
         document.title = ALIAS;
     }
-
-    var ticket = window.name;
-
+    
+    var ticket = window.name || localStorage.getItem('ddb.ticket');
+    
     nodeApi.authenticateByTicket(ticket, function (re) {
         if (re.resultCode === "1") {
             console.log("login as a guest");

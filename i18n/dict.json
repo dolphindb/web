@@ -1,0 +1,107 @@
+{
+    "控制台": {
+        "en": "Console"
+    },
+    "注销": {
+        "en": "Logout"
+    },
+    "登录": {
+        "en": "Login"
+    },
+    "集群管理": {
+        "en": "Cluster"
+    },
+    "交互编程": {
+        "en": "Shell"
+    },
+    "作业管理": {
+        "en": "Job"
+    },
+    "文件系统": {
+        "en": "DFS"
+    },
+    "日志查看": {
+        "en": "Log"
+    },
+    "刷新": {
+        "en": "Refresh"
+    },
+    "输入关键字后按回车可搜索作业": {
+        "en": "Type keywords then press enter to search jobs"
+    },
+    "同步作业": {
+        "en": "Synchronized Jobs"
+    },
+    "个进行中": {
+        "en": "in progress"
+    },
+    "异步作业": {
+        "en": "Asynchronized Jobs"
+    },
+    "个已完成": {
+        "en": "finished"
+    },
+    "定时作业": {
+        "en": "Scheduled Jobs"
+    },
+    "个已配置": {
+        "en": "configured"
+    },
+    "确认停止作业": {
+        "en": "Confirm stop the job"
+    },
+    "确认删除作业": {
+        "en": "Confirm delete the job"
+    },
+    "停止作业成功": {
+        "en": "Stopped the job sucessfully"
+    },
+    "删除作业成功": {
+        "en": "Deleted the job successfully"
+    },
+    "作业已完成": {
+        "en": "Job is already finished"
+    },
+    "停止": {
+        "en": "Stop"
+    },
+    "删除": {
+        "en": "Delete"
+    },
+    "请输入用户名": {
+        "en": "Input username"
+    },
+    " 用户名 (默认: admin)": {
+        "en": " username (default: admin)"
+    },
+    "请输入密码": {
+        "en": "Input password"
+    },
+    " 密码 (默认: 123456)": {
+        "en": " password (default: 123456)"
+    },
+    "运行中作业": {
+        "en": "Running Jobs"
+    },
+    "已提交作业": {
+        "en": "Submitted Jobs"
+    },
+    "已定时作业": {
+        "en": "Scheduled Jobs"
+    },
+    "登录成功": {
+        "en": "Logined successsfully"
+    },
+    "用户名或密码错误": {
+        "en": "Incorrect username or password"
+    },
+    " 用户名": {
+        "en": " Username"
+    },
+    " 密码": {
+        "en": " Password"
+    },
+    "停止作业指令发送成功": {
+        "en": "The command of stopping the job was sent successfully"
+    }
+}

@@ -121,6 +121,8 @@ var ServerObject = function (sites) {
     }
 
     this.getServer = function () {
+        if (svrArr.length < 2)
+            return svrArr[0]
         return svrArr[0] + ":" + svrArr[1];
     }
 

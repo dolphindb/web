@@ -1,5 +1,9 @@
 node_modules/
-/build/
+
+/web/
+/web.zip
+/web.cloud/
+/web.cloud.zip
 
 /*.js
 *.map
@@ -8,51 +12,3 @@ node_modules/
 /i18n/scanneds.json
 /i18n/stats.json
 
-# Compiled class file
-*.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# bat files
-*.bat
-
-# Package Files #
-*.jar
-*.war
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-.vscode/launch.json
-.vscode/settings.json
-.idea/workspace.xml
-.idea/vcs.xml
-.idea/modules.xml
-.idea/misc.xml
-.idea/dolphindb_manager.iml
-/src/.vs
-/src/.vs/config/applicationhost.config
-/src/.vs/ProjectSettings.json
-/src/.vs/slnx.sqlite
-/src/.vs/config
-/src/.vs
-/src/.vs/slnx.sqlite
-/src/.vs/ProjectSettings.json
-/src/.vs/config/applicationhost.config
-src/.vs/slnx.sqlite
-src/.vs/slnx.sqlite
-src/.vs/slnx.sqlite
-src/.vs/slnx.sqlite
-*.sqlite
-*.sqlite
-src/.vscode/tasks.json
