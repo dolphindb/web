@@ -1,3 +1,8 @@
+import {
+    default as dayjs,
+    type Dayjs,
+} from 'dayjs'
+
 import Model from 'react-object-model'
 
 import { request_json } from 'xshell/net.browser'
@@ -56,7 +61,7 @@ export class CloudModel extends Model <CloudModel> {
         
         const { items: clusters } = await request_json('/v1/dolphindbs', {
             queries: {
-                pageSize: 100000
+                pageSize: 100000,
             }
         })
         
@@ -112,6 +117,8 @@ export class CloudModel extends Model <CloudModel> {
     
     async get_cluster (cluster_overview: Cluster) {
         const cluster = await request_json(`/v1/dolphindbs/${cluster_overview.namespace}/${cluster_overview.name}`)
+        cluster.created_at = dayjs(cluster.creationTimestamp)
+        
         console.log('cluster:', cluster)
         this.set({
             cluster
@@ -128,6 +135,7 @@ export interface Cluster {
     cluster_type?: string
     version: string
     storage_class_name: string
+    created_at: Dayjs
     controller: {
         replicas: number
         resources: any

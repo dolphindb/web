@@ -35,7 +35,7 @@ export function Cloud () {
 function ClusterDetail () {
     const { cluster } = model.use(['cluster'])
     
-    const { namespace, name, log_mode, version, storage_class_name, Services: services, status } = cluster
+    const { namespace, name, log_mode, version, storage_class_name, Services: services, status, created_at } = cluster
     
     return <div className='cluster'>
         <PageHeader
@@ -65,6 +65,7 @@ function ClusterDetail () {
                 <Mode cluster={cluster} />
             </Descriptions.Item>
             <Descriptions.Item label='log mode'>{log_modes[log_mode] || log_mode}</Descriptions.Item>
+            <Descriptions.Item label='created at'>{created_at.format('YYYY.MM.DD HH:mm:ss')}</Descriptions.Item>
             <Descriptions.Item label='storage class'>{storage_class_name}</Descriptions.Item>
         </Descriptions>
         
@@ -184,12 +185,6 @@ function Clusters () {
             dataSource={clusters}
             rowKey='name'
             pagination={false}
-            expandable={{
-                rowExpandable: cluster => 
-                    cluster.mode === 'cluster',
-                expandedRowRender: cluster =>
-                    <ClusterNodes cluster={cluster} />
-            }}
         />
         
         { creating && <Title className='creating-title' level={4}>{t('新建集群配置')}</Title> }

@@ -13,6 +13,7 @@ if (is_cloud) {
     await fdelete(fpd_out_cloud)
     await fcopy(`${fp_root}src/third-party/react/`, fpd_out_cloud, { overwrite: true })
     await fcopy(`${fpd_src_cloud}index.html`, `${fpd_out_cloud}index.html`, { overwrite: true })
+    await fcopy(`${fpd_src_cloud}ddb.png`, `${fpd_out_cloud}ddb.png`, { overwrite: true })
 } else {
     await fdelete(fpd_out_console)
     await fcopy(`${fp_root}src/`, fpd_out_console, { overwrite: true })
