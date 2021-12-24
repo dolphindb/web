@@ -157,6 +157,11 @@ const config: Webpack.Configuration = {
     ],
     
     
+    optimization: {
+        minimize: false,
+    },
+    
+    
     cache: {
         type: 'filesystem',
         compression: false,
