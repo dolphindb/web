@@ -8,12 +8,10 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons'
 import { t } from '../i18n'
 import model from './model'
 
+
 export function Login () {
     return <>
-        <Typography.Title className='title'>
-            <img src='./ico/logo.png' />
-            <span>DolphinDB</span>
-        </Typography.Title>
+        <img className='logo' src='./ddb.svg' />
         
         <div className='form-container'>
             <Form

@@ -1,7 +1,7 @@
 import 'antd/dist/antd.css'
 import './index.sass'
 import 'xshell/scroll-bar.sass'
-import 'xshell/myfont.sass'
+import '../fonts/myfont.sass'
 
 import { default as React, useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
@@ -10,18 +10,19 @@ import {
     Menu,
     ConfigProvider,
     Dropdown,
-    Avatar
+    Avatar,
+    Typography
 } from 'antd'
 import {
-    ApartmentOutlined,
+    default as Icon,
     AppstoreOutlined, 
     DatabaseOutlined, 
     DownOutlined, 
     LogoutOutlined, 
-    ProfileOutlined, 
-    RightSquareOutlined, 
     TableOutlined,
-    UserOutlined
+    UserOutlined,
+    DoubleLeftOutlined,
+    DoubleRightOutlined,
 } from '@ant-design/icons'
 import zh from 'antd/lib/locale/zh_CN'
 import en from 'antd/lib/locale/en_US'
@@ -29,6 +30,7 @@ import ja from 'antd/lib/locale/ja_JP'
 import ko from 'antd/lib/locale/ko_KR'
 
 
+import { language, t } from '../i18n'
 
 import { model, DdbModel, NodeType } from './model'
 
@@ -39,8 +41,14 @@ import ShellOld from './shell.old'
 import Job from './job'
 import DFS from './dfs'
 
-import { language, t } from '../i18n'
+import SvgCluster from './cluster.icon.svg'
+import SvgDFS from './dfs.icon.svg'
+import SvgJob from './job.icon.svg'
+import SvgShell from './shell.icon.svg'
+import SvgShellOld from './shell.old.icon.svg'
 
+
+const { Text } = Typography
 
 const locales = { zh, en, ja, ko }
 
@@ -49,8 +57,6 @@ function DolphinDB () {
     const { inited } = model.use(['inited'])
     
     useEffect(() => {
-        document.title = `DolphinDB - ${t('控制台')}`
-        
         model.init()
     }, [ ])
     
@@ -77,33 +83,34 @@ function DdbHeader () {
     const { logined, username } = model.use(['logined', 'username'])
     
     return <>
-        <div className='logo'>
-            <img src='./ico/logo.png' />
-            <span className='title'>DolphinDB {t('控制台')}</span>
-        </div>
+        <img className='logo' src='./ddb.svg' />
+        
+        <div className='padding' />
         
         <div className='user'>
-            <Dropdown overlay={
-                <Menu className='menu'>{
-                    logined ?
-                        <Menu.Item key='logout' icon={<LogoutOutlined />}>
-                            <a
-                                className='logout'
-                                onClick={() => {
-                                    model.logout()
-                                }}
-                            >{t('注销')}</a>
-                        </Menu.Item>
-                    :
-                        <Menu.Item key='login' icon={<LogoutOutlined />}>
-                            <a
-                                className='login'
-                                onClick={() => {
-                                    model.set({ view: 'login' })
-                            }}>{t('登录')}</a>
-                        </Menu.Item>
-                }</Menu>
-            }>
+            <Dropdown
+                overlay={
+                    <Menu className='menu'>{
+                        logined ?
+                            <Menu.Item key='logout' icon={<LogoutOutlined />}>
+                                <a
+                                    className='logout'
+                                    onClick={() => {
+                                        model.logout()
+                                    }}
+                                >{t('注销')}</a>
+                            </Menu.Item>
+                        :
+                            <Menu.Item key='login' icon={<LogoutOutlined />}>
+                                <a
+                                    className='login'
+                                    onClick={() => {
+                                        model.set({ view: 'login' })
+                                }}>{t('登录')}</a>
+                            </Menu.Item>
+                    }</Menu>
+                }
+            >
                 <a className='username'>
                     <Avatar className='avatar' icon={<UserOutlined />} size='small' /> {username} <DownOutlined />
                 </a>
@@ -116,7 +123,23 @@ function DdbHeader () {
 function DdbSider () {
     const { view, node_type } = model.use(['view', 'node_type'])
     
-    return <Layout.Sider width={200} className='sider' theme='light' collapsible>
+    const [collapsed, set_collapsed] = useState(false)
+    
+    return <Layout.Sider
+        width={200}
+        className='sider'
+        theme='light'
+        collapsible
+        collapsedWidth={50}
+        collapsed={collapsed}
+        trigger={<div className={`collapse-trigger ${collapsed ? 'collapsed' : 'expand'}`}>
+            {collapsed ? <DoubleRightOutlined className='collapse-icon' /> : <DoubleLeftOutlined className='collapse-icon' />}
+            {!collapsed && <Text className='text' ellipsis>{t('收起侧边栏')}</Text>}
+        </div>}
+        onCollapse={(collapsed, type) => {
+            set_collapsed(collapsed)
+        }}
+    >
         <Menu
             className='menu'
             mode='inline'
@@ -128,16 +151,18 @@ function DdbSider () {
         >
             {/* <Menu.Item key='overview' icon={<AppstoreOutlined />}>总览</Menu.Item> */}
             { node_type === NodeType.controller && 
-                <Menu.Item key='cluster' icon={<ApartmentOutlined />}>{t('集群管理')}</Menu.Item>
+                <Menu.Item key='cluster' icon={<MenuIcon view='cluster' />}>{t('集群管理')}</Menu.Item>
             }
-            <Menu.Item key='shellold' icon={<RightSquareOutlined />}>{t('交互编程')}</Menu.Item>
-            {/* <Menu.Item key='shell' icon={<RightSquareOutlined />}>Shell</Menu.Item> */}
+            <Menu.Item key='shellold' icon={<MenuIcon view='shellold' />}>{t('交互编程')}</Menu.Item>
+            {/* <Menu.Item key='shell' icon={<MenuIcon view='shell' />}>Shell</Menu.Item> */}
+            
             {/* <Menu.SubMenu key='data' title='数据' icon={<DatabaseOutlined />}>
                 <Menu.Item key='table' icon={<TableOutlined />}>数据表</Menu.Item>
             </Menu.SubMenu> */}
-            <Menu.Item key='job' icon={<ProfileOutlined />}>{t('作业管理')}</Menu.Item>
+            
+            <Menu.Item key='job' icon={<MenuIcon view='job' />}>{t('作业管理')}</Menu.Item>
             { (node_type === NodeType.controller || node_type === NodeType.single) && 
-                <Menu.Item key='dfs' icon={<DatabaseOutlined />}>{t('文件系统')}</Menu.Item>
+                <Menu.Item key='dfs' icon={<MenuIcon view='dfs' />}>{t('文件系统')}</Menu.Item>
             }
             {/* <Menu.Item key='log' icon={<DatabaseOutlined />}>{t('日志查看')}</Menu.Item> */}
         </Menu>
@@ -164,6 +189,19 @@ function DdbContent () {
     return <div className={`view-card ${view}`}>
         <View/>
     </div>
+}
+
+
+const svgs = {
+    cluster: SvgCluster,
+    job: SvgJob,
+    shell: SvgShell,
+    shellold: SvgShellOld,
+    dfs: SvgDFS,
+}
+
+function MenuIcon ({ view }: { view: DdbModel['view'] }) {
+    return <Icon className='icon-menu' component={svgs[view]} />
 }
 
 

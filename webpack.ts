@@ -83,19 +83,14 @@ const config: Webpack.Configuration = {
             },
             {
                 test: /\.tsx?$/,
-                exclude: [
-                    /node_modules/,
-                    /repl[/\\]repl/,
-                ],
-                use: [{
-                    loader: 'ts-loader',
-                    // https://github.com/TypeStrong/ts-loader
-                    options: {
-                        configFile: `${fp_root}tsconfig.json`,
-                        onlyCompileBundledFiles: true,
-                        transpileOnly: true,
-                    } as Partial<TSLoaderOptions>
-                }]
+                exclude: /node_modules/,
+                loader: 'ts-loader',
+                // https://github.com/TypeStrong/ts-loader
+                options: {
+                    configFile: `${fp_root}tsconfig.json`,
+                    onlyCompileBundledFiles: true,
+                    transpileOnly: true,
+                } as Partial<TSLoaderOptions>
             },
             {
                 test: /\.s[ac]ss$/,
@@ -130,16 +125,24 @@ const config: Webpack.Configuration = {
                 ]
             },
             {
-                test: /\.(ico|png|jpe?g|gif|svg|woff2?|ttf|eot|otf|mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
-                loader: 'url-loader',
-                options: {
-                    name: '[path][name].[ext]',
-                    limit: 30 * 10**3
-                }
+                oneOf: [
+                    {
+                        test: /\.icon\.svg$/,
+                        issuer: /\.[jt]sx?$/,
+                        loader: '@svgr/webpack',
+                        options: {
+                            icon: true,
+                        }
+                    },
+                    {
+                        test: /\.(svg|ico|png|jpe?g|gif|woff2?|ttf|eot|otf|mp4|webm|ogg|mp3|wav|flac|aac)$/,
+                        type: 'asset/inline',
+                    },
+                ]
             },
             {
                 test: /\.txt$/,
-                loader: 'raw-loader',
+                type: 'asset/source',
             }
         ],
     },
@@ -161,6 +164,9 @@ const config: Webpack.Configuration = {
         minimize: false,
     },
     
+    performance: {
+        hints: false,
+    },
     
     cache: {
         type: 'filesystem',
@@ -260,7 +266,7 @@ export let webpack = {
         
         this.compiler = Webpack(config)
         
-        return new Promise<void>((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {
             this.compiler.run((error, stats) => {
                 if (error || stats.hasErrors()) {
                     console.log(stats.toString(config.stats))
@@ -271,6 +277,10 @@ export let webpack = {
                 console.log(stats.toString(config.stats))
                 resolve()
             })
+        })
+        
+        await new Promise(resolve => {
+            this.compiler.close(resolve)
         })
     }
 }

@@ -1,7 +1,7 @@
 import 'antd/dist/antd.css'
 import './index.sass'
 import 'xshell/scroll-bar.sass'
-import 'xshell/myfont.sass'
+import '../fonts/myfont.sass'
 
 import { default as React, useEffect } from 'react'
 import ReactDOM from 'react-dom'

@@ -920,28 +920,31 @@ export class DdbObj <T extends DdbValue = DdbValue> {
         const type = (() => {
             const tname = DdbType[this.type]
             
-            if (this.form === DdbForm.scalar)
-                return tname
-            
-            if (this.form === DdbForm.vector)
-                return `${tname}[${this.rows}]`
-            
-            if (this.form === DdbForm.pair)
-                return `pair<${tname}>`
+            switch (this.form) {
+                case DdbForm.scalar:
+                    return tname
                 
-            if (this.form === DdbForm.set)
-                return `set<${tname}>`
+                case DdbForm.vector:
+                    return `${tname}[${this.rows}]`
                 
-            if (this.form === DdbForm.table)
-                return `table[${this.rows} rows][${this.cols} cols]`
-            
-            if (this.form === DdbForm.dict)
-                return `dict<${DdbType[(this.value[0] as DdbObj).type]}, ${DdbType[(this.value[1] as DdbObj).type]}>`
-            
-            if (this.form === DdbForm.matrix)
-                return `matrix<${DdbType[this.datatype]}>[${this.rows} rows][${this.cols} cols]`
-            
-            return `${DdbForm[this.form]} ${tname}`
+                case DdbForm.pair:
+                    return `pair<${tname}>`
+                
+                case DdbForm.set:
+                    return `set<${tname}>`
+                
+                case DdbForm.table:
+                    return `table[${this.rows} rows][${this.cols} cols]`
+                
+                case DdbForm.dict:
+                    return `dict<${DdbType[(this.value[0] as DdbObj).type]}, ${DdbType[(this.value[1] as DdbObj).type]}>`
+                
+                case DdbForm.matrix:
+                    return `matrix<${DdbType[this.datatype]}>[${this.rows} rows][${this.cols} cols]`
+                
+                default:
+                    return `${DdbForm[this.form]} ${tname}`
+            }
         })()
         
         const data = (() => {
@@ -996,9 +999,10 @@ export class DdbObj <T extends DdbValue = DdbValue> {
     
     
     to_rows <T extends Record<string, any> = Record<string, any>> () {
-        let rows: T[] = [ ]
+        let rows = new Array<T>(this.rows)
+        
         for (let i = 0;  i < this.rows;  i++) {
-            let row = { }
+            let row: any = { }
             for (let j = 0;  j < this.cols;  j++) {
                 const c: DdbObj = this.value[j]
                 
@@ -1009,8 +1013,9 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                 
                 row[c.name] = c.value[i]
             }
-            rows.push(row as T)
+            rows[i] = row
         }
+        
         return rows
     }
 }
@@ -1145,16 +1150,13 @@ export let ddb = {
         )[0]
     ),
     
-    resolvers: [ ] as ((buf: Uint8Array) => void)[],
-    rejectors: [ ] as ((error: Error) => void)[],
-    iresolver: 0,
+    /** resolver, rejector, promise of last rpc */
+    presolver (buf: Uint8Array) { },
+    prejector (error: Error) { },
+    presult: Promise.resolve(null) as Promise<Uint8Array>,
     
     
     async connect () {
-        this.iresolver = 0
-        this.resolvers = [ ]
-        this.rejectors = [ ]
-        
         const url = new URL(location.href)
         
         const hostname = url.searchParams.get('hostname') || location.hostname
@@ -1170,10 +1172,8 @@ export let ddb = {
         
         this.ws = ws
         
-        let first = true
-        
         ws.addEventListener('open', ev => {
-            console.log(`${ws_url} opened, 可以开始发数据了`)
+            console.log('ws opened:', ws_url)
             
             ws.send(
                 `API ${this.sid} 8\n` +
@@ -1183,48 +1183,40 @@ export let ddb = {
         
         ws.addEventListener('close', ev => {
             console.log('ws closed', ev)
-            // 自动重连
-            // delay(5000).then(() => {
-            //     this.connect()
-            // })
         })
         
         ws.addEventListener('error', ev => {
             console.log('ws errored', ev)
         })
         
-        await new Promise<void>(resolve => {
-            ws.addEventListener('message', ev => {
-                try {
-                    const data_buf = this.parse_message(
-                        new Uint8Array(ev.data as ArrayBuffer)
-                    )
-                    
-                    if (first) {
-                        first = false
-                        resolve()
-                        
-                        // 疏通 server socket
-                        ;(async () => {
-                            for (;  ws.readyState === WebSocket.OPEN;) {
-                                await delay(500)
-                                if (this.iresolver >= this.resolvers.length) continue
-                                await this.eval('1')
-                            }
-                        })()
-                        return
-                    }
-                    
-                    this.resolvers[this.iresolver++](data_buf)
-                } catch (error) {
-                    this.rejectors[this.iresolver++](error)
-                }
-            })
+        // 为首个 connect 响应报文初始化 presult 链表头结点
+        this.presult = new Promise((resolve, reject) => {
+            this.presolver = resolve
+            this.prejector = reject
         })
+        
+        ws.addEventListener('message', ({ data: buf }) => {
+            try {
+                this.presolver(
+                    this.parse_message(
+                        new Uint8Array(buf as ArrayBuffer)
+                    )
+                )
+            } catch (error) {
+                this.prejector(error)
+            }
+        })
+        
+        await this.presult
     },
     
     
-    /** rpc through websocket (function command)
+    /** rpc through websocket (function command)  
+        ddb 世界观：需要等待上一个 rpc 结果从 server 返回之后才能发起下一个调用  
+        违反世界观可能造成:  
+        1. 并发多个请求只返回第一个结果（阻塞，需后续请求疏通）
+        2. Windows 下 ddb server 返回多个相同的结果
+        
         - type: API 类型: 'script' | 'function' | 'variable'
         - options:
             - urgent?: 决定 `行为标识` 那一行字符串的取值（只适用于 script 和 funciton）
@@ -1247,6 +1239,24 @@ export let ddb = {
     }) {
         if (!this.ws)
             await this.connect()
+        
+        // 临界区：保证多个 rpc 并发时形成 promise 链
+        const ptail = this.presult
+        let presolver: (buf: Uint8Array) => void
+        let prejector: (error: Error) => void
+        
+        const presult = this.presult = new Promise<Uint8Array>((resolve, reject) => {
+            presolver = resolve
+            prejector = reject
+        })
+        
+        try {
+            await ptail
+        } catch { }
+        
+        this.presolver = presolver
+        this.prejector = prejector
+        // 临界区结束，只有一个 rpc 请求可以写 WebSocket
         
         if (urgent && type !== 'script' && type !== 'function')
             throw new Error('urgent 只适用于 script 和 funciton')
@@ -1295,46 +1305,42 @@ export let ddb = {
             })()
         }
         
+        const command = this.enc.encode(
+            (() => {
+                switch (type) {
+                    case 'function':
+                        return 'function\n' +
+                            `${func}\n` +
+                            `${args.length}\n` +
+                            `${Number(this.le_client)}\n`
+                        
+                    case 'script':
+                        return 'script\n' +
+                            script
+                            
+                    case 'variable':
+                        return 'variable\n' +
+                            `${vars.join(',')}\n` +
+                            `${vars.length}\n` +
+                            `${Number(this.le_client)}\n`
+                }
+            })()
+        )
+        
+        const message = concat([
+            this.enc.encode(
+                `API ${this.sid} ${command.length}${ urgent ? ` / 1_1_8_8` : '' }\n`
+            ),
+            command,
+            ... args.map(arg =>
+                arg.pack()
+            )
+        ])
+        
+        this.ws.send(message)
         
         return DdbObj.parse(
-            await new Promise<Uint8Array>((resolve, reject) => {
-                this.resolvers.push(resolve)
-                this.rejectors.push(reject)
-                
-                const command = this.enc.encode(
-                    (() => {
-                        switch (type) {
-                            case 'function':
-                                return 'function\n' +
-                                    `${func}\n` +
-                                    `${args.length}\n` +
-                                    `${Number(this.le_client)}\n`
-                                
-                            case 'script':
-                                return 'script\n' +
-                                    script
-                                    
-                            case 'variable':
-                                return 'variable\n' +
-                                    `${vars.join(',')}\n` +
-                                    `${vars.length}\n` +
-                                    `${Number(this.le_client)}\n`
-                        }
-                    })()
-                )
-                
-                this.ws.send(
-                    concat([
-                        this.enc.encode(
-                            `API ${this.sid} ${command.length}${ urgent ? ` / 1_1_8_8` : '' }\n`
-                        ),
-                        command,
-                        ... args.map(arg => 
-                            arg.pack()
-                        )
-                    ])
-                )
-            })
+            await presult  // data_buf
         ) as T
     },
     
