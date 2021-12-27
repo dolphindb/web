@@ -62,6 +62,11 @@ export class CloudModel extends Model <CloudModel> {
         const { items: clusters } = await request_json('/v1/dolphindbs', {
             queries: {
                 pageSize: 100000,
+                
+                // LOCAL
+                // mode: ['cluster/multicontroller', 'cluster/singlecontroller'],
+                // by: ['mode', 'version'],
+                // sort: ['asc', 'desc'],
             }
         })
         
