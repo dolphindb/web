@@ -1,4 +1,4 @@
-## 如何获取最新的 web 代码
+## 如何获取最新的 web 文件夹
 1. 访问: http://192.168.1.200:8080/job/dolphindb_web/  (用户名: intern 密码: DolphinDB@3)
 2. 点击左边的: Build with Parameters
 3. 选择 `master` 分支，点击下面的开始构建，构建后产物会通过 `rsync -av --delete ./web/ jenkins@192.168.1.204:/hdd/ftp/origin/console/` 上传到 ftp
