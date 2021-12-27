@@ -12,7 +12,7 @@
         "build.cloud": "tsc --project ./tsconfig.lib.json && node ./build.js cloud"
     },
     "engines": {
-        "node": ">=17.1.0"
+        "node": ">=17.3.0"
     },
     "author": {
         "name": "Hongfei Shen",

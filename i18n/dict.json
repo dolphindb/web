@@ -48,10 +48,10 @@
         "en": "configured"
     },
     "确认停止作业": {
-        "en": "Confirm stop the job"
+        "en": "Stop the job?"
     },
     "确认删除作业": {
-        "en": "Confirm delete the job"
+        "en": "Delete the job?"
     },
     "停止作业成功": {
         "en": "Stopped the job sucessfully"
@@ -136,5 +136,8 @@
     },
     "取消": {
         "en": "Cancel"
+    },
+    "收起侧边栏": {
+        "en": "Collapse"
     }
 }

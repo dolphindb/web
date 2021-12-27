@@ -82,6 +82,15 @@ function DolphinDB () {
 function DdbHeader () {
     const { logined, username } = model.use(['logined', 'username'])
     
+    const { node_alias } = model.use(['node_alias'])
+    
+    useEffect(() => {
+        if (!node_alias)
+            return
+        document.title = `DolphinDB - ${node_alias}`
+    }, [node_alias])
+    
+    
     return <>
         <img className='logo' src='./ddb.svg' />
         
