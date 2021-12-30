@@ -40,7 +40,7 @@ async function repl_router (ctx: Context): Promise<boolean> {
         return true
     }
     
-    if (path.startsWith('/v1/dolphindbs')) {
+    if (path.startsWith('/v1')) {
         response.body = await request_json(`http://192.168.1.241:31551${path}`, {
             method: method as any,
             queries: query,
@@ -49,7 +49,7 @@ async function repl_router (ctx: Context): Promise<boolean> {
         
         return true
     }
-    
+
     if (path === '/cloud/react.production.min.js' || path === '/cloud/react-dom.production.min.js')
         path = `/third-party/react/${path.slice('/cloud/'.length)}`
     
@@ -83,4 +83,5 @@ console.log(
     'http://localhost:8421/console/index.html?hostname=ddb253.shenhongfei.com&port=8850\n' +
     'http://localhost:8421/cloud/index.html'
 )
+
 

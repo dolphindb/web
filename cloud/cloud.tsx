@@ -3,7 +3,7 @@ import './cloud.sass'
 import { default as React, useEffect, useState } from 'react'
 
 import { Badge, Button, Form, Input, Select, Table, Typography, InputNumber, message, Tooltip, Popconfirm, Divider, PageHeader, Descriptions } from 'antd'
-import { ReloadOutlined } from '@ant-design/icons'
+import { ConsoleSqlOutlined, ReloadOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors'
 
 import { t } from '../i18n'
@@ -13,6 +13,8 @@ import {
     type ClusterType,
     type Cluster,
     type ClusterNode,
+    ClusterConfig,
+    ClusterConfigItem,
 } from './model'
 
 import icon_add from './add.svg'
@@ -36,6 +38,27 @@ function ClusterDetail () {
     const { cluster } = model.use(['cluster'])
     
     const { namespace, name, log_mode, version, storage_class_name, Services: services, status, created_at } = cluster
+
+    const [config, setConfig] = useState<ClusterConfig>({
+        cluster_config: [],
+        controller_config: [],
+        agent_config: []
+    })
+
+    const onConfigChange = (config: ClusterConfig) => {
+        setConfig(config)
+        console.log(`cluster ${cluster.namespace}/${cluster.name} new config:`, config)
+    }
+
+    useEffect(() => {
+        async function fetchClusterConfig() {
+            const config = await model.get_cluster_config(cluster)
+            setConfig(config)
+            console.log(`cluster ${cluster.namespace}/${cluster.name} config:`, config)
+        }
+        fetchClusterConfig()
+    }, [cluster])
+
     
     return <div className='cluster'>
         <PageHeader
@@ -50,7 +73,7 @@ function ClusterDetail () {
         
         <Descriptions
             title={
-                <Title level={4}>Configuration</Title>
+                <Title level={4}>Info</Title>
             }
             column={2}
             bordered
@@ -85,12 +108,14 @@ function ClusterDetail () {
         </Descriptions>
         
         <ClusterNodes cluster={cluster} />
+        
+        <ClusterConfigs config={config} cluster={cluster} onConfigChange={onConfigChange} />
     </div>
 }
 
 
 function Clusters () {
-    const { clusters } = model.use(['clusters'])
+    const { clusters, namespaces, storageclasses } = model.use(['clusters', 'namespaces', 'storageclasses'])
     
     const [creating, set_creating] = useState(false)
     
@@ -119,6 +144,8 @@ function Clusters () {
                 icon={<ReloadOutlined/>}
                 onClick={() => {
                     model.get_clusters()
+                    model.get_namespaces()
+                    model.get_storageclasses()
                 }}
             >{t('刷新')}</Button>
         </div>
@@ -249,6 +276,26 @@ function Clusters () {
         >
             <Form.Item name='name' label='name' rules={[{ required: true }]}>
                 <Input />
+            </Form.Item>
+
+            <Form.Item name='namespace' label='namespace' rules={[{ required: true }]}>
+                <Select placeholder='Please select a namespace'>
+                    {
+                        namespaces.map(ns => (
+                            <Option value={ns.name} key={ns.name}>{ns.name}</Option>
+                        ))
+                    }
+                </Select>
+            </Form.Item>
+
+            <Form.Item name='storage_class' label='storage_class'>
+                <Select placeholder='Please select a storage class'>
+                    {
+                        storageclasses.map(sc => (
+                            <Option value={sc.name} key={sc.name}>{sc.name}</Option>
+                        ))
+                    }
+                </Select>
             </Form.Item>
             
             <Form.Item name='mode' label='mode' rules={[{ required: true }]}>
@@ -459,6 +506,196 @@ function ClusterStatus ({
         }
         status={statuses[phase] || 'default'}
     />
+}
+
+
+function ClusterConfigs ({
+    cluster,
+    config,
+    onConfigChange
+}: {
+    cluster: Cluster,
+    config: ClusterConfig,
+    onConfigChange: (config: ClusterConfig) => void
+}) {
+
+
+    return(
+        <div className="cluster-config">
+            <Title level={4} className='cluster-config-header'>Configuration</Title>
+            <ConfigUpdateBar config={config} cluster={cluster} onConfigChange={onConfigChange}/>
+            <ConfigList title="cluster_config" configList={config.cluster_config} />
+            <ConfigList title="controller_config" configList={config.controller_config} />
+            <ConfigList title="agent_config" configList={config.agent_config} />
+        </div>
+    )
+}
+
+function ConfigList ({
+    configList,
+    title
+}: {
+    configList: ClusterConfigItem[],
+    title: String
+}) {
+    return (
+        <>
+            <Title level={5} className='cluster-config-subheader'>{title}</Title>
+            <Table dataSource={configList} columns={
+                [{
+                    title: "name",
+                    dataIndex: "name",
+                    key: "name",
+                    width: 40
+                },{
+                    title: "value",
+                    dataIndex: "value",
+                    key: "value",
+                    width: 10
+                },{
+                    title: "type",
+                    dataIndex: "type",
+                    key: "type",
+                    width: 10
+                }, {
+                    title: "description",
+                    dataIndex: "description",
+                    key: "description",
+                    width: 40
+                }]
+            } 
+            pagination={false}
+            className='cluster-config-table'
+            />
+        </>
+    )
+}
+
+function ConfigUpdateBar({
+    cluster,
+    config,
+    onConfigChange,
+}: {
+    cluster: Cluster,
+    config: ClusterConfig,
+    onConfigChange: (config: ClusterConfig) => void
+}) {
+
+    const fieldOptions = Object.getOwnPropertyNames(config)
+    const [keys, setKeys] = useState<ClusterConfigItem[]>([])
+    const [inputType, setInputType] = useState<'string' | 'int'>('string')
+
+    const [form] = Form.useForm()
+
+    const onFieldChange = (field) => {
+        setKeys(config[field])
+    }
+
+    const onKeyChange = (val) => {
+        form.setFieldsValue({ value: "" })
+        let currType = inputType
+        keys.forEach((key) => {
+            if (key.name === val) currType = key.type as ('string' | 'int')
+        })
+        if (currType !== inputType) {
+            setInputType(currType)
+        }
+    }
+
+    const onSubmit = async (values) => {
+        const newConfig: ClusterConfig = {
+            agent_config: [],
+            cluster_config: [],
+            controller_config: []
+        }
+        newConfig[values.field].push({
+            name: values.key,
+            value: String(values.value)
+        })
+        console.log(newConfig)
+        try {
+            await model.update_cluster_config(cluster, newConfig)
+            message.success(t("配置参数更新成功"))
+            const config = await model.get_cluster_config(cluster)
+            onConfigChange(config)
+        } catch (err) {
+            message.error(t("配置参数更新失败"))
+            console.error(err)
+        }
+    }
+
+
+    useEffect(() => {
+        form.setFieldsValue({ key: (keys[0] && keys[0].name) || "", value: "" })
+        setInputType((keys[0] && keys[0].type as ('string' | 'int')) || 'string')
+    }, [keys])
+
+    return(
+        <>
+            <Title level={5} className='cluster-config-subheader'>Update Configuration</Title>
+            <Form
+                className='update-config-form'
+                layout='inline'
+                form={form}
+                initialValues={{
+                    field: ""
+                }}
+                requiredMark={false}
+                colon={false}
+                onFinish={onSubmit}
+            >
+                <Form.Item 
+                    name="field" 
+                    label="field" 
+                    rules={[{required: true}]}
+                >
+                    <Select 
+                        onChange={onFieldChange}
+                        style={{width: 200}}
+                    >
+                        {
+                            fieldOptions.map(field => (
+                                <Option value={field} key={field}>{field}</Option>
+                            ))
+                        }
+                    </Select>
+                </Form.Item>
+                <Form.Item name="key" label="key" rules={[{required: true}]}>
+                    <Select
+                        style={{width: 200}}
+                        disabled={form.getFieldValue("field") === ""}
+                        onChange={onKeyChange}
+                    >
+                        {
+                            keys.map(key => (
+                                <Option value={key.name} key={key.name}>{key.name}</Option>
+                            ))
+                        }
+                    </Select>
+                </Form.Item>
+                <Form.Item name="value" label="value"  rules={[{required: true}]}>
+                {
+                    inputType === 'string' ? 
+                    (
+                        <Input 
+                            style={{width: 200}}
+                            disabled={form.getFieldValue("field") === ""}
+                        />
+                    ) : 
+                    (
+                        <InputNumber 
+                            style={{width: 200}}
+                            disabled={form.getFieldValue("field") === ""}
+                        />
+                    )
+                }
+                </Form.Item>
+                <Form.Item>
+                    <Button type='primary' htmlType='submit' className='submit'>{t('提交')}</Button>
+                </Form.Item>
+            </Form>
+        </>
+    )
 }
 
 

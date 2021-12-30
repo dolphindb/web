@@ -136,5 +136,11 @@
     },
     "取消": {
         "en": "Cancel"
+    },
+    "配置参数更新成功": {
+        "en": "Configuration updated."
+    },
+    "配置参数更新失败": {
+        "en": "Configuration update failed."
     }
 }
