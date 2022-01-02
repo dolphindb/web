@@ -7,20 +7,16 @@ import { default as React, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import {
     Layout, 
-    Menu,
     ConfigProvider,
 } from 'antd'
-import {
-    ApartmentOutlined,
-} from '@ant-design/icons'
 import zh from 'antd/lib/locale/zh_CN'
 import en from 'antd/lib/locale/en_US'
 import ja from 'antd/lib/locale/ja_JP'
 import ko from 'antd/lib/locale/ko_KR'
 
-import { model, CloudModel } from './model'
+import { model } from './model'
 
-import { language, t } from '../i18n'
+import { language } from '../i18n'
 
 import Cloud from './cloud'
 
@@ -44,8 +40,7 @@ function DolphinDB () {
                 <DdbHeader />
             </Layout.Header>
             <Layout className='body'>
-                {/* 目前只有一个管理界面，先隐藏侧边菜单 */}
-                {/* <DdbSider /> */}
+                {/* 目前只有一个管理界面，先不加侧边菜单 */}
                 <Layout.Content className='view'>
                     <DdbContent />
                 </Layout.Content>
@@ -57,31 +52,12 @@ function DolphinDB () {
 
 function DdbHeader () {
     return <>
-        <div className='logo'>
-            <img src='./ddb.png' />
-            <span className='title'>DolphinDB Cloud</span>
-        </div>
+        <img className='logo' src='../console/ddb.svg' />
+        
+        <div className='padding' />
     </>
 }
 
-
-function DdbSider () {
-    const { view } = model.use(['view'])
-    
-    return <Layout.Sider width={200} className='sider' theme='light' collapsible>
-        <Menu
-            className='menu'
-            mode='inline'
-            theme='light'
-            selectedKeys={[view]}
-            onSelect={({ key }) => {
-                model.set({ view: key as CloudModel['view'] })
-            }}
-        >
-            <Menu.Item key='cloud' icon={<ApartmentOutlined />}>{t('集群管理')}</Menu.Item>
-        </Menu>
-    </Layout.Sider>
-}
 
 const views = {
     cloud: Cloud,

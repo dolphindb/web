@@ -57,12 +57,24 @@ export enum DdbType {
     duration = 36,
 }
 
-export enum Endian {
-    be = 0,  // big-endian
-    le = 1,  // little-endian
+export enum DdbFunctionType {
+    SystemFunc = 0,
+    SystemProc = 1,
+    OperatorFunc = 2,
+    UserDefinedFunc = 3,
+    PartialFunc = 4,
+    DynamicFunc = 5,
+    PiecewiseFunc = 6,
+    JitFunc = 7,
+    JitPartialFunc = 8,
 }
 
-export type DdbValue = null | boolean | number | [number, number] | bigint | string | string[] | Uint8Array | Int16Array | Int32Array | Float32Array | Float64Array | BigInt64Array | Uint8Array[] | DdbObj[]
+export interface DdbFunctionDefValue {
+    type: DdbFunctionType
+    name: string
+}
+
+export type DdbValue = null | boolean | number | [number, number] | bigint | string | string[] | Uint8Array | Int16Array | Int32Array | Float32Array | Float64Array | BigInt64Array | Uint8Array[] | DdbObj[] | DdbFunctionDefValue
 
 
 export type DdbVectorValue = string | string[] | Uint8Array | Int16Array | Int32Array | Float32Array | Float64Array | BigInt64Array | Uint8Array[] | DdbObj[]
@@ -380,18 +392,27 @@ export class DdbObj <T extends DdbValue = DdbValue> {
             case DdbType.code:
             case DdbType.functiondef: {
                 const i_head = type === DdbType.functiondef ? 1 : 0
-                let i_zero = buf.indexOf(0)
+                let i_zero = buf.indexOf(0, i_head)
                 let i_end: number  // 整个字符串（包括 0）的末尾，excluding
                 if (i_zero === -1)
                     i_end = i_zero = buf.length
                 else
                     i_end = i_zero + 1
-                // 调整 i_zero 到字符串（不包括 0）的末尾，excluding
+                // 调整了 i_zero 到字符串（不包括 0）的末尾，excluding
+                
+                const str = this.dec.decode(
+                    buf.subarray(i_head, i_zero)
+                )
+                
                 return [
                     i_end,
-                    this.dec.decode(
-                        buf.subarray(i_head, i_zero)
-                    ),
+                    type === DdbType.functiondef ?
+                        {
+                            type: buf[0] as DdbFunctionType,
+                            name: str
+                        }
+                    :
+                        str
                 ]
             }
             
@@ -556,8 +577,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
             
             case DdbType.string: 
             case DdbType.symbol: 
-            case DdbType.code:
-            case DdbType.functiondef: {
+            case DdbType.code: {
                 let value = new Array<string>(length)
                 let i_head = 0, i_tail = i_head
                 for (let i = 0;  i < length;  i++) {
@@ -717,6 +737,12 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                                 Uint8Array.of(0),
                             ]
                         
+                        case DdbType.functiondef:
+                            return [
+                                Uint8Array.of((value as DdbFunctionDefValue).type),
+                                DdbObj.enc.encode((value as DdbFunctionDefValue).name),
+                                Uint8Array.of(0)
+                            ]
                         
                         case DdbType.uuid:
                         case DdbType.ipaddr:
@@ -859,8 +885,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
             
             case DdbType.string: 
             case DdbType.symbol: 
-            case DdbType.code:
-            case DdbType.functiondef: {
+            case DdbType.code: {
                 let bufs = new Array<Uint8Array>(length * 2)
                 for (let i = 0;  i < length;  i++) {
                     bufs[2 * i] = this.enc.encode((value as string[])[i])
@@ -922,6 +947,8 @@ export class DdbObj <T extends DdbValue = DdbValue> {
             
             switch (this.form) {
                 case DdbForm.scalar:
+                    if (this.type === DdbType.functiondef)
+                        return `functiondef<${DdbFunctionType[(this.value as DdbFunctionDefValue).type]}>`
                     return tname
                 
                 case DdbForm.vector:
@@ -950,6 +977,9 @@ export class DdbObj <T extends DdbValue = DdbValue> {
         const data = (() => {
             if (this.form === DdbForm.pair)
                 return `${this.value[0]}, ${this.value[1]}`
+            
+            if (this.form === DdbForm.scalar && this.type === DdbType.functiondef)
+                return `'${(this.value as DdbFunctionDefValue).name}'`
             
             return this.value
         })()
@@ -1115,6 +1145,19 @@ export class DdbVectorDouble extends DdbObj<Float64Array> {
     }
 }
 
+export class DdbVectorAny extends DdbObj {
+    constructor (value: DdbObj<DdbValue>[]) {
+        super({
+            form: DdbForm.vector,
+            type: DdbType.any,
+            length: 0,
+            rows: value.length,
+            cols: 1,
+            value
+        })
+    }
+}
+
 export class DdbPair extends DdbObj<Int32Array> {
     constructor (l: number, r = -2147483648) {
         super({
@@ -1124,6 +1167,17 @@ export class DdbPair extends DdbObj<Int32Array> {
             rows: 2,
             cols: 1,
             value: Int32Array.of(l, r)
+        })
+    }
+}
+
+export class DdbFunction extends DdbObj<DdbFunctionDefValue> {
+    constructor (name: string, type: DdbFunctionType) {
+        super({
+            form: DdbForm.scalar,
+            type: DdbType.functiondef,
+            length: 0,
+            value: { type, name }
         })
     }
 }
@@ -1208,6 +1262,26 @@ export let ddb = {
         })
         
         await this.presult
+        
+        await this.eval(
+            'def pnode_run (nodes, func_name, args, add_node_alias = true) {\n' +
+            '    nargs = size(args)\n' +
+            '    func = funcByName(func_name)\n' +
+            '    \n' +
+            '    if (!nargs)\n' +
+            '        return pnodeRun(func, nodes, add_node_alias)\n' +
+            '    \n' +
+            '    args_partial = array(any, 1 + nargs)\n' +
+            '    args_partial[0] = func\n' +
+            '    args_partial[1:] = args\n' +
+            '    return pnodeRun(\n' +
+            '        unifiedCall(partial, args_partial),\n' +
+            '        nodes,\n' +
+            '        add_node_alias\n' +
+            '    )\n' +
+            '}\n',
+            { urgent: true }
+        )
     },
     
     
@@ -1233,7 +1307,7 @@ export let ddb = {
         }: {
             script?: string
             func?: string
-            args?: any[]
+            args?: (DdbObj | string | boolean)[]
             vars?: string[]
             urgent?: boolean
     }) {
@@ -1264,46 +1338,7 @@ export let ddb = {
         if (this.ws.readyState !== WebSocket.OPEN)
             throw new Error('ws 连接已断开')
         
-        // 转换 args 参数为 DdbObj[]
-        for (let i = 0;  i < args.length;  i++) {
-            const arg = args[i]
-            
-            if (arg instanceof DdbObj)
-                continue
-            
-            args[i] = (() => {
-                switch (typeof arg) {
-                    case 'string':
-                        return new DdbString(arg)
-                    
-                    case 'number':
-                        return new DdbInt(arg)
-                        
-                    case 'boolean':
-                        return new DdbBool(arg)
-                        
-                    case 'object': {
-                        if (!Array.isArray(arg))
-                            throw new Error('不能自动转换 js object 到 DdbObj')
-                        if (!arg.length)
-                            throw new Error('不能自动转换 js 空数组到 DdbObj')
-                        switch (typeof arg[0]) {
-                            case 'string':
-                                return new DdbVectorString(arg)
-                            
-                            case 'number':
-                                return new DdbVectorInt(arg)
-                        }
-                        
-                        break
-                    }
-                }
-                
-                let error = new Error('不能自动转换该 arg')
-                ;(error as any).arg = arg
-                throw error
-            })()
-        }
+        this.to_ddbobjs(args)
         
         const command = this.enc.encode(
             (() => {
@@ -1332,7 +1367,7 @@ export let ddb = {
                 `API ${this.sid} ${command.length}${ urgent ? ` / 1_1_8_8` : '' }\n`
             ),
             command,
-            ... args.map(arg =>
+            ... args.map((arg: DdbObj) =>
                 arg.pack()
             )
         ])
@@ -1357,10 +1392,47 @@ export let ddb = {
     /** call function through websocket (function command) */
     async call <T extends DdbObj> (
         func: string,
-        args: any[] = [ ],
-        { urgent }: { urgent?: boolean } = { }
+        args: (DdbObj | string | boolean)[] = [ ],
+        {
+            urgent,
+            node,
+            nodes,
+            func_type,
+            add_node_alias
+        }: {
+            urgent?: boolean
+            node?: string
+            nodes?: string[]
+            func_type?: DdbFunctionType
+            add_node_alias?: boolean
+        } = { }
     ) {
-        return this.rpc<T>('function', { func, args, urgent })
+        if (node) {
+            args = [
+                node,
+                new DdbFunction(func, func_type),
+                ...args
+            ]
+            func = 'rpc'
+        }
+        
+        if (nodes) {
+            args = [
+                new DdbVectorString(nodes),
+                func,
+                new DdbVectorAny(
+                    this.to_ddbobjs(args)
+                ),
+                ... typeof add_node_alias === 'undefined' ? [ ] : [true]
+            ]
+            func = 'pnode_run'
+        }
+        
+        return this.rpc<T>('function', {
+            func,
+            args,
+            urgent,
+        })
     },
     
     
@@ -1413,11 +1485,31 @@ export let ddb = {
     },
     
     
-    pack_script (script: string) {
-        return '' +
-            `API ${this.sid} ${'script\n'.length + script.length}\n` + 
-            'script\n' +
-            script
+    /** 自动转换 js string, boolean 为 DdbObj */
+    to_ddbobj (value: DdbObj | string | boolean): DdbObj {
+        if (value instanceof DdbObj)
+            return value
+            
+        const type = typeof value
+        
+        switch (type) {
+            case 'string':
+                return new DdbString(value as string)
+            
+            case 'boolean':
+                return new DdbBool(value as boolean)
+            
+            default: 
+                throw new Error(`不能自动转换 ${type} 至 DdbObj`)
+        }
+    },
+    
+    
+    /** 转换 js 数组为 DdbObj[] (in place, 会修改原数组) */
+    to_ddbobjs (values: any[]) {
+        for (let i = 0;  i < values.length;  i++)
+            values[i] = this.to_ddbobj(values[i])
+        return values as DdbObj<DdbValue>[]
     },
 }
 

@@ -163,44 +163,50 @@ export class DdbModel extends Model <DdbModel> {
     
     
     async get_console_jobs () {
-        if (this.node_type === NodeType.controller) {
-            const active_node_names = this.nodes.filter(node => 
+        let active_node_names: string[]
+        if (this.node_type === NodeType.controller)
+            active_node_names = this.nodes.filter(node => 
                 node.state === DdbNodeState.online && node.mode !== NodeType.agent
             ).map(node => 
                 node.name
             )
-            return ddb.eval<DdbObj<DdbObj[]>>(`pnodeRun(getConsoleJobs, ${JSON.stringify(active_node_names)})`, { urgent: true })
-        }
         
-        return ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', [ ], { urgent: true })
+        return ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', [ ], {
+            urgent: true,
+            nodes: active_node_names
+        })
     }
     
     
     async get_recent_jobs () {
-        if (this.node_type === NodeType.controller) {
-            const active_node_names = this.nodes.filter(node => 
+        let active_node_names: string[]
+        if (this.node_type === NodeType.controller)
+            active_node_names = this.nodes.filter(node => 
                 node.state === DdbNodeState.online && node.mode !== NodeType.agent
             ).map(node => 
                 node.name
             )
-            return ddb.eval<DdbObj<DdbObj[]>>(`pnodeRun(getRecentJobs, ${JSON.stringify(active_node_names)})`, { urgent: true })
-        }
         
-        return ddb.call<DdbObj<DdbObj[]>>('getRecentJobs', [ ], { urgent: true })
+        return ddb.call<DdbObj<DdbObj[]>>('getRecentJobs', [ ], {
+            urgent: true,
+            nodes: active_node_names
+        })
     }
     
     
     async get_scheduled_jobs () {
-        if (this.node_type === NodeType.controller) {
-            const active_node_names = this.nodes.filter(node => 
+        let active_node_names: string[]
+        if (this.node_type === NodeType.controller)
+            active_node_names = this.nodes.filter(node => 
                 node.state === DdbNodeState.online && node.mode !== NodeType.agent
             ).map(node => 
                 node.name
             )
-            return ddb.eval<DdbObj<DdbObj[]>>(`pnodeRun(getScheduledJobs, ${JSON.stringify(active_node_names)})`, { urgent: true })
-        }
         
-        return ddb.call<DdbObj<DdbObj[]>>('getScheduledJobs', [ ], { urgent: true })
+        return ddb.call<DdbObj<DdbObj[]>>('getScheduledJobs', [ ], {
+            urgent: true,
+            nodes: active_node_names
+        })
     }
     
     
@@ -210,16 +216,18 @@ export class DdbModel extends Model <DdbModel> {
     
     
     async cancel_job (job: DdbJob) {
-        if (!job.node || this.node_alias === job.node)
-            return ddb.call('cancelJob', [job.jobId], { urgent: true })
-        return ddb.eval(`pnodeRun(cancelJob{"${job.jobId}"}, ${JSON.stringify([job.node])})`, { urgent: true })
+        return ddb.call('cancelJob', [job.jobId], {
+            urgent: true,
+            ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node }
+        })
     }
     
     
     async delete_scheduled_job (job: DdbJob) {
-        if (!job.node || this.node_alias === job.node)
-            return ddb.call('deleteScheduledJob', [job.jobId], { urgent: true })
-        return ddb.eval(`pnodeRun(deleteScheduledJob{"${job.jobId}"}, ${JSON.stringify([job.node])})`, { urgent: true })
+        return ddb.call('deleteScheduledJob', [job.jobId], {
+            urgent: true,
+            ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node }
+        })
     }
 }
 
