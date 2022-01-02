@@ -20,9 +20,17 @@ export class CloudModel extends Model <CloudModel> {
     clusters: Cluster[] = [ ]
     
     cluster: Cluster
+
+    namespaces: Namespace[] = []
+
+    storageclasses: StorageClass[] = []
     
     async init () {
-        await this.get_clusters()
+        await Promise.all([
+            this.get_clusters(),
+            this.get_namespaces(),
+            this.get_storageclasses()
+        ])
         
         this.set({
             inited: true,
@@ -79,7 +87,24 @@ export class CloudModel extends Model <CloudModel> {
             clusters
         })
     }
-    
+
+    /** get namespace options */
+    async get_namespaces() {
+        const { items: namespaces } = await request_json('/v1/namespaces')
+        console.log('namespaces:', namespaces)
+        this.set({
+            namespaces
+        })
+    }
+
+    /** get storage_class options */
+    async get_storageclasses() {
+        const { items: storageclasses } = await request_json('/v1/storageclasses')
+        console.log('storageclasses:', storageclasses)
+        this.set({
+            storageclasses
+        })
+    }
     
     async create (params) {
         console.log('新建集群:', params)
@@ -129,6 +154,17 @@ export class CloudModel extends Model <CloudModel> {
             cluster
         })
     }
+
+    async get_cluster_config (cluster: Cluster): Promise<ClusterConfig> {
+        return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/configs`)
+    }
+
+    async update_cluster_config (cluster: Cluster, newconfig: ClusterConfig) {
+        return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/configs`, {
+            method: 'put',
+            body: newconfig,
+        })
+    }
 }
 
 
@@ -165,6 +201,15 @@ export interface Cluster {
     }
 }
 
+
+export interface Namespace {
+    name: string
+}
+
+export interface StorageClass {
+    name: string
+}
+
 export interface ClusterNode {
     namespace: string
     name: string
@@ -179,6 +224,20 @@ export interface ClusterNode {
         message?: string
     }
 }
+
+export interface ClusterConfigItem {
+    name: string,
+    value: string,
+    type: string,
+    description: string
+}
+
+export interface ClusterConfig {
+    cluster_config: ClusterConfigItem[],
+    controller_config: ClusterConfigItem[],
+    agent_config: ClusterConfigItem[]
+}
+
 
 
 export type ClusterMode = 'standalone' | 'cluster'

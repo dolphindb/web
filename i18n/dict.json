@@ -139,5 +139,11 @@
     },
     "收起侧边栏": {
         "en": "Collapse"
+    },
+    "配置参数更新成功": {
+        "en": "Configuration updated"
+    },
+    "配置参数更新失败": {
+        "en": "Failed to update Configuration"
     }
 }
