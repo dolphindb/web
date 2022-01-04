@@ -1,0 +1,169 @@
+html, body
+    margin: 0
+    height: 100%
+    overscroll-behavior-y: contain
+    
+*
+    box-sizing: inherit
+
+.root
+    box-sizing: border-box
+    height: 100%
+    
+    .root-layout
+        height: 100%
+    
+    .header
+        padding: 0px 20px
+        
+        height: 40px
+        line-height: 40px
+        
+        display: flex
+        
+        background: #f2f2f2
+        
+        box-shadow: 0px 1px 0px 0px #e5e5e5
+        
+        border-bottom: #e5e5e5 1px solid
+        
+        z-index: 10
+        
+        .ant-avatar-sm
+            width: 20px
+            height: 20px
+            line-height: 20px
+        
+        
+        .logo
+            margin-left: 4px
+            width: 90px
+            height: 40px
+        
+        .padding
+            flex: 1
+        
+        .user
+            .avatar
+                background-color: #707070
+                
+            .username
+                padding: 8px
+                
+                border-radius: 4px
+                
+                color: #2e2e2e
+                font-size: 14px
+                
+                &:hover
+                    background-color: #d8d8d8
+                
+        
+    .body
+        height: 100%
+        
+        .sider
+            margin-top: 1px
+            
+            user-select: none
+            
+            background: #fafafa
+            
+            .collapse-trigger
+                display: flex
+                justify-content: left
+                align-items: center
+                
+                color: #707070
+                
+                height: 100%
+                
+                .text
+                    margin-top: 1px
+                
+                &:hover
+                    background-color: #e6e6e6
+                
+                &.expand
+                    .collapse-icon
+                        margin-left: 24px
+                        margin-right: 8px
+                
+                &.collapsed
+                    .collapse-icon
+                        flex: 1
+            
+            .ant-layout-sider-trigger
+                background: #fafafa
+                box-shadow: inset -1px 0 0 #e5e5e5
+            
+            
+            .menu
+                height: 100%
+                
+                background: #fafafa
+                
+                box-shadow: inset -1px 0 0 #e5e5e5
+                
+                border-right: unset
+                
+                color: #707070
+                
+                .icon-menu
+                    font-size: 16px
+                    color: #707070
+                
+                .ant-menu-item
+                    margin-top: unset
+                    margin-bottom: unset
+                    width: 100%
+                    
+                .ant-menu-item:not(:last-child)
+                    margin-top: unset
+                    margin-bottom: unset
+                
+                .ant-menu-submenu-title
+                    margin-top: unset
+                    margin-bottom: unset
+                
+                .ant-menu-item-selected
+                    .icon-menu
+                        color: #2e2e2e
+                    
+                    background-color: #e6e6e6
+                    color: #2e2e2e
+                    font-weight: bold
+                    
+                .ant-menu-item::after
+                    border-right: 4px solid #707070
+                
+                .ant-menu-item:hover
+                    color: #2e2e2e
+                    background-color: #e6e6e6
+                    
+                .ant-menu-item-active
+                    color: unset
+                    background-color: #707070
+                    
+                    .icon-menu
+                        color: #2e2e2e
+                        
+                    
+            
+        .view
+            overflow: auto
+            
+            background-color: #ffffff
+            
+            display: flex
+            
+            flex-direction: column
+            
+            .view-card
+                padding: 20px
+                
+                background-color: #ffffff
+            
+.ant-dropdown-menu
+    background-color: #fafafa
+    

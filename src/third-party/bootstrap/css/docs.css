@@ -41,6 +41,10 @@ body {
 }
 
 
+.panel {
+    border: none
+}
+
 /* Keep code small in tables on account of limited space */
 
 .table code {

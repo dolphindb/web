@@ -2289,7 +2289,6 @@ Promise.Promise = Promise;
 return Promise;
 
 })));
-//# sourceMappingURL=es6-promise.map
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7), __webpack_require__(8)))
 
@@ -3052,4 +3051,3 @@ module.exports = g;
 /***/ })
 /******/ ]);
 });
-//# sourceMappingURL=noty.js.map

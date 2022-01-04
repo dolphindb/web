@@ -93,7 +93,9 @@ function DatanodeConfig() {
                 { name: 'maxPersistenceQueueDepth', value: 'int', default: '10000000', tip: 'The limit of message numbers for each queue of persistence workers.' },
                 { name: 'maxSubQueueDepth', value: 'int', default: '10000000', tip: 'The limit of message numbers for each queue of subscription executors.' },
                 { name: 'maxPubQueueDepthPerSite', value: 'int', default: '10000000', tip: 'The limit of message numbers for publishing queue to each client site.' },
-                { name: 'persistOffsetDir', value: '', default: '', tip: 'The save path that persists the consumer data offset at the subscription end.'}
+                { name: 'persistOffsetDir', value: '', default: '', tip: 'The save path that persists the consumer data offset at the subscription end.'},
+                { name: 'streamingHAMode', value: '', default: 'raft', tip: 'enalbe streaming raft mode'},
+                { name: 'streamingRaftGroups', value: '', default: '', tip: 'raft groups' }
 
             ]
         }
@@ -596,12 +598,15 @@ function NodesSetup() {
     var existingAgents = [];
     var existingDatanodes = [];
     var existingControllers = [];
+    // new Computenodes
+    var existingComputenodes = [];
     function loadDatanodes() {
 
         scriptExecutor.run("getClusterNodesCfg()", function (res) {
             existingAgents = [];
             existingDatanodes = [];
             existingControllers = [];
+            existingComputenodes =[];
             if (res.resultCode === '0') {
                 var nodes = res.object[0].value;
                 for (var i = 0, len = nodes.length; i < len; i++) {
@@ -614,6 +619,8 @@ function NodesSetup() {
                         existingDatanodes.push(site);
                     else if (mode.toLowerCase() === "controller")
                         existingControllers.push(site);
+                    else if (mode.toLowerCase()=== "computenode")
+                        existingComputenodes.push(site);
                 }
                 genNodeTable();
                 if (existingAgents.length > 0)
@@ -671,6 +678,18 @@ function NodesSetup() {
                 Mode: 'datanode'
             })
         }
+        // new computenode
+        for (var i = 0, len = existingComputenodes.length; i < len; i++) {
+            var datanodeDetails = existingComputenodes[i].split(':');
+            if (datanodeDetails.length !== 3)
+                continue;
+            nodes.push({
+                Host: datanodeDetails[0],
+                Port: datanodeDetails[1],
+                Alias: datanodeDetails[2],
+                Mode: 'computenode'
+            })
+        }
 
         $('#node-list').jsGrid({
             height: "540px",
@@ -692,21 +711,22 @@ function NodesSetup() {
             },
             fields: [
                 { name: 'Host', type: 'text', align: "center" },
-                { name: 'Port', type: 'number' },
+                { name: 'Port', type: 'number',align: "center" },
                 { name: 'Alias', type: 'text', align: "center" },
-                { name: 'Mode', type: 'select', items: [{ name: 'agent' }, { name: 'datanode' }, { name: 'controller' }], valueField: 'name', textField: 'name' },
+                { name: 'Mode', type: 'select', items: [{ name: 'agent' }, { name: 'datanode' }, { name: 'controller' },{name: 'computenode'}], valueField: 'name', textField: 'name' },
                 {
                     type: 'control',
                     itemTemplate: function (value, item) {
                         var $result = $([]);
 
-                        if (item.Mode == "datanode") {
+                        if (item.Mode == "datanode" || item.Mode == "computenode") {
                             $result = $result.add(this._createEditButton(item));
-                        }
-
-                        if (item.Mode == "datanode") {
                             $result = $result.add(this._createDeleteButton(item));
                         }
+
+                        // if (item.Mode == "datanode") {
+                        //     $result = $result.add(this._createDeleteButton(item));
+                        // }
 
                         return $result;
                     }
@@ -800,6 +820,7 @@ function NodesSetup() {
 
         var nodeLines = [];
         var nodeList = $('#node-list').jsGrid("option", "data");
+        console.log(nodeList);
         var ctlServer = new ControllerServer(controller);
         var currentNodes = new DolphinEntity(ctlServer.getClusterPerf()).toScalar()[11].value;
         console.log(currentNodes);
@@ -813,20 +834,30 @@ function NodesSetup() {
             if (mode == "datanode") {
                 if (currentNodes.indexOf(node.Alias) < 0) {
                     ctlServer.addNode(host, port, alias);
+                   
                 }
             }
+
+            if (mode == "computenode") {
+                if (currentNodes.indexOf(node.Alias) < 0) {
+                    ctlServer.addComputeNode(host, port, alias);
+                   
+                }
+            }
+            
             if (host && port && alias && mode) {
                 var nodeLine = '"' + host + ':' + port + ':' + alias + ',' + mode + '"';
                 nodeLines.push(nodeLine)
             }
 
         }
-
+        // console.log(nodeLines);
         script += nodeLines.join(',');
         script += '])';
         script = encodeURIComponent(script);
-
+        console.log(script);
         scriptExecutor.run(script, function (res) {
+            // console.log(res);
             if (res.resultCode === '0') {
                 $('#text-datanodes-saved').attr('style', '');
                 $('#btn-save-datanodes').attr('disabled', true);

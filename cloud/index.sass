@@ -1,0 +1,59 @@
+html, body
+    margin: 0
+    height: 100%
+    overscroll-behavior-y: contain
+    
+*
+    box-sizing: inherit
+
+.root
+    box-sizing: border-box
+    height: 100%
+    
+    .root-layout
+        height: 100%
+    
+    .header
+        padding: 0px 20px
+        
+        height: 40px
+        line-height: 40px
+        
+        display: flex
+        
+        background: #f2f2f2
+        
+        box-shadow: 0px 1px 0px 0px #e5e5e5
+        
+        border-bottom: #e5e5e5 1px solid
+        
+        z-index: 10
+        
+        .logo
+            margin-left: 4px
+            width: 90px
+            height: 40px
+        
+        .padding
+            flex: 1
+        
+        
+    .body
+        height: 100%
+        
+        .view
+            overflow: auto
+            
+            background-color: #ffffff
+            
+            display: flex
+            
+            flex-direction: column
+            
+            .view-card
+                padding: 20px
+                
+                background-color: #ffffff
+            
+            
+    

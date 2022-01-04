@@ -8,19 +8,20 @@ import type { Options as SassOptions } from 'sass-loader'
 
 import sass from 'sass'
 
-import { fp_root } from './config.js'
+import { fp_root, fpd_out_console, fpd_out_cloud } from './config.js'
 import xshell from 'xshell'
 
 
 const config: Webpack.Configuration = {
-    name: 'MyWebpackCompiler',
+    name: 'DdbWebpackCompiler',
     
     mode: 'development',
     
     devtool: 'source-map',
     
     entry: {
-        'index.js': './index.tsx',
+        'console/index.js': './console/index.tsx',
+        'cloud/index.js': './cloud/index.tsx',
     },
     
     
@@ -82,19 +83,14 @@ const config: Webpack.Configuration = {
             },
             {
                 test: /\.tsx?$/,
-                exclude: [
-                    /node_modules/,
-                    /repl[/\\]repl/,
-                ],
-                use: [{
-                    loader: 'ts-loader',
-                    // https://github.com/TypeStrong/ts-loader
-                    options: {
-                        configFile: `${fp_root}tsconfig.json`,
-                        onlyCompileBundledFiles: true,
-                        transpileOnly: true,
-                    } as Partial<TSLoaderOptions>
-                }]
+                exclude: /node_modules/,
+                loader: 'ts-loader',
+                // https://github.com/TypeStrong/ts-loader
+                options: {
+                    configFile: `${fp_root}tsconfig.json`,
+                    onlyCompileBundledFiles: true,
+                    transpileOnly: true,
+                } as Partial<TSLoaderOptions>
             },
             {
                 test: /\.s[ac]ss$/,
@@ -129,16 +125,24 @@ const config: Webpack.Configuration = {
                 ]
             },
             {
-                test: /\.(ico|png|jpe?g|gif|svg|woff2?|ttf|eot|otf|mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
-                loader: 'url-loader',
-                options: {
-                    name: '[path][name].[ext]',
-                    limit: 30 * 10**3
-                }
+                oneOf: [
+                    {
+                        test: /\.icon\.svg$/,
+                        issuer: /\.[jt]sx?$/,
+                        loader: '@svgr/webpack',
+                        options: {
+                            icon: true,
+                        }
+                    },
+                    {
+                        test: /\.(svg|ico|png|jpe?g|gif|woff2?|ttf|eot|otf|mp4|webm|ogg|mp3|wav|flac|aac)$/,
+                        type: 'asset/inline',
+                    },
+                ]
             },
             {
                 test: /\.txt$/,
-                loader: 'raw-loader',
+                type: 'asset/source',
             }
         ],
     },
@@ -155,6 +159,14 @@ const config: Webpack.Configuration = {
         // new BundleAnalyzerPlugin({ analyzerPort: 8880, openAnalyzer: false }),
     ],
     
+    
+    optimization: {
+        minimize: false,
+    },
+    
+    performance: {
+        hints: false,
+    },
     
     cache: {
         type: 'filesystem',
@@ -226,6 +238,7 @@ export let webpack = {
         })
     },
     
+    
     async stop () {
         if (!this.watcher) return
         return new Promise<Error>(resolve => {
@@ -233,25 +246,41 @@ export let webpack = {
         })
     },
     
-    async build () {
+    
+    async build (is_cloud: boolean) {
+        config.entry = {
+            'index.js': is_cloud ? './cloud/index.tsx' : './console/index.tsx',
+        }
+        
         config.mode = 'production'
         
-        config.output.path += 'build/'
+        config.output.path = is_cloud ? fpd_out_cloud : fpd_out_console
         
         config.devtool = false
         
+        ;(config.stats as any).colors = false
+        ;(config.stats as any).assets = true
+        ;(config.stats as any).assetsSpace = 20
+        ;(config.stats as any).modules = true
+        ;(config.stats as any).modulesSpace = 20
+        
         this.compiler = Webpack(config)
         
-        return new Promise<void>((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {
             this.compiler.run((error, stats) => {
-                if (error) {
-                    reject(error)
+                if (error || stats.hasErrors()) {
+                    console.log(stats.toString(config.stats))
+                    reject(error || stats)
                     return
                 }
                 
                 console.log(stats.toString(config.stats))
                 resolve()
             })
+        })
+        
+        await new Promise(resolve => {
+            this.compiler.close(resolve)
         })
     }
 }
