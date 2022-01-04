@@ -38,27 +38,6 @@ function ClusterDetail () {
     const { cluster } = model.use(['cluster'])
     
     const { namespace, name, log_mode, version, storage_class_name, Services: services, status, created_at } = cluster
-
-    const [config, setConfig] = useState<ClusterConfig>({
-        cluster_config: [],
-        controller_config: [],
-        agent_config: []
-    })
-
-    const onConfigChange = (config: ClusterConfig) => {
-        setConfig(config)
-        console.log(`cluster ${cluster.namespace}/${cluster.name} new config:`, config)
-    }
-
-    useEffect(() => {
-        async function fetchClusterConfig() {
-            const config = await model.get_cluster_config(cluster)
-            setConfig(config)
-            console.log(`cluster ${cluster.namespace}/${cluster.name} config:`, config)
-        }
-        fetchClusterConfig()
-    }, [cluster])
-
     
     return <div className='cluster'>
         <PageHeader
@@ -109,7 +88,7 @@ function ClusterDetail () {
         
         <ClusterNodes cluster={cluster} />
         
-        <ClusterConfigs config={config} cluster={cluster} onConfigChange={onConfigChange} />
+        <ClusterConfigs cluster={cluster} />
     </div>
 }
 
@@ -510,22 +489,37 @@ function ClusterStatus ({
 
 
 function ClusterConfigs ({
-    cluster,
-    config,
-    onConfigChange
+    cluster
 }: {
-    cluster: Cluster,
-    config: ClusterConfig,
-    onConfigChange: (config: ClusterConfig) => void
+    cluster: Cluster
 }) {
 
+    const [config, setConfig] = useState<ClusterConfig>({
+        cluster_config: [],
+        controller_config: [],
+        agent_config: []
+    })
+
+    const onConfigChange = (config: ClusterConfig) => {
+        setConfig(config)
+        console.log(`cluster ${cluster.namespace}/${cluster.name} new config:`, config)
+    }
+
+    useEffect(() => {
+        async function fetchClusterConfig() {
+            const config = await model.get_cluster_config(cluster)
+            setConfig(config)
+            console.log(`cluster ${cluster.namespace}/${cluster.name} config:`, config)
+        }
+        fetchClusterConfig()
+    }, [cluster])
 
     return <div className="cluster-config">
         <Title level={4} className='cluster-config-header'>Configuration</Title>
         <ConfigUpdateBar config={config} cluster={cluster} onConfigChange={onConfigChange}/>
-        <ConfigList title="cluster_config" configList={config.cluster_config} />
-        <ConfigList title="controller_config" configList={config.controller_config} />
-        <ConfigList title="agent_config" configList={config.agent_config} />
+        <ConfigList title="Cluster Configuration" configList={config.cluster_config} />
+        <ConfigList title="Controller Configuration" configList={config.controller_config} />
+        <ConfigList title="Agent Configuration" configList={config.agent_config} />
     </div>
 }
 
