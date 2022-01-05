@@ -60,6 +60,10 @@
         .ant-descriptions-header
             margin-bottom: 4px
             
+        .ant-layout
+            background: #ffffff
+
+
         .service
             margin-bottom: 20px
             
@@ -72,11 +76,53 @@
             
         .ant-descriptions-item-content
             width: 25%
-        
-        .cluster-config
-            .cluster-config-header
-                margin-top: 20px
+          
+        .sidebar
+            padding: 20px
             
+            
+            .detail-menu
+                .detail-menu-item
+                    font-size: 1.15em
+                    cursor: pointer
+                    padding: 10px
+                    color: #707070
+                    .font-content-wrapper
+                        padding-left: 20px
+
+                .detail-menu-item:hover
+                    color: #2e2e2e
+
+                .detail-menu-item-checked
+                    color: #2e2e2e
+                    font-weight: 600
+                    .font-content-wrapper
+                        padding-left: 15px
+                        border-left: 5px solid #707070
+
+        .content
+            padding: 20px
+
+        .cluster-config
+            position: relative
+            .ant-tabs-tab-btn:focus, .ant-tabs-tab-btn:active, .ant-tabs-tab-btn:hover
+                color: rgba(0, 0, 0, .85)
+            .ant-tabs-tab:focus, .ant-tabs-tab:active, .ant-tabs-tab:hover
+                color: rgba(0, 0, 0, .85)
+            .ant-tabs-tab-active
+                .ant-tabs-tab-btn
+                    color: rgba(0, 0, 0, .85)
+            .ant-tabs-ink-bar
+                background: #707070
+                height: 3px
+                    
+
+            .cluster-button-block
+                position: absolute
+                right: 0
+                top: 0
+                .cluster-button
+                    margin-left: 20px
             .cluster-config-subheader
                 margin-top: 10px
             

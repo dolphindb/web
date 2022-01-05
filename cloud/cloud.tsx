@@ -2,7 +2,24 @@ import './cloud.sass'
 
 import { default as React, useEffect, useState } from 'react'
 
-import { Badge, Button, Form, Input, Select, Table, Typography, InputNumber, message, Tooltip, Popconfirm, Divider, PageHeader, Descriptions } from 'antd'
+import { 
+    Badge,
+    Button, 
+    Form, 
+    Input, 
+    Select, 
+    Table, 
+    Typography, 
+    InputNumber, 
+    message, 
+    Tooltip, 
+    Popconfirm, 
+    PageHeader, 
+    Descriptions,
+    Tabs,
+    Layout,
+    Modal
+    } from 'antd'
 import { ConsoleSqlOutlined, ReloadOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors'
 
@@ -25,7 +42,7 @@ const { Title, Text, Link } = Typography
 
 
 export function Cloud () {
-    const { cluster } = model.use(['cluster']) 
+    const { cluster } = model.use(['cluster'])
     
     if (cluster)
         return <ClusterDetail />
@@ -34,96 +51,160 @@ export function Cloud () {
 }
 
 
+/** Type of cluster detail field: 'info' or 'config' */
+type FieldType = 'info' | 'config'
+
 function ClusterDetail () {
     const { cluster } = model.use(['cluster'])
     
-    const { namespace, name, log_mode, version, storage_class_name, Services: services, status, created_at } = cluster
+    const { name } = cluster
 
-    const [config, setConfig] = useState<ClusterConfig>({
-        cluster_config: [],
-        controller_config: [],
-        agent_config: []
-    })
+    const [field, setField] = useState<FieldType>('info') 
 
-    const onConfigChange = (config: ClusterConfig) => {
-        setConfig(config)
-        console.log(`cluster ${cluster.namespace}/${cluster.name} new config:`, config)
+    const fields : FieldType[] = ['info', 'config']
+
+    const onButtonClick = (value: FieldType) => {
+        setField(value)
     }
 
-    useEffect(() => {
-        async function fetchClusterConfig() {
-            const config = await model.get_cluster_config(cluster)
-            setConfig(config)
-            console.log(`cluster ${cluster.namespace}/${cluster.name} config:`, config)
-        }
-        fetchClusterConfig()
-    }, [cluster])
-
+    const Content = {
+        info: <InfoTab />,
+        config: <ClusterConfigs cluster={cluster} />
+    }
     
-    return <div className='cluster'>
-        <PageHeader
-            className='cluster-header'
-            title={
-                <Title level={4}>{name}</Title>
-            }
-            onBack={() => {
-                model.set({ cluster: null })
-            }}
-        />
-        
-        <Descriptions
-            title={
-                <Title level={4}>Info</Title>
-            }
-            column={2}
-            bordered
-        >
-            <Descriptions.Item label='namespace'>{namespace}</Descriptions.Item>
-            <Descriptions.Item label='name'>{name}</Descriptions.Item>
-            <Descriptions.Item label='status'>
-                <ClusterStatus {...status}/>
-            </Descriptions.Item>
-            <Descriptions.Item label='version'>{version}</Descriptions.Item>
-            <Descriptions.Item label='mode'>
-                <Mode cluster={cluster} />
-            </Descriptions.Item>
-            <Descriptions.Item label='log mode'>{log_modes[log_mode] || log_mode}</Descriptions.Item>
-            <Descriptions.Item label='created at'>{created_at.format('YYYY.MM.DD HH:mm:ss')}</Descriptions.Item>
-            <Descriptions.Item label='storage class'>{storage_class_name}</Descriptions.Item>
-        </Descriptions>
-        
-        <Descriptions
-            title={
-                <Title level={4}>Service</Title>
-            }
-            column={2}
-            bordered
-        >
-            { services.Controller && <Descriptions.Item label='controller'>
-                <ServiceNode {...services.Controller} />
-            </Descriptions.Item> }
-            <Descriptions.Item label='datanode'>
-                <ServiceNode {...services.Datanode} />
-            </Descriptions.Item>
-        </Descriptions>
-        
-        <ClusterNodes cluster={cluster} />
-        
-        <ClusterConfigs config={config} cluster={cluster} onConfigChange={onConfigChange} />
-    </div>
+    return (
+        <div className='cluster'>
+            <Layout>
+                <Layout.Sider theme='light' className='sidebar' width='250px'>
+                    <PageHeader
+                        className='cluster-header'
+                        title={
+                            <Title level={4}>{name}</Title>
+                        }
+                        onBack={() => {
+                            model.set({ cluster: null })
+                        }}
+                    />
+                    <ClusterDetailMenu field={field} fields={fields} onButtonClick={onButtonClick} />
+                </Layout.Sider>
+                <Layout>
+                    <Layout.Content className='content'>
+                        {Content[field]}
+                    </Layout.Content>
+                </Layout>
+            </Layout>
+
+        </div>
+    )
+}
+
+
+function ClusterDetailMenu ({
+    field,
+    fields,
+    onButtonClick
+}: {
+    field: FieldType,
+    fields: FieldType[],
+    onButtonClick: (value: FieldType) => void
+}) {
+
+    return(
+        <div className='detail-menu'>
+            {fields.map(f => (
+                <ClusterDetailMenuItem key={field} focused={field === f} onClick={onButtonClick} value={f} />
+            ))}
+        </div>
+    )
+}
+
+function ClusterDetailMenuItem({
+    focused,
+    onClick,
+    value
+}: {
+    focused: boolean,
+    onClick: (value: FieldType) => void,
+    value: FieldType
+}) {
+    const onButtonClick = () => {
+        onClick(value)
+    }
+
+    let currClass = 'detail-menu-item'
+
+    if (focused) {
+        currClass += ' detail-menu-item-checked'
+    }
+
+    const displayValue = {
+        info: t("基本信息"),
+        config: t("配置参数")
+    }
+
+    return(
+        <div className={currClass} onClick={onButtonClick}>
+                <span className='font-content-wrapper'>
+                    {displayValue[value]}
+                </span>
+        </div>
+    )
+}
+
+function InfoTab() {
+    const { cluster } = model.use(['cluster'])
+    
+    const { namespace, name, log_mode, version, storage_class_name, Services: services, status, created_at } = cluster
+    
+    return (
+        <>
+            <Descriptions
+                title={
+                    <Title level={4}>Info</Title>
+                }
+                column={2}
+                bordered
+            >
+                <Descriptions.Item label='namespace'>{namespace}</Descriptions.Item>
+                <Descriptions.Item label='name'>{name}</Descriptions.Item>
+                <Descriptions.Item label='status'>
+                    <ClusterStatus {...status}/>
+                </Descriptions.Item>
+                <Descriptions.Item label='version'>{version}</Descriptions.Item>
+                <Descriptions.Item label='mode'>
+                    <Mode cluster={cluster} />
+                </Descriptions.Item>
+                <Descriptions.Item label='log mode'>{log_modes[log_mode] || log_mode}</Descriptions.Item>
+                <Descriptions.Item label='created at'>{created_at.format('YYYY.MM.DD HH:mm:ss')}</Descriptions.Item>
+                <Descriptions.Item label='storage class'>{storage_class_name}</Descriptions.Item>
+            </Descriptions>
+            
+            <Descriptions
+                title={
+                    <Title level={4}>Service</Title>
+                }
+                column={2}
+                bordered
+            >
+                { services.Controller && <Descriptions.Item label='controller'>
+                    <ServiceNode {...services.Controller} />
+                </Descriptions.Item> }
+                <Descriptions.Item label='datanode'>
+                    <ServiceNode {...services.Datanode} />
+                </Descriptions.Item>
+            </Descriptions>
+            
+            <ClusterNodes cluster={cluster} />
+        </>
+    )
 }
 
 
 function Clusters () {
-    const { clusters, namespaces, storageclasses } = model.use(['clusters', 'namespaces', 'storageclasses'])
+    const { clusters } = model.use(['clusters'])
     
-    const [creating, set_creating] = useState(false)
-    
-    const [mode, set_mode] = useState<ClusterMode>('cluster')
-    
-    const [cluster_type, set_cluster_type] = useState<ClusterType>('multicontroller')
-    
-    
+    const [createPanelVisible, setCreatePaneVisible] = useState(false)
+
     return <div className='clusters'>
         <Title className='title-overview' level={3}>{t('集群总览')}</Title>
         
@@ -132,7 +213,7 @@ function Clusters () {
                 type='primary'
                 className='button-create'
                 onClick={() => {
-                    set_creating(true)
+                    setCreatePaneVisible(true)
                 }}
             >
                 <img className='icon-add' src={icon_add} />
@@ -213,152 +294,205 @@ function Clusters () {
             rowKey='name'
             pagination={false}
         />
-        
-        { creating && <Title className='creating-title' level={4}>{t('新建集群配置')}</Title> }
-        
-        { creating && <Form
-            name='cluster-form'
-            className='form'
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
-            initialValues={{
-                mode,
-                cluster_type,
-                version: 'v2.00.3',
-                datanode: {
-                    replicas: 0,
-                },
-                controller: {
-                    replicas: 3
-                }
-            }}
-            onFinish={async values => {
-                const { mode, cluster_type } = values
-                
-                console.log(values)
-                
-                values.datanode.data_size = Number(values.datanode.data_size)
-                
-                if (cluster_type === 'singlecontroller')
-                    values.controller.replicas = 0
-                
-                if (mode === 'standalone')
-                    delete values.controller
-                
-                try {
-                    await model.create(values)
-                    message.success(t('集群创建成功'))
-                    set_creating(false)
-                } catch (error) {
-                    message.error(t('集群创建失败'))
-                    throw error
-                }
-                
-                await model.get_clusters()
-            }}
-            onFieldsChange={(changeds, all) => {
-                if (!changeds[0])
-                    return
-                const { name, value } = changeds[0]
-                
-                if (name[0] === 'mode') {
-                    set_mode(value)
-                    return
-                }
-                
-                if (name[0] === 'cluster_type') {
-                    set_cluster_type(value)
-                    return
-                }
-            }}
-            colon={false}
-            requiredMark={false}
-        >
-            <Form.Item name='name' label='name' rules={[{ required: true }]}>
-                <Input />
-            </Form.Item>
 
-            <Form.Item name='namespace' label='namespace' rules={[{ required: true }]}>
-                <Select placeholder='Please select a namespace'>
-                    {
-                        namespaces.map(ns => (
-                            <Option value={ns.name} key={ns.name}>{ns.name}</Option>
-                        ))
-                    }
-                </Select>
-            </Form.Item>
+        <CreateClusterPanel
+            visible={createPanelVisible}
+            closePanel={() => {setCreatePaneVisible(false)}}
+        />
+    </div>
+}
 
-            <Form.Item name='storage_class' label='storage_class'>
-                <Select placeholder='Please select a storage class'>
-                    {
-                        storageclasses.map(sc => (
-                            <Option value={sc.name} key={sc.name}>{sc.name}</Option>
-                        ))
-                    }
-                </Select>
-            </Form.Item>
-            
-            <Form.Item name='mode' label='mode' rules={[{ required: true }]}>
-                <Select>
-                    <Option value='standalone'>standalone</Option>
-                    <Option value='cluster'>cluster</Option>
-                </Select>
-            </Form.Item>
-            
-            <Form.Item name='version' label='version' rules={[{ required: true }]}>
-                <Select>
-                    <Option value='v1.30.14'>v1.30.14</Option>
-                    <Option value='v1.30.15'>v1.30.15</Option>
-                    <Option value='v2.00.3'>v2.00.3</Option>
-                </Select>
-            </Form.Item>
-            
-            { mode === 'cluster' && <>
-                <Form.Item name='cluster_type' label='cluster_type' rules={[{ required: true }]}>
-                    <Select>
-                        <Option value='singlecontroller'>singlecontroller</Option>
-                        <Option value='multicontroller'>multicontroller</Option>
-                    </Select>
-                </Form.Item>
-                
-                { cluster_type === 'multicontroller' && <Form.Item name={['controller', 'replicas']} label='controller.replicas' rules={[{ required: true }]}>
-                    <InputNumber min={3} precision={0} />
-                </Form.Item>}
-                
-                <Form.Item name={['controller', 'data_size']} label='controller.data_size' rules={[{ required: true }]}>
-                    <InputNumber addonAfter='Gi' />
-                </Form.Item>
-            </> }
-            
-            <Form.Item name={['datanode', 'replicas']} label='datanode.replicas' rules={[{ required: true }]}>
-                <InputNumber min={0} precision={0} />
-            </Form.Item>
-            
-            <Form.Item name={['datanode', 'data_size']} label='datanode.data_size' rules={[{ required: true }]}>
-                <InputNumber placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
-            </Form.Item>
-            
-            <Form.Item name={['resources', 'cpu']} label='cpu' rules={[{ required: true }]}>
-                <InputNumber placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
-            </Form.Item>
-            
-            <Form.Item name={['resources', 'memory']} label='memory' rules={[{ required: true }]}>
-                <InputNumber placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi'/>
-            </Form.Item>
-            
-            <Form.Item wrapperCol={{ offset: 8 }} rules={[{ required: true }]}>
-                <Button type='primary' htmlType='submit' className='submit'>{t('提交')}</Button>
-                <Button type='default' htmlType='reset' className='reset'>{t('重置')}</Button>
+function CreateClusterPanel({
+    visible,
+    closePanel,
+}: {
+    visible: boolean,
+    closePanel: () => void
+}) {
+
+    const [form] = Form.useForm()
+
+    const { namespaces, storageclasses } = model.use(['clusters', 'namespaces', 'storageclasses'])
+    
+    const [mode, set_mode] = useState<ClusterMode>('cluster')
+    
+    const [cluster_type, set_cluster_type] = useState<ClusterType>('multicontroller')
+
+
+    const onSubmit = async () => {
+
+        let values = await form.validateFields()
+
+        const { mode, cluster_type } = values
+        
+        values.datanode.data_size = Number(values.datanode.data_size)
+        
+        if (cluster_type === 'singlecontroller')
+            values.controller.replicas = 0
+        
+        if (mode === 'standalone')
+            delete values.controller
+        
+        try {
+            console.log('create new cluster:', values)
+            await model.create(values)
+            message.success(t('集群创建成功'))
+            closePanel()
+        } catch (error) {
+            message.error(t('集群创建失败'))
+            throw error
+        }
+        
+        await model.get_clusters()
+    }
+
+    const onReset = () => {
+        form.resetFields()
+    }
+
+    return (
+        <Modal 
+            title={t('新建集群配置')}
+            visible={visible}
+            onOk={closePanel}
+            onCancel={closePanel}   
+            width={'800px'}
+            footer={[
+                <Button type='primary' htmlType='submit' className='submit' onClick={onSubmit}>{t('提交')}</Button>,
+                <Button type='default' htmlType='reset' className='reset' onClick={onReset}>{t('重置')}</Button>,
                 <Button
                     className='cancel'
                     type='default'
                     onClick={() => {
-                        set_creating(false)
+                        closePanel()
                     }}
                 >{t('取消')}</Button>
-            </Form.Item>
-        </Form> }
-    </div>
+            ]}
+        >
+            {/* <Title className='creating-title' level={4}>{t('新建集群配置')}</Title> */}
+            <Form
+                form = {form}
+                name='cluster-form'
+                className='form'
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 16 }}
+                initialValues={{
+                    mode,
+                    cluster_type,
+                    version: 'v2.00.3',
+                    datanode: {
+                        replicas: 0,
+                    },
+                    controller: {
+                        replicas: 3
+                    }
+                }}
+
+                onFieldsChange={(changeds, all) => {
+                    if (!changeds[0])
+                        return
+                    const { name, value } = changeds[0]
+                    
+                    if (name[0] === 'mode') {
+                        set_mode(value)
+                        return
+                    }
+                    
+                    if (name[0] === 'cluster_type') {
+                        set_cluster_type(value)
+                        return
+                    }
+                }}
+                colon={false}
+                requiredMark={false}
+            >
+                <Form.Item name='name' label='name' rules={[{ required: true }]}>
+                    <Input />
+                </Form.Item>
+
+                <Form.Item name='namespace' label='namespace' rules={[{ required: true }]}>
+                    <Select placeholder='Please select a namespace'>
+                        {
+                            namespaces.map(ns => (
+                                <Option value={ns.name} key={ns.name}>{ns.name}</Option>
+                            ))
+                        }
+                    </Select>
+                </Form.Item>
+
+                <Form.Item name='storage_class' label='storage_class'>
+                    <Select placeholder='Please select a storage class'>
+                        {
+                            storageclasses.map(sc => (
+                                <Option value={sc.name} key={sc.name}>{sc.name}</Option>
+                            ))
+                        }
+                    </Select>
+                </Form.Item>
+                
+                <Form.Item name='mode' label='mode' rules={[{ required: true }]}>
+                    <Select>
+                        <Option value='standalone'>standalone</Option>
+                        <Option value='cluster'>cluster</Option>
+                    </Select>
+                </Form.Item>
+                
+                <Form.Item name='version' label='version' rules={[{ required: true }]}>
+                    <Select>
+                        <Option value='v1.30.14'>v1.30.14</Option>
+                        <Option value='v1.30.15'>v1.30.15</Option>
+                        <Option value='v2.00.3'>v2.00.3</Option>
+                    </Select>
+                </Form.Item>
+                
+                { mode === 'cluster' && <>
+                    <Form.Item name='cluster_type' label='cluster_type' rules={[{ required: true }]}>
+                        <Select>
+                            <Option value='singlecontroller'>singlecontroller</Option>
+                            <Option value='multicontroller'>multicontroller</Option>
+                        </Select>
+                    </Form.Item>
+                    
+                    { cluster_type === 'multicontroller' && <Form.Item name={['controller', 'replicas']} label='controller.replicas' rules={[{ required: true }]}>
+                        <InputNumber min={3} precision={0} />
+                    </Form.Item>}
+                    
+                    <Form.Item name={['controller', 'data_size']} label='controller.data_size' rules={[{ required: true }]}>
+                        <InputNumber addonAfter='Gi' />
+                    </Form.Item>
+                </> }
+                
+                <Form.Item name={['datanode', 'replicas']} label='datanode.replicas' rules={[{ required: true }]}>
+                    <InputNumber min={0} precision={0} />
+                </Form.Item>
+                
+                <Form.Item name={['datanode', 'data_size']} label='datanode.data_size' rules={[{ required: true }]}>
+                    <InputNumber placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
+                </Form.Item>
+                
+                <Form.Item name={['resources', 'cpu']} label='cpu' rules={[{ required: true }]}>
+                    <InputNumber placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
+                </Form.Item>
+                
+                <Form.Item name={['resources', 'memory']} label='memory' rules={[{ required: true }]}>
+                    <InputNumber placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi'/>
+                </Form.Item>
+                
+                {/* <Form.Item wrapperCol={{ offset: 8 }} rules={[{ required: true }]}>
+                    <Button type='primary' htmlType='submit' className='submit'>{t('提交')}</Button>
+                    <Button type='default' htmlType='reset' className='reset'>{t('重置')}</Button>
+                    <Button
+                        className='cancel'
+                        type='default'
+                        onClick={() => {
+                            closePanel()
+                        }}
+                    >{t('取消')}</Button>
+                </Form.Item> */}
+            </Form>
+        </Modal>
+        
+    )
 }
 
 function ServiceNode ({
@@ -508,194 +642,324 @@ function ClusterStatus ({
     />
 }
 
+/** Type of Configuration: Cluster, Controller, Agent */
+type ConfigType = 'cluster' | 'controller' | 'agent'
 
 function ClusterConfigs ({
-    cluster,
-    config,
-    onConfigChange
+    cluster
 }: {
-    cluster: Cluster,
-    config: ClusterConfig,
-    onConfigChange: (config: ClusterConfig) => void
+    cluster: Cluster
 }) {
 
+    const [config, setConfig] = useState<ClusterConfig>({
+        cluster_config: [],
+        controller_config: [],
+        agent_config: []
+    })
+
+    const [editedConfig, setEditedConfig] = useState<ClusterConfig>({
+        cluster_config: [],
+        controller_config: [],
+        agent_config: []
+    })
+
+    const onConfigChange = (newItem: Partial<ClusterConfigItem> & {name: string}, type: ConfigType) => {
+        const name_dict = {
+            'cluster': 'cluster_config',
+            'controller': 'controller_config',
+            'agent': 'agent_config'
+        }
+        const field = name_dict[type]
+
+        
+        const configArr = config[field]
+        const newList = [...configArr]
+        const index = newList.findIndex(item => item.name === newItem.name)
+        if (index > -1 )  {
+            const item = newList[index]
+            newList.splice(index, 1, {
+                ...item,
+                ...newItem,
+            })
+        }
+        const newConfig = {
+            [field]: newList
+        }
+        setConfig({
+            ...config,
+            ...newConfig
+        })
+
+
+        const edited_list = editedConfig[field]
+        const newEditedList = [...edited_list]
+        const editedIndex = newEditedList.findIndex(item => item.name === newItem.name)
+        if (editedIndex > -1) {
+            newEditedList.splice(editedIndex, 1, {
+                ...newItem
+            })
+        } else {
+            newEditedList.push(newItem)
+        }
+        const newEditedConfig = {
+            [field]: newEditedList
+        }
+        setEditedConfig({
+            ...editedConfig,
+            ...newEditedConfig
+        })
+    }
+
+    const fetchClusterConfig = async function () {
+        const config = await model.get_cluster_config(cluster)
+        setConfig(config)
+        console.log(`cluster ${cluster.namespace}/${cluster.name} config:`, config)
+    }
+
+    const [resetPopVisible, setResetPopVisible] = useState<boolean>(false)
+    const [submitPopVisible, setSubmitPopVisible] = useState<boolean>(false)
+
+    const onResetConfirm = () => {
+        try {
+            fetchClusterConfig()
+            message.success(t('参数重置成功'))
+        } catch (error) {
+            console.error(error);
+            message.error(t('参数重置失败'))
+        } finally {
+            setResetPopVisible(false)
+        }
+    }
+
+    const onSubmitConfirm = async () => {
+        console.log(editedConfig)
+
+        try {
+            await model.update_cluster_config(cluster, editedConfig)
+            message.success(t('参数修改成功'))
+            fetchClusterConfig()
+        } catch (err) {
+            console.error(err);
+            message.error(t('参数修改失败'))
+        } finally {
+            setSubmitPopVisible(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchClusterConfig()
+    }, [cluster])
 
     return <div className="cluster-config">
         <Title level={4} className='cluster-config-header'>Configuration</Title>
-        <ConfigUpdateBar config={config} cluster={cluster} onConfigChange={onConfigChange}/>
-        <ConfigList title="cluster_config" configList={config.cluster_config} />
-        <ConfigList title="controller_config" configList={config.controller_config} />
-        <ConfigList title="agent_config" configList={config.agent_config} />
+        <Tabs size='large'>
+            <Tabs.TabPane tab={t("集群参数")} key='cluster'>
+                <ConfigEditableList type='cluster' configList={config.cluster_config} onConfigChange={onConfigChange} />
+            </Tabs.TabPane>
+            <Tabs.TabPane tab={t("控制节点参数")} key='controller'>
+                <ConfigEditableList type='controller' configList={config.controller_config}  onConfigChange={onConfigChange} />
+            </Tabs.TabPane >
+            <Tabs.TabPane tab={t("代理节点参数")} key='agent' >
+                <ConfigEditableList type='agent' configList={config.agent_config}  onConfigChange={onConfigChange} />
+            </Tabs.TabPane>
+        </Tabs>
+        <div className='cluster-button-block'>
+
+            <Popconfirm
+                title={t('确认提交?')}
+                visible={submitPopVisible}
+                onConfirm={onSubmitConfirm}
+                onCancel={() => {setSubmitPopVisible(false)}}
+            >
+                <Button type="primary" className='cluster-button' onClick={() => {setSubmitPopVisible(true)}}>{t('提交参数修改')}</Button>
+            </Popconfirm>
+            <Popconfirm
+                title={t('确认重置?')}
+                visible={resetPopVisible}
+                onConfirm={onResetConfirm}
+                onCancel={() => {setResetPopVisible(false)}}
+            >
+                <Button type="default" className='cluster-button' onClick={() => {setResetPopVisible(true)}}>{t('重置全部参数')}</Button>
+            </Popconfirm>
+            
+        </div>
+
     </div>
 }
 
-function ConfigList ({
+
+function ConfigEditableList({
+    type,
     configList,
-    title
+    onConfigChange
 }: {
+    type: ConfigType,
     configList: ClusterConfigItem[],
-    title: String
-}) {
-    return (
-        <>
-            <Title level={5} className='cluster-config-subheader'>{title}</Title>
-            <Table dataSource={configList} columns={
-                [{
-                    title: "name",
-                    dataIndex: "name",
-                    key: "name",
-                    width: 40
-                },{
-                    title: "value",
-                    dataIndex: "value",
-                    key: "value",
-                    width: 10
-                },{
-                    title: "type",
-                    dataIndex: "type",
-                    key: "type",
-                    width: 10
-                }, {
-                    title: "description",
-                    dataIndex: "description",
-                    key: "description",
-                    width: 40
-                }]
-            } 
-            pagination={false}
-            className='cluster-config-table'
-            />
-        </>
-    )
+    onConfigChange: (config: Partial<ClusterConfigItem> & {name: string}, type: ConfigType) => void
 }
-
-function ConfigUpdateBar({
-    cluster,
-    config,
-    onConfigChange,
-}: {
-    cluster: Cluster,
-    config: ClusterConfig,
-    onConfigChange: (config: ClusterConfig) => void
-}) {
-
-    const fieldOptions = Object.keys(config)
-    const [keys, setKeys] = useState<ClusterConfigItem[]>([])
-    const [inputType, setInputType] = useState<'string' | 'int'>('string')
-
+) {
     const [form] = Form.useForm()
+    const [editingName, setEditingName] = useState('')
 
-    const onFieldChange = (field) => {
-        setKeys(config[field])
+    const isEditing = (record: ClusterConfigItem) => record.name === editingName
+
+    const edit = (record: ClusterConfigItem) => {
+        form.setFieldsValue({ value: record.value })
+        setEditingName(record.name)
     }
 
-    const onKeyChange = (val) => {
-        form.setFieldsValue({ value: "" })
-        let currType = inputType
-        keys.forEach((key) => {
-            if (key.name === val) currType = key.type as ('string' | 'int')
-        })
-        if (currType !== inputType) {
-            setInputType(currType)
-        }
+    const cancel = () => {
+        setEditingName('')
     }
 
-    const onSubmit = async (values) => {
-        const newConfig: ClusterConfig = {
-            agent_config: [],
-            cluster_config: [],
-            controller_config: []
-        }
-        newConfig[values.field].push({
-            name: values.key,
-            value: String(values.value)
-        })
-        console.log(newConfig)
+    const save = async (name: string) => {
         try {
-            await model.update_cluster_config(cluster, newConfig)
-            message.success(t("配置参数更新成功"))
-            const config = await model.get_cluster_config(cluster)
-            onConfigChange(config)
+            const row = (await form.validateFields()) as Partial<ClusterConfigItem>
+            const config = {
+                name,
+                value: String(row.value)
+            }
+            onConfigChange(config as Partial<ClusterConfigItem> & {name: string}, type)
+            setEditingName('')
         } catch (err) {
-            message.error(t("配置参数更新失败"))
-            console.error(err)
+            console.error('Form Validate Failed:', err)
         }
     }
 
+    const columns = [
+        {
+            title: "name",
+            dataIndex: "name",
+            key: "name",
+            width: '25%',
+            editable: false
+        },{
+            title: "value",
+            dataIndex: "value",
+            key: "value",
+            width: '20%',
+            editable: true
+        },{
+            title: "type",
+            dataIndex: "type",
+            key: "type",
+            width: '10%',
+            editable: false
+        }, {
+            title: "description",
+            dataIndex: "description",
+            key: "description",
+            width: '30%',
+            editable: false
+        }, {
+            title: 'operation',
+            dataIndex: 'operation',
+            key: "operation",
+            width: '15%',
+            render: (_: any, record: ClusterConfigItem) => {
+                const editable = isEditing(record)
+                return editable ? (
+                    <span>
+                        <Typography.Link onClick={() => save(record.name)} style={{ marginRight: 8 }}>
+                        {t("保存更改")}
+                        </Typography.Link>
+                        <Typography.Link title="Sure to cancel?" onClick={cancel}>
+                        {t("取消")}
+                        </Typography.Link>
+                    </span>
+                ) : (
+                    <Typography.Link disabled={editingName !== ''} onClick={() => edit(record)}>
+                      {t("编辑参数")}
+                    </Typography.Link>
+                  )
 
-    useEffect(() => {
-        form.setFieldsValue({ key: (keys[0] && keys[0].name) || "", value: "" })
-        setInputType((keys[0] && keys[0].type as ('string' | 'int')) || 'string')
-    }, [keys])
+            }
+        }
+    ]
 
-    return(
-        <>
-            <Title level={5} className='cluster-config-subheader'>Update Configuration</Title>
-            <Form
-                className='update-config-form'
-                layout='inline'
-                form={form}
-                initialValues={{
-                    field: ""
+    const mergedColumns = columns.map(col => {
+        if (!col.editable) {
+            return col
+        }
+        return {
+            ...col,
+            onCell: (record: ClusterConfigItem) => ({
+                record,
+                inputType: record.type === 'int' ? 'number' : 'text',
+                dataIndex: col.dataIndex,
+                title: col.title,
+                editing: isEditing(record)
+            })
+        }
+    })
+
+    return (
+        <Form
+            form={form}
+            component={false}
+        >
+            <Table
+                rowKey={item => item.name}
+                components={{
+                    body: {
+                        cell: EditableCell,
+                    },
                 }}
-                requiredMark={false}
-                colon={false}
-                onFinish={onSubmit}
-            >
-                <Form.Item 
-                    name="field" 
-                    label="field" 
-                    rules={[{required: true}]}
-                >
-                    <Select 
-                        onChange={onFieldChange}
-                        style={{width: 200}}
-                    >
-                        {
-                            fieldOptions.map(field => (
-                                <Option value={field} key={field}>{field}</Option>
-                            ))
-                        }
-                    </Select>
-                </Form.Item>
-                <Form.Item name="key" label="key" rules={[{required: true}]}>
-                    <Select
-                        style={{width: 200}}
-                        disabled={form.getFieldValue("field") === ""}
-                        onChange={onKeyChange}
-                    >
-                        {
-                            keys.map(key => (
-                                <Option value={key.name} key={key.name}>{key.name}</Option>
-                            ))
-                        }
-                    </Select>
-                </Form.Item>
-                <Form.Item name="value" label="value"  rules={[{required: true}]}>
-                {
-                    inputType === 'string' ? 
-                    (
-                        <Input 
-                            style={{width: 200}}
-                            disabled={form.getFieldValue("field") === ""}
-                        />
-                    ) : 
-                    (
-                        <InputNumber 
-                            style={{width: 200}}
-                            disabled={form.getFieldValue("field") === ""}
-                        />
-                    )
-                }
-                </Form.Item>
-                <Form.Item>
-                    <Button type='primary' htmlType='submit' className='submit'>{t('提交')}</Button>
-                </Form.Item>
-            </Form>
-        </>
+                bordered
+                dataSource={configList}
+                columns={mergedColumns}
+                rowClassName='editable-row'
+                pagination={false}
+            />
+
+        </Form>
     )
+
 }
 
+interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
+    editing: boolean;
+    dataIndex: string;
+    title: any;
+    inputType: 'number' | 'text';
+    record: ClusterConfigItem;
+    index: number;
+    children: React.ReactNode;
+}
+
+const EditableCell: React.FC<EditableCellProps> = ({
+    editing,
+    dataIndex,
+    title,
+    inputType,
+    record,
+    index,
+    children,
+    ...restProps
+  }) => {
+    const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
+  
+    return (
+      <td {...restProps}>
+        {editing ? (
+          <Form.Item
+            name={dataIndex}
+            style={{ margin: 0 }}
+            rules={[
+              {
+                required: true,
+                message: t("请输入参数值"),
+              },
+            ]}
+          >
+            {inputNode}
+          </Form.Item>
+        ) : (
+          children
+        )}
+      </td>
+    );
+};
 
 const log_modes = {
     0: 'file',

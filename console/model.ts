@@ -1,9 +1,8 @@
 import type { BaseType } from 'antd/lib/typography/Base'
-import dayjs from 'dayjs'
 
 import Model from 'react-object-model'
 
-import { ddb, DdbObj, DdbType } from './ddb.browser'
+import { ddb, DdbObj } from './ddb.browser'
 
 const storage_keys = {
     ticket: 'ddb.ticket',
@@ -45,9 +44,11 @@ export class DdbModel extends Model <DdbModel> {
         await Promise.all([
             model.get_node_type(),
             model.get_node_alias(),
-            model.get_ddb_version(),
-            model.get_ddb_license()
         ])
+        
+        model.get_ddb_version()
+        
+        model.get_ddb_license()
         
         if (this.node_type === NodeType.controller)
             await this.get_cluster_perf()
@@ -150,8 +151,8 @@ export class DdbModel extends Model <DdbModel> {
         return node_alias
     }
     
-    async get_ddb_version() {
-        let { value: version } = await ddb.call<DdbObj<string>>('version', [], { urgent: true })
+    async get_ddb_version () {
+        let { value: version } = await ddb.call<DdbObj<string>>('version', [ ])
         version = version.split(' ')[0]
         this.set({
             version
@@ -160,8 +161,8 @@ export class DdbModel extends Model <DdbModel> {
         return version
     }
 
-    async get_ddb_license(){
-        const { value: obj } = await ddb.call<DdbObj<DdbObj[]>>('license', [], { urgent:true })
+    async get_ddb_license () {
+        const { value: obj } = await ddb.call<DdbObj<DdbObj[]>>('license', [ ])
         let license = {} as DdbLicense
         console.log('vlaue', obj)
         for(let i = 0; i < obj[0].rows; i++){
