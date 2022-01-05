@@ -26,6 +26,10 @@ export class DdbModel extends Model <DdbModel> {
     node_alias: string
     
     nodes: DdbNode[]
+
+    version: string
+
+    license: DdbLicense
     
     
     async init () {
@@ -39,8 +43,12 @@ export class DdbModel extends Model <DdbModel> {
         
         await Promise.all([
             model.get_node_type(),
-            model.get_node_alias()
+            model.get_node_alias(),
         ])
+        
+        model.get_ddb_version()
+        
+        model.get_ddb_license()
         
         if (this.node_type === NodeType.controller)
             await this.get_cluster_perf()
@@ -143,6 +151,31 @@ export class DdbModel extends Model <DdbModel> {
         return node_alias
     }
     
+    async get_ddb_version () {
+        let { value: version } = await ddb.call<DdbObj<string>>('version', [ ])
+        version = version.split(' ')[0]
+        this.set({
+            version
+        })
+        console.log('version:', version)
+        return version
+    }
+
+    async get_ddb_license () {
+        const { value: obj } = await ddb.call<DdbObj<DdbObj[]>>('license', [ ])
+        let license = {} as DdbLicense
+        console.log('vlaue', obj)
+        for(let i = 0; i < obj[0].rows; i++){
+            let key = obj[0].value[i]
+            license[key] = obj[1].value[i].value
+        }
+        console.log('license', license)
+        this.set({
+            license
+        })
+        return license
+    }
+
     
     goto_default_view () {
         this.set({
@@ -265,6 +298,18 @@ interface DdbNode {
     // ... 省略了一些
 }
 
+interface DdbLicense {
+    authorization: string
+    licenseType: number
+    maxMemoryPerNode: number
+    maxCoresPerNode: number
+    clientName: string
+    bindCPU: boolean
+    expiration: bigint
+    maxNodes: number
+    version: string
+    modules: number
+}
 
 export interface DdbJob {
     startTime?: bigint
