@@ -34,7 +34,9 @@ async function repl_router (ctx: Context): Promise<boolean> {
     let path = ctx.request.path
     
     if (dapi && method === 'POST') {
-        const data = await request_json(`http://ddb253.shenhongfei.com:8850${path}`, { body })
+        // const data = await request_json(`http://ddb253.shenhongfei.com:8850${path}`, { body })
+        const data = await request_json(`http://localhost:8848${path}`, { body })
+        
         log_section(`${body.functionName}(${inspect(body.params?.[0]?.value)})`)
         console.log(response.body = data)
         return true

@@ -8,6 +8,7 @@ import ReactDOM from 'react-dom'
 import {
     Layout, 
     ConfigProvider,
+    Menu
 } from 'antd'
 import zh from 'antd/lib/locale/zh_CN'
 import en from 'antd/lib/locale/en_US'
@@ -16,7 +17,7 @@ import ko from 'antd/lib/locale/ko_KR'
 
 import { model } from './model'
 
-import { language } from '../i18n'
+import { language, t } from '../i18n'
 
 import Cloud from './cloud'
 
@@ -41,6 +42,7 @@ function DolphinDB () {
             </Layout.Header>
             <Layout className='body'>
                 {/* 目前只有一个管理界面，先不加侧边菜单 */}
+                {/* <DbDSider /> */}
                 <Layout.Content className='view'>
                     <DdbContent />
                 </Layout.Content>
@@ -74,6 +76,48 @@ function DdbContent () {
     return <div className={`view-card ${view}`}>
         <View/>
     </div>
+}
+
+
+
+function DbDSider() {
+
+    const { clusters } = model.use(['clusters'])
+
+
+    const handleClick = (e) => {
+        console.log('menu click:', e)
+    }
+
+    const handleTitleClick = e => {
+        console.log('title cilck:', e)
+    }
+
+    return <Layout.Sider
+        width={256}
+        theme='light'
+    >
+        <Menu
+            mode='inline'
+            onClick={handleClick}
+            theme='light'
+        >
+            <Menu.SubMenu title={t('集群管理')} key='cluster' onTitleClick={handleTitleClick}>
+                {clusters.map((cluster) => {
+                    return (
+                        <Menu.SubMenu 
+                            title={`${cluster.namespace}/${cluster.name}`} 
+                            key={`${cluster.namespace}/${cluster.name}`} 
+                            onTitleClick={handleTitleClick}
+                        >
+                            <Menu.Item key={`${cluster.namespace}/${cluster.name}/info`}>Info</Menu.Item>
+                            <Menu.Item key={`${cluster.namespace}/${cluster.name}/config`}>Configuration</Menu.Item>
+                        </Menu.SubMenu>
+                    )
+                })}   
+            </Menu.SubMenu>
+        </Menu>
+    </Layout.Sider>
 }
 
 
