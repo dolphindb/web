@@ -140,10 +140,52 @@
     "收起侧边栏": {
         "en": "Collapse"
     },
-    "配置参数更新成功": {
-        "en": "Configuration updated"
+    "基本信息": {
+        "en": "Basic Info"
     },
-    "配置参数更新失败": {
-        "en": "Failed to update Configuration"
+    "配置参数": {
+        "en": "Configuration"
+    },
+    "集群参数": {
+        "en": "Cluster Config"
+    },
+    "控制节点参数": {
+        "en": "Controller Config"
+    },
+    "代理节点参数": {
+        "en": "Agent Config"
+    },
+    "请输入参数值": {
+        "en": "Please input a config value."
+    },
+    "保存更改": {
+        "en": "Save"
+    },
+    "编辑参数": {
+        "en": "Edit"
+    },
+    "提交参数修改": {
+        "en": "Submit All Changes"
+    },
+    "重置全部参数": {
+        "en": "Reset Configuration"
+    },
+    "参数重置成功": {
+        "en": "Configuration reset."
+    },
+    "参数重置失败": {
+        "en": "Reset failed."
+    },
+    "参数修改成功": {
+        "en": "Configuration submitted."
+    },
+    "参数修改失败": {
+        "en": "Submit failed."
+    },
+    "确认重置?": {
+        "en": "Confirm to reset?"
+    },
+    "确认提交?": {
+        "en": "Confirm to submit?"
     }
 }
