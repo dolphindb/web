@@ -25,7 +25,7 @@ const { Title, Text, Link } = Typography
 
 
 export function Cloud () {
-    const { cluster } = model.use(['cluster'])
+    const { cluster } = model.use(['cluster']) 
     
     if (cluster)
         return <ClusterDetail />

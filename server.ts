@@ -34,7 +34,7 @@ async function repl_router (ctx: Context): Promise<boolean> {
     let path = ctx.request.path
     
     if (dapi && method === 'POST') {
-        const data = await request_json(`http://ddb253.shenhongfei.com:8850${path}`, { body })
+        const data = await request_json(`http://192.168.1.65:8848${path}`, { body })
         log_section(`${body.functionName}(${inspect(body.params?.[0]?.value)})`)
         console.log(response.body = data)
         return true
@@ -80,7 +80,7 @@ await webpack.start()
 console.log(
     'console.server 启动完成\n' +
     '请使用浏览器打开:\n' +
-    'http://localhost:8421/console/index.html?hostname=ddb253.shenhongfei.com&port=8850\n' +
+    'http://localhost:8421/console/index.html?hostname=localhost&port=8848\n' +
     'http://localhost:8421/cloud/index.html'
 )
 

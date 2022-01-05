@@ -1,8 +1,9 @@
 import type { BaseType } from 'antd/lib/typography/Base'
+import dayjs from 'dayjs'
 
 import Model from 'react-object-model'
 
-import { ddb, DdbObj } from './ddb.browser'
+import { ddb, DdbObj, DdbType } from './ddb.browser'
 
 const storage_keys = {
     ticket: 'ddb.ticket',
@@ -26,6 +27,10 @@ export class DdbModel extends Model <DdbModel> {
     node_alias: string
     
     nodes: DdbNode[]
+
+    version: string
+
+    license: DdbLicense
     
     
     async init () {
@@ -39,7 +44,9 @@ export class DdbModel extends Model <DdbModel> {
         
         await Promise.all([
             model.get_node_type(),
-            model.get_node_alias()
+            model.get_node_alias(),
+            model.get_ddb_version(),
+            model.get_ddb_license()
         ])
         
         if (this.node_type === NodeType.controller)
@@ -143,6 +150,31 @@ export class DdbModel extends Model <DdbModel> {
         return node_alias
     }
     
+    async get_ddb_version() {
+        let { value: version } = await ddb.call<DdbObj<string>>('version', [], { urgent: true })
+        version = version.split(' ')[0]
+        this.set({
+            version
+        })
+        console.log('version:', version)
+        return version
+    }
+
+    async get_ddb_license(){
+        const { value: obj } = await ddb.call<DdbObj<DdbObj[]>>('license', [], { urgent:true })
+        let license = {} as DdbLicense
+        console.log('vlaue', obj)
+        for(let i = 0; i < obj[0].rows; i++){
+            let key = obj[0].value[i]
+            license[key] = obj[1].value[i].value
+        }
+        console.log('license', license)
+        this.set({
+            license
+        })
+        return license
+    }
+
     
     goto_default_view () {
         this.set({
@@ -265,6 +297,18 @@ interface DdbNode {
     // ... 省略了一些
 }
 
+interface DdbLicense {
+    authorization: string
+    licenseType: number
+    maxMemoryPerNode: number
+    maxCoresPerNode: number
+    clientName: string
+    bindCPU: boolean
+    expiration: bigint
+    maxNodes: number
+    version: string
+    modules: number
+}
 
 export interface DdbJob {
     startTime?: bigint

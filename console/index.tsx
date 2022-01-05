@@ -11,7 +11,13 @@ import {
     ConfigProvider,
     Dropdown,
     Avatar,
-    Typography
+    Typography,
+    Tag,
+    Popover,
+    Button,
+    Descriptions,
+    Badge,
+    Card
 } from 'antd'
 import {
     default as Icon,
@@ -46,6 +52,7 @@ import SvgDFS from './dfs.icon.svg'
 import SvgJob from './job.icon.svg'
 import SvgShell from './shell.icon.svg'
 import SvgShellOld from './shell.old.icon.svg'
+import dayjs from 'dayjs'
 
 
 const { Text } = Typography
@@ -83,6 +90,8 @@ function DdbHeader () {
     const { logined, username } = model.use(['logined', 'username'])
     
     const { node_alias } = model.use(['node_alias'])
+
+    const { version, license } = model.use(['version', 'license'])
     
     useEffect(() => {
         if (!node_alias)
@@ -90,12 +99,48 @@ function DdbHeader () {
         document.title = `DolphinDB - ${node_alias}`
     }, [node_alias])
     
+    const content = (
+        <div>
+            <Badge.Ribbon text={ 'V' + version } color='#B5B5B5'>
+            <Card size='small' title={ license.authorization.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase()) + ' License' }>
+            <Descriptions
+                bordered
+                size='small'
+                column={2}
+            >
+                <Descriptions.Item label="authorization">{ license.authorization }</Descriptions.Item>
+                <Descriptions.Item label="clientName">{ license.clientName }</Descriptions.Item>
+                <Descriptions.Item label="bindCPU">{ license.bindCPU? 'true' : 'false' }</Descriptions.Item>
+                <Descriptions.Item label="licenseType">{ license.licenseType }</Descriptions.Item>
+                <Descriptions.Item label="expiration">{ dayjs(
+                    Number(1000 * 3600 * 24 * Number(license.expiration))
+                    ).format('YYYY.MM.DD') }</Descriptions.Item>
+                <Descriptions.Item label="modules">{ Number(license.modules) }</Descriptions.Item>
+                <Descriptions.Item label="maxMemoryPerNode">{ license.maxMemoryPerNode }</Descriptions.Item>
+                <Descriptions.Item label="maxCoresPerNode">{ license.maxCoresPerNode }</Descriptions.Item>
+                <Descriptions.Item label="version">{ license.version }</Descriptions.Item>
+                <Descriptions.Item label="maxNodes">{ license.maxNodes }</Descriptions.Item>
+            </Descriptions>
+            </Card>
+            </Badge.Ribbon>
+        </div>
+    )
     
     return <>
         <img className='logo' src='./ddb.svg' />
         
         <div className='padding' />
+
+        {/* <div>
+            <Tag className='version' color='#828282'>{ 'V' + version }</Tag>
+        </div> */}
         
+        <div>
+            <Popover content={ content } placement="bottomLeft">
+                <Tag  className='license' color='#f2f2f2'>{ license.authorization }</Tag>
+            </Popover>
+        </div>
+
         <div className='user'>
             <Dropdown
                 overlay={
