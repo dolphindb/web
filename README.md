@@ -8,6 +8,11 @@
 ```sh
 # 安装最新版 Node.js
 npm install
+
+# 运行 compile 命令，生成 server.js 和 build.js 并监听修改
+npm run compile
+
+# 启动 dev 
 npm run server
 ```
 
