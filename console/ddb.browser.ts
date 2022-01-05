@@ -55,6 +55,8 @@ export enum DdbType {
     complex = 34,
     point = 35,
     duration = 36,
+    
+    symbol_extended = 145,
 }
 
 export enum DdbFunctionType {
@@ -74,10 +76,16 @@ export interface DdbFunctionDefValue {
     name: string
 }
 
-export type DdbValue = null | boolean | number | [number, number] | bigint | string | string[] | Uint8Array | Int16Array | Int32Array | Float32Array | Float64Array | BigInt64Array | Uint8Array[] | DdbObj[] | DdbFunctionDefValue
+export interface DdbSymbolExtendedValue {
+    base_id: number
+    base: string[]
+    value: Uint32Array
+}
+
+export type DdbValue = null | boolean | number | [number, number] | bigint | string | string[] | Uint8Array | Int16Array | Int32Array | Float32Array | Float64Array | BigInt64Array | Uint8Array[] | DdbObj[] | DdbFunctionDefValue | DdbSymbolExtendedValue
 
 
-export type DdbVectorValue = string | string[] | Uint8Array | Int16Array | Int32Array | Float32Array | Float64Array | BigInt64Array | Uint8Array[] | DdbObj[]
+export type DdbVectorValue = string | string[] | Uint8Array | Int16Array | Int32Array | Float32Array | Float64Array | BigInt64Array | Uint8Array[] | DdbObj[] | DdbSymbolExtendedValue
 
 
 export const nulls = {
@@ -91,6 +99,9 @@ export class DdbObj <T extends DdbValue = DdbValue> {
     static dec = new TextDecoder('utf-8')
     
     static enc = new TextEncoder()
+    
+    /** 维护已解析的 symbol base，比如流数据中后续的 symbol 向量可能只发送一个 base.id, base.size == 0, 依赖之前发送的 symbol base */
+    static symbol_bases: Record<number, string[]> = { }
     
     
     form: DdbForm
@@ -588,6 +599,55 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                     i_head = i_tail + 1
                 }
                 return [i_head, value]
+            }
+            
+            
+            case DdbType.symbol_extended: {
+                // <Buffer 91 01 type = symbol extended, form = vector
+                // 05 00 00 00 01 00 00 00 row = 5, col = 1
+                
+                // buf:
+                // 00 00 00 00 symbol base id = 0 (uint32)
+                // 02 00 00 00 symbol base size = 2
+                // 00 61 61 00 以 \0 分割的字符串
+                // 01 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00>
+                
+                const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength)
+                const base_id = dv.getUint32(0, ddb.le)
+                const base_size = dv.getUint32(4, ddb.le)
+                
+                let base_length = 0
+                let base = this.symbol_bases[base_id]
+                
+                // base_size 为 0 时复用之前的 symbol base
+                if (base_size) {
+                    [base_length, base] = this.parse_vector_items(
+                        buf.subarray(8),
+                        DdbType.string,
+                        base_size
+                    ) as [number, string[]]
+                    
+                    this.symbol_bases[base_id] = base
+                }
+                
+                const value_start = 8 + base_length
+                const value_end = value_start + length * 4
+                
+                const value = new Uint32Array(
+                    buf.buffer.slice(
+                        buf.byteOffset + value_start,
+                        buf.byteOffset + value_end
+                    )
+                )
+                
+                return [
+                    value_end,
+                    {
+                        base_id,
+                        base,
+                        value
+                    }
+                ]
             }
             
             
@@ -1271,7 +1331,7 @@ export let ddb = {
             '    if (!nargs)\n' +
             '        return pnodeRun(func, nodes, add_node_alias)\n' +
             '    \n' +
-            '    args_partial = array(any, 1 + nargs)\n' +
+            '    args_partial = array(any, 1 + nargs, 1 + nargs)\n' +
             '    args_partial[0] = func\n' +
             '    args_partial[1:] = args\n' +
             '    return pnodeRun(\n' +
@@ -1289,7 +1349,7 @@ export let ddb = {
         ddb 世界观：需要等待上一个 rpc 结果从 server 返回之后才能发起下一个调用  
         违反世界观可能造成:  
         1. 并发多个请求只返回第一个结果（阻塞，需后续请求疏通）
-        2. Windows 下 ddb server 返回多个相同的结果
+        2. windows 下 ddb server 返回多个相同的结果
         
         - type: API 类型: 'script' | 'function' | 'variable'
         - options:
@@ -1314,6 +1374,9 @@ export let ddb = {
         if (!this.ws)
             await this.connect()
         
+        if (this.ws.readyState !== WebSocket.OPEN)
+            throw new Error('ws 连接已断开')
+        
         // 临界区：保证多个 rpc 并发时形成 promise 链
         const ptail = this.presult
         let presolver: (buf: Uint8Array) => void
@@ -1334,9 +1397,6 @@ export let ddb = {
         
         if (urgent && type !== 'script' && type !== 'function')
             throw new Error('urgent 只适用于 script 和 funciton')
-        
-        if (this.ws.readyState !== WebSocket.OPEN)
-            throw new Error('ws 连接已断开')
         
         this.to_ddbobjs(args)
         
