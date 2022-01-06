@@ -18,12 +18,14 @@ import {
     Descriptions,
     Tabs,
     Layout,
-    Modal
+    Modal,
+    Switch
     } from 'antd'
 import { ConsoleSqlOutlined, ReloadOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors'
+import { AlignType } from 'rc-table/lib/interface'
 
-import { t } from '../i18n'
+import { language, t } from '../i18n'
 import {
     model,
     type ClusterMode,
@@ -112,7 +114,7 @@ function ClusterDetailMenu ({
     return(
         <div className='detail-menu'>
             {fields.map(f => (
-                <ClusterDetailMenuItem key={field} focused={field === f} onClick={onButtonClick} value={f} />
+                <ClusterDetailMenuItem key={f} focused={field === f} onClick={onButtonClick} value={f} />
             ))}
         </div>
     )
@@ -189,9 +191,13 @@ function InfoTab() {
                 { services.Controller && <Descriptions.Item label='controller'>
                     <ServiceNode {...services.Controller} />
                 </Descriptions.Item> }
-                <Descriptions.Item label='datanode'>
+                { services.Datanode ? <Descriptions.Item label='datanode'>
                     <ServiceNode {...services.Datanode} />
+                </Descriptions.Item> : 
+                <Descriptions.Item label='standalone'>
+                    <ServiceNode {...services.Standalone} />
                 </Descriptions.Item>
+                }
             </Descriptions>
             
             <ClusterNodes cluster={cluster} />
@@ -258,10 +264,20 @@ function Clusters () {
                     title: 'services',
                     key: 'services',
                     dataIndex: 'Services',
-                    render: services => <>
-                        { services.Controller && <ServiceNode type='controller' {...services.Controller} /> }
-                        <ServiceNode type='datanode' {...services.Datanode} />
-                    </>
+                    render: services => {
+                        if (services.Controller) {
+                            return (
+                            <>
+                                <ServiceNode type='controller' {...services.Controller} />
+                                <ServiceNode type='datanode' {...services.Datanode} />
+                            </>
+                            )
+                        } else {
+                            return (
+                                <ServiceNode type='standalone' {...services.Standalone} />
+                            )
+                        }
+                    }  
                 },
                 {
                     title: 'status',
@@ -458,7 +474,7 @@ function CreateClusterPanel({
                     </Form.Item>}
                     
                     <Form.Item name={['controller', 'data_size']} label='controller.data_size' rules={[{ required: true }]}>
-                        <InputNumber addonAfter='Gi' />
+                        <InputNumber min={0} addonAfter='Gi' />
                     </Form.Item>
                 </> }
                 
@@ -467,15 +483,15 @@ function CreateClusterPanel({
                 </Form.Item>
                 
                 <Form.Item name={['datanode', 'data_size']} label='datanode.data_size' rules={[{ required: true }]}>
-                    <InputNumber placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
+                    <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
                 </Form.Item>
                 
                 <Form.Item name={['resources', 'cpu']} label='cpu' rules={[{ required: true }]}>
-                    <InputNumber placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
+                    <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
                 </Form.Item>
                 
                 <Form.Item name={['resources', 'memory']} label='memory' rules={[{ required: true }]}>
-                    <InputNumber placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi'/>
+                    <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi'/>
                 </Form.Item>
                 
                 {/* <Form.Item wrapperCol={{ offset: 8 }} rules={[{ required: true }]}>
@@ -500,7 +516,7 @@ function ServiceNode ({
     ip,
     port
 }: {
-    type?: 'controller' | 'datanode'
+    type?: 'controller' | 'datanode' | 'standalone'
     ip: string
     port: string
 }) {
@@ -569,18 +585,30 @@ function ClusterNodes ({
            )
         })()
     }, [cluster])
-    
-    return <div className='cluster-nodes'>
-            <div className='controllers'>
-                <Title level={4}>Controllers ({controllers.length})</Title>
-                <NodeList mode='controller' nodes={controllers} />
+
+    if (cluster.mode === 'cluster') {
+        return (
+            <div className='cluster-nodes'>
+                    {controllers && <div className='controllers'>
+                        <Title level={4}>Controllers ({controllers.length})</Title>
+                        <NodeList mode='controller' nodes={controllers} />
+                    </div>}
+                    
+                    {datanodes &&  <div className='datanodes'>
+                        <Title level={4}>Data Nodes ({datanodes.length})</Title>
+                        <NodeList mode='datanode' nodes={datanodes} />
+                    </div>}
             </div>
-            
-            { datanodes && <div className='datanodes'>
-                <Title level={4}>Data Nodes ({datanodes.length})</Title>
-                <NodeList mode='datanode' nodes={datanodes} />
-            </div>}
-    </div>
+        )
+    } else {
+        return (
+            <div className='datanodes'>
+            <Title level={4}>Standalone</Title>
+            <NodeList mode='datanode' nodes={datanodes} />
+            </div>
+        )
+    }
+    
 }
 
 
@@ -643,7 +671,7 @@ function ClusterStatus ({
 }
 
 /** Type of Configuration: Cluster, Controller, Agent */
-type ConfigType = 'cluster' | 'controller' | 'agent'
+type ConfigType = 'cluster' | 'controller' | 'agent' | 'standalone'
 
 function ClusterConfigs ({
     cluster
@@ -651,23 +679,28 @@ function ClusterConfigs ({
     cluster: Cluster
 }) {
 
-    const [config, setConfig] = useState<ClusterConfig>({
+    const [config, setConfig] = useState<ClusterConfig>(cluster.mode === 'cluster' ? {
         cluster_config: [],
         controller_config: [],
         agent_config: []
+    } : {
+        dolphindb_config: []
     })
 
-    const [editedConfig, setEditedConfig] = useState<ClusterConfig>({
+    const [editedConfig, setEditedConfig] = useState<ClusterConfig>(cluster.mode === 'cluster' ? {
         cluster_config: [],
         controller_config: [],
         agent_config: []
+    } : {
+        dolphindb_config: []
     })
 
     const onConfigChange = (newItem: Partial<ClusterConfigItem> & {name: string}, type: ConfigType) => {
         const name_dict = {
             'cluster': 'cluster_config',
             'controller': 'controller_config',
-            'agent': 'agent_config'
+            'agent': 'agent_config',
+            'standalone': 'dolphindb_config'
         }
         const field = name_dict[type]
 
@@ -752,17 +785,41 @@ function ClusterConfigs ({
 
     return <div className="cluster-config">
         <Title level={4} className='cluster-config-header'>Configuration</Title>
-        <Tabs size='large'>
-            <Tabs.TabPane tab={t("集群参数")} key='cluster'>
-                <ConfigEditableList type='cluster' configList={config.cluster_config} onConfigChange={onConfigChange} />
-            </Tabs.TabPane>
-            <Tabs.TabPane tab={t("控制节点参数")} key='controller'>
-                <ConfigEditableList type='controller' configList={config.controller_config}  onConfigChange={onConfigChange} />
-            </Tabs.TabPane >
-            <Tabs.TabPane tab={t("代理节点参数")} key='agent' >
-                <ConfigEditableList type='agent' configList={config.agent_config}  onConfigChange={onConfigChange} />
-            </Tabs.TabPane>
-        </Tabs>
+        {cluster.mode === 'cluster' ?
+            <Tabs size='large'>
+                <Tabs.TabPane tab={t("集群参数")} key='cluster'>
+                    <ConfigEditableList 
+                        type='cluster' 
+                        configList={config.cluster_config} 
+                        editedList={editedConfig.cluster_config} 
+                        onConfigChange={onConfigChange} 
+                    />
+                </Tabs.TabPane>
+                <Tabs.TabPane tab={t("控制节点参数")} key='controller'>
+                    <ConfigEditableList 
+                        type='controller' 
+                        configList={config.controller_config} 
+                        editedList={editedConfig.controller_config} 
+                        onConfigChange={onConfigChange} 
+                    />
+                </Tabs.TabPane >
+                <Tabs.TabPane tab={t("代理节点参数")} key='agent' >
+                    <ConfigEditableList 
+                        type='agent' 
+                        configList={config.agent_config}  
+                        editedList={editedConfig.agent_config}
+                        onConfigChange={onConfigChange} 
+                    />
+                </Tabs.TabPane>
+            </Tabs>
+            :
+            <ConfigEditableList 
+                type='standalone' 
+                configList={config.dolphindb_config} 
+                editedList={editedConfig.dolphindb_config}
+                onConfigChange={onConfigChange} 
+            />
+        }
         <div className='cluster-button-block'>
 
             <Popconfirm
@@ -773,14 +830,14 @@ function ClusterConfigs ({
             >
                 <Button type="primary" className='cluster-button' onClick={() => {setSubmitPopVisible(true)}}>{t('提交参数修改')}</Button>
             </Popconfirm>
-            <Popconfirm
+            {/* <Popconfirm
                 title={t('确认重置?')}
                 visible={resetPopVisible}
                 onConfirm={onResetConfirm}
                 onCancel={() => {setResetPopVisible(false)}}
             >
                 <Button type="default" className='cluster-button' onClick={() => {setResetPopVisible(true)}}>{t('重置全部参数')}</Button>
-            </Popconfirm>
+            </Popconfirm> */}
             
         </div>
 
@@ -791,20 +848,28 @@ function ClusterConfigs ({
 function ConfigEditableList({
     type,
     configList,
-    onConfigChange
+    editedList,
+    onConfigChange,
 }: {
     type: ConfigType,
     configList: ClusterConfigItem[],
-    onConfigChange: (config: Partial<ClusterConfigItem> & {name: string}, type: ConfigType) => void
+    editedList: ClusterConfigItem[],
+    onConfigChange: (config: Partial<ClusterConfigItem> & {name: string}, type: ConfigType) => void,
 }
 ) {
+
     const [form] = Form.useForm()
     const [editingName, setEditingName] = useState('')
 
     const isEditing = (record: ClusterConfigItem) => record.name === editingName
 
     const edit = (record: ClusterConfigItem) => {
-        form.setFieldsValue({ value: record.value })
+        if (record.type !== 'bool') {
+            form.setFieldsValue({ value: record.value })
+        } else {
+            form.setFieldsValue({ value: record.value === 'true' })
+
+        }
         setEditingName(record.name)
     }
 
@@ -812,6 +877,7 @@ function ConfigEditableList({
         setEditingName('')
     }
 
+    /** 注意：每一次save都把所有类型字段自动转换为string，如需往子组件传值需要重新转换类型 */
     const save = async (name: string) => {
         try {
             const row = (await form.validateFields()) as Partial<ClusterConfigItem>
@@ -833,29 +899,56 @@ function ConfigEditableList({
             key: "name",
             width: '25%',
             editable: false
-        },{
+        },
+        {
             title: "value",
             dataIndex: "value",
             key: "value",
-            width: '20%',
-            editable: true
-        },{
+            width: '10%',
+            editable: true,
+            align: 'center' as AlignType,
+            render: (_: any, record: ClusterConfigItem) => {
+                if (record.type === 'string') {
+                    return `"${record.value}"`
+                } else {
+                    return record.value
+                }
+            }
+        },
+        {
+            title: "default value",
+            dataIndex: "default_value",
+            key: "default value",
+            width: '10%',
+            editable: false,
+            align: 'center' as AlignType,
+            render: (_: any, record: ClusterConfigItem) => {
+                if (record.type === 'string') {
+                    return `"${record.default_value}"`
+                } else {
+                    return record.default_value
+                }
+            }
+        },
+        {
             title: "type",
             dataIndex: "type",
             key: "type",
-            width: '10%',
+            width: '6%',
+            align: 'center' as AlignType,
             editable: false
-        }, {
+        }, 
+        {
             title: "description",
-            dataIndex: "description",
+            dataIndex: language === 'zh' ? 'description_zh' : 'description',
             key: "description",
-            width: '30%',
             editable: false
         }, {
             title: 'operation',
             dataIndex: 'operation',
             key: "operation",
-            width: '15%',
+            width: '10%',
+            editable: false,
             render: (_: any, record: ClusterConfigItem) => {
                 const editable = isEditing(record)
                 return editable ? (
@@ -863,7 +956,7 @@ function ConfigEditableList({
                         <Typography.Link onClick={() => save(record.name)} style={{ marginRight: 8 }}>
                         {t("保存更改")}
                         </Typography.Link>
-                        <Typography.Link title="Sure to cancel?" onClick={cancel}>
+                        <Typography.Link onClick={cancel}>
                         {t("取消")}
                         </Typography.Link>
                     </span>
@@ -885,7 +978,7 @@ function ConfigEditableList({
             ...col,
             onCell: (record: ClusterConfigItem) => ({
                 record,
-                inputType: record.type === 'int' ? 'number' : 'text',
+                inputType: record.type,
                 dataIndex: col.dataIndex,
                 title: col.title,
                 editing: isEditing(record)
@@ -899,6 +992,7 @@ function ConfigEditableList({
             component={false}
         >
             <Table
+                className={type === 'standalone' ? 'standalone-form' : ''}
                 rowKey={item => item.name}
                 components={{
                     body: {
@@ -908,7 +1002,11 @@ function ConfigEditableList({
                 bordered
                 dataSource={configList}
                 columns={mergedColumns}
-                rowClassName='editable-row'
+                rowClassName={(record) => {
+                    if (editedList.findIndex(val => val.name === record.name) > -1)
+                        return 'editable-row edited-row' 
+                    return 'editable-row'
+                }}
                 pagination={false}
             />
 
@@ -921,7 +1019,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     editing: boolean;
     dataIndex: string;
     title: any;
-    inputType: 'number' | 'text';
+    inputType: 'bool' | 'string' | 'int' | 'int64' | 'int32';
     record: ClusterConfigItem;
     index: number;
     children: React.ReactNode;
@@ -937,24 +1035,44 @@ const EditableCell: React.FC<EditableCellProps> = ({
     children,
     ...restProps
   }) => {
-    const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
-  
-    return (
-      <td {...restProps}>
-        {editing ? (
-          <Form.Item
+    const NumberInput = () =>
+{
+    return  <Form.Item
             name={dataIndex}
             style={{ margin: 0 }}
             rules={[
-              {
-                required: true,
-                message: t("请输入参数值"),
-              },
-            ]}
-          >
-            {inputNode}
-          </Form.Item>
-        ) : (
+                {
+                  required: true,
+                  message: t("请输入参数值"),
+                },
+              ]}
+        >
+            <InputNumber min={0} />
+        </Form.Item>}
+
+    const StringInput = () =>
+        <Form.Item
+            name={dataIndex}
+            style={{ margin: 0 }}
+        >
+            <Input />
+        </Form.Item>
+
+    const BooleanInput = () =>
+        <Form.Item
+            className='boolean-input-form'
+            name={dataIndex}
+            valuePropName='checked'
+        >
+            <Switch checkedChildren='true' unCheckedChildren='false' />
+        </Form.Item>
+
+    return (
+      <td {...restProps}>
+        {editing ? 
+            inputType === 'int' || inputType === 'int64' || inputType === 'int32' ? <NumberInput /> : 
+            inputType === 'string' ? <StringInput /> : <BooleanInput />
+          : (
           children
         )}
       </td>

@@ -133,7 +133,7 @@ export class CloudModel extends Model <CloudModel> {
             }
         )
         
-        nodes.Controller.sort((l, r) => 
+        nodes.Controller?.sort((l, r) => 
             strcmp(l.name, r.name))
         
         nodes.Datanode?.sort((l, r) => 
@@ -190,11 +190,15 @@ export interface Cluster {
         message: string
     }
     Services: {
-        Datanode: {
+        Datanode?: {
             ip: string
             port: string
         }
         Controller?: {
+            ip: string
+            port: string
+        }
+        Standalone?: {
             ip: string
             port: string
         }
@@ -228,14 +232,16 @@ export interface ClusterNode {
 export interface ClusterConfigItem {
     name: string,
     value: string,
+    default_value: string,
     type: string,
     description: string
 }
 
 export interface ClusterConfig {
-    cluster_config: ClusterConfigItem[],
-    controller_config: ClusterConfigItem[],
-    agent_config: ClusterConfigItem[]
+    cluster_config?: ClusterConfigItem[],
+    controller_config?: ClusterConfigItem[],
+    agent_config?: ClusterConfigItem[]
+    dolphindb_config?: ClusterConfigItem[]
 }
 
 
