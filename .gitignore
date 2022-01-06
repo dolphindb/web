@@ -9,6 +9,6 @@ node_modules/
 *.map
 *.d.ts
 
-/i18n/scanneds.json
+/i18n/untranslateds.json
 /i18n/stats.json
 
