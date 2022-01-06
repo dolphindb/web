@@ -80,7 +80,7 @@ await webpack.start()
 console.log(
     'console.server 启动完成\n' +
     '请使用浏览器打开:\n' +
-    'http://localhost:8421/console/index.html?hostname=localhost&port=8848\n' +
+    'http://localhost:8421/console/index.html?hostname=127.0.0.1&port=8848\n' +
     'http://localhost:8421/cloud/index.html'
 )
 
