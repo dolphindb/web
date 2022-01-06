@@ -9,7 +9,8 @@
         "server": "node ./server.js",
         "typecheck": "tsc --noEmit",
         "build": "tsc --project ./tsconfig.lib.json && node ./build.js",
-        "build.cloud": "tsc --project ./tsconfig.lib.json && node ./build.js cloud"
+        "build.cloud": "tsc --project ./tsconfig.lib.json && node ./build.js cloud",
+        "scan": "i18n-scan --input \"**/*.{ts,tsx}\""
     },
     "engines": {
         "node": ">=17.3.0"
