@@ -16,4 +16,9 @@ npm run compile
 npm run server
 ```
 
+## 国际化 (i18n)
+```sh
+npm run scan
+```
+
 ## 构建流程参见 ./build.sh
