@@ -165,27 +165,27 @@
         "en": "Edit"
     },
     "提交参数修改": {
-        "en": "Submit All Changes"
+        "en": "Submit All"
     },
     "重置全部参数": {
-        "en": "Reset Configuration"
+        "en": "Reset All"
     },
     "参数重置成功": {
-        "en": "Configuration reset."
+        "en": "parameters resetting succeed."
     },
     "参数重置失败": {
-        "en": "Reset failed."
+        "en": "parameters resetting failed."
     },
     "参数修改成功": {
-        "en": "Configuration submitted."
+        "en": "Configuration parameters successfully changed."
     },
     "参数修改失败": {
-        "en": "Submit failed."
+        "en": "Submittion failed."
     },
     "确认重置?": {
-        "en": "Confirm to reset?"
+        "en": "Reset parameters?"
     },
     "确认提交?": {
-        "en": "Confirm to submit?"
+        "en": "Submit changes?"
     }
 }
