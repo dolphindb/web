@@ -15,6 +15,7 @@ if (is_cloud) {
     await Promise.all([
         fcopy(`${fpd_src_cloud}index.html`, `${fpd_out_cloud}index.html`, { overwrite: true }),
         fcopy(`${fpd_src_cloud}cloud.svg`, `${fpd_out_cloud}cloud.svg`, { overwrite: true }),
+        fcopy(`${fpd_src_cloud}ddb.png`, `${fpd_out_cloud}ddb.png`, { overwrite: true }),
         fcopy(`${fp_root}fonts/`, `${fpd_out_cloud}fonts/`),
     ])
 } else {

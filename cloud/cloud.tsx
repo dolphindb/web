@@ -1,6 +1,6 @@
+import './cloud.sass'
 
-
-import { default as React, ReactNode, useEffect, useState } from 'react'
+import { default as React, useEffect, useState } from 'react'
 
 import { 
     Badge,
@@ -35,7 +35,6 @@ import {
 } from './model'
 
 import icon_add from './add.svg'
-import './cloud.sass'
 
 
 const { Option } = Select
@@ -53,31 +52,30 @@ export function Cloud () {
 
 
 /** Type of cluster detail field: 'info' or 'config' */
-type fieldType = 'info' | 'config'
+type FieldType = 'info' | 'config'
 
 function ClusterDetail () {
     const { cluster } = model.use(['cluster'])
     
     const { name } = cluster
 
-    const [field, setField] = useState<fieldType>('info') 
+    const [field, setField] = useState<FieldType>('info') 
 
-    const fields : fieldType[] = ['info', 'config']
+    const fields : FieldType[] = ['info', 'config']
 
-    const onButtonClick = (value: fieldType) => {
+    const onButtonClick = (value: FieldType) => {
         setField(value)
     }
 
     const Content = {
-        'info': <InfoTab />,
-        'config': <ClusterConfigs cluster={cluster} />
-
+        info: <InfoTab />,
+        config: <ClusterConfigs cluster={cluster} />
     }
     
     return (
         <div className='cluster'>
             <Layout>
-                <Layout.Sider theme='light' className='sidebar' width={'250px'}>
+                <Layout.Sider theme='light' className='sidebar' width='250px'>
                     <PageHeader
                         className='cluster-header'
                         title={
@@ -106,15 +104,15 @@ function ClusterDetailMenu ({
     fields,
     onButtonClick
 }: {
-    field: fieldType,
-    fields: fieldType[],
-    onButtonClick: (value: fieldType) => void
+    field: FieldType,
+    fields: FieldType[],
+    onButtonClick: (value: FieldType) => void
 }) {
 
     return(
         <div className='detail-menu'>
             {fields.map(f => (
-                <ClusterDetailMenuItem focused={field === f} onClick={onButtonClick} value={f} />
+                <ClusterDetailMenuItem key={field} focused={field === f} onClick={onButtonClick} value={f} />
             ))}
         </div>
     )
@@ -126,8 +124,8 @@ function ClusterDetailMenuItem({
     value
 }: {
     focused: boolean,
-    onClick: (value: fieldType) => void,
-    value: fieldType
+    onClick: (value: FieldType) => void,
+    value: FieldType
 }) {
     const onButtonClick = () => {
         onClick(value)
@@ -140,8 +138,8 @@ function ClusterDetailMenuItem({
     }
 
     const displayValue = {
-        'info': t("基本信息"),
-        'config': t("配置参数")
+        info: t("基本信息"),
+        config: t("配置参数")
     }
 
     return(
@@ -203,9 +201,9 @@ function InfoTab() {
 
 
 function Clusters () {
-    const { clusters } = model.use(['clusters', 'namespaces', 'storageclasses'])
+    const { clusters } = model.use(['clusters'])
     
-    const [createPanelVisible, setCreatePaneVisible] = useState<boolean>(false)
+    const [createPanelVisible, setCreatePaneVisible] = useState(false)
 
     return <div className='clusters'>
         <Title className='title-overview' level={3}>{t('集群总览')}</Title>
@@ -299,7 +297,6 @@ function Clusters () {
 
         <CreateClusterPanel
             visible={createPanelVisible}
-            openPanel={() => {setCreatePaneVisible(true)}}
             closePanel={() => {setCreatePaneVisible(false)}}
         />
     </div>
@@ -307,11 +304,9 @@ function Clusters () {
 
 function CreateClusterPanel({
     visible,
-    openPanel,
     closePanel,
 }: {
     visible: boolean,
-    openPanel: () => void
     closePanel: () => void
 }) {
 
