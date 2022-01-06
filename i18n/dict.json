@@ -187,5 +187,52 @@
     },
     "确认提交?": {
         "en": "Submit changes?"
+    },
+
+    "名称": {
+        "en": "name"
+    },
+    "模式": {
+        "en": "mode"
+    },
+    "版本": {
+        "en": "version"
+    },
+    "服务": {
+        "en": "service"
+    },
+    "状态": {
+        "en": "status"
+    },
+    "操作": {
+        "en": "actions"
+    },
+    "当前值": {
+        "en": "value"
+    },
+    "默认值": {
+        "en": "default value"
+    },
+    "类型": {
+        "en": "type"
+    },
+    "描述": {
+        "en": "description"
+    },
+    "内存": {
+        "en": "memory"
+    },
+    "命名空间": {
+        "en": "namesapce"
+    },
+    "日志模式": {
+        "en": "log mode"
+    },
+    "创建时间": {
+        "en": "created at"
+    },
+    "储存类": {
+        "en": "storage class"
     }
+
 }
