@@ -133,12 +133,6 @@ export class CloudModel extends Model <CloudModel> {
             }
         )
         
-        nodes.Controller?.sort((l, r) => 
-            strcmp(l.name, r.name))
-        
-        nodes.Datanode?.sort((l, r) => 
-            strcmp(l.name, r.name))
-        
         console.log('nodes:', nodes)
         
         return nodes

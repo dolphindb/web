@@ -191,12 +191,14 @@ function InfoTab() {
                 { services.Controller && <Descriptions.Item label='controller'>
                     <ServiceNode {...services.Controller} />
                 </Descriptions.Item> }
-                { services.Datanode ? <Descriptions.Item label='datanode'>
-                    <ServiceNode {...services.Datanode} />
-                </Descriptions.Item> : 
-                <Descriptions.Item label='standalone'>
-                    <ServiceNode {...services.Standalone} />
-                </Descriptions.Item>
+                { services.Datanode ? 
+                    <Descriptions.Item label='datanode'>
+                        <ServiceNode {...services.Datanode} />
+                    </Descriptions.Item>
+                :
+                    <Descriptions.Item label='standalone'>
+                        <ServiceNode {...services.Standalone} />
+                    </Descriptions.Item>
                 }
             </Descriptions>
             
@@ -697,10 +699,10 @@ function ClusterConfigs ({
 
     const onConfigChange = (newItem: Partial<ClusterConfigItem> & {name: string}, type: ConfigType) => {
         const name_dict = {
-            'cluster': 'cluster_config',
-            'controller': 'controller_config',
-            'agent': 'agent_config',
-            'standalone': 'dolphindb_config'
+            cluster: 'cluster_config',
+            controller: 'controller_config',
+            agent: 'agent_config',
+            standalone: 'dolphindb_config'
         }
         const field = name_dict[type]
 
@@ -1003,7 +1005,7 @@ function ConfigEditableList({
                 dataSource={configList}
                 columns={mergedColumns}
                 rowClassName={(record) => {
-                    if (editedList.findIndex(val => val.name === record.name) > -1)
+                    if (editedList.find(val => val.name === record.name))
                         return 'editable-row edited-row' 
                     return 'editable-row'
                 }}
