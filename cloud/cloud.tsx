@@ -167,18 +167,18 @@ function InfoTab() {
                 column={2}
                 bordered
             >
-                <Descriptions.Item label='namespace'>{namespace}</Descriptions.Item>
-                <Descriptions.Item label='name'>{name}</Descriptions.Item>
-                <Descriptions.Item label='status'>
+                <Descriptions.Item label={t('命名空间')}>{namespace}</Descriptions.Item>
+                <Descriptions.Item label={t('名称')}>{name}</Descriptions.Item>
+                <Descriptions.Item label={t('状态')}>
                     <ClusterStatus {...status}/>
                 </Descriptions.Item>
-                <Descriptions.Item label='version'>{version}</Descriptions.Item>
-                <Descriptions.Item label='mode'>
+                <Descriptions.Item label={t('版本')}>{version}</Descriptions.Item>
+                <Descriptions.Item label={t('模式')}>
                     <Mode cluster={cluster} />
                 </Descriptions.Item>
-                <Descriptions.Item label='log mode'>{log_modes[log_mode] || log_mode}</Descriptions.Item>
-                <Descriptions.Item label='created at'>{created_at.format('YYYY.MM.DD HH:mm:ss')}</Descriptions.Item>
-                <Descriptions.Item label='storage class'>{storage_class_name}</Descriptions.Item>
+                <Descriptions.Item label={t('日志模式')}>{log_modes[log_mode] || log_mode}</Descriptions.Item>
+                <Descriptions.Item label={t('创建时间')}>{created_at.format('YYYY.MM.DD HH:mm:ss')}</Descriptions.Item>
+                <Descriptions.Item label={t('储存类')}>{storage_class_name}</Descriptions.Item>
             </Descriptions>
             
             <Descriptions
@@ -244,7 +244,7 @@ function Clusters () {
             className='list'
             columns={[
                 {
-                    title: 'name',
+                    title: t('名称'),
                     dataIndex: 'name',
                     render (name, cluster: Cluster) {
                         return <Link
@@ -254,16 +254,16 @@ function Clusters () {
                     }
                 },
                 {
-                    title: 'mode',
+                    title: t('模式'),
                     key: 'mode',
                     render: (value, cluster) => <Mode cluster={cluster} />
                 },
                 {
-                    title: 'version',
+                    title: t('版本'),
                     dataIndex: 'version'
                 },
                 {
-                    title: 'services',
+                    title: t('服务'),
                     key: 'services',
                     dataIndex: 'Services',
                     render: services => {
@@ -282,13 +282,13 @@ function Clusters () {
                     }  
                 },
                 {
-                    title: 'status',
+                    title: t('状态'),
                     dataIndex: ['status'],
                     render: (status: ClusterNode['status']) => 
                         <ClusterStatus {...status} />
                 },
                 {
-                    title: 'actions',
+                    title: t('操作'),
                     key: 'actions',
                     render (value, cluster) {
                         return <Popconfirm
@@ -480,9 +480,9 @@ function CreateClusterPanel({
                     </Form.Item>
                 </> }
                 
-                <Form.Item name={['datanode', 'replicas']} label='datanode.replicas' rules={[{ required: true }]}>
+                {mode === 'cluster' && <Form.Item name={['datanode', 'replicas']} label='datanode.replicas' rules={[{ required: true }]}>
                     <InputNumber min={0} precision={0} />
-                </Form.Item>
+                </Form.Item>}
                 
                 <Form.Item name={['datanode', 'data_size']} label='datanode.data_size' rules={[{ required: true }]}>
                     <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
@@ -628,7 +628,7 @@ function NodeList ({
         pagination={false}
         columns={[
             {
-                title: 'name',
+                title: t('名称'),
                 dataIndex: 'name',
             },
             {
@@ -636,11 +636,11 @@ function NodeList ({
                 dataIndex: ['resources', 'limits', 'cpu'],
             },
             {
-                title: 'memory',
+                title: t('内存'),
                 dataIndex: ['resources', 'limits', 'memory'],
             },
             {
-                title: 'status',
+                title: t('状态'),
                 dataIndex: 'status',
                 render: (status: ClusterNode['status']) => <ClusterStatus {...status} />
             },
@@ -896,14 +896,14 @@ function ConfigEditableList({
 
     const columns = [
         {
-            title: "name",
+            title: t('名称'),
             dataIndex: "name",
             key: "name",
             width: '25%',
             editable: false
         },
         {
-            title: "value",
+            title: t('当前值'),
             dataIndex: "value",
             key: "value",
             width: '10%',
@@ -918,7 +918,7 @@ function ConfigEditableList({
             }
         },
         {
-            title: "default value",
+            title: t('默认值'),
             dataIndex: "default_value",
             key: "default value",
             width: '10%',
@@ -933,7 +933,7 @@ function ConfigEditableList({
             }
         },
         {
-            title: "type",
+            title: t('类型'),
             dataIndex: "type",
             key: "type",
             width: '6%',
@@ -941,14 +941,14 @@ function ConfigEditableList({
             editable: false
         }, 
         {
-            title: "description",
+            title: t('描述'),
             dataIndex: language === 'zh' ? 'description_zh' : 'description',
             key: "description",
             editable: false
         }, {
-            title: 'operation',
-            dataIndex: 'operation',
-            key: "operation",
+            title: t('操作'),
+            dataIndex: 'actions',
+            key: "actions",
             width: '10%',
             editable: false,
             render: (_: any, record: ClusterConfigItem) => {
