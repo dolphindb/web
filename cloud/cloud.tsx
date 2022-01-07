@@ -235,6 +235,7 @@ function Clusters () {
                     model.get_clusters()
                     model.get_namespaces()
                     model.get_storageclasses()
+                    model.get_versions()
                 }}
             >{t('刷新')}</Button>
         </div>
@@ -330,12 +331,11 @@ function CreateClusterPanel({
 
     const [form] = Form.useForm()
 
-    const { namespaces, storageclasses } = model.use(['clusters', 'namespaces', 'storageclasses'])
+    const { namespaces, storageclasses, versions } = model.use(['namespaces', 'storageclasses', 'versions'])
 
     const [mode, set_mode] = useState<ClusterMode>('cluster')
     
     const [cluster_type, set_cluster_type] = useState<ClusterType>('multicontroller')
-
 
     const onSubmit = async () => {
 
@@ -387,7 +387,6 @@ function CreateClusterPanel({
                 >{t('取消')}</Button>
             ]}
         >
-            {/* <Title className='creating-title' level={4}>{t('新建集群配置')}</Title> */}
             <Form
                 form = {form}
                 name='cluster-form'
@@ -397,7 +396,7 @@ function CreateClusterPanel({
                 initialValues={{
                     mode,
                     cluster_type,
-                    version: 'v1.30.14',
+                    version: versions.length !== 0 ? versions[0] : "",
                     datanode: {
                         replicas: 0,
                     },
@@ -466,9 +465,14 @@ function CreateClusterPanel({
                 
                 <Form.Item name='version' label={t('版本')} rules={[{ required: true }]}>
                     <Select>
-                        <Option value='v1.30.14'>v1.30.14</Option>
-                        <Option value='v1.30.15'>v1.30.15</Option>
-                        <Option value='v2.00.3'>v2.00.3</Option>
+                        {
+                            versions.length !== 0 ?
+                            versions.map(v => (
+                                <Option value={v} key={v}>{v}</Option>
+                            ))
+                            :
+                            <Option value="">{""}</Option>
+                        }
                     </Select>
                 </Form.Item>
 
