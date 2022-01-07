@@ -188,7 +188,6 @@
     "确认提交?": {
         "en": "Submit changes?"
     },
-
     "名称": {
         "en": "name"
     },
@@ -233,6 +232,29 @@
     },
     "储存类": {
         "en": "storage class"
+    },
+    "输出到文件": {
+        "en": "file"
+    },
+    "输出到标准输出": {
+        "en": "stdout"
+    },
+    "同时输出到文件和标准输出": {
+        "en": "file & stdout"
+    },
+    "集群类型": {
+        "en": "cluster type"
+    },
+    "控制节点副本数": {
+        "en": "controller replicas"
+    },
+    "控制节点存储空间": {
+        "en": "controller data size"
+    },
+    "数据节点副本数": {
+        "en": "datanode replicas"
+    },
+    "数据节点存储空间": {
+        "en": "datanode data size"
     }
-
 }
