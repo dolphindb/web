@@ -350,7 +350,7 @@ function CreateClusterPanel({
         
         if (mode === 'standalone')
             delete values.controller
-        
+            delete values.datanode
         try {
             console.log('create new cluster:', values)
             await model.create(values)
@@ -841,14 +841,6 @@ function ClusterConfigs ({
             >
                 <Button type="primary" className='cluster-button' onClick={() => {setSubmitPopVisible(true)}}>{t('提交参数修改')}</Button>
             </Popconfirm>
-            {/* <Popconfirm
-                title={t('确认重置?')}
-                visible={resetPopVisible}
-                onConfirm={onResetConfirm}
-                onCancel={() => {setResetPopVisible(false)}}
-            >
-                <Button type="default" className='cluster-button' onClick={() => {setResetPopVisible(true)}}>{t('重置全部参数')}</Button>
-            </Popconfirm> */}
         </div>
 
     </div>
