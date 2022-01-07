@@ -331,7 +331,7 @@ function CreateClusterPanel({
     const [form] = Form.useForm()
 
     const { namespaces, storageclasses } = model.use(['clusters', 'namespaces', 'storageclasses'])
-    
+
     const [mode, set_mode] = useState<ClusterMode>('cluster')
     
     const [cluster_type, set_cluster_type] = useState<ClusterType>('multicontroller')
@@ -397,13 +397,16 @@ function CreateClusterPanel({
                 initialValues={{
                     mode,
                     cluster_type,
-                    version: 'v2.00.3',
+                    version: 'v1.30.14',
                     datanode: {
                         replicas: 0,
                     },
                     controller: {
                         replicas: 3
-                    }
+                    },
+                    namespace: namespaces.length !== 0 ? namespaces[0].name : "",
+                    storage_class: storageclasses.length !== 0 ? storageclasses[0].name : "",
+                    log_mode: '输出到文件'
                 }}
 
                 onFieldsChange={(changeds, all) => {
@@ -424,67 +427,81 @@ function CreateClusterPanel({
                 colon={false}
                 requiredMark={false}
             >
-                <Form.Item name='name' label='name' rules={[{ required: true }]}>
+                <Form.Item name='name' label={t('名称')} rules={[{ required: true }]}>
                     <Input />
                 </Form.Item>
 
-                <Form.Item name='namespace' label='namespace' rules={[{ required: true }]}>
+                <Form.Item name='namespace' label={t('命名空间')}>
                     <Select placeholder='Please select a namespace'>
                         {
+                            namespaces.length !== 0 ?
                             namespaces.map(ns => (
                                 <Option value={ns.name} key={ns.name}>{ns.name}</Option>
                             ))
+                            :
+                            <Option value="">{""}</Option>
                         }
                     </Select>
                 </Form.Item>
 
-                <Form.Item name='storage_class' label='storage_class'>
-                    <Select placeholder='Please select a storage class'>
+                <Form.Item name='storage_class' label={t('储存类')}>
+                    <Select placeholder='Please select a storage class' >
                         {
+                            storageclasses.length !== 0 ?
                             storageclasses.map(sc => (
                                 <Option value={sc.name} key={sc.name}>{sc.name}</Option>
                             ))
+                            :
+                            <Option value="">{""}</Option>
                         }
                     </Select>
                 </Form.Item>
                 
-                <Form.Item name='mode' label='mode' rules={[{ required: true }]}>
+                <Form.Item name='mode' label={t('模式')} rules={[{ required: true }]}>
                     <Select>
                         <Option value='standalone'>standalone</Option>
                         <Option value='cluster'>cluster</Option>
                     </Select>
                 </Form.Item>
                 
-                <Form.Item name='version' label='version' rules={[{ required: true }]}>
+                <Form.Item name='version' label={t('版本')} rules={[{ required: true }]}>
                     <Select>
                         <Option value='v1.30.14'>v1.30.14</Option>
                         <Option value='v1.30.15'>v1.30.15</Option>
                         <Option value='v2.00.3'>v2.00.3</Option>
                     </Select>
                 </Form.Item>
+
+                <Form.Item name='log_mode' label={t('日志模式')} rules={[{ required: true }]}>
+                    <Select>
+                        <Option value='0'>{t('输出到文件')}</Option>
+                        <Option value='1'>{t('输出到标准输出')}</Option>
+                        <Option value='2'>{t('同时输出到文件和标准输出')}</Option>
+                    </Select>
+                </Form.Item>
                 
                 { mode === 'cluster' && <>
-                    <Form.Item name='cluster_type' label='cluster_type' rules={[{ required: true }]}>
+                    <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
                         <Select>
                             <Option value='singlecontroller'>singlecontroller</Option>
                             <Option value='multicontroller'>multicontroller</Option>
                         </Select>
                     </Form.Item>
                     
-                    { cluster_type === 'multicontroller' && <Form.Item name={['controller', 'replicas']} label='controller.replicas' rules={[{ required: true }]}>
+                    { cluster_type === 'multicontroller' && <Form.Item name={['controller', 'replicas']} label={t('控制节点副本数')} rules={[{ required: true }]}>
                         <InputNumber min={3} precision={0} />
                     </Form.Item>}
                     
-                    <Form.Item name={['controller', 'data_size']} label='controller.data_size' rules={[{ required: true }]}>
-                        <InputNumber min={0} addonAfter='Gi' />
+                    <Form.Item name={['controller', 'data_size']} label={t('控制节点存储空间')} rules={[{ required: true }]}>
+                        <InputNumber min={0} placeholder='0.1, 1, 2, ...'  addonAfter='Gi' />
                     </Form.Item>
                 </> }
                 
-                {mode === 'cluster' && <Form.Item name={['datanode', 'replicas']} label='datanode.replicas' rules={[{ required: true }]}>
+                {mode === 'cluster' && <Form.Item name={['datanode', 'replicas']} label={t('数据节点副本数')} rules={[{ required: true }]}>
                     <InputNumber min={0} precision={0} />
                 </Form.Item>}
                 
-                <Form.Item name={['datanode', 'data_size']} label='datanode.data_size' rules={[{ required: true }]}>
+                <Form.Item name={['datanode', 'data_size']} label={t('数据节点存储空间')} rules={[{ required: true }]}>
                     <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
                 </Form.Item>
                 
@@ -492,21 +509,9 @@ function CreateClusterPanel({
                     <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
                 </Form.Item>
                 
-                <Form.Item name={['resources', 'memory']} label='memory' rules={[{ required: true }]}>
+                <Form.Item name={['resources', 'memory']} label={t('内存')} rules={[{ required: true }]}>
                     <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi'/>
                 </Form.Item>
-                
-                {/* <Form.Item wrapperCol={{ offset: 8 }} rules={[{ required: true }]}>
-                    <Button type='primary' htmlType='submit' className='submit'>{t('提交')}</Button>
-                    <Button type='default' htmlType='reset' className='reset'>{t('重置')}</Button>
-                    <Button
-                        className='cancel'
-                        type='default'
-                        onClick={() => {
-                            closePanel()
-                        }}
-                    >{t('取消')}</Button>
-                </Form.Item> */}
             </Form>
         </Modal>
         
@@ -840,7 +845,6 @@ function ClusterConfigs ({
             >
                 <Button type="default" className='cluster-button' onClick={() => {setResetPopVisible(true)}}>{t('重置全部参数')}</Button>
             </Popconfirm> */}
-            
         </div>
 
     </div>
@@ -870,7 +874,6 @@ function ConfigEditableList({
             form.setFieldsValue({ value: record.value })
         } else {
             form.setFieldsValue({ value: record.value === 'true' })
-
         }
         setEditingName(record.name)
     }
@@ -1011,7 +1014,6 @@ function ConfigEditableList({
                 }}
                 pagination={false}
             />
-
         </Form>
     )
 
@@ -1037,44 +1039,31 @@ const EditableCell: React.FC<EditableCellProps> = ({
     children,
     ...restProps
   }) => {
-    const NumberInput = () =>
-{
-    return  <Form.Item
-            name={dataIndex}
-            style={{ margin: 0 }}
-            rules={[
-                {
-                  required: true,
-                  message: t("请输入参数值"),
-                },
-              ]}
-        >
-            <InputNumber min={0} />
-        </Form.Item>}
-
-    const StringInput = () =>
-        <Form.Item
-            name={dataIndex}
-            style={{ margin: 0 }}
-        >
-            <Input />
-        </Form.Item>
-
-    const BooleanInput = () =>
-        <Form.Item
-            className='boolean-input-form'
-            name={dataIndex}
-            valuePropName='checked'
-        >
-            <Switch checkedChildren='true' unCheckedChildren='false' />
-        </Form.Item>
 
     return (
       <td {...restProps}>
         {editing ? 
-            inputType === 'int' || inputType === 'int64' || inputType === 'int32' ? <NumberInput /> : 
-            inputType === 'string' ? <StringInput /> : <BooleanInput />
-          : (
+            (
+                <Form.Item
+                    name={dataIndex}
+                    style={{ margin: 0 }}
+                    rules={
+                        (inputType === 'int' || inputType === 'int64' || inputType === 'int32') ? 
+                        [{
+                            required: true,
+                            message: t("请输入参数值")
+                        }] 
+                        : 
+                        []}
+                    valuePropName={record.type === 'bool' ? 'checked' : 'value'}
+                >
+                    {
+                        inputType === 'int' || inputType === 'int64' || inputType === 'int32' ? <InputNumber min={0} /> : 
+                        inputType === 'string' ? <Input /> : <Switch checkedChildren='true' unCheckedChildren='false' />
+                    }
+                </Form.Item>
+            )
+            : (
           children
         )}
       </td>
