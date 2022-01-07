@@ -405,7 +405,7 @@ function CreateClusterPanel({
                     },
                     namespace: namespaces.length !== 0 ? namespaces[0].name : '',
                     storage_class: storageclasses.length !== 0 ? storageclasses[0].name : '',
-                    log_mode: '输出到文件'
+                    log_mode: '0'
                 }}
 
                 onFieldsChange={(changeds, all) => {
