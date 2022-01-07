@@ -352,7 +352,6 @@ function CreateClusterPanel({
             delete values.controller
             delete values.datanode
         try {
-            console.log('create new cluster:', values)
             await model.create(values)
             message.success(t('集群创建成功'))
             closePanel()
@@ -405,7 +404,7 @@ function CreateClusterPanel({
                     },
                     namespace: namespaces.length !== 0 ? namespaces[0].name : '',
                     storage_class: storageclasses.length !== 0 ? storageclasses[0].name : '',
-                    log_mode: '0'
+                    log_mode: 0
                 }}
 
                 onFieldsChange={(changeds, all) => {
@@ -478,9 +477,9 @@ function CreateClusterPanel({
 
                 <Form.Item name='log_mode' label={t('日志模式')} rules={[{ required: true }]}>
                     <Select>
-                        <Option value='0'>{t('输出到文件')}</Option>
-                        <Option value='1'>{t('输出到标准输出')}</Option>
-                        <Option value='2'>{t('同时输出到文件和标准输出')}</Option>
+                        <Option value={0}>{t('输出到文件')}</Option>
+                        <Option value={1}>{t('输出到标准输出')}</Option>
+                        <Option value={2}>{t('同时输出到文件和标准输出')}</Option>
                     </Select>
                 </Form.Item>
                 
