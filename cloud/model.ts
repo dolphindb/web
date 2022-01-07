@@ -24,12 +24,15 @@ export class CloudModel extends Model <CloudModel> {
     namespaces: Namespace[] = []
 
     storageclasses: StorageClass[] = []
+
+    versions: string[] = []
     
     async init () {
         await Promise.all([
             this.get_clusters(),
             this.get_namespaces(),
-            this.get_storageclasses()
+            this.get_storageclasses(),
+            this.get_versions(),
         ])
         
         this.set({
@@ -88,7 +91,7 @@ export class CloudModel extends Model <CloudModel> {
         })
     }
 
-    /** get namespace options */
+    /** 获取 namespace 字段可选值 */
     async get_namespaces() {
         const { items: namespaces } = await request_json('/v1/namespaces')
         console.log('namespaces:', namespaces)
@@ -97,12 +100,21 @@ export class CloudModel extends Model <CloudModel> {
         })
     }
 
-    /** get storage_class options */
+    /** 获取 storage_class 字段可选值 */
     async get_storageclasses() {
         const { items: storageclasses } = await request_json('/v1/storageclasses')
         console.log('storageclasses:', storageclasses)
         this.set({
             storageclasses
+        })
+    }
+
+    /** 获取 version 字段可选值 */
+    async get_versions() {
+        const { items: versions } = await request_json('/v1/dolphindbs/versions')
+        console.log('versions:', versions)
+        this.set({
+            versions
         })
     }
     
