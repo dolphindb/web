@@ -348,9 +348,10 @@ function CreateClusterPanel({
         if (cluster_type === 'singlecontroller')
             values.controller.replicas = 0
         
-        if (mode === 'standalone')
+        if (mode === 'standalone') {
             delete values.controller
             delete values.datanode
+        }
         try {
             await model.create(values)
             message.success(t('集群创建成功'))
