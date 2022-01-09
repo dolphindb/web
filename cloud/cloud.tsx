@@ -23,7 +23,7 @@ import {
     } from 'antd'
 import { ConsoleSqlOutlined, ReloadOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors'
-import { AlignType } from 'rc-table/lib/interface'
+import type { AlignType } from 'rc-table/lib/interface'
 
 import { language, t } from '../i18n'
 import {
