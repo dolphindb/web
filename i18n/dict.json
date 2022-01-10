@@ -8,7 +8,7 @@
     "登录": {
         "en": "Login"
     },
-    "集群管理": {
+    "集群总览": {
         "en": "Cluster"
     },
     "交互编程": {
@@ -104,8 +104,8 @@
     "停止作业指令发送成功": {
         "en": "The command of stopping the job was sent successfully"
     },
-    "集群总览": {
-        "en": "Cluster Overview"
+    "集群管理": {
+        "en": "Cluster Management"
     },
     "新建集群": {
         "en": "Create Cluster"

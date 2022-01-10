@@ -23,7 +23,7 @@ import {
     } from 'antd'
 import { ConsoleSqlOutlined, ReloadOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors'
-import { AlignType } from 'rc-table/lib/interface'
+import type { AlignType } from 'rc-table/lib/interface'
 
 import { language, t } from '../i18n'
 import {
@@ -216,7 +216,7 @@ function Clusters () {
     const [createPanelVisible, setCreatePaneVisible] = useState(false)
 
     return <div className='clusters'>
-        <Title className='title-overview' level={3}>{t('集群总览')}</Title>
+        <Title className='title-overview' level={3}>{t('集群管理')}</Title>
         
         <div className='actions'>
             <Button

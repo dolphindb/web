@@ -203,7 +203,7 @@ function DdbSider () {
         >
             {/* <Menu.Item key='overview' icon={<AppstoreOutlined />}>总览</Menu.Item> */}
             { node_type === NodeType.controller && 
-                <Menu.Item key='cluster' icon={<MenuIcon view='cluster' />}>{t('集群管理')}</Menu.Item>
+                <Menu.Item key='cluster' icon={<MenuIcon view='cluster' />}>{t('集群总览')}</Menu.Item>
             }
             <Menu.Item key='shellold' icon={<MenuIcon view='shellold' />}>{t('交互编程')}</Menu.Item>
             {/* <Menu.Item key='shell' icon={<MenuIcon view='shell' />}>Shell</Menu.Item> */}
