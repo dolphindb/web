@@ -375,17 +375,17 @@ function CreateClusterPanel({
             onOk={closePanel}
             onCancel={closePanel}   
             width={'800px'}
-            footer={[
-                <Button type='primary' htmlType='submit' className='submit' onClick={onSubmit}>{t('提交')}</Button>,
-                <Button type='default' htmlType='reset' className='reset' onClick={onReset}>{t('重置')}</Button>,
-                <Button
-                    className='cancel'
-                    type='default'
-                    onClick={() => {
-                        closePanel()
-                    }}
-                >{t('取消')}</Button>
-            ]}
+            footer={<>
+                    <Button type='primary' htmlType='submit' className='submit' onClick={onSubmit}>{t('提交')}</Button>
+                    <Button type='default' htmlType='reset' className='reset' onClick={onReset}>{t('重置')}</Button>
+                    <Button
+                        className='cancel'
+                        type='default'
+                        onClick={() => {
+                            closePanel()
+                        }}
+                    >{t('取消')}</Button>
+            </>}
         >
             <Form
                 form = {form}

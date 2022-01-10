@@ -52,15 +52,20 @@ async function repl_router (ctx: Context): Promise<boolean> {
     
     if (path === '/cloud/react.production.min.js' || path === '/cloud/react-dom.production.min.js')
         path = `/third-party/react/${path.slice('/cloud/'.length)}`
+        
+    path = path.replace('/cloud/fonts/', '/fonts/')
+    path = path.replace('/console/fonts/', '/fonts/')
     
-    return await server.try_send(
-        ctx,
-        path.replace(/^\/console\//, ''),
-        {
-            root: `${fp_root}src/`,
-            fs,
-            log_404: false
-        }) ||
+    return (
+        await server.try_send(
+            ctx,
+            path.replace(/^\/console\//, ''),
+            {
+                root: `${fp_root}src/`,
+                fs,
+                log_404: false
+            }
+        ) ||
         await server.try_send(
             ctx,
             path,
@@ -69,6 +74,7 @@ async function repl_router (ctx: Context): Promise<boolean> {
                 log_404: false
             }
         )
+    )
 }
 
 
