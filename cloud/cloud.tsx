@@ -77,7 +77,7 @@ function ClusterDetail () {
     return (
         <div className='cluster'>
             <Layout>
-                <Layout.Sider theme='light' className='sidebar' width='250px'>
+                <Layout.Header>
                     <PageHeader
                         className='cluster-header'
                         title={
@@ -87,9 +87,11 @@ function ClusterDetail () {
                             model.set({ cluster: null })
                         }}
                     />
-                    <ClusterDetailMenu field={field} fields={fields} onButtonClick={onButtonClick} />
-                </Layout.Sider>
+                </Layout.Header>
                 <Layout>
+                    <Layout.Sider theme='light' className='sidebar' width='250px'>
+                        <ClusterDetailMenu field={field} fields={fields} onButtonClick={onButtonClick} />
+                    </Layout.Sider>
                     <Layout.Content className='content'>
                         {Content[field]}
                     </Layout.Content>
