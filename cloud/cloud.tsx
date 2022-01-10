@@ -214,7 +214,7 @@ function Clusters () {
     const [createPanelVisible, setCreatePaneVisible] = useState(false)
 
     return <div className='clusters'>
-        <Title className='title-overview' level={3}>{t('集群总览')}</Title>
+        <Title className='title-overview' level={3}>{t('集群管理')}</Title>
         
         <div className='actions'>
             <Button

@@ -1353,7 +1353,7 @@ export let ddb = {
         
         - type: API 类型: 'script' | 'function' | 'variable'
         - options:
-            - urgent?: 决定 `行为标识` 那一行字符串的取值（只适用于 script 和 funciton）
+            - urgent?: 决定 `行为标识` 那一行字符串的取值（只适用于 script 和 function）
             - vars?: type === 'variable' 时必传，variable 指令中待上传的变量名
     */
     async rpc <T extends DdbObj = DdbObj> (
@@ -1468,6 +1468,9 @@ export let ddb = {
         } = { }
     ) {
         if (node) {
+            if (typeof func_type === 'undefined')
+                throw new Error('指定 node 时必须设置 func_type')
+            
             args = [
                 node,
                 new DdbFunction(func, func_type),

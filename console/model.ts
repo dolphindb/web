@@ -2,7 +2,7 @@ import type { BaseType } from 'antd/lib/typography/Base'
 
 import Model from 'react-object-model'
 
-import { ddb, DdbObj } from './ddb.browser'
+import { ddb, DdbFunctionType, DdbObj } from './ddb.browser'
 
 const storage_keys = {
     ticket: 'ddb.ticket',
@@ -251,7 +251,7 @@ export class DdbModel extends Model <DdbModel> {
     async cancel_job (job: DdbJob) {
         return ddb.call('cancelJob', [job.jobId], {
             urgent: true,
-            ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node }
+            ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node, func_type: DdbFunctionType.SystemProc }
         })
     }
     
@@ -259,7 +259,7 @@ export class DdbModel extends Model <DdbModel> {
     async delete_scheduled_job (job: DdbJob) {
         return ddb.call('deleteScheduledJob', [job.jobId], {
             urgent: true,
-            ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node }
+            ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node, func_type: DdbFunctionType.SystemProc }
         })
     }
 }
