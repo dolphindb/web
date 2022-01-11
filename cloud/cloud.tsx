@@ -21,7 +21,7 @@ import {
     Modal,
     Switch
     } from 'antd'
-import { ConsoleSqlOutlined, ReloadOutlined } from '@ant-design/icons'
+import { ConsoleSqlOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors'
 import type { AlignType } from 'rc-table/lib/interface'
 
@@ -34,6 +34,7 @@ import {
     type ClusterNode,
     type ClusterConfig,
     type ClusterConfigItem,
+    type QueryOptions
 } from './model'
 
 import icon_add from './add.svg'
@@ -207,9 +208,60 @@ function InfoTab() {
     )
 }
 
+function handleTableChange(pagination, filters, sorter, extra) {
+
+
+    let queryOptions  = {} as QueryOptions
+    let sortField: string[] = []
+    let orders: string[] = []
+    let selectedKeys : string[] = []
+
+
+    if( Array.isArray(sorter) ){
+        for(let i=0; i<sorter.length; i++){
+            let { key, dataIndex } = sorter[i]['column']
+            sortField.push(key || dataIndex)
+            orders.push(sorter[i]['order'])
+        }
+        queryOptions.sortField = sortField
+        queryOptions.sortBy = orders
+    }else if( sorter['column'] != undefined ){
+        let { key, dataIndex } = sorter['column']
+        sortField.push(key || dataIndex)
+        orders.push(sorter['order'])
+        queryOptions.sortField = sortField
+        queryOptions.sortBy = orders
+    }
+
+     if(filters['version'] != null){
+          queryOptions.version = filters['version']
+     }
+
+
+
+    console.log('sortField', sortField)
+    console.log('version',filters)
+    model.cluster_sorter(queryOptions)
+}
+
+function handleSearch(selectedKeys,confirm)
+{
+        confirm();
+        let queryOptions  = {} as QueryOptions
+        let searchText = selectedKeys[0] 
+        queryOptions.name = searchText
+        model.cluster_sorter(queryOptions)
+
+
+
+
+          
+
+}
 
 function Clusters () {
     const { clusters } = model.use(['clusters'])
+    const { versions } = model.use(['versions'])
     
     const [createPanelVisible, setCreatePaneVisible] = useState(false)
 
@@ -247,6 +299,24 @@ function Clusters () {
                 {
                     title: t('名称'),
                     dataIndex: 'name',
+                    sorter:{multiple:1},
+                    filterDropdown:({setSelectedKeys,selectedKeys,confirm,clearFilters}) =>{
+                        <Input
+                         autoFocus
+                         value={selectedKeys[0]}
+                         placeholder='Type text here'
+                         onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                         onPressEnter = { () => handleSearch(selectedKeys,confirm)}
+                         />
+                       
+           
+                        
+                         
+
+                    },
+                    filterIcon: () => {
+                        return <SearchOutlined/>;
+                    },
                     render (name, cluster: Cluster) {
                         return <Link
                             onClick={async () => {
@@ -257,11 +327,19 @@ function Clusters () {
                 {
                     title: t('模式'),
                     key: 'mode',
+                    sorter: {multiple: 2},
                     render: (value, cluster) => <Mode cluster={cluster} />
                 },
                 {
                     title: t('版本'),
-                    dataIndex: 'version'
+                    dataIndex: 'version',
+                    sorter: {multiple: 3},
+                    filters: versions.map(version => {
+                        return {
+                            text: version,
+                            value: version
+                        }
+                    })
                 },
                 {
                     title: t('服务'),
@@ -310,6 +388,7 @@ function Clusters () {
                 }
             ]}
             dataSource={clusters}
+            onChange={ handleTableChange }
             rowKey='name'
             pagination={false}
         />
