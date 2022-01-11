@@ -451,7 +451,7 @@ function CreateClusterPanel({
                     tooltip={t("只能包含小写字母、数字、'-' 以及 '.' , 必须以字母数字开头和结尾")}
                     rules={[{ 
                             required: true, 
-                            pattern: new RegExp('^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$'),
+                            pattern: new RegExp('^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$'),
                         }]}
                     messageVariables={{
                         pattern: t("集群名称只能包含小写字母、数字、'-' 以及 '.' , 必须以字母数字开头和结尾")
