@@ -171,6 +171,18 @@ export class CloudModel extends Model <CloudModel> {
             body: newconfig,
         })
     }
+
+    async cluster_sorter(queries: QueryOptions){
+        const res = await request_json(`/v1/dolphindbs/`, {
+            queries
+        })
+        console.log(res)
+        console.log(res['items'])
+        const clusters = res['items']
+        this.set({
+            clusters
+        })
+    }
 }
 
 
@@ -254,7 +266,12 @@ export interface ClusterConfig {
     dolphindb_config?: ClusterConfigItem[]
 }
 
-
+export interface QueryOptions {
+    name?: string[] | string,
+    version?: string[] | string,
+    sortField?: string[] | string,
+    sortBy?: string[] | string
+}
 
 export type ClusterMode = 'standalone' | 'cluster'
 
