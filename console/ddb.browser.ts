@@ -103,6 +103,14 @@ export class DdbObj <T extends DdbValue = DdbValue> {
     /** 维护已解析的 symbol base，比如流数据中后续的 symbol 向量可能只发送一个 base.id, base.size == 0, 依赖之前发送的 symbol base */
     static symbol_bases: Record<number, string[]> = { }
     
+    /** little endian (client) */
+    static le_client = Boolean(
+        new Uint8Array(
+            Uint32Array.of(1).buffer
+        )[0]
+    )
+    
+    le = DdbObj.le_client
     
     form: DdbForm
     
@@ -139,9 +147,10 @@ export class DdbObj <T extends DdbValue = DdbValue> {
     }
     
     
-    static parse (buf: Uint8Array) {
+    static parse (buf: Uint8Array, le: boolean) {
         if (!buf.length)
             return new this({
+                le,
                 form: DdbForm.scalar,
                 type: DdbType.void,
                 length: 0,
@@ -153,6 +162,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
         
         if (buf.length <= 2) {
             return new this({
+                le,
                 form,
                 type,
                 length: 2,
@@ -166,8 +176,9 @@ export class DdbObj <T extends DdbValue = DdbValue> {
         
         switch (form) {
             case DdbForm.scalar: {
-                const [length, value] = this.parse_scalar(buf_data, type)
+                const [length, value] = this.parse_scalar(buf_data, le, type)
                 return new this({
+                    le,
                     form, 
                     type,
                     length: 2 + length,
@@ -178,7 +189,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
             case DdbForm.vector:
             case DdbForm.pair:
             case DdbForm.set: {
-                let vector = this.parse_vector(buf_data, type)
+                let vector = this.parse_vector(buf_data, le, type)
                 vector.length += 2
                 vector.form = form
                 return vector
@@ -207,8 +218,8 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                 
                 const dv = new DataView(buf.buffer, buf.byteOffset + i_data)
                 
-                const rows = dv.getUint32(0, ddb.le)
-                const cols = dv.getUint32(4, ddb.le)
+                const rows = dv.getUint32(0, le)
+                const cols = dv.getUint32(4, le)
                 const i_name_tail = buf_data.indexOf(0, 8)
                 const name = this.dec.decode(
                     buf_data.subarray(8, i_name_tail)
@@ -218,6 +229,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                 
                 const [len_items, colnames] = this.parse_vector_items(
                     buf_data.subarray(i_items_start),
+                    le,
                     DdbType.string,
                     cols
                 ) as [number, string[]]
@@ -231,6 +243,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                     
                     let col = this.parse_vector(
                         buf_data.subarray(i_vector_head),
+                        le,
                         type
                     )
                     
@@ -242,6 +255,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                 }
                 
                 return new this({
+                    le,
                     form,
                     type,
                     length: i_start,
@@ -263,22 +277,27 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                 // 03 00 00 00 01 00 00 00 values.cols = 3, values.rows = 1
                 // 04 00 03 00 00 00 04 00 02 00 00 00 04 00 01 00 00 00>
                 
-                const keys = this.parse_vector(
+                let keys = this.parse_vector(
                     buf_data.subarray(2),
+                    le,
                     buf_data[0]
                 )
                 
-                const i_values_start = 2 + keys.length
+                keys.length += 2
                 
-                const values = this.parse_vector(
-                    buf_data.subarray(i_values_start + 2),
-                    buf_data[i_values_start]
+                let values = this.parse_vector(
+                    buf_data.subarray(keys.length + 2),
+                    le,
+                    buf_data[keys.length]
                 )
                 
+                values.length += 2
+                
                 return new this({
+                    le,
                     form,
                     type,
-                    length: i_values_start + 2 + values.length,
+                    length: 2 + keys.length + values.length,
                     rows: keys.rows,
                     cols: 2,
                     value: [
@@ -310,16 +329,18 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                     throw new Error('matrix 暂不支持 row labels 和 col labels')
                 
                 const datatype = buf_data[1] as DdbType
-                const rows = dv.getUint32(3, ddb.le)
-                const cols = dv.getUint32(7, ddb.le)
+                const rows = dv.getUint32(3, le)
+                const cols = dv.getUint32(7, le)
                 
                 const [len_items, value] = this.parse_vector_items(
                     buf_data.subarray(11),
+                    le,
                     datatype,
                     rows * cols  // 假设小于 2**32
                 )
                 
                 return new this({
+                    le,
                     form, 
                     type,
                     length: 11 + len_items,
@@ -333,6 +354,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
             
             default:
                 return new this({
+                    le,
                     form,
                     type,
                     length: buf_data.length,
@@ -342,7 +364,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
     }
     
     
-    static parse_scalar (buf: Uint8Array, type: DdbType): [number, DdbValue] {
+    static parse_scalar (buf: Uint8Array, le: boolean, type: DdbType): [number, DdbValue] {
         switch (type) {
             case DdbType.void:
                 return [1, null]
@@ -358,7 +380,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
             
             case DdbType.short: {
                 const dv = new DataView(buf.buffer, buf.byteOffset)
-                return [2, dv.getInt16(0, ddb.le)]
+                return [2, dv.getInt16(0, le)]
             }
             
             
@@ -372,19 +394,19 @@ export class DdbObj <T extends DdbValue = DdbValue> {
             case DdbType.datetime: 
             case DdbType.datehour: {
                 const dv = new DataView(buf.buffer, buf.byteOffset)
-                return [4, dv.getInt32(0, ddb.le)]
+                return [4, dv.getInt32(0, le)]
             }
             
             
             case DdbType.float: {
                 const dv = new DataView(buf.buffer, buf.byteOffset)
-                return [4, dv.getFloat32(0, ddb.le)]
+                return [4, dv.getFloat32(0, le)]
             }
             
             
             case DdbType.double: {
                 const dv = new DataView(buf.buffer, buf.byteOffset)
-                return [8, dv.getFloat64(0, ddb.le)]
+                return [8, dv.getFloat64(0, le)]
             }
             
             
@@ -394,7 +416,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
             case DdbType.nanotime:
             case DdbType.nanotimestamp: {
                 const dv = new DataView(buf.buffer, buf.byteOffset)
-                return [8, dv.getBigInt64(0, ddb.le)]
+                return [8, dv.getBigInt64(0, le)]
             }
             
             
@@ -439,7 +461,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
             
             case DdbType.blob: {
                 const dv = new DataView(buf.buffer, buf.byteOffset)
-                const length = dv.getUint32(0, ddb.le)
+                const length = dv.getUint32(0, le)
                 
                 return [
                     4 + length,
@@ -454,8 +476,8 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                 return [
                     16,
                     [
-                        dv.getFloat64(0, ddb.le),
-                        dv.getFloat64(8, ddb.le)
+                        dv.getFloat64(0, le),
+                        dv.getFloat64(8, le)
                     ] as [number, number]
                 ]
             }
@@ -467,21 +489,25 @@ export class DdbObj <T extends DdbValue = DdbValue> {
     }
     
     
-    /** parse: rows, cols, items */
-    static parse_vector (buf: Uint8Array, type: DdbType): DdbObj {
+    /** parse: rows, cols, items  
+        返回的 ddbobj.length 不包括 vector 的 type 和 form
+    */
+    static parse_vector (buf: Uint8Array, le: boolean, type: DdbType): DdbObj {
         const dv = new DataView(buf.buffer, buf.byteOffset)
         
-        const rows = dv.getUint32(0, ddb.le)
+        const rows = dv.getUint32(0, le)
         
         const i_items_start = 8
         
         const [len_items, value] = this.parse_vector_items(
             buf.subarray(i_items_start),
+            le,
             type,
             rows
         )
         
         return new this({
+            le,
             form: DdbForm.vector,
             type,
             length: i_items_start + len_items,
@@ -495,6 +521,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
     /** 有可能没有字节对齐，不能直接使用原有 message 的 arraybuffer, 统一复制出来，让原有 arraybuffer 被回收掉比较好 */
     static parse_vector_items (
         buf: Uint8Array, 
+        le: boolean,
         type: DdbType, 
         length: number
     ): [
@@ -613,8 +640,8 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                 // 01 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00>
                 
                 const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength)
-                const base_id = dv.getUint32(0, ddb.le)
-                const base_size = dv.getUint32(4, ddb.le)
+                const base_id = dv.getUint32(0, le)
+                const base_size = dv.getUint32(4, le)
                 
                 let base_length = 0
                 let base = this.symbol_bases[base_id]
@@ -623,6 +650,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                 if (base_size) {
                     [base_length, base] = this.parse_vector_items(
                         buf.subarray(8),
+                        le,
                         DdbType.string,
                         base_size
                     ) as [number, string[]]
@@ -675,7 +703,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                 const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength)
                 let i_head = 0
                 for (let i = 0;  i < length;  i++) {
-                    const sublen = dv.getUint32(i_head, ddb.le)
+                    const sublen = dv.getUint32(i_head, le)
                     const i_blob_head = i_head + 4
                     const i_blob_tail = i_blob_head + sublen
                     value[i] = buf.slice(i_blob_head, i_blob_tail)
@@ -716,7 +744,8 @@ export class DdbObj <T extends DdbValue = DdbValue> {
                 let i_head = 0
                 for (let i = 0;  i < length;  i++) {
                     const obj = this.parse(
-                        buf.subarray(i_head)
+                        buf.subarray(i_head),
+                        le
                     )
                     values[i] = obj
                     i_head += obj.length
@@ -1243,43 +1272,53 @@ export class DdbFunction extends DdbObj<DdbFunctionDefValue> {
 }
 
 
-export let ddb = {
+export class DDB {
     /** 当前的 session id (http 或 tcp) */
-    sid: '0',
+    sid = '0'
     
     /** utf-8 text decoder */
-    dec: new TextDecoder('utf-8'),
+    dec = new TextDecoder('utf-8')
     
-    enc: new TextEncoder(),
+    enc = new TextEncoder()
     
-    ws: null as WebSocket,
+    
+    ws_url: string
+    
+    ws = null as WebSocket
     
     /** little endian (server) */
-    le: true,
+    le = true
     
     /** little endian (client) */
-    le_client: Boolean(
+    static le_client = Boolean(
         new Uint8Array(
             Uint32Array.of(1).buffer
         )[0]
-    ),
+    )
     
     /** resolver, rejector, promise of last rpc */
-    presolver (buf: Uint8Array) { },
-    prejector (error: Error) { },
-    presult: Promise.resolve(null) as Promise<Uint8Array>,
+    presolver (buf: Uint8Array) { }
+    prejector (error: Error) { }
+    presult = Promise.resolve(null) as Promise<Uint8Array>
+    
+    
+    constructor (ws_url?: string) {
+        if (!ws_url) {
+            const url = new URL(location.href)
+            
+            const hostname = url.searchParams.get('hostname') || location.hostname
+            
+            const port = url.searchParams.get('port') || location.port
+            
+            ws_url = `${ location.protocol === 'https:' ? 'wss' : 'ws' }://${hostname}${ port ? `:${port}` : '' }/`
+        }
+        
+        this.ws_url = ws_url
+    }
     
     
     async connect () {
-        const url = new URL(location.href)
-        
-        const hostname = url.searchParams.get('hostname') || location.hostname
-        
-        const port = url.searchParams.get('port') || location.port
-        
-        const ws_url = `${ location.protocol === 'https:' ? 'wss' : 'ws' }://${hostname}${ port ? `:${port}` : '' }/`
-        
-        let ws = new WebSocket(ws_url)
+        let ws = new WebSocket(this.ws_url)
         
         // https://stackoverflow.com/questions/11821096/what-is-the-difference-between-an-arraybuffer-and-a-blob/39951543
         ws.binaryType = 'arraybuffer'
@@ -1287,7 +1326,7 @@ export let ddb = {
         this.ws = ws
         
         ws.addEventListener('open', ev => {
-            console.log('ws opened:', ws_url)
+            console.log(`${this.ws_url} opened`)
             
             ws.send(
                 `API ${this.sid} 8\n` +
@@ -1296,11 +1335,15 @@ export let ddb = {
         })
         
         ws.addEventListener('close', ev => {
-            console.log('ws closed', ev)
+            if (ev.code === 1000) {
+                console.log(`${this.ws_url} closed normally with code 1000`)
+                return
+            }
+            console.log(`${this.ws_url} closed abnormally with code = ${ev.code}, reason = '${ev.reason}'`)
         })
         
         ws.addEventListener('error', ev => {
-            console.log('ws errored', ev)
+            console.log(`${this.ws_url} errored`, ev)
         })
         
         // 为首个 connect 响应报文初始化 presult 链表头结点
@@ -1342,7 +1385,7 @@ export let ddb = {
             '}\n',
             { urgent: true }
         )
-    },
+    }
     
     
     /** rpc through websocket (function command)  
@@ -1407,7 +1450,7 @@ export let ddb = {
                         return 'function\n' +
                             `${func}\n` +
                             `${args.length}\n` +
-                            `${Number(this.le_client)}\n`
+                            `${Number(DDB.le_client)}\n`
                         
                     case 'script':
                         return 'script\n' +
@@ -1417,7 +1460,7 @@ export let ddb = {
                         return 'variable\n' +
                             `${vars.join(',')}\n` +
                             `${vars.length}\n` +
-                            `${Number(this.le_client)}\n`
+                            `${Number(DDB.le_client)}\n`
                 }
             })()
         )
@@ -1435,9 +1478,10 @@ export let ddb = {
         this.ws.send(message)
         
         return DdbObj.parse(
-            await presult  // data_buf
+            await presult,  // data_buf
+            this.le
         ) as T
-    },
+    }
     
     
     /** eval script through websocket (script command) */
@@ -1446,7 +1490,7 @@ export let ddb = {
         { urgent }: { urgent?: boolean } = { }
     ) {
         return this.rpc<T>('script', { script, urgent })
-    },
+    }
     
     
     /** call function through websocket (function command) */
@@ -1496,7 +1540,7 @@ export let ddb = {
             args,
             urgent,
         })
-    },
+    }
     
     
     /** upload variable through websocket (variable command) */
@@ -1505,7 +1549,7 @@ export let ddb = {
             throw new Error('variable 指令参数为空或参数名为空，或数量不匹配')
         
         return this.rpc('variable', { vars, args })
-    },
+    }
     
     
     /** 解析服务端响应报文，返回去掉 header 的 data buf */
@@ -1545,7 +1589,7 @@ export let ddb = {
             throw new Error(message)
         
         return buf.subarray(i_lf_1 + 1)
-    },
+    }
     
     
     /** 自动转换 js string, boolean 为 DdbObj */
@@ -1565,7 +1609,7 @@ export let ddb = {
             default: 
                 throw new Error(`不能自动转换 ${type} 至 DdbObj`)
         }
-    },
+    }
     
     
     /** 转换 js 数组为 DdbObj[] (in place, 会修改原数组) */
@@ -1573,9 +1617,9 @@ export let ddb = {
         for (let i = 0;  i < values.length;  i++)
             values[i] = this.to_ddbobj(values[i])
         return values as DdbObj<DdbValue>[]
-    },
+    }
 }
 
-;(window as any).ddb = ddb
+export let ddb = (window as any).ddb = new DDB()
 
 export default ddb
