@@ -185,11 +185,15 @@ export interface Cluster {
     created_at: Dayjs
     controller: {
         replicas: number
-        resources: any
+        resources: any,
+        dataSize: string,
+        logSize: string,
     }
     datanode: {
         replicas: number
-        resources: any
+        resources: any,
+        dataSize: string,
+        logSize: string,
     }
     status: {
         phase: 'Available' | string

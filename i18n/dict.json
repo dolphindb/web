@@ -256,5 +256,38 @@
     },
     "数据节点存储空间": {
         "en": "datanode data size"
+    },
+    "只能包含小写字母、数字、'-' 以及 '.' , 必须以字母数字开头和结尾": {
+        "en": "Must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character"
+    },
+    "集群名称只能包含小写字母、数字、'-' 以及 '.' , 必须以字母数字开头和结尾": {
+        "en": "Cluster name must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character"
+    },
+    "控制节点配置": {
+        "en": "Controller Configuration"
+    },
+    "控制节点数据存储空间": {
+        "en": "controller data size"
+    },
+    "控制节点日志存储空间": {
+        "en": "controller log size"
+    },
+    "数据节点配置": {
+        "en": "Datanode Configuration"
+    },
+    "数据节点数据存储空间": {
+        "en": "datanode data size"
+    },
+    "数据节点日志存储空间": {
+        "en": "datanode log size"
+    },
+    "资源限制": {
+        "en": "Resources Limit"
+    },
+    "数据储存空间": {
+        "en": "data size"
+    },
+    "日志储存空间": {
+        "en": "log size"
     }
 }

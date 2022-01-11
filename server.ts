@@ -41,7 +41,7 @@ async function repl_router (ctx: Context): Promise<boolean> {
     }
     
     if (path.startsWith('/v1')) {
-        response.body = await request_json(`http://192.168.1.241:32376${path}`, {
+        response.body = await request_json(`http://192.168.1.241:31897${path}`, {
             method: method as any,
             queries: query,
             body,

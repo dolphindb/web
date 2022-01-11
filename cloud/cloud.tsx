@@ -19,7 +19,8 @@ import {
     Tabs,
     Layout,
     Modal,
-    Switch
+    Switch,
+    Divider
     } from 'antd'
 import { ConsoleSqlOutlined, ReloadOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors'
@@ -178,7 +179,7 @@ function InfoTab() {
                 <Descriptions.Item label={t('模式')}>
                     <Mode cluster={cluster} />
                 </Descriptions.Item>
-                <Descriptions.Item label={t('日志模式')}>{log_modes[log_mode] || log_mode}</Descriptions.Item>
+                <Descriptions.Item label={t('日志模式')}>{log_modes[log_mode]}</Descriptions.Item>
                 <Descriptions.Item label={t('创建时间')}>{created_at.format('YYYY.MM.DD HH:mm:ss')}</Descriptions.Item>
                 <Descriptions.Item label={t('储存类')}>{storage_class_name}</Descriptions.Item>
             </Descriptions>
@@ -372,6 +373,7 @@ function CreateClusterPanel({
 
     return (
         <Modal 
+            className='cloud-create-panel'
             title={t('新建集群配置')}
             visible={visible}
             onOk={closePanel}
@@ -392,22 +394,31 @@ function CreateClusterPanel({
             <Form
                 form = {form}
                 name='cluster-form'
-                className='form'
+                className='cluster-create-form'
+                labelAlign='left'
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 16 }}
                 initialValues={{
                     mode,
                     cluster_type,
                     version: versions.length !== 0 ? versions[0] : "",
+                    controller: {
+                        replicas: 3,
+                        data_size: 1,
+                        log_size: 1,
+                    },
                     datanode: {
                         replicas: 0,
-                    },
-                    controller: {
-                        replicas: 3
+                        data_size: 1,
+                        log_size: 1,
                     },
                     namespace: namespaces.length !== 0 ? namespaces[0].name : '',
                     storage_class: storageclasses.length !== 0 ? storageclasses[0].name : '',
-                    log_mode: 0
+                    log_mode: 0,
+                    resources: {
+                        cpu: 1,
+                        memory: 1,
+                    }
                 }}
 
                 onFieldsChange={(changeds, all) => {
@@ -427,8 +438,25 @@ function CreateClusterPanel({
                 }}
                 colon={false}
                 requiredMark={false}
+                validateMessages={{
+                    pattern: {
+                        mismatch: '${pattern}'
+                    }
+                }}
             >
-                <Form.Item name='name' label={t('名称')} rules={[{ required: true }]}>
+                <Divider orientation='left'>{t('基本信息')}</Divider>
+                <Form.Item 
+                    name='name' 
+                    label={t('名称')} 
+                    tooltip={t("只能包含小写字母、数字、'-' 以及 '.' , 必须以字母数字开头和结尾")}
+                    rules={[{ 
+                            required: true, 
+                            pattern: new RegExp('^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$'),
+                        }]}
+                    messageVariables={{
+                        pattern: t("集群名称只能包含小写字母、数字、'-' 以及 '.' , 必须以字母数字开头和结尾")
+                    }}
+                >
                     <Input />
                 </Form.Item>
 
@@ -486,6 +514,8 @@ function CreateClusterPanel({
                     </Select>
                 </Form.Item>
                 
+
+
                 { mode === 'cluster' && <>
                     <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
                         <Select>
@@ -493,24 +523,39 @@ function CreateClusterPanel({
                             <Option value='multicontroller'>multicontroller</Option>
                         </Select>
                     </Form.Item>
+
+                    <Divider orientation='left'>{t('控制节点配置')}</Divider>
                     
                     { cluster_type === 'multicontroller' && <Form.Item name={['controller', 'replicas']} label={t('控制节点副本数')} rules={[{ required: true }]}>
                         <InputNumber min={3} precision={0} />
                     </Form.Item>}
                     
-                    <Form.Item name={['controller', 'data_size']} label={t('控制节点存储空间')} rules={[{ required: true }]}>
+                    <Form.Item name={['controller', 'data_size']} label={t('控制节点数据存储空间')} rules={[{ required: true }]}>
                         <InputNumber min={0} placeholder='0.1, 1, 2, ...'  addonAfter='Gi' />
                     </Form.Item>
+
+                    <Form.Item name={['controller', 'log_size']} label={t('控制节点日志存储空间')} rules={[{ required: true }]}>
+                        <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
+                    </Form.Item>
+
                 </> }
+
+                <Divider orientation='left'>{t('数据节点配置')}</Divider>
                 
                 {mode === 'cluster' && <Form.Item name={['datanode', 'replicas']} label={t('数据节点副本数')} rules={[{ required: true }]}>
                     <InputNumber min={0} precision={0} />
                 </Form.Item>}
                 
-                <Form.Item name={['datanode', 'data_size']} label={t('数据节点存储空间')} rules={[{ required: true }]}>
+                <Form.Item name={['datanode', 'data_size']} label={t('数据节点数据存储空间')} rules={[{ required: true }]}>
+                    <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
+                </Form.Item>
+
+                <Form.Item name={['datanode', 'log_size']} label={t('数据节点日志存储空间')} rules={[{ required: true }]}>
                     <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
                 </Form.Item>
                 
+                <Divider orientation='left'>{t('资源限制')}</Divider>
+
                 <Form.Item name={['resources', 'cpu']} label='cpu' rules={[{ required: true }]}>
                     <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
                 </Form.Item>
@@ -604,12 +649,12 @@ function ClusterNodes ({
             <div className='cluster-nodes'>
                     {controllers && <div className='controllers'>
                         <Title level={4}>Controllers ({controllers.length})</Title>
-                        <NodeList mode='controller' nodes={controllers} />
+                        <NodeList mode='controller' nodes={controllers} cluster={cluster}/>
                     </div>}
                     
                     {datanodes &&  <div className='datanodes'>
                         <Title level={4}>Data Nodes ({datanodes.length})</Title>
-                        <NodeList mode='datanode' nodes={datanodes} />
+                        <NodeList mode='datanode' nodes={datanodes} cluster={cluster} />
                     </div>}
             </div>
         )
@@ -617,7 +662,7 @@ function ClusterNodes ({
         return (
             <div className='datanodes'>
             <Title level={4}>Standalone</Title>
-            <NodeList mode='datanode' nodes={datanodes} />
+            <NodeList mode='datanode' nodes={datanodes} cluster={cluster} />
             </div>
         )
     }
@@ -626,14 +671,16 @@ function ClusterNodes ({
 
 
 function NodeList ({
+    cluster,
     mode,
     nodes
 }: {
+    cluster: Cluster,
     mode: 'controller' | 'datanode'
     nodes: ClusterNode[]
 }) {
     return <Table
-        className={`${mode}s`}
+        className='config-table'
         rowKey='name'
         dataSource={nodes}
         pagination={false}
@@ -649,6 +696,16 @@ function NodeList ({
             {
                 title: t('内存'),
                 dataIndex: ['resources', 'limits', 'memory'],
+            },
+            {
+                title: t('数据储存空间'),
+                dataIndex: 'datasize',
+                render: () => mode === 'controller' ? cluster.controller?.dataSize : cluster.datanode?.dataSize
+            },
+            {
+                title: t('日志储存空间'),
+                dataIndex: 'logsize',
+                render: () => mode === 'controller' ? cluster.controller?.logSize : cluster.datanode?.logSize
             },
             {
                 title: t('状态'),
@@ -1069,9 +1126,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
 };
 
 const log_modes = {
-    0: 'file',
-    1: 'stdout',
-    2: 'file and stdout'
+    0: t('输出到文件'),
+    1: t('输出到标准输出'),
+    2: t('同时输出到文件和标准输出')
 } as const
 
 export default Cloud
