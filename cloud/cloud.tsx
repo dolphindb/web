@@ -179,7 +179,7 @@ function InfoTab() {
                 <Descriptions.Item label={t('模式')}>
                     <Mode cluster={cluster} />
                 </Descriptions.Item>
-                <Descriptions.Item label={t('日志模式')}>{t(log_modes[log_mode])}</Descriptions.Item>
+                <Descriptions.Item label={t('日志模式')}>{log_modes[log_mode]}</Descriptions.Item>
                 <Descriptions.Item label={t('创建时间')}>{created_at.format('YYYY.MM.DD HH:mm:ss')}</Descriptions.Item>
                 <Descriptions.Item label={t('储存类')}>{storage_class_name}</Descriptions.Item>
             </Descriptions>
@@ -373,7 +373,7 @@ function CreateClusterPanel({
 
     return (
         <Modal 
-            className='create-panel'
+            className='cloud-create-panel'
             title={t('新建集群配置')}
             visible={visible}
             onOk={closePanel}
@@ -454,7 +454,7 @@ function CreateClusterPanel({
                             pattern: new RegExp('^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$'),
                         }]}
                     messageVariables={{
-                        pattern: t(`集群名称只能包含小写字母、数字、'-' 以及 '.' , 必须以字母数字开头和结尾`)
+                        pattern: t("集群名称只能包含小写字母、数字、'-' 以及 '.' , 必须以字母数字开头和结尾")
                     }}
                 >
                     <Input />
@@ -679,47 +679,41 @@ function NodeList ({
     mode: 'controller' | 'datanode'
     nodes: ClusterNode[]
 }) {
-
-    return (
-        <>
-            <Table
-                className={'config-table'}
-                rowKey='name'
-                dataSource={nodes}
-                pagination={false}
-                columns={[
-                    {
-                        title: t('名称'),
-                        dataIndex: 'name',
-                    },
-                    {
-                        title: 'cpu',
-                        dataIndex: ['resources', 'limits', 'cpu'],
-                    },
-                    {
-                        title: t('内存'),
-                        dataIndex: ['resources', 'limits', 'memory'],
-                    },
-                    {
-                        title: t('数据储存空间'),
-                        dataIndex: 'datasize',
-                        render: () => mode === 'controller' ? cluster.controller?.dataSize : cluster.datanode?.dataSize
-                    },
-                    {
-                        title: t('日志储存空间'),
-                        dataIndex: 'logsize',
-                        render: () => mode === 'controller' ? cluster.controller?.logSize : cluster.datanode?.logSize
-                    },
-                    {
-                        title: t('状态'),
-                        dataIndex: 'status',
-                        render: (status: ClusterNode['status']) => <ClusterStatus {...status} />
-                    },
-                ]}
-            />
-        </>
-    )
-
+    return <Table
+        className='config-table'
+        rowKey='name'
+        dataSource={nodes}
+        pagination={false}
+        columns={[
+            {
+                title: t('名称'),
+                dataIndex: 'name',
+            },
+            {
+                title: 'cpu',
+                dataIndex: ['resources', 'limits', 'cpu'],
+            },
+            {
+                title: t('内存'),
+                dataIndex: ['resources', 'limits', 'memory'],
+            },
+            {
+                title: t('数据储存空间'),
+                dataIndex: 'datasize',
+                render: () => mode === 'controller' ? cluster.controller?.dataSize : cluster.datanode?.dataSize
+            },
+            {
+                title: t('日志储存空间'),
+                dataIndex: 'logsize',
+                render: () => mode === 'controller' ? cluster.controller?.logSize : cluster.datanode?.logSize
+            },
+            {
+                title: t('状态'),
+                dataIndex: 'status',
+                render: (status: ClusterNode['status']) => <ClusterStatus {...status} />
+            },
+        ]}
+    />
 }
 
 
@@ -1132,9 +1126,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
 };
 
 const log_modes = {
-    0: '输出到文件',
-    1: '输出到标准输出',
-    2: '同时输出到文件和标准输出'
+    0: t('输出到文件'),
+    1: t('输出到标准输出'),
+    2: t('同时输出到文件和标准输出')
 } as const
 
 export default Cloud
