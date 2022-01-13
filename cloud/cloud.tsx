@@ -22,7 +22,7 @@ import {
     Switch,
     Divider
     } from 'antd'
-import { ConsoleSqlOutlined, ReloadOutlined } from '@ant-design/icons'
+import { ConsoleSqlOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors'
 import type { AlignType } from 'rc-table/lib/interface'
 
@@ -35,6 +35,7 @@ import {
     type ClusterNode,
     type ClusterConfig,
     type ClusterConfigItem,
+    type QueryOptions
 } from './model'
 
 import icon_add from './add.svg'
@@ -212,7 +213,7 @@ function InfoTab() {
 
 
 function Clusters () {
-    const { clusters } = model.use(['clusters'])
+    const { clusters, versions } = model.use(['clusters', 'versions'])
     
     const [createPanelVisible, setCreatePaneVisible] = useState(false)
 
@@ -250,6 +251,24 @@ function Clusters () {
                 {
                     title: t('名称'),
                     dataIndex: 'name',
+                    sorter: { multiple: 1 },
+                    filterDropdown:({setSelectedKeys,selectedKeys,confirm,clearFilters}) =>{
+                        <Input
+                            autoFocus
+                            value={selectedKeys[0]}
+                            placeholder='Type text here'
+                            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                            onPressEnter={() => {
+                                confirm()
+                                let queryOptions = { } as QueryOptions
+                                let searchText = selectedKeys[0]
+                                queryOptions.name = searchText as any
+                                model.cluster_sorter(queryOptions)
+                                
+                            }}
+                        />
+                    },
+                    filterIcon: <SearchOutlined/>,
                     render (name, cluster: Cluster) {
                         return <Link
                             onClick={async () => {
@@ -260,11 +279,19 @@ function Clusters () {
                 {
                     title: t('模式'),
                     key: 'mode',
+                    sorter: {multiple: 2},
                     render: (value, cluster) => <Mode cluster={cluster} />
                 },
                 {
                     title: t('版本'),
-                    dataIndex: 'version'
+                    dataIndex: 'version',
+                    sorter: {multiple: 3},
+                    filters: versions.map(version => {
+                        return {
+                            text: version,
+                            value: version
+                        }
+                    })
                 },
                 {
                     title: t('服务'),
@@ -313,6 +340,34 @@ function Clusters () {
                 }
             ]}
             dataSource={clusters}
+            onChange={(pagination, filters, sorters, extra) => {
+                let queryOptions = { } as QueryOptions
+                let sortField: string[] = []
+                let orders: string[] = []
+                
+                if (Array.isArray(sorters)) {
+                    for (const sorter of sorters) {
+                        const { key, dataIndex } = sorter.column
+                        sortField.push((key || dataIndex) as any)
+                        orders.push(sorter.order)
+                    }
+                    queryOptions.sortField = sortField
+                    queryOptions.sortBy = orders
+                } else if (sorters.column) {
+                    const { key, dataIndex } = sorters.column
+                    sortField.push((key || dataIndex) as any)
+                    orders.push(sorters.order)
+                    queryOptions.sortField = sortField
+                    queryOptions.sortBy = orders
+                }
+                
+                if (filters.version) 
+                    queryOptions.version = filters.version as any
+                
+                console.log('sortField', sortField)
+                console.log('version', filters)
+                model.cluster_sorter(queryOptions)
+            }}
             rowKey='name'
             pagination={false}
         />
