@@ -257,11 +257,11 @@
     "数据节点存储空间": {
         "en": "datanode data size"
     },
-    "只能包含小写字母、数字以及 '-' , 必须以小写字母或数字开头和结尾": {
-        "en": "Must consist of lowercase alphanumeric characters or '-', start and end with an lowercase alphanumeric character"
+    "只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾": {
+        "en": "Cluster name must consist of lowercase letters, numbers or '-', start with lowercase letter and end with lowercase letter or number."
     },
-    "集群名称只能包含小写字母、数字以及 '-' , 必须以小写字母或数字开头和结尾": {
-        "en": "Cluster name must consist of lowercase alphanumeric characters or '-', start and end with an lowercase alphanumeric character"
+    "集群名称只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾": {
+        "en": "Cluster name must consist of lowercase letters, numbers or '-', start with lowercase letter and end with lowercase letter or number."
     },
     "控制节点配置": {
         "en": "Controller Configuration"

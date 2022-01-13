@@ -503,13 +503,13 @@ function CreateClusterPanel({
                 <Form.Item 
                     name='name' 
                     label={t('名称')} 
-                    tooltip={t("只能包含小写字母、数字以及 '-' , 必须以小写字母或数字开头和结尾")}
+                    tooltip={t("只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")}
                     rules={[{ 
                             required: true, 
                             pattern: new RegExp('^[a-z]([-a-z0-9]*[a-z0-9])*$'),
                         }]}
                     messageVariables={{
-                        pattern: t("集群名称只能包含小写字母、数字以及 '-' , 必须以小写字母或数字开头和结尾")
+                        pattern: t("集群名称只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")
                     }}
                     validateTrigger='onBlur'
                 >
