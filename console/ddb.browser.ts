@@ -3,7 +3,7 @@ import type { ColumnType } from 'antd/lib/table'
 import dayjs from 'dayjs'
 
 import 'xshell/prototype.browser'
-import { concat, delay } from 'xshell/utils.browser'
+import { concat } from 'xshell/utils.browser'
 
 import { blue, yellow } from 'xshell/chalk.browser'
 
@@ -1335,11 +1335,7 @@ export class DDB {
         })
         
         ws.addEventListener('close', ev => {
-            if (ev.code === 1000) {
-                console.log(`${this.ws_url} closed normally with code 1000`)
-                return
-            }
-            console.log(`${this.ws_url} closed abnormally with code = ${ev.code}, reason = '${ev.reason}'`)
+            console.log(`${this.ws_url} closed with code = ${ev.code}, reason = '${ev.reason}'`)
         })
         
         ws.addEventListener('error', ev => {
@@ -1388,13 +1384,8 @@ export class DDB {
     }
     
     
-    /** rpc through websocket (function command)  
-        ddb 世界观：需要等待上一个 rpc 结果从 server 返回之后才能发起下一个调用  
-        违反世界观可能造成:  
-        1. 并发多个请求只返回第一个结果（阻塞，需后续请求疏通）
-        2. windows 下 ddb server 返回多个相同的结果
-        
-        - type: API 类型: 'script' | 'function' | 'variable'
+    /** rpc through websocket (function/script/variable command)  
+        - type: API command 类型: 'script' | 'function' | 'variable'
         - options:
             - urgent?: 决定 `行为标识` 那一行字符串的取值（只适用于 script 和 function）
             - vars?: type === 'variable' 时必传，variable 指令中待上传的变量名
@@ -1421,6 +1412,10 @@ export class DDB {
             throw new Error('ws 连接已断开')
         
         // 临界区：保证多个 rpc 并发时形成 promise 链
+        // ddb 世界观：需要等待上一个 rpc 结果从 server 返回之后才能发起下一个调用  
+        // 违反世界观可能造成:  
+        // 1. 并发多个请求只返回第一个结果（阻塞，需后续请求疏通）
+        // 2. windows 下 ddb server 返回多个相同的结果
         const ptail = this.presult
         let presolver: (buf: Uint8Array) => void
         let prejector: (error: Error) => void
