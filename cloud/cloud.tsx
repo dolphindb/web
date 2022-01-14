@@ -20,7 +20,7 @@ import {
     Layout,
     Modal,
     Switch,
-    Divider
+    Divider,
     } from 'antd'
 import { ConsoleSqlOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors'
@@ -252,8 +252,9 @@ function Clusters () {
                     title: t('名称'),
                     dataIndex: 'name',
                     sorter: { multiple: 1 },
-                    filterDropdown:({setSelectedKeys,selectedKeys,confirm,clearFilters}) =>{
-                        <Input
+                    filterIcon: <SearchOutlined/>,
+                    filterDropdown: ({setSelectedKeys,selectedKeys,confirm}) =>
+                       <Input
                             autoFocus
                             value={selectedKeys[0]}
                             placeholder='Type text here'
@@ -266,9 +267,7 @@ function Clusters () {
                                 model.cluster_sorter(queryOptions)
                                 
                             }}
-                        />
-                    },
-                    filterIcon: <SearchOutlined/>,
+                        />,
                     render (name, cluster: Cluster) {
                         return <Link
                             onClick={async () => {
@@ -369,7 +368,13 @@ function Clusters () {
                 model.cluster_sorter(queryOptions)
             }}
             rowKey='name'
-            pagination={false}
+            pagination={{
+                defaultPageSize: 5,
+                pageSizeOptions: ['5', '10', '20', '50', '100'],
+                size: 'small',
+                showSizeChanger: true,
+                showQuickJumper: true,
+            }}
         />
 
         <CreateClusterPanel
