@@ -289,5 +289,17 @@
     },
     "日志储存空间": {
         "en": "log size"
+    },
+    "确认重启？": {
+        "en": "Restart node?"
+    },
+    "正在重启结点": {
+        "en": "Restarting node"
+    },
+    "重启结点失败": {
+        "en": "Restarting node failed"
+    },
+    "重启": {
+        "en": "Restart"
     }
 }

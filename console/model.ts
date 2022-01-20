@@ -26,14 +26,14 @@ export class DdbModel extends Model <DdbModel> {
     node_alias: string
     
     nodes: DdbNode[]
-
+    
     version: string
-
+    
     license: DdbLicense
     
     
     async init () {
-        await ddb.connect()
+        await ddb.connect({ login: false })
         
         try {
             await model.login_by_ticket()

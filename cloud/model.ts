@@ -183,6 +183,13 @@ export class CloudModel extends Model <CloudModel> {
             clusters
         })
     }
+    
+    async restart_node (node: ClusterNode) {
+        await request_json(`/v1/dolphindbs/${this.cluster.namespace}/${this.cluster.name}/instances/${node.name}/restart`, {
+            method: 'put',
+            // body: node
+        })
+    }
 }
 
 

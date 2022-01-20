@@ -110,15 +110,19 @@ export class DdbObj <T extends DdbValue = DdbValue> {
         )[0]
     )
     
+    /** 是否为小端 (little endian) */
     le = DdbObj.le_client
     
+    /** 数据形式 https://www.dolphindb.cn/cn/help/DataTypesandStructures/DataForms/index.html */
     form: DdbForm
     
+    /** 数据类型 https://www.dolphindb.cn/cn/help/DataTypesandStructures/DataTypes/index.html */
     type: DdbType
     
     /** 占用 parse 时传入的 buf 的长度 */
     length: number
     
+    /** table name / column name */
     name?: string
     
     /**
@@ -139,6 +143,7 @@ export class DdbObj <T extends DdbValue = DdbValue> {
     /** matrix 中值的类型，仅 matrix 才有 */
     datatype?: DdbType
     
+    /** 实际数据。不同的 DdbForm, DdbType 使用 DdbValue 中不同的类型来表示实际数据 */
     value: T
     
     
@@ -1317,8 +1322,33 @@ export class DDB {
     }
     
     
-    async connect () {
-        let ws = new WebSocket(this.ws_url)
+    /** 连接到 DolphinDB Server */
+    async connect (
+        {
+            ws_url = this.ws_url,
+            login = true,
+            username = 'admin',
+            password = '123456',
+        }: {
+            /** 默认使用实例初始化时传入的 WebSocket 链接地址 */
+            ws_url?: string
+            
+            /** 是否在建立连接后自动登录，默认 true */
+            login?: boolean
+            
+            /** DolphinDB 登录用户名 */
+            username?: string
+            
+            /** DolphinDB 登录密码 */
+            password?: string
+        } = { }
+    ) {
+        this.ws_url = ws_url
+        
+        if (this.ws?.readyState === WebSocket.OPEN)
+            this.disconnect()
+        
+        let ws = new WebSocket(ws_url)
         
         // https://stackoverflow.com/questions/11821096/what-is-the-difference-between-an-arraybuffer-and-a-blob/39951543
         ws.binaryType = 'arraybuffer'
@@ -1381,11 +1411,19 @@ export class DDB {
             '}\n',
             { urgent: true }
         )
+        
+        if (login)
+            await this.call('login', [username, password], { urgent: true })
     }
     
     
-    /** rpc through websocket (function/script/variable command)  
-        - type: API command 类型: 'script' | 'function' | 'variable'
+    disconnect () {
+        this.ws?.close(1000)
+    }
+    
+    
+    /** rpc through websocket (function command)  
+        - type: API 类型: 'script' | 'function' | 'variable'
         - options:
             - urgent?: 决定 `行为标识` 那一行字符串的取值（只适用于 script 和 function）
             - vars?: type === 'variable' 时必传，variable 指令中待上传的变量名
@@ -1416,6 +1454,7 @@ export class DDB {
         // 违反世界观可能造成:  
         // 1. 并发多个请求只返回第一个结果（阻塞，需后续请求疏通）
         // 2. windows 下 ddb server 返回多个相同的结果
+        
         const ptail = this.presult
         let presolver: (buf: Uint8Array) => void
         let prejector: (error: Error) => void
@@ -1481,14 +1520,31 @@ export class DDB {
     
     /** eval script through websocket (script command) */
     async eval <T extends DdbObj> (
+        /** 执行的脚本 */
         script: string,
-        { urgent }: { urgent?: boolean } = { }
+        
+        /** 执行选项 */
+        {
+            urgent
+        }: {
+            /** 紧急 flag，使用 urgent worker 处理，防止被其它作业阻塞 */
+            urgent?: boolean
+        } = { }
     ) {
         return this.rpc<T>('script', { script, urgent })
     }
     
     
-    /** call function through websocket (function command) */
+    /** call function through websocket (function command) 
+        - func: 函数名
+        - args?: `[ ]` 调用参数 (传入的原生 string 和 boolean 会被自动转换为 DdbObj<string> 和 DdbObj<boolean>)
+        - options?: 调用选项
+            - urgent?: 紧急 flag，使用 urgent worker 处理，防止被其它作业阻塞
+            - node?: 设置结点 alias 时发送到集群中对应的结点执行 (使用 DolphinDB 中的 rpc 方法)
+            - nodes?: 设置多个结点 alias 时发送到集群中对应的多个结点执行 (使用 DolphinDB 中的 pnodeRun 方法)
+            - func_type?: 设置 node 参数时必传，需指定函数类型，其它情况下不传
+            - add_node_alias?: 设置 nodes 参数时选传，其它情况不传
+    */
     async call <T extends DdbObj> (
         func: string,
         args: (DdbObj | string | boolean)[] = [ ],
@@ -1525,7 +1581,7 @@ export class DDB {
                 new DdbVectorAny(
                     this.to_ddbobjs(args)
                 ),
-                ... typeof add_node_alias === 'undefined' ? [ ] : [true]
+                ... typeof add_node_alias === 'undefined' ? [ ] : [add_node_alias]
             ]
             func = 'pnode_run'
         }
@@ -1539,7 +1595,13 @@ export class DDB {
     
     
     /** upload variable through websocket (variable command) */
-    async upload (vars: string[], args: any[]) {
+    async upload (
+        /** 上传的变量名 */
+        vars: string[],
+        
+        /** 上传的变量值 */
+        args: (DdbObj | string | boolean)[]
+    ) {
         if (!args.length || args.length !== vars.length)
             throw new Error('variable 指令参数为空或参数名为空，或数量不匹配')
         

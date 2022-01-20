@@ -26,6 +26,8 @@ import { ConsoleSqlOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/
 import type { PresetStatusColorType } from 'antd/lib/_util/colors'
 import type { AlignType } from 'rc-table/lib/interface'
 
+import { delay } from 'xshell/utils.browser'
+
 import { language, t } from '../i18n'
 import {
     model,
@@ -348,14 +350,14 @@ function Clusters () {
                     for (const sorter of sorters) {
                         const { key, dataIndex } = sorter.column
                         sortField.push((key || dataIndex) as any)
-                        orders.push(sorter.order)
+                        orders.push(sort_orders[sorter.order])
                     }
                     queryOptions.sortField = sortField
                     queryOptions.sortBy = orders
                 } else if (sorters.column) {
                     const { key, dataIndex } = sorters.column
                     sortField.push((key || dataIndex) as any)
-                    orders.push(sorters.order)
+                    orders.push(sort_orders[sorters.order])
                     queryOptions.sortField = sortField
                     queryOptions.sortBy = orders
                 }
@@ -383,6 +385,11 @@ function Clusters () {
         />
     </div>
 }
+
+const sort_orders = {
+    ascend: 'asc',
+    descend: 'desc',
+} as const
 
 function CreateClusterPanel({
     visible,
@@ -668,7 +675,6 @@ function ClusterNodes ({
 }: {
     cluster: Cluster
 }) {
-    
     const [
         {
             Controller: controllers,
@@ -683,62 +689,51 @@ function ClusterNodes ({
         Datanode: [ ]
     })
     
-    
-    useEffect(() => {
-        ;(async () => {
-            /*
-            const nodes = await model.get_cluster_nodes(cluster)
-            let nodes_ = { } as Record<NodeMode, ClusterNode[]>
-            
-            for (const node of nodes)
-                if (!(node.mode in nodes_))
-                    nodes_[node.mode] = [node]
-                else
-                    nodes_[node.mode].push(node)
-            
-            set_nodes(nodes_)
-            */
-           
-           set_nodes(
-               await model.get_cluster_nodes(cluster)
-           )
-        })()
-    }, [cluster])
-
-    if (cluster.mode === 'cluster') {
-        return (
-            <div className='cluster-nodes'>
-                    {controllers && <div className='controllers'>
-                        <Title level={4}>Controllers ({controllers.length})</Title>
-                        <NodeList mode='controller' nodes={controllers} cluster={cluster}/>
-                    </div>}
-                    
-                    {datanodes &&  <div className='datanodes'>
-                        <Title level={4}>Data Nodes ({datanodes.length})</Title>
-                        <NodeList mode='datanode' nodes={datanodes} cluster={cluster} />
-                    </div>}
-            </div>
-        )
-    } else {
-        return (
-            <div className='datanodes'>
-            <Title level={4}>Standalone</Title>
-            <NodeList mode='datanode' nodes={datanodes} cluster={cluster} />
-            </div>
+    async function get_nodes () {
+        set_nodes(
+            await model.get_cluster_nodes(cluster)
         )
     }
     
+    useEffect(() => {
+        get_nodes()
+    }, [cluster])
+    
+    
+    return cluster.mode === 'cluster' ?
+        <div className='cluster-nodes'>
+            {controllers && 
+                <div className='controllers'>
+                    <Title level={4}>Controllers ({controllers.length})</Title>
+                    <NodeList mode='controller' nodes={controllers} cluster={cluster} get_nodes={get_nodes} />
+                </div>
+            }
+            
+            {datanodes && 
+                <div className='datanodes'>
+                    <Title level={4}>Data Nodes ({datanodes.length})</Title>
+                    <NodeList mode='datanode' nodes={datanodes} cluster={cluster} get_nodes={get_nodes} />
+                </div>
+            }
+        </div>
+    :
+        <div className='datanodes'>
+            <Title level={4}>Standalone</Title>
+            <NodeList mode='datanode' nodes={datanodes} cluster={cluster} get_nodes={get_nodes} />
+        </div>
 }
 
 
 function NodeList ({
     cluster,
     mode,
-    nodes
+    nodes,
+    get_nodes,
 }: {
     cluster: Cluster,
     mode: 'controller' | 'datanode'
     nodes: ClusterNode[]
+    get_nodes: Function
 }) {
     return <Table
         className='config-table'
@@ -773,6 +768,26 @@ function NodeList ({
                 dataIndex: 'status',
                 render: (status: ClusterNode['status']) => <ClusterStatus {...status} />
             },
+            {
+                title: t('操作'),
+                render (_, node) {
+                    return <Popconfirm
+                        title={t('确认重启？')}
+                        onConfirm={async () => {
+                            try {
+                                await model.restart_node(node)
+                                message.success(t('正在重启结点'))
+                            } catch (error) {
+                                message.error(`${t('重启结点失败')} ${JSON.stringify(error)}`)
+                            }
+                            await delay(2000)
+                            get_nodes()
+                        }}
+                    >
+                        <Link>{t('重启')}</Link>
+                    </Popconfirm>
+                }
+            }
         ]}
     />
 }
