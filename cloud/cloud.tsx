@@ -255,27 +255,22 @@ function Clusters () {
                     dataIndex: 'name',
                     sorter: { multiple: 1 },
                     filterIcon: <SearchOutlined/>,
-                    filterDropdown: ({setSelectedKeys,selectedKeys,confirm}) =>
+                    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) =>
                        <Input
                             autoFocus
                             value={selectedKeys[0]}
-                            placeholder='Type text here'
+                            placeholder={t('输入关键字搜索集群名称')}
                             onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                             onPressEnter={() => {
                                 confirm()
-                                let queryOptions = { } as QueryOptions
-                                let searchText = selectedKeys[0]
-                                queryOptions.name = searchText as any
-                                model.cluster_sorter(queryOptions)
-                                
                             }}
                         />,
-                    render (name, cluster: Cluster) {
-                        return <Link
+                    render: (name, cluster: Cluster) =>
+                        <Link
                             onClick={async () => {
                                 await model.get_cluster(cluster)
                             }}>{name}</Link>
-                    }
+                    
                 },
                 {
                     title: t('模式'),
@@ -364,14 +359,20 @@ function Clusters () {
                 
                 if (filters.version) 
                     queryOptions.version = filters.version as any
+                    
+                if (filters.name)
+                    queryOptions.name = filters.name as any
+                    
+                queryOptions.pageSize = pagination.pageSize
+                queryOptions.pageIndex = pagination.current
                 
                 console.log('sortField', sortField)
                 console.log('version', filters)
-                model.cluster_sorter(queryOptions)
+                model.get_clusters(queryOptions)
             }}
             rowKey='name'
             pagination={{
-                defaultPageSize: 5,
+                defaultPageSize: 50,
                 pageSizeOptions: ['5', '10', '20', '50', '100'],
                 size: 'small',
                 showSizeChanger: true,

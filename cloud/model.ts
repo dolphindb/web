@@ -40,7 +40,7 @@ export class CloudModel extends Model <CloudModel> {
         })
     }
     
-    async get_clusters () {
+    async get_clusters (queries: QueryOptions = { pageIndex: 1, pageSize: 50 }) {
         // LOCAL
         // this.set({
         //     clusters: [
@@ -71,18 +71,13 @@ export class CloudModel extends Model <CloudModel> {
         // return
         
         const { items: clusters } = await request_json('/v1/dolphindbs', {
-            queries: {
-                pageSize: 100000,
-                
-                // LOCAL
-                // mode: ['cluster/multicontroller', 'cluster/singlecontroller'],
-                // by: ['mode', 'version'],
-                // sort: ['asc', 'desc'],
-            }
+            // LOCAL
+            // mode: ['cluster/multicontroller', 'cluster/singlecontroller'],
+            // by: ['mode', 'version'],
+            // sort: ['asc', 'desc'],
+            
+            queries
         })
-        
-        clusters.sort((l, r) => 
-            strcmp(l.name, r.name))
         
         console.log('clusters:', clusters)
         
@@ -172,17 +167,6 @@ export class CloudModel extends Model <CloudModel> {
         })
     }
 
-    async cluster_sorter(queries: QueryOptions){
-        const res = await request_json(`/v1/dolphindbs/`, {
-            queries
-        })
-        console.log(res)
-        console.log(res['items'])
-        const clusters = res['items']
-        this.set({
-            clusters
-        })
-    }
     
     async restart_node (node: ClusterNode) {
         await request_json(`/v1/dolphindbs/${this.cluster.namespace}/${this.cluster.name}/instances/${node.name}/restart`, {
@@ -278,6 +262,8 @@ export interface QueryOptions {
     version?: string[] | string,
     sortField?: string[] | string,
     sortBy?: string[] | string
+    pageSize?: number
+    pageIndex?: number
 }
 
 export type ClusterMode = 'standalone' | 'cluster'

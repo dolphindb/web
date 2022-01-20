@@ -301,5 +301,8 @@
     },
     "重启": {
         "en": "Restart"
+    },
+    "输入关键字搜索集群名称": {
+        "en": "Input keywords to search cluster by name"
     }
 }
