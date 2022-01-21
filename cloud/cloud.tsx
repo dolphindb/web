@@ -738,7 +738,7 @@ function NodeList ({
 }) {
     return <Table
         className='config-table'
-        rowKey='name'
+        rowKey={node => `${node.namespace}.${node.name}`}
         dataSource={nodes}
         pagination={false}
         columns={[
