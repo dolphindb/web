@@ -95,6 +95,8 @@ export const nulls = {
     int64: -0x80_00_00_00_00_00_00_00n,  // -922_3372_0368_5477_5808
 } as const
 
+
+/** 可以表示所有 DolphinDB 数据库中的数据类型 */
 export class DdbObj <T extends DdbValue = DdbValue> {
     static dec = new TextDecoder('utf-8')
     
@@ -1330,7 +1332,7 @@ export class DDB {
             username = 'admin',
             password = '123456',
         }: {
-            /** 默认使用实例初始化时传入的 WebSocket 链接地址 */
+            /** 默认使用实例初始化时传入的 WebSocket 链接 */
             ws_url?: string
             
             /** 是否在建立连接后自动登录，默认 true */
@@ -1422,7 +1424,7 @@ export class DDB {
     }
     
     
-    /** rpc through websocket (function command)  
+    /** rpc through websocket (function/script/variable command)  
         - type: API 类型: 'script' | 'function' | 'variable'
         - options:
             - urgent?: 决定 `行为标识` 那一行字符串的取值（只适用于 script 和 function）
@@ -1527,7 +1529,7 @@ export class DDB {
         {
             urgent
         }: {
-            /** 紧急 flag，使用 urgent worker 处理，防止被其它作业阻塞 */
+            /** 紧急 flag，确保提交的脚本使用 urgent worker 处理，防止被其它作业阻塞 */
             urgent?: boolean
         } = { }
     ) {
@@ -1539,7 +1541,7 @@ export class DDB {
         - func: 函数名
         - args?: `[ ]` 调用参数 (传入的原生 string 和 boolean 会被自动转换为 DdbObj<string> 和 DdbObj<boolean>)
         - options?: 调用选项
-            - urgent?: 紧急 flag，使用 urgent worker 处理，防止被其它作业阻塞
+            - urgent?: 紧急 flag。使用 urgent worker 执行，防止被其它作业阻塞
             - node?: 设置结点 alias 时发送到集群中对应的结点执行 (使用 DolphinDB 中的 rpc 方法)
             - nodes?: 设置多个结点 alias 时发送到集群中对应的多个结点执行 (使用 DolphinDB 中的 pnodeRun 方法)
             - func_type?: 设置 node 参数时必传，需指定函数类型，其它情况下不传

@@ -254,6 +254,7 @@ function Clusters () {
                     title: t('名称'),
                     dataIndex: 'name',
                     sorter: { multiple: 1 },
+                    defaultSortOrder: 'ascend',
                     filterIcon: <SearchOutlined/>,
                     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) =>
                        <Input
@@ -270,18 +271,17 @@ function Clusters () {
                             onClick={async () => {
                                 await model.get_cluster(cluster)
                             }}>{name}</Link>
-                    
                 },
                 {
                     title: t('模式'),
                     key: 'mode',
-                    sorter: {multiple: 2},
+                    sorter: { multiple: 2 },
                     render: (value, cluster) => <Mode cluster={cluster} />
                 },
                 {
                     title: t('版本'),
                     dataIndex: 'version',
-                    sorter: {multiple: 3},
+                    sorter: { multiple: 3 },
                     filters: versions.map(version => {
                         return {
                             text: version,
@@ -310,7 +310,7 @@ function Clusters () {
                 },
                 {
                     title: t('状态'),
-                    dataIndex: ['status'],
+                    dataIndex: 'status',
                     render: (status: ClusterNode['status']) => 
                         <ClusterStatus {...status} />
                 },
