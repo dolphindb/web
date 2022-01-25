@@ -99,42 +99,36 @@ function DdbHeader () {
         
         <div className='padding' />
 
-        {/* <div>
-            <Tag className='version' color='#828282'>{ 'V' + version }</Tag>
-        </div> */}
-        
         {
             license && <div>
                 <Popover
-                    placement="bottomLeft"
+                    placement='bottomLeft'
                     content={
                         license ? <div>
-                            <Badge.Ribbon text={ 'V' + version } color='#B5B5B5'>
-                                <Card size='small' title={ license?.authorization.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase()) + ' License' }>
-                                <Descriptions
-                                    bordered
-                                    size='small'
-                                    column={2}
-                                >
-                                    <Descriptions.Item label="authorization">{ license.authorization }</Descriptions.Item>
-                                    <Descriptions.Item label="clientName">{ license.clientName }</Descriptions.Item>
-                                    <Descriptions.Item label="bindCPU">{ license.bindCPU? 'true' : 'false' }</Descriptions.Item>
-                                    <Descriptions.Item label="licenseType">{ license.licenseType }</Descriptions.Item>
-                                    <Descriptions.Item label="expiration">{ dayjs(
-                                        Number(1000 * 3600 * 24 * Number(license.expiration))
-                                        ).format('YYYY.MM.DD') }</Descriptions.Item>
-                                    <Descriptions.Item label="modules">{ Number(license.modules) }</Descriptions.Item>
-                                    <Descriptions.Item label="maxMemoryPerNode">{ license.maxMemoryPerNode }</Descriptions.Item>
-                                    <Descriptions.Item label="maxCoresPerNode">{ license.maxCoresPerNode }</Descriptions.Item>
-                                    <Descriptions.Item label="version">{ license.version }</Descriptions.Item>
-                                    <Descriptions.Item label="maxNodes">{ license.maxNodes }</Descriptions.Item>
+                            <Badge.Ribbon text={`V${version}`} color='#b5b5b5'>
+                                <Card size='small' title={ license.authorization?.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase()) + ' License' }>
+                                <Descriptions bordered size='small' column={2}>
+                                    <Descriptions.Item label='authorization'>{license.authorization}</Descriptions.Item>
+                                    <Descriptions.Item label='client name'>{license.clientName}</Descriptions.Item>
+                                    <Descriptions.Item label='license type'>{license.licenseType}</Descriptions.Item>
+                                    <Descriptions.Item label='expiration'>{
+                                        dayjs(
+                                            Number(1000 * 3600 * 24 * Number(license.expiration))
+                                        ).format('YYYY.MM.DD')
+                                    }</Descriptions.Item>
+                                    <Descriptions.Item label='bind CPU'>{String(license.bindCPU)}</Descriptions.Item>
+                                    <Descriptions.Item label='version'>{license.version}</Descriptions.Item>
+                                    <Descriptions.Item label='modules'>{ license.modules === -1n ? 'unlimited' : license.modules.toString() }</Descriptions.Item>
+                                    <Descriptions.Item label='max memory per node'>{license.maxMemoryPerNode}</Descriptions.Item>
+                                    <Descriptions.Item label='max cores per node'>{license.maxCoresPerNode}</Descriptions.Item>
+                                    <Descriptions.Item label='max nodes'>{license.maxNodes}</Descriptions.Item>
                                 </Descriptions>
                                 </Card>
                             </Badge.Ribbon>
                         </div> : null
                     }
                 >
-                    <Tag  className='license' color='#f2f2f2'>{ license.authorization }</Tag>
+                    <Tag className='license' color='#f2f2f2'>{license.authorization}</Tag>
                 </Popover>
             </div>
         }

@@ -25,7 +25,11 @@ export class DdbModel extends Model <DdbModel> {
     
     node_alias: string
     
+    controller_alias: string
+    
     nodes: DdbNode[]
+    
+    node: DdbNode
     
     version: string
     
@@ -36,28 +40,28 @@ export class DdbModel extends Model <DdbModel> {
         await ddb.connect({ login: false })
         
         try {
-            await model.login_by_ticket()
+            await this.login_by_ticket()
         } catch {
             console.log('ticket 登录失败')
         }
         
         await Promise.all([
-            model.get_node_type(),
-            model.get_node_alias(),
+            this.get_node_type(),
+            this.get_node_alias(),
+            this.get_controller_alias(),
         ])
         
-        model.get_ddb_version()
+        this.get_cluster_perf()
         
-        model.get_ddb_license()
-        
-        if (this.node_type === NodeType.controller)
-            await this.get_cluster_perf()
-        
-        model.goto_default_view()
+        this.goto_default_view()
         
         this.set({
             inited: true
         })
+        
+        this.get_version()
+        
+        this.get_license()
     }
     
     
@@ -151,7 +155,17 @@ export class DdbModel extends Model <DdbModel> {
         return node_alias
     }
     
-    async get_ddb_version () {
+    async get_controller_alias () {
+        const { value: controller_alias } = await ddb.call<DdbObj<string>>('getControllerAlias', [ ], { urgent: true })
+        this.set({
+            controller_alias
+        })
+        console.log('controller_alias:', controller_alias)
+        return controller_alias
+    }
+    
+    
+    async get_version () {
         let { value: version } = await ddb.call<DdbObj<string>>('version', [ ])
         version = version.split(' ')[0]
         this.set({
@@ -160,22 +174,20 @@ export class DdbModel extends Model <DdbModel> {
         console.log('version:', version)
         return version
     }
-
-    async get_ddb_license () {
-        const { value: obj } = await ddb.call<DdbObj<DdbObj[]>>('license', [ ])
-        let license = {} as DdbLicense
-        console.log('vlaue', obj)
-        for(let i = 0; i < obj[0].rows; i++){
-            let key = obj[0].value[i]
-            license[key] = obj[1].value[i].value
-        }
-        console.log('license', license)
+    
+    
+    async get_license () {
+        const license = (
+            await ddb.call<DdbObj<DdbObj[]>>('license')
+        ).to_dict<DdbLicense>()
+        
+        console.log('license:', license)
         this.set({
             license
         })
         return license
     }
-
+    
     
     goto_default_view () {
         this.set({
@@ -187,58 +199,79 @@ export class DdbModel extends Model <DdbModel> {
     }
     
     
-    /** https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/g/getClusterPerf.html */
+    /** https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/g/getClusterPerf.html  
+        Only master or single mode supports function getClusterPerf.
+    */
     async get_cluster_perf () {
-        this.nodes = (
-            await ddb.call<DdbObj<DdbObj[]>>('getClusterPerf', [true], { urgent: true })
+        const nodes = (
+            await ddb.call<DdbObj<DdbObj[]>>('getClusterPerf', [true], {
+                urgent: true,
+                
+                ... this.node_type === NodeType.controller || this.node_type === NodeType.single ? 
+                    { }
+                :
+                    {
+                        node: this.controller_alias,
+                        func_type: DdbFunctionType.SystemFunc
+                    },
+            })
         ).to_rows<DdbNode>()
+        
+        console.log('nodes:', nodes)
+        
+        const node = nodes.find(node => 
+            node.name === this.node_alias)
+        
+        console.log('node:', node)
+        
+        this.set({
+            nodes,
+            node
+        })
     }
     
     
     async get_console_jobs () {
-        let active_node_names: string[]
-        if (this.node_type === NodeType.controller)
-            active_node_names = this.nodes.filter(node => 
-                node.state === DdbNodeState.online && node.mode !== NodeType.agent
-            ).map(node => 
-                node.name
-            )
-        
         return ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', [ ], {
             urgent: true,
-            nodes: active_node_names
+            nodes: this.node_type === NodeType.controller ? 
+                    this.nodes.filter(node => 
+                        node.state === DdbNodeState.online && node.mode !== NodeType.agent
+                    ).map(node => 
+                        node.name
+                    )
+                :
+                    null
         })
     }
     
     
     async get_recent_jobs () {
-        let active_node_names: string[]
-        if (this.node_type === NodeType.controller)
-            active_node_names = this.nodes.filter(node => 
-                node.state === DdbNodeState.online && node.mode !== NodeType.agent
-            ).map(node => 
-                node.name
-            )
-        
         return ddb.call<DdbObj<DdbObj[]>>('getRecentJobs', [ ], {
             urgent: true,
-            nodes: active_node_names
+            nodes: this.node_type === NodeType.controller ? 
+                    this.nodes.filter(node => 
+                        node.state === DdbNodeState.online && node.mode !== NodeType.agent
+                    ).map(node => 
+                        node.name
+                    )
+                :
+                    null
         })
     }
     
     
     async get_scheduled_jobs () {
-        let active_node_names: string[]
-        if (this.node_type === NodeType.controller)
-            active_node_names = this.nodes.filter(node => 
-                node.state === DdbNodeState.online && node.mode !== NodeType.agent
-            ).map(node => 
-                node.name
-            )
-        
         return ddb.call<DdbObj<DdbObj[]>>('getScheduledJobs', [ ], {
             urgent: true,
-            nodes: active_node_names
+            nodes: this.node_type === NodeType.controller ? 
+                    this.nodes.filter(node => 
+                        node.state === DdbNodeState.online && node.mode !== NodeType.agent
+                    ).map(node => 
+                        node.name
+                    )
+                :
+                    null
         })
     }
     
@@ -288,9 +321,18 @@ interface DdbNode {
     connectionNum: number
     memoryUsed: bigint
     memoryAlloc: bigint
+    diskReadRate: bigint
+    diskWriteRate: bigint
+    networkRecvRate: bigint
+    networkSendRate: bigint
     
     cpuUsage: number
     avgLoad: number
+    
+    queuedJobs: number
+    queuedTasks: number
+    runningJobs: number
+    runningTasks: number
     
     medLast10QueryTime: bigint
     publicName: string
@@ -308,7 +350,7 @@ interface DdbLicense {
     expiration: bigint
     maxNodes: number
     version: string
-    modules: number
+    modules: bigint
 }
 
 export interface DdbJob {

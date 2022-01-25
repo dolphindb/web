@@ -1144,6 +1144,21 @@ export class DdbObj <T extends DdbValue = DdbValue> {
         
         return rows
     }
+    
+    
+    to_dict <T = Record<string, any>> () {
+        if (this.form !== DdbForm.dict)
+            throw new Error('this.form 不是 dict, 不能转换为 Object')
+        
+        const [{ value: keys }, { value: values }] = this.value as [DdbObj<DdbObj[]>, DdbObj<DdbObj[]>]
+        
+        let obj = { }
+        
+        for (let i = 0;  i < this.rows;  i++)
+            obj[keys[i] as any] = values[i].value
+        
+        return obj as T
+    }
 }
 
 
