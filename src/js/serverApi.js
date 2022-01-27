@@ -5,14 +5,6 @@ function DatanodeConfig () {
     var ruleData = []
     
     var configs = [
-        // {
-        //     configCategory: 'Home',
-        //     configs: [
-        //         //{ name: 'batchJobDir', value: '', default: '<HomeDir>/batchJobs' },
-        //         //{ name: 'console', value: [0, 1], default: '0' },
-        //         { name: 'home', value: '', default: '', tip: 'The DolphinDB home directory, where the configuration file, the license file, the log file and other related files are located.' },
-        //     ]
-        // },
         {
             configCategory: 'Log',
             configs: [
