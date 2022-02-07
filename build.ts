@@ -43,7 +43,7 @@ async function get_libs (fpd: string) {
             .map(async ([name, fp]) => {
                 await fwrite(
                     `${fpd}${name}`,
-                    await request(`https://cdn.jsdelivr.net/npm/${fp}`)
+                    await request(`https://cdn.jsdelivr.net/npm/${fp}`, { retries: 5 })
                 )
             }
         )
