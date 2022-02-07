@@ -10,7 +10,7 @@ import { start_repl } from 'xshell/repl.js'
 import { server } from 'xshell/server.js'
 import xsh from 'xshell'
 
-import { fp_root } from './config.js'
+import { fp_root, libs } from './config.js'
 import { webpack } from './webpack.js'
 
 const { request_json, log_section, inspect } = xsh
@@ -50,9 +50,15 @@ async function repl_router (ctx: Context): Promise<boolean> {
         return true
     }
     
-    if (path === '/cloud/react.production.min.js' || path === '/cloud/react-dom.production.min.js')
-        path = `/third-party/react/${path.slice('/cloud/'.length)}`
-        
+    const fname = path.split('/').last
+    
+    if (fname in libs) {
+        const fp = libs[fname]
+        response.redirect(`https://cdn.jsdelivr.net/npm/${fp}`)
+        response.status = 301
+        return
+    }
+    
     path = path.replace('/cloud/fonts/', '/fonts/')
     path = path.replace('/console/fonts/', '/fonts/')
     

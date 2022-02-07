@@ -6,7 +6,6 @@ import {
 import Model from 'react-object-model'
 
 import { request_json } from 'xshell/net.browser'
-import { strcmp } from 'xshell/utils.browser'
 
 // LOCAL
 // import nodes from 'd:/nodes.json'

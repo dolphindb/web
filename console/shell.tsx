@@ -6,7 +6,6 @@ import 'prismjs/themes/prism.css'
 
 import { default as React, useEffect, useRef, useState } from 'react'
 
-import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import CodeEditor from 'react-simple-code-editor'
 
@@ -21,7 +20,15 @@ import { ddb, DdbForm, DdbObj, DdbType } from './ddb.browser'
 import icon_run from './run.svg'
 
 
-export let term: Terminal
+declare global {
+    interface Window {
+        // loaded by script tag
+        Terminal: typeof import('xterm').Terminal
+    }
+}
+
+
+export let term: import('xterm').Terminal
 
 export function Shell () {
     const rterminal = useRef<HTMLDivElement>()
@@ -29,7 +36,7 @@ export function Shell () {
     useEffect(() => {
         (async () => {
             // --- init term
-            term = new Terminal({
+            term = new window.Terminal({
                 fontFamily: 'MyFont',
                 fontSize: 16,
                 

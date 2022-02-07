@@ -1,11 +1,10 @@
-import 'antd/dist/antd.css'
 import './index.sass'
 import 'xshell/scroll-bar.sass'
 import '../fonts/myfont.sass'
 
 import { default as React, useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
-import dayjs from 'dayjs'
+
 import {
     Layout, 
     Menu,
@@ -39,10 +38,11 @@ import ko from 'antd/lib/locale/ko_KR'
 import { language, t } from '../i18n'
 
 import { model, DdbModel, NodeType } from './model'
+import { date2str } from './ddb.browser'
 
 import Login from './login'
 import Cluster from './cluster'
-import Shell from './shell'
+// import Shell from './shell'
 import ShellOld from './shell.old'
 import Job from './job'
 import DFS from './dfs'
@@ -98,7 +98,7 @@ function DdbHeader () {
         <img className='logo' src='./ddb.svg' />
         
         <div className='padding' />
-
+        
         {
             license && <div>
                 <Popover
@@ -111,11 +111,7 @@ function DdbHeader () {
                                     <Descriptions.Item label='authorization'>{license.authorization}</Descriptions.Item>
                                     <Descriptions.Item label='client name'>{license.clientName}</Descriptions.Item>
                                     <Descriptions.Item label='license type'>{license.licenseType}</Descriptions.Item>
-                                    <Descriptions.Item label='expiration'>{
-                                        dayjs(
-                                            Number(1000 * 3600 * 24 * Number(license.expiration))
-                                        ).format('YYYY.MM.DD')
-                                    }</Descriptions.Item>
+                                    <Descriptions.Item label='expiration'>{date2str(license.expiration)}</Descriptions.Item>
                                     <Descriptions.Item label='bind CPU'>{String(license.bindCPU)}</Descriptions.Item>
                                     <Descriptions.Item label='version'>{license.version}</Descriptions.Item>
                                     <Descriptions.Item label='modules'>{ license.modules === -1n ? 'unlimited' : license.modules.toString() }</Descriptions.Item>
@@ -199,7 +195,9 @@ function DdbSider () {
             { node_type === NodeType.controller && 
                 <Menu.Item key='cluster' icon={<MenuIcon view='cluster' />}>{t('集群总览')}</Menu.Item>
             }
+            
             <Menu.Item key='shellold' icon={<MenuIcon view='shellold' />}>{t('交互编程')}</Menu.Item>
+            
             {/* <Menu.Item key='shell' icon={<MenuIcon view='shell' />}>Shell</Menu.Item> */}
             
             {/* <Menu.SubMenu key='data' title='数据' icon={<DatabaseOutlined />}>
@@ -207,9 +205,11 @@ function DdbSider () {
             </Menu.SubMenu> */}
             
             <Menu.Item key='job' icon={<MenuIcon view='job' />}>{t('作业管理')}</Menu.Item>
+            
             { (node_type === NodeType.controller || node_type === NodeType.single) && 
                 <Menu.Item key='dfs' icon={<MenuIcon view='dfs' />}>{t('文件系统')}</Menu.Item>
             }
+            
             {/* <Menu.Item key='log' icon={<DatabaseOutlined />}>{t('日志查看')}</Menu.Item> */}
         </Menu>
     </Layout.Sider>
@@ -218,7 +218,7 @@ function DdbSider () {
 const views = {
     login: Login,
     cluster: Cluster,
-    shell: Shell,
+    // shell: Shell,
     shellold: ShellOld,
     job: Job,
     dfs: DFS,

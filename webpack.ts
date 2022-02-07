@@ -71,6 +71,7 @@ const config: Webpack.Configuration = {
         'react-dom': 'ReactDOM',
         jquery: '$',
         lodash: '_',
+        antd: 'antd',
     },
     
     

@@ -347,7 +347,7 @@ interface DdbLicense {
     maxCoresPerNode: number
     clientName: string
     bindCPU: boolean
-    expiration: bigint
+    expiration: number
     maxNodes: number
     version: string
     modules: bigint
