@@ -325,5 +325,8 @@
     },
     "排队任务 | 运行任务": {
         "en": "queued | running tasks"
+    },
+    "端口": {
+        "en": "port"
     }
 }

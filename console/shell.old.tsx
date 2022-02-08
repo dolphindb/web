@@ -46,7 +46,7 @@ function Perf () {
             }}
         >
             <SyncOutlined className='icon' />
-            <div className='text'>刷新</div>
+            <div className='text'>{t('刷新')}</div>
         </div>
     </div>
 }
