@@ -31,13 +31,14 @@ import { delay } from 'xshell/utils.browser'
 import { language, t } from '../i18n'
 import {
     model,
+    default_queries,
     type ClusterMode,
     type ClusterType,
     type Cluster,
     type ClusterNode,
     type ClusterConfig,
     type ClusterConfigItem,
-    type QueryOptions
+    type QueryOptions,
 } from './model'
 
 import icon_add from './add.svg'
@@ -217,8 +218,11 @@ function InfoTab() {
 function Clusters () {
     const { clusters, versions } = model.use(['clusters', 'versions'])
     
-    const [createPanelVisible, setCreatePaneVisible] = useState(false)
-
+    const [create_panel_visible, set_create_panel_visible] = useState(false)
+    
+    const [queries, set_queries] = useState<QueryOptions>(default_queries)
+    
+    
     return <div className='clusters'>
         <Title className='title-overview' level={3}>{t('集群管理')}</Title>
         
@@ -227,7 +231,7 @@ function Clusters () {
                 type='primary'
                 className='button-create'
                 onClick={() => {
-                    setCreatePaneVisible(true)
+                    set_create_panel_visible(true)
                 }}
             >
                 <img className='icon-add' src={icon_add} />
@@ -238,10 +242,7 @@ function Clusters () {
                 className='refresh'
                 icon={<ReloadOutlined/>}
                 onClick={() => {
-                    model.get_clusters()
-                    model.get_namespaces()
-                    model.get_storageclasses()
-                    model.get_versions()
+                    model.get_clusters(queries)
                 }}
             >{t('刷新')}</Button>
         </div>
@@ -324,7 +325,7 @@ function Clusters () {
                                 try {
                                     await model.delete(cluster)
                                     message.success(t('集群删除成功'))
-                                    await model.get_clusters()
+                                    await model.get_clusters(queries)
                                 } catch (error) {
                                     message.error(JSON.stringify(error))
                                 }
@@ -335,7 +336,9 @@ function Clusters () {
                     }
                 }
             ]}
+            
             dataSource={clusters}
+            
             onChange={(pagination, filters, sorters, extra) => {
                 let queries = { } as QueryOptions
                 let sortField: string[] = []
@@ -368,6 +371,9 @@ function Clusters () {
                 
                 console.log('sortField', sortField)
                 console.log('version', filters)
+                
+                set_queries(queries)
+                
                 model.get_clusters(queries)
             }}
             rowKey='name'
@@ -379,13 +385,18 @@ function Clusters () {
                 showQuickJumper: true,
             }}
         />
-
+        
+        
         <CreateClusterPanel
-            visible={createPanelVisible}
-            closePanel={() => {setCreatePaneVisible(false)}}
+            visible={create_panel_visible}
+            queries={queries}
+            closePanel={() => {
+                set_create_panel_visible(false)
+            }}
         />
     </div>
 }
+
 
 const sort_orders = {
     ascend: 'asc',
@@ -395,9 +406,11 @@ const sort_orders = {
 function CreateClusterPanel({
     visible,
     closePanel,
+    queries
 }: {
     visible: boolean,
     closePanel: () => void
+    queries: QueryOptions
 }) {
 
     const [form] = Form.useForm()
@@ -432,7 +445,7 @@ function CreateClusterPanel({
             throw error
         }
         
-        await model.get_clusters()
+        await model.get_clusters(queries)
     }
 
     const onReset = () => {
