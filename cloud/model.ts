@@ -7,9 +7,14 @@ import Model from 'react-object-model'
 
 import { request_json } from 'xshell/net.browser'
 
-// LOCAL
-// import nodes from 'd:/nodes.json'
-// import nodes from 'd:/dolphindb-nodes.json'
+
+export const default_queries = {
+    pageIndex: 1,
+    pageSize: 50,
+    sortField: 'name',
+    sortBy: 'asc'
+} as const
+
 
 export class CloudModel extends Model <CloudModel> {
     inited = false
@@ -28,7 +33,7 @@ export class CloudModel extends Model <CloudModel> {
     
     async init () {
         await Promise.all([
-            this.get_clusters(),
+            this.get_clusters(default_queries),
             this.get_namespaces(),
             this.get_storageclasses(),
             this.get_versions(),
@@ -39,44 +44,8 @@ export class CloudModel extends Model <CloudModel> {
         })
     }
     
-    async get_clusters (queries: QueryOptions = { pageIndex: 1, pageSize: 50 }) {
-        // LOCAL
-        // this.set({
-        //     clusters: [
-        //         {
-        //             namespace: 'dolphindb',
-        //             name: 'ddbcluster',
-        //             mode: 'cluster',
-        //             cluster_type: 'multicontroller',
-        //             version: 'v2.00.4',
-        //             Services: {
-        //                 Controller: {
-        //                     ip: '127.0.0.1',
-        //                     port: '12345',
-        //                 },
-        //                 Datanode: {
-        //                     ip: '127.0.0.1',
-        //                     port: '12345',
-        //                 }
-        //             },
-        //             status: {
-        //                 phase: 'Available',
-        //                 message: 'blabla',
-        //             },
-        //         } as any
-        //     ]
-        // })
-        
-        // return
-        
-        const { items: clusters } = await request_json('/v1/dolphindbs', {
-            // LOCAL
-            // mode: ['cluster/multicontroller', 'cluster/singlecontroller'],
-            // by: ['mode', 'version'],
-            // sort: ['asc', 'desc'],
-            
-            queries
-        })
+    async get_clusters (queries: QueryOptions) {
+        const { items: clusters } = await request_json('/v1/dolphindbs', { queries })
         
         console.log('clusters:', clusters)
         
@@ -84,7 +53,7 @@ export class CloudModel extends Model <CloudModel> {
             clusters
         })
     }
-
+    
     /** 获取 namespace 字段可选值 */
     async get_namespaces() {
         const { items: namespaces } = await request_json('/v1/namespaces')
