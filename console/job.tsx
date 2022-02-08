@@ -81,8 +81,8 @@ export function Job () {
     ).sort((l, r) => 
         -Number(l.receiveTime - r.receiveTime))
     
-    const cjob_cols = cjobs.to_cols()
-        
+    const cjob_cols: ColumnType<Record<string, any>>[] = cjobs.to_cols()
+    
     const gjobs = group_cjob_rows_by_rootid(cjob_rows)
     
     // finishedTasks 大的排在前面
@@ -179,7 +179,7 @@ export function Job () {
                 columns={
                     add_status_col(
                         append_action_col(
-                            rjobs.to_cols(),
+                            rjobs.to_cols() as ColumnType<Record<string, any>>[],
                             'stop',
                             async job => {
                                 await model.cancel_job(job)
@@ -245,7 +245,7 @@ function group_cjob_rows_by_rootid (cjobs: DdbJob[]) {
 
 
 function fix_scols (sjobs: DdbObj<DdbObj[]>) {
-    const cols = sjobs.to_cols()
+    const cols: ColumnType<Record<string, any>>[] = sjobs.to_cols()
     
     const index = cols.findIndex(col => 
         col.title === 'node')

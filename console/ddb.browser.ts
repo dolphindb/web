@@ -1230,7 +1230,11 @@ export class DdbObj <T extends DdbValue = DdbValue> {
     
     to_cols () {
         return (this.value as DdbObj[]).map(col => {
-            let col_: ColumnType<Record<string, any>> = {
+            let col_: {
+                title: string
+                dataIndex: string
+                render?: any
+            } = {
                 title: col.name,
                 dataIndex: col.name,
             }

@@ -304,5 +304,26 @@
     },
     "输入关键字搜索集群名称": {
         "en": "Input keywords to search cluster by name"
+    },
+    "内存已用 (已分配) / 最大可用": {
+        "en": "memory used (allocated) / max"
+    },
+    "CPU 用量 (平均负载)": {
+        "en": "CPU usage (load avg.)"
+    },
+    "当前连接 | 最大连接": {
+        "en": "current | max connections"
+    },
+    "硬盘读取 | 硬盘写入": {
+        "en": "hard disk read | write"
+    },
+    "网络接收 | 网络发送": {
+        "en": "network receive | send"
+    },
+    "排队作业 | 运行作业": {
+        "en": "queued | running jobs"
+    },
+    "排队任务 | 运行任务": {
+        "en": "queued | running tasks"
     }
 }

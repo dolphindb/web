@@ -337,7 +337,7 @@ function Clusters () {
             ]}
             dataSource={clusters}
             onChange={(pagination, filters, sorters, extra) => {
-                let queryOptions = { } as QueryOptions
+                let queries = { } as QueryOptions
                 let sortField: string[] = []
                 let orders: string[] = []
                 
@@ -347,28 +347,28 @@ function Clusters () {
                         sortField.push((key || dataIndex) as any)
                         orders.push(sort_orders[sorter.order])
                     }
-                    queryOptions.sortField = sortField
-                    queryOptions.sortBy = orders
+                    queries.sortField = sortField
+                    queries.sortBy = orders
                 } else if (sorters.column) {
                     const { key, dataIndex } = sorters.column
                     sortField.push((key || dataIndex) as any)
                     orders.push(sort_orders[sorters.order])
-                    queryOptions.sortField = sortField
-                    queryOptions.sortBy = orders
+                    queries.sortField = sortField
+                    queries.sortBy = orders
                 }
                 
                 if (filters.version) 
-                    queryOptions.version = filters.version as any
+                    queries.version = filters.version as any
                     
                 if (filters.name)
-                    queryOptions.name = filters.name as any
+                    queries.name = filters.name as any
                     
-                queryOptions.pageSize = pagination.pageSize
-                queryOptions.pageIndex = pagination.current
+                queries.pageSize = pagination.pageSize
+                queries.pageIndex = pagination.current
                 
                 console.log('sortField', sortField)
                 console.log('version', filters)
-                model.get_clusters(queryOptions)
+                model.get_clusters(queries)
             }}
             rowKey='name'
             pagination={{
@@ -474,11 +474,21 @@ function CreateClusterPanel({
                         replicas: 3,
                         data_size: 1,
                         log_size: 1,
+                        port: 31210,
+                        resources: {
+                            cpu: 1,
+                            memory: 1,
+                        }
                     },
                     datanode: {
                         replicas: 0,
                         data_size: 1,
                         log_size: 1,
+                        port: 32210,
+                        resources: {
+                            cpu: 1,
+                            memory: 1,
+                        }
                     },
                     namespace: namespaces.length !== 0 ? namespaces[0].name : '',
                     storage_class: storageclasses.length !== 0 ? storageclasses[0].name : '',
@@ -606,7 +616,18 @@ function CreateClusterPanel({
                     <Form.Item name={['controller', 'log_size']} label={t('控制节点日志存储空间')} rules={[{ required: true }]}>
                         <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
                     </Form.Item>
-
+                    
+                    <Form.Item name={['controller', 'port']} label={t('端口')} rules={[{ required: true }]}>
+                        <InputNumber min={0} />
+                    </Form.Item>
+                    
+                    <Form.Item name={['controller', 'resources', 'cpu']} label='CPU' rules={[{ required: true }]}>
+                        <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
+                    </Form.Item>
+                    
+                    <Form.Item name={['controller', 'resources', 'memory']} label={t('内存')} rules={[{ required: true }]}>
+                        <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi'/>
+                    </Form.Item>
                 </> }
 
                 <Divider orientation='left'>{t('数据节点配置')}</Divider>
@@ -623,18 +644,19 @@ function CreateClusterPanel({
                     <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
                 </Form.Item>
                 
-                <Divider orientation='left'>{t('资源限制')}</Divider>
-
-                <Form.Item name={['resources', 'cpu']} label='cpu' rules={[{ required: true }]}>
+                <Form.Item name={['datanode', 'port']} label={t('端口')} rules={[{ required: true }]}>
+                    <InputNumber min={0} />
+                </Form.Item>
+                
+                <Form.Item name={['datanode', 'resources', 'cpu']} label='CPU' rules={[{ required: true }]}>
                     <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
                 </Form.Item>
                 
-                <Form.Item name={['resources', 'memory']} label={t('内存')} rules={[{ required: true }]}>
+                <Form.Item name={['datanode', 'resources', 'memory']} label={t('内存')} rules={[{ required: true }]}>
                     <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi'/>
                 </Form.Item>
             </Form>
         </Modal>
-        
     )
 }
 

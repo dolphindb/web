@@ -334,6 +334,8 @@ interface DdbNode {
     runningJobs: number
     runningTasks: number
     
+    jobLoad: number
+    
     medLast10QueryTime: bigint
     publicName: string
     
