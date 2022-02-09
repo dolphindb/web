@@ -225,6 +225,23 @@ function Clusters () {
     
    
     
+    useEffect(() => {
+        let flag = true
+        ;(async () => {
+            while (true) {
+                await delay(2000)
+                if (!flag)
+                    break
+                await model.get_clusters(queries)
+            }
+        })()
+       
+        return () => {
+            flag = false
+        }
+    }, [queries])
+    
+    
     return <div className='clusters'>
         <Title className='title-overview' level={3}>{t('集群管理')}</Title>
         
