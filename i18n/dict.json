@@ -328,5 +328,11 @@
     },
     "端口": {
         "en": "port"
+    },
+    "内存使用量": {
+        "en": "memory usage"
+    },
+    "CPU 使用量": {
+        "en": "cpu usage"
     }
 }

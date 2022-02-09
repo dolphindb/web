@@ -48,6 +48,7 @@ const { Option } = Select
 const { Title, Text, Link } = Typography
 
 
+
 export function Cloud () {
     const { cluster } = model.use(['cluster'])
     
@@ -216,12 +217,13 @@ function InfoTab() {
 
 
 function Clusters () {
-    const { clusters, versions } = model.use(['clusters', 'versions'])
+    const { clusters, versions, namespaces } = model.use(['clusters', 'versions','namespaces'])
     
     const [create_panel_visible, set_create_panel_visible] = useState(false)
     
     const [queries, set_queries] = useState<QueryOptions>(default_queries)
     
+   
     
     return <div className='clusters'>
         <Title className='title-overview' level={3}>{t('集群管理')}</Title>
@@ -250,7 +252,22 @@ function Clusters () {
         
         <Table
             className='list'
+        
             columns={[
+
+                     ... (namespaces.length >= 2) ? [
+                     {
+                    title: t('命名空间'),
+                    dataIndex: 'namespace',
+                    sorter: { multiple: 4 },
+                    filters: namespaces.map(ns => {
+                        return {
+                            text: ns.name,
+                            value: ns.name
+                        }
+                    })
+                    }
+            ]:[],
                 {
                     title: t('名称'),
                     dataIndex: 'name',
@@ -335,10 +352,14 @@ function Clusters () {
                         </Popconfirm>
                     }
                 }
-            ]}
-            
+            ]
+        
+        
+        }
+    
             dataSource={clusters}
-            
+
+           
             onChange={(pagination, filters, sorters, extra) => {
                 let queries = { } as QueryOptions
                 let sortField: string[] = []
@@ -359,6 +380,9 @@ function Clusters () {
                     queries.sortField = sortField
                     queries.sortBy = orders
                 }
+
+                if(filters.namespace)    
+                    queries.namespace = filters.namespace as any
                 
                 if (filters.version) 
                     queries.version = filters.version as any
