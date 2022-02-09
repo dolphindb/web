@@ -226,10 +226,10 @@ export interface ClusterConfig {
 }
 
 export interface QueryOptions {
-    name?: string[] | string,
-    version?: string[] | string,
-    namespace?:Namespace[],
-    sortField?: string[] | string,
+    name?: string[] | string
+    version?: string[] | string
+    namespace?: Namespace[]
+    sortField?: string[] | string
     sortBy?: string[] | string
     pageSize?: number
     pageIndex?: number
