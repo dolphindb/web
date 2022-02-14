@@ -271,17 +271,20 @@ function Clusters () {
                 ... namespaces.length >= 2 ? [{
                     title: t('命名空间'),
                     dataIndex: 'namespace',
-                    sorter: { multiple: 4 },
+                    sorter: { multiple: 2 },
+                    defaultSortOrder: 'ascend',
+                    sortDirections: ['ascend', 'descend', 'ascend'],
                     filters: namespaces.map(ns => ({
                         text: ns.name,
                         value: ns.name
                     }))
-                }] : [ ],
+                } as any] : [ ],
                 {
                     title: t('名称'),
                     dataIndex: 'name',
                     sorter: { multiple: 1 },
                     defaultSortOrder: 'ascend',
+                    sortDirections: ['ascend', 'descend', 'ascend'],
                     filterIcon: <SearchOutlined/>,
                     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) =>
                        <Input
@@ -302,7 +305,7 @@ function Clusters () {
                 {
                     title: t('模式'),
                     key: 'mode',
-                    sorter: { multiple: 2 },
+                    sorter: { multiple: 4 },
                     render: (value, cluster) => <Mode cluster={cluster} />
                 },
                 {
@@ -320,20 +323,14 @@ function Clusters () {
                     title: t('服务'),
                     key: 'services',
                     dataIndex: 'Services',
-                    render: services => {
-                        if (services.Controller) {
-                            return (
+                    render: services =>
+                        services.Controller ?
                             <>
                                 <ServiceNode type='controller' {...services.Controller} />
                                 <ServiceNode type='datanode' {...services.Datanode} />
                             </>
-                            )
-                        } else {
-                            return (
-                                <ServiceNode type='standalone' {...services.Standalone} />
-                            )
-                        }
-                    }  
+                        :
+                            <ServiceNode type='standalone' {...services.Standalone} />
                 },
                 {
                     title: t('状态'),
@@ -370,12 +367,19 @@ function Clusters () {
                 let sortField: string[] = []
                 let orders: string[] = []
                 
+                
                 if (Array.isArray(sorters)) {
-                    for (const sorter of sorters) {
+                    sorters.sort((l, r) => 
+                        -((l.column.sorter as any).multiple - (r.column.sorter as any).multiple)
+                    )
+                    
+                    for (let i = 0;  i < sorters.length;  i++) {
+                        const sorter = sorters[i]
                         const { key, dataIndex } = sorter.column
                         sortField.push((key || dataIndex) as any)
                         orders.push(sort_orders[sorter.order])
                     }
+                    
                     queries.sortField = sortField
                     queries.sortBy = orders
                 } else if (sorters.column) {

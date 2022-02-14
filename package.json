@@ -39,7 +39,7 @@
     "devDependencies": {
         "@svgr/webpack": "^6.2.1",
         "@types/koa": "^2.13.4",
-        "@types/node": "^17.0.15",
+        "@types/node": "^17.0.17",
         "@types/react": "^17.0.39",
         "@types/react-dom": "^17.0.11",
         "@types/sass-loader": "^8.0.3",
@@ -55,12 +55,12 @@
     },
     "dependencies": {
         "@ant-design/icons": "^4.7.0",
-        "antd": "^4.18.5",
+        "antd": "^4.18.6",
         "dayjs": "^1.10.7",
         "final-form": "^4.20.6",
         "prismjs": "^1.26.0",
         "react-dom": "^17.0.2",
-        "react-object-model": "^0.0.9",
+        "react-object-model": "^0.0.10",
         "react-simple-code-editor": "^0.11.0",
         "tslib": "^2.3.1",
         "xshell": "^0.0.30",

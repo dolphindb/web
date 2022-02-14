@@ -11,9 +11,9 @@ import { request_json } from 'xshell/net.browser'
 export const default_queries = {
     pageIndex: 1,
     pageSize: 50,
-    sortField: 'name',
-    sortBy: 'asc'
-} as const
+    sortField: ['namespace', 'name'],
+    sortBy: ['asc', 'asc'],
+}
 
 
 export class CloudModel extends Model <CloudModel> {
