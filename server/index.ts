@@ -111,7 +111,7 @@ export const server = {
         )
         
         await new Promise<void>(resolve => {
-            this.https_server.listen(8443, resolve)
+            this.https_server.listen(443, resolve)
         })
     },
     
