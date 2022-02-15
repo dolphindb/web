@@ -1,9 +1,13 @@
 node_modules/
 
+/fonts/
+
 /web/
 /web.zip
 /web.cloud/
 /web.cloud.zip
+
+/server/*.js
 
 /*.js
 *.map
