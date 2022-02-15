@@ -2,8 +2,9 @@
     "extends": "./tsconfig.json",
     
     "include": [
-        "./server.ts",
-        "./build.ts"
+        "./dev.ts",
+        "./build.ts",
+        "./server/index.ts",
     ],
     
     "exclude": [

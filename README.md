@@ -21,6 +21,10 @@ npm run server
 npm run scan
 ```
 
+## License Server
+见 https://dolphindb1.atlassian.net/wiki/spaces/dev/pages/355008609/License+Server
+
+
 ## 构建 Web Console 流程
 ```sh
 # 依赖最新版本的 Node.js (v17)  https://github.com/nodesource/distributions/blob/master/README.md

@@ -2,7 +2,8 @@
     "include": [
         "./console/index.tsx",
         "./cloud/index.tsx",
-        "./server.ts",
+        "./server/index.ts",
+        "./dev.ts",
         "./build.ts",
         "./global.d.ts",
     ],

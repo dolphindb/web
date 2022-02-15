@@ -4,8 +4,8 @@ import { mkdir } from 'fs/promises'
 
 import xsh from 'xshell'
 
-import { webpack } from './webpack.js'
 import { fp_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd_src_cloud, libs } from './config.js'
+import { webpack } from './webpack.js'
 
 
 const { fcopy, fdelete, request, fwrite } = xsh

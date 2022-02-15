@@ -1,41 +1,23 @@
 {
     "name": "dolphindb-web",
-    "description": "DolphinDB Web",
-    "version": "0.0.1",
+    "engines": {
+        "node": ">=17.4.0"
+    },
     "type": "module",
-    "main": "./index.tsx",
     "scripts": {
-        "compile": "tsc --project ./tsconfig.lib.json --watch",
-        "server": "node ./server.js",
+        "dev": "tsc --project ./tsconfig.lib.json && node ./dev.js",
+        "server": "tsc --project ./tsconfig.lib.json && cross-env NODE_EXTRA_CA_CERTS=./server/cert/dolphindb.crt node ./server/index.js",
         "typecheck": "tsc --noEmit",
         "build": "tsc --project ./tsconfig.lib.json && node ./build.js",
         "build.cloud": "tsc --project ./tsconfig.lib.json && node ./build.js cloud",
         "scan": "i18n-scan --input \"**/*.{ts,tsx}\""
     },
-    "engines": {
-        "node": ">=17.3.1"
-    },
-    "author": {
-        "name": "Hongfei Shen",
-        "email": "hongfei.shen@dolphindb.com",
-        "url": "https://dolphindb.net/hongfeishen"
-    },
-    "publisher": "Hongfei Shen",
-    "license": "MIT",
+    "author": "Hongfei Shen <hongfei.shen@dolphindb.com> (https://dolphindb.net/hongfeishen)",
     "homepage": "https://dolphindb.net/dolphindb/dolphindb_web",
     "repository": {
         "type": "git",
-        "url": "https://dolphindb.net/dolphindb/dolphindb_web"
+        "url": "https://dolphindb.net/dolphindb/dolphindb_web.git"
     },
-    "bugs": {
-        "url": "https://dolphindb.net/dolphindb/dolphindb_web/issues"
-    },
-    "keywords": [
-        "DolphinDB",
-        "console",
-        "database",
-        "web"
-    ],
     "devDependencies": {
         "@svgr/webpack": "^6.2.1",
         "@types/koa": "^2.13.4",
@@ -56,6 +38,7 @@
     "dependencies": {
         "@ant-design/icons": "^4.7.0",
         "antd": "^4.18.6",
+        "cross-env": "^7.0.3",
         "dayjs": "^1.10.7",
         "final-form": "^4.20.6",
         "prismjs": "^1.26.0",
