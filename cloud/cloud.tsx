@@ -835,7 +835,8 @@ function NodeList ({
             {
                 title: t('状态'),
                 dataIndex: 'status',
-                render: (status: ClusterNode['status']) => <ClusterStatus {...status} />
+                render: (status: ClusterNode['status']) => 
+                    <ClusterStatus {...status} />
             },
             {
                 title: t('操作'),

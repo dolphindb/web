@@ -1,0 +1,49 @@
+.log
+    flex: 1
+    min-height: 0
+    
+    display: flex
+    flex-direction: column
+    
+    .list
+        flex: 1
+        
+        margin-top: 20px
+        
+        display: flex
+        flex-direction: column
+        
+        min-height: 0
+        
+        /* x偏移量 | y偏移量 | 阴影模糊半径 | 阴影扩散半径 | 阴影颜色 */
+        box-shadow: 2px 2px 2px 3px  rgba(230, 230, 230, 0.568)
+        border-radius: 5px
+        
+        .log-title
+            background: #fafafa
+            padding: 8px 0px 8px 30px
+            display: flex
+            align-items: center
+            font-size: 1.1em
+            font-weight: bold
+        
+        .log-block
+            flex: 1
+            min-height: 0
+            overflow-y: auto
+            
+            .log-line
+                padding: 8px 0px 8px 30px
+                display: flex
+                align-items: center
+            
+            .log-line:nth-child(even)
+                background: #fafafa
+        
+        .log-pagination
+            padding-top: 10px
+            padding-bottom: 20px
+            display: flex
+            justify-content: center
+        
+    

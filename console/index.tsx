@@ -46,12 +46,14 @@ import Cluster from './cluster'
 import ShellOld from './shell.old'
 import Job from './job'
 import DFS from './dfs'
+import Log from './log'
 
 import SvgCluster from './cluster.icon.svg'
 import SvgDFS from './dfs.icon.svg'
 import SvgJob from './job.icon.svg'
 import SvgShell from './shell.icon.svg'
 import SvgShellOld from './shell.old.icon.svg'
+import SvgLog from './log.icon.svg'
 
 
 const { Text } = Typography
@@ -210,7 +212,7 @@ function DdbSider () {
                 <Menu.Item key='dfs' icon={<MenuIcon view='dfs' />}>{t('文件系统')}</Menu.Item>
             }
             
-            {/* <Menu.Item key='log' icon={<DatabaseOutlined />}>{t('日志查看')}</Menu.Item> */}
+            <Menu.Item key='log' icon={<MenuIcon view='log' />}>{t('日志查看')}</Menu.Item>
         </Menu>
     </Layout.Sider>
 }
@@ -222,6 +224,7 @@ const views = {
     shellold: ShellOld,
     job: Job,
     dfs: DFS,
+    log: Log,
 }
 
 function DdbContent () {
@@ -244,6 +247,7 @@ const svgs = {
     shell: SvgShell,
     shellold: SvgShellOld,
     dfs: SvgDFS,
+    log: SvgLog,
 }
 
 function MenuIcon ({ view }: { view: DdbModel['view'] }) {

@@ -1,5 +1,3 @@
-import type { ColumnType } from 'antd/lib/table'
-
 import dayjs from 'dayjs'
 
 import 'xshell/prototype.browser'
@@ -603,8 +601,8 @@ export class DdbObj <T extends DdbValue = DdbValue> {
             }
             
             let total_length = 0
-            for (let i = 0;  i < lengths.length;  i++)
-                total_length += lengths[i]
+            for (const x of lengths)
+                total_length += x
             
             const [len_items, data] = this.parse_vector_items(
                 buf.subarray(i_data_start),
@@ -1469,9 +1467,12 @@ export class DDB {
     enc = new TextEncoder()
     
     
-    ws_url: string
+    /** DolphinDB WebSocket URL
+        如 `ws://127.0.0.1:8848/`, `wss://dolphindb.com`
+    */
+    url: string
     
-    ws = null as WebSocket
+    websocket = null as WebSocket
     
     /** little endian (server) */
     le = true
@@ -1483,37 +1484,53 @@ export class DDB {
         )[0]
     )
     
+    /** python session flag (2048) */
+    python = false
+    
+    message_hook = null as (message: Uint8Array) => any
+    
+    /** print message handler */
+    printer (message: string) {
+        console.log(message)
+    }
+    
     /** resolver, rejector, promise of last rpc */
     presolver (buf: Uint8Array) { }
     prejector (error: Error) { }
     presult = Promise.resolve(null) as Promise<Uint8Array>
     
-    
-    constructor (ws_url?: string) {
-        if (!ws_url) {
-            const url = new URL(location.href)
+    /**
+        使用 WebSocket URL 初始化连接到 DolphinDB 的实例（不建立实际的网络连接）
+        @example
+        let ddb = new DDB('ws://127.0.0.1:8848')
+        let ddb_secure = new DDB('wss://dolphindb.com')
+    */
+    constructor (url?: string) {
+        if (!url) {
+            const _url = new URL(location.href)
             
-            const hostname = url.searchParams.get('hostname') || location.hostname
+            const hostname = _url.searchParams.get('hostname') || location.hostname
             
-            const port = url.searchParams.get('port') || location.port
+            const port = _url.searchParams.get('port') || location.port
             
-            ws_url = `${ location.protocol === 'https:' ? 'wss' : 'ws' }://${hostname}${ port ? `:${port}` : '' }/`
+            url = `${ location.protocol === 'https:' ? 'wss' : 'ws' }://${hostname}${ port ? `:${port}` : '' }/`
         }
         
-        this.ws_url = ws_url
+        this.url = url
     }
     
     
-    /** 连接到 DolphinDB Server */
+    /** 建立实际的 WebSocket 连接到 URL 对应的 DolphinDB */
     async connect (
         {
-            ws_url = this.ws_url,
+            url = this.url,
             login = true,
             username = 'admin',
             password = '123456',
+            python = false,
         }: {
-            /** 默认使用实例初始化时传入的 WebSocket 链接 */
-            ws_url?: string
+            /** 默认使用实例初始化时传入的 WebSocket URL */
+            url?: string
             
             /** 是否在建立连接后自动登录，默认 true */
             login?: boolean
@@ -1523,84 +1540,185 @@ export class DDB {
             
             /** DolphinDB 登录密码 */
             password?: string
+            
+            /** 设置 python session flag */
+            python?: boolean
         } = { }
     ) {
-        this.ws_url = ws_url
+        this.url = url
+        this.python = python
         
-        if (this.ws?.readyState === WebSocket.OPEN)
+        if (this.websocket?.readyState === WebSocket.OPEN)
             this.disconnect()
         
-        let ws = new WebSocket(ws_url)
+        let websocket = new WebSocket(
+            url,
+            python ? ['python'] : [ ]
+        )
         
         // https://stackoverflow.com/questions/11821096/what-is-the-difference-between-an-arraybuffer-and-a-blob/39951543
-        ws.binaryType = 'arraybuffer'
+        websocket.binaryType = 'arraybuffer'
         
-        this.ws = ws
+        this.websocket = websocket
         
-        ws.addEventListener('open', ev => {
-            console.log(`${this.ws_url} opened`)
+        await new Promise<void>((resolve, reject) => {
+            websocket.addEventListener('open', async event => {
+                console.log(`${websocket.url} opened`)
+                
+                await this.rpc('connect', { })
+                resolve()
+            })
             
-            ws.send(
-                `API ${this.sid} 8\n` +
-                'connect\n'
-            )
-        })
-        
-        ws.addEventListener('close', ev => {
-            console.log(`${this.ws_url} closed with code = ${ev.code}, reason = '${ev.reason}'`)
-        })
-        
-        ws.addEventListener('error', ev => {
-            console.log(`${this.ws_url} errored`, ev)
-        })
-        
-        // 为首个 connect 响应报文初始化 presult 链表头结点
-        this.presult = new Promise((resolve, reject) => {
-            this.presolver = resolve
-            this.prejector = reject
-        })
-        
-        ws.addEventListener('message', ({ data: buf }) => {
-            try {
-                this.presolver(
-                    this.parse_message(
-                        new Uint8Array(buf as ArrayBuffer)
+            websocket.addEventListener('close', event => {
+                console.log(`${websocket.url} closed with code = ${event.code}, reason = '${event.reason}'`)
+            })
+            
+            websocket.addEventListener('error', event => {
+                const message = `${websocket.url} errored`
+                console.error(message, event)
+                reject(
+                    Object.assign(
+                        new Error(message),
+                        { event }
                     )
                 )
-            } catch (error) {
-                this.prejector(error)
-            }
+            })
+            
+            websocket.addEventListener('message', event => {
+                const buf = new Uint8Array(event.data as ArrayBuffer)
+                
+                if (this.message_hook)
+                    this.message_hook(buf)
+                
+                try {
+                    const { type, data } = this.parse_message(buf)
+                    
+                    if (type === 'message') {
+                        this.printer(data as string)
+                        return
+                    }
+                    
+                    this.presolver(data as Uint8Array)
+                } catch (error) {
+                    this.prejector(error)
+                }
+            })
         })
         
-        await this.presult
-        
-        await this.eval(
-            'def pnode_run (nodes, func_name, args, add_node_alias = true) {\n' +
-            '    nargs = size(args)\n' +
-            '    func = funcByName(func_name)\n' +
-            '    \n' +
-            '    if (!nargs)\n' +
-            '        return pnodeRun(func, nodes, add_node_alias)\n' +
-            '    \n' +
-            '    args_partial = array(any, 1 + nargs, 1 + nargs)\n' +
-            '    args_partial[0] = func\n' +
-            '    args_partial[1:] = args\n' +
-            '    return pnodeRun(\n' +
-            '        unifiedCall(partial, args_partial),\n' +
-            '        nodes,\n' +
-            '        add_node_alias\n' +
-            '    )\n' +
-            '}\n',
-            { urgent: true }
-        )
+        if (!this.python)
+            await this.eval(
+                'def pnode_run (nodes, func_name, args, add_node_alias = true) {\n' +
+                '    nargs = size(args)\n' +
+                '    func = funcByName(func_name)\n' +
+                '    \n' +
+                '    if (!nargs)\n' +
+                '        return pnodeRun(func, nodes, add_node_alias)\n' +
+                '    \n' +
+                '    args_partial = array(any, 1 + nargs, 1 + nargs)\n' +
+                '    args_partial[0] = func\n' +
+                '    args_partial[1:] = args\n' +
+                '    return pnodeRun(\n' +
+                '        unifiedCall(partial, args_partial),\n' +
+                '        nodes,\n' +
+                '        add_node_alias\n' +
+                '    )\n' +
+                '}\n',
+                { urgent: true }
+            )
         
         if (login)
             await this.call('login', [username, password], { urgent: true })
     }
     
     
+    get_rpc_options ({
+        urgent = false,
+        secondary = false,
+        async: _async = false,
+        pickle = false,
+        clear = false,
+        api = false,
+        compress = false,
+        
+        cancellable = true,
+        priority = urgent ? 8 : 4,
+        parallelism = 8,
+        root_id = '',
+        limit,
+    }: {
+        // --- flags ---
+        urgent?: boolean
+        
+        /** API 提交的任务, secondary 必须为 false */
+        secondary?: boolean
+        
+        /** 是否异步任务（不返回结果） */
+        async?: boolean
+        
+        /** 让服务端以 pickle 协议返回数据 */
+        pickle?: boolean
+        
+        /** 本次任务完成后 clear session memory */
+        clear?: boolean
+        
+        /** 是否为 api client */
+        api?: boolean
+        
+        compress?: boolean
+        
+        // --- flags end ---
+        
+        /** 任务是否可以取消 */
+        cancellable?: boolean
+        
+        priority?: number
+        
+        /** `8` 0 ~ 64, 指定本任务并行度 */
+        parallelism?: number
+        
+        /** 根任务编号，内部使用，API中固定为空 */
+        root_id?: string
+        
+        /** 指定分块返回的块大小 */
+        limit?: boolean
+    } = { }) {
+        let flag = 0
+        if (urgent)
+            flag += 1
+        if (secondary)
+            flag += 2
+        if (_async)
+            flag += 4
+        if (pickle)
+            flag += 8
+        if (clear)
+            flag += 16
+        if (api)
+            flag += 32
+        if (compress)
+            flag += 64
+        
+        // python session
+        if (this.python)
+            flag += 2048
+        
+        const options = [
+            flag,
+            cancellable ? 1 : 0,
+            priority,
+            parallelism,
+            ... limit ? [
+                root_id,
+                limit,
+            ] : [ ],
+        ]
+        
+        return `/ ${options.join('_')}`
+    }
+    
+    
     disconnect () {
-        this.ws?.close(1000)
+        this.websocket?.close(1000)
     }
     
     
@@ -1611,7 +1729,7 @@ export class DDB {
             - vars?: type === 'variable' 时必传，variable 指令中待上传的变量名
     */
     async rpc <T extends DdbObj = DdbObj> (
-        type: 'script' | 'function' | 'variable',
+        type: 'script' | 'function' | 'variable' | 'connect',
         {
             script,
             func,
@@ -1625,11 +1743,11 @@ export class DDB {
             vars?: string[]
             urgent?: boolean
     }) {
-        if (!this.ws)
+        if (!this.websocket)
             await this.connect()
         
-        if (this.ws.readyState !== WebSocket.OPEN)
-            throw new Error('ws 连接已断开')
+        if (this.websocket.readyState !== WebSocket.OPEN)
+            throw new Error(`${this.url} is already disconnected`)
         
         // 临界区：保证多个 rpc 并发时形成 promise 链
         // ddb 世界观：需要等待上一个 rpc 结果从 server 返回之后才能发起下一个调用  
@@ -1677,13 +1795,16 @@ export class DDB {
                             `${vars.join(',')}\n` +
                             `${vars.length}\n` +
                             `${Number(DDB.le_client)}\n`
+                            
+                    case 'connect':
+                        return 'connect\n'
                 }
             })()
         )
         
         const message = concat([
             this.enc.encode(
-                `API ${this.sid} ${command.length}${ urgent ? ` / 1_1_8_8` : '' }\n`
+                `API2 ${this.sid} ${command.length}${this.get_rpc_options({ urgent })}\n`
             ),
             command,
             ... args.map((arg: DdbObj) =>
@@ -1691,7 +1812,7 @@ export class DDB {
             )
         ])
         
-        this.ws.send(message)
+        this.websocket.send(message)
         
         return DdbObj.parse(
             await presult,  // data_buf
@@ -1744,6 +1865,9 @@ export class DDB {
             add_node_alias?: boolean
         } = { }
     ) {
+        if (this.python)
+            throw new Error('call 目前暂时不支持 python session')
+        
         if (node) {
             if (typeof func_type === 'undefined')
                 throw new Error('指定 node 时必须设置 func_type')
@@ -1763,7 +1887,15 @@ export class DDB {
                 new DdbVectorAny(
                     this.to_ddbobjs(args)
                 ),
-                ... typeof add_node_alias === 'undefined' ? [ ] : [add_node_alias]
+                ... (() => {
+                    if (typeof add_node_alias !== 'undefined')
+                        return [add_node_alias]
+                    
+                    if (this.python)
+                        return [true]
+                    
+                    return [ ]
+                })()
             ]
             func = 'pnode_run'
         }
@@ -1793,6 +1925,19 @@ export class DDB {
     
     /** 解析服务端响应报文，返回去掉 header 的 data buf */
     parse_message (buf: Uint8Array) {
+        // MSG\n
+        // <message>\0
+        // 'M'.codePointAt(0).to_hex_str()
+        if (buf[0] === 0x4d && buf[1] === 0x53 && buf[2] === 0x47 && buf[3] === 0x0a)
+            return {
+                type: 'message' as const,
+                data: 
+                    this.dec.decode(
+                        buf.subarray(4)
+                    )
+            }
+        
+        
         // '1166953221 1 1\n'
         // 'OK\n'
         // '\x04\x00\x02\x00\x00\x00'
@@ -1827,7 +1972,10 @@ export class DDB {
         if (message !== 'OK')
             throw new Error(message)
         
-        return buf.subarray(i_lf_1 + 1)
+        return {
+            type: 'object' as const,
+            data: buf.subarray(i_lf_1 + 1)
+        }
     }
     
     

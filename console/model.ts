@@ -2,7 +2,7 @@ import type { BaseType } from 'antd/lib/typography/Base'
 
 import Model from 'react-object-model'
 
-import { ddb, DdbFunctionType, DdbObj } from './ddb.browser'
+import { ddb, DdbFunctionType, DdbObj, DdbInt, DdbLong } from './ddb.browser'
 
 const storage_keys = {
     ticket: 'ddb.ticket',
@@ -15,7 +15,7 @@ const username_guest = 'guest' as const
 export class DdbModel extends Model <DdbModel> {
     inited = false
     
-    view = '' as 'overview' | 'shell' | 'shellold' | 'table' | 'job' | 'cluster' | 'login' | 'dfs'
+    view = '' as 'overview' | 'shell' | 'shellold' | 'table' | 'job' | 'cluster' | 'login' | 'dfs' | 'log'
     
     logined = false
     
@@ -34,6 +34,10 @@ export class DdbModel extends Model <DdbModel> {
     version: string
     
     license: DdbLicense
+    
+    first_get_server_log_length = true
+    
+    first_get_server_log = true
     
     
     async init () {
@@ -294,6 +298,71 @@ export class DdbModel extends Model <DdbModel> {
             urgent: true,
             ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node, func_type: DdbFunctionType.SystemProc }
         })
+    }
+    
+    
+    async get_server_log_length () {
+        let length: bigint
+        
+        if (this.node_type === NodeType.data_node) {
+            if (this.first_get_server_log_length) {
+                await ddb.eval(
+                    'def get_server_log_length_by_agent (host, port, node_alias) {\n' +
+                    '    conn_agent = xdb(host, port)\n' +
+                    "    length = remoteRun(conn_agent, 'getServerLogLength', node_alias)\n" +
+                    '    close(conn_agent)\n' +
+                    '    return length\n' +
+                    '}\n'
+                )
+                this.first_get_server_log_length = false
+            }
+            const [host, port] = this.node.agentSite.split(':')
+            ;({ value: length } = await ddb.call<DdbObj<bigint>>(
+                'get_server_log_length_by_agent',
+                [host, new DdbInt(Number(port)), this.node_alias]
+            ))
+        } else
+            ({ value: length } = await ddb.call<DdbObj<bigint>>('getServerLogLength', [this.node_alias]))
+        
+        console.log('get_server_log_length', length)
+        
+        return length
+    }
+    
+    
+    async get_server_log (offset: bigint, length: bigint) {
+        let logs: string[]
+        
+        if (this.node_type === NodeType.data_node) {
+            if (this.first_get_server_log) {
+                await ddb.eval(
+                    'def get_server_log_by_agent (host, port, length, offset, node_alias) {\n' +
+                    '    conn_agent = xdb(host, port)\n' +
+                    "    logs = remoteRun(conn_agent, 'getServerLog', length, offset, true, node_alias)\n" +
+                    '    close(conn_agent)\n' +
+                    '    return logs\n' +
+                    '}\n'
+                )
+                this.first_get_server_log = false
+            }
+            
+            const [host, port] = this.node.agentSite.split(':')
+            
+            ;({ value: logs } = await ddb.call<DdbObj<string[]>>(
+                'get_server_log_by_agent',
+                [host, new DdbInt(Number(port)), new DdbLong(length), new DdbLong(offset), this.node_alias]
+            ))
+        } else
+            ({ value: logs } = await ddb.call<DdbObj<string[]>>(
+                'getServerLog',
+                [new DdbLong(length), new DdbLong(offset), true, this.node_alias]
+            ))
+        
+        logs.reverse()
+        
+        console.log('get_server_log', offset, length, logs.length)
+        
+        return logs
     }
 }
 
