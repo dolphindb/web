@@ -5,6 +5,7 @@ import { Pagination, Button, message } from 'antd'
 
 import { t } from '../i18n'
 import { model } from './model'
+import { ReloadOutlined } from '@ant-design/icons'
 
 const default_length = 40000n
 
@@ -14,6 +15,8 @@ export function Log () {
     const [log_length, set_log_length] = useState<bigint>(0n)
     const [logs, set_logs] = useState<string[]>([])
     const [index, set_index] = useState(1)
+    
+    const {node_alias} = model.use(['node_alias'])
     
     useEffect(() => {
         init()
@@ -40,21 +43,56 @@ export function Log () {
     }
     
     return <>
-        <div className='button-row'>
-            <Button onClick={async () => {
-                try {
-                    await init()
-                    message.success(t('日志刷新成功'))
-                } catch {
-                    message.error(t('日志刷新失败'))
-                }
-            }}>{t('刷新')}</Button>
-        </div>
         <div className='list'>
-            <div className='log-title'>{t('日志')} ({Number(log_length).to_fsize_str()})</div>
+            <div className='log-title'>
+                <div className='log-name'>
+                    {node_alias}{t('日志')}({Number(log_length).to_fsize_str()})
+                </div>
+                <div className='space'></div>
+                <div>
+                    <Button
+                     icon={<ReloadOutlined/>}
+                     onClick={
+                        async () => {
+                            try {
+                                await init()
+                                message.success(t('日志刷新成功'))
+                            } catch {
+                                message.error(t('日志刷新失败'))
+                            }
+                        }
+                    }>{t('刷新')}</Button>
+                </div>
+            </div>
             <div className='log-block' ref={ref}>
-                {logs.map((line, i) =>
-                    <div className='log-line' key={`${index}.${i}`}>{line}</div>
+                {logs.map((line, i) => {
+                    let log_type = 'INFO'
+                    const str = line.match(/<[A-Z]+>/g)
+                    if(str){
+                       log_type = str[0]
+                       log_type = log_type.substring(1, log_type.length-1)
+                    }
+                    switch(log_type){
+                        case 'ERROR':
+                            return(
+                                <div className='log-line' style={{color: '#CF2525'}}>
+                                    {line}
+                                </div>
+                            )
+                        case 'WARNING':
+                            return(
+                                <div className='log-line' style={{color: '#FFCA2F'}}>
+                                    {line}
+                                </div>
+                            )
+                        default:
+                            return(
+                                <div className='log-line'>
+                                    {line}
+                                </div>
+                            )
+                    }
+                }
                 )}
             </div>
             <Pagination
