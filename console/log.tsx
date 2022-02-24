@@ -2,11 +2,17 @@ import './log.sass'
 
 import { default as React, useEffect, useRef, useState } from 'react'
 import { Pagination, Button, message } from 'antd'
+import { ReloadOutlined } from '@ant-design/icons'
 
 import { t } from '../i18n'
 import { model } from './model'
 
 const default_length = 40000n
+
+const colors = {
+    ERROR: '#CF2525',
+    WARNING: '#FFCA2F'
+} as const
 
 export function Log () {
     const ref = useRef<HTMLDivElement>()
@@ -14,6 +20,8 @@ export function Log () {
     const [log_length, set_log_length] = useState<bigint>(0n)
     const [logs, set_logs] = useState<string[]>([])
     const [index, set_index] = useState(1)
+    
+    const { node_alias } = model.use(['node_alias'])
     
     useEffect(() => {
         init()
@@ -40,22 +48,42 @@ export function Log () {
     }
     
     return <>
-        <div className='button-row'>
-            <Button onClick={async () => {
-                try {
-                    await init()
-                    message.success(t('日志刷新成功'))
-                } catch {
-                    message.error(t('日志刷新失败'))
-                }
-            }}>{t('刷新')}</Button>
-        </div>
         <div className='list'>
-            <div className='log-title'>{t('日志')} ({Number(log_length).to_fsize_str()})</div>
+            <div className='log-title'>
+                <div className='log-name'>
+                    {node_alias} { t('日志') } ({Number(log_length).to_fsize_str()})
+                </div>
+                <div className='space' />
+                <div>
+                    <Button
+                     icon={<ReloadOutlined/>}
+                     onClick={
+                        async () => {
+                            try {
+                                await init()
+                                message.success(t('日志刷新成功'))
+                            } catch {
+                                message.error(t('日志刷新失败'))
+                            }
+                        }
+                    }>{t('刷新')}</Button>
+                </div>
+            </div>
             <div className='log-block' ref={ref}>
-                {logs.map((line, i) =>
-                    <div className='log-line' key={`${index}.${i}`}>{line}</div>
-                )}
+                {logs.map((line, i) => {
+                    let log_type: string
+                    const start = line.indexOf('<')
+                    const end = line.indexOf('>', start)
+                    if (start !== -1 && end !== -1)
+                        log_type = line.substring(start + 1, end)
+                    return <div 
+                        className='log-line' 
+                        style={ colors[log_type] ? { color: colors[log_type] } : null } 
+                        key={`${index}.${i}`}
+                    >
+                        {line}
+                    </div>
+                })}
             </div>
             <Pagination
                 className='log-pagination'
