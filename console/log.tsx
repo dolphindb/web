@@ -9,6 +9,11 @@ import { ReloadOutlined } from '@ant-design/icons'
 
 const default_length = 40000n
 
+const colors = {
+    'ERROR': '#CF2525',
+    'WARNING': '#FFCA2F'
+}
+
 export function Log () {
     const ref = useRef<HTMLDivElement>()
     
@@ -16,7 +21,7 @@ export function Log () {
     const [logs, set_logs] = useState<string[]>([])
     const [index, set_index] = useState(1)
     
-    const {node_alias} = model.use(['node_alias'])
+    const { node_alias } = model.use(['node_alias'])
     
     useEffect(() => {
         init()
@@ -46,7 +51,7 @@ export function Log () {
         <div className='list'>
             <div className='log-title'>
                 <div className='log-name'>
-                    {node_alias}{t('日志')}({Number(log_length).to_fsize_str()})
+                    {node_alias} { t('日志') } ({Number(log_length).to_fsize_str()})
                 </div>
                 <div className='space'></div>
                 <div>
@@ -66,34 +71,19 @@ export function Log () {
             </div>
             <div className='log-block' ref={ref}>
                 {logs.map((line, i) => {
-                    let log_type = 'INFO'
-                    const str = line.match(/<[A-Z]+>/g)
-                    if(str){
-                       log_type = str[0]
-                       log_type = log_type.substring(1, log_type.length-1)
-                    }
-                    switch(log_type){
-                        case 'ERROR':
-                            return(
-                                <div className='log-line' style={{color: '#CF2525'}}>
-                                    {line}
-                                </div>
-                            )
-                        case 'WARNING':
-                            return(
-                                <div className='log-line' style={{color: '#FFCA2F'}}>
-                                    {line}
-                                </div>
-                            )
-                        default:
-                            return(
-                                <div className='log-line'>
-                                    {line}
-                                </div>
-                            )
-                    }
-                }
-                )}
+                    let log_type: string
+                    const start = line.indexOf('<')
+                    const end = line.indexOf('>', start)
+                    if (start !== -1 && end !== -1)
+                        log_type = line.substring(start + 1, end)
+                    return <div 
+                        className='log-line' 
+                        style={ colors[log_type] ? { color: colors[log_type] } : null } 
+                        key={`${index}.${i}`}
+                    >
+                        {line}
+                    </div>
+                })}
             </div>
             <Pagination
                 className='log-pagination'
