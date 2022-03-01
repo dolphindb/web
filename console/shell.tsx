@@ -15,7 +15,7 @@ import 'prismjs/components/prism-javascript'
 import 'prismjs/components/prism-typescript'
 
 import { red } from 'xshell/chalk.browser'
-import { ddb, DdbForm, DdbObj, DdbType } from './ddb.browser'
+import { ddb, DdbForm, DdbObj, DdbType } from 'dolphindb/browser'
 
 import icon_run from './run.svg'
 

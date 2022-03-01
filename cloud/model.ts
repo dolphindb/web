@@ -115,7 +115,7 @@ export class CloudModel extends Model <CloudModel> {
     
     
     async get_cluster (cluster_overview: Cluster) {
-        const cluster = await request_json(`/v1/dolphindbs/${cluster_overview.namespace}/${cluster_overview.name}`)
+        let cluster = await request_json(`/v1/dolphindbs/${cluster_overview.namespace}/${cluster_overview.name}`)
         cluster.created_at = dayjs(cluster.creationTimestamp)
         
         console.log('cluster:', cluster)

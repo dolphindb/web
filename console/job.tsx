@@ -17,7 +17,7 @@ import { ReloadOutlined } from '@ant-design/icons'
 import {
     DdbObj,
     nulls,
-} from './ddb.browser' 
+} from 'dolphindb/browser' 
 
 import { t } from '../i18n'
 import {

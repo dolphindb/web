@@ -34,11 +34,11 @@ import en from 'antd/lib/locale/en_US'
 import ja from 'antd/lib/locale/ja_JP'
 import ko from 'antd/lib/locale/ko_KR'
 
+import { date2str } from 'dolphindb/browser'
 
 import { language, t } from '../i18n'
 
 import { model, DdbModel, NodeType } from './model'
-import { date2str } from './ddb.browser'
 
 import Login from './login'
 import Cluster from './cluster'

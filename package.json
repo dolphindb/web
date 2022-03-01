@@ -40,6 +40,7 @@
         "antd": "^4.18.9",
         "cross-env": "^7.0.3",
         "dayjs": "^1.10.8",
+        "dolphindb": "^0.0.9",
         "final-form": "^4.20.6",
         "prismjs": "^1.27.0",
         "react-dom": "^17.0.2",

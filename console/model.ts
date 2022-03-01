@@ -2,7 +2,7 @@ import type { BaseType } from 'antd/lib/typography/Base'
 
 import Model from 'react-object-model'
 
-import { ddb, DdbFunctionType, DdbObj, DdbInt, DdbLong } from './ddb.browser'
+import { ddb, DdbFunctionType, DdbObj, DdbInt, DdbLong } from 'dolphindb/browser'
 
 const storage_keys = {
     ticket: 'ddb.ticket',
