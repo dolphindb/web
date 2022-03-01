@@ -3,7 +3,7 @@ node_modules/
 /fonts/
 
 /web/
-/web.zip
+/web.*.zip
 /web.cloud/
 /web.cloud.zip
 
