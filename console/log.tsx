@@ -7,11 +7,11 @@ import { ReloadOutlined } from '@ant-design/icons'
 import { t } from '../i18n'
 import { model } from './model'
 
-const default_length = 40000n
+const default_length = 50000n
 
 const colors = {
-    ERROR: '#CF2525',
-    WARNING: '#FFCA2F'
+    ERROR: '#cf2525',
+    WARNING: '#faad14'
 } as const
 
 export function Log () {
