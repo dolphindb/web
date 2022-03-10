@@ -163,7 +163,7 @@ function ClusterDetailMenuItem({
 function InfoTab() {
     const { cluster } = model.use(['cluster'])
     
-    const { namespace, name, log_mode, version, storage_class_name, Services: services, status, created_at } = cluster
+    const { namespace, name, log_mode, version, storage_class_name, services, status, created_at } = cluster
     
     return (
         <>
