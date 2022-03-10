@@ -89,9 +89,6 @@ function DatanodeConfig () {
                 { name: 'lanCluster', value: 'int', default: '= 0', tip: '' },
                 { name: 'maxPartitionNumPerQuery', value: 'int', default: '= 65536', tip: '' },
                 { name: 'newValuePartitionPolicy', value: ['add', 'skip', 'fail'], default: '= skip', tip: '' },
-                { name: 'redoLogPurgeInterval', value: '', default: '= 10', tip: '' },
-                { name: 'redoLogPurgeLimit', value: '', default: '= 4000', tip: '' },
-                { name: 'maxLogSize', value: '', default: '= 1024', tip: '' },
                 { name: 'chunkCacheEngineMemSize', value: 'int', default: '0', tip: 'The volume (GB) of cache engine.' },
                 {
                     name: 'memoryReleaseRate',
