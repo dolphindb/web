@@ -322,7 +322,7 @@ function Clusters () {
                 {
                     title: t('服务'),
                     key: 'services',
-                    dataIndex: 'Services',
+                    dataIndex: 'services',
                     render: services =>
                         services.Controller ?
                             <>
