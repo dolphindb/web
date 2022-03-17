@@ -334,5 +334,14 @@
     },
     "CPU 使用量": {
         "en": "cpu usage"
+    },
+    "日志": {
+        "en": "log"
+    },
+    "日志刷新成功": {
+        "en": "Log was refreshed successfully"
+    },
+    "日志刷新失败": {
+        "en": "Failed to refresh log"
     }
 }

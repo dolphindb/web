@@ -11,7 +11,7 @@ const default_length = 50000n
 
 const colors = {
     ERROR: '#cf2525',
-    WARNING: '#faad14'
+    WARNING: '#b98317'
 } as const
 
 export function Log () {
@@ -51,7 +51,7 @@ export function Log () {
         <div className='list'>
             <div className='log-title'>
                 <div className='log-name'>
-                    {node_alias} { t('日志') } ({Number(log_length).to_fsize_str()})
+                    {node_alias} {t('日志')} ({Number(log_length).to_fsize_str()})
                 </div>
                 <div className='space' />
                 <div>

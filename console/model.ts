@@ -41,7 +41,7 @@ export class DdbModel extends Model <DdbModel> {
     
     
     async init () {
-        await ddb.connect({ login: false })
+        await ddb.connect({ autologin: false })
         
         try {
             await this.login_by_ticket()
