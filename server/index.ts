@@ -29,11 +29,9 @@ declare module 'koa' {
     }
 }
 
-import xsh from 'xshell'
+import { stream_to_buffer, inspect, output_width, fread } from 'xshell'
 
 import { fp_root } from '../config.js'
-
-const { stream_to_buffer, inspect, output_width, fread } = xsh
 
 
 declare module 'http' {

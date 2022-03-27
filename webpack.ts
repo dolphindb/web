@@ -4,12 +4,13 @@ import Webpack from 'webpack'
 // import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 
 import type { Options as TSLoaderOptions } from 'ts-loader'
+import sass from 'sass'
 import type { Options as SassOptions } from 'sass-loader'
 
-import sass from 'sass'
+import { type MFS } from 'xshell'
 
 import { fp_root, fpd_out_console, fpd_out_cloud } from './config.js'
-import xshell from 'xshell'
+
 
 
 const config: Webpack.Configuration = {
@@ -214,10 +215,10 @@ export let webpack = {
     
     watcher: null as Webpack.Watching,
     
-    async start () {
+    async start (mfs: MFS.IFs) {
         this.compiler = Webpack(config)
         // this.node_fs_bak = this.compiler.outputFileSystem
-        this.compiler.outputFileSystem = xshell.mfs
+        this.compiler.outputFileSystem = mfs
         
         let first = true
         
