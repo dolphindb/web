@@ -133,11 +133,21 @@ var bindGrid = function (tableJson) {
             if (item.filetype === 0) {
                 return "<span class='glyphicon glyphicon-folder-close' style='color:rgb(239,222,7)' title='directory'></span> " + value
             } else if (item.filetype === 1 || item.filetype ===4 ) {
-                    if (item.chunks != "" && item.sites != "") {
-                        re = "<a id='btnShowTabletData' href='javascript:void(0)' onclick='showTabletData(this)' value='" + item.chunks + "' site='" + item.sites + "' partition='/" + item.filename + "'><span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " + value + "</a>";
-                    }else{
-                        re = "<span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " + value;
-                    }
+                if (item.chunks != "" && item.sites != "") {
+                    // 新的 server 修改分区结构支持多表后，调用 readTabletChunk 的 partition path 参数需要是完整的分区表路径
+                    // 比如 dfs explorer 显示以下的路径，在点击对应的分区时，需要是 /20211201T00/Key0/表名
+                    // /npz_orderbook/20211201T00/Key0
+                    const cp = getCurrentPath()
+                    const i_second_slash = cp.indexOf('/', 1)
+                    const filename = i_second_slash === -1 ?
+                            `/${item.filename}`
+                        :
+                            `${cp.slice(i_second_slash)}/${item.filename}`
+                    
+                    re = "<a id='btnShowTabletData' href='javascript:void(0)' onclick='showTabletData(this)' value='" + item.chunks + "' site='" + item.sites + "' partition='" + filename + "'><span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " + value + "</a>";
+                } else {
+                    re = "<span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " + value;
+                }
                 return re;
             } else if (item.filetype === 2 || item.filetype===5 ) {
                 return "<span class='glyphicon glyphicon-file' style='color:rgb(190,190,190)' title='file'></span> " + value
