@@ -3,7 +3,7 @@ import {
     type Dayjs,
 } from 'dayjs'
 
-import Model from 'react-object-model'
+import { Model } from 'react-object-model'
 
 import { request_json } from 'xshell/net.browser'
 
@@ -240,5 +240,3 @@ export type ClusterMode = 'standalone' | 'cluster'
 export type ClusterType = 'singlecontroller' | 'multicontroller'
 
 export let model = (window as any).model = new CloudModel()
-
-export default model

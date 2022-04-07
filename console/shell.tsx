@@ -15,7 +15,13 @@ import 'prismjs/components/prism-javascript'
 import 'prismjs/components/prism-typescript'
 
 import { red } from 'xshell/chalk.browser'
-import { ddb, DdbForm, DdbObj, DdbType } from 'dolphindb/browser'
+import {
+    ddb,
+    DdbForm,
+    type DdbMessage,
+    DdbObj,
+    DdbType
+} from 'dolphindb/browser'
 
 import icon_run from './run.svg'
 
@@ -34,6 +40,13 @@ export function Shell () {
     const rterminal = useRef<HTMLDivElement>()
     
     useEffect(() => {
+        function printer ({ type, data }: DdbMessage) {
+            if (type === 'print') {
+                console.log(data)
+                term.writeln(data)
+            }
+        }
+        
         (async () => {
             // --- init term
             term = new window.Terminal({
@@ -71,11 +84,13 @@ export function Shell () {
             
             // const result = await ddb.call('getEnv', ['PATH'])
             
+            ddb.listeners.push(printer)
+            
+            const url = new URL(location.href)
+            const queries = url.searchParams
             
             // --- 大数据上传测试
-            const url = new URL(location.href)
-            const length = url.searchParams.get('length')
-            
+            const length = queries.get('length')
             if (length) {
                 let bigarr = new Float64Array(
                     Number(length)
@@ -97,7 +112,21 @@ export function Shell () {
                     result.toString()
                 )
             }
+            
+            
+            // --- test now
+            if (queries.has('test-now')) {
+                const result = await ddb.call('now')
+                term.writeln(
+                    result.toString()
+                )
+            }
         })()
+        
+        return () => {
+            ddb.listeners = ddb.listeners.filter(handler => 
+                handler !== printer)
+        }
     }, [ ])
     
     return <>
@@ -112,16 +141,22 @@ function Editor () {
     const [code, set_code] = useState<string>(default_code)
     
     async function run () {
-        term.writeln(`[${new Date().to_str()}]`)
-        term.writeln(code)
-        term.writeln('---')
+        term.writeln(
+            `[${new Date().to_str()}]\n` +
+            `${code}\n` +
+            '---'
+        )
         
         try {
             let ddbobj = await ddb.eval(code)
             
             console.log(ddbobj)
             
-            term.writeln(ddbobj.toString() + '\n\n')
+            term.writeln(
+                '---\n' +
+                ddbobj.toString() + 
+                '\n\n'
+            )
         } catch (error) {
             term.writeln(red(error.message))
             throw error
@@ -162,5 +197,3 @@ function Editor () {
         </button>
     </div>
 }
-
-export default Shell

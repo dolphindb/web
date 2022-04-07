@@ -1276,5 +1276,3 @@ const log_modes = {
     1: t('输出到标准输出'),
     2: t('同时输出到文件和标准输出')
 } as const
-
-export default Cloud

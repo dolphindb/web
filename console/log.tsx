@@ -107,5 +107,3 @@ export function Log () {
         </div>
     </>
 }
-
-export default Log

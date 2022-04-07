@@ -1,6 +1,6 @@
 import type { BaseType } from 'antd/lib/typography/Base'
 
-import Model from 'react-object-model'
+import { Model } from 'react-object-model'
 
 import { ddb, DdbFunctionType, DdbObj, DdbInt, DdbLong } from 'dolphindb/browser'
 
@@ -475,6 +475,4 @@ enum DdbNodeState {
 }
 
 
-export let model = (window as any).model = new DdbModel()
-
-export default model
+export let model = window.model = new DdbModel()

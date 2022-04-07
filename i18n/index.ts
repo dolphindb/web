@@ -1,4 +1,4 @@
-import I18N from 'xshell/i18n'
+import { I18N } from 'xshell/i18n'
 
 import _dict from './dict.json'
 

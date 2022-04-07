@@ -5,7 +5,7 @@ import { Descriptions } from 'antd'
 import { SyncOutlined } from '@ant-design/icons'
 
 import { t } from '../i18n'
-import model from './model'
+import { model } from './model'
 
 
 export function ShellOld () {
@@ -50,5 +50,3 @@ function Perf () {
         </div>
     </div>
 }
-
-export default ShellOld

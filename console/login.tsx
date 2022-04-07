@@ -6,7 +6,7 @@ import { Form, Input, Button, Typography, message } from 'antd'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
 
 import { t } from '../i18n'
-import model from './model'
+import { model } from './model'
 
 
 export function Login () {
@@ -47,5 +47,3 @@ export function Login () {
         </div>
     </>
 }
-
-export default Login

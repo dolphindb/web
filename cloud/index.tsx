@@ -17,7 +17,7 @@ import { model } from './model'
 
 import { language } from '../i18n'
 
-import Cloud from './cloud'
+import { Cloud } from './cloud'
 
 
 const locales = { zh, en, ja, ko }
