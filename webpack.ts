@@ -226,7 +226,6 @@ export let webpack = {
             this.watcher = this.compiler.watch({
                 ignored: [
                     '**/node_modules/',
-                    './repl.ts', 
                 ],
                 aggregateTimeout: 500
             }, (error, stats) => {
