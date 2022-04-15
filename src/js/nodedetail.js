@@ -476,7 +476,7 @@ $('#btn_execode').click(function () {
                             logstr += parseFloat(parseFloat(res.value).toFixed(precision));
                         } else {
                             for (var i = 0; i < res.value.length; i++) {
-                                res.value[i] = parseFloat(res.value[i].toFixed(precision));
+                                res.value[i] = parseFloat(res.value[i]?.toFixed(precision));
                             }
                             logstr += res.value;                           
                         }
@@ -487,22 +487,22 @@ $('#btn_execode').click(function () {
                 } else {
                     if (res.form === 'table' || res.form === 'dictionary') {
                         for(var i = 0; i < res.value.length; i++) {
-                            if(res.value[i].type === 'double') {
+                            if(res.value[i]?.type === 'double') {
                                 for (var j = 0; j < res.value[i].value.length; j++) {
-                                    res.value[i].value[j] = parseFloat(res.value[i].value[j].toFixed(precision));
+                                    res.value[i].value[j] = parseFloat(res.value[i].value[j]?.toFixed(precision));
                                 }
                             }
                         }
                     } else if (res.form === 'vector' || res.form === 'set') {
                         if (res.type === 'double') {
                             for (var i = 0; i < res.value.length; i++) {
-                                res.value[i] = parseFloat(res.value[i].toFixed(precision));
+                                res.value[i] = parseFloat(res.value[i]?.toFixed(precision));
                             }
                         }
                     } else if (res.form === 'matrix') {
                         if (res.type == 'double') {
                             for (var i = 0; i < res.value[0].value.length; i++) {
-                                res.value[0].value[i] = parseFloat(res.value[0].value[i].toFixed(precision));
+                                res.value[0].value[i] = parseFloat(res.value[0].value[i]?.toFixed(precision));
                             }
                         }
                     }
