@@ -31,6 +31,9 @@ export class CloudModel extends Model <CloudModel> {
 
     versions: string[] = []
     
+    show_all_config = false
+    
+    
     async init () {
         await Promise.all([
             this.get_clusters(default_queries),
@@ -125,9 +128,13 @@ export class CloudModel extends Model <CloudModel> {
     }
 
     async get_cluster_config (cluster: Cluster): Promise<ClusterConfig> {
-        return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/configs`)
+        return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/configs`, {
+            queries: {
+                show_custom_config: !this.show_all_config
+            }
+        })
     }
-
+    
     async update_cluster_config (cluster: Cluster, newconfig: ClusterConfig) {
         return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/configs`, {
             method: 'put',

@@ -21,7 +21,8 @@ import {
     Modal,
     Switch,
     Divider,
-    } from 'antd'
+    Checkbox,
+} from 'antd'
 import { ConsoleSqlOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors'
 import type { AlignType } from 'rc-table/lib/interface'
@@ -147,8 +148,8 @@ function ClusterDetailMenuItem({
     }
 
     const displayValue = {
-        info: t("基本信息"),
-        config: t("配置参数")
+        info: t('基本信息'),
+        config: t('配置参数')
     }
 
     return(
@@ -169,7 +170,7 @@ function InfoTab() {
         <>
             <Descriptions
                 title={
-                    <Title level={4}>Info</Title>
+                    <Title level={4}>{t('信息')}</Title>
                 }
                 column={2}
                 bordered
@@ -515,7 +516,7 @@ function CreateClusterPanel({
                 initialValues={{
                     mode,
                     cluster_type,
-                    version: versions.length !== 0 ? versions[0] : "",
+                    version: versions.length !== 0 ? versions[0] : '',
                     controller: {
                         replicas: 3,
                         data_size: 1,
@@ -593,7 +594,7 @@ function CreateClusterPanel({
                                 <Option value={ns.name} key={ns.name}>{ns.name}</Option>
                             ))
                             :
-                            <Option value="">{""}</Option>
+                            <Option value=''>{''}</Option>
                         }
                     </Select>
                 </Form.Item>
@@ -606,7 +607,7 @@ function CreateClusterPanel({
                                 <Option value={sc.name} key={sc.name}>{sc.name}</Option>
                             ))
                             :
-                            <Option value="">{""}</Option>
+                            <Option value=''>{''}</Option>
                         }
                     </Select>
                 </Form.Item>
@@ -626,7 +627,7 @@ function CreateClusterPanel({
                                 <Option value={v} key={v}>{v}</Option>
                             ))
                             :
-                            <Option value="">{""}</Option>
+                            <Option value=''>{''}</Option>
                         }
                     </Select>
                 </Form.Item>
@@ -894,6 +895,7 @@ function ClusterConfigs ({
 }: {
     cluster: Cluster
 }) {
+    const { show_all_config } = model.use(['show_all_config'])
 
     const [config, setConfig] = useState<ClusterConfig>(cluster.mode === 'cluster' ? {
         cluster_config: [],
@@ -999,11 +1001,28 @@ function ClusterConfigs ({
         fetchClusterConfig()
     }, [cluster])
 
-    return <div className="cluster-config">
-        <Title level={4} className='cluster-config-header'>Configuration</Title>
+    return <div className='cluster-config'>
+        <Title level={4} className='cluster-config-header'>
+            {t('配置')}
+            <Checkbox 
+                className='show-all-config'
+                checked={show_all_config}
+                onChange={async ({
+                    target: {
+                        checked: show_all_config
+                    }
+                }) => {
+                    model.set({ show_all_config })
+                    await fetchClusterConfig()
+                }}
+            >
+                {t('显示所有配置')}
+            </Checkbox>
+        </Title>
+        
         {cluster.mode === 'cluster' ?
             <Tabs size='large'>
-                <Tabs.TabPane tab={t("集群参数")} key='cluster'>
+                <Tabs.TabPane tab={t('集群参数')} key='cluster'>
                     <ConfigEditableList 
                         type='cluster' 
                         configList={config.cluster_config} 
@@ -1011,7 +1030,7 @@ function ClusterConfigs ({
                         onConfigChange={onConfigChange} 
                     />
                 </Tabs.TabPane>
-                <Tabs.TabPane tab={t("控制节点参数")} key='controller'>
+                <Tabs.TabPane tab={t('控制节点参数')} key='controller'>
                     <ConfigEditableList 
                         type='controller' 
                         configList={config.controller_config} 
@@ -1019,8 +1038,8 @@ function ClusterConfigs ({
                         onConfigChange={onConfigChange} 
                     />
                 </Tabs.TabPane >
-                <Tabs.TabPane tab={t("代理节点参数")} key='agent' >
-                    <ConfigEditableList 
+                <Tabs.TabPane tab={t('代理节点参数')} key='agent' >
+                    <ConfigEditableList
                         type='agent' 
                         configList={config.agent_config}  
                         editedList={editedConfig.agent_config}
@@ -1037,14 +1056,21 @@ function ClusterConfigs ({
             />
         }
         <div className='cluster-button-block'>
-
             <Popconfirm
                 title={t('确认提交?')}
                 visible={submitPopVisible}
                 onConfirm={onSubmitConfirm}
                 onCancel={() => {setSubmitPopVisible(false)}}
             >
-                <Button type="primary" className='cluster-button' onClick={() => {setSubmitPopVisible(true)}}>{t('提交参数修改')}</Button>
+                <Button
+                    type='primary'
+                    className='cluster-button'
+                    onClick={() => {
+                        setSubmitPopVisible(true)
+                    }}
+                >{
+                    t('提交参数修改')
+                }</Button>
             </Popconfirm>
         </div>
 
@@ -1062,23 +1088,21 @@ function ConfigEditableList({
     configList: ClusterConfigItem[],
     editedList: ClusterConfigItem[],
     onConfigChange: (config: Partial<ClusterConfigItem> & {name: string}, type: ConfigType) => void,
-}
-) {
-
+}) {
     const [form] = Form.useForm()
     const [editingName, setEditingName] = useState('')
 
     const isEditing = (record: ClusterConfigItem) => record.name === editingName
 
     const edit = (record: ClusterConfigItem) => {
-        if (record.type !== 'bool') {
+        if (record.type !== 'bool') 
             form.setFieldsValue({ value: record.value })
-        } else {
+         else 
             form.setFieldsValue({ value: record.value === 'true' })
-        }
+        
         setEditingName(record.name)
     }
-
+    
     const cancel = () => {
         setEditingName('')
     }
@@ -1101,15 +1125,15 @@ function ConfigEditableList({
     const columns = [
         {
             title: t('名称'),
-            dataIndex: "name",
-            key: "name",
+            dataIndex: 'name',
+            key: 'name',
             width: '25%',
             editable: false
         },
         {
             title: t('当前值'),
-            dataIndex: "value",
-            key: "value",
+            dataIndex: 'value',
+            key: 'value',
             width: '10%',
             editable: true,
             align: 'center' as AlignType,
@@ -1123,8 +1147,8 @@ function ConfigEditableList({
         },
         {
             title: t('默认值'),
-            dataIndex: "default_value",
-            key: "default value",
+            dataIndex: 'default_value',
+            key: 'default value',
             width: '10%',
             editable: false,
             align: 'center' as AlignType,
@@ -1138,8 +1162,8 @@ function ConfigEditableList({
         },
         {
             title: t('类型'),
-            dataIndex: "type",
-            key: "type",
+            dataIndex: 'type',
+            key: 'type',
             width: '6%',
             align: 'center' as AlignType,
             editable: false
@@ -1147,12 +1171,12 @@ function ConfigEditableList({
         {
             title: t('描述'),
             dataIndex: language === 'zh' ? 'description_zh' : 'description',
-            key: "description",
+            key: 'description',
             editable: false
         }, {
             title: t('操作'),
             dataIndex: 'actions',
-            key: "actions",
+            key: 'actions',
             width: '10%',
             editable: false,
             render: (_: any, record: ClusterConfigItem) => {
@@ -1160,15 +1184,15 @@ function ConfigEditableList({
                 return editable ? (
                     <span>
                         <Typography.Link onClick={() => save(record.name)} style={{ marginRight: 8 }}>
-                        {t("保存更改")}
+                        {t('保存更改')}
                         </Typography.Link>
                         <Typography.Link onClick={cancel}>
-                        {t("取消")}
+                        {t('取消')}
                         </Typography.Link>
                     </span>
                 ) : (
                     <Typography.Link disabled={editingName !== ''} onClick={() => edit(record)}>
-                      {t("编辑参数")}
+                      {t('编辑参数')}
                     </Typography.Link>
                   )
 
@@ -1191,7 +1215,7 @@ function ConfigEditableList({
             })
         }
     })
-
+    
     return (
         <Form
             form={form}
@@ -1252,7 +1276,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
                         (inputType === 'int' || inputType === 'int64' || inputType === 'int32') ? 
                         [{
                             required: true,
-                            message: t("请输入参数值")
+                            message: t('请输入参数值')
                         }] 
                         : 
                         []}

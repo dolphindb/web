@@ -343,5 +343,14 @@
     },
     "日志刷新失败": {
         "en": "Failed to refresh log"
+    },
+    "配置": {
+        "en": "Configuration"
+    },
+    "显示所有配置": {
+        "en": "Show All Configurations"
+    },
+    "信息": {
+        "en": "Info"
     }
 }
