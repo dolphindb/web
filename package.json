@@ -5,6 +5,7 @@
     },
     "type": "module",
     "scripts": {
+        "install.ci": "npm ci --include=dev --force",
         "dev": "tsc --project ./tsconfig.lib.json && node ./dev.js",
         "server": "tsc --project ./tsconfig.lib.json && cross-env NODE_EXTRA_CA_CERTS=./server/cert/dolphindb.crt node ./server/index.js",
         "typecheck": "tsc --noEmit",
