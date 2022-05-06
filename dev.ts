@@ -9,7 +9,7 @@ import type { Context } from 'koa'
 import { request_json, log_section, inspect, create_mfs, UFS } from 'xshell'
 import { Server } from 'xshell/server.js'
 
-import { fp_root, libs } from './config.js'
+import { fp_root } from './config.js'
 import { webpack } from './webpack.js'
 
 
@@ -20,19 +20,17 @@ class DevServer extends Server {
     
     override async router (ctx: Context) {
         const {
-            response,
             request: {
                 query,
                 method,
                 body,
-                hostname,
                 headers: {
-                    cookie,
-                    host,
                     'x-ddb': dapi
                 }
             },
         } = ctx
+        
+        let { response } = ctx
         
         let path = ctx.request.path
         
@@ -51,15 +49,6 @@ class DevServer extends Server {
             })
             
             return true
-        }
-        
-        const fname = path.split('/').last
-        
-        if (fname in libs) {
-            const fp = libs[fname]
-            response.redirect(`https://cdn.jsdelivr.net/npm/${fp}`)
-            response.status = 301
-            return
         }
         
         path = path.replace('/cloud/fonts/', '/fonts/')

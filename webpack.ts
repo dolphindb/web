@@ -43,6 +43,7 @@ const config: Webpack.Configuration = {
         //     type: 'commonjs2',
         // }
         
+        // HookWebpackError: HMR is not implemented for module chunk format yet
         // module: true,
         
         // 解决 'ERR_OSSL_EVP_UNSUPPORTED' 错误问题 for nodejs 17
@@ -50,7 +51,7 @@ const config: Webpack.Configuration = {
         hashFunction: 'sha256',
     },
     
-    target: ['web', 'es2020'],
+    target: ['web', 'es2022'],
     
     
     resolve: {
@@ -64,15 +65,6 @@ const config: Webpack.Configuration = {
         // fallback: {
         //     os: false,
         // }
-    },
-    
-    
-    externals: {
-        react: 'React',
-        'react-dom': 'ReactDOM',
-        jquery: '$',
-        lodash: '_',
-        antd: 'antd',
     },
     
     
@@ -172,7 +164,7 @@ const config: Webpack.Configuration = {
     
     cache: {
         type: 'filesystem',
-        compression: false,
+        compression: 'brotli',
     },
     
     ignoreWarnings: [

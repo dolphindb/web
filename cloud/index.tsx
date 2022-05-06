@@ -1,9 +1,12 @@
-import './index.sass'
+import 'antd/dist/antd.css'
+
 import 'xshell/scroll-bar.sass'
 import '../fonts/myfont.sass'
 
+import './index.sass'
+
 import { default as React, useEffect } from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot as create_root } from 'react-dom/client'
 import {
     Layout, 
     ConfigProvider,
@@ -75,5 +78,6 @@ function DdbContent () {
     </div>
 }
 
-
-ReactDOM.render(<DolphinDB/>, document.querySelector('.root'))
+create_root(
+    document.querySelector('.root')
+).render(<DolphinDB/>)

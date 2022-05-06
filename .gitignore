@@ -16,3 +16,4 @@ node_modules/
 /i18n/untranslateds.json
 /i18n/stats.json
 
+/console/docs.zh.json

@@ -1,9 +1,13 @@
-import './index.sass'
+import 'antd/dist/antd.css'
+
 import 'xshell/scroll-bar.sass'
 import '../fonts/myfont.sass'
 
+import './index.sass'
+
+
 import { default as React, useEffect, useState } from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot as create_root } from 'react-dom/client'
 
 import {
     Layout, 
@@ -42,7 +46,7 @@ import { model, DdbModel, NodeType } from './model'
 
 import { Login } from './login'
 import { Cluster } from './cluster'
-// import Shell from './shell'
+import { Shell } from './shell'
 import { ShellOld } from './shell.old'
 import { Job } from './job'
 import { DFS } from './dfs'
@@ -192,35 +196,63 @@ function DdbSider () {
             onSelect={({ key }) => {
                 model.set({ view: key as DdbModel['view'] })
             }}
-        >
-            {/* <Menu.Item key='overview' icon={<AppstoreOutlined />}>总览</Menu.Item> */}
-            { node_type === NodeType.controller && 
-                <Menu.Item key='cluster' icon={<MenuIcon view='cluster' />}>{t('集群总览')}</Menu.Item>
-            }
-            
-            <Menu.Item key='shellold' icon={<MenuIcon view='shellold' />}>{t('交互编程')}</Menu.Item>
-            
-            {/* <Menu.Item key='shell' icon={<MenuIcon view='shell' />}>Shell</Menu.Item> */}
-            
-            {/* <Menu.SubMenu key='data' title='数据' icon={<DatabaseOutlined />}>
-                <Menu.Item key='table' icon={<TableOutlined />}>数据表</Menu.Item>
-            </Menu.SubMenu> */}
-            
-            <Menu.Item key='job' icon={<MenuIcon view='job' />}>{t('作业管理')}</Menu.Item>
-            
-            { (node_type === NodeType.controller || node_type === NodeType.single) && 
-                <Menu.Item key='dfs' icon={<MenuIcon view='dfs' />}>{t('文件系统')}</Menu.Item>
-            }
-            
-            <Menu.Item key='log' icon={<MenuIcon view='log' />}>{t('日志查看')}</Menu.Item>
-        </Menu>
+            items={[
+                // {
+                //     key: 'overview',
+                //     icon: <AppstoreOutlined />,
+                //     label: t('总览'),
+                // },
+                ... node_type === NodeType.controller ? [{
+                    key: 'cluster',
+                    icon: <MenuIcon view='cluster' />,
+                    label: t('集群总览'),
+                }] : [ ],
+                {
+                    key: 'shellold',
+                    icon: <MenuIcon view='shellold' />,
+                    label: t('交互编程'),
+                },
+                {
+                    key: 'shell',
+                    icon: <MenuIcon view='shell' />,
+                    label: 'Shell',
+                },
+                // {
+                //     key: 'data',
+                //     label: t('数据'),
+                //     icon: <DatabaseOutlined />,
+                //     children: [
+                //         {
+                //             key: 'table',
+                //             icon: <TableOutlined />,
+                //             label: t('数据表'),
+                //         },
+                //     ]
+                // },
+                {
+                    key: 'job',
+                    icon: <MenuIcon view='job' />,
+                    label: t('作业管理'),
+                },
+                ... (node_type === NodeType.controller || node_type === NodeType.single) ? [{
+                    key: 'dfs',
+                    icon: <MenuIcon view='dfs' />,
+                    label: t('文件系统'),
+                }] : [ ],
+                {
+                    key: 'log',
+                    icon: <MenuIcon view='log' />,
+                    label: t('日志查看'),
+                },
+            ]}
+        />
     </Layout.Sider>
 }
 
 const views = {
     login: Login,
     cluster: Cluster,
-    // shell: Shell,
+    shell: Shell,
     shellold: ShellOld,
     job: Job,
     dfs: DFS,
@@ -255,4 +287,6 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 
-ReactDOM.render(<DolphinDB/>, document.querySelector('.root'))
+create_root(
+    document.querySelector('.root')
+).render(<DolphinDB/>)
