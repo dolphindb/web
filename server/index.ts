@@ -31,7 +31,7 @@ declare module 'koa' {
 
 import { stream_to_buffer, inspect, output_width, fread } from 'xshell'
 
-import { fp_root } from '../config.js'
+import { fpd_root } from '../config.js'
 
 
 declare module 'http' {
@@ -90,8 +90,8 @@ export const server = {
             cert_dolphindb,
             key_dolphindb
         ] = await Promise.all([
-            fread(`${fp_root}server/cert/dolphindb.crt`),
-            fread(`${fp_root}server/cert/dolphindb.key`),
+            fread(`${fpd_root}server/cert/dolphindb.crt`),
+            fread(`${fpd_root}server/cert/dolphindb.key`),
         ])
         
         this.https_server  = http2_create_server(
@@ -101,7 +101,7 @@ export const server = {
                 
                 // 通过设置环境变量 NODE_EXTRA_CA_CERTS=d:/0/cfg/my-root-cas.pem 增加 nodejs 根证书（内置的为 tls.rootCertificates）
                 // https://nodejs.org/api/cli.html#cli_node_extra_ca_certs_file
-                // ca: await fread(`${fp_root}cfg/root-ca.pem`, { print: false }),
+                // ca: await fread(`${fpd_root}cfg/root-ca.pem`, { print: false }),
                 
                 allowHTTP1: true,
             },
