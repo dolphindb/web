@@ -767,15 +767,15 @@ function ClusterNodes ({
     
     useEffect(() => {
         let flag = true
-            ;(async () => {
-                while (true) {
-                    await get_nodes()
-                    await delay(2000)
-                    if (!flag)
-                        break
-                }
-            })()
-            
+        ;(async () => {
+            while (true) {
+                await get_nodes()
+                await delay(2000)
+                if (!flag)
+                    break
+            }
+        })()
+        
         return () => {
             flag = false
         }
@@ -786,14 +786,14 @@ function ClusterNodes ({
         <div className='cluster-nodes'>
             {controllers && 
                 <div className='controllers'>
-                    <Title level={4}>{t('控制结点')}  ({controllers.length})</Title>
+                    <Title level={4}>{t('控制结点')} ({controllers.length})</Title>
                     <NodeList mode='controller' nodes={controllers} cluster={cluster} get_nodes={get_nodes} />
                 </div>
             }
             
             {datanodes && 
                 <div className='datanodes'>
-                    <Title level={4}>{t('数据结点')}  ({datanodes.length})</Title>
+                    <Title level={4}>{t('数据结点')} ({datanodes.length})</Title>
                     <NodeList mode='datanode' nodes={datanodes} cluster={cluster} get_nodes={get_nodes} />
                 </div>
             }
@@ -817,7 +817,9 @@ function NodeList ({
     nodes: ClusterNode[]
     get_nodes: Function
 }) {
-    nodes.sort((a,b)=>a.name.localeCompare(b.name))
+    nodes.sort((a, b)=>
+        a.name.localeCompare(b.name))
+    
     return <Table
         className='config-table'
         rowKey={node => `${node.namespace}.${node.name}`}
@@ -833,7 +835,7 @@ function NodeList ({
                 dataIndex: 'instance_service',
                 render: (instance_service: ClusterNode['instance_service'], node: ClusterNode) =>
                     instance_service ?
-                        <div style={{ display:'flex', justifyContent:'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
                             <ServiceNode {...instance_service} />
                             <Popconfirm
                                 title={t('确认删除服务？')}
@@ -850,7 +852,7 @@ function NodeList ({
                                 <Link>{t('删除')}</Link>
                             </Popconfirm>
                         </div>
-                        :
+                    :
                         <Popconfirm
                             title={t('确认创建服务？')}
                             onConfirm={async () => {
@@ -865,7 +867,6 @@ function NodeList ({
                         >
                             <Link>{t('创建')}</Link>
                         </Popconfirm>
-                        
             },
             {
                 title: 'cpu',

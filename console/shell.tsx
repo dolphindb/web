@@ -3,16 +3,19 @@ import 'xterm/css/xterm.css'
 import './shell.sass'
 
 
-import { default as React, useEffect, useRef, useState } from 'react'
+import { default as React, useEffect, useRef } from 'react'
 
-import { message, Tabs as AntTabs } from 'antd'
+import { message } from 'antd'
 
 import dayjs from 'dayjs'
 
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 
-import { default as MonacoEditor } from '@monaco-editor/react'
+import debounce from 'lodash/debounce'
+
+import { default as MonacoEditor, loader } from '@monaco-editor/react'
+
 import type * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 type Monaco = typeof monaco
 
@@ -31,14 +34,31 @@ import { Model } from 'react-object-model'
 
 import { Obj } from './obj'
 
-import { t } from '../i18n/index'
-
-import icon_run from './run.svg'
+import { t, language } from '../i18n/index'
 
 
 import { keywords, constants } from './dolphindb.language'
 
-import docs from './docs.zh.json'
+import docs_zh from './docs.zh.json'
+import docs_en from './docs.en.json'
+const docs = language === 'zh' ? docs_zh : docs_en
+
+import { model } from './model'
+
+
+loader.config({
+    paths: {
+        vs: './monaco'
+    },
+    ... language === 'zh' ? {
+        'vs/nls': {
+            availableLanguages: {
+                '*': 'zh-cn'
+            }
+        }
+    } : { },
+})
+
 
 const constants_lower = constants.map(constant => 
     constant.toLowerCase())
@@ -51,19 +71,20 @@ const funcs_lower = funcs.map(func =>
 class ShellModel extends Model<ShellModel> {
     term: Terminal
     
+    fit_addon: FitAddon
+    
     monaco: Monaco
     
     editor: monaco.editor.IStandaloneCodeEditor
     
     result: DdbObj
     
-    tab: 'terminal' | 'dataview' = 'terminal'
-    
     
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
         
         this.term.writeln(
+            '\n\n' +
             time_start.format('YYYY.MM.DD HH:mm:ss.SSS')
         )
         
@@ -76,10 +97,6 @@ class ShellModel extends Model<ShellModel> {
             
             this.set({
                 result: ddbobj,
-                tab: (ddbobj.form === DdbForm.scalar || ddbobj.form === DdbForm.pair) ?
-                        'terminal'
-                    :
-                        'dataview'
             })
             
             this.term.writeln(
@@ -90,16 +107,12 @@ class ShellModel extends Model<ShellModel> {
                 ) +
                 `(${delta2str(
                     dayjs().diff(time_start)
-                )})\n` + 
-                '\n'
+                )})`
             )
         } catch (error) {
             this.term.writeln(
-                red(error.message) + '\n'
+                red(error.message)
             )
-            this.set({
-                tab: 'terminal'
-            })
             throw error
         }
     }
@@ -111,16 +124,14 @@ let shell = new ShellModel()
 export function Shell () {
     return <>
         <Editor />
-        <Tabs />
+        <Display />
     </>
 }
 
 
 function Editor () {
     return <div className='editor'>
-        <MonacoEditor 
-            height={600}
-            
+        <MonacoEditor
             defaultLanguage='dolphindb'
             
             language='dolphindb'
@@ -473,9 +484,6 @@ function Editor () {
                     localStorage.getItem('dolphindb.code') || ''
                 )
                 
-                if (shell.monaco)
-                    return
-                
                 editor.addAction({
                     id: 'dolphindb.execute',
                     
@@ -536,44 +544,21 @@ function Editor () {
                 })
             }}
         />
-        
-        <button
-            className='run'
-            onClick={async () => {
-                await shell.eval()
-            }}
-        >
-            <img className='icon' src={icon_run} />
-            <span className='text'>运行</span>
-        </button>
     </div>
 }
 
 
-function Tabs () {
-    const { tab } = shell.use(['tab'])
-    
-    return <AntTabs
-        className='tabs'
-        type='card'
-        activeKey={tab}
-        onChange={key => {
-            shell.set({
-                tab: key as ShellModel['tab']
-            })
-        }}
-    >
-        <AntTabs.TabPane className='tab-terminal' key='terminal' tab={t('终端')}>
-            <Term />
-        </AntTabs.TabPane>
-        <AntTabs.TabPane className='tab-dataview result' key='dataview' tab={t('数据视图')}>
-            <DataView />
-        </AntTabs.TabPane>
-    </AntTabs>
+function Display () {
+    return <div className='display'>
+        <Term />
+        <DataView />
+    </div>
 }
 
 
 function Term () {
+    const { collapsed } = model.use(['collapsed'])
+    
     const rterminal = useRef<HTMLDivElement>()
     
     useEffect(() => {
@@ -581,6 +566,15 @@ function Term () {
             if (type === 'print')
                 shell.term.writeln(data)
         }
+        
+        const on_resize = debounce(
+            () => {
+                shell.fit_addon?.fit()
+            },
+            500
+        )
+        
+        window.addEventListener('resize', on_resize)
         
         ;(async () => {
             // --- init term
@@ -609,25 +603,32 @@ function Term () {
                 }
             })
             
-            const fit_addon = new FitAddon()
-            
-            term.loadAddon(fit_addon)
+            term.loadAddon(
+                shell.fit_addon = new FitAddon()
+            )
             
             term.open(rterminal.current)
             
             ddb.listeners.push(printer)
             
-            // wait for container ready
-            await delay(200)
-            
-            fit_addon.fit()
+            term.writeln('DolphinDB Shell')
         })()
         
         return () => {
             ddb.listeners = ddb.listeners.filter(handler => 
                 handler !== printer)
+            
+            window.removeEventListener('resize', on_resize)
         }
     }, [ ])
+    
+    useEffect(() => {
+        // wait for container ready
+        ;(async () => {
+            await delay(500)
+            shell.fit_addon?.fit()
+        })()
+    }, [collapsed])
     
     return <div className='term' ref={rterminal} />
 }
@@ -636,14 +637,14 @@ function Term () {
 function DataView () {
     const { result } = shell.use(['result'])
     
-    if (
+    return <div className='dataview result'>{
         !result ||
         result.form === DdbForm.scalar ||
-        result.form === DdbForm.pair
-    )
-        return null
-    
-    return <Obj obj={result} remote={null} />
+        result.form === DdbForm.pair ?
+            null
+        :
+            <Obj obj={result} remote={null} ctx='embed' />
+    }</div>
 }
 
 

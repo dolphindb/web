@@ -353,6 +353,24 @@
     "信息": {
         "en": "Info"
     },
+    "总览": {
+        "en": "Overview"
+    },
+    "数据": {
+        "en": "Data"
+    },
+    "数据表": {
+        "en": "Tables"
+    },
+    "DolphinDB: 执行代码": {
+        "en": "DolphinDB: Execute Code"
+    },
+    "DolphinDB: 保存代码": {
+        "en": "DolphinDB: Save Code"
+    },
+    "代码已保存在浏览器中": {
+        "en": "The code is saved in the browser"
+    },
     "确认删除服务？": {
         "en": "Delete service?"
     },

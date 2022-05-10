@@ -6,7 +6,7 @@ import '../fonts/myfont.sass'
 import './index.sass'
 
 
-import { default as React, useEffect, useState } from 'react'
+import { default as React, useEffect } from 'react'
 import { createRoot as create_root } from 'react-dom/client'
 
 import {
@@ -169,9 +169,7 @@ function DdbHeader () {
 
 
 function DdbSider () {
-    const { view, node_type } = model.use(['view', 'node_type'])
-    
-    const [collapsed, set_collapsed] = useState(false)
+    const { view, node_type, collapsed } = model.use(['view', 'node_type', 'collapsed'])
     
     return <Layout.Sider
         width={200}
@@ -185,7 +183,7 @@ function DdbSider () {
             {!collapsed && <Text className='text' ellipsis>{t('收起侧边栏')}</Text>}
         </div>}
         onCollapse={(collapsed, type) => {
-            set_collapsed(collapsed)
+            model.set({ collapsed })
         }}
     >
         <Menu

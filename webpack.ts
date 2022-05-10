@@ -7,10 +7,67 @@ import type { Options as TSLoaderOptions } from 'ts-loader'
 import sass from 'sass'
 import type { Options as SassOptions } from 'sass-loader'
 
-import { type MFS } from 'xshell'
+import {
+    type MFS,
+    request,
+    fwrite,
+    fexists
+} from 'xshell'
 
-import { fp_root, fpd_out_console, fpd_out_cloud } from './config.js'
+import { fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console } from './config.js'
 
+
+export async function get_monaco (update = false) {
+    return Promise.all(
+        [
+            'loader.js',
+            'loader.js.map',
+            'editor/editor.main.js',
+            'editor/editor.main.js.map',
+            'editor/editor.main.css',
+            'editor/editor.main.nls.js',
+            'editor/editor.main.nls.js.map',
+            'editor/editor.main.nls.zh-cn.js',
+            'editor/editor.main.nls.zh-cn.js.map',
+            'base/worker/workerMain.js',
+            'base/worker/workerMain.js.map',
+            'base/browser/ui/codicons/codicon/codicon.ttf',
+        ].map(async fname => {
+            const fp = `${fpd_out_console}monaco/${fname}`
+            
+            if (!update && fexists(fp))
+                return
+            
+            return fwrite(
+                fp,
+                await request(
+                    `https://cdn.jsdelivr.net/npm/monaco-editor/${ fname.endsWith('.map') ? 'min-maps' : 'min' }/vs/${fname}`,
+                    {
+                        encoding: 'binary',
+                    }
+                ),
+                { mkdir: true }
+            )
+        })
+    )
+}
+
+export async function get_docs (update = false) {
+    return Promise.all(
+        (['zh', 'en'] as const).map(async language => {
+            const fname = `docs.${language}.json`
+            const fp = fpd_src_console + fname
+            if (!update && fexists(fp))
+                return
+            
+            return fwrite(
+                fp,
+                await request(`https://cos.shenhongfei.com/assets/${fname}`)
+            )
+        })
+    )
+    
+}
 
 
 const config: Webpack.Configuration = {
@@ -22,9 +79,9 @@ const config: Webpack.Configuration = {
     
     entry: {
         'console/index.js': './console/index.tsx',
+        'console/window.js': './console/window.tsx',
         'cloud/index.js': './cloud/index.tsx',
     },
-    
     
     experiments: {
         // outputModule: true,
@@ -32,7 +89,7 @@ const config: Webpack.Configuration = {
     },
     
     output: {
-        path: fp_root,
+        path: fpd_root,
         filename: '[name]',
         publicPath: '/',
         pathinfo: true,
@@ -45,10 +102,6 @@ const config: Webpack.Configuration = {
         
         // HookWebpackError: HMR is not implemented for module chunk format yet
         // module: true,
-        
-        // 解决 'ERR_OSSL_EVP_UNSUPPORTED' 错误问题 for nodejs 17
-        // https://stackoverflow.com/questions/69394632/webpack-build-failing-with-err-ossl-evp-unsupported
-        hashFunction: 'sha256',
     },
     
     target: ['web', 'es2022'],
@@ -81,7 +134,7 @@ const config: Webpack.Configuration = {
                 loader: 'ts-loader',
                 // https://github.com/TypeStrong/ts-loader
                 options: {
-                    configFile: `${fp_root}tsconfig.json`,
+                    configFile: `${fpd_root}tsconfig.json`,
                     onlyCompileBundledFiles: true,
                     transpileOnly: true,
                 } as Partial<TSLoaderOptions>
@@ -174,7 +227,7 @@ const config: Webpack.Configuration = {
     stats: {
         colors: true,
         
-        context: fp_root,
+        context: fpd_root,
         
         entrypoints: false,
         
@@ -241,9 +294,15 @@ export let webpack = {
     
     
     async build (is_cloud: boolean) {
-        config.entry = {
-            'index.js': is_cloud ? './cloud/index.tsx' : './console/index.tsx',
-        }
+        config.entry = is_cloud ?
+                {
+                    'index.js': './cloud/index.tsx',
+                }
+            :
+                {
+                    'index.js': './console/index.tsx',
+                    'window.js': './console/window.tsx'
+                }
         
         config.mode = 'production'
         
@@ -277,6 +336,3 @@ export let webpack = {
         })
     }
 }
-
-
-export default webpack

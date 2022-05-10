@@ -14,6 +14,6 @@ node_modules/
 *.d.ts
 
 /i18n/untranslateds.json
-/i18n/stats.json
 
 /console/docs.zh.json
+/console/docs.en.json
