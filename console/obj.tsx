@@ -108,7 +108,7 @@ export async function open_obj ({
     objref: DdbObjRef
     remote: Remote
 }) {
-    let win = window.open('./window', new Date().toString(), 'left=100,top=100,width=1000,height=640,popup')
+    let win = window.open('./window.html', new Date().toString(), 'left=100,top=100,width=1000,height=640,popup')
     
     await new Promise<void>(resolve => {
         (win as any).resolve = resolve

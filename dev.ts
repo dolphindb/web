@@ -32,12 +32,6 @@ class DevServer extends Server {
         
         let { request, response } = ctx
         
-        if (request.path === '/console/window')
-            request.path += '.html'
-        
-        if (request.path === '/console/' || request.path === '/cloud/')
-            request.path += 'index.html'
-        
         let { path } = request
         
         if (dapi && method === 'POST') {
@@ -116,7 +110,7 @@ await Promise.all([
 console.log(
     'devserver 启动完成\n' +
     '请使用浏览器打开:\n' +
-    'http://localhost:8421/console/?hostname=127.0.0.1&port=8848\n' +
+    'http://localhost:8421/console/index.html?hostname=127.0.0.1&port=8848\n' +
     'http://localhost:8421/cloud/index.html'
 )
 
