@@ -15,6 +15,8 @@ const username_guest = 'guest' as const
 export class DdbModel extends Model <DdbModel> {
     inited = false
     
+    collapsed = false
+    
     view = '' as 'overview' | 'shell' | 'shellold' | 'table' | 'job' | 'cluster' | 'login' | 'dfs' | 'log'
     
     logined = false

@@ -9,8 +9,8 @@ import type { Context } from 'koa'
 import { request_json, log_section, inspect, create_mfs, UFS } from 'xshell'
 import { Server } from 'xshell/server.js'
 
-import { fp_root } from './config.js'
-import { webpack } from './webpack.js'
+import { fpd_root, fpd_out_console } from './config.js'
+import { get_docs, get_monaco, webpack } from './webpack.js'
 
 
 class DevServer extends Server {
@@ -30,9 +30,15 @@ class DevServer extends Server {
             },
         } = ctx
         
-        let { response } = ctx
+        let { request, response } = ctx
         
-        let path = ctx.request.path
+        if (request.path === '/console/window')
+            request.path += '.html'
+        
+        if (request.path === '/console/' || request.path === '/cloud/')
+            request.path += 'index.html'
+        
+        let { path } = request
         
         if (dapi && method === 'POST') {
             const data = await request_json(`http://127.0.0.1:8848${path}`, { body })
@@ -42,7 +48,7 @@ class DevServer extends Server {
         }
         
         if (path.startsWith('/v1')) {
-            response.body = await request_json(`http://192.168.1.99:30483${path}`, {
+            response.body = await request_json(`http://192.168.1.241:31897${path}`, {
                 method: method as any,
                 queries: query,
                 body,
@@ -54,12 +60,25 @@ class DevServer extends Server {
         path = path.replace('/cloud/fonts/', '/fonts/')
         path = path.replace('/console/fonts/', '/fonts/')
         
+        for (const prefix of ['/console/monaco/', '/min-maps/vs/'] as const)
+            if (path.startsWith(prefix))
+                return this.try_send(
+                    ctx,
+                    path.slice(prefix.length),
+                    {
+                        root: `${fpd_out_console}monaco/`,
+                        fs,
+                        log_404: true
+                    }
+                )
+        
+        
         return (
             await this.try_send(
                 ctx,
                 path.replace(/^\/console\//, ''),
                 {
-                    root: `${fp_root}src/`,
+                    root: `${fpd_root}src/`,
                     fs,
                     log_404: false
                 }
@@ -68,7 +87,7 @@ class DevServer extends Server {
                 ctx,
                 path,
                 {
-                    root: fp_root,
+                    root: fpd_root,
                     fs: ufs,
                     log_404: false
                 }
@@ -77,7 +96,7 @@ class DevServer extends Server {
     }
 }
 
-console.log('fp_root:', fp_root)
+console.log('fpd_root:', fpd_root)
 
 let mfs = create_mfs()
 let ufs = new UFS([mfs, fs])
@@ -85,13 +104,19 @@ let ufs = new UFS([mfs, fs])
 
 let server = new DevServer()
 
-await server.start()
-await webpack.start(mfs)
+await Promise.all([
+    get_monaco(),
+    server.start(),
+    (async () => {
+        await get_docs()
+        return webpack.start(mfs)
+    })()
+])
 
 console.log(
     'devserver 启动完成\n' +
     '请使用浏览器打开:\n' +
-    'http://localhost:8421/console/index.html?hostname=127.0.0.1&port=8848\n' +
+    'http://localhost:8421/console/?hostname=127.0.0.1&port=8848\n' +
     'http://localhost:8421/cloud/index.html'
 )
 
