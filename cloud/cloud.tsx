@@ -2,6 +2,8 @@ import './cloud.sass'
 
 import { default as React, useEffect, useState } from 'react'
 
+import { default as dayjs } from 'dayjs'
+
 import { 
     Badge,
     Button, 
@@ -882,6 +884,12 @@ function NodeList ({
                 title: t('日志储存空间'),
                 dataIndex: 'logsize',
                 render: () => mode === 'controller' ? cluster.controller?.logSize : cluster.datanode?.logSize
+            },
+            {
+                title: t('创建时间'),
+                dataIndex: 'creationTimestamp',
+                render: (creationTimestamp: ClusterNode['creationTimestamp']) =>
+                    dayjs(creationTimestamp).format('YYYY.MM.DD HH:mm:ss')
             },
             {
                 title: t('状态'),

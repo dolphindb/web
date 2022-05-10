@@ -231,6 +231,7 @@ export interface StorageClass {
 export interface ClusterNode {
     namespace: string
     name: string
+    creationTimestamp: string
     resources: {
         limits: {
             cpu: string
