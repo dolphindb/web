@@ -191,7 +191,7 @@ function InfoTab() {
             
             <Descriptions
                 title={
-                    <Title level={4}>Service</Title>
+                    <Title level={4}>{t('集群服务')}</Title>
                 }
                 column={2}
                 bordered
@@ -766,7 +766,19 @@ function ClusterNodes ({
     }
     
     useEffect(() => {
-        get_nodes()
+        let flag = true
+        ;(async () => {
+            while (true) {
+                await get_nodes()
+                await delay(2000)
+                if (!flag)
+                    break
+            }
+        })()
+        
+        return () => {
+            flag = false
+        }
     }, [cluster])
     
     
@@ -774,21 +786,21 @@ function ClusterNodes ({
         <div className='cluster-nodes'>
             {controllers && 
                 <div className='controllers'>
-                    <Title level={4}>Controllers ({controllers.length})</Title>
+                    <Title level={4}>{t('控制结点')} ({controllers.length})</Title>
                     <NodeList mode='controller' nodes={controllers} cluster={cluster} get_nodes={get_nodes} />
                 </div>
             }
             
             {datanodes && 
                 <div className='datanodes'>
-                    <Title level={4}>Data Nodes ({datanodes.length})</Title>
+                    <Title level={4}>{t('数据结点')} ({datanodes.length})</Title>
                     <NodeList mode='datanode' nodes={datanodes} cluster={cluster} get_nodes={get_nodes} />
                 </div>
             }
         </div>
     :
         <div className='datanodes'>
-            <Title level={4}>Standalone</Title>
+            <Title level={4}>{t('单机结点')}</Title>
             <NodeList mode='datanode' nodes={datanodes} cluster={cluster} get_nodes={get_nodes} />
         </div>
 }
@@ -805,6 +817,9 @@ function NodeList ({
     nodes: ClusterNode[]
     get_nodes: Function
 }) {
+    nodes.sort((a, b)=>
+        a.name.localeCompare(b.name))
+    
     return <Table
         className='config-table'
         rowKey={node => `${node.namespace}.${node.name}`}
@@ -814,6 +829,44 @@ function NodeList ({
             {
                 title: t('名称'),
                 dataIndex: 'name',
+            },
+            {
+                title: t('服务'),
+                dataIndex: 'instance_service',
+                render: (instance_service: ClusterNode['instance_service'], node: ClusterNode) =>
+                    instance_service ?
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            <ServiceNode {...instance_service} />
+                            <Popconfirm
+                                title={t('确认删除服务？')}
+                                onConfirm={async () => {
+                                    try {
+                                        await model.delete_cluster_node_service(cluster, node.name)
+                                        message.success(t('服务删除成功'))
+                                        await get_nodes()
+                                    } catch (error) {
+                                        message.error(`${t('服务删除失败')} ${JSON.stringify(error)}`)
+                                    }
+                                }}
+                            >
+                                <Link>{t('删除')}</Link>
+                            </Popconfirm>
+                        </div>
+                    :
+                        <Popconfirm
+                            title={t('确认创建服务？')}
+                            onConfirm={async () => {
+                                try {
+                                    await model.creat_cluster_node_service(cluster, node.name)
+                                    message.success(t('服务创建成功'))
+                                    await get_nodes()
+                                } catch (error) {
+                                    message.error(`${t('服务创建失败')} ${JSON.stringify(error)}`)
+                                }
+                            }}
+                        >
+                            <Link>{t('创建')}</Link>
+                        </Popconfirm>
             },
             {
                 title: 'cpu',

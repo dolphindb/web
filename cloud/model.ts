@@ -117,6 +117,22 @@ export class CloudModel extends Model <CloudModel> {
     }
     
     
+    async creat_cluster_node_service (cluster: Cluster, instanceName: string) {
+        return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${instanceName}/services`,{
+            method: 'post',
+        })
+
+    }
+
+
+    async delete_cluster_node_service (cluster: Cluster, instanceName: string) {
+        return request_json(
+            `/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${instanceName}/services`, {
+            method: 'delete',
+        })
+    }
+
+
     async get_cluster (cluster_overview: Cluster) {
         let cluster = await request_json(`/v1/dolphindbs/${cluster_overview.namespace}/${cluster_overview.name}`)
         cluster.created_at = dayjs(cluster.creationTimestamp)
@@ -214,6 +230,10 @@ export interface ClusterNode {
     status: {
         phase: 'Available' | string
         message?: string
+    }
+    instance_service: {
+        ip: string
+        port: string
     }
 }
 
