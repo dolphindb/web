@@ -2,6 +2,8 @@ import './cloud.sass'
 
 import { default as React, useEffect, useState } from 'react'
 
+import { default as dayjs } from 'dayjs'
+
 import { 
     Badge,
     Button, 
@@ -747,16 +749,16 @@ function ClusterNodes ({
 }) {
     const [
         {
-            Controller: controllers,
-            Datanode: datanodes,
+            controllers,
+            datanodes,
         },
         set_nodes
     ] = useState<{
-        Controller: ClusterNode[]
-        Datanode: ClusterNode[]
+        controllers: ClusterNode[]
+        datanodes: ClusterNode[]
     }>({
-        Controller: [ ],
-        Datanode: [ ]
+        controllers: [ ],
+        datanodes: [ ]
     })
     
     async function get_nodes () {
@@ -817,9 +819,6 @@ function NodeList ({
     nodes: ClusterNode[]
     get_nodes: Function
 }) {
-    nodes.sort((a, b)=>
-        a.name.localeCompare(b.name))
-    
     return <Table
         className='config-table'
         rowKey={node => `${node.namespace}.${node.name}`}
@@ -885,6 +884,12 @@ function NodeList ({
                 title: t('日志储存空间'),
                 dataIndex: 'logsize',
                 render: () => mode === 'controller' ? cluster.controller?.logSize : cluster.datanode?.logSize
+            },
+            {
+                title: t('创建时间'),
+                dataIndex: 'creationTimestamp',
+                render: (creationTimestamp: ClusterNode['creationTimestamp']) =>
+                    dayjs(creationTimestamp).format('YYYY.MM.DD HH:mm:ss')
             },
             {
                 title: t('状态'),
