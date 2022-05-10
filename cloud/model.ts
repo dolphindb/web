@@ -111,9 +111,19 @@ export class CloudModel extends Model <CloudModel> {
             }
         )
         
-        console.log('nodes:', nodes)
+        let { Datanode: datanodes, Controller: controllers, ...others } = nodes
+
+        if (datanodes)
+            datanodes.sort((a, b) => 
+                a.name.localeCompare(b.name))
         
-        return nodes
+        
+        if (controllers)
+            controllers.sort((a, b) => 
+                a.name.localeCompare(b.name))
+        
+        
+        return { datanodes, controllers, ...others }
     }
     
     

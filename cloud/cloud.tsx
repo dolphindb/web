@@ -747,16 +747,16 @@ function ClusterNodes ({
 }) {
     const [
         {
-            Controller: controllers,
-            Datanode: datanodes,
+            controllers,
+            datanodes,
         },
         set_nodes
     ] = useState<{
-        Controller: ClusterNode[]
-        Datanode: ClusterNode[]
+        controllers: ClusterNode[]
+        datanodes: ClusterNode[]
     }>({
-        Controller: [ ],
-        Datanode: [ ]
+        controllers: [ ],
+        datanodes: [ ]
     })
     
     async function get_nodes () {
@@ -817,9 +817,6 @@ function NodeList ({
     nodes: ClusterNode[]
     get_nodes: Function
 }) {
-    nodes.sort((a, b)=>
-        a.name.localeCompare(b.name))
-    
     return <Table
         className='config-table'
         rowKey={node => `${node.namespace}.${node.name}`}
