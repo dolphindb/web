@@ -352,5 +352,38 @@
     },
     "信息": {
         "en": "Info"
+    },
+    "确认删除服务？": {
+        "en": "Delete service?"
+    },
+    "服务删除成功": {
+        "en": "Service deleted"
+    },
+    "服务删除失败": {
+        "en": "Service deletion failed"
+    },
+    "确认创建服务？": {
+        "en": "Create service?"
+    },
+    "服务创建成功": {
+        "en": "Service created"
+    },
+    "服务创建失败": {
+        "en": "service creation failed"
+    },
+    "创建": {
+        "en": "Create"
+    },
+    "集群服务": {
+        "en": "Service"
+    },
+    "控制结点": {
+        "en": "Controllers"
+    },
+    "数据结点": {
+        "en": "Data Nodes"
+    },
+    "单机结点": {
+        "en": " Standalone"
     }
 }
