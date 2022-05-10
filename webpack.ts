@@ -294,9 +294,15 @@ export let webpack = {
     
     
     async build (is_cloud: boolean) {
-        config.entry = {
-            'index.js': is_cloud ? './cloud/index.tsx' : './console/index.tsx',
-        }
+        config.entry = is_cloud ?
+                {
+                    'index.js': './cloud/index.tsx',
+                }
+            :
+                {
+                    'index.js': './console/index.tsx',
+                    'window.js': './console/window.tsx'
+                }
         
         config.mode = 'production'
         
