@@ -62,7 +62,7 @@ export function Cloud () {
 
 
 /** Type of cluster detail field: 'info' or 'config' */
-type FieldType = 'info' | 'config'
+type FieldType = 'info' | 'config' | 'monitor'
 
 function ClusterDetail () {
     const { cluster } = model.use(['cluster'])
@@ -71,7 +71,7 @@ function ClusterDetail () {
 
     const [field, setField] = useState<FieldType>('info') 
 
-    const fields : FieldType[] = ['info', 'config']
+    const fields : FieldType[] = ['info', 'config', 'monitor']
 
     const onButtonClick = (value: FieldType) => {
         setField(value)
@@ -141,6 +141,8 @@ function ClusterDetailMenuItem({
 }) {
     const onButtonClick = () => {
         onClick(value)
+        if (value === 'monitor')
+            window.open(model.monitor_url, '_blank')
     }
 
     let currClass = 'detail-menu-item'
@@ -151,7 +153,8 @@ function ClusterDetailMenuItem({
 
     const displayValue = {
         info: t('基本信息'),
-        config: t('配置参数')
+        config: t('配置参数'),
+        monitor: t('集群监控')
     }
 
     return(

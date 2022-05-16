@@ -41,6 +41,18 @@ class DevServer extends Server {
             return true
         }
         
+        if (path.startsWith('/v1/grafana/url')) {
+            response.body = await request_json(
+                `http://192.168.1.69:32591${path}`,
+                {
+                    method: method as any,
+                    queries: query,
+                    body,
+                }
+            )
+            return true
+        }
+        
         if (path.startsWith('/v1')) {
             response.body = await request_json(`http://192.168.1.99:30483${path}`, {
                 method: method as any,
