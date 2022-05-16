@@ -33,6 +33,7 @@ export class CloudModel extends Model <CloudModel> {
     
     show_all_config = false
     
+    monitor_url: string
     
     async init () {
         await Promise.all([
@@ -42,8 +43,18 @@ export class CloudModel extends Model <CloudModel> {
             this.get_versions(),
         ])
         
+        this.get_monitor_url()
+        
         this.set({
             inited: true,
+        })
+    }
+    
+    async get_monitor_url () {
+        const { ip, port } = await request_json('/v1/grafana/url')
+        
+        this.set({
+            monitor_url: '//' + ip + ':' + port
         })
     }
     

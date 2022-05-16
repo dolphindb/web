@@ -17,3 +17,5 @@ node_modules/
 
 /console/docs.zh.json
 /console/docs.en.json
+
+/i18n/stats.json
