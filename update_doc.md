@@ -22,4 +22,4 @@
 
 - 文件：memoryManager.html、memoryManager.js
 
-- 功能：展示整个系统各个节点的内存使用情况
+- 功能：展示整个系统各个结点的内存使用情况

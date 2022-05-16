@@ -149,10 +149,10 @@
     "集群参数": {
         "en": "Cluster Config"
     },
-    "控制节点参数": {
+    "控制结点参数": {
         "en": "Controller Config"
     },
-    "代理节点参数": {
+    "代理结点参数": {
         "en": "Agent Config"
     },
     "请输入参数值": {
@@ -245,16 +245,16 @@
     "集群类型": {
         "en": "cluster type"
     },
-    "控制节点副本数": {
-        "en": "controller replicas"
+    "控制结点数": {
+        "en": "number of controllers"
     },
-    "控制节点存储空间": {
+    "控制结点存储空间": {
         "en": "controller data size"
     },
-    "数据节点副本数": {
-        "en": "datanode replicas"
+    "数据结点数": {
+        "en": "number of datanodes"
     },
-    "数据节点存储空间": {
+    "数据结点存储空间": {
         "en": "datanode data size"
     },
     "只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾": {
@@ -263,22 +263,22 @@
     "集群名称只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾": {
         "en": "Cluster name must consist of lowercase letters, numbers or '-', start with lowercase letter and end with lowercase letter or number."
     },
-    "控制节点配置": {
+    "控制结点配置": {
         "en": "Controller Configuration"
     },
-    "控制节点数据存储空间": {
+    "控制结点数据存储空间": {
         "en": "controller data size"
     },
-    "控制节点日志存储空间": {
+    "控制结点日志存储空间": {
         "en": "controller log size"
     },
-    "数据节点配置": {
+    "数据结点配置": {
         "en": "Datanode Configuration"
     },
-    "数据节点数据存储空间": {
+    "数据结点数据存储空间": {
         "en": "datanode data size"
     },
-    "数据节点日志存储空间": {
+    "数据结点日志存储空间": {
         "en": "datanode log size"
     },
     "资源限制": {
@@ -399,12 +399,30 @@
         "en": "Controllers"
     },
     "数据结点": {
-        "en": "Data Nodes"
+        "en": "Datanodes"
     },
     "单机结点": {
         "en": " Standalone"
     },
     "集群监控": {
-        "en": "Cluster monitor"
+        "en": "Cluster Monitor"
+    },
+    "计算结点": {
+        "en": "Computenodes"
+    },
+    "计算结点配置": {
+        "en": "Computenode Configuration"
+    },
+    "计算结点数据存储空间": {
+        "en": "computenode data size"
+    },
+    "计算结点日志存储空间": {
+        "en": "computenode log size"
+    },
+    "计算结点数": {
+        "en": "number of computenodes"
+    },
+    "计算结点存储空间": {
+        "en": "computenode data size"
     }
 }
