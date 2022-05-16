@@ -140,9 +140,10 @@ function ClusterDetailMenuItem({
     value: FieldType
 }) {
     const onButtonClick = () => {
-        onClick(value)
         if (value === 'monitor')
             window.open(model.monitor_url, '_blank')
+        else
+            onClick(value)
     }
 
     let currClass = 'detail-menu-item'
@@ -334,6 +335,7 @@ function Clusters () {
                             <>
                                 <ServiceNode type='controller' {...services.Controller} />
                                 <ServiceNode type='datanode' {...services.Datanode} />
+                                <ServiceNode type='computenode' {...services.Computenode} />
                             </>
                         :
                             <ServiceNode type='standalone' {...services.Standalone} />
@@ -542,6 +544,16 @@ function CreateClusterPanel({
                             memory: 1,
                         }
                     },
+                    computenode: {
+                        replicas: 0,
+                        data_size: 0.2,
+                        log_size: 1,
+                        port: 32210,
+                        resources: {
+                            cpu: 1,
+                            memory: 1,
+                        }
+                    },
                     namespace: namespaces.length !== 0 ? namespaces[0].name : '',
                     storage_class: storageclasses.length !== 0 ? storageclasses[0].name : '',
                     log_mode: 0,
@@ -655,17 +667,17 @@ function CreateClusterPanel({
                         </Select>
                     </Form.Item>
 
-                    <Divider orientation='left'>{t('控制节点配置')}</Divider>
+                    <Divider orientation='left'>{t('控制结点配置')}</Divider>
                     
-                    { cluster_type === 'multicontroller' && <Form.Item name={['controller', 'replicas']} label={t('控制节点副本数')} rules={[{ required: true }]}>
+                    { cluster_type === 'multicontroller' && <Form.Item name={['controller', 'replicas']} label={t('控制结点数')} rules={[{ required: true }]}>
                         <InputNumber min={3} precision={0} />
                     </Form.Item>}
                     
-                    <Form.Item name={['controller', 'data_size']} label={t('控制节点数据存储空间')} rules={[{ required: true }]}>
+                    <Form.Item name={['controller', 'data_size']} label={t('控制结点数据存储空间')} rules={[{ required: true }]}>
                         <InputNumber min={0} placeholder='0.1, 1, 2, ...'  addonAfter='Gi' />
                     </Form.Item>
 
-                    <Form.Item name={['controller', 'log_size']} label={t('控制节点日志存储空间')} rules={[{ required: true }]}>
+                    <Form.Item name={['controller', 'log_size']} label={t('控制结点日志存储空间')} rules={[{ required: true }]}>
                         <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
                     </Form.Item>
                     
@@ -682,17 +694,17 @@ function CreateClusterPanel({
                     </Form.Item>
                 </> }
 
-                <Divider orientation='left'>{t('数据节点配置')}</Divider>
+                <Divider orientation='left'>{t('数据结点配置')}</Divider>
                 
-                {mode === 'cluster' && <Form.Item name={['datanode', 'replicas']} label={t('数据节点副本数')} rules={[{ required: true }]}>
+                { mode === 'cluster' && <Form.Item name={['datanode', 'replicas']} label={t('数据结点数')} rules={[{ required: true }]}>
                     <InputNumber min={0} precision={0} />
                 </Form.Item>}
                 
-                <Form.Item name={['datanode', 'data_size']} label={t('数据节点数据存储空间')} rules={[{ required: true }]}>
+                <Form.Item name={['datanode', 'data_size']} label={t('数据结点数据存储空间')} rules={[{ required: true }]}>
                     <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
                 </Form.Item>
 
-                <Form.Item name={['datanode', 'log_size']} label={t('数据节点日志存储空间')} rules={[{ required: true }]}>
+                <Form.Item name={['datanode', 'log_size']} label={t('数据结点日志存储空间')} rules={[{ required: true }]}>
                     <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
                 </Form.Item>
                 
@@ -707,6 +719,34 @@ function CreateClusterPanel({
                 <Form.Item name={['datanode', 'resources', 'memory']} label={t('内存')} rules={[{ required: true }]}>
                     <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi'/>
                 </Form.Item>
+                
+               { mode === 'cluster' && <>
+                    <Divider orientation='left'>{t('计算结点配置')}</Divider>
+                    
+                    { cluster_type === 'multicontroller' && <Form.Item name={['computenode', 'replicas']} label={t('计算结点数')} rules={[{ required: true }]}>
+                        <InputNumber min={0} precision={0} />
+                    </Form.Item>}
+                    
+                    <Form.Item name={['computenode', 'data_size']} label={t('计算结点数据存储空间')} rules={[{ required: true }]}>
+                        <InputNumber min={0} placeholder='0.1, 1, 2, ...'  addonAfter='Gi' />
+                    </Form.Item>
+
+                    <Form.Item name={['computenode', 'log_size']} label={t('计算结点日志存储空间')} rules={[{ required: true }]}>
+                        <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
+                    </Form.Item>
+                    
+                    <Form.Item name={['computenode', 'port']} label={t('端口')} rules={[{ required: true }]}>
+                        <InputNumber min={0} />
+                    </Form.Item>
+                    
+                    <Form.Item name={['computenode', 'resources', 'cpu']} label='CPU' rules={[{ required: true }]}>
+                        <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
+                    </Form.Item>
+                    
+                    <Form.Item name={['computenode', 'resources', 'memory']} label={t('内存')} rules={[{ required: true }]}>
+                        <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi'/>
+                    </Form.Item>
+               </> }
             </Form>
         </Modal>
     )
@@ -754,14 +794,17 @@ function ClusterNodes ({
         {
             controllers,
             datanodes,
+            computenodes,
         },
         set_nodes
     ] = useState<{
         controllers: ClusterNode[]
         datanodes: ClusterNode[]
+        computenodes: ClusterNode[]
     }>({
         controllers: [ ],
-        datanodes: [ ]
+        datanodes: [ ],
+        computenodes: [ ]
     })
     
     async function get_nodes () {
@@ -802,6 +845,13 @@ function ClusterNodes ({
                     <NodeList mode='datanode' nodes={datanodes} cluster={cluster} get_nodes={get_nodes} />
                 </div>
             }
+            
+            {computenodes && 
+                <div className='computenodes'>
+                    <Title level={4}>{t('计算结点')} ({computenodes.length})</Title>
+                    <NodeList mode='computenode' nodes={computenodes} cluster={cluster} get_nodes={get_nodes} />
+                </div>
+            }
         </div>
     :
         <div className='datanodes'>
@@ -818,7 +868,7 @@ function NodeList ({
     get_nodes,
 }: {
     cluster: Cluster,
-    mode: 'controller' | 'datanode'
+    mode: 'controller' | 'datanode' |'computenode'
     nodes: ClusterNode[]
     get_nodes: Function
 }) {
@@ -1091,7 +1141,7 @@ function ClusterConfigs ({
                         onConfigChange={onConfigChange} 
                     />
                 </Tabs.TabPane>
-                <Tabs.TabPane tab={t('控制节点参数')} key='controller'>
+                <Tabs.TabPane tab={t('控制结点参数')} key='controller'>
                     <ConfigEditableList 
                         type='controller' 
                         configList={config.controller_config} 
@@ -1099,7 +1149,7 @@ function ClusterConfigs ({
                         onConfigChange={onConfigChange} 
                     />
                 </Tabs.TabPane >
-                <Tabs.TabPane tab={t('代理节点参数')} key='agent' >
+                <Tabs.TabPane tab={t('代理结点参数')} key='agent' >
                     <ConfigEditableList
                         type='agent' 
                         configList={config.agent_config}  
