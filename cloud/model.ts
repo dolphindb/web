@@ -232,6 +232,10 @@ export interface Cluster {
             ip: string
             port: string
         }
+        Computenode?: {
+            ip: string
+            port: string
+        }
     }
 }
 

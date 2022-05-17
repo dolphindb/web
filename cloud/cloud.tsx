@@ -199,21 +199,24 @@ function InfoTab() {
                 title={
                     <Title level={4}>{t('集群服务')}</Title>
                 }
-                column={2}
+                column={3}
                 bordered
             >
-                { services.Controller && <Descriptions.Item label='controller'>
+                { services.Controller && <Descriptions.Item label={t('控制结点')}>
                     <ServiceNode {...services.Controller} />
                 </Descriptions.Item> }
                 { services.Datanode ? 
-                    <Descriptions.Item label='datanode'>
+                    <Descriptions.Item label={t('数据结点')}>
                         <ServiceNode {...services.Datanode} />
                     </Descriptions.Item>
                 :
-                    <Descriptions.Item label='standalone'>
+                    <Descriptions.Item label={t('单机结点')}>
                         <ServiceNode {...services.Standalone} />
                     </Descriptions.Item>
                 }
+                { services.Computenode && <Descriptions.Item label={t('计算结点')}>
+                    <ServiceNode {...services.Computenode} />
+                </Descriptions.Item> }
             </Descriptions>
             
             <ClusterNodes cluster={cluster} />
@@ -631,8 +634,8 @@ function CreateClusterPanel({
                 
                 <Form.Item name='mode' label={t('模式')} rules={[{ required: true }]}>
                     <Select>
-                        <Option value='standalone'>standalone</Option>
-                        <Option value='cluster'>cluster</Option>
+                        <Option value='standalone'>{t('单机结点')}</Option>
+                        <Option value='cluster'>{t('集群')}</Option>
                     </Select>
                 </Form.Item>
                 
@@ -662,22 +665,22 @@ function CreateClusterPanel({
                 { mode === 'cluster' && <>
                     <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
                         <Select>
-                            <Option value='singlecontroller'>singlecontroller</Option>
-                            <Option value='multicontroller'>multicontroller</Option>
+                            <Option value='singlecontroller'>{t('单控制结点')}</Option>
+                            <Option value='multicontroller'>{t('多控制结点')}</Option>
                         </Select>
                     </Form.Item>
 
-                    <Divider orientation='left'>{t('控制结点配置')}</Divider>
+                    <Divider orientation='left'>{t('控制结点')}</Divider>
                     
-                    { cluster_type === 'multicontroller' && <Form.Item name={['controller', 'replicas']} label={t('控制结点数')} rules={[{ required: true }]}>
+                    { cluster_type === 'multicontroller' && <Form.Item name={['controller', 'replicas']} label={t('结点数')} rules={[{ required: true }]}>
                         <InputNumber min={3} precision={0} />
                     </Form.Item>}
                     
-                    <Form.Item name={['controller', 'data_size']} label={t('控制结点数据存储空间')} rules={[{ required: true }]}>
+                    <Form.Item name={['controller', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]}>
                         <InputNumber min={0} placeholder='0.1, 1, 2, ...'  addonAfter='Gi' />
                     </Form.Item>
 
-                    <Form.Item name={['controller', 'log_size']} label={t('控制结点日志存储空间')} rules={[{ required: true }]}>
+                    <Form.Item name={['controller', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]}>
                         <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
                     </Form.Item>
                     
@@ -694,17 +697,17 @@ function CreateClusterPanel({
                     </Form.Item>
                 </> }
 
-                <Divider orientation='left'>{t('数据结点配置')}</Divider>
+                <Divider orientation='left'>{t('数据结点')}</Divider>
                 
-                { mode === 'cluster' && <Form.Item name={['datanode', 'replicas']} label={t('数据结点数')} rules={[{ required: true }]}>
+                { mode === 'cluster' && <Form.Item name={['datanode', 'replicas']} label={t('结点数')} rules={[{ required: true }]}>
                     <InputNumber min={0} precision={0} />
                 </Form.Item>}
                 
-                <Form.Item name={['datanode', 'data_size']} label={t('数据结点数据存储空间')} rules={[{ required: true }]}>
+                <Form.Item name={['datanode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]}>
                     <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
                 </Form.Item>
 
-                <Form.Item name={['datanode', 'log_size']} label={t('数据结点日志存储空间')} rules={[{ required: true }]}>
+                <Form.Item name={['datanode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]}>
                     <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
                 </Form.Item>
                 
@@ -721,17 +724,17 @@ function CreateClusterPanel({
                 </Form.Item>
                 
                { mode === 'cluster' && <>
-                    <Divider orientation='left'>{t('计算结点配置')}</Divider>
+                    <Divider orientation='left'>{t('计算结点')}</Divider>
                     
-                    { cluster_type === 'multicontroller' && <Form.Item name={['computenode', 'replicas']} label={t('计算结点数')} rules={[{ required: true }]}>
+                    <Form.Item name={['computenode', 'replicas']} label={t('结点数')} rules={[{ required: true }]}>
                         <InputNumber min={0} precision={0} />
-                    </Form.Item>}
+                    </Form.Item>
                     
-                    <Form.Item name={['computenode', 'data_size']} label={t('计算结点数据存储空间')} rules={[{ required: true }]}>
+                    <Form.Item name={['computenode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]}>
                         <InputNumber min={0} placeholder='0.1, 1, 2, ...'  addonAfter='Gi' />
                     </Form.Item>
 
-                    <Form.Item name={['computenode', 'log_size']} label={t('计算结点日志存储空间')} rules={[{ required: true }]}>
+                    <Form.Item name={['computenode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]}>
                         <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
                     </Form.Item>
                     
@@ -752,29 +755,50 @@ function CreateClusterPanel({
     )
 }
 
+const node_types = {
+    controller: '控制结点',
+    datanode: '数据结点',
+    standalone: '单机结点',
+    computenode: '计算结点',
+} as const
+
 function ServiceNode ({
     type,
     ip,
     port
 }: {
-    type?: 'controller' | 'datanode' | 'standalone'
+    type?: 'controller' | 'datanode' | 'standalone' | 'computenode'
     ip: string
     port: string
 }) {
     const link = `${ip}:${port}`
     return <div className='service-node'>
-        {type && <span className='type'>{type}: </span> }
+        {type && <span className='type'>{
+            language === 'zh' ?
+                node_types[type]
+            :
+                type
+            }: </span>}
         <a className='link' target='_blank' href={`//${link}`}>{link}</a>
     </div>
 }
 
+const modes = {
+    standalone: t('单机结点'),
+    cluster: t('集群')
+} as const
+
+const cluster_types = {
+    multicontroller: t('多控制结点'),
+    singlecontroller: t('单控制结点')
+}as const
 
 function Mode ({
     cluster: { mode, cluster_type }
 }: {
     cluster?: Cluster
 }) {
-    return <>{`${mode}${ mode === 'standalone' ? '' : `/${cluster_type}` }`}</>
+    return <>{`${modes[mode]}${ mode === 'standalone' ? '' : `/${cluster_types[cluster_type]}` }`}</>
 }
 
 
@@ -974,6 +998,15 @@ function NodeList ({
     />
 }
 
+const phases = {
+    Available: '运行正常',
+    Ready: '准备中',
+    Progressing: '准备中',
+    Unschedulable: '等待调度',
+    Unavailable: '故障',
+    Unknown: '未知',
+    Running: '运行中'
+} as const
 
 function ClusterStatus ({
     phase,
@@ -989,10 +1022,19 @@ function ClusterStatus ({
         text={
             message ? 
                 <Tooltip title={message}>
-                    <Text underline>{phase}</Text>
+                    <Text underline>{
+                        language === 'zh' ?
+                            phases[phase] || phase
+                        :
+                            phase
+                    }</Text>
                 </Tooltip>
             :
-                phase
+            
+                language === 'zh' ?
+                    phases[phase] || phase
+                :
+                    phase
         }
         status={statuses[phase] || 'default'}
     />

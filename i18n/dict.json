@@ -245,14 +245,11 @@
     "集群类型": {
         "en": "cluster type"
     },
-    "控制结点数": {
-        "en": "number of controllers"
+    "结点数": {
+        "en": "number of nodes"
     },
     "控制结点存储空间": {
         "en": "controller data size"
-    },
-    "数据结点数": {
-        "en": "number of datanodes"
     },
     "数据结点存储空间": {
         "en": "datanode data size"
@@ -266,20 +263,14 @@
     "控制结点配置": {
         "en": "Controller Configuration"
     },
-    "控制结点数据存储空间": {
-        "en": "controller data size"
+    "数据存储空间": {
+        "en": "data size"
     },
-    "控制结点日志存储空间": {
-        "en": "controller log size"
+    "日志存储空间": {
+        "en": "log size"
     },
     "数据结点配置": {
         "en": "Datanode Configuration"
-    },
-    "数据结点数据存储空间": {
-        "en": "datanode data size"
-    },
-    "数据结点日志存储空间": {
-        "en": "datanode log size"
     },
     "资源限制": {
         "en": "Resources Limit"
@@ -413,16 +404,16 @@
     "计算结点配置": {
         "en": "Computenode Configuration"
     },
-    "计算结点数据存储空间": {
-        "en": "computenode data size"
-    },
-    "计算结点日志存储空间": {
-        "en": "computenode log size"
-    },
-    "计算结点数": {
-        "en": "number of computenodes"
-    },
     "计算结点存储空间": {
         "en": "computenode data size"
+    },
+    "集群": {
+        "en": "cluster"
+    },
+    "单控制结点": {
+        "en": "singlecontroller"
+    },
+    "多控制结点": {
+        "en": "multicontroller"
     }
 }
