@@ -149,10 +149,10 @@
     "集群参数": {
         "en": "Cluster Config"
     },
-    "控制结点参数": {
+    "控制节点参数": {
         "en": "Controller Config"
     },
-    "代理结点参数": {
+    "代理节点参数": {
         "en": "Agent Config"
     },
     "请输入参数值": {
@@ -245,13 +245,13 @@
     "集群类型": {
         "en": "cluster type"
     },
-    "结点数": {
+    "节点数": {
         "en": "number of nodes"
     },
-    "控制结点存储空间": {
+    "控制节点存储空间": {
         "en": "controller data size"
     },
-    "数据结点存储空间": {
+    "数据节点存储空间": {
         "en": "datanode data size"
     },
     "只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾": {
@@ -260,7 +260,7 @@
     "集群名称只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾": {
         "en": "Cluster name must consist of lowercase letters, numbers or '-', start with lowercase letter and end with lowercase letter or number."
     },
-    "控制结点配置": {
+    "控制节点配置": {
         "en": "Controller Configuration"
     },
     "数据存储空间": {
@@ -269,7 +269,7 @@
     "日志存储空间": {
         "en": "log size"
     },
-    "数据结点配置": {
+    "数据节点配置": {
         "en": "Datanode Configuration"
     },
     "资源限制": {
@@ -284,10 +284,10 @@
     "确认重启？": {
         "en": "Restart node?"
     },
-    "正在重启结点": {
+    "正在重启节点": {
         "en": "Restarting node"
     },
-    "重启结点失败": {
+    "重启节点失败": {
         "en": "Restarting node failed"
     },
     "重启": {
@@ -386,34 +386,34 @@
     "集群服务": {
         "en": "Service"
     },
-    "控制结点": {
+    "控制节点": {
         "en": "Controllers"
     },
-    "数据结点": {
+    "数据节点": {
         "en": "Datanodes"
     },
-    "单机结点": {
+    "单机节点": {
         "en": " Standalone"
     },
     "集群监控": {
         "en": "Cluster Monitor"
     },
-    "计算结点": {
+    "计算节点": {
         "en": "Computenodes"
     },
-    "计算结点配置": {
+    "计算节点配置": {
         "en": "Computenode Configuration"
     },
-    "计算结点存储空间": {
+    "计算节点存储空间": {
         "en": "computenode data size"
     },
     "集群": {
         "en": "cluster"
     },
-    "单控制结点": {
+    "单控制节点": {
         "en": "singlecontroller"
     },
-    "多控制结点": {
+    "多控制节点": {
         "en": "multicontroller"
     }
 }
