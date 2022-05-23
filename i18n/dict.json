@@ -198,7 +198,7 @@
         "en": "version"
     },
     "服务": {
-        "en": "service"
+        "en": "Service"
     },
     "状态": {
         "en": "status"
@@ -382,9 +382,6 @@
     },
     "创建": {
         "en": "Create"
-    },
-    "集群服务": {
-        "en": "Service"
     },
     "控制结点": {
         "en": "Controllers"

@@ -197,7 +197,7 @@ function InfoTab() {
             
             <Descriptions
                 title={
-                    <Title level={4}>{t('集群服务')}</Title>
+                    <Title level={4}>{t('服务')}</Title>
                 }
                 column={3}
                 bordered
@@ -1191,14 +1191,6 @@ function ClusterConfigs ({
                         onConfigChange={onConfigChange} 
                     />
                 </Tabs.TabPane >
-                <Tabs.TabPane tab={t('代理结点参数')} key='agent' >
-                    <ConfigEditableList
-                        type='agent' 
-                        configList={config.agent_config}  
-                        editedList={editedConfig.agent_config}
-                        onConfigChange={onConfigChange} 
-                    />
-                </Tabs.TabPane>
             </Tabs>
             :
             <ConfigEditableList 
