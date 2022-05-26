@@ -46,7 +46,7 @@ export async function get_monaco (update = false) {
                     {
                         encoding: 'binary',
                         retries: true,
-                        // proxy: MyProxy.socks5
+                        proxy: MyProxy.socks5
                     }
                 ),
                 { mkdir: true }
