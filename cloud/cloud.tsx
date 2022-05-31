@@ -202,19 +202,19 @@ function InfoTab() {
                 column={3}
                 bordered
             >
-                { services.Controller && <Descriptions.Item label={t('控制结点')}>
+                { services.Controller && <Descriptions.Item label={t('控制节点')}>
                     <ServiceNode {...services.Controller} />
                 </Descriptions.Item> }
                 { services.Datanode ? 
-                    <Descriptions.Item label={t('数据结点')}>
+                    <Descriptions.Item label={t('数据节点')}>
                         <ServiceNode {...services.Datanode} />
                     </Descriptions.Item>
                 :
-                    <Descriptions.Item label={t('单机结点')}>
+                    <Descriptions.Item label={t('单机节点')}>
                         <ServiceNode {...services.Standalone} />
                     </Descriptions.Item>
                 }
-                { services.Computenode && <Descriptions.Item label={t('计算结点')}>
+                { services.Computenode && <Descriptions.Item label={t('计算节点')}>
                     <ServiceNode {...services.Computenode} />
                 </Descriptions.Item> }
             </Descriptions>
@@ -634,7 +634,7 @@ function CreateClusterPanel({
                 
                 <Form.Item name='mode' label={t('模式')} rules={[{ required: true }]}>
                     <Select>
-                        <Option value='standalone'>{t('单机结点')}</Option>
+                        <Option value='standalone'>{t('单机节点')}</Option>
                         <Option value='cluster'>{t('集群')}</Option>
                     </Select>
                 </Form.Item>
@@ -665,14 +665,14 @@ function CreateClusterPanel({
                 { mode === 'cluster' && <>
                     <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
                         <Select>
-                            <Option value='singlecontroller'>{t('单控制结点')}</Option>
-                            <Option value='multicontroller'>{t('多控制结点')}</Option>
+                            <Option value='singlecontroller'>{t('单控制节点')}</Option>
+                            <Option value='multicontroller'>{t('多控制节点')}</Option>
                         </Select>
                     </Form.Item>
 
-                    <Divider orientation='left'>{t('控制结点')}</Divider>
+                    <Divider orientation='left'>{t('控制节点')}</Divider>
                     
-                    { cluster_type === 'multicontroller' && <Form.Item name={['controller', 'replicas']} label={t('结点数')} rules={[{ required: true }]}>
+                    { cluster_type === 'multicontroller' && <Form.Item name={['controller', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
                         <InputNumber min={3} precision={0} />
                     </Form.Item>}
                     
@@ -697,9 +697,9 @@ function CreateClusterPanel({
                     </Form.Item>
                 </> }
 
-                <Divider orientation='left'>{t('数据结点')}</Divider>
+                <Divider orientation='left'>{t('数据节点')}</Divider>
                 
-                { mode === 'cluster' && <Form.Item name={['datanode', 'replicas']} label={t('结点数')} rules={[{ required: true }]}>
+                { mode === 'cluster' && <Form.Item name={['datanode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
                     <InputNumber min={0} precision={0} />
                 </Form.Item>}
                 
@@ -724,9 +724,9 @@ function CreateClusterPanel({
                 </Form.Item>
                 
                { mode === 'cluster' && <>
-                    <Divider orientation='left'>{t('计算结点')}</Divider>
+                    <Divider orientation='left'>{t('计算节点')}</Divider>
                     
-                    <Form.Item name={['computenode', 'replicas']} label={t('结点数')} rules={[{ required: true }]}>
+                    <Form.Item name={['computenode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
                         <InputNumber min={0} precision={0} />
                     </Form.Item>
                     
@@ -756,10 +756,10 @@ function CreateClusterPanel({
 }
 
 const node_types = {
-    controller: '控制结点',
-    datanode: '数据结点',
-    standalone: '单机结点',
-    computenode: '计算结点',
+    controller: '控制节点',
+    datanode: '数据节点',
+    standalone: '单机节点',
+    computenode: '计算节点',
 } as const
 
 function ServiceNode ({
@@ -784,13 +784,13 @@ function ServiceNode ({
 }
 
 const modes = {
-    standalone: t('单机结点'),
+    standalone: t('单机节点'),
     cluster: t('集群')
 } as const
 
 const cluster_types = {
-    multicontroller: t('多控制结点'),
-    singlecontroller: t('单控制结点')
+    multicontroller: t('多控制节点'),
+    singlecontroller: t('单控制节点')
 }as const
 
 function Mode ({
@@ -858,28 +858,28 @@ function ClusterNodes ({
         <div className='cluster-nodes'>
             {controllers && 
                 <div className='controllers'>
-                    <Title level={4}>{t('控制结点')} ({controllers.length})</Title>
+                    <Title level={4}>{t('控制节点')} ({controllers.length})</Title>
                     <NodeList mode='controller' nodes={controllers} cluster={cluster} get_nodes={get_nodes} />
                 </div>
             }
             
             {datanodes && 
                 <div className='datanodes'>
-                    <Title level={4}>{t('数据结点')} ({datanodes.length})</Title>
+                    <Title level={4}>{t('数据节点')} ({datanodes.length})</Title>
                     <NodeList mode='datanode' nodes={datanodes} cluster={cluster} get_nodes={get_nodes} />
                 </div>
             }
             
             {computenodes && 
                 <div className='computenodes'>
-                    <Title level={4}>{t('计算结点')} ({computenodes.length})</Title>
+                    <Title level={4}>{t('计算节点')} ({computenodes.length})</Title>
                     <NodeList mode='computenode' nodes={computenodes} cluster={cluster} get_nodes={get_nodes} />
                 </div>
             }
         </div>
     :
         <div className='datanodes'>
-            <Title level={4}>{t('单机结点')}</Title>
+            <Title level={4}>{t('单机节点')}</Title>
             <NodeList mode='datanode' nodes={datanodes} cluster={cluster} get_nodes={get_nodes} />
         </div>
 }
@@ -982,9 +982,9 @@ function NodeList ({
                         onConfirm={async () => {
                             try {
                                 await model.restart_node(node)
-                                message.success(t('正在重启结点'))
+                                message.success(t('正在重启节点'))
                             } catch (error) {
-                                message.error(`${t('重启结点失败')} ${JSON.stringify(error)}`)
+                                message.error(`${t('重启节点失败')} ${JSON.stringify(error)}`)
                             }
                             await delay(2000)
                             get_nodes()
@@ -1183,7 +1183,7 @@ function ClusterConfigs ({
                         onConfigChange={onConfigChange} 
                     />
                 </Tabs.TabPane>
-                <Tabs.TabPane tab={t('控制结点参数')} key='controller'>
+                <Tabs.TabPane tab={t('控制节点参数')} key='controller'>
                     <ConfigEditableList 
                         type='controller' 
                         configList={config.controller_config} 

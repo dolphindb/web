@@ -1,6 +1,6 @@
 # executeCode
 
-在结点上运行DolphinDB脚本,返回标准格式的Json
+在节点上运行DolphinDB脚本,返回标准格式的Json
 
 
 * Request Json

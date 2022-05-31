@@ -11,7 +11,8 @@ import {
     type MFS,
     request,
     fwrite,
-    fexists
+    fexists,
+    MyProxy
 } from 'xshell'
 
 import { fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console } from './config.js'
@@ -44,6 +45,8 @@ export async function get_monaco (update = false) {
                     `https://cdn.jsdelivr.net/npm/monaco-editor/${ fname.endsWith('.map') ? 'min-maps' : 'min' }/vs/${fname}`,
                     {
                         encoding: 'binary',
+                        retries: true,
+                        proxy: MyProxy.socks5
                     }
                 ),
                 { mkdir: true }

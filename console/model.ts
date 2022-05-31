@@ -185,7 +185,7 @@ export class DdbModel extends Model <DdbModel> {
     async get_license () {
         const license = (
             await ddb.call<DdbObj<DdbObj[]>>('license')
-        ).to_dict<DdbLicense>()
+        ).to_dict<DdbLicense>({ strip: true })
         
         console.log('license:', license)
         this.set({
