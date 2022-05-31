@@ -955,12 +955,12 @@ function NodeList ({
             {
                 title: t('数据储存空间'),
                 dataIndex: 'datasize',
-                render: () => mode === 'controller' ? cluster.controller?.dataSize : ( mode === 'datanode' ? cluster.datanode?.dataSize : cluster.computenode?.dataSize )
+                render: () => cluster[mode].dataSize
             },
             {
                 title: t('日志储存空间'),
                 dataIndex: 'logsize',
-                render: () => mode === 'controller' ? cluster.controller?.logSize : ( mode === 'datanode' ? cluster.datanode?.logSize : cluster.computenode?.logSize )
+                render: () => cluster[mode].logSize
             },
             {
                 title: t('创建时间'),
