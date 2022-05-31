@@ -215,6 +215,12 @@ export interface Cluster {
         dataSize: string
         logSize: string
     }
+    computenode: {
+        replicas: number
+        resources: any
+        dataSize: string
+        logSize: string
+    }
     status: {
         phase: 'Available' | string
         message: string
