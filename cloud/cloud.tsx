@@ -549,7 +549,7 @@ function CreateClusterPanel({
                     },
                     computenode: {
                         replicas: 0,
-                        data_size: 0.2,
+                        data_size: 1,
                         log_size: 1,
                         port: 32210,
                         resources: {
