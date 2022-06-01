@@ -12,11 +12,11 @@ import dayjs from 'dayjs'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 
-import debounce from 'lodash/debounce'
+import debounce from 'lodash/debounce.js'
 
 import { default as MonacoEditor, loader } from '@monaco-editor/react'
 
-import type * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import type * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 type Monaco = typeof monaco
 
 import {
@@ -25,26 +25,30 @@ import {
     type DdbMessage,
     DdbObj,
     DdbType
-} from 'dolphindb/browser'
-import { delta2str, delay } from 'xshell/utils.browser'
+} from 'dolphindb/browser.js'
 
-import { red } from 'xshell/chalk.browser'
+import { keywords, constants } from 'dolphindb/language.js'
+
+// LOCAL
+// import docs from 'dolphindb/docs.zh.json'
+import docs_zh from 'dolphindb/docs.zh.json'
+import docs_en from 'dolphindb/docs.en.json'
+
+
+import { delta2str, delay } from 'xshell/utils.browser.js'
+import { red } from 'xshell/chalk.browser.js'
+
 import { Model } from 'react-object-model'
 
 
-import { Obj } from './obj'
+import { t, language } from '../i18n/index.js'
 
-import { t, language } from '../i18n/index'
+import { Obj } from './obj.js'
+
+import { model } from './model.js'
 
 
-import { keywords, constants } from './dolphindb.language'
-
-import docs_zh from './docs.zh.json'
-import docs_en from './docs.en.json'
 const docs = language === 'zh' ? docs_zh : docs_en
-
-import { model } from './model'
-
 
 loader.config({
     paths: {

@@ -4,8 +4,8 @@ import { default as React, useEffect, useRef, useState } from 'react'
 import { Pagination, Button, message } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 
-import { t } from '../i18n'
-import { model } from './model'
+import { t } from '../i18n/index.js'
+import { model } from './model.js'
 
 const default_length = 50000n
 

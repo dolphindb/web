@@ -5,7 +5,7 @@ import {
 
 import { Model } from 'react-object-model'
 
-import { request_json } from 'xshell/net.browser'
+import { request_json } from 'xshell/net.browser.js'
 
 
 export const default_queries = {

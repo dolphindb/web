@@ -9,8 +9,7 @@ import type { Context } from 'koa'
 import { request_json, log_section, inspect, create_mfs, UFS } from 'xshell'
 import { Server } from 'xshell/server.js'
 
-import { fpd_root, fpd_out_console } from './config.js'
-import { get_docs, get_monaco, webpack } from './webpack.js'
+import { get_monaco, webpack, fpd_root, fpd_out_console } from './webpack.js'
 
 
 class DevServer extends Server {
@@ -54,7 +53,7 @@ class DevServer extends Server {
         }
         
         if (path.startsWith('/v1')) {
-            response.body = await request_json(`http://192.168.1.99:30120${path}`, {
+            response.body = await request_json(`http://192.168.1.99:30483${path}`, {
                 method: method as any,
                 queries: query,
                 body,
@@ -63,8 +62,17 @@ class DevServer extends Server {
             return true
         }
         
-        path = path.replace('/cloud/fonts/', '/fonts/')
-        path = path.replace('/console/fonts/', '/fonts/')
+        let font_matches = /^\/(?:console|cloud)\/fonts\/(myfontb?.woff2)/.exec(path)
+        if (font_matches)
+            return this.try_send(
+                ctx,
+                font_matches[1],
+                {
+                    root: `${fpd_root}node_modules/xshell/`,
+                    fs,
+                    log_404: true
+                }
+            )
         
         for (const prefix of ['/console/monaco/', '/min-maps/vs/'] as const)
             if (path.startsWith(prefix))
@@ -113,10 +121,7 @@ let server = new DevServer()
 await Promise.all([
     get_monaco(),
     server.start(),
-    (async () => {
-        await get_docs()
-        return webpack.start(mfs)
-    })()
+    webpack.start(mfs)
 ])
 
 console.log(

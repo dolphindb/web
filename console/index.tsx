@@ -1,7 +1,7 @@
 import 'antd/dist/antd.css'
 
 import 'xshell/scroll-bar.sass'
-import '../fonts/myfont.sass'
+import '../myfont.sass'
 
 import './index.sass'
 
@@ -33,24 +33,24 @@ import {
     DoubleLeftOutlined,
     DoubleRightOutlined,
 } from '@ant-design/icons'
-import zh from 'antd/lib/locale/zh_CN'
-import en from 'antd/lib/locale/en_US'
-import ja from 'antd/lib/locale/ja_JP'
-import ko from 'antd/lib/locale/ko_KR'
+import zh from 'antd/lib/locale/zh_CN.js'
+import en from 'antd/lib/locale/en_US.js'
+import ja from 'antd/lib/locale/ja_JP.js'
+import ko from 'antd/lib/locale/ko_KR.js'
 
-import { date2str } from 'dolphindb/browser'
+import { date2str } from 'dolphindb/browser.js'
 
-import { language, t } from '../i18n'
+import { language, t } from '../i18n/index.js'
 
-import { model, DdbModel, NodeType } from './model'
+import { model, DdbModel, NodeType } from './model.js'
 
-import { Login } from './login'
-import { Cluster } from './cluster'
-import { Shell } from './shell'
-import { ShellOld } from './shell.old'
-import { Job } from './job'
-import { DFS } from './dfs'
-import { Log } from './log'
+import { Login } from './login.js'
+import { Cluster } from './cluster.js'
+import { Shell } from './shell.js'
+import { ShellOld } from './shell.old.js'
+import { Job } from './job.js'
+import { DFS } from './dfs.js'
+import { Log } from './log.js'
 
 import SvgCluster from './cluster.icon.svg'
 import SvgDFS from './dfs.icon.svg'

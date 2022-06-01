@@ -1,0 +1,19 @@
+{
+    "extends": "./tsconfig.json",
+    
+    "include": [
+        "./dev.ts",
+        "./build.ts",
+        "./server/index.ts",
+    ],
+    
+    "exclude": [
+        "**/node_modules",
+    ],
+    
+    "compilerOptions": {
+        "incremental": true,
+        "module": "NodeNext",
+        "tsBuildInfoFile": "./node_modules/.tsbuildinfo"
+    },
+}

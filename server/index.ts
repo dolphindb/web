@@ -31,7 +31,7 @@ declare module 'koa' {
 
 import { stream_to_buffer, inspect, output_width, fread } from 'xshell'
 
-import { fpd_root } from '../config.js'
+import { fpd_root } from '../webpack.js'
 
 
 declare module 'http' {

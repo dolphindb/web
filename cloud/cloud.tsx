@@ -26,12 +26,12 @@ import {
     Checkbox,
 } from 'antd'
 import { ConsoleSqlOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
-import type { PresetStatusColorType } from 'antd/lib/_util/colors'
-import type { AlignType } from 'rc-table/lib/interface'
+import type { PresetStatusColorType } from 'antd/lib/_util/colors.js'
+import type { AlignType } from 'rc-table/lib/interface.js'
 
-import { delay } from 'xshell/utils.browser'
+import { delay } from 'xshell/utils.browser.js'
 
-import { language, t } from '../i18n'
+import { language, t } from '../i18n/index.js'
 import {
     model,
     default_queries,
@@ -42,7 +42,7 @@ import {
     type ClusterConfig,
     type ClusterConfigItem,
     type QueryOptions,
-} from './model'
+} from './model.js'
 
 import icon_add from './add.svg'
 
@@ -784,21 +784,21 @@ function ServiceNode ({
 }
 
 const modes = {
-    standalone: t('单机节点'),
+    standalone: t('单机'),
     cluster: t('集群')
 } as const
 
 const cluster_types = {
     multicontroller: t('多控制节点'),
     singlecontroller: t('单控制节点')
-}as const
+} as const
 
 function Mode ({
     cluster: { mode, cluster_type }
 }: {
     cluster?: Cluster
 }) {
-    return <>{`${modes[mode]}${ mode === 'standalone' ? '' : `/${cluster_types[cluster_type]}` }`}</>
+    return <>{`${modes[mode]}${ mode === 'standalone' ? '' : ` (${cluster_types[cluster_type]})` }`}</>
 }
 
 

@@ -1,7 +1,7 @@
 import 'antd/dist/antd.css'
 
 import 'xshell/scroll-bar.sass'
-import '../fonts/myfont.sass'
+import '../myfont.sass'
 
 import './index.sass'
 
@@ -11,16 +11,16 @@ import {
     Layout, 
     ConfigProvider,
 } from 'antd'
-import zh from 'antd/lib/locale/zh_CN'
-import en from 'antd/lib/locale/en_US'
-import ja from 'antd/lib/locale/ja_JP'
-import ko from 'antd/lib/locale/ko_KR'
+import zh from 'antd/lib/locale/zh_CN.js'
+import en from 'antd/lib/locale/en_US.js'
+import ja from 'antd/lib/locale/ja_JP.js'
+import ko from 'antd/lib/locale/ko_KR.js'
 
-import { model } from './model'
+import { model } from './model.js'
 
-import { language } from '../i18n'
+import { language } from '../i18n/index.js'
 
-import { Cloud } from './cloud'
+import { Cloud } from './cloud.js'
 
 
 const locales = { zh, en, ja, ko }
