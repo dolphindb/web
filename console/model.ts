@@ -1,8 +1,8 @@
-import type { BaseType } from 'antd/lib/typography/Base'
+import type { BaseType } from 'antd/lib/typography/Base/index.js'
 
 import { Model } from 'react-object-model'
 
-import { ddb, DdbFunctionType, DdbObj, DdbInt, DdbLong } from 'dolphindb/browser'
+import { ddb, DdbFunctionType, DdbObj, DdbInt, DdbLong } from 'dolphindb/browser.js'
 
 const storage_keys = {
     ticket: 'ddb.ticket',

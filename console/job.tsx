@@ -11,19 +11,19 @@ import {
     message,
     type TablePaginationConfig,
 } from 'antd'
-import type { ColumnType } from 'antd/lib/table'
+import type { ColumnType } from 'antd/lib/table/index.js'
 import { ReloadOutlined } from '@ant-design/icons'
 
 import {
     DdbObj,
     nulls,
-} from 'dolphindb/browser' 
+} from 'dolphindb/browser.js'
 
-import { t } from '../i18n'
+import { t } from '../i18n/index.js'
 import {
     model,
     type DdbJob,
-} from './model'
+} from './model.js'
 
 
 const { Title, Text, Link } = Typography

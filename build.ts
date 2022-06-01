@@ -2,8 +2,7 @@
 
 import { fcopy, fdelete } from 'xshell'
 
-import { fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd_src_cloud } from './config.js'
-import { get_docs, get_monaco, webpack } from './webpack.js'
+import { get_monaco, webpack, copy_fonts, fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd_src_cloud } from './webpack.js'
 
 
 if (process.argv.includes('cloud')) {
@@ -12,7 +11,7 @@ if (process.argv.includes('cloud')) {
     await Promise.all([
         ... ['index.html', 'cloud.svg', 'ddb.png'].map(async fname => 
             fcopy(fpd_src_cloud + fname, fpd_out_cloud + fname)),
-        fcopy(`${fpd_root}fonts/`, `${fpd_out_cloud}fonts/`),
+        copy_fonts(true),
         webpack.build(true)
     ])
 } else {
@@ -22,11 +21,8 @@ if (process.argv.includes('cloud')) {
         fcopy(`${fpd_root}src/`, fpd_out_console),
         ... ['index.html', 'window.html', 'ddb.svg'].map(async fname => 
             fcopy(fpd_src_console + fname, fpd_out_console + fname)),
-        fcopy(`${fpd_root}fonts/`, `${fpd_out_console}fonts/`),
+        copy_fonts(false),
         get_monaco(),
-        (async () => {
-            await get_docs()
-            return webpack.build(false)
-        })()
+        webpack.build(false)
     ])
 }

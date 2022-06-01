@@ -392,6 +392,9 @@
     "单机节点": {
         "en": " Standalone"
     },
+    "单机": {
+        "en": "Standalone"
+    },
     "集群监控": {
         "en": "Cluster Monitor"
     },

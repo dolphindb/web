@@ -1,9 +1,14 @@
+import { fileURLToPath } from 'url'
+
+import path from 'upath'
+
 import Webpack from 'webpack'
 
 // 需要分析 bundle 大小时开启
 // import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 
 import type { Options as TSLoaderOptions } from 'ts-loader'
+
 import sass from 'sass'
 import type { Options as SassOptions } from 'sass-loader'
 
@@ -12,10 +17,18 @@ import {
     request,
     fwrite,
     fexists,
+    fcopy,
     MyProxy
 } from 'xshell'
 
-import { fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console } from './config.js'
+
+export const fpd_root = `${path.dirname(fileURLToPath(import.meta.url))}/`
+
+export const fpd_src_console = `${fpd_root}console/`
+export const fpd_src_cloud = `${fpd_root}cloud/`
+
+export const fpd_out_console = `${fpd_root}web/`
+export const fpd_out_cloud = `${fpd_root}web.cloud/`
 
 
 export async function get_monaco (update = false) {
@@ -55,21 +68,17 @@ export async function get_monaco (update = false) {
     )
 }
 
-export async function get_docs (update = false) {
-    return Promise.all(
-        (['zh', 'en'] as const).map(async language => {
-            const fname = `docs.${language}.json`
-            const fp = fpd_src_console + fname
-            if (!update && fexists(fp))
+export async function copy_fonts (is_cloud: boolean) {
+    await Promise.all(
+        (['myfont.woff2', 'myfontb.woff2'] as const).map(async fname => {
+            const fp_out = `${(is_cloud ? fpd_out_cloud : fpd_out_console)}fonts/${fname}`
+            
+            if (fexists(fp_out))
                 return
             
-            return fwrite(
-                fp,
-                await request(`https://cos.shenhongfei.com/assets/${fname}`)
-            )
+            return fcopy(`${fpd_root}node_modules/xshell/${fname}`, fp_out)
         })
     )
-    
 }
 
 
@@ -94,33 +103,53 @@ const config: Webpack.Configuration = {
     output: {
         path: fpd_root,
         filename: '[name]',
+        
         publicPath: '/',
         pathinfo: true,
         globalObject: 'globalThis',
-        
-        // 在 bundle 中导出 entry 文件的 export
-        // library: {
-        //     type: 'commonjs2',
-        // }
-        
-        // HookWebpackError: HMR is not implemented for module chunk format yet
-        // module: true,
     },
     
     target: ['web', 'es2022'],
     
     
     resolve: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+        extensions: ['.js'],
+        
         symlinks: false,
         
-        // modules: [
-        //     'd:/1/i18n/node_modules/',
-        // ],
-        
-        // fallback: {
-        //     os: false,
-        // }
+        plugins: [{
+            apply (resolver) {
+                const target = resolver.ensureHook('file')
+                
+                for (const extension of ['.ts', '.tsx'] as const)
+                    resolver.getHook('raw-file').tapAsync('ResolveTypescriptPlugin', (request, ctx, callback) => {
+                        if (
+                            typeof request.path !== 'string' ||
+                            /(^|[\\/])node_modules($|[\\/])/.test(request.path)
+                        ) {
+                            callback()
+                            return
+                        }
+                        
+                        if (request.path.endsWith('.js')) {
+                            const path = request.path.slice(0, -3) + extension
+                            
+                            resolver.doResolve(
+                                target,
+                                {
+                                    ...request,
+                                    path,
+                                    relativePath: request.relativePath?.replace(/\.js$/, extension)
+                                },
+                                `using path: ${path}`,
+                                ctx,
+                                callback
+                            )
+                        } else
+                            callback()
+                    })
+            }
+        }]
     },
     
     
@@ -259,13 +288,11 @@ const config: Webpack.Configuration = {
 export let webpack = {
     compiler: null as Webpack.Compiler,
     
-    node_fs_bak: null as Webpack.Compiler['outputFileSystem'],
-    
     watcher: null as Webpack.Watching,
     
     async start (mfs: MFS.IFs) {
         this.compiler = Webpack(config)
-        // this.node_fs_bak = this.compiler.outputFileSystem
+        
         this.compiler.outputFileSystem = mfs
         
         let first = true
@@ -279,8 +306,11 @@ export let webpack = {
             }, (error, stats) => {
                 if (error)
                     console.log(error)
-                console.log(stats.toString(config.stats))
-                if (!first) return
+                console.log(
+                    stats.toString(config.stats)
+                )
+                if (!first)
+                    return
                 first = false
                 resolve(stats)
             })
@@ -289,7 +319,8 @@ export let webpack = {
     
     
     async stop () {
-        if (!this.watcher) return
+        if (!this.watcher)
+            return
         return new Promise<Error>(resolve => {
             this.watcher.close(resolve)
         })
@@ -324,7 +355,9 @@ export let webpack = {
         await new Promise<void>((resolve, reject) => {
             this.compiler.run((error, stats) => {
                 if (error || stats.hasErrors()) {
-                    console.log(stats.toString(config.stats))
+                    console.log(
+                        stats.toString(config.stats)
+                    )
                     reject(error || stats)
                     return
                 }

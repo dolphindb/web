@@ -5,8 +5,8 @@ import React from 'react'
 import { Form, Input, Button, Typography, message } from 'antd'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
 
-import { t } from '../i18n'
-import { model } from './model'
+import { t } from '../i18n/index.js'
+import { model } from './model.js'
 
 
 export function Login () {
