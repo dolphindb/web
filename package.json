@@ -42,6 +42,7 @@
     },
     "dependencies": {
         "@ant-design/icons": "^4.7.0",
+        "@ant-design/plots": "^1.0.9",
         "@monaco-editor/react": "^4.4.5",
         "antd": "^4.20.7",
         "cross-env": "^7.0.3",
