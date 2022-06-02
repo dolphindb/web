@@ -10,6 +10,7 @@ import {
 import {
     default as Icon,
 } from '@ant-design/icons'
+import { Line } from '@ant-design/plots'
 
 
 import {
@@ -22,6 +23,7 @@ import {
     type DdbMatrixValue,
     type DdbSymbolExtendedValue,
     type DdbArrayVectorBlock,
+    type DdbChartValue,
 } from 'dolphindb/browser'
 import type { Message } from 'xshell/net.browser'
 
@@ -35,6 +37,7 @@ const views = {
     [DdbForm.set]: Vector,
     [DdbForm.table]: Table,
     [DdbForm.matrix]: Matrix,
+    [DdbForm.chart]: Chart,
 }
 
 export type Context = 'page' | 'webview' | 'window' | 'embed'
@@ -767,4 +770,84 @@ class MatrixColumn implements TableColumnType <number> {
             }
         />
     }
+}
+
+
+function Chart ({
+    obj,
+    objref,
+    ctx,
+    remote,
+}: {
+    obj?: DdbObj<DdbChartValue>
+    objref?: DdbObjRef<DdbChartValue>
+    ctx?: Context
+    remote: Remote
+}) {
+    const [data, set_data] = useState([ ])
+    
+    
+    useEffect(() => {
+        (async () => {
+            const {
+                value: {
+                    titles,
+                    data: {
+                        rows,
+                        cols,
+                        value: {
+                            rows: {
+                                value: row_labels
+                            },
+                            cols: {
+                                value: col_labels
+                            },
+                            data
+                        }
+                    }
+                }
+            } = obj || DdbObj.parse(
+                ... await remote.call<[Uint8Array, boolean]>({
+                    func: 'eval',
+                    args: [objref.node, objref.name]
+                })
+            ) as DdbObj<DdbChartValue>
+            
+            const n = rows * cols
+            let data_ = new Array(n)
+            for (let i = 0;  i < cols;  i++)
+                for (let j = 0;  j < rows;  j++) {
+                    const idata = i * rows + j
+                    data_[idata] = {
+                        row: row_labels[j],
+                        col: col_labels[i],
+                        value: data[idata],
+                    }
+                }
+            
+            console.log('data:', data_)
+            
+            set_data(data_)
+        })()
+    }, [obj, objref])
+    
+    return <div className='chart'>
+        <Line
+            data={data}
+            xField='row'
+            yField='value'
+            seriesField='col'
+        />
+        <div className='bottom-bar'>
+            <div className='actions'>
+                {(ctx === 'page' || ctx === 'embed') && <Icon
+                    className='icon-link'
+                    component={SvgLink}
+                    onClick={async () => {
+                        await open_obj({ obj, objref, remote })
+                    }}
+                />}
+            </div>
+        </div>
+    </div>
 }
