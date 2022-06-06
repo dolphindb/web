@@ -31,6 +31,7 @@ import type { Message } from 'xshell/net.browser'
 
 import SvgLink from './link.icon.svg'
 import { type WindowModel } from './window'
+import { nulls } from 'dolphindb'
 
 
 const views = {
@@ -788,6 +789,8 @@ function Chart ({
     const [data, set_data] = useState([ ])
     const [titles, set_titles] = useState({ } as DdbChartValue['titles'])
     const [charttype, set_charttype] = useState(DdbChartType.line)
+    const [stacking, set_stacking] = useState( false )
+    const [datatype, set_datatype] = useState()
     
     
     useEffect(() => {
@@ -795,10 +798,12 @@ function Chart ({
             const {
                 value: {
                     titles,
-                    type,
+                    type: charttype,
+                    stacking,
                     data: {
                         rows,
                         cols,
+                        type: datatype,
                         value: {
                             rows: {
                                 value: row_labels
@@ -823,9 +828,31 @@ function Chart ({
                 for (let j = 0;  j < rows;  j++) {
                     const idata = i * rows + j
                     data_[idata] = {
-                        row: row_labels[j],
-                        col: col_labels[i],
-                        value: data[idata],
+                        row: String(row_labels[j]),
+                        col: col_labels[i].constructor === DdbObj ? col_labels[i]?.value?.name : col_labels[i],
+                        // value: Number(data[idata]),
+                        value: (()=>{
+                            switch (datatype) {
+                                case DdbType.int:
+                                    return data[idata] === nulls.int32  ? null : Number(data[idata])
+                                    
+                                case DdbType.short:
+                                    return data[idata] === nulls.int16  ? null : Number(data[idata])
+                                    
+                                case DdbType.float:
+                                    return data[idata] === nulls.float32  ? null : Number(data[idata])
+                                    
+                                case DdbType.double:
+                                    return data[idata] === nulls.double  ? null : Number(data[idata])
+                                
+                                case DdbType.long:
+                                    return data[idata] === nulls.int64  ? null : Number(data[idata])
+                                    
+                                default:
+                                    return Number(data[idata])
+                            }
+                        })()
+                        // data[idata] === nulls  ? null : Number(data[idata])
                     }
                 }
             
@@ -833,7 +860,9 @@ function Chart ({
             
             set_data(data_)
             set_titles(titles)
-            set_charttype(type)
+            set_charttype(charttype)
+            set_stacking(stacking)
+            set_datatype(datatype)
             
         })()
     }, [obj, objref])
@@ -853,10 +882,7 @@ function Chart ({
                 text: titles.y_axis
             }
         }, 
-        title: {
-            visible: true,
-            text: 'titles.chart'
-        }
+        isStack: stacking,
     }
     
     const pie_config = {
@@ -870,6 +896,23 @@ function Chart ({
         },
     }
     
+    const bar_config = {
+        ...config,
+        xField: 'value', 
+        yField:'row',
+        xAxis: {
+            title: {
+                text: titles.y_axis
+            }
+        },
+        yAxis: {
+            title: {
+                text: titles.x_axis
+            }
+        },
+        isGroup: !stacking
+    }
+    
     return <div className='chart'>
         {/* <Line
             data={data}
@@ -881,8 +924,8 @@ function Chart ({
         { charttype === DdbChartType.line && <Line {...config}/> }
         { charttype === DdbChartType.pie && <Pie {...pie_config} /> }
         { charttype === DdbChartType.column && <Column {...config}  isGroup/> }
-        { charttype === DdbChartType.bar && <Bar {...config} xField = 'value' yField = 'row' isGroup/> }
-        { charttype === DdbChartType.area && <Area {...config}/> }
+        { charttype === DdbChartType.bar && <Bar {...bar_config} /> }
+        { charttype === DdbChartType.area && <Area {...config} /> }
         { charttype === DdbChartType.scatter && <Scatter {...config} colorField = 'col'/> }
         
         <div className='bottom-bar'>
