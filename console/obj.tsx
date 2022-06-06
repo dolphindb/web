@@ -10,7 +10,7 @@ import {
 import {
     default as Icon,
 } from '@ant-design/icons'
-import { Line } from '@ant-design/plots'
+import { Line, Pie, Bar, Column, Scatter, Area } from '@ant-design/plots'
 
 
 import {
@@ -18,6 +18,7 @@ import {
     DdbForm,
     DdbType,
     format,
+    DdbChartType,
     type DdbValue,
     type DdbVectorValue,
     type DdbMatrixValue,
@@ -785,6 +786,8 @@ function Chart ({
     remote: Remote
 }) {
     const [data, set_data] = useState([ ])
+    const [titles, set_titles] = useState({ } as DdbChartValue['titles'])
+    const [charttype, set_charttype] = useState(DdbChartType.line)
     
     
     useEffect(() => {
@@ -792,6 +795,7 @@ function Chart ({
             const {
                 value: {
                     titles,
+                    type,
                     data: {
                         rows,
                         cols,
@@ -828,16 +832,59 @@ function Chart ({
             console.log('data:', data_)
             
             set_data(data_)
+            set_titles(titles)
+            set_charttype(type)
+            
         })()
     }, [obj, objref])
+
+    const config = {
+        data,
+        xField: 'row',
+        yField: 'value',
+        seriesField: 'col',
+        xAxis: {
+            title: {
+                text: titles.x_axis
+            }
+        },
+        yAxis: {
+            title: {
+                text: titles.y_axis
+            }
+        }, 
+        title: {
+            visible: true,
+            text: 'titles.chart'
+        }
+    }
+    
+    const pie_config = {
+        ...config,
+        angleField: 'value',
+        colorField: 'row',
+        radius: 0.9,
+        label: {
+            type: 'spider',
+            content: `{name}: {percentage}`,
+        },
+    }
     
     return <div className='chart'>
-        <Line
+        {/* <Line
             data={data}
             xField='row'
             yField='value'
             seriesField='col'
-        />
+        /> */}
+        <div className='chart_title'> {titles.chart} </div>
+        { charttype === DdbChartType.line && <Line {...config}/> }
+        { charttype === DdbChartType.pie && <Pie {...pie_config} /> }
+        { charttype === DdbChartType.column && <Column {...config}  isGroup/> }
+        { charttype === DdbChartType.bar && <Bar {...config} xField = 'value' yField = 'row' isGroup/> }
+        { charttype === DdbChartType.area && <Area {...config}/> }
+        { charttype === DdbChartType.scatter && <Scatter {...config} colorField = 'col'/> }
+        
         <div className='bottom-bar'>
             <div className='actions'>
                 {(ctx === 'page' || ctx === 'embed') && <Icon
