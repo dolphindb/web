@@ -790,7 +790,6 @@ function Chart ({
     const [titles, set_titles] = useState({ } as DdbChartValue['titles'])
     const [charttype, set_charttype] = useState(DdbChartType.line)
     const [stacking, set_stacking] = useState( false )
-    const [datatype, set_datatype] = useState()
     
     
     useEffect(() => {
@@ -852,7 +851,6 @@ function Chart ({
                                     return Number(data[idata])
                             }
                         })()
-                        // data[idata] === nulls  ? null : Number(data[idata])
                     }
                 }
             
@@ -862,7 +860,6 @@ function Chart ({
             set_titles(titles)
             set_charttype(charttype)
             set_stacking(stacking)
-            set_datatype(datatype)
             
         })()
     }, [obj, objref])
