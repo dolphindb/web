@@ -807,9 +807,7 @@ function Chart ({
                             rows: {
                                 value: row_labels
                             },
-                            cols: {
-                                value: col_labels
-                            },
+                            cols: col_,
                             data
                         }
                     }
@@ -821,31 +819,32 @@ function Chart ({
                 })
             ) as DdbObj<DdbChartValue>
             
+            let col_labels = col_ === null ? '' : col_.value
+            
             const n = rows * cols
             let data_ = new Array(n)
             for (let i = 0;  i < cols;  i++)
                 for (let j = 0;  j < rows;  j++) {
                     const idata = i * rows + j
                     data_[idata] = {
-                        row: String(row_labels[j]),
-                        col: col_labels[i].constructor === DdbObj ? col_labels[i]?.value?.name : col_labels[i],
-                        // value: Number(data[idata]),
+                        row: charttype === DdbChartType.scatter ? row_labels[j] : String(row_labels[j]),
+                        col: col_labels[i] instanceof DdbObj ? col_labels[i]?.value?.name : col_labels[i],
                         value: (()=>{
                             switch (datatype) {
                                 case DdbType.int:
-                                    return data[idata] === nulls.int32  ? null : Number(data[idata])
+                                    return data[idata] === nulls.int32 ? null : Number(data[idata])
                                     
                                 case DdbType.short:
-                                    return data[idata] === nulls.int16  ? null : Number(data[idata])
+                                    return data[idata] === nulls.int16 ? null : Number(data[idata])
                                     
                                 case DdbType.float:
-                                    return data[idata] === nulls.float32  ? null : Number(data[idata])
+                                    return data[idata] === nulls.float32 ? null : Number(data[idata])
                                     
                                 case DdbType.double:
-                                    return data[idata] === nulls.double  ? null : Number(data[idata])
+                                    return data[idata] === nulls.double ? null : Number(data[idata])
                                 
                                 case DdbType.long:
-                                    return data[idata] === nulls.int64  ? null : Number(data[idata])
+                                    return data[idata] === nulls.int64 ? null : Number(data[idata])
                                     
                                 default:
                                     return Number(data[idata])

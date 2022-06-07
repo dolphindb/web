@@ -34,7 +34,7 @@ class DevServer extends Server {
         let { path } = request
         
         if (dapi && method === 'POST') {
-            const data = await request_json(`http://127.0.0.1:8848${path}`, { body })
+            const data = await request_json(`http://127.0.0.1:8850${path}`, { body })
             log_section(`${body.functionName}(${inspect(body.params?.[0]?.value)})`)
             console.log(response.body = data)
             return true
