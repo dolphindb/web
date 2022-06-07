@@ -171,6 +171,18 @@ function DatanodeConfig () {
             configCategory: 'Streaming',
             configs: [
                 {
+                    name:'streamingRaftGroups',
+                    value: '',
+                    default: '',
+                    tip:''
+                },
+                {
+                    name:'streamingHAMode',
+                    value: '',
+                    default: '',
+                    tip:''
+                },
+                {
                     name: 'maxPubConnections',
                     value: 'int',
                     default: '',
