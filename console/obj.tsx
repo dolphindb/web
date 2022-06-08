@@ -1098,7 +1098,6 @@ function Chart ({
                             }
                         }}
                         shape='circle'
-                        size={5}
                     />
                 
                 default:
