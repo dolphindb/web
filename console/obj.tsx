@@ -1097,6 +1097,8 @@ function Chart ({
                                 text: titles.y_axis
                             }
                         }}
+                        shape='circle'
+                        size={5}
                     />
                 
                 default:
