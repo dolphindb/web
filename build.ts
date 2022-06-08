@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import process from 'process'
+
 import { fcopy, fdelete } from 'xshell'
 
 import { get_monaco, webpack, copy_fonts, fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd_src_cloud } from './webpack.js'

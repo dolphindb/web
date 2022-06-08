@@ -2,7 +2,13 @@ import { fileURLToPath } from 'url'
 
 import path from 'upath'
 
-import Webpack from 'webpack'
+import {
+    default as Webpack,
+    type Compiler,
+    type Watching,
+    type Configuration,
+    type Stats,
+} from 'webpack'
 
 // 需要分析 bundle 大小时开启
 // import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
@@ -82,8 +88,8 @@ export async function copy_fonts (is_cloud: boolean) {
 }
 
 
-const config: Webpack.Configuration = {
-    name: 'DdbWebpackCompiler',
+const config: Configuration = {
+    name: 'DdbWeb',
     
     mode: 'development',
     
@@ -103,7 +109,6 @@ const config: Webpack.Configuration = {
     output: {
         path: fpd_root,
         filename: '[name]',
-        
         publicPath: '/',
         pathinfo: true,
         globalObject: 'globalThis',
@@ -274,21 +279,16 @@ const config: Webpack.Configuration = {
         
         children: true,
         
-        assets: false,
-        assetsSpace: 100,
-        
         cachedAssets: false,
         cachedModules: false,
-        
-        modules: false,
-        // modulesSpace: 30
     },
 }
 
+
 export let webpack = {
-    compiler: null as Webpack.Compiler,
+    compiler: null as Compiler,
     
-    watcher: null as Webpack.Watching,
+    watcher: null as Watching,
     
     async start (mfs: MFS.IFs) {
         this.compiler = Webpack(config)
@@ -297,7 +297,7 @@ export let webpack = {
         
         let first = true
         
-        return new Promise<Webpack.Stats>( resolve => {
+        return new Promise<Stats>( resolve => {
             this.watcher = this.compiler.watch({
                 ignored: [
                     '**/node_modules/',
