@@ -10,7 +10,7 @@ import {
 import {
     default as Icon,
 } from '@ant-design/icons'
-import { Line } from '@ant-design/plots'
+import { Line, Pie, Bar, Column, Scatter, Area } from '@ant-design/plots'
 
 
 import {
@@ -18,6 +18,8 @@ import {
     DdbForm,
     DdbType,
     format,
+    DdbChartType,
+    nulls,
     type DdbValue,
     type DdbVectorValue,
     type DdbMatrixValue,
@@ -785,6 +787,9 @@ function Chart ({
     remote: Remote
 }) {
     const [data, set_data] = useState([ ])
+    const [titles, set_titles] = useState({ } as DdbChartValue['titles'])
+    const [charttype, set_charttype] = useState(DdbChartType.line)
+    const [stacking, set_stacking] = useState( false )
     
     
     useEffect(() => {
@@ -792,16 +797,17 @@ function Chart ({
             const {
                 value: {
                     titles,
+                    type: charttype,
+                    stacking,
                     data: {
                         rows,
                         cols,
+                        type: datatype,
                         value: {
                             rows: {
                                 value: row_labels
                             },
-                            cols: {
-                                value: col_labels
-                            },
+                            cols: col_,
                             data
                         }
                     }
@@ -813,31 +819,111 @@ function Chart ({
                 })
             ) as DdbObj<DdbChartValue>
             
+            let col_labels = col_ === null ? '' : col_.value
+            
             const n = rows * cols
             let data_ = new Array(n)
             for (let i = 0;  i < cols;  i++)
                 for (let j = 0;  j < rows;  j++) {
                     const idata = i * rows + j
                     data_[idata] = {
-                        row: row_labels[j],
-                        col: col_labels[i],
-                        value: data[idata],
+                        row: charttype === DdbChartType.scatter ? row_labels[j] : String(row_labels[j]),
+                        col: col_labels[i] instanceof DdbObj ? col_labels[i]?.value?.name : col_labels[i],
+                        value: (()=>{
+                            switch (datatype) {
+                                case DdbType.int:
+                                    return data[idata] === nulls.int32 ? null : Number(data[idata])
+                                    
+                                case DdbType.short:
+                                    return data[idata] === nulls.int16 ? null : Number(data[idata])
+                                    
+                                case DdbType.float:
+                                    return data[idata] === nulls.float32 ? null : Number(data[idata])
+                                    
+                                case DdbType.double:
+                                    return data[idata] === nulls.double ? null : Number(data[idata])
+                                
+                                case DdbType.long:
+                                    return data[idata] === nulls.int64 ? null : Number(data[idata])
+                                    
+                                default:
+                                    return Number(data[idata])
+                            }
+                        })()
                     }
                 }
             
             console.log('data:', data_)
             
             set_data(data_)
+            set_titles(titles)
+            set_charttype(charttype)
+            set_stacking(stacking)
+            
         })()
     }, [obj, objref])
+
+    const config = {
+        data,
+        xField: 'row',
+        yField: 'value',
+        seriesField: 'col',
+        xAxis: {
+            title: {
+                text: titles.x_axis
+            }
+        },
+        yAxis: {
+            title: {
+                text: titles.y_axis
+            }
+        }, 
+        isStack: stacking,
+    }
+    
+    const pie_config = {
+        ...config,
+        angleField: 'value',
+        colorField: 'row',
+        radius: 0.9,
+        label: {
+            type: 'spider',
+            content: `{name}: {percentage}`,
+        },
+    }
+    
+    const bar_config = {
+        ...config,
+        xField: 'value', 
+        yField:'row',
+        xAxis: {
+            title: {
+                text: titles.y_axis
+            }
+        },
+        yAxis: {
+            title: {
+                text: titles.x_axis
+            }
+        },
+        isGroup: !stacking
+    }
     
     return <div className='chart'>
-        <Line
+        {/* <Line
             data={data}
             xField='row'
             yField='value'
             seriesField='col'
-        />
+        /> */}
+        <div className='chart_title'> {titles.chart} </div>
+        { charttype === DdbChartType.line && <Line {...config}/> }
+        { charttype === DdbChartType.pie && <Pie {...pie_config} /> }
+        { charttype === DdbChartType.column && <Column {...config}  isGroup/> }
+        { charttype === DdbChartType.bar && <Bar {...bar_config} /> }
+        { charttype === DdbChartType.area && <Area {...config} /> }
+        { charttype === DdbChartType.scatter && <Scatter {...config} colorField = 'col'/> }
+        
         <div className='bottom-bar'>
             <div className='actions'>
                 {(ctx === 'page' || ctx === 'embed') && <Icon

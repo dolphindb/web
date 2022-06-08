@@ -171,6 +171,18 @@ function DatanodeConfig () {
             configCategory: 'Streaming',
             configs: [
                 {
+                    name: 'streamingRaftGroups',
+                    value: '',
+                    default: '2:NODE1:NODE2:NODE3,3:NODE3:NODE4:NODE5',
+                    tip: 'Information about Raft groups. Each Raft group is represented by group ID and aliases of data nodes in the group, separated with colon (:). Raft group ID must be an integer greater than 1. Each Raft group has at least 3 data nodes. Use comma (,) to seperate multiple Raft groups.'
+                },
+                {
+                    name: 'streamingHAMode',
+                    value: '',
+                    default: 'raft',
+                    tip: 'Enable high-availability for streaming.'
+                },
+                {
                     name: 'maxPubConnections',
                     value: 'int',
                     default: '',
