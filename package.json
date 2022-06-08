@@ -47,7 +47,7 @@
         "antd": "^4.21.0",
         "cross-env": "^7.0.3",
         "dayjs": "^1.11.3",
-        "dolphindb": "^2.0.527",
+        "dolphindb": "^2.0.528",
         "final-form": "^4.20.7",
         "koa-compress": "^5.1.0",
         "react-dom": "^18.1.0",
