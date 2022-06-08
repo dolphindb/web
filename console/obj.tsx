@@ -17,21 +17,21 @@ import {
     DdbObj,
     DdbForm,
     DdbType,
-    format,
     DdbChartType,
+    nulls,
+    format,
     type DdbValue,
     type DdbVectorValue,
     type DdbMatrixValue,
     type DdbSymbolExtendedValue,
     type DdbArrayVectorBlock,
     type DdbChartValue,
-} from 'dolphindb/browser'
-import type { Message } from 'xshell/net.browser'
+} from 'dolphindb/browser.js'
+import type { Message } from 'xshell/net.browser.js'
 
 
 import SvgLink from './link.icon.svg'
-import { type WindowModel } from './window'
-import { nulls } from 'dolphindb'
+import { type WindowModel } from './window.js'
 
 
 const views = {
@@ -793,7 +793,7 @@ function Chart ({
             data,
             titles,
             stacking,
-            multi_y_axis,
+            multi_y_axes,
             col_labels
         },
         set_config
@@ -803,7 +803,7 @@ function Chart ({
         data: [ ],
         titles: { } as DdbChartValue['titles'],
         stacking: false,
-        multi_y_axis: false,
+        multi_y_axes: false,
         col_labels: [ ]
     })
     
@@ -814,9 +814,7 @@ function Chart ({
                     titles,
                     type: charttype,
                     stacking,
-                    extras:{
-                        multi_y_axis,
-                    },
+                    extras,
                     data: {
                         rows,
                         cols,
@@ -825,7 +823,7 @@ function Chart ({
                             rows: {
                                 value: row_labels
                             },
-                            cols: col_,
+                            cols: cols_,
                             data
                         }
                     }
@@ -837,22 +835,25 @@ function Chart ({
                 })
             ) as DdbObj<DdbChartValue>
             
-            let col_labels = col_ === null ? '' : col_.value
+            const { multi_y_axes = false } = extras || { }
             
-            const n = ( charttype === DdbChartType.line && multi_y_axis ) ? cols-1 : rows * cols
+            let col_labels = (cols_?.value || [ ]) as any[]
+            let col_lables_ = new Array(col_labels.length)
+            
+            const n = charttype === DdbChartType.line && multi_y_axes ? cols - 1 : rows * cols
             let data_ = new Array(n)
             
-            if( charttype === DdbChartType.line && multi_y_axis ){
+            if (charttype === DdbChartType.line && multi_y_axes) {
                 let data_arr = new Array(rows)
-                for (let j = 0;  j < rows;  j++) {
-                    let dataobj = {}
+                for (let j = 0; j < rows; j++) {
+                    let dataobj = { }
                     dataobj['row'] = String(row_labels[j])
-                    for (let i = 0;  i < cols;  i++) {
-                        let col = col_labels[i] instanceof DdbObj ? col_labels[i]?.value?.name : col_labels[i]
-                        col_labels[i] = col
+                    for (let i = 0; i < cols; i++) {
+                        const col = col_labels[i] instanceof DdbObj ? col_labels[i]?.value?.name : col_labels[i]
+                        col_lables_[i] = col
                         
                         let idata = i * rows + j
-                        dataobj[col] = (()=>{
+                        dataobj[col] = (() => {
                             switch (datatype) {
                                 case DdbType.int:
                                     return data[idata] === nulls.int32 ? null : Number(data[idata])
@@ -865,7 +866,7 @@ function Chart ({
                                     
                                 case DdbType.double:
                                     return data[idata] === nulls.double ? null : Number(data[idata])
-                                
+                                    
                                 case DdbType.long:
                                     return data[idata] === nulls.int64 ? null : Number(data[idata])
                                     
@@ -874,19 +875,22 @@ function Chart ({
                             }
                         })()
                     }
-                    data_arr[j] = dataobj    
+                    data_arr[j] = dataobj
                 }
-                for(let i = 0;  i < cols;  i++) {
+                for (let i = 0; i < cols; i++) 
                     data_[i] = data_arr
-                }
-            } else {
-                for (let i = 0;  i < cols;  i++) {
-                    for (let j = 0;  j < rows;  j++) {
+                
+            } else 
+                for (let i = 0; i < cols; i++) {
+                    const col = col_labels[i] instanceof DdbObj ? col_labels[i]?.value?.name : col_labels[i]
+                    col_lables_[i] = col
+                    
+                    for (let j = 0; j < rows; j++) {
                         const idata = i * rows + j
                         data_[idata] = {
                             row: charttype === DdbChartType.scatter ? row_labels[j] : String(row_labels[j]),
-                            col: col_labels[i] instanceof DdbObj ? col_labels[i]?.value?.name : col_labels[i],
-                            value: (()=>{
+                            col,
+                            value: (() => {
                                 switch (datatype) {
                                     case DdbType.int:
                                         return data[idata] === nulls.int32 ? null : Number(data[idata])
@@ -899,7 +903,7 @@ function Chart ({
                                         
                                     case DdbType.double:
                                         return data[idata] === nulls.double ? null : Number(data[idata])
-                                    
+                                        
                                     case DdbType.long:
                                         return data[idata] === nulls.int64 ? null : Number(data[idata])
                                         
@@ -910,8 +914,6 @@ function Chart ({
                         }
                     }
                 }
-            }
-  
             
             console.log('data:', data_)
             
@@ -921,26 +923,24 @@ function Chart ({
                 data: data_,
                 titles,
                 stacking,
-                multi_y_axis,
-                col_labels
+                multi_y_axes,
+                col_labels: col_lables_,
             })
-            
         })()
     }, [obj, objref])
     
-    if (!inited) {
+    if (!inited)
         return null
-    }
-
+    
     return <div className='chart'>
-        
-        <div className='chart_title'> {titles.chart} </div>
+        <div className='chart-title'>{titles.chart}</div>
         
         {(() => {
             switch (charttype) {
                 case DdbChartType.line:
-                    if (!multi_y_axis)
+                    if (!multi_y_axes)
                         return <Line
+                            className='chart-body'
                             data={data}
                             xField='row'
                             yField='value'
@@ -959,6 +959,7 @@ function Chart ({
                         />
                     else
                         return <DualAxes
+                            className='chart-body'
                             data={data}
                             xField='row'
                             yField={col_labels}
@@ -975,8 +976,11 @@ function Chart ({
                                 }
                             }}
                         />
+                        
+                
                 case DdbChartType.column:
                     return <Column
+                        className='chart-body'
                         data={data}
                         xField='row'
                         yField='value'
@@ -1007,8 +1011,10 @@ function Chart ({
                             ],
                         }}
                     />
+                
                 case DdbChartType.bar:
                     return <Bar
+                        className='chart-body'
                         data={data}
                         xField='value'
                         yField='row'
@@ -1040,8 +1046,10 @@ function Chart ({
                             ],
                         }}
                     />
+                
                 case DdbChartType.pie:
-                    return < Pie
+                    return <Pie
+                        className='chart-body'
                         data={data}
                         angleField='value'
                         colorField='row'
@@ -1051,8 +1059,10 @@ function Chart ({
                             content: `{name}: {percentage}`,
                         }}
                     />
+                
                 case DdbChartType.area:
                     return <Area
+                        className='chart-body'
                         data={data}
                         xField='row'
                         yField='value'
@@ -1069,8 +1079,10 @@ function Chart ({
                         }}
                         isStack={stacking}
                     />
+                
                 case DdbChartType.scatter:
                     return <Scatter
+                        className='chart-body'
                         data={data}
                         xField='row'
                         yField='value'
@@ -1086,8 +1098,10 @@ function Chart ({
                             }
                         }}
                     />
+                
                 default:
                     return <Line
+                        className='chart-body'
                         data={data}
                         xField='row'
                         yField='value'
