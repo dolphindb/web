@@ -10,7 +10,7 @@ import {
 import {
     default as Icon,
 } from '@ant-design/icons'
-import { Line, Pie, Bar, Column, Scatter, Area } from '@ant-design/plots'
+import { Line, Pie, Bar, Column, Scatter, Area, DualAxes } from '@ant-design/plots'
 
 
 import {
@@ -786,11 +786,26 @@ function Chart ({
     ctx?: Context
     remote: Remote
 }) {
-    const [data, set_data] = useState([ ])
-    const [titles, set_titles] = useState({ } as DdbChartValue['titles'])
-    const [charttype, set_charttype] = useState(DdbChartType.line)
-    const [stacking, set_stacking] = useState( false )
-    
+    const [
+        {
+            inited,
+            charttype,
+            data,
+            titles,
+            stacking,
+            multi_y_axis,
+            col_labels
+        },
+        set_config
+    ] = useState({
+        inited: false,
+        charttype: DdbChartType.line,
+        data: [ ],
+        titles: { } as DdbChartValue['titles'],
+        stacking: false,
+        multi_y_axis: false,
+        col_labels: [ ]
+    })
     
     useEffect(() => {
         (async () => {
@@ -799,6 +814,9 @@ function Chart ({
                     titles,
                     type: charttype,
                     stacking,
+                    extras:{
+                        multi_y_axis,
+                    },
                     data: {
                         rows,
                         cols,
@@ -821,15 +839,20 @@ function Chart ({
             
             let col_labels = col_ === null ? '' : col_.value
             
-            const n = rows * cols
+            const n = charttype === DdbChartType.line && multi_y_axis ? cols - 1 : rows * cols
             let data_ = new Array(n)
-            for (let i = 0;  i < cols;  i++)
-                for (let j = 0;  j < rows;  j++) {
-                    const idata = i * rows + j
-                    data_[idata] = {
-                        row: charttype === DdbChartType.scatter ? row_labels[j] : String(row_labels[j]),
-                        col: col_labels[i] instanceof DdbObj ? col_labels[i]?.value?.name : col_labels[i],
-                        value: (()=>{
+            
+            if (charttype === DdbChartType.line && multi_y_axis) {
+                let data_arr = new Array(rows)
+                for (let j = 0; j < rows; j++) {
+                    let dataobj = { }
+                    dataobj['row'] = String(row_labels[j])
+                    for (let i = 0; i < cols; i++) {
+                        let col = col_labels[i] instanceof DdbObj ? col_labels[i]?.value?.name : col_labels[i]
+                        col_labels[i] = col
+                        
+                        let idata = i * rows + j
+                        dataobj[col] = (() => {
                             switch (datatype) {
                                 case DdbType.int:
                                     return data[idata] === nulls.int32 ? null : Number(data[idata])
@@ -842,7 +865,7 @@ function Chart ({
                                     
                                 case DdbType.double:
                                     return data[idata] === nulls.double ? null : Number(data[idata])
-                                
+                                    
                                 case DdbType.long:
                                     return data[idata] === nulls.int64 ? null : Number(data[idata])
                                     
@@ -851,78 +874,242 @@ function Chart ({
                             }
                         })()
                     }
+                    data_arr[j] = dataobj
                 }
+                for (let i = 0; i < cols; i++) 
+                    data_[i] = data_arr
+                
+            } else 
+                for (let i = 0; i < cols; i++) 
+                    for (let j = 0; j < rows; j++) {
+                        const idata = i * rows + j
+                        data_[idata] = {
+                            row: charttype === DdbChartType.scatter ? row_labels[j] : String(row_labels[j]),
+                            col: col_labels[i] instanceof DdbObj ? col_labels[i]?.value?.name : col_labels[i],
+                            value: (() => {
+                                switch (datatype) {
+                                    case DdbType.int:
+                                        return data[idata] === nulls.int32 ? null : Number(data[idata])
+                                        
+                                    case DdbType.short:
+                                        return data[idata] === nulls.int16 ? null : Number(data[idata])
+                                        
+                                    case DdbType.float:
+                                        return data[idata] === nulls.float32 ? null : Number(data[idata])
+                                        
+                                    case DdbType.double:
+                                        return data[idata] === nulls.double ? null : Number(data[idata])
+                                        
+                                    case DdbType.long:
+                                        return data[idata] === nulls.int64 ? null : Number(data[idata])
+                                        
+                                    default:
+                                        return Number(data[idata])
+                                }
+                            })()
+                        }
+                    }
             
             console.log('data:', data_)
             
-            set_data(data_)
-            set_titles(titles)
-            set_charttype(charttype)
-            set_stacking(stacking)
+            set_config({
+                inited: true,
+                charttype,
+                data: data_,
+                titles,
+                stacking,
+                multi_y_axis,
+                col_labels
+            })
             
         })()
     }, [obj, objref])
+    
+    if (!inited) {
+        return null
+    }
 
-    const config = {
-        data,
-        xField: 'row',
-        yField: 'value',
-        seriesField: 'col',
-        xAxis: {
-            title: {
-                text: titles.x_axis
-            }
-        },
-        yAxis: {
-            title: {
-                text: titles.y_axis
-            }
-        }, 
-        isStack: stacking,
-    }
-    
-    const pie_config = {
-        ...config,
-        angleField: 'value',
-        colorField: 'row',
-        radius: 0.9,
-        label: {
-            type: 'spider',
-            content: `{name}: {percentage}`,
-        },
-    }
-    
-    const bar_config = {
-        ...config,
-        xField: 'value', 
-        yField:'row',
-        xAxis: {
-            title: {
-                text: titles.y_axis
-            }
-        },
-        yAxis: {
-            title: {
-                text: titles.x_axis
-            }
-        },
-        isGroup: !stacking
-    }
-    
     return <div className='chart'>
-        {/* <Line
-            data={data}
-            xField='row'
-            yField='value'
-            seriesField='col'
-        /> */}
+        
         <div className='chart_title'> {titles.chart} </div>
-        { charttype === DdbChartType.line && <Line {...config}/> }
-        { charttype === DdbChartType.pie && <Pie {...pie_config} /> }
-        { charttype === DdbChartType.column && <Column {...config}  isGroup/> }
-        { charttype === DdbChartType.bar && <Bar {...bar_config} /> }
-        { charttype === DdbChartType.area && <Area {...config} /> }
-        { charttype === DdbChartType.scatter && <Scatter {...config} colorField = 'col'/> }
+        
+        {(() => {
+            switch (charttype) {
+                case DdbChartType.line:
+                    if (!multi_y_axis)
+                        return <Line
+                            data={data}
+                            xField='row'
+                            yField='value'
+                            seriesField='col'
+                            xAxis={{
+                                title: {
+                                    text: titles.x_axis
+                                }
+                            }}
+                            yAxis={{
+                                title: {
+                                    text: titles.y_axis
+                                }
+                            }}
+                            isStack={stacking}
+                        />
+                    else
+                        return <DualAxes
+                            data={data}
+                            xField='row'
+                            yField={col_labels}
+                            xAxis={{
+                                title: {
+                                    text: titles.x_axis
+                                }
+                            }}
+                            yAxis={{
+                                [col_labels[0]]: {
+                                    title: {
+                                        text: titles.y_axis
+                                    }
+                                }
+                            }}
+                        />
+                        
+                
+                case DdbChartType.column:
+                    return <Column
+                        data={data}
+                        xField='row'
+                        yField='value'
+                        seriesField='col'
+                        xAxis={{
+                            title: {
+                                text: titles.x_axis
+                            }
+                        }}
+                        yAxis={{
+                            title: {
+                                text: titles.y_axis
+                            }
+                        }}
+                        isGroup={true}
+                        label={{
+                            position: 'middle',
+                            layout: [
+                                {
+                                    type: 'interval-adjust-position',
+                                },
+                                {
+                                    type: 'interval-hide-overlap',
+                                },
+                                {
+                                    type: 'adjust-color',
+                                },
+                            ],
+                        }}
+                    />
+                
+                case DdbChartType.bar:
+                    return <Bar
+                        data={data}
+                        xField='value'
+                        yField='row'
+                        seriesField='col'
+                        xAxis={{
+                            title: {
+                                text: titles.y_axis
+                            }
+                        }}
+                        yAxis={{
+                            title: {
+                                text: titles.x_axis
+                            }
+                        }}
+                        isStack={stacking}
+                        isGroup={!stacking}
+                        label={{
+                            position: 'middle',
+                            layout: [
+                                {
+                                    type: 'interval-adjust-position',
+                                },
+                                {
+                                    type: 'interval-hide-overlap',
+                                },
+                                {
+                                    type: 'adjust-color',
+                                },
+                            ],
+                        }}
+                    />
+                
+                case DdbChartType.pie:
+                    return <Pie
+                        data={data}
+                        angleField='value'
+                        colorField='row'
+                        radius={0.9}
+                        label={{
+                            type: 'spider',
+                            content: `{name}: {percentage}`,
+                        }}
+                    />
+                
+                case DdbChartType.area:
+                    return <Area
+                        data={data}
+                        xField='row'
+                        yField='value'
+                        seriesField='col'
+                        xAxis={{
+                            title: {
+                                text: titles.x_axis
+                            }
+                        }}
+                        yAxis={{
+                            title: {
+                                text: titles.y_axis
+                            }
+                        }}
+                        isStack={stacking}
+                    />
+                
+                case DdbChartType.scatter:
+                    return <Scatter
+                        data={data}
+                        xField='row'
+                        yField='value'
+                        colorField='col'
+                        xAxis={{
+                            title: {
+                                text: titles.x_axis
+                            }
+                        }}
+                        yAxis={{
+                            title: {
+                                text: titles.y_axis
+                            }
+                        }}
+                    />
+                
+                default:
+                    return <Line
+                        data={data}
+                        xField='row'
+                        yField='value'
+                        seriesField='col'
+                        xAxis={{
+                            title: {
+                                text: titles.x_axis
+                            }
+                        }}
+                        yAxis={{
+                            title: {
+                                text: titles.y_axis
+                            }
+                        }}
+                        isStack={stacking}
+                    />
+            }
+        })()}
         
         <div className='bottom-bar'>
             <div className='actions'>
