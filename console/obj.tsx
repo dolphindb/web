@@ -10,7 +10,7 @@ import {
 import {
     default as Icon,
 } from '@ant-design/icons'
-import { Line, Pie, Bar, Column, Scatter, Area, DualAxes } from '@ant-design/plots'
+import { Line, Pie, Bar, Column, Scatter, Area, DualAxes, Histogram, Stock } from '@ant-design/plots'
 
 
 import {
@@ -20,6 +20,16 @@ import {
     DdbChartType,
     nulls,
     format,
+    datetime2ms,
+    month2ms,
+    minute2ms,
+    date2ms,
+    datehour2ms,
+    second2ms,
+    time2ms,
+    timestamp2ms,
+    nanotime2ns,
+    nanotimestamp2ns,
     type DdbValue,
     type DdbVectorValue,
     type DdbMatrixValue,
@@ -774,6 +784,30 @@ class MatrixColumn implements TableColumnType <number> {
     }
 }
 
+function chartdata (
+    data: DdbValue,
+    datatype: number | DdbType
+){
+    switch (datatype) {
+        case DdbType.int:
+            return data === nulls.int32 ? null : Number(data)
+            
+        case DdbType.short:
+            return data === nulls.int16 ? null : Number(data)
+            
+        case DdbType.float:
+            return data === nulls.float32 ? null : Number(data)
+            
+        case DdbType.double:
+            return data === nulls.double ? null : Number(data)
+            
+        case DdbType.long:
+            return data === nulls.int64 ? null : Number(data)
+            
+        default:
+            return Number(data)
+    }
+}
 
 function Chart ({
     obj,
@@ -820,9 +854,7 @@ function Chart ({
                         cols,
                         type: datatype,
                         value: {
-                            rows: {
-                                value: row_labels
-                            },
+                            rows: rows_,
                             cols: cols_,
                             data
                         }
@@ -840,80 +872,112 @@ function Chart ({
             let col_labels = (cols_?.value || [ ]) as any[]
             let col_lables_ = new Array(col_labels.length)
             
-            const n = charttype === DdbChartType.line && multi_y_axes ? cols - 1 : rows * cols
+            //没有设置label的情况
+            let row_labels_ = new Array(rows)
+            
+            for (let i = 0; i < rows; i++) {
+                row_labels_[i] = i
+            }
+            
+            let row_labels = (rows_?.value || row_labels_) as any[]
+                       
+            const n = charttype === DdbChartType.line && multi_y_axes || charttype === DdbChartType.kline ? rows : rows * cols
             let data_ = new Array(n)
             
-            if (charttype === DdbChartType.line && multi_y_axes) {
-                let data_arr = new Array(rows)
-                for (let j = 0; j < rows; j++) {
-                    let dataobj = { }
-                    dataobj['row'] = String(row_labels[j])
+            switch (charttype) {
+                case DdbChartType.line:
+                    if (multi_y_axes === true) {
+                        for (let j = 0; j < rows; j++) {
+                            let dataobj = { }
+                            dataobj['row'] = String(row_labels[j])
+                            for (let i = 0; i < cols; i++) {
+                                const col = col_labels[i]?.value?.name || col_labels[i]
+                                col_lables_[i] = col
+                                
+                                let idata = i * rows + j
+                                dataobj[col] = chartdata(data[idata], datatype)
+                            }
+                            data_[j] = dataobj
+                        }
+                    } else {
+                        for (let i = 0; i < cols; i++) {
+                            const col = col_labels[i]?.value?.name || col_labels[i]
+                            col_lables_[i] = col
+                            
+                            for (let j = 0; j < rows; j++) {
+                                const idata = i * rows + j
+                                data_[idata] = {
+                                    row: String(row_labels[j]),
+                                    col,
+                                    value: chartdata(data[idata], datatype)
+                                }
+                            }
+                        }
+                    }
+                    break
+                    
+                case DdbChartType.kline:
+                    for (let j = 0; j < rows; j++) {
+                        let dataobj = {}
+                        dataobj['row'] = (() => {
+                            switch (rows_.type) {
+                                case DdbType.date:
+                                    return date2ms(row_labels[j])
+                                
+                                case DdbType.month:
+                                    return month2ms(row_labels[j])
+                                
+                                case DdbType.time:
+                                    return time2ms(row_labels[j])
+                                
+                                case DdbType.minute:
+                                    return minute2ms(row_labels[j])
+                                
+                                case DdbType.second:
+                                    return second2ms(row_labels[j])
+                                
+                                case DdbType.datetime:
+                                    return datetime2ms(row_labels[j])
+                                
+                                case DdbType.timestamp:
+                                    return timestamp2ms(row_labels[j])
+                                
+                                case DdbType.nanotime:
+                                    return Number(nanotime2ns(row_labels[j])) / 1000000
+                                
+                                case DdbType.nanotimestamp:
+                                    return Number(nanotimestamp2ns(row_labels[j])) / 1000000
+                                
+                                case DdbType.datehour:
+                                    return datehour2ms(row_labels[j])
+                            }
+                        })()
+
+                        dataobj['open'] = chartdata(data[j], datatype)
+                        dataobj['high'] = chartdata(data[rows + j], datatype)
+                        dataobj['low'] = chartdata(data[rows * 2 + j], datatype)
+                        dataobj['close'] = chartdata(data[rows * 3 + j], datatype)
+                        data_[j] = dataobj
+                        
+                    }
+                    break
+                    
+                default:
                     for (let i = 0; i < cols; i++) {
                         const col = col_labels[i]?.value?.name || col_labels[i]
                         col_lables_[i] = col
                         
-                        let idata = i * rows + j
-                        dataobj[col] = (() => {
-                            switch (datatype) {
-                                case DdbType.int:
-                                    return data[idata] === nulls.int32 ? null : Number(data[idata])
-                                    
-                                case DdbType.short:
-                                    return data[idata] === nulls.int16 ? null : Number(data[idata])
-                                    
-                                case DdbType.float:
-                                    return data[idata] === nulls.float32 ? null : Number(data[idata])
-                                    
-                                case DdbType.double:
-                                    return data[idata] === nulls.double ? null : Number(data[idata])
-                                    
-                                case DdbType.long:
-                                    return data[idata] === nulls.int64 ? null : Number(data[idata])
-                                    
-                                default:
-                                    return Number(data[idata])
+                        for (let j = 0; j < rows; j++) {
+                            const idata = i * rows + j
+                            data_[idata] = {
+                                row: charttype === DdbChartType.scatter ? row_labels[j] : String(row_labels[j]),
+                                col,
+                                value: chartdata(data[idata],datatype)
                             }
-                        })()
-                    }
-                    data_arr[j] = dataobj
-                }
-                for (let i = 0; i < cols; i++) 
-                    data_[i] = data_arr
-                
-            } else 
-                for (let i = 0; i < cols; i++) {
-                    const col = col_labels[i]?.value?.name || col_labels[i]
-                    col_lables_[i] = col
-                    
-                    for (let j = 0; j < rows; j++) {
-                        const idata = i * rows + j
-                        data_[idata] = {
-                            row: charttype === DdbChartType.scatter ? row_labels[j] : String(row_labels[j]),
-                            col,
-                            value: (() => {
-                                switch (datatype) {
-                                    case DdbType.int:
-                                        return data[idata] === nulls.int32 ? null : Number(data[idata])
-                                        
-                                    case DdbType.short:
-                                        return data[idata] === nulls.int16 ? null : Number(data[idata])
-                                        
-                                    case DdbType.float:
-                                        return data[idata] === nulls.float32 ? null : Number(data[idata])
-                                        
-                                    case DdbType.double:
-                                        return data[idata] === nulls.double ? null : Number(data[idata])
-                                        
-                                    case DdbType.long:
-                                        return data[idata] === nulls.int64 ? null : Number(data[idata])
-                                        
-                                    default:
-                                        return Number(data[idata])
-                                }
-                            })()
                         }
                     }
-                }
+                    break
+            }
             
             console.log('data:', data_)   
             
@@ -956,11 +1020,12 @@ function Chart ({
                                 }
                             }}
                             isStack={stacking}
+                            padding={'auto'}
                         />
                     else
                         return <DualAxes
                             className='chart-body'
-                            data={data}
+                            data={[data,data]}
                             xField='row'
                             yField={col_labels}
                             xAxis={{
@@ -975,9 +1040,9 @@ function Chart ({
                                     }
                                 }
                             }}
+                            padding={'auto'}
                         />
-                        
-                
+
                 case DdbChartType.column:
                     return <Column
                         className='chart-body'
@@ -1010,6 +1075,7 @@ function Chart ({
                                 },
                             ],
                         }}
+                        padding={'auto'}
                     />
                 
                 case DdbChartType.bar:
@@ -1045,6 +1111,7 @@ function Chart ({
                                 },
                             ],
                         }}
+                        padding={'auto'}
                     />
                 
                 case DdbChartType.pie:
@@ -1058,6 +1125,7 @@ function Chart ({
                             type: 'spider',
                             content: `{name}: {percentage}`,
                         }}
+                        padding={'auto'}
                     />
                 
                 case DdbChartType.area:
@@ -1078,6 +1146,7 @@ function Chart ({
                             }
                         }}
                         isStack={stacking}
+                        padding={'auto'}
                     />
                 
                 case DdbChartType.scatter:
@@ -1098,8 +1167,48 @@ function Chart ({
                             }
                         }}
                         shape='circle'
+                        padding={'auto'}
                     />
                 
+                case DdbChartType.histogram:
+                    return <Histogram 
+                        className='chart-body'
+                        data={data}
+                        binField='value'
+                        stackField= 'col'
+                        binNumber={50}
+                        // binWidth={0.1}
+                        xAxis={{
+                            title: {
+                                text: titles.x_axis
+                            }
+                        }}
+                        yAxis={{
+                            title: {
+                                text: titles.y_axis
+                            }
+                        }}
+                        padding={'auto'}
+                    />
+                
+                case DdbChartType.kline:
+                    return <Stock 
+                        data={data}
+                        xField='row'
+                        yField={['open', 'close', 'high', 'low']}
+                        xAxis={{
+                            title: {
+                                text: titles.x_axis
+                            }
+                        }}
+                        yAxis={{
+                            title: {
+                                text: titles.y_axis
+                            }
+                        }}
+                        padding={'auto'}
+                    />
+                    
                 default:
                     return <Line
                         className='chart-body'
@@ -1118,6 +1227,7 @@ function Chart ({
                             }
                         }}
                         isStack={stacking}
+                        padding={'auto'}
                     />
             }
         })()}
