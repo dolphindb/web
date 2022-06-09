@@ -882,7 +882,7 @@ function Chart ({
                 
             } else 
                 for (let i = 0; i < cols; i++) {
-                    const col = col_labels[i] instanceof DdbObj ? col_labels[i]?.value?.name : col_labels[i]
+                    const col = col_labels[i]?.value?.name || col_labels[i]
                     col_lables_[i] = col
                     
                     for (let j = 0; j < rows; j++) {
@@ -915,7 +915,7 @@ function Chart ({
                     }
                 }
             
-            console.log('data:', data_)
+            console.log('data:', data_)   
             
             set_config({
                 inited: true,
