@@ -849,7 +849,7 @@ function Chart ({
                     let dataobj = { }
                     dataobj['row'] = String(row_labels[j])
                     for (let i = 0; i < cols; i++) {
-                        const col = col_labels[i] instanceof DdbObj ? col_labels[i]?.value?.name : col_labels[i]
+                        const col = col_labels[i]?.value?.name || col_labels[i]
                         col_lables_[i] = col
                         
                         let idata = i * rows + j
