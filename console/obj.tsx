@@ -1187,7 +1187,7 @@ function Chart ({
                     />
                 
                 case DdbChartType.kline:
-                    return <Stock 
+                    return <Stock
                         data={data}
                         xField='row'
                         yField={['open', 'close', 'high', 'low']}
@@ -1206,34 +1206,33 @@ function Chart ({
                             crosshairs: {
                                 // 自定义 crosshairs line 样式
                                 line: {
-                                  style: {
-                                    lineWidth: 0.5,
-                                    stroke: 'rgba(0,0,0,0.25)',
-                                  },
+                                    style: {
+                                        lineWidth: 0.5,
+                                        stroke: 'rgba(0,0,0,0.25)'
+                                    }
                                 },
                                 text: (type, defaultContent, items) => {
-                                  let textContent;
-                        
-                                  if (type === 'x') {
-                                    const item = items[0];
-                                    textContent = item ? item.title : defaultContent;
-                                  } else {
-                                    textContent = `${defaultContent.toFixed(2)}`;
-                                  }
-                        
-                                  return {
-                                    position: type === 'y' ? 'start' : 'end',
-                                    content: textContent,
-                                    // 自定义 crosshairs text 样式
-                                    style: {
-                                      fill: '#dfdfdf',
-                                    },
-                                  };
-                                },
-                              },
+                                    let textContent
+                                    
+                                    if (type === 'x') {
+                                        const item = items[0]
+                                        textContent = item ? item.title : defaultContent
+                                    } else 
+                                        textContent = defaultContent.toFixed(2)
+                                    
+                                    return {
+                                        position: type === 'y' ? 'start' : 'end',
+                                        content: textContent,
+                                        // 自定义 crosshairs text 样式
+                                        style: {
+                                            fill: '#dfdfdf'
+                                        }
+                                    }
+                                }
+                            }
                         }}
                     />
-                    
+                
                 default:
                     return <Line
                         className='chart-body'
