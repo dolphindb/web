@@ -1202,6 +1202,36 @@ function Chart ({
                             }
                         }}
                         padding='auto'
+                        tooltip={{
+                            crosshairs: {
+                                // 自定义 crosshairs line 样式
+                                line: {
+                                  style: {
+                                    lineWidth: 0.5,
+                                    stroke: 'rgba(0,0,0,0.25)',
+                                  },
+                                },
+                                text: (type, defaultContent, items) => {
+                                  let textContent;
+                        
+                                  if (type === 'x') {
+                                    const item = items[0];
+                                    textContent = item ? item.title : defaultContent;
+                                  } else {
+                                    textContent = `${defaultContent.toFixed(2)}`;
+                                  }
+                        
+                                  return {
+                                    position: type === 'y' ? 'start' : 'end',
+                                    content: textContent,
+                                    // 自定义 crosshairs text 样式
+                                    style: {
+                                      fill: '#dfdfdf',
+                                    },
+                                  };
+                                },
+                              },
+                        }}
                     />
                     
                 default:
