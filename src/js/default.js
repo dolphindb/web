@@ -297,6 +297,20 @@ function LoadTable(nodeList) {
                 }
             }
         }, {
+            text: 'IsLeader',
+            key: 'isLeader',
+            remind: 'is high-availability (raft) cluster leader',
+            width: 80,
+            template: function (isLeader, rowObject) {
+                if (isLeader === 0) {
+                    return false
+                } else if (isLeader === 1) {
+                    return true
+                } else {
+                    return ''
+                }
+            }
+        }, {
             text: 'ServerLog',
             key: 'serverLog',
             remind: 'server log',
