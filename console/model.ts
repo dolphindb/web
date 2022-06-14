@@ -57,7 +57,7 @@ export class DdbModel extends Model <DdbModel> {
             this.get_controller_alias(),
         ])
         
-        this.get_cluster_perf()
+        await this.get_cluster_perf()
         
         this.goto_default_view()
         
@@ -68,6 +68,16 @@ export class DdbModel extends Model <DdbModel> {
         this.get_version()
         
         this.get_license()
+        
+        const leader_node = this.nodes.find(node => 
+            node.isLeader === true)
+            
+        console.log('leader_node:',leader_node)
+        
+        if(this.node.name !== leader_node.name){
+            window.location.href = '//' + leader_node.host + ':' + leader_node.port
+        }
+        
     }
     
     
@@ -409,6 +419,8 @@ interface DdbNode {
     
     medLast10QueryTime: bigint
     publicName: string
+    
+    isLeader: boolean
     
     // ... 省略了一些
 }
