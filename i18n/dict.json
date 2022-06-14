@@ -415,5 +415,20 @@
     },
     "多控制节点": {
         "en": "multicontroller"
+    },
+    "您访问的这个控制结点现在不是高可用 (raft) 集群的 leader 结点, 将会为您自动跳转到集群当前的 leader 结点: ": {
+        "en": "The controller you're visiting is not the raft leader in the high-availability cluster. You will be redirected to the current leader: "
+    },
+    "左侧编辑器使用指南:\n": {
+        "en": "Editor usage guide on the left"
+    },
+    "按 Ctrl + E 执行选中代码或光标所在行代码\n": {
+        "en": "Press Ctrl + E to execute the selected code or the line of code where the cursor is located"
+    },
+    "按 Ctrl + S 保存代码\n": {
+        "en": "Press Ctrl + S to save the code"
+    },
+    "按 F1 查看更多编辑器命令": {
+        "en": "Press F1 to see more editor commands"
     }
 }

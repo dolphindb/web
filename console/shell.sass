@@ -1,53 +1,77 @@
+.view-card.shell
+    padding: 0px !important
+    
+
 .shell
     height: 100%
     
     display: flex
     
-    .editor
-        border: 1px solid #e5e5e5
+    .editor-resizable
+        height: 100%
         
-        position: relative
-        
-        flex: 3
         min-width: 0px
         
-        .monaco-editor
-            .line-numbers
-                color: #888888
+        .editor
+            height: 100%
             
-            .active-line-number.line-numbers
-                color: #444444
+            border: 1px solid #e5e5e5
             
-            // .margin-view-overlays
-            //     background: #f0f0f0
+            position: relative
+            
+            .monaco-editor
+                .line-numbers
+                    color: #888888
+                
+                .active-line-number.line-numbers
+                    color: #444444
+                
+                // .margin-view-overlays
+                //     background: #f0f0f0
+        
+            .monaco-editor, .monaco-editor-background, .monaco-editor .inputarea.ime-input
+                background-color: #ffffff
+            
+            .monaco-editor .margin
+                background-color: #ffffff
+    
+    .variables-resizable
+        border-right: 1px solid #e5e5e5
+        
     
     .display
-        flex: 2
+        flex: 1
         min-width: 0px
-        
-        display: flex
-        flex-direction: column
         
         border-top: 1px solid #e5e5e5
         border-bottom: 1px solid #e5e5e5
         border-right: 1px solid #e5e5e5
         
-        .term
-            flex: 1
+        display: flex
+        flex-direction: column
+        overflow: hidden
+        
+        box-sizing: border-box
+        
+        .resizable-handle
+            z-index: 10000
+        
+        .dataview-resizable
             min-height: 0px
             
             border-bottom: 1px solid #e5e5e5
             
-            .terminal
+            overflow: hidden
+            
+            .dataview
                 padding: 20px
-                
+                font-size: 16px
         
-        .dataview
-            flex: 1
+        .term
             min-height: 0px
             
-            padding: 20px
-            font-size: 16px
+            flex: 1
             
-            
-            
+            .terminal
+                padding: 20px 20px 0px 20px
+        

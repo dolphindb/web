@@ -4,6 +4,8 @@ import { Model } from 'react-object-model'
 
 import { ddb, DdbFunctionType, DdbObj, DdbInt, DdbLong } from 'dolphindb/browser.js'
 
+import { t } from '../i18n/index.js'
+
 const storage_keys = {
     ticket: 'ddb.ticket',
     username: 'ddb.username',
@@ -57,7 +59,11 @@ export class DdbModel extends Model <DdbModel> {
             this.get_controller_alias(),
         ])
         
-        this.get_cluster_perf()
+        ;(async () => {
+            await this.get_cluster_perf()
+            await this.check_leader_and_redirect()
+        })()
+        
         
         this.goto_default_view()
         
@@ -205,7 +211,8 @@ export class DdbModel extends Model <DdbModel> {
     }
     
     
-    /** https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/g/getClusterPerf.html  
+    /** 获取 nodes 和 node 信息
+        https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/g/getClusterPerf.html  
         Only master or single mode supports function getClusterPerf.
     */
     async get_cluster_perf () {
@@ -236,6 +243,21 @@ export class DdbModel extends Model <DdbModel> {
         })
     }
     
+    
+    async check_leader_and_redirect () {
+        if (this.node.mode === NodeType.controller && 'isLeader' in this.node && this.node.isLeader === false) {
+            const leader = this.nodes.find(node => 
+                node.isLeader)
+            
+            if (leader) {
+                alert(
+                    t('您访问的这个控制结点现在不是高可用 (raft) 集群的 leader 结点, 将会为您自动跳转到集群当前的 leader 结点: ') + leader.site
+                )
+                
+                location.host = `${leader.host}:${leader.port}`
+            }
+        }
+    }
     
     async get_console_jobs () {
         return ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', [ ], {
@@ -410,6 +432,8 @@ interface DdbNode {
     medLast10QueryTime: bigint
     publicName: string
     
+    isLeader: boolean
+    
     // ... 省略了一些
 }
 
@@ -478,4 +502,3 @@ enum DdbNodeState {
 
 
 export let model = window.model = new DdbModel()
-

@@ -5,6 +5,8 @@ import './shell.sass'
 
 import { default as React, useEffect, useRef } from 'react'
 
+import { Resizable } from 're-resizable'
+
 import { message } from 'antd'
 
 import dayjs from 'dayjs'
@@ -36,7 +38,7 @@ import docs_en from 'dolphindb/docs.en.json'
 
 
 import { delta2str, delay } from 'xshell/utils.browser.js'
-import { red } from 'xshell/chalk.browser.js'
+import { red, blue } from 'xshell/chalk.browser.js'
 
 import { Model } from 'react-object-model'
 
@@ -104,11 +106,25 @@ class ShellModel extends Model<ShellModel> {
             })
             
             this.term.writeln(
-                (ddbobj.form === DdbForm.scalar && ddbobj.type === DdbType.void ?
-                    ''
-                :
-                    ddbobj.toString().trimEnd() + '\n' 
-                ) +
+                (() => {
+                    switch (ddbobj.form) {
+                        case DdbForm.vector:
+                        case DdbForm.set:
+                        case DdbForm.matrix:
+                        case DdbForm.table:
+                        case DdbForm.chart:
+                            return blue(
+                                ddbobj.inspect_type().trimEnd()
+                            ) + '\n'
+                        
+                        default: {
+                            if (ddbobj.type === DdbType.void)
+                                return ''
+                            
+                            return ddbobj.toString(true).trimEnd() + '\n'
+                        }
+                    }
+                })() +
                 `(${delta2str(
                     dayjs().diff(time_start)
                 )})`
@@ -127,7 +143,30 @@ let shell = new ShellModel()
 
 export function Shell () {
     return <>
-        <Editor />
+        <Resizable
+            className='editor-resizable'
+            defaultSize={{ height: '100%', width: '60%' }}
+            enable={{ top: false, right: true, bottom: false, left:false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
+            onResizeStop={async () => {
+                await delay(200)
+                shell.fit_addon?.fit()
+            }}
+        >
+            <Editor />
+        </Resizable>
+        
+        {/* <Resizable
+            className='variables-resizable'
+            defaultSize={{ height: '100%', width: '10%' }}
+            enable={{ top: false, right: true, bottom: false, left:false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
+            onResizeStop={async () => {
+                await delay(200)
+                shell.fit_addon?.fit()
+            }}
+        >
+            variables
+        </Resizable> */}
+        
         <Display />
     </>
 }
@@ -554,8 +593,22 @@ function Editor () {
 
 function Display () {
     return <div className='display'>
+        <Resizable
+            className='dataview-resizable'
+            enable={{ top: false, right: false, bottom: true, left:false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
+            defaultSize={{ height: '50%', width: '100%' }}
+            handleStyles={{ bottom: { height: 20, bottom: -10 } }}
+            handleClasses={{ bottom: 'resizable-handle' }}
+            onResizeStop={async () => {
+                await delay(200)
+                shell.fit_addon?.fit()
+            }}
+        >
+            <DataView />
+        </Resizable>
+        
         <Term />
-        <DataView />
+        {/* <div>Term</div> */}
     </div>
 }
 
@@ -615,7 +668,12 @@ function Term () {
             
             ddb.listeners.push(printer)
             
-            term.writeln('DolphinDB Shell')
+            term.writeln(
+                t('左侧编辑器使用指南:\n') +
+                t('按 Ctrl + E 执行选中代码或光标所在行代码\n') +
+                t('按 Ctrl + S 保存代码\n') +
+                t('按 F1 查看更多编辑器命令')
+            )
         })()
         
         return () => {

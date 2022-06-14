@@ -75,7 +75,7 @@ function DolphinDB () {
     if (!inited)
         return null
     
-    return <ConfigProvider locale={locales[language]} autoInsertSpaceInButton={false}>
+    return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false}>
         <Layout className='root-layout'>
             <Layout.Header className='header'>
                 <DdbHeader />
@@ -172,7 +172,7 @@ function DdbSider () {
     const { view, node_type, collapsed } = model.use(['view', 'node_type', 'collapsed'])
     
     return <Layout.Sider
-        width={200}
+        width={150}
         className='sider'
         theme='light'
         collapsible

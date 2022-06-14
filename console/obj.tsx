@@ -160,7 +160,9 @@ function Vector ({
         info.rows
     )
     
-    const [page_size, set_page_size] = useState(200)
+    const [page_size, set_page_size] = useState(
+        (ctx === 'page' || ctx === 'window') ? 200 : 100
+    )
     
     const nrows = Math.min(
         Math.ceil(info.rows / ncols),
@@ -439,7 +441,9 @@ function Table ({
     
     const ncols = info.cols
     
-    const [page_size, set_page_size] = useState(10)
+    const [page_size, set_page_size] = useState(
+        (ctx === 'page' || ctx === 'window') ? 20 : 10
+    )
     
     const nrows = Math.min(page_size, info.rows)
     
@@ -627,7 +631,9 @@ function Matrix ({
     
     const ncols = info.cols
     
-    const [page_size, set_page_size] = useState(20)
+    const [page_size, set_page_size] = useState(
+        (ctx === 'page' || ctx === 'window') ? 20 : 10
+    )
     
     const nrows = Math.min(page_size, info.rows)
     
