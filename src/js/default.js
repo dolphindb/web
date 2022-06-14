@@ -14,10 +14,7 @@ $(document).ready(function () {
     
     wa_url = GetFullUrl(window.location.host);
     var controller = new ControllerServer(wa_url);
-    //ha
-    if(!controller.isLeader()){
-        alert("The specified controller is a follower of a raft group. The active leader is : " + controller.getCurrentLeader());
-    }
+    
     //var leaderUrl = GetFullUrl(controller.getLeaderUrl());
     //if(leaderUrl!=wa_url) window.location.href = leaderUrl;
     
@@ -36,7 +33,7 @@ $(document).ready(function () {
         })
     
     var currentUser = controller.getCurrentUser();
-    console.log('iframe.user', currentUser.userId)
+    console.log('iframe.user:', currentUser.userId)
     
     if (currentUser.userId == "guest") {
         $("#btnLogin").show();
@@ -956,7 +953,7 @@ function bytesToSize(bytes) {
 
 function openDialog(dialog, tit) {
     $("#" + dialog).dialog({
-        width: 900,
+        width: 1200,
         height: 650,
         position: { my: "center", at: "center", of: window },
         title: tit,
