@@ -30,6 +30,7 @@ npm run build
 
 # 2. 构建 cloud
 npm run build.cloud
+# 完成后产物在 web.cloud 文件夹中
 
 # 3. 开发
 npm run dev

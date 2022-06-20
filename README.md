@@ -30,6 +30,7 @@ npm run build
 
 # 2. Build the cloud
 npm run build.cloud
+# The finished product is in the web.cloud folder
 
 # 3. Development
 npm run dev
