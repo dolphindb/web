@@ -13,6 +13,10 @@ if (process.argv.includes('cloud')) {
     await Promise.all([
         ... ['index.html', 'cloud.svg', 'ddb.png'].map(async fname => 
             fcopy(fpd_src_cloud + fname, fpd_out_cloud + fname)),
+        
+        fcopy(`${fpd_root}README.md`, `${fpd_out_cloud}README.md`),
+        fcopy(`${fpd_root}README.zh.md`, `${fpd_out_cloud}README.zh.md`),
+        
         copy_fonts(true),
         webpack.build(true)
     ])
@@ -21,8 +25,13 @@ if (process.argv.includes('cloud')) {
     
     await Promise.all([
         fcopy(`${fpd_root}src/`, fpd_out_console),
+        
         ... ['index.html', 'window.html', 'ddb.svg'].map(async fname => 
             fcopy(fpd_src_console + fname, fpd_out_console + fname)),
+        
+        fcopy(`${fpd_root}README.md`, `${fpd_out_console}README.md`),
+        fcopy(`${fpd_root}README.zh.md`, `${fpd_out_console}README.zh.md`),
+        
         copy_fonts(false),
         get_monaco(),
         webpack.build(false)

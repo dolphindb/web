@@ -6,10 +6,12 @@ import { ddb, DdbFunctionType, DdbObj, DdbInt, DdbLong } from 'dolphindb/browser
 
 import { t } from '../i18n/index.js'
 
-const storage_keys = {
+export const storage_keys = {
     ticket: 'ddb.ticket',
     username: 'ddb.username',
     session_id: 'ddb.session_id',
+    collapsed: 'ddb.collapsed',
+    code: 'ddb.code',
 } as const
 
 const username_guest = 'guest' as const
@@ -17,7 +19,7 @@ const username_guest = 'guest' as const
 export class DdbModel extends Model <DdbModel> {
     inited = false
     
-    collapsed = false
+    collapsed = localStorage.getItem(storage_keys.collapsed) === 'true'
     
     view = '' as 'overview' | 'shell' | 'shellold' | 'table' | 'job' | 'cluster' | 'login' | 'dfs' | 'log'
     

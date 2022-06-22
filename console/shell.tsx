@@ -7,7 +7,7 @@ import { default as React, useEffect, useRef } from 'react'
 
 import { Resizable } from 're-resizable'
 
-import { message } from 'antd'
+import { message, Tree } from 'antd'
 
 import dayjs from 'dayjs'
 
@@ -26,7 +26,10 @@ import {
     DdbForm,
     type DdbMessage,
     DdbObj,
-    DdbType
+    DdbType,
+    format,
+    DdbFunctionType,
+    type DdbFunctionDefValue,
 } from 'dolphindb/browser.js'
 
 import { keywords, constants } from 'dolphindb/language.js'
@@ -47,7 +50,7 @@ import { t, language } from '../i18n/index.js'
 
 import { Obj } from './obj.js'
 
-import { model } from './model.js'
+import { model, storage_keys } from './model.js'
 
 
 const docs = language === 'zh' ? docs_zh : docs_en
@@ -84,6 +87,8 @@ class ShellModel extends Model<ShellModel> {
     editor: monaco.editor.IStandaloneCodeEditor
     
     result: DdbObj
+    
+    vars: DdbVar[]
     
     
     async eval (code = this.editor.getValue()) {
@@ -136,6 +141,87 @@ class ShellModel extends Model<ShellModel> {
             throw error
         }
     }
+    
+    
+    async update_vars () {
+        let objs = await ddb.call('objs', [true])
+        
+        const vars_data = objs
+            .to_rows()
+            .map(
+                ({
+                    name,
+                    type,
+                    form,
+                    rows,
+                    columns,
+                    bytes,
+                    shared,
+                    extra
+                }: {
+                    name: string
+                    type: string
+                    form: string
+                    rows: number
+                    columns: number
+                    bytes: bigint
+                    shared: boolean
+                    extra: string
+                }) => ({
+                    name,
+                    type: (() => {
+                        const _type = type.toLowerCase()
+                        return _type.endsWith('[]') ? DdbType[_type.slice(0, -2)] + 64 : DdbType[_type]
+                    })(),
+                    form: (() => {
+                        const _form = form.toLowerCase()
+                        switch (_form) {
+                            case 'dictionary':
+                                return DdbForm.dict
+                                
+                            case 'sysobj':
+                                return DdbForm.object
+                                
+                            default:
+                                return DdbForm[_form]
+                        }
+                    })(),
+                    rows,
+                    cols: columns,
+                    bytes,
+                    shared,
+                    extra,
+                    obj: undefined as DdbObj
+                })
+            )
+            .filter(
+                v =>
+                    v.name !== 'pnode_run' &&
+                    !(
+                        v.form === DdbForm.object &&
+                        (v.name === 'list' || v.name === 'tuple' || v.name === 'dict' || v.name === 'set' || v.name === '_ddb')
+                    )
+            )
+            
+        let imutables = vars_data.filter(v => v.form === DdbForm.scalar || v.form === DdbForm.pair)
+        
+        if (imutables.length) {
+            const { value: values } = await ddb.eval<DdbObj<DdbObj[]>>(
+                `(${imutables.map(({ name }) => name).join(', ')}, 0)${ddb.python ? '.toddb()' : ''}`
+            )
+            
+            for (let i = 0; i < values.length - 1; i++) imutables[i].obj = values[i]
+        }
+        
+        
+        this.set({
+            vars: vars_data.map(data => 
+                new DdbVar(data)
+            )
+        })
+        
+        console.log('vars:', this.vars)
+    }
 }
 
 let shell = new ShellModel()
@@ -143,6 +229,21 @@ let shell = new ShellModel()
 
 export function Shell () {
     return <>
+        <Resizable
+            className='variables-resizable'
+            defaultSize={{ height: '100%', width: '10%' }}
+            enable={{ top: false, right: true, bottom: false, left:false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
+            onResizeStop={async () => {
+                await delay(200)
+                shell.fit_addon?.fit()
+            }}
+        >
+            <div className='variables'>
+                <Variables shared={false} />
+                <Variables shared />
+            </div>
+        </Resizable>
+        
         <Resizable
             className='editor-resizable'
             defaultSize={{ height: '100%', width: '60%' }}
@@ -154,18 +255,6 @@ export function Shell () {
         >
             <Editor />
         </Resizable>
-        
-        {/* <Resizable
-            className='variables-resizable'
-            defaultSize={{ height: '100%', width: '10%' }}
-            enable={{ top: false, right: true, bottom: false, left:false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
-            onResizeStop={async () => {
-                await delay(200)
-                shell.fit_addon?.fit()
-            }}
-        >
-            variables
-        </Resizable> */}
         
         <Display />
     </>
@@ -524,7 +613,7 @@ function Editor () {
             
             onMount={(editor, monaco) => {
                 editor.setValue(
-                    localStorage.getItem('dolphindb.code') || ''
+                    localStorage.getItem(storage_keys.code) || ''
                 )
                 
                 editor.addAction({
@@ -546,6 +635,8 @@ function Editor () {
                             :
                                 model.getValueInRange(selection, monaco.editor.EndOfLinePreference.LF)
                         )
+                        
+                        await shell.update_vars()
                     }
                 })
                 
@@ -560,7 +651,7 @@ function Editor () {
                     
                     async run (editor) {
                         localStorage.setItem(
-                            'dolphindb.code',
+                            storage_keys.code,
                             editor.getValue()
                         )
                         
@@ -583,6 +674,7 @@ function Editor () {
                 
                 shell.set({
                     editor,
+                    // @ts-ignore
                     monaco
                 })
             }}
@@ -595,7 +687,7 @@ function Display () {
     return <div className='display'>
         <Resizable
             className='dataview-resizable'
-            enable={{ top: false, right: false, bottom: true, left:false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
+            enable={{ top: false, right: false, bottom: true, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
             defaultSize={{ height: '50%', width: '100%' }}
             handleStyles={{ bottom: { height: 20, bottom: -10 } }}
             handleClasses={{ bottom: 'resizable-handle' }}
@@ -708,6 +800,284 @@ function DataView () {
             <Obj obj={result} remote={null} ctx='embed' />
     }</div>
 }
+
+
+function Variables ({ shared }: { shared?: boolean }) {
+    const { vars } = shell.use(['vars'])
+    
+    if (!vars)
+        return
+    
+    const vars_ = vars.filter(v => {
+        return v.shared === shared
+    })
+    
+    let scalar = new TreeDataItem('scalar', '0', <img src='../icons/scalar.svg' />)
+    let vector = new TreeDataItem('vector', '1', <img src='../icons/vector.svg' />)
+    let pair = new TreeDataItem('pair', '2', <img src='../icons/pair.svg' />)
+    let matrix = new TreeDataItem('matrix', '3', <img src='../icons/matrix.svg' />)
+    let set = new TreeDataItem('set', '4', <img src='../icons/set.svg' />)
+    let dict = new TreeDataItem('dict', '5', <img src='../icons/dict.svg' />)
+    let table = new TreeDataItem('table', '6', <img src='../icons/table.svg' />)
+    let chart = new TreeDataItem('chartr', '7', <img src='../icons/chart.svg' />)
+    let chunk = new TreeDataItem('chunk', '8', <img src='../icons/chunk.svg' />)
+    let object = new TreeDataItem('object', '9', <img src='../icons/object.svg' />)
+    
+    let scalars: TreeDataItem[] = []
+    let vectors: TreeDataItem[] = []
+    let pairs: TreeDataItem[] = []
+    let matrixs: TreeDataItem[] = []
+    let sets: TreeDataItem[] = []
+    let dicts: TreeDataItem[] = []
+    let tables: TreeDataItem[] = []
+    let charts: TreeDataItem[] = []
+    let chunks: TreeDataItem[] = []
+    let objects: TreeDataItem[] = []
+    
+    for (const v of vars_)
+        switch (v.form) {
+            case DdbForm.scalar:
+                scalars.push(new TreeDataItem(v.label, v.name))
+                scalar.children = scalars
+                break
+                
+            case DdbForm.vector:
+                vectors.push(new TreeDataItem(v.label, v.name))
+                vector.children = vectors
+                break
+                
+            case DdbForm.pair:
+                pairs.push(new TreeDataItem(v.label, v.name))
+                pair.children = pairs
+                break
+                
+            case DdbForm.matrix:
+                matrixs.push(new TreeDataItem(v.label, v.name))
+                matrix.children = matrixs
+                break
+                
+            case DdbForm.set:
+                sets.push(new TreeDataItem(v.label, v.name))
+                set.children = sets
+                break
+                
+            case DdbForm.dict:
+                dicts.push(new TreeDataItem(v.label, v.name))
+                dict.children = dicts
+                break
+                
+            case DdbForm.table:
+                tables.push(new TreeDataItem(v.label, v.name))
+                table.children = tables
+                break
+                
+            case DdbForm.chart:
+                charts.push(new TreeDataItem(v.label, v.name))
+                chart.children = charts
+                break
+                
+            case DdbForm.chunk:
+                chunks.push(new TreeDataItem(v.label, v.name))
+                chunk.children = chunks
+                break
+                
+            case DdbForm.object:
+                objects.push(new TreeDataItem(v.label, v.name))
+                object.children = objects
+                break
+        }
+    
+    let treedata = [scalar, object, pair, vector, set, dict, matrix, table, chart, chunk].filter(node => 
+        node.children)
+    
+    console.log('treedata', treedata)
+    
+    if (!treedata.length)
+        return
+    
+    return <div className={ shared ? 'shared' : 'local' }>
+        <div className='type'>{ shared ? t('共享变量') : t('本地变量')}</div>
+        <Tree
+            showIcon
+            defaultExpandAll
+            focusable={false}
+            blockNode
+            showLine
+            treeData={treedata}
+            // switcherIcon={<DownOutlined />}
+            // titleRender={node => {
+            //     return <div>title</div>
+            // }}
+            onSelect={async ([key]) => {
+                if (!key)
+                    return
+                
+                const v = vars.find(node => 
+                    node.name === key
+                )
+                
+                if (!v)
+                    return
+                
+                if (!v.obj)
+                    return
+                
+                shell.set({ result: v.obj })
+            }}
+        />
+    </div>
+}
+
+class TreeDataItem {
+    title: any
+    key: string
+    children?: TreeDataItem[]
+    icon?: any
+    tooltip?: string
+    
+    constructor (title: any, key: string, icon?: any, children?: TreeDataItem[], tooltip?: string) {
+        this.title = title
+        this.key = key
+        this.children = children
+        // this.icon = icon || <img src='../icons/variable.svg' />
+        this.tooltip = tooltip
+    }
+}
+
+
+class DdbVar <T extends DdbObj = DdbObj> {
+    static size_limit = 10240n as const
+    
+    label: string
+    
+    shared: boolean
+    
+    type: DdbType
+    
+    name: string
+    
+    form: DdbForm
+    
+    rows: number
+    
+    cols: number
+    
+    bytes: bigint
+    
+    tooltip: string
+    
+    obj: T
+    
+    constructor (data: Partial<DdbVar>) {
+        Object.assign(this, data)
+        
+        this.label = (() => {
+            const tname = DdbType[this.type]
+            
+            const type = (() => {
+                switch (this.form) {
+                    case DdbForm.scalar:
+                        if (this.type === DdbType.functiondef)
+                            return `<functiondef<${DdbFunctionType[(this.obj.value as DdbFunctionDefValue).type]}>>`
+                            
+                        return `<${tname}>`
+                        
+                    case DdbForm.pair:
+                        return `<${tname}>`
+                        
+                    case DdbForm.vector:
+                        return `<${64 <= this.type && this.type < 128 ? `${DdbType[this.type - 64]}[]` : tname}> ${this.rows} rows`
+                        
+                    case DdbForm.set:
+                        return `<${tname}> ${this.rows} keys`
+                        
+                    case DdbForm.table:
+                        return ` ${this.rows} × ${this.cols}`
+                        
+                    case DdbForm.dict:
+                        return ` ${this.rows} keys`
+                        
+                    case DdbForm.matrix:
+                        return `<${tname}> ${this.rows} × ${this.cols}`
+                        
+                    case DdbForm.object:
+                        return ''
+                        
+                    default:
+                        return ` ${DdbForm[this.form]} ${tname}`
+                }
+            })()
+            
+            const value = (() => {
+                switch (this.form) {
+                    case DdbForm.scalar:
+                        return ' = ' + format(this.type, this.obj.value, this.obj.le)
+                        
+                    // 类似 DdbObj[inspect.custom] 中 format data 的逻辑
+                    case DdbForm.pair: {
+                        function format_array (items: string[], ellipsis: boolean) {
+                            const str_items = items.join(', ') + (ellipsis ? ', ...' : '')
+                            
+                            return str_items.bracket('square')
+                        }
+                        
+                        switch (this.type) {
+                            case DdbType.uuid:
+                            case DdbType.int128:
+                            case DdbType.ipaddr: {
+                                const limit = 10 as const
+                                
+                                const value = this.obj.value as Uint8Array
+                                
+                                const len_data = value.length / 16
+                                
+                                let items = new Array(Math.min(limit, len_data))
+                                
+                                for (let i = 0; i < items.length; i++) items[i] = format(this.type, value.subarray(16 * i, 16 * (i + 1)), this.obj.le)
+                                
+                                return ' = ' + format_array(items, len_data > limit)
+                            }
+                            
+                            case DdbType.complex:
+                            case DdbType.point: {
+                                const limit = 20 as const
+                                
+                                const value = this.obj.value as Float64Array
+                                
+                                const len_data = value.length / 2
+                                
+                                let items = new Array(Math.min(limit, len_data))
+                                
+                                for (let i = 0; i < items.length; i++) items[i] = format(this.type, value.subarray(2 * i, 2 * (i + 1)), this.obj.le)
+                                
+                                return ' = ' + format_array(items, len_data > limit)
+                            }
+                            
+                            default: {
+                                const limit = 50 as const
+                                
+                                let items = new Array(Math.min(limit, (this.obj.value as any[]).length))
+                                
+                                for (let i = 0; i < items.length; i++) items[i] = format(this.type, this.obj.value[i], this.obj.le)
+                                
+                                return ' = ' + format_array(items, (this.obj.value as any[]).length > limit)
+                            }
+                        }
+                    }
+                    
+                    case DdbForm.object:
+                        return ''
+                        
+                    default:
+                        return ` [${Number(this.bytes).to_fsize_str().replace(' ', '')}]`
+                }
+            })()
+            
+            return this.name + type + value
+        })()
+    }
+}
+
 
 
 /** 最大搜索行数 */

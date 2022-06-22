@@ -42,7 +42,7 @@ import { date2str } from 'dolphindb/browser.js'
 
 import { language, t } from '../i18n/index.js'
 
-import { model, DdbModel, NodeType } from './model.js'
+import { model, DdbModel, NodeType, storage_keys } from './model.js'
 
 import { Login } from './login.js'
 import { Cluster } from './cluster.js'
@@ -138,25 +138,34 @@ function DdbHeader () {
         <div className='user'>
             <Dropdown
                 overlay={
-                    <Menu className='menu'>{
-                        logined ?
-                            <Menu.Item key='logout' icon={<LogoutOutlined />}>
-                                <a
-                                    className='logout'
-                                    onClick={() => {
-                                        model.logout()
-                                    }}
-                                >{t('注销')}</a>
-                            </Menu.Item>
-                        :
-                            <Menu.Item key='login' icon={<LogoutOutlined />}>
-                                <a
-                                    className='login'
-                                    onClick={() => {
-                                        model.set({ view: 'login' })
-                                }}>{t('登录')}</a>
-                            </Menu.Item>
-                    }</Menu>
+                    <Menu
+                        className='menu'
+                        items={[
+                            logined ?
+                                {
+                                    label: <a
+                                            className='logout'
+                                            onClick={() => {
+                                                model.logout()
+                                            }}
+                                        >{t('注销')}</a>,
+                                    key: 'logout',
+                                    icon: <LogoutOutlined />
+                                }
+                            :
+                                {
+                                    label: <a
+                                            className='login'
+                                            onClick={() => {
+                                                model.set({ view: 'login' })
+                                            }}
+                                        >{t('登录')}</a>,
+                                    key: 'login',
+                                    icon: <LogoutOutlined />
+                                }
+                            ]
+                        } 
+                    />
                 }
             >
                 <a className='username'>
@@ -172,7 +181,7 @@ function DdbSider () {
     const { view, node_type, collapsed } = model.use(['view', 'node_type', 'collapsed'])
     
     return <Layout.Sider
-        width={150}
+        width={130}
         className='sider'
         theme='light'
         collapsible
@@ -180,9 +189,13 @@ function DdbSider () {
         collapsed={collapsed}
         trigger={<div className={`collapse-trigger ${collapsed ? 'collapsed' : 'expand'}`}>
             {collapsed ? <DoubleRightOutlined className='collapse-icon' /> : <DoubleLeftOutlined className='collapse-icon' />}
-            {!collapsed && <Text className='text' ellipsis>{t('收起侧边栏')}</Text>}
+            {!collapsed && <Text className='text' ellipsis>{t('收起侧栏')}</Text>}
         </div>}
         onCollapse={(collapsed, type) => {
+            localStorage.setItem(
+                storage_keys.collapsed,
+                String(collapsed)
+            )
             model.set({ collapsed })
         }}
     >
@@ -194,6 +207,7 @@ function DdbSider () {
             onSelect={({ key }) => {
                 model.set({ view: key as DdbModel['view'] })
             }}
+            inlineIndent={20}
             items={[
                 // {
                 //     key: 'overview',
