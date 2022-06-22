@@ -420,13 +420,13 @@
         "en": "The controller you're visiting is not the raft leader in the high-availability cluster. You will be redirected to the current leader: "
     },
     "左侧编辑器使用指南:\n": {
-        "en": "Editor usage guide on the left"
+        "en": "Editor usage guide on the left\n"
     },
     "按 Ctrl + E 执行选中代码或光标所在行代码\n": {
-        "en": "Press Ctrl + E to execute the selected code or the line of code where the cursor is located"
+        "en": "Press Ctrl + E to execute the selected code or the line of code where the cursor is located\n"
     },
     "按 Ctrl + S 保存代码\n": {
-        "en": "Press Ctrl + S to save the code"
+        "en": "Press Ctrl + S to save the code\n"
     },
     "按 F1 查看更多编辑器命令": {
         "en": "Press F1 to see more editor commands"

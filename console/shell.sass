@@ -47,8 +47,8 @@
             
             padding: 10px
             
-            .shared
-                margin-top: 20px
+            .local
+                margin-bottom: 20px
                 
             .type
                 color: #000000
@@ -58,8 +58,13 @@
                 border-right: unset !important
             
             .ant-tree
+                transition: unset !important
+                
                 .ant-tree-treenode
                     font-size: 12px
+                    
+                    .name
+                        font-weight: bold
                     
                     .ant-tree-switcher
                         width: auto
@@ -72,6 +77,8 @@
                     .ant-tree-node-content-wrapper 
                         padding: 0px
                         
+                        transition: unset !important
+                        
                         .ant-tree-iconEle
                             width: auto
                             margin-right: 5px
@@ -81,7 +88,10 @@
                         
                     .ant-tree .ant-tree-node-content-wrapper:hover
                         background-color: unset !important
-                        
+                
+                .ant-tree-switcher-noop
+                    display: none
+                
                         
             
     .display

@@ -8,6 +8,7 @@ import { default as React, useEffect, useRef } from 'react'
 import { Resizable } from 're-resizable'
 
 import { message, Tree } from 'antd'
+import { default as Icon } from '@ant-design/icons'
 
 import dayjs from 'dayjs'
 
@@ -40,6 +41,19 @@ import docs_zh from 'dolphindb/docs.zh.json'
 import docs_en from 'dolphindb/docs.en.json'
 
 
+import SvgVar from './shell.icons/variable.icon.svg'
+
+import SvgScalar from './shell.icons/scalar.icon.svg'
+import SvgVector from './shell.icons/vector.icon.svg'
+import SvgPair from './shell.icons/pair.icon.svg'
+import SvgMatrix from './shell.icons/matrix.icon.svg'
+import SvgSet from './shell.icons/set.icon.svg'
+import SvgDict from './shell.icons/dict.icon.svg'
+import SvgTable from './shell.icons/table.icon.svg'
+import SvgChart from './shell.icons/chart.icon.svg'
+import SvgObject from './shell.icons/object.icon.svg'
+
+
 import { delta2str, delay } from 'xshell/utils.browser.js'
 import { red, blue } from 'xshell/chalk.browser.js'
 
@@ -48,7 +62,7 @@ import { Model } from 'react-object-model'
 
 import { t, language } from '../i18n/index.js'
 
-import { Obj } from './obj.js'
+import { Obj, DdbObjRef } from './obj.js'
 
 import { model, storage_keys } from './model.js'
 
@@ -77,6 +91,8 @@ const funcs_lower = funcs.map(func =>
     func.toLowerCase())
 
 
+type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef }
+
 class ShellModel extends Model<ShellModel> {
     term: Terminal
     
@@ -86,7 +102,7 @@ class ShellModel extends Model<ShellModel> {
     
     editor: monaco.editor.IStandaloneCodeEditor
     
-    result: DdbObj
+    result: Result
     
     vars: DdbVar[]
     
@@ -107,7 +123,10 @@ class ShellModel extends Model<ShellModel> {
             console.log(ddbobj)
             
             this.set({
-                result: ddbobj,
+                result: {
+                    type: 'object',
+                    data: ddbobj
+                },
             })
             
             this.term.writeln(
@@ -231,7 +250,7 @@ export function Shell () {
     return <>
         <Resizable
             className='variables-resizable'
-            defaultSize={{ height: '100%', width: '10%' }}
+            defaultSize={{ height: '100%', width: '13%' }}
             enable={{ top: false, right: true, bottom: false, left:false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
             onResizeStop={async () => {
                 await delay(200)
@@ -792,12 +811,23 @@ function DataView () {
     const { result } = shell.use(['result'])
     
     return <div className='dataview result'>{
-        !result ||
-        result.form === DdbForm.scalar ||
-        result.form === DdbForm.pair ?
-            null
-        :
-            <Obj obj={result} remote={null} ctx='embed' />
+        (() => {
+            if (!result)
+                return
+            
+            const { type, data } = result
+            
+            if (
+                data.form === DdbForm.scalar || 
+                data.form === DdbForm.pair
+            )
+                return
+            
+            return type === 'object' ?
+                <Obj obj={data} ddb={ddb} ctx='embed' />
+            :
+                <Obj objref={data} ddb={ddb} ctx='embed' />
+        })()
     }</div>
 }
 
@@ -812,16 +842,15 @@ function Variables ({ shared }: { shared?: boolean }) {
         return v.shared === shared
     })
     
-    let scalar = new TreeDataItem('scalar', '0', <img src='../icons/scalar.svg' />)
-    let vector = new TreeDataItem('vector', '1', <img src='../icons/vector.svg' />)
-    let pair = new TreeDataItem('pair', '2', <img src='../icons/pair.svg' />)
-    let matrix = new TreeDataItem('matrix', '3', <img src='../icons/matrix.svg' />)
-    let set = new TreeDataItem('set', '4', <img src='../icons/set.svg' />)
-    let dict = new TreeDataItem('dict', '5', <img src='../icons/dict.svg' />)
-    let table = new TreeDataItem('table', '6', <img src='../icons/table.svg' />)
-    let chart = new TreeDataItem('chartr', '7', <img src='../icons/chart.svg' />)
-    let chunk = new TreeDataItem('chunk', '8', <img src='../icons/chunk.svg' />)
-    let object = new TreeDataItem('object', '9', <img src='../icons/object.svg' />)
+    let scalar = new TreeDataItem('scalar', '0', <Icon component={SvgScalar} />)
+    let vector = new TreeDataItem('vector', '1', <Icon component={SvgVector} />)
+    let pair = new TreeDataItem('pair', '2', <Icon component={SvgPair} />)
+    let matrix = new TreeDataItem('matrix', '3', <Icon component={SvgMatrix} />)
+    let set = new TreeDataItem('set', '4', <Icon component={SvgSet} />)
+    let dict = new TreeDataItem('dict', '5', <Icon component={SvgDict} />)
+    let table = new TreeDataItem('table', '6', <Icon component={SvgTable} />)
+    let chart = new TreeDataItem('chartr', '7', <Icon component={SvgChart} />)
+    let object = new TreeDataItem('object', '9', <Icon component={SvgObject} />)
     
     let scalars: TreeDataItem[] = []
     let vectors: TreeDataItem[] = []
@@ -831,7 +860,6 @@ function Variables ({ shared }: { shared?: boolean }) {
     let dicts: TreeDataItem[] = []
     let tables: TreeDataItem[] = []
     let charts: TreeDataItem[] = []
-    let chunks: TreeDataItem[] = []
     let objects: TreeDataItem[] = []
     
     for (const v of vars_)
@@ -876,18 +904,13 @@ function Variables ({ shared }: { shared?: boolean }) {
                 chart.children = charts
                 break
                 
-            case DdbForm.chunk:
-                chunks.push(new TreeDataItem(v.label, v.name))
-                chunk.children = chunks
-                break
-                
             case DdbForm.object:
                 objects.push(new TreeDataItem(v.label, v.name))
                 object.children = objects
                 break
         }
     
-    let treedata = [scalar, object, pair, vector, set, dict, matrix, table, chart, chunk].filter(node => 
+    let treedata = [scalar, object, pair, vector, set, dict, matrix, table, chart].filter(node => 
         node.children)
     
     console.log('treedata', treedata)
@@ -903,6 +926,7 @@ function Variables ({ shared }: { shared?: boolean }) {
             focusable={false}
             blockNode
             showLine
+            motion={null}
             treeData={treedata}
             // switcherIcon={<DownOutlined />}
             // titleRender={node => {
@@ -919,27 +943,37 @@ function Variables ({ shared }: { shared?: boolean }) {
                 if (!v)
                     return
                 
-                if (!v.obj)
-                    return
-                
-                shell.set({ result: v.obj })
+                shell.set({
+                    result: v.obj ? {
+                        type: 'object',
+                        data: v.obj
+                    } : {
+                        type: 'objref',
+                        data: new DdbObjRef(v)
+                    }
+                })
             }}
         />
     </div>
 }
 
 class TreeDataItem {
-    title: any
+    title: React.ReactElement
     key: string
     children?: TreeDataItem[]
     icon?: any
     tooltip?: string
     
-    constructor (title: any, key: string, icon?: any, children?: TreeDataItem[], tooltip?: string) {
-        this.title = title
+    constructor (title: string, key: string, icon?: any, children?: TreeDataItem[], tooltip?: string) {
+        const name = /^(\w+)/.exec(title)[1]
+        this.title = <>
+            <span className='name'>{name}</span>
+            {title.slice(name.length)}
+        </>
+        
         this.key = key
         this.children = children
-        // this.icon = icon || <img src='../icons/variable.svg' />
+        this.icon = icon || <Icon component={SvgVar} />
         this.tooltip = tooltip
     }
 }

@@ -14,6 +14,7 @@ import { Line, Pie, Bar, Column, Scatter, Area, DualAxes, Histogram, Stock } fro
 
 
 import {
+    type DDB,
     DdbObj,
     DdbForm,
     DdbType,
@@ -67,17 +68,19 @@ export function Obj ({
     objref,
     ctx = 'webview',
     remote,
+    ddb
 }: {
     obj?: DdbObj
     objref?: DdbObjRef
     ctx?: Context
-    remote: Remote
+    remote?: Remote
+    ddb?: DDB
 }) {
     const info = obj || objref
     
     const View = views[info.form] || Default
     
-    return <View obj={obj} objref={objref} ctx={ctx} remote={remote} />
+    return <View obj={obj} objref={objref} ctx={ctx} remote={remote} ddb={ddb} />
 }
 
 
@@ -117,11 +120,13 @@ export class DdbObjRef <T extends DdbValue = DdbValue> {
 export async function open_obj ({
     obj,
     objref,
-    remote
+    remote,
+    ddb,
 }: {
-    obj: DdbObj
-    objref: DdbObjRef
-    remote: Remote
+    obj?: DdbObj
+    objref?: DdbObjRef
+    remote?: Remote
+    ddb?: DDB
 }) {
     let win = window.open('./window.html', new Date().toString(), 'left=100,top=100,width=1000,height=640,popup')
     
@@ -133,12 +138,13 @@ export async function open_obj ({
         obj,
         objref,
         remote,
+        ddb
     })
 }
 
 
-function Default ({ obj }: { obj: DdbObj }) {
-    return <div>{obj.toString()}</div>
+function Default ({ obj, objref }: { obj?: DdbObj, objref?: DdbObjRef }) {
+    return <div>{(obj || objref).toString()}</div>
 }
 
 
@@ -147,11 +153,13 @@ function Vector ({
     objref,
     ctx,
     remote,
+    ddb,
 }: {
-    obj: DdbObj<DdbVectorValue>
-    objref: DdbObjRef<DdbVectorValue>
+    obj?: DdbObj<DdbVectorValue>
+    objref?: DdbObjRef<DdbVectorValue>
     ctx: Context
-    remote: Remote
+    remote?: Remote
+    ddb?: DDB
 }) {
     const info = obj || objref
     
@@ -193,13 +201,16 @@ function Vector ({
             
             console.log('vector.fetch:', script)
             
-            objref.obj = DdbObj.parse(
-                ... await remote.call<[Uint8Array, boolean]>({
-                    func: 'eval',
-                    args: [node, script]
-                })
-                
-            ) as DdbObj<DdbObj[]>
+            if (ddb)
+                objref.obj = await ddb.eval(script)
+            else
+                objref.obj = DdbObj.parse(
+                    ... await remote.call<[Uint8Array, boolean]>({
+                        func: 'eval',
+                        args: [node, script]
+                    })
+                    
+                ) as DdbObj<DdbObj[]>
             
             render({ })
         })()
@@ -250,7 +261,7 @@ function Vector ({
                     className='icon-link'
                     component={SvgLink}
                     onClick={async () => {
-                        await open_obj({ obj, objref, remote })
+                        await open_obj({ obj, objref, remote, ddb })
                     }}
                 />}
             </div>
@@ -431,11 +442,13 @@ function Table ({
     objref,
     ctx,
     remote,
+    ddb
 }: {
     obj?: DdbObj<DdbObj<DdbVectorValue>[]>
     objref?: DdbObjRef<DdbObj<DdbVectorValue>[]>
     ctx: Context
-    remote: Remote
+    remote?: Remote
+    ddb?: DDB
 }) {
     const info = obj || objref
     
@@ -471,12 +484,15 @@ function Table ({
             
             console.log(`table.fetch:`, script)
             
-            objref.obj = DdbObj.parse(
-                ... await remote.call<[Uint8Array, boolean]>({
-                    func: 'eval',
-                    args: [node, script]
-                })
-            ) as DdbObj<DdbObj<DdbVectorValue>[]>
+            if (ddb)
+                objref.obj = await ddb.eval(script)
+            else
+                objref.obj = DdbObj.parse(
+                    ... await remote.call<[Uint8Array, boolean]>({
+                        func: 'eval',
+                        args: [node, script]
+                    })
+                ) as DdbObj<DdbObj<DdbVectorValue>[]>
             
             render({ })
         })()
@@ -528,7 +544,7 @@ function Table ({
                     className='icon-link'
                     component={SvgLink}
                     onClick={async () => {
-                        await open_obj({ obj, objref, remote })
+                        await open_obj({ obj, objref, remote, ddb })
                     }}
                 />}
             </div>
@@ -621,11 +637,13 @@ function Matrix ({
     objref,
     ctx,
     remote,
+    ddb,
 }: {
     obj?: DdbObj<DdbMatrixValue>
     objref?: DdbObjRef<DdbMatrixValue>
     ctx?: Context
-    remote: Remote
+    remote?: Remote
+    ddb?: DDB
 }) {
     const info = obj || objref
     
@@ -661,12 +679,15 @@ function Matrix ({
             
             console.log('matrix.fetch', script)
             
-            objref.obj = DdbObj.parse(
-                ... await remote.call<[Uint8Array, boolean]>({
-                    func: 'eval',
-                    args: [node, script]
-                })
-            ) as DdbObj<DdbMatrixValue>
+            if (ddb)
+                objref.obj = await ddb.eval(script)
+            else
+                objref.obj = DdbObj.parse(
+                    ... await remote.call<[Uint8Array, boolean]>({
+                        func: 'eval',
+                        args: [node, script]
+                    })
+                ) as DdbObj<DdbMatrixValue>
             
             render({ })
         })()
@@ -718,7 +739,7 @@ function Matrix ({
                     className='icon-link'
                     component={SvgLink}
                     onClick={async () => {
-                        await open_obj({ obj, objref, remote })
+                        await open_obj({ obj, objref, remote, ddb })
                     }}
                 />}
             </div>
@@ -817,11 +838,13 @@ function Chart ({
     objref,
     ctx,
     remote,
+    ddb,
 }: {
     obj?: DdbObj<DdbChartValue>
     objref?: DdbObjRef<DdbChartValue>
     ctx?: Context
-    remote: Remote
+    remote?: Remote
+    ddb?: DDB
 }) {
     const [
         {
@@ -863,12 +886,17 @@ function Chart ({
                         }
                     }
                 }
-            } = obj || DdbObj.parse(
-                ... await remote.call<[Uint8Array, boolean]>({
-                    func: 'eval',
-                    args: [objref.node, objref.name]
-                })
-            ) as DdbObj<DdbChartValue>
+            } = obj ||
+                (ddb ? 
+                    await ddb.eval(objref.name)
+                :
+                    DdbObj.parse(
+                        ... await remote.call<[Uint8Array, boolean]>({
+                            func: 'eval',
+                            args: [objref.node, objref.name]
+                        })
+                    ) as DdbObj<DdbChartValue>
+                )
             
             const { multi_y_axes = false } = extras || { }
             
@@ -1268,7 +1296,7 @@ function Chart ({
                     className='icon-link'
                     component={SvgLink}
                     onClick={async () => {
-                        await open_obj({ obj, objref, remote })
+                        await open_obj({ obj, objref, remote, ddb })
                     }}
                 />}
             </div>
