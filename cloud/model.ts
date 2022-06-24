@@ -19,7 +19,7 @@ export const default_queries = {
 export class CloudModel extends Model <CloudModel> {
     inited = false
     
-    view = 'cloud'
+    view: 'cloud' | 'shell' = new URLSearchParams(location.search).get('view') as 'cloud' | 'shell' || 'cloud'
     
     clusters: Cluster[] = [ ]
     
@@ -34,6 +34,7 @@ export class CloudModel extends Model <CloudModel> {
     show_all_config = false
     
     monitor_url: string
+    
     
     async init () {
         await Promise.all([

@@ -430,5 +430,23 @@
     },
     "按 F1 查看更多编辑器命令": {
         "en": "Press F1 to see more editor commands"
+    },
+    "打开终端": {
+        "en": "open terminal"
+    },
+    "连接已关闭": {
+        "en": "connection closed"
+    },
+    "连接出错: ": {
+        "en": "connection errored: "
+    },
+    "已连接到: ": {
+        "en": "connected to "
+    },
+    "共享变量": {
+        "en": "Shared Variables"
+    },
+    "本地变量": {
+        "en": "Local Variables"
     }
 }

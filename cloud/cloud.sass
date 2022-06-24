@@ -5,25 +5,17 @@
     .cluster-create-form
         width: 600px
     
-    .creating-title
-        margin-top: 20px
-        
     .ant-input-number
         width: 100%
         
     .ant-input-number-group-wrapper
         width: 100%
-
+    
     .ant-table-thead > tr > th
         text-align: center
 
     .ant-table-tbody > tr > *
         text-align: center
-
-    .ant-layout-header
-        background: #ffffff
-        height: 60px
-        padding-left: 0px
     
     .button-create
         display: flex
@@ -60,73 +52,85 @@
         margin-bottom: 20px
         
     .cluster
-        .ant-page-header
-            padding: 0
+        .cluster-header
+            padding: 0px
             
-            margin-bottom: 10px
+            margin-bottom: 20px
             
+            h3.ant-typography
+                margin-bottom: 0px
+        
+            .ant-page-header-heading-left
+                margin: 0px
+            
+            .ant-page-header-back
+                margin-top: 2px
+        
         .ant-descriptions
             margin-bottom: 10px
             
-        .ant-descriptions-header
-            margin-bottom: 4px
+            .ant-descriptions-header
+                margin-bottom: 4px
 
-        .ant-descriptions-row > th
-            text-align: center
+            .ant-descriptions-row > th
+                text-align: center
 
-        .ant-descriptions-row > td
-            text-align: center
+            .ant-descriptions-row > td
+                text-align: center
+                
+            .ant-descriptions-item-content
+                width: 25%
         
-
         .ant-layout
             background: #ffffff
-
-
+        
         .service
             margin-bottom: 20px
+        
+        .restart
+            margin-left: 10px
+        
+        .sidebar-menu
+            .detail-menu-item:first-child
+                padding-top: unset
             
-        .cluster-header
-            h4.ant-typography
-                margin-bottom: 0px
+            .detail-menu-item
+                font-size: 1.15em
+                cursor: pointer
+                padding: 10px 10px 10px 0px
+                color: #707070
+                .font-content-wrapper
+                    padding-left: 20px
+
+            .detail-menu-item:hover
+                color: #2e2e2e
+
+            .detail-menu-item-checked
+                color: #2e2e2e
+                font-weight: 600
+                .font-content-wrapper
+                    padding-left: 15px
+                    border-left: 5px solid #707070
             
-        .ant-descriptions-item-content
-            width: 25%
-          
-        .sidebar          
-            .detail-menu
-                .detail-menu-item
-                    font-size: 1.15em
-                    cursor: pointer
-                    padding: 10px
-                    color: #707070
-                    .font-content-wrapper
-                        padding-left: 20px
-
-                .detail-menu-item:hover
-                    color: #2e2e2e
-
-                .detail-menu-item-checked
-                    color: #2e2e2e
-                    font-weight: 600
-                    .font-content-wrapper
-                        padding-left: 15px
-                        border-left: 5px solid #707070
-
+        
         .cluster-config
             position: relative
             
             .ant-tabs-tab-btn:focus, .ant-tabs-tab-btn:active, .ant-tabs-tab-btn:hover
                 color: rgba(0, 0, 0, .85)
+            
             .ant-tabs-tab:focus, .ant-tabs-tab:active, .ant-tabs-tab:hover
                 color: rgba(0, 0, 0, .85)
+            
             .ant-tabs-tab-active
                 .ant-tabs-tab-btn
                     color: rgba(0, 0, 0, .85)
+                
             .ant-tabs-ink-bar
                 background: #707070
                 height: 3px
             
-            .ant-table-tbody > tr :nth-child(5)
+            .ant-table-tbody > tr:nth-child(5)
                 text-align: left
             
             .cluster-button-block
@@ -139,6 +143,7 @@
                 
             .boolean-input-form
                 margin: 0px
+            
             .standalone-form
                 margin-top: 30px
             
@@ -149,18 +154,18 @@
             
             .edited-row
                 background: #f2f5ef
-                
+            
             .show-all-config
                 margin-left: 20px
-                
+            
             .cluster-config-header
                 display: flex
                 align-items: center
 
-// Modal
+// modal
 .cloud-create-panel
     .ant-divider-inner-text
-        font-weight: 600
+        font-weight: bold
     
     .ant-row
         justify-content: center

@@ -1,5 +1,5 @@
 html, body
-    margin: 0
+    margin: 0px
     height: 100%
     overscroll-behavior-y: contain
     
@@ -8,10 +8,12 @@ html, body
 
 .root
     box-sizing: border-box
+    
     height: 100%
     
-    .root-layout
-        height: 100%
+    display: flex
+    
+    flex-direction: column
     
     .header
         padding: 0px 20px
@@ -38,22 +40,14 @@ html, body
             flex: 1
         
         
-    .body
-        height: 100%
+    .view
+        flex: 1
         
-        .view
-            overflow: auto
-            
-            background-color: #ffffff
-            
-            display: flex
-            
-            flex-direction: column
-            
-            .view-card
-                padding: 20px
-                
-                background-color: #ffffff
-            
-            
+        min-height: 0px
+        
+        overflow: auto
+        
+        background-color: #ffffff
+        
+        padding: 20px
     

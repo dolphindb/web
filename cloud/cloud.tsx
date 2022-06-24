@@ -25,7 +25,7 @@ import {
     Divider,
     Checkbox,
 } from 'antd'
-import { ConsoleSqlOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors.js'
 import type { AlignType } from 'rc-table/lib/interface.js'
 
@@ -69,13 +69,9 @@ function ClusterDetail () {
     
     const { name } = cluster
 
-    const [field, setField] = useState<FieldType>('info') 
+    const [field, set_field] = useState<FieldType>('info') 
 
     const fields : FieldType[] = ['info', 'config', 'monitor']
-
-    const onButtonClick = (value: FieldType) => {
-        setField(value)
-    }
 
     const Content = {
         info: <InfoTab />,
@@ -84,51 +80,29 @@ function ClusterDetail () {
     
     return (
         <div className='cluster'>
+            <PageHeader
+                className='cluster-header'
+                title={
+                    <Title level={3}>{name}</Title>
+                }
+                onBack={() => {
+                    model.set({ cluster: null })
+                }}
+            />
             <Layout>
-                <Layout.Header>
-                    <PageHeader
-                        className='cluster-header'
-                        title={
-                            <Title level={4}>{name}</Title>
-                        }
-                        onBack={() => {
-                            model.set({ cluster: null })
-                        }}
-                    />
-                </Layout.Header>
-                <Layout>
-                    <Layout.Sider theme='light' className='sidebar' width='250px'>
-                        <ClusterDetailMenu field={field} fields={fields} onButtonClick={onButtonClick} />
-                    </Layout.Sider>
-                    <Layout.Content className='content'>
-                        {Content[field]}
-                    </Layout.Content>
-                </Layout>
+                <Layout.Sider theme='light' className='sidebar-menu' width={140}>
+                    {fields.map(f => (
+                        <ClusterDetailMenuItem key={f} focused={field === f} onClick={value => { set_field(value) }} value={f} />
+                    ))}
+                </Layout.Sider>
+                <Layout.Content className='content'>
+                    {Content[field]}
+                </Layout.Content>
             </Layout>
-
         </div>
     )
 }
 
-
-function ClusterDetailMenu ({
-    field,
-    fields,
-    onButtonClick
-}: {
-    field: FieldType,
-    fields: FieldType[],
-    onButtonClick: (value: FieldType) => void
-}) {
-
-    return(
-        <div className='detail-menu'>
-            {fields.map(f => (
-                <ClusterDetailMenuItem key={f} focused={field === f} onClick={onButtonClick} value={f} />
-            ))}
-        </div>
-    )
-}
 
 function ClusterDetailMenuItem({
     focused,
@@ -145,27 +119,25 @@ function ClusterDetailMenuItem({
         else
             onClick(value)
     }
-
+    
     let currClass = 'detail-menu-item'
-
-    if (focused) {
+    
+    if (focused)
         currClass += ' detail-menu-item-checked'
-    }
-
+    
     const displayValue = {
         info: t('基本信息'),
         config: t('配置参数'),
         monitor: t('集群监控')
     }
-
-    return(
-        <div className={currClass} onClick={onButtonClick}>
-                <span className='font-content-wrapper'>
-                    {displayValue[value]}
-                </span>
-        </div>
-    )
+    
+    return <div className={currClass} onClick={onButtonClick}>
+        <span className='font-content-wrapper'>
+            {displayValue[value]}
+        </span>
+    </div>
 }
+
 
 function InfoTab() {
     const { cluster } = model.use(['cluster'])
@@ -237,7 +209,7 @@ function Clusters () {
         let flag = true
         ;(async () => {
             while (true) {
-                await delay(2000)
+                await delay(5000)
                 if (!flag)
                     break
                 await model.get_clusters(queries)
@@ -842,7 +814,7 @@ function ClusterNodes ({
         ;(async () => {
             while (true) {
                 await get_nodes()
-                await delay(2000)
+                await delay(5000)
                 if (!flag)
                     break
             }
@@ -977,21 +949,35 @@ function NodeList ({
             {
                 title: t('操作'),
                 render (_, node) {
-                    return <Popconfirm
-                        title={t('确认重启？')}
-                        onConfirm={async () => {
-                            try {
-                                await model.restart_node(node)
-                                message.success(t('正在重启节点'))
-                            } catch (error) {
-                                message.error(`${t('重启节点失败')} ${JSON.stringify(error)}`)
+                    return <>
+                        <Link
+                            target='_blank'
+                            href={
+                                '?' + new URLSearchParams({
+                                    view: 'shell',
+                                    namespace: node.namespace,
+                                    cluster: cluster.name,
+                                    node: node.name
+                                }).toString()
                             }
-                            await delay(2000)
-                            get_nodes()
-                        }}
-                    >
-                        <Link>{t('重启')}</Link>
-                    </Popconfirm>
+                        >{t('打开终端')}</Link>
+                        
+                        <Popconfirm
+                            title={t('确认重启？')}
+                            onConfirm={async () => {
+                                try {
+                                    await model.restart_node(node)
+                                    message.success(t('正在重启节点'))
+                                } catch (error) {
+                                    message.error(`${t('重启节点失败')} ${JSON.stringify(error)}`)
+                                }
+                                await delay(2000)
+                                get_nodes()
+                            }}
+                        >
+                            <Link className='restart'>{t('重启')}</Link>
+                        </Popconfirm>
+                    </>
                 }
             }
         ]}

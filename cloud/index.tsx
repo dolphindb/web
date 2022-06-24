@@ -21,6 +21,7 @@ import { model } from './model.js'
 import { language } from '../i18n/index.js'
 
 import { Cloud } from './cloud.js'
+import { Shell } from './shell.js'
 
 
 const locales = { zh, en, ja, ko }
@@ -36,34 +37,29 @@ function DolphinDB () {
     if (!inited)
         return null
     
-    return <ConfigProvider locale={locales[language]} autoInsertSpaceInButton={false}>
-        <Layout className='root-layout'>
-            <Layout.Header className='header'>
-                <DdbHeader />
-            </Layout.Header>
-            <Layout className='body'>
-                {/* 目前只有一个管理界面，先不加侧边菜单 */}
-                <Layout.Content className='view'>
-                    <DdbContent />
-                </Layout.Content>
-            </Layout>
-        </Layout>
+    return <ConfigProvider
+        locale={locales[language] as any}
+        autoInsertSpaceInButton={false}
+    >
+        <DdbHeader />
+        <DdbContent />
     </ConfigProvider>
 }
 
 
 function DdbHeader () {
-    return <>
+    return <div className='header'>
         <img className='logo' src='./cloud.svg' />
         
         <div className='padding' />
-    </>
+    </div>
 }
 
 
 const views = {
     cloud: Cloud,
-}
+    shell: Shell
+} as const
 
 function DdbContent () {
     const { view } = model.use(['view'])
@@ -73,7 +69,7 @@ function DdbContent () {
     if (!View)
         return null
     
-    return <div className={`view-card ${view}`}>
+    return <div className={`view ${view}`}>
         <View/>
     </div>
 }
