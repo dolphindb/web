@@ -12,11 +12,21 @@
 
 ## [English](./README.md) | 中文
 
-### console: DolphinDB 数据库 Web 管理界面
+### Console: DolphinDB 数据库 Web 管理界面
 ![](./console/demo.png)
 
-### cloud: DolphinDB K8S 云平台 Web 管理界面
+#### 使用方法
+用浏览器访问 DolphinDB server 的 `IP:端口` 即可使用
+
+如需更新 web 界面，在右边的 releases 中 (https://github.com/dolphindb/web/releases) 下载最新的 web.xxxx.xx.xx.xx.zip 压缩包，用压缩包中的 web 文件夹直接替换 DolphinDB server 安装目录中的 web 文件夹即可，可以热替换，不需要重启服务器，替换后刷新网页即可。
+
+
+### Cloud: DolphinDB K8S 云平台 Web 管理界面
 ![](./cloud/demo.png)
+
+#### 使用方法
+https://github.com/dolphindb/Tutorials_CN/blob/master/%E5%AE%89%E8%A3%85%E5%92%8C%E9%83%A8%E7%BD%B2/k8s_deployment.md
+
 
 ### 构建及开发方法
 ```shell
