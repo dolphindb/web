@@ -122,12 +122,20 @@ class ShellModel extends Model<ShellModel> {
             
             console.log(ddbobj)
             
-            this.set({
-                result: {
-                    type: 'object',
-                    data: ddbobj
-                },
-            })
+            if (
+                ddbobj.form === DdbForm.chart ||
+                ddbobj.form === DdbForm.dict ||
+                ddbobj.form === DdbForm.matrix ||
+                ddbobj.form === DdbForm.set ||
+                ddbobj.form === DdbForm.table ||
+                ddbobj.form === DdbForm.vector
+            )
+                this.set({
+                    result: {
+                        type: 'object',
+                        data: ddbobj
+                    },
+                })
             
             this.term.writeln(
                 (() => {
@@ -943,15 +951,23 @@ function Variables ({ shared }: { shared?: boolean }) {
                 if (!v)
                     return
                 
-                shell.set({
-                    result: v.obj ? {
-                        type: 'object',
-                        data: v.obj
-                    } : {
-                        type: 'objref',
-                        data: new DdbObjRef(v)
-                    }
-                })
+                if (
+                    v.form === DdbForm.chart ||
+                    v.form === DdbForm.dict ||
+                    v.form === DdbForm.matrix ||
+                    v.form === DdbForm.set ||
+                    v.form === DdbForm.table ||
+                    v.form === DdbForm.vector
+                )
+                    shell.set({
+                        result: v.obj ? {
+                            type: 'object',
+                            data: v.obj
+                        } : {
+                            type: 'objref',
+                            data: new DdbObjRef(v)
+                        }
+                    })
             }}
         />
     </div>
@@ -1026,13 +1042,13 @@ class DdbVar <T extends DdbObj = DdbObj> {
                         return `<${tname}> ${this.rows} keys`
                         
                     case DdbForm.table:
-                        return ` ${this.rows} × ${this.cols}`
+                        return ` ${this.rows}r × ${this.cols}c`
                         
                     case DdbForm.dict:
                         return ` ${this.rows} keys`
                         
                     case DdbForm.matrix:
-                        return `<${tname}> ${this.rows} × ${this.cols}`
+                        return `<${tname}> ${this.rows}r × ${this.cols}c`
                         
                     case DdbForm.object:
                         return ''

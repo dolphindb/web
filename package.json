@@ -48,7 +48,7 @@
         "antd": "^4.21.4",
         "cross-env": "^7.0.3",
         "dayjs": "^1.11.3",
-        "dolphindb": "^2.0.600",
+        "dolphindb": "^2.0.602",
         "final-form": "^4.20.7",
         "koa-compress": "^5.1.0",
         "lodash": "^4.17.21",
@@ -57,7 +57,7 @@
         "react-object-model": "^0.0.19",
         "tslib": "^2.4.0",
         "upath": "^2.0.1",
-        "xshell": "^0.0.57",
+        "xshell": "^0.0.58",
         "xterm": "^4.18.0",
         "xterm-addon-fit": "^0.5.0"
     }
