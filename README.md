@@ -12,9 +12,11 @@
 
 ## English | [中文](./README.zh.md)
 
-### This project contains
-- console: DolphinDB database web management interface
-- cloud: DolphinDB K8S cloud platform web management interface
+### console: DolphinDB database web management interface
+![](./console/demo.png)
+
+### cloud: DolphinDB K8S cloud platform web management interface
+![](./cloud/demo.png)
 
 ### Build and Development
 ```shell

@@ -431,8 +431,8 @@
     "按 F1 查看更多编辑器命令": {
         "en": "Press F1 to see more editor commands"
     },
-    "打开终端": {
-        "en": "open terminal"
+    "终端": {
+        "en": "Terminal"
     },
     "连接已关闭": {
         "en": "connection closed"

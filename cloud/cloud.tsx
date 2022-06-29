@@ -90,7 +90,7 @@ function ClusterDetail () {
                 }}
             />
             <Layout>
-                <Layout.Sider theme='light' className='sidebar-menu' width={140}>
+                <Layout.Sider theme='light' className='sidebar-menu' width={180}>
                     {fields.map(f => (
                         <ClusterDetailMenuItem key={f} focused={field === f} onClick={value => { set_field(value) }} value={f} />
                     ))}
@@ -960,7 +960,7 @@ function NodeList ({
                                     node: node.name
                                 }).toString()
                             }
-                        >{t('打开终端')}</Link>
+                        >{t('终端')}</Link>
                         
                         <Popconfirm
                             title={t('确认重启？')}

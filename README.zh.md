@@ -12,9 +12,11 @@
 
 ## [English](./README.md) | 中文
 
-### 本项目包含
-- console: DolphinDB 数据库 Web 管理界面
-- cloud: DolphinDB K8S 云平台 Web 管理界面
+### console: DolphinDB 数据库 Web 管理界面
+![](./console/demo.png)
+
+### cloud: DolphinDB K8S 云平台 Web 管理界面
+![](./cloud/demo.png)
 
 ### 构建及开发方法
 ```shell
