@@ -5,13 +5,14 @@ import {
     Pagination,
     Table as AntTable,
     Tooltip,
+    Tree,
     type TableColumnType,
 } from 'antd'
 import {
     default as Icon,
 } from '@ant-design/icons'
 import { Line, Pie, Bar, Column, Scatter, Area, DualAxes, Histogram, Stock } from '@ant-design/plots'
-import { Tree } from 'antd'
+
 import { nanoid } from 'nanoid'
 
 
@@ -38,8 +39,6 @@ import {
     type DdbValue,
     type DdbVectorValue,
     type DdbMatrixValue,
-    type DdbSymbolExtendedValue,
-    type DdbArrayVectorBlock,
     type DdbChartValue,
 } from 'dolphindb/browser.js'
 import type { Message } from 'xshell/net.browser.js'
@@ -151,57 +150,60 @@ function Default ({ obj, objref }: { obj?: DdbObj, objref?: DdbObjRef }) {
     return <div>{(obj || objref).toString()}</div>
 }
 
-function Dict({
+function Dict ({
     obj,
     objref,
     remote,
     ddb,
+    ctx,
 }: {
-    obj: DdbObj<DdbVectorValue>
-    objref: DdbObjRef<DdbVectorValue>
-    remote: Remote
+    obj?: DdbObj<[DdbObj, DdbObj]>
+    objref?: DdbObjRef<DdbVectorValue>
+    remote?: Remote
     ddb?: DDB
+    ctx?: Context
 }) {
     const [
         {
             inited,
-            info,
+            _obj,
         },
         set_info
     ] = useState({
         inited: false,
-        info: obj,
+        _obj: obj,
     })
-
+    
     useEffect(() => {
         (async () => {
             const info = obj ||
                 (ddb ?
-                    await ddb.eval(objref.name)
-                    :
+                    await ddb.eval<DdbObj<[DdbObj, DdbObj]>>(objref.name)
+                :
                     DdbObj.parse(
                         ... await remote.call<[Uint8Array, boolean]>({
                             func: 'eval',
                             args: [objref.node, objref.name]
                         })
-                    ) as DdbObj<DdbObj[]>
+                    ) as DdbObj<[DdbObj, DdbObj]>
                 )
-
+            
             set_info({
                 inited: true,
-                info
+                _obj: info
             })
         })()
     }, [obj, objref])
-
+    
     if (!inited)
         return null
         
-    let treeData = tree_dict(info)
-
+    
+    let tree_data = build_tree_data(_obj, { remote, ddb, ctx })
+    
     return <div className='dict'>
         <Tree
-            treeData={treeData}
+            treeData={tree_data}
             defaultExpandAll
             focusable={false}
             blockNode
@@ -211,52 +213,66 @@ function Dict({
     </div>
 }
 
-function tree_dict(obj) {
-    const dict_key = obj.value[0] as DdbObj
-    const dict_value = obj.value[1] as DdbObj
 
+function build_tree_data (
+    obj: DdbObj<[DdbObj, DdbObj]>,
+    {
+        remote,
+        ctx,
+        ddb
+    }: {
+        remote?: Remote
+        ctx?: Context
+        ddb?: DDB
+    }
+) {
+    const dict_key = obj.value[0]
+    const dict_value = obj.value[1]
+    
     let tree_data = new Array(dict_key.rows)
-
+    
     for (let i = 0; i < dict_key.rows; i++) {
-        let treeNode = {}
+        let treeNode = { }
         let key = formati(dict_key, i)
-
-        if (dict_value.value[i] instanceof DdbObj) {
-            if (dict_value.value[i].form === DdbForm.dict) {
+        
+        let valueobj = dict_value.value[i]
+        
+        if (valueobj instanceof DdbObj) 
+            if (valueobj.form === DdbForm.dict) 
                 treeNode = {
                     title: key + ': ',
                     key: nanoid(),
-                    children: tree_dict(dict_value.value[i])
+                    children: build_tree_data(valueobj, { remote, ctx, ddb })
                 }
-            } else if (dict_value.value[i].form === DdbForm.scalar) {
-                let value = format(dict_value.value[i].type, dict_value.value[i].value, dict_value.value[i].le)
+             else if (valueobj.form === DdbForm.scalar) {
+                let value = format(valueobj.type, valueobj.value, valueobj.le)
                 treeNode = {
                     title: key + ': ' + value,
-                    key: nanoid(),
+                    key: nanoid()
                 }
             } else {
-                let value_obj = dict_value.value[i]
-
-                const View = views[value_obj.form] || Default
-
+                const View = views[valueobj.form] || Default
+                
                 treeNode = {
                     title: key + ':',
                     key: nanoid(),
-                    children: [{
-                        title: <View obj={value_obj} />,
-                        key: nanoid(),
-                    }]
+                    children: [
+                        {
+                            title: <View obj={valueobj} ctx={ctx} ddb={ddb} remote={remote} />,
+                            key: nanoid()
+                        }
+                    ]
                 }
             }
-        } else {
-            let value = formati(dict_value, i)
+         else
             treeNode = {
-                title: key + ': ' + value,
-                key: nanoid(),
+                title: key + ': ' + formati(dict_value, i),
+                key: nanoid()
             }
-        }
+        
         tree_data.push(treeNode)
     }
+    
     return tree_data
 }
 
