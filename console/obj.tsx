@@ -11,6 +11,8 @@ import {
     default as Icon,
 } from '@ant-design/icons'
 import { Line, Pie, Bar, Column, Scatter, Area, DualAxes, Histogram, Stock } from '@ant-design/plots'
+import { Tree } from 'antd'
+import { nanoid } from 'nanoid'
 
 
 import {
@@ -21,7 +23,7 @@ import {
     DdbChartType,
     nulls,
     formati,
-    
+    format,
     datetime2ms,
     month2ms,
     minute2ms,
@@ -52,6 +54,7 @@ const views = {
     [DdbForm.table]: Table,
     [DdbForm.matrix]: Matrix,
     [DdbForm.chart]: Chart,
+    [DdbForm.dict]: Dict,
 }
 
 export type Context = 'page' | 'webview' | 'window' | 'embed'
@@ -148,6 +151,114 @@ function Default ({ obj, objref }: { obj?: DdbObj, objref?: DdbObjRef }) {
     return <div>{(obj || objref).toString()}</div>
 }
 
+function Dict({
+    obj,
+    objref,
+    remote,
+    ddb,
+}: {
+    obj: DdbObj<DdbVectorValue>
+    objref: DdbObjRef<DdbVectorValue>
+    remote: Remote
+    ddb?: DDB
+}) {
+    const [
+        {
+            inited,
+            info,
+        },
+        set_info
+    ] = useState({
+        inited: false,
+        info: obj,
+    })
+
+    useEffect(() => {
+        (async () => {
+            const info = obj ||
+                (ddb ?
+                    await ddb.eval(objref.name)
+                    :
+                    DdbObj.parse(
+                        ... await remote.call<[Uint8Array, boolean]>({
+                            func: 'eval',
+                            args: [objref.node, objref.name]
+                        })
+                    ) as DdbObj<DdbObj[]>
+                )
+
+            set_info({
+                inited: true,
+                info
+            })
+        })()
+    }, [obj, objref])
+
+    if (!inited)
+        return null
+        
+    let treeData = tree_dict(info)
+
+    return <div className='dict'>
+        <Tree
+            treeData={treeData}
+            defaultExpandAll
+            focusable={false}
+            blockNode
+            showLine
+            motion={null}
+        />
+    </div>
+}
+
+function tree_dict(obj) {
+    const dict_key = obj.value[0] as DdbObj
+    const dict_value = obj.value[1] as DdbObj
+
+    let tree_data = new Array(dict_key.rows)
+
+    for (let i = 0; i < dict_key.rows; i++) {
+        let treeNode = {}
+        let key = formati(dict_key, i)
+
+        if (dict_value.value[i] instanceof DdbObj) {
+            if (dict_value.value[i].form === DdbForm.dict) {
+                treeNode = {
+                    title: key + ': ',
+                    key: nanoid(),
+                    children: tree_dict(dict_value.value[i])
+                }
+            } else if (dict_value.value[i].form === DdbForm.scalar) {
+                let value = format(dict_value.value[i].type, dict_value.value[i].value, dict_value.value[i].le)
+                treeNode = {
+                    title: key + ': ' + value,
+                    key: nanoid(),
+                }
+            } else {
+                let value_obj = dict_value.value[i]
+
+                const View = views[value_obj.form] || Default
+
+                treeNode = {
+                    title: key + ':',
+                    key: nanoid(),
+                    children: [{
+                        title: <View obj={value_obj} />,
+                        key: nanoid(),
+                    }]
+                }
+            }
+        } else {
+            let value = formati(dict_value, i)
+            treeNode = {
+                title: key + ': ' + value,
+                key: nanoid(),
+            }
+        }
+        tree_data.push(treeNode)
+    }
+    return tree_data
+}
 
 function Vector ({
     obj,

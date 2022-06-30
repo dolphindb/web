@@ -52,6 +52,7 @@
         "final-form": "^4.20.7",
         "koa-compress": "^5.1.0",
         "lodash": "^4.17.21",
+        "nanoid": "^4.0.0",
         "re-resizable": "^6.9.9",
         "react-dom": "^18.2.0",
         "react-object-model": "^0.0.19",
