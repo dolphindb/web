@@ -999,39 +999,8 @@ function Chart ({
                 case DdbChartType.kline:
                     for (let j = 0; j < rows; j++) {
                         let dataobj: any = { }
-                        dataobj.row = (() => {
-                            switch (rows_.type) {
-                                case DdbType.date:
-                                    return date2ms(row_labels[j])
-                                
-                                case DdbType.month:
-                                    return month2ms(row_labels[j])
-                                
-                                case DdbType.time:
-                                    return time2ms(row_labels[j])
-                                
-                                case DdbType.minute:
-                                    return minute2ms(row_labels[j])
-                                                                    
-                                case DdbType.second:
-                                    return second2ms(row_labels[j])
-                                
-                                case DdbType.datetime:
-                                    return datetime2ms(row_labels[j])
-                                
-                                case DdbType.timestamp:
-                                    return timestamp2ms(row_labels[j])
-                                
-                                case DdbType.nanotime:
-                                    return Number(nanotime2ns(row_labels[j])) / 1000000
-                                
-                                case DdbType.nanotimestamp:
-                                    return Number(nanotimestamp2ns(row_labels[j])) / 1000000
-                                
-                                case DdbType.datehour:
-                                    return datehour2ms(row_labels[j])
-                            }
-                        })()
+                        
+                        dataobj.row = row_labels[j]
                         dataobj.row_ = formati(rows_, j)
 
                         dataobj.open = to_chart_data(data[j], datatype)
