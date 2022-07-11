@@ -43,6 +43,8 @@ import {
 } from 'dolphindb/browser.js'
 import type { Message } from 'xshell/net.browser.js'
 
+import { t } from '../i18n/index.js'
+
 import SvgLink from './link.icon.svg'
 import { type WindowModel } from './window.js'
 
@@ -1265,19 +1267,19 @@ function Chart ({
                                 formatter: (value, index) => data[index].row_ 
                             },
                             vol: {
-                                alias: '成交量',
+                                alias: t('成交量'),
                             },
                             open: {
-                                alias: '开盘价',
+                                alias: t('开盘价'),
                             },
                             close: {
-                                alias: '收盘价',
+                                alias: t('收盘价'),
                             },
                             high: {
-                                alias: '最高价',
+                                alias: t('最高价'),
                             },
                             low: {
-                                alias: '最低价',
+                                alias: t('最低价'),
                             },
                         }}
                         padding='auto'
