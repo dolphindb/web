@@ -999,44 +999,18 @@ function Chart ({
                 case DdbChartType.kline:
                     for (let j = 0; j < rows; j++) {
                         let dataobj: any = { }
-                        dataobj.row = (() => {
-                            switch (rows_.type) {
-                                case DdbType.date:
-                                    return date2ms(row_labels[j])
-                                
-                                case DdbType.month:
-                                    return month2ms(row_labels[j])
-                                
-                                case DdbType.time:
-                                    return time2ms(row_labels[j])
-                                
-                                case DdbType.minute:
-                                    return minute2ms(row_labels[j])
-                                
-                                case DdbType.second:
-                                    return second2ms(row_labels[j])
-                                
-                                case DdbType.datetime:
-                                    return datetime2ms(row_labels[j])
-                                
-                                case DdbType.timestamp:
-                                    return timestamp2ms(row_labels[j])
-                                
-                                case DdbType.nanotime:
-                                    return Number(nanotime2ns(row_labels[j])) / 1000000
-                                
-                                case DdbType.nanotimestamp:
-                                    return Number(nanotimestamp2ns(row_labels[j])) / 1000000
-                                
-                                case DdbType.datehour:
-                                    return datehour2ms(row_labels[j])
-                            }
-                        })()
+                        
+                        dataobj.row = row_labels[j]
+                        dataobj.row_ = formati(rows_, j)
 
                         dataobj.open = to_chart_data(data[j], datatype)
                         dataobj.high = to_chart_data(data[rows + j], datatype)
                         dataobj.low = to_chart_data(data[rows * 2 + j], datatype)
                         dataobj.close = to_chart_data(data[rows * 3 + j], datatype)
+                        
+                        if (cols === 5)
+                            dataobj.vol = to_chart_data(data[rows * 4 + j], datatype)
+                            
                         data_[j] = dataobj
                         
                     }
@@ -1286,6 +1260,26 @@ function Chart ({
                                 text: titles.y_axis
                             }
                         }}
+                        meta={{
+                            row: {
+                                formatter: (value, index) => data[index].row_ 
+                            },
+                            vol: {
+                                alias: '成交量',
+                            },
+                            open: {
+                                alias: '开盘价',
+                            },
+                            close: {
+                                alias: '收盘价',
+                            },
+                            high: {
+                                alias: '最高价',
+                            },
+                            low: {
+                                alias: '最低价',
+                            },
+                        }}
                         padding='auto'
                         tooltip={{
                             crosshairs: {
@@ -1301,7 +1295,7 @@ function Chart ({
                                     
                                     if (type === 'x') {
                                         const item = items[0]
-                                        textContent = item ? item.title : defaultContent
+                                        textContent = item ? item.data.row_ : defaultContent
                                     } else 
                                         textContent = defaultContent.toFixed(2)
                                     
@@ -1313,8 +1307,12 @@ function Chart ({
                                             fill: '#dfdfdf'
                                         }
                                     }
-                                }
-                            }
+                                },
+                            },
+                            
+                            fields: ['open', 'close', 'high', 'low', 'vol'],
+                            
+                            title: 'row_',
                         }}
                     />
                 
