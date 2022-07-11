@@ -111,7 +111,7 @@ function DdbHeader () {
                 placement='bottomLeft'
                 content={<Perf />}
             >
-                <Tag className='nodeInfo' color='#f2f2f2'>{t('状态')}</Tag>
+                <Tag className='node-info' color='#f2f2f2'>{t('状态')}</Tag>
             </Popover>
         </div>
         

@@ -43,9 +43,10 @@ import {
 } from 'dolphindb/browser.js'
 import type { Message } from 'xshell/net.browser.js'
 
+import { t } from '../i18n/index.js'
+
 import SvgLink from './link.icon.svg'
 import { type WindowModel } from './window.js'
-import { t } from '../i18n/index.js'
 
 
 const views = {
