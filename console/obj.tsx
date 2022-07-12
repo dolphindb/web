@@ -901,7 +901,10 @@ function Chart ({
             titles,
             stacking,
             multi_y_axes,
-            col_labels
+            col_labels,
+            bin_count,
+            bin_start,
+            bin_end,
         },
         set_config
     ] = useState({
@@ -911,13 +914,19 @@ function Chart ({
         titles: { } as DdbChartValue['titles'],
         stacking: false,
         multi_y_axes: false,
-        col_labels: [ ]
+        col_labels: [ ],
+        bin_count: { } as DdbChartValue['bin_count'],
+        bin_start: { } as DdbChartValue['bin_start'],
+        bin_end: { } as DdbChartValue['bin_end'],
     })
     
     useEffect(() => {
         (async () => {
             const {
                 value: {
+                    bin_count,
+                    bin_start,
+                    bin_end,
                     titles,
                     type: charttype,
                     stacking,
@@ -1026,6 +1035,11 @@ function Chart ({
                             }
                         }
                     }
+                    
+                    if (charttype === DdbChartType.histogram && bin_start && bin_end) 
+                        data_ = data_.filter(data => 
+                            data.value >= Number(bin_start.value) && data.value <= Number(bin_end.value))
+                    
                     break
             }
             
@@ -1039,6 +1053,9 @@ function Chart ({
                 stacking,
                 multi_y_axes,
                 col_labels: col_lables_,
+                bin_count,
+                bin_start,
+                bin_end,
             })
         })()
     }, [obj, objref])
@@ -1226,8 +1243,7 @@ function Chart ({
                         data={data}
                         binField='value'
                         stackField= 'col'
-                        binNumber={50}
-                        // binWidth={0.1}
+                        { ... bin_count ? { binNumber: Number(bin_count.value) } : { } }
                         xAxis={{
                             title: {
                                 text: titles.x_axis
