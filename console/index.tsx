@@ -48,7 +48,6 @@ import { model, DdbModel, NodeType, storage_keys } from './model.js'
 import { Login } from './login.js'
 import { Cluster } from './cluster.js'
 import { Shell } from './shell.js'
-import { ShellOld } from './shell.old.js'
 import { Job } from './job.js'
 import { DFS } from './dfs.js'
 import { Log } from './log.js'
@@ -57,7 +56,6 @@ import SvgCluster from './cluster.icon.svg'
 import SvgDFS from './dfs.icon.svg'
 import SvgJob from './job.icon.svg'
 import SvgShell from './shell.icon.svg'
-import SvgShellOld from './shell.old.icon.svg'
 import SvgLog from './log.icon.svg'
 
 
@@ -265,14 +263,9 @@ function DdbSider () {
                     label: t('集群总览'),
                 }] : [ ],
                 {
-                    key: 'shellold',
-                    icon: <MenuIcon view='shellold' />,
-                    label: t('交互编程'),
-                },
-                {
                     key: 'shell',
                     icon: <MenuIcon view='shell' />,
-                    label: 'Shell',
+                    label: t('交互编程'),
                 },
                 // {
                 //     key: 'data',
@@ -310,7 +303,6 @@ const views = {
     login: Login,
     cluster: Cluster,
     shell: Shell,
-    shellold: ShellOld,
     job: Job,
     dfs: DFS,
     log: Log,
@@ -334,7 +326,6 @@ const svgs = {
     cluster: SvgCluster,
     job: SvgJob,
     shell: SvgShell,
-    shellold: SvgShellOld,
     dfs: SvgDFS,
     log: SvgLog,
 }

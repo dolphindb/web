@@ -160,52 +160,45 @@ function Dict ({
     ctx,
 }: {
     obj?: DdbObj<[DdbObj, DdbObj]>
-    objref?: DdbObjRef<DdbVectorValue>
+    objref?: DdbObjRef<[DdbObj, DdbObj]>
     remote?: Remote
     ddb?: DDB
     ctx?: Context
 }) {
-    const [
-        {
-            inited,
-            _obj,
-        },
-        set_info
-    ] = useState({
-        inited: false,
-        _obj: obj,
-    })
+    const render = useState({ })[1]
+    
+    const _obj = obj || objref.obj
     
     useEffect(() => {
         (async () => {
-            const info = obj ||
-                (ddb ?
-                    await ddb.eval<DdbObj<[DdbObj, DdbObj]>>(objref.name)
-                :
-                    DdbObj.parse(
-                        ... await remote.call<[Uint8Array, boolean]>({
-                            func: 'eval',
-                            args: [objref.node, objref.name]
-                        })
-                    ) as DdbObj<[DdbObj, DdbObj]>
-                )
+            if (_obj)
+                return
             
-            set_info({
-                inited: true,
-                _obj: info
-            })
+            const { node, name } = objref
+            
+            console.log(`dict.fetch:`, name)
+            
+            objref.obj = ddb ?
+                await ddb.eval<DdbObj<[DdbObj, DdbObj]>>(name)
+            :
+                DdbObj.parse(
+                    ... await remote.call<[Uint8Array, boolean]>({
+                        func: 'eval',
+                        args: [node, name]
+                    })
+                ) as DdbObj<[DdbObj, DdbObj]>
+            
+            render({ })
         })()
     }, [obj, objref])
     
-    if (!inited)
-        return null
-        
     
-    let tree_data = build_tree_data(_obj, { remote, ddb, ctx })
+    if (!_obj)
+        return null
     
     return <div className='dict'>
         <Tree
-            treeData={tree_data}
+            treeData={build_tree_data(_obj, { remote, ddb, ctx })}
             defaultExpandAll
             focusable={false}
             blockNode
@@ -233,29 +226,29 @@ function build_tree_data (
     
     let tree_data = new Array(dict_key.rows)
     
-    for (let i = 0; i < dict_key.rows; i++) {
-        let treeNode = { }
+    for (let i = 0;  i < dict_key.rows;  i++) {
+        let node = { }
         let key = formati(dict_key, i)
         
         let valueobj = dict_value.value[i]
         
         if (valueobj instanceof DdbObj) 
             if (valueobj.form === DdbForm.dict) 
-                treeNode = {
+                node = {
                     title: key + ': ',
                     key: nanoid(),
                     children: build_tree_data(valueobj, { remote, ctx, ddb })
                 }
              else if (valueobj.form === DdbForm.scalar) {
                 let value = format(valueobj.type, valueobj.value, valueobj.le)
-                treeNode = {
+                node = {
                     title: key + ': ' + value,
                     key: nanoid()
                 }
             } else {
                 const View = views[valueobj.form] || Default
                 
-                treeNode = {
+                node = {
                     title: key + ':',
                     key: nanoid(),
                     children: [
@@ -267,16 +260,17 @@ function build_tree_data (
                 }
             }
          else
-            treeNode = {
+            node = {
                 title: key + ': ' + formati(dict_value, i),
                 key: nanoid()
             }
         
-        tree_data.push(treeNode)
+        tree_data.push(node)
     }
     
     return tree_data
 }
+
 
 function Vector ({
     obj,
@@ -337,10 +331,10 @@ function Vector ({
             
             console.log(`${DdbForm[form]}.fetch:`, script)
             
-            if (ddb)
-                objref.obj = await ddb.eval(script)
-            else
-                objref.obj = DdbObj.parse(
+            objref.obj = ddb ?
+                await ddb.eval(script)
+            :
+                DdbObj.parse(
                     ... await remote.call<[Uint8Array, boolean]>({
                         func: 'eval',
                         args: [node, script]
