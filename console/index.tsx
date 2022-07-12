@@ -93,6 +93,12 @@ function DolphinDB () {
 function DdbHeader () {
     const { logined, username, node_alias, version, license } = model.use(['logined', 'username', 'node_alias', 'version', 'license'])
     
+    const authorizations = {
+        trial: t('试用版'),
+        community: t('社区版'),
+        commercial: t('商业版')
+    }
+    
     useEffect(() => {
         if (!node_alias)
             return
@@ -120,25 +126,25 @@ function DdbHeader () {
                     content={
                         license ? <div>
                             <Badge.Ribbon text={`V${version}`} color='#b5b5b5'>
-                                <Card size='small' title={ license.authorization?.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase()) + ' License' }>
+                                <Card size='small' title={ authorizations[license.authorization] || license.authorization }>
                                 <Descriptions bordered size='small' column={2}>
-                                    <Descriptions.Item label='authorization'>{license.authorization}</Descriptions.Item>
-                                    <Descriptions.Item label='client name'>{license.clientName}</Descriptions.Item>
-                                    <Descriptions.Item label='license type'>{license.licenseType}</Descriptions.Item>
-                                    <Descriptions.Item label='expiration'>{date2str(license.expiration)}</Descriptions.Item>
-                                    <Descriptions.Item label='bind CPU'>{String(license.bindCPU)}</Descriptions.Item>
-                                    <Descriptions.Item label='version'>{license.version}</Descriptions.Item>
-                                    <Descriptions.Item label='modules'>{ license.modules === -1n ? 'unlimited' : license.modules.toString() }</Descriptions.Item>
-                                    <Descriptions.Item label='max memory per node'>{license.maxMemoryPerNode}</Descriptions.Item>
-                                    <Descriptions.Item label='max cores per node'>{license.maxCoresPerNode}</Descriptions.Item>
-                                    <Descriptions.Item label='max nodes'>{license.maxNodes}</Descriptions.Item>
+                                    <Descriptions.Item label={t('授权类型')}>{authorizations[license.authorization] || license.authorization}</Descriptions.Item>
+                                    <Descriptions.Item label={t('授权客户')}>{license.clientName}</Descriptions.Item>
+                                    <Descriptions.Item label={t('许可类型')}>{license.licenseType}</Descriptions.Item>
+                                    <Descriptions.Item label={t('过期时间')}>{date2str(license.expiration)}</Descriptions.Item>
+                                    <Descriptions.Item label={t('绑定 CPU')}>{String(license.bindCPU)}</Descriptions.Item>
+                                    <Descriptions.Item label={t('版本')}>{license.version}</Descriptions.Item>
+                                    <Descriptions.Item label={t('模块')}>{ license.modules === -1n ? 'unlimited' : license.modules.toString() }</Descriptions.Item>
+                                    <Descriptions.Item label={t('每节点最大可用内存')}>{license.maxMemoryPerNode}</Descriptions.Item>
+                                    <Descriptions.Item label={t('每节点最大可用核数')}>{license.maxCoresPerNode}</Descriptions.Item>
+                                    <Descriptions.Item label={t('最大节点数')}>{license.maxNodes}</Descriptions.Item>
                                 </Descriptions>
                                 </Card>
                             </Badge.Ribbon>
                         </div> : null
                     }
                 >
-                    <Tag className='license' color='#f2f2f2'>{license.authorization}</Tag>
+                    <Tag className='license' color='#f2f2f2'>{authorizations[license.authorization] || license.authorization}</Tag>
                 </Popover>
             </div>
         }
