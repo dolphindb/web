@@ -463,5 +463,41 @@
     },
     "最低价": {
         "en": "low"
+    },
+    "模块": {
+        "en": "modules"
+    },
+    "每节点最大可用内存": {
+        "en": "max memory per node"
+    },
+    "每节点最大可用核数": {
+        "en": "max cores per node"
+    },
+    "过期时间": {
+        "en": "expiration"
+    },
+    "最大节点数": {
+        "en": "max nodes"
+    },
+    "绑定 CPU": {
+        "en": "bind CPU"
+    },
+    "许可类型": {
+        "en": "license type"
+    },
+    "授权类型": {
+        "en": "authorization"
+    },
+    "试用版": {
+        "en": "trial"
+    },
+    "商业版": {
+        "en": "commercial"
+    },
+    "社区版": {
+        "en": "community"
+    },
+    "客户端名称": {
+        "en": "client name"
     }
 }
