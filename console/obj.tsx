@@ -47,7 +47,6 @@ import { t } from '../i18n/index.js'
 
 import SvgLink from './link.icon.svg'
 import { type WindowModel } from './window.js'
-import { filter } from 'lodash'
 
 
 const views = {
@@ -1038,7 +1037,8 @@ function Chart ({
                     }
                     
                     if (charttype === DdbChartType.histogram && bin_start && bin_end) 
-                        data_ = data_.filter(data => data.value >= Number(bin_start.value) && data.value <= Number(bin_end.value))
+                        data_ = data_.filter(data => 
+                            data.value >= Number(bin_start.value) && data.value <= Number(bin_end.value))
                     
                     break
             }
@@ -1238,15 +1238,12 @@ function Chart ({
                     />
                 
                 case DdbChartType.histogram:
-                    let binNumber = bin_count ? Number(bin_count.value) : 50
-                    let binWidth = bin_start && bin_end ? (Number(bin_end.value) - Number(bin_start.value))/binNumber : null
                     return <Histogram 
                         className='chart-body'
                         data={data}
                         binField='value'
                         stackField= 'col'
-                        binNumber={binNumber}
-                        binWidth={binWidth}
+                        { ... bin_count ? { binNumber: Number(bin_count.value) } : { } }
                         xAxis={{
                             title: {
                                 text: titles.x_axis
