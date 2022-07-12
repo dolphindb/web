@@ -903,8 +903,6 @@ function Chart ({
             multi_y_axes,
             col_labels,
             bin_count,
-            bin_start,
-            bin_end,
         },
         set_config
     ] = useState({
@@ -915,9 +913,9 @@ function Chart ({
         stacking: false,
         multi_y_axes: false,
         col_labels: [ ],
-        bin_count: { } as DdbChartValue['bin_count'],
-        bin_start: { } as DdbChartValue['bin_start'],
-        bin_end: { } as DdbChartValue['bin_end'],
+        bin_count: null as DdbChartValue['bin_count'],
+        bin_start: null as DdbChartValue['bin_start'],
+        bin_end: null as DdbChartValue['bin_end'],
     })
     
     useEffect(() => {
