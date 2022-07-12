@@ -47,6 +47,7 @@ import { t } from '../i18n/index.js'
 
 import SvgLink from './link.icon.svg'
 import { type WindowModel } from './window.js'
+import { filter } from 'lodash'
 
 
 const views = {
@@ -901,7 +902,10 @@ function Chart ({
             titles,
             stacking,
             multi_y_axes,
-            col_labels
+            col_labels,
+            bin_count,
+            bin_start,
+            bin_end,
         },
         set_config
     ] = useState({
@@ -911,13 +915,19 @@ function Chart ({
         titles: { } as DdbChartValue['titles'],
         stacking: false,
         multi_y_axes: false,
-        col_labels: [ ]
+        col_labels: [ ],
+        bin_count: { } as DdbChartValue['bin_count'],
+        bin_start: { } as DdbChartValue['bin_start'],
+        bin_end: { } as DdbChartValue['bin_end'],
     })
     
     useEffect(() => {
         (async () => {
             const {
                 value: {
+                    bin_count,
+                    bin_start,
+                    bin_end,
                     titles,
                     type: charttype,
                     stacking,
@@ -1026,6 +1036,10 @@ function Chart ({
                             }
                         }
                     }
+                    
+                    if (charttype === DdbChartType.histogram && bin_start && bin_end) 
+                        data_ = data_.filter(data => data.value >= Number(bin_start.value) && data.value <= Number(bin_end.value))
+                    
                     break
             }
             
@@ -1039,6 +1053,9 @@ function Chart ({
                 stacking,
                 multi_y_axes,
                 col_labels: col_lables_,
+                bin_count,
+                bin_start,
+                bin_end,
             })
         })()
     }, [obj, objref])
@@ -1221,13 +1238,15 @@ function Chart ({
                     />
                 
                 case DdbChartType.histogram:
+                    let binNumber = bin_count ? Number(bin_count.value) : 50
+                    let binWidth = bin_start && bin_end ? (Number(bin_end.value) - Number(bin_start.value))/binNumber : null
                     return <Histogram 
                         className='chart-body'
                         data={data}
                         binField='value'
                         stackField= 'col'
-                        binNumber={50}
-                        // binWidth={0.1}
+                        binNumber={binNumber}
+                        binWidth={binWidth}
                         xAxis={{
                             title: {
                                 text: titles.x_axis
