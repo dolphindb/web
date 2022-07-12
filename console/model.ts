@@ -208,7 +208,7 @@ export class DdbModel extends Model <DdbModel> {
             view: this.node_type === NodeType.controller ? 
                     'cluster'
                 :
-                    'shellold'
+                    'shell'
         })
     }
     
