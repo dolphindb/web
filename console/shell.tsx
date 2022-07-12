@@ -140,11 +140,12 @@ class ShellModel extends Model<ShellModel> {
             this.term.writeln(
                 (() => {
                     switch (ddbobj.form) {
-                        case DdbForm.vector:
-                        case DdbForm.set:
-                        case DdbForm.matrix:
-                        case DdbForm.table:
                         case DdbForm.chart:
+                        case DdbForm.dict:
+                        case DdbForm.matrix:
+                        case DdbForm.set:
+                        case DdbForm.table:
+                        case DdbForm.vector:
                             return blue(
                                 ddbobj.inspect_type().trimEnd()
                             ) + '\n'
