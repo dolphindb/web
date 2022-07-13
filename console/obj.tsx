@@ -1238,22 +1238,15 @@ function Chart ({
                     />
                 
                 case DdbChartType.histogram:
+                    let binNumber = bin_count ? Number(bin_count.value) : null
+                    let binWidth = bin_start && bin_end && binNumber ? (Number(bin_start.value) - Number(bin_end.value)) / Number(bin_count.value) : null
                     return <Histogram 
                         className='chart-body'
                         data={data}
                         binField='value'
                         stackField= 'col'
-                        { ... bin_count ? { binNumber: Number(bin_count.value) } : { } }
-                        { ... bin_start ? { 
-                            binWidth: (Number(bin_start.value) - Number(bin_end.value)) / Number(bin_count.value),
-                            meta: {
-                                range:{
-                                    min:Number(bin_start.value),
-                                    max:Number(bin_end.value)
-                                }   
-                                }
-                        } : { }
-                        }
+                        binNumber={binNumber}
+                        binWidth={binWidth}
                         limitInPlot={true}
                         xAxis={{
                             title: {
