@@ -893,6 +893,8 @@ function Chart ({
             multi_y_axes,
             col_labels,
             bin_count,
+            bin_start,
+            bin_end
         },
         set_config
     ] = useState({
@@ -1226,12 +1228,27 @@ function Chart ({
                     />
                 
                 case DdbChartType.histogram:
+                    let binNumber = bin_count ? Number(bin_count.value) : null
+                    let binWidth: number
+                    if (bin_start && bin_end && binNumber)
+                        if (data.length < binNumber)
+                            binWidth = null
+                        else    
+                            binWidth = (Number(bin_start.value) - Number(bin_end.value)) / binNumber
                     return <Histogram 
                         className='chart-body'
                         data={data}
                         binField='value'
                         stackField= 'col'
-                        { ... bin_count ? { binNumber: Number(bin_count.value) } : { } }
+                        binNumber={binNumber}
+                        binWidth={binWidth}
+                        meta={{
+                            range: {
+                                min: Number(bin_start?.value),
+                                max: Number(bin_end?.value)
+                            }
+                        }}
+                        limitInPlot
                         xAxis={{
                             title: {
                                 text: titles.x_axis
