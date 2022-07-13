@@ -903,6 +903,8 @@ function Chart ({
             multi_y_axes,
             col_labels,
             bin_count,
+            bin_start,
+            bin_end
         },
         set_config
     ] = useState({
@@ -1242,6 +1244,17 @@ function Chart ({
                         binField='value'
                         stackField= 'col'
                         { ... bin_count ? { binNumber: Number(bin_count.value) } : { } }
+                        { ... bin_start ? { 
+                            binWidth: (Number(bin_start.value) - Number(bin_end.value)) / Number(bin_count.value),
+                            meta: {
+                                range:{
+                                    min:Number(bin_start.value),
+                                    max:Number(bin_end.value)
+                                }   
+                                }
+                        } : { }
+                        }
+                        limitInPlot={true}
                         xAxis={{
                             title: {
                                 text: titles.x_axis
