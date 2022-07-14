@@ -499,5 +499,8 @@
     },
     "客户名称": {
         "en": "client name"
+    },
+    "授权客户": {
+        "en": "client name"
     }
 }
