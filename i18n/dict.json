@@ -502,5 +502,110 @@
     },
     "授权客户": {
         "en": "client name"
+    },
+    "内存已用": {
+        "en": "memory used"
+    },
+    "内存已分配": {
+        "en": "memory allocated"
+    },
+    "内存最大可用": {
+        "en": "max memory available"
+    },
+    "磁盘剩余容量 | 磁盘总容量": {
+        "en": "disk space remaining | total disk space"
+    },
+    "磁盘可用空间占比": {
+        "en": "disk space available percentage"
+    },
+    "排队作业 | 运行作业 | 作业负载": {
+        "en": "queue jobs | running jobs | job load"
+    },
+    "作业线程数 | 本地执行线程数": {
+        "en": "worker number | executor number"
+    },
+    "线程数 | 本地执行线程数": {
+        "en": "number of workers | number of executors"
+    },
+    "CPU用量": {
+        "en": "CPU usage"
+    },
+    "CPU平均负载": {
+        "en": "CPU average load"
+    },
+    "当前连接": {
+        "en": "Current connection"
+    },
+    "最大连接": {
+        "en": "Maximum connection"
+    },
+    "硬盘读取": {
+        "en": "Disk read rate"
+    },
+    "硬盘写入": {
+        "en": "Disk write rate"
+    },
+    "磁盘剩余容量": {
+        "en": "Disk free space"
+    },
+    "磁盘总容量": {
+        "en": "Disk total capacity"
+    },
+    "网络接收速率": {
+        "en": "Network receive rate"
+    },
+    "网络发送速率": {
+        "en": "Network send rate"
+    },
+    "排队作业": {
+        "en": "Queued jobs"
+    },
+    "运行作业": {
+        "en": "Running jobs"
+    },
+    "作业负载": {
+        "en": "Job load"
+    },
+    "排队任务": {
+        "en": "Queued tasks"
+    },
+    "运行任务": {
+        "en": "Running tasks"
+    },
+    "worker数": {
+        "en": "Workers"
+    },
+    "excutor数": {
+        "en": "Executors"
+    },
+    "前10个查询耗费中间值": {
+        "en": "Last 10 queries' average cost"
+    },
+    "前10个查询耗费最大值": {
+        "en": "Last 10 queries' maximum cost"
+    },
+    "前100个查询耗费中间值": {
+        "en": "Last 100 queries' average cost"
+    },
+    "前100个查询耗费最大值": {
+        "en": "Last 100 queries' maximum cost"
+    },
+    "前一分钟读磁盘容量": {
+        "en": "Last minute read volume rate"
+    },
+    "前一分钟写磁盘容量": {
+        "en": "Last minute write volume rate"
+    },
+    "前一分钟接收字节数": {
+        "en": "Last minute received bytes"
+    },
+    "前一分钟发送字节数": {
+        "en": "Last minute send bytes"
+    },
+    "前一批消息延时": {
+        "en": "Last message latency"
+    },
+    "所有消息平均延时": {
+        "en": "Cumulative average latency"
     }
 }
