@@ -8,11 +8,34 @@ $(function () {
     $("#dfsPathInput").width($(window).width()-140);
 
     var url = $.getUrlParam('dfs');
+    
     var defaultPath = "/";
-    if (url) {
+    if (url)
         defaultPath = url;
-    }
-    //========default url================
+        
+    let controller = new ControllerServer(wa_url);
+    
+    const ticket = localStorage.getItem('ddb.ticket')
+    
+    if (ticket)
+        CallWebApiSync(wa_url, {
+            sessionID: localStorage.getItem('ddb.session_id') || '0',
+            functionName: 'authenticateByTicket',
+            params: [
+                {
+                    name: 'ticket',
+                    form: 'scalar',
+                    type: 'string',
+                    value: ticket
+                }
+            ]
+        })
+    
+    var currentUser = controller.getCurrentUser();
+    console.log('iframe.user:', currentUser.userId)
+    
+    
+    // ======== default url ================
     var json = client.getGridJson(defaultPath);
     bindGrid(json);
     bindPath(defaultPath)
@@ -233,26 +256,35 @@ var showTabletData = function (e) {
     var chunkId = $(e).attr("value");
     var sitesstr = $(e).attr("site");
     var partition = $(e).attr("partition");
-    var nodesite = sitesstr.split(":")[0];
+    var alias = sitesstr.split(":")[0];
     var version = sitesstr.split(":")[1];
     var ctlServer= new ControllerServer(wa_url);
-    var re = ctlServer.getDBIdByTabletChunkSync(nodesite,chunkId);
-
-    var reEntity = new DolphinEntity(re);
+    
+    const node_type = new DolphinEntity(
+        ctlServer.getNodeType()
+    ).toScalar()
+    
+    const is_single = node_type === '3'
+    
+    let reEntity = new DolphinEntity(
+        ctlServer.getDBIdByTabletChunkSync(is_single ? '' : alias, chunkId)
+    );
+    
+    
     var dbid = reEntity.toScalar();
-    var tableids = "";
-    var re1 = ctlServer.getTablesByTabletChunkSync(nodesite,chunkId);
-    reEntity = new DolphinEntity(re1);
-
+    reEntity = new DolphinEntity(
+        ctlServer.getTablesByTabletChunkSync(is_single ? '' : alias, chunkId)
+    );
+    
     var tables = reEntity.toVector();
     // if(tables.length==0){
     //     alert("Can not find any table for this chunk");
     //     e.outerHTML = "<span class='glyphicon glyphicon glyphicon-th' style='color:rgb(239,222,7)' title='partition chunk'></span> " +  $(e).text();
     //     return;
     // }
-    tableids = tables.join(",");
+    const tableids = tables.join(',')
     var dialog = new DolphinDialog("showChunkData_" + chunkId, { title: "Chunk Data Browser[" + chunkId +"]" });
-    dialog.openSingleWindow("dialogs/dfsChunkDataBrowser.html?chunkid=" + chunkId +"&alias=" + getSiteByAlias(nodesite) + "&dbid=" + dbid + "&tables=" + tableids + "&partition=" + partition + "&v=" + version);
+    dialog.openSingleWindow(`dialogs/dfsChunkDataBrowser.html?chunkid=${chunkId}&alias=${ is_single ? '' : getSiteByAlias(alias) }&dbid=${dbid}&tables=${tableids}&partition=${partition}&v=${version}`);
 }
 
 var result = [];

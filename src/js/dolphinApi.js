@@ -209,17 +209,29 @@ ControllerServer.prototype = {
 
     getDBIdByTabletChunkSync: function (alias, chunkId) {
         var exec = new CodeExecutor(this._url);
-        return exec.runSync("rpc('" + alias + "',getDBIdByTabletChunk,'" + chunkId + "')");
+        return exec.runSync(
+            alias ?
+                `rpc('${alias}',getDBIdByTabletChunk,'${chunkId}')`
+            :
+                `getDBIdByTabletChunk('${chunkId}')`
+        );
     },
 
     getTablesByTabletChunk: function (alias, chunkId, succallback, failcallback) {
         var exec = new CodeExecutor(this._url);
         exec.run("rpc('" + alias + "',getTablesByTabletChunk,'" + chunkId + "')", succallback);
     },
+    
     getTablesByTabletChunkSync: function (alias, chunkId) {
         var exec = new CodeExecutor(this._url);
-        return exec.runSync("rpc('" + alias + "',getTablesByTabletChunk,'" + chunkId + "')");
+        return exec.runSync(
+            alias ?
+                `rpc('${alias}',getTablesByTabletChunk,'${chunkId}')`
+            :
+                `getTablesByTabletChunk('${chunkId}')`
+        );
     },
+    
     getIsEnableHttps: function () {
         var exec = new CodeExecutor(this._url);
         var p = {

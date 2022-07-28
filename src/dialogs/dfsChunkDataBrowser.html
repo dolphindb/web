@@ -104,7 +104,7 @@
 
         tables = $.getUrlParam('tables');
         dfsPath =  "dfs:/" + dbPath;
-        site = $.getUrlParam('alias');
+        site = $.getUrlParam('alias') || '';
         chunkid = $.getUrlParam('chunkid');
         partitionPath = dbPath +  $.getUrlParam('partition');
 
@@ -173,7 +173,11 @@
         }
         var nodeSite = new ServerObject(site);
 
-        var script = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" +  partitionPath + "',`" + tablename + ",0," + pgSize + ")";
+        var script = site ?
+                `rpc('${nodeSite.getAlias()}',readTabletChunk,'${chunkid}','${dfsPath}','${partitionPath}',\`${tablename},0,${pgSize})`
+            :
+                `readTabletChunk('${chunkid}', '${dfsPath}', '${partitionPath}', \`${tablename}, 0, ${pgSize})`
+        
         var nodeUrl = nodeSite.getHttpServer();
         var scriptExecutor = new CodeExecutor(wa_url);
 
@@ -196,7 +200,11 @@
                     controller: {
                         loadData: function (filter) {
                             var deferred = $.Deferred();
-                            var s = "rpc('" + nodeSite.getAlias() + "',readTabletChunk,'" + chunkid + "','" + dfsPath + "','" +  partitionPath + "',`" + tablename + "," + (filter.pageIndex - 1) * filter.pageSize + "," + filter.pageSize + ")";
+                            var s = site ?
+                                    `rpc('${nodeSite.getAlias()}',readTabletChunk,'${chunkid}','${dfsPath}','${partitionPath}',\`${tablename},0,${pgSize})`
+                                :
+                                    `readTabletChunk('${chunkid}', '${dfsPath}', '${partitionPath}', \`${tablename}, 0, ${pgSize})`
+                            
                             getTableData(s, function (g) {
                                 if(g.resultCode==0){
                                     var d = DolphinResult2Grid(g);
@@ -221,7 +229,11 @@
     }
     var getTableSize = function (nodeUrl, chunk, version, tableName) {
         var svr = new ServerObject(site);
-        var script = "rpc('" + svr.getAlias() + "',getTablePartitionSizeAndPath,chunkMeta('" + curPath + "','" + chunk + "', true, " + version + ", -1, ,-1), '" + dbPath + "', `" + tableName + ")";
+        
+        var script = site ?
+                `rpc('${svr.getAlias()}',getTablePartitionSizeAndPath,chunkMeta('${curPath}','${chunk}', true, ${version}, -1, ,-1), '${dbPath}', \`${tableName})`
+            :
+                `getTablePartitionSizeAndPath(chunkMeta('${curPath}','${chunk}', true, ${version}, -1, ,-1), '${dbPath}', \`${tableName})`
         var scriptExecutor = new CodeExecutor(wa_url);
         var re = scriptExecutor.runSync(script);
         if (re.resultCode === "0") {
