@@ -432,6 +432,24 @@ interface DdbNode {
     jobLoad: number
     
     medLast10QueryTime: bigint
+    maxLast10QueryTime: bigint
+    medLast100QueryTime: bigint
+    maxLast100QueryTime: bigint
+    maxRunningQueryTime: bigint
+
+    diskCapacity: bigint
+    diskFreeSpace: bigint
+    diskFreeSpaceRatio: number
+
+    lastMinuteWriteVolume: bigint
+    lastMinuteReadVolume: bigint
+
+    lastMinuteNetworkSend: bigint
+    lastMinuteNetworkRecv: bigint
+
+    lastMsgLatency: bigint
+    cumMsgLatency: bigint
+
     publicName: string
     
     isLeader: boolean

@@ -20,7 +20,8 @@ import {
     Popover,
     Descriptions,
     Badge,
-    Card
+    Card,
+    Tooltip
 } from 'antd'
 import {
     default as Icon,
@@ -113,9 +114,35 @@ function DdbHeader () {
         <div>
             <Popover
                 placement='bottomLeft'
-                content={<Perf />}
+                content={
+                    <div className='head-bar-info'>
+                        <Card
+                            size='small'
+                            title={t('状态')}
+                            bordered={false}
+                            extra={
+                                <div
+                                    className='refresh'
+                                    onClick={() => {
+                                        model.get_cluster_perf();
+                                    }}
+                                >
+                                    <Tooltip title={t('刷新')} color={'grey'}>
+                                        <SyncOutlined className='icon' />
+                                    </Tooltip>
+                                </div>
+                            }
+                        >
+                            <div className='status-description'>
+                                <Perf />
+                            </div>
+                        </Card>
+                    </div>
+                }
             >
-                <Tag className='node-info' color='#f2f2f2'>{t('状态')}</Tag>
+                <Tag className='node-info' color='#f2f2f2'>
+                    {t('状态')}
+                </Tag>
             </Popover>
         </div>
         
@@ -124,9 +151,8 @@ function DdbHeader () {
                 <Popover
                     placement='bottomLeft'
                     content={
-                        license ? <div>
-                            <Badge.Ribbon text={`V${version}`} color='#b5b5b5'>
-                                <Card size='small' title={ authorizations[license.authorization] || license.authorization }>
+                        license ? <div className='license-card head-bar-info'>
+                            <Card size='small' bordered={false} title={`${authorizations[license.authorization] || license.authorization} | v${version}`}>
                                 <Descriptions bordered size='small' column={2}>
                                     <Descriptions.Item label={t('授权类型')}>{authorizations[license.authorization] || license.authorization}</Descriptions.Item>
                                     <Descriptions.Item label={t('授权客户')}>{license.clientName}</Descriptions.Item>
@@ -139,8 +165,7 @@ function DdbHeader () {
                                     <Descriptions.Item label={t('每节点最大可用核数')}>{license.maxCoresPerNode}</Descriptions.Item>
                                     <Descriptions.Item label={t('最大节点数')}>{license.maxNodes}</Descriptions.Item>
                                 </Descriptions>
-                                </Card>
-                            </Badge.Ribbon>
+                            </Card>
                         </div> : null
                     }
                 >
@@ -196,34 +221,119 @@ function Perf() {
     if (!node)
         return null
 
-    return <div className='perf'>
-        <Descriptions
-            className='table'
-            column={9}
-            bordered
-            size='small'
-            layout='vertical'
-        >
-            <Descriptions.Item label={t('内存已用 (已分配) / 最大可用')}>{Number(node.memoryUsed).to_fsize_str()} ({Number(node.memoryAlloc).to_fsize_str()}) / {node.maxMemSize} GB</Descriptions.Item>
-            <Descriptions.Item label={t('CPU 用量 (平均负载)')}>{node.cpuUsage.toFixed(1)}% ({node.avgLoad.toFixed(1)})</Descriptions.Item>
-            <Descriptions.Item label={t('当前连接 | 最大连接')}>{node.connectionNum} | {node.maxConnections}</Descriptions.Item>
-            <Descriptions.Item label={t('硬盘读取 | 硬盘写入')}>{Number(node.diskReadRate).to_fsize_str()}/s | {Number(node.diskWriteRate).to_fsize_str()}/s</Descriptions.Item>
-            <Descriptions.Item label={t('网络接收 | 网络发送')}>{Number(node.networkRecvRate).to_fsize_str()}/s | {Number(node.networkSendRate).to_fsize_str()}/s</Descriptions.Item>
-            <Descriptions.Item label={t('排队作业 | 运行作业')}>{node.queuedJobs} | {node.runningJobs}</Descriptions.Item>
-            <Descriptions.Item label={t('排队任务 | 运行任务')}>{node.queuedTasks} | {node.runningTasks}</Descriptions.Item>
-            <Descriptions.Item label='Workers'>{node.workerNum} | {node.executorNum} | {node.jobLoad}</Descriptions.Item>
-        </Descriptions>
-
-        <div
-            className='refresh'
-            onClick={() => {
-                model.get_cluster_perf()
-            }}
-        >
-            <SyncOutlined className='icon' />
-            <div className='text'>{t('刷新')}</div>
+    return (
+        <div className='perf'>
+            <Descriptions className='table' column={2} bordered size='small' title={t('内存', { context: 'perf' })}>
+                <Descriptions.Item label={t('内存已用')}>
+                    {Number(node.memoryUsed).to_fsize_str()}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('内存已分配')}>
+                    {Number(node.memoryAlloc).to_fsize_str()}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('节点内存空间上限')}>
+                    {node.maxMemSize} GB
+                </Descriptions.Item>
+            </Descriptions >
+            <Descriptions className='table' column={2} bordered size='small' title={'CPU'}>
+                < Descriptions.Item label={t('CPU 占用率')} >
+                    {node.cpuUsage.toFixed(1)} %
+                </Descriptions.Item >
+                <Descriptions.Item label={t('CPU 平均负载')}>
+                    {node.avgLoad.toFixed(1)}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('worker 线程数')}>
+                    {node.workerNum}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('excutor 线程数')}>
+                    {node.executorNum}
+                </Descriptions.Item>
+            </Descriptions >
+            <Descriptions className='table' column={2} bordered size='small' title={t('磁盘')}>
+                <Descriptions.Item label={t('当前连接')}>
+                    {node.connectionNum}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('最大连接')}>
+                    {node.maxConnections}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('磁盘读速率')}>
+                    {Number(node.diskReadRate).to_fsize_str()}/s
+                </Descriptions.Item>
+                <Descriptions.Item label={t('磁盘写速率')}>
+                    {Number(node.diskWriteRate).to_fsize_str()}/s
+                </Descriptions.Item>
+                <Descriptions.Item label={t('前一分钟读磁盘量')}>
+                    {Number(node.lastMinuteWriteVolume).to_fsize_str()}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('前一分钟写磁盘量')}>
+                    {Number(node.lastMinuteWriteVolume).to_fsize_str()}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('磁盘剩余容量')}>
+                    {Number(node.diskFreeSpace).to_fsize_str()}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('磁盘总容量')}>
+                    {Number(node.diskCapacity).to_fsize_str()}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('磁盘可用空间占比')}>
+                    {(node.diskFreeSpaceRatio * 100).toFixed(2)}%
+                </Descriptions.Item>
+            </Descriptions >
+            <Descriptions className='table' column={2} bordered size='small' title={t('网络', { context: "perf" })}>
+                <Descriptions.Item label={t('网络接收速率')}>
+                    {Number(node.networkRecvRate).to_fsize_str()}/s
+                </Descriptions.Item>
+                <Descriptions.Item label={t('网络发送速率')}>
+                    {Number(node.networkSendRate).to_fsize_str()}/s
+                </Descriptions.Item>
+                <Descriptions.Item label={t('前一分钟接收字节数')}>
+                    {Number(node.lastMinuteNetworkRecv).to_fsize_str()}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('前一分钟发送字节数')}>
+                    {Number(node.lastMinuteNetworkSend).to_fsize_str()}
+                </Descriptions.Item>
+            </Descriptions >
+            <Descriptions className='table' column={2} bordered size='small' title={t('任务与作业')}>
+                <Descriptions.Item label={t('排队作业')}>
+                    {node.queuedJobs}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('运行作业')}>
+                    {node.runningJobs}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('排队任务')}>
+                    {node.queuedTasks}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('运行任务')}>
+                    {node.runningTasks}
+                </Descriptions.Item>
+                {
+                    Number(node.lastMsgLatency) >= 0 ? <Descriptions.Item label={t('前一批消息延时')}>
+                        {Number(node.lastMsgLatency).to_fsize_str()} s
+                    </Descriptions.Item> : null
+                }
+                {
+                    Number(node.cumMsgLatency) >= 0 ? <Descriptions.Item label={t('所有消息平均延时')}>
+                        {Number(node.cumMsgLatency).to_fsize_str()} s
+                    </Descriptions.Item> : null
+                }
+                <Descriptions.Item label={t('作业负载')}>
+                    {node.jobLoad}
+                </Descriptions.Item>
+            </Descriptions >
+            <Descriptions className='table' column={2} bordered size='small' title={t('查询')}>
+                <Descriptions.Item label={t('前 10 个查询耗费中间值')}>
+                    {Number(node.medLast10QueryTime)} ms
+                </Descriptions.Item>
+                <Descriptions.Item label={t('前 10 个查询耗费最大值')}>
+                    {Number(node.maxLast10QueryTime)} ms
+                </Descriptions.Item>
+                <Descriptions.Item label={t('前 100 个查询耗费中间值')}>
+                    {Number(node.medLast100QueryTime)} ms
+                </Descriptions.Item>
+                <Descriptions.Item label={t('前 100 个查询耗费最大值')}>
+                    {Number(node.maxLast100QueryTime)} ms
+                </Descriptions.Item>
+            </Descriptions>
         </div>
-    </div>
+    )
 }
 
 function DdbSider () {
