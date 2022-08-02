@@ -174,11 +174,28 @@ html, body
 .ant-dropdown-menu
     background-color: #fafafa
     
+.head-bar-info
+    .ant-card
+        &-head-title
+            font-weight: bold
+    .license-card
+        .ant-card-head
+            border-bottom: 0px
+            margin-bottom: -10px
+
 
 .perf
     display: flex
+    flex-direction: column
     align-items: stretch
+    justify-content: space-around
+    gap: 10px
     
+    .ant-descriptions-header
+        margin-bottom: 4px
+        .ant-descriptions-title
+            font-size: 14px
+            
     .ant-descriptions-item-content
         color: #6a5acd
     
@@ -186,7 +203,7 @@ html, body
         flex: 1
         
     .ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-label, .ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-content
-        padding: 4px 8px
+        padding: 2px 6px
         
     .refresh
         background: #fafafa

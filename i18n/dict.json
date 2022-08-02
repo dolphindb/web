@@ -502,5 +502,131 @@
     },
     "授权客户": {
         "en": "client name"
+    },
+    "内存已用": {
+        "en": "memory used"
+    },
+    "内存已分配": {
+        "en": "memory allocated"
+    },
+    "内存最大可用": {
+        "en": "max memory available"
+    },
+    "CPU用量": {
+        "en": "CPU usage"
+    },
+    "CPU平均负载": {
+        "en": "CPU average load"
+    },
+    "当前连接": {
+        "en": "current connections"
+    },
+    "最大连接": {
+        "en": "maximum connections"
+    },
+    "硬盘读取": {
+        "en": "disk read rate"
+    },
+    "硬盘写入": {
+        "en": "disk write rate"
+    },
+    "磁盘剩余容量": {
+        "en": "disk free space"
+    },
+    "磁盘总容量": {
+        "en": "disk total capacity"
+    },
+    "网络接收速率": {
+        "en": "network receive rate"
+    },
+    "网络发送速率": {
+        "en": "network send rate"
+    },
+    "排队作业": {
+        "en": "queued jobs"
+    },
+    "运行作业": {
+        "en": "running jobs"
+    },
+    "作业负载": {
+        "en": "job load"
+    },
+    "排队任务": {
+        "en": "queued tasks"
+    },
+    "运行任务": {
+        "en": "running tasks"
+    },
+    "前 10 个查询耗费中间值": {
+        "en": "last 10 queries' average cost"
+    },
+    "前 10 个查询耗费最大值": {
+        "en": "last 10 queries' maximum cost"
+    },
+    "前 100 个查询耗费中间值": {
+        "en": "last 100 queries' average cost"
+    },
+    "前 100 个查询耗费最大值": {
+        "en": "last 100 queries' maximum cost"
+    },
+    "前一分钟读磁盘容量": {
+        "en": "last minute read volume rate"
+    },
+    "前一分钟写磁盘容量": {
+        "en": "last minute write volume rate"
+    },
+    "前一分钟接收字节数": {
+        "en": "last minute received bytes"
+    },
+    "前一分钟发送字节数": {
+        "en": "last minute send bytes"
+    },
+    "前一批消息延时": {
+        "en": "last message latency"
+    },
+    "所有消息平均延时": {
+        "en": "cumulative average latency"
+    },
+    "节点内存空间上限": {
+        "en": "memory limit"
+    },
+    "CPU 占用率": {
+        "en": "CPU usage"
+    },
+    "CPU 平均负载": {
+        "en": "CPU load average"
+    },
+    "worker 线程数": {
+        "en": "worker count"
+    },
+    "excutor 线程数": {
+        "en": "executor count"
+    },
+    "磁盘": {
+        "en": "Disk"
+    },
+    "磁盘读速率": {
+        "en": "disk read rate"
+    },
+    "磁盘写速率": {
+        "en": "disk write rate"
+    },
+    "前一分钟读磁盘量": {
+        "en": "last minute disk read volume"
+    },
+    "前一分钟写磁盘量": {
+        "en": "last minute disk write volume"
+    },
+    "网络": {
+        "en": "network"
+    },
+    "任务与作业": {
+        "en": "Task and Job"
+    },
+    "查询": {
+        "en": "Query"
+    },
+    "内存_perf": {
+        "en": "Memory"
     }
 }
