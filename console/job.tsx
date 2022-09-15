@@ -14,10 +14,7 @@ import {
 import type { ColumnType } from 'antd/lib/table/index.js'
 import { ReloadOutlined } from '@ant-design/icons'
 
-import {
-    DdbObj,
-    nulls,
-} from 'dolphindb/browser.js'
+import { DdbObj, nulls, format, DdbType } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
 import {
@@ -332,14 +329,15 @@ function add_progress_col (cols: ColumnType<DdbJob>[]) {
 
 
 function filter_job_rows (jobs: DdbJob[], query: string) {
-    return jobs.filter(({ jobId, rootJobId, desc, jobDesc, status, node, userId, userID }) =>
+    return jobs.filter(({ jobId, rootJobId, desc, jobDesc, status, node, userId, userID, remoteIP }) =>
         !query ||
         jobId?.includes(query) ||
         rootJobId?.includes(query) ||
         (desc || jobDesc)?.includes(query) ||
         status?.includes(query) ||
         node?.includes(query) ||
-        (userId || userID)?.includes(query)
+        (userId || userID)?.includes(query) ||
+        (remoteIP && format(DdbType.ipaddr, remoteIP, true).includes(query))
     )
 }
 

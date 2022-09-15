@@ -6,7 +6,7 @@ import '../myfont.sass'
 import './index.sass'
 
 
-import { default as React, useEffect } from 'react'
+import { default as React, useEffect, useState } from 'react'
 import { createRoot as create_root } from 'react-dom/client'
 
 import {
@@ -19,9 +19,11 @@ import {
     Tag,
     Popover,
     Descriptions,
-    Badge,
     Card,
-    Tooltip
+    Tooltip,
+    Button,
+    InputNumber,
+    message
 } from 'antd'
 import {
     default as Icon,
@@ -34,6 +36,9 @@ import {
     DoubleLeftOutlined,
     DoubleRightOutlined,
     SyncOutlined,
+    SettingFilled,
+    CaretUpOutlined,
+    CaretDownOutlined,
 } from '@ant-design/icons'
 import zh from 'antd/lib/locale/zh_CN.js'
 import en from 'antd/lib/locale/en_US.js'
@@ -49,14 +54,16 @@ import { model, DdbModel, NodeType, storage_keys } from './model.js'
 import { Login } from './login.js'
 import { Cluster } from './cluster.js'
 import { Shell } from './shell.js'
+import { DashBoard } from './dashboard.js'
 import { Job } from './job.js'
 import { DFS } from './dfs.js'
 import { Log } from './log.js'
 
 import SvgCluster from './cluster.icon.svg'
-import SvgDFS from './dfs.icon.svg'
-import SvgJob from './job.icon.svg'
 import SvgShell from './shell.icon.svg'
+import SvgDashboard from './dashboard.icon.svg'
+import SvgJob from './job.icon.svg'
+import SvgDFS from './dfs.icon.svg'
 import SvgLog from './log.icon.svg'
 
 
@@ -140,7 +147,7 @@ function DdbHeader () {
                     </div>
                 }
             >
-                <Tag className='node-info' color='#f2f2f2'>
+                <Tag className='node-info' color='#f2f2f2' onMouseOver={() => { model.get_cluster_perf() }}>
                     {t('状态')}
                 </Tag>
             </Popover>
@@ -152,7 +159,7 @@ function DdbHeader () {
                     placement='bottomLeft'
                     content={
                         license ? <div className='license-card head-bar-info'>
-                            <Card size='small' bordered={false} title={`${authorizations[license.authorization] || license.authorization} | v${version}`}>
+                            <Card size='small' bordered={false} title={`${authorizations[license.authorization] || license.authorization} v${version}`}>
                                 <Descriptions bordered size='small' column={2}>
                                     <Descriptions.Item label={t('授权类型')}>{authorizations[license.authorization] || license.authorization}</Descriptions.Item>
                                     <Descriptions.Item label={t('授权客户')}>{license.clientName}</Descriptions.Item>
@@ -173,7 +180,9 @@ function DdbHeader () {
                 </Popover>
             </div>
         }
-
+        
+        <Settings />
+        
         <div className='user'>
             <Dropdown
                 overlay={
@@ -415,10 +424,65 @@ function DdbSider () {
     </Layout.Sider>
 }
 
+function Settings () {
+    const [value, set_value] = useState<string>('')
+    
+    const confirm = () => {
+        const decimals = value.length === 0 ? null : Math.min(Number(value), 20)
+        model.set({ options: { decimals } })
+        message.success(t('设置成功，目前小数位数为：') + (value.length === 0 ? t('默认') : value))
+    }
+    
+    return <div className='header-settings'>
+        <Popover
+            placement='bottomLeft'
+            content={
+                <div className='header-settings-content head-bar-info'>
+                    <Card size='small' title={t('设置')} bordered={false}>
+                        <div className='decimals-toolbar'>
+                            <span className='decimals-toolbar-input'>
+                                {t('设置小数位数: ')}
+                                <InputNumber
+                                    min={0}
+                                    max={20}
+                                    onChange={(v: string | number | null) => {
+                                        const value = v === null ? '' : v.toString()
+                                        set_value(value)
+                                    }}
+                                    size='small'
+                                    value={value}
+                                    onPressEnter={confirm}
+                                    controls={{ upIcon: <CaretUpOutlined />, downIcon: <CaretDownOutlined /> }}
+                                />
+                            </span>
+                            <span className='decimals-toolbar-button-group'>
+                                <Button size='small' onClick={() => {
+                                    model.set({ options: { } })
+                                    set_value('')
+                                    message.success(t('重置成功，目前小数位数为：默认'))
+                                }}>
+                                    {t('重置')}
+                                </Button>
+                                <Button onClick={confirm} size='small' type='primary'>
+                                    {t('确定')}
+                                </Button>
+                            </span>
+                        </div>
+                    </Card>
+                </div>
+            }
+        >
+            <SettingFilled className='header-settings-icon' style={{ fontSize: '20px', color: '#707070' }} />
+        </Popover>
+    </div>
+    
+}
+
 const views = {
     login: Login,
     cluster: Cluster,
     shell: Shell,
+    dashboard: DashBoard,
     job: Job,
     dfs: DFS,
     log: Log,
@@ -440,13 +504,15 @@ function DdbContent () {
 
 const svgs = {
     cluster: SvgCluster,
-    job: SvgJob,
     shell: SvgShell,
+    dashboard: SvgDashboard,
+    job: SvgJob,
     dfs: SvgDFS,
     log: SvgLog,
 }
 
 function MenuIcon ({ view }: { view: DdbModel['view'] }) {
+    // @ts-ignore
     return <Icon className='icon-menu' component={svgs[view]} />
 }
 

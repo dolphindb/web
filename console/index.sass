@@ -33,7 +33,16 @@ html, body
             height: 20px
             line-height: 20px
         
-        
+        .header-settings
+            overflow: hidden
+            display: flex
+            align-items: center
+            cursor: pointer
+            
+            .header-settings-icon
+                margin-top: 2px
+                margin-right: 6px
+            
         .logo
             width: 90px
             height: 40px
@@ -48,6 +57,7 @@ html, body
             border-style: solid
             border-color: #1C1C1C
             margin-right: 10px
+            cursor: pointer
         
         
         .user
@@ -150,7 +160,7 @@ html, body
                     
                 .ant-menu-item-active
                     color: unset
-                    background-color: #707070
+                    background-color: #e6e6e6
                     
                     .icon-menu
                         color: #2e2e2e
@@ -178,11 +188,54 @@ html, body
     .ant-card
         &-head-title
             font-weight: bold
+    
     .license-card
         .ant-card-head
             border-bottom: 0px
             margin-bottom: -10px
+    
+    .refresh
+        cursor: pointer
 
+.decimals-toolbar
+    display: flex
+    flex-direction: column
+    
+    gap: 16px
+    margin-top: 8px
+    
+    .decimals-toolbar-input
+        .ant-input-number-sm.ant-input-number
+            width: 150px
+        .ant-input-number-handler
+            border: 0px
+            height: 50%
+            .decimals-toolbar-wrap 
+                display: flex
+                flex-direction: column
+                justify-content: space-around
+            svg
+                height: 13px
+                width: 15px
+            .decimals-toolbar-up 
+                height: 50% !important
+            .decimals-toolbar-down
+                height: 50% !important
+            .decimals-toolbar-up-inner
+                height: 100%
+                overflow: hidden
+            .decimals-toolbar-down-inner
+                height: 100%
+                overflow: hidden
+        
+        .ant-input-number-handler:hover .ant-input-number-handler-up-inner, .ant-input-number-handler:hover .ant-input-number-handler-down-inner
+            color: #3760f0 !important
+            
+            
+    .decimals-toolbar-button-group
+        display: flex
+        justify-content: flex-end
+        gap: 10px
 
 .perf
     display: flex
@@ -232,3 +285,5 @@ html, body
             margin-top: 4px
             color: #000000
 
+.ant-message
+    z-index: 1031

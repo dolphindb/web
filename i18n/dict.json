@@ -628,5 +628,65 @@
     },
     "内存_perf": {
         "en": "Memory"
+    },
+    "网络_perf": {
+        "en": "Network"
+    },
+    "磁盘可用空间占比": {
+        "en": "Disk available space ratio"
+    },
+    "数据库": {
+        "en": "Database"
+    },
+    "全部折叠": {
+        "en": "Fold"
+    },
+    "前 100 行": {
+        "en": "The first 100 rows of table"
+    },
+    "数据看板": {
+        "en": "Dashboard"
+    },
+    "设置成功，目前小数位数为：": {
+        "en": "The setting is successful, the current number of decimal places is: "
+    },
+    "默认": {
+        "en": "Default"
+    },
+    "设置": {
+        "en": "Set"
+    },
+    "设置小数位数: ": {
+        "en": "Set decimal places: "
+    },
+    "重置成功，目前小数位数为：默认": {
+        "en": "The reset is successful, the current number of decimal places is: default"
+    },
+    "确定": {
+        "en": "Confirm"
+    },
+    "正在加载代码编辑器...": {
+        "en": "Loading code editor..."
+    },
+    "在新窗口中打开": {
+        "en": "Open in new window"
+    },
+    "流表": {
+        "en": "streaming table"
+    },
+    "窗口": {
+        "en": "window"
+    },
+    "偏移量": {
+        "en": "offset"
+    },
+    "继续显示流表更新": {
+        "en": "continue to show flow table updates"
+    },
+    "暂停显示流表更新": {
+        "en": "pause showing flow table updates"
+    },
+    "实时": {
+        "en": "real time"
     }
 }

@@ -2,7 +2,7 @@ import type { BaseType } from 'antd/lib/typography/Base/index.js'
 
 import { Model } from 'react-object-model'
 
-import { ddb, DdbFunctionType, DdbObj, DdbInt, DdbLong } from 'dolphindb/browser.js'
+import { ddb, DdbFunctionType, DdbObj, DdbInt, DdbLong, type InspectOptions } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
 
@@ -21,7 +21,7 @@ export class DdbModel extends Model <DdbModel> {
     
     collapsed = localStorage.getItem(storage_keys.collapsed) === 'true'
     
-    view = '' as 'overview' | 'shell' | 'shellold' | 'table' | 'job' | 'cluster' | 'login' | 'dfs' | 'log'
+    view = '' as 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'cluster' | 'login' | 'dfs' | 'log'
     
     logined = false
     
@@ -45,6 +45,7 @@ export class DdbModel extends Model <DdbModel> {
     
     first_get_server_log = true
     
+    options?: InspectOptions
     
     async init () {
         await ddb.connect({ autologin: false })

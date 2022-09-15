@@ -61,7 +61,7 @@ export async function get_monaco (update = false) {
             return fwrite(
                 fp,
                 await request(
-                    `https://cdn.jsdelivr.net/npm/monaco-editor/${ fname.endsWith('.map') ? 'min-maps' : 'min' }/vs/${fname}`,
+                    `https://cdn.jsdelivr.net/npm/monaco-editor@0.33.0/${ fname.endsWith('.map') ? 'min-maps' : 'min' }/vs/${fname}`,
                     {
                         encoding: 'binary',
                         retries: true,
