@@ -14,6 +14,7 @@ import dayjs from 'dayjs'
 
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
+import { WebglAddon } from 'xterm-addon-webgl'
 
 import debounce from 'lodash/debounce.js'
 
@@ -149,7 +150,7 @@ class ShellModel extends Model<ShellModel> {
         const time_start = dayjs()
         
         this.term.writeln(
-            '\n\n' +
+            '\n' +
             time_start.format('YYYY.MM.DD HH:mm:ss.SSS')
         )
         
@@ -810,9 +811,9 @@ function Term () {
                 
                 disableStdin: true,
                 
-                rendererType: 'canvas',
-                
                 convertEol: true,
+                
+                allowProposedApi: true,
                 
                 theme: {
                     background: '#ffffff',
@@ -823,15 +824,15 @@ function Term () {
                     brightBlack: '#8e908c',
                     magenta: '#800080',
                     red: '#df0000',
-                    selection: '#add6ff'
+                    selectionBackground: '#444444'
                 }
             })
             
-            term.loadAddon(
-                shell.fit_addon = new FitAddon()
-            )
+            term.loadAddon(shell.fit_addon = new FitAddon())
             
             term.open(rterminal.current)
+            
+            term.loadAddon(new WebglAddon())
             
             ddb.listeners.push(printer)
             
@@ -1405,7 +1406,7 @@ class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 let items = new Array(Math.min(limit, (this.obj.value as any[]).length))
                                 
-                                for (let i = 0; i < items.length; i++) items[i] = format(this.type, this.obj.value[i], this.obj.le)
+                                for (let i = 0; i < items.length; i++) items[i] = format(this.type, this.obj.value[i], this.obj.le, this.options)
                                 
                                 return ' = ' + format_array(items, (this.obj.value as any[]).length > limit)
                             }

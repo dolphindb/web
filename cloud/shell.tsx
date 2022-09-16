@@ -10,6 +10,7 @@ const { Title } = Typography
 
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
+import { WebglAddon } from 'xterm-addon-webgl'
 // import { WebLinksAddon } from 'xterm-addon-web-links'
 
 import debounce from 'lodash/debounce.js'
@@ -35,9 +36,9 @@ export function Shell () {
             
             disableStdin: false,
             
-            rendererType: 'canvas',
-            
             convertEol: true,
+            
+            allowProposedApi: true,
             
             theme: {
                 background: '#ffffff',
@@ -48,7 +49,7 @@ export function Shell () {
                 brightBlack: '#8e908c',
                 magenta: '#800080',
                 red: '#df0000',
-                selection: '#444444',
+                selectionBackground: '#444444',
                 cursor: '#000000'
             },
         })
@@ -63,15 +64,12 @@ export function Shell () {
         
         term.onData(input => {
             // console.log('input:', input)
-            ws.send(
-                JSON.stringify({
-                    type: 'input',
-                    input
-                })
-            )
+            ws.send(JSON.stringify({ type: 'input', input }))
         })
         
         term.open(rterminal.current)
+        
+        term.loadAddon(new WebglAddon())
         
         fit_addon.fit()
         
@@ -79,13 +77,7 @@ export function Shell () {
         
         
         function send_size () {
-            ws.send(
-                JSON.stringify({
-                    type: 'resize',
-                    rows: term.rows,
-                    cols: term.cols
-                })
-            )
+            ws.send(JSON.stringify({ type: 'resize', rows: term.rows, cols: term.cols }))
         }
         
         const params = new URLSearchParams(location.search)
