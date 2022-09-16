@@ -824,7 +824,7 @@ function Term () {
                     brightBlack: '#8e908c',
                     magenta: '#800080',
                     red: '#df0000',
-                    selectionBackground: '#444444'
+                    selectionBackground: '#add6ff'
                 }
             })
             
