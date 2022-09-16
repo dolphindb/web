@@ -52,6 +52,7 @@ import SvgLink from './link.icon.svg'
 import { type WindowModel } from './window.js'
 
 
+const page_sizes = [1, 2, 3, 5, 10, 15, 20, 25, 30, 40, 50, 75, 100, 150, 200, 300, 400, 500, 750, 1000, 5000, 10000, 100000]
 
 const views = {
     [DdbForm.vector]: Vector,
@@ -407,13 +408,7 @@ function Vector ({
                 total={info.rows}
                 current={page_index + 1}
                 pageSize={page_size}
-                pageSizeOptions={
-                    ctx === 'window' ?
-                        [10, 50, 100, 200, 500, 1000, 10000, 100000]
-                    :
-                        [20, 100, 200, 400, 1000, 10000, 100000]
-                }
-                
+                pageSizeOptions={page_sizes}
                 size='small'
                 showSizeChanger
                 showQuickJumper
@@ -647,7 +642,7 @@ function Table ({
                 total={info.rows}
                 current={page_index + 1}
                 pageSize={page_size}
-                pageSizeOptions={[5, 10, 20, 50, 100, 200, 500, 1000, 10000, 100000]}
+                pageSizeOptions={page_sizes}
                 size='small'
                 showSizeChanger
                 showQuickJumper
@@ -912,7 +907,7 @@ export function StreamingTable ({
                 total={winsize}
                 current={page_index + 1}
                 pageSize={page_size}
-                pageSizeOptions={[5, 10, 20, 50, 100, 200, 500, 1000]}
+                pageSizeOptions={page_sizes}
                 size='small'
                 showSizeChanger
                 showQuickJumper
@@ -1165,7 +1160,7 @@ function Matrix ({
                 total={info.rows}
                 current={page_index + 1}
                 pageSize={page_size}
-                pageSizeOptions={[5, 10, 20, 50, 100, 200, 500, 1000, 10000, 100000]}
+                pageSizeOptions={page_sizes}
                 size='small'
                 showSizeChanger
                 showQuickJumper

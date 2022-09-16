@@ -1,5 +1,5 @@
 $color: var(--vscode-editor-foreground, #000000)
-$border-color: var(--vscode-sidebar-background, #cccccc)
+$border-color: var(--vscode-tree-tableColumnsBorder, rgba(97, 97, 97, 0.13))
 $background-color: var(--vscode-editor-background, #ffffff)
 $icon-color: var(--vscode-editorGroupHeader-tabsBackground, #888888)
 $hover-color: var(--vscode-sideBar-background, #eeeeee)
@@ -82,7 +82,7 @@ $font-family: var(--vscode-editor-font-family, 'MyFont')
         
     .ant-pagination
         .ant-pagination-item a
-            color: $line-number-foreground-color !important
+            color: $color !important
         
         .ant-pagination-item-active
             background-color: $background-color !important
@@ -93,7 +93,7 @@ $font-family: var(--vscode-editor-font-family, 'MyFont')
                 color: $line-number-active-foreground-color !important
         
         .ant-pagination-item-ellipsis
-            color: $line-number-foreground-color !important
+            color: $color !important
         
         .ant-pagination-item-link
             color: $font-color !important
@@ -102,7 +102,7 @@ $font-family: var(--vscode-editor-font-family, 'MyFont')
             color: $font-color !important
         
         .ant-pagination-disabled svg
-            color: $line-number-foreground-color !important
+            color: $color !important
         .ant-pagination-options
             color: $font-color !important
             input
@@ -147,6 +147,9 @@ $font-family: var(--vscode-editor-font-family, 'MyFont')
         background-color: $dropdown-selected-background-color !important
         
     .ant-pagination-options-quick-jumper
+        input
+            border-color: $border-color
+        
         input:hover
             border-color: #707070
             
@@ -154,6 +157,7 @@ $font-family: var(--vscode-editor-font-family, 'MyFont')
             border-color: #707070
             box-shadow: unset
             
+        
     
 .result
     height: 100%
@@ -186,10 +190,10 @@ $font-family: var(--vscode-editor-font-family, 'MyFont')
     .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table,
     .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table
         border-color: $border-color !important
-        
+    
     .ant-table.ant-table-bordered > .ant-table-container
         border-color: $border-color !important
-
+    
     .ant-table-tbody > tr.ant-table-row:hover > td,
     .ant-table-tbody > tr > td.ant-table-cell-row-hover
         background-color: $hover-color !important
