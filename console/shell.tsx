@@ -989,7 +989,8 @@ function Databases () {
             nddbs.set(key, new DdbEntity({ path: key, tables }))
             shell.set({ ddbs: nddbs })
         } catch (err) {
-            const errmsg = (err.message as string).replace(/^.*? => /, '')
+            const i = (err.message as string).indexOf('<NotAuthenticated>')
+            const errmsg = i === -1 ? err.message as string : (err.message as string).slice(i)
             const nddbs = new Map(ddbs)
             ddbs.delete(key)
             nddbs.set(key, new DdbEntity({ path: key, empty: true }))
