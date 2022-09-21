@@ -1342,7 +1342,7 @@ function Chart ({
                     if (multi_y_axes) 
                         for (let j = 0; j < rows; j++) {
                             let dataobj: any = { }
-                            dataobj.row = format(rows_.type, row_labels[j], rows_.le)
+                            dataobj.row = (rows_?.type&&rows_?.le) ? format(rows_.type, row_labels[j], rows_.le) : row_labels[j]
                             for (let i = 0; i < cols; i++) {
                                 const col = col_labels[i]?.value?.name || col_labels[i]
                                 col_lables_[i] = col
@@ -1360,7 +1360,7 @@ function Chart ({
                             for (let j = 0; j < rows; j++) {
                                 const idata = i * rows + j
                                 data_[idata] = {
-                                    row: format(rows_.type, row_labels[j], rows_.le),
+                                    row: (rows_?.type&&rows_?.le) ? format(rows_.type, row_labels[j], rows_.le) : row_labels[j],
                                     col,
                                     value: to_chart_data(data[idata], datatype)
                                 }
@@ -1396,7 +1396,7 @@ function Chart ({
                         for (let j = 0; j < rows; j++) {
                             const idata = i * rows + j
                             data_[idata] = {
-                                row: charttype === DdbChartType.scatter ? row_labels[j] : format(rows_.type, row_labels[j], rows_.le),
+                                row:  (rows_?.type&&rows_?.le) ? format(rows_.type, row_labels[j], rows_.le) : row_labels[j],
                                 col,
                                 value: to_chart_data(data[idata], datatype)
                             }
