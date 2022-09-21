@@ -1519,7 +1519,22 @@ function Show_backup_restore_sched (){
     const items = [{label: 'backup', key:0},{label:'restore',key:1},{lable:'sched',key:2}]
     return <Layout>
         <Header style={{padding:0}}>
-            <Menu items={items} mode='horizontal' theme='light' ></Menu>
+            <Menu mode='horizontal'>
+            <Menu.Item key={0}>
+                Backup
+            </Menu.Item>
+            
+        
+            <Menu.Item key={1}>
+                resotre
+            </Menu.Item>
+            
+            <Menu.Item key={2}>
+                sched
+            </Menu.Item>
+            
+            </Menu>
+
         </Header>
         <Layout>
             <Content>
@@ -1554,7 +1569,7 @@ function Backup_List_of_Namespace() {
     const [restore_form] = Form.useForm()
     const [sched_form] = Form.useForm()
 
-    const [fetched_list_of_namesace, setData] = useState<typeof list_of_namespace_example>( list_of_namespace_example)
+    const [fetched_list_of_namesace, setData] = useState<typeof list_of_namespace_example>(list_of_namespace_example)
     const [current_manipulate_item_name, set_current_name] = useState<string>('')
     const forceUpdate = useForceUpdate()
     var [data_of_current_manipulating_name, set_current_data] = useState<typeof example_data_of_backup_return.data| undefined>()
@@ -1569,12 +1584,18 @@ function Backup_List_of_Namespace() {
         },[]
     )
 
+    useEffect(
+        ()=>{
+            restore_form.resetFields()
+        }
+    )
     return <>
         <Layout style={{ height: '100vh', overflow: 'auto' }}>
             <Layout.Sider
                 width={'100%'}
                 theme='light'
             >
+                {fetched_list_of_namesace?
                 <Table dataSource={fetched_list_of_namesace.map(
                     data_item => {
                         return {
@@ -1604,9 +1625,14 @@ function Backup_List_of_Namespace() {
                                 {'Add restore'}
                             </Link>,
                             sched:<Link
-                            onClick={() => {
-                                sched_setOpen(true)
-                            }}>
+                            onClick={
+                                async () => {
+                                    const data = (await request_json(`/v1/backup/backups/${model.cluster.namespace}/${data_item.name}`) as typeof example_data_of_backup_return).data
+                                    set_current_data(data)
+                                    set_current_name(data_item.name)
+                                    restore_setOpen(true)
+                                }
+                            }>
                                 {'Add sched'}
                             </Link>
                         }
@@ -1644,7 +1670,9 @@ function Backup_List_of_Namespace() {
                         key='sched'
                         dataIndex={'sched'}
                     />
-                </Table>
+                </Table>:
+                <div>No data</div>
+                }
             </Layout.Sider>
             {/*}
             <Layout.Content>
@@ -1773,7 +1801,474 @@ function Backup_List_of_Namespace() {
                 <Button key="submit" type="primary" loading={loading} onClick={ async () => {
                     const data_to_post = await restore_form.validateFields()
                     const { name, namespace, cleanPolicy, remoteType, sourceName, dataSource, port, host } = data_to_post
+                    request_json('v1/backup/restores', {
+                        body: {
+                            "name": name,
+                            "namespace": namespace,
+                            "spec": {
+                                "cleanPolicy": cleanPolicy,
+                                "prefix": "backup",
+                                "forceDir": "schedbackup",
+                                "remoteType": remoteType,
+                                "dataSource": dataSource,
+                                "sourceName": sourceName,
+                                "server": {
+                                    "port": port,
+                                    "host": host,
+                                    "usedId": "admin",
+                                    "password": "123456"
+                                }
+                            }
+                        },
+                        method: 'post'
+                    })
+                    restore_setOpen(false)
+                }}>
+                    {t('提交')}
+                </Button>
+            ]}
+        >
+            <Form
+                form={restore_form}
+                initialValues={data_of_current_manipulating_name?{
+                                namespace: model.cluster.namespace,
+                                name: current_manipulate_item_name,
+                                cleanPolicy: data_of_current_manipulating_name.spec.cleanPolicy,
+                                remoteType: data_of_current_manipulating_name.spec.remoteType,
+                                dataSource: data_of_current_manipulating_name.spec.dataSource,
+                                sourceName: data_of_current_manipulating_name.spec.sourceName,
+                                host: data_of_current_manipulating_name.spec.conn.host,
+                                port: data_of_current_manipulating_name.spec.conn.port
+                            }:{}}
+            >
+                <Form.Item
+                    name={'namespace'}
+                    label={t('命名空间')}
+                >
+                    <Input readOnly={true}></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'name'}
+                    label={t('名字')}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'cleanPolicy'}
+                    label={t('清除策略')}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'remoteType'}
+                    label={t('远程类型')}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'dataSource'}
+                    label={t('数据源')}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'dataSource'}
+                    label={t('源流名称')}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'host'}
+                    label={'主机'}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'port'}
+                    label={'端口'}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+
+            </Form>
+        </Modal>
+
+        {/**add sched */}
+        <Modal
+            open={sched_open}
+            title="Add sched"
+            onCancel={()=>{sched_setOpen(false)}}
+            footer={[
+                <Button key="back" onClick={()=>{sched_setOpen(false)}}>
+                    {t('取消')}
+                </Button>,
+                <Button key="submit" type="primary" loading={loading} onClick={ async () => {
+                    const data_to_post = await sched_form.validateFields()
+                    const { name, namespace, cleanPolicy, remoteType, sourceName, dataSource, port, host } = data_to_post
                     request_json('v1/backup/backups', {
+                        body: {
+                            "name": name,
+                            "namespace": namespace,
+                            "spec": {
+                                "cleanPolicy": cleanPolicy,
+                                "prefix": "backup",
+                                "forceDir": "schedbackup",
+                                "remoteType": remoteType,
+                                "dataSource": dataSource,
+                                "sourceName": sourceName,
+                                "server": {
+                                    "port": port,
+                                    "host": host,
+                                    "usedId": "admin",
+                                    "password": "123456"
+                                }
+                            }
+                        },
+                        method: 'post'
+                    })
+                    sched_setOpen(false)
+                }}>
+                    {t('提交')}
+                </Button>
+            ]}
+        >
+            <Form
+                form={sched_form}
+                initialValues={function () {
+                    const data = data_of_current_manipulating_name
+                    if (data)
+                        return{
+                            namespace: model.cluster.namespace,
+                            name: current_manipulate_item_name,
+                            cleanPolicy: data.spec.cleanPolicy,
+                            remoteType: data.spec.remoteType,
+                            dataSource: data.spec.dataSource,
+                            sourceName: data.spec.sourceName,
+                            host: data.spec.conn.host,
+                            port: data.spec.conn.port
+                        }
+                    
+                }()}
+            >
+                <Form.Item
+                    name={'namespace'}
+                    label={t('命名空间')}
+                >
+                    <Input readOnly={true}></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'name'}
+                    label={t('名字')}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'cleanPolicy'}
+                    label={t('清除策略')}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'remoteType'}
+                    label={t('远程类型')}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'dataSource'}
+                    label={t('数据源')}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'dataSource'}
+                    label={t('源流名称')}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'host'}
+                    label={'主机'}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'port'}
+                    label={'端口'}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+
+            </Form>
+        </Modal>
+        
+        
+    </>
+}
+
+function Restore_List_of_Namespace() {
+    
+    //const [current_display_name, set_current_name] = useState<string>('')
+    const [detail_of_name, setDetail] = useState({})
+    const { name, setName } = React.useContext(Name_of_backup_item)
+    const { Tagg, setTag } = useContext(Context_of_tag_indicating_which_page_should_be_display)
+
+    const [loading, setLoading] = useState(false);
+    const [backup_open, backup_setOpen] = useState(false);
+    const [delete_open, delete_setOpen] = useState(false);
+    const [restore_open, restore_setOpen] = useState(false);
+    const [sched_open, sched_setOpen] = useState(false);
+
+    const [config_form] = Form.useForm()
+    const [restore_form] = Form.useForm()
+    const [sched_form] = Form.useForm()
+
+    const [fetched_list_of_namesace, setData] = useState<typeof list_of_namespace_example>(list_of_namespace_example)
+    const [current_manipulate_item_name, set_current_name] = useState<string>('')
+    const forceUpdate = useForceUpdate()
+    var [data_of_current_manipulating_name, set_current_data] = useState<typeof example_data_of_backup_return.data| undefined>()
+    
+    async function fetch_namelist_of_current_namespace () {
+        const data = await request_json(`v1/backup/backups/${model.cluster.namespace}`)
+        setData(data)
+    }
+    useEffect(
+        ()=>{
+            fetch_namelist_of_current_namespace()
+        },[]
+    )
+
+    return <>
+        <Layout style={{ height: '100vh', overflow: 'auto' }}>
+            <Layout.Sider
+                width={'100%'}
+                theme='light'
+            >
+                
+                {
+                    fetched_list_of_namesace?
+                    <Table dataSource={fetched_list_of_namesace.map(
+                    data_item => {
+                        return {
+                            name: <Link onClick={() => {
+                                setName(data_item.name)
+                                setTag('Dashboar_For_One_Name_Backup')
+                            }}>{data_item.name}</Link>, 
+                            createTimestamp: data_item.createTimestamp,
+                            phase: data_item.phase, 
+                            delete:<Popconfirm
+                            title='You sure to delete?'
+                            onConfirm={() => {
+                                request_json(`/v1/backup/backups/${model.cluster.namespace}/${data_item.name}`,{method:'delete'})
+                                forceUpdate()
+                            }}
+                            onCancel={()=>{}}
+                            >
+                                <a href="#">Delete</a>
+                            </Popconfirm>,
+                            restore:<Link
+                            onClick={async () => {
+                                const data = (await request_json(`/v1/backup/backups/${model.cluster.namespace}/${data_item.name}`) as typeof example_data_of_backup_return).data
+                                set_current_data(data)
+                                set_current_name(data_item.name)
+                                restore_setOpen(true)
+                            }}>
+                                {'Add restore'}
+                            </Link>,
+                            sched:<Link
+                            onClick={
+                                async () => {
+                                    const data = (await request_json(`/v1/backup/backups/${model.cluster.namespace}/${data_item.name}`) as typeof example_data_of_backup_return).data
+                                    set_current_data(data)
+                                    set_current_name(data_item.name)
+                                    restore_setOpen(true)
+                                }
+                            }>
+                                {'Add sched'}
+                            </Link>
+                        }
+                    }
+                )}
+                    pagination={false}
+                >
+                    <Column
+                        title={"Name"}
+                        key='name'
+                        dataIndex={'name'}
+                    />
+                    <Column
+                        title={"TimeStamp"}
+                        key='createTimestamp'
+                        dataIndex={'createTimestamp'}
+                    />
+                    <Column
+                        title={"Phase"}
+                        key='phase'
+                        dataIndex={'phase'}
+                    />
+                    <Column
+                        title={'Delete'}
+                        key='delete'
+                        dataIndex={'delete'}
+                    />
+                    <Column
+                        title={'restore'}
+                        key='restore'
+                        dataIndex={'restore'}
+                    />
+                    <Column
+                        title={'sched'}
+                        key='sched'
+                        dataIndex={'sched'}
+                    />
+                </Table>:
+                <div>No data</div>
+                }
+            </Layout.Sider>
+            {/*}
+            <Layout.Content>
+                <JSONTree
+                    data={detail_of_name}
+                    theme={theme}
+                    invertTheme={false}
+                ></JSONTree>
+            </Layout.Content>
+                */}
+        </Layout>
+
+        <Button style={{ position: 'absolute', right: 100, bottom: 100 }} type='primary' onClick={()=>{backup_setOpen(true)}} >添加配置</Button>
+        
+        {/**add backup */}
+        <Modal
+            open={backup_open}
+            title="Add config"
+            onCancel={()=>{backup_setOpen(false)}}
+            footer={[
+                <Button key="back" onClick={()=>{backup_setOpen(false)}}>
+                    {t('取消')}
+                </Button>,
+                <Button key="submit" type="primary" loading={loading} onClick={ async () => {
+                    const data_to_post = await config_form.validateFields()
+                    const { name, namespace, cleanPolicy, remoteType, sourceName, dataSource, port, host } = data_to_post
+                    request_json('v1/backup/backups', {
+                        body: {
+                            "name": name,
+                            "namespace": namespace,
+                            "spec": {
+                                "cleanPolicy": cleanPolicy,
+                                "prefix": "backup",
+                                "forceDir": "schedbackup",
+                                "remoteType": remoteType,
+                                "dataSource": dataSource,
+                                "sourceName": sourceName,
+                                "server": {
+                                    "port": port,
+                                    "host": host,
+                                    "usedId": "admin",
+                                    "password": "123456"
+                                }
+                            }
+                        },
+                        method: 'post'
+                    })
+                    backup_setOpen(false)
+                }}>
+                    {t('提交')}
+                </Button>
+            ]}
+        >
+            <Form
+                form={config_form}
+            >
+                <Form.Item
+                    name={'namespace'}
+                    label={t('命名空间')}
+                >
+                    <Input readOnly={true}></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'name'}
+                    label={t('名字')}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'cleanPolicy'}
+                    label={t('清除策略')}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'remoteType'}
+                    label={t('远程类型')}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'dataSource'}
+                    label={t('数据源')}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'dataSource'}
+                    label={t('源流名称')}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'host'}
+                    label={'主机'}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+                <Form.Item
+                    name={'port'}
+                    label={'端口'}
+                >
+                    <Input ></Input>
+                </Form.Item>
+
+
+            </Form>
+        </Modal>
+        
+        {/**add restore */}
+        <Modal
+            open={restore_open}
+            title="Add restore"
+            onCancel={()=>{restore_setOpen(false)}}
+            footer={[
+                <Button key="back" onClick={()=>{restore_setOpen(false)}}>
+                    {t('取消')}
+                </Button>,
+                <Button key="submit" type="primary" loading={loading} onClick={ async () => {
+                    const data_to_post = await restore_form.validateFields()
+                    const { name, namespace, cleanPolicy, remoteType, sourceName, dataSource, port, host } = data_to_post
+                    request_json('v1/backup/restores', {
                         body: {
                             "name": name,
                             "namespace": namespace,
@@ -1877,111 +2372,9 @@ function Backup_List_of_Namespace() {
 
             </Form>
         </Modal>
-
-        {/**add sched */}
-        <Modal
-            open={sched_open}
-            title="Add sched"
-            onCancel={()=>{sched_setOpen(false)}}
-            footer={[
-                <Button key="back" onClick={()=>{sched_setOpen(false)}}>
-                    {t('取消')}
-                </Button>,
-                <Button key="submit" type="primary" loading={loading} onClick={ async () => {
-                    const data_to_post = await sched_form.validateFields()
-                    const { name, namespace, cleanPolicy, remoteType, sourceName, dataSource, port, host } = data_to_post
-                    request_json('v1/backup/backups', {
-                        body: {
-                            "name": name,
-                            "namespace": namespace,
-                            "spec": {
-                                "cleanPolicy": cleanPolicy,
-                                "prefix": "backup",
-                                "forceDir": "schedbackup",
-                                "remoteType": remoteType,
-                                "dataSource": dataSource,
-                                "sourceName": sourceName,
-                                "server": {
-                                    "port": port,
-                                    "host": host,
-                                    "usedId": "admin",
-                                    "password": "123456"
-                                }
-                            }
-                        },
-                        method: 'post'
-                    })
-                    sched_setOpen(false)
-                }}>
-                    {t('提交')}
-                </Button>
-            ]}
-        >
-            <Form
-                form={sched_form}
-            >
-                <Form.Item
-                    name={'namespace'}
-                    label={t('命名空间')}
-                >
-                    <Input readOnly={true}></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'name'}
-                    label={t('名字')}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'cleanPolicy'}
-                    label={t('清除策略')}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'remoteType'}
-                    label={t('远程类型')}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'dataSource'}
-                    label={t('数据源')}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'dataSource'}
-                    label={t('源流名称')}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'host'}
-                    label={'主机'}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'port'}
-                    label={'端口'}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-
-            </Form>
-        </Modal>
-        
         
     </>
+ 
 }
 
 const example_data_of_backup_return = {
