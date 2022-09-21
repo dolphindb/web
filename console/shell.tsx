@@ -989,7 +989,7 @@ function Databases () {
             nddbs.set(key, new DdbEntity({ path: key, tables }))
             shell.set({ ddbs: nddbs })
         } catch (err) {
-            const errmsg = (err.message as string).replace(/:.*? => /, '')
+            const errmsg = (err.message as string).replace(/^.*? => /, '')
             const nddbs = new Map(ddbs)
             ddbs.delete(key)
             nddbs.set(key, new DdbEntity({ path: key, empty: true }))
