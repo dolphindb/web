@@ -17,10 +17,7 @@ import { ReloadOutlined } from '@ant-design/icons'
 import { DdbObj, nulls, format, DdbType } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
-import {
-    model,
-    type DdbJob,
-} from './model.js'
+import { model, type DdbJob } from './model.js'
 
 
 const { Title, Text, Link } = Typography
@@ -43,21 +40,15 @@ export function Job () {
     
     
     async function get_cjobs () {
-        set_cjobs(
-            await model.get_console_jobs()
-        )
+        set_cjobs(await model.get_console_jobs())
     }
     
     async function get_rjobs () {
-        set_rjobs(
-            await model.get_recent_jobs()
-        )
+        set_rjobs(await model.get_recent_jobs())
     }
     
     async function get_sjobs () {
-        set_sjobs(
-            await model.get_scheduled_jobs()
-        )
+        set_sjobs(await model.get_scheduled_jobs())
     }
     
     
@@ -72,11 +63,9 @@ export function Job () {
     if (!cjobs || !rjobs || !sjobs)
         return null
     
-    const cjob_rows = filter_job_rows(
-        cjobs.to_rows(),
-        query
-    ).sort((l, r) => 
-        -Number(l.receiveTime - r.receiveTime))
+    const cjob_rows = filter_job_rows(cjobs.to_rows(), query)
+        .sort((l, r) => 
+            -Number(l.receiveTime - r.receiveTime))
     
     const cjob_cols: ColumnType<Record<string, any>>[] = cjobs.to_cols()
     
@@ -88,8 +77,7 @@ export function Job () {
             -(l.finishedTasks - r.finishedTasks))
     
     const rjob_rows = filter_job_rows(
-        rjobs.to_rows()
-            .map(compute_status_info),
+        rjobs.to_rows().map(compute_status_info),
         query
     ).sort((l, r) => {
         if (l.status !== r.status) {
@@ -101,10 +89,7 @@ export function Job () {
         return -Number(l.receivedTime - r.receivedTime)
     })
     
-    const sjob_rows = filter_job_rows(
-        sjobs.to_rows(),
-        query
-    )
+    const sjob_rows = filter_job_rows(sjobs.to_rows(), query)
     
     const n_rjob_rows_uncompleted = rjob_rows.filter(job => 
             job.status === 'queuing' || job.status === 'running'
@@ -120,13 +105,7 @@ export function Job () {
                     set_refresher({ })
                 }}
             >{t('刷新')}</Button>
-            <Input.Search
-                className='search'
-                placeholder={t('输入关键字后按回车可搜索作业')}
-                onSearch={ value => {
-                    set_query(value)
-                }}
-            />
+            <Input.Search className='search' placeholder={t('输入关键字后按回车可搜索作业')} onSearch={ value => { set_query(value) }} />
         </div>
         
         <div className={`cjobs ${ !gjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || gjob_rows.length) ? 'block' : 'none' }}>
@@ -136,10 +115,7 @@ export function Job () {
                 columns={
                     add_progress_col(
                         append_action_col(
-                            cjob_cols
-                                .filter(col => 
-                                    group_cjob_columns.has(col.title as string))
-                            ,
+                            cjob_cols.filter(col => group_cjob_columns.has(col.title as string)),
                             'stop',
                             async job => {
                                 await model.cancel_console_job(job)
@@ -242,8 +218,7 @@ function group_cjob_rows_by_rootid (cjobs: DdbJob[]) {
 function fix_scols (sjobs: DdbObj<DdbObj[]>) {
     const cols: ColumnType<Record<string, any>>[] = sjobs.to_cols()
     
-    const index = cols.findIndex(col => 
-        col.title === 'node')
+    const index = cols.findIndex(col => col.title === 'node')
     
     if (index === -1)
         return cols

@@ -223,11 +223,16 @@ $font-family: var(--vscode-editor-font-family, 'MyFont')
 .dict
     .ant-tree-show-line .ant-tree-indent-unit::before
         border-right: unset !important
-        
+    
+    .ant-tree-show-line .ant-tree-switcher
+        background: $background-color
+    
     .ant-tree
         transition: unset !important
         
         color: $font-color
+        
+        background-color: $background-color
         
         .ant-tree-node-content-wrapper 
             transition: unset !important
@@ -240,3 +245,4 @@ $font-family: var(--vscode-editor-font-family, 'MyFont')
             
         .ant-tree-switcher-noop
             visibility: hidden
+        
