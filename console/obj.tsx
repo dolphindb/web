@@ -1326,14 +1326,38 @@ function Chart ({
             let col_labels = (cols_?.value || [ ]) as any[]
             let col_lables_ = new Array(col_labels.length)
             
-            // 没有设置 label 的情况
-            let row_labels_ = new Array(rows)
+            let row_labels = (() => {
+                let _row_labels = new Array(rows)
+
+                //没有设置label的话直接以序号赋值并返回
+                if (!(rows_?.value)) {
+                    for (let i = 0; i < rows; i++) {
+                        _row_labels[i] = i
+                    }
+                    return _row_labels
+                } else {
+                    _row_labels = rows_.value
+                }
+
+
+                //似乎没有简洁的符号表示"非零非空字符"的空值， https://stackoverflow.com/questions/2647867/how-can-i-determine-if-a-variable-is-undefined-or-null
+                
+                if (charttype === DdbChartType.kline){
+                    return _row_labels
+                }
+                
+                if (!(rows_.type === undefined || rows_.le === undefined || rows_.type === null || rows_.le === null)) {
+                    //参数合法
+
+                    const to_return = new Array(rows)
+                    for (let i = 0; i < rows; i++) {
+                        to_return[i] = format(rows_.type, _row_labels[i], rows_.le)
+                    }
+                    return to_return
+                }
+            })()
             
-            for (let i = 0; i < rows; i++) 
-                row_labels_[i] = i
             
-            let row_labels = (rows_?.value || row_labels_) as any[]
-                       
             const n = charttype === DdbChartType.line && multi_y_axes || charttype === DdbChartType.kline ? rows : rows * cols
             let data_ = new Array(n)
             
@@ -1342,7 +1366,7 @@ function Chart ({
                     if (multi_y_axes) 
                         for (let j = 0; j < rows; j++) {
                             let dataobj: any = { }
-                            dataobj.row = (rows_?.type&&rows_?.le) ? format(rows_.type, row_labels[j], rows_.le) : row_labels[j]
+                            dataobj.row = row_labels[j]
                             for (let i = 0; i < cols; i++) {
                                 const col = col_labels[i]?.value?.name || col_labels[i]
                                 col_lables_[i] = col
@@ -1360,7 +1384,7 @@ function Chart ({
                             for (let j = 0; j < rows; j++) {
                                 const idata = i * rows + j
                                 data_[idata] = {
-                                    row: (rows_?.type&&rows_?.le) ? format(rows_.type, row_labels[j], rows_.le) : row_labels[j],
+                                    row: row_labels[j],
                                     col,
                                     value: to_chart_data(data[idata], datatype)
                                 }
@@ -1396,7 +1420,7 @@ function Chart ({
                         for (let j = 0; j < rows; j++) {
                             const idata = i * rows + j
                             data_[idata] = {
-                                row:  (rows_?.type&&rows_?.le) ? format(rows_.type, row_labels[j], rows_.le) : row_labels[j],
+                                row:  row_labels[j],
                                 col,
                                 value: to_chart_data(data[idata], datatype)
                             }
