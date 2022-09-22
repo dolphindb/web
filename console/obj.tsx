@@ -1326,14 +1326,25 @@ function Chart ({
             let col_labels = (cols_?.value || [ ]) as any[]
             let col_lables_ = new Array(col_labels.length)
             
-            // 没有设置 label 的情况
-            let row_labels_ = new Array(rows)
+            const row_labels = (() => {
+
+                // 没有设置label的话直接以序号赋值并返回
+                if (!rows_)
+                    return [...Array(rows).keys()]
+                    // [0,1,2,3...rows-1],    https://stackoverflow.com/questions/3746725/how-to-create-an-array-containing-1-n
+                else {
+                    if (charttype === DdbChartType.kline || charttype === DdbChartType.scatter)
+                        return rows_.value
+                    
+                    const to_return = new Array(rows)
+                    for (let i = 0; i < rows; i++)
+                        to_return[i] = format(rows_.type, rows_.value[i], rows_.le)
+                    
+                    return to_return
+                }
+            })()
             
-            for (let i = 0; i < rows; i++) 
-                row_labels_[i] = i
             
-            let row_labels = (rows_?.value || row_labels_) as any[]
-                       
             const n = charttype === DdbChartType.line && multi_y_axes || charttype === DdbChartType.kline ? rows : rows * cols
             let data_ = new Array(n)
             
@@ -1342,7 +1353,7 @@ function Chart ({
                     if (multi_y_axes) 
                         for (let j = 0; j < rows; j++) {
                             let dataobj: any = { }
-                            dataobj.row = format(rows_.type, row_labels[j], rows_.le)
+                            dataobj.row = row_labels[j]
                             for (let i = 0; i < cols; i++) {
                                 const col = col_labels[i]?.value?.name || col_labels[i]
                                 col_lables_[i] = col
@@ -1360,7 +1371,7 @@ function Chart ({
                             for (let j = 0; j < rows; j++) {
                                 const idata = i * rows + j
                                 data_[idata] = {
-                                    row: format(rows_.type, row_labels[j], rows_.le),
+                                    row: row_labels[j],
                                     col,
                                     value: to_chart_data(data[idata], datatype)
                                 }
@@ -1396,7 +1407,7 @@ function Chart ({
                         for (let j = 0; j < rows; j++) {
                             const idata = i * rows + j
                             data_[idata] = {
-                                row: charttype === DdbChartType.scatter ? row_labels[j] : format(rows_.type, row_labels[j], rows_.le),
+                                row: row_labels[j],
                                 col,
                                 value: to_chart_data(data[idata], datatype)
                             }
