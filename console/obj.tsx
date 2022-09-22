@@ -1327,36 +1327,24 @@ function Chart ({
             let col_lables_ = new Array(col_labels.length)
             
             let row_labels = (() => {
-                let _row_labels = new Array(rows)
 
                 //没有设置label的话直接以序号赋值并返回
                 if (!(rows_?.value)) {
-                    for (let i = 0; i < rows; i++) {
-                        _row_labels[i] = i
-                    }
-                    return _row_labels
+                    return [...Array(rows).keys()]
+                    //[0,1,2,3...rows-1],    https://stackoverflow.com/questions/3746725/how-to-create-an-array-containing-1-n
                 } else {
-                    _row_labels = rows_.value
-                }
-
-
-                //似乎没有简洁的符号表示"非零非空字符"的空值， https://stackoverflow.com/questions/2647867/how-can-i-determine-if-a-variable-is-undefined-or-null
-                
-                if (charttype === DdbChartType.kline){
-                    return _row_labels
-                }
-                
-                if (!(rows_.type === undefined || rows_.le === undefined || rows_.type === null || rows_.le === null)) {
-                    //参数合法
-
+                    let _row_labels = rows_.value
+                    if (charttype === DdbChartType.kline){
+                        return _row_labels
+                    }
                     const to_return = new Array(rows)
                     for (let i = 0; i < rows; i++) {
                         to_return[i] = format(rows_.type, _row_labels[i], rows_.le)
-                    }
+                        }
                     return to_return
                 }
             })()
-            
+
             
             const n = charttype === DdbChartType.line && multi_y_axes || charttype === DdbChartType.kline ? rows : rows * cols
             let data_ = new Array(n)
