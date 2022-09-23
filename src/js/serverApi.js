@@ -280,6 +280,12 @@ function DatanodeConfig () {
             configCategory: 'TSDB Storage Engine',
             configs: [
                 {
+                    name: 'TSDBAsyncSortingWorkerNum',
+                    value: 'int',
+                    default: '1',
+                    tip: 'A non-negative integer indicating the number of threads for asynchronous sorting in the TSDB cache engine. The default value is 1.'
+                },
+                {
                     name: 'TSDBCacheEngineCompression',
                     value: [0, 1],
                     default: 1,
