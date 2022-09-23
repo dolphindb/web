@@ -111,7 +111,7 @@ export function Job () {
         
         <div className={`cjobs ${ !gjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || gjob_rows.length) ? 'block' : 'none' }}>
             <Title level={4}>
-                <Tooltip title='getConsoleJob'>{t('运行中作业')}</Tooltip>
+                <Tooltip title='getConsoleJobs'>{t('运行中作业')}</Tooltip>
                 ({gjob_rows.length} {'个进行中'})
             </Title>
             
