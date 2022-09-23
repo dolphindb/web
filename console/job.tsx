@@ -10,6 +10,7 @@ import {
     Typography,
     message,
     type TablePaginationConfig,
+    Tooltip,
 } from 'antd'
 import type { ColumnType } from 'antd/lib/table/index.js'
 import { ReloadOutlined } from '@ant-design/icons'
@@ -109,7 +110,10 @@ export function Job () {
         </div>
         
         <div className={`cjobs ${ !gjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || gjob_rows.length) ? 'block' : 'none' }}>
-            <Title level={4}>{t('运行中作业')} (getConsoleJobs) ({gjob_rows.length})</Title>
+            <Title level={4}>
+                <Tooltip title='getConsoleJob'>{t('运行中作业')}</Tooltip>
+                ({gjob_rows.length} {'个进行中'})
+            </Title>
             
             <Table
                 columns={
@@ -146,7 +150,10 @@ export function Job () {
         </div>
         
         <div className={`rjobs ${ !rjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || rjob_rows.length) ? 'block' : 'none' }}>
-            <Title level={4}>{t('已提交作业')} (getRecentJobs) ({n_rjob_rows_uncompleted} {t('个进行中')}, {rjob_rows.length - n_rjob_rows_uncompleted} {t('个已完成')})</Title>
+            <Title level={4}>
+                <Tooltip title='getRecentJobs'>{t('已提交作业')}</Tooltip>
+                ({n_rjob_rows_uncompleted} {t('个进行中')}, {rjob_rows.length - n_rjob_rows_uncompleted} {t('个已完成')})
+            </Title>
             
             <Table
                 columns={
@@ -168,7 +175,10 @@ export function Job () {
         </div>
         
         <div className={`sjobs ${ !sjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || sjob_rows.length) ? 'block' : 'none' }}>
-            <Title level={4}>{t('已定时作业')} (getScheduledJobs) ({sjob_rows.length} {t('个已配置')})</Title>
+            <Title level={4}>
+                <Tooltip title='getScheduledJobs'>{t('已定时作业')}</Tooltip>
+                ({sjob_rows.length} {t('个已配置')})
+            </Title>
             
             <Table
                 columns={
