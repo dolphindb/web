@@ -19,7 +19,7 @@ import { DdbObj, nulls, format, DdbType } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
 import { model, type DdbJob } from './model.js'
-
+import { __dict } from '../i18n/index.js'
 
 const { Title, Text, Link } = Typography
 
@@ -126,6 +126,8 @@ export function Job () {
                                 await get_cjobs()
                             }
                         )
+                    ).map(
+                        item => {return {...item, title:t(__dict[item.title as string]) }}
                     )
                 }
                 dataSource={gjob_rows}
@@ -136,7 +138,9 @@ export function Job () {
                         <Table
                             columns={
                                 cjob_cols.filter(col => 
-                                    expanded_cjob_columns.has(col.title as string))
+                                    expanded_cjob_columns.has(col.title as string)).map(
+                                        item => {return {...item, title:t(__dict[item.title as string]) }}
+                                    )
                             }
                             dataSource={
                                 cjob_rows.filter(job => 
@@ -166,6 +170,8 @@ export function Job () {
                                 await get_rjobs()
                             }
                         )
+                    ).map(
+                        item => {return {...item, title:t(__dict[item.title as string])}}
                     )
                 }
                 dataSource={rjob_rows}
@@ -189,6 +195,8 @@ export function Job () {
                             await model.delete_scheduled_job(job)
                             await get_sjobs()
                         }
+                    ).map(
+                        item => {return {...item, title:t(__dict[item.title as string]) }}
                     )
                 }
                 dataSource={sjob_rows}
