@@ -2,12 +2,12 @@ import { I18N } from 'xshell/i18n/index.js'
 
 import _dict from './dict.json'
 
-export const __dict = {
+const __dict = {
     startTime:'开始时间',
     endTime: '结束时间',
     errorMsg: '错误信息',
-    jobId:'作业id',
-    rootJobId: '根作业id',
+    jobId:'作业Id',
+    rootJobId: '根作业Id',
     jobDesc: '作业描述',
     desc: '描述',
     jobType: '作业类型',
@@ -15,9 +15,9 @@ export const __dict = {
     parallelism: '并行化',
     node: '节点',
     userId: '用户Id',
-    userID: '用户Id',   
+    userID: '用户ID',   
     receiveTime: '收到时间',
-    receivedTime: '收到时间',
+    receivedTime: '收到的时间',
     
     sessionId: '会话id',
     remoteIP: '远程ip',
@@ -48,7 +48,7 @@ export const __dict = {
     queue:'队列'
 }
 
-export const new_dict = {..._dict, ...(()=>{
+const new_dict = {..._dict, ...(()=>{
     let result = {}
     for(const key in __dict){
         result[__dict[key]] = {
