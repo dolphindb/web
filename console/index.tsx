@@ -425,12 +425,37 @@ function DdbSider () {
 }
 
 function Settings () {
-    const [value, set_value] = useState<string>('')
+    type statusType = null | 'error'
+    const [decimals, set_decimals] = useState<{ status: statusType, value: number | null }>(
+        { status: null, value: model.options?.decimals ? model.options.decimals : null }
+    )
+
     
     const confirm = () => {
-        const decimals = value.length === 0 ? null : Math.min(Number(value), 20)
-        model.set({ options: { decimals } })
-        message.success(t('设置成功，目前小数位数为：') + (value.length === 0 ? t('默认') : value))
+        if (decimals.status === null) {
+            model.set({ options: { decimals: decimals.value } })
+            message.success(t('设置成功，目前小数位数为：') + (decimals.value === null ? t('默认') : decimals.value))
+        } else {
+            set_decimals({ status: null, value: model.options?.decimals ? model.options.decimals : null })
+        }
+    }
+
+    const validate = (text: string): { status: statusType, value: null | number } => {
+        text = text.trim()
+        if (text.length === 0) {
+            return { value: null, status: null }
+        }
+        if (!/^[0-9]*$/.test(text)) {
+            return { value: null, status: 'error' }
+        }
+        const num = Number(text)
+        if (num === NaN) {
+            return { value: null, status: 'error' }
+        }
+        if (num < 0 || num > 20) {
+            return { value: num, status: 'error' }
+        }
+        return { value: num, status: null }
     }
     
     return <div className='header-settings'>
@@ -442,23 +467,28 @@ function Settings () {
                         <div className='decimals-toolbar'>
                             <span className='decimals-toolbar-input'>
                                 {t('设置小数位数: ')}
-                                <InputNumber
-                                    min={0}
-                                    max={20}
-                                    onChange={(v: string | number | null) => {
-                                        const value = v === null ? '' : v.toString()
-                                        set_value(value)
-                                    }}
-                                    size='small'
-                                    value={value}
-                                    onPressEnter={confirm}
-                                    controls={{ upIcon: <CaretUpOutlined />, downIcon: <CaretDownOutlined /> }}
-                                />
+                                <Tooltip title={t('输入应为空或介于0~20')} placement="topLeft">
+                                    <InputNumber
+                                        min={0}
+                                        max={20}
+                                        onStep={(value) => {
+                                            set_decimals(validate(value.toString()))
+                                        }}
+                                        onInput={(text: string) => {
+                                            set_decimals(validate(text))
+                                        }}
+                                        value={decimals.value}
+                                        size='small'
+                                        status={decimals.status}
+                                        onPressEnter={confirm}
+                                        controls={{ upIcon: <CaretUpOutlined />, downIcon: <CaretDownOutlined /> }}
+                                    />
+                                </Tooltip>
                             </span>
                             <span className='decimals-toolbar-button-group'>
                                 <Button size='small' onClick={() => {
-                                    model.set({ options: { } })
-                                    set_value('')
+                                    model.set({ options: { decimals: null } })
+                                    set_decimals({ value: null, status: null })
                                     message.success(t('重置成功，目前小数位数为：默认'))
                                 }}>
                                     {t('重置')}
@@ -472,7 +502,11 @@ function Settings () {
                 </div>
             }
         >
-            <SettingFilled className='header-settings-icon' style={{ fontSize: '20px', color: '#707070' }} />
+            <SettingFilled className='header-settings-icon'
+                style={{ fontSize: '20px', color: '#707070' }}
+                onMouseOver={() => {
+                    set_decimals({ value: model.options?.decimals ? model.options.decimals : null, status: null })
+                }} />
         </Popover>
     </div>
     
