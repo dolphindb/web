@@ -19,7 +19,6 @@ import { DdbObj, nulls, format, DdbType } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
 import { model, type DdbJob } from './model.js'
-import { __dict } from '../i18n/index.js'
 
 const { Title, Text, Link } = Typography
 
@@ -117,7 +116,7 @@ export function Job () {
             
             <Table
                 columns={
-                    add_progress_col(
+                    translate_columns(add_progress_col(
                         append_action_col(
                             cjob_cols.filter(col => group_cjob_columns.has(col.title as string)),
                             'stop',
@@ -126,9 +125,7 @@ export function Job () {
                                 await get_cjobs()
                             }
                         )
-                    ).map(
-                        item => {return {...item, title:t(__dict[item.title as string]) }}
-                    )
+                    ))
                 }
                 dataSource={gjob_rows}
                 rowKey='rootJobId'
@@ -137,10 +134,8 @@ export function Job () {
                     expandedRowRender: gjob => 
                         <Table
                             columns={
-                                cjob_cols.filter(col => 
-                                    expanded_cjob_columns.has(col.title as string)).map(
-                                        item => {return {...item, title:t(__dict[item.title as string]) }}
-                                    )
+                                translate_columns(cjob_cols.filter(col => 
+                                    expanded_cjob_columns.has(col.title as string)))
                             }
                             dataSource={
                                 cjob_rows.filter(job => 
@@ -161,7 +156,7 @@ export function Job () {
             
             <Table
                 columns={
-                    add_status_col(
+                    translate_columns( add_status_col(
                         append_action_col(
                             rjobs.to_cols() as ColumnType<Record<string, any>>[],
                             'stop',
@@ -170,9 +165,7 @@ export function Job () {
                                 await get_rjobs()
                             }
                         )
-                    ).map(
-                        item => {return {...item, title:t(__dict[item.title as string])}}
-                    )
+                    ))
                 }
                 dataSource={rjob_rows}
                 rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
@@ -188,16 +181,14 @@ export function Job () {
             
             <Table
                 columns={
-                    append_action_col(
+                    translate_columns( append_action_col(
                         fix_scols(sjobs),
                         'delete',
                         async job => {
                             await model.delete_scheduled_job(job)
                             await get_sjobs()
                         }
-                    ).map(
-                        item => {return {...item, title:t(__dict[item.title as string]) }}
-                    )
+                    ))
                 }
                 dataSource={sjob_rows}
                 rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
@@ -211,6 +202,57 @@ export function Job () {
 const group_cjob_columns = new Set(['userID', 'rootJobId', 'jobType', 'desc', 'priority', 'parallelism', 'sessionId', 'remoteIP', 'remotePort', 'totalTasks', 'finishedTasks', 'runningTask'])
 const expanded_cjob_columns = new Set(['node', 'receiveTime', 'firstTaskStartTime', 'latestTaskStartTime', 'queue', 'totalTasks', 'finishedTasks', 'runningTask'])
 
+const column_names = {
+    startTime: t('开始时间') ,
+    endTime: t('结束时间'),
+    errorMsg: t('错误信息'),
+    jobId: t('作业Id'),
+    rootJobId: t('根作业Id'),
+    jobDesc: t('作业描述'),
+    desc: t('描述'),
+    jobType: t('作业类型'),
+    priority: t('优先级'),
+    parallelism: t('并行化'),
+    node: t('节点'),
+    userId: t('用户Id'),
+    userID: t('用户ID') ,
+    receiveTime: t('收到时间'),
+    receivedTime: t('收到的时间'),
+    
+    sessionId: t('会话id'),
+    remoteIP: t('远程ip'),
+    
+    remotePort: t('远程端口'),
+    
+    totalTasks: t('总任务'),
+    
+    finishedTasks: t('已完成任务'),
+    
+    runningTask: t('正在运行的任务'),
+    
+    // --- computed (getRecentJobs),
+    status: t('状态'),
+    theme: t('主题'),
+    
+    // --- computed (getConsoleJobs),
+    progress: t('进度'),
+    
+    startDate: t('开始日期'),
+    endDate: t('结束日期'),
+    frequency: t('频率'),
+    scheduleTime: t('计划时间'),
+    days: t('天数'),
+    actions: t('操作', {context: 'job'}),
+    firstTaskStartTime: t('首个任务开始时间'),
+    latestTaskStartTime: t('最后任务开始时间'),
+    queue: t('队列')
+}
+
+function translate_columns (cols: ColumnType<DdbJob>[]): ColumnType<DdbJob>[] {
+    return cols.map(
+        item => {return {...item, title: column_names[item.title as string] || item.title}}
+    )
+}
 function group_cjob_rows_by_rootid (cjobs: DdbJob[]) {
     let gjobs: Record<string, DdbJob> = { }
     

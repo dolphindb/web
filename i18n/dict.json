@@ -688,5 +688,98 @@
     },
     "实时": {
         "en": "real time"
+    },
+    "开始时间": {
+        "en": "Start Time"
+    },
+    "结束时间": {
+        "en": "End Time"
+    },
+    "错误信息": {
+        "en": "Error Message"
+    },
+    "作业Id": {
+        "en": "Job Id"
+    },
+    "根作业Id": {
+        "en": "Root Job Id"
+    },
+    "作业描述": {
+        "en": "Job Description"
+    },
+    "作业类型": {
+        "en": "Job Type"
+    },
+    "优先级": {
+        "en": "Priority"
+    },
+    "并行化": {
+        "en": "Parallelism"
+    },
+    "节点": {
+        "en": "Node"
+    },
+    "用户Id": {
+        "en": "User Id"
+    },
+    "用户ID": {
+        "en": "User ID"
+    },
+    "收到时间": {
+        "en": "Receive Time"
+    },
+    "收到的时间": {
+        "en": "Received Time"
+    },
+    "会话id": {
+        "en": "Session Id"
+    },
+    "远程ip": {
+        "en": "Remote IP"
+    },
+    "远程端口": {
+        "en": "Remote Port"
+    },
+    "总任务": {
+        "en": "Total Task"
+    },
+    "已完成任务": {
+        "en": "Finished Task"
+    },
+    "正在运行的任务": {
+        "en": "Running Task"
+    },
+    "主题": {
+        "en": "Theme"
+    },
+    "进度": {
+        "en": "Progress"
+    },
+    "开始日期": {
+        "en": "Start Date"
+    },
+    "结束日期": {
+        "en": "End Date"
+    },
+    "频率": {
+        "en": "Frequency"
+    },
+    "计划时间": {
+        "en": "Schedule Time"
+    },
+    "天数": {
+        "en": "Days"
+    },
+    "首个任务开始时间": {
+        "en": "Fist Task Start Time"
+    },
+    "最后任务开始时间": {
+        "en": "Latest Task Start Time"
+    },
+    "队列": {
+        "en": "Queue"
+    },
+    "操作_job": {
+        "en": "Actions"
     }
 }
