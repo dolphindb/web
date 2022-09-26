@@ -698,11 +698,11 @@
     "错误信息": {
         "en": "Error Message"
     },
-    "作业Id": {
-        "en": "Job Id"
+    "作业编号": {
+        "en": "Job ID"
     },
-    "根作业Id": {
-        "en": "Root Job Id"
+    "根作业编号": {
+        "en": "Root Job ID"
     },
     "作业描述": {
         "en": "Job Description"
@@ -713,34 +713,28 @@
     "优先级": {
         "en": "Priority"
     },
-    "并行化": {
+    "并行度": {
         "en": "Parallelism"
     },
     "节点": {
         "en": "Node"
     },
-    "用户Id": {
-        "en": "User Id"
-    },
-    "用户ID": {
+    "用户 ID": {
         "en": "User ID"
     },
-    "收到时间": {
+    "收到作业时间": {
         "en": "Receive Time"
     },
-    "收到的时间": {
-        "en": "Received Time"
+    "会话 ID": {
+        "en": "Session ID"
     },
-    "会话id": {
-        "en": "Session Id"
-    },
-    "远程ip": {
+    "远程 IP": {
         "en": "Remote IP"
     },
     "远程端口": {
         "en": "Remote Port"
     },
-    "总任务": {
+    "所有任务": {
         "en": "Total Task"
     },
     "已完成任务": {
@@ -781,5 +775,14 @@
     },
     "操作_job": {
         "en": "Actions"
+    },
+    "描述_job": {
+        "en": "Description"
+    },
+    "状态_job": {
+        "en": "Status"
+    },
+    "收到作业时间_node": {
+        "en": "Received Time"
     }
 }
