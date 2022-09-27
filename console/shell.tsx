@@ -156,6 +156,9 @@ class ShellModel extends Model<ShellModel> {
         )
         
         try {
+            // TEST
+            // throw new Error('xxxxx. RefId: S00001. xxxx')
+            
             let ddbobj = await ddb.eval(
                 code.replaceAll('\r\n', '\n')
             )
@@ -835,9 +838,10 @@ function Term () {
             term.loadAddon(
                 new WebLinksAddon(
                     (event, url) => {
+                        console.log(t('点击了 RefId 链接:'), url)
                         window.open(
                             (language === 'zh' ? 'https://dolphindb.cn/cn/' : 'https://dolphindb.com/') +
-                            `help/${model.version?.startsWith('1.30') ? '130/' : ''}ErrorCodeList/${url.slice('RefId: '.length)}/index.html`,
+                            `help/${model.version?.startsWith('1.30') ? '130/' : ''}ErrorCode${ language === 'zh' ? 'List' : 'Reference' }/${url.slice('RefId: '.length)}/index.html`,
                             '_blank'
                         )
                     },
