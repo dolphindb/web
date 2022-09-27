@@ -688,5 +688,95 @@
     },
     "实时": {
         "en": "real time"
+    },
+    "开始时间": {
+        "en": "Start Time"
+    },
+    "结束时间": {
+        "en": "End Time"
+    },
+    "错误信息": {
+        "en": "Error Message"
+    },
+    "作业 ID": {
+        "en": "Job ID"
+    },
+    "根作业 ID": {
+        "en": "Root Job ID"
+    },
+    "详情": {
+        "en": "Description"
+    },
+    "优先级": {
+        "en": "Priority"
+    },
+    "并行度": {
+        "en": "Parallelism"
+    },
+    "节点": {
+        "en": "Node"
+    },
+    "用户 ID": {
+        "en": "User ID"
+    },
+    "收到作业时间": {
+        "en": "Received Time"
+    },
+    "会话 ID": {
+        "en": "Session ID"
+    },
+    "客户端 IP": {
+        "en": "Client IP"
+    },
+    "客户端端口": {
+        "en": "Client Port"
+    },
+    "全部任务": {
+        "en": "Total Tasks"
+    },
+    "已完成任务": {
+        "en": "Finished Tasks"
+    },
+    "正在运行的任务": {
+        "en": "Running Tasks"
+    },
+    "状态_job": {
+        "en": "Status"
+    },
+    "主题": {
+        "en": "Theme"
+    },
+    "进度": {
+        "en": "Progress"
+    },
+    "开始日期": {
+        "en": "Start Date"
+    },
+    "结束日期": {
+        "en": "End Date"
+    },
+    "执行频率": {
+        "en": "Execution Frequency"
+    },
+    "执行定时任务的时间": {
+        "en": "Time to Execute"
+    },
+    "执行定时任务的日期": {
+        "en": "Date to Execute"
+    },
+    "操作_job": {
+        "en": "Actions"
+    },
+    "首个任务开始时间": {
+        "en": "First Task Start Time"
+    },
+    "最后任务开始时间": {
+        "en": "Last Task Start Time"
+    },
+    "队列": {
+        "en": "Queue"
+    },
+    "类型_job": {
+        "en": "Type"
     }
 }

@@ -1327,30 +1327,29 @@ function Chart ({
             let col_lables_ = new Array(col_labels.length)
             
             const row_labels = (() => {
-
-                // 没有设置label的话直接以序号赋值并返回
-                if (!rows_)
-                    return [...Array(rows).keys()]
-                    // [0,1,2,3...rows-1],    https://stackoverflow.com/questions/3746725/how-to-create-an-array-containing-1-n
+                // 没有设置 label 的话直接以序号赋值并返回
+                if (!rows_) {
+                    let arr = new Array(rows)
+                    for (let i = 0;  i < rows;  i++)
+                        arr[i] = i
+                    return arr
+                } else if (charttype === DdbChartType.kline || charttype === DdbChartType.scatter)
+                    return rows_.value
                 else {
-                    if (charttype === DdbChartType.kline || charttype === DdbChartType.scatter)
-                        return rows_.value
-                    
-                    const to_return = new Array(rows)
+                    // format 为 string
+                    const arr = new Array(rows)
                     for (let i = 0; i < rows; i++)
-                        to_return[i] = format(rows_.type, rows_.value[i], rows_.le)
-                    
-                    return to_return
+                        arr[i] = formati(rows_, i, options)
+                    return arr
                 }
             })()
-            
             
             const n = charttype === DdbChartType.line && multi_y_axes || charttype === DdbChartType.kline ? rows : rows * cols
             let data_ = new Array(n)
             
             switch (charttype) {
                 case DdbChartType.line:
-                    if (multi_y_axes) 
+                    if (multi_y_axes)
                         for (let j = 0; j < rows; j++) {
                             let dataobj: any = { }
                             dataobj.row = row_labels[j]
@@ -1414,14 +1413,14 @@ function Chart ({
                         }
                     }
                     
-                    if (charttype === DdbChartType.histogram && bin_start && bin_end) 
+                    if (charttype === DdbChartType.histogram && bin_start && bin_end)
                         data_ = data_.filter(data => 
                             data.value >= Number(bin_start.value) && data.value <= Number(bin_end.value))
                     
                     break
             }
             
-            console.log('data:', data_)   
+            console.log('data:', data_)
             
             set_config({
                 inited: true,

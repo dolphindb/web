@@ -15,6 +15,7 @@ import dayjs from 'dayjs'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import { WebglAddon } from 'xterm-addon-webgl'
+import { WebLinksAddon } from 'xterm-addon-web-links'
 
 import debounce from 'lodash/debounce.js'
 
@@ -202,9 +203,10 @@ class ShellModel extends Model<ShellModel> {
                 )})`
             )
         } catch (error) {
-            this.term.writeln(
-                red(error.message)
-            )
+            let message = error.message as string
+            if (message.includes('RefId:'))
+                message = message.replaceAll(/RefId:\s*(\w+)/g, underline(blue('RefId: $1')))
+            this.term.writeln(red(message))
             throw error
         }
     }
@@ -789,7 +791,7 @@ function Term () {
     useEffect(() => {
         function printer ({ type, data }: DdbMessage) {
             if (type === 'print')
-                shell.term.writeln(data)
+                shell.term.writeln(data as string)
         }
         
         const on_resize = debounce(
@@ -830,6 +832,17 @@ function Term () {
             
             term.loadAddon(shell.fit_addon = new FitAddon())
             
+            term.loadAddon(
+                new WebLinksAddon(
+                    (event, url) => {
+                        window.open(
+                            (language === 'zh' ? 'https://dolphindb.cn/cn/' : 'https://dolphindb.com/') +
+                            `help/${model.version?.startsWith('1.30') ? '130/' : ''}ErrorCodeList/${url.slice('RefId: '.length)}/index.html`,
+                            '_blank'
+                        )
+                    },
+                    { urlRegex: /(RefId: \w+)/ }))
+            
             term.open(rterminal.current)
             
             term.loadAddon(new WebglAddon())
@@ -845,8 +858,7 @@ function Term () {
         })()
         
         return () => {
-            ddb.listeners = ddb.listeners.filter(handler => 
-                handler !== printer)
+            ddb.listeners = ddb.listeners.filter(handler => handler !== printer)
             
             window.removeEventListener('resize', on_resize)
         }
