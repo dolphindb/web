@@ -648,7 +648,7 @@
         "en": "Dashboard"
     },
     "设置成功，目前小数位数为：": {
-        "en": "The setting is successful, the current number of decimal places is: "
+        "en": "Set up successfully, the current decimals is "
     },
     "默认": {
         "en": "Default"
@@ -778,5 +778,14 @@
     },
     "类型_job": {
         "en": "Type"
+    },
+     "实际位数": {
+        "en": "actual decimals"
+    },
+    "输入应为空或介于0~20": {
+        "en": "Input should be empty or between 0 and 20"
+    },
+    "重置成功，目前小数位数为：实际位数": {
+        "en": "Reset successfully, now with actual decimals "
     }
 }

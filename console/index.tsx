@@ -434,7 +434,7 @@ function Settings () {
     const confirm = () => {
         if (decimals.status === null) {
             model.set({ options: { decimals: decimals.value } })
-            message.success(t('设置成功，目前小数位数为：') + (decimals.value === null ? t('默认') : decimals.value))
+            message.success(t('设置成功，目前小数位数为：') + (decimals.value === null ? t('实际位数') : decimals.value))
         } else {
             set_decimals({ status: null, value: model.options?.decimals ? model.options.decimals : null })
         }
@@ -489,7 +489,7 @@ function Settings () {
                                 <Button size='small' onClick={() => {
                                     model.set({ options: { decimals: null } })
                                     set_decimals({ value: null, status: null })
-                                    message.success(t('重置成功，目前小数位数为：默认'))
+                                    message.success(t('重置成功，目前小数位数为：实际位数'))
                                 }}>
                                     {t('重置')}
                                 </Button>
