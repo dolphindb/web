@@ -779,13 +779,16 @@
     "类型_job": {
         "en": "Type"
     },
-     "实际位数": {
-        "en": "actual decimals"
+    "点击了 RefId 链接:": {
+        "en": "RefId link clicked: "
     },
-    "输入应为空或介于 0 ~ 20": {
-        "en": "Input should be empty or between 0 and 20"
-    },
-    "重置成功，目前小数位数为：实际位数": {
-        "en": "Reset successfully, now with actual decimals "
-    }
+    "实际位数": {
+       "en": "actual decimals"
+   },
+   "输入应为空或介于 0 ~ 20": {
+       "en": "Input should be empty or between 0 and 20"
+   },
+   "重置成功，目前小数位数为：实际位数": {
+       "en": "Reset successfully, now with actual decimals "
+   }
 }
