@@ -77,7 +77,7 @@ import SvgDatabase from './shell.icons/database.icon.svg'
 
 
 import { delta2str, delay } from 'xshell/utils.browser.js'
-import { red, blue } from 'xshell/chalk.browser.js'
+import { red, blue, underline } from 'xshell/chalk.browser.js'
 
 import { Model } from 'react-object-model'
 
