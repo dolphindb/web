@@ -853,6 +853,8 @@ function Term () {
             
             ddb.listeners.push(printer)
             
+            rterminal.current.children[0]?.dispatchEvent(new Event('mousedown'))
+            
             term.writeln(
                 t('左侧编辑器使用指南:\n') +
                 t('按 Ctrl + E 执行选中代码或光标所在行代码\n') +
