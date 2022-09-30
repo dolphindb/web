@@ -1501,628 +1501,13 @@ function Show_backup_restore_sched (){
       {
         label: `schedbackups`,
         key: '3',
-        children: `Content of Tab Pane 3`,
+        children: <SchedBackup_List_of_Namespace></SchedBackup_List_of_Namespace>,
       },
     ]}
   />
 
 }
 
-
-function Backup_List_of_Namespace_deprecated() {
-    //const [current_display_name, set_current_name] = useState<string>('')
-    const [detail_of_name, setDetail] = useState({})
-    const { name, setName } = React.useContext(Name_of_backup_item)
-    const { Tagg, setTag } = useContext(Context_of_tag_indicating_which_page_should_be_display)
-    
-    const [loading, setLoading] = useState(false);
-    const [backup_open, backup_setOpen] = useState(false);
-    const [delete_open, delete_setOpen] = useState(false);
-    const [restore_open, restore_setOpen] = useState(false);
-    const [sched_open, sched_setOpen] = useState(false);
-    
-    const [config_form] = Form.useForm()
-    const [restore_form] = Form.useForm()
-    const [sched_form] = Form.useForm()
-    
-    const [fetched_list_of_namesace, setData] = useState<typeof list_of_namespace_example>(list_of_namespace_example)
-    const [current_manipulate_item_name, set_current_name] = useState<string>('')
-    const forceUpdate = useForceUpdate()
-    var [data_of_current_manipulating_name, set_current_data] = useState<typeof get_backup_format| undefined>()
-    
-    async function fetch_namelist_of_current_namespace () {
-        const data = JSON.parse(await (await fetch(`http://192.168.0.75:30234/v1/backup/backups/${model.cluster.namespace}`)).text())
-        setData(data)
-    }
-    useEffect(
-        ()=>{
-            fetch_namelist_of_current_namespace()
-        },[]
-    )
-    
-    useEffect(
-        ()=>{
-            restore_form.resetFields()
-        }
-    )
-    return <>
-        <Layout style={{ height: '100vh', overflow: 'auto' }}>
-            <Layout.Sider
-                width={'100%'}
-                theme='light'
-            >
-                {fetched_list_of_namesace?
-                <Table dataSource={fetched_list_of_namesace.status.map(
-                    data_item => {
-                        return {
-                            name: <Link onClick={() => {
-                                setName(data_item.name)
-                                setTag('Dashboar_For_One_Name_Backup')
-                            }}>{data_item.name}</Link>, 
-                            createTimestamp: data_item.createTimestamp,
-                            phase: data_item.phase, 
-                            delete:<Popconfirm
-                            title='You sure to delete?'
-                            onConfirm={() => {
-                                request_json(`/v1/backup/backups/${model.cluster.namespace}/${data_item.name}`,{method:'delete'})
-                                forceUpdate()
-                            }}
-                            onCancel={()=>{}}
-                            >
-                                <a href="#">Delete</a>
-                            </Popconfirm>,
-                            restore:<Link
-                            onClick={async () => {
-                                const data = (await request_json(`/v1/backup/backups/${model.cluster.namespace}/${data_item.name}`) as typeof example_data_of_backup_return).data
-                                set_current_data(data)
-                                set_current_name(data_item.name)
-                                restore_setOpen(true)
-                            }}>
-                                {'Add restores'}
-                            </Link>,
-                            sched:<Link
-                            onClick={
-                                async () => {
-                                    const data = (await request_json(`/v1/backup/backups/${model.cluster.namespace}/${data_item.name}`) as typeof example_data_of_backup_return).data
-                                    set_current_data(data)
-                                    set_current_name(data_item.name)
-                                    restore_setOpen(true)
-                                }
-                            }>
-                                {'Add schedbackups'}
-                            </Link>
-                        }
-                    }
-                )}
-                    pagination={false}
-                >
-                    <Column
-                        title={"Name"}
-                        key='name'
-                        dataIndex={'name'}
-                    />
-                    <Column
-                        title={"TimeStamp"}
-                        key='createTimestamp'
-                        dataIndex={'createTimestamp'}
-                    />
-                    <Column
-                        title={"Phase"}
-                        key='phase'
-                        dataIndex={'phase'}
-                    />
-                    <Column
-                        title={'Delete'}
-                        key='delete'
-                        dataIndex={'delete'}
-                    />
-                    <Column
-                        title={'restores'}
-                        key='restores'
-                        dataIndex={'restores'}
-                    />
-                    <Column
-                        title={'schedbackups'}
-                        key='schedbackups'
-                        dataIndex={'schedbackups'}
-                    />
-                </Table>:
-                <div>No data</div>
-                }
-            </Layout.Sider>
-            {/*}
-            <Layout.Content>
-                <JSONTree
-                    data={detail_of_name}
-                    theme={theme}
-                    invertTheme={false}
-                ></JSONTree>
-            </Layout.Content>
-                */}
-        </Layout>
-
-        <Button style={{ position: 'absolute', right: 100, bottom: 100 }} type='primary' onClick={()=>{backup_setOpen(true)}} >添加配置</Button>
-        
-        {/**add backup */}
-        <Modal
-            open={backup_open}
-            title="Add config"
-            onCancel={()=>{backup_setOpen(false)}}
-            footer={[
-                <Button key="back" onClick={()=>{backup_setOpen(false)}}>
-                    {t('取消')}
-                </Button>,
-                <Button key="submit" type="primary" loading={loading} onClick={ async () => {
-                    const data_to_post = await config_form.validateFields()
-                    const { name, namespace, cleanPolicy, remoteType, sourceName, dataSource, port, host, forceDir, prefix, sourceKey } = data_to_post
-                    request_json('v1/backup/backups', {
-                        body: {
-                            "name": name,
-                            "namespace": namespace,
-                            "spec": {
-                                "cleanPolicy": cleanPolicy,
-                                "prefix": prefix,
-                                "forceDir": forceDir,
-                                "remoteType": remoteType,
-                                "sourceKey": sourceKey,
-                                "sourceName": sourceName,
-                                "server": {
-                                    "port": port,
-                                    "host": host,
-                                    "usedId": "admin",
-                                    "password": "123456"
-                                }
-                            }
-                        },
-                        method: 'post'
-                    })
-                    backup_setOpen(false)
-                }}>
-                    {t('提交')}
-                </Button>
-            ]}
-        >
-            <Form
-                form={config_form}
-            >
-                {(()=>{
-                    _.mapKeys(to_post_json, function(value, key){
-                        return 
-                    })
-                    
-                    return <Form.Item></Form.Item>
-                })()}
-            </Form>
-        </Modal>
-        
-        {/**add restore */}
-        <Modal
-            open={restore_open}
-            title="Add restore"
-            onCancel={()=>{restore_setOpen(false)}}
-            footer={[
-                <Button key="back" onClick={()=>{restore_setOpen(false)}}>
-                    {t('取消')}
-                </Button>,
-                <Button key="submit" type="primary" loading={loading} onClick={ async () => {
-                    const data_to_post = await restore_form.validateFields()
-                    const { name, namespace, cleanPolicy, remoteType, sourceName, dataSource, port, host } = data_to_post
-                    request_json('v1/backup/restores', {
-                        body: {
-                            "name": name,
-                            "namespace": namespace,
-                            "spec": {
-                                "cleanPolicy": cleanPolicy,
-                                "prefix": "backup",
-                                "forceDir": "schedbackup",
-                                "remoteType": remoteType,
-                                "dataSource": dataSource,
-                                "sourceName": sourceName,
-                                "server": {
-                                    "port": port,
-                                    "host": host,
-                                    "usedId": "admin",
-                                    "password": "123456"
-                                }
-                            }
-                        },
-                        method: 'post'
-                    })
-                    restore_setOpen(false)
-                }}>
-                    {t('提交')}
-                </Button>
-            ]}
-        >
-            <Form
-                form={restore_form}
-                initialValues={data_of_current_manipulating_name?{
-                    namespace: model.cluster.namespace,
-                    name: current_manipulate_item_name,
-                    cleanPolicy: data_of_current_manipulating_name.spec.cleanPolicy,
-                    prefix:'',
-                    forceDir: '',
-                    remoteType: data_of_current_manipulating_name.spec.remoteType,
-                    sourceKey: '',
-                    host: data_of_current_manipulating_name.spec.conn.host,
-                    port: data_of_current_manipulating_name.spec.conn.port
-                }:{}}
-            >
-                <Form.Item
-                    name={'namespace'}
-                    label={t('命名空间')}
-                >
-                    <Input readOnly={true}></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'name'}
-                    label={t('名字')}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'cleanPolicy'}
-                    label={t('清除策略')}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'remoteType'}
-                    label={t('远程类型')}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'dataSource'}
-                    label={t('数据源')}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'dataSource'}
-                    label={t('源流名称')}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'host'}
-                    label={'主机'}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'port'}
-                    label={'端口'}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-
-            </Form>
-        </Modal>
-
-        {/**add sched */}
-        <Modal
-            open={sched_open}
-            title="Add sched"
-            onCancel={()=>{sched_setOpen(false)}}
-            footer={[
-                <Button key="back" onClick={()=>{sched_setOpen(false)}}>
-                    {t('取消')}
-                </Button>,
-                <Button key="submit" type="primary" loading={loading} onClick={ async () => {
-                    const data_to_post = await sched_form.validateFields()
-                    const { name, namespace, cleanPolicy, remoteType, sourceName, dataSource, port, host } = data_to_post
-                    request_json('v1/backup/backups', {
-                        body: {
-                            "name": name,
-                            "namespace": namespace,
-                            "spec": {
-                                "cleanPolicy": cleanPolicy,
-                                "prefix": "backup",
-                                "forceDir": "schedbackup",
-                                "remoteType": remoteType,
-                                "dataSource": dataSource,
-                                "sourceName": sourceName,
-                                "server": {
-                                    "port": port,
-                                    "host": host,
-                                    "usedId": "admin",
-                                    "password": "123456"
-                                }
-                            }
-                        },
-                        method: 'post'
-                    })
-                    sched_setOpen(false)
-                }}>
-                    {t('提交')}
-                </Button>
-            ]}
-        >
-            <Form
-                form={sched_form}
-                initialValues={function () {
-                    const data = data_of_current_manipulating_name
-                    if (data)
-                        return{
-                            namespace: model.cluster.namespace,
-                            name: current_manipulate_item_name,
-                            cleanPolicy: data.spec.cleanPolicy,
-                            remoteType: data.spec.remoteType,
-                            dataSource: data.spec.dataSource,
-                            sourceName: data.spec.sourceName,
-                            host: data.spec.conn.host,
-                            port: data.spec.conn.port
-                        }
-                    
-                }()}
-            >
-                <Form.Item
-                    name={'namespace'}
-                    label={t('命名空间')}
-                >
-                    <Input readOnly={true}></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'name'}
-                    label={t('名字')}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'cleanPolicy'}
-                    label={t('清除策略')}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'remoteType'}
-                    label={t('远程类型')}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'dataSource'}
-                    label={t('数据源')}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'dataSource'}
-                    label={t('源流名称')}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'host'}
-                    label={'主机'}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'port'}
-                    label={'端口'}
-                >
-                    <Input ></Input>
-                </Form.Item>
-
-
-            </Form>
-        </Modal>
-        
-        
-    </>
-}
-
-
-const Dashboar_For_One_Name_Backup: FC<{ name: string }> = (props) => {
-    const { cluster } = model.use(['cluster'])
-    const { namespace } = cluster
-    const { Tagg, setTag } = useContext(Context_of_tag_indicating_which_page_should_be_display)
-    const [data, setData] = useState<typeof example_data_of_backup_return.data>()
-    async function fetch_data() {
-        const data = await request_json(`/v1/backup/backups/${namespace}/${props.name}`)
-        setData(data.data)
-    }
-
-    useEffect(() => {
-        fetch_data()
-    }, [])
-
-    //Modal part
-    const [loading, setLoading] = useState(false);
-    const [open, setOpen] = useState(false);
-
-    const [form] = Form.useForm()
-
-    const showModal = () => {
-        setOpen(true);
-    };
-
-    const handleSubmit = async () => {
-        const data_to_post = await form.validateFields()
-        const { name, namespace, cleanPolicy, remoteType, sourceName, dataSource, port, host } = data_to_post
-        request_json('v1/backup/backups', {
-            body: {
-                "name": name,
-                "namespace": namespace,
-                "spec": {
-                    "cleanPolicy": cleanPolicy,
-                    "prefix": "backup",
-                    "forceDir": "schedbackup",
-                    "remoteType": remoteType,
-                    "dataSource": dataSource,
-                    "sourceName": sourceName,
-                    "server": {
-                        "port": port,
-                        "host": host,
-                        "usedId": "admin",
-                        "password": "123456"
-                    }
-                }
-            },
-            method: 'post'
-        })
-        setOpen(false)
-    };
-
-    const handleCancel = () => {
-        setOpen(false);
-    };
-
-    if(!data){
-        return <div>No data</div>
-    }
-    return <div className='cluster'>
-        <PageHeader
-            className='cluster-header'
-            title={
-                <Title level={3}>{props.name}</Title>
-            }
-            onBack={() => {
-                setTag('ClusterDetail')
-            }}
-        />
-
-        <Descriptions
-            title={
-                <Title level={4}>{t('信息')}</Title>
-            }
-            column={2}
-            bordered
-        >
-            <Descriptions.Item label={t('命名空间')}>{namespace}</Descriptions.Item>
-            <Descriptions.Item label={t('名字')}>{props.name}</Descriptions.Item>
-        </Descriptions>
-
-        <Descriptions
-            title={
-                <Title level={4}>{t('备份信息')}</Title>
-            }
-            column={2}
-            bordered
-        >
-            <Descriptions.Item label={t('清除策略')}>{data.spec.cleanPolicy}</Descriptions.Item>
-            <Descriptions.Item label={t('远程类型')}>{data.spec.remoteType}</Descriptions.Item>
-            <Descriptions.Item label={t('数据源')}>{data.spec.dataSource}</Descriptions.Item>
-            <Descriptions.Item label={t('源流名称')}>{data.spec.sourceName}</Descriptions.Item>
-        </Descriptions>
-
-        <Descriptions
-            title={
-                <Title level={4}>{t('连接信息')}</Title>
-            }
-            column={2}
-            bordered
-        >
-            <Descriptions.Item label={t('主机')}>{data.spec.conn.host}</Descriptions.Item>
-            <Descriptions.Item label={t('端口')}>{data.spec.conn.port}</Descriptions.Item>
-        </Descriptions>
-
-        <Button style={{ position: 'absolute', right: 100, bottom: 100 }} type='primary' onClick={showModal} >根据现有配置添加备份</Button>
-        <Modal
-            open={open}
-            title="Title"
-            onCancel={handleCancel}
-            footer={[
-                <Button key="back" onClick={handleCancel}>
-                    {t('取消')}
-                </Button>,
-                <Button key="submit" type="primary" loading={loading} onClick={handleSubmit}>
-                    {t('提交')}
-                </Button>
-            ]}
-        >
-            <Form
-                form={form}
-                initialValues={{
-                    namespace: namespace,
-                    name: props.name,
-                    cleanPolicy: data.spec.cleanPolicy,
-                    remoteType: data.spec.remoteType,
-                    dataSource: data.spec.dataSource,
-                    sourceName: data.spec.sourceName,
-                    host: data.spec.conn.host,
-                    port: data.spec.conn.port
-                }}
-            >
-                <Form.Item
-                    name={'namespace'}
-                    label={t('命名空间')}
-                >
-                    <Input readOnly={true} defaultValue={namespace}></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'name'}
-                    label={t('名字')}
-                >
-                    <Input defaultValue={props.name}></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'cleanPolicy'}
-                    label={t('清除策略')}
-                >
-                    <Input defaultValue={data.spec.cleanPolicy}></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'remoteType'}
-                    label={t('远程类型')}
-                >
-                    <Input defaultValue={data.spec.remoteType}></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'dataSource'}
-                    label={t('数据源')}
-                >
-                    <Input defaultValue={data.spec.dataSource}></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'dataSource'}
-                    label={t('源流名称')}
-                >
-                    <Input defaultValue={data.spec.sourceName}></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'host'}
-                    label={'主机'}
-                >
-                    <Input defaultValue={data.spec.conn.host}></Input>
-                </Form.Item>
-
-                <Form.Item
-                    name={'port'}
-                    label={'端口'}
-                >
-                    <Input defaultValue={data.spec.conn.port}></Input>
-                </Form.Item>
-
-
-            </Form>
-        </Modal>
-
-    </div>
-}
 
 type Modal_info = {
     type: 'backups'|'restores'|'schedbackups',
@@ -2135,7 +1520,7 @@ type Modal_info = {
 
 
 function Backup_List_of_Namespace() {
-    const [fetched_list_of_namesace, setData] = useState<typeof list_of_namespace_example>(undefined)
+    const [fetched_list_of_namesace, setData] = useState<typeof get_namespace_format>(undefined)
     const [current_filling_form, setForm]  = useState<Record<string,string>>(undefined)
     
     const [modal_info, set_modal_info] = useState<Modal_info>({
@@ -2155,7 +1540,7 @@ function Backup_List_of_Namespace() {
     
     const [refresher, set_refresher] = useState(0)
     
-    const specical = {
+    const special = {
         backups: {
             sourceKey: (key, value) => {
                 return <Form.Item
@@ -2211,7 +1596,7 @@ function Backup_List_of_Namespace() {
                     label={key}
                     required={required[modal_info.type][key]}
                 >
-                    <Select placeholder="sourceKey" open={modal_info.type === 'restores'? false: true}>
+                    <Select placeholder="sourceKey" open={modal_info.type === 'restores'? false: undefined}>
                         {
                             sourceKeys.map(
                                 x => { return <Option value={x}> {x} </Option> }
@@ -2227,7 +1612,7 @@ function Backup_List_of_Namespace() {
                     name={key}
                     label={key}
                     required={required[modal_info.type][key]}>
-                    <Select placeholder="cleanPolicy" open={modal_info.type === 'restores'? false: true}>
+                    <Select placeholder="cleanPolicy" open={modal_info.type === 'restores'? false: undefined}>
                         {
                             ['Retain', 'Delete', 'OnFailure'].map(
                                 x => { return <Option value={x}> {x} </Option> }
@@ -2242,7 +1627,7 @@ function Backup_List_of_Namespace() {
                     name={key}
                     label={key}
                     required={required[modal_info.type][key]}>
-                    <Select placeholder="remoteType" open={modal_info.type === 'restores'? false: true}>
+                    <Select placeholder="remoteType" open={modal_info.type === 'restores'? false: undefined}>
                         {
                             ['s3', 'nfs'].map(
                                 x => { return <Option value={x}> {x} </Option> }
@@ -2252,9 +1637,80 @@ function Backup_List_of_Namespace() {
                 </Form.Item>
             }
         },
-        schedbackups:{}
+        schedbackups:{
+            sourceKey: (key, value) => {
+                return <Form.Item
+                    name={key}
+                    label={key}
+                    required={required[modal_info.type][key]}
+                >
+                    <Select placeholder="sourceKey" open={modal_info.type === 'restores'? false: undefined}>
+                        {
+                            sourceKeys.map(
+                                x => { return <Option value={x}> {x} </Option> }
+                            )
+                        }
+                    </Select>
+                </Form.Item>
+
+            },
+
+            cleanPolicy: (key, value) => {
+                return <Form.Item
+                    name={key}
+                    label={key}
+                    required={required[modal_info.type][key]}>
+                    <Select placeholder="cleanPolicy" open={modal_info.type === 'restores'? false: undefined}>
+                        {
+                            ['Retain', 'Delete', 'OnFailure'].map(
+                                x => { return <Option value={x}> {x} </Option> }
+                            )
+                        }
+                    </Select>
+                </Form.Item>
+            },
+
+            remoteType: (key, value) => {
+                return <Form.Item
+                    name={key}
+                    label={key}
+                    required={required[modal_info.type][key]}>
+                    <Select placeholder="remoteType" open={modal_info.type === 'restores'? false: undefined}>
+                        {
+                            ['s3', 'nfs'].map(
+                                x => { return <Option value={x}> {x} </Option> }
+                            )
+                        }
+                    </Select>
+                </Form.Item>
+            },
+            maxBackups: (key, value) => {
+                return <Form.Item
+                name={key} 
+                label={key} 
+                initialValue = {5}
+                rules={required[modal_info.type][key]}>
+                    <InputNumber min={0} precision={0} />
+                </Form.Item>
+            },
+            pause: (key, value) => {
+                return <Form.Item
+                name={key}
+                label={key}
+                required={required[modal_info.type][key]}>
+                    <Select placeholder="pause" open={modal_info.type === 'restores' ? false : undefined}>
+                        {
+                            <>
+                            <Option value={true}>True</Option>
+                            <Option value = {false}>False</Option>
+                            </>
+                        }
+                    </Select>
+                </Form.Item>
+            }
+        },
     }
-  
+    const { name, setName } = React.useContext(Name_of_backup_item)
     //https://stackoverflow.com/questions/19874555/how-do-i-convert-array-of-objects-into-one-object-in-javascript#:~:text=you%20can%20merge%20array%20of%20objects%20in%20to%20one%20object%20in%20one%20line%3A
     const required ={
         backups: Object.assign({},...['name', 'namespace', 'sourceKey', 'remoteType', 'host', 'port', 'cleanPolicy'].map(x=>{return {[x]:true}})),
@@ -2352,7 +1808,7 @@ function Backup_List_of_Namespace() {
             >{t('刷新')}</Button>
         </div>
 
-        {fetched_list_of_namesace?
+        {!_.isEmpty(fetched_list_of_namesace)?
                 <Table dataSource={fetched_list_of_namesace.status.map(
                     data_item => {
                         return {
@@ -2444,7 +1900,7 @@ function Backup_List_of_Namespace() {
                     {
                         Object.entries(modal_info.prefill).map(
                             ([key, value])=>{
-                                return specical[modal_info.type][key]? specical[modal_info.type][key](key, value):
+                                return special[modal_info.type][key]? special[modal_info.type][key](key, value):
                                 <Form.Item
                                 name={key}
                                 label={key}
@@ -2461,8 +1917,148 @@ function Backup_List_of_Namespace() {
     </div>
 }
 
+const Dashboar_For_One_Name_Backup: FC<{ name: string }> = (props) => {
+    const { cluster } = model.use(['cluster'])
+    const { namespace } = cluster
+    const { Tagg, setTag } = useContext(Context_of_tag_indicating_which_page_should_be_display)
+    const [data, setData] = useState<any>()
+    async function fetch_data() {
+        const _data = await request_json(`/v1/backup/backups/${namespace}/${props.name}`)
+        const data = structured_to_flatten(_data)
+        setData(data)
+    }
+
+    useEffect(() => {
+        fetch_data()
+    }, [])
+
+    if(!data){
+        return <div>No data</div>
+    }
+    return <div className='cluster'>
+        <PageHeader
+            className='cluster-header'
+            title={
+                <Title level={3}>{props.name}</Title>
+            }
+            onBack={() => {
+                setTag('ClusterDetail')
+            }}
+        />
+
+        <Descriptions
+            title={
+                <Title level={4}>{t('信息')}</Title>
+            }
+            column={2}
+            bordered
+        >
+            <Descriptions.Item label={t('命名空间')}>{namespace}</Descriptions.Item>
+            <Descriptions.Item label={t('名字')}>{props.name}</Descriptions.Item>
+        </Descriptions>
+
+        <Descriptions
+            title={
+                <Title level={4}>{t('备份信息')}</Title>
+            }
+            column={2}
+            bordered
+        >
+            <Descriptions.Item label={t('清除策略')}>{data.cleanPolicy}</Descriptions.Item>
+            <Descriptions.Item label={t('远程类型')}>{data.remoteType}</Descriptions.Item>
+            <Descriptions.Item label={t('数据源')}>{data.dataSource}</Descriptions.Item>
+            <Descriptions.Item label={t('源流名称')}>{data.sourceName}</Descriptions.Item>
+        </Descriptions>
+
+        <Descriptions
+            title={
+                <Title level={4}>{t('连接信息')}</Title>
+            }
+            column={2}
+            bordered
+        >
+            <Descriptions.Item label={t('主机')}>{data.host}</Descriptions.Item>
+            <Descriptions.Item label={t('端口')}>{data.port}</Descriptions.Item>
+        </Descriptions>
+
+    </div>
+}
+
 function Restore_List_of_Namespace() {
-    const [fetched_list_of_namesace, setData] = useState<typeof list_of_namespace_example>(undefined)
+    const [fetched_list_of_namesace, setData] = useState<typeof get_namespace_format>(undefined)
+    const [current_filling_form, setForm]  = useState<Record<string,string>>(undefined)
+
+    const [form_instance] = Form.useForm()
+    
+    const { Tagg, setTag } = useContext(Context_of_tag_indicating_which_page_should_be_display)
+    
+    const { name, setName } = React.useContext(Name_of_backup_item)
+    
+    useEffect(
+        () => {
+            (async ()=>{
+                const data = await request_json(`/v1/backup/restores/${model.cluster.namespace}`)
+                setData(data)
+            })()
+        },[]
+    )
+    
+    return <>
+        {!_.isEmpty(fetched_list_of_namesace)?
+                <Table dataSource={fetched_list_of_namesace.status.map(
+                    data_item => {
+                        return {
+                            name: <Link onClick={() => {
+                                setName(data_item.name)
+                                setTag('Dashboar_For_One_Name_Backup')
+                            }}>{data_item.name}</Link>, 
+                            
+                            createTimestamp: data_item.createTimestamp,
+                            
+                            naphaseme: data_item.naphaseme, 
+                            
+                            delete:<Popconfirm
+                            title='You sure to delete?'
+                            onConfirm={async () => {
+                                await request_json(`/v1/backup/backups/${model.cluster.namespace}/${data_item.name}`,{method:'delete'})
+                            }}
+                            onCancel={()=>{}}
+                            >
+                                <a href="#">Delete</a>
+                            </Popconfirm>,
+                        }
+                    }
+                )}
+                    pagination={false}
+                >
+                    <Column
+                        title={"Name"}
+                        key='name'
+                        dataIndex={'name'}
+                    />
+                    <Column
+                        title={"TimeStamp"}
+                        key='createTimestamp'
+                        dataIndex={'createTimestamp'}
+                    />
+                    <Column
+                        title={"Naphaseme"}
+                        key='naphaseme'
+                        dataIndex={'naphaseme'}
+                    />
+                    <Column
+                        title={'Delete'}
+                        key='delete'
+                        dataIndex={'delete'}
+                    />
+                </Table>:
+                <div>No data</div>
+                } 
+    </>
+}
+
+function SchedBackup_List_of_Namespace() {
+    const [fetched_list_of_namesace, setData] = useState<typeof get_namespace_format>(undefined)
     const [current_filling_form, setForm]  = useState<Record<string,string>>(undefined)
 
     const [form_instance] = Form.useForm()
@@ -2474,14 +2070,14 @@ function Restore_List_of_Namespace() {
         () => {
             const a = 1;
             (async ()=>{
-                const data = await request_json(`/v1/backup/restores/${model.cluster.namespace}`)
+                const data = await request_json(`/v1/backup/schedbackups/${model.cluster.namespace}`)
                 setData(data)
             })()
         },[]
     )
     
     return <>
-        {fetched_list_of_namesace?
+        {!_.isEmpty(fetched_list_of_namesace)?
                 <Table dataSource={fetched_list_of_namesace.status.map(
                     data_item => {
                         return {
@@ -2603,7 +2199,7 @@ const fill_post_with_get = (post_format, data_getted)=>{
     return result
 }
 
-const list_of_namespace_example = {
+const get_namespace_format = {
     "status": [
         {
             "createTimestamp": "2022-09-28 09:53:01 +0800 CST",
