@@ -65,35 +65,35 @@ const { Column, ColumnGroup } = Table;
 const { Option } = Select
 const { Title, Text, Link } = Typography
 
-const Context_of_tag_indicating_which_page_should_be_display = React.createContext<{ Tagg: string, setTag: (x: 'ClusterDetail' | 'Clusters' | 'Dashboar_For_One_Name_Backup') => any }>({ Tagg: 'Clusters', setTag: ()=>{} })
+const Context_of_tag_indicating_which_page_should_be_display = React.createContext<{ Tagg: string, setTag: (x: 'ClusterDetail' | 'Clusters' | 'Dashboard_For_One_Name') => any }>({ Tagg: 'Clusters', setTag: ()=>{} })
 
 export function Cloud() {
     const { cluster } = model.use(['cluster'])
     const [tag, setTag] = React.useState('Clusters')
 
-    const [name, setName] = React.useState('')
+    const [name_and_type, set_name_and_type] = React.useState<{name:string, type:'backups'|'restores'|'schedbackups'}>({name:'', type:'backups'})
     return <Context_of_tag_indicating_which_page_should_be_display.Provider
         value={{ Tagg: tag, setTag: setTag }}>
-        <Name_of_backup_item.Provider
-            value={{ name: name, setName: setName }}
+        <Name_and_type_of_backup_item.Provider
+            value={{ name_and_type:name_and_type, set_name_and_type: set_name_and_type }}
         >
             <TestComp></TestComp>
-        </Name_of_backup_item.Provider>
+        </Name_and_type_of_backup_item.Provider>
     </Context_of_tag_indicating_which_page_should_be_display.Provider>
 
 }
 
-const Name_of_backup_item = React.createContext<{ name: string, setName: (x: string) => any }>({name:'none', setName:x=>{}})
+const Name_and_type_of_backup_item = React.createContext<{name_and_type:{name:string, type:'backups'|'restores'|'schedbackups'}, set_name_and_type:any}>({name_and_type:{name:'none', type:'backups'}, set_name_and_type:()=>{}})
 const TestComp = (() => {
-    const { name, setName } = React.useContext(Name_of_backup_item)
+    const { name_and_type, set_name_and_type } = React.useContext(Name_and_type_of_backup_item)
     function switchResult(tag: string) {
         switch (tag) {
             case 'ClusterDetail':
                 return <ClusterDetail></ClusterDetail>
             case 'Clusters':
                 return <Clusters></Clusters>
-            case 'Dashboar_For_One_Name_Backup':
-                return <Dashboar_For_One_Name_Backup name={name}></Dashboar_For_One_Name_Backup>
+            case 'Dashboard_For_One_Name':
+                return <Dashboard_For_One_Name name={name_and_type.name} type={name_and_type.type}></Dashboard_For_One_Name>
             default:
                 return <div></div>
         }
@@ -1640,479 +1640,580 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
     </Modal>
 }
 
-function Backup_List_of_Namespace() {
+function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
+    function Generated() {
     
-    const [sourcekey_modaol_open, set_sourcekey_modal_open] = useState(false)
+        const [sourcekey_modaol_open, set_sourcekey_modal_open] = useState(false)
+        
+        const render_items = [
+            'BasicInfo',
+            'namespace',
+            'name',
+            'cleanPolicy',
+            'remoteType',
+            'sourceKey',
+            'prefix',
+            'saveDir',
+            'forceDir',
+            'storageClassName',
+            'storageResource',
+            'maxBackups',
+            'pause',
+            'ServerInfo',
+            'host',
+            'port',
+            'usedId',
+            'password',
+        ]
+        
+        const divider = new Set(['BasicInfo', 'ServerInfo'])
     
-    const render_items = [
-        'BasicInfo',
-        'namespace',
-        'name',
-        'cleanPolicy',
-        'remoteType',
-        'sourceKey',
-        'prefix',
-        'saveDir',
-        'forceDir',
-        'storageClassName',
-        'storageResource',
-        'maxBackups',
-        'pause',
-        'ServerInfo',
-        'host',
-        'port',
-        'usedId',
-        'password',
-    ]
+        const [fetched_list_of_namesace, setData] = useState<typeof get_namespace_format>(undefined)
+        const [current_filling_form, setForm]  = useState<Record<string,string>>(undefined)
+        
+        const [parent_modal_info, set_modal_info] = useState<Parent_Modal_info>({
+            type:'backups',
+            actual:{},
+            prefill:{},
+            action:undefined,
+            open:false,
+            title:'backups'
+        })
+        
+        const [form_instance] = Form.useForm()
+        
+        const { Tagg, setTag } = useContext(Context_of_tag_indicating_which_page_should_be_display)
+        
+        const [sourceKeys, set_SourceKeys] = useState(['nfs'])
+        
+        const [refresher, set_refresher] = useState(0)
+        
+        const x = {
+            backups: {
+                sourceKey: (key, value) => {
+                    return <Form.Item
+                        name={key}
+                        label={key}
+                        required={required[parent_modal_info.type][key]}
+                    >
+                        <Select placeholder="sourceKey" open={parent_modal_info.type === 'restores'? false: undefined} >
+                            {
+                                sourceKeys.map(
+                                    x => { return <Option value={x}> {x} </Option> }
+                                )
+                            }
+                        </Select>
+                        <Button 
+                        type='primary'
+                        onClick={()=>{
+                            set_sourcekey_modal_open(true)
+                        }}>Add SourceKey</Button>
+                    </Form.Item>
     
-    const divider = new Set(['BasicInfo', 'ServerInfo'])
-
-    const [fetched_list_of_namesace, setData] = useState<typeof get_namespace_format>(undefined)
-    const [current_filling_form, setForm]  = useState<Record<string,string>>(undefined)
+                },
     
-    const [parent_modal_info, set_modal_info] = useState<Parent_Modal_info>({
-        type:'backups',
-        actual:{},
-        prefill:{},
-        action:undefined,
-        open:false,
-        title:'backups'
-    })
+                cleanPolicy: (key, value) => {
+                    return <Form.Item
+                        name={key}
+                        label={key}
+                        required={required[parent_modal_info.type][key]}>
+                        <Select placeholder="cleanPolicy" open={parent_modal_info.type === 'restores'? false: undefined}>
+                            {
+                                ['Retain', 'Delete', 'OnFailure'].map(
+                                    x => { return <Option value={x}> {x} </Option> }
+                                )
+                            }
+                        </Select>
+                    </Form.Item>
+                },
     
-    const [form_instance] = Form.useForm()
-    
-    const { Tagg, setTag } = useContext(Context_of_tag_indicating_which_page_should_be_display)
-    
-    const [sourceKeys, set_SourceKeys] = useState(['nfs'])
-    
-    const [refresher, set_refresher] = useState(0)
-    
-    const special = {
-        backups: {
-            sourceKey: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}
-                >
-                    <Select placeholder="sourceKey" open={parent_modal_info.type === 'restores'? false: undefined} >
-                        {
-                            sourceKeys.map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                    <Button 
-                    type='primary'
-                    onClick={()=>{
-                        set_sourcekey_modal_open(true)
-                    }}>Add SourceKey</Button>
-                </Form.Item>
-
+                remoteType: (key, value) => {
+                    return <Form.Item
+                        name={key}
+                        label={key}
+                        required={required[parent_modal_info.type][key]}>
+                        <Select placeholder="remoteType" open={parent_modal_info.type === 'restores'? false: undefined}>
+                            {
+                                ['s3', 'nfs'].map(
+                                    x => { return <Option value={x}> {x} </Option> }
+                                )
+                            }
+                        </Select>
+                    </Form.Item>
+                },
+                maxBackups: (key, value) => {
+                    return undefined
+                },
+                pause: (key, value) => {
+                    return undefined
+                }
             },
-
-            cleanPolicy: (key, value) => {
-                return <Form.Item
+            restores:{
+                sourceKey: (key, value) => {
+                    return <Form.Item
+                        name={key}
+                        label={key}
+                        required={required[parent_modal_info.type][key]}
+                    >
+                        <Select placeholder="sourceKey" open={parent_modal_info.type === 'restores'? false: undefined}>
+                            {
+                                sourceKeys.map(
+                                    x => { return <Option value={x}> {x} </Option> }
+                                )
+                            }
+                        </Select>
+                    </Form.Item>
+    
+                },
+    
+                cleanPolicy: (key, value) => {
+                    return <Form.Item
+                        name={key}
+                        label={key}
+                        required={required[parent_modal_info.type][key]}>
+                        <Select placeholder="cleanPolicy" open={parent_modal_info.type === 'restores'? false: undefined}>
+                            {
+                                ['Retain', 'Delete', 'OnFailure'].map(
+                                    x => { return <Option value={x}> {x} </Option> }
+                                )
+                            }
+                        </Select>
+                    </Form.Item>
+                },
+    
+                remoteType: (key, value) => {
+                    return <Form.Item
+                        name={key}
+                        label={key}
+                        required={required[parent_modal_info.type][key]}>
+                        <Select placeholder="remoteType" open={parent_modal_info.type === 'restores'? false: undefined}>
+                            {
+                                ['s3', 'nfs'].map(
+                                    x => { return <Option value={x}> {x} </Option> }
+                                )
+                            }
+                        </Select>
+                    </Form.Item>
+                },
+                maxBackups: (key, value) => {
+                    return <div></div>
+                },
+                pause: (key, value) => {
+                    return <div></div>
+                }
+            },
+            schedbackups:{
+                sourceKey: (key, value) => {
+                    return <Form.Item
+                        name={key}
+                        label={key}
+                        required={required[parent_modal_info.type][key]}
+                    >
+                        <Select placeholder="sourceKey" open={parent_modal_info.type === 'restores'? false: undefined}>
+                            {
+                                sourceKeys.map(
+                                    x => { return <Option value={x}> {x} </Option> }
+                                )
+                            }
+                        </Select>
+                    </Form.Item>
+    
+                },
+    
+                cleanPolicy: (key, value) => {
+                    return <Form.Item
+                        name={key}
+                        label={key}
+                        required={required[parent_modal_info.type][key]}>
+                        <Select placeholder="cleanPolicy" open={parent_modal_info.type === 'restores'? false: undefined}>
+                            {
+                                ['Retain', 'Delete', 'OnFailure'].map(
+                                    x => { return <Option value={x}> {x} </Option> }
+                                )
+                            }
+                        </Select>
+                    </Form.Item>
+                },
+    
+                remoteType: (key, value) => {
+                    return <Form.Item
+                        name={key}
+                        label={key}
+                        required={required[parent_modal_info.type][key]}>
+                        <Select placeholder="remoteType" open={parent_modal_info.type === 'restores'? false: undefined}>
+                            {
+                                ['s3', 'nfs'].map(
+                                    x => { return <Option value={x}> {x} </Option> }
+                                )
+                            }
+                        </Select>
+                    </Form.Item>
+                },
+                maxBackups: (key, value) => {
+                    return <Form.Item
+                    name={key} 
+                    label={key} 
+                    initialValue = {5}
+                    rules={required[parent_modal_info.type][key]}>
+                        <InputNumber min={0} precision={0} />
+                    </Form.Item>
+                },
+                pause: (key, value) => {
+                    return <Form.Item
                     name={key}
                     label={key}
                     required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="cleanPolicy" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['Retain', 'Delete', 'OnFailure'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
+                        <Select placeholder="pause" open={parent_modal_info.type === 'restores' ? false : undefined}>
+                            {
+                                <>
+                                <Option value={true}>True</Option>
+                                <Option value = {false}>False</Option>
+                                </>
+                            }
+                        </Select>
+                    </Form.Item>
+                }
             },
-
-            remoteType: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="remoteType" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['s3', 'nfs'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            },
-            maxBackups: (key, value) => {
-                return undefined
-            },
-            pause: (key, value) => {
-                return undefined
+        }
+        
+        const special = (()=>{
+            const _special ={
+                sourceKey: (key, value) => {
+                    return <Form.Item
+                        name={key}
+                        label={key}
+                        required={required[parent_modal_info.type][key]}
+                    >
+                        <Select placeholder="sourceKey" open={(parent_modal_info.type === 'restores' && type === 'backups')? false: undefined} >
+                            {
+                                sourceKeys.map(
+                                    x => { return <Option value={x}> {x} </Option> }
+                                )
+                            }
+                        </Select>
+                        <Button 
+                        type='primary'
+                        onClick={()=>{
+                            set_sourcekey_modal_open(true)
+                        }}>Add SourceKey</Button>
+                    </Form.Item>
+    
+                },
+    
+                cleanPolicy: (key, value) => {
+                    return <Form.Item
+                        name={key}
+                        label={key}
+                        required={required[parent_modal_info.type][key]}>
+                        <Select placeholder="cleanPolicy" open={(parent_modal_info.type === 'restores' && type === 'backups')? false: undefined}>
+                            {
+                                ['Retain', 'Delete', 'OnFailure'].map(
+                                    x => { return <Option value={x}> {x} </Option> }
+                                )
+                            }
+                        </Select>
+                    </Form.Item>
+                },
+    
+                remoteType: (key, value) => {
+                    return <Form.Item
+                        name={key}
+                        label={key}
+                        required={required[parent_modal_info.type][key]}>
+                        <Select placeholder="remoteType" open={(parent_modal_info.type === 'restores' && type === 'backups')? false: undefined}>
+                            {
+                                ['s3', 'nfs'].map(
+                                    x => { return <Option value={x}> {x} </Option> }
+                                )
+                            }
+                        </Select>
+                    </Form.Item>
+                },
+                maxBackups: (key, value) => {
+                    return undefined
+                },
+                pause: (key, value) => {
+                    return undefined
+                }
             }
-        },
-        restores:{
-            sourceKey: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}
-                >
-                    <Select placeholder="sourceKey" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            sourceKeys.map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-
-            },
-
-            cleanPolicy: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="cleanPolicy" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['Retain', 'Delete', 'OnFailure'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            },
-
-            remoteType: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="remoteType" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['s3', 'nfs'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            },
-            maxBackups: (key, value) => {
-                return <div></div>
-            },
-            pause: (key, value) => {
-                return <div></div>
+            return {
+                backups: _special,
+                restores: _special,
+                schedbackups: {
+                    ..._special, 
+                    maxBackups: (key, value) => {
+                        return <Form.Item
+                        name={key} 
+                        label={key} 
+                        initialValue = {5}
+                        rules={required[parent_modal_info.type][key]}>
+                            <InputNumber min={0} precision={0} />
+                        </Form.Item>
+                    },
+                    pause: (key, value) => {
+                        return <Form.Item
+                        name={key}
+                        label={key}
+                        required={required[parent_modal_info.type][key]}>
+                            <Select placeholder="pause" open={parent_modal_info.type === 'restores' ? false : undefined}>
+                                {
+                                    <>
+                                    <Option value={true}>True</Option>
+                                    <Option value = {false}>False</Option>
+                                    </>
+                                }
+                            </Select>
+                        </Form.Item>
+                    }
+                }
             }
-        },
-        schedbackups:{
-            sourceKey: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}
-                >
-                    <Select placeholder="sourceKey" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            sourceKeys.map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-
-            },
-
-            cleanPolicy: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="cleanPolicy" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['Retain', 'Delete', 'OnFailure'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            },
-
-            remoteType: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="remoteType" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['s3', 'nfs'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            },
-            maxBackups: (key, value) => {
-                return <Form.Item
-                name={key} 
-                label={key} 
-                initialValue = {5}
-                rules={required[parent_modal_info.type][key]}>
-                    <InputNumber min={0} precision={0} />
-                </Form.Item>
-            },
-            pause: (key, value) => {
-                return <Form.Item
-                name={key}
-                label={key}
-                required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="pause" open={parent_modal_info.type === 'restores' ? false : undefined}>
-                        {
-                            <>
-                            <Option value={true}>True</Option>
-                            <Option value = {false}>False</Option>
-                            </>
-                        }
-                    </Select>
-                </Form.Item>
-            }
-        },
+        })()
+        
+        const { name_and_type, set_name_and_type } = React.useContext(Name_and_type_of_backup_item)
+        //https://stackoverflow.com/questions/19874555/how-do-i-convert-array-of-objects-into-one-object-in-javascript#:~:text=you%20can%20merge%20array%20of%20objects%20in%20to%20one%20object%20in%20one%20line%3A
+        const required ={
+            backups: Object.assign({},...['name', 'namespace', 'sourceKey', 'remoteType', 'host', 'port', 'cleanPolicy'].map(x=>{return {[x]:true}})),
+            restores:{},
+            schedbackups: Object.assign({},...['name', 'namespace', 'sourceKey', 'remoteType', 'host', 'port', 'cleanPolicy'].map(x=>{return {[x]:true}}))
     }
-    const { name, setName } = React.useContext(Name_of_backup_item)
-    //https://stackoverflow.com/questions/19874555/how-do-i-convert-array-of-objects-into-one-object-in-javascript#:~:text=you%20can%20merge%20array%20of%20objects%20in%20to%20one%20object%20in%20one%20line%3A
-    const required ={
-        backups: Object.assign({},...['name', 'namespace', 'sourceKey', 'remoteType', 'host', 'port', 'cleanPolicy'].map(x=>{return {[x]:true}})),
-        restores:{},
-        schedbackups: Object.assign({},...['name', 'namespace', 'sourceKey', 'remoteType', 'host', 'port', 'cleanPolicy'].map(x=>{return {[x]:true}}))
-}
-    
-    const format_dict = {
-        backups: post_backup_format,
-        restores: post_restore_format,
-        schedbackups: post_schedBackup_format
-    }
-    const fetch_three_kind_of_information_andThen_setUp_modal = async function(type:'backups'|'restores'|'schedbackups'|null , name:string , empty:boolean){
-        if (!empty){
-            var getted = await request_json(`/v1/backup/backups/${model.cluster.namespace}/${name}`) as (typeof get_backup_format)
-        }else{
-            var getted = {}
+        
+        const format_dict = {
+            backups: post_backup_format,
+            restores: post_restore_format,
+            schedbackups: post_schedBackup_format
         }
-        const filled_but_not_structured =  fill_post_with_get(format_dict[type] ,getted)
-        var prefill = structured_to_flatten(filled_but_not_structured)
-        
-        
-        //但凡是post所需的，但get中没有返回的字段，都在non_get中指示
-        const non_get={
-            backups:{
-                prefix: '/backup',
-                forceDir: `${model.cluster.namespace}-${prefill.name}`,
-                saveDir: ``,
-                storageClassName:'',
-                storageResource:''
+        const fetch_three_kind_of_information_andThen_setUp_modal = async function(type:'backups'|'restores'|'schedbackups'|null , name:string , empty:boolean){
+            if (!empty){
+                var getted = await request_json(`/v1/backup/${'backups'}/${model.cluster.namespace}/${name}`) as (typeof get_backup_format)
+            }else{
+                var getted = {}
             }
+            const filled_but_not_structured =  fill_post_with_get(format_dict[type] ,getted)
+            var prefill = structured_to_flatten(filled_but_not_structured)
+            
+            
+            //但凡是post所需的，但get中没有返回的字段，都在non_get中指示
+            const non_get={
+                backups:{
+                    prefix: '/backup',
+                    forceDir: `${model.cluster.namespace}-${prefill.name}`,
+                    saveDir: ``,
+                    storageClassName:'',
+                    storageResource:''
+                }
+            }
+            
+            prefill = empty?prefill:{...prefill, ...non_get[type]}
+            
+            const action = async ()=>{
+                const form_data = await form_instance.validateFields()
+                const _json = flatten_to_structured(form_data, format_dict[type], [])
+                await request_json(`/v1/backup/${type}`, {
+                    method: 'post',
+                    body: JSON.stringify(_json),
+                    headers: {'content-type': 'application/json'}
+                })
+                set_modal_info({...parent_modal_info, open:false})
+            }
+                    
+            set_modal_info(
+                {
+                    type:type,
+                    actual:{},
+                    prefill:prefill,
+                    action:action,
+                    open: true,
+                    title: 'backups'
+                }
+            )
+            return
+        }
+        const refresh_sourceKey = async ()=>{
+            const fetched_sourceKeys = (await request_json(`/v1/backup/configmaps`))['keys']
+            set_SourceKeys(fetched_sourceKeys)
         }
         
-        prefill = empty?prefill:{...prefill, ...non_get[type]}
+        useEffect(
+            () => {
+                refresh_sourceKey()
+            }, []
+        )
         
-        const action = async ()=>{
-            const form_data = await form_instance.validateFields()
-            const _json = flatten_to_structured(form_data, format_dict[type], [])
-            await request_json(`/v1/backup/${type}`, {
-                method: 'post',
-                body: JSON.stringify(_json),
-                headers: {'content-type': 'application/json'}
-            })
-            set_modal_info({...parent_modal_info, open:false})
-        }
-                
-        set_modal_info(
-            {
-                type:type,
-                actual:{},
-                prefill:prefill,
-                action:action,
-                open: true,
-                title: 'backups'
+        useEffect(
+            () => {
+                (async ()=>{
+                    const data = await request_json(`/v1/backup/${type}/${model.cluster.namespace}`)
+                    setData(data)
+                })()
+            },[refresher]
+        )
+        
+        useEffect(
+            ()=>{
+                form_instance.resetFields()
             }
         )
-        return
-    }
-    const refresh_sourceKey = async ()=>{
-        const fetched_sourceKeys = (await request_json(`/v1/backup/configmaps`))['keys']
-        set_SourceKeys(fetched_sourceKeys)
-    }
-    
-    useEffect(
-        () => {
-            refresh_sourceKey()
-        }, []
-    )
-    
-    useEffect(
-        () => {
-            (async ()=>{
-                const data = await request_json(`/v1/backup/backups/${model.cluster.namespace}`)
-                setData(data)
-            })()
-        },[refresher]
-    )
-    
-    useEffect(
-        ()=>{
-            form_instance.resetFields()
-        }
-    )
-    
-    useEffect(()=>{
-        set_refresher(refresher+1)
-    }, [parent_modal_info.open])
-    
-    return <div>
         
-        <div className='actions'>
-            <Button
-                type='primary'
-                className='button-create'
-                onClick={() => {
-                    fetch_three_kind_of_information_andThen_setUp_modal('backups', '' , true)
-                }}
-            >
-                <img className='icon-add' src={icon_add} />
-                <span>{t('新建备份')}</span>
-            </Button>
-
-            <Button
-                className='refresh'
-                icon={<ReloadOutlined />}
-                onClick={() => {
-                    set_refresher(refresher+1)
-                }}
-            >{t('刷新')}</Button>
-        </div>
-
-        {!_.isEmpty(fetched_list_of_namesace)?
-                <Table dataSource={fetched_list_of_namesace.status.map(
-                    data_item => {
-                        return {
-                            name: <Link onClick={() => {
-                                setName(data_item.name)
-                                setTag('Dashboar_For_One_Name_Backup')
-                            }}>{data_item.name}</Link>, 
-                            
-                            createTimestamp: data_item.createTimestamp,
-                            
-                            phase: data_item.phase, 
-                            operation: 
-                                [...['backups', 'restores', 'schedbackups'].map(
-                                    x => {
-                                        return <Link
-                                            onClick={
-                                                () => {
-                                                    fetch_three_kind_of_information_andThen_setUp_modal(x as 'backups' | 'restores' | 'schedbackups', data_item.name, false)
-                                                }}
-                                        >
-                                            {x + ' '}
-                                        </Link>
-                                    }
-                                ),
-                                <Popconfirm
-                                title='You sure to delete?'
-                                onConfirm={async () => {
-                                    await request_json(`/v1/backup/backups/${model.cluster.namespace}/${data_item.name}`,{method:'delete'})
-                                    set_refresher(refresher+1)
-                                }}
-                                onCancel={()=>{}}
-                                >
-                                    <a href="#">Delete</a>
-                                </Popconfirm>
-                                ]
-                        }
-                    }
-                )}
-                    pagination={false}
+        useEffect(()=>{
+            set_refresher(refresher+1)
+        }, [parent_modal_info.open])
+        
+        return <div>
+            
+            <div className='actions'>
+                <Button
+                    type='primary'
+                    className='button-create'
+                    onClick={() => {
+                        fetch_three_kind_of_information_andThen_setUp_modal(type, '' , true)
+                    }}
                 >
-                    <Column
-                        title={"Name"}
-                        key='name'
-                        dataIndex={'name'}
-                    />
-                    <Column
-                        title={"TimeStamp"}
-                        key='createTimestamp'
-                        dataIndex={'createTimestamp'}
-                    />
-                    <Column
-                        title={"Phase"}
-                        key='phase'
-                        dataIndex={'phase'}
-                    />
-                    <Column
-                        title={'Operation'}
-                        key='operation'
-                        dataIndex={'operation'}
-                    />
-                </Table>:
-                <div>No data</div>
-                }   
-        {/**add restore */}
-        <Modal
-            open={parent_modal_info.open}
-            title= {parent_modal_info.type}
-            onCancel={()=>{set_modal_info({...parent_modal_info, open: false})}}
-            footer={[
-                <Button key="back" onClick={()=>{set_modal_info({...parent_modal_info, open: false})}}>
-                    {t('取消')}
-                </Button>,
-                <Button key="submit" type="primary" onClick={parent_modal_info.action}>
-                    {t('提交')}
+                    <img className='icon-add' src={icon_add} />
+                    <span>{type}</span>
                 </Button>
-            ]}
-        >
-            <Form
-                form={form_instance}
-                name='cluster-form'
-                className='cluster-create-form'
-                labelAlign='left'
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 16 }}
-                initialValues = {parent_modal_info.prefill}
-                requiredMark={false}
-                colon={false}
-            >
-                <>
-                    {
-                        render_items.map(
-                            key => {
-                                if (divider.has(key)){
-                                    return <Divider orientation='left'>{key}</Divider>
-                                }
+    
+                <Button
+                    className='refresh'
+                    icon={<ReloadOutlined />}
+                    onClick={() => {
+                        set_refresher(refresher+1)
+                    }}
+                >{t('刷新')}</Button>
+            </div>
+    
+            {!_.isEmpty(fetched_list_of_namesace)?
+                    <Table dataSource={fetched_list_of_namesace.items.map(
+                        data_item => {
+                            return {
+                                name: <Link onClick={() => {
+                                    set_name_and_type({name:data_item.name, type:type})
+                                    setTag('Dashboard_For_One_Name')
+                                }}>{data_item.name}</Link>, 
                                 
-                                return special[parent_modal_info.type][key] ? special[parent_modal_info.type][key](key, parent_modal_info.prefill[key]) :
-                                    <Form.Item
-                                        name={key}
-                                        label={key}
-                                        rules={[{required:required[parent_modal_info.type][key]? true : false, message:'Required'}]}
+                                createTimestamp: data_item.createTimestamp,
+                                
+                                phase: data_item.phase, 
+                                operation: 
+                                    [
+                                    <Popconfirm
+                                    title='You sure to delete?'
+                                    onConfirm={async () => {
+                                        await request_json(`/v1/backup/${type}/${model.cluster.namespace}/${data_item.name}`,{method:'delete'})
+                                        set_refresher(refresher+1)
+                                    }}
+                                    onCancel={()=>{}}
                                     >
-                                        <Input readOnly={(parent_modal_info.type === 'restores' && !(key === 'name')) ? true : false}></Input>
-                                    </Form.Item>
+                                        <a href="#">Delete </a>
+                                    </Popconfirm>
+                                    ].concat((type === 'backups')? ['backups', 'restores', 'schedbackups'].map(
+                                        x => {
+                                            return <Link
+                                                onClick={
+                                                    () => {
+                                                        fetch_three_kind_of_information_andThen_setUp_modal(x as 'backups' | 'restores' | 'schedbackups', data_item.name, false)
+                                                    }}
+                                            >
+                                                {x + ' '}
+                                            </Link>
+                                        }
+                                    ):[])
                             }
-                        )
-                    }
-                </>
-            </Form>
-        </Modal>
-        
-        {sourcekey_modaol_open? <SourceKey_Modal 
-        sourcekey_modaol_open={sourcekey_modaol_open} 
-        set_sourcekey_modal_open = {set_sourcekey_modal_open}
-        refresh_sourceKey = {refresh_sourceKey}
-        ></SourceKey_Modal> : <div/>}
-    </div>
+                        }
+                    )}
+                        pagination={false}
+                    >
+                        <Column
+                            title={"Name"}
+                            key='name'
+                            dataIndex={'name'}
+                        />
+                        <Column
+                            title={"TimeStamp"}
+                            key='createTimestamp'
+                            dataIndex={'createTimestamp'}
+                        />
+                        {!(type === "schedbackups") ? <Column
+                            title={"Phase"}
+                            key='phase'
+                            dataIndex={'phase'}
+                        />:undefined}
+                        <Column
+                            title={'Operation'}
+                            key='operation'
+                            dataIndex={'operation'}
+                        />
+                    </Table>:
+                    <div>No data</div>
+                    }   
+
+            <Modal
+                open={parent_modal_info.open}
+                title= {parent_modal_info.type}
+                onCancel={()=>{set_modal_info({...parent_modal_info, open: false})}}
+                footer={[
+                    <Button key="back" onClick={()=>{set_modal_info({...parent_modal_info, open: false})}}>
+                        {t('取消')}
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={parent_modal_info.action}>
+                        {t('提交')}
+                    </Button>
+                ]}
+            >
+                <Form
+                    form={form_instance}
+                    name='cluster-form'
+                    className='cluster-create-form'
+                    labelAlign='left'
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 16 }}
+                    initialValues = {parent_modal_info.prefill}
+                    requiredMark={false}
+                    colon={false}
+                >
+                    <>
+                        {
+                            render_items.map(
+                                key => {
+                                    if (divider.has(key)){
+                                        return <Divider orientation='left'>{key}</Divider>
+                                    }
+                                    
+                                    return special[parent_modal_info.type][key] ? special[parent_modal_info.type][key](key, parent_modal_info.prefill[key]) :
+                                        <Form.Item
+                                            name={key}
+                                            label={key}
+                                            rules={[{required:required[parent_modal_info.type][key]? true : false, message:'Required'}]}
+                                        >
+                                            <Input readOnly={(parent_modal_info.type === 'restores' && type === 'backups' && !(key === 'name')) ? true : false}></Input>
+                                        </Form.Item>
+                                }
+                            )
+                        }
+                    </>
+                </Form>
+            </Modal>
+            
+            {sourcekey_modaol_open? <SourceKey_Modal 
+            sourcekey_modaol_open={sourcekey_modaol_open} 
+            set_sourcekey_modal_open = {set_sourcekey_modal_open}
+            refresh_sourceKey = {refresh_sourceKey}
+            ></SourceKey_Modal> : <div/>}
+        </div>
+    }
+    return Generated
 }
 
-const Dashboar_For_One_Name_Backup: FC<{ name: string }> = (props) => {
+const SchedBackup_List_of_Namespace = Parent_generator('schedbackups')
+const Backup_List_of_Namespace = Parent_generator('backups')
+const Restore_List_of_Namespace = Parent_generator('restores')
+
+const Dashboard_For_One_Name: FC<{ name: string , type: 'backups'| 'restores'| 'schedbackups'}> = (props) => {
     const { cluster } = model.use(['cluster'])
     const { namespace } = cluster
     const { Tagg, setTag } = useContext(Context_of_tag_indicating_which_page_should_be_display)
     const [data, setData] = useState<any>()
     async function fetch_data() {
-        const _data = await request_json(`/v1/backup/backups/${namespace}/${props.name}`)
+        const _data = await request_json(`/v1/backup/${props.type}/${namespace}/${props.name}`)
         const data = structured_to_flatten(_data)
         setData(data)
     }
@@ -2184,903 +2285,6 @@ const Dashboar_For_One_Name_Backup: FC<{ name: string }> = (props) => {
     </div>
 }
 
-function Restore_List_of_Namespace() {
-    
-    const [sourcekey_modaol_open, set_sourcekey_modal_open] = useState(false)
-    
-    const render_items = [
-        'BasicInfo',
-        'namespace',
-        'name',
-        'cleanPolicy',
-        'remoteType',
-        'sourceKey',
-        'prefix',
-        'saveDir',
-        'forceDir',
-        'storageClassName',
-        'storageResource',
-        'maxBackups',
-        'pause',
-        'ServerInfo',
-        'host',
-        'port',
-        'usedId',
-        'password',
-    ]
-    
-    const divider = new Set(['BasicInfo', 'ServerInfo'])
-
-    const [fetched_list_of_namesace, setData] = useState<typeof get_namespace_format>(undefined)
-    const [current_filling_form, setForm]  = useState<Record<string,string>>(undefined)
-    
-    const [parent_modal_info, set_modal_info] = useState<Parent_Modal_info>({
-        type:'backups',
-        actual:{},
-        prefill:{},
-        action:undefined,
-        open:false,
-        title:'backups'
-    })
-    
-    const [form_instance] = Form.useForm()
-    
-    const { Tagg, setTag } = useContext(Context_of_tag_indicating_which_page_should_be_display)
-    
-    const [sourceKeys, set_SourceKeys] = useState(['nfs'])
-    
-    const [refresher, set_refresher] = useState(0)
-    
-    const special = {
-        backups: {
-            sourceKey: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}
-                >
-                    <Select placeholder="sourceKey" open={parent_modal_info.type === 'restores'? false: undefined} >
-                        {
-                            sourceKeys.map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                    <Button 
-                    type='primary'
-                    onClick={()=>{
-                        set_sourcekey_modal_open(true)
-                    }}>Add SourceKey</Button>
-                </Form.Item>
-
-            },
-
-            cleanPolicy: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="cleanPolicy" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['Retain', 'Delete', 'OnFailure'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            },
-
-            remoteType: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="remoteType" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['s3', 'nfs'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            },
-            maxBackups: (key, value) => {
-                return undefined
-            },
-            pause: (key, value) => {
-                return undefined
-            }
-        },
-        restores:{
-            sourceKey: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}
-                >
-                    <Select placeholder="sourceKey" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            sourceKeys.map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-
-            },
-
-            cleanPolicy: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="cleanPolicy" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['Retain', 'Delete', 'OnFailure'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            },
-
-            remoteType: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="remoteType" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['s3', 'nfs'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            },
-            maxBackups: (key, value) => {
-                return <div></div>
-            },
-            pause: (key, value) => {
-                return <div></div>
-            }
-        },
-        schedbackups:{
-            sourceKey: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}
-                >
-                    <Select placeholder="sourceKey" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            sourceKeys.map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-
-            },
-
-            cleanPolicy: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="cleanPolicy" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['Retain', 'Delete', 'OnFailure'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            },
-
-            remoteType: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="remoteType" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['s3', 'nfs'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            },
-            maxBackups: (key, value) => {
-                return <Form.Item
-                name={key} 
-                label={key} 
-                initialValue = {5}
-                rules={required[parent_modal_info.type][key]}>
-                    <InputNumber min={0} precision={0} />
-                </Form.Item>
-            },
-            pause: (key, value) => {
-                return <Form.Item
-                name={key}
-                label={key}
-                required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="pause" open={parent_modal_info.type === 'restores' ? false : undefined}>
-                        {
-                            <>
-                            <Option value={true}>True</Option>
-                            <Option value = {false}>False</Option>
-                            </>
-                        }
-                    </Select>
-                </Form.Item>
-            }
-        },
-    }
-    const { name, setName } = React.useContext(Name_of_backup_item)
-    //https://stackoverflow.com/questions/19874555/how-do-i-convert-array-of-objects-into-one-object-in-javascript#:~:text=you%20can%20merge%20array%20of%20objects%20in%20to%20one%20object%20in%20one%20line%3A
-    const required ={
-        backups: Object.assign({},...['name', 'namespace', 'sourceKey', 'remoteType', 'host', 'port', 'cleanPolicy'].map(x=>{return {[x]:true}})),
-        restores:{},
-        schedbackups: Object.assign({},...['name', 'namespace', 'sourceKey', 'remoteType', 'host', 'port', 'cleanPolicy'].map(x=>{return {[x]:true}}))
-}
-    
-    const format_dict = {
-        backups: post_backup_format,
-        restores: post_restore_format,
-        schedbackups: post_schedBackup_format
-    }
-    const fetch_three_kind_of_information_andThen_setUp_modal = async function(type:'backups'|'restores'|'schedbackups'|null , name:string , empty:boolean){
-        if (!empty){
-            var getted = await request_json(`/v1/backup/backups/${model.cluster.namespace}/${name}`) as (typeof get_backup_format)
-        }else{
-            var getted = {}
-        }
-        const filled_but_not_structured =  fill_post_with_get(format_dict[type] ,getted)
-        var prefill = structured_to_flatten(filled_but_not_structured)
-        
-        
-        //但凡是post所需的，但get中没有返回的字段，都在non_get中指示
-        const non_get={
-            backups:{
-                prefix: '/backup',
-                forceDir: `${model.cluster.namespace}-${prefill.name}`,
-                saveDir: ``,
-                storageClassName:'',
-                storageResource:''
-            }
-        }
-        
-        prefill = empty?prefill:{...prefill, ...non_get[type]}
-        
-        const action = async ()=>{
-            const form_data = await form_instance.validateFields()
-            const _json = flatten_to_structured(form_data, format_dict[type], [])
-            await request_json(`/v1/backup/${type}`, {
-                method: 'post',
-                body: JSON.stringify(_json),
-                headers: {'content-type': 'application/json'}
-            })
-            set_modal_info({...parent_modal_info, open:false})
-        }
-                
-        set_modal_info(
-            {
-                type:type,
-                actual:{},
-                prefill:prefill,
-                action:action,
-                open: true,
-                title: 'backups'
-            }
-        )
-        return
-    }
-    const refresh_sourceKey = async ()=>{
-        const fetched_sourceKeys = (await request_json(`/v1/backup/configmaps`))['keys']
-        set_SourceKeys(fetched_sourceKeys)
-    }
-    
-    useEffect(
-        () => {
-            refresh_sourceKey()
-        }, []
-    )
-    
-    useEffect(
-        () => {
-            (async ()=>{
-                const data = await request_json(`/v1/backup/restores/${model.cluster.namespace}`)
-                setData(data)
-            })()
-        },[refresher]
-    )
-    
-    useEffect(
-        ()=>{
-            form_instance.resetFields()
-        }
-    )
-    
-    useEffect(()=>{
-        set_refresher(refresher+1)
-    }, [parent_modal_info.open])
-    
-    return <div>
-        
-        <div className='actions'>
-            <Button
-                type='primary'
-                className='button-create'
-                onClick={() => {
-                    fetch_three_kind_of_information_andThen_setUp_modal('restores', '' , true)
-                }}
-            >
-                <img className='icon-add' src={icon_add} />
-                <span>{'new restore'}</span>
-            </Button>
-
-            <Button
-                className='refresh'
-                icon={<ReloadOutlined />}
-                onClick={() => {
-                    set_refresher(refresher+1)
-                }}
-            >{t('刷新')}</Button>
-        </div>
-
-        {!_.isEmpty(fetched_list_of_namesace)?
-                <Table dataSource={fetched_list_of_namesace.status.map(
-                    data_item => {
-                        return {
-                            name: <Link onClick={() => {
-                                setName(data_item.name)
-                                setTag('Dashboar_For_One_Name_Backup')
-                            }}>{data_item.name}</Link>, 
-                            
-                            createTimestamp: data_item.createTimestamp,
-                            
-                            phase: data_item.phase, 
-                            operation: 
-                                
-                                <Popconfirm
-                                title='You sure to delete?'
-                                onConfirm={async () => {
-                                    await request_json(`/v1/backup/restores/${model.cluster.namespace}/${data_item.name}`,{method:'delete'})
-                                    set_refresher(refresher+1)
-                                }}
-                                onCancel={()=>{}}
-                                >
-                                    <a href="#">Delete</a>
-                                </Popconfirm>
-                                
-                        }
-                    }
-                )}
-                    pagination={false}
-                >
-                    <Column
-                        title={"Name"}
-                        key='name'
-                        dataIndex={'name'}
-                    />
-                    <Column
-                        title={"TimeStamp"}
-                        key='createTimestamp'
-                        dataIndex={'createTimestamp'}
-                    />
-                    <Column
-                        title={"Phase"}
-                        key='phase'
-                        dataIndex={'phase'}
-                    />
-                    <Column
-                        title={'Operation'}
-                        key='operation'
-                        dataIndex={'operation'}
-                    />
-                </Table>:
-                <div>No data</div>
-                }   
-        {/**add restore */}
-        <Modal
-            open={parent_modal_info.open}
-            title= {parent_modal_info.type}
-            onCancel={()=>{set_modal_info({...parent_modal_info, open: false})}}
-            footer={[
-                <Button key="back" onClick={()=>{set_modal_info({...parent_modal_info, open: false})}}>
-                    {t('取消')}
-                </Button>,
-                <Button key="submit" type="primary" onClick={parent_modal_info.action}>
-                    {t('提交')}
-                </Button>
-            ]}
-        >
-            <Form
-                form={form_instance}
-                name='cluster-form'
-                className='cluster-create-form'
-                labelAlign='left'
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 16 }}
-                initialValues = {parent_modal_info.prefill}
-                requiredMark={false}
-                colon={false}
-            >
-                <>
-                    {
-                        render_items.map(
-                            key => {
-                                if (divider.has(key)){
-                                    return <Divider orientation='left'>{key}</Divider>
-                                }
-                                
-                                return special[parent_modal_info.type][key] ? special[parent_modal_info.type][key](key, parent_modal_info.prefill[key]) :
-                                    <Form.Item
-                                        name={key}
-                                        label={key}
-                                        rules={[{required:required[parent_modal_info.type][key]? true : false, message:'Required'}]}
-                                    >
-                                        <Input readOnly={(parent_modal_info.type === 'restores' && !(key === 'name')) ? true : false}></Input>
-                                    </Form.Item>
-                            }
-                        )
-                    }
-                </>
-            </Form>
-        </Modal>
-        
-        {sourcekey_modaol_open? <SourceKey_Modal 
-        sourcekey_modaol_open={sourcekey_modaol_open} 
-        set_sourcekey_modal_open = {set_sourcekey_modal_open}
-        refresh_sourceKey = {refresh_sourceKey}
-        ></SourceKey_Modal> : <div/>}
-    </div>
-}
-
-function SchedBackup_List_of_Namespace() {
-    
-    const [sourcekey_modaol_open, set_sourcekey_modal_open] = useState(false)
-    
-    const render_items = [
-        'BasicInfo',
-        'namespace',
-        'name',
-        'cleanPolicy',
-        'remoteType',
-        'sourceKey',
-        'prefix',
-        'saveDir',
-        'forceDir',
-        'storageClassName',
-        'storageResource',
-        'maxBackups',
-        'pause',
-        'ServerInfo',
-        'host',
-        'port',
-        'usedId',
-        'password',
-    ]
-    
-    const divider = new Set(['BasicInfo', 'ServerInfo'])
-
-    const [fetched_list_of_namesace, setData] = useState<typeof get_namespace_format>(undefined)
-    const [current_filling_form, setForm]  = useState<Record<string,string>>(undefined)
-    
-    const [parent_modal_info, set_modal_info] = useState<Parent_Modal_info>({
-        type:'backups',
-        actual:{},
-        prefill:{},
-        action:undefined,
-        open:false,
-        title:'backups'
-    })
-    
-    const [form_instance] = Form.useForm()
-    
-    const { Tagg, setTag } = useContext(Context_of_tag_indicating_which_page_should_be_display)
-    
-    const [sourceKeys, set_SourceKeys] = useState(['nfs'])
-    
-    const [refresher, set_refresher] = useState(0)
-    
-    const special = {
-        backups: {
-            sourceKey: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}
-                >
-                    <Select placeholder="sourceKey" open={parent_modal_info.type === 'restores'? false: undefined} >
-                        {
-                            sourceKeys.map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                    <Button 
-                    type='primary'
-                    onClick={()=>{
-                        set_sourcekey_modal_open(true)
-                    }}>Add SourceKey</Button>
-                </Form.Item>
-
-            },
-
-            cleanPolicy: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="cleanPolicy" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['Retain', 'Delete', 'OnFailure'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            },
-
-            remoteType: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="remoteType" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['s3', 'nfs'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            }
-        },
-        restores:{
-            sourceKey: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}
-                >
-                    <Select placeholder="sourceKey" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            sourceKeys.map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-
-            },
-
-            cleanPolicy: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="cleanPolicy" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['Retain', 'Delete', 'OnFailure'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            },
-
-            remoteType: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="remoteType" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['s3', 'nfs'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            }
-        },
-        schedbackups:{
-            sourceKey: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}
-                >
-                    <Select placeholder="sourceKey" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            sourceKeys.map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-
-            },
-
-            cleanPolicy: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="cleanPolicy" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['Retain', 'Delete', 'OnFailure'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            },
-
-            remoteType: (key, value) => {
-                return <Form.Item
-                    name={key}
-                    label={key}
-                    required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="remoteType" open={parent_modal_info.type === 'restores'? false: undefined}>
-                        {
-                            ['s3', 'nfs'].map(
-                                x => { return <Option value={x}> {x} </Option> }
-                            )
-                        }
-                    </Select>
-                </Form.Item>
-            },
-            maxBackups: (key, value) => {
-                return <Form.Item
-                name={key} 
-                label={key} 
-                initialValue = {5}
-                rules={required[parent_modal_info.type][key]}>
-                    <InputNumber min={0} precision={0} />
-                </Form.Item>
-            },
-            pause: (key, value) => {
-                return <Form.Item
-                name={key}
-                label={key}
-                required={required[parent_modal_info.type][key]}>
-                    <Select placeholder="pause" open={parent_modal_info.type === 'restores' ? false : undefined}>
-                        {
-                            <>
-                            <Option value={true}>True</Option>
-                            <Option value = {false}>False</Option>
-                            </>
-                        }
-                    </Select>
-                </Form.Item>
-            }
-        },
-    }
-    const { name, setName } = React.useContext(Name_of_backup_item)
-    //https://stackoverflow.com/questions/19874555/how-do-i-convert-array-of-objects-into-one-object-in-javascript#:~:text=you%20can%20merge%20array%20of%20objects%20in%20to%20one%20object%20in%20one%20line%3A
-    const required ={
-        backups: Object.assign({},...['name', 'namespace', 'sourceKey', 'remoteType', 'host', 'port', 'cleanPolicy'].map(x=>{return {[x]:true}})),
-        restores:{},
-        schedbackups: Object.assign({},...['name', 'namespace', 'sourceKey', 'remoteType', 'host', 'port', 'cleanPolicy'].map(x=>{return {[x]:true}}))
-}
-    
-    const format_dict = {
-        backups: post_backup_format,
-        restores: post_restore_format,
-        schedbackups: post_schedBackup_format
-    }
-    const fetch_three_kind_of_information_andThen_setUp_modal = async function(type:'backups'|'restores'|'schedbackups'|null , name:string , empty:boolean){
-        if (!empty){
-            var getted = await request_json(`/v1/backup/backups/${model.cluster.namespace}/${name}`) as (typeof get_backup_format)
-        }else{
-            var getted = {}
-        }
-        const filled_but_not_structured =  fill_post_with_get(format_dict[type] ,getted)
-        var prefill = structured_to_flatten(filled_but_not_structured)
-        
-        
-        //但凡是post所需的，但get中没有返回的字段，都在non_get中指示
-        const non_get={
-            backups:{
-                prefix: '/backup',
-                forceDir: `${model.cluster.namespace}-${prefill.name}`,
-                saveDir: ``,
-                storageClassName:'',
-                storageResource:''
-            }
-        }
-        
-        prefill = empty?prefill:{...prefill, ...non_get[type]}
-        
-        const action = async ()=>{
-            const form_data = await form_instance.validateFields()
-            const _json = flatten_to_structured(form_data, format_dict[type], [])
-            await request_json(`/v1/backup/${type}`, {
-                method: 'post',
-                body: JSON.stringify(_json),
-                headers: {'content-type': 'application/json'}
-            })
-            set_modal_info({...parent_modal_info, open:false})
-        }
-                
-        set_modal_info(
-            {
-                type:type,
-                actual:{},
-                prefill:prefill,
-                action:action,
-                open: true,
-                title: 'backups'
-            }
-        )
-        return
-    }
-    const refresh_sourceKey = async ()=>{
-        const fetched_sourceKeys = (await request_json(`/v1/backup/configmaps`))['keys']
-        set_SourceKeys(fetched_sourceKeys)
-    }
-    
-    useEffect(
-        () => {
-            refresh_sourceKey()
-        }, []
-    )
-    
-    useEffect(
-        () => {
-            (async ()=>{
-                const data = await request_json(`/v1/backup/schedbackups/${model.cluster.namespace}`)
-                setData(data)
-            })()
-        },[refresher]
-    )
-    
-    useEffect(
-        ()=>{
-            form_instance.resetFields()
-        }
-    )
-    
-    useEffect(()=>{
-        set_refresher(refresher+1)
-    }, [parent_modal_info.open])
-    
-    return <div>
-        
-        <div className='actions'>
-            <Button
-                type='primary'
-                className='button-create'
-                onClick={() => {
-                    fetch_three_kind_of_information_andThen_setUp_modal('schedbackups', '' , true)
-                }}
-            >
-                <img className='icon-add' src={icon_add} />
-                <span>{'new sched'}</span>
-            </Button>
-
-            <Button
-                className='refresh'
-                icon={<ReloadOutlined />}
-                onClick={() => {
-                    set_refresher(refresher+1)
-                }}
-            >{t('刷新')}</Button>
-        </div>
-
-        {!_.isEmpty(fetched_list_of_namesace)?
-                <Table dataSource={fetched_list_of_namesace.status.map(
-                    data_item => {
-                        return {
-                            name: <Link onClick={() => {
-                                setName(data_item.name)
-                                setTag('Dashboar_For_One_Name_Backup')
-                            }}>{data_item.name}</Link>, 
-                            
-                            createTimestamp: data_item.createTimestamp,
-                            
-                            phase: data_item.phase, 
-                            operation: 
-                                
-                                <Popconfirm
-                                title='You sure to delete?'
-                                onConfirm={async () => {
-                                    await request_json(`/v1/backup/schedbackups/${model.cluster.namespace}/${data_item.name}`,{method:'delete'})
-                                    set_refresher(refresher+1)
-                                }}
-                                onCancel={()=>{}}
-                                >
-                                    <a href="#">Delete</a>
-                                </Popconfirm>
-                                
-                        }
-                    }
-                )}
-                    pagination={false}
-                >
-                    <Column
-                        title={"Name"}
-                        key='name'
-                        dataIndex={'name'}
-                    />
-                    <Column
-                        title={"TimeStamp"}
-                        key='createTimestamp'
-                        dataIndex={'createTimestamp'}
-                    />
-                    <Column
-                        title={"Phase"}
-                        key='phase'
-                        dataIndex={'phase'}
-                    />
-                    <Column
-                        title={'Operation'}
-                        key='operation'
-                        dataIndex={'operation'}
-                    />
-                </Table>:
-                <div>No data</div>
-                }   
-        {/**add restore */}
-        <Modal
-            open={parent_modal_info.open}
-            title= {parent_modal_info.type}
-            onCancel={()=>{set_modal_info({...parent_modal_info, open: false})}}
-            footer={[
-                <Button key="back" onClick={()=>{set_modal_info({...parent_modal_info, open: false})}}>
-                    {t('取消')}
-                </Button>,
-                <Button key="submit" type="primary" onClick={parent_modal_info.action}>
-                    {t('提交')}
-                </Button>
-            ]}
-        >
-            <Form
-                form={form_instance}
-                name='cluster-form'
-                className='cluster-create-form'
-                labelAlign='left'
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 16 }}
-                initialValues = {parent_modal_info.prefill}
-                requiredMark={false}
-                colon={false}
-            >
-                <>
-                    {
-                        render_items.map(
-                            key => {
-                                if (divider.has(key)){
-                                    return <Divider orientation='left'>{key}</Divider>
-                                }
-                                
-                                return special[parent_modal_info.type][key] ? special[parent_modal_info.type][key](key, parent_modal_info.prefill[key]) :
-                                    <Form.Item
-                                        name={key}
-                                        label={key}
-                                        rules={[{required:required[parent_modal_info.type][key]? true : false, message:'Required'}]}
-                                    >
-                                        <Input readOnly={(parent_modal_info.type === 'restores' && !(key === 'name')) ? true : false}></Input>
-                                    </Form.Item>
-                            }
-                        )
-                    }
-                </>
-            </Form>
-        </Modal>
-        
-        {sourcekey_modaol_open? <SourceKey_Modal 
-        sourcekey_modaol_open={sourcekey_modaol_open} 
-        set_sourcekey_modal_open = {set_sourcekey_modal_open}
-        refresh_sourceKey = {refresh_sourceKey}
-        ></SourceKey_Modal> : <div/>}
-    </div>
-}
 
 //util function traversing object recursively
 
@@ -3152,15 +2356,29 @@ const fill_post_with_get = (post_format, data_getted)=>{
 }
 
 const get_namespace_format = {
-    "status": [
+    "pageNum": 0,
+    "pageSize": 0,
+    "pageTotal": 0,
+    "count": 4,
+    "items": [
         {
             "createTimestamp": "2022-09-28 09:53:01 +0800 CST",
             "name": "api-backup",
             "phase": "Complete"
         },
         {
-            "createTimestamp": "2022-09-28 10:17:50 +0800 CST",
+            "createTimestamp": "2022-10-08 16:38:06 +0800 CST",
             "name": "api-backup-test",
+            "phase": "Complete"
+        },
+        {
+            "createTimestamp": "2022-10-08 17:57:09 +0800 CST",
+            "name": "api-backup-test2",
+            "phase": "Complete"
+        },
+        {
+            "createTimestamp": "2022-10-08 17:59:47 +0800 CST",
+            "name": "api-backup-test3",
             "phase": "Complete"
         }
     ]
