@@ -1483,17 +1483,17 @@ function Show_backup_restore_sched (){
     centered
     items={[
       {
-        label: `backups`,
+        label: translate_dict['backups'],
         key: '1',
         children: <Backup_List_of_Namespace></Backup_List_of_Namespace>,
       },
       {
-        label: `restores`,
+        label: translate_dict['restores'],
         key: '2',
         children: <Restore_List_of_Namespace></Restore_List_of_Namespace>
       },
       {
-        label: `schedbackups`,
+        label: translate_dict['schedbackups'],
         key: '3',
         children: <SchedBackup_List_of_Namespace></SchedBackup_List_of_Namespace>,
       }
@@ -1537,7 +1537,7 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
     
     return <Modal
         
-        title='Add sourceKey'
+        title= {t('添加数据源')}
         open = {sourceKey_modal_info.open}
         onCancel={()=>{props.set_sourcekey_modal_open(false)}}
         footer = {[
@@ -1595,7 +1595,7 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
                                     (x)=>{
                                         return <Form.Item
                                         name={x}
-                                        label={x}
+                                        label={translate_dict[x]}
                                         rules={[{message:'Required', required:true}]}
                                         >
                                             <Input></Input>
@@ -1622,12 +1622,12 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
                             (x) => {
                                 return !(x === 'provider') ? <Form.Item
                                     name={x}
-                                    label={x}
+                                    label={translate_dict[x]}
                                     rules={[{ message: 'Required', required: true }]}
                                 ><Input></Input></Form.Item> :
                                     <Form.Item
                                         name={'provider'}
-                                        label={'provider'}
+                                        label={translate_dict['provider']}
                                     >
                                         <Select>
                                             {providers.map((x) => {
@@ -1712,7 +1712,7 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
                         type='primary'
                         onClick={()=>{
                             set_sourcekey_modal_open(true)
-                        }}>Add SourceKey</Button>
+                        }}>{t('添加sourceKey')}</Button>
                     </Form.Item>
     
                 },
@@ -1884,7 +1884,7 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
         const special = (()=>{
             const _special ={
                 sourceKey: (key, value) => {
-                    return <Form.Item label={key}>
+                    return <Form.Item label={translate_dict[key]}>
                         <Space align='start'>
                             <Form.Item
                                 name={key}
@@ -1902,7 +1902,7 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
                                 type='primary'
                                 onClick={() => {
                                     set_sourcekey_modal_open(true)
-                                }}>Add SourceKey</Button>
+                                }}>{t('添加sourceKey')}</Button>
 
                         </Space>
                     </Form.Item>
@@ -1911,7 +1911,7 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
                 cleanPolicy: (key, value) => {
                     return <Form.Item
                         name={key}
-                        label={key}
+                        label={translate_dict[key]}
                         required={required[parent_modal_info.type][key]}>
                         <Select placeholder="cleanPolicy" open={(parent_modal_info.type === 'restores' && type === 'backups')? false: undefined}>
                             {
@@ -1926,7 +1926,7 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
                 remoteType: (key, value) => {
                     return <Form.Item
                         name={key}
-                        label={key}
+                        label={translate_dict[key]}
                         required={required[parent_modal_info.type][key]}>
                         <Select placeholder="remoteType" open={(parent_modal_info.type === 'restores' && type === 'backups')? false: undefined}>
                             {
@@ -1952,7 +1952,7 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
                     maxBackups: (key, value) => {
                         return <Form.Item
                         name={key} 
-                        label={key} 
+                        label={translate_dict[key]} 
                         initialValue = {5}
                         rules={required[parent_modal_info.type][key]}>
                             <InputNumber min={0} precision={0} />
@@ -1961,7 +1961,7 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
                     pause: (key, value) => {
                         return <Form.Item
                         name={key}
-                        label={key}
+                        label={translate_dict[key]}
                         required={required[parent_modal_info.type][key]}>
                             <Select placeholder="pause" open={parent_modal_info.type === 'restores' ? false : undefined}>
                                 {
@@ -2090,7 +2090,7 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
                     }}
                 >
                     <img className='icon-add' src={icon_add} />
-                    <span>{type}</span>
+                    <span>{translate_dict[type]}</span>
                 </Button>
     
                 <Button
@@ -2113,7 +2113,7 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
                                 
                                 createTimestamp: data_item.createTimestamp,
                                 
-                                phase: data_item.phase, 
+                                phase: translate_dict[data_item.phase],
                                 operation: 
                                     [
                                     <Popconfirm
@@ -2124,7 +2124,7 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
                                     }}
                                     onCancel={()=>{}}
                                     >
-                                        <a href="#">Delete </a>
+                                        <a href="#">{t('删除')} </a>
                                     </Popconfirm>
                                     ].concat((type === 'backups')? ['backups', 'restores', 'schedbackups'].map(
                                         x => {
@@ -2134,7 +2134,7 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
                                                         fetch_three_kind_of_information_andThen_setUp_modal(x as 'backups' | 'restores' | 'schedbackups', data_item.name, false)
                                                     }}
                                             >
-                                                {x + ' '}
+                                                {translate_dict[x] + ' '}
                                             </Link>
                                         }
                                     ):[])
@@ -2144,32 +2144,32 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
                         pagination={false}
                     >
                         <Column
-                            title={"Name"}
+                            title={t('名称')}
                             key='name'
                             dataIndex={'name'}
                         />
                         <Column
-                            title={"TimeStamp"}
+                            title={t('时间戳')}
                             key='createTimestamp'
                             dataIndex={'createTimestamp'}
                         />
                         {!(type === "schedbackups") ? <Column
-                            title={"Phase"}
+                            title={t('状态')}
                             key='phase'
                             dataIndex={'phase'}
                         />:undefined}
                         <Column
-                            title={'Operation'}
+                            title={t('操作')}
                             key='operation'
                             dataIndex={'operation'}
                         />
                     </Table>:
-                    <div>No data</div>
+                    <Empty></Empty>
                     }   
 
             <Modal
                 open={parent_modal_info.open}
-                title= {parent_modal_info.type}
+                title= {translate_dict[parent_modal_info.type]}
                 onCancel={()=>{set_modal_info({...parent_modal_info, open: false})}}
                 footer={[
                     <Button key="back" onClick={()=>{set_modal_info({...parent_modal_info, open: false})}}>
@@ -2182,7 +2182,6 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
             >
                 <Form
                     form={form_instance}
-                    name='cluster-form'
                     className='cluster-create-form'
                     labelAlign='left'
                     labelCol={{ span: 6 }}
@@ -2196,13 +2195,13 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
                             render_items.map(
                                 key => {
                                     if (divider.has(key)){
-                                        return <Divider orientation='left'>{key}</Divider>
+                                        return <Divider orientation='left'>{translate_dict[key]}</Divider>
                                     }
                                     
                                     return special[parent_modal_info.type][key] ? special[parent_modal_info.type][key](key, parent_modal_info.prefill[key]) :
                                         <Form.Item
                                             name={key}
-                                            label={key}
+                                            label={translate_dict[key]}
                                             rules={[{required:required[parent_modal_info.type][key]? true : false, message:'Required'}]}
                                         >
                                             <Input readOnly={(parent_modal_info.type === 'restores' && type === 'backups' && !(key === 'name')) ? true : false}></Input>
@@ -2289,7 +2288,7 @@ const Dashboard_For_One_Name: FC<{ name: string , type: 'backups'| 'restores'| '
             <Descriptions.Item label={t('清除策略')}>{data.cleanPolicy}</Descriptions.Item>
             <Descriptions.Item label={t('远程类型')}>{data.remoteType}</Descriptions.Item>
             <Descriptions.Item label={t('配置表名')}>{data.configMapName}</Descriptions.Item>
-            <Descriptions.Item label={t('Source Key')}>{data.sourceKey}</Descriptions.Item>
+            <Descriptions.Item label={t('数据源')}>{data.sourceKey}</Descriptions.Item>
         </Descriptions>
 
         <Descriptions
@@ -2538,9 +2537,34 @@ const translate_dict = {
     'BasicInfo':t('基础信息'),
     'ServerInfo':t('服务器信息'),
     'namespace': t('命名空间'),
+    'name':t('名字'),
     'cleanPolicy': t('清除策略'),
     'remoteType':t('远程类型'),
-    'sourceKey':t('sourceKey'),
+    'sourceKey':t('数据源'),
     'prefix':t('前缀'),
-    
+    'saveDir':t('保存路径'),
+    'forceDir':t('强制位置'),
+    'storageClassName':t('存储类名称'),
+    'storageResource':t('存储资源'),
+    'maxBackups':t('最大备份数'),
+    'pause':t('暂停'),
+    'host':t('主机'),
+    'port':t('端口'),
+    'usedId':t('被使用的ID'),
+    'password':t('密码'),
+    'backups':t('备份'),
+    'restores':t('还原'),
+    'schedbackups':t('定时备份'),
+    'endpoint':t('服务地址'),
+    'provider':t('供应商'),
+    'accessKey':t('访问密钥'),
+    'secretAccessKey':t('加密密钥'),
+    'path':t('共享目录', {context:'backup'}),
+    'Scheduled':t('调度中'),
+    'Running':t('运行中'),
+    'Complete':t('运行完毕'),
+    'Cleaning':t('清理中'),
+    'Cleaned':t('清理完成'),
+    'Failed':t('运行失败'),
+    'Invalid':t('参数异常')
 }
