@@ -1546,13 +1546,24 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
             </Button>,
             <Button key="submit" type="primary" onClick={async () => {
                 const form_data = await form_object[sourceKey_modal_info.type].validateFields()
-                await request_json('/v1/backup/configmaps', {
-                    method: 'post',
-                    body: form_data,
-                    headers: { 'content-type': 'application/json' }
-                })
-                props.refresh_sourceKey()
-                props.set_sourcekey_modal_open(false)
+                try {
+                    await request_json('/v1/backup/configmaps', {
+                        method: 'post',
+                        body: form_data,
+                        headers: { 'content-type': 'application/json' }
+                    })
+                    props.refresh_sourceKey()
+                    props.set_sourcekey_modal_open(false)
+                }
+                catch (err) {
+                    const resp = await err.response.json()
+                    Modal.error(
+                        {
+                            title: 'Error',
+                            content: resp["errorMessage"]
+                        }
+                    )
+                }
             }}>
                 {t('提交')}
             </Button>
@@ -2002,15 +2013,26 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
             
             prefill = empty?prefill:{...prefill, ...non_get[type]}
             
-            const action = async ()=>{
+            const action = async () => {
                 const form_data = await form_instance.validateFields()
                 const _json = flatten_to_structured(form_data, format_dict[type], [])
-                await request_json(`/v1/backup/${type}`, {
-                    method: 'post',
-                    body: JSON.stringify(_json),
-                    headers: {'content-type': 'application/json'}
-                })
-                set_modal_info({...parent_modal_info, open:false})
+                try {
+                    await request_json(`/v1/backup/${type}`, {
+                        method: 'post',
+                        body: JSON.stringify(_json),
+                        headers: { 'content-type': 'application/json' }
+                    })
+                    set_modal_info({ ...parent_modal_info, open: false })
+                }
+                catch (err) {
+                    const resp = await err.response.json()
+                    Modal.error(
+                        {
+                            title: 'Error',
+                            content: resp["errorMessage"]
+                        }
+                    )
+                }
             }
                     
             set_modal_info(
