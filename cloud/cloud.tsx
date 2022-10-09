@@ -1873,25 +1873,28 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
         const special = (()=>{
             const _special ={
                 sourceKey: (key, value) => {
-                    return <Form.Item
-                        name={key}
-                        label={key}
-                        required={required[parent_modal_info.type][key]}
-                    >
-                        <Select placeholder="sourceKey" open={(parent_modal_info.type === 'restores' && type === 'backups')? false: undefined} >
-                            {
-                                sourceKeys.map(
-                                    x => { return <Option value={x}> {x} </Option> }
-                                )
-                            }
-                        </Select>
-                        <Button 
-                        type='primary'
-                        onClick={()=>{
-                            set_sourcekey_modal_open(true)
-                        }}>Add SourceKey</Button>
+                    return <Form.Item label={key}>
+                        <Space align='start'>
+                            <Form.Item
+                                name={key}
+                                required={required[parent_modal_info.type][key]}
+                            >
+                                <Select placeholder="sourceKey" open={(parent_modal_info.type === 'restores' && type === 'backups') ? false : undefined} >
+                                    {
+                                        sourceKeys.map(
+                                            x => { return <Option value={x}> {x} </Option> }
+                                        )
+                                    }
+                                </Select>
+                            </Form.Item>
+                            <Button
+                                type='primary'
+                                onClick={() => {
+                                    set_sourcekey_modal_open(true)
+                                }}>Add SourceKey</Button>
+
+                        </Space>
                     </Form.Item>
-    
                 },
     
                 cleanPolicy: (key, value) => {
@@ -2049,7 +2052,9 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
         )
         
         useEffect(()=>{
-            set_refresher(refresher+1)
+            if (parent_modal_info.open === false){
+                set_refresher(refresher+1)
+            }
         }, [parent_modal_info.open])
         
         return <div>
@@ -2514,5 +2519,6 @@ const translate_dict = {
     'cleanPolicy': t('清除策略'),
     'remoteType':t('远程类型'),
     'sourceKey':t('sourceKey'),
-    'prefix':t('前缀')
+    'prefix':t('前缀'),
+    
 }
