@@ -1480,6 +1480,7 @@ function Show_backup_restore_sched (){
     const items = [{label: 'backups', key:0},{label:'restores',key:1},{lable:'schedbackups',key:2}]
     return   <Tabs
     defaultActiveKey="1"
+    size='large'
     centered
     items={[
       {
@@ -1667,7 +1668,7 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
             'ServerInfo',
             'host',
             'port',
-            'usedId',
+            'userId',
             'password',
         ]
         
@@ -1712,7 +1713,7 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
                         type='primary'
                         onClick={()=>{
                             set_sourcekey_modal_open(true)
-                        }}>{t('添加sourceKey')}</Button>
+                        }}>{t('添加数据源')}</Button>
                     </Form.Item>
     
                 },
@@ -1902,7 +1903,7 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
                                 type='primary'
                                 onClick={() => {
                                     set_sourcekey_modal_open(true)
-                                }}>{t('添加sourceKey')}</Button>
+                                }}>{t('添加数据源')}</Button>
 
                         </Space>
                     </Form.Item>
@@ -1994,13 +1995,16 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
             if (!empty){
                 var getted = await request_json(`/v1/backup/${'backups'}/${model.cluster.namespace}/${name}`) as (typeof get_backup_format)
             }else{
-                var getted = {}
+                var getted = {
+                    cleanPolicy: 'Retain',
+                    remoteType: 'nfs'
+                }
             }
             const filled_but_not_structured =  fill_post_with_get(format_dict[type] ,getted)
             var prefill = structured_to_flatten(filled_but_not_structured)
             
             
-            //但凡是post所需的，但get中没有返回的字段，都在non_get中指示
+            /*但凡是post所需的，但get中没有返回的字段，都在non_get中指示
             const non_get={
                 backups:{
                     prefix: '/backup',
@@ -2012,7 +2016,8 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
             }
             
             prefill = empty?prefill:{...prefill, ...non_get[type]}
-            
+            */
+           
             const action = async () => {
                 const form_data = await form_instance.validateFields()
                 const _json = flatten_to_structured(form_data, format_dict[type], [])
@@ -2269,25 +2274,25 @@ const Dashboard_For_One_Name: FC<{ name: string , type: 'backups'| 'restores'| '
 
         <Descriptions
             title={
-                <Title level={4}>{t('信息')}</Title>
+                <Title level={4}>{t('基础信息')}</Title>
             }
-            column={2}
+            column={3}
             bordered
         >
             <Descriptions.Item label={t('命名空间')}>{namespace}</Descriptions.Item>
             <Descriptions.Item label={t('名字')}>{props.name}</Descriptions.Item>
+            <Descriptions.Item label={t('状态')}>{translate_dict[data.phase]}</Descriptions.Item>
         </Descriptions>
 
         <Descriptions
             title={
                 <Title level={4}>{t('备份信息')}</Title>
             }
-            column={2}
+            column={3}
             bordered
         >
             <Descriptions.Item label={t('清除策略')}>{data.cleanPolicy}</Descriptions.Item>
             <Descriptions.Item label={t('远程类型')}>{data.remoteType}</Descriptions.Item>
-            <Descriptions.Item label={t('配置表名')}>{data.configMapName}</Descriptions.Item>
             <Descriptions.Item label={t('数据源')}>{data.sourceKey}</Descriptions.Item>
         </Descriptions>
 
@@ -2300,6 +2305,29 @@ const Dashboard_For_One_Name: FC<{ name: string , type: 'backups'| 'restores'| '
         >
             <Descriptions.Item label={t('主机')}>{data.host}</Descriptions.Item>
             <Descriptions.Item label={t('端口')}>{data.port}</Descriptions.Item>
+        </Descriptions>
+
+        <Descriptions
+            title={
+                <Title level={4}>{t('路径信息')}</Title>
+            }
+            column={3}
+            bordered
+        >
+            <Descriptions.Item label={t('存储前缀')}>{data.prefix || ' '}</Descriptions.Item>
+            <Descriptions.Item label={t('存储中缀')}>{data.forceDir || ' '} </Descriptions.Item>
+            <Descriptions.Item label={t('存储后缀')}>{data.saveDir || ' '}</Descriptions.Item>
+        </Descriptions>
+        
+        <Descriptions
+            title={
+                <Title level={4}>{t('存储信息')}</Title>
+            }
+            column={2}
+            bordered
+        >
+            <Descriptions.Item label={t('存储类名称')}>{data.storageClassName || ' '}</Descriptions.Item>
+            <Descriptions.Item label={t('存储资源')}>{data.storageResource || ' '}</Descriptions.Item>
         </Descriptions>
 
     </div>
@@ -2435,7 +2463,7 @@ const get_backup_format = {
         "conn": {
             "host": "192.168.0.75",
             "port": "8921",
-            "usedId": "admin",
+            "userId": "admin",
             "password": "123456"
         }
     },
@@ -2482,7 +2510,7 @@ const post_backup_format = {
         "server": {
             "host": "192.168.0.75",
             "port": "8921",
-            "usedId": "admin",
+            "userId": "admin",
             "password": "123456"
         }
     }
@@ -2503,7 +2531,7 @@ const post_restore_format = {
         "server": {
             "host": "192.168.0.75",
             "port": "8921",
-            "usedId": "admin",
+            "userId": "admin",
             "password": "123456"
         }
     }
@@ -2523,10 +2551,11 @@ const post_schedBackup_format = {
             "forceDir": "schedbackup",
             "remoteType": "s3",
             "sourceKey": "remote_s3",
+            "saveDir":"",
             "server": {
                 "host": "192.168.0.72",
                 "port": "31579",
-                "usedId": "admin",
+                "userId": "admin",
                 "password": "123456"
             }
         }
@@ -2539,18 +2568,18 @@ const translate_dict = {
     'namespace': t('命名空间'),
     'name':t('名字'),
     'cleanPolicy': t('清除策略'),
-    'remoteType':t('远程类型'),
+    'remoteType':t('远端存储类型'),
     'sourceKey':t('数据源'),
-    'prefix':t('前缀'),
-    'saveDir':t('保存路径'),
-    'forceDir':t('强制位置'),
+    'prefix':t('存储前缀'),
+    'saveDir':t('存储后缀'),
+    'forceDir':t('存储中缀'),
     'storageClassName':t('存储类名称'),
     'storageResource':t('存储资源'),
     'maxBackups':t('最大备份数'),
     'pause':t('暂停'),
     'host':t('主机'),
     'port':t('端口'),
-    'usedId':t('被使用的ID'),
+    'userId':t('用户名'),
     'password':t('密码'),
     'backups':t('备份'),
     'restores':t('还原'),
