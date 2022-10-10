@@ -59,42 +59,16 @@ const { Column } = Table;
 const { Option } = Select
 const { Title, Text, Link } = Typography
 
-const Context_of_tag_indicating_which_page_should_be_display = React.createContext<{ Tagg: string, setTag: (x: 'ClusterDetail' | 'Clusters' | 'Dashboard_For_One_Name') => any }>({ Tagg: 'Clusters', setTag: ()=>{} })
 
-export function Cloud() {
-    const [tag, setTag] = React.useState('Clusters')
-
-    const [name_and_type, set_name_and_type] = React.useState<{name:string, type:'backups'|'restores'|'schedbackups'}>({name:'', type:'backups'})
-    return <Context_of_tag_indicating_which_page_should_be_display.Provider
-        value={{ Tagg: tag, setTag: setTag }}>
-        <Name_and_type_of_backup_item.Provider
-            value={{ name_and_type:name_and_type, set_name_and_type: set_name_and_type }}
-        >
-            <TestComp></TestComp>
-        </Name_and_type_of_backup_item.Provider>
-    </Context_of_tag_indicating_which_page_should_be_display.Provider>
-
+export function Cloud () {
+    const { cluster } = model.use(['cluster'])
+    
+    if (cluster)
+        return <ClusterDetail />
+    
+    return <Clusters />
 }
 
-const Name_and_type_of_backup_item = React.createContext<{name_and_type:{name:string, type:'backups'|'restores'|'schedbackups'}, set_name_and_type:any}>({name_and_type:{name:'none', type:'backups'}, set_name_and_type:()=>{}})
-const TestComp = (() => {
-    const { name_and_type, set_name_and_type } = React.useContext(Name_and_type_of_backup_item)
-    function switchResult(tag: string) {
-        switch (tag) {
-            case 'ClusterDetail':
-                return <ClusterDetail></ClusterDetail>
-            case 'Clusters':
-                return <Clusters></Clusters>
-            case 'Dashboard_For_One_Name':
-                return <Dashboard_For_One_Name name={name_and_type.name} type={name_and_type.type}></Dashboard_For_One_Name>
-            default:
-                return <div></div>
-        }
-    }
-    const { Tagg, setTag } = useContext(Context_of_tag_indicating_which_page_should_be_display)
-
-    return switchResult(Tagg)
-})
 
 /** Type of cluster detail field: 'info' or 'config' */
 type FieldType = 'info' | 'config' | 'monitor' | 'backup'
@@ -106,9 +80,7 @@ function ClusterDetail() {
 
     const [field, set_field] = useState<FieldType>('info')
 
-    const fields: FieldType[] = ['info', 'config', 'monitor', 'backup']
-
-    const { Tagg, setTag } = useContext(Context_of_tag_indicating_which_page_should_be_display)
+    const fields : FieldType[] = ['info', 'config', 'monitor', 'backup']
 
     const Content = {
         info: <InfoTab />,
@@ -124,8 +96,7 @@ function ClusterDetail() {
                     <Title level={3}>{name}</Title>
                 }
                 onBack={() => {
-                    model.set({ cluster: undefined })
-                    setTag('Clusters')
+                    model.set({ cluster: null })
                 }}
             />
             <Layout>
@@ -244,7 +215,6 @@ function Clusters () {
     
     const [queries, set_queries] = useState<QueryOptions>(default_queries)
     
-    const { Tagg, setTag } = useContext(Context_of_tag_indicating_which_page_should_be_display)
 
     useEffect(() => {
         let flag = true
@@ -323,7 +293,6 @@ function Clusters () {
                         <Link
                             onClick={async () => {
                                 await model.get_cluster(cluster)
-                                setTag('ClusterDetail')
                             }}>{name}</Link>
                 },
                 {
@@ -1687,7 +1656,6 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
         
         const [form_instance] = Form.useForm()
         
-        const { Tagg, setTag } = useContext(Context_of_tag_indicating_which_page_should_be_display)
         
         const [sourceKeys, set_SourceKeys] = useState(['nfs'])
         
@@ -1980,7 +1948,6 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
             }
         })()
         
-        const { name_and_type, set_name_and_type } = React.useContext(Name_and_type_of_backup_item)
         //https://stackoverflow.com/questions/19874555/how-do-i-convert-array-of-objects-into-one-object-in-javascript#:~:text=you%20can%20merge%20array%20of%20objects%20in%20to%20one%20object%20in%20one%20line%3A
         const required ={
             backups: Object.assign({},...['name', 'namespace', 'sourceKey', 'remoteType', 'host', 'port', 'cleanPolicy'].map(x=>{return {[x]:true}})),
