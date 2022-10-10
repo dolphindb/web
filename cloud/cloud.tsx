@@ -62,7 +62,6 @@ const { Title, Text, Link } = Typography
 const Context_of_tag_indicating_which_page_should_be_display = React.createContext<{ Tagg: string, setTag: (x: 'ClusterDetail' | 'Clusters' | 'Dashboard_For_One_Name') => any }>({ Tagg: 'Clusters', setTag: ()=>{} })
 
 export function Cloud() {
-    const { cluster } = model.use(['cluster'])
     const [tag, setTag] = React.useState('Clusters')
 
     const [name_and_type, set_name_and_type] = React.useState<{name:string, type:'backups'|'restores'|'schedbackups'}>({name:'', type:'backups'})
@@ -1694,6 +1693,9 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
         
         const [refresher, set_refresher] = useState(0)
         
+        const [detail_modal_open, set_detail_modal_open] = useState(false)
+        
+        const [name_of_current_opened_detail, set_name_of_current_opened_detail] = useState('')
         const x = {
             backups: {
                 sourceKey: (key, value) => {
@@ -2112,8 +2114,8 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
                         data_item => {
                             return {
                                 name: <Link onClick={() => {
-                                    set_name_and_type({name:data_item.name, type:type})
-                                    setTag('Dashboard_For_One_Name')
+                                    set_name_of_current_opened_detail(data_item.name)
+                                    set_detail_modal_open(true)
                                 }}>{data_item.name}</Link>, 
                                 
                                 createTimestamp: data_item.createTimestamp,
@@ -2223,6 +2225,11 @@ function Parent_generator (type: 'backups'|'restores'|'schedbackups') {
             set_sourcekey_modal_open = {set_sourcekey_modal_open}
             refresh_sourceKey = {refresh_sourceKey}
             ></SourceKey_Modal> : <div/>}
+            
+            
+            <Dashboard_For_One_Name name={name_of_current_opened_detail} type = {type} open={detail_modal_open}  onCancel = {()=>
+                {set_detail_modal_open(false)}}></Dashboard_For_One_Name>
+            
         </div>
     }
     return Generated
@@ -2232,10 +2239,9 @@ const SchedBackup_List_of_Namespace = Parent_generator('schedbackups')
 const Backup_List_of_Namespace = Parent_generator('backups')
 const Restore_List_of_Namespace = Parent_generator('restores')
 
-const Dashboard_For_One_Name: FC<{ name: string , type: 'backups'| 'restores'| 'schedbackups'}> = (props) => {
+const Dashboard_For_One_Name: FC<{ open:boolean, name: string, onCancel:()=>void, type: 'backups'| 'restores'| 'schedbackups'}> = (props) => {
     const { cluster } = model.use(['cluster'])
     const { namespace } = cluster
-    const { Tagg, setTag } = useContext(Context_of_tag_indicating_which_page_should_be_display)
     const [data, setData] = useState<any>()
     async function fetch_data() {
         const _data = await request_json(`/v1/backup/${props.type}/${namespace}/${props.name}`)
@@ -2245,31 +2251,17 @@ const Dashboard_For_One_Name: FC<{ name: string , type: 'backups'| 'restores'| '
 
     useEffect(() => {
         fetch_data()
-    }, [])
+    }, [props.open])
 
     if(!data){
-        return <>
-        <PageHeader
-            className='cluster-header'
-            title={
-                <Title level={3}>{props.name}</Title>
-            }
-            onBack={() => {
-                setTag('ClusterDetail')
-            }}
-        />
-        <Empty></Empty>
-        </>
+        return <Empty></Empty>
     }
-    return <div className='cluster'>
-        <PageHeader
-            className='cluster-header'
-            title={
+    return <Modal open = {props.open} width={'100%'} onCancel={props.onCancel} footer={false}>
+        <div className='cluster'>
+        <PageHeader            
+        title={
                 <Title level={3}>{props.name}</Title>
             }
-            onBack={() => {
-                setTag('ClusterDetail')
-            }}
         />
 
         <Descriptions
@@ -2292,7 +2284,7 @@ const Dashboard_For_One_Name: FC<{ name: string , type: 'backups'| 'restores'| '
             bordered
         >
             <Descriptions.Item label={t('清除策略')}>{data.cleanPolicy}</Descriptions.Item>
-            <Descriptions.Item label={t('远程类型')}>{data.remoteType}</Descriptions.Item>
+            <Descriptions.Item label={t('远端存储类型')}>{data.remoteType}</Descriptions.Item>
             <Descriptions.Item label={t('数据源')}>{data.sourceKey}</Descriptions.Item>
         </Descriptions>
 
@@ -2331,6 +2323,7 @@ const Dashboard_For_One_Name: FC<{ name: string , type: 'backups'| 'restores'| '
         </Descriptions>
 
     </div>
+    </Modal>
 }
 
 
