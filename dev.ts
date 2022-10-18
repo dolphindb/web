@@ -42,7 +42,7 @@ class DevServer extends Server {
         
         if (path.startsWith('/v1/grafana/url')) {
             response.body = await request_json(
-                `http://192.168.1.69:32591${path}`,
+                `http://192.168.0.75:31832${path}`,
                 {
                     method: method as any,
                     queries: query,
@@ -52,8 +52,23 @@ class DevServer extends Server {
             return true
         }
         
+        if (path.startsWith('/dolphindb-webserver')) {
+                try {
+                    response.body = await request_json(`http://192.168.1.99:30080${path}`, {
+                        method: method as any,
+                        queries: query,
+                        body,
+                    })
+                } catch (error) {
+                    response.body = error.response.body
+                    response.status = error.response.statusCode
+                    response.type = 'json'
+                }
+            return true
+        }
+        
         if (path.startsWith('/v1')) {
-            response.body = await request_json(`http://192.168.1.99:30120${path}`, {
+            response.body = await request_json(`http://192.168.0.75:31832${path}`, {
                 method: method as any,
                 queries: query,
                 body,
@@ -61,21 +76,21 @@ class DevServer extends Server {
             
             return true
         }
-        
+
         let font_matches = /^\/(?:console|cloud)\/fonts\/(myfontb?.woff2)/.exec(path)
         if (font_matches)
             return this.try_send(ctx, font_matches[1], {
-                root: `${fpd_root}node_modules/xshell/`,
-                fs,
-                log_404: true
+                    root: `${fpd_root}node_modules/xshell/`,
+                    fs,
+                    log_404: true
             })
         
         for (const prefix of ['/console/monaco/', '/min-maps/vs/'] as const)
             if (path.startsWith(prefix))
                 return this.try_send(ctx, path.slice(prefix.length), {
-                    root: `${fpd_out_console}monaco/`,
-                    fs,
-                    log_404: true
+                        root: `${fpd_out_console}monaco/`,
+                        fs,
+                        log_404: true
                 })
         
         if (path === '/console/onig.wasm') {

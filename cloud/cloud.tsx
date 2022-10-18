@@ -24,8 +24,13 @@ import {
     Switch,
     Divider,
     Checkbox,
+    Upload,
+    Progress,
+    Col,
+    Row,
+    Space,
 } from 'antd'
-import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { InboxOutlined, ReloadOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors.js'
 import type { AlignType } from 'rc-table/lib/interface.js'
 
@@ -45,6 +50,8 @@ import {
 } from './model.js'
 
 import icon_add from './add.svg'
+import { request_json } from 'xshell/net.browser.js'
+import _ from 'lodash'
 
 
 const { Option } = Select
@@ -62,7 +69,7 @@ export function Cloud () {
 
 
 /** Type of cluster detail field: 'info' or 'config' */
-type FieldType = 'info' | 'config' | 'monitor'
+type FieldType = 'info' | 'config' | 'monitor' | 'upload'
 
 function ClusterDetail () {
     const { cluster } = model.use(['cluster'])
@@ -71,11 +78,12 @@ function ClusterDetail () {
 
     const [field, set_field] = useState<FieldType>('info') 
 
-    const fields : FieldType[] = ['info', 'config', 'monitor']
+    const fields : FieldType[] = ['info', 'config', 'monitor', 'upload']
 
     const Content = {
         info: <InfoTab />,
-        config: <ClusterConfigs cluster={cluster} />
+        config: <ClusterConfigs cluster={cluster} />,
+        upload: <Cloud_Upload></Cloud_Upload>
     }
     
     return (
@@ -128,7 +136,8 @@ function ClusterDetailMenuItem({
     const displayValue = {
         info: t('基本信息'),
         config: t('配置参数'),
-        monitor: t('集群监控')
+        monitor: t('集群监控'),
+        upload:t('文件上传')
     }
     
     return <div className={currClass} onClick={onButtonClick}>
@@ -1431,3 +1440,249 @@ const log_modes = {
     1: t('输出到标准输出'),
     2: t('同时输出到文件和标准输出')
 } as const
+
+
+
+const get_namespaces_format = { "pageNum": 0, "pageSize": 0, "pageTotal": 0, "count": 1, "items": [{ "name": "dolphindb" }] }
+const get_names_format = { "pageNum": 1, "pageSize": 10, "pageTotal": 1, "count": 2, "items": [{ "namespace": "dolphindb", "name": "xzq", "mode": "cluster", "cluster_type": "multicontroller", "log_mode": 0, "version": "v2.00.7", "storage_class_name": "standard", "controller": { "replicas": 3, "port": 31210, "logSize": "1Gi", "dataSize": "1Gi", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } } }, "computenode": { "replicas": 3, "port": 32210, "logSize": "1Gi", "dataSize": "1Gi", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } } }, "datanode": { "replicas": 3, "port": 32210, "logSize": "1Gi", "dataSize": "1Gi", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } } }, "status": { "phase": "Available" }, "services": { "Computenode": { "ip": "192.168.1.99", "port": "30611" }, "Controller": { "ip": "192.168.1.99", "port": "30959" }, "Datanode": { "ip": "192.168.1.99", "port": "32334" } }, "creation_timestamp": "2022-10-10T16:41:03+08:00" }, { "namespace": "dolphindb", "name": "xzq2", "mode": "cluster", "cluster_type": "singlecontroller", "log_mode": 0, "version": "v1.30.14", "storage_class_name": "standard", "controller": { "replicas": 1, "port": 31210, "logSize": "1Gi", "dataSize": "1Gi", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } } }, "computenode": { "replicas": 3, "port": 32210, "logSize": "1Gi", "dataSize": "1Gi", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } } }, "datanode": { "replicas": 3, "port": 32210, "logSize": "1Gi", "dataSize": "1Gi", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } } }, "status": { "phase": "Available" }, "services": { "Computenode": { "ip": "192.168.1.99", "port": "30624" }, "Controller": { "ip": "192.168.1.99", "port": "32449" }, "Datanode": { "ip": "192.168.1.99", "port": "30295" } }, "creation_timestamp": "2022-10-11T19:33:52+08:00" }] }
+const get_instances_format = { "pageNum": 1, "pageSize": 10, "pageTotal": 1, "count": 4, "items": { "Computenode": [{ "namespace": "dolphindb", "name": "ddb-xzq-cn-1", "component_type": "Computenode", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:32:26+08:00", "instance_service": null }, { "namespace": "dolphindb", "name": "ddb-xzq-cn-2", "component_type": "Computenode", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:32:26+08:00", "instance_service": null }, { "namespace": "dolphindb", "name": "ddb-xzq-cn-0", "component_type": "Computenode", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:32:26+08:00", "instance_service": null }], "Controller": [{ "namespace": "dolphindb", "name": "ddb-xzq-ctr-1", "component_type": "Controller", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:29:10+08:00", "instance_service": null }, { "namespace": "dolphindb", "name": "ddb-xzq-ctr-2", "component_type": "Controller", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:29:10+08:00", "instance_service": null }, { "namespace": "dolphindb", "name": "ddb-xzq-ctr-0", "component_type": "Controller", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:31:52+08:00", "instance_service": null }], "Datanode": [{ "namespace": "dolphindb", "name": "ddb-xzq-dn-1", "component_type": "Datanode", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:32:26+08:00", "instance_service": null }, { "namespace": "dolphindb", "name": "ddb-xzq-dn-0", "component_type": "Datanode", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:32:26+08:00", "instance_service": null }, { "namespace": "dolphindb", "name": "ddb-xzq-dn-2", "component_type": "Datanode", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:32:26+08:00", "instance_service": null }], "ServiceManager": [{ "namespace": "dolphindb", "name": "ddb-xzq-svc-mgr-77967cdd76-964v2", "component_type": "ServiceManager", "resources": { "limits": { "cpu": "100m", "memory": "100Mi" }, "requests": { "cpu": "100m", "memory": "100Mi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-10T16:41:03+08:00", "instance_service": null }] } }
+
+
+function Cloud_Upload(){
+    const [tag, set_tag] = useState<'nothing' | 'namespace' | 'name' | 'instance'>('nothing')
+    
+    return <Cloud_Upload_ tag={tag} set_tag={set_tag}></Cloud_Upload_>
+}
+
+function Cloud_Upload_(props:{tag, set_tag}) {
+    const {tag, set_tag} = props
+    type x_type = {candidate:string[], current:string}
+    
+    const [namespace, set_namespace] = useState<x_type>(undefined)
+    const [name, set_name] = useState<x_type>(undefined)
+    const [instance, set_instance] = useState<x_type>(undefined)
+    
+    const [form_instance] = Form.useForm()
+    
+    
+    async function init() {
+        if (tag === 'nothing') {
+            const namespace_s = (await request_json('/dolphindb-webserver/v1/namespaces') as typeof get_namespaces_format).items.map(x=>x.name)
+            const name_s = (await request_json(`/dolphindb-webserver/v1/dolphindbs?namespaces=${namespace_s[0]}`) as typeof get_names_format).items.map(x=>x.name)
+            let instance_s = []
+            _.mapValues((await request_json(`/dolphindb-webserver/v1/dolphindbs/${namespace_s[0]}/${name_s[0]}/instances`) as typeof get_instances_format).items,
+                function(value, key, obj){
+                    instance_s =  instance_s.concat(value.map(x=>x.name))
+                }
+            )
+            
+            set_namespace({candidate:namespace_s, current:namespace_s[0]})
+            set_name({candidate:name_s, current:name_s[0]})
+            set_instance({candidate:instance_s, current:instance_s[0]})
+        }
+        
+        if (tag === 'namespace') {
+            
+            const name_s = (await request_json(`/dolphindb-webserver/v1/dolphindbs?namespaces=${namespace.current}`) as typeof get_names_format).items.map(x=>x.name)
+            let instance_s = []
+            _.mapValues((await request_json(`/dolphindb-webserver/v1/dolphindbs/${namespace.current}/${name_s[0]}/instances`) as typeof get_instances_format).items,
+                function(value, key, obj){
+                    instance_s =  instance_s.concat(value.map(x=>x.name))
+                }
+            )
+            
+            set_name({candidate:name_s, current:name_s[0]})
+            set_instance({candidate:instance_s, current:instance_s[0]})
+        }
+        
+        if (tag === 'name') {
+            let instance_s = []
+            _.mapValues((await request_json(`/dolphindb-webserver/v1/dolphindbs/${namespace.current}/${name.current}/instances`) as typeof get_instances_format).items,
+                function(value, key, obj){
+                    instance_s =  instance_s.concat(value.map(x=>x.name))
+                }
+            )
+            set_instance({candidate:instance_s, current:instance_s[0]})
+        }
+        
+    }
+    
+    useEffect(
+        ()=>{
+            init()
+        },[]
+    )
+    
+    useEffect(()=>{
+        form_instance.resetFields()
+    },[name, instance])
+    
+    
+    const [progress, set_progress] = useState<{loaded:number, total:number}>({loaded:1, total:1})
+    return <div>
+        <Space direction='vertical' style={{width:'100%'}} size={'large'}>
+        <Title level={4}>{t('上传文件至Pod')}</Title>
+        {namespace?<Form
+        form={form_instance}
+        initialValues = {{namespace:namespace.current, name:name.current, instance:instance.current}
+    }
+        >
+            <Row gutter={16}>
+                <Col span={8}>
+                    <Form.Item
+                        name={'namespace'}
+                        label={t('命名空间')}
+                        colon={false}
+                    >
+                        <Select onChange={async (value) => {
+
+
+                            const name_s = (await request_json(`/dolphindb-webserver/v1/dolphindbs?namespaces=${value}`) as typeof get_names_format).items.map(x => x.name)
+                            let instance_s = []
+                            _.mapValues((await request_json(`/dolphindb-webserver/v1/dolphindbs/${namespace.current}/${name_s[0]}/instances`) as typeof get_instances_format).items,
+                                function (value, key, obj) {
+                                    instance_s = instance_s.concat(value.map(x => x.name))
+                                }
+                            )
+                            set_namespace({ ...namespace, current: value })
+                            set_name({ candidate: name_s, current: name_s[0] })
+                            set_instance({ candidate: instance_s, current: instance_s[0] })
+                        }}>
+                            {
+                                namespace.candidate.map(x => {
+                                    return <Option value={x}>{x}</Option>
+                                })
+                            }
+                        </Select>
+                    </Form.Item>
+                </Col>
+                <Col span={8}>
+                    <Form.Item
+                        name={'name'}
+                        label={t('名字')}
+                        colon={false}
+                    >
+                        <Select onChange={async (value) => {
+                            let instance_s = []
+                            _.mapValues((await request_json(`/dolphindb-webserver/v1/dolphindbs/${namespace.current}/${value}/instances`) as typeof get_instances_format).items,
+                                function (value, key, obj) {
+                                    instance_s = instance_s.concat(value.map(x => x.name))
+                                }
+                            )
+                            set_name({ ...name, current: value })
+                            set_instance({ candidate: instance_s, current: instance_s[0] })
+                        }}>
+                            {
+                                name.candidate.map(x => {
+                                    return <Option value={x}>{x}</Option>
+                                })
+                            }
+                        </Select>
+                    </Form.Item>
+                </Col>
+                <Col span={8}>
+                    <Form.Item
+                        name={'instance'}
+                        label={t('实例')}
+                        colon={false}
+                    >
+                        <Select>
+                            {
+                                instance.candidate.map(x => {
+                                    return <Option value={x}>{x}</Option>
+                                })
+                            }
+                        </Select>
+                    </Form.Item>
+                </Col>
+            </Row>
+            
+            <Form.Item
+            name={'to'}
+            label={t('文件上传路径')}
+            required={true}
+            colon={false}
+            >
+                <Input></Input>
+            </Form.Item>
+            
+            <Upload.Dragger
+                name='file'
+                customRequest={async (option) => {
+                    //const mfile:HTMLInputElement = document.querySelector('#mfile');
+                    const { namespace, name, instance, to } = await form_instance.validateFields()
+                    if (!to){
+                        message.error(t('上传路径不能为空'))
+                        return 
+                    }
+                    const form_data = new FormData()
+                    form_data.append('file', option.file)
+                    form_data.append('to', to)
+                    
+
+                    const xhr = new XMLHttpRequest();
+                    xhr.upload.addEventListener(
+                        'progress', eve => {
+                            set_progress({ total: eve.total, loaded: eve.loaded })
+                            console.log([eve.total, eve.loaded])
+                        }
+                    )
+
+                    xhr.upload.addEventListener(
+                        'load', eve => {
+                            message.success(t('文件上传成功'))
+                        }
+                        
+                    )
+                    
+                    xhr.upload.addEventListener(
+                        'error', eve => {
+                            message.error(`File Upload Failed`)
+                        }
+                        //虽然前端加了文件大小校验，但是在没加校验之前，直接向接口传超过大小限制的文件，即使响应码不是201，也会触发'load'而非'error'。所以实际上此处的onError错误处理是失败的
+                    )
+                    
+                    xhr.open('POST', `http://192.168.1.99:31624/v1/dolphindbs/${namespace}/${name}/instances/${instance}/upload`)
+
+
+                    await xhr.send(form_data)
+                }}
+
+                showUploadList={false}
+                beforeUpload = {(file)=>{
+                    if (file.size/1024/1024 > 100){
+                        message.error( `File Size Limit 100M Bytes`)
+                    }
+                    return file.size/1024/1024 < 100
+                }}
+            >
+                <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                </p>
+                <p className="ant-upload-text">{t('点击此处或者拖拽文件到此处')}</p>
+                <p className="ant-upload-hint">
+                    {t('文件大小限制100MB')}</p>
+
+            </Upload.Dragger>
+            
+            {
+                progress.loaded / progress.total * 100 === 100 ? undefined :
+                    <Progress
+                        strokeColor={{
+                            '0%': '#108ee9',
+                            '100%': '#87d068',
+                        }}
+                        strokeWidth={3}
+                        format={percent => percent && `${parseFloat(percent.toFixed(2))}%`}
+                        percent={progress.loaded / progress.total * 100}
+                    >
+
+                    </Progress>
+            }
+        </Form>
+        :
+        <></>
+        }
+        </Space>
+    </div>
+}
