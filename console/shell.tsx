@@ -3,11 +3,11 @@ import 'xterm/css/xterm.css'
 import './shell.sass'
 
 
-import { default as React, useEffect, useRef, useState } from 'react'
+import { default as React, useEffect, useRef, useState, createContext, useContext } from 'react'
 
 import { Resizable } from 're-resizable'
 
-import { message, Tooltip, Tree } from 'antd'
+import { Dropdown, Menu, message, Tooltip, Tree, Modal, Form, Input, Select, Button } from 'antd'
 import { default as Icon, SyncOutlined, MinusSquareOutlined } from '@ant-design/icons'
 
 import dayjs from 'dayjs'
@@ -74,6 +74,7 @@ import SvgTable from './shell.icons/table.icon.svg'
 import SvgChart from './shell.icons/chart.icon.svg'
 import SvgObject from './shell.icons/object.icon.svg'
 import SvgDatabase from './shell.icons/database.icon.svg'
+import SvgColumn from './shell.icons/column.icon.svg'
 
 
 import { delta2str, delay } from 'xshell/utils.browser.js'
@@ -87,9 +88,14 @@ import { t, language } from '../i18n/index.js'
 import { Obj, DdbObjRef } from './obj.js'
 
 import { model, storage_keys } from './model.js'
+import { ItemType } from 'antd/lib/menu/hooks/useItems.js'
+import { VoidExpression } from 'typescript'
+import { table } from 'console'
+import { title } from 'process'
 
 
 const docs = language === 'zh' ? docs_zh : docs_en
+const { Option } = Select
 
 loader.config({
     paths: {
@@ -959,42 +965,333 @@ function DataView () {
 }
 
 
-function Databases () {
-    const { ddbs } = shell.use(['ddbs'])
-    const [expanded_keys, set_expanded_keys] = useState([])
-    const [loaded_keys, set_loaded_keys] = useState([])
-    
-    if (!ddbs)
-        return
-    
-    const tree_data = Array.from(ddbs.values()).map(ddb_entity => {
-        const children =
-            ddb_entity.tables && ddb_entity.tables.length > 0
-                ? ddb_entity.tables.map(table => {
-                      return new TreeDataItem(
-                          TreeTableTitle(table),
-                          `${ddb_entity.path}/${table.name}`,
-                          <Icon component={SvgTable} />,
-                          null,
-                          null,
-                          true
-                      )
-                  })
-                : null
-                
+
+
+interface ContextMenu {
+    key: string,// TreeItem key
+    open: boolean,
+    command?: string,
+    database: string,
+    table?: string,
+    column?: string
+}
+
+interface MenuItem {
+    label: string,
+    key: string,
+    open: boolean,
+    command: string
+}
+
+const tableMenuItems: MenuItem[] = [
+    { label: t('添加列'), key: '1', open: true, command: 'AddColumn' },
+    { label: t('显示shchema信息'), key: '2', open: false, command: 'ShowSchema' },
+    { label: t('显示前一百行数据'), key: '3', open: false, command: 'ShowRows' }
+]
+
+const columnMenuItems: MenuItem[] = [
+    { label: t('修改注释'), key: '1', open: true, command: 'EditComment' }
+]
+
+// 数据库 context menu item 调用Modal
+const contextMenuModalItems = {
+    EditComment: EditComment,
+    AddColumn: AddColumn
+}
+
+// 数据库 context menu item 调用函数
+const contextMenuFunctionItems = {
+    ShowRows: async (
+        triad: DBTriad) => {
+        const { database, table } = triad
+        try {
+            const ddbobj = await ddb.eval(`select top 100 * from loadTable("${database}","${table}")`)
+            ddbobj.name = `${table} (${t('前 100 行')})`
+            shell.set({ result: { type: 'object', data: ddbobj } })
+        } catch (error) {
+            console.error(error)
+        }
+    },
+    ShowSchema: async (triad: DBTriad) => {
+        const { database, table } = triad
+        try {
+            const ddbobj = await ddb.eval(`select * from schema(loadTable("${database}","${table}")).colDefs`)
+            ddbobj.name = `schema of ${table}`
+            shell.set({ result: { type: 'object', data: ddbobj } })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+}
+
+
+
+function AddColumn({ database, table, onOk, onCancel, loadData }: {
+    database: string,
+    table: string,
+    onOk: () => void,
+    onCancel: () => void,
+    loadData: ({ key, needLoad }: { key: string, needLoad: boolean }) => void,
+}) {
+    const colTypes = ["BOOL", "CHAR", "SHORT", "INT", "LONG", "DATE", "MONTH", "TIME", "MINUTE", "SECOND",
+        "DATETIME", "TIMESTAMP", "NANOTIME", "NANOTIMESTAMP", "FLOAT", "DOUBLE", "SYMBOL", "STRING", "UUID",
+        "DICT", "IPADDR", "INT128", "BLOB", "COMPLEX", "POINT"
+    ]
+    const [form] = Form.useForm();
+    const onFinish = async (values) => {
+        const { column, type } = values
+        if (database && table) {
+            try {
+                await ddb.eval(
+                    `addColumn(loadTable(database("${database}"),"${table}"),["${column}"],[${type.toUpperCase()}])`
+                )
+                message.success(t('添加成功'))
+                loadData({ key: database, needLoad: true })
+            } catch (error) {
+                message.error(error.message)
+            }
+        }
+        form.resetFields()
+        onOk()
+    }
+    const onAbord = () => {
+        form.resetFields()
+        onCancel()
+    }
+    return <Form name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish} className='db-modal-form'>
+        <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
+            <Input placeholder={t('输入名字')} />
+        </Form.Item>
+        <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型！') }]}>
+            <Select
+                showSearch
+                placeholder={t('选择类型')}
+            >
+                {colTypes.map(v => (
+                    <Option key={v}>{v}</Option>
+                ))}
+            </Select>
+        </Form.Item>
+        <Form.Item className='db-modal-content-button-group' >
+            <Button type='primary' htmlType='submit'>{t('确定')}</Button>
+            <Button htmlType='button' onClick={onAbord}>{t('取消')}</Button>
+        </Form.Item>
+    </Form>
+}
+
+function EditComment({ database, table, column, onOk, onCancel }: {
+    database: string,
+    table: string,
+    column: string,
+    onOk: () => void,
+    onCancel: () => void,
+}) {
+    const [form] = Form.useForm()
+    const onFinish = async (values) => {
+        const { comment } = values
+        if (database && table && column) {
+            try {
+                await ddb.eval(
+                    `setColumnComment(loadTable(database("${database}"),"${table}"),{"${column}":"${comment}"})`
+                )
+                message.success(t("修改注释成功"))
+            } catch (error) {
+                message.error(error)
+            }
+        }
+        form.resetFields()
+        onOk()
+    }
+    const onAbord = () => {
+        form.resetFields()
+        onCancel()
+    }
+    return <Form labelWrap name='edit-comment' onFinish={onFinish} labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} className='db-modal-form' form={form}>
+        <Form.Item label={t('注释')} name='comment' rules={[{ required: true, message: t('请输入注释') }]}>
+            <Input />
+        </Form.Item>
+        <Form.Item className='db-modal-content-button-group' >
+            <Button type='primary' htmlType='submit'>{t('确定')}</Button>
+            <Button htmlType='button' onClick={onAbord}>{t('取消')}</Button>
+        </Form.Item>
+    </Form>
+}
+
+
+interface DBTriad {
+    type: 'database' | 'table' | 'column',
+    database: string,
+    table?: string,
+    column?: string,
+}
+
+// For 数据库 table and column context menu
+function DBItemTitle(entity: DBTriad, items: MenuItem[], key: string, onChange: (menu: ContextMenu) => void, extra?: string) {
+    const name = entity[entity.type]
+    const onClick = async ({ key: _key }) => {
+        const item = items.filter(item => item.key === _key)[0]
+        if (item.open) {
+            onChange({
+                key: key,
+                open: true,
+                command: item.command,
+                ...entity,
+            })
+        } else {
+            const fn = contextMenuFunctionItems[item.command]
+            await fn?.(entity)
+            onChange({
+                key: key,
+                open: false,
+                ...entity
+
+            })
+        }
+    }
+
+
+    const onOpenChange = (open) => {
+        if (open) {
+            onChange({
+                key: key,
+                open: false,
+                ...entity
+            })
+        }
+    }
+
+    const menu = (<Menu items={items} onClick={onClick} className='db-context-menu'></Menu>)
+    return <>
+        <Dropdown overlay={menu} trigger={['contextMenu']} onOpenChange={onOpenChange}>
+            <span><span className='name'>{name}</span>{extra ? ` <${extra}>` : ''}</span>
+        </Dropdown>
+    </>
+}
+
+
+
+class TreeDataItem {
+    title: React.ReactElement
+    key: string
+    children?: TreeDataItem[]
+    icon?: any
+    tooltip?: string
+    isLeaf?: boolean
+    needLoad?: boolean
+    className?: string
+
+    constructor(
+        title: string | React.ReactElement,
+        key: string,
+        icon?: any,
+        children?: TreeDataItem[],
+        tooltip?: string,
+        isLeaf?: boolean,
+        needLoad?: boolean,
+        className?: string
+    ) {
+        const name = typeof title === "string" ? /^(\w+)/.exec(title)[1] : ""
+
+        this.title = <>{typeof title === "string" ? (<><span className='name'>{name}</span>
+            {title.slice(name.length)}
+        </>) : title}</>
+
+        this.key = key
+        this.children = children
+        this.icon = icon || <Icon component={SvgVar} />
+        this.tooltip = tooltip
+        this.isLeaf = isLeaf
+        this.needLoad = needLoad || false
+        this.className = className
+    }
+}
+
+
+class DdbEntity {
+    path: string
+
+    empty = false // after load
+
+    tables: TableEntity[] = []
+
+    constructor(data: Partial<DdbEntity>) {
+        Object.assign(this, data)
+    }
+
+    toTreeDataItem(onChange): TreeDataItem {
+        const children = this.tables.map(table => table.toTreeDataItem(onChange))
         return new TreeDataItem(
-            <span className='name'>{ddb_entity.path}</span>,
-            ddb_entity.path,
+            <span className='name'>{this.path}</span>,
+            this.path,
             <Icon component={SvgDatabase} />,
             children,
             null,
             false,
-            ddb_entity.empty ? 'ant-tree-treenode-empty' : null
+            true,
+            this.empty ? 'ant-tree-treenode-empty' : null
         )
-    })
-    
-    const loadData = async ({ key }) => {
-        if (!key.startsWith('dfs://')) return
+    }
+}
+
+
+
+class TableEntity {
+    name: string
+
+    ddb_path: string
+
+    labels: string[]
+
+    column_schema: { name: string, type: DdbType }[]
+
+    constructor(data: Partial<TableEntity>) {
+        Object.assign(this, data)
+        this.labels = this.column_schema?.map(obj =>
+            `${obj.name}<${DdbType[obj.type]}>`
+        )
+    }
+
+    toTreeDataItem(onChange: (menu: ContextMenu) => void): TreeDataItem {
+
+        const children = this.column_schema.map(column => {
+            const key = `${this.ddb_path}/${this.name}/${column.name}`
+            return new TreeDataItem(
+                DBItemTitle({ type: 'column', database: this.ddb_path, table: this.name, column: column.name }, columnMenuItems, key, onChange, DdbType[column.type]),
+                key,
+                <Icon component={SvgColumn} />,
+                null, null, true)
+        })
+
+        return new TreeDataItem(
+            DBItemTitle({ type: 'table', database: this.ddb_path, table: this.name }, tableMenuItems, `${this.ddb_path}/${this.name}`, onChange),
+            `${this.ddb_path}/${this.name}`,
+            <Icon component={SvgTable} />,
+            children,
+            null,
+            false
+        )
+    }
+}
+
+
+function Databases () {
+    const { ddbs } = shell.use(['ddbs'])
+    const [expanded_keys, set_expanded_keys] = useState([])
+    const [loaded_keys, set_loaded_keys] = useState([])
+    const [menu, onChange] = useState<ContextMenu | null>()
+    const [selectedKeys, setSelectedKeys] = useState([])
+    useEffect(() => {
+        if (menu && menu.key) {
+            setSelectedKeys([menu.key])
+        }
+    }, [menu])
+    if (!ddbs)
+        return
+
+    const tree_data = Array.from(ddbs.values()).map(ddb_entity => ddb_entity.toTreeDataItem(onChange))
+
+    const loadData = async ({ key, needLoad }: Partial<TreeDataItem>) => {
+        if (!needLoad) return
         try {
             const res = await ddb.eval(`each(def (x):loadTable("${key}",x,memoryMode=false),getTables(database("${key}")))`)
             const tbs = res.value as DdbObj[]
@@ -1020,17 +1317,15 @@ function Databases () {
         }
     }
     
-    async function refresh () {
+    const refresh = async () => {
         await shell.init_ddbs()
         set_expanded_keys([])
         set_loaded_keys([])
     }
-    
-    function on_expand (keys) {
+    const on_expand = (keys) => {
         set_expanded_keys([...keys])
     }
-    
-    function on_load (keys) {
+    const on_load = (keys) => {
         set_loaded_keys([...keys])
     }
     
@@ -1058,7 +1353,6 @@ function Databases () {
             <div className='tree-content'>
                 <Tree
                     showIcon
-                    defaultExpandAll
                     focusable={false}
                     blockNode
                     showLine
@@ -1068,11 +1362,54 @@ function Databases () {
                     expandedKeys={expanded_keys}
                     loadedKeys={loaded_keys}
                     onExpand={on_expand}
+                    selectedKeys={selectedKeys}
+                    onContextMenu={(e) => { e.preventDefault() }}
+                    onSelect={(keys) => { setSelectedKeys(keys) }}
                 />
             </div>
+            <DBModal open={menu && menu.open} command={menu ? menu.command : ''} database={menu?.database}
+                table={menu?.table} column={menu?.column} loadData={loadData} />
         </div>
     )
 }
+
+function DBModal({ open, database, table, column, command, loadData }: {
+    open: boolean
+    database?: string,
+    table?: string,
+    column?: string,
+    command: string,
+    loadData: ({ key, needLoad }: { key: string, needLoad: boolean }) => void,
+}) {
+
+    useEffect(() => {
+        setIsModalOpen(open)
+    }, [open])
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(open)
+
+
+    const handleOk = async () => {
+        setIsModalOpen(false)
+    }
+    const handleCancel = () => {
+        setIsModalOpen(false)
+    }
+    const ModalContent = contextMenuModalItems[command] || function () {
+        return <div></div>
+    }
+    const genTitle = (command: string): string => {
+        return tableMenuItems.find(v => v.command === command)?.label || columnMenuItems.find(v => v.command === command)?.label || ''
+    }
+    return <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel} title={genTitle(command)}>
+        <div className='db-modal-content'>
+            <ModalContent database={database} table={table} column={column}
+                onOk={() => { setIsModalOpen(false) }}
+                onCancel={() => { setIsModalOpen(false) }}
+                loadData={loadData} />
+        </div>
+    </Modal>
+}
+
 
 
 function Variables ({ shared }: { shared?: boolean }) {
@@ -1218,93 +1555,6 @@ function Variables ({ shared }: { shared?: boolean }) {
     </div >
 }
 
-
-function TreeTableTitle (table: TableEntity) {
-    async function load () {
-        try {
-            const ddbobj = await ddb.eval(`select top 100 * from loadTable("${table.ddb_path}","${table.name}")`)
-            ddbobj.name = `${table.name} (${t('前 100 行')})`
-            shell.set({ result: { type: 'object', data: ddbobj } })
-        } catch (e) {
-            console.error(e)
-        }
-    }
-    
-    return <div className='dbtree-item-title' onClick={load}>
-        <span className='name'>{table.name}</span>
-        <Tooltip
-            overlayClassName='columns-schema-popover'
-            title={<span className='columns-schema-popover-content'>{table.labels.join(', ')}</span>}
-        >
-            <span className='columns-schema-inline'>{table.column_schema.map(x => x.name).join(', ')}</span>
-        </Tooltip>
-    </div>
-}
-
-
-class TreeDataItem {
-    title: React.ReactElement
-    key: string
-    children?: TreeDataItem[]
-    icon?: any
-    tooltip?: string
-    isLeaf?: boolean
-    className?: string
-    
-    
-    constructor(
-        title: string | React.ReactElement,
-        key: string,
-        icon?: any,
-        children?: TreeDataItem[],
-        tooltip?: string,
-        isLeaf?: boolean,
-        className?: string
-    ) {
-        const name = typeof title === "string" ? /^(\w+)/.exec(title)[1] : ""
-        
-        this.title = <>{typeof title === "string" ? (<><span className='name'>{name}</span>
-            {title.slice(name.length)}
-        </>) : title}</>
-        
-        this.key = key
-        this.children = children
-        this.icon = icon || <Icon component={SvgVar} />
-        this.tooltip = tooltip
-        this.isLeaf = isLeaf
-        this.className = className
-    }
-}
-
-
-class DdbEntity {
-    path: string
-    
-    empty = false // after load
-    
-    tables: TableEntity[] = []
-    
-    constructor (data: Partial<DdbEntity>) {
-        Object.assign(this, data)
-    }
-}
-
-class TableEntity {
-    name: string
-    
-    ddb_path: string
-    
-    labels: string[]
-    
-    column_schema: { name: string, type: DdbType }[]
-    
-    constructor (data: Partial<TableEntity>) {
-        Object.assign(this, data)
-        this.labels = this.column_schema?.map(obj =>
-            `${obj.name}<${DdbType[obj.type]}>`
-        )
-    }
-}
 
 
 class DdbVar <T extends DdbObj = DdbObj> {
