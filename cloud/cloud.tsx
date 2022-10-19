@@ -1463,8 +1463,16 @@ const log_modes = {
 
 function Cloud_Upload_(props:{namespace, name, instance, modal_open, set_modal_open}) {
     
-    const [progress, set_progress] = useState<{loaded:number, total:number}>({loaded:1, total:1})
+    const [progress, set_progress] = useState<{loaded:number, total:number}>({loaded:0.01, total:1})
     const [form_instance] = Form.useForm()
+    const [error_, set_error_] = useState(false)
+    const [loaded_, set_loaded_] = useState(false)
+    const [filename, set_filename] = useState(undefined)
+    const [show_progress, set_show_progress] = useState(false)
+    const [show_text, set_show_text] = useState(false)
+    
+    
+    
     return <Modal
     open={props.modal_open}
     onCancel={()=>{
@@ -1489,6 +1497,12 @@ function Cloud_Upload_(props:{namespace, name, instance, modal_open, set_modal_o
             <Upload.Dragger
                 name='file'
                 customRequest={async (option) => {
+                    set_error_(false)
+                    set_loaded_(false)
+                    set_filename((option.file as File).name)
+                    set_show_progress(false)
+                    set_show_text(false)
+                    
                     const { namespace, name, instance } = props
                     const {to} = await form_instance.validateFields()
                     if (!to){
@@ -1501,6 +1515,13 @@ function Cloud_Upload_(props:{namespace, name, instance, modal_open, set_modal_o
                     
 
                     const xhr = new XMLHttpRequest();
+                    
+                    xhr.addEventListener(
+                        'loadstart', eve=>{
+                            set_show_progress(true)
+                        }
+                    )
+                    
                     xhr.upload.addEventListener(
                         'progress', eve => {
                             set_progress({ total: eve.total, loaded: eve.loaded })
@@ -1511,6 +1532,9 @@ function Cloud_Upload_(props:{namespace, name, instance, modal_open, set_modal_o
                     xhr.addEventListener(
                         'loadend', eve => {
                             if (xhr.status === 201){
+                                set_loaded_(true)
+                                set_show_text(true)
+                                set_show_progress(true)
                                 message.success('File Upload Success')
                             }
                             else {
@@ -1519,8 +1543,17 @@ function Cloud_Upload_(props:{namespace, name, instance, modal_open, set_modal_o
                         }
                     )
                     
+                    xhr.addEventListener(
+                        'error', eve => {
+                            set_error_(true)
+                            set_show_text(true)
+                            set_show_progress(true)
+                            console.log(error_)
+                        }
+                    )
+                    
                     xhr.open('POST', `http://192.168.1.99:31624/v1/dolphindbs/${namespace}/${name}/instances/${instance}/upload`)
-
+    
 
                     await xhr.send(form_data)
                 }}
@@ -1540,22 +1573,38 @@ function Cloud_Upload_(props:{namespace, name, instance, modal_open, set_modal_o
                 <p className="ant-upload-hint">
                     {t('文件大小限制100MB')}</p>
 
-            </Upload.Dragger>
+            </Upload.Dragger>            
             
-            {
-                progress.loaded / progress.total * 100 === 100 ? undefined :
-                    <Progress
-                        strokeColor={{
-                            '0%': '#108ee9',
-                            '100%': '#87d068',
-                        }}
-                        strokeWidth={3}
-                        format={percent => percent && `${parseFloat(percent.toFixed(2))}%`}
-                        percent={progress.loaded / progress.total * 100}
-                    >
+            <div>
+                {(show_progress && !error_)?
+                <Progress
+                    strokeColor={{
+                        '0%': '#108ee9',
+                        '100%': '#87d068',
+                    }}
+                    strokeWidth={3}
+                    format={percent => percent && `${parseFloat(percent.toFixed(2))}%`}
+                    percent={progress.loaded / progress.total * 100}
+                >
+                </Progress>:
+                undefined}
 
-                    </Progress>
-            }
+                {(error_ )? <Progress
+                    strokeColor={{
+                        '0%': '#FF0000',
+                        '100%': '#FF0000',
+                    }}
+                    strokeWidth={3}
+                    status='exception'
+                    percent={100}
+                ></Progress>: undefined}
+
+                {(show_text && loaded_) ? <div>{t('文件')+filename+t('上传成功')}</div>: undefined
+                }
+                
+                {(show_text && error_) ? <div>{t('文件')+filename+t('上传失败')}</div>: undefined
+                }
+            </div>
         </Space>
     </Modal>
 }
