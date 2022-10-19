@@ -69,7 +69,7 @@ export function Cloud () {
 
 
 /** Type of cluster detail field: 'info' or 'config' */
-type FieldType = 'info' | 'config' | 'monitor' | 'upload'
+type FieldType = 'info' | 'config' | 'monitor'
 
 function ClusterDetail () {
     const { cluster } = model.use(['cluster'])
@@ -78,12 +78,11 @@ function ClusterDetail () {
 
     const [field, set_field] = useState<FieldType>('info') 
 
-    const fields : FieldType[] = ['info', 'config', 'monitor', 'upload']
+    const fields : FieldType[] = ['info', 'config', 'monitor']
 
     const Content = {
         info: <InfoTab />,
         config: <ClusterConfigs cluster={cluster} />,
-        upload: <Cloud_Upload></Cloud_Upload>
     }
     
     return (
@@ -137,7 +136,6 @@ function ClusterDetailMenuItem({
         info: t('基本信息'),
         config: t('配置参数'),
         monitor: t('集群监控'),
-        upload:t('文件上传')
     }
     
     return <div className={currClass} onClick={onButtonClick}>
@@ -866,6 +864,7 @@ function ClusterNodes ({
 }
 
 
+
 function NodeList ({
     cluster,
     mode,
@@ -877,7 +876,13 @@ function NodeList ({
     nodes: ClusterNode[]
     get_nodes: Function
 }) {
-    return <Table
+    const [cloud_upload_modal_open, set_cloud_upload_modal_open] = useState(false)
+    const [cloud_upload_props , set_cloud_upload_props] = useState({namespace:'', name:'', instance:''})
+    
+    return <>
+    <Cloud_Upload_ {...cloud_upload_props } modal_open = {cloud_upload_modal_open} set_modal_open ={set_cloud_upload_modal_open}></Cloud_Upload_>
+    
+    <Table
         className='config-table'
         rowKey={node => `${node.namespace}.${node.name}`}
         dataSource={nodes}
@@ -958,7 +963,7 @@ function NodeList ({
             {
                 title: t('操作'),
                 render (_, node) {
-                    return <>
+                    return <Space>
                         <Link
                             target='_blank'
                             href={
@@ -986,11 +991,26 @@ function NodeList ({
                         >
                             <Link className='restart'>{t('重启')}</Link>
                         </Popconfirm>
-                    </>
+                        
+                        <Link
+                            target='_blank'
+                            onClick={
+                                ()=>{
+                                    set_cloud_upload_modal_open(true)
+                                    set_cloud_upload_props({
+                                        namespace: cluster.namespace,
+                                        name: cluster.name,
+                                        instance: node.name,
+                                    })
+                                }
+                            }
+                        >{t('上传文件')}</Link>
+                    </Space>
                 }
             }
         ]}
     />
+    </>
 }
 
 const phases = {
@@ -1441,176 +1461,36 @@ const log_modes = {
     2: t('同时输出到文件和标准输出')
 } as const
 
-
-
-const get_namespaces_format = { "pageNum": 0, "pageSize": 0, "pageTotal": 0, "count": 1, "items": [{ "name": "dolphindb" }] }
-const get_names_format = { "pageNum": 1, "pageSize": 10, "pageTotal": 1, "count": 2, "items": [{ "namespace": "dolphindb", "name": "xzq", "mode": "cluster", "cluster_type": "multicontroller", "log_mode": 0, "version": "v2.00.7", "storage_class_name": "standard", "controller": { "replicas": 3, "port": 31210, "logSize": "1Gi", "dataSize": "1Gi", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } } }, "computenode": { "replicas": 3, "port": 32210, "logSize": "1Gi", "dataSize": "1Gi", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } } }, "datanode": { "replicas": 3, "port": 32210, "logSize": "1Gi", "dataSize": "1Gi", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } } }, "status": { "phase": "Available" }, "services": { "Computenode": { "ip": "192.168.1.99", "port": "30611" }, "Controller": { "ip": "192.168.1.99", "port": "30959" }, "Datanode": { "ip": "192.168.1.99", "port": "32334" } }, "creation_timestamp": "2022-10-10T16:41:03+08:00" }, { "namespace": "dolphindb", "name": "xzq2", "mode": "cluster", "cluster_type": "singlecontroller", "log_mode": 0, "version": "v1.30.14", "storage_class_name": "standard", "controller": { "replicas": 1, "port": 31210, "logSize": "1Gi", "dataSize": "1Gi", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } } }, "computenode": { "replicas": 3, "port": 32210, "logSize": "1Gi", "dataSize": "1Gi", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } } }, "datanode": { "replicas": 3, "port": 32210, "logSize": "1Gi", "dataSize": "1Gi", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } } }, "status": { "phase": "Available" }, "services": { "Computenode": { "ip": "192.168.1.99", "port": "30624" }, "Controller": { "ip": "192.168.1.99", "port": "32449" }, "Datanode": { "ip": "192.168.1.99", "port": "30295" } }, "creation_timestamp": "2022-10-11T19:33:52+08:00" }] }
-const get_instances_format = { "pageNum": 1, "pageSize": 10, "pageTotal": 1, "count": 4, "items": { "Computenode": [{ "namespace": "dolphindb", "name": "ddb-xzq-cn-1", "component_type": "Computenode", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:32:26+08:00", "instance_service": null }, { "namespace": "dolphindb", "name": "ddb-xzq-cn-2", "component_type": "Computenode", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:32:26+08:00", "instance_service": null }, { "namespace": "dolphindb", "name": "ddb-xzq-cn-0", "component_type": "Computenode", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:32:26+08:00", "instance_service": null }], "Controller": [{ "namespace": "dolphindb", "name": "ddb-xzq-ctr-1", "component_type": "Controller", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:29:10+08:00", "instance_service": null }, { "namespace": "dolphindb", "name": "ddb-xzq-ctr-2", "component_type": "Controller", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:29:10+08:00", "instance_service": null }, { "namespace": "dolphindb", "name": "ddb-xzq-ctr-0", "component_type": "Controller", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:31:52+08:00", "instance_service": null }], "Datanode": [{ "namespace": "dolphindb", "name": "ddb-xzq-dn-1", "component_type": "Datanode", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:32:26+08:00", "instance_service": null }, { "namespace": "dolphindb", "name": "ddb-xzq-dn-0", "component_type": "Datanode", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:32:26+08:00", "instance_service": null }, { "namespace": "dolphindb", "name": "ddb-xzq-dn-2", "component_type": "Datanode", "resources": { "limits": { "cpu": "200m", "memory": "1Gi" }, "requests": { "cpu": "200m", "memory": "1Gi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-11T19:32:26+08:00", "instance_service": null }], "ServiceManager": [{ "namespace": "dolphindb", "name": "ddb-xzq-svc-mgr-77967cdd76-964v2", "component_type": "ServiceManager", "resources": { "limits": { "cpu": "100m", "memory": "100Mi" }, "requests": { "cpu": "100m", "memory": "100Mi" } }, "status": { "phase": "Running" }, "creationTimestamp": "2022-10-10T16:41:03+08:00", "instance_service": null }] } }
-
-
-function Cloud_Upload(){
-    const [tag, set_tag] = useState<'nothing' | 'namespace' | 'name' | 'instance'>('nothing')
-    
-    return <Cloud_Upload_ tag={tag} set_tag={set_tag}></Cloud_Upload_>
-}
-
-function Cloud_Upload_(props:{tag, set_tag}) {
-    const {tag, set_tag} = props
-    type x_type = {candidate:string[], current:string}
-    
-    const [namespace, set_namespace] = useState<x_type>(undefined)
-    const [name, set_name] = useState<x_type>(undefined)
-    const [instance, set_instance] = useState<x_type>(undefined)
-    
-    const [form_instance] = Form.useForm()
-    
-    
-    async function init() {
-        if (tag === 'nothing') {
-            const namespace_s = (await request_json('/dolphindb-webserver/v1/namespaces') as typeof get_namespaces_format).items.map(x=>x.name)
-            const name_s = (await request_json(`/dolphindb-webserver/v1/dolphindbs?namespaces=${namespace_s[0]}`) as typeof get_names_format).items.map(x=>x.name)
-            let instance_s = []
-            _.mapValues((await request_json(`/dolphindb-webserver/v1/dolphindbs/${namespace_s[0]}/${name_s[0]}/instances`) as typeof get_instances_format).items,
-                function(value, key, obj){
-                    instance_s =  instance_s.concat(value.map(x=>x.name))
-                }
-            )
-            
-            set_namespace({candidate:namespace_s, current:namespace_s[0]})
-            set_name({candidate:name_s, current:name_s[0]})
-            set_instance({candidate:instance_s, current:instance_s[0]})
-        }
-        
-        if (tag === 'namespace') {
-            
-            const name_s = (await request_json(`/dolphindb-webserver/v1/dolphindbs?namespaces=${namespace.current}`) as typeof get_names_format).items.map(x=>x.name)
-            let instance_s = []
-            _.mapValues((await request_json(`/dolphindb-webserver/v1/dolphindbs/${namespace.current}/${name_s[0]}/instances`) as typeof get_instances_format).items,
-                function(value, key, obj){
-                    instance_s =  instance_s.concat(value.map(x=>x.name))
-                }
-            )
-            
-            set_name({candidate:name_s, current:name_s[0]})
-            set_instance({candidate:instance_s, current:instance_s[0]})
-        }
-        
-        if (tag === 'name') {
-            let instance_s = []
-            _.mapValues((await request_json(`/dolphindb-webserver/v1/dolphindbs/${namespace.current}/${name.current}/instances`) as typeof get_instances_format).items,
-                function(value, key, obj){
-                    instance_s =  instance_s.concat(value.map(x=>x.name))
-                }
-            )
-            set_instance({candidate:instance_s, current:instance_s[0]})
-        }
-        
-    }
-    
-    useEffect(
-        ()=>{
-            init()
-        },[]
-    )
-    
-    useEffect(()=>{
-        form_instance.resetFields()
-    },[name, instance])
-    
+function Cloud_Upload_(props:{namespace, name, instance, modal_open, set_modal_open}) {
     
     const [progress, set_progress] = useState<{loaded:number, total:number}>({loaded:1, total:1})
-    return <div>
+    const [form_instance] = Form.useForm()
+    return <Modal
+    open={props.modal_open}
+    onCancel={()=>{
+        props.set_modal_open(false)
+    }}
+    onOk = {()=>{
+        props.set_modal_open(false)
+    }}
+    >
         <Space direction='vertical' style={{width:'100%'}} size={'large'}>
-        <Title level={4}>{t('上传文件至Pod')}</Title>
-        {namespace?<Form
-        form={form_instance}
-        initialValues = {{namespace:namespace.current, name:name.current, instance:instance.current}
-    }
-        >
-            <Row gutter={16}>
-                <Col span={8}>
-                    <Form.Item
-                        name={'namespace'}
-                        label={t('命名空间')}
-                        colon={false}
-                    >
-                        <Select onChange={async (value) => {
-
-
-                            const name_s = (await request_json(`/dolphindb-webserver/v1/dolphindbs?namespaces=${value}`) as typeof get_names_format).items.map(x => x.name)
-                            let instance_s = []
-                            _.mapValues((await request_json(`/dolphindb-webserver/v1/dolphindbs/${namespace.current}/${name_s[0]}/instances`) as typeof get_instances_format).items,
-                                function (value, key, obj) {
-                                    instance_s = instance_s.concat(value.map(x => x.name))
-                                }
-                            )
-                            set_namespace({ ...namespace, current: value })
-                            set_name({ candidate: name_s, current: name_s[0] })
-                            set_instance({ candidate: instance_s, current: instance_s[0] })
-                        }}>
-                            {
-                                namespace.candidate.map(x => {
-                                    return <Option value={x}>{x}</Option>
-                                })
-                            }
-                        </Select>
-                    </Form.Item>
-                </Col>
-                <Col span={8}>
-                    <Form.Item
-                        name={'name'}
-                        label={t('名字')}
-                        colon={false}
-                    >
-                        <Select onChange={async (value) => {
-                            let instance_s = []
-                            _.mapValues((await request_json(`/dolphindb-webserver/v1/dolphindbs/${namespace.current}/${value}/instances`) as typeof get_instances_format).items,
-                                function (value, key, obj) {
-                                    instance_s = instance_s.concat(value.map(x => x.name))
-                                }
-                            )
-                            set_name({ ...name, current: value })
-                            set_instance({ candidate: instance_s, current: instance_s[0] })
-                        }}>
-                            {
-                                name.candidate.map(x => {
-                                    return <Option value={x}>{x}</Option>
-                                })
-                            }
-                        </Select>
-                    </Form.Item>
-                </Col>
-                <Col span={8}>
-                    <Form.Item
-                        name={'instance'}
-                        label={t('实例')}
-                        colon={false}
-                    >
-                        <Select>
-                            {
-                                instance.candidate.map(x => {
-                                    return <Option value={x}>{x}</Option>
-                                })
-                            }
-                        </Select>
-                    </Form.Item>
-                </Col>
-            </Row>
-            
+        <Title level={4}>{t(`上传文件至${props.instance}`)}</Title>
+        <Form form={form_instance}>
             <Form.Item
             name={'to'}
             label={t('文件上传路径')}
             required={true}
             colon={false}
             >
-                <Input></Input>
+                <Input placeholder={'Pod内路径，如: /data/ddb/server/'}></Input>
             </Form.Item>
-            
+            </Form>
             <Upload.Dragger
                 name='file'
                 customRequest={async (option) => {
-                    //const mfile:HTMLInputElement = document.querySelector('#mfile');
-                    const { namespace, name, instance, to } = await form_instance.validateFields()
+                    const { namespace, name, instance } = props
+                    const {to} = await form_instance.validateFields()
                     if (!to){
                         message.error(t('上传路径不能为空'))
                         return 
@@ -1624,22 +1504,19 @@ function Cloud_Upload_(props:{tag, set_tag}) {
                     xhr.upload.addEventListener(
                         'progress', eve => {
                             set_progress({ total: eve.total, loaded: eve.loaded })
-                            console.log([eve.total, eve.loaded])
+                            //考虑文件上传过程中突然断网，中断后progress不会停止，而会迅速将loaded增长至total。所以断网后前端的行为是进度条迅速增长至满条，随后弹出Upload Failed弹窗。此行为有待改进
                         }
-                    )
-
-                    xhr.upload.addEventListener(
-                        'load', eve => {
-                            message.success(t('文件上传成功'))
-                        }
-                        
                     )
                     
-                    xhr.upload.addEventListener(
-                        'error', eve => {
-                            message.error(`File Upload Failed`)
+                    xhr.addEventListener(
+                        'loadend', eve => {
+                            if (xhr.status === 201){
+                                message.success('File Upload Success')
+                            }
+                            else {
+                                message.error('File Upload Failed')
+                            }
                         }
-                        //虽然前端加了文件大小校验，但是在没加校验之前，直接向接口传超过大小限制的文件，即使响应码不是201，也会触发'load'而非'error'。所以实际上此处的onError错误处理是失败的
                     )
                     
                     xhr.open('POST', `http://192.168.1.99:31624/v1/dolphindbs/${namespace}/${name}/instances/${instance}/upload`)
@@ -1679,10 +1556,6 @@ function Cloud_Upload_(props:{tag, set_tag}) {
 
                     </Progress>
             }
-        </Form>
-        :
-        <></>
-        }
         </Space>
-    </div>
+    </Modal>
 }
