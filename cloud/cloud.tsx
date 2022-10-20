@@ -1494,7 +1494,7 @@ function Cloud_Upload_(props:{namespace, name, instance, modal_open, set_modal_o
             required={true}
             colon={false}
             >
-                <Input placeholder={'Pod内路径，如: /data/ddb/server/'}></Input>
+                <Input placeholder={t('Pod内路径，如: /data/ddb/server/')}></Input>
             </Form.Item>
             </Form>
             <Upload.Dragger
@@ -1538,10 +1538,10 @@ function Cloud_Upload_(props:{namespace, name, instance, modal_open, set_modal_o
                                 set_loaded_(true)
                                 set_show_text(true)
                                 set_show_progress(true)
-                                message.success('File Upload Success')
+                                message.success(t('文件上传成功'))
                             }
                             else {
-                                message.error('File Upload Failed')
+                                message.error(t('文件上传失败'))
                             }
                         }
                     )
@@ -1564,7 +1564,7 @@ function Cloud_Upload_(props:{namespace, name, instance, modal_open, set_modal_o
                 showUploadList={false}
                 beforeUpload = {(file)=>{
                     if (file.size/1024/1024 > 100){
-                        message.error( `File Size Limit 100M Bytes`)
+                        message.error( t('文件大小限制100MB'))
                     }
                     return file.size/1024/1024 < 100
                 }}
@@ -1573,8 +1573,7 @@ function Cloud_Upload_(props:{namespace, name, instance, modal_open, set_modal_o
                     <InboxOutlined />
                 </p>
                 <p className="ant-upload-text">{t('点击此处或者拖拽文件到此处')}</p>
-                <p className="ant-upload-hint">
-                    {t('文件大小限制100MB')}</p>
+                <p className="ant-upload-hint">{t('文件大小限制100MB')}</p>
 
             </Upload.Dragger>            
             

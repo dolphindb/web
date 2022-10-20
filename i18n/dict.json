@@ -783,12 +783,45 @@
         "en": "RefId link clicked: "
     },
     "实际位数": {
-       "en": "actual decimals"
-   },
-   "输入应为空或介于 0 ~ 20": {
-       "en": "Input should be empty or between 0 and 20"
-   },
-   "重置成功，目前小数位数为：实际位数": {
-       "en": "Reset successfully, now with actual decimals "
-   }
+        "en": "actual decimals"
+    },
+    "输入应为空或介于 0 ~ 20": {
+        "en": "Input should be empty or between 0 and 20"
+    },
+    "重置成功，目前小数位数为：实际位数": {
+        "en": "Reset successfully, now with actual decimals "
+    },
+    "上传文件": {
+        "en": "Upload File"
+    },
+    "文件上传路径": {
+        "en": "Upload File Path"
+    },
+    "Pod内路径，如: /data/ddb/server/": {
+        "en": "File Path in Pod, Example: /data/ddb/server/"
+    },
+    "上传路径不能为空": {
+        "en": "Please Fill in the File Path"
+    },
+    "文件上传成功": {
+        "en": "File Upload Succeed"
+    },
+    "文件上传失败": {
+        "en": "File Upload Failed"
+    },
+    "文件大小限制100MB": {
+        "en": "File Size Limit 100MB"
+    },
+    "点击此处或者拖拽文件到此处": {
+        "en": "Click or Drag and Drop a File here"
+    },
+    "文件": {
+        "en": "File"
+    },
+    "上传成功": {
+        "en": "Upload Succeed"
+    },
+    "上传失败": {
+        "en": "Upload Failed"
+    }
 }
