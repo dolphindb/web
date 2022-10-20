@@ -24,8 +24,11 @@ import {
     Switch,
     Divider,
     Checkbox,
+    Upload,
+    Progress,
+    Space,
 } from 'antd'
-import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { InboxOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors.js'
 import type { AlignType } from 'rc-table/lib/interface.js'
 
@@ -868,120 +871,138 @@ function NodeList ({
     nodes: ClusterNode[]
     get_nodes: Function
 }) {
-    return <Table
-        className='config-table'
-        rowKey={node => `${node.namespace}.${node.name}`}
-        dataSource={nodes}
-        pagination={false}
-        columns={[
-            {
-                title: t('名称'),
-                dataIndex: 'name',
-            },
-            {
-                title: t('服务'),
-                dataIndex: 'instance_service',
-                render: (instance_service: ClusterNode['instance_service'], node: ClusterNode) =>
-                    instance_service ?
-                        <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <ServiceNode {...instance_service} />
+    const [cloud_upload_modal_open, set_cloud_upload_modal_open] = useState(false)
+    const [cloud_upload_props, set_cloud_upload_props] = useState({ namespace: '', name: '', instance: '' })
+    
+    return <>
+        <CloudUpload {...cloud_upload_props} modal_open={cloud_upload_modal_open} set_modal_open={set_cloud_upload_modal_open}></CloudUpload>
+        
+        <Table
+            className='config-table'
+            rowKey={node => `${node.namespace}.${node.name}`}
+            dataSource={nodes}
+            pagination={false}
+            columns={[
+                {
+                    title: t('名称'),
+                    dataIndex: 'name',
+                },
+                {
+                    title: t('服务'),
+                    dataIndex: 'instance_service',
+                    render: (instance_service: ClusterNode['instance_service'], node: ClusterNode) =>
+                        instance_service ?
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                <ServiceNode {...instance_service} />
+                                <Popconfirm
+                                    title={t('确认删除服务？')}
+                                    onConfirm={async () => {
+                                        try {
+                                            await model.delete_cluster_node_service(cluster, node.name)
+                                            message.success(t('服务删除成功'))
+                                            await get_nodes()
+                                        } catch (error) {
+                                            message.error(`${t('服务删除失败')} ${JSON.stringify(error)}`)
+                                        }
+                                    }}
+                                >
+                                    <Link>{t('删除')}</Link>
+                                </Popconfirm>
+                            </div>
+                        :
                             <Popconfirm
-                                title={t('确认删除服务？')}
+                                title={t('确认创建服务？')}
                                 onConfirm={async () => {
                                     try {
-                                        await model.delete_cluster_node_service(cluster, node.name)
-                                        message.success(t('服务删除成功'))
+                                        await model.creat_cluster_node_service(cluster, node.name)
+                                        message.success(t('服务创建成功'))
                                         await get_nodes()
                                     } catch (error) {
-                                        message.error(`${t('服务删除失败')} ${JSON.stringify(error)}`)
+                                        message.error(`${t('服务创建失败')} ${JSON.stringify(error)}`)
                                     }
                                 }}
                             >
-                                <Link>{t('删除')}</Link>
+                                <Link>{t('创建')}</Link>
                             </Popconfirm>
-                        </div>
-                    :
-                        <Popconfirm
-                            title={t('确认创建服务？')}
-                            onConfirm={async () => {
-                                try {
-                                    await model.creat_cluster_node_service(cluster, node.name)
-                                    message.success(t('服务创建成功'))
-                                    await get_nodes()
-                                } catch (error) {
-                                    message.error(`${t('服务创建失败')} ${JSON.stringify(error)}`)
+                },
+                {
+                    title: 'cpu',
+                    dataIndex: ['resources', 'limits', 'cpu'],
+                },
+                {
+                    title: t('内存'),
+                    dataIndex: ['resources', 'limits', 'memory'],
+                },
+                {
+                    title: t('数据储存空间'),
+                    dataIndex: 'datasize',
+                    render: () => cluster[mode]?.dataSize
+                },
+                {
+                    title: t('日志储存空间'),
+                    dataIndex: 'logsize',
+                    render: () => cluster[mode]?.logSize
+                },
+                {
+                    title: t('创建时间'),
+                    dataIndex: 'creationTimestamp',
+                    render: (creationTimestamp: ClusterNode['creationTimestamp']) =>
+                        dayjs(creationTimestamp).format('YYYY.MM.DD HH:mm:ss')
+                },
+                {
+                    title: t('状态'),
+                    dataIndex: 'status',
+                    render: (status: ClusterNode['status']) => 
+                        <ClusterStatus {...status} />
+                },
+                {
+                    title: t('操作'),
+                    render (_, node) {
+                        return <Space>
+                            <Link
+                                target='_blank'
+                                href={
+                                    '?' + new URLSearchParams({
+                                        view: 'shell',
+                                        namespace: node.namespace,
+                                        cluster: cluster.name,
+                                        node: node.name
+                                    }).toString()
                                 }
-                            }}
-                        >
-                            <Link>{t('创建')}</Link>
-                        </Popconfirm>
-            },
-            {
-                title: 'cpu',
-                dataIndex: ['resources', 'limits', 'cpu'],
-            },
-            {
-                title: t('内存'),
-                dataIndex: ['resources', 'limits', 'memory'],
-            },
-            {
-                title: t('数据储存空间'),
-                dataIndex: 'datasize',
-                render: () => cluster[mode]?.dataSize
-            },
-            {
-                title: t('日志储存空间'),
-                dataIndex: 'logsize',
-                render: () => cluster[mode]?.logSize
-            },
-            {
-                title: t('创建时间'),
-                dataIndex: 'creationTimestamp',
-                render: (creationTimestamp: ClusterNode['creationTimestamp']) =>
-                    dayjs(creationTimestamp).format('YYYY.MM.DD HH:mm:ss')
-            },
-            {
-                title: t('状态'),
-                dataIndex: 'status',
-                render: (status: ClusterNode['status']) => 
-                    <ClusterStatus {...status} />
-            },
-            {
-                title: t('操作'),
-                render (_, node) {
-                    return <>
-                        <Link
-                            target='_blank'
-                            href={
-                                '?' + new URLSearchParams({
-                                    view: 'shell',
-                                    namespace: node.namespace,
-                                    cluster: cluster.name,
-                                    node: node.name
-                                }).toString()
-                            }
-                        >{t('终端')}</Link>
-                        
-                        <Popconfirm
-                            title={t('确认重启？')}
-                            onConfirm={async () => {
-                                try {
-                                    await model.restart_node(node)
-                                    message.success(t('正在重启节点'))
-                                } catch (error) {
-                                    message.error(`${t('重启节点失败')} ${JSON.stringify(error)}`)
+                            >{t('终端')}</Link>
+                            
+                            <Popconfirm
+                                title={t('确认重启？')}
+                                onConfirm={async () => {
+                                    try {
+                                        await model.restart_node(node)
+                                        message.success(t('正在重启节点'))
+                                    } catch (error) {
+                                        message.error(`${t('重启节点失败')} ${JSON.stringify(error)}`)
+                                    }
+                                    await delay(2000)
+                                    get_nodes()
+                                }}
+                            >
+                                <Link className='restart'>{t('重启')}</Link>
+                            </Popconfirm>
+                            
+                            <Link onClick={
+                                () => {
+                                    set_cloud_upload_modal_open(true)
+                                    set_cloud_upload_props({
+                                        namespace: cluster.namespace,
+                                        name: cluster.name,
+                                        instance: node.name
+                                    })
                                 }
-                                await delay(2000)
-                                get_nodes()
-                            }}
-                        >
-                            <Link className='restart'>{t('重启')}</Link>
-                        </Popconfirm>
-                    </>
+                            }>{t('上传文件')}</Link>
+                        </Space>
+                    }
                 }
-            }
-        ]}
-    />
+            ]}
+        />
+    </>
 }
 
 const phases = {
@@ -1431,3 +1452,137 @@ const log_modes = {
     1: t('输出到标准输出'),
     2: t('同时输出到文件和标准输出')
 } as const
+
+
+function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_open }) {
+    const [progress, set_progress] = useState<{ loaded: number, total: number }>({ loaded: 0.01, total: 1 })
+    const [form_instance] = Form.useForm()
+    const [error_, set_error_] = useState(false)
+    const [loaded_, set_loaded_] = useState(false)
+    const [filename, set_filename] = useState(undefined)
+    const [show_progress, set_show_progress] = useState(false)
+    const [show_text, set_show_text] = useState(false)
+    
+    useEffect(() => {
+        set_show_progress(false)
+        set_show_text(false)
+    }, [props.modal_open])
+    
+    
+    return (
+        <Modal
+            open={props.modal_open}
+            onCancel={() => {
+                props.set_modal_open(false)
+            }}
+            onOk={() => {
+                props.set_modal_open(false)
+            }}
+        >
+            <Space direction='vertical' style={{ width: '100%' }} size={'large'}>
+                <Title level={4}>{t('上传文件至 {{instance}}', { instance: props.instance })}</Title>
+                <Form form={form_instance}>
+                    <Form.Item name='to' label={t('文件上传路径')} required colon={false}>
+                        <Input placeholder={t('Pod 内路径，如: /data/ddb/server/')}></Input>
+                    </Form.Item>
+                </Form>
+                <Upload.Dragger
+                    name='file'
+                    customRequest={async option => {
+                        set_error_(false)
+                        set_loaded_(false)
+                        set_filename((option.file as File).name)
+                        set_show_progress(false)
+                        set_show_text(false)
+                        
+                        const { namespace, name, instance } = props
+                        const { to } = await form_instance.validateFields()
+                        if (!to) {
+                            message.error(t('上传路径不能为空'))
+                            return
+                        }
+                        const form_data = new FormData()
+                        form_data.append('file', option.file)
+                        form_data.append('to', to)
+                        
+                        const xhr = new XMLHttpRequest()
+                        
+                        xhr.addEventListener('loadstart', eve => {
+                            set_show_progress(true)
+                        })
+                        
+                        xhr.upload.addEventListener('progress', eve => {
+                            set_progress({ total: eve.total, loaded: eve.loaded })
+                            // 考虑文件上传过程中突然断网，中断后progress不会停止，而会迅速将loaded增长至total。所以断网后前端的行为是进度条迅速增长至满条，随后弹出Upload Failed弹窗。此行为有待改进
+                        })
+                        
+                        xhr.addEventListener('loadend', eve => {
+                            if (xhr.status === 201) {
+                                set_loaded_(true)
+                                set_show_text(true)
+                                set_show_progress(true)
+                                message.success(t('文件上传成功'))
+                            } else 
+                                message.error(t('文件上传失败'))
+                            
+                        })
+                        
+                        xhr.addEventListener('error', eve => {
+                            set_error_(true)
+                            set_show_text(true)
+                            set_show_progress(true)
+                            console.log(error_)
+                        })
+                        
+                        xhr.open('POST', `http://192.168.1.99:31624/v1/dolphindbs/${namespace}/${name}/instances/${instance}/upload`)
+                        
+                        xhr.send(form_data)
+                    }}
+                    showUploadList={false}
+                    beforeUpload={file => {
+                        if (file.size / 1024 / 1024 > 100) 
+                            message.error(t('文件大小限制 100 MB'))
+                        
+                        return file.size / 1024 / 1024 <= 100
+                    }}
+                >
+                    <p className='ant-upload-drag-icon'>
+                        <InboxOutlined />
+                    </p>
+                    <p className='ant-upload-text'>{t('点击此处或者拖拽文件到此处')}</p>
+                    <p className='ant-upload-hint'>{t('文件大小限制 100 MB')}</p>
+                </Upload.Dragger>
+                
+                <div>
+                    {show_progress && !error_ ? (
+                        <Progress
+                            strokeColor={{
+                                '0%': '#108ee9',
+                                '100%': '#87d068'
+                            }}
+                            strokeWidth={3}
+                            format={percent => percent && `${parseFloat(percent.toFixed(2))}%`}
+                            percent={(progress.loaded / progress.total) * 100}
+                        ></Progress>
+                    ) : undefined}
+                    
+                    {error_ ? (
+                        <Progress
+                            strokeColor={{
+                                '0%': '#FF0000',
+                                '100%': '#FF0000'
+                            }}
+                            strokeWidth={3}
+                            status='exception'
+                            percent={100}
+                        ></Progress>
+                    ) : undefined}
+                    
+                    {show_text && loaded_ ? <div>{t('文件 {{filename}} 上传成功', { filename })}</div> : undefined}
+                    
+                    {show_text && error_ ? <div>{t('文件 {{filename}} 上传失败', { filename })}</div> : undefined}
+                </div>
+            </Space>
+        </Modal>
+    )
+}
