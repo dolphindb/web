@@ -864,7 +864,6 @@ function ClusterNodes ({
 }
 
 
-
 function NodeList ({
     cluster,
     mode,
@@ -1471,8 +1470,12 @@ function Cloud_Upload_(props:{namespace, name, instance, modal_open, set_modal_o
     const [show_progress, set_show_progress] = useState(false)
     const [show_text, set_show_text] = useState(false)
     
-    
-    
+    useEffect(
+        ()=>{
+            set_show_progress(false)
+            set_show_text(false)
+        }, [props.modal_open]
+    )
     return <Modal
     open={props.modal_open}
     onCancel={()=>{
