@@ -48,6 +48,7 @@ import {
 } from './model.js'
 
 import icon_add from './add.svg'
+import { request_json } from 'xshell/net.browser.js'
 
 
 const { Option } = Select
@@ -886,6 +887,7 @@ function NodeList ({
                 {
                     title: t('名称'),
                     dataIndex: 'name',
+                    width: 200
                 },
                 {
                     title: t('服务'),
@@ -928,10 +930,16 @@ function NodeList ({
                 {
                     title: 'cpu',
                     dataIndex: ['resources', 'limits', 'cpu'],
+                    render: (cpu)=>{
+                        return <div>{cpu? cpu : '-'}</div>
+                    }
                 },
                 {
                     title: t('内存'),
                     dataIndex: ['resources', 'limits', 'memory'],
+                    render: (memory)=>{
+                        return <div>{memory? memory : '-'}</div>
+                    }
                 },
                 {
                     title: t('数据储存空间'),
@@ -957,6 +965,7 @@ function NodeList ({
                 },
                 {
                     title: t('操作'),
+                    width: 150,
                     render (_, node) {
                         return <Space>
                             <Link
@@ -970,6 +979,42 @@ function NodeList ({
                                     }).toString()
                                 }
                             >{t('终端')}</Link>
+                            
+                            {
+                                cluster.mode === 'standalone' || mode === 'controller' ? undefined : node.status.phase === 'Paused' ? (
+                                    <Popconfirm
+                                        title={t('确认启动？')}
+                                        onConfirm={async () => {
+                                            try {
+                                                await request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${node.name}/start`, {
+                                                    method: 'put'
+                                                })
+                                                message.success(t('启动成功'))
+                                            } catch (error) {
+                                                message.error(`${t('启动节点失败')} ${JSON.stringify(error)}`)
+                                            }
+                                        }}
+                                    >
+                                        <Link className='restart'>{t('启动')}</Link>
+                                    </Popconfirm>
+                                ) : (
+                                    <Popconfirm
+                                        title={t('确认暂停？')}
+                                        onConfirm={async () => {
+                                            try {
+                                                await request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${node.name}/pause`, {
+                                                    method: 'put'
+                                                })
+                                                message.success(t('暂停成功'))
+                                            } catch (error) {
+                                                message.error(`${t('暂停节点失败')} ${JSON.stringify(error)}`)
+                                            }
+                                        }}
+                                    >
+                                        <Link className='restart'>{t('暂停')}</Link>
+                                    </Popconfirm>
+                                )
+                            }
                             
                             <Popconfirm
                                 title={t('确认重启？')}
@@ -1012,7 +1057,8 @@ const phases = {
     Unschedulable: '等待调度',
     Unavailable: '故障',
     Unknown: '未知',
-    Running: '运行中'
+    Running: '运行中',
+    Paused: '已暂停'
 } as const
 
 function ClusterStatus ({
