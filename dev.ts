@@ -68,7 +68,7 @@ class DevServer extends Server {
         }
         
         if (path.startsWith('/v1')) {
-            response.body = await request_json(`http://192.168.0.75:31832${path}`, {
+            response.body = await request_json(`http://192.168.1.99:30080/dolphindb-webserver${path}`, {
                 method: method as any,
                 queries: query,
                 body,
