@@ -965,7 +965,7 @@ function NodeList ({
                 },
                 {
                     title: t('操作'),
-                    width: 150,
+                    width: 300,
                     render (_, node) {
                         return <Space>
                             <Link

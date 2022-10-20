@@ -797,32 +797,11 @@
     "文件上传路径": {
         "en": "Upload Path"
     },
-    "Pod内路径，如: /data/ddb/server/": {
-        "en": "File Path in Pod, Example: /data/ddb/server/"
-    },
     "上传路径不能为空": {
         "en": "Upload path cannot be empty"
     },
-    "文件上传成功": {
-        "en": "File Upload Succeed"
-    },
-    "文件上传失败": {
-        "en": "File Upload Failed"
-    },
-    "文件大小限制100MB": {
-        "en": "File Size Limit 100MB"
-    },
     "点击此处或者拖拽文件到此处": {
-        "en": "Click or Drag and Drop a File here"
-    },
-    "文件": {
-        "en": "File"
-    },
-    "上传成功": {
-        "en": "Upload Succeed"
-    },
-    "上传失败": {
-        "en": "Upload Failed"
+        "en": "Click or drag and drop a File here"
     },
     "确认启动？": {
         "en": "Start Node?"
@@ -883,5 +862,23 @@
     },
     "请输入注释": {
         "en": "Please enter comment"
+    },
+    "启动成功": {
+        "en": "Start succeeded"
+    },
+    "上传文件至 {{instance}}": {
+        "en": "Upload file to {{instance}}"
+    },
+    "Pod 内路径，如: /data/ddb/server/": {
+        "en": "The path in the Pod, such as: /data/ddb/server/"
+    },
+    "文件大小限制 100 MB": {
+        "en": "File size limit 100 MB"
+    },
+    "文件 {{filename}} 上传成功": {
+        "en": "Upload succeeded"
+    },
+    "文件 {{filename}} 上传失败": {
+        "en": "Upload failed"
     }
 }
