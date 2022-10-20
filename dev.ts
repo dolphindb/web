@@ -76,21 +76,21 @@ class DevServer extends Server {
             
             return true
         }
-
+        
         let font_matches = /^\/(?:console|cloud)\/fonts\/(myfontb?.woff2)/.exec(path)
         if (font_matches)
             return this.try_send(ctx, font_matches[1], {
-                    root: `${fpd_root}node_modules/xshell/`,
-                    fs,
-                    log_404: true
+                root: `${fpd_root}node_modules/xshell/`,
+                fs,
+                log_404: true
             })
         
         for (const prefix of ['/console/monaco/', '/min-maps/vs/'] as const)
             if (path.startsWith(prefix))
                 return this.try_send(ctx, path.slice(prefix.length), {
-                        root: `${fpd_out_console}monaco/`,
-                        fs,
-                        log_404: true
+                    root: `${fpd_out_console}monaco/`,
+                    fs,
+                    log_404: true
                 })
         
         if (path === '/console/onig.wasm') {

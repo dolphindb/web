@@ -795,13 +795,13 @@
         "en": "Upload File"
     },
     "文件上传路径": {
-        "en": "Upload File Path"
+        "en": "Upload Path"
     },
     "Pod内路径，如: /data/ddb/server/": {
         "en": "File Path in Pod, Example: /data/ddb/server/"
     },
     "上传路径不能为空": {
-        "en": "Please Fill in the File Path"
+        "en": "Upload path cannot be empty"
     },
     "文件上传成功": {
         "en": "File Upload Succeed"
@@ -823,5 +823,26 @@
     },
     "上传失败": {
         "en": "Upload Failed"
+    },
+    "确认启动？": {
+        "en": "Start Node?"
+    },
+    "启动节点失败": {
+        "en": "Starting node failed"
+    },
+    "启动": {
+        "en": "Start"
+    },
+    "确认暂停？": {
+        "en": "Pause Node?"
+    },
+    "暂停成功": {
+        "en": "Pausing node succeeded"
+    },
+    "暂停节点失败": {
+        "en": "Pausing node failed"
+    },
+    "暂停": {
+        "en": "Pause"
     }
 }
