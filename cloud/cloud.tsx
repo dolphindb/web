@@ -1003,7 +1003,7 @@ function NodeList ({
                                             method:'put'
                                         }
                                     )
-                                    message.success('暂停成功')
+                                    message.success(t('暂停成功'))
                                 }catch(error){
                                     message.error(`${t('暂停节点失败')} ${JSON.stringify(error)}`)
                                 }

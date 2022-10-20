@@ -783,12 +783,33 @@
         "en": "RefId link clicked: "
     },
     "实际位数": {
-       "en": "actual decimals"
-   },
-   "输入应为空或介于 0 ~ 20": {
-       "en": "Input should be empty or between 0 and 20"
-   },
-   "重置成功，目前小数位数为：实际位数": {
-       "en": "Reset successfully, now with actual decimals "
-   }
+        "en": "actual decimals"
+    },
+    "输入应为空或介于 0 ~ 20": {
+        "en": "Input should be empty or between 0 and 20"
+    },
+    "重置成功，目前小数位数为：实际位数": {
+        "en": "Reset successfully, now with actual decimals "
+    },
+    "确认启动？": {
+        "en": "Start Node?"
+    },
+    "启动节点失败": {
+        "en": "Starting node failed"
+    },
+    "启动": {
+        "en": "Start"
+    },
+    "确认暂停？": {
+        "en": "Pause Node?"
+    },
+    "暂停成功": {
+        "en": "Pausing node succeeded"
+    },
+    "暂停节点失败": {
+        "en": "Pausing node failed"
+    },
+    "暂停": {
+        "en": "Pause"
+    }
 }
