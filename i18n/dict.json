@@ -844,5 +844,44 @@
     },
     "暂停": {
         "en": "Pause"
+    },
+    "添加列": {
+        "en": "Add column"
+    },
+    "显示shchema信息": {
+        "en": "Show schema"
+    },
+    "显示前一百行数据": {
+        "en": "Show first 100 row"
+    },
+    "修改注释": {
+        "en": "Edit comment"
+    },
+    "添加成功": {
+        "en": "Add successfully"
+    },
+    "列名": {
+        "en": "Name"
+    },
+    "请输入列名！": {
+        "en": "Please enter the column name!"
+    },
+    "输入名字": {
+        "en": "Enter the name of the column"
+    },
+    "请选择该列的类型！": {
+        "en": "Please select the type of the column!"
+    },
+    "选择类型": {
+        "en": "Select type"
+    },
+    "修改注释成功": {
+        "en": "Modify comment successfully"
+    },
+    "注释": {
+        "en": "Comment"
+    },
+    "请输入注释": {
+        "en": "Please enter comment"
     }
 }
