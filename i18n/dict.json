@@ -662,12 +662,6 @@
     "配置表名": {
         "en": "Configmap Name"
     },
-    "Source Key": {
-        "en": "Source Key"
-    },
-    "添加sourceKey": {
-        "en": "Add SourceKey"
-    },
     "时间戳": {
         "en": "TimeStamp"
     },
@@ -676,9 +670,6 @@
     },
     "服务器信息": {
         "en": "Server Information"
-    },
-    "sourceKey": {
-        "en": "sourceKey"
     },
     "前缀": {
         "en": "Prefix"
@@ -787,5 +778,44 @@
     },
     "新建": {
         "en": "Create"
+    },
+    "添加配置项": {
+        "en": "Add Configuration"
+    },
+    "此项必填": {
+        "en": "This item is required"
+    },
+    "云端存储类型": {
+        "en": "Remote Storage Type"
+    },
+    "云端存储配置项": {
+        "en": "Remote Storage Configuration"
+    },
+    "存储路径": {
+        "en": "Storage Path"
+    },
+    "存储空间": {
+        "en": "Storage Space"
+    },
+    "集群信息": {
+        "en": "Cluster Information"
+    },
+    "配置项": {
+        "en": "Configuration"
+    },
+    "桶名": {
+        "en": "Prefix"
+    },
+    "储存类名称": {
+        "en": "Storage Class Name"
+    },
+    "名称_backup": {
+        "en": "Name"
+    },
+    "创建时间_backup": {
+        "en": "Created At"
+    },
+    "操作_backup": {
+        "en": "Operation"
     }
 }
