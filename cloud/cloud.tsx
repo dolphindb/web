@@ -1,6 +1,6 @@
 import './cloud.sass'
 import { request_json } from 'xshell/net.browser.js'
-import { default as React, useEffect, useState } from 'react'
+import { default as React, Suspense, useEffect, useState } from 'react'
 
 import { default as dayjs } from 'dayjs'
 
@@ -1449,6 +1449,11 @@ function Show_backup_restore_sched (){
         key: '2',
         children: <Restore_List_of_Namespace_></Restore_List_of_Namespace_>
       },
+      {
+        label: t('存储配置'),
+        key: '3',
+        children: <SourceKey_List></SourceKey_List>
+      },
     ]}
   />
 
@@ -1461,14 +1466,14 @@ type Add_sourceKey_Modal_info = {
 
 function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open, refresh_sourceKey}){
     
-    const [sourceKey_modal_info, set_sourceKey_modal_info] = useState<Add_sourceKey_Modal_info>({type:'s3', open: props.sourcekey_modaol_open})
+    const [sourceKey_modal_info, set_sourceKey_modal_info] = useState<Add_sourceKey_Modal_info>({type:'nfs', open: props.sourcekey_modaol_open})
     const [providers, set_providers] = useState([''])
     
     const [nfs_form] = Form.useForm()
     const [s3_form] = Form.useForm()
     
     const not_required = new Set(['provider'])
-    const form_object = {nfs:nfs_form, s3:s3_form}
+    const form_object = {'nfs':nfs_form, 's3':s3_form}
     useEffect(()=>{
         (async () => {
             const fetched_providers = (await request_json('/v1/dolphindbs/backups/providers'))['providers']
@@ -1480,7 +1485,7 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
     
     return <Modal
         
-        title= {t('添加配置项')}
+        title= {t('添加存储配置')}
         open = {sourceKey_modal_info.open}
         onCancel={()=>{props.set_sourcekey_modal_open(false)}}
         footer = {[
@@ -1532,6 +1537,8 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
                                 requiredMark={false}
                                 className='cluster-create-form'
                                 labelAlign='left'
+                                labelCol={{ span: 6 }}
+                                wrapperCol={{ span: 16 }}
                             >
                                 <>
                                 {['name', 'endpoint', 'path'].map(
@@ -1559,7 +1566,8 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
                         requiredMark={false}
                         className='cluster-create-form'
                         labelAlign='left'
-                        
+                        labelCol={{ span: 6 }}
+                        wrapperCol={{ span: 16 }}
                     >
 
                         {['name', 'provider', 'accessKey', 'secretAccessKey', 'endpoint'].map(
@@ -1594,6 +1602,8 @@ const Dashboard_For_One_Name: FC<{ open:boolean, name: string, onCancel:()=>void
     const { cluster } = model.use(['cluster'])
     const { namespace } = cluster
     const [data, setData] = useState<any>()
+    const [sourceKey_detail, set_sourceKey_detail] = useState({})
+    
     async function fetch_data() {
         const _data = await request_json(`/v1/dolphindbs/${namespace}/${model.cluster.name}/${props.type}/${props.name}`)
         const data = structured_to_flatten(_data)
@@ -1601,7 +1611,12 @@ const Dashboard_For_One_Name: FC<{ open:boolean, name: string, onCancel:()=>void
     }
 
     useEffect(() => {
-        fetch_data()
+        fetch_data();
+        
+        (async ()=>{
+            const data = await request_json_with_error_handling(`/v1/dolphindbs/backups/config`)
+            set_sourceKey_detail(data)
+        })()
     }, [props.open])
 
     if(!data){
@@ -1624,21 +1639,102 @@ const Dashboard_For_One_Name: FC<{ open:boolean, name: string, onCancel:()=>void
             bordered
         >
             <Descriptions.Item label={t('命名空间')}>{namespace}</Descriptions.Item>
-            <Descriptions.Item label={t('名字')}>{props.name}</Descriptions.Item>
+            <Descriptions.Item label={t('名称')}>{props.name}</Descriptions.Item>
             <Descriptions.Item label={t('状态')}>{translate_dict[data.phase]}</Descriptions.Item>
         </Descriptions>
         </div>
+        
+        <div id='BackupInfo'>
         <Descriptions
             title={
                 <Title level={4}>{t('备份信息')}</Title>
             }
-            column={2}
             bordered
         >
             <Descriptions.Item label={t('云端存储类型')}>{data.remoteType}</Descriptions.Item>
-            <Descriptions.Item label={t('云端存储配置项')}>{data.sourceKey}</Descriptions.Item>
-        </Descriptions>
+            <Descriptions.Item label={t('云端存储配置')}>{
+                <Popover title={data.sourceKey}
+                mouseEnterDelay={0}
+                mouseLeaveDelay={0}
+                placement={'left'}
 
+                content={
+                    <div>
+                        {
+                            sourceKey_detail && sourceKey_detail[data.sourceKey] ?
+                                (
+                                    (!sourceKey_detail[data.sourceKey]['accessKey'] )?
+
+                                        <Descriptions bordered 
+                                        column={1}
+                                        //layout='vertical'
+                                        >
+                                            <Descriptions.Item
+                                                label={translate_dict['endpoint']}
+                                            >
+                                                {sourceKey_detail[data.sourceKey]['endpoint']}
+                                            </Descriptions.Item>
+
+                                            <Descriptions.Item
+                                                label={translate_dict['path']}
+                                            >
+                                                {sourceKey_detail[data.sourceKey]['path']}
+                                            </Descriptions.Item>
+
+                                        </Descriptions>
+
+                                         :
+
+
+
+                                        <Descriptions bordered 
+                                        column={1}
+                                        //layout='vertical'
+                                        >
+                                            <Descriptions.Item
+                                                label={translate_dict['provider']}
+                                            >
+                                                {sourceKey_detail[data.sourceKey]['provider']}
+                                            </Descriptions.Item>
+
+                                            <Descriptions.Item
+                                                label={translate_dict['accessKey']}
+                                            >
+                                                {sourceKey_detail[data.sourceKey]['accessKey']}
+                                            </Descriptions.Item>
+
+
+                                            <Descriptions.Item
+                                                label={translate_dict['secretAccessKey']}
+                                            >
+                                                {sourceKey_detail[data.sourceKey]['secretAccessKey']}
+                                            </Descriptions.Item>
+
+                                            <Descriptions.Item
+                                                label={translate_dict['endpoint']}
+                                            >
+                                                {sourceKey_detail[data.sourceKey]['endpoint']}
+                                            </Descriptions.Item>
+
+
+                                        </Descriptions>
+
+                                ) :
+                                undefined
+                        }
+                    </div>
+                }
+            >{<Link>{data.sourceKey}</Link>}</Popover>
+            }</Descriptions.Item>
+            {
+                props.type === 'restores'?
+                <Descriptions.Item label={t('备份源')}>
+                {data.from}
+            </Descriptions.Item>:
+            undefined
+            }
+        </Descriptions>
+        </div>
         <div id='PathInfo'>
             <Descriptions
                 title={
@@ -1679,6 +1775,7 @@ const Dashboard_For_One_Name: FC<{ open:boolean, name: string, onCancel:()=>void
             <Descriptions.Item label={t('名称', {context:'backup'})}>{data.dolphindbName || ' '}</Descriptions.Item>
         </Descriptions>
             :undefined}
+        
 
     </div>
     </Modal>
@@ -1730,7 +1827,7 @@ const translate_dict = {
     'name':t('名称'),
     'cleanPolicy': t('清除策略'),
     'remoteType':t('云端存储类型'),
-    'sourceKey':t('配置项'),
+    'sourceKey':t('存储配置'),
     'prefix':t('桶名'),
     'saveDir':t('存储后缀'),
     'forceDir':t('存储中缀'),
@@ -1768,9 +1865,10 @@ const Backup_List_of_Namespace_ =()=>{
     
     const [backup_modal_open,  set_backup_modal_open] = useState(false)
     
-    const [form_instance] = Form.useForm()
+    const [form_instance_backup] = Form.useForm()
+    const [form_instance_restore] = Form.useForm()
     
-    const [sourceKeys, set_SourceKeys] = useState<string[]>([''])
+    const [sourceKeys, set_SourceKeys] = useState<string[]>(['default'])
     
     const  sourceKey_detail_example = {
         "nfs": {
@@ -1787,7 +1885,7 @@ const Backup_List_of_Namespace_ =()=>{
     
     const [sourceKey_detail, set_sourceKey_detail] = useState<typeof sourceKey_detail_example>()
     
-    const [storage_class, set_storage_class] = useState<string[]>([''])
+    const [storage_class, set_storage_class] = useState<string[]>(['default'])
     
     const [refresher, set_refresher] = useState(0)
     
@@ -1803,7 +1901,7 @@ const Backup_List_of_Namespace_ =()=>{
     
     const {namespaces} = model.use(['namespaces'])
     
-    const [selectable_names, set_selectable_names] = useState<string[]>()
+    const [selectable_names, set_selectable_names] = useState<string[]>(['default'])
     
     const [init_value_of_restore_modal, set_init_value_of_restore_modal] = useState<{dolphindbNamespace:string}>()
     
@@ -1818,12 +1916,12 @@ const Backup_List_of_Namespace_ =()=>{
     const refresh_sourceKey_detail = async()=>{    
         const data = await request_json_with_error_handling(`/v1/dolphindbs/backups/config`)
         set_sourceKey_detail(data)
-    
+        
     }
     
     const refresh_selectable_storage_class = async()=>{
         const fetched_storage_class = (await request_json_with_error_handling('/v1/storageclasses'))['items'].map(x=>x['name'])
-        set_storage_class(fetched_storage_class)
+        set_storage_class(fetched_storage_class.sort().reverse())
     }
     
     const refresh_instances_list_of_namespace = async ()=>{
@@ -1834,11 +1932,12 @@ const Backup_List_of_Namespace_ =()=>{
     const refresh_content_of_backup_modal = async(instance_name) =>{
         const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${instance_name}`) 
         data.storageResource = data.storageResource? (data.storageResource as string).slice(0, data.storageResource.length-2) : data.storageResource
-        set_content_of_backup_modal(data)
+        //set_content_of_backup_modal(data)
     }
     
     const refresh_content_of_restore_modal = async(instance_name)=>{
         const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${instance_name}`) 
+        data['from'] = instance_name
         set_content_of_restore_modal(data)
     }
     
@@ -1855,15 +1954,23 @@ const Backup_List_of_Namespace_ =()=>{
     
     useEffect(
         ()=>{
-            form_instance.resetFields()
+            form_instance_backup.resetFields()
+            form_instance_restore.resetFields()
         }
     )
+    
+    
+    useEffect(()=>{
+        refresh_sourceKey()
+        refresh_sourceKey_detail()
+        refresh_selectable_storage_class()
+    },[])
     
     useEffect(()=>{
         if (backup_modal_open){
             refresh_sourceKey()
+            refresh_sourceKey_detail()
             refresh_selectable_storage_class()
-            set_selected_remoteType('')
         }else{
             set_refresher(refresher+1)
         }
@@ -1871,9 +1978,19 @@ const Backup_List_of_Namespace_ =()=>{
     }, [backup_modal_open])
     
     useEffect(()=>{
+        if (sourceKey_detail)
+            return
         refresh_sourceKey()
         refresh_sourceKey_detail()
     }, [sourcekey_modal_open])
+    
+    useEffect(()=>{
+        if (! (sourceKeys && sourceKey_detail)){
+            return
+        }
+        set_selected_remoteType(sourceKey_detail[sourceKeys[0]]['accessKey']? 's3': 'nfs')
+    }, [sourceKeys, sourceKey_detail])
+    
     
     return <div>
         
@@ -1883,7 +2000,7 @@ const Backup_List_of_Namespace_ =()=>{
                 className='button-create'
                 onClick={async () => {
                     set_backup_modal_open(true)
-                    set_content_of_backup_modal({sourceKey: sourceKeys[0], remoteType: 's3' })
+                    set_content_of_backup_modal({sourceKey: sourceKeys[0], remoteType: 's3', storageClassName:storage_class.sort().reverse()[0] , storageResource: 10})
                 }}
             >
                 <img className='icon-add' src={icon_add} />
@@ -1919,7 +2036,7 @@ const Backup_List_of_Namespace_ =()=>{
                             operation: 
                                 [
                                 <Popconfirm
-                                title='You sure to delete?'
+                                title={t('确认删除？')}
                                 onConfirm={async () => {
                                     await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${data_item.name}`,{method:'delete'})
                                     set_refresher(refresher+1)
@@ -1929,20 +2046,42 @@ const Backup_List_of_Namespace_ =()=>{
                                     <a href="#">{t('删除')} </a>
                                 </Popconfirm>,
                                 
-                                <Link
-                                    onClick={
-                                        () => {
-                                            set_backup_modal_open(true)
-                                            refresh_content_of_backup_modal(data_item.name)
-                                        }}
+                                <Popconfirm
+                                    title={t('确认重新触发？')}
+                                    onConfirm={async () => {
+                                        const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${data_item.name}`)
+                                        
+                                        var {sourceKey, remoteType, prefix, storageClassName, storageResource} = data
+
+                                        await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`,
+                                            {
+                                                method:'post',
+                                                headers: { 'content-type': 'application/json' },
+                                                body:{
+                                                    name: model.cluster.name,
+                                                    namespace: model.cluster.namespace,
+                                                    sourceKey: sourceKey,
+                                                    remoteType: remoteType,
+                                                    prefix: prefix,
+                                                    storageClassName: storageClassName,
+                                                    storageResource: `${storageResource}`
+                                                }
+                                            }
+                                        )
+                    
+                                        
+                                    }}
+                                    onCancel={() => { }}
                                 >
-                                    {translate_dict['backups'] + ' '}
-                                </Link>,
+                                    <a href="#">{t('重新触发')} </a>
+                                </Popconfirm>,
                                 
                                 <Link
                                     onClick={
                                         () => {
                                             set_restore_modal_open(true)
+                                            set_init_value_of_restore_modal({dolphindbNamespace: namespaces[0].name})
+                                            refresh_selectable_names(namespaces[0].name)
                                             refresh_content_of_restore_modal(data_item.name)
                                         }}
                                 >
@@ -1988,8 +2127,8 @@ const Backup_List_of_Namespace_ =()=>{
                     {t('取消')}
                 </Button>,
                 <Button key="submit" type="primary" onClick={async ()=>{
-                    var {sourceKey, remoteType, prefix, storageClassName, storageResource} = await form_instance.validateFields()
-
+                    var {sourceKey, prefix, storageClassName, storageResource} = await form_instance_backup.validateFields()
+                    const remoteType = sourceKey_detail[sourceKey]['accessKey']? 's3' : 'nfs'
                     await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`,
                         {
                             method:'post',
@@ -2001,7 +2140,7 @@ const Backup_List_of_Namespace_ =()=>{
                                 remoteType: remoteType,
                                 prefix: prefix,
                                 storageClassName: storageClassName,
-                                storageResource: `${storageResource}Gi`
+                                storageResource: `${storageResource}`
                             }
                         }
                     )
@@ -2013,8 +2152,8 @@ const Backup_List_of_Namespace_ =()=>{
             ]}
         >
             <Form
-                form={form_instance}
-                className='cluster-create-form'
+                form={form_instance_backup}
+                //className='cluster-create-form'
                 labelAlign='left'
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 16 }}
@@ -2032,6 +2171,17 @@ const Backup_List_of_Namespace_ =()=>{
                                 rules={[{ required: true, message: t('此项必填') }]}
                             >
                                 <Select placeholder="sourceKey"
+                                    onSelect={async (value)=>{
+                                        try{
+                                            var data = (await form_instance_backup.validateFields())
+                                        }
+                                        catch(e){
+                                            data = e.values
+                                        }
+                                        set_content_of_backup_modal(data)
+                                        set_selected_remoteType(sourceKey_detail[value]['accessKey']? 's3' :'nfs')
+                                    }}
+                                    style={{width:100}}
                                 >
                                     {
                                         sourceKeys.map(
@@ -2119,34 +2269,11 @@ const Backup_List_of_Namespace_ =()=>{
                                 type='primary'
                                 onClick={() => {
                                     set_sourcekey_modal_open(true)
-                                }}>{t('添加配置项')}</Button>
+                                }}>{t('添加存储配置')}</Button>
 
                         </Space>
                     </Form.Item>
                     
-                    <Form.Item
-                        name={'remoteType'}
-                        label={translate_dict['remoteType']}
-                        rules={[{required:true, message:t('此项必填')}]}>
-                        <Select placeholder="remoteType"
-                        onSelect={async (value)=>{
-                            try{
-                                var data = (await form_instance.validateFields())
-                            }
-                            catch(e){
-                                data = e.values
-                            }
-                            set_content_of_backup_modal(data)
-                            set_selected_remoteType(value)
-                        }}
-                        >
-                            {
-                                ['s3', 'nfs'].map(
-                                    x => { return <Option value={x}> {x} </Option> }
-                                )
-                            }
-                        </Select>
-                    </Form.Item>
 
 
                     <>{
@@ -2160,24 +2287,29 @@ const Backup_List_of_Namespace_ =()=>{
                     </Form.Item>}
                     
                     <Form.Item
-                    name={'storageClassName'}
-                    label={translate_dict['storageClassName']}
-                    >
-                        <Select >
-                            {
-                                storage_class.map(
-                                    x => { return <Option value={x}> {x} </Option> }
-                                )
-                            }
-                        </Select>
-                    </Form.Item>
+                                name={'storageClassName'}
+                                label={translate_dict['storageClassName']}
+                            >
+                               
+                                <Select >
+                                    {
+                                        storage_class?
+                                        storage_class.sort().reverse().map(
+                                            x => { return <Option value={x}> {x} </Option> }
+                                        ):
+                                        <Option> asdfasdf</Option>
+                                    }
+                                </Select>
+                
+                            </Form.Item>
+
                     
                     
                     <Form.Item
                     name={'storageResource'}
                     label={translate_dict['storageResource']}
                     >
-                        <InputNumber min={0} addonAfter='Gi' ></InputNumber>
+                        <InputNumber addonAfter='Gi' min={1} ></InputNumber>
                     </Form.Item>
                     </>
                 </>
@@ -2195,7 +2327,7 @@ const Backup_List_of_Namespace_ =()=>{
                     {t('取消')}
                 </Button>,
                 <Button key="submit" type="primary" onClick={async ()=>{
-                    const { dolphindbNamespace, dolphindbName} = await form_instance.validateFields()
+                    const { dolphindbNamespace, dolphindbName} = await form_instance_restore.validateFields()
                     await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores`,
                         {
                             method:'post',
@@ -2206,11 +2338,12 @@ const Backup_List_of_Namespace_ =()=>{
                                 sourceKey: content_of_restore_modal.sourceKey,
                                 remoteType: content_of_restore_modal.remoteType,
                                 prefix: content_of_restore_modal.prefix,
-                                storageClassName: content_of_backup_modal.storageClassName,
-                                storageResource: `${content_of_restore_modal.storageResource}Gi`,
+                                storageClassName: content_of_restore_modal.storageClassName,
+                                storageResource: `${content_of_restore_modal.storageResource}`,
                                 saveDir: content_of_restore_modal.saveDir,
                                 dolphindbName: dolphindbName,
-                                dolphindbNamespace: dolphindbNamespace
+                                dolphindbNamespace: dolphindbNamespace,
+                                from: content_of_restore_modal.from
                             }
                         }
                     )
@@ -2223,7 +2356,7 @@ const Backup_List_of_Namespace_ =()=>{
             ]}
         >
             <Form
-                form={form_instance}
+                form={form_instance_restore}
                 className='cluster-create-form'
                 labelAlign='left'
                 labelCol={{ span: 6 }}
@@ -2321,6 +2454,10 @@ const Restore_List_of_Namespace_ = () => {
             >{t('刷新')}</Button>
         </div>
 
+        <div style={{height:'10px'}}>
+            
+        </div>
+
         {!_.isEmpty(fetched_restore_list_of_namesace) ?
             <Table dataSource={fetched_restore_list_of_namesace.items.map(
                 data_item => {
@@ -2336,7 +2473,7 @@ const Restore_List_of_Namespace_ = () => {
                         operation:
                             [
                                 <Popconfirm
-                                    title='You sure to delete?'
+                                    title={t('确认删除？')}
                                     onConfirm={async () => {
                                         await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores/${data_item.name}`, { method: 'delete' })
                                         set_refresher(refresher + 1)
@@ -2376,6 +2513,182 @@ const Restore_List_of_Namespace_ = () => {
 
         <Dashboard_For_One_Name name={name_of_current_opened_detail} type={'restores'} open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }}></Dashboard_For_One_Name>
 
+    </div>
+}
+
+const SourceKey_List =()=>{
+    const [sourceKey_detail, set_sourceKey_detail] = useState()
+    
+    const [refresher, set_refresher]= useState(0)
+    
+    const [sourceKey_modal_info, set_sourceKey_modal_info] = useState()
+    const [sourcekey_modal_open, set_sourcekey_modal_open] = useState(false)
+    
+    
+    const [sourceKey_detail_modal_name, set_sourceKey_detail_modal_name] = useState('')
+    const [sourceKey_detail_modal_open, set_sourceKey_detail_modal_open] = useState(false)
+    
+    
+    const refresh_sourceKey_detail = async()=>{    
+        const data = await request_json_with_error_handling(`/v1/dolphindbs/backups/config`)
+        set_sourceKey_detail(data)
+    
+    }
+    
+    
+    const refresh_sourceKey = async ()=>{
+    }
+    
+    
+    useEffect(()=>{
+        refresh_sourceKey_detail()
+    }, [refresher])
+    
+    return <div>
+    
+    <div className='actions'>
+        <Button
+            type='primary'
+            className='button-create'
+            onClick={async () => {
+                set_sourcekey_modal_open(true)
+            }}
+        >
+            <img className='icon-add' src={icon_add} />
+            <span>{t('添加存储配置')}</span>
+        </Button>
+
+        <Button
+            className='refresh'
+            type='primary'
+            icon={<ReloadOutlined />}
+            onClick={() => {
+                set_refresher(refresher + 1)
+            }}
+        >{t('刷新')}</Button>
+    </div>
+    
+    <div style={{height:'10px'}}>
+            
+            </div>
+    
+    {sourcekey_modal_open? <SourceKey_Modal 
+        sourcekey_modaol_open={sourcekey_modal_open} 
+        set_sourcekey_modal_open = {set_sourcekey_modal_open}
+        refresh_sourceKey = {refresh_sourceKey}
+        ></SourceKey_Modal> : <div/>}
+    
+    {sourceKey_detail?
+    <Table dataSource={Object.keys(sourceKey_detail).map(
+        data_item => {
+            return {
+                name: <Link onClick={() => {
+                    set_sourceKey_detail_modal_name(data_item)
+                    set_sourceKey_detail_modal_open(true)
+                }}>{data_item}</Link>,
+                operation:
+                    [
+                        <Popconfirm
+                            title={t('确认删除？')}
+                            onConfirm={async () => {
+                                await request_json_with_error_handling(`/v1/dolphindbs/backups/config/${data_item}`, { method: 'delete' })
+                                set_refresher(refresher + 1)
+                            }}
+                            onCancel={() => { }}
+                        >
+                            <a href="#">{t('删除')} </a>
+                        </Popconfirm>]
+            }
+        }
+    )}
+        pagination={false}
+    >
+        <Column
+            title={t('名称', { context: 'backup' })}
+            key='name'
+            dataIndex={'name'}
+        />
+        <Column
+            title={t('操作', { context: 'backup' })}
+            key='operation'
+            dataIndex={'operation'}
+        />
+    </Table>
+    :undefined}
+
+    
+    <Modal
+    title={sourceKey_detail_modal_name}
+    open = {sourceKey_detail_modal_open}   onCancel={()=>{
+        set_sourceKey_detail_modal_open(false)
+    }} footer={false}
+    >
+        <div>
+            {
+                sourceKey_detail && sourceKey_detail[sourceKey_detail_modal_name] ?
+                    (
+                        (!sourceKey_detail[sourceKey_detail_modal_name]['accessKey']) ?
+
+                            <Descriptions bordered
+                                column={1}
+                            //layout='vertical'
+                            >
+                                <Descriptions.Item
+                                    label={translate_dict['endpoint']}
+                                >
+                                    {sourceKey_detail[sourceKey_detail_modal_name]['endpoint']}
+                                </Descriptions.Item>
+
+                                <Descriptions.Item
+                                    label={translate_dict['path']}
+                                >
+                                    {sourceKey_detail[sourceKey_detail_modal_name]['path']}
+                                </Descriptions.Item>
+
+                            </Descriptions>
+
+                            :
+
+
+
+                            <Descriptions bordered
+                                column={1}
+                            //layout='vertical'
+                            >
+                                <Descriptions.Item
+                                    label={translate_dict['provider']}
+                                >
+                                    {sourceKey_detail[sourceKey_detail_modal_name]['provider']}
+                                </Descriptions.Item>
+
+                                <Descriptions.Item
+                                    label={translate_dict['accessKey']}
+                                >
+                                    {sourceKey_detail[sourceKey_detail_modal_name]['accessKey']}
+                                </Descriptions.Item>
+
+
+                                <Descriptions.Item
+                                    label={translate_dict['secretAccessKey']}
+                                >
+                                    {sourceKey_detail[sourceKey_detail_modal_name]['secretAccessKey']}
+                                </Descriptions.Item>
+
+                                <Descriptions.Item
+                                    label={translate_dict['endpoint']}
+                                >
+                                    {sourceKey_detail[sourceKey_detail_modal_name]['endpoint']}
+                                </Descriptions.Item>
+
+
+                            </Descriptions>
+
+                    ) :
+                    undefined
+            }
+        </div>
+        
+    </Modal>
     </div>
 }
 
