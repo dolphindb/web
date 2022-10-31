@@ -321,6 +321,12 @@ function DatanodeConfig () {
                     default: '/log/TSDBRedoLog',
                     tip: 'TSDB "storage engine redo log" (redo log) "directory. The default is /log/TSDBRedoLog .'
                 },
+                {
+                    name: 'TSDBAsyncSortingWorkerNum',
+                    value: 'int',
+                    default: 1,
+                    tip: 'A non-negative integer indicating the number of threads for asynchronous sorting in the TSDB cache engine. The default value is 1.'
+                },
             ]
         }
     ]

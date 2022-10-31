@@ -111,9 +111,6 @@
                             width: auto
                             margin-right: 5px
                     
-                    .ant-tree-node-content-wrapper.ant-tree-node-selected
-                        background-color: unset !important
-                        
                     .ant-tree .ant-tree-node-content-wrapper:hover
                         background-color: unset !important
                     &-empty
@@ -121,7 +118,7 @@
                             visibility: hidden
                     
                 .ant-tree-switcher-noop
-                    display: none
+                    visibility: hidden
             .ant-tree-show-line .ant-tree-indent-unit::before
                 border-right: unset !important
         
@@ -141,6 +138,9 @@
             .ant-tree-title
                 display: block
                 width: 100%
+                .ant-dropdown-trigger
+                    display: inline-block
+                    width: 100%
             
             .dbtree-item-title
                 display: flex
@@ -218,3 +218,25 @@
 
 .columns-schema-popover
     max-width: 90%      
+
+.ant-modal-mask
+    background-color: unset
+
+.ant-modal-content
+    .ant-modal-footer
+        display: none
+    .ant-form-item-label > label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before
+        content: ''
+    .db-modal-content-button-group
+        .ant-col,ant-col-20
+            width: 100%
+            max-width: 100%
+        .ant-form-item-control-input-content
+            display: flex
+            justify-content: flex-end
+            gap: 10px
+        
+        
+        
+.db-context-menu
+    background-color: #FFFFFF

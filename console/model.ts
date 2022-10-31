@@ -70,9 +70,7 @@ export class DdbModel extends Model <DdbModel> {
         
         this.goto_default_view()
         
-        this.set({
-            inited: true
-        })
+        this.set({ inited: true })
         
         this.get_version()
         
@@ -183,9 +181,7 @@ export class DdbModel extends Model <DdbModel> {
     async get_version () {
         let { value: version } = await ddb.call<DdbObj<string>>('version', [ ])
         version = version.split(' ')[0]
-        this.set({
-            version
-        })
+        this.set({ version })
         console.log('version:', version)
         return version
     }

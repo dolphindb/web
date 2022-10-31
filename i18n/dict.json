@@ -648,7 +648,7 @@
         "en": "Dashboard"
     },
     "设置成功，目前小数位数为：": {
-        "en": "The setting is successful, the current number of decimal places is: "
+        "en": "Set up successfully, the current decimals is "
     },
     "默认": {
         "en": "Default"
@@ -698,17 +698,14 @@
     "错误信息": {
         "en": "Error Message"
     },
-    "作业编号": {
+    "作业 ID": {
         "en": "Job ID"
     },
-    "根作业编号": {
+    "根作业 ID": {
         "en": "Root Job ID"
     },
-    "作业描述": {
-        "en": "Job Description"
-    },
-    "作业类型": {
-        "en": "Job Type"
+    "详情": {
+        "en": "Description"
     },
     "优先级": {
         "en": "Priority"
@@ -723,25 +720,28 @@
         "en": "User ID"
     },
     "收到作业时间": {
-        "en": "Receive Time"
+        "en": "Received Time"
     },
     "会话 ID": {
         "en": "Session ID"
     },
-    "远程 IP": {
-        "en": "Remote IP"
+    "客户端 IP": {
+        "en": "Client IP"
     },
-    "远程端口": {
-        "en": "Remote Port"
+    "客户端端口": {
+        "en": "Client Port"
     },
-    "所有任务": {
-        "en": "Total Task"
+    "全部任务": {
+        "en": "Total Tasks"
     },
     "已完成任务": {
-        "en": "Finished Task"
+        "en": "Finished Tasks"
     },
     "正在运行的任务": {
-        "en": "Running Task"
+        "en": "Running Tasks"
+    },
+    "状态_job": {
+        "en": "Status"
     },
     "主题": {
         "en": "Theme"
@@ -755,34 +755,130 @@
     "结束日期": {
         "en": "End Date"
     },
-    "频率": {
-        "en": "Frequency"
+    "执行频率": {
+        "en": "Execution Frequency"
     },
-    "计划时间": {
-        "en": "Schedule Time"
+    "执行定时任务的时间": {
+        "en": "Time to Execute"
     },
-    "天数": {
-        "en": "Days"
-    },
-    "首个任务开始时间": {
-        "en": "Fist Task Start Time"
-    },
-    "最后任务开始时间": {
-        "en": "Latest Task Start Time"
-    },
-    "队列": {
-        "en": "Queue"
+    "执行定时任务的日期": {
+        "en": "Date to Execute"
     },
     "操作_job": {
         "en": "Actions"
     },
-    "描述_job": {
-        "en": "Description"
+    "首个任务开始时间": {
+        "en": "First Task Start Time"
     },
-    "状态_job": {
-        "en": "Status"
+    "最后任务开始时间": {
+        "en": "Last Task Start Time"
     },
-    "收到作业时间_node": {
-        "en": "Received Time"
+    "队列": {
+        "en": "Queue"
+    },
+    "类型_job": {
+        "en": "Type"
+    },
+    "点击了 RefId 链接:": {
+        "en": "RefId link clicked: "
+    },
+    "实际位数": {
+        "en": "actual decimals"
+    },
+    "输入应为空或介于 0 ~ 20": {
+        "en": "Input should be empty or between 0 and 20"
+    },
+    "重置成功，目前小数位数为：实际位数": {
+        "en": "Reset successfully, now with actual decimals "
+    },
+    "上传文件": {
+        "en": "Upload File"
+    },
+    "文件上传路径": {
+        "en": "Upload Path"
+    },
+    "上传路径不能为空": {
+        "en": "Upload path cannot be empty"
+    },
+    "点击此处或者拖拽文件到此处": {
+        "en": "Click or drag and drop a File here"
+    },
+    "确认启动？": {
+        "en": "Start Node?"
+    },
+    "启动节点失败": {
+        "en": "Starting node failed"
+    },
+    "启动": {
+        "en": "Start"
+    },
+    "确认暂停？": {
+        "en": "Pause Node?"
+    },
+    "暂停成功": {
+        "en": "Pausing node succeeded"
+    },
+    "暂停节点失败": {
+        "en": "Pausing node failed"
+    },
+    "暂停": {
+        "en": "Pause"
+    },
+    "添加列": {
+        "en": "Add column"
+    },
+    "显示shchema信息": {
+        "en": "Show schema"
+    },
+    "显示前一百行数据": {
+        "en": "Show first 100 row"
+    },
+    "修改注释": {
+        "en": "Edit comment"
+    },
+    "添加成功": {
+        "en": "Add successfully"
+    },
+    "列名": {
+        "en": "Name"
+    },
+    "请输入列名！": {
+        "en": "Please enter the column name!"
+    },
+    "输入名字": {
+        "en": "Enter the name of the column"
+    },
+    "请选择该列的类型！": {
+        "en": "Please select the type of the column!"
+    },
+    "选择类型": {
+        "en": "Select type"
+    },
+    "修改注释成功": {
+        "en": "Modify comment successfully"
+    },
+    "注释": {
+        "en": "Comment"
+    },
+    "请输入注释": {
+        "en": "Please enter comment"
+    },
+    "启动成功": {
+        "en": "Start succeeded"
+    },
+    "上传文件至 {{instance}}": {
+        "en": "Upload file to {{instance}}"
+    },
+    "Pod 内路径，如: /data/ddb/server/": {
+        "en": "The path in the Pod, such as: /data/ddb/server/"
+    },
+    "文件大小限制 100 MB": {
+        "en": "File size limit 100 MB"
+    },
+    "文件 {{filename}} 上传成功": {
+        "en": "Upload succeeded"
+    },
+    "文件 {{filename}} 上传失败": {
+        "en": "Upload failed"
     }
 }
