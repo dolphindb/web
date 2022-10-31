@@ -56,6 +56,12 @@ function DatanodeConfig () {
                     tip: 'The maximum number of dynamic workers. The default value is the value of workerNum.'
                 },
                 {
+                    name: 'maxFileHandles',
+                    value: 'int',
+                    default: 1024,
+                    tip: 'The number of file descriptors a process can open.'
+                },
+                {
                     name: 'maxMemSize',
                     value: 'int',
                     default: '',
@@ -177,10 +183,22 @@ function DatanodeConfig () {
                     tip: 'Information about Raft groups. Each Raft group is represented by group ID and aliases of data nodes in the group, separated with colon (:). Raft group ID must be an integer greater than 1. Each Raft group has at least 3 data nodes. Use comma (,) to seperate multiple Raft groups.'
                 },
                 {
+                    name: 'streamingHADir',
+                    value: '',
+                    default: '<HomeDir>/log/streamLog',
+                    tip: 'If not specified, defaults to <HomeDir>/log/streamLog . Each data node configures a different streamHADir directory.'
+                },
+                {
                     name: 'streamingHAMode',
                     value: '',
                     default: 'raft',
                     tip: 'Enable high-availability for streaming.'
+                },
+                {
+                    name: 'streamingHAPurgeInterval',
+                    value: 'int',
+                    default: 300,
+                    tip: 'Raft journal garbage collection cycle. The default value is 300, in seconds.'
                 },
                 {
                     name: 'maxPubConnections',
