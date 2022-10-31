@@ -99,7 +99,7 @@ function DolphinDB () {
 
 
 function DdbHeader () {
-    const { logined, username, node_alias, version, license } = model.use(['logined', 'username', 'node_alias', 'version', 'license'])
+    const { logined, username, node_alias, version, license, is_citic } = model.use(['logined', 'username', 'node_alias', 'version', 'license', 'is_citic'])
     
     const authorizations = {
         trial: t('试用版'),
@@ -153,74 +153,67 @@ function DdbHeader () {
             </Popover>
         </div>
         
-        {
-            license && <div>
-                <Popover
-                    placement='bottomLeft'
-                    content={
-                        license ? <div className='license-card head-bar-info'>
-                            <Card size='small' bordered={false} title={`${authorizations[license.authorization] || license.authorization} v${version}`}>
-                                <Descriptions bordered size='small' column={2}>
-                                    <Descriptions.Item label={t('授权类型')}>{authorizations[license.authorization] || license.authorization}</Descriptions.Item>
-                                    <Descriptions.Item label={t('授权客户')}>{license.clientName}</Descriptions.Item>
-                                    <Descriptions.Item label={t('许可类型')}>{license.licenseType}</Descriptions.Item>
-                                    <Descriptions.Item label={t('过期时间')}>{date2str(license.expiration)}</Descriptions.Item>
-                                    <Descriptions.Item label={t('绑定 CPU')}>{String(license.bindCPU)}</Descriptions.Item>
-                                    <Descriptions.Item label={t('版本')}>{license.version}</Descriptions.Item>
-                                    <Descriptions.Item label={t('模块')}>{ license.modules === -1n ? 'unlimited' : license.modules.toString() }</Descriptions.Item>
-                                    <Descriptions.Item label={t('每节点最大可用内存')}>{license.maxMemoryPerNode}</Descriptions.Item>
-                                    <Descriptions.Item label={t('每节点最大可用核数')}>{license.maxCoresPerNode}</Descriptions.Item>
-                                    <Descriptions.Item label={t('最大节点数')}>{license.maxNodes}</Descriptions.Item>
-                                </Descriptions>
-                            </Card>
-                        </div> : null
-                    }
-                >
-                    <Tag className='license' color='#f2f2f2'>{authorizations[license.authorization] || license.authorization}</Tag>
-                </Popover>
-            </div>
-        }
+        <div>
+            <Popover
+                placement='bottomLeft'
+                content={
+                    <div className='license-card head-bar-info'>
+                        <Card size='small' bordered={false} title={`${authorizations[license.authorization] || license.authorization} v${version}`}>
+                            <Descriptions bordered size='small' column={2}>
+                                <Descriptions.Item label={t('授权类型')}>{authorizations[license.authorization] || license.authorization}</Descriptions.Item>
+                                <Descriptions.Item label={t('授权客户')}>{license.clientName}</Descriptions.Item>
+                                <Descriptions.Item label={t('许可类型')}>{license.licenseType}</Descriptions.Item>
+                                <Descriptions.Item label={t('过期时间')}>{date2str(license.expiration)}</Descriptions.Item>
+                                <Descriptions.Item label={t('绑定 CPU')}>{String(license.bindCPU)}</Descriptions.Item>
+                                <Descriptions.Item label={t('版本')}>{license.version}</Descriptions.Item>
+                                <Descriptions.Item label={t('模块')}>{ license.modules === -1n ? 'unlimited' : license.modules.toString() }</Descriptions.Item>
+                                <Descriptions.Item label={t('每节点最大可用内存')}>{license.maxMemoryPerNode}</Descriptions.Item>
+                                <Descriptions.Item label={t('每节点最大可用核数')}>{license.maxCoresPerNode}</Descriptions.Item>
+                                <Descriptions.Item label={t('最大节点数')}>{license.maxNodes}</Descriptions.Item>
+                            </Descriptions>
+                        </Card>
+                    </div>
+                }
+            >
+                <Tag className='license' color='#f2f2f2'>{authorizations[license.authorization] || license.authorization}</Tag>
+            </Popover>
+        </div>
         
         <Settings />
         
-        <div className='user'>
-            <Dropdown
-                overlay={
-                    <Menu
-                        className='menu'
-                        items={[
-                            logined ?
-                                {
-                                    label: <a
-                                            className='logout'
-                                            onClick={() => {
-                                                model.logout()
-                                            }}
-                                        >{t('注销')}</a>,
-                                    key: 'logout',
-                                    icon: <LogoutOutlined />
-                                }
-                            :
-                                {
-                                    label: <a
-                                            className='login'
-                                            onClick={() => {
-                                                model.set({ view: 'login' })
-                                            }}
-                                        >{t('登录')}</a>,
-                                    key: 'login',
-                                    icon: <LogoutOutlined />
-                                }
-                            ]
-                        } 
-                    />
-                }
-            >
+        <div className='user'>{
+            is_citic ?
                 <a className='username'>
-                    <Avatar className='avatar' icon={<UserOutlined />} size='small' /> {username} <DownOutlined />
+                    <Avatar className='avatar' icon={<UserOutlined />} size='small' /> {username}
                 </a>
-            </Dropdown>
-        </div>
+            :
+                <Dropdown
+                    overlay={
+                        <Menu
+                            className='menu'
+                            items={[
+                                logined ?
+                                    {
+                                        label: <a className='logout' onClick={() => { model.logout() }}>{t('注销')}</a>,
+                                        key: 'logout',
+                                        icon: <LogoutOutlined />
+                                    }
+                                :
+                                    {
+                                        label: <a className='login' onClick={() => { model.set({ view: 'login' }) }}>{t('登录')}</a>,
+                                        key: 'login',
+                                        icon: <LogoutOutlined />
+                                    }
+                                ]
+                            } 
+                        />
+                    }
+                >
+                    <a className='username'>
+                        <Avatar className='avatar' icon={<UserOutlined />} size='small' /> {username} <DownOutlined />
+                    </a>
+                </Dropdown>
+        }</div>
     </>
 }
 
