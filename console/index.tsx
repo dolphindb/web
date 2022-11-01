@@ -183,7 +183,7 @@ function DdbHeader () {
         
         <div className='user'>{
             is_citic ?
-                <a className='username'>
+                <a className={`username ${is_citic ? 'citic' : ''}`}>
                     <Avatar className='avatar' icon={<UserOutlined />} size='small' /> {username}
                 </a>
             :

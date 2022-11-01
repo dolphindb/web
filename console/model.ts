@@ -70,19 +70,19 @@ export class DdbModel extends Model<DdbModel> {
         if (is_citic) {
             console.log(t('当前为中信证券的 web, 启用单点登录'))
             
-            const session = new URLSearchParams(location.search).get('sessionData')
-            if (session)
+            let url = new URL(location.href)
+            const session = url.searchParams.get('sessionData')
+            if (session) {
+                url.searchParams.delete('sessionData')
+                history.replaceState(null, '', url.toString())
                 await this.login_by_session(session)
-            else {
+            } else
                 if (is_subpath) {
-                    // LOCAL: ON
-                    alert(t('没有 sessionData 参数，将会跳转到登录页'))
+                    console.log(t('没有 sessionData 参数，将会跳转到登录页'))
                     location.pathname = '/'
                     return
-                }
-                
-                console.log(t('通过非 /dolphindb/ 路径直接访问中信证券 web'))
-            }
+                } else
+                    console.log(t('通过非 /dolphindb/ 路径直接访问中信证券 web'))
         } else
             try {
                 await this.login_by_ticket()
@@ -154,36 +154,33 @@ export class DdbModel extends Model<DdbModel> {
     async login_by_session (session: string) {
         // https://dolphindb1.atlassian.net/browse/DPLG-581
         
-        // LOCAL: ON
-        try {
-            await ddb.call('login', ['guest', '123456'])
+        await ddb.call('login', ['guest', '123456'])
+        
+        const result = (
+            await ddb.call('authenticateBySession', [session])
+        ).to_dict<{ code: number, message: string, username: string, raw: string }>({ strip: true })
+        
+        if (result.code) {
+            const message = t('通过 session 登录失败，即将跳转到单点登录页')
+            const error = Object.assign(
+                new Error(message),
+                result
+            )
+            alert(
+                message + '\n' +
+                JSON.stringify(result)
+            )
+            if (location.pathname !== '/')
+                location.pathname = '/'
+            throw error
+        } else {
+            console.log(t('通过 session 登录成功:'), result)
             
-            const result = (
-                await ddb.call('authenticateBySession', [session])
-            ).to_dict<{ code: number, message: string, username: string }>({ strip: true })
-            
-            if (result.code) {
-                console.log(t('通过 session 登录失败:'), result)
-                const error = Object.assign(
-                    new Error(t('通过 session 登录失败，即将跳转到单点登录页')),
-                    result
-                )
-                console.error(error)
-                alert(JSON.stringify(error))
-                if (location.pathname !== '/') {
-                    // LOCAL: ON
-                    alert(t('按 F12 或 右键 > 检查 打开浏览器的开发者调试工具 (devtools), 切换到控制台 (Console) 面板中截个图，我看下错误日志'))
-                    alert(t('请复制下面这个 session 并粘贴到群里面:\n') + session)
-                    // location.pathname = '/'
-                }
-                throw error
-            } else {
-                console.log(t('通过 session 登录成功:'), result)
-                this.set({ username: result.username })
-                return result
-            }
-        } catch (error) {
-            console.log(error)
+            // result.username 由于 server 的 parseExpr 无法正确 parse \u1234 这样的字符串，先从后台 JSON 中提取信息
+            // 等 server 增加 parseJSON 函数
+            const { name: username } = JSON.parse(result.raw)
+            this.set({ username })
+            return result
         }
     }
     
