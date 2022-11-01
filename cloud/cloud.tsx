@@ -1,6 +1,6 @@
 import './cloud.sass'
 import { request_json } from 'xshell/net.browser.js'
-import { default as React, Suspense, useEffect, useState } from 'react'
+import { default as React, Suspense, useEffect, useRef, useState } from 'react'
 
 import { default as dayjs } from 'dayjs'
 
@@ -1434,25 +1434,43 @@ const log_modes = {
 
 
 function Show_backup_restore_sched (){
+    const [tag, set_tag] = useState('backups')
     return   <Tabs
     defaultActiveKey="1"
     size='large'
     centered
+    onChange={(key)=>{
+        console.log('ON change')
+        switch (key) {
+            case '1':
+                set_tag('backups')
+                break;
+            
+            case '2':
+                set_tag('restores')
+                break;
+            
+            case '3':
+                set_tag('sourceKey')
+        }
+    }}
+    
+    
     items={[
       {
         label: translate_dict['backups'],
         key: '1',
-        children: <Backup_List_of_Namespace_></Backup_List_of_Namespace_>,
+        children: <Backup_List_of_Namespace_ tag={tag}></Backup_List_of_Namespace_>,
       },
       {
         label: translate_dict['restores'],
         key: '2',
-        children: <Restore_List_of_Namespace_></Restore_List_of_Namespace_>
+        children: <Restore_List_of_Namespace_ tag={tag}></Restore_List_of_Namespace_>
       },
       {
-        label: t('存储配置'),
+        label: t('云端储存配置'),
         key: '3',
-        children: <SourceKey_List></SourceKey_List>
+        children: <SourceKey_List tag={tag}></SourceKey_List>
       },
     ]}
   />
@@ -1485,7 +1503,7 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
     
     return <Modal
         
-        title= {t('添加存储配置')}
+        title= {t('添加云端储存配置')}
         open = {sourceKey_modal_info.open}
         onCancel={()=>{props.set_sourcekey_modal_open(false)}}
         footer = {[
@@ -1597,6 +1615,13 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
     </Modal>
 }
 
+const Gi_process = (str:string | number)=>{
+    if (typeof str === 'number'){
+        const temp = str.toString(10)
+        return temp.endsWith('Gi')? temp: temp+'Gi'
+    }
+    return str.endsWith('Gi')? str: str+'Gi'
+}
 
 const Dashboard_For_One_Name: FC<{ open:boolean, name: string, onCancel:()=>void, type: 'backups'| 'restores'}> = (props) => {
     const { cluster } = model.use(['cluster'])
@@ -1651,8 +1676,8 @@ const Dashboard_For_One_Name: FC<{ open:boolean, name: string, onCancel:()=>void
             }
             bordered
         >
-            <Descriptions.Item label={t('云端存储类型')}>{data.remoteType}</Descriptions.Item>
-            <Descriptions.Item label={t('云端存储配置')}>{
+            <Descriptions.Item label={t('云端储存类型')}>{data.remoteType}</Descriptions.Item>
+            <Descriptions.Item label={t('云端储存配置')}>{
                 <Popover title={data.sourceKey}
                 mouseEnterDelay={0}
                 mouseLeaveDelay={0}
@@ -1742,7 +1767,7 @@ const Dashboard_For_One_Name: FC<{ open:boolean, name: string, onCancel:()=>void
                 }
                 bordered
             >
-                <Descriptions.Item label={t('存储路径')}>{data.storedPath || ' '}</Descriptions.Item>
+                <Descriptions.Item label={t('储存路径')}>{data.storedPath || ' '}</Descriptions.Item>
 
             </Descriptions>
         </div>
@@ -1751,13 +1776,13 @@ const Dashboard_For_One_Name: FC<{ open:boolean, name: string, onCancel:()=>void
             data.storageClassName&& data.storageResource?
         <Descriptions
             title={
-                <Title level={4}>{t('存储信息')}</Title>
+                <Title level={4}>{t('储存信息')}</Title>
             }
             column={2}
             bordered
         >
-            <Descriptions.Item label={t('存储类名称')}>{data.storageClassName || ' '}</Descriptions.Item>
-            <Descriptions.Item label={t('存储空间')}>{data.storageResource || ' '}</Descriptions.Item>
+            <Descriptions.Item label={t('储存类名称')}>{data.storageClassName || ' '}</Descriptions.Item>
+            <Descriptions.Item label={t('储存空间')}>{data.storageResource ? Gi_process(data.storageResource) : ' '}</Descriptions.Item>
         </Descriptions>
         :undefined
         }
@@ -1826,13 +1851,13 @@ const translate_dict = {
     'namespace': t('命名空间'),
     'name':t('名称'),
     'cleanPolicy': t('清除策略'),
-    'remoteType':t('云端存储类型'),
-    'sourceKey':t('存储配置'),
+    'remoteType':t('云端储存类型'),
+    'sourceKey':t('云端储存配置'),
     'prefix':t('桶名'),
-    'saveDir':t('存储后缀'),
-    'forceDir':t('存储中缀'),
+    'saveDir':t('储存后缀'),
+    'forceDir':t('储存中缀'),
     'storageClassName':t('储存类名称'),
-    'storageResource':t('存储空间'),
+    'storageResource':t('储存空间'),
     'maxBackups':t('最大备份数'),
     'pause':t('暂停'),
     'host':t('主机'),
@@ -1847,7 +1872,7 @@ const translate_dict = {
     'accessKey':t('访问密钥'),
     'secretAccessKey':t('加密密钥'),
     'path':t('共享目录', {context:'backup'}),
-    'Scheduled':t('调度中'),
+    'Scheduling':t('调度中'),
     'Running':t('运行中'),
     'Complete':t('运行完毕'),
     'Cleaning':t('清理中'),
@@ -1858,7 +1883,7 @@ const translate_dict = {
     'dolphindbName': t('名称')
 }
 
-const Backup_List_of_Namespace_ =()=>{
+const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey'})=>{
     const [sourcekey_modal_open, set_sourcekey_modal_open] = useState(false)
     
     const [fetched_list_of_namesace, set_isntances_list_of_namespace] = useState<typeof get_namespace_format>(undefined)
@@ -1956,7 +1981,9 @@ const Backup_List_of_Namespace_ =()=>{
         ()=>{
             form_instance_backup.resetFields()
             form_instance_restore.resetFields()
-        }
+        }, [
+            backup_modal_open, restore_modal_open
+        ]
     )
     
     
@@ -1990,6 +2017,17 @@ const Backup_List_of_Namespace_ =()=>{
         }
         set_selected_remoteType(sourceKey_detail[sourceKeys[0]]['accessKey']? 's3': 'nfs')
     }, [sourceKeys, sourceKey_detail])
+    
+    
+    //setInterval无法获取正确的props.tag，参考https://overreacted.io/zh-hans/making-setinterval-declarative-with-react-hooks/
+    useInterval(
+        ()=>{
+            if (props.tag === 'backups'){
+                refresh_instances_list_of_namespace()
+            }
+            return
+        }, 5000
+    )
     
     
     return <div>
@@ -2034,7 +2072,8 @@ const Backup_List_of_Namespace_ =()=>{
                             
                             phase: translate_dict[data_item.phase],
                             operation: 
-                                [
+                            !(data_item.phase === 'Cleaning') ?
+                            [
                                 <Popconfirm
                                 title={t('确认删除？')}
                                 onConfirm={async () => {
@@ -2064,7 +2103,7 @@ const Backup_List_of_Namespace_ =()=>{
                                                     remoteType: remoteType,
                                                     prefix: prefix,
                                                     storageClassName: storageClassName,
-                                                    storageResource: `${storageResource}`
+                                                    storageResource: `${Gi_process(storageResource)}`
                                                 }
                                             }
                                         )
@@ -2088,6 +2127,13 @@ const Backup_List_of_Namespace_ =()=>{
                                     {translate_dict['restores'] + ' '}
                                 </Link>,
                                 
+                                ]:
+                                [
+                                    <Space>
+                                    <a style={{color:'gray'}}>{t('删除')}</a>
+                                    <a style={{color:'gray'}}>{t('重新触发')}</a>
+                                    <a style={{color:'gray'}}>{t('还原')}</a>
+                                    </Space>
                                 ]
                         }
                     }
@@ -2098,6 +2144,7 @@ const Backup_List_of_Namespace_ =()=>{
                         title={t('名称', {context:'backup'})}
                         key='name'
                         dataIndex={'name'}
+                        width='20%'
                     />
                     <Column
                         title={t('创建时间', {context:'backup'})}
@@ -2140,7 +2187,7 @@ const Backup_List_of_Namespace_ =()=>{
                                 remoteType: remoteType,
                                 prefix: prefix,
                                 storageClassName: storageClassName,
-                                storageResource: `${storageResource}`
+                                storageResource: `${Gi_process(storageResource)}`
                             }
                         }
                     )
@@ -2269,7 +2316,7 @@ const Backup_List_of_Namespace_ =()=>{
                                 type='primary'
                                 onClick={() => {
                                     set_sourcekey_modal_open(true)
-                                }}>{t('添加存储配置')}</Button>
+                                }}>{t('添加云端储存配置')}</Button>
 
                         </Space>
                     </Form.Item>
@@ -2339,7 +2386,7 @@ const Backup_List_of_Namespace_ =()=>{
                                 remoteType: content_of_restore_modal.remoteType,
                                 prefix: content_of_restore_modal.prefix,
                                 storageClassName: content_of_restore_modal.storageClassName,
-                                storageResource: `${content_of_restore_modal.storageResource}`,
+                                storageResource: `${Gi_process(content_of_restore_modal.storageResource)}`,
                                 saveDir: content_of_restore_modal.saveDir,
                                 dolphindbName: dolphindbName,
                                 dolphindbNamespace: dolphindbNamespace,
@@ -2420,7 +2467,7 @@ const Backup_List_of_Namespace_ =()=>{
 
 }
 
-const Restore_List_of_Namespace_ = () => {
+const Restore_List_of_Namespace_ = (props:{tag:'backups' | 'restores' | 'sourceKey'} ) => {
 
     const [fetched_restore_list_of_namesace, set_restore_isntances_list_of_namespace] = useState<typeof get_namespace_format>(undefined)
 
@@ -2441,12 +2488,20 @@ const Restore_List_of_Namespace_ = () => {
         }, [refresher]
     )
 
+    useInterval(
+        ()=>{
+            if (props.tag === 'restores'){
+                refresh_restore_instances_list_of_namespace()
+            }
+            return
+        }, 5000
+    )
+    
     return <div>
 
         <div className='actions'>
             <Button
                 className='refresh'
-                type='primary'
                 icon={<ReloadOutlined />}
                 onClick={() => {
                     set_refresher(refresher + 1)
@@ -2491,6 +2546,7 @@ const Restore_List_of_Namespace_ = () => {
                     title={t('名称', { context: 'backup' })}
                     key='name'
                     dataIndex={'name'}
+                    width='30%'
                 />
                 <Column
                     title={t('创建时间', { context: 'backup' })}
@@ -2516,7 +2572,7 @@ const Restore_List_of_Namespace_ = () => {
     </div>
 }
 
-const SourceKey_List =()=>{
+const SourceKey_List =(props:{tag:'backups' | 'restores' | 'sourceKey'})=>{
     const [sourceKey_detail, set_sourceKey_detail] = useState()
     
     const [refresher, set_refresher]= useState(0)
@@ -2544,6 +2600,15 @@ const SourceKey_List =()=>{
         refresh_sourceKey_detail()
     }, [refresher])
     
+    useInterval(
+        ()=>{
+            if (props.tag === 'sourceKey'){
+                refresh_sourceKey_detail()
+            }
+            return
+        }, 5000
+    )
+    
     return <div>
     
     <div className='actions'>
@@ -2555,12 +2620,11 @@ const SourceKey_List =()=>{
             }}
         >
             <img className='icon-add' src={icon_add} />
-            <span>{t('添加存储配置')}</span>
+            <span>{t('添加云端储存配置')}</span>
         </Button>
 
         <Button
             className='refresh'
-            type='primary'
             icon={<ReloadOutlined />}
             onClick={() => {
                 set_refresher(refresher + 1)
@@ -2607,6 +2671,7 @@ const SourceKey_List =()=>{
             title={t('名称', { context: 'backup' })}
             key='name'
             dataIndex={'name'}
+            width='50%'
         />
         <Column
             title={t('操作', { context: 'backup' })}
@@ -2721,3 +2786,20 @@ const request_json_with_error_handling = async (url, options?) => {
         }
     }
 }
+
+function useInterval(callback, delay) {
+    const savedCallback = useRef();
+  
+    useEffect(() => {
+      savedCallback.current = callback;
+    });
+  
+    useEffect(() => {
+      function tick() {
+        savedCallback.current();
+      }
+  
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }, [delay]);
+  }
