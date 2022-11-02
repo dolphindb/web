@@ -23,8 +23,7 @@ import {
     Tooltip,
     Button,
     InputNumber,
-    message,
-    Anchor
+    message
 } from 'antd'
 import {
     default as Icon,
@@ -67,15 +66,12 @@ import SvgDashboard from './dashboard.icon.svg'
 import SvgJob from './job.icon.svg'
 import SvgDFS from './dfs.icon.svg'
 import SvgLog from './log.icon.svg'
-const {Link} = Anchor
 
 
 const { Text } = Typography
 
 const locales = { zh, en, ja, ko }
 
-type env_type = 'dolphindb' | 'citicsai'
-const env_ :env_type= 'citicsai'
 
 function DolphinDB () {
     const { inited } = model.use(['inited'])

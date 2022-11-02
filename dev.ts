@@ -14,7 +14,7 @@ import { get_monaco, webpack, fpd_root, fpd_out_console } from './webpack.js'
 
 class DevServer extends Server {
     constructor () {
-        super(8440, { rpc: true })
+        super(8432, { rpc: true })
     }
     
     override async router (ctx: Context) {
@@ -130,7 +130,7 @@ let ufs = new UFS([mfs, fs])
 let server = new DevServer()
 
 await Promise.all([
-    //get_monaco(),
+    get_monaco(),
     server.start(),
     webpack.start(mfs)
 ])
@@ -138,7 +138,7 @@ await Promise.all([
 console.log(
     'devserver 启动完成\n' +
     '请使用浏览器打开:\n' +
-    'http://localhost:8440/console/index.html?hostname=127.0.0.1&port=8848\n' +
-    'http://localhost:8440/cloud/index.html'
+    'http://localhost:8432/console/index.html?hostname=127.0.0.1&port=8848\n' +
+    'http://localhost:8432/cloud/index.html'
 )
 

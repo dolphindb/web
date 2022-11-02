@@ -37,7 +37,7 @@ if (process.argv.includes('cloud')) {
         fcopy(`${fpd_root}node_modules/vscode-oniguruma/release/onig.wasm`, `${fpd_out_console}onig.wasm`),
         
         copy_fonts(false),
-        //get_monaco(),
+        get_monaco(),
         webpack.build(false)
     ])
 }
