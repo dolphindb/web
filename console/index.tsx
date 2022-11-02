@@ -250,7 +250,7 @@ function DdbHeader_Citicsai () {
         
         <HomeOutlined
         size={500}
-        style={{color:'white', lineHeight:3, fontSize:18}}
+        style={{color:'white', lineHeight:'55px', fontSize:18}}
         ></HomeOutlined>
         
         <a
@@ -290,7 +290,9 @@ function DdbHeader_Citicsai () {
                     </div>
                 }
             >
-                <Tag className='node-info' color='#f2f2f2' onMouseOver={() => { model.get_cluster_perf() }}>
+                <Tag className='node-info' 
+                style={{color:'white' }}
+                color='#3E4655' onMouseOver={() => { model.get_cluster_perf() }}>
                     {t('状态')}
                 </Tag>
             </Popover>
@@ -319,7 +321,7 @@ function DdbHeader_Citicsai () {
                         </div> : null
                     }
                 >
-                    <Tag className='license' color='#f2f2f2'>{authorizations[license.authorization] || license.authorization}</Tag>
+                    <Tag className='license' color='#3E4655'>{authorizations[license.authorization] || license.authorization}</Tag>
                 </Popover>
             </div>
         }
@@ -359,9 +361,12 @@ function DdbHeader_Citicsai () {
                     />
                 }
             >
-                <a className='username'>
-                    <Avatar className='avatar' icon={<UserOutlined />} size='small' /> {logined? `欢迎您，${username}`:'未登录'} <DownOutlined />
-                </a>
+                <div
+                id={'user'}
+                >
+                    {logined? `欢迎您，${username}`:'未登录'}
+                    <DownOutlined></DownOutlined>
+                </div>
             </Dropdown>
         </div>
     </>
