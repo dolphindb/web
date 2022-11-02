@@ -1460,7 +1460,9 @@ function Show_backup_restore_sched (){
       {
         label: translate_dict['backups'],
         key: '1',
-        children: <Backup_List_of_Namespace_ tag={tag}></Backup_List_of_Namespace_>,
+        children: <ErrorBoundary>
+        <Backup_List_of_Namespace_ tag={tag}></Backup_List_of_Namespace_>
+        </ErrorBoundary>
       },
       {
         label: translate_dict['restores'],
@@ -1494,7 +1496,7 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
     const form_object = {'nfs':nfs_form, 's3':s3_form}
     useEffect(()=>{
         (async () => {
-            const fetched_providers = (await request_json('/v1/dolphindbs/backups/providers'))['providers']
+            const fetched_providers = (await request_json_with_error_handling('/v1/dolphindbs/backups/providers'))['providers']
             set_providers(fetched_providers)
         })()
     }, [] )
@@ -1513,9 +1515,9 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
             <Button key="submit" type="primary" onClick={async () => {
                 const form_data = await form_object[sourceKey_modal_info.type].validateFields()
                 try {
-                    await request_json('/v1/dolphindbs/backups/config', {
+                    await request_json_with_error_handling('/v1/dolphindbs/backups/config', {
                         method: 'post',
-                        body: form_data,
+                        body: {...form_data, type:sourceKey_modal_info.type},
                         headers: { 'content-type': 'application/json' }
                     })
                     props.refresh_sourceKey()
@@ -1630,8 +1632,9 @@ const Dashboard_For_One_Name: FC<{ open:boolean, name: string, onCancel:()=>void
     const [sourceKey_detail, set_sourceKey_detail] = useState({})
     
     async function fetch_data() {
-        const _data = await request_json(`/v1/dolphindbs/${namespace}/${model.cluster.name}/${props.type}/${props.name}`)
-        const data = structured_to_flatten(_data)
+        const _data = await request_json_with_error_handling(`/v1/dolphindbs/${namespace}/${model.cluster.name}/${props.type}/${props.name}`)
+        const data = _data
+        //const data = structured_to_flatten(_data)
         setData(data)
     }
 
@@ -1695,6 +1698,12 @@ const Dashboard_For_One_Name: FC<{ open:boolean, name: string, onCancel:()=>void
                                         //layout='vertical'
                                         >
                                             <Descriptions.Item
+                                                label={translate_dict['type']}
+                                            >
+                                                {sourceKey_detail[data.sourceKey]['type']}
+                                            </Descriptions.Item>
+                                            
+                                            <Descriptions.Item
                                                 label={translate_dict['endpoint']}
                                             >
                                                 {sourceKey_detail[data.sourceKey]['endpoint']}
@@ -1716,6 +1725,12 @@ const Dashboard_For_One_Name: FC<{ open:boolean, name: string, onCancel:()=>void
                                         column={1}
                                         //layout='vertical'
                                         >
+                                            <Descriptions.Item
+                                            label={
+                                                translate_dict['type']
+                                            }>
+                                                {sourceKey_detail[data.sourceKey]['type']}
+                                            </Descriptions.Item>
                                             <Descriptions.Item
                                                 label={translate_dict['provider']}
                                             >
@@ -1880,7 +1895,8 @@ const translate_dict = {
     'Failed':t('运行失败'),
     'Invalid':t('参数异常'),
     'dolphindbNamespace':t('命名空间'),
-    'dolphindbName': t('名称')
+    'dolphindbName': t('名称'),
+    'type':t('类型')
 }
 
 const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey'})=>{
@@ -2015,7 +2031,12 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
         if (! (sourceKeys && sourceKey_detail)){
             return
         }
-        set_selected_remoteType(sourceKey_detail[sourceKeys[0]]['accessKey']? 's3': 'nfs')
+        try{
+            set_selected_remoteType(sourceKey_detail[sourceKeys[0]]['type'])    
+        }catch(e){
+            console.log(e)
+        }
+        
     }, [sourceKeys, sourceKey_detail])
     
     
@@ -2175,7 +2196,7 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
                 </Button>,
                 <Button key="submit" type="primary" onClick={async ()=>{
                     var {sourceKey, prefix, storageClassName, storageResource} = await form_instance_backup.validateFields()
-                    const remoteType = sourceKey_detail[sourceKey]['accessKey']? 's3' : 'nfs'
+                    const remoteType = sourceKey_detail[sourceKey]['type']
                     await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`,
                         {
                             method:'post',
@@ -2226,7 +2247,7 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
                                             data = e.values
                                         }
                                         set_content_of_backup_modal(data)
-                                        set_selected_remoteType(sourceKey_detail[value]['accessKey']? 's3' :'nfs')
+                                        set_selected_remoteType(sourceKey_detail[value]['type'])
                                     }}
                                     style={{width:100}}
                                 >
@@ -2251,6 +2272,10 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
                                                                                 //layout='vertical'
                                                                                 >
                                                                                     <Descriptions.Item
+                                                                                    label={translate_dict['type']}>
+                                                                                        {sourceKey_detail[x]['type']}
+                                                                                    </Descriptions.Item>
+                                                                                    <Descriptions.Item
                                                                                         label={translate_dict['endpoint']}
                                                                                     >
                                                                                         {sourceKey_detail[x]['endpoint']}
@@ -2272,6 +2297,9 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
                                                                                 column={1}
                                                                                 //layout='vertical'
                                                                                 >
+                                                                                    <Descriptions.Item label={translate_dict['type']}>
+                                                                                        {sourceKey_detail[x]['type']}
+                                                                                    </Descriptions.Item>
                                                                                     <Descriptions.Item
                                                                                         label={translate_dict['provider']}
                                                                                     >
@@ -2460,9 +2488,9 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
         ></SourceKey_Modal> : <div/>}
         
         
-        
+        <ErrorBoundary>
         <Dashboard_For_One_Name name={name_of_current_opened_detail} type = {'backups'} open={detail_modal_open}  onCancel = {()=>
-            {set_detail_modal_open(false)}}></Dashboard_For_One_Name>
+            {set_detail_modal_open(false)}}></Dashboard_For_One_Name></ErrorBoundary>
     </div>
 
 }
@@ -2566,8 +2594,10 @@ const Restore_List_of_Namespace_ = (props:{tag:'backups' | 'restores' | 'sourceK
             </Table> :
             <Empty></Empty>
         }
-
+        
+        <ErrorBoundary>
         <Dashboard_For_One_Name name={name_of_current_opened_detail} type={'restores'} open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }}></Dashboard_For_One_Name>
+        </ErrorBoundary>
 
     </div>
 }
@@ -2650,6 +2680,7 @@ const SourceKey_List =(props:{tag:'backups' | 'restores' | 'sourceKey'})=>{
                     set_sourceKey_detail_modal_name(data_item)
                     set_sourceKey_detail_modal_open(true)
                 }}>{data_item}</Link>,
+                type: sourceKey_detail[data_item]['type'],
                 operation:
                     [
                         <Popconfirm
@@ -2671,7 +2702,12 @@ const SourceKey_List =(props:{tag:'backups' | 'restores' | 'sourceKey'})=>{
             title={t('名称', { context: 'backup' })}
             key='name'
             dataIndex={'name'}
-            width='50%'
+            width='30%'
+        />
+        <Column
+            title={t('类型', { context: 'backup' })}
+            key='type'
+            dataIndex={'type'}
         />
         <Column
             title={t('操作', { context: 'backup' })}
@@ -2692,12 +2728,17 @@ const SourceKey_List =(props:{tag:'backups' | 'restores' | 'sourceKey'})=>{
             {
                 sourceKey_detail && sourceKey_detail[sourceKey_detail_modal_name] ?
                     (
-                        (!sourceKey_detail[sourceKey_detail_modal_name]['accessKey']) ?
+                        (sourceKey_detail[sourceKey_detail_modal_name]['type'] === 'nfs') ?
 
                             <Descriptions bordered
                                 column={1}
                             //layout='vertical'
                             >
+                                <Descriptions.Item
+                                    label={translate_dict['type']}
+                                >
+                                    {sourceKey_detail[sourceKey_detail_modal_name]['type']}
+                                </Descriptions.Item>
                                 <Descriptions.Item
                                     label={translate_dict['endpoint']}
                                 >
@@ -2719,7 +2760,13 @@ const SourceKey_List =(props:{tag:'backups' | 'restores' | 'sourceKey'})=>{
                             <Descriptions bordered
                                 column={1}
                             //layout='vertical'
-                            >
+>
+                                <Descriptions.Item
+                                    label={translate_dict['type']}
+                                >
+                                    {sourceKey_detail[sourceKey_detail_modal_name]['type']}
+                                </Descriptions.Item>
+                                
                                 <Descriptions.Item
                                     label={translate_dict['provider']}
                                 >
@@ -2802,4 +2849,43 @@ function useInterval(callback, delay) {
       let id = setInterval(tick, delay);
       return () => clearInterval(id);
     }, [delay]);
+}
+
+  
+  
+  
+class ErrorBoundary extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = { error: null, errorInfo: null };
+    }
+    
+    override componentDidCatch(error, errorInfo) {
+      // Catch errors in any components below and re-render with error message
+      this.setState({
+        error: error,
+        errorInfo: errorInfo
+      })
+      // You can also log error messages to an error reporting service here
+    }
+    
+    override render() {
+      if (this.state.errorInfo) {
+        // Error path
+        return (
+          <div>
+            <h2>Something went wrong.</h2>
+            <details style={{ whiteSpace: 'pre-wrap' }}>
+              {this.state.error && this.state.error.toString()}
+              <br />
+              {this.state.errorInfo.componentStack}
+            </details>
+          </div>
+        );
+      }
+      // Normally, just render children
+      return this.props.children;
+    }  
   }
+  
+  
