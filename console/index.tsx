@@ -84,21 +84,24 @@ function DolphinDB () {
         model.init()
     }, [ ])
     
+    const { is_citic } = model.use(['is_citic'])
+    //const is_citic = true
+    
     if (!inited)
         return null
     
     return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false}>
         <Layout className='root-layout'>
             {
-                !(env_ === 'citicsai')?
-            <Layout.Header className='header'>
-                <DdbHeader></DdbHeader>
-            </Layout.Header>:
-            
-            <Layout.Header className='citicsai-header'>
-            <DdbHeader_Citicsai></DdbHeader_Citicsai>
-        </Layout.Header>
-}
+                !is_citic ?
+                    <Layout.Header className='header'>
+                        <DdbHeader></DdbHeader>
+                    </Layout.Header> :
+
+                    <Layout.Header className='citicsai-header'>
+                        <DdbHeader_Citicsai></DdbHeader_Citicsai>
+                    </Layout.Header>
+            }
             <Layout className='body'>
                 <DdbSider />
                 <Layout.Content className='view'>
@@ -246,21 +249,21 @@ function DdbHeader_Citicsai () {
     
     return <>
         
-        <img  src='./citicsai.png' style={{height:'40px', margin:'5px'}}/>
-        
+        <img src='./citicsai.png' style={{ height: '40px', margin: '5px' }} />
+
         <HomeOutlined
-        size={500}
-        style={{color:'white', lineHeight:'55px', fontSize:18}}
+            size={500}
+            style={{ color: 'white', lineHeight: '55px', fontSize: 18 }}
         ></HomeOutlined>
-        
+
         <a
-        style={{ fontSize: 18, color: 'white', lineHeight: '48px', marginLeft: '5px' }} 
-        href='https://google.com/'
-        id={'front_page_link'}
-        target='_blank'
-        >首页</a>
+            style={{ fontSize: 18, color: 'white', lineHeight: '48px', marginLeft: '5px' }}
+            href='/'
+            id={'front_page_link'}
+            target='_blank'
+        >{t('首页')}</a>
         <div className='padding' />
-        
+
         <div >
             <Popover
                 placement='bottomLeft'
@@ -290,14 +293,14 @@ function DdbHeader_Citicsai () {
                     </div>
                 }
             >
-                <Tag className='node-info' 
-                style={{color:'white' }}
-                color='#3E4655' onMouseOver={() => { model.get_cluster_perf() }}>
+                <Tag className='node-info'
+                    style={{ color: 'white' }}
+                    color='#3E4655' onMouseOver={() => { model.get_cluster_perf() }}>
                     {t('状态')}
                 </Tag>
             </Popover>
         </div>
-        
+
         {
             license && <div>
                 <Popover
@@ -312,7 +315,7 @@ function DdbHeader_Citicsai () {
                                     <Descriptions.Item label={t('过期时间')}>{date2str(license.expiration)}</Descriptions.Item>
                                     <Descriptions.Item label={t('绑定 CPU')}>{String(license.bindCPU)}</Descriptions.Item>
                                     <Descriptions.Item label={t('版本')}>{license.version}</Descriptions.Item>
-                                    <Descriptions.Item label={t('模块')}>{ license.modules === -1n ? 'unlimited' : license.modules.toString() }</Descriptions.Item>
+                                    <Descriptions.Item label={t('模块')}>{license.modules === -1n ? 'unlimited' : license.modules.toString()}</Descriptions.Item>
                                     <Descriptions.Item label={t('每节点最大可用内存')}>{license.maxMemoryPerNode}</Descriptions.Item>
                                     <Descriptions.Item label={t('每节点最大可用核数')}>{license.maxCoresPerNode}</Descriptions.Item>
                                     <Descriptions.Item label={t('最大节点数')}>{license.maxNodes}</Descriptions.Item>
@@ -325,9 +328,9 @@ function DdbHeader_Citicsai () {
                 </Popover>
             </div>
         }
-        
+
         <Settings />
-        
+
         <div className='user'>
             <Dropdown
                 overlay={
@@ -337,34 +340,34 @@ function DdbHeader_Citicsai () {
                             logined ?
                                 {
                                     label: <a
-                                            className='logout'
-                                            onClick={() => {
-                                                model.logout()
-                                            }}
-                                        >{t('注销')}</a>,
+                                        className='logout'
+                                        onClick={() => {
+                                            model.logout()
+                                        }}
+                                    >{t('注销')}</a>,
                                     key: 'logout',
                                     icon: <LogoutOutlined />
                                 }
-                            :
+                                :
                                 {
                                     label: <a
-                                            className='login'
-                                            onClick={() => {
-                                                model.set({ view: 'login' })
-                                            }}
-                                        >{t('登录')}</a>,
+                                        className='login'
+                                        onClick={() => {
+                                            model.set({ view: 'login' })
+                                        }}
+                                    >{t('登录')}</a>,
                                     key: 'login',
                                     icon: <LogoutOutlined />
                                 }
-                            ]
-                        } 
+                        ]
+                        }
                     />
                 }
             >
                 <div
-                id={'user'}
+                    id={'user'}
                 >
-                    {logined? `欢迎您，${username}`:'未登录'}
+                    {logined ? t('欢迎您，{{username}}', { username: username }) : t('未登录')}
                     <DownOutlined></DownOutlined>
                 </div>
             </Dropdown>
