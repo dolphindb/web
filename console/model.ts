@@ -12,6 +12,7 @@ export const storage_keys = {
     session_id: 'ddb.session_id',
     collapsed: 'ddb.collapsed',
     code: 'ddb.code',
+    session: 'ddb.session',
 } as const
 
 const username_guest = 'guest' as const
@@ -50,6 +51,7 @@ export class DdbModel extends Model<DdbModel> {
     
     options?: InspectOptions
     
+    
     async init () {
         console.log(t('console 开始初始化'))
         
@@ -71,7 +73,7 @@ export class DdbModel extends Model<DdbModel> {
             console.log(t('当前为中信证券的 web, 启用单点登录'))
             
             let url = new URL(location.href)
-            const session = url.searchParams.get('sessionData')
+            const session = url.searchParams.get('sessionData') || localStorage.getItem(storage_keys.session)
             if (session) {
                 url.searchParams.delete('sessionData')
                 history.replaceState(null, '', url.toString())
@@ -162,6 +164,7 @@ export class DdbModel extends Model<DdbModel> {
         
         if (result.code) {
             const message = t('通过 session 登录失败，即将跳转到单点登录页')
+            localStorage.removeItem(storage_keys.session)
             const error = Object.assign(
                 new Error(message),
                 result
@@ -175,6 +178,8 @@ export class DdbModel extends Model<DdbModel> {
             throw error
         } else {
             console.log(t('通过 session 登录成功:'), result)
+            
+            localStorage.setItem(storage_keys.session, session)
             
             // result.username 由于 server 的 parseExpr 无法正确 parse \u1234 这样的字符串，先从后台 JSON 中提取信息
             // 等 server 增加 parseJSON 函数
