@@ -85,7 +85,7 @@ function DolphinDB () {
     
     return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false}>
         <Layout className='root-layout'>
-            <Layout.Header className={is_citic? 'citics-header' :'header'}>
+            <Layout.Header className={`header ${ is_citic ? 'citic' : '' }`}>
                 <DdbHeader></DdbHeader>
             </Layout.Header>
             <Layout className='body'>
