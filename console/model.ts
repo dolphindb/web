@@ -184,7 +184,7 @@ export class DdbModel extends Model<DdbModel> {
             // result.username 由于 server 的 parseExpr 无法正确 parse \u1234 这样的字符串，先从后台 JSON 中提取信息
             // 等 server 增加 parseJSON 函数
             const { name: username } = JSON.parse(result.raw)
-            this.set({ username })
+            this.set({ logined: true, username })
             return result
         }
     }
