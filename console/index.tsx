@@ -74,7 +74,8 @@ const locales = { zh, en, ja, ko }
 
 
 function DolphinDB () {
-    const { inited, is_citic } = model.use(['inited', 'is_citic'])
+    const { inited } = model.use(['inited', 'is_citic'])
+    const is_citic = true
     
     useEffect(() => {
         model.init()
@@ -83,18 +84,13 @@ function DolphinDB () {
     if (!inited)
         return null
     
-    return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false}>
+        return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false}>
         <Layout className='root-layout'>
-            {
-                !is_citic ?
-                    <Layout.Header className='header'>
-                        <DdbHeader></DdbHeader>
-                    </Layout.Header>
-                :
-                    <Layout.Header className='citicsai-header'>
-                        <DdbHeaderCiticsai></DdbHeaderCiticsai>
-                    </Layout.Header>
-            }
+            
+            <Layout.Header className={is_citic? 'citics-header' :'header'}>
+                <DdbHeader></DdbHeader>
+            </Layout.Header>
+            
             <Layout className='body'>
                 <DdbSider />
                 <Layout.Content className='view'>
@@ -107,8 +103,8 @@ function DolphinDB () {
 
 
 function DdbHeader () {
-    const { logined, username, node_alias, version, license, is_citic } = model.use(['logined', 'username', 'node_alias', 'version', 'license', 'is_citic'])
-    
+    const { logined, username, node_alias, version, license } = model.use(['logined', 'username', 'node_alias', 'version', 'license', 'is_citic'])
+    const is_citic = true
     const authorizations = {
         trial: t('试用版'),
         community: t('社区版'),
@@ -122,7 +118,18 @@ function DdbHeader () {
     }, [node_alias])
     
     return <>
-        <img className='logo' src='./ddb.svg' />
+        {(!is_citic)?
+            <img className='logo' src='./ddb.svg' />:
+            <><img src='./citicsai.png' style={{ height: '40px', margin: '5px' }} /><HomeOutlined
+                size={500}
+                style={{ color: 'white', lineHeight: '55px', fontSize: 18 }}
+            ></HomeOutlined><a
+                style={{ fontSize: 18, color: 'white', lineHeight: '48px', marginLeft: '5px' }}
+                href='/'
+                id={'front_page_link'}
+                target='_blank'
+            >{t('首页')}</a></>
+            }
         
         <div className='padding' />
         
@@ -155,7 +162,10 @@ function DdbHeader () {
                     </div>
                 }
             >
-                <Tag className='node-info' color='#f2f2f2' onMouseOver={() => { model.get_cluster_perf() }}>
+                <Tag className='node-info' 
+                color={is_citic? '#3E4655' :'#f2f2f2' }
+                style={is_citic&&{color:'white'}}
+                onMouseOver={() => { model.get_cluster_perf() }}>
                     {t('状态')}
                 </Tag>
             </Popover>
@@ -183,7 +193,7 @@ function DdbHeader () {
                     </div>
                 }
             >
-                <Tag className='license' color='#f2f2f2'>{authorizations[license.authorization] || license.authorization}</Tag>
+                <Tag className='license' color={is_citic? '#3E4655' :'#f2f2f2' }>{authorizations[license.authorization] || license.authorization}</Tag>
             </Popover>
         </div>
         
@@ -192,7 +202,7 @@ function DdbHeader () {
         <div className='user'>{
             is_citic ?
                 <a className={`username ${is_citic ? 'citic' : ''}`}>
-                    <Avatar className='avatar' icon={<UserOutlined />} size='small' /> {username}
+                    {`欢迎您，${username}`}
                 </a>
             :
                 <Dropdown
@@ -224,148 +234,6 @@ function DdbHeader () {
         }</div>
     </>
 }
-
-function DdbHeaderCiticsai () {
-    const { logined, username, node_alias, version, license } = model.use(['logined', 'username', 'node_alias', 'version', 'license'])
-    
-    const authorizations = {
-        trial: t('试用版'),
-        community: t('社区版'),
-        commercial: t('商业版')
-    }
-    
-    useEffect(() => {
-        if (!node_alias)
-            return
-        document.title = `DolphinDB - ${node_alias}`
-    }, [node_alias])
-    
-    return <>
-        
-        <img src='./citicsai.png' style={{ height: '40px', margin: '5px' }} />
-
-        <HomeOutlined
-            size={500}
-            style={{ color: 'white', lineHeight: '55px', fontSize: 18 }}
-        ></HomeOutlined>
-
-        <a
-            style={{ fontSize: 18, color: 'white', lineHeight: '48px', marginLeft: '5px' }}
-            href='/'
-            id='front_page_link'
-            target='_blank'
-        >{t('首页')}</a>
-        <div className='padding' />
-
-        <div >
-            <Popover
-                placement='bottomLeft'
-                content={
-                    <div className='head-bar-info'>
-                        <Card
-                            size='small'
-                            title={t('状态')}
-                            bordered={false}
-                            extra={
-                                <div
-                                    className='refresh'
-                                    onClick={() => {
-                                        model.get_cluster_perf();
-                                    }}
-                                >
-                                    <Tooltip title={t('刷新')} color={'grey'}>
-                                        <SyncOutlined className='icon' />
-                                    </Tooltip>
-                                </div>
-                            }
-                        >
-                            <div className='status-description'>
-                                <Perf />
-                            </div>
-                        </Card>
-                    </div>
-                }
-            >
-                <Tag className='node-info'
-                    style={{ color: 'white' }}
-                    color='#3E4655' onMouseOver={() => { model.get_cluster_perf() }}>
-                    {t('状态')}
-                </Tag>
-            </Popover>
-        </div>
-
-        {
-            license && <div>
-                <Popover
-                    placement='bottomLeft'
-                    content={
-                        license ? <div className='license-card head-bar-info'>
-                            <Card size='small' bordered={false} title={`${authorizations[license.authorization] || license.authorization} v${version}`}>
-                                <Descriptions bordered size='small' column={2}>
-                                    <Descriptions.Item label={t('授权类型')}>{authorizations[license.authorization] || license.authorization}</Descriptions.Item>
-                                    <Descriptions.Item label={t('授权客户')}>{license.clientName}</Descriptions.Item>
-                                    <Descriptions.Item label={t('许可类型')}>{license.licenseType}</Descriptions.Item>
-                                    <Descriptions.Item label={t('过期时间')}>{date2str(license.expiration)}</Descriptions.Item>
-                                    <Descriptions.Item label={t('绑定 CPU')}>{String(license.bindCPU)}</Descriptions.Item>
-                                    <Descriptions.Item label={t('版本')}>{license.version}</Descriptions.Item>
-                                    <Descriptions.Item label={t('模块')}>{license.modules === -1n ? 'unlimited' : license.modules.toString()}</Descriptions.Item>
-                                    <Descriptions.Item label={t('每节点最大可用内存')}>{license.maxMemoryPerNode}</Descriptions.Item>
-                                    <Descriptions.Item label={t('每节点最大可用核数')}>{license.maxCoresPerNode}</Descriptions.Item>
-                                    <Descriptions.Item label={t('最大节点数')}>{license.maxNodes}</Descriptions.Item>
-                                </Descriptions>
-                            </Card>
-                        </div> : null
-                    }
-                >
-                    <Tag className='license' color='#3E4655'>{authorizations[license.authorization] || license.authorization}</Tag>
-                </Popover>
-            </div>
-        }
-
-        <Settings />
-
-        <div className='user'>
-            <Dropdown
-                overlay={
-                    <Menu
-                        className='menu'
-                        items={[
-                            logined ?
-                                {
-                                    label: <a
-                                        className='logout'
-                                        onClick={() => {
-                                            model.logout()
-                                        }}
-                                    >{t('注销')}</a>,
-                                    key: 'logout',
-                                    icon: <LogoutOutlined />
-                                }
-                                :
-                                {
-                                    label: <a
-                                        className='login'
-                                        onClick={() => {
-                                            model.set({ view: 'login' })
-                                        }}
-                                    >{t('登录')}</a>,
-                                    key: 'login',
-                                    icon: <LogoutOutlined />
-                                }
-                        ]
-                        }
-                    />
-                }
-            >
-                <div id='user'>
-                    {logined ? t('欢迎您，{{username}}', { username: username }) : t('未登录')}
-                    <DownOutlined></DownOutlined>
-                </div>
-            </Dropdown>
-        </div>
-    </>
-}
-
 
 function Perf() {
     const { node } = model.use(['node'])
