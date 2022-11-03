@@ -74,8 +74,7 @@ const locales = { zh, en, ja, ko }
 
 
 function DolphinDB () {
-    const { inited } = model.use(['inited', 'is_citic'])
-    const is_citic = true
+    const { inited, is_citic } = model.use(['inited', 'is_citic'])
     
     useEffect(() => {
         model.init()
@@ -84,13 +83,11 @@ function DolphinDB () {
     if (!inited)
         return null
     
-        return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false}>
+    return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false}>
         <Layout className='root-layout'>
-            
             <Layout.Header className={is_citic? 'citics-header' :'header'}>
                 <DdbHeader></DdbHeader>
             </Layout.Header>
-            
             <Layout className='body'>
                 <DdbSider />
                 <Layout.Content className='view'>
@@ -103,8 +100,7 @@ function DolphinDB () {
 
 
 function DdbHeader () {
-    const { logined, username, node_alias, version, license } = model.use(['logined', 'username', 'node_alias', 'version', 'license', 'is_citic'])
-    const is_citic = true
+    const { logined, username, node_alias, version, license, is_citic } = model.use(['logined', 'username', 'node_alias', 'version', 'license', 'is_citic'])
     const authorizations = {
         trial: t('试用版'),
         community: t('社区版'),
@@ -118,19 +114,20 @@ function DdbHeader () {
     }, [node_alias])
     
     return <>
-        {(!is_citic)?
-            <img className='logo' src='./ddb.svg' />:
-            <><img src='./citicsai.png' style={{ height: '40px', margin: '5px' }} /><HomeOutlined
-                size={500}
-                style={{ color: 'white', lineHeight: '55px', fontSize: 18 }}
-            ></HomeOutlined><a
-                style={{ fontSize: 18, color: 'white', lineHeight: '48px', marginLeft: '5px' }}
-                href='/'
-                id={'front_page_link'}
-                target='_blank'
-            >{t('首页')}</a></>
-            }
-        
+        { is_citic ?
+            <>
+                <img src='./citicsai.png' style={{ height: '40px', margin: '5px' }} />
+                <HomeOutlined size={500} style={{ color: '#eeeeee', lineHeight: '55px', fontSize: 18 }}></HomeOutlined>
+                <a
+                    style={{ fontSize: 18, color: '#eeeeee', lineHeight: '48px', marginLeft: '5px' }}
+                    href='/'
+                    id={'front_page_link'}
+                    target='_blank'
+                >{t('首页')}</a>
+            </>
+        :
+            <img className='logo' src='./ddb.svg' />
+        }
         <div className='padding' />
         
         <div>
@@ -163,8 +160,8 @@ function DdbHeader () {
                 }
             >
                 <Tag className='node-info' 
-                color={is_citic? '#3E4655' :'#f2f2f2' }
-                style={is_citic&&{color:'white'}}
+                color={ is_citic ? '#3e4655' :'#f2f2f2' }
+                style={ is_citic ? { color: '#eeeeee' } : { }}
                 onMouseOver={() => { model.get_cluster_perf() }}>
                     {t('状态')}
                 </Tag>
@@ -193,7 +190,7 @@ function DdbHeader () {
                     </div>
                 }
             >
-                <Tag className='license' color={is_citic? '#3E4655' :'#f2f2f2' }>{authorizations[license.authorization] || license.authorization}</Tag>
+                <Tag className='license' color={ is_citic? '#3e4655' :'#f2f2f2' }>{authorizations[license.authorization] || license.authorization}</Tag>
             </Popover>
         </div>
         
@@ -202,7 +199,7 @@ function DdbHeader () {
         <div className='user'>{
             is_citic ?
                 <a className={`username ${is_citic ? 'citic' : ''}`}>
-                    {`欢迎您，${username}`}
+                    欢迎您，{username}
                 </a>
             :
                 <Dropdown
