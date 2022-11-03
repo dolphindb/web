@@ -161,7 +161,6 @@ function DdbHeader () {
             >
                 <Tag className='node-info' 
                 color={ is_citic ? '#3e4655' :'#f2f2f2' }
-                style={ is_citic ? { color: '#eeeeee' } : { }}
                 onMouseOver={() => { model.get_cluster_perf() }}>
                     {t('状态')}
                 </Tag>
