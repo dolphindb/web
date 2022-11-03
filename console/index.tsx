@@ -85,7 +85,7 @@ function DolphinDB () {
     
     return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false}>
         <Layout className='root-layout'>
-            <Layout.Header className={is_citic? 'citics-header' :'header'}>
+            <Layout.Header className={`header ${ is_citic ? 'citic' : '' }`}>
                 <DdbHeader></DdbHeader>
             </Layout.Header>
             <Layout className='body'>
@@ -161,7 +161,6 @@ function DdbHeader () {
             >
                 <Tag className='node-info' 
                 color={ is_citic ? '#3e4655' :'#f2f2f2' }
-                style={ is_citic ? { color: '#eeeeee' } : { }}
                 onMouseOver={() => { model.get_cluster_perf() }}>
                     {t('状态')}
                 </Tag>
