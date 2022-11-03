@@ -74,14 +74,11 @@ const locales = { zh, en, ja, ko }
 
 
 function DolphinDB () {
-    const { inited } = model.use(['inited'])
+    const { inited, is_citic } = model.use(['inited', 'is_citic'])
     
     useEffect(() => {
         model.init()
     }, [ ])
-    
-    const { is_citic } = model.use(['is_citic'])
-    //const is_citic = true
     
     if (!inited)
         return null
@@ -92,10 +89,10 @@ function DolphinDB () {
                 !is_citic ?
                     <Layout.Header className='header'>
                         <DdbHeader></DdbHeader>
-                    </Layout.Header> :
-
+                    </Layout.Header>
+                :
                     <Layout.Header className='citicsai-header'>
-                        <DdbHeader_Citicsai></DdbHeader_Citicsai>
+                        <DdbHeaderCiticsai></DdbHeaderCiticsai>
                     </Layout.Header>
             }
             <Layout className='body'>
@@ -228,7 +225,7 @@ function DdbHeader () {
     </>
 }
 
-function DdbHeader_Citicsai () {
+function DdbHeaderCiticsai () {
     const { logined, username, node_alias, version, license } = model.use(['logined', 'username', 'node_alias', 'version', 'license'])
     
     const authorizations = {
@@ -255,7 +252,7 @@ function DdbHeader_Citicsai () {
         <a
             style={{ fontSize: 18, color: 'white', lineHeight: '48px', marginLeft: '5px' }}
             href='/'
-            id={'front_page_link'}
+            id='front_page_link'
             target='_blank'
         >{t('首页')}</a>
         <div className='padding' />
@@ -360,17 +357,15 @@ function DdbHeader_Citicsai () {
                     />
                 }
             >
-                <div
-                    id={'user'}
-                >
+                <div id='user'>
                     {logined ? t('欢迎您，{{username}}', { username: username }) : t('未登录')}
                     <DownOutlined></DownOutlined>
                 </div>
             </Dropdown>
         </div>
     </>
-
 }
+
 
 function Perf() {
     const { node } = model.use(['node'])
