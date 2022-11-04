@@ -89,7 +89,7 @@ function ClusterDetail() {
     const Content = {
         info: <InfoTab />,
         config: <ClusterConfigs cluster={cluster} />,
-        backup: <Show_backup_restore_sched />
+        backup: <ShowBackupRestoreSourceKey />
     }
     
     return (
@@ -1634,84 +1634,83 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
 }
 
 
-function Show_backup_restore_sched (){
-    const [tag, set_tag] = useState('backups')
-    return   <Tabs
-    defaultActiveKey="1"
-    size='large'
-    centered
-    destroyInactiveTabPane={true}
-    onChange={(key)=>{
-        console.log('ON change')
-        switch (key) {
-            case '1':
-                set_tag('backups')
-                break;
-            
-            case '2':
-                set_tag('restores')
-                break;
-            
-            case '3':
-                set_tag('sourceKey')
-        }
-    }}
-    
-    
-    items={[
-      {
-        label: translate_dict['backups'],
-        key: '1',
-        children: <ErrorBoundary>
-        <Backup_List_of_Namespace_ tag={tag}></Backup_List_of_Namespace_>
-        </ErrorBoundary>
-      },
-      {
-        label: translate_dict['restores'],
-        key: '2',
-        children: <Restore_List_of_Namespace_ tag={tag}></Restore_List_of_Namespace_>
-      },
-      {
-        label: t('云端储存配置'),
-        key: '3',
-        children: <SourceKey_List tag={tag}></SourceKey_List>
-      },
-    ]}
-  />
+function ShowBackupRestoreSourceKey() {
+    const [tag, set_tag] = useState<'backups' | 'restores' | 'sourceKey'>('backups')
+    return <Tabs
+        defaultActiveKey="1"
+        size='large'
+        centered
+        destroyInactiveTabPane={true}
+        onChange={(key) => {
+            switch (key) {
+                case '1':
+                    set_tag('backups')
+                    break;
+
+                case '2':
+                    set_tag('restores')
+                    break;
+
+                case '3':
+                    set_tag('sourceKey')
+            }
+        }}
+
+
+        items={[
+            {
+                label: translate_dict['backups'],
+                key: '1',
+                children: <ErrorBoundary>
+                    <Backup_List_of_Namespace_ tag={tag}></Backup_List_of_Namespace_>
+                </ErrorBoundary>
+            },
+            {
+                label: translate_dict['restores'],
+                key: '2',
+                children: <Restore_List_of_Namespace_ tag={tag}></Restore_List_of_Namespace_>
+            },
+            {
+                label: t('云端储存配置'),
+                key: '3',
+                children: <SourceKey_List tag={tag}></SourceKey_List>
+            },
+        ]}
+    />
 
 }
 
 type Add_sourceKey_Modal_info = {
     type: 'nfs' | 's3'
-    open:boolean
+    open: boolean
 }
 
-function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open, refresh_sourceKey}){
-    
-    const [sourceKey_modal_info, set_sourceKey_modal_info] = useState<Add_sourceKey_Modal_info>({type:'nfs', open: props.sourcekey_modaol_open})
+function SourceKey_Modal(props: { sourcekey_modaol_open, set_sourcekey_modal_open, refresh_sourceKey }) {
+
+    const [sourceKey_modal_info, set_sourceKey_modal_info] = useState<Add_sourceKey_Modal_info>({ type: 'nfs', open: props.sourcekey_modaol_open })
     const [providers, set_providers] = useState([''])
-    
+
     const [nfs_form] = Form.useForm()
     const [s3_form] = Form.useForm()
-    
+
     const not_required = new Set(['provider'])
-    const form_object = {'nfs':nfs_form, 's3':s3_form}
-    useEffect(()=>{
+    const form_object = { 'nfs': nfs_form, 's3': s3_form }
+    useEffect(() => {
         (async () => {
             const fetched_providers = (await request_json_with_error_handling('/v1/dolphindbs/backups/providers'))['providers']
             set_providers(fetched_providers)
         })()
-    }, [] )
-    
-    
-    
+    }, [])
+
+
+
     return <Modal
-        
-        title= {t('添加云端储存配置')}
-        open = {sourceKey_modal_info.open}
-        onCancel={()=>{props.set_sourcekey_modal_open(false)}}
-        footer = {[
-            <Button key="back" onClick={()=>{props.set_sourcekey_modal_open(false)}}>
+
+        title={t('添加云端储存配置')}
+        open={sourceKey_modal_info.open}
+        onCancel={() => { props.set_sourcekey_modal_open(false) }}
+        footer={[
+            <Button key="back" onClick={() => { props.set_sourcekey_modal_open(false) }}>
                 {t('取消')}
             </Button>,
             <Button key="submit" type="primary" onClick={async () => {
@@ -1719,7 +1718,7 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
                 try {
                     await request_json_with_error_handling('/v1/dolphindbs/backups/config', {
                         method: 'post',
-                        body: {...form_data, type:sourceKey_modal_info.type},
+                        body: { ...form_data, type: sourceKey_modal_info.type },
                         headers: { 'content-type': 'application/json' }
                     })
                     props.refresh_sourceKey()
@@ -1737,12 +1736,12 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
             }}>
                 {t('提交')}
             </Button>
-        ]} 
+        ]}
     >
         <Tabs
-            onChange={(activeKey)=>{
+            onChange={(activeKey) => {
                 set_sourceKey_modal_info(
-                    {...sourceKey_modal_info, type:(activeKey as 'nfs'| 's3') }
+                    { ...sourceKey_modal_info, type: (activeKey as 'nfs' | 's3') }
                 )
             }}
             centered
@@ -1754,7 +1753,7 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
                         <>
                             <Form
                                 name='nfs'
-                                form = {nfs_form}
+                                form={nfs_form}
                                 colon={false}
                                 requiredMark={false}
                                 className='cluster-create-form'
@@ -1763,24 +1762,24 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
                                 wrapperCol={{ span: 16 }}
                             >
                                 <>
-                                {['name', 'endpoint', 'path'].map(
-                                    (x)=>{
-                                        return <Form.Item
-                                        name={x}
-                                        label={translate_dict[x]}
-                                        rules={ !not_required.has(x)?[{message:t('此项必填'), required:true}]: []}
-                                        >
-                                            <Input></Input>
-                                        </Form.Item>
-                                    }
-                                )}
+                                    {['name', 'endpoint', 'path'].map(
+                                        (x) => {
+                                            return <Form.Item
+                                                name={x}
+                                                label={translate_dict[x]}
+                                                rules={!not_required.has(x) ? [{ message: t('此项必填'), required: true }] : []}
+                                            >
+                                                <Input></Input>
+                                            </Form.Item>
+                                        }
+                                    )}
                                 </>
                             </Form>
                         </>
                 },
                 {
-                    key:'s3',
-                    label:'s3',
+                    key: 's3',
+                    label: 's3',
                     children: <Form
                         name='s3'
                         form={s3_form}
@@ -1797,7 +1796,7 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
                                 return !(x === 'provider') ? <Form.Item
                                     name={x}
                                     label={translate_dict[x]}
-                                    rules={ !not_required.has(x)?[{message:t('此项必填'), required:true}]: []}
+                                    rules={!not_required.has(x) ? [{ message: t('此项必填'), required: true }] : []}
                                 ><Input></Input></Form.Item> :
                                     <Form.Item
                                         name={'provider'}
@@ -1819,434 +1818,397 @@ function SourceKey_Modal (props:{sourcekey_modaol_open, set_sourcekey_modal_open
     </Modal>
 }
 
-const Gi_process = (str:string | number)=>{
-    if (typeof str === 'number'){
+const Gi_process = (str: string | number) => {
+    if (typeof str === 'number') {
         const temp = str.toString(10)
-        return temp.endsWith('Gi')? temp: temp+'Gi'
+        return temp.endsWith('Gi') ? temp : temp + 'Gi'
     }
-    return str.endsWith('Gi')? str: str+'Gi'
+    return str.endsWith('Gi') ? str : str + 'Gi'
 }
 
-const Dashboard_For_One_Name: FC<{ open:boolean, name: string, onCancel:()=>void, type: 'backups'| 'restores'}> = (props) => {
+const Dashboard_For_One_Name: FC<{ open: boolean, name: string, onCancel: () => void, type: 'backups' | 'restores' }> = (props) => {
     const { cluster } = model.use(['cluster'])
     const { namespace } = cluster
-    const [data, setData] = useState<any>()
+    const [data, setData] = useState<flatten_backup_detail | flatten_restore_detail>()
     const [sourceKey_detail, set_sourceKey_detail] = useState({})
-    
+
     async function fetch_data() {
-        if(!props.name){
+        if (!props.name) {
             return
         }
-        const _data = await request_json_with_error_handling(`/v1/dolphindbs/${namespace}/${model.cluster.name}/${props.type}/${props.name}`)
+        const _data = await request_json_with_error_handling(`/v1/dolphindbs/${namespace}/${model.cluster.name}/${props.type}/${props.name}`) as one_bakcup_detail
         //const data = _data
-        const data = structured_to_flatten(_data)
+        const data = { ..._data, phase: _data?.status.phase } as flatten_backup_detail
         setData(data)
     }
 
     useEffect(() => {
         fetch_data();
-        
-        (async ()=>{
-            const data = await request_json_with_error_handling(`/v1/dolphindbs/backups/config`)
+
+        (async () => {
+            const data = await request_json_with_error_handling(`/v1/dolphindbs/backups/config`) as sourceKey_detail[]
             set_sourceKey_detail(data)
         })()
     }, [props.open])
 
-    if(!data){
+    if (!data) {
         return undefined
     }
-    return <Modal open = {props.open}  width={'70%'} onCancel={props.onCancel} footer={false}>
+    return <Modal open={props.open} width={'70%'} onCancel={props.onCancel} footer={false}>
         <div className='dashboard-for-one-name'>
-        <PageHeader            
-        title={
-                <Title level={3}>{props.name}</Title>
-            }
-        />
-        
-        <div id='BasicInfo'>
-        <Descriptions
-            title={
-                <Title level={4}>{t('基础信息')}</Title>
-            }
-            column={3}
-            bordered
-        >
-            <Descriptions.Item label={t('命名空间')}>{namespace}</Descriptions.Item>
-            <Descriptions.Item label={t('名称')}>{props.name}</Descriptions.Item>
-            <Descriptions.Item label={t('状态')}>{translate_dict[data.phase]}</Descriptions.Item>
-        </Descriptions>
-        </div>
-        
-        <div id='BackupInfo'>
-        <Descriptions
-            title={
-                <Title level={4}>{t('备份信息')}</Title>
-            }
-            bordered
-        >
-            <Descriptions.Item label={t('云端储存类型')}>{data.remoteType}</Descriptions.Item>
-            <Descriptions.Item label={t('云端储存配置')}>{
-                <Popover title={data.sourceKey}
-                mouseEnterDelay={0}
-                mouseLeaveDelay={0}
-                placement={'left'}
-
-                content={
-                    <div>
-                        {
-                            sourceKey_detail && sourceKey_detail[data.sourceKey] ?
-                                (
-                                    (!sourceKey_detail[data.sourceKey]['accessKey'] )?
-
-                                        <Descriptions bordered 
-                                        column={1}
-                                        //layout='vertical'
-                                        >
-                                            <Descriptions.Item
-                                                label={translate_dict['type']}
-                                            >
-                                                {sourceKey_detail[data.sourceKey]['type']}
-                                            </Descriptions.Item>
-                                            
-                                            <Descriptions.Item
-                                                label={translate_dict['endpoint']}
-                                            >
-                                                {sourceKey_detail[data.sourceKey]['endpoint']}
-                                            </Descriptions.Item>
-
-                                            <Descriptions.Item
-                                                label={translate_dict['path']}
-                                            >
-                                                {sourceKey_detail[data.sourceKey]['path']}
-                                            </Descriptions.Item>
-
-                                        </Descriptions>
-
-                                         :
-
-
-
-                                        <Descriptions bordered 
-                                        column={1}
-                                        //layout='vertical'
-                                        >
-                                            <Descriptions.Item
-                                            label={
-                                                translate_dict['type']
-                                            }>
-                                                {sourceKey_detail[data.sourceKey]['type']}
-                                            </Descriptions.Item>
-                                            <Descriptions.Item
-                                                label={translate_dict['provider']}
-                                            >
-                                                {sourceKey_detail[data.sourceKey]['provider']}
-                                            </Descriptions.Item>
-
-                                            <Descriptions.Item
-                                                label={translate_dict['accessKey']}
-                                            >
-                                                {sourceKey_detail[data.sourceKey]['accessKey']}
-                                            </Descriptions.Item>
-
-
-                                            <Descriptions.Item
-                                                label={translate_dict['secretAccessKey']}
-                                            >
-                                                {sourceKey_detail[data.sourceKey]['secretAccessKey']}
-                                            </Descriptions.Item>
-
-                                            <Descriptions.Item
-                                                label={translate_dict['endpoint']}
-                                            >
-                                                {sourceKey_detail[data.sourceKey]['endpoint']}
-                                            </Descriptions.Item>
-
-
-                                        </Descriptions>
-
-                                ) :
-                                undefined
-                        }
-                    </div>
-                }
-            >{<Link>{data.sourceKey}</Link>}</Popover>
-            }</Descriptions.Item>
-            {
-                props.type === 'restores'?
-                <Descriptions.Item label={t('备份源')}>
-                {data.from}
-            </Descriptions.Item>:
-            undefined
-            }
-        </Descriptions>
-        </div>
-        <div id='PathInfo'>
-            <Descriptions
+            <PageHeader
                 title={
-                    <Title level={4}>{t('路径信息')}</Title>
+                    <Title level={3}>{props.name}</Title>
                 }
-                bordered
-            >
-                <Descriptions.Item label={t('储存路径')}>{data.storedPath || ' '}</Descriptions.Item>
+            />
 
-            </Descriptions>
+            <div id='BasicInfo'>
+                <Descriptions
+                    title={
+                        <Title level={4}>{t('基础信息')}</Title>
+                    }
+                    column={3}
+                    bordered
+                >
+                    <Descriptions.Item label={t('命名空间')}>{namespace}</Descriptions.Item>
+                    <Descriptions.Item label={t('名称')}>{props.name}</Descriptions.Item>
+                    <Descriptions.Item label={t('状态')}>{translate_dict[data.phase]}</Descriptions.Item>
+                </Descriptions>
+            </div>
+
+            <div id='BackupInfo'>
+                <Descriptions
+                    title={
+                        <Title level={4}>{t('备份信息')}</Title>
+                    }
+                    bordered
+                >
+                    <Descriptions.Item label={t('云端储存类型')}>{data.remoteType}</Descriptions.Item>
+                    <Descriptions.Item label={t('云端储存配置')}>{
+                        <Popover title={data.sourceKey}
+                            mouseEnterDelay={0}
+                            mouseLeaveDelay={0}
+                            placement={'left'}
+
+                            content={
+                                <div>
+                                    {
+                                        sourceKey_detail && sourceKey_detail[data.sourceKey] ?
+                                            (
+                                                (!sourceKey_detail[data.sourceKey]['accessKey']) ?
+
+                                                    <Descriptions bordered
+                                                        column={1}
+                                                    //layout='vertical'
+                                                    >
+                                                        <Descriptions.Item
+                                                            label={translate_dict['type']}
+                                                        >
+                                                            {sourceKey_detail[data.sourceKey]['type']}
+                                                        </Descriptions.Item>
+
+                                                        <Descriptions.Item
+                                                            label={translate_dict['endpoint']}
+                                                        >
+                                                            {sourceKey_detail[data.sourceKey]['endpoint']}
+                                                        </Descriptions.Item>
+
+                                                        <Descriptions.Item
+                                                            label={translate_dict['path']}
+                                                        >
+                                                            {sourceKey_detail[data.sourceKey]['path']}
+                                                        </Descriptions.Item>
+
+                                                    </Descriptions>
+
+                                                    :
+
+
+
+                                                    <Descriptions bordered
+                                                        column={1}
+                                                    //layout='vertical'
+                                                    >
+                                                        <Descriptions.Item
+                                                            label={
+                                                                translate_dict['type']
+                                                            }>
+                                                            {sourceKey_detail[data.sourceKey]['type']}
+                                                        </Descriptions.Item>
+                                                        <Descriptions.Item
+                                                            label={translate_dict['provider']}
+                                                        >
+                                                            {sourceKey_detail[data.sourceKey]['provider']}
+                                                        </Descriptions.Item>
+
+                                                        <Descriptions.Item
+                                                            label={translate_dict['accessKey']}
+                                                        >
+                                                            {sourceKey_detail[data.sourceKey]['accessKey']}
+                                                        </Descriptions.Item>
+
+
+                                                        <Descriptions.Item
+                                                            label={translate_dict['secretAccessKey']}
+                                                        >
+                                                            {sourceKey_detail[data.sourceKey]['secretAccessKey']}
+                                                        </Descriptions.Item>
+
+                                                        <Descriptions.Item
+                                                            label={translate_dict['endpoint']}
+                                                        >
+                                                            {sourceKey_detail[data.sourceKey]['endpoint']}
+                                                        </Descriptions.Item>
+
+
+                                                    </Descriptions>
+
+                                            ) :
+                                            undefined
+                                    }
+                                </div>
+                            }
+                        >{<Link>{data.sourceKey}</Link>}</Popover>
+                    }</Descriptions.Item>
+                    {
+                        props.type === 'restores' ?
+                            <Descriptions.Item label={t('备份源')}>
+                                {data.from}
+                            </Descriptions.Item> :
+                            undefined
+                    }
+                </Descriptions>
+            </div>
+            <div id='PathInfo'>
+                <Descriptions
+                    title={
+                        <Title level={4}>{t('路径信息')}</Title>
+                    }
+                    bordered
+                >
+                    <Descriptions.Item label={t('储存路径')}>{data.storedPath || ' '}</Descriptions.Item>
+
+                </Descriptions>
+            </div>
+
+            {
+                data.storageClassName && data.storageResource ?
+                    <Descriptions
+                        title={
+                            <Title level={4}>{t('储存信息')}</Title>
+                        }
+                        column={2}
+                        bordered
+                    >
+                        <Descriptions.Item label={t('储存类名称')}>{data.storageClassName || ' '}</Descriptions.Item>
+                        <Descriptions.Item label={t('储存空间')}>{data.storageResource ? Gi_process(data.storageResource) : ' '}</Descriptions.Item>
+                    </Descriptions>
+                    : undefined
+            }
+
+            {
+                data.dolphindbName && data.dolphindbNamespace ?
+                    <Descriptions
+                        title={
+                            <Title level={4}>{t('集群信息')}</Title>
+                        }
+                        column={2}
+                        bordered
+                    >
+                        <Descriptions.Item label={t('命名空间')}>{data.dolphindbNamespace || ' '}</Descriptions.Item>
+                        <Descriptions.Item label={t('名称', { context: 'backup' })}>{data.dolphindbName || ' '}</Descriptions.Item>
+                    </Descriptions>
+                    : undefined}
+
+
         </div>
-        
-        {
-            data.storageClassName&& data.storageResource?
-        <Descriptions
-            title={
-                <Title level={4}>{t('储存信息')}</Title>
-            }
-            column={2}
-            bordered
-        >
-            <Descriptions.Item label={t('储存类名称')}>{data.storageClassName || ' '}</Descriptions.Item>
-            <Descriptions.Item label={t('储存空间')}>{data.storageResource ? Gi_process(data.storageResource) : ' '}</Descriptions.Item>
-        </Descriptions>
-        :undefined
-        }
-        
-        {
-            data.dolphindbName && data.dolphindbNamespace ? 
-            <Descriptions
-            title={
-                <Title level={4}>{t('集群信息')}</Title>
-            }
-            column={2}
-            bordered
-        >
-            <Descriptions.Item label={t('命名空间')}>{data.dolphindbNamespace || ' '}</Descriptions.Item>
-            <Descriptions.Item label={t('名称', {context:'backup'})}>{data.dolphindbName || ' '}</Descriptions.Item>
-        </Descriptions>
-            :undefined}
-        
-
-    </div>
     </Modal>
 }
 
-
-//util function traversing object recursively
-
-//structured -> flatten
-const structured_to_flatten = (jsonObj) => {
-    let flatten = {}
-    function traverse(jsonObj) {
-        if (jsonObj !== null && typeof jsonObj == "object") {
-            Object.entries(jsonObj).forEach(([key, value]) => {
-                // key is either an array index or object key
-                if (typeof value !== 'object') {
-                    flatten[key] = value
-                }
-                traverse(value);
-            });
-        }
-        else {
-            // jsonObj is a number or string
-        }
-    }
-    traverse(jsonObj)
-    return flatten
-}
-
-
-const get_namespace_format = {
-    "pageNum": 0,
-    "pageSize": 0,
-    "pageTotal": 0,
-    "count": 1,
-    "items": [
-        {
-            "name": "493e8971-57aa-4ba9-9677-e16ff2892232",
-            "phase": "Complete",
-            "createTimestamp": "2022-10-17 16:06:50 +0800 CST"
-        }
-    ]
-}
-
 const translate_dict = {
-    'BasicInfo':t('基础信息'),
-    'ServerInfo':t('服务器信息'),
+    'BasicInfo': t('基础信息'),
+    'ServerInfo': t('服务器信息'),
     'namespace': t('命名空间'),
-    'name':t('名称'),
+    'name': t('名称'),
     'cleanPolicy': t('清除策略'),
-    'remoteType':t('云端储存类型'),
-    'sourceKey':t('云端储存配置'),
-    'prefix':t('桶名'),
-    'saveDir':t('储存后缀'),
-    'forceDir':t('储存中缀'),
-    'storageClassName':t('储存类名称'),
-    'storageResource':t('储存空间'),
-    'maxBackups':t('最大备份数'),
-    'pause':t('暂停'),
-    'host':t('主机'),
-    'port':t('端口'),
-    'userId':t('用户名'),
-    'password':t('密码'),
-    'backups':t('备份'),
-    'restores':t('还原'),
-    'schedbackups':t('定时备份'),
-    'endpoint':t('服务地址'),
-    'provider':t('供应商'),
-    'accessKey':t('访问密钥'),
-    'secretAccessKey':t('加密密钥'),
-    'path':t('共享目录', {context:'backup'}),
-    'Scheduling':t('调度中'),
-    'Running':t('运行中'),
-    'Complete':t('运行完毕'),
-    'Cleaning':t('清理中'),
-    'Cleaned':t('清理完成'),
-    'Failed':t('运行失败'),
-    'Invalid':t('参数异常'),
-    'dolphindbNamespace':t('命名空间'),
+    'remoteType': t('云端储存类型'),
+    'sourceKey': t('云端储存配置'),
+    'prefix': t('桶名'),
+    'saveDir': t('储存后缀'),
+    'forceDir': t('储存中缀'),
+    'storageClassName': t('储存类名称'),
+    'storageResource': t('储存空间'),
+    'maxBackups': t('最大备份数'),
+    'pause': t('暂停'),
+    'host': t('主机'),
+    'port': t('端口'),
+    'userId': t('用户名'),
+    'password': t('密码'),
+    'backups': t('备份'),
+    'restores': t('还原'),
+    'schedbackups': t('定时备份'),
+    'endpoint': t('服务地址'),
+    'provider': t('供应商'),
+    'accessKey': t('访问密钥'),
+    'secretAccessKey': t('加密密钥'),
+    'path': t('共享目录', { context: 'backup' }),
+    'Scheduling': t('调度中'),
+    'Running': t('运行中'),
+    'Complete': t('运行完毕'),
+    'Cleaning': t('清理中'),
+    'Cleaned': t('清理完成'),
+    'Failed': t('运行失败'),
+    'Invalid': t('参数异常'),
+    'dolphindbNamespace': t('命名空间'),
     'dolphindbName': t('名称'),
-    'type':t('类型')
+    'type': t('类型')
 }
 
-const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey'})=>{
+const Backup_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => {
     const [sourcekey_modal_open, set_sourcekey_modal_open] = useState(false)
-    
+
     const [fetched_list_of_namesace, set_isntances_list_of_namespace] = useState<list_of_backups>(undefined)
-    
-    const [backup_modal_open,  set_backup_modal_open] = useState(false)
-    
+
+    const [backup_modal_open, set_backup_modal_open] = useState(false)
+
     const [form_instance_backup] = Form.useForm()
     const [form_instance_restore] = Form.useForm()
-    
+
     const [sourceKeys, set_SourceKeys] = useState<string[]>([])
-    
+
     const [sourceKey_detail, set_sourceKey_detail] = useState<sourceKey_detail>()
-    
+
     const [storage_class, set_storage_class] = useState<string[]>([])
-    
+
     const [refresher, set_refresher] = useState(0)
-    
+
     const [detail_modal_open, set_detail_modal_open] = useState(false)
-    
-    const [content_of_backup_modal, set_content_of_backup_modal] = useState<one_bakcup_detail>(undefined)
-    
-    const [content_of_restore_modal, set_content_of_restore_modal] = useState<one_bakcup_detail>(undefined)
-    
+
+    //https://stackoverflow.com/questions/43080547/how-to-override-type-properties-in-typescript
+    const [content_of_backup_modal, set_content_of_backup_modal] = useState<Overwrite<one_restore_detail, { storageResource: number }>>()
+
+    const [content_of_restore_modal, set_content_of_restore_modal] = useState<one_restore_detail>(undefined)
+
     const [restore_modal_open, set_restore_modal_open] = useState(false)
-    
+
     const [name_of_current_opened_detail, set_name_of_current_opened_detail] = useState<string>()
-    
-    const {namespaces} = model.use(['namespaces'])
-    
+
+    const { namespaces } = model.use(['namespaces'])
+
     const [selectable_names, set_selectable_names] = useState<string[]>([])
-    
-    const [init_value_of_restore_modal, set_init_value_of_restore_modal] = useState<{dolphindbNamespace:string, dolphindbName}>()
-    
+
+    const [init_value_of_restore_modal, set_init_value_of_restore_modal] = useState<{ dolphindbNamespace: string, dolphindbName }>()
+
     const [selected_remoteType, set_selected_remoteType] = useState<string>()
-    
-    const refresh_sourceKey = async ()=>{
+
+    const refresh_sourceKey = async () => {
         const data = await request_json_with_error_handling(`/v1/dolphindbs/backups/config`)
         const fetched_sourceKeys = Object.keys(data)
         set_SourceKeys(fetched_sourceKeys)
     }
-    
-    const refresh_sourceKey_detail = async()=>{    
+
+    const refresh_sourceKey_detail = async () => {
         const data = await request_json_with_error_handling(`/v1/dolphindbs/backups/config`)
         set_sourceKey_detail(data)
-        
+
     }
-    
-    const refresh_selectable_storage_class = async()=>{
-        const fetched_storage_class = (await request_json_with_error_handling('/v1/storageclasses'))['items'].map(x=>x['name'])
+
+    const refresh_selectable_storage_class = async () => {
+        const fetched_storage_class = (await request_json_with_error_handling('/v1/storageclasses'))['items'].map(x => x['name'])
         set_storage_class(fetched_storage_class.sort().reverse())
     }
-    
-    const refresh_instances_list_of_namespace = async ()=>{
+
+    const refresh_instances_list_of_namespace = async () => {
         const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`) as list_of_backups
         set_isntances_list_of_namespace(data)
     }
-    
-    const refresh_content_of_restore_modal = async(instance_name)=>{
-        const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${instance_name}`) 
+
+    const refresh_content_of_restore_modal = async (instance_name) => {
+        const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${instance_name}`)
         data['from'] = instance_name
         set_content_of_restore_modal(data)
     }
-    
-    const refresh_selectable_names = async (namespace)=>{
-        const data = await request_json_with_error_handling(`/v1/dolphindbs/?namespace=${namespace}`) as {items:{name,namespace}[]}
-        set_selectable_names(data.items.map(x=>x.name))
+
+    const refresh_selectable_names = async (namespace) => {
+        const data = await request_json_with_error_handling(`/v1/dolphindbs/?namespace=${namespace}`) as { items: { name, namespace }[] }
+        set_selectable_names(data.items.map(x => x.name))
     }
-    
+
     useEffect(
         () => {
             refresh_instances_list_of_namespace()
-        },[refresher]
+        }, [refresher]
     )
-    
+
     useEffect(
-        ()=>{
+        () => {
             form_instance_backup.resetFields()
             form_instance_restore.resetFields()
         }, [
-            backup_modal_open, restore_modal_open
-        ]
+        backup_modal_open, restore_modal_open
+    ]
     )
-    
-    
-    useEffect(()=>{
+
+
+    useEffect(() => {
         refresh_sourceKey()
         refresh_sourceKey_detail()
         refresh_selectable_storage_class()
-    },[])
-    
-    useEffect(()=>{
-        if (backup_modal_open){
+    }, [])
+
+    useEffect(() => {
+        if (backup_modal_open) {
             refresh_sourceKey()
             refresh_sourceKey_detail()
             refresh_selectable_storage_class()
-        }else{
-            set_refresher(refresher+1)
+        } else {
+            set_refresher(refresher + 1)
         }
-        
+
     }, [backup_modal_open])
-    
-    useEffect(()=>{
+
+    useEffect(() => {
         if (sourceKey_detail)
             return
         refresh_sourceKey()
         refresh_sourceKey_detail()
     }, [sourcekey_modal_open])
-    
-    useEffect(()=>{
-        if (! (sourceKeys && sourceKey_detail)){
+
+    useEffect(() => {
+        if (!(sourceKeys && sourceKey_detail)) {
             return
         }
-        try{
+        try {
             form_instance_backup.setFieldValue('sourceKey', sourceKeys[0])
-            set_selected_remoteType(sourceKey_detail[sourceKeys[0]]['type'])    
-        }catch(e){
+            set_selected_remoteType(sourceKey_detail[sourceKeys[0]]['type'])
+        } catch (e) {
             console.log(e)
         }
-        
+
     }, [sourceKeys, sourceKey_detail])
-    
-    
+
+
     //setInterval无法获取正确的props.tag，参考https://overreacted.io/zh-hans/making-setinterval-declarative-with-react-hooks/
     useInterval(
-        ()=>{
-            if (props.tag === 'backups'){
+        () => {
+            if (props.tag === 'backups') {
                 refresh_instances_list_of_namespace()
             }
             return
         }, 5000
     )
-    
-    
+
+
     return <div>
-        
+
         <div className='actions'>
             <Button
                 type='primary'
                 className='button-create'
                 onClick={async () => {
                     set_backup_modal_open(true)
-                    set_content_of_backup_modal({sourceKey: sourceKeys[0], remoteType: 's3', storageClassName:storage_class.sort().reverse()[0] , storageResource: 10})
+                    //one_restore_detail中有许多属性，但是此处只用赋值其中三个，其他全为undefined
+                    set_content_of_backup_modal({ sourceKey: sourceKeys[0], remoteType: 's3', storageClassName: storage_class.sort().reverse()[0], storageResource: 10 })
                 }}
             >
                 <img className='icon-add' src={icon_add} />
@@ -2257,138 +2219,143 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
                 className='refresh'
                 icon={<ReloadOutlined />}
                 onClick={() => {
-                    set_refresher(refresher+1)
+                    set_refresher(refresher + 1)
                 }}
             >{t('刷新')}</Button>
         </div>
 
-        <div style={{height:'10px'}}>
-            
-        </div>
-        
-        
-        {!_.isEmpty(fetched_list_of_namesace)?
-                <Table dataSource={fetched_list_of_namesace.items.map(
-                    data_item => {
-                        return {
-                            name: <Link onClick={() => {
-                                set_name_of_current_opened_detail(data_item.name)
-                                set_detail_modal_open(true)
-                            }}>{data_item.name}</Link>, 
-                            
-                            createTimestamp: data_item.createTimestamp,
-                            
-                            phase: translate_dict[data_item.phase],
-                            operation: 
-                            !(data_item.phase === 'Cleaning') ?
-                            [
-                                <Popconfirm
-                                title={t('确认删除？')}
-                                onConfirm={async () => {
-                                    await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${data_item.name}`,{method:'delete'})
-                                    set_refresher(refresher+1)
-                                }}
-                                onCancel={()=>{}}
-                                >
-                                    <a href="#">{t('删除')} </a>
-                                </Popconfirm>,
-                                
-                                <Popconfirm
-                                    title={t('确认重新触发？')}
-                                    onConfirm={async () => {
-                                        const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${data_item.name}`)
-                                        
-                                        var {sourceKey, remoteType, prefix, storageClassName, storageResource} = data
+        <div style={{ height: '10px' }}>
 
-                                        await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`,
-                                            {
-                                                method:'post',
-                                                headers: { 'content-type': 'application/json' },
-                                                body:{
-                                                    name: model.cluster.name,
-                                                    namespace: model.cluster.namespace,
-                                                    sourceKey: sourceKey,
-                                                    remoteType: remoteType,
-                                                    prefix: prefix,
-                                                    storageClassName: storageClassName,
-                                                    storageResource: `${Gi_process(storageResource)}`
-                                                }
-                                            }
-                                        )
-                    
-                                        
-                                    }}
-                                    onCancel={() => { }}
-                                >
-                                    <a href="#">{t('重新触发')} </a>
-                                </Popconfirm>,
-                                
-                                <Link
-                                    onClick={
-                                        () => {
-                                            set_restore_modal_open(true)
-                                            set_init_value_of_restore_modal({dolphindbNamespace: namespaces[0].name})
-                                            refresh_selectable_names(namespaces[0].name)
-                                            refresh_content_of_restore_modal(data_item.name)
+        </div>
+
+
+        {!_.isEmpty(fetched_list_of_namesace) ?
+            <Table dataSource={fetched_list_of_namesace.items.map(
+                data_item => {
+                    return {
+                        name: <Link onClick={() => {
+                            set_name_of_current_opened_detail(data_item.name)
+                            set_detail_modal_open(true)
+                        }}>{data_item.name}</Link>,
+
+                        createTimestamp: data_item.createTimestamp,
+
+                        phase: translate_dict[data_item.phase],
+                        operation:
+                            !(data_item.phase === 'Cleaning') ?
+                                [
+                                    <Popconfirm
+                                        title={t('确认删除？')}
+                                        onConfirm={async () => {
+                                            await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${data_item.name}`, { method: 'delete' })
+                                            set_refresher(refresher + 1)
                                         }}
-                                >
-                                    {translate_dict['restores'] + ' '}
-                                </Link>,
-                                
-                                ]:
+                                        onCancel={() => { }}
+                                    >
+                                        <a href="#">{t('删除')} </a>
+                                    </Popconfirm>,
+
+                                    <Popconfirm
+                                        title={t('确认重新触发？')}
+                                        onConfirm={async () => {
+                                            const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${data_item.name}`)
+
+                                            var { sourceKey, remoteType, prefix, storageClassName, storageResource } = data
+
+                                            await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`,
+                                                {
+                                                    method: 'post',
+                                                    headers: { 'content-type': 'application/json' },
+                                                    body: {
+                                                        name: model.cluster.name,
+                                                        namespace: model.cluster.namespace,
+                                                        sourceKey: sourceKey,
+                                                        remoteType: remoteType,
+                                                        prefix: prefix,
+                                                        storageClassName: storageClassName,
+                                                        storageResource: `${Gi_process(storageResource)}`
+                                                    }
+                                                }
+                                            )
+
+
+                                        }}
+                                        onCancel={() => { }}
+                                    >
+                                        <a href="#">{t('重新触发')} </a>
+                                    </Popconfirm>,
+
+                                    <Link
+                                        onClick={
+                                            () => {
+                                                set_restore_modal_open(true)
+                                                set_init_value_of_restore_modal({ dolphindbNamespace: namespaces[0].name, dolphindbName: undefined })
+                                                refresh_selectable_names(namespaces[0].name)
+                                                refresh_content_of_restore_modal(data_item.name)
+                                            }}
+                                    >
+                                        {translate_dict['restores'] + ' '}
+                                    </Link>,
+
+                                ] :
                                 [
                                     <Space>
-                                    <a style={{color:'gray'}}>{t('删除')}</a>
-                                    <a style={{color:'gray'}}>{t('重新触发')}</a>
-                                    <a style={{color:'gray'}}>{t('还原')}</a>
+                                        <a style={{ color: 'gray' }}>{t('删除')}</a>
+                                        <a style={{ color: 'gray' }}>{t('重新触发')}</a>
+                                        <a style={{ color: 'gray' }}>{t('还原')}</a>
                                     </Space>
                                 ]
-                        }
                     }
-                )}
-                    pagination={false}
-                >
-                    <Column
-                        title={t('名称', {context:'backup'})}
-                        key='name'
-                        dataIndex={'name'}
-                        width='20%'
-                    />
-                    <Column
-                        title={t('创建时间', {context:'backup'})}
-                        key='createTimestamp'
-                        dataIndex={'createTimestamp'}
-                    />
-                    {true ? <Column
-                        title={t('状态')}
-                        key='phase'
-                        dataIndex={'phase'}
-                    />:undefined}
-                    <Column
-                        title={t('操作', {context:'backup'})}
-                        key='operation'
-                        dataIndex={'operation'}
-                    />
-                </Table>:
-                <Empty></Empty>
-                }   
+                }
+            )}
+                pagination={false}
+            >
+                <Column
+                    title={t('名称', { context: 'backup' })}
+                    key='name'
+                    dataIndex={'name'}
+                    width='20%'
+                />
+                <Column
+                    title={t('创建时间', { context: 'backup' })}
+                    key='createTimestamp'
+                    dataIndex={'createTimestamp'}
+                />
+                {true ? <Column
+                    title={t('状态')}
+                    key='phase'
+                    dataIndex={'phase'}
+                /> : undefined}
+                <Column
+                    title={t('操作', { context: 'backup' })}
+                    key='operation'
+                    dataIndex={'operation'}
+                />
+            </Table> :
+            <Empty></Empty>
+        }
         <Modal
             className='backup-modal'
             open={backup_modal_open}
-            title= {translate_dict['backups']}
-            onCancel={()=>{set_backup_modal_open(false)}}
+            title={translate_dict['backups']}
+            onCancel={() => { set_backup_modal_open(false) }}
             footer={[
-                <Button key="back" onClick={()=>{set_backup_modal_open(false)}}>
+                <Button key="back" onClick={() => { set_backup_modal_open(false) }}>
                     {t('取消')}
                 </Button>,
-                <Button key="submit" type="primary" onClick={async ()=>{
-                    var {sourceKey, prefix, storageClassName, storageResource} = await form_instance_backup.validateFields()
+                <Button key="submit" type="primary" onClick={async () => {
+                    var { sourceKey, prefix, storageClassName, storageResource } = await form_instance_backup.validateFields()
+                    if (!sourceKey_detail) {
+                        //sourceKey_detail在打开Modal的时候会被set，所以其必有值
+                        message.error('SourceKey detail is none. Coder assertion failed')
+                        return
+                    }
                     const remoteType = sourceKey_detail[sourceKey]['type']
                     await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`,
                         {
-                            method:'post',
+                            method: 'post',
                             headers: { 'content-type': 'application/json' },
-                            body:{
+                            body: {
                                 name: model.cluster.name,
                                 namespace: model.cluster.namespace,
                                 sourceKey: sourceKey,
@@ -2400,7 +2367,7 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
                         }
                     )
                     set_backup_modal_open(false)
-                    
+
                 }}>
                     {t('提交')}
                 </Button>
@@ -2412,31 +2379,39 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
                 labelAlign='left'
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 16 }}
-                initialValues = {{
+                initialValues={{
                     ...content_of_backup_modal
                 }}
                 requiredMark={false}
                 colon={false}
             >
                 <>
-                    <Form.Item label={translate_dict['sourceKey']} className={'sourceKey'} rules={[{required:true, message:t('此项必填')}]}>
+                    <Form.Item label={translate_dict['sourceKey']} className={'sourceKey'} rules={[{ required: true, message: t('此项必填') }]}>
                         <Space align='start'>
                             <Form.Item
                                 name='sourceKey'
                                 rules={[{ required: true, message: t('此项必填') }]}
                             >
                                 <Select placeholder="sourceKey"
-                                    onSelect={async (value)=>{
-                                        try{
+
+                                    onSelect={async (value) => {
+                                        // danger area start
+                                        try {
                                             var data = (await form_instance_backup.validateFields())
                                         }
-                                        catch(e){
+                                        catch (e) {
                                             data = e.values
                                         }
                                         set_content_of_backup_modal(data)
+                                        //danger area end
+                                        //danger area是某些历史代码，原先是为了防止切换form select的时候由于重渲染会丢失其他formItem中已经填入的值。但是现在已经将form.resetValue去掉，原则上danger area部分可以直接移除，但目前还没试验过
+                                        if (!sourceKey_detail) {
+                                            message.error('Sourcekey empty. Coder assertion failed.')
+                                            return
+                                        }
                                         set_selected_remoteType(sourceKey_detail[value]['type'])
                                     }}
-                                    style={{width:100}}
+                                    style={{ width: 100 }}
                                 >
                                     {
                                         sourceKeys.map(
@@ -2452,14 +2427,14 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
                                                                 {
                                                                     sourceKey_detail && sourceKey_detail[x] ?
                                                                         (
-                                                                            (!sourceKey_detail[x]['accessKey'] )?
+                                                                            (!sourceKey_detail[x]['accessKey']) ?
 
-                                                                                <Descriptions bordered 
-                                                                                column={1}
+                                                                                <Descriptions bordered
+                                                                                    column={1}
                                                                                 //layout='vertical'
                                                                                 >
                                                                                     <Descriptions.Item
-                                                                                    label={translate_dict['type']}>
+                                                                                        label={translate_dict['type']}>
                                                                                         {sourceKey_detail[x]['type']}
                                                                                     </Descriptions.Item>
                                                                                     <Descriptions.Item
@@ -2475,13 +2450,9 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
                                                                                     </Descriptions.Item>
 
                                                                                 </Descriptions>
-
-                                                                                 :
-
-
-
-                                                                                <Descriptions bordered 
-                                                                                column={1}
+                                                                                :
+                                                                                <Descriptions bordered
+                                                                                    column={1}
                                                                                 //layout='vertical'
                                                                                 >
                                                                                     <Descriptions.Item label={translate_dict['type']}>
@@ -2535,64 +2506,68 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
 
                         </Space>
                     </Form.Item>
-                    
+
 
 
                     <>{
-                        selected_remoteType === 'nfs'? undefined :
-                        <Form.Item
-                        name={'prefix'}
-                        label={translate_dict['prefix']}
-                        rules={[{required:true, message:t('此项必填')}]}
-                    >
-                        <Input></Input>
-                    </Form.Item>}
-                    
-                    <Form.Item
-                                name={'storageClassName'}
-                                label={translate_dict['storageClassName']}
+                        selected_remoteType === 'nfs' ? undefined :
+                            <Form.Item
+                                name={'prefix'}
+                                label={translate_dict['prefix']}
+                                rules={[{ required: true, message: t('此项必填') }]}
                             >
-                               
-                                <Select >
-                                    {
-                                        storage_class?
+                                <Input></Input>
+                            </Form.Item>}
+
+                        <Form.Item
+                            name={'storageClassName'}
+                            label={translate_dict['storageClassName']}
+                        >
+
+                            <Select >
+                                {
+                                    storage_class ?
                                         storage_class.sort().reverse().map(
                                             x => { return <Option value={x}> {x} </Option> }
-                                        ):
+                                        ) :
                                         <Option> asdfasdf</Option>
-                                    }
-                                </Select>
-                
-                            </Form.Item>
+                                }
+                            </Select>
 
-                    
-                    
-                    <Form.Item
-                    name={'storageResource'}
-                    label={translate_dict['storageResource']}
-                    >
-                        <InputNumber addonAfter='Gi' min={1} ></InputNumber>
-                    </Form.Item>
+                        </Form.Item>
+
+
+
+                        <Form.Item
+                            name={'storageResource'}
+                            label={translate_dict['storageResource']}
+                        >
+                            <InputNumber addonAfter='Gi' min={1} ></InputNumber>
+                        </Form.Item>
                     </>
                 </>
             </Form>
         </Modal>
-        
-        
+
+
         <Modal
             className='backup-modal'
             open={restore_modal_open}
-            title= {translate_dict['restores']}
-            onCancel={()=>{set_restore_modal_open(false)}}
+            title={translate_dict['restores']}
+            onCancel={() => { set_restore_modal_open(false) }}
             footer={[
-                <Button key="back" onClick={()=>{set_restore_modal_open(false); set_init_value_of_restore_modal({})}}>
+                <Button key="back" onClick={() => { set_restore_modal_open(false); set_init_value_of_restore_modal({}) }}>
                     {t('取消')}
                 </Button>,
-                <Button key="submit" type="primary" onClick={async ()=>{
-                    const { dolphindbNamespace, dolphindbName} = await form_instance_restore.validateFields()
+                <Button key="submit" type="primary" onClick={async () => {
+                    const { dolphindbNamespace, dolphindbName } = await form_instance_restore.validateFields()
+                    if (!content_of_restore_modal) {
+                        message.error('The backup info corresponding to this restore is empty. Coder assertion failed.')
+                        return
+                    }
                     await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores`,
                         {
-                            method:'post',
+                            method: 'post',
                             headers: { 'content-type': 'application/json' },
                             body: {
                                 name: model.cluster.name,
@@ -2611,7 +2586,7 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
                     )
                     set_restore_modal_open(false)
                     set_init_value_of_restore_modal({})
-                    
+
                 }}>
                     {t('提交')}
                 </Button>
@@ -2625,66 +2600,65 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
                 wrapperCol={{ span: 16 }}
                 requiredMark={false}
                 colon={false}
-                initialValues = {
+                initialValues={
                     init_value_of_restore_modal
                 }
             >
-                
-                
-                <Form.Item name='dolphindbNamespace' label={translate_dict['dolphindbNamespace']} 
-                rules={[{required:true, message:t('此项必填')}]}>
-                    <Select onChange={async (value)=>{
+
+
+                <Form.Item name='dolphindbNamespace' label={translate_dict['dolphindbNamespace']}
+                    rules={[{ required: true, message: t('此项必填') }]}>
+                    <Select onChange={async (value) => {
                         refresh_selectable_names(value)
-                        set_init_value_of_restore_modal({dolphindbNamespace:value})
+                        set_init_value_of_restore_modal({ dolphindbNamespace: value, dolphindbName: undefined })
                     }}
-                    value={'dolphindb'}
+                        value={'dolphindb'}
                     >
                         {
                             namespaces.length !== 0 ?
-                            namespaces.map(ns => (
-                                <Option value={ns.name}>{ns.name}</Option>
-                            ))
-                            :
+                                namespaces.map(ns => (
+                                    <Option value={ns.name}>{ns.name}</Option>
+                                ))
+                                :
+                                undefined
+                        }
+                    </Select>
+                </Form.Item>
+
+                <Form.Item
+                    name={'dolphindbName'}
+                    label={translate_dict['dolphindbName']}
+                    rules={[{ required: true, message: t('此项必填') }]}
+                >
+                    <Select>
+                        {selectable_names ? selectable_names.map((name) => {
+                            return <Option value={name} key={name} >{name}</Option>
+                        }) :
                             undefined
                         }
                     </Select>
                 </Form.Item>
-                
-                <Form.Item
-                name={'dolphindbName'}
-                label={translate_dict['dolphindbName']}
-                rules={[{required:true, message:t('此项必填')}]}
-                >
-                    <Select>
-                        {selectable_names? selectable_names.map((name)=>{
-                            return <Option value={name} key={name} >{name}</Option>
-                        }):
-                        undefined
-                        }
-                    </Select>
-                </Form.Item>
-                
-                
+
+
             </Form>
         </Modal>
-        
-        {sourcekey_modal_open? <SourceKey_Modal 
-        sourcekey_modaol_open={sourcekey_modal_open} 
-        set_sourcekey_modal_open = {set_sourcekey_modal_open}
-        refresh_sourceKey = {refresh_sourceKey}
-        ></SourceKey_Modal> : <div/>}
-        
-        
+
+        {sourcekey_modal_open ? <SourceKey_Modal
+            sourcekey_modaol_open={sourcekey_modal_open}
+            set_sourcekey_modal_open={set_sourcekey_modal_open}
+            refresh_sourceKey={refresh_sourceKey}
+        ></SourceKey_Modal> : <div />}
+
+
         <ErrorBoundary>
-        <Dashboard_For_One_Name name={name_of_current_opened_detail} type = {'backups'} open={detail_modal_open}  onCancel = {()=>
-            {set_detail_modal_open(false)}}></Dashboard_For_One_Name></ErrorBoundary>
+            <Dashboard_For_One_Name name={name_of_current_opened_detail} type={'backups'} open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }}></Dashboard_For_One_Name></ErrorBoundary>
     </div>
 
 }
 
-const Restore_List_of_Namespace_ = (props:{tag:'backups' | 'restores' | 'sourceKey'} ) => {
+const Restore_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => {
 
-    const [fetched_restore_list_of_namesace, set_restore_isntances_list_of_namespace] = useState<typeof get_namespace_format>(undefined)
+    const [fetched_restore_list_of_namesace, set_restore_isntances_list_of_namespace] = useState<list_of_restores>()
 
     const [refresher, set_refresher] = useState(0)
 
@@ -2693,7 +2667,7 @@ const Restore_List_of_Namespace_ = (props:{tag:'backups' | 'restores' | 'sourceK
     const [name_of_current_opened_detail, set_name_of_current_opened_detail] = useState('')
 
     const refresh_restore_instances_list_of_namespace = async () => {
-        const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores`) as (typeof get_namespace_format)
+        const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores`) as list_of_restores
         set_restore_isntances_list_of_namespace(data)
     }
 
@@ -2704,14 +2678,14 @@ const Restore_List_of_Namespace_ = (props:{tag:'backups' | 'restores' | 'sourceK
     )
 
     useInterval(
-        ()=>{
-            if (props.tag === 'restores'){
+        () => {
+            if (props.tag === 'restores') {
                 refresh_restore_instances_list_of_namespace()
             }
             return
         }, 5000
     )
-    
+
     return <div>
 
         <div className='actions'>
@@ -2724,8 +2698,8 @@ const Restore_List_of_Namespace_ = (props:{tag:'backups' | 'restores' | 'sourceK
             >{t('刷新')}</Button>
         </div>
 
-        <div style={{height:'10px'}}>
-            
+        <div style={{ height: '10px' }}>
+
         </div>
 
         {!_.isEmpty(fetched_restore_list_of_namesace) ?
@@ -2781,213 +2755,213 @@ const Restore_List_of_Namespace_ = (props:{tag:'backups' | 'restores' | 'sourceK
             </Table> :
             <Empty></Empty>
         }
-        
+
         <ErrorBoundary>
-        <Dashboard_For_One_Name name={name_of_current_opened_detail} type={'restores'} open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }}></Dashboard_For_One_Name>
+            <Dashboard_For_One_Name name={name_of_current_opened_detail} type={'restores'} open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }}></Dashboard_For_One_Name>
         </ErrorBoundary>
 
     </div>
 }
 
-const SourceKey_List =(props:{tag:'backups' | 'restores' | 'sourceKey'})=>{
+const SourceKey_List = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => {
     const [sourceKey_detail, set_sourceKey_detail] = useState()
-    
-    const [refresher, set_refresher]= useState(0)
-    
+
+    const [refresher, set_refresher] = useState(0)
+
     const [sourceKey_modal_info, set_sourceKey_modal_info] = useState()
     const [sourcekey_modal_open, set_sourcekey_modal_open] = useState(false)
-    
-    
+
+
     const [sourceKey_detail_modal_name, set_sourceKey_detail_modal_name] = useState('')
     const [sourceKey_detail_modal_open, set_sourceKey_detail_modal_open] = useState(false)
-    
-    
-    const refresh_sourceKey_detail = async()=>{    
+
+
+    const refresh_sourceKey_detail = async () => {
         const data = await request_json_with_error_handling(`/v1/dolphindbs/backups/config`)
         set_sourceKey_detail(data)
-    
+
     }
-    
-    
-    const refresh_sourceKey = async ()=>{
+
+
+    const refresh_sourceKey = async () => {
     }
-    
-    
-    useEffect(()=>{
+
+
+    useEffect(() => {
         refresh_sourceKey_detail()
     }, [refresher])
-    
+
     useInterval(
-        ()=>{
-            if (props.tag === 'sourceKey'){
+        () => {
+            if (props.tag === 'sourceKey') {
                 refresh_sourceKey_detail()
             }
             return
         }, 5000
     )
-    
+
     return <div>
-    
-    <div className='actions'>
-        <Button
-            type='primary'
-            className='button-create'
-            onClick={async () => {
-                set_sourcekey_modal_open(true)
-            }}
-        >
-            <img className='icon-add' src={icon_add} />
-            <span>{t('添加云端储存配置')}</span>
-        </Button>
 
-        <Button
-            className='refresh'
-            icon={<ReloadOutlined />}
-            onClick={() => {
-                set_refresher(refresher + 1)
-            }}
-        >{t('刷新')}</Button>
-    </div>
-    
-    <div style={{height:'10px'}}>
-            
-            </div>
-    
-    {sourcekey_modal_open? <SourceKey_Modal 
-        sourcekey_modaol_open={sourcekey_modal_open} 
-        set_sourcekey_modal_open = {set_sourcekey_modal_open}
-        refresh_sourceKey = {refresh_sourceKey}
-        ></SourceKey_Modal> : <div/>}
-    
-    {sourceKey_detail?
-    <Table dataSource={Object.keys(sourceKey_detail).map(
-        data_item => {
-            return {
-                name: <Link onClick={() => {
-                    set_sourceKey_detail_modal_name(data_item)
-                    set_sourceKey_detail_modal_open(true)
-                }}>{data_item}</Link>,
-                type: sourceKey_detail[data_item]['type'],
-                operation:
-                    [
-                        <Popconfirm
-                            title={t('确认删除？')}
-                            onConfirm={async () => {
-                                await request_json_with_error_handling(`/v1/dolphindbs/backups/config/${data_item}`, { method: 'delete' })
-                                set_refresher(refresher + 1)
-                            }}
-                            onCancel={() => { }}
-                        >
-                            <a href="#">{t('删除')} </a>
-                        </Popconfirm>]
-            }
-        }
-    )}
-        pagination={false}
-    >
-        <Column
-            title={t('名称', { context: 'backup' })}
-            key='name'
-            dataIndex={'name'}
-            width='30%'
-        />
-        <Column
-            title={t('类型', { context: 'backup' })}
-            key='type'
-            dataIndex={'type'}
-        />
-        <Column
-            title={t('操作', { context: 'backup' })}
-            key='operation'
-            dataIndex={'operation'}
-        />
-    </Table>
-    :undefined}
+        <div className='actions'>
+            <Button
+                type='primary'
+                className='button-create'
+                onClick={async () => {
+                    set_sourcekey_modal_open(true)
+                }}
+            >
+                <img className='icon-add' src={icon_add} />
+                <span>{t('添加云端储存配置')}</span>
+            </Button>
 
-    
-    <Modal
-    title={sourceKey_detail_modal_name}
-    open = {sourceKey_detail_modal_open}   onCancel={()=>{
-        set_sourceKey_detail_modal_open(false)
-    }} footer={false}
-    >
-        <div>
-            {
-                sourceKey_detail && sourceKey_detail[sourceKey_detail_modal_name] ?
-                    (
-                        (sourceKey_detail[sourceKey_detail_modal_name]['type'] === 'nfs') ?
-
-                            <Descriptions bordered
-                                column={1}
-                            //layout='vertical'
-                            >
-                                <Descriptions.Item
-                                    label={translate_dict['type']}
-                                >
-                                    {sourceKey_detail[sourceKey_detail_modal_name]['type']}
-                                </Descriptions.Item>
-                                <Descriptions.Item
-                                    label={translate_dict['endpoint']}
-                                >
-                                    {sourceKey_detail[sourceKey_detail_modal_name]['endpoint']}
-                                </Descriptions.Item>
-
-                                <Descriptions.Item
-                                    label={translate_dict['path']}
-                                >
-                                    {sourceKey_detail[sourceKey_detail_modal_name]['path']}
-                                </Descriptions.Item>
-
-                            </Descriptions>
-
-                            :
-
-
-
-                            <Descriptions bordered
-                                column={1}
-                            //layout='vertical'
->
-                                <Descriptions.Item
-                                    label={translate_dict['type']}
-                                >
-                                    {sourceKey_detail[sourceKey_detail_modal_name]['type']}
-                                </Descriptions.Item>
-                                
-                                <Descriptions.Item
-                                    label={translate_dict['provider']}
-                                >
-                                    {sourceKey_detail[sourceKey_detail_modal_name]['provider']}
-                                </Descriptions.Item>
-
-                                <Descriptions.Item
-                                    label={translate_dict['accessKey']}
-                                >
-                                    {sourceKey_detail[sourceKey_detail_modal_name]['accessKey']}
-                                </Descriptions.Item>
-
-
-                                <Descriptions.Item
-                                    label={translate_dict['secretAccessKey']}
-                                >
-                                    {sourceKey_detail[sourceKey_detail_modal_name]['secretAccessKey']}
-                                </Descriptions.Item>
-
-                                <Descriptions.Item
-                                    label={translate_dict['endpoint']}
-                                >
-                                    {sourceKey_detail[sourceKey_detail_modal_name]['endpoint']}
-                                </Descriptions.Item>
-
-
-                            </Descriptions>
-
-                    ) :
-                    undefined
-            }
+            <Button
+                className='refresh'
+                icon={<ReloadOutlined />}
+                onClick={() => {
+                    set_refresher(refresher + 1)
+                }}
+            >{t('刷新')}</Button>
         </div>
-        
-    </Modal>
+
+        <div style={{ height: '10px' }}>
+
+        </div>
+
+        {sourcekey_modal_open ? <SourceKey_Modal
+            sourcekey_modaol_open={sourcekey_modal_open}
+            set_sourcekey_modal_open={set_sourcekey_modal_open}
+            refresh_sourceKey={refresh_sourceKey}
+        ></SourceKey_Modal> : <div />}
+
+        {sourceKey_detail ?
+            <Table dataSource={Object.keys(sourceKey_detail).map(
+                data_item => {
+                    return {
+                        name: <Link onClick={() => {
+                            set_sourceKey_detail_modal_name(data_item)
+                            set_sourceKey_detail_modal_open(true)
+                        }}>{data_item}</Link>,
+                        type: sourceKey_detail[data_item]['type'],
+                        operation:
+                            [
+                                <Popconfirm
+                                    title={t('确认删除？')}
+                                    onConfirm={async () => {
+                                        await request_json_with_error_handling(`/v1/dolphindbs/backups/config/${data_item}`, { method: 'delete' })
+                                        set_refresher(refresher + 1)
+                                    }}
+                                    onCancel={() => { }}
+                                >
+                                    <a href="#">{t('删除')} </a>
+                                </Popconfirm>]
+                    }
+                }
+            )}
+                pagination={false}
+            >
+                <Column
+                    title={t('名称', { context: 'backup' })}
+                    key='name'
+                    dataIndex={'name'}
+                    width='30%'
+                />
+                <Column
+                    title={t('类型', { context: 'backup' })}
+                    key='type'
+                    dataIndex={'type'}
+                />
+                <Column
+                    title={t('操作', { context: 'backup' })}
+                    key='operation'
+                    dataIndex={'operation'}
+                />
+            </Table>
+            : undefined}
+
+
+        <Modal
+            title={sourceKey_detail_modal_name}
+            open={sourceKey_detail_modal_open} onCancel={() => {
+                set_sourceKey_detail_modal_open(false)
+            }} footer={false}
+        >
+            <div>
+                {
+                    sourceKey_detail && sourceKey_detail[sourceKey_detail_modal_name] ?
+                        (
+                            (sourceKey_detail[sourceKey_detail_modal_name]['type'] === 'nfs') ?
+
+                                <Descriptions bordered
+                                    column={1}
+                                //layout='vertical'
+                                >
+                                    <Descriptions.Item
+                                        label={translate_dict['type']}
+                                    >
+                                        {sourceKey_detail[sourceKey_detail_modal_name]['type']}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item
+                                        label={translate_dict['endpoint']}
+                                    >
+                                        {sourceKey_detail[sourceKey_detail_modal_name]['endpoint']}
+                                    </Descriptions.Item>
+
+                                    <Descriptions.Item
+                                        label={translate_dict['path']}
+                                    >
+                                        {sourceKey_detail[sourceKey_detail_modal_name]['path']}
+                                    </Descriptions.Item>
+
+                                </Descriptions>
+
+                                :
+
+
+
+                                <Descriptions bordered
+                                    column={1}
+                                //layout='vertical'
+                                >
+                                    <Descriptions.Item
+                                        label={translate_dict['type']}
+                                    >
+                                        {sourceKey_detail[sourceKey_detail_modal_name]['type']}
+                                    </Descriptions.Item>
+
+                                    <Descriptions.Item
+                                        label={translate_dict['provider']}
+                                    >
+                                        {sourceKey_detail[sourceKey_detail_modal_name]['provider']}
+                                    </Descriptions.Item>
+
+                                    <Descriptions.Item
+                                        label={translate_dict['accessKey']}
+                                    >
+                                        {sourceKey_detail[sourceKey_detail_modal_name]['accessKey']}
+                                    </Descriptions.Item>
+
+
+                                    <Descriptions.Item
+                                        label={translate_dict['secretAccessKey']}
+                                    >
+                                        {sourceKey_detail[sourceKey_detail_modal_name]['secretAccessKey']}
+                                    </Descriptions.Item>
+
+                                    <Descriptions.Item
+                                        label={translate_dict['endpoint']}
+                                    >
+                                        {sourceKey_detail[sourceKey_detail_modal_name]['endpoint']}
+                                    </Descriptions.Item>
+
+
+                                </Descriptions>
+
+                        ) :
+                        undefined
+                }
+            </div>
+
+        </Modal>
     </div>
 }
 
@@ -3023,93 +2997,103 @@ const request_json_with_error_handling = async (url, options?) => {
 
 function useInterval(callback, delay) {
     const savedCallback = useRef();
-  
+
     useEffect(() => {
-      savedCallback.current = callback;
+        savedCallback.current = callback;
     });
-  
+
     useEffect(() => {
-      function tick() {
-        savedCallback.current();
-      }
-  
-      let id = setInterval(tick, delay);
-      return () => clearInterval(id);
+        function tick() {
+            savedCallback.current();
+        }
+
+        let id = setInterval(tick, delay);
+        return () => clearInterval(id);
     }, [delay]);
 }
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
-      super(props);
-      this.state = { error: null, errorInfo: null };
+        super(props);
+        this.state = { error: null, errorInfo: null };
     }
-    
+
     override componentDidCatch(error, errorInfo) {
-      // Catch errors in any components below and re-render with error message
-      this.setState({
-        error: error,
-        errorInfo: errorInfo
-      })
-      // You can also log error messages to an error reporting service here
+        // Catch errors in any components below and re-render with error message
+        this.setState({
+            error: error,
+            errorInfo: errorInfo
+        })
+        // You can also log error messages to an error reporting service here
     }
-    
+
     override render() {
-      if (this.state.errorInfo) {
-        // Error path
-        return (
-          <div>
-            <h2>Something went wrong.</h2>
-            <details style={{ whiteSpace: 'pre-wrap' }}>
-              {this.state.error && this.state.error.toString()}
-              <br />
-              {this.state.errorInfo.componentStack}
-            </details>
-          </div>
-        );
-      }
-      // Normally, just render children
-      return this.props.children;
-    }  
+        if (this.state.errorInfo) {
+            // Error path
+            return (
+                <div>
+                    <h2>Something went wrong.</h2>
+                    <details style={{ whiteSpace: 'pre-wrap' }}>
+                        {this.state.error && this.state.error.toString()}
+                        <br />
+                        {this.state.errorInfo.componentStack}
+                    </details>
+                </div>
+            );
+        }
+        // Normally, just render children
+        return this.props.children;
+    }
 }
-  
+
 type list_of_backups = {
-    count:number
+    count: number
     items: {
-        name:string
+        name: string
         createTimestamp: string
         phase: string
     }[]
-    pageNum:number
-    pageSize:number
-    pageTotal:number
+    pageNum: number
+    pageSize: number
+    pageTotal: number
 } | undefined
 
 type one_bakcup_detail = {
-    name:string
-    prefix:string
+    name: string
+    prefix: string
     remoteType: string
     saveDir: string
     sourceKey: string
-    status:{
-        createTimestamp:string
-        name:string
-        phase:string
+    status: {
+        createTimestamp: string
+        name: string
+        phase: string
     }
-    storageClassName:string
-    storageResource:string
-    storedPath:string
+    storageClassName: string
+    storageResource: string
+    storedPath: string
 } | undefined
 
 type list_of_restores = list_of_backups
+type one_restore_detail = one_bakcup_detail & { dolphindbName, dolphindbNamespace, from }
 
 type sourceKey_detail = {
-    type:'nfs',
-    endpoint:string
-    path:string
-}|{
-    type:'s3',
-    endpoint:string
-    provider:string
-    secretAccessKey:string
-    accessKey:string
+    type: 'nfs',
+    endpoint: string
+    path: string
+} | {
+    type: 's3',
+    endpoint: string
+    provider: string
+    secretAccessKey: string
+    accessKey: string
 } | undefined
+
+
+type flatten_backup_detail = {
+    name, prefix, remoteType, saveDir, sourceKey, createTimestamp, phase, storageClassName, storageResource, storedPath
+}
+
+type flatten_restore_detail = flatten_backup_detail & { dolphindbName, dolphindbNamespace, from }
+
+type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
