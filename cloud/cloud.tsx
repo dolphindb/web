@@ -1,6 +1,5 @@
 import './cloud.sass'
-import { request_json } from 'xshell/net.browser.js'
-import { default as React, Suspense, useEffect, useRef, useState } from 'react'
+import { default as React, useEffect, useRef, useState } from 'react'
 
 import { default as dayjs } from 'dayjs'
 
@@ -27,8 +26,6 @@ import {
     Upload,
     Progress,
     Space,
-    Tag,
-    Menu,
     Empty,
     Popover
 } from 'antd'
@@ -52,9 +49,9 @@ import {
 } from './model.js'
 
 import icon_add from './add.svg'
+import { request_json } from 'xshell/net.browser.js'
 
 import { FC } from 'react'
-import { useContext } from 'react'
 
 import _ from 'lodash'
 const { Column } = Table;
@@ -71,6 +68,7 @@ export function Cloud () {
     
     return <Clusters />
 }
+
 
 /** Type of cluster detail field: 'info' or 'config' */
 type FieldType = 'info' | 'config' | 'monitor' | 'backup'
@@ -217,7 +215,7 @@ function Clusters () {
     
     const [queries, set_queries] = useState<QueryOptions>(default_queries)
     
-
+    
     useEffect(() => {
         let flag = true
         ;(async () => {
@@ -337,7 +335,7 @@ function Clusters () {
                 {
                     title: t('操作'),
                     key: 'actions',
-                    render (cluster) {
+                    render (value, cluster) {
                         return <Popconfirm
                             title={t('确认删除集群')}
                             onConfirm={async () => {
@@ -358,7 +356,7 @@ function Clusters () {
             
             dataSource={clusters}
             
-            onChange={(pagination, filters, sorters) => {
+            onChange={(pagination, filters, sorters, extra) => {
                 let queries = { } as QueryOptions
                 let sortField: string[] = []
                 let orders: string[] = []
@@ -551,7 +549,7 @@ function CreateClusterPanel({
                     }
                 }}
 
-                onFieldsChange={(changeds) => {
+                onFieldsChange={(changeds, all) => {
                     if (!changeds[0])
                         return
                     const { name, value } = changeds[0]
@@ -1185,6 +1183,17 @@ function ClusterConfigs ({
     const [resetPopVisible, setResetPopVisible] = useState<boolean>(false)
     const [submitPopVisible, setSubmitPopVisible] = useState<boolean>(false)
 
+    const onResetConfirm = () => {
+        try {
+            fetchClusterConfig()
+            message.success(t('参数重置成功'))
+        } catch (error) {
+            console.error(error);
+            message.error(t('参数重置失败'))
+        } finally {
+            setResetPopVisible(false)
+        }
+    }
 
     const onSubmitConfirm = async () => {
         console.log(editedConfig)
@@ -1660,32 +1669,32 @@ function ShowBackupRestoreSourceKey() {
                 label: translate_dict['backups'],
                 key: '1',
                 children: <ErrorBoundary>
-                    <Backup_List_of_Namespace_ tag={tag}></Backup_List_of_Namespace_>
+                    <BackupListOfNamespace tag={tag}></BackupListOfNamespace>
                 </ErrorBoundary>
             },
             {
                 label: translate_dict['restores'],
                 key: '2',
-                children: <Restore_List_of_Namespace_ tag={tag}></Restore_List_of_Namespace_>
+                children: <RestoreListOfNamespace tag={tag}></RestoreListOfNamespace>
             },
             {
                 label: t('云端储存配置'),
                 key: '3',
-                children: <SourceKey_List tag={tag}></SourceKey_List>
+                children: <SourceKeyList tag={tag}></SourceKeyList>
             },
         ]}
     />
 
 }
 
-type Add_sourceKey_Modal_info = {
+type AddSourceKeyModalInfo = {
     type: 'nfs' | 's3'
     open: boolean
 }
 
-function SourceKey_Modal(props: { sourcekey_modaol_open, set_sourcekey_modal_open, refresh_sourceKey }) {
+function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open, refresh_sourceKey }) {
 
-    const [sourceKey_modal_info, set_sourceKey_modal_info] = useState<Add_sourceKey_Modal_info>({ type: 'nfs', open: props.sourcekey_modaol_open })
+    const [sourceKey_modal_info, set_sourceKey_modal_info] = useState<AddSourceKeyModalInfo>({ type: 'nfs', open: props.sourcekey_modaol_open })
     const [providers, set_providers] = useState([''])
 
     const [nfs_form] = Form.useForm()
@@ -1717,7 +1726,6 @@ function SourceKey_Modal(props: { sourcekey_modaol_open, set_sourcekey_modal_ope
                     await request_json_with_error_handling('/v1/dolphindbs/backups/config', {
                         method: 'post',
                         body: { ...form_data, type: sourceKey_modal_info.type },
-                        headers: { 'content-type': 'application/json' }
                     })
                     props.refresh_sourceKey()
                     props.set_sourcekey_modal_open(false)
@@ -1816,7 +1824,7 @@ function SourceKey_Modal(props: { sourcekey_modaol_open, set_sourcekey_modal_ope
     </Modal>
 }
 
-const Gi_process = (str: string | number) => {
+const GiProcess = (str: string | number) => {
     if (typeof str === 'number') {
         const temp = str.toString(10)
         return temp.endsWith('Gi') ? temp : temp + 'Gi'
@@ -1824,19 +1832,19 @@ const Gi_process = (str: string | number) => {
     return str.endsWith('Gi') ? str : str + 'Gi'
 }
 
-const Dashboard_For_One_Name: FC<{ open: boolean, name: string, onCancel: () => void, type: 'backups' | 'restores' }> = (props) => {
+const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => void, type: 'backups' | 'restores' }> = (props) => {
     const { cluster } = model.use(['cluster'])
     const { namespace } = cluster
-    const [data, setData] = useState<flatten_backup_detail | flatten_restore_detail>()
+    const [data, setData] = useState<FlattenBackupDetail | FlattenRestoreDetail>()
     const [sourceKey_detail, set_sourceKey_detail] = useState({})
 
     async function fetch_data() {
         if (!props.name) {
             return
         }
-        const _data = await request_json_with_error_handling(`/v1/dolphindbs/${namespace}/${model.cluster.name}/${props.type}/${props.name}`) as one_bakcup_detail
+        const _data = await request_json_with_error_handling(`/v1/dolphindbs/${namespace}/${model.cluster.name}/${props.type}/${props.name}`) as OneBakcupDetail
         //createTimestamp不展示,记为undefined
-        const data = { ..._data, phase: _data?.status.phase, createTimestamp:undefined } as flatten_backup_detail
+        const data = { ..._data, phase: _data?.status.phase, createTimestamp:undefined } as FlattenBackupDetail
         setData(data)
     }
 
@@ -1844,7 +1852,7 @@ const Dashboard_For_One_Name: FC<{ open: boolean, name: string, onCancel: () => 
         fetch_data();
 
         (async () => {
-            const data = await request_json_with_error_handling(`/v1/dolphindbs/backups/config`) as sourceKey_detail[]
+            const data = await request_json_with_error_handling(`/v1/dolphindbs/backups/config`) as SourceKeyDetail[]
             set_sourceKey_detail(data)
         })()
     }, [props.open])
@@ -1999,7 +2007,7 @@ const Dashboard_For_One_Name: FC<{ open: boolean, name: string, onCancel: () => 
                         bordered
                     >
                         <Descriptions.Item label={t('储存类名称')}>{data.storageClassName || ' '}</Descriptions.Item>
-                        <Descriptions.Item label={t('储存空间')}>{data.storageResource ? Gi_process(data.storageResource) : ' '}</Descriptions.Item>
+                        <Descriptions.Item label={t('储存空间')}>{data.storageResource ? GiProcess(data.storageResource) : ' '}</Descriptions.Item>
                     </Descriptions>
                     : undefined
             }
@@ -2062,10 +2070,10 @@ const translate_dict = {
     'type': t('类型')
 }
 
-const Backup_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => {
+const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => {
     const [sourcekey_modal_open, set_sourcekey_modal_open] = useState(false)
 
-    const [fetched_list_of_namesace, set_isntances_list_of_namespace] = useState<list_of_backups>(undefined)
+    const [fetched_list_of_namesace, set_isntances_list_of_namespace] = useState<ListOfBackups>(undefined)
 
     const [backup_modal_open, set_backup_modal_open] = useState(false)
 
@@ -2074,7 +2082,7 @@ const Backup_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sourc
 
     const [sourceKeys, set_SourceKeys] = useState<string[]>([])
 
-    const [sourceKey_detail, set_sourceKey_detail] = useState<sourceKey_detail>()
+    const [sourceKey_detail, set_sourceKey_detail] = useState<SourceKeyDetail>()
 
     const [storage_class, set_storage_class] = useState<string[]>([])
 
@@ -2083,9 +2091,9 @@ const Backup_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sourc
     const [detail_modal_open, set_detail_modal_open] = useState(false)
 
     //https://stackoverflow.com/questions/43080547/how-to-override-type-properties-in-typescript
-    const [content_of_backup_modal, set_content_of_backup_modal] = useState<Overwrite<one_restore_detail, { storageResource: number }>>()
+    const [content_of_backup_modal, set_content_of_backup_modal] = useState<Overwrite<OneRestoreDetail, { storageResource: number }>>()
 
-    const [content_of_restore_modal, set_content_of_restore_modal] = useState<one_restore_detail>(undefined)
+    const [content_of_restore_modal, set_content_of_restore_modal] = useState<OneRestoreDetail>(undefined)
 
     const [restore_modal_open, set_restore_modal_open] = useState(false)
 
@@ -2117,7 +2125,7 @@ const Backup_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sourc
     }
 
     const refresh_instances_list_of_namespace = async () => {
-        const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`) as list_of_backups
+        const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`) as ListOfBackups
         set_isntances_list_of_namespace(data)
     }
 
@@ -2263,7 +2271,6 @@ const Backup_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sourc
                                             await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`,
                                                 {
                                                     method: 'post',
-                                                    headers: { 'content-type': 'application/json' },
                                                     body: {
                                                         name: model.cluster.name,
                                                         namespace: model.cluster.namespace,
@@ -2271,7 +2278,7 @@ const Backup_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sourc
                                                         remoteType: remoteType,
                                                         prefix: prefix,
                                                         storageClassName: storageClassName,
-                                                        storageResource: `${Gi_process(storageResource)}`
+                                                        storageResource: `${GiProcess(storageResource)}`
                                                     }
                                                 }
                                             )
@@ -2352,7 +2359,6 @@ const Backup_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sourc
                     await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`,
                         {
                             method: 'post',
-                            headers: { 'content-type': 'application/json' },
                             body: {
                                 name: model.cluster.name,
                                 namespace: model.cluster.namespace,
@@ -2360,7 +2366,7 @@ const Backup_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sourc
                                 remoteType: remoteType,
                                 prefix: prefix,
                                 storageClassName: storageClassName,
-                                storageResource: `${Gi_process(storageResource)}`
+                                storageResource: `${GiProcess(storageResource)}`
                             }
                         }
                     )
@@ -2566,7 +2572,6 @@ const Backup_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sourc
                     await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores`,
                         {
                             method: 'post',
-                            headers: { 'content-type': 'application/json' },
                             body: {
                                 name: model.cluster.name,
                                 namespace: model.cluster.namespace,
@@ -2574,7 +2579,7 @@ const Backup_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sourc
                                 remoteType: content_of_restore_modal.remoteType,
                                 prefix: content_of_restore_modal.prefix,
                                 storageClassName: content_of_restore_modal.storageClassName,
-                                storageResource: `${Gi_process(content_of_restore_modal.storageResource)}`,
+                                storageResource: `${GiProcess(content_of_restore_modal.storageResource)}`,
                                 saveDir: content_of_restore_modal.saveDir,
                                 dolphindbName: dolphindbName,
                                 dolphindbNamespace: dolphindbNamespace,
@@ -2641,22 +2646,22 @@ const Backup_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sourc
             </Form>
         </Modal>
 
-        {sourcekey_modal_open ? <SourceKey_Modal
+        {sourcekey_modal_open ? <SourceKeyModal
             sourcekey_modaol_open={sourcekey_modal_open}
             set_sourcekey_modal_open={set_sourcekey_modal_open}
             refresh_sourceKey={refresh_sourceKey}
-        ></SourceKey_Modal> : <div />}
+        ></SourceKeyModal> : <div />}
 
 
         <ErrorBoundary>
-            <Dashboard_For_One_Name name={name_of_current_opened_detail} type={'backups'} open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }}></Dashboard_For_One_Name></ErrorBoundary>
+            <DashboardForOneName name={name_of_current_opened_detail} type={'backups'} open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }}></DashboardForOneName></ErrorBoundary>
     </div>
 
 }
 
-const Restore_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => {
+const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => {
 
-    const [fetched_restore_list_of_namesace, set_restore_isntances_list_of_namespace] = useState<list_of_restores>()
+    const [fetched_restore_list_of_namesace, set_restore_isntances_list_of_namespace] = useState<ListOfRestores>()
 
     const [refresher, set_refresher] = useState(0)
 
@@ -2665,7 +2670,7 @@ const Restore_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sour
     const [name_of_current_opened_detail, set_name_of_current_opened_detail] = useState('')
 
     const refresh_restore_instances_list_of_namespace = async () => {
-        const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores`) as list_of_restores
+        const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores`) as ListOfRestores
         set_restore_isntances_list_of_namespace(data)
     }
 
@@ -2755,13 +2760,13 @@ const Restore_List_of_Namespace_ = (props: { tag: 'backups' | 'restores' | 'sour
         }
 
         <ErrorBoundary>
-            <Dashboard_For_One_Name name={name_of_current_opened_detail} type={'restores'} open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }}></Dashboard_For_One_Name>
+            <DashboardForOneName name={name_of_current_opened_detail} type={'restores'} open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }}></DashboardForOneName>
         </ErrorBoundary>
 
     </div>
 }
 
-const SourceKey_List = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => {
+const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => {
     const [sourceKey_detail, set_sourceKey_detail] = useState()
 
     const [refresher, set_refresher] = useState(0)
@@ -2825,11 +2830,11 @@ const SourceKey_List = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) =>
 
         </div>
 
-        {sourcekey_modal_open ? <SourceKey_Modal
+        {sourcekey_modal_open ? <SourceKeyModal
             sourcekey_modaol_open={sourcekey_modal_open}
             set_sourcekey_modal_open={set_sourcekey_modal_open}
             refresh_sourceKey={refresh_sourceKey}
-        ></SourceKey_Modal> : <div />}
+        ></SourceKeyModal> : <div />}
 
         {sourceKey_detail ?
             <Table dataSource={Object.keys(sourceKey_detail).map(
@@ -3044,7 +3049,7 @@ class ErrorBoundary extends React.Component {
     }
 }
 
-type list_of_backups = {
+type ListOfBackups = {
     count: number
     items: {
         name: string
@@ -3056,7 +3061,7 @@ type list_of_backups = {
     pageTotal: number
 } | undefined
 
-type one_bakcup_detail = {
+type OneBakcupDetail = {
     name: string
     prefix: string
     remoteType: string
@@ -3072,10 +3077,10 @@ type one_bakcup_detail = {
     storedPath: string
 } | undefined
 
-type list_of_restores = list_of_backups
-type one_restore_detail = one_bakcup_detail & { dolphindbName, dolphindbNamespace, from }
+type ListOfRestores = ListOfBackups
+type OneRestoreDetail = OneBakcupDetail & { dolphindbName, dolphindbNamespace, from }
 
-type sourceKey_detail = {
+type SourceKeyDetail = {
     type: 'nfs',
     endpoint: string
     path: string
@@ -3088,10 +3093,10 @@ type sourceKey_detail = {
 } | undefined
 
 
-type flatten_backup_detail = {
+type FlattenBackupDetail = {
     name, prefix, remoteType, saveDir, sourceKey, createTimestamp, phase, storageClassName, storageResource, storedPath
 }
 
-type flatten_restore_detail = flatten_backup_detail & { dolphindbName, dolphindbNamespace, from }
+type FlattenRestoreDetail = FlattenBackupDetail & { dolphindbName, dolphindbNamespace, from }
 
 type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
