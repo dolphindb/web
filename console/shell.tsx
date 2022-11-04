@@ -3,24 +3,44 @@ import 'xterm/css/xterm.css'
 import './shell.sass'
 
 
-import { default as React, useEffect, useRef } from 'react'
+import { default as React, useEffect, useRef, useState } from 'react'
 
 import { Resizable } from 're-resizable'
 
-import { message, Tree } from 'antd'
-import { default as Icon } from '@ant-design/icons'
+import { Dropdown, Menu, message, Tooltip, Tree, Modal, Form, Input, Select, Button } from 'antd'
+const { Option } = Select
+
+import { default as Icon, SyncOutlined, MinusSquareOutlined } from '@ant-design/icons'
 
 import dayjs from 'dayjs'
 
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
+import { WebglAddon } from 'xterm-addon-webgl'
+import { WebLinksAddon } from 'xterm-addon-web-links'
 
 import debounce from 'lodash/debounce.js'
 
 import { default as MonacoEditor, loader } from '@monaco-editor/react'
 
-import type * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
-type Monaco = typeof monaco
+import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
+type Monaco = typeof monacoapi
+
+import { generateTokensCSSForColorMap } from 'monaco-editor/esm/vs/editor/common/languages/supports/tokenization.js'
+import { Color } from 'monaco-editor/esm/vs/base/common/color.js'
+
+
+import {
+    INITIAL,
+    Registry,
+    parseRawGrammar,
+    type IGrammar,
+    type IRawGrammar,
+    type StackElement,
+} from 'vscode-textmate'
+
+import { createOnigScanner, createOnigString, loadWASM } from 'vscode-oniguruma'
+
 
 import {
     ddb,
@@ -31,14 +51,17 @@ import {
     format,
     DdbFunctionType,
     type DdbFunctionDefValue,
+    type InspectOptions,
 } from 'dolphindb/browser.js'
 
-import { keywords, constants } from 'dolphindb/language.js'
+import { keywords, constants, tm_language } from 'dolphindb/language.js'
 
 // LOCAL
 // import docs from 'dolphindb/docs.zh.json'
 import docs_zh from 'dolphindb/docs.zh.json'
 import docs_en from 'dolphindb/docs.en.json'
+
+import theme from './shell.theme.js'
 
 
 import SvgVar from './shell.icons/variable.icon.svg'
@@ -52,10 +75,12 @@ import SvgDict from './shell.icons/dict.icon.svg'
 import SvgTable from './shell.icons/table.icon.svg'
 import SvgChart from './shell.icons/chart.icon.svg'
 import SvgObject from './shell.icons/object.icon.svg'
+import SvgDatabase from './shell.icons/database.icon.svg'
+import SvgColumn from './shell.icons/column.icon.svg'
 
 
 import { delta2str, delay } from 'xshell/utils.browser.js'
-import { red, blue } from 'xshell/chalk.browser.js'
+import { red, blue, underline } from 'xshell/chalk.browser.js'
 
 import { Model } from 'react-object-model'
 
@@ -100,22 +125,43 @@ class ShellModel extends Model<ShellModel> {
     
     monaco: Monaco
     
-    editor: monaco.editor.IStandaloneCodeEditor
+    editor: monacoapi.editor.IStandaloneCodeEditor
     
     result: Result
     
     vars: DdbVar[]
     
+    ddbs: Map<string, DdbEntity>
+    
+    options?: InspectOptions
+    
+    
+    async init_ddbs () {
+        try {
+            const ddbPaths = (await ddb.call('getClusterDFSDatabases')).value as string[]
+            const ddbEntities = ddbPaths.map(path => new DdbEntity({ path }))
+            const ddbs = ddbPaths.reduce((acc, x, i) => {
+                acc.set(x, ddbEntities[i])
+                return acc
+            }, new Map())
+            this.set({ ddbs })
+        } catch (e) {
+            console.error(e)
+        }
+    }
     
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
         
         this.term.writeln(
-            '\n\n' +
+            '\n' +
             time_start.format('YYYY.MM.DD HH:mm:ss.SSS')
         )
         
         try {
+            // TEST
+            // throw new Error('xxxxx. RefId: S00001. xxxx')
+            
             let ddbobj = await ddb.eval(
                 code.replaceAll('\r\n', '\n')
             )
@@ -154,7 +200,7 @@ class ShellModel extends Model<ShellModel> {
                             if (ddbobj.type === DdbType.void)
                                 return ''
                             
-                            return ddbobj.toString(true).trimEnd() + '\n'
+                            return ddbobj.toString({ ...this.options, colors: true }).trimEnd() + '\n'
                         }
                     }
                 })() +
@@ -163,9 +209,10 @@ class ShellModel extends Model<ShellModel> {
                 )})`
             )
         } catch (error) {
-            this.term.writeln(
-                red(error.message)
-            )
+            let message = error.message as string
+            if (message.includes('RefId:'))
+                message = message.replaceAll(/RefId:\s*(\w+)/g, underline(blue('RefId: $1')))
+            this.term.writeln(red(message))
             throw error
         }
     }
@@ -219,7 +266,8 @@ class ShellModel extends Model<ShellModel> {
                     bytes,
                     shared,
                     extra,
-                    obj: undefined as DdbObj
+                    obj: undefined as DdbObj,
+                    options: this.options,
                 })
             )
             .filter(
@@ -238,7 +286,8 @@ class ShellModel extends Model<ShellModel> {
                 `(${imutables.map(({ name }) => name).join(', ')}, 0)${ddb.python ? '.toddb()' : ''}`
             )
             
-            for (let i = 0; i < values.length - 1; i++) imutables[i].obj = values[i]
+            for (let i = 0; i < values.length - 1; i++)
+                imutables[i].obj = values[i]
         }
         
         
@@ -256,26 +305,34 @@ let shell = new ShellModel()
 
 
 export function Shell () {
+    const { options } = model.use(['options'])
+    
+    useEffect(() => {
+        shell.options = options
+        shell.update_vars()
+    }, [options])
+    
+    useEffect(() => {
+        shell.init_ddbs()
+    }, [ ])
+    
     return <>
         <Resizable
-            className='variables-resizable'
+            className='treeview-resizable'
             defaultSize={{ height: '100%', width: '13%' }}
-            enable={{ top: false, right: true, bottom: false, left:false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
+            enable={{ top: false, right: true, bottom: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
             onResizeStop={async () => {
                 await delay(200)
                 shell.fit_addon?.fit()
             }}
         >
-            <div className='variables'>
-                <Variables shared={false} />
-                <Variables shared />
-            </div>
+            <TreeView />
         </Resizable>
         
         <Resizable
             className='editor-resizable'
             defaultSize={{ height: '100%', width: '60%' }}
-            enable={{ top: false, right: true, bottom: false, left:false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
+            enable={{ top: false, right: true, bottom: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
             onResizeStop={async () => {
                 await delay(200)
                 shell.fit_addon?.fit()
@@ -289,7 +346,261 @@ export function Shell () {
 }
 
 
+let monaco: Monaco
+
+let wasm_loaded = false
+
 function Editor () {
+    const [inited, set_inited] = useState(Boolean(shell.editor))
+    
+    
+    useEffect(() => {
+        (async () => {
+            if (inited)
+                return
+            
+            monaco = await loader.init() as any
+            
+            let { languages } = monaco
+            
+            const { CompletionItemKind } = languages
+            
+            
+            languages.register({
+                id: 'dolphindb',
+                // configuration: ''
+            })
+            
+            
+            if (!wasm_loaded) {
+                wasm_loaded = true
+                
+                // Using the response directly only works if the server sets the MIME type 'application/wasm'.
+                // Otherwise, a TypeError is thrown when using the streaming compiler.
+                // We therefore use the non-streaming compiler :(.
+                await loadWASM(
+                    await fetch('./onig.wasm')
+                )
+            }
+            
+            
+            languages.setTokensProvider(
+                'dolphindb',
+                
+                await new TokensProviderCache(registry)
+                    .createEncodedTokensProvider(
+                        'source.dolphindb',
+                        languages.getEncodedLanguageId('dolphindb')
+                    )
+            )
+            
+            
+            
+            languages.setLanguageConfiguration('dolphindb', {
+                comments: {
+                    // symbol used for single line comment. Remove this entry if your language does not support line comments
+                    lineComment: '//',
+                    
+                    // symbols used for start and end a block comment. Remove this entry if your language does not support block comments
+                    blockComment: ['/*', '*/']
+                },
+                
+                // symbols used as brackets
+                brackets: [
+                    ['{', '}'],
+                    ['[', ']'],
+                    ['(', ')']
+                ],
+                
+                // symbols that are auto closed when typing
+                autoClosingPairs: [
+                    { open: '{', close: '}' },
+                    { open: '[', close: ']' },
+                    { open: '(', close: ')' },
+                    { open: '"', close: '"', notIn: ['string'] },
+                    { open: "'", close: "'", notIn: ['string'] },
+                    { open: '/**', close: ' */', notIn: ['string'] },
+                    { open: '/*', close: ' */', notIn: ['string'] }
+                ],
+                
+                // symbols that that can be used to surround a selection
+                surroundingPairs: [
+                    { open: '{', close: '}' },
+                    { open: '[', close: ']' },
+                    { open: '(', close: ')' },
+                    { open: '"', close: '"' },
+                    { open: "'", close: "'" },
+                    { open: '<', close: '>' },
+                ],
+                
+                folding: {
+                    markers: {
+                        start: new RegExp('^\\s*//\\s*#?region\\b'),
+                        end: new RegExp('^\\s*//\\s*#?endregion\\b')
+                    }
+                },
+                
+                wordPattern: new RegExp('(-?\\d*\\.\\d\\w*)|([^\\`\\~\\!\\@\\#\\%\\^\\&\\*\\(\\)\\-\\=\\+\\[\\{\\]\\}\\\\\\|\\;\\:\\\'\\"\\,\\.\\<\\>\\/\\?\\s]+)'),
+                
+                indentationRules: {
+                    increaseIndentPattern: new RegExp('^((?!\\/\\/).)*(\\{[^}"\'`]*|\\([^)"\'`]*|\\[[^\\]"\'`]*)$'),
+                    decreaseIndentPattern: new RegExp('^((?!.*?\\/\\*).*\\*/)?\\s*[\\}\\]].*$')
+                }
+            })
+            
+            
+            languages.registerCompletionItemProvider('dolphindb', {
+                provideCompletionItems (doc, pos, ctx, canceller) {
+                    if (canceller.isCancellationRequested)
+                        return
+                    
+                    const keyword = doc.getWordAtPosition(pos).word
+                    
+                    
+                    let fns: string[]
+                    let _constants: string[]
+                    
+                    if (keyword.length === 1) {
+                        const c = keyword[0].toLowerCase()
+                        fns = funcs.filter((func, i) =>
+                            funcs_lower[i].startsWith(c)
+                        )
+                        _constants = constants.filter((constant, i) =>
+                            constants_lower[i].startsWith(c)
+                        )
+                    } else {
+                        const keyword_lower = keyword.toLowerCase()
+                        
+                        fns = funcs.filter((func, i) => {
+                            const func_lower = funcs_lower[i]
+                            let j = 0
+                            for (const c of keyword_lower) {
+                                j = func_lower.indexOf(c, j) + 1
+                                if (!j)  // 找不到则 j === 0
+                                    return false
+                            }
+                            
+                            return true
+                        })
+                        
+                        _constants = constants.filter((constant, i) => {
+                            const constant_lower = constants_lower[i]
+                            let j = 0
+                            for (const c of keyword_lower) {
+                                j = constant_lower.indexOf(c, j) + 1
+                                if (!j)  // 找不到则 j === 0
+                                    return false
+                            }
+                            
+                            return true
+                        })
+                    }
+                    
+                    return {
+                        suggestions: [
+                            ...keywords.filter(kw =>
+                                kw.startsWith(keyword)
+                            ).map(kw => ({
+                                label: kw,
+                                insertText: kw,
+                                kind: CompletionItemKind.Keyword,
+                            }) as monacoapi.languages.CompletionItem),
+                            ... _constants.map(constant => ({
+                                label: constant,
+                                insertText: constant,
+                                kind: CompletionItemKind.Constant
+                            }) as monacoapi.languages.CompletionItem),
+                            ...fns.map(fn => ({
+                                label: fn,
+                                insertText: fn,
+                                kind: CompletionItemKind.Function,
+                            }) as monacoapi.languages.CompletionItem),
+                        ]
+                    }
+                },
+                
+                resolveCompletionItem (item, canceller) {
+                    if (canceller.isCancellationRequested)
+                        return
+                    
+                    item.documentation = get_func_md(item.label as string)
+                    
+                    return item
+                }
+            })
+            
+            languages.registerHoverProvider('dolphindb', {
+                provideHover (doc, pos, canceller) {
+                    if (canceller.isCancellationRequested)
+                        return
+                    
+                    const word = doc.getWordAtPosition(pos)
+                    
+                    if (!word)
+                        return
+                    
+                    const md = get_func_md(word.word)
+                    
+                    if (!md)
+                        return
+                    
+                    return {
+                        contents: [md]
+                    }
+                }
+            })
+            
+            languages.registerSignatureHelpProvider('dolphindb', {
+                signatureHelpTriggerCharacters: ['(', ','],
+                
+                provideSignatureHelp (doc, pos, canceller, ctx) {
+                    if (canceller.isCancellationRequested)
+                        return
+                    
+                    const { func_name, param_search_pos } = find_func_start(doc, pos)
+                    if (param_search_pos === -1) 
+                        return
+                    
+                    const index = find_active_param_index(doc, pos, param_search_pos)
+                    if (index === -1) 
+                        return
+                    
+                    const signature_and_params = get_signature_and_params(func_name)
+                    if (!signature_and_params)
+                        return
+                    
+                    const { signature, params } = signature_and_params
+                    
+                    return {
+                        dispose () { },
+                        
+                        value: {
+                            activeParameter: index > params.length - 1 ? params.length - 1 : index,
+                            signatures: [{
+                                label: signature,
+                                documentation: get_func_md(func_name),
+                                parameters: params.map(param => ({
+                                    label: param
+                                }))
+                            }],
+                            activeSignature: 0,
+                        }
+                    }
+                }
+            })
+            
+            
+            set_inited(true)
+        })()
+    }, [ ])
+    
+    
+    if (!inited)
+        return <div className='editor-loading'>{
+            t('正在加载代码编辑器...')
+        }</div>
+    
+    
     return <div className='editor'>
         <MonacoEditor
             defaultLanguage='dolphindb'
@@ -297,6 +608,7 @@ function Editor () {
             language='dolphindb'
             
             theme='dolphindb-theme'
+            // theme='Dark+ (default dark)'
             
             options={{
                 minimap: {
@@ -381,264 +693,6 @@ function Editor () {
                 },
             }}
             
-            // theme='dolphindb-theme'
-            
-            beforeMount={monaco => {
-                if (shell.monaco)
-                    return
-                
-                let { languages, editor } = monaco
-                const { CompletionItemKind } = languages
-                
-                languages.register({
-                    id: 'dolphindb',
-                    // configuration: ''
-                })
-                
-                languages.setMonarchTokensProvider('dolphindb', {
-                    defaultToken: 'invalid',
-                    
-                    keywords,
-                    
-                    operators: [
-                        '||', '&&',
-                        '<=', '==', '>=', '!=',
-                        '<<', '>>',
-                        '**', '<-', '->', '..',
-                        '<', '>', '|', '^', '&', '+', '-', '*', '/', '\\', '%', '$', ':', '!', '.'
-                    ],
-                    
-                    tokenizer: {
-                        root: [
-                            [/\/\/.*$/, 'comment'],
-                            
-                            [/'(.*?)'/, 'string'],
-                            [/"(.*?)"/, 'string'],
-                            
-                            [/\w+!? ?(?=\()/, 'call'],
-                            
-                            [/\d+/, 'number'],
-                            
-                            [/\w+( join| by)?/, { cases: { '@keywords': 'keyword' } }],
-                            
-                            [/[!$%^&*|<=>\\.]+/, { cases: { '@operators': 'operator' } }],
-                            
-                            [/[;,.]/, 'delimiter'],
-                        ],
-                    },
-                })
-                
-                editor.defineTheme('dolphindb-theme', {
-                    base: 'vs',
-                    inherit: true,
-                    rules: [
-                        // { token: 'keywords.dolphindb', foreground: '#ff0000' }
-                        { token: 'comment', foreground: '#000000' },
-                        { token: 'types', foreground: '#0f96be' },
-                        { token: 'operator', foreground: '#ff0000' },
-                        { token: 'invalid', foreground: '#000000' },
-                        { token: 'keyword', foreground: '#af00db' },
-                        { token: 'number', foreground: '#00a000' },
-                        { token: 'call',  foreground: '#000000', fontStyle: 'bold' },
-                    ],
-                    colors: {
-                        
-                    }
-                })
-                
-                languages.setLanguageConfiguration('dolphindb', {
-                    comments: {
-                        // symbol used for single line comment. Remove this entry if your language does not support line comments
-                        lineComment: '//',
-                        
-                        // symbols used for start and end a block comment. Remove this entry if your language does not support block comments
-                        blockComment: ['/*', '*/']
-                    },
-                    
-                    // symbols used as brackets
-                    brackets: [
-                        ['{', '}'],
-                        ['[', ']'],
-                        ['(', ')']
-                    ],
-                    
-                    // symbols that are auto closed when typing
-                    autoClosingPairs: [
-                        { open: '{', close: '}' },
-                        { open: '[', close: ']' },
-                        { open: '(', close: ')' },
-                        { open: '"', close: '"', notIn: ['string'] },
-                        { open: "'", close: "'", notIn: ['string'] },
-                        { open: '/**', close: ' */', notIn: ['string'] },
-                        { open: '/*', close: ' */', notIn: ['string'] }
-                    ],
-                    
-                    // symbols that that can be used to surround a selection
-                    surroundingPairs: [
-                        { open: '{', close: '}' },
-                        { open: '[', close: ']' },
-                        { open: '(', close: ')' },
-                        { open: '"', close: '"' },
-                        { open: "'", close: "'" },
-                        { open: '<', close: '>' },
-                    ],
-                    
-                    folding: {
-                        markers: {
-                            start: new RegExp('^\\s*//\\s*#?region\\b'),
-                            end: new RegExp('^\\s*//\\s*#?endregion\\b')
-                        }
-                    },
-                    
-                    wordPattern: new RegExp('(-?\\d*\\.\\d\\w*)|([^\\`\\~\\!\\@\\#\\%\\^\\&\\*\\(\\)\\-\\=\\+\\[\\{\\]\\}\\\\\\|\\;\\:\\\'\\"\\,\\.\\<\\>\\/\\?\\s]+)'),
-                    
-                    indentationRules: {
-                        increaseIndentPattern: new RegExp('^((?!\\/\\/).)*(\\{[^}"\'`]*|\\([^)"\'`]*|\\[[^\\]"\'`]*)$'),
-                        decreaseIndentPattern: new RegExp('^((?!.*?\\/\\*).*\\*/)?\\s*[\\}\\]].*$')
-                    }
-                })
-                
-                languages.registerCompletionItemProvider('dolphindb', {
-                    provideCompletionItems (doc, pos, ctx, canceller) {
-                        if (canceller.isCancellationRequested)
-                            return
-                        
-                        const keyword = doc.getWordAtPosition(pos).word
-                        
-                        
-                        let fns: string[]
-                        let _constants: string[]
-                        
-                        if (keyword.length === 1) {
-                            const c = keyword[0].toLowerCase()
-                            fns = funcs.filter((func, i) => 
-                                funcs_lower[i].startsWith(c)
-                            )
-                            _constants = constants.filter((constant, i) => 
-                                constants_lower[i].startsWith(c)
-                            )
-                        } else {
-                            const keyword_lower = keyword.toLowerCase()
-                            
-                            fns = funcs.filter((func, i) => {
-                                const func_lower = funcs_lower[i]
-                                let j = 0
-                                for (const c of keyword_lower) {
-                                    j = func_lower.indexOf(c, j) + 1
-                                    if (!j)  // 找不到则 j === 0
-                                        return false
-                                }
-                                
-                                return true
-                            })
-                            
-                            _constants = constants.filter((constant, i) => {
-                                const constant_lower = constants_lower[i]
-                                let j = 0
-                                for (const c of keyword_lower) {
-                                    j = constant_lower.indexOf(c, j) + 1
-                                    if (!j)  // 找不到则 j === 0
-                                        return false
-                                }
-                                
-                                return true
-                            })
-                        }
-                        
-                        return {
-                            suggestions: [
-                                ...keywords.filter(kw => 
-                                    kw.startsWith(keyword)
-                                ).map(kw => ({
-                                    label: kw,
-                                    insertText: kw,
-                                    kind: CompletionItemKind.Keyword,
-                                }) as monaco.languages.CompletionItem),
-                                ... _constants.map(constant => ({
-                                    label: constant,
-                                    insertText: constant,
-                                    kind: CompletionItemKind.Constant
-                                }) as monaco.languages.CompletionItem),
-                                ...fns.map(fn => ({
-                                    label: fn,
-                                    insertText: fn,
-                                    kind: CompletionItemKind.Function,
-                                }) as monaco.languages.CompletionItem),
-                            ]
-                        }
-                    },
-                    
-                    resolveCompletionItem (item, canceller) {
-                        if (canceller.isCancellationRequested)
-                            return
-                        
-                        item.documentation = get_func_md(item.label as string)
-                        
-                        return item
-                    }
-                })
-                
-                languages.registerHoverProvider('dolphindb', {
-                    provideHover (doc, pos, canceller) {
-                        if (canceller.isCancellationRequested)
-                            return
-                        
-                        const word = doc.getWordAtPosition(pos)
-                        
-                        if (!word)
-                            return
-                        
-                        const md = get_func_md(word.word)
-                        
-                        if (!md)
-                            return
-                        
-                        return {
-                            contents: [md]
-                        }
-                    }
-                })
-                
-                languages.registerSignatureHelpProvider('dolphindb', {
-                    signatureHelpTriggerCharacters: ['(', ','],
-                    
-                    provideSignatureHelp (doc, pos, canceller, ctx) {
-                        if (canceller.isCancellationRequested)
-                            return
-                        
-                        const { func_name, param_search_pos } = find_func_start(doc, pos)
-                        if (param_search_pos === -1) 
-                            return
-                        
-                        const index = find_active_param_index(doc, pos, param_search_pos)
-                        if (index === -1) 
-                            return
-                        
-                        const signature_and_params = get_signature_and_params(func_name)
-                        if (!signature_and_params)
-                            return
-                        
-                        const { signature, params } = signature_and_params
-                        
-                        return {
-                            dispose () { },
-                            
-                            value: {
-                                activeParameter: index > params.length - 1 ? params.length - 1 : index,
-                                signatures: [{
-                                    label: signature,
-                                    documentation: get_func_md(func_name),
-                                    parameters: params.map(param => ({
-                                        label: param
-                                    }))
-                                }],
-                                activeSignature: 0,
-                            }
-                        }
-                    }
-                })
-            }}
-            
             onMount={(editor, monaco) => {
                 editor.setValue(
                     localStorage.getItem(storage_keys.code) || ''
@@ -700,6 +754,8 @@ function Editor () {
                     // })
                 }
                 
+                inject_css()
+                
                 shell.set({
                     editor,
                     // @ts-ignore
@@ -741,7 +797,7 @@ function Term () {
     useEffect(() => {
         function printer ({ type, data }: DdbMessage) {
             if (type === 'print')
-                shell.term.writeln(data)
+                shell.term.writeln(data as string)
         }
         
         const on_resize = debounce(
@@ -763,9 +819,9 @@ function Term () {
                 
                 disableStdin: true,
                 
-                rendererType: 'canvas',
-                
                 convertEol: true,
+                
+                allowProposedApi: true,
                 
                 theme: {
                     background: '#ffffff',
@@ -776,17 +832,31 @@ function Term () {
                     brightBlack: '#8e908c',
                     magenta: '#800080',
                     red: '#df0000',
-                    selection: '#add6ff'
+                    selectionBackground: '#add6ff'
                 }
             })
             
+            term.loadAddon(shell.fit_addon = new FitAddon())
+            
             term.loadAddon(
-                shell.fit_addon = new FitAddon()
-            )
+                new WebLinksAddon(
+                    (event, url) => {
+                        console.log(t('点击了 RefId 链接:'), url)
+                        window.open(
+                            (language === 'zh' ? 'https://dolphindb.cn/cn/' : 'https://dolphindb.com/') +
+                            `help/${model.version?.startsWith('1.30') ? '130/' : ''}ErrorCode${ language === 'zh' ? 'List' : 'Reference' }/${url.slice('RefId: '.length)}/index.html`,
+                            '_blank'
+                        )
+                    },
+                    { urlRegex: /(RefId: \w+)/ }))
             
             term.open(rterminal.current)
             
+            term.loadAddon(new WebglAddon())
+            
             ddb.listeners.push(printer)
+            
+            rterminal.current.children[0]?.dispatchEvent(new Event('mousedown'))
             
             term.writeln(
                 t('左侧编辑器使用指南:\n') +
@@ -797,8 +867,7 @@ function Term () {
         })()
         
         return () => {
-            ddb.listeners = ddb.listeners.filter(handler => 
-                handler !== printer)
+            ddb.listeners = ddb.listeners.filter(handler => handler !== printer)
             
             window.removeEventListener('resize', on_resize)
         }
@@ -816,10 +885,62 @@ function Term () {
 }
 
 
+function TreeView () {
+    return <div className='treeview-content'>
+        <Resizable
+            className='treeview-resizable-split treeview-resizable-split1'
+            enable={{
+                top: false,
+                right: false,
+                bottom: true,
+                left: false,
+                topRight: false,
+                bottomRight: false,
+                bottomLeft: false,
+                topLeft: false
+            }}
+            defaultSize={{ height: '30%', width: '100%' }}
+            minHeight='22px'
+            handleStyles={{ bottom: { height: 20, bottom: -10 } }}
+            handleClasses={{ bottom: 'resizable-handle' }}
+        >
+            <div className='databases treeview-split treeview-split1'>
+                <Databases />
+            </div>
+        </Resizable>
+        <div className='treeview-resizable-split2'>
+            <div className='treeview-resizable-split21'>
+                <Variables shared={false} />
+            </div>
+            <Resizable
+                className='treeview-resizable-split treeview-resizable-split22'
+                enable={{
+                    top: true,
+                    right: false,
+                    bottom: false,
+                    left: false,
+                    topRight: false,
+                    bottomRight: false,
+                    bottomLeft: false,
+                    topLeft: false
+                }}
+                defaultSize={{ height: '100px', width: '100%' }}
+                minHeight='22px'
+                handleStyles={{ bottom: { height: 20, bottom: -10 } }}
+                handleClasses={{ bottom: 'resizable-handle' }}
+            >
+                <Variables shared />
+            </Resizable>
+        </div>
+    </div>
+}
+
+
 function DataView () {
     const { result } = shell.use(['result'])
+    const { options } = model.use(['options'])
     
-    return <div className='dataview result'>{
+    return <div className='dataview result embed'>{
         (() => {
             if (!result)
                 return
@@ -833,23 +954,531 @@ function DataView () {
                 return
             
             return type === 'object' ?
-                <Obj obj={data} ddb={ddb} ctx='embed' />
+                <Obj obj={data} ddb={ddb} ctx='embed' options={options} />
             :
-                <Obj objref={data} ddb={ddb} ctx='embed' />
+                <Obj objref={data} ddb={ddb} ctx='embed' options={options} />
         })()
     }</div>
 }
 
 
+
+
+interface ContextMenu {
+    key: string,// TreeItem key
+    open: boolean,
+    command?: string,
+    database: string,
+    table?: string,
+    column?: string
+}
+
+interface MenuItem {
+    label: string,
+    key: string,
+    open: boolean,
+    command: string
+}
+
+const tableMenuItems: MenuItem[] = [
+    { label: t('添加列'), key: '1', open: true, command: 'AddColumn' },
+    { label: t('显示数据表结构'), key: '2', open: false, command: 'ShowSchema' },
+    { label: t('显示前一百行数据'), key: '3', open: false, command: 'ShowRows' }
+]
+
+const columnMenuItems: MenuItem[] = [
+    { label: t('修改注释'), key: '1', open: true, command: 'EditComment' }
+]
+
+// 数据库 context menu item 调用 Modal
+const contextMenuModalItems = {
+    EditComment: EditComment,
+    AddColumn: AddColumn
+}
+
+// 数据库 context menu item 调用函数
+const contextMenuFunctionItems = {
+    ShowRows: async (
+        triad: DBTriad) => {
+        const { database, table } = triad
+        try {
+            const ddbobj = await ddb.eval(`select top 100 * from loadTable("${database}","${table}")`)
+            ddbobj.name = `${table} (${t('前 100 行')})`
+            shell.set({ result: { type: 'object', data: ddbobj } })
+        } catch (error) {
+            message.error(JSON.stringify(error))
+            throw error
+        }
+    },
+    ShowSchema: async (triad: DBTriad) => {
+        const { database, table } = triad
+        try {
+            const ddbobj = await ddb.eval(`select * from schema(loadTable("${database}","${table}")).colDefs`)
+            ddbobj.name = `schema of ${table}`
+            shell.set({ result: { type: 'object', data: ddbobj } })
+        } catch (error) {
+            message.error(JSON.stringify(error))
+            throw error
+        }
+    }
+}
+
+
+
+function AddColumn ({
+    database,
+    table,
+    onOk,
+    onCancel,
+    loadData
+}: {
+    database: string
+    table: string
+    onOk: () => void
+    onCancel: () => void
+    loadData: ({ key, needLoad }: { key: string, needLoad: boolean }) => void
+}) {
+    const colTypes = [
+        'BOOL',
+        'CHAR',
+        'SHORT',
+        'INT',
+        'LONG',
+        'DATE',
+        'MONTH',
+        'TIME',
+        'MINUTE',
+        'SECOND',
+        'DATETIME',
+        'TIMESTAMP',
+        'NANOTIME',
+        'NANOTIMESTAMP',
+        'FLOAT',
+        'DOUBLE',
+        'SYMBOL',
+        'STRING',
+        'UUID',
+        'DICT',
+        'IPADDR',
+        'INT128',
+        'BLOB',
+        'COMPLEX',
+        'POINT'
+    ]
+    
+    const [form] = Form.useForm()
+    const onFinish = async values => {
+        const { column, type } = values
+        if (database && table) 
+            try {
+                await ddb.eval(`addColumn(loadTable(database("${database}"), "${table}"), ["${column}"], [${type.toUpperCase()}])`)
+                message.success(t('添加成功'))
+                loadData({ key: database, needLoad: true })
+            } catch (error) {
+                message.error(error.message)
+            }
+        
+        form.resetFields()
+        onOk()
+    }
+    const onAbord = () => {
+        form.resetFields()
+        onCancel()
+    }
+    return (
+        <Form name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish} className='db-modal-form'>
+            <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
+                <Input placeholder={t('输入名字')} />
+            </Form.Item>
+            <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型！') }]}>
+                <Select showSearch placeholder={t('选择类型')}>
+                    {colTypes.map(v => (
+                        <Option key={v}>{v}</Option>
+                    ))}
+                </Select>
+            </Form.Item>
+            <Form.Item className='db-modal-content-button-group'>
+                <Button type='primary' htmlType='submit'>
+                    {t('确定')}
+                </Button>
+                <Button htmlType='button' onClick={onAbord}>
+                    {t('取消')}
+                </Button>
+            </Form.Item>
+        </Form>
+    )
+}
+
+function EditComment ({
+    database,
+    table,
+    column,
+    onOk,
+    onCancel
+}: {
+    database: string
+    table: string
+    column: string
+    onOk: () => void
+    onCancel: () => void
+}) {
+    const [form] = Form.useForm()
+    const onFinish = async values => {
+        const { comment } = values
+        if (database && table && column) 
+            try {
+                await ddb.eval(`setColumnComment(loadTable(database("${database}"), "${table}"), { "${column}": "${comment.replaceAll('"', '\\"')}" })`)
+                message.success(t('修改注释成功'))
+            } catch (error) {
+                message.error(error)
+            }
+        
+        form.resetFields()
+        onOk()
+    }
+    const onAbord = () => {
+        form.resetFields()
+        onCancel()
+    }
+    return (
+        <Form
+            labelWrap
+            name='edit-comment'
+            onFinish={onFinish}
+            labelCol={{ span: 4 }}
+            wrapperCol={{ span: 20 }}
+            className='db-modal-form'
+            form={form}
+        >
+            <Form.Item label={t('注释')} name='comment' rules={[{ required: true, message: t('请输入注释') }]}>
+                <Input />
+            </Form.Item>
+            <Form.Item className='db-modal-content-button-group'>
+                <Button type='primary' htmlType='submit'>
+                    {t('确定')}
+                </Button>
+                <Button htmlType='button' onClick={onAbord}>
+                    {t('取消')}
+                </Button>
+            </Form.Item>
+        </Form>
+    )
+}
+
+interface DBTriad {
+    type: 'database' | 'table' | 'column'
+    database: string
+    table?: string
+    column?: string
+}
+
+// For 数据库 table and column context menu
+function DBItemTitle (entity: DBTriad, items: MenuItem[], key: string, onChange: (menu: ContextMenu) => void, extra?: string) {
+    const name = entity[entity.type]
+    const onClick = async ({ key: _key }) => {
+        const item = items.filter(item => item.key === _key)[0]
+        if (item.open) 
+            onChange({
+                key: key,
+                open: true,
+                command: item.command,
+                ...entity
+            })
+         else {
+            const fn = contextMenuFunctionItems[item.command]
+            await fn(entity)
+            onChange({
+                key: key,
+                open: false,
+                ...entity
+            })
+        }
+    }
+    
+    const onOpenChange = open => {
+        if (open) 
+            onChange({
+                key: key,
+                open: false,
+                ...entity
+            })
+        
+    }
+    
+    const menu = <Menu items={items} onClick={onClick} className='db-context-menu'></Menu>
+    return (
+        <>
+            <Dropdown overlay={menu} trigger={['contextMenu']} onOpenChange={onOpenChange}>
+                <span>
+                    <span className='name'>{name}</span>
+                    {extra ? ` <${extra}>` : ''}
+                </span>
+            </Dropdown>
+        </>
+    )
+}
+
+class TreeDataItem {
+    title: React.ReactElement
+    key: string
+    children?: TreeDataItem[]
+    icon?: any
+    tooltip?: string
+    isLeaf?: boolean
+    needLoad?: boolean
+    className?: string
+    
+    constructor (
+        title: string | React.ReactElement,
+        key: string,
+        icon?: any,
+        children?: TreeDataItem[],
+        tooltip?: string,
+        isLeaf?: boolean,
+        needLoad?: boolean,
+        className?: string
+    ) {
+        const name = typeof title === 'string' ? /^(\w+)/.exec(title)[1] : ''
+        
+        this.title = (
+            <>
+                {typeof title === 'string' ? (
+                    <>
+                        <span className='name'>{name}</span>
+                        {title.slice(name.length)}
+                    </>
+                ) : (
+                    title
+                )}
+            </>
+        )
+        
+        this.key = key
+        this.children = children
+        this.icon = icon || <Icon component={SvgVar} />
+        this.tooltip = tooltip
+        this.isLeaf = isLeaf
+        this.needLoad = needLoad || false
+        this.className = className
+    }
+}
+
+
+class DdbEntity {
+    path: string
+
+    empty = false // after load
+
+    tables: TableEntity[] = []
+
+    constructor(data: Partial<DdbEntity>) {
+        Object.assign(this, data)
+    }
+
+    toTreeDataItem(onChange): TreeDataItem {
+        const children = this.tables.map(table => table.toTreeDataItem(onChange))
+        return new TreeDataItem(
+            <span className='name'>{this.path}</span>,
+            this.path,
+            <Icon component={SvgDatabase} />,
+            children,
+            null,
+            false,
+            true,
+            this.empty ? 'ant-tree-treenode-empty' : null
+        )
+    }
+}
+
+
+
+class TableEntity {
+    name: string
+
+    ddb_path: string
+
+    labels: string[]
+
+    column_schema: { name: string, type: DdbType }[]
+
+    constructor(data: Partial<TableEntity>) {
+        Object.assign(this, data)
+        this.labels = this.column_schema?.map(obj =>
+            `${obj.name}<${DdbType[obj.type]}>`
+        )
+    }
+
+    toTreeDataItem(onChange: (menu: ContextMenu) => void): TreeDataItem {
+
+        const children = this.column_schema.map(column => {
+            const key = `${this.ddb_path}/${this.name}/${column.name}`
+            return new TreeDataItem(
+                DBItemTitle({ type: 'column', database: this.ddb_path, table: this.name, column: column.name }, columnMenuItems, key, onChange, DdbType[column.type]),
+                key,
+                <Icon component={SvgColumn} />,
+                null, null, true)
+        })
+
+        return new TreeDataItem(
+            DBItemTitle({ type: 'table', database: this.ddb_path, table: this.name }, tableMenuItems, `${this.ddb_path}/${this.name}`, onChange),
+            `${this.ddb_path}/${this.name}`,
+            <Icon component={SvgTable} />,
+            children,
+            null,
+            false
+        )
+    }
+}
+
+
+function Databases () {
+    const { ddbs } = shell.use(['ddbs'])
+    const [expanded_keys, set_expanded_keys] = useState([])
+    const [loaded_keys, set_loaded_keys] = useState([])
+    const [menu, onChange] = useState<ContextMenu | null>()
+    const [selectedKeys, setSelectedKeys] = useState([])
+    useEffect(() => {
+        if (menu && menu.key) {
+            setSelectedKeys([menu.key])
+        }
+    }, [menu])
+    if (!ddbs)
+        return
+
+    const tree_data = Array.from(ddbs.values()).map(ddb_entity => ddb_entity.toTreeDataItem(onChange))
+
+    const loadData = async ({ key, needLoad }: Partial<TreeDataItem>) => {
+        if (!needLoad) return
+        try {
+            const res = await ddb.eval(`each(def (x):loadTable("${key}",x,memoryMode=false),getTables(database("${key}")))`)
+            const tbs = res.value as DdbObj[]
+            const tables = tbs.map(tb => {
+                const column_schema = (tb.value as DdbObj[]).map(col => ({ name: col.name, type: col.type }))
+                return new TableEntity({ name: tb.name, ddb_path: key, column_schema })
+            })
+            const nddbs = new Map(ddbs)
+            ddbs.delete(key)
+            nddbs.set(key, new DdbEntity({ path: key, tables }))
+            shell.set({ ddbs: nddbs })
+        } catch (err) {
+            const i = (err.message as string).indexOf('<NotAuthenticated>')
+            const errmsg = i === -1 ? err.message as string : (err.message as string).slice(i)
+            const nddbs = new Map(ddbs)
+            ddbs.delete(key)
+            nddbs.set(key, new DdbEntity({ path: key, empty: true }))
+            shell.set({ ddbs: nddbs })
+            set_loaded_keys([...loaded_keys, key])
+            message.error(errmsg)
+            shell.term.writeln(red(errmsg))
+            throw err
+        }
+    }
+    
+    async function refresh () {
+        await shell.init_ddbs()
+        set_expanded_keys([])
+        set_loaded_keys([])
+    }
+    
+    function on_expand (keys) {
+        set_expanded_keys([...keys])
+    }
+    
+    function on_load (keys) {
+        set_loaded_keys([...keys])
+    }
+    
+    return (
+        <div className='database-panel'>
+            <div className='type'>
+                {t('数据库')}
+                <span className='extra'>
+                    <span onClick={refresh}>
+                        <Tooltip title={t('刷新')} color={'grey'}>
+                            <SyncOutlined />
+                        </Tooltip>
+                    </span>
+                    <span
+                        onClick={() => {
+                            set_expanded_keys([])
+                        }}
+                    >
+                        <Tooltip title={t('全部折叠')} color={'grey'}>
+                            <MinusSquareOutlined />
+                        </Tooltip>
+                    </span>
+                </span>
+            </div>
+            <div className='tree-content'>
+                <Tree
+                    showIcon
+                    focusable={false}
+                    blockNode
+                    showLine
+                    treeData={tree_data}
+                    loadData={loadData}
+                    onLoad={on_load}
+                    expandedKeys={expanded_keys}
+                    loadedKeys={loaded_keys}
+                    onExpand={on_expand}
+                    selectedKeys={selectedKeys}
+                    onContextMenu={(e) => { e.preventDefault() }}
+                    onSelect={(keys) => { setSelectedKeys(keys) }}
+                />
+            </div>
+            <DBModal open={menu && menu.open} command={menu ? menu.command : ''} database={menu?.database}
+                table={menu?.table} column={menu?.column} loadData={loadData} />
+        </div>
+    )
+}
+
+function DBModal({ open, database, table, column, command, loadData }: {
+    open: boolean
+    database?: string,
+    table?: string,
+    column?: string,
+    command: string,
+    loadData: ({ key, needLoad }: { key: string, needLoad: boolean }) => void,
+}) {
+
+    useEffect(() => {
+        setIsModalOpen(open)
+    }, [open])
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(open)
+
+
+    const handleOk = async () => {
+        setIsModalOpen(false)
+    }
+    const handleCancel = () => {
+        setIsModalOpen(false)
+    }
+    const ModalContent = contextMenuModalItems[command] || function () {
+        return <div></div>
+    }
+    const genTitle = (command: string): string => {
+        return tableMenuItems.find(v => v.command === command)?.label || columnMenuItems.find(v => v.command === command)?.label || ''
+    }
+    return <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel} title={genTitle(command)}>
+        <div className='db-modal-content'>
+            <ModalContent database={database} table={table} column={column}
+                onOk={() => { setIsModalOpen(false) }}
+                onCancel={() => { setIsModalOpen(false) }}
+                loadData={loadData} />
+        </div>
+    </Modal>
+}
+
+
+
 function Variables ({ shared }: { shared?: boolean }) {
     const { vars } = shell.use(['vars'])
     
-    if (!vars)
-        return
+    const [expandedKeys, setExpandedKeys] = useState(Array(10).fill(0).map((_x, i) => i.toString()))
     
-    const vars_ = vars.filter(v => {
+    const vars_ = vars ? vars.filter(v => {
         return v.shared === shared
-    })
+    }) : []
     
     let scalar = new TreeDataItem('scalar', '0', <Icon component={SvgScalar} />)
     let vector = new TreeDataItem('vector', '1', <Icon component={SvgVector} />)
@@ -924,76 +1553,67 @@ function Variables ({ shared }: { shared?: boolean }) {
     
     console.log('treedata', treedata)
     
-    if (!treedata.length)
-        return
+    function onExpand (keys, obj) {
+        setExpandedKeys([...keys])
+    }
     
-    return <div className={ shared ? 'shared' : 'local' }>
-        <div className='type'>{ shared ? t('共享变量') : t('本地变量')}</div>
-        <Tree
-            showIcon
-            defaultExpandAll
-            focusable={false}
-            blockNode
-            showLine
-            motion={null}
-            treeData={treedata}
-            // switcherIcon={<DownOutlined />}
-            // titleRender={node => {
-            //     return <div>title</div>
-            // }}
-            onSelect={async ([key]) => {
-                if (!key)
-                    return
-                
-                const v = vars.find(node => 
-                    node.name === key
-                )
-                
-                if (!v)
-                    return
-                
-                if (
-                    v.form === DdbForm.chart ||
-                    v.form === DdbForm.dict ||
-                    v.form === DdbForm.matrix ||
-                    v.form === DdbForm.set ||
-                    v.form === DdbForm.table ||
-                    v.form === DdbForm.vector
-                )
-                    shell.set({
-                        result: v.obj ? {
-                            type: 'object',
-                            data: v.obj
-                        } : {
-                            type: 'objref',
-                            data: new DdbObjRef(v)
-                        }
-                    })
-            }}
-        />
-    </div>
+    // if (!treedata.length)
+    //     return
+    
+    return <div
+        className={`variables treeview-split ${shared ? 'treeview-split3 shared' : 'treeview-split2 local'}`}>
+        <div className='type'>{shared ? t('共享变量') : t('本地变量')}
+            <span onClick={() => { setExpandedKeys([]) }}>
+                <Tooltip title={t('全部折叠')} color={'grey'}>
+                <MinusSquareOutlined />
+                </Tooltip>
+            </span>
+        </div>
+        <div className='tree-content'>
+            <Tree
+                showIcon
+                defaultExpandAll
+                focusable={false}
+                blockNode
+                showLine
+                motion={null}
+                treeData={treedata}
+                expandedKeys={expandedKeys}
+                onExpand={onExpand}
+                onSelect={async ([key]) => {
+                    if (!key)
+                        return
+
+                    const v = vars.find(node =>
+                        node.name === key
+                    )
+
+                    if (!v)
+                        return
+
+                    if (
+                        v.form === DdbForm.chart ||
+                        v.form === DdbForm.dict ||
+                        v.form === DdbForm.matrix ||
+                        v.form === DdbForm.set ||
+                        v.form === DdbForm.table ||
+                        v.form === DdbForm.vector
+                    )
+                        shell.set({
+                            result: v.obj ? {
+                                type: 'object',
+                                data: v.obj
+                            } : {
+                                type: 'objref',
+                                data: new DdbObjRef(v)
+                            }
+                        })
+                }}
+            />
+        </div>
+    </div >
 }
 
-class TreeDataItem {
-    title: React.ReactElement
-    key: string
-    children?: TreeDataItem[]
-    icon?: any
-    tooltip?: string
-    
-    constructor (title: string, key: string, icon?: any, children?: TreeDataItem[], tooltip?: string) {
-        const name = /^(\w+)/.exec(title)[1]
-        this.title = <>
-            <span className='name'>{name}</span>
-            {title.slice(name.length)}
-        </>
-        
-        this.key = key
-        this.children = children
-        this.icon = icon || <Icon component={SvgVar} />
-        this.tooltip = tooltip
-    }
-}
 
 
 class DdbVar <T extends DdbObj = DdbObj> {
@@ -1018,6 +1638,9 @@ class DdbVar <T extends DdbObj = DdbObj> {
     tooltip: string
     
     obj: T
+    
+    options?: InspectOptions
+    
     
     constructor (data: Partial<DdbVar>) {
         Object.assign(this, data)
@@ -1062,7 +1685,7 @@ class DdbVar <T extends DdbObj = DdbObj> {
             const value = (() => {
                 switch (this.form) {
                     case DdbForm.scalar:
-                        return ' = ' + format(this.type, this.obj.value, this.obj.le)
+                        return ' = ' + format(this.type, this.obj.value, this.obj.le, this.options)
                         
                     // 类似 DdbObj[inspect.custom] 中 format data 的逻辑
                     case DdbForm.pair: {
@@ -1084,7 +1707,8 @@ class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 let items = new Array(Math.min(limit, len_data))
                                 
-                                for (let i = 0; i < items.length; i++) items[i] = format(this.type, value.subarray(16 * i, 16 * (i + 1)), this.obj.le)
+                                for (let i = 0; i < items.length; i++)
+                                    items[i] = format(this.type, value.subarray(16 * i, 16 * (i + 1)), this.obj.le, this.options)
                                 
                                 return ' = ' + format_array(items, len_data > limit)
                             }
@@ -1099,7 +1723,8 @@ class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 let items = new Array(Math.min(limit, len_data))
                                 
-                                for (let i = 0; i < items.length; i++) items[i] = format(this.type, value.subarray(2 * i, 2 * (i + 1)), this.obj.le)
+                                for (let i = 0; i < items.length; i++)
+                                    items[i] = format(this.type, value.subarray(2 * i, 2 * (i + 1)), this.obj.le, this.options)
                                 
                                 return ' = ' + format_array(items, len_data > limit)
                             }
@@ -1109,7 +1734,7 @@ class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 let items = new Array(Math.min(limit, (this.obj.value as any[]).length))
                                 
-                                for (let i = 0; i < items.length; i++) items[i] = format(this.type, this.obj.value[i], this.obj.le)
+                                for (let i = 0; i < items.length; i++) items[i] = format(this.type, this.obj.value[i], this.obj.le, this.options)
                                 
                                 return ' = ' + format_array(items, (this.obj.value as any[]).length > limit)
                             }
@@ -1130,6 +1755,168 @@ class DdbVar <T extends DdbObj = DdbObj> {
 }
 
 
+// ------------ tokenizer
+// 方法来自: https://github.com/bolinfest/monaco-tm/
+
+interface ScopeNameInfo {
+    /** 
+        If set, this is the id of an ILanguageExtensionPoint. This establishes the
+        mapping from a MonacoLanguage to a TextMate grammar.
+    */
+    language?: string
+    
+    /** 
+        Scopes that are injected *into* this scope. For example, the
+        `text.html.markdown` scope likely has a number of injections to support
+        fenced code blocks.
+    */
+    injections?: string[]
+}
+
+
+interface DemoScopeNameInfo extends ScopeNameInfo {
+    path: string
+}
+
+
+const grammars: {
+    [scopeName: string]: DemoScopeNameInfo
+} = {
+    'source.dolphindb': {
+        language: 'dolphindb',
+        path: 'dolphindb.tmLanguage.json'
+    }
+}
+
+
+let registry = new Registry({
+    onigLib: Promise.resolve({
+        createOnigScanner,
+        createOnigString
+    }),
+    
+    async loadGrammar (scopeName: string): Promise<IRawGrammar | null> {
+        const scopeNameInfo = grammars[scopeName]
+        if (scopeNameInfo == null) 
+            return null
+        
+        const grammar_text: string = JSON.stringify(tm_language)
+        
+        // If this is a JSON grammar, filePath must be specified with a `.json`
+        // file extension or else parseRawGrammar() will assume it is a PLIST
+        // grammar.
+        return parseRawGrammar(grammar_text, 'dolphindb.json')
+    },
+    
+    /** 
+        For the given scope, returns a list of additional grammars that should be
+        "injected into" it (i.e., a list of grammars that want to extend the
+        specified `scopeName`). The most common example is other grammars that
+        want to "inject themselves" into the `text.html.markdown` scope so they
+        can be used with fenced code blocks.
+        
+        In the manifest of a VS Code extension,  grammar signals that it wants
+        to do this via the "injectTo" property:
+        https://code.visualstudio.com/api/language-extensions/syntax-highlight-guide#injection-grammars
+    */
+    getInjections (scopeName: string): string[] | undefined {
+        const grammar = grammars[scopeName]
+        return grammar ? grammar.injections : undefined
+    },
+    
+    theme
+})
+
+
+class TokensProviderCache {
+    private scopeNameToGrammar: Map<string, Promise<IGrammar>> = new Map()
+    
+    constructor (private registry: Registry) { }
+    
+    async createEncodedTokensProvider (scopeName: string, encodedLanguageId: number): Promise<monacoapi.languages.EncodedTokensProvider> {
+        const grammar = await this.getGrammar(scopeName, encodedLanguageId)
+        
+        return {
+            getInitialState () {
+                return INITIAL
+            },
+            
+            tokenizeEncoded (line: string, state: monacoapi.languages.IState): monacoapi.languages.IEncodedLineTokens {
+                const tokenizeLineResult2 = grammar.tokenizeLine2(line, state as StackElement)
+                const { tokens, ruleStack: endState } = tokenizeLineResult2
+                return { tokens, endState }
+            }
+        }
+    }
+    
+    getGrammar (scopeName: string, encodedLanguageId: number): Promise<IGrammar> {
+        const grammar = this.scopeNameToGrammar.get(scopeName)
+        if (grammar != null) 
+            return grammar
+        
+        
+        // This is defined in vscode-textmate and has optional embeddedLanguages
+        // and tokenTypes fields that might be useful/necessary to take advantage of
+        // at some point.
+        const grammarConfiguration = { }
+        
+        // We use loadGrammarWithConfiguration() rather than loadGrammar() because
+        // we discovered that if the numeric LanguageId is not specified, then it
+        // does not get encoded in the TokenMetadata.
+        //
+        // Failure to do so means that the LanguageId cannot be read back later,
+        // which can cause other Monaco features, such as "Toggle Line Comment",
+        // to fail.
+        const promise = this.registry
+            .loadGrammarWithConfiguration(scopeName, encodedLanguageId, grammarConfiguration)
+            .then((grammar: IGrammar | null) => {
+                if (grammar) 
+                    return grammar
+                 else 
+                    throw Error(`failed to load grammar for ${scopeName}`)
+            })
+        this.scopeNameToGrammar.set(scopeName, promise)
+        return promise
+    }
+}
+
+
+function create_style_element_for_colors_css (): HTMLStyleElement {
+    // We want to ensure that our <style> element appears after Monaco's so that
+    // we can override some styles it inserted for the default theme.
+    const style = document.createElement('style')
+    
+    // We expect the styles we need to override to be in an element with the class
+    // name 'monaco-colors' based on:
+    // https://github.com/microsoft/vscode/blob/f78d84606cd16d75549c82c68888de91d8bdec9f/src/vs/editor/standalone/browser/standaloneThemeServiceImpl.ts#L206-L214
+    const monacoColors = document.getElementsByClassName('monaco-colors')[0]
+    if (monacoColors) 
+        monacoColors.parentElement?.insertBefore(style, monacoColors.nextSibling)
+     else {
+        // Though if we cannot find it, just append to <head>.
+        let { head } = document
+        if (head == null) 
+            head = document.getElementsByTagName('head')[0]
+        
+        head?.appendChild(style)
+    }
+    return style
+}
+
+/** 
+    Be sure this is done after Monaco injects its default styles so that the
+    injected CSS overrides the defaults.
+*/
+function inject_css () {
+    const css_colors = registry.getColorMap()
+    const colorMap = css_colors.map(Color.Format.CSS.parseHex)
+    const css = generateTokensCSSForColorMap(colorMap)
+    const style = create_style_element_for_colors_css()
+    style.innerHTML = css
+}
+
+
+// ------------ 函数补全、文档
 
 /** 最大搜索行数 */
 const max_lines_to_match = 30 as const
@@ -1180,14 +1967,14 @@ function get_func_md (keyword: string) {
     return {
         isTrusted: true,
         value: str
-    } as monaco.IMarkdownString
+    } as monacoapi.IMarkdownString
 }
 
 
 /** 利用当前光标找出函数参数开始位置及函数名, 若找不到返回 -1 */
 function find_func_start (
-    document: monaco.editor.ITextModel,
-    position: monaco.Position
+    document: monacoapi.editor.ITextModel,
+    position: monacoapi.Position
 ): {
     func_name: string
     param_search_pos: number
@@ -1267,8 +2054,8 @@ function find_func_start (
 
 /** 根据函数参数开始位置分析参数语义，提取出当前参数索引  */
 function find_active_param_index (
-    document: monaco.editor.ITextModel,
-    position: monaco.Position,
+    document: monacoapi.editor.ITextModel,
+    position: monacoapi.Position,
     start: number
 ) {
     const text = document.getValueInRange({

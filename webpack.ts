@@ -61,7 +61,7 @@ export async function get_monaco (update = false) {
             return fwrite(
                 fp,
                 await request(
-                    `https://cdn.jsdelivr.net/npm/monaco-editor/${ fname.endsWith('.map') ? 'min-maps' : 'min' }/vs/${fname}`,
+                    `https://cdn.jsdelivr.net/npm/monaco-editor@0.33.0/${ fname.endsWith('.map') ? 'min-maps' : 'min' }/vs/${fname}`,
                     {
                         encoding: 'binary',
                         retries: true,
@@ -329,9 +329,7 @@ export let webpack = {
     
     async build (is_cloud: boolean) {
         config.entry = is_cloud ?
-                {
-                    'index.js': './cloud/index.tsx',
-                }
+                { 'index.js': './cloud/index.tsx' }
             :
                 {
                     'index.js': './console/index.tsx',
@@ -354,21 +352,25 @@ export let webpack = {
         
         await new Promise<void>((resolve, reject) => {
             this.compiler.run((error, stats) => {
-                if (error || stats.hasErrors()) {
-                    console.log(
-                        stats.toString(config.stats)
-                    )
-                    reject(error || stats)
-                    return
-                }
+                if (stats)
+                    console.log(stats.toString(config.stats))
                 
-                console.log(stats.toString(config.stats))
-                resolve()
+                if (error)
+                    reject(error)
+                else if (stats.hasErrors())
+                    reject(new Error('console 构建失败'))
+                else
+                    resolve()
             })
         })
         
-        await new Promise(resolve => {
-            this.compiler.close(resolve)
+        await new Promise<void>((resolve, reject) => {
+            this.compiler.close(error => {
+                if (error)
+                    reject(error)
+                else
+                    resolve()
+            })
         })
     }
 }

@@ -6,7 +6,7 @@ import '../myfont.sass'
 import './index.sass'
 
 
-import { default as React, useEffect } from 'react'
+import { default as React, useEffect, useState } from 'react'
 import { createRoot as create_root } from 'react-dom/client'
 
 import {
@@ -19,9 +19,11 @@ import {
     Tag,
     Popover,
     Descriptions,
-    Badge,
     Card,
-    Tooltip
+    Tooltip,
+    Button,
+    InputNumber,
+    message
 } from 'antd'
 import {
     default as Icon,
@@ -34,6 +36,10 @@ import {
     DoubleLeftOutlined,
     DoubleRightOutlined,
     SyncOutlined,
+    SettingFilled,
+    CaretUpOutlined,
+    CaretDownOutlined,
+    HomeOutlined,
 } from '@ant-design/icons'
 import zh from 'antd/lib/locale/zh_CN.js'
 import en from 'antd/lib/locale/en_US.js'
@@ -49,14 +55,16 @@ import { model, DdbModel, NodeType, storage_keys } from './model.js'
 import { Login } from './login.js'
 import { Cluster } from './cluster.js'
 import { Shell } from './shell.js'
+import { DashBoard } from './dashboard.js'
 import { Job } from './job.js'
 import { DFS } from './dfs.js'
 import { Log } from './log.js'
 
 import SvgCluster from './cluster.icon.svg'
-import SvgDFS from './dfs.icon.svg'
-import SvgJob from './job.icon.svg'
 import SvgShell from './shell.icon.svg'
+import SvgDashboard from './dashboard.icon.svg'
+import SvgJob from './job.icon.svg'
+import SvgDFS from './dfs.icon.svg'
 import SvgLog from './log.icon.svg'
 
 
@@ -66,7 +74,7 @@ const locales = { zh, en, ja, ko }
 
 
 function DolphinDB () {
-    const { inited } = model.use(['inited'])
+    const { inited, is_citic } = model.use(['inited', 'is_citic'])
     
     useEffect(() => {
         model.init()
@@ -77,8 +85,8 @@ function DolphinDB () {
     
     return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false}>
         <Layout className='root-layout'>
-            <Layout.Header className='header'>
-                <DdbHeader />
+            <Layout.Header className={`header ${ is_citic ? 'citic' : '' }`}>
+                <DdbHeader></DdbHeader>
             </Layout.Header>
             <Layout className='body'>
                 <DdbSider />
@@ -92,8 +100,7 @@ function DolphinDB () {
 
 
 function DdbHeader () {
-    const { logined, username, node_alias, version, license } = model.use(['logined', 'username', 'node_alias', 'version', 'license'])
-    
+    const { logined, username, node_alias, version, license, is_citic } = model.use(['logined', 'username', 'node_alias', 'version', 'license', 'is_citic'])
     const authorizations = {
         trial: t('试用版'),
         community: t('社区版'),
@@ -107,8 +114,20 @@ function DdbHeader () {
     }, [node_alias])
     
     return <>
-        <img className='logo' src='./ddb.svg' />
-        
+        { is_citic ?
+            <>
+                <img src='./citicsai.png' style={{ height: '40px', margin: '5px' }} />
+                <HomeOutlined size={500} style={{ color: '#eeeeee', lineHeight: '55px', fontSize: 18 }}></HomeOutlined>
+                <a
+                    style={{ fontSize: 18, color: '#eeeeee', lineHeight: '48px', marginLeft: '5px' }}
+                    href='/'
+                    id={'front_page_link'}
+                    target='_blank'
+                >{t('首页')}</a>
+            </>
+        :
+            <img className='logo' src='./ddb.svg' />
+        }
         <div className='padding' />
         
         <div>
@@ -140,78 +159,75 @@ function DdbHeader () {
                     </div>
                 }
             >
-                <Tag className='node-info' color='#f2f2f2'>
+                <Tag className='node-info' 
+                color={ is_citic ? '#3e4655' :'#f2f2f2' }
+                onMouseOver={() => { model.get_cluster_perf() }}>
                     {t('状态')}
                 </Tag>
             </Popover>
         </div>
         
-        {
-            license && <div>
-                <Popover
-                    placement='bottomLeft'
-                    content={
-                        license ? <div className='license-card head-bar-info'>
-                            <Card size='small' bordered={false} title={`${authorizations[license.authorization] || license.authorization} | v${version}`}>
-                                <Descriptions bordered size='small' column={2}>
-                                    <Descriptions.Item label={t('授权类型')}>{authorizations[license.authorization] || license.authorization}</Descriptions.Item>
-                                    <Descriptions.Item label={t('授权客户')}>{license.clientName}</Descriptions.Item>
-                                    <Descriptions.Item label={t('许可类型')}>{license.licenseType}</Descriptions.Item>
-                                    <Descriptions.Item label={t('过期时间')}>{date2str(license.expiration)}</Descriptions.Item>
-                                    <Descriptions.Item label={t('绑定 CPU')}>{String(license.bindCPU)}</Descriptions.Item>
-                                    <Descriptions.Item label={t('版本')}>{license.version}</Descriptions.Item>
-                                    <Descriptions.Item label={t('模块')}>{ license.modules === -1n ? 'unlimited' : license.modules.toString() }</Descriptions.Item>
-                                    <Descriptions.Item label={t('每节点最大可用内存')}>{license.maxMemoryPerNode}</Descriptions.Item>
-                                    <Descriptions.Item label={t('每节点最大可用核数')}>{license.maxCoresPerNode}</Descriptions.Item>
-                                    <Descriptions.Item label={t('最大节点数')}>{license.maxNodes}</Descriptions.Item>
-                                </Descriptions>
-                            </Card>
-                        </div> : null
-                    }
-                >
-                    <Tag className='license' color='#f2f2f2'>{authorizations[license.authorization] || license.authorization}</Tag>
-                </Popover>
-            </div>
-        }
-
-        <div className='user'>
-            <Dropdown
-                overlay={
-                    <Menu
-                        className='menu'
-                        items={[
-                            logined ?
-                                {
-                                    label: <a
-                                            className='logout'
-                                            onClick={() => {
-                                                model.logout()
-                                            }}
-                                        >{t('注销')}</a>,
-                                    key: 'logout',
-                                    icon: <LogoutOutlined />
-                                }
-                            :
-                                {
-                                    label: <a
-                                            className='login'
-                                            onClick={() => {
-                                                model.set({ view: 'login' })
-                                            }}
-                                        >{t('登录')}</a>,
-                                    key: 'login',
-                                    icon: <LogoutOutlined />
-                                }
-                            ]
-                        } 
-                    />
+        <div>
+            <Popover
+                placement='bottomLeft'
+                content={
+                    <div className='license-card head-bar-info'>
+                        <Card size='small' bordered={false} title={`${authorizations[license.authorization] || license.authorization} v${version}`}>
+                            <Descriptions bordered size='small' column={2}>
+                                <Descriptions.Item label={t('授权类型')}>{authorizations[license.authorization] || license.authorization}</Descriptions.Item>
+                                <Descriptions.Item label={t('授权客户')}>{license.clientName}</Descriptions.Item>
+                                <Descriptions.Item label={t('许可类型')}>{license.licenseType}</Descriptions.Item>
+                                <Descriptions.Item label={t('过期时间')}>{date2str(license.expiration)}</Descriptions.Item>
+                                <Descriptions.Item label={t('绑定 CPU')}>{String(license.bindCPU)}</Descriptions.Item>
+                                <Descriptions.Item label={t('版本')}>{license.version}</Descriptions.Item>
+                                <Descriptions.Item label={t('模块')}>{ license.modules === -1n ? 'unlimited' : license.modules.toString() }</Descriptions.Item>
+                                <Descriptions.Item label={t('每节点最大可用内存')}>{license.maxMemoryPerNode}</Descriptions.Item>
+                                <Descriptions.Item label={t('每节点最大可用核数')}>{license.maxCoresPerNode}</Descriptions.Item>
+                                <Descriptions.Item label={t('最大节点数')}>{license.maxNodes}</Descriptions.Item>
+                            </Descriptions>
+                        </Card>
+                    </div>
                 }
             >
-                <a className='username'>
-                    <Avatar className='avatar' icon={<UserOutlined />} size='small' /> {username} <DownOutlined />
-                </a>
-            </Dropdown>
+                <Tag className='license' color={ is_citic? '#3e4655' :'#f2f2f2' }>{authorizations[license.authorization] || license.authorization}</Tag>
+            </Popover>
         </div>
+        
+        <Settings />
+        
+        <div className='user'>{
+            is_citic ?
+                <a className={`username ${is_citic ? 'citic' : ''}`}>
+                    欢迎您，{username}
+                </a>
+            :
+                <Dropdown
+                    overlay={
+                        <Menu
+                            className='menu'
+                            items={[
+                                logined ?
+                                    {
+                                        label: <a className='logout' onClick={() => { model.logout() }}>{t('注销')}</a>,
+                                        key: 'logout',
+                                        icon: <LogoutOutlined />
+                                    }
+                                :
+                                    {
+                                        label: <a className='login' onClick={() => { model.set({ view: 'login' }) }}>{t('登录')}</a>,
+                                        key: 'login',
+                                        icon: <LogoutOutlined />
+                                    }
+                                ]
+                            } 
+                        />
+                    }
+                >
+                    <a className='username'>
+                        <Avatar className='avatar' icon={<UserOutlined />} size='small' /> {username} <DownOutlined />
+                    </a>
+                </Dropdown>
+        }</div>
     </>
 }
 
@@ -415,10 +431,99 @@ function DdbSider () {
     </Layout.Sider>
 }
 
+function Settings () {
+    type statusType = null | 'error'
+    const [decimals, set_decimals] = useState<{ status: statusType, value: number | null }>(
+        { status: null, value: model.options?.decimals ? model.options.decimals : null }
+    )
+
+    
+    const confirm = () => {
+        if (decimals.status === null) {
+            model.set({ options: { decimals: decimals.value } })
+            message.success(t('设置成功，目前小数位数为：') + (decimals.value === null ? t('实际位数') : decimals.value))
+        } else {
+            set_decimals({ status: null, value: model.options?.decimals ? model.options.decimals : null })
+        }
+    }
+
+    const validate = (text: string): { status: statusType, value: null | number } => {
+        text = text.trim()
+        if (text.length === 0) {
+            return { value: null, status: null }
+        }
+        if (!/^[0-9]*$/.test(text)) {
+            return { value: null, status: 'error' }
+        }
+        const num = Number(text)
+        if (num === NaN) {
+            return { value: null, status: 'error' }
+        }
+        if (num < 0 || num > 20) {
+            return { value: num, status: 'error' }
+        }
+        return { value: num, status: null }
+    }
+    
+    return <div className='header-settings'>
+        <Popover
+            placement='bottomLeft'
+            content={
+                <div className='header-settings-content head-bar-info'>
+                    <Card size='small' title={t('设置')} bordered={false}>
+                        <div className='decimals-toolbar'>
+                            <span className='decimals-toolbar-input'>
+                                {t('设置小数位数: ')}
+                                <Tooltip title={t('输入应为空或介于 0 ~ 20')} placement="topLeft">
+                                    <InputNumber
+                                        min={0}
+                                        max={20}
+                                        onStep={(value) => {
+                                            set_decimals(validate(value.toString()))
+                                        }}
+                                        onInput={(text: string) => {
+                                            set_decimals(validate(text))
+                                        }}
+                                        value={decimals.value}
+                                        size='small'
+                                        status={decimals.status}
+                                        onPressEnter={confirm}
+                                        controls={{ upIcon: <CaretUpOutlined />, downIcon: <CaretDownOutlined /> }}
+                                    />
+                                </Tooltip>
+                            </span>
+                            <span className='decimals-toolbar-button-group'>
+                                <Button size='small' onClick={() => {
+                                    model.set({ options: { decimals: null } })
+                                    set_decimals({ value: null, status: null })
+                                    message.success(t('重置成功，目前小数位数为：实际位数'))
+                                }}>
+                                    {t('重置')}
+                                </Button>
+                                <Button onClick={confirm} size='small' type='primary'>
+                                    {t('确定')}
+                                </Button>
+                            </span>
+                        </div>
+                    </Card>
+                </div>
+            }
+        >
+            <SettingFilled className='header-settings-icon'
+                style={{ fontSize: '20px', color: '#707070' }}
+                onMouseOver={() => {
+                    set_decimals({ value: model.options?.decimals ? model.options.decimals : null, status: null })
+                }} />
+        </Popover>
+    </div>
+    
+}
+
 const views = {
     login: Login,
     cluster: Cluster,
     shell: Shell,
+    dashboard: DashBoard,
     job: Job,
     dfs: DFS,
     log: Log,
@@ -440,13 +545,15 @@ function DdbContent () {
 
 const svgs = {
     cluster: SvgCluster,
-    job: SvgJob,
     shell: SvgShell,
+    dashboard: SvgDashboard,
+    job: SvgJob,
     dfs: SvgDFS,
     log: SvgLog,
 }
 
 function MenuIcon ({ view }: { view: DdbModel['view'] }) {
+    // @ts-ignore
     return <Icon className='icon-menu' component={svgs[view]} />
 }
 

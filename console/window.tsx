@@ -1,7 +1,6 @@
 import 'antd/dist/antd.css'
 
 import 'xshell/scroll-bar.sass'
-
 import '../myfont.sass'
 
 import './window.sass'
@@ -21,9 +20,10 @@ import { Model } from 'react-object-model'
 
 import { language } from '../i18n/index.js'
 import {
-    type DDB,
     DdbForm,
-    type DdbObj
+    type DDB,
+    type DdbObj,
+    type InspectOptions,
 } from 'dolphindb/browser.js'
 import { delay } from 'xshell/utils.browser.js'
 
@@ -44,13 +44,15 @@ export class WindowModel extends Model<WindowModel> {
     remote?: Remote
     
     ddb?: DDB
+    
+    options?: InspectOptions
 }
 
 let model = window.model = new WindowModel()
 
 
 function DdbObjWindow () {
-    const { obj, objref, remote, ddb } = model.use(['obj', 'objref', 'remote', 'ddb'])
+    const { obj, objref, remote, ddb, options } = model.use(['obj', 'objref', 'remote', 'ddb', 'options'])
     
     useEffect(() => {
         (async () => {
@@ -95,8 +97,8 @@ function DdbObjWindow () {
         locale={locales[language] as any}
         autoInsertSpaceInButton={false}
     >{
-        <div className='result'>
-            <Obj obj={obj} objref={objref} ctx='window' remote={remote} ddb={ddb}/>
+        <div className='result window'>
+            <Obj obj={obj} objref={objref} ctx='window' remote={remote} ddb={ddb} options={options} />
         </div>
     }</ConfigProvider>
 }

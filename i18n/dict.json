@@ -629,6 +629,258 @@
     "内存_perf": {
         "en": "Memory"
     },
+    "网络_perf": {
+        "en": "Network"
+    },
+    "磁盘可用空间占比": {
+        "en": "Disk available space ratio"
+    },
+    "数据库": {
+        "en": "Database"
+    },
+    "全部折叠": {
+        "en": "Fold"
+    },
+    "前 100 行": {
+        "en": "The first 100 rows of table"
+    },
+    "数据看板": {
+        "en": "Dashboard"
+    },
+    "设置成功，目前小数位数为：": {
+        "en": "Set up successfully, the current decimals is "
+    },
+    "默认": {
+        "en": "Default"
+    },
+    "设置": {
+        "en": "Set"
+    },
+    "设置小数位数: ": {
+        "en": "Set decimal places: "
+    },
+    "重置成功，目前小数位数为：默认": {
+        "en": "The reset is successful, the current number of decimal places is: default"
+    },
+    "确定": {
+        "en": "Confirm"
+    },
+    "正在加载代码编辑器...": {
+        "en": "Loading code editor..."
+    },
+    "在新窗口中打开": {
+        "en": "Open in new window"
+    },
+    "流表": {
+        "en": "streaming table"
+    },
+    "窗口": {
+        "en": "window"
+    },
+    "偏移量": {
+        "en": "offset"
+    },
+    "继续显示流表更新": {
+        "en": "continue to show flow table updates"
+    },
+    "暂停显示流表更新": {
+        "en": "pause showing flow table updates"
+    },
+    "实时": {
+        "en": "real time"
+    },
+    "开始时间": {
+        "en": "Start Time"
+    },
+    "结束时间": {
+        "en": "End Time"
+    },
+    "错误信息": {
+        "en": "Error Message"
+    },
+    "作业 ID": {
+        "en": "Job ID"
+    },
+    "根作业 ID": {
+        "en": "Root Job ID"
+    },
+    "详情": {
+        "en": "Description"
+    },
+    "优先级": {
+        "en": "Priority"
+    },
+    "并行度": {
+        "en": "Parallelism"
+    },
+    "节点": {
+        "en": "Node"
+    },
+    "用户 ID": {
+        "en": "User ID"
+    },
+    "收到作业时间": {
+        "en": "Received Time"
+    },
+    "会话 ID": {
+        "en": "Session ID"
+    },
+    "客户端 IP": {
+        "en": "Client IP"
+    },
+    "客户端端口": {
+        "en": "Client Port"
+    },
+    "全部任务": {
+        "en": "Total Tasks"
+    },
+    "已完成任务": {
+        "en": "Finished Tasks"
+    },
+    "正在运行的任务": {
+        "en": "Running Tasks"
+    },
+    "状态_job": {
+        "en": "Status"
+    },
+    "主题": {
+        "en": "Theme"
+    },
+    "进度": {
+        "en": "Progress"
+    },
+    "开始日期": {
+        "en": "Start Date"
+    },
+    "结束日期": {
+        "en": "End Date"
+    },
+    "执行频率": {
+        "en": "Execution Frequency"
+    },
+    "执行定时任务的时间": {
+        "en": "Time to Execute"
+    },
+    "执行定时任务的日期": {
+        "en": "Date to Execute"
+    },
+    "操作_job": {
+        "en": "Actions"
+    },
+    "首个任务开始时间": {
+        "en": "First Task Start Time"
+    },
+    "最后任务开始时间": {
+        "en": "Last Task Start Time"
+    },
+    "队列": {
+        "en": "Queue"
+    },
+    "类型_job": {
+        "en": "Type"
+    },
+    "点击了 RefId 链接:": {
+        "en": "RefId link clicked: "
+    },
+    "实际位数": {
+        "en": "actual decimals"
+    },
+    "输入应为空或介于 0 ~ 20": {
+        "en": "Input should be empty or between 0 and 20"
+    },
+    "重置成功，目前小数位数为：实际位数": {
+        "en": "Reset successfully, now with actual decimals "
+    },
+    "上传文件": {
+        "en": "Upload File"
+    },
+    "文件上传路径": {
+        "en": "Upload Path"
+    },
+    "上传路径不能为空": {
+        "en": "Upload path cannot be empty"
+    },
+    "点击此处或者拖拽文件到此处": {
+        "en": "Click or drag and drop a File here"
+    },
+    "确认启动？": {
+        "en": "Start Node?"
+    },
+    "启动节点失败": {
+        "en": "Starting node failed"
+    },
+    "启动": {
+        "en": "Start"
+    },
+    "确认暂停？": {
+        "en": "Pause Node?"
+    },
+    "暂停成功": {
+        "en": "Pausing node succeeded"
+    },
+    "暂停节点失败": {
+        "en": "Pausing node failed"
+    },
+    "暂停": {
+        "en": "Pause"
+    },
+    "添加列": {
+        "en": "Add column"
+    },
+    "显示shchema信息": {
+        "en": "Show schema"
+    },
+    "显示前一百行数据": {
+        "en": "Show first 100 row"
+    },
+    "修改注释": {
+        "en": "Edit comment"
+    },
+    "添加成功": {
+        "en": "Add successfully"
+    },
+    "列名": {
+        "en": "Name"
+    },
+    "请输入列名！": {
+        "en": "Please enter the column name!"
+    },
+    "输入名字": {
+        "en": "Enter the name of the column"
+    },
+    "请选择该列的类型！": {
+        "en": "Please select the type of the column!"
+    },
+    "选择类型": {
+        "en": "Select type"
+    },
+    "修改注释成功": {
+        "en": "Modify comment successfully"
+    },
+    "注释": {
+        "en": "Comment"
+    },
+    "请输入注释": {
+        "en": "Please enter comment"
+    },
+    "启动成功": {
+        "en": "Start succeeded"
+    },
+    "上传文件至 {{instance}}": {
+        "en": "Upload file to {{instance}}"
+    },
+    "Pod 内路径，如: /data/ddb/server/": {
+        "en": "The path in the Pod, such as: /data/ddb/server/"
+    },
+    "文件大小限制 100 MB": {
+        "en": "File size limit 100 MB"
+    },
+    "文件 {{filename}} 上传成功": {
+        "en": "Upload succeeded"
+    },
+    "文件 {{filename}} 上传失败": {
+        "en": "Upload failed"
+    },
     "备份管理": {
         "en": "Backup Management"
     },

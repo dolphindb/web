@@ -1,7 +1,7 @@
 {
     "name": "dolphindb-web",
     "engines": {
-        "node": ">=18.4.0"
+        "node": ">=18.8.0"
     },
     "type": "module",
     "scripts": {
@@ -23,43 +23,47 @@
         "rc-trigger": "^5.3.1"
     },
     "devDependencies": {
-        "@svgr/webpack": "^6.2.1",
-        "@types/koa": "^2.13.4",
+        "@svgr/webpack": "^6.3.1",
+        "@types/koa": "^2.13.5",
         "@types/koa-compress": "^4.0.3",
-        "@types/lodash": "^4.14.182",
-        "@types/node": "^18.0.3",
-        "@types/react": "^18.0.15",
+        "@types/lodash": "^4.14.185",
+        "@types/node": "^18.7.18",
+        "@types/react": "^18.0.20",
         "@types/react-dom": "^18.0.6",
         "@types/sass-loader": "^8.0.3",
         "css-loader": "^6.7.1",
         "react": "^18.2.0",
-        "sass": "^1.53.0",
+        "sass": "^1.54.9",
         "sass-loader": "^13.0.2",
         "source-map-loader": "^4.0.0",
         "style-loader": "^3.3.1",
-        "ts-loader": "^9.3.1",
-        "typescript": "^4.7.4",
-        "webpack": "^5.73.0"
+        "ts-loader": "^9.4.1",
+        "typescript": "^4.8.3",
+        "webpack": "^5.74.0"
     },
     "dependencies": {
         "@ant-design/icons": "^4.7.0",
-        "@ant-design/plots": "^1.1.0",
+        "@ant-design/plots": "^1.2.2",
         "@monaco-editor/react": "^4.4.5",
-        "antd": "^4.21.6",
+        "antd": "^4.23.2",
         "cross-env": "^7.0.3",
-        "dayjs": "^1.11.3",
-        "dolphindb": "^2.0.603",
+        "dayjs": "^1.11.5",
+        "dolphindb": "^2.0.800",
         "final-form": "^4.20.7",
         "koa-compress": "^5.1.0",
         "lodash": "^4.17.21",
         "nanoid": "^4.0.0",
         "re-resizable": "^6.9.9",
         "react-dom": "^18.2.0",
-        "react-object-model": "^0.0.19",
+        "react-object-model": "^0.0.22",
         "tslib": "^2.4.0",
         "upath": "^2.0.1",
-        "xshell": "^0.0.58",
-        "xterm": "^4.19.0",
-        "xterm-addon-fit": "^0.5.0"
+        "vscode-oniguruma": "^1.3.0",
+        "vscode-textmate": "^5.1.1",
+        "xshell": "^0.0.62",
+        "xterm": "^5.0.0",
+        "xterm-addon-fit": "^0.6.0",
+        "xterm-addon-web-links": "^0.7.0",
+        "xterm-addon-webgl": "^0.13.0"
     }
 }

@@ -1,15 +1,21 @@
 import './obj.sass'
 
-import { default as React, useEffect, useState } from 'react'
+import { default as React, useEffect, useRef, useState } from 'react'
 import {
     Pagination,
     Table as AntTable,
     Tooltip,
     Tree,
+    Button,
+    Switch,
+    Select,
+    
     type TableColumnType,
 } from 'antd'
 import {
     default as Icon,
+    CaretRightOutlined,
+    PauseOutlined,
 } from '@ant-design/icons'
 import { Line, Pie, Bar, Column, Scatter, Area, DualAxes, Histogram, Stock } from '@ant-design/plots'
 
@@ -17,7 +23,7 @@ import { nanoid } from 'nanoid'
 
 
 import {
-    type DDB,
+    DDB,
     DdbObj,
     DdbForm,
     DdbType,
@@ -25,19 +31,28 @@ import {
     nulls,
     formati,
     format,
-    
+    winsize,
+    type InspectOptions,
     type DdbValue,
     type DdbVectorValue,
     type DdbMatrixValue,
     type DdbChartValue,
+    type DdbDictObj,
+    type DdbVectorObj,
+    type DdbTableObj,
+    type DdbMatrixObj,
+    type DdbChartObj,
+    type StreamingData,
 } from 'dolphindb/browser.js'
-import type { Message } from 'xshell/net.browser.js'
+import { delay } from 'xshell/utils.browser.js'
 
 import { t } from '../i18n/index.js'
 
 import SvgLink from './link.icon.svg'
 import { type WindowModel } from './window.js'
 
+
+const page_sizes = [1, 2, 3, 5, 10, 15, 20, 25, 30, 40, 50, 75, 100, 150, 200, 300, 400, 500, 750, 1000, 5000, 10000, 100000]
 
 const views = {
     [DdbForm.vector]: Vector,
@@ -51,10 +66,8 @@ const views = {
 export type Context = 'page' | 'webview' | 'window' | 'embed'
 
 export interface Remote {
-    call <T extends any[] = any[]> (
-        message: Message,
-        handler?: (message: Message<T>) => any
-    ): Promise<T>
+    /** 调用 remote 中的 func, 只适用于最简单的一元 rpc (请求, 响应) */
+    call <TReturn extends any[] = any[]> (func: string, args?: any[]): Promise<TReturn>
 }
 
 
@@ -63,19 +76,21 @@ export function Obj ({
     objref,
     ctx = 'webview',
     remote,
-    ddb
+    ddb,
+    options,
 }: {
     obj?: DdbObj
     objref?: DdbObjRef
     ctx?: Context
     remote?: Remote
     ddb?: DDB
+    options?: InspectOptions
 }) {
     const info = obj || objref
     
     const View = views[info.form] || Default
     
-    return <View obj={obj} objref={objref} ctx={ctx} remote={remote} ddb={ddb} />
+    return <View obj={obj} objref={objref} ctx={ctx} remote={remote} ddb={ddb} options={options} />
 }
 
 
@@ -117,11 +132,13 @@ export async function open_obj ({
     objref,
     remote,
     ddb,
+    options,
 }: {
     obj?: DdbObj
     objref?: DdbObjRef
     remote?: Remote
     ddb?: DDB
+    options?: InspectOptions
 }) {
     let win = window.open('./window.html', new Date().toString(), 'left=100,top=100,width=1000,height=640,popup')
     
@@ -133,13 +150,14 @@ export async function open_obj ({
         obj,
         objref,
         remote,
-        ddb
+        ddb,
+        options,
     })
 }
 
 
-function Default ({ obj, objref }: { obj?: DdbObj, objref?: DdbObjRef }) {
-    return <div>{(obj || objref).toString()}</div>
+function Default ({ obj, objref, options }: { obj?: DdbObj, objref?: DdbObjRef, options?: InspectOptions }) {
+    return <div>{(obj || objref).toString(options)}</div>
 }
 
 function Dict ({
@@ -148,12 +166,14 @@ function Dict ({
     remote,
     ddb,
     ctx,
+    options,
 }: {
-    obj?: DdbObj<[DdbObj, DdbObj]>
-    objref?: DdbObjRef<[DdbObj, DdbObj]>
+    obj?: DdbDictObj
+    objref?: DdbObjRef<DdbDictObj['value']>
     remote?: Remote
     ddb?: DDB
     ctx?: Context
+    options?: InspectOptions
 }) {
     const render = useState({ })[1]
     
@@ -169,14 +189,9 @@ function Dict ({
             console.log(`dict.fetch:`, name)
             
             objref.obj = ddb ?
-                await ddb.eval<DdbObj<[DdbObj, DdbObj]>>(name)
+                await ddb.eval<DdbDictObj>(name)
             :
-                DdbObj.parse(
-                    ... await remote.call<[Uint8Array, boolean]>({
-                        func: 'eval',
-                        args: [node, name]
-                    })
-                ) as DdbObj<[DdbObj, DdbObj]>
+                DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [node, name])) as DdbDictObj
             
             render({ })
         })()
@@ -187,8 +202,13 @@ function Dict ({
         return null
     
     return <div className='dict'>
+        { ctx !== 'webview' && <div className='info'>
+            <span className='name'>dict</span>
+            <span className='desc'>{_obj.rows} keys { objref ? `(${Number(objref.bytes).to_fsize_str()})` : '' }</span>
+        </div> }
+        
         <Tree
-            treeData={build_tree_data(_obj, { remote, ddb, ctx })}
+            treeData={build_tree_data(_obj, { remote, ddb, ctx, options })}
             defaultExpandAll
             focusable={false}
             blockNode
@@ -200,16 +220,8 @@ function Dict ({
 
 
 function build_tree_data (
-    obj: DdbObj<[DdbObj, DdbObj]>,
-    {
-        remote,
-        ctx,
-        ddb
-    }: {
-        remote?: Remote
-        ctx?: Context
-        ddb?: DDB
-    }
+    obj: DdbDictObj,
+    { remote, ctx, ddb, options }: { remote?: Remote, ctx?: Context, ddb?: DDB, options?: InspectOptions }
 ) {
     const dict_key = obj.value[0]
     const dict_value = obj.value[1]
@@ -218,7 +230,7 @@ function build_tree_data (
     
     for (let i = 0;  i < dict_key.rows;  i++) {
         let node = { }
-        let key = formati(dict_key, i)
+        let key = formati(dict_key, i, options)
         
         let valueobj = dict_value.value[i]
         
@@ -230,7 +242,7 @@ function build_tree_data (
                     children: build_tree_data(valueobj, { remote, ctx, ddb })
                 }
              else if (valueobj.form === DdbForm.scalar) {
-                let value = format(valueobj.type, valueobj.value, valueobj.le)
+                let value = format(valueobj.type, valueobj.value, valueobj.le, options)
                 node = {
                     title: key + ': ' + value,
                     key: nanoid()
@@ -251,7 +263,7 @@ function build_tree_data (
             }
          else
             node = {
-                title: key + ': ' + formati(dict_value, i),
+                title: key + ': ' + formati(dict_value, i, options),
                 key: nanoid()
             }
         
@@ -268,12 +280,14 @@ function Vector ({
     ctx,
     remote,
     ddb,
+    options,
 }: {
-    obj?: DdbObj<DdbVectorValue>
+    obj?: DdbVectorObj
     objref?: DdbObjRef<DdbVectorValue>
     ctx: Context
     remote?: Remote
     ddb?: DDB
+    options?: InspectOptions
 }) {
     const info = obj || objref
     
@@ -324,12 +338,7 @@ function Vector ({
             objref.obj = ddb ?
                 await ddb.eval(script)
             :
-                DdbObj.parse(
-                    ... await remote.call<[Uint8Array, boolean]>({
-                        func: 'eval',
-                        args: [node, script]
-                    })
-                ) as DdbObj<DdbObj[]>
+                DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [node, script])) as DdbObj<DdbObj[]>
             
             render({ })
         })()
@@ -337,7 +346,7 @@ function Vector ({
     
     
     if (!info.rows)
-        return <>{ (obj || objref.obj).toString() }</>
+        return <>{ (obj || objref.obj).toString(options) }</>
     
     let rows = new Array<number>(nrows)
     for (let i = 0;  i < nrows;  i++)
@@ -353,13 +362,20 @@ function Vector ({
             ncols,
             page_index,
             page_size,
+            options,
         })
     
     return <div className='vector'>
+        { ctx !== 'webview' && <div className='info'>
+            <span className='name'>{info.name || (info.form === DdbForm.set ? 'set' : 'vector')}</span>
+            <span className='desc'>{info.rows} rows { objref ? `(${Number(objref.bytes).to_fsize_str()})` : '' }</span>
+        </div> }
+        
         <AntTable
             dataSource={rows as any[]}
             rowKey={x => x}
             bordered
+            pagination={false}
             columns={[
                 {
                     title: '',
@@ -372,16 +388,17 @@ function Vector ({
                 },
                 ... cols
             ]}
-            pagination={false}
         />
         
         <div className='bottom-bar'>
             <div className='actions'>
+                {/* @ts-ignore */}
                 {(ctx === 'page' || ctx === 'embed') && <Icon
                     className='icon-link'
+                    title={t('在新窗口中打开')}
                     component={SvgLink}
                     onClick={async () => {
-                        await open_obj({ obj, objref, remote, ddb })
+                        await open_obj({ obj, objref, remote, ddb, options })
                     }}
                 />}
             </div>
@@ -391,13 +408,7 @@ function Vector ({
                 total={info.rows}
                 current={page_index + 1}
                 pageSize={page_size}
-                pageSizeOptions={
-                    ctx === 'window' ?
-                        [10, 50, 100, 200, 500, 1000, 10000, 100000]
-                    :
-                        [20, 100, 200, 400, 1000, 10000, 100000]
-                }
-                
+                pageSizeOptions={page_sizes}
                 size='small'
                 showSizeChanger
                 showQuickJumper
@@ -417,7 +428,7 @@ class VectorColumn implements TableColumnType <number> {
     
     form: DdbForm.vector | DdbForm.set
     
-    obj?: DdbObj<DdbVectorValue>
+    obj?: DdbVectorObj
     objref?: DdbObjRef<DdbVectorValue>
     
     ncols: number
@@ -428,6 +439,8 @@ class VectorColumn implements TableColumnType <number> {
     title: number
     key: number
     
+    options?: InspectOptions
+    
     constructor (data: Partial<VectorColumn>) {
         Object.assign(this, data)
         this.title = this.index
@@ -437,6 +450,7 @@ class VectorColumn implements TableColumnType <number> {
     render = (value: any, row: number, index: number) => 
         <Cell
             obj={this.obj || this.objref.obj}
+            options={this.options}
             index={
                 (this.obj || this.form === DdbForm.set ? 
                     this.page_size * this.page_index
@@ -450,17 +464,64 @@ class VectorColumn implements TableColumnType <number> {
 
 function Cell ({
     obj,
-    index
+    index,
+    options,
 }: {
-    obj: DdbObj<DdbVectorValue>
+    /** vector */
+    obj: DdbVectorObj
+    
     index: number
+    options?: InspectOptions
 }) {
     if (!obj || index >= obj.rows)
         return null
     
-    const str = formati(obj, index)
+    const str = formati(obj, index, options)
     
     return str === 'null' ? null : <>{str}</>
+}
+
+
+function StreamingCell ({
+    window: {
+        segments,
+        rows,
+        offset,
+    },
+    
+    icol,
+    irow,
+    options
+}: {
+    window: StreamingData['window']
+    
+    /** 在表格实际数据中位于第几列 */
+    icol: number
+    
+    /** antd table 从上往下第几行 */
+    irow: number
+    
+    options?: InspectOptions
+}) {
+    // 在 segments 中从后往前查找 index 所属的 segment, 这样能更快找到（最新的记录都在最后面）
+    // 最坏复杂度 O(page.size)，整个表格的渲染复杂度 page.size^2 * ncols
+    
+    let _rows = 0
+    for (let i = segments.length - 1;  i >= 0;  i--) {
+        const segment = segments[i]
+        
+        if (irow < _rows + segment.rows) {  // irow 位于这个 segment 中
+            const col = segment.value[icol]
+            
+            const str = formati(col, col.rows - 1 - (irow - _rows), options)
+            
+            return str === 'null' ? null : <>{str}</>
+        }
+        
+        _rows += segment.rows
+    }
+    
+    return null
 }
 
 
@@ -469,13 +530,15 @@ function Table ({
     objref,
     ctx,
     remote,
-    ddb
+    ddb,
+    options,
 }: {
-    obj?: DdbObj<DdbObj<DdbVectorValue>[]>
+    obj?: DdbTableObj
     objref?: DdbObjRef<DdbObj<DdbVectorValue>[]>
     ctx: Context
     remote?: Remote
     ddb?: DDB
+    options?: InspectOptions
 }) {
     const info = obj || objref
     
@@ -509,17 +572,12 @@ function Table ({
             
             const script = `${name}[${offset}:${Math.min(offset + page_size, rows)}]`
             
-            console.log(`table.fetch:`, script)
+            console.log('table.fetch:', script)
             
             if (ddb)
                 objref.obj = await ddb.eval(script)
             else
-                objref.obj = DdbObj.parse(
-                    ... await remote.call<[Uint8Array, boolean]>({
-                        func: 'eval',
-                        args: [node, script]
-                    })
-                ) as DdbObj<DdbObj<DdbVectorValue>[]>
+                objref.obj = DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [node, script])) as DdbTableObj
             
             render({ })
         })()
@@ -538,6 +596,7 @@ function Table ({
             index: i,
             page_index,
             page_size,
+            options,
         })
         
     
@@ -551,6 +610,7 @@ function Table ({
             dataSource={rows as any[]}
             rowKey={x => x}
             bordered
+            pagination={false}
             columns={[
                 {
                     title: '',
@@ -562,16 +622,17 @@ function Table ({
                 },
                 ... cols
             ]}
-            pagination={false}
         />
         
         <div className='bottom-bar'>
             <div className='actions'>
+                {/* @ts-ignore */}
                 {(ctx === 'page' || ctx === 'embed') && <Icon
                     className='icon-link'
+                    title={t('在新窗口中打开')}
                     component={SvgLink}
                     onClick={async () => {
-                        await open_obj({ obj, objref, remote, ddb })
+                        await open_obj({ obj, objref, remote, ddb, options })
                     }}
                 />}
             </div>
@@ -581,7 +642,7 @@ function Table ({
                 total={info.rows}
                 current={page_index + 1}
                 pageSize={page_size}
-                pageSizeOptions={[5, 10, 20, 50, 100, 200, 500, 1000, 10000, 100000]}
+                pageSizeOptions={page_sizes}
                 size='small'
                 showSizeChanger
                 showQuickJumper
@@ -597,6 +658,315 @@ function Table ({
 }
 
 
+export function StreamingTable ({
+    url,
+    table,
+    action,
+    autologin = false,
+    ctx,
+    options,
+}: {
+    url: string
+    table: string
+    action?: string
+    autologin?: boolean
+    ctx: Context
+    options?: InspectOptions
+}) {
+    let rddb = useRef<DDB>()
+    
+    let rddbapi = useRef<DDB>()
+    
+    let rauto_append = useRef<boolean>(false)
+    
+    const default_rate = 0 as const
+    
+    /** 刷新率 (ms): 0 实时更新, -1 暂停, > 0 刷新间隔 */
+    let rrate = useRef<number>(default_rate)
+    
+    function set_rate (rate: number = default_rate) {
+        rrate.current = rate
+        rerender({ })
+    }
+    
+    let rlast = useRef<number>(0)
+    
+    let [, rerender] = useState({ })
+    
+    const [page_size, set_page_size] = useState(
+        (ctx === 'page' || ctx === 'window') ? 20 : 10
+    )
+    
+    const [page_index, set_page_index] = useState(0)
+    
+    
+    useEffect(() => {
+        ;(async () => {
+            let ddb = rddb.current = new DDB(url, {
+                autologin,
+                streaming: {
+                    table,
+                    action,
+                    handler (message) {
+                        console.log(message)
+                        
+                        const time = new Date().getTime()
+                        
+                        // 冻结或者未到更新时间
+                        if (rrate.current === -1 || time - rlast.current < rrate.current)
+                            return
+                        
+                        rlast.current = time
+                        rerender({ })
+                    }
+                }
+            })
+            
+            let ddbapi = rddbapi.current = new DDB(url)
+            
+            // LOCAL: 创建流表
+            await ddbapi.eval(
+                'try {\n' +
+                "    if (!defined('prices', SHARED)) {\n" +
+                '        share(\n' +
+                '            streamTable(\n' +
+                '                10000:0,\n' +
+                "                ['time', 'stock', 'price'],\n" +
+                '                [TIMESTAMP, SYMBOL, DOUBLE]\n' +
+                '            ),\n' +
+                "            'prices'\n" +
+                '        )\n' +
+                "        print('prices 流表创建成功')\n" +
+                '    } else\n' +
+                "        print('prices 流表已存在')\n" +
+                '} catch (error) {\n' +
+                "    print('prices 流表创建失败')\n" +
+                '    print(error)\n' +
+                '}\n'
+            )
+            
+            // 开始订阅
+            await ddb.connect()
+            
+            rerender({ })
+        })()
+    }, [ ])
+    
+    
+    useEffect(() => {
+        rerender({ })
+    }, [page_size, page_index])
+    
+    useEffect(() => {
+        if (!rauto_append.current)
+            return
+        
+        ;(async () => {
+            for (;  rauto_append.current;) {
+                await append_data()
+                await delay(1000)
+            }
+            
+            console.log('自动更新已停止')
+        })()
+    }, [rauto_append.current])
+    
+    
+    if (!rddb.current?.streaming.schema || !rddbapi.current)
+        return null
+    
+    const {
+        current: {
+            streaming: {
+                data,
+                schema,
+                window: {
+                    rows: winrows,
+                    offset,
+                    segments
+                }
+            },
+            streaming,
+        }
+    } = rddb
+    
+    
+    let rows = new Array<number>(page_size)
+    for (let i = 0;  i < page_size;  i++)
+        rows[i] = i;
+    
+    let cols = new Array<StreamingTableColumn>(schema.cols)
+    for (let i = 0;  i < schema.cols;  i++)
+        cols[i] = new StreamingTableColumn({
+            streaming,
+            index: i,
+            page_size,
+            page_index,
+            options,
+        })
+    
+    
+    async function append_data () {
+        await rddbapi.current.eval(
+            'append!(\n' +
+            '    prices,\n' +
+            '    table([\n' +
+            '        [now(), timestamp(now() + 10), timestamp(now() + 20)] as time,\n' +
+            "        ['MSFT', 'FUTU', 'MSFT'] as stock,\n" +
+            '        [1.0, 2.0, 3.0] as price\n' +
+            '    ])\n' +
+            ')\n'
+        )
+    }
+    
+    
+    return <div>
+        <div><Button onClick={async () => {
+            rlast.current = 0
+            return append_data()
+        }}>向流表中添加数据</Button></div>
+        
+        <div style={{ margin: '10px 0px' }}>
+            自动添加数据: <Switch onChange={(checked) => {
+                rauto_append.current = checked
+                rerender({ })
+            }}/>
+        </div>
+        
+        
+        <div className='table'>
+            { ctx !== 'webview' && <div className='info'>
+                <span className='name'>{t('流表')}: {table}</span>
+                <span className='desc'>{t('窗口')}: {winsize}r × {schema.cols}c, {t('偏移量')}: {offset}</span>
+            </div> }
+            
+            <AntTable
+                dataSource={rows as any[]}
+                rowKey={x => x}
+                bordered
+                pagination={false}
+                columns={[
+                    {
+                        title: '',
+                        key: 'index',
+                        className: 'row-head',
+                        fixed: 'left',
+                        render: irow =>
+                            page_size * page_index + irow
+                    },
+                    
+                    ... cols
+                ]}
+            />
+        </div>
+        
+        <div className='bottom-bar'>
+            <div className='actions'>
+                {/* @ts-ignore */}
+                {(ctx === 'page' || ctx === 'embed') && <Icon
+                    className='icon-link'
+                    title={t('在新窗口中打开')}
+                    component={SvgLink}
+                    onClick={async () => {
+                        throw new Error('未实现')
+                        
+                        // await open_obj({ obj, objref, remote, ddb })
+                    }}
+                />}
+                
+                <div className='pause-play'>
+                    { rrate.current === -1 ? 
+                        <CaretRightOutlined
+                            title={t('继续显示流表更新')}
+                            onClick={() => { set_rate() }} />
+                    :
+                        <PauseOutlined
+                            title={t('暂停显示流表更新')}
+                            onClick={() => { set_rate(-1) }} /> }
+                </div>
+                
+                <Select
+                    defaultValue={default_rate}
+                    onSelect={(value: number) => {
+                        set_rate(value)
+                    }}
+                >
+                    <Select.Option value={0}>{t('实时')}</Select.Option>
+                    <Select.Option value={1000}>1 s</Select.Option>
+                    <Select.Option value={2000}>2 s</Select.Option>
+                    <Select.Option value={3000}>3 s</Select.Option>
+                    <Select.Option value={5000}>5 s</Select.Option>
+                    <Select.Option value={10 * 1000}>10 s</Select.Option>
+                    <Select.Option value={30 * 1000}>30 s</Select.Option>
+                    <Select.Option value={60 * 1000}>60 s</Select.Option>
+                </Select>
+            </div>
+            
+            <Pagination
+                className='pagination'
+                total={winsize}
+                current={page_index + 1}
+                pageSize={page_size}
+                pageSizeOptions={page_sizes}
+                size='small'
+                showSizeChanger
+                showQuickJumper
+                hideOnSinglePage={page_size <= 50}
+                
+                onChange={(page_index, page_size) => {
+                    set_page_size(page_size)
+                    set_page_index(page_index - 1)
+                }}
+            />
+        </div>
+    </div>
+}
+
+
+class StreamingTableColumn implements TableColumnType <number> {
+    /** 表格数据的第 index 列 */
+    index: number
+    
+    key: number
+    
+    streaming: StreamingData
+    
+    col: DdbVectorObj
+    
+    page_index: number
+    page_size: number
+    
+    title: React.ReactNode
+    
+    align: 'left' | 'center' | 'right'
+    
+    options?: InspectOptions
+    
+    constructor (data: Partial<StreamingTableColumn>) {
+        Object.assign(this, data)
+        
+        this.key = this.index
+        
+        this.col = this.streaming.schema.value[this.index]
+        
+        this.title = <Tooltip
+                title={DdbType[this.col.type === DdbType.symbol_extended ? DdbType.symbol : this.col.type]}
+            >{this.col.name}</Tooltip>
+        
+        this.align = TableColumn.left_align_types.has(this.col.type) ? 'left' : 'right'
+    }
+    
+    
+    render = (irow: number) => 
+        <StreamingCell
+            window={this.streaming.window}
+            irow={this.page_size * this.page_index + irow}
+            icol={this.index}
+            options={this.options}
+        />
+}
+
+
 class TableColumn implements TableColumnType <number> {
     static left_align_types = new Set([
         DdbType.symbol,
@@ -609,6 +979,7 @@ class TableColumn implements TableColumnType <number> {
         DdbType.resource,
     ])
     
+    /** 表格数据的第 index 列 */
     index: number
     
     obj?: DdbObj<DdbObj<DdbVectorValue>[]>
@@ -623,6 +994,8 @@ class TableColumn implements TableColumnType <number> {
     key: number
     
     align: 'left' | 'center' | 'right'
+    
+    options?: InspectOptions
     
     constructor (data: Partial<TableColumn>) {
         Object.assign(this, data)
@@ -648,6 +1021,7 @@ class TableColumn implements TableColumnType <number> {
     render = (irow: number) => 
         <Cell
             obj={this.col}
+            options={this.options}
             index={
                 (this.obj ?
                     this.page_size * this.page_index
@@ -665,12 +1039,14 @@ function Matrix ({
     ctx,
     remote,
     ddb,
+    options,
 }: {
-    obj?: DdbObj<DdbMatrixValue>
+    obj?: DdbMatrixObj
     objref?: DdbObjRef<DdbMatrixValue>
     ctx?: Context
     remote?: Remote
     ddb?: DDB
+    options?: InspectOptions
 }) {
     const info = obj || objref
     
@@ -709,12 +1085,7 @@ function Matrix ({
             if (ddb)
                 objref.obj = await ddb.eval(script)
             else
-                objref.obj = DdbObj.parse(
-                    ... await remote.call<[Uint8Array, boolean]>({
-                        func: 'eval',
-                        args: [node, script]
-                    })
-                ) as DdbObj<DdbMatrixValue>
+                objref.obj = DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [node, script])) as DdbMatrixObj
             
             render({ })
         })()
@@ -733,13 +1104,20 @@ function Matrix ({
             index: i,
             page_index,
             page_size,
+            options,
         })
     
     return <div className='matrix'>
+        { ctx !== 'webview' && <div className='info'>
+            <span className='name'>{info.name || 'matrix'}</span>
+            <span className='desc'>{info.rows}r × {info.cols}c  { objref ? `(${Number(objref.bytes).to_fsize_str()})` : '' }</span>
+        </div> }
+        
         <AntTable
             dataSource={rows as any[]}
             rowKey={x => x}
             bordered
+            pagination={false}
             columns={[
                 {
                     title: '',
@@ -755,23 +1133,24 @@ function Matrix ({
                         const rows = (obj || objref.obj)?.value.rows
                         
                         return rows ?
-                                formati(rows, i)
+                                formati(rows, i, options)
                             :
                                 i
                     }
                 },
                 ... cols
             ]}
-            pagination={false}
         />
         
         <div className='bottom-bar'>
             <div className='actions'>
+                {/* @ts-ignore */}
                 {(ctx === 'page' || ctx === 'embed') && <Icon
                     className='icon-link'
+                    title={t('在新窗口中打开')}
                     component={SvgLink}
                     onClick={async () => {
-                        await open_obj({ obj, objref, remote, ddb })
+                        await open_obj({ obj, objref, remote, ddb, options })
                     }}
                 />}
             </div>
@@ -781,7 +1160,7 @@ function Matrix ({
                 total={info.rows}
                 current={page_index + 1}
                 pageSize={page_size}
-                pageSizeOptions={[5, 10, 20, 50, 100, 200, 500, 1000, 10000, 100000]}
+                pageSizeOptions={page_sizes}
                 size='small'
                 showSizeChanger
                 showQuickJumper
@@ -799,7 +1178,7 @@ function Matrix ({
 class MatrixColumn implements TableColumnType <number> {
     index: number
     
-    obj?: DdbObj<DdbMatrixValue>
+    obj?: DdbMatrixObj
     objref?: DdbObjRef<DdbMatrixValue>
     
     page_index: number
@@ -807,6 +1186,8 @@ class MatrixColumn implements TableColumnType <number> {
     
     title: number | string
     key: number
+    
+    options?: InspectOptions
     
     constructor (data: Partial<MatrixColumn>) {
         Object.assign(this, data)
@@ -820,7 +1201,7 @@ class MatrixColumn implements TableColumnType <number> {
         
         const cols = obj?.value.cols
         if (cols)
-            this.title = formati(cols, this.index)
+            this.title = formati(cols, this.index, this.options)
     }
     
     render = (irow: number) => {
@@ -838,6 +1219,7 @@ class MatrixColumn implements TableColumnType <number> {
                     value: obj.value.data
                 })
             }
+            options={this.options}
             index={
                 this.obj ?
                     obj.rows * this.index + this.page_size * this.page_index + irow
@@ -876,12 +1258,14 @@ function Chart ({
     ctx,
     remote,
     ddb,
+    options,
 }: {
-    obj?: DdbObj<DdbChartValue>
+    obj?: DdbChartObj
     objref?: DdbObjRef<DdbChartValue>
     ctx?: Context
     remote?: Remote
     ddb?: DDB
+    options?: InspectOptions
 }) {
     const [
         {
@@ -893,8 +1277,6 @@ function Chart ({
             multi_y_axes,
             col_labels,
             bin_count,
-            bin_start,
-            bin_end
         },
         set_config
     ] = useState({
@@ -936,12 +1318,7 @@ function Chart ({
                 (ddb ? 
                     await ddb.eval(objref.name)
                 :
-                    DdbObj.parse(
-                        ... await remote.call<[Uint8Array, boolean]>({
-                            func: 'eval',
-                            args: [objref.node, objref.name]
-                        })
-                    ) as DdbObj<DdbChartValue>
+                    DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [objref.node, objref.name])) as DdbChartObj
                 )
             
             const { multi_y_axes = false } = extras || { }
@@ -949,23 +1326,33 @@ function Chart ({
             let col_labels = (cols_?.value || [ ]) as any[]
             let col_lables_ = new Array(col_labels.length)
             
-            // 没有设置 label 的情况
-            let row_labels_ = new Array(rows)
+            const row_labels = (() => {
+                // 没有设置 label 的话直接以序号赋值并返回
+                if (!rows_) {
+                    let arr = new Array(rows)
+                    for (let i = 0;  i < rows;  i++)
+                        arr[i] = i
+                    return arr
+                } else if (charttype === DdbChartType.kline || charttype === DdbChartType.scatter)
+                    return rows_.value
+                else {
+                    // format 为 string
+                    const arr = new Array(rows)
+                    for (let i = 0; i < rows; i++)
+                        arr[i] = formati(rows_, i, options)
+                    return arr
+                }
+            })()
             
-            for (let i = 0; i < rows; i++) 
-                row_labels_[i] = i
-            
-            let row_labels = (rows_?.value || row_labels_) as any[]
-                       
             const n = charttype === DdbChartType.line && multi_y_axes || charttype === DdbChartType.kline ? rows : rows * cols
             let data_ = new Array(n)
             
             switch (charttype) {
                 case DdbChartType.line:
-                    if (multi_y_axes === true) 
+                    if (multi_y_axes)
                         for (let j = 0; j < rows; j++) {
                             let dataobj: any = { }
-                            dataobj.row = String(row_labels[j])
+                            dataobj.row = row_labels[j]
                             for (let i = 0; i < cols; i++) {
                                 const col = col_labels[i]?.value?.name || col_labels[i]
                                 col_lables_[i] = col
@@ -975,7 +1362,7 @@ function Chart ({
                             }
                             data_[j] = dataobj
                         }
-                     else 
+                     else
                         for (let i = 0; i < cols; i++) {
                             const col = col_labels[i]?.value?.name || col_labels[i]
                             col_lables_[i] = col
@@ -983,7 +1370,7 @@ function Chart ({
                             for (let j = 0; j < rows; j++) {
                                 const idata = i * rows + j
                                 data_[idata] = {
-                                    row: String(row_labels[j]),
+                                    row: row_labels[j],
                                     col,
                                     value: to_chart_data(data[idata], datatype)
                                 }
@@ -996,7 +1383,7 @@ function Chart ({
                         let dataobj: any = { }
                         
                         dataobj.row = row_labels[j]
-                        dataobj.row_ = formati(rows_, j)
+                        dataobj.row_ = formati(rows_, j, options)
 
                         dataobj.open = to_chart_data(data[j], datatype)
                         dataobj.high = to_chart_data(data[rows + j], datatype)
@@ -1019,21 +1406,21 @@ function Chart ({
                         for (let j = 0; j < rows; j++) {
                             const idata = i * rows + j
                             data_[idata] = {
-                                row: charttype === DdbChartType.scatter ? row_labels[j] : String(row_labels[j]),
+                                row: row_labels[j],
                                 col,
                                 value: to_chart_data(data[idata], datatype)
                             }
                         }
                     }
                     
-                    if (charttype === DdbChartType.histogram && bin_start && bin_end) 
+                    if (charttype === DdbChartType.histogram && bin_start && bin_end)
                         data_ = data_.filter(data => 
                             data.value >= Number(bin_start.value) && data.value <= Number(bin_end.value))
                     
                     break
             }
             
-            console.log('data:', data_)   
+            console.log('data:', data_)
             
             set_config({
                 inited: true,
@@ -1228,27 +1615,12 @@ function Chart ({
                     />
                 
                 case DdbChartType.histogram:
-                    let binNumber = bin_count ? Number(bin_count.value) : null
-                    let binWidth: number
-                    if (bin_start && bin_end && binNumber)
-                        if (data.length < binNumber)
-                            binWidth = null
-                        else    
-                            binWidth = (Number(bin_start.value) - Number(bin_end.value)) / binNumber
                     return <Histogram 
                         className='chart-body'
                         data={data}
                         binField='value'
                         stackField= 'col'
-                        binNumber={binNumber}
-                        binWidth={binWidth}
-                        meta={{
-                            range: {
-                                min: Number(bin_start?.value),
-                                max: Number(bin_end?.value)
-                            }
-                        }}
-                        limitInPlot
+                        { ... bin_count ? { binNumber: Number(bin_count.value) } : { } }
                         xAxis={{
                             title: {
                                 text: titles.x_axis
@@ -1299,6 +1671,7 @@ function Chart ({
                         }}
                         padding='auto'
                         tooltip={{
+                            // @ts-ignore
                             crosshairs: {
                                 // 自定义 crosshairs line 样式
                                 line: {
@@ -1358,8 +1731,10 @@ function Chart ({
         
         <div className='bottom-bar'>
             <div className='actions'>
+                {/* @ts-ignore */}
                 {(ctx === 'page' || ctx === 'embed') && <Icon
                     className='icon-link'
+                    title={t('在新窗口中打开')}
                     component={SvgLink}
                     onClick={async () => {
                         await open_obj({ obj, objref, remote, ddb })
