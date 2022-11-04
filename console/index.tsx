@@ -117,7 +117,7 @@ function DdbHeader () {
         { is_citic ?
             <>
                 <img src='./citicsai.png' style={{ height: '40px', margin: '5px' }} />
-                <HomeOutlined size={500} style={{ color: '#eeeeee', lineHeight: '55px', fontSize: 18 }}></HomeOutlined>
+                <HomeOutlined size={500} style={{ color: '#eeeeee', fontSize: 18 }}></HomeOutlined>
                 <a
                     style={{ fontSize: 18, color: '#eeeeee', lineHeight: '48px', marginLeft: '5px' }}
                     href='/'
