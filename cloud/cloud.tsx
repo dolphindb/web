@@ -2107,39 +2107,26 @@ const translate_dict = {
 const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey'})=>{
     const [sourcekey_modal_open, set_sourcekey_modal_open] = useState(false)
     
-    const [fetched_list_of_namesace, set_isntances_list_of_namespace] = useState<typeof get_namespace_format>(undefined)
+    const [fetched_list_of_namesace, set_isntances_list_of_namespace] = useState<list_of_backups>(undefined)
     
     const [backup_modal_open,  set_backup_modal_open] = useState(false)
     
     const [form_instance_backup] = Form.useForm()
     const [form_instance_restore] = Form.useForm()
     
-    const [sourceKeys, set_SourceKeys] = useState<string[]>(['default'])
+    const [sourceKeys, set_SourceKeys] = useState<string[]>([])
     
-    const  sourceKey_detail_example = {
-        "nfs": {
-            "endpoint": "192.168.0.75",
-            "path": "/data/k8s"
-        },
-        "s3": {
-            "provider": "Minio",
-            "accessKey": "AKIAIOSFODNN7EXAMPLE",
-            "secretAccessKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
-            "endpoint": "http://10.107.29.202:9000"
-        }
-    }
+    const [sourceKey_detail, set_sourceKey_detail] = useState<sourceKey_detail>()
     
-    const [sourceKey_detail, set_sourceKey_detail] = useState<typeof sourceKey_detail_example>()
-    
-    const [storage_class, set_storage_class] = useState<string[]>(['default'])
+    const [storage_class, set_storage_class] = useState<string[]>([])
     
     const [refresher, set_refresher] = useState(0)
     
     const [detail_modal_open, set_detail_modal_open] = useState(false)
     
-    const [content_of_backup_modal, set_content_of_backup_modal] = useState({})
+    const [content_of_backup_modal, set_content_of_backup_modal] = useState<one_bakcup_detail>(undefined)
     
-    const [content_of_restore_modal, set_content_of_restore_modal] = useState({})
+    const [content_of_restore_modal, set_content_of_restore_modal] = useState<one_bakcup_detail>(undefined)
     
     const [restore_modal_open, set_restore_modal_open] = useState(false)
     
@@ -2147,9 +2134,9 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
     
     const {namespaces} = model.use(['namespaces'])
     
-    const [selectable_names, set_selectable_names] = useState<string[]>(['default'])
+    const [selectable_names, set_selectable_names] = useState<string[]>([])
     
-    const [init_value_of_restore_modal, set_init_value_of_restore_modal] = useState<{dolphindbNamespace:string}>()
+    const [init_value_of_restore_modal, set_init_value_of_restore_modal] = useState<{dolphindbNamespace:string, dolphindbName}>()
     
     const [selected_remoteType, set_selected_remoteType] = useState<string>()
     
@@ -2171,7 +2158,7 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
     }
     
     const refresh_instances_list_of_namespace = async ()=>{
-        const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`) as (typeof get_namespace_format)
+        const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`) as list_of_backups
         set_isntances_list_of_namespace(data)
     }
     
@@ -3083,6 +3070,46 @@ class ErrorBoundary extends React.Component {
       // Normally, just render children
       return this.props.children;
     }  
-  }
+}
   
-  
+type list_of_backups = {
+    count:number
+    items: {
+        name:string
+        createTimestamp: string
+        phase: string
+    }[]
+    pageNum:number
+    pageSize:number
+    pageTotal:number
+} | undefined
+
+type one_bakcup_detail = {
+    name:string
+    prefix:string
+    remoteType: string
+    saveDir: string
+    sourceKey: string
+    status:{
+        createTimestamp:string
+        name:string
+        phase:string
+    }
+    storageClassName:string
+    storageResource:string
+    storedPath:string
+} | undefined
+
+type list_of_restores = list_of_backups
+
+type sourceKey_detail = {
+    type:'nfs',
+    endpoint:string
+    path:string
+}|{
+    type:'s3',
+    endpoint:string
+    provider:string
+    secretAccessKey:string
+    accessKey:string
+} | undefined
