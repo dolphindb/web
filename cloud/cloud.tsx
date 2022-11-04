@@ -27,7 +27,6 @@ import {
     Upload,
     Progress,
     Space,
-    Space,
     Tag,
     Menu,
     Empty,
@@ -53,7 +52,6 @@ import {
 } from './model.js'
 
 import icon_add from './add.svg'
-import { request_json } from 'xshell/net.browser.js'
 
 import { FC } from 'react'
 import { useContext } from 'react'
@@ -1837,8 +1835,8 @@ const Dashboard_For_One_Name: FC<{ open: boolean, name: string, onCancel: () => 
             return
         }
         const _data = await request_json_with_error_handling(`/v1/dolphindbs/${namespace}/${model.cluster.name}/${props.type}/${props.name}`) as one_bakcup_detail
-        //const data = _data
-        const data = { ..._data, phase: _data?.status.phase } as flatten_backup_detail
+        //createTimestamp不展示,记为undefined
+        const data = { ..._data, phase: _data?.status.phase, createTimestamp:undefined } as flatten_backup_detail
         setData(data)
     }
 
