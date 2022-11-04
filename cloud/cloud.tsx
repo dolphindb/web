@@ -1439,6 +1439,7 @@ function Show_backup_restore_sched (){
     defaultActiveKey="1"
     size='large'
     centered
+    destroyInactiveTabPane={true}
     onChange={(key)=>{
         console.log('ON change')
         switch (key) {
@@ -1632,9 +1633,12 @@ const Dashboard_For_One_Name: FC<{ open:boolean, name: string, onCancel:()=>void
     const [sourceKey_detail, set_sourceKey_detail] = useState({})
     
     async function fetch_data() {
+        if(!props.name){
+            return
+        }
         const _data = await request_json_with_error_handling(`/v1/dolphindbs/${namespace}/${model.cluster.name}/${props.type}/${props.name}`)
-        const data = _data
-        //const data = structured_to_flatten(_data)
+        //const data = _data
+        const data = structured_to_flatten(_data)
         setData(data)
     }
 
@@ -1648,7 +1652,7 @@ const Dashboard_For_One_Name: FC<{ open:boolean, name: string, onCancel:()=>void
     }, [props.open])
 
     if(!data){
-        return <Empty></Empty>
+        return undefined
     }
     return <Modal open = {props.open}  width={'70%'} onCancel={props.onCancel} footer={false}>
         <div className='dashboard-for-one-name'>
@@ -1970,12 +1974,6 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
         set_isntances_list_of_namespace(data)
     }
     
-    const refresh_content_of_backup_modal = async(instance_name) =>{
-        const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${instance_name}`) 
-        data.storageResource = data.storageResource? (data.storageResource as string).slice(0, data.storageResource.length-2) : data.storageResource
-        //set_content_of_backup_modal(data)
-    }
-    
     const refresh_content_of_restore_modal = async(instance_name)=>{
         const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${instance_name}`) 
         data['from'] = instance_name
@@ -2032,6 +2030,7 @@ const Backup_List_of_Namespace_ =(props:{tag:'backups' | 'restores' | 'sourceKey
             return
         }
         try{
+            form_instance_backup.setFieldValue('sourceKey', sourceKeys[0])
             set_selected_remoteType(sourceKey_detail[sourceKeys[0]]['type'])    
         }catch(e){
             console.log(e)
@@ -2851,9 +2850,6 @@ function useInterval(callback, delay) {
     }, [delay]);
 }
 
-  
-  
-  
 class ErrorBoundary extends React.Component {
     constructor(props) {
       super(props);
