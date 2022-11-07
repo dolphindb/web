@@ -201,7 +201,7 @@
         "en": "Service"
     },
     "状态": {
-        "en": "status"
+        "en": "Status"
     },
     "操作": {
         "en": "actions"
@@ -222,7 +222,7 @@
         "en": "memory"
     },
     "命名空间": {
-        "en": "namesapce"
+        "en": "Namesapce"
     },
     "日志模式": {
         "en": "log mode"
@@ -318,7 +318,7 @@
         "en": "queued | running tasks"
     },
     "端口": {
-        "en": "port"
+        "en": "Port"
     },
     "内存使用量": {
         "en": "memory usage"
@@ -381,7 +381,7 @@
         "en": "service creation failed"
     },
     "创建": {
-        "en": "Create"
+        "en": "Create "
     },
     "控制节点": {
         "en": "Controllers"
@@ -824,6 +824,45 @@
     "暂停": {
         "en": "Pause"
     },
+    "添加列": {
+        "en": "Add column"
+    },
+    "显示shchema信息": {
+        "en": "Show schema"
+    },
+    "显示前一百行数据": {
+        "en": "Show first 100 row"
+    },
+    "修改注释": {
+        "en": "Edit comment"
+    },
+    "添加成功": {
+        "en": "Add successfully"
+    },
+    "列名": {
+        "en": "Name"
+    },
+    "请输入列名！": {
+        "en": "Please enter the column name!"
+    },
+    "输入名字": {
+        "en": "Enter the name of the column"
+    },
+    "请选择该列的类型！": {
+        "en": "Please select the type of the column!"
+    },
+    "选择类型": {
+        "en": "Select type"
+    },
+    "修改注释成功": {
+        "en": "Modify comment successfully"
+    },
+    "注释": {
+        "en": "Comment"
+    },
+    "请输入注释": {
+        "en": "Please enter comment"
+    },
     "启动成功": {
         "en": "Start succeeded"
     },
@@ -841,5 +880,194 @@
     },
     "文件 {{filename}} 上传失败": {
         "en": "Upload failed"
+    },
+    "备份管理": {
+        "en": "Backup Management"
+    },
+    "名字": {
+        "en": "Name"
+    },
+    "备份信息": {
+        "en": "Backup Information"
+    },
+    "清除策略": {
+        "en": "Clean Policy"
+    },
+    "远程类型": {
+        "en": "RemoteType"
+    },
+    "数据源": {
+        "en": "DataSource"
+    },
+    "源流名称": {
+        "en": "SourceName"
+    },
+    "主机": {
+        "en": "Host"
+    },
+    "连接信息": {
+        "en": "Connetction Info"
+    },
+    "新建备份": {
+        "en": "Create Backup"
+    },
+    "配置表名": {
+        "en": "Configmap Name"
+    },
+    "时间戳": {
+        "en": "TimeStamp"
+    },
+    "基础信息": {
+        "en": "Basic Information"
+    },
+    "服务器信息": {
+        "en": "Server Information"
+    },
+    "前缀": {
+        "en": "Prefix"
+    },
+    "保存路径": {
+        "en": "Save Directory"
+    },
+    "强制位置": {
+        "en": "Force Directory"
+    },
+    "存储类名称": {
+        "en": "Storage Class Name"
+    },
+    "存储资源": {
+        "en": "Storage Resource"
+    },
+    "最大备份数": {
+        "en": "Max Backups"
+    },
+    "暂停": {
+        "en": "Pause"
+    },
+    "被使用的ID": {
+        "en": "Used ID"
+    },
+    "密码": {
+        "en": "Password"
+    },
+    "备份": {
+        "en": "Backups"
+    },
+    "还原": {
+        "en": "Restores"
+    },
+    "定时备份": {
+        "en": "Scheduled Backups"
+    },
+    "添加数据源": {
+        "en": "Add Source Key"
+    },
+    "服务地址": {
+        "en": "End Point"
+    },
+    "供应商": {
+        "en": "Providers"
+    },
+    "访问密钥": {
+        "en": "AccessKey"
+    },
+    "加密密钥": {
+        "en": "SecretAccessKey"
+    },
+    "共享目录_backup": {
+        "en": "Path"
+    },
+    "调度中": {
+        "en": "Scheduled"
+    },
+    "运行中": {
+        "en": "Running"
+    },
+    "运行完毕": {
+        "en": "Complete"
+    },
+    "清理中": {
+        "en": "Complete"
+    },
+    "清理完成": {
+        "en": "Cleaned"
+    },
+    "运行失败": {
+        "en": "Failed"
+    },
+    "参数异常": {
+        "en": "Invalid"
+    },
+    "远端存储类型": {
+        "en": "Remote Storage Type"
+    },
+    "路径信息": {
+        "en": "Path Information"
+    },
+    "存储前缀": {
+        "en": "Prefix"
+    },
+    "存储中缀": {
+        "en": "Force Directory"
+    },
+    "存储后缀": {
+        "en": "Save Directory"
+    },
+    "存储信息": {
+        "en": "Storage Information"
+    },
+    "定时备份信息": {
+        "en": "Schdedule Backup Information"
+    },
+    "调度周期": {
+        "en": "Schedule"
+    },
+    "最大过期时间": {
+        "en": "Max Reserved Time"
+    },
+    "用户名": {
+        "en": "User ID"
+    },
+    "新建": {
+        "en": "Create"
+    },
+    "添加配置项": {
+        "en": "Add Configuration"
+    },
+    "此项必填": {
+        "en": "This item is required"
+    },
+    "云端存储类型": {
+        "en": "Remote Storage Type"
+    },
+    "云端存储配置项": {
+        "en": "Remote Storage Configuration"
+    },
+    "存储路径": {
+        "en": "Storage Path"
+    },
+    "存储空间": {
+        "en": "Storage Space"
+    },
+    "集群信息": {
+        "en": "Cluster Information"
+    },
+    "配置项": {
+        "en": "Configuration"
+    },
+    "桶名": {
+        "en": "Prefix"
+    },
+    "储存类名称": {
+        "en": "Storage Class Name"
+    },
+    "名称_backup": {
+        "en": "Name"
+    },
+    "创建时间_backup": {
+        "en": "Created At"
+    },
+    "操作_backup": {
+        "en": "Operation"
     }
 }

@@ -12,11 +12,12 @@ export const storage_keys = {
     session_id: 'ddb.session_id',
     collapsed: 'ddb.collapsed',
     code: 'ddb.code',
+    session: 'ddb.session',
 } as const
 
 const username_guest = 'guest' as const
 
-export class DdbModel extends Model <DdbModel> {
+export class DdbModel extends Model<DdbModel> {
     inited = false
     
     collapsed = localStorage.getItem(storage_keys.collapsed) === 'true'
@@ -41,20 +42,55 @@ export class DdbModel extends Model <DdbModel> {
     
     license: DdbLicense
     
+    /** 是否为中信证券用户 */
+    is_citic = false
+    
     first_get_server_log_length = true
     
     first_get_server_log = true
     
     options?: InspectOptions
     
+    
     async init () {
-        await ddb.connect({ autologin: false })
+        console.log(t('console 开始初始化'))
         
-        try {
-            await this.login_by_ticket()
-        } catch {
-            console.log('ticket 登录失败')
-        }
+        const is_subpath = location.pathname === '/dolphindb/'
+        
+        // 检测 ddb 是否通过 nginx 代理，部署在子路径下
+        if (is_subpath)
+            ddb.url += 'dolphindb/'
+        
+        ddb.autologin = false
+        
+        const license = await this.get_license()
+        
+        const is_citic = license.clientName === 'CITIC Securities' || location.hostname.includes('citicsinfo') || location.hostname === '172.23.122.19'
+        this.set({ is_citic })
+        
+        // 中心证券单点登录
+        if (is_citic) {
+            console.log(t('当前为中信证券的 web, 启用单点登录'))
+            
+            let url = new URL(location.href)
+            const session = url.searchParams.get('sessionData') || localStorage.getItem(storage_keys.session)
+            if (session) {
+                url.searchParams.delete('sessionData')
+                history.replaceState(null, '', url.toString())
+                await this.login_by_session(session)
+            } else
+                if (is_subpath) {
+                    console.log(t('没有 sessionData 参数，将会跳转到登录页'))
+                    location.pathname = '/'
+                    return
+                } else
+                    console.log(t('通过非 /dolphindb/ 路径直接访问中信证券 web'))
+        } else
+            try {
+                await this.login_by_ticket()
+            } catch {
+                console.log('ticket 登录失败')
+            }
         
         await Promise.all([
             this.get_node_type(),
@@ -73,64 +109,84 @@ export class DdbModel extends Model <DdbModel> {
         this.set({ inited: true })
         
         this.get_version()
-        
-        this.get_license()
     }
     
     
     async login_by_password (username: string, password: string) {
+        ddb.username = username
+        ddb.password = password
         await ddb.call('login', [username, password], { urgent: true })
         
-        let ticket: string
-        
-        if (this.node_type === NodeType.controller || this.node_type === NodeType.single)
-            ticket = (
-                await ddb.call<DdbObj<string>>('getAuthenticatedUserTicket', [ ], { urgent: true })
-            ).value
+        const ticket = (
+            await ddb.call<DdbObj<string>>('getAuthenticatedUserTicket', [ ], {
+                urgent: true,
+                ... this.node_type === NodeType.controller || this.node_type === NodeType.single ? { } : { node: this.controller_alias, func_type: DdbFunctionType.SystemFunc }
+            })
+        ).value
         
         localStorage.setItem(storage_keys.username, username)
+        localStorage.setItem(storage_keys.ticket, ticket)
         
-        if (ticket)
-            localStorage.setItem(storage_keys.ticket, ticket)
-        
-        this.set({
-            logined: true,
-            username,
-        })
-        
-        console.log(`${username} 使用账号密码登陆成功`)
+        this.set({ logined: true, username })
+        console.log(t('{{username}} 使用账号密码登陆成功', { username: this.username }))
     }
     
     
     async login_by_ticket () {
         const ticket = localStorage.getItem(storage_keys.ticket)
         if (!ticket) {
-            this.set({
-                logined: false,
-                username: username_guest
-            })
-            
-            throw new Error('no ticket to login')
+            this.set({ logined: false, username: username_guest })
+            throw new Error(t('没有自动登录的 ticket'))
         }
         
         try {
             await ddb.call('authenticateByTicket', [ticket], { urgent: true })
-            this.set({
-                logined: true
-            })
-            console.log(`${this.username} 使用 ticket 登陆成功`)
+            this.set({ logined: true })
+            console.log(t('{{username}} 使用 ticket 登陆成功', { username: this.username }))
         } catch (error) {
-            this.set({
-                logined: false,
-                username: username_guest
-            })
-            
+            this.set({ logined: false, username: username_guest })
             localStorage.removeItem(storage_keys.ticket)
             localStorage.removeItem(storage_keys.username)
-            
             throw error
         }
+    }
+    
+    
+    /** 验证成功时返回用户信息；验证失败时跳转到单点登录页 */
+    async login_by_session (session: string) {
+        // https://dolphindb1.atlassian.net/browse/DPLG-581
         
+        await ddb.call('login', ['guest', '123456'])
+        
+        const result = (
+            await ddb.call('authenticateBySession', [session])
+        ).to_dict<{ code: number, message: string, username: string, raw: string }>({ strip: true })
+        
+        if (result.code) {
+            const message = t('通过 session 登录失败，即将跳转到单点登录页')
+            localStorage.removeItem(storage_keys.session)
+            const error = Object.assign(
+                new Error(message),
+                result
+            )
+            alert(
+                message + '\n' +
+                JSON.stringify(result)
+            )
+            if (location.pathname !== '/')
+                location.pathname = '/'
+            throw error
+        } else {
+            console.log(t('通过 session 登录成功:'), result)
+            
+            localStorage.setItem(storage_keys.session, session)
+            
+            // result.username 由于 server 的 parseExpr 无法正确 parse \u1234 这样的字符串，先从后台 JSON 中提取信息
+            // 等 server 增加 parseJSON 函数
+            const { name: username } = JSON.parse(result.raw)
+            this.set({ logined: true, username })
+            return result
+        }
     }
     
     
@@ -154,7 +210,7 @@ export class DdbModel extends Model <DdbModel> {
         this.set({
             node_type
         })
-        console.log('node_type:', NodeType[node_type])
+        console.log(t('节点类型:'), NodeType[node_type])
         return node_type
     }
     
@@ -164,16 +220,14 @@ export class DdbModel extends Model <DdbModel> {
         this.set({
             node_alias
         })
-        console.log('node_alias:', node_alias)
+        console.log(t('节点名称:'), node_alias)
         return node_alias
     }
     
     async get_controller_alias () {
         const { value: controller_alias } = await ddb.call<DdbObj<string>>('getControllerAlias', [ ], { urgent: true })
-        this.set({
-            controller_alias
-        })
-        console.log('controller_alias:', controller_alias)
+        this.set({ controller_alias })
+        console.log(t('控制节点:'), controller_alias)
         return controller_alias
     }
     
@@ -182,7 +236,7 @@ export class DdbModel extends Model <DdbModel> {
         let { value: version } = await ddb.call<DdbObj<string>>('version', [ ])
         version = version.split(' ')[0]
         this.set({ version })
-        console.log('version:', version)
+        console.log(t('版本:'), version)
         return version
     }
     
@@ -193,9 +247,7 @@ export class DdbModel extends Model <DdbModel> {
         ).to_dict<DdbLicense>({ strip: true })
         
         console.log('license:', license)
-        this.set({
-            license
-        })
+        this.set({ license })
         return license
     }
     
@@ -229,12 +281,12 @@ export class DdbModel extends Model <DdbModel> {
             })
         ).to_rows<DdbNode>()
         
-        console.log('nodes:', nodes)
+        console.log(t('集群节点:'), nodes)
         
         const node = nodes.find(node => 
             node.name === this.node_alias)
         
-        console.log('node:', node)
+        console.log(t('当前节点:'), node)
         
         this.set({
             nodes,
