@@ -1587,7 +1587,7 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
                             console.log(error_)
                         })
                         
-                        xhr.open('POST', `http://192.168.1.99:31624/v1/dolphindbs/${namespace}/${name}/instances/${instance}/upload`)
+                        xhr.open('POST', `/v1/dolphindbs/${namespace}/${name}/instances/${instance}/upload`)
                         
                         xhr.send(form_data)
                     }}
