@@ -1535,7 +1535,7 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
             <Space direction='vertical' style={{ width: '100%' }} size={'large'}>
                 <Title level={4}>{t('上传文件至 {{instance}}', { instance: props.instance })}</Title>
                 <Form form={form_instance}>
-                    <Form.Item name='to' label={t('文件上传路径')} required colon={false}>
+                    <Form.Item name='to' label={t('文件上传路径')} required colon={false} tooltip = {t('上传路径须已存在')}>
                         <Input placeholder={t('Pod 内路径，如: /data/ddb/server/')}></Input>
                     </Form.Item>
                 </Form>
@@ -1768,7 +1768,24 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                                 wrapperCol={{ span: 16 }}
                             >
                                 <>
-                                    {['name', 'endpoint', 'path'].map(
+                                    {[
+                                        <Form.Item
+                                            name={'name'}
+                                            label={translate_dict['name']}
+                                            tooltip={t("只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")}
+                                            rules={[{ 
+                                                    required: true, 
+                                                    pattern: new RegExp('^[a-z]([-a-z0-9]*[a-z0-9])*$'),
+                                                }]}
+                                            messageVariables={{
+                                                pattern: t("集群名称只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")
+                                            }}
+                                            validateTrigger='onBlur'
+                                        >
+                                            <Input></Input>
+                                        </Form.Item>
+                                    ].concat(
+                                    [ 'endpoint', 'path'].map(
                                         (x) => {
                                             return <Form.Item
                                                 name={x}
@@ -1778,7 +1795,7 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                                                 <Input></Input>
                                             </Form.Item>
                                         }
-                                    )}
+                                    ))}
                                 </>
                             </Form>
                         </>
@@ -1797,7 +1814,24 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                         wrapperCol={{ span: 16 }}
                     >
 
-                        {['name', 'provider', 'accessKey', 'secretAccessKey', 'endpoint'].map(
+                        {[
+                            <Form.Item
+                                name={'name'}
+                                label={translate_dict['name']}
+                                tooltip={t("只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")}
+                                rules={[{
+                                    required: true,
+                                    pattern: new RegExp('^[a-z]([-a-z0-9]*[a-z0-9])*$'),
+                                }]}
+                                messageVariables={{
+                                    pattern: t("集群名称只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")
+                                }}
+                                validateTrigger='onBlur'
+                            >
+                                <Input></Input>
+                            </Form.Item>
+                        ].concat(
+                        ['provider', 'accessKey', 'secretAccessKey', 'endpoint'].map(
                             (x) => {
                                 return !(x === 'provider') ? <Form.Item
                                     name={x}
@@ -1815,7 +1849,7 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                                         </Select>
                                     </Form.Item>
                             }
-                        )}
+                        ))}
                     </Form>
                 }
             ]}
@@ -2390,7 +2424,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
                 colon={false}
             >
                 <>
-                    <Form.Item label={translate_dict['sourceKey']} className={'sourceKey'} rules={[{ required: true, message: t('此项必填') }]}>
+                    <Form.Item label={translate_dict['sourceKey']} className={'sourceKey'} rules={[{ required: true, message: t('此项必填') }]} tooltip={t('储存备份文件的储存系统配置')}>
                         <Space align='start'>
                             <Form.Item
                                 name='sourceKey'
@@ -2526,6 +2560,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
                         <Form.Item
                             name={'storageClassName'}
                             label={translate_dict['storageClassName']}
+                            tooltip={t('储存临时备份文件的储存卷名称')}
                         >
 
                             <Select >
