@@ -25,8 +25,9 @@ import {
     InputNumber,
     message
 } from 'antd'
+
 import {
-    default as Icon,
+    default as _Icon,
     AppstoreOutlined, 
     DatabaseOutlined, 
     DownOutlined, 
@@ -41,6 +42,8 @@ import {
     CaretDownOutlined,
     HomeOutlined,
 } from '@ant-design/icons'
+const Icon: typeof _Icon.default = _Icon as any
+
 import zh from 'antd/lib/locale/zh_CN.js'
 import en from 'antd/lib/locale/en_US.js'
 import ja from 'antd/lib/locale/ja_JP.js'
@@ -86,7 +89,7 @@ function DolphinDB () {
     return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false}>
         <Layout className='root-layout'>
             <Layout.Header className={`header ${ is_citic ? 'citic' : '' }`}>
-                <DdbHeader></DdbHeader>
+                <DdbHeader />
             </Layout.Header>
             <Layout className='body'>
                 <DdbSider />
@@ -101,6 +104,7 @@ function DolphinDB () {
 
 function DdbHeader () {
     const { logined, username, node_alias, version, license, is_citic } = model.use(['logined', 'username', 'node_alias', 'version', 'license', 'is_citic'])
+    
     const authorizations = {
         trial: t('试用版'),
         community: t('社区版'),
@@ -117,7 +121,7 @@ function DdbHeader () {
         { is_citic ?
             <>
                 <img src='./citicsai.png' style={{ height: '40px', margin: '5px' }} />
-                <HomeOutlined size={500} style={{ color: '#eeeeee', lineHeight: '55px', fontSize: 18 }}></HomeOutlined>
+                <HomeOutlined size={500} style={{ color: '#eeeeee', fontSize: 18 }}></HomeOutlined>
                 <a
                     style={{ fontSize: 18, color: '#eeeeee', lineHeight: '48px', marginLeft: '5px' }}
                     href='/'
@@ -130,7 +134,7 @@ function DdbHeader () {
         }
         <div className='padding' />
         
-        <div>
+        <div className='section'>
             <Popover
                 placement='bottomLeft'
                 content={
@@ -167,7 +171,7 @@ function DdbHeader () {
             </Popover>
         </div>
         
-        <div>
+        <div className='section'>
             <Popover
                 placement='bottomLeft'
                 content={
@@ -195,39 +199,41 @@ function DdbHeader () {
         
         <Settings />
         
-        <div className='user'>{
-            is_citic ?
-                <a className={`username ${is_citic ? 'citic' : ''}`}>
-                    欢迎您，{username}
-                </a>
-            :
-                <Dropdown
-                    overlay={
-                        <Menu
-                            className='menu'
-                            items={[
-                                logined ?
-                                    {
-                                        label: <a className='logout' onClick={() => { model.logout() }}>{t('注销')}</a>,
-                                        key: 'logout',
-                                        icon: <LogoutOutlined />
-                                    }
-                                :
-                                    {
-                                        label: <a className='login' onClick={() => { model.set({ view: 'login' }) }}>{t('登录')}</a>,
-                                        key: 'login',
-                                        icon: <LogoutOutlined />
-                                    }
-                                ]
-                            } 
-                        />
-                    }
-                >
-                    <a className='username'>
-                        <Avatar className='avatar' icon={<UserOutlined />} size='small' /> {username} <DownOutlined />
+        <div className='section'>
+            <div className='user'>{
+                is_citic ?
+                    <a className={`username ${is_citic ? 'citic' : ''}`}>
+                        欢迎您，{username}
                     </a>
-                </Dropdown>
-        }</div>
+                :
+                    <Dropdown
+                        overlay={
+                            <Menu
+                                className='menu'
+                                items={[
+                                    logined ?
+                                        {
+                                            label: <a className='logout' onClick={() => { model.logout() }}>{t('注销')}</a>,
+                                            key: 'logout',
+                                            icon: <LogoutOutlined />
+                                        }
+                                    :
+                                        {
+                                            label: <a className='login' onClick={() => { model.set({ view: 'login' }) }}>{t('登录')}</a>,
+                                            key: 'login',
+                                            icon: <LogoutOutlined />
+                                        }
+                                    ]
+                                } 
+                            />
+                        }
+                    >
+                        <a className='username'>
+                            <Avatar className='avatar' icon={<UserOutlined />} size='small' /> {username} <DownOutlined />
+                        </a>
+                    </Dropdown>
+            }</div>
+        </div>
     </>
 }
 
@@ -470,7 +476,7 @@ function Settings () {
             placement='bottomLeft'
             content={
                 <div className='header-settings-content head-bar-info'>
-                    <Card size='small' title={t('设置')} bordered={false}>
+                    <Card size='small' title={t('设置', { context: 'settings' })} bordered={false}>
                         <div className='decimals-toolbar'>
                             <span className='decimals-toolbar-input'>
                                 {t('设置小数位数: ')}
