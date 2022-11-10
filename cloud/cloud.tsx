@@ -1528,9 +1528,16 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
             onCancel={() => {
                 props.set_modal_open(false)
             }}
-            onOk={() => {
-                props.set_modal_open(false)
-            }}
+            footer = {
+                <Button
+                type='primary'
+                onClick={
+                    ()=>{
+                        props.set_modal_open(false)
+                    }
+                }
+                >{t('完成')}</Button>
+            }
         >
             <Space direction='vertical' style={{ width: '100%' }} size={'large'}>
                 <Title level={4}>{t('上传文件至 {{instance}}', { instance: props.instance })}</Title>
