@@ -1542,7 +1542,7 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
             <Space direction='vertical' style={{ width: '100%' }} size={'large'}>
                 <Title level={4}>{t('上传文件至 {{instance}}', { instance: props.instance })}</Title>
                 <Form form={form_instance}>
-                    <Form.Item name='to' label={t('文件上传路径')} required colon={false} tooltip = {t('上传路径须已存在')}>
+                    <Form.Item name='to' label={t('文件上传路径')} required colon={false}>
                         <Input placeholder={t('Pod 内路径，如: /data/ddb/server/')}></Input>
                     </Form.Item>
                 </Form>
