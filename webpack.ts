@@ -5,7 +5,6 @@ import path from 'upath'
 import {
     default as Webpack,
     type Compiler,
-    type Watching,
     type Configuration,
     type Stats,
 } from 'webpack'
@@ -18,14 +17,7 @@ import type { Options as TSLoaderOptions } from 'ts-loader'
 import sass from 'sass'
 import type { Options as SassOptions } from 'sass-loader'
 
-import {
-    type MFS,
-    request,
-    fwrite,
-    fexists,
-    fcopy,
-    MyProxy
-} from 'xshell'
+import { type MFS, request, fwrite, fexists, fcopy, MyProxy } from 'xshell'
 
 
 export const fpd_root = `${path.dirname(fileURLToPath(import.meta.url))}/`
@@ -49,11 +41,13 @@ export async function get_monaco (update = false) {
             'editor/editor.main.nls.js.map',
             'editor/editor.main.nls.zh-cn.js',
             'editor/editor.main.nls.zh-cn.js.map',
+            'base/common/worker/simpleWorker.nls.js',
+            'base/common/worker/simpleWorker.nls.js.map',
             'base/worker/workerMain.js',
             'base/worker/workerMain.js.map',
             'base/browser/ui/codicons/codicon/codicon.ttf',
         ].map(async fname => {
-            const fp = `${fpd_out_console}monaco/${fname}`
+            const fp = `${fpd_out_console}vs/${fname}`
             
             if (!update && fexists(fp))
                 return
@@ -61,7 +55,7 @@ export async function get_monaco (update = false) {
             return fwrite(
                 fp,
                 await request(
-                    `https://cdn.jsdelivr.net/npm/monaco-editor@0.33.0/${ fname.endsWith('.map') ? 'min-maps' : 'min' }/vs/${fname}`,
+                    `https://cdn.jsdelivr.net/npm/monaco-editor/${ fname.endsWith('.map') ? 'min-maps' : 'min' }/vs/${fname}`,
                     {
                         encoding: 'binary',
                         retries: true,
@@ -233,8 +227,6 @@ const config: Configuration = {
     
     
     plugins: [
-        // new Webpack.HotModuleReplacementPlugin(),
-        
         // new Webpack.DefinePlugin({
         //     process: { env: { }, argv: [] }
         // })
@@ -252,10 +244,7 @@ const config: Configuration = {
         hints: false,
     },
     
-    cache: {
-        type: 'filesystem',
-        compression: 'brotli',
-    },
+    cache: false,
     
     ignoreWarnings: [
         /Failed to parse source map/
@@ -279,6 +268,12 @@ const config: Configuration = {
         
         children: true,
         
+        assets: true,
+        assetsSpace: 20,
+        
+        modules: true,
+        modulesSpace: 20,
+        
         cachedAssets: false,
         cachedModules: false,
     },
@@ -288,69 +283,27 @@ const config: Configuration = {
 export let webpack = {
     compiler: null as Compiler,
     
-    watcher: null as Watching,
     
-    async start (mfs: MFS.IFs) {
-        this.compiler = Webpack(config)
-        
-        this.compiler.outputFileSystem = mfs
-        
-        let first = true
-        
-        return new Promise<Stats>( resolve => {
-            this.watcher = this.compiler.watch({
-                ignored: [
-                    '**/node_modules/',
-                ],
-                aggregateTimeout: 500
-            }, (error, stats) => {
-                if (error)
-                    console.log(error)
-                console.log(
-                    stats.toString(config.stats)
-                )
-                if (!first)
-                    return
-                first = false
-                resolve(stats)
-            })
-        })
-    },
-    
-    
-    async stop () {
-        if (!this.watcher)
-            return
-        return new Promise<Error>(resolve => {
-            this.watcher.close(resolve)
-        })
-    },
-    
-    
-    async build (is_cloud: boolean) {
-        config.entry = is_cloud ?
-                { 'index.js': './cloud/index.tsx' }
-            :
-                {
-                    'index.js': './console/index.tsx',
-                    'window.js': './console/window.tsx'
-                }
-        
-        config.mode = 'production'
-        
-        config.output.path = is_cloud ? fpd_out_cloud : fpd_out_console
-        
-        config.devtool = false
-        
-        ;(config.stats as any).colors = false
-        ;(config.stats as any).assets = true
-        ;(config.stats as any).assetsSpace = 20
-        ;(config.stats as any).modules = true
-        ;(config.stats as any).modulesSpace = 20
+    async build ({ production, is_cloud, mfs }: { production: boolean, is_cloud?: boolean, mfs?: MFS.IFs }) {
+        if (production) {
+            config.entry = is_cloud ?
+                    { 'index.js': './cloud/index.tsx' }
+                :
+                    {
+                        'index.js': './console/index.tsx',
+                        'window.js': './console/window.tsx'
+                    }
+            config.mode = 'production'
+            config.devtool = false
+            config.output.path = is_cloud ? fpd_out_cloud : fpd_out_console
+        }
         
         this.compiler = Webpack(config)
         
-        await new Promise<void>((resolve, reject) => {
+        if (!production)
+            this.compiler.outputFileSystem = mfs
+        
+        await new Promise<Stats>((resolve, reject) => {
             this.compiler.run((error, stats) => {
                 if (stats)
                     console.log(stats.toString(config.stats))
@@ -358,19 +311,14 @@ export let webpack = {
                 if (error)
                     reject(error)
                 else if (stats.hasErrors())
-                    reject(new Error('console 构建失败'))
+                    reject(new Error('构建失败'))
                 else
-                    resolve()
+                    resolve(stats)
             })
         })
         
-        await new Promise<void>((resolve, reject) => {
-            this.compiler.close(error => {
-                if (error)
-                    reject(error)
-                else
-                    resolve()
-            })
+        await new Promise(resolve => {
+            this.compiler.close(resolve)
         })
     }
 }

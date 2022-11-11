@@ -1,7 +1,10 @@
 import './cloud.sass'
-import { default as React, useEffect, useRef, useState } from 'react'
+
+import { default as React, useEffect, useRef, useState, type FC } from 'react'
 
 import { default as dayjs } from 'dayjs'
+
+import _ from 'lodash'
 
 import { 
     Badge,
@@ -27,13 +30,14 @@ import {
     Progress,
     Space,
     Empty,
-    Popover
+    Popover,
 } from 'antd'
 import { InboxOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors.js'
 import type { AlignType } from 'rc-table/lib/interface.js'
 
 import { delay } from 'xshell/utils.browser.js'
+import { request_json } from 'xshell/net.browser.js'
 
 import { language, t } from '../i18n/index.js'
 import {
@@ -49,13 +53,8 @@ import {
 } from './model.js'
 
 import icon_add from './add.svg'
-import { request_json } from 'xshell/net.browser.js'
 
-import { FC } from 'react'
-
-import _ from 'lodash'
 const { Column } = Table;
-
 const { Option } = Select
 const { Title, Text, Link } = Typography
 
@@ -73,12 +72,12 @@ export function Cloud () {
 /** Type of cluster detail field: 'info' or 'config' */
 type FieldType = 'info' | 'config' | 'monitor' | 'backup'
 
-function ClusterDetail() {
+function ClusterDetail () {
     const { cluster } = model.use(['cluster'])
     
     const { name } = cluster
 
-    const [field, set_field] = useState<FieldType>('info')
+    const [field, set_field] = useState<FieldType>('info') 
 
     const fields : FieldType[] = ['info', 'config', 'monitor', 'backup']
 

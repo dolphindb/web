@@ -3,7 +3,7 @@ import 'xterm/css/xterm.css'
 import './shell.sass'
 
 
-import { default as React, useRef, useEffect } from 'react'
+import { default as React, useRef, useEffect, useState } from 'react'
 
 import { PageHeader, Typography } from 'antd'
 const { Title } = Typography
@@ -25,7 +25,18 @@ import { model } from './model.js'
 export function Shell () {
     const rterminal = useRef<HTMLDivElement>()
     
+    const [font_loaded, set_font_loaded] = useState(false)
+    
     useEffect(() => {
+        if (!font_loaded) {
+            ;(async () => {
+                await document.fonts.ready
+                console.log(t('字体已全部加载'))
+                set_font_loaded(true)
+            })()
+            return
+        }
+        
         let term = new Terminal({
             fontFamily: 'MyFont',
             fontSize: 16,
@@ -136,7 +147,7 @@ export function Shell () {
             
             window.removeEventListener('resize', on_resize)
         }
-    }, [ ])
+    }, [font_loaded])
     
     
     return <>
@@ -149,6 +160,10 @@ export function Shell () {
                 model.set({ view: 'cloud' })
             }}
         />
-        <div className='term' ref={rterminal} />
+        {font_loaded ?
+            <div className='term' ref={rterminal} />
+        :
+            <div className='term-loading'>{t('正在加载字体...')}</div>
+        }
     </>
 }

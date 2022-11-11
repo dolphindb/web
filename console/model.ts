@@ -43,7 +43,7 @@ export class DdbModel extends Model<DdbModel> {
     license: DdbLicense
     
     /** 是否为中信证券用户 */
-    is_citic = false
+    citic = false
     
     first_get_server_log_length = true
     
@@ -55,9 +55,10 @@ export class DdbModel extends Model<DdbModel> {
     async init () {
         console.log(t('console 开始初始化'))
         
-        const is_subpath = location.pathname === '/dolphindb/'
+        let url = new URL(location.href)
         
-        // 检测 ddb 是否通过 nginx 代理，部署在子路径下
+        /** 检测 ddb 是否通过 nginx 代理，部署在子路径下 */
+        const is_subpath = location.pathname === '/dolphindb/'
         if (is_subpath)
             ddb.url += 'dolphindb/'
         
@@ -65,31 +66,31 @@ export class DdbModel extends Model<DdbModel> {
         
         const license = await this.get_license()
         
-        const is_citic = license.clientName === 'CITIC Securities' || location.hostname.includes('citicsinfo') || location.hostname === '172.23.122.19'
-        this.set({ is_citic })
+        const citic_param = url.searchParams.get('citic') === '1'
+        this.set({ citic: license.clientName === 'CITIC Securities' || location.hostname.includes('citicsinfo') || location.hostname === '172.23.122.19' || citic_param })
         
         // 中心证券单点登录
-        if (is_citic) {
+        if (this.citic) {
             console.log(t('当前为中信证券的 web, 启用单点登录'))
             
-            let url = new URL(location.href)
             const session = url.searchParams.get('sessionData') || localStorage.getItem(storage_keys.session)
             if (session) {
                 url.searchParams.delete('sessionData')
                 history.replaceState(null, '', url.toString())
                 await this.login_by_session(session)
+            } else if (citic_param)
+                this.set({ logined: true, username: '马世超' })
+            else if (is_subpath) {
+                console.log(t('没有 sessionData 参数，将会跳转到登录页'))
+                location.pathname = '/'
+                return
             } else
-                if (is_subpath) {
-                    console.log(t('没有 sessionData 参数，将会跳转到登录页'))
-                    location.pathname = '/'
-                    return
-                } else
-                    console.log(t('通过非 /dolphindb/ 路径直接访问中信证券 web'))
+                console.log(t('通过非 /dolphindb/ 路径直接访问中信证券 web'))
         } else
             try {
                 await this.login_by_ticket()
             } catch {
-                console.log('ticket 登录失败')
+                console.log(t('ticket 登录失败'))
             }
         
         await Promise.all([
@@ -254,10 +255,8 @@ export class DdbModel extends Model<DdbModel> {
     
     goto_default_view () {
         this.set({
-            view: this.node_type === NodeType.controller ? 
-                    'cluster'
-                :
-                    'shell'
+            view: new URLSearchParams(location.search).get('view') as DdbModel['view'] || 
+                (this.node_type === NodeType.controller ? 'cluster' : 'shell')
         })
     }
     

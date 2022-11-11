@@ -7,10 +7,13 @@ import { default as React, useEffect, useRef, useState } from 'react'
 
 import { Resizable } from 're-resizable'
 
-import { Dropdown, Menu, message, Tooltip, Tree, Modal, Form, Input, Select, Button } from 'antd'
+import type { BasicDataNode } from 'rc-tree'
+
+import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button } from 'antd'
 const { Option } = Select
 
-import { default as Icon, SyncOutlined, MinusSquareOutlined } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined } from '@ant-design/icons'
+const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
 
@@ -36,7 +39,7 @@ import {
     parseRawGrammar,
     type IGrammar,
     type IRawGrammar,
-    type StackElement,
+    type StateStack,
 } from 'vscode-textmate'
 
 import { createOnigScanner, createOnigString, loadWASM } from 'vscode-oniguruma'
@@ -52,11 +55,12 @@ import {
     DdbFunctionType,
     type DdbFunctionDefValue,
     type InspectOptions,
+    type DdbVectorStringObj,
 } from 'dolphindb/browser.js'
 
 import { keywords, constants, tm_language } from 'dolphindb/language.js'
 
-// LOCAL
+// LOCAL: OFF
 // import docs from 'dolphindb/docs.zh.json'
 import docs_zh from 'dolphindb/docs.zh.json'
 import docs_en from 'dolphindb/docs.en.json'
@@ -96,7 +100,10 @@ const docs = language === 'zh' ? docs_zh : docs_en
 
 loader.config({
     paths: {
-        vs: './monaco'
+        // vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.34.0/min/vs'
+        
+        // 必须是　vs, 否则 /vs/base/common/worker/simpleWorker.nls.js 路径找不到实际文件
+        vs: './vs'
     },
     ... language === 'zh' ? {
         'vs/nls': {
@@ -131,23 +138,20 @@ class ShellModel extends Model<ShellModel> {
     
     vars: DdbVar[]
     
-    ddbs: Map<string, DdbEntity>
+    dbs: Map<string, DdbEntity>
     
     options?: InspectOptions
     
+    dirty = false
     
-    async init_ddbs () {
-        try {
-            const ddbPaths = (await ddb.call('getClusterDFSDatabases')).value as string[]
-            const ddbEntities = ddbPaths.map(path => new DdbEntity({ path }))
-            const ddbs = ddbPaths.reduce((acc, x, i) => {
-                acc.set(x, ddbEntities[i])
-                return acc
-            }, new Map())
-            this.set({ ddbs })
-        } catch (e) {
-            console.error(e)
-        }
+    confirmation_registered = false
+    
+    
+    async load_dbs () {
+        let dbs = new Map<string, DdbEntity>()
+        for (const path of (await ddb.call<DdbVectorStringObj>('getClusterDFSDatabases')).value)
+            dbs.set(path, new DdbEntity({ path }))
+        this.set({ dbs })
     }
     
     async eval (code = this.editor.getValue()) {
@@ -160,7 +164,7 @@ class ShellModel extends Model<ShellModel> {
         
         try {
             // TEST
-            // throw new Error('xxxxx. RefId: S00001. xxxx')
+            // throw new Error('xxxxx. RefId: S00001. xxxx RefId:S00002')
             
             let ddbobj = await ddb.eval(
                 code.replaceAll('\r\n', '\n')
@@ -200,7 +204,7 @@ class ShellModel extends Model<ShellModel> {
                             if (ddbobj.type === DdbType.void)
                                 return ''
                             
-                            return ddbobj.toString({ ...this.options, colors: true }).trimEnd() + '\n'
+                            return ddbobj.toString({ ...this.options, colors: true, nullstr: true, quote: true }).trimEnd() + '\n'
                         }
                     }
                 })() +
@@ -297,7 +301,38 @@ class ShellModel extends Model<ShellModel> {
             )
         })
         
-        console.log('vars:', this.vars)
+        // console.log('vars:', this.vars)
+    }
+    
+    beforeunload (event: BeforeUnloadEvent) {
+        event.returnValue = ''
+    }
+    
+    register_confirmation () {
+        if (!this.confirmation_registered) {
+            window.addEventListener('beforeunload', this.beforeunload)
+            this.confirmation_registered = true
+        }
+    }
+    
+    unregister_confirmation () {
+        if (this.confirmation_registered) {
+            window.removeEventListener('beforeunload', this.beforeunload)
+            this.confirmation_registered = false
+        }
+    }
+    
+    update_title () {
+        document.title = `${this.dirty ? '• ' : ''}DolphinDB - ${model.node_alias}`
+    }
+    
+    set_dirty (dirty: boolean) {
+        this.set({ dirty })
+        if (dirty)
+            this.register_confirmation()
+        else
+            this.unregister_confirmation()
+        this.update_title()
     }
 }
 
@@ -313,7 +348,7 @@ export function Shell () {
     }, [options])
     
     useEffect(() => {
-        shell.init_ddbs()
+        shell.load_dbs()
     }, [ ])
     
     return <>
@@ -329,19 +364,35 @@ export function Shell () {
             <TreeView />
         </Resizable>
         
-        <Resizable
-            className='editor-resizable'
-            defaultSize={{ height: '100%', width: '60%' }}
-            enable={{ top: false, right: true, bottom: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
-            onResizeStop={async () => {
-                await delay(200)
-                shell.fit_addon?.fit()
-            }}
-        >
-            <Editor />
-        </Resizable>
-        
-        <Display />
+        <div className='content'>
+            <Resizable
+                className='top'
+                defaultSize={{ height: '63%', width: '100%' }}
+                enable={{ top: false, right: false, bottom: true, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
+                onResizeStop={async () => {
+                    await delay(200)
+                    shell.fit_addon?.fit()
+                }}
+            >
+                <Resizable
+                    className='editor-resizable'
+                    enable={{ top: false, right: true, bottom: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
+                    defaultSize={{ height: '100%', width: '75%' }}
+                    handleStyles={{ bottom: { height: 6, bottom: -3 } }}
+                    handleClasses={{ bottom: 'resizable-handle' }}
+                    onResizeStop={async () => {
+                        await delay(200)
+                        shell.fit_addon?.fit()
+                    }}
+                >
+                    <Editor />
+                </Resizable>
+                
+                <Term />
+            </Resizable>
+            
+            <DataView />
+        </div>
     </>
 }
 
@@ -349,6 +400,9 @@ export function Shell () {
 let monaco: Monaco
 
 let wasm_loaded = false
+
+let module_code = ''
+
 
 function Editor () {
     const [inited, set_inited] = useState(Boolean(shell.editor))
@@ -590,18 +644,59 @@ function Editor () {
             })
             
             
+            await document.fonts.ready
+            
             set_inited(true)
         })()
     }, [ ])
     
     
+    function save () {
+        localStorage.setItem(
+            storage_keys.code,
+            shell.editor.getValue()
+        )
+        
+        message.success(
+            t('代码已保存在浏览器中')
+        )
+        
+        shell.set_dirty(false)
+    }
+    
+    async function execute () {
+        const { editor } = shell
+        
+        const selection = editor.getSelection()
+        const model = editor.getModel()
+        
+        await shell.eval(
+            selection.isEmpty() ?
+                model.getLineContent(selection.startLineNumber)
+            :
+                model.getValueInRange(selection, monaco.editor.EndOfLinePreference.LF)
+        )
+        
+        await shell.update_vars()
+    }
+    
+    
     if (!inited)
-        return <div className='editor-loading'>{
-            t('正在加载代码编辑器...')
-        }</div>
+        return <div className='editor-loading'>{t('正在加载代码编辑器...')}</div>
     
     
     return <div className='editor'>
+        <div className='toolbar'>
+            <span className='action save' title={t('保存代码至浏览器中')} onClick={save}>
+                <SaveOutlined />
+                <span className='text'>{t('保存')}</span>
+            </span>
+            <span className='action execute' title={t('执行选中代码或光标所在行代码')} onClick={execute}>
+                <CaretRightOutlined />
+                <span className='text'>{t('执行')}</span>
+            </span>
+        </div>
+        
         <MonacoEditor
             defaultLanguage='dolphindb'
             
@@ -693,9 +788,9 @@ function Editor () {
                 },
             }}
             
-            onMount={(editor, monaco) => {
+            onMount={(editor, monaco: Monaco) => {
                 editor.setValue(
-                    localStorage.getItem(storage_keys.code) || ''
+                    module_code || localStorage.getItem(storage_keys.code) || ''
                 )
                 
                 editor.addAction({
@@ -707,19 +802,7 @@ function Editor () {
                     
                     label: t('DolphinDB: 执行代码'),
                     
-                    async run (editor) {
-                        const selection = editor.getSelection()
-                        const model = editor.getModel()
-                        
-                        await shell.eval(
-                            selection.isEmpty() ?
-                                model.getLineContent(selection.startLineNumber)
-                            :
-                                model.getValueInRange(selection, monaco.editor.EndOfLinePreference.LF)
-                        )
-                        
-                        await shell.update_vars()
-                    }
+                    run: execute
                 })
                 
                 editor.addAction({
@@ -731,17 +814,37 @@ function Editor () {
                     
                     label: t('DolphinDB: 保存代码'),
                     
-                    async run (editor) {
-                        localStorage.setItem(
-                            storage_keys.code,
-                            editor.getValue()
-                        )
-                        
-                        message.success(
-                            t('代码已保存在浏览器中')
-                        )
+                    run: save,
+                })
+                
+                editor.addAction({
+                    id: 'duplicate_line',
+                    
+                    keybindings: [
+                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyD
+                    ],
+                    
+                    label: t('向下复制行'),
+                    
+                    async run (editor: monacoapi.editor.IStandaloneCodeEditor) {
+                        await editor.getAction('editor.action.copyLinesDownAction').run()
                     }
                 })
+                
+                editor.addAction({
+                    id: 'delete_lines',
+                    
+                    keybindings: [
+                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyY
+                    ],
+                    
+                    label: t('删除行'),
+                    
+                    async run (editor: monacoapi.editor.IStandaloneCodeEditor) {
+                        await editor.getAction('editor.action.deleteLines').run()
+                    }
+                })
+                
                 
                 let { widget } = editor.getContribution('editor.contrib.suggestController') as any
                 
@@ -756,35 +859,17 @@ function Editor () {
                 
                 inject_css()
                 
-                shell.set({
-                    editor,
-                    // @ts-ignore
-                    monaco
-                })
+                shell.set({ editor, monaco })
+            }}
+            
+            onChange={(value, event) => {
+                module_code = value
+                if (shell.dirty)
+                    shell.update_title()
+                else
+                    shell.set_dirty(true)
             }}
         />
-    </div>
-}
-
-
-function Display () {
-    return <div className='display'>
-        <Resizable
-            className='dataview-resizable'
-            enable={{ top: false, right: false, bottom: true, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
-            defaultSize={{ height: '50%', width: '100%' }}
-            handleStyles={{ bottom: { height: 20, bottom: -10 } }}
-            handleClasses={{ bottom: 'resizable-handle' }}
-            onResizeStop={async () => {
-                await delay(200)
-                shell.fit_addon?.fit()
-            }}
-        >
-            <DataView />
-        </Resizable>
-        
-        <Term />
-        {/* <div>Term</div> */}
     </div>
 }
 
@@ -794,7 +879,18 @@ function Term () {
     
     const rterminal = useRef<HTMLDivElement>()
     
+    const [font_loaded, set_font_loaded] = useState(false)
+    
     useEffect(() => {
+        if (!font_loaded) {
+            ;(async () => {
+                await document.fonts.ready
+                console.log(t('字体已全部加载'))
+                set_font_loaded(true)
+            })()
+            return
+        }
+        
         function printer ({ type, data }: DdbMessage) {
             if (type === 'print')
                 shell.term.writeln(data as string)
@@ -804,7 +900,8 @@ function Term () {
             () => {
                 shell.fit_addon?.fit()
             },
-            500
+            500,
+            { leading: false, trailing: true }
         )
         
         window.addEventListener('resize', on_resize)
@@ -860,8 +957,11 @@ function Term () {
             
             term.writeln(
                 t('左侧编辑器使用指南:\n') +
+                t('按 Tab 补全函数\n') +
                 t('按 Ctrl + E 执行选中代码或光标所在行代码\n') +
                 t('按 Ctrl + S 保存代码\n') +
+                t('按 Ctrl + D 向下复制行\n') +
+                t('按 Ctrl + Y 删除行\n') +
                 t('按 F1 查看更多编辑器命令')
             )
         })()
@@ -871,7 +971,7 @@ function Term () {
             
             window.removeEventListener('resize', on_resize)
         }
-    }, [ ])
+    }, [font_loaded])
     
     useEffect(() => {
         // wait for container ready
@@ -881,7 +981,10 @@ function Term () {
         })()
     }, [collapsed])
     
-    return <div className='term' ref={rterminal} />
+    return font_loaded ?
+        <div className='term' ref={rterminal} />
+    :
+        <div className='term-loading'>{t('正在加载字体...')}</div>
 }
 
 
@@ -905,7 +1008,7 @@ function TreeView () {
             handleClasses={{ bottom: 'resizable-handle' }}
         >
             <div className='databases treeview-split treeview-split1'>
-                <Databases />
+                <DBs />
             </div>
         </Resizable>
         <div className='treeview-resizable-split2'>
@@ -962,44 +1065,42 @@ function DataView () {
 }
 
 
-
-
 interface ContextMenu {
-    key: string,// TreeItem key
-    open: boolean,
-    command?: string,
-    database: string,
-    table?: string,
+    /** TreeItem key */
+    key: string
+    open: boolean
+    command?: string
+    database: string
+    table?: string
     column?: string
 }
 
 interface MenuItem {
-    label: string,
-    key: string,
-    open: boolean,
+    label: string
+    key: string
+    open: boolean
     command: string
 }
 
-const tableMenuItems: MenuItem[] = [
-    { label: t('添加列'), key: '1', open: true, command: 'AddColumn' },
-    { label: t('显示数据表结构'), key: '2', open: false, command: 'ShowSchema' },
-    { label: t('显示前一百行数据'), key: '3', open: false, command: 'ShowRows' }
+const table_menu_items: MenuItem[] = [
+    { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema' },
+    { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows' },
+    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn' },
 ]
 
-const columnMenuItems: MenuItem[] = [
+const column_menu_items: MenuItem[] = [
     { label: t('修改注释'), key: '1', open: true, command: 'EditComment' }
 ]
 
-// 数据库 context menu item 调用 Modal
-const contextMenuModalItems = {
-    EditComment: EditComment,
-    AddColumn: AddColumn
+/** 数据库 context menu item 调用 Modal */
+const context_menu_modal_items = {
+    EditComment,
+    AddColumn
 }
 
-// 数据库 context menu item 调用函数
-const contextMenuFunctionItems = {
-    ShowRows: async (
-        triad: DBTriad) => {
+/** 数据库 context menu item 调用函数 */
+const context_menu_function_items = {
+    ShowRows: async (triad: DBTriad) => {
         const { database, table } = triad
         try {
             const ddbobj = await ddb.eval(`select top 100 * from loadTable("${database}","${table}")`)
@@ -1010,11 +1111,12 @@ const contextMenuFunctionItems = {
             throw error
         }
     },
+    
     ShowSchema: async (triad: DBTriad) => {
         const { database, table } = triad
         try {
             const ddbobj = await ddb.eval(`select * from schema(loadTable("${database}","${table}")).colDefs`)
-            ddbobj.name = `schema of ${table}`
+            ddbobj.name = `${table}.schema`
             shell.set({ result: { type: 'object', data: ddbobj } })
         } catch (error) {
             message.error(JSON.stringify(error))
@@ -1172,53 +1274,71 @@ interface DBTriad {
     column?: string
 }
 
-// For 数据库 table and column context menu
-function DBItemTitle (entity: DBTriad, items: MenuItem[], key: string, onChange: (menu: ContextMenu) => void, extra?: string) {
+/** 数据库表，数据库列的标题和右键菜单 */
+function DBItemTitle ({
+    entity,
+    items,
+    key,
+    onChange,
+    extra,
+}: {
+    entity: DBTriad
+    items: MenuItem[]
+    key: string
+    onChange: (menu: ContextMenu) => void
+    extra?: string
+}) {
     const name = entity[entity.type]
+    
     const onClick = async ({ key: _key }) => {
         const item = items.filter(item => item.key === _key)[0]
         if (item.open) 
             onChange({
-                key: key,
+                key,
                 open: true,
                 command: item.command,
                 ...entity
             })
          else {
-            const fn = contextMenuFunctionItems[item.command]
-            await fn(entity)
+            await context_menu_function_items[item.command](entity)
             onChange({
-                key: key,
+                key,
                 open: false,
                 ...entity
             })
         }
     }
     
-    const onOpenChange = open => {
-        if (open) 
-            onChange({
-                key: key,
-                open: false,
-                ...entity
-            })
-        
-    }
     
-    const menu = <Menu items={items} onClick={onClick} className='db-context-menu'></Menu>
-    return (
-        <>
-            <Dropdown overlay={menu} trigger={['contextMenu']} onOpenChange={onOpenChange}>
-                <span>
-                    <span className='name'>{name}</span>
-                    {extra ? ` <${extra}>` : ''}
-                </span>
-            </Dropdown>
-        </>
-    )
+    return <Dropdown
+        trigger={['contextMenu']}
+        onOpenChange={open => {
+            if (open) 
+                onChange({ key, open: false, ...entity })
+        }}
+        menu={{
+            className: 'db-context-menu',
+            items,
+            onClick,
+        }}
+    >
+        <span
+            className={`db-item-${entity.type}`}
+            onClick={async event => {
+                if (entity.type === 'table') {
+                    await context_menu_function_items.ShowRows(entity)
+                    onChange({ key, open: false, ...entity })
+                }
+            }}
+        >
+            <span className='name'>{name}</span>
+            {extra ? `: ${extra}` : ''}
+        </span>
+    </Dropdown>
 }
 
-class TreeDataItem {
+
+class TreeDataItem implements BasicDataNode {
     title: React.ReactElement
     key: string
     children?: TreeDataItem[]
@@ -1240,18 +1360,12 @@ class TreeDataItem {
     ) {
         const name = typeof title === 'string' ? /^(\w+)/.exec(title)[1] : ''
         
-        this.title = (
-            <>
-                {typeof title === 'string' ? (
-                    <>
-                        <span className='name'>{name}</span>
-                        {title.slice(name.length)}
-                    </>
-                ) : (
-                    title
-                )}
-            </>
-        )
+        this.title = <>{typeof title === 'string' ? (
+                <>
+                    <span className='name'>{name}</span>
+                    {title.slice(name.length)}
+                </>
+            ) : title}</>
         
         this.key = key
         this.children = children
@@ -1275,13 +1389,12 @@ class DdbEntity {
         Object.assign(this, data)
     }
 
-    toTreeDataItem(onChange): TreeDataItem {
-        const children = this.tables.map(table => table.toTreeDataItem(onChange))
+    to_tree_data_item (on_menu): TreeDataItem {
         return new TreeDataItem(
             <span className='name'>{this.path}</span>,
             this.path,
             <Icon component={SvgDatabase} />,
-            children,
+            this.tables.map(table => table.to_tree_data_item(on_menu)),
             null,
             false,
             true,
@@ -1294,36 +1407,48 @@ class DdbEntity {
 
 class TableEntity {
     name: string
-
+    
     ddb_path: string
-
+    
     labels: string[]
-
+    
     column_schema: { name: string, type: DdbType }[]
-
+    
     constructor(data: Partial<TableEntity>) {
         Object.assign(this, data)
         this.labels = this.column_schema?.map(obj =>
             `${obj.name}<${DdbType[obj.type]}>`
         )
     }
-
-    toTreeDataItem(onChange: (menu: ContextMenu) => void): TreeDataItem {
-
-        const children = this.column_schema.map(column => {
-            const key = `${this.ddb_path}/${this.name}/${column.name}`
-            return new TreeDataItem(
-                DBItemTitle({ type: 'column', database: this.ddb_path, table: this.name, column: column.name }, columnMenuItems, key, onChange, DdbType[column.type]),
-                key,
-                <Icon component={SvgColumn} />,
-                null, null, true)
-        })
-
+    
+    to_tree_data_item (onChange: (menu: ContextMenu) => void): TreeDataItem {
         return new TreeDataItem(
-            DBItemTitle({ type: 'table', database: this.ddb_path, table: this.name }, tableMenuItems, `${this.ddb_path}/${this.name}`, onChange),
+            <DBItemTitle 
+                entity={{ type: 'table', database: this.ddb_path, table: this.name }}
+                items={table_menu_items}
+                key={`${this.ddb_path}/${this.name}`}
+                onChange={onChange}
+            />,
+            
             `${this.ddb_path}/${this.name}`,
+            
             <Icon component={SvgTable} />,
-            children,
+            
+            this.column_schema.map(column => {
+                const key = `${this.ddb_path}/${this.name}/${column.name}`
+                
+                return new TreeDataItem(
+                    <DBItemTitle 
+                        entity={{ type: 'column', database: this.ddb_path, table: this.name, column: column.name }}
+                        items={column_menu_items}
+                        key={key}
+                        onChange={onChange}
+                        extra={DdbType[column.type]}
+                    />,
+                    key,
+                    <Icon component={SvgColumn} />,
+                    null, null, true)
+            }),
             null,
             false
         )
@@ -1331,108 +1456,119 @@ class TableEntity {
 }
 
 
-function Databases () {
-    const { ddbs } = shell.use(['ddbs'])
+function DBs () {
+    const { dbs } = shell.use(['dbs'])
     const [expanded_keys, set_expanded_keys] = useState([])
     const [loaded_keys, set_loaded_keys] = useState([])
-    const [menu, onChange] = useState<ContextMenu | null>()
-    const [selectedKeys, setSelectedKeys] = useState([])
+    const [menu, on_menu] = useState<ContextMenu | null>()
+    const [selected_keys, set_selected_keys] = useState([])
+    
     useEffect(() => {
-        if (menu && menu.key) {
-            setSelectedKeys([menu.key])
-        }
+        if (menu?.key)
+            set_selected_keys([menu.key])
     }, [menu])
-    if (!ddbs)
+    
+    if (!dbs)
         return
-
-    const tree_data = Array.from(ddbs.values()).map(ddb_entity => ddb_entity.toTreeDataItem(onChange))
-
-    const loadData = async ({ key, needLoad }: Partial<TreeDataItem>) => {
-        if (!needLoad) return
+    
+    async function load_data ({ key, needLoad }: Partial<TreeDataItem>) {
+        if (!needLoad)
+            return
+        
         try {
-            const res = await ddb.eval(`each(def (x):loadTable("${key}",x,memoryMode=false),getTables(database("${key}")))`)
-            const tbs = res.value as DdbObj[]
-            const tables = tbs.map(tb => {
-                const column_schema = (tb.value as DdbObj[]).map(col => ({ name: col.name, type: col.type }))
-                return new TableEntity({ name: tb.name, ddb_path: key, column_schema })
-            })
-            const nddbs = new Map(ddbs)
-            ddbs.delete(key)
-            nddbs.set(key, new DdbEntity({ path: key, tables }))
-            shell.set({ ddbs: nddbs })
-        } catch (err) {
-            const i = (err.message as string).indexOf('<NotAuthenticated>')
-            const errmsg = i === -1 ? err.message as string : (err.message as string).slice(i)
-            const nddbs = new Map(ddbs)
-            ddbs.delete(key)
-            nddbs.set(key, new DdbEntity({ path: key, empty: true }))
-            shell.set({ ddbs: nddbs })
+            const tables = (await ddb.eval<DdbObj<DdbObj[]>>(`each(def (x): loadTable("${key}", x, memoryMode=false), getTables(database("${key}")))`))
+                .value.map(tb =>
+                    new TableEntity({
+                        name: tb.name,
+                        ddb_path: key,
+                        column_schema: (tb.value as DdbObj[]).map(col => ({ name: col.name, type: col.type }))
+                    })
+                )
+            
+            const dbs_ = new Map(dbs)
+            dbs.delete(key)
+            dbs_.set(key, new DdbEntity({ path: key, tables }))
+            shell.set({ dbs: dbs_ })
+        } catch (error) {
+            const i = (error.message as string).indexOf('<NotAuthenticated>')
+            const errmsg = i === -1 ? error.message as string : (error.message as string).slice(i)
+            const dbs_ = new Map(dbs)
+            dbs.delete(key)
+            dbs_.set(key, new DdbEntity({ path: key, empty: true }))
+            shell.set({ dbs: dbs_ })
             set_loaded_keys([...loaded_keys, key])
             message.error(errmsg)
             shell.term.writeln(red(errmsg))
-            throw err
+            throw error
         }
     }
     
-    async function refresh () {
-        await shell.init_ddbs()
-        set_expanded_keys([])
-        set_loaded_keys([])
-    }
     
-    function on_expand (keys) {
-        set_expanded_keys([...keys])
-    }
-    
-    function on_load (keys) {
-        set_loaded_keys([...keys])
-    }
-    
-    return (
-        <div className='database-panel'>
-            <div className='type'>
-                {t('数据库')}
-                <span className='extra'>
-                    <span onClick={refresh}>
-                        <Tooltip title={t('刷新')} color={'grey'}>
-                            <SyncOutlined />
-                        </Tooltip>
-                    </span>
-                    <span
-                        onClick={() => {
-                            set_expanded_keys([])
-                        }}
-                    >
-                        <Tooltip title={t('全部折叠')} color={'grey'}>
-                            <MinusSquareOutlined />
-                        </Tooltip>
-                    </span>
+    return <div className='database-panel'>
+        <div className='type'>
+            {t('数据库')}
+            <span className='extra'>
+                <span onClick={async () => {
+                    await shell.load_dbs()
+                    set_expanded_keys([])
+                    set_loaded_keys([])
+                }}>
+                    <Tooltip title={t('刷新')} color={'grey'}>
+                        <SyncOutlined />
+                    </Tooltip>
                 </span>
-            </div>
-            <div className='tree-content'>
-                <Tree
-                    showIcon
-                    focusable={false}
-                    blockNode
-                    showLine
-                    treeData={tree_data}
-                    loadData={loadData}
-                    onLoad={on_load}
-                    expandedKeys={expanded_keys}
-                    loadedKeys={loaded_keys}
-                    onExpand={on_expand}
-                    selectedKeys={selectedKeys}
-                    onContextMenu={(e) => { e.preventDefault() }}
-                    onSelect={(keys) => { setSelectedKeys(keys) }}
-                />
-            </div>
-            <DBModal open={menu && menu.open} command={menu ? menu.command : ''} database={menu?.database}
-                table={menu?.table} column={menu?.column} loadData={loadData} />
+                <span
+                    onClick={() => {
+                        set_expanded_keys([])
+                    }}
+                >
+                    <Tooltip title={t('全部折叠')} color={'grey'}>
+                        <MinusSquareOutlined />
+                    </Tooltip>
+                </span>
+            </span>
         </div>
-    )
+        
+        <div className='tree-content'>
+            <Tree
+                showIcon
+                focusable={false}
+                blockNode
+                showLine
+                treeData={
+                    Array.from(dbs.values())
+                        .map(ddb_entity => ddb_entity.to_tree_data_item(on_menu))
+                }
+                loadData={load_data}
+                onLoad={keys => {
+                    set_loaded_keys([...keys])
+                }}
+                expandedKeys={expanded_keys}
+                loadedKeys={loaded_keys}
+                onExpand={keys => {
+                    set_expanded_keys([...keys])
+                }}
+                selectedKeys={selected_keys}
+                onContextMenu={event => { event.preventDefault() }}
+                onSelect={(keys) => {
+                    set_selected_keys(keys)
+                }}
+            />
+        </div>
+        
+        <DBModal
+            open={menu && menu.open}
+            command={menu ? menu.command : ''}
+            database={menu?.database}
+            table={menu?.table}
+            column={menu?.column}
+            loadData={load_data}
+        />
+    </div>
 }
 
-function DBModal({ open, database, table, column, command, loadData }: {
+
+function DBModal ({ open, database, table, column, command, loadData }: {
     open: boolean
     database?: string,
     table?: string,
@@ -1440,25 +1576,29 @@ function DBModal({ open, database, table, column, command, loadData }: {
     command: string,
     loadData: ({ key, needLoad }: { key: string, needLoad: boolean }) => void,
 }) {
-
+    
     useEffect(() => {
         setIsModalOpen(open)
     }, [open])
+    
     const [isModalOpen, setIsModalOpen] = useState<boolean>(open)
-
-
+    
     const handleOk = async () => {
         setIsModalOpen(false)
     }
+    
     const handleCancel = () => {
         setIsModalOpen(false)
     }
-    const ModalContent = contextMenuModalItems[command] || function () {
+    
+    const ModalContent = context_menu_modal_items[command] || function () {
         return <div></div>
     }
+    
     const genTitle = (command: string): string => {
-        return tableMenuItems.find(v => v.command === command)?.label || columnMenuItems.find(v => v.command === command)?.label || ''
+        return table_menu_items.find(v => v.command === command)?.label || column_menu_items.find(v => v.command === command)?.label || ''
     }
+    
     return <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel} title={genTitle(command)}>
         <div className='db-modal-content'>
             <ModalContent database={database} table={table} column={column}
@@ -1548,17 +1688,13 @@ function Variables ({ shared }: { shared?: boolean }) {
                 break
         }
     
-    let treedata = [scalar, object, pair, vector, set, dict, matrix, table, chart].filter(node => 
-        node.children)
+    let treedata = [scalar, object, pair, vector, set, dict, matrix, table, chart].filter(node => node.children)
     
-    console.log('treedata', treedata)
+    // console.log('treedata', treedata)
     
     function onExpand (keys, obj) {
         setExpandedKeys([...keys])
     }
-    
-    // if (!treedata.length)
-    //     return
     
     return <div
         className={`variables treeview-split ${shared ? 'treeview-split3 shared' : 'treeview-split2 local'}`}>
@@ -1584,10 +1720,8 @@ function Variables ({ shared }: { shared?: boolean }) {
                     if (!key)
                         return
 
-                    const v = vars.find(node =>
-                        node.name === key
-                    )
-
+                    const v = vars.find(node => node.name === key)
+                    
                     if (!v)
                         return
 
@@ -1685,7 +1819,7 @@ class DdbVar <T extends DdbObj = DdbObj> {
             const value = (() => {
                 switch (this.form) {
                     case DdbForm.scalar:
-                        return ' = ' + format(this.type, this.obj.value, this.obj.le, this.options)
+                        return ' = ' + format(this.type, this.obj.value, this.obj.le, { ...this.options, quote: true, nullstr: true })
                         
                     // 类似 DdbObj[inspect.custom] 中 format data 的逻辑
                     case DdbForm.pair: {
@@ -1707,8 +1841,10 @@ class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 let items = new Array(Math.min(limit, len_data))
                                 
+                                const options = { ...this.options, quote: true, nullstr: true }
+                                
                                 for (let i = 0; i < items.length; i++)
-                                    items[i] = format(this.type, value.subarray(16 * i, 16 * (i + 1)), this.obj.le, this.options)
+                                    items[i] = format(this.type, value.subarray(16 * i, 16 * (i + 1)), this.obj.le, options)
                                 
                                 return ' = ' + format_array(items, len_data > limit)
                             }
@@ -1723,8 +1859,10 @@ class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 let items = new Array(Math.min(limit, len_data))
                                 
+                                const options = { ...this.options, quote: true, nullstr: true }
+                                
                                 for (let i = 0; i < items.length; i++)
-                                    items[i] = format(this.type, value.subarray(2 * i, 2 * (i + 1)), this.obj.le, this.options)
+                                    items[i] = format(this.type, value.subarray(2 * i, 2 * (i + 1)), this.obj.le, options)
                                 
                                 return ' = ' + format_array(items, len_data > limit)
                             }
@@ -1734,7 +1872,10 @@ class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 let items = new Array(Math.min(limit, (this.obj.value as any[]).length))
                                 
-                                for (let i = 0; i < items.length; i++) items[i] = format(this.type, this.obj.value[i], this.obj.le, this.options)
+                                const options = { ...this.options, quote: true, nullstr: true }
+                                
+                                for (let i = 0; i < items.length; i++)
+                                    items[i] = format(this.type, this.obj.value[i], this.obj.le, options)
                                 
                                 return ' = ' + format_array(items, (this.obj.value as any[]).length > limit)
                             }
@@ -1842,7 +1983,7 @@ class TokensProviderCache {
             },
             
             tokenizeEncoded (line: string, state: monacoapi.languages.IState): monacoapi.languages.IEncodedLineTokens {
-                const tokenizeLineResult2 = grammar.tokenizeLine2(line, state as StackElement)
+                const tokenizeLineResult2 = grammar.tokenizeLine2(line, state as StateStack)
                 const { tokens, ruleStack: endState } = tokenizeLineResult2
                 return { tokens, endState }
             }
@@ -1933,7 +2074,7 @@ const token_ends = new Set(
 )
 
 function get_func_md (keyword: string) {
-    const func_doc = docs[keyword]
+    const func_doc = docs[keyword] || docs[keyword + '!']
     
     if (!func_doc)
         return

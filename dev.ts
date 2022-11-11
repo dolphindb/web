@@ -84,11 +84,11 @@ class DevServer extends Server {
                 fs,
                 log_404: true
             })
-        
-        for (const prefix of ['/console/monaco/', '/min-maps/vs/'] as const)
+            
+        for (const prefix of ['/console/vs/', '/min-maps/vs/'] as const)
             if (path.startsWith(prefix))
                 return this.try_send(ctx, path.slice(prefix.length), {
-                    root: `${fpd_out_console}monaco/`,
+                    root: `${fpd_out_console}vs/`,
                     fs,
                     log_404: true
                 })
@@ -132,7 +132,10 @@ let server = new DevServer()
 await Promise.all([
     get_monaco(),
     server.start(),
-    webpack.start(mfs)
+    webpack.build({
+        production: false,
+        mfs
+    })
 ])
 
 console.log(
