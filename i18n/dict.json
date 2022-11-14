@@ -1022,32 +1022,11 @@
     "备份信息": {
         "en": "Backup Information"
     },
-    "清除策略": {
-        "en": "Clean Policy"
-    },
-    "远程类型": {
-        "en": "RemoteType"
-    },
-    "数据源": {
-        "en": "DataSource"
-    },
-    "源流名称": {
-        "en": "SourceName"
-    },
     "主机": {
         "en": "Host"
     },
-    "连接信息": {
-        "en": "Connetction Info"
-    },
     "新建备份": {
         "en": "Create Backup"
-    },
-    "配置表名": {
-        "en": "Configmap Name"
-    },
-    "时间戳": {
-        "en": "TimeStamp"
     },
     "基础信息": {
         "en": "Basic Information"
@@ -1055,41 +1034,14 @@
     "服务器信息": {
         "en": "Server Information"
     },
-    "前缀": {
-        "en": "Prefix"
-    },
-    "保存路径": {
-        "en": "Save Directory"
-    },
-    "强制位置": {
-        "en": "Force Directory"
-    },
-    "存储类名称": {
-        "en": "Storage Class Name"
-    },
-    "存储资源": {
-        "en": "Storage Resource"
-    },
     "最大备份数": {
         "en": "Max Backups"
-    },
-    "被使用的ID": {
-        "en": "Used ID"
-    },
-    "密码": {
-        "en": "Password"
     },
     "备份": {
         "en": "Backups"
     },
     "还原": {
         "en": "Restores"
-    },
-    "定时备份": {
-        "en": "Scheduled Backups"
-    },
-    "添加数据源": {
-        "en": "Add Source Key"
     },
     "服务地址": {
         "en": "End Point"
@@ -1127,32 +1079,8 @@
     "参数异常": {
         "en": "Invalid"
     },
-    "远端存储类型": {
-        "en": "Remote Storage Type"
-    },
     "路径信息": {
         "en": "Path Information"
-    },
-    "存储前缀": {
-        "en": "Prefix"
-    },
-    "存储中缀": {
-        "en": "Force Directory"
-    },
-    "存储后缀": {
-        "en": "Save Directory"
-    },
-    "存储信息": {
-        "en": "Storage Information"
-    },
-    "定时备份信息": {
-        "en": "Schdedule Backup Information"
-    },
-    "调度周期": {
-        "en": "Schedule"
-    },
-    "最大过期时间": {
-        "en": "Max Reserved Time"
     },
     "用户名": {
         "en": "User ID"
@@ -1160,29 +1088,11 @@
     "新建": {
         "en": "Create"
     },
-    "添加配置项": {
-        "en": "Add Configuration"
-    },
     "此项必填": {
         "en": "This item is required"
     },
-    "云端存储类型": {
-        "en": "Remote Storage Type"
-    },
-    "云端存储配置项": {
-        "en": "Remote Storage Configuration"
-    },
-    "存储路径": {
-        "en": "Storage Path"
-    },
-    "存储空间": {
-        "en": "Storage Space"
-    },
     "集群信息": {
         "en": "Cluster Information"
-    },
-    "配置项": {
-        "en": "Configuration"
     },
     "桶名": {
         "en": "Prefix"
@@ -1198,5 +1108,47 @@
     },
     "操作_backup": {
         "en": "Operation"
+    },
+    "完成": {
+        "en": "Complete"
+    },
+    "云端储存配置": {
+        "en": "Cloud Storage Configuration"
+    },
+    "添加云端储存配置": {
+        "en": "Add Cloud Storage Configuration"
+    },
+    "云端储存类型": {
+        "en": "Cloud Storage Type"
+    },
+    "备份源": {
+        "en": "Source of Backup"
+    },
+    "储存路径": {
+        "en": "Storage Path"
+    },
+    "储存信息": {
+        "en": "Storage Information"
+    },
+    "储存空间": {
+        "en": "Storage Space"
+    },
+    "确认删除？": {
+        "en": "Delete?"
+    },
+    "确认重新触发？": {
+        "en": "Retrigger?"
+    },
+    "重新触发": {
+        "en": "Retrigger"
+    },
+    "类型_backup": {
+        "en": "Type"
+    },
+    "储存备份文件的储存系统配置": {
+        "en": "Storage system configuration for storing backup files"
+    },
+    "储存临时备份文件的储存卷名称": {
+        "en": "The name of the storage volume where temporary backup files are stored"
     }
 }
