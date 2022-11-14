@@ -19,7 +19,7 @@ if (process.argv.includes('cloud')) {
         fcopy(`${fpd_root}README.zh.md`, `${fpd_out_cloud}README.zh.md`),
         
         copy_fonts(true),
-        webpack.build(true)
+        webpack.build({ production: true, is_cloud: true })
     ])
 } else {
     await fdelete(fpd_out_console)
@@ -38,6 +38,6 @@ if (process.argv.includes('cloud')) {
         
         copy_fonts(false),
         get_monaco(),
-        webpack.build(false)
+        webpack.build({ production: true, is_cloud: false })
     ])
 }

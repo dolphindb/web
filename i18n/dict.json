@@ -90,7 +90,7 @@
         "en": "Scheduled Jobs"
     },
     "登录成功": {
-        "en": "Logined successsfully"
+        "en": "Logged in successfully."
     },
     "用户名或密码错误": {
         "en": "Incorrect username or password"
@@ -201,7 +201,7 @@
         "en": "Service"
     },
     "状态": {
-        "en": "Status"
+        "en": "status"
     },
     "操作": {
         "en": "actions"
@@ -318,7 +318,7 @@
         "en": "queued | running tasks"
     },
     "端口": {
-        "en": "Port"
+        "en": "port"
     },
     "内存使用量": {
         "en": "memory usage"
@@ -381,7 +381,7 @@
         "en": "service creation failed"
     },
     "创建": {
-        "en": "Create "
+        "en": "Create"
     },
     "控制节点": {
         "en": "Controllers"
@@ -639,7 +639,7 @@
         "en": "Database"
     },
     "全部折叠": {
-        "en": "Fold"
+        "en": "Collapse All"
     },
     "前 100 行": {
         "en": "The first 100 rows of table"
@@ -831,7 +831,7 @@
         "en": "Show schema"
     },
     "显示前一百行数据": {
-        "en": "Show first 100 row"
+        "en": "Show first 100 rows"
     },
     "修改注释": {
         "en": "Edit comment"
@@ -880,6 +880,138 @@
     },
     "文件 {{filename}} 上传失败": {
         "en": "Upload failed"
+    },
+    "设置_settings": {
+        "en": "Settings"
+    },
+    "文件上传成功": {
+        "en": "File upload successfully"
+    },
+    "文件上传失败": {
+        "en": "File upload failed"
+    },
+    "向下复制行": {
+        "en": "Copy row down"
+    },
+    "删除行": {
+        "en": "Delete row"
+    },
+    "按 Ctrl + D 向下复制行\n": {
+        "en": "Press Ctrl + D to copy lines down\n"
+    },
+    "按 Ctrl + Y 删除行\n": {
+        "en": "Press Ctrl + Y to delete lines\n"
+    },
+    "显示数据表结构": {
+        "en": "Show table schema"
+    },
+    "字体已全部加载": {
+        "en": "Fonts are all loaded"
+    },
+    "正在加载字体...": {
+        "en": "loading font"
+    },
+    "首页": {
+        "en": "Index"
+    },
+    "模块数量": {
+        "en": "number of modules"
+    },
+    "console 开始初始化": {
+        "en": "console starts to initialize"
+    },
+    "当前为中信证券的 web, 启用单点登录": {
+        "en": "Currently for CITIC Securities' web, single sign-on is enabled"
+    },
+    "没有 sessionData 参数，将会跳转到登录页": {
+        "en": "Without the sessionData parameter, it will jump to the login page"
+    },
+    "通过非 /dolphindb/ 路径直接访问中信证券 web": {
+        "en": "Direct access to CITIC Securities web through a path other than /dolphindb/"
+    },
+    "ticket 登录失败": {
+        "en": "ticket login failed"
+    },
+    "{{username}} 使用账号密码登陆成功": {
+        "en": "{{username}} successfully logged in with the account password"
+    },
+    "没有自动登录的 ticket": {
+        "en": "Tickets without auto-login"
+    },
+    "{{username}} 使用 ticket 登陆成功": {
+        "en": "{{username}} successfully logged in with ticket"
+    },
+    "通过 session 登录失败，即将跳转到单点登录页": {
+        "en": "Failed to log in through session, will jump to the single sign-on page"
+    },
+    "通过 session 登录成功:": {
+        "en": "Successful login through session:"
+    },
+    "节点类型:": {
+        "en": "node type:"
+    },
+    "节点名称:": {
+        "en": "node name:"
+    },
+    "控制节点:": {
+        "en": "control node:"
+    },
+    "版本:": {
+        "en": "version:"
+    },
+    "集群节点:": {
+        "en": "cluster nodes:"
+    },
+    "当前节点:": {
+        "en": "current node:"
+    },
+    "保存代码至浏览器中": {
+        "en": "Save the code to the browser"
+    },
+    "保存": {
+        "en": "Save"
+    },
+    "执行选中代码或光标所在行代码": {
+        "en": "Execute the selected code or the line of code where the cursor is located"
+    },
+    "执行": {
+        "en": "Execute"
+    },
+    "按 Tab 补全函数\n": {
+        "en": "Press Tab to complete functions\n"
+    },
+    "查看数据表结构": {
+        "en": "View data table structure"
+    },
+    "查看前一百行数据": {
+        "en": "View the first hundred rows of data"
+    },
+    "词典": {
+        "en": "dict"
+    },
+    "个键": {
+        "en": "keys"
+    },
+    "集合": {
+        "en": "set"
+    },
+    "向量": {
+        "en": "vector"
+    },
+    "个元素": {
+        "en": "items"
+    },
+    "表格": {
+        "en": "table"
+    },
+    "行": {
+        "en": "rows"
+    },
+    "列": {
+        "en": "columns"
+    },
+    "矩阵": {
+        "en": "matrix"
     },
     "备份管理": {
         "en": "Backup Management"
@@ -940,9 +1072,6 @@
     },
     "最大备份数": {
         "en": "Max Backups"
-    },
-    "暂停": {
-        "en": "Pause"
     },
     "被使用的ID": {
         "en": "Used ID"

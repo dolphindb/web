@@ -1,7 +1,10 @@
 import './cloud.sass'
-import { default as React, useEffect, useRef, useState } from 'react'
+
+import { default as React, useEffect, useRef, useState, type FC } from 'react'
 
 import { default as dayjs } from 'dayjs'
+
+import _ from 'lodash'
 
 import { 
     Badge,
@@ -27,13 +30,14 @@ import {
     Progress,
     Space,
     Empty,
-    Popover
+    Popover,
 } from 'antd'
 import { InboxOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/lib/_util/colors.js'
 import type { AlignType } from 'rc-table/lib/interface.js'
 
 import { delay } from 'xshell/utils.browser.js'
+import { request_json } from 'xshell/net.browser.js'
 
 import { language, t } from '../i18n/index.js'
 import {
@@ -49,13 +53,8 @@ import {
 } from './model.js'
 
 import icon_add from './add.svg'
-import { request_json } from 'xshell/net.browser.js'
 
-import { FC } from 'react'
-
-import _ from 'lodash'
 const { Column } = Table;
-
 const { Option } = Select
 const { Title, Text, Link } = Typography
 
@@ -73,12 +72,12 @@ export function Cloud () {
 /** Type of cluster detail field: 'info' or 'config' */
 type FieldType = 'info' | 'config' | 'monitor' | 'backup'
 
-function ClusterDetail() {
+function ClusterDetail () {
     const { cluster } = model.use(['cluster'])
     
     const { name } = cluster
 
-    const [field, set_field] = useState<FieldType>('info')
+    const [field, set_field] = useState<FieldType>('info') 
 
     const fields : FieldType[] = ['info', 'config', 'monitor', 'backup']
 
@@ -1528,14 +1527,10 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
             onCancel={() => {
                 props.set_modal_open(false)
             }}
-            footer = {
+            footer={
                 <Button
-                type='primary'
-                onClick={
-                    ()=>{
-                        props.set_modal_open(false)
-                    }
-                }
+                    type='primary'
+                    onClick={() => { props.set_modal_open(false) }}
                 >{t('完成')}</Button>
             }
         >
@@ -1777,32 +1772,30 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                                 <>
                                     {[
                                         <Form.Item
-                                            name={'name'}
-                                            label={translate_dict['name']}
+                                            name='name'
+                                            label={translate_dict.name}
                                             tooltip={t("只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")}
-                                            rules={[{ 
-                                                    required: true, 
-                                                    pattern: new RegExp('^[a-z]([-a-z0-9]*[a-z0-9])*$'),
-                                                }]}
+                                            rules={[{
+                                                required: true, 
+                                                pattern: new RegExp('^[a-z]([-a-z0-9]*[a-z0-9])*$'),
+                                            }]}
                                             messageVariables={{
                                                 pattern: t("集群名称只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")
                                             }}
                                             validateTrigger='onBlur'
                                         >
-                                            <Input></Input>
+                                            <Input />
                                         </Form.Item>
                                     ].concat(
-                                    [ 'endpoint', 'path'].map(
-                                        (x) => {
-                                            return <Form.Item
+                                        ['endpoint', 'path'].map(
+                                            x => <Form.Item
                                                 name={x}
                                                 label={translate_dict[x]}
                                                 rules={!not_required.has(x) ? [{ message: t('此项必填'), required: true }] : []}
                                             >
                                                 <Input></Input>
                                             </Form.Item>
-                                        }
-                                    ))}
+                                        ))}
                                 </>
                             </Form>
                         </>
@@ -1823,11 +1816,11 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
 
                         {[
                             <Form.Item
-                                name={'name'}
-                                label={translate_dict['name']}
+                                name='name'
+                                label={translate_dict.name}
                                 tooltip={t("只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")}
                                 rules={[{
-                                    required: true,
+                                    required: true, 
                                     pattern: new RegExp('^[a-z]([-a-z0-9]*[a-z0-9])*$'),
                                 }]}
                                 messageVariables={{
@@ -1835,7 +1828,7 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                                 }}
                                 validateTrigger='onBlur'
                             >
-                                <Input></Input>
+                                <Input />
                             </Form.Item>
                         ].concat(
                         ['provider', 'accessKey', 'secretAccessKey', 'endpoint'].map(
