@@ -405,6 +405,8 @@ let module_code = ''
 
 
 function Editor () {
+    const { citic } = model.use(['citic'])
+    
     const [inited, set_inited] = useState(Boolean(shell.editor))
     
     
@@ -790,7 +792,23 @@ function Editor () {
             
             onMount={(editor, monaco: Monaco) => {
                 editor.setValue(
-                    module_code || localStorage.getItem(storage_keys.code) || ''
+                    module_code || 
+                    localStorage.getItem(storage_keys.code) || 
+                    (citic ? 
+                        'def GTJA_alpha_100 (close, volume) {\n' +
+                        '    return -1 * rowRank(X=mcovar(rowRank(X=close, percent=true), rowRank(X=volume, percent=true), 5), percent=true) \n' +
+                        '}\n' +
+                        '\n' +
+                        "factor_name = 'GTJA_alpha_100'\n" +
+                        "factor_params = { 'WIND.ASHAREEODPRICES': ['S_DQ_CLOSE', 'S_DQ_VOLUME'] }\n" +
+                        'start_date = date(2022.01.01)\n' +
+                        'end_date = today()\n' +
+                        'res = calc_factor(start_date, end_date, factor_name, factor_params)\n' +
+                        "factor_id = save_factor(res, 'ALL', factor_name)\n" +
+                        'print(factor_id)\n' +
+                        '\n'
+                    :
+                        '')
                 )
                 
                 editor.addAction({
@@ -1490,7 +1508,9 @@ function DBs () {
             dbs_.set(key, new DdbEntity({ path: key, tables }))
             shell.set({ dbs: dbs_ })
         } catch (error) {
-            const i = (error.message as string).indexOf('<NotAuthenticated>')
+            let i = (error.message as string).indexOf('<NotAuthenticated>')
+            if (i === -1)
+                i = (error.message as string).indexOf('<NoPrivilege>')
             const errmsg = i === -1 ? error.message as string : (error.message as string).slice(i)
             const dbs_ = new Map(dbs)
             dbs.delete(key)

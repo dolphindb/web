@@ -77,7 +77,7 @@ function ClusterDetail () {
     
     const { name } = cluster
 
-    const [field, set_field] = useState<FieldType>('info')
+    const [field, set_field] = useState<FieldType>('info') 
 
     const fields : FieldType[] = ['info', 'config', 'monitor', 'backup']
 

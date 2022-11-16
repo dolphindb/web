@@ -81,7 +81,7 @@ const locales = { zh, en, ja, ko }
 
 
 function DolphinDB () {
-    const { inited, citic } = model.use(['inited', 'citic'])
+    const { inited, citic, header } = model.use(['inited', 'citic', 'header'])
     
     useEffect(() => {
         model.init()
@@ -92,9 +92,9 @@ function DolphinDB () {
     
     return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false}>
         <Layout className='root-layout'>
-            <Layout.Header className={`header ${ citic ? 'citic' : '' }`}>
+            { header && <Layout.Header className={`header ${ citic ? 'citic' : '' }`}>
                 <DdbHeader />
-            </Layout.Header>
+            </Layout.Header> }
             <Layout className='body'>
                 <DdbSider />
                 <Layout.Content className='view'>
@@ -107,7 +107,7 @@ function DolphinDB () {
 
 
 function DdbHeader () {
-    const { logined, username, node_alias, citic } = model.use(['logined', 'username', 'node_alias', 'citic'])
+    const { logined, username, node_alias, citic, node_type } = model.use(['logined', 'username', 'node_alias', 'citic', 'node_type'])
     
     useEffect(() => {
         if (!node_alias)
@@ -153,6 +153,13 @@ function DdbHeader () {
                                     label: <Settings />,
                                     icon: <SettingOutlined />
                                 },
+                                ... node_type === NodeType.controller ? [
+                                    {
+                                        key: 'login',
+                                        icon: <LoginOutlined />,
+                                        label: <a className='login' onClick={() => { model.set({ view: 'login' }) }}>{t('登录')}</a>,
+                                    }
+                                ] : [ ]
                             ]
                         :
                             [

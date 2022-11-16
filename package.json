@@ -48,7 +48,7 @@
         "antd": "^4.24.1",
         "cross-env": "^7.0.3",
         "dayjs": "^1.11.6",
-        "dolphindb": "^2.0.801",
+        "dolphindb": "file:d:/2/ddb/api/js/",
         "final-form": "^4.20.7",
         "koa-compress": "^5.1.0",
         "lodash": "^4.17.21",

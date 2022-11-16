@@ -51,6 +51,9 @@ export class DdbModel extends Model<DdbModel> {
     
     options?: InspectOptions
     
+    /** 是否显示顶部导航栏，传 header=0 时隐藏，便于嵌入 web 页面 */
+    header = new URLSearchParams(location.search).get('header') !== '0'
+    
     
     async init () {
         console.log(t('console 开始初始化'))
