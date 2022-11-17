@@ -1449,13 +1449,13 @@ function ConfigEditableList({
 }
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
-    editing: boolean;
-    dataIndex: string;
-    title: any;
-    inputType: 'bool' | 'string' | 'int' | 'int64' | 'int32' | 'float';
-    record: ClusterConfigItem;
-    index: number;
-    children: React.ReactNode;
+    editing: boolean
+    dataIndex: string
+    title: any
+    inputType: 'bool' | 'string' | 'int' | 'int64' | 'int32' | 'float'
+    record: ClusterConfigItem
+    index: number
+    children: React.ReactNode
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
