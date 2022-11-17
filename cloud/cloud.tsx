@@ -1449,13 +1449,13 @@ function ConfigEditableList({
 }
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
-    editing: boolean;
-    dataIndex: string;
-    title: any;
-    inputType: 'bool' | 'string' | 'int' | 'int64' | 'int32';
-    record: ClusterConfigItem;
-    index: number;
-    children: React.ReactNode;
+    editing: boolean
+    dataIndex: string
+    title: any
+    inputType: 'bool' | 'string' | 'int' | 'int64' | 'int32' | 'float'
+    record: ClusterConfigItem
+    index: number
+    children: React.ReactNode
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
@@ -1477,7 +1477,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
                     name={dataIndex}
                     style={{ margin: 0 }}
                     rules={
-                        (inputType === 'int' || inputType === 'int64' || inputType === 'int32') ? 
+                        (inputType === 'int' || inputType === 'int64' || inputType === 'int32' || inputType === 'float') ? 
                         [{
                             required: true,
                             message: t('请输入参数值')
@@ -1487,7 +1487,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
                     valuePropName={record.type === 'bool' ? 'checked' : 'value'}
                 >
                     {
-                        inputType === 'int' || inputType === 'int64' || inputType === 'int32' ? <InputNumber min={0} /> : 
+                        inputType === 'int' || inputType === 'int64' || inputType === 'int32' ||  inputType === 'float' ? <InputNumber min={0} /> : 
                         inputType === 'string' ? <Input /> : <Switch checkedChildren='true' unCheckedChildren='false' />
                     }
                 </Form.Item>
