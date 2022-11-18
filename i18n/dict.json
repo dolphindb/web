@@ -833,9 +833,6 @@
     "显示前一百行数据": {
         "en": "Show first 100 rows"
     },
-    "修改注释": {
-        "en": "Edit comment"
-    },
     "添加成功": {
         "en": "Add successfully"
     },
@@ -853,9 +850,6 @@
     },
     "选择类型": {
         "en": "Select type"
-    },
-    "修改注释成功": {
-        "en": "Modify comment successfully"
     },
     "注释": {
         "en": "Comment"
@@ -1150,5 +1144,11 @@
     },
     "储存临时备份文件的储存卷名称": {
         "en": "The name of the storage volume where temporary backup files are stored"
+    },
+    "编辑": {
+        "en": "Edit"
+    },
+    "编辑成功": {
+        "en": "Edit successfully"
     }
 }

@@ -1098,16 +1098,19 @@ interface MenuItem {
     key: string
     open: boolean
     command: string
+    icon?: React.ReactNode
 }
-
+const Img_ = (img_path: string)=>{
+    return <img src={img_path} width={14} height={14}></img>
+}
 const table_menu_items: MenuItem[] = [
-    { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema' },
-    { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows' },
-    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn' },
+    { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema' , icon: Img_('./shell.icons/column.svg') },
+    { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows', icon: Img_('./shell.icons/screen.svg') },
+    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn', icon: Img_('./shell.icons/add_column.svg') },
 ]
 
 const column_menu_items: MenuItem[] = [
-    { label: t('修改注释'), key: '1', open: true, command: 'EditComment' }
+    { label: t('编辑'), key: '1', open: true, command: 'EditComment' , icon: Img_('./shell.icons/edit.svg')}
 ]
 
 /** 数据库 context menu item 调用 Modal */
@@ -1248,7 +1251,7 @@ function EditComment ({
         if (database && table && column) 
             try {
                 await ddb.eval(`setColumnComment(loadTable(database("${database}"), "${table}"), { "${column}": "${comment.replaceAll('"', '\\"')}" })`)
-                message.success(t('修改注释成功'))
+                message.success(t('编辑成功'))
             } catch (error) {
                 message.error(error)
             }
