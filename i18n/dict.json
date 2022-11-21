@@ -971,9 +971,6 @@
     "执行": {
         "en": "Execute"
     },
-    "按 Tab 补全函数\n": {
-        "en": "Press Tab to complete functions\n"
-    },
     "查看数据表结构": {
         "en": "View data table structure"
     },
@@ -1149,6 +1146,24 @@
         "en": "Edit"
     },
     "编辑成功": {
-        "en": "Edit successfully"
+        "en": "Edit comment successfully"
+    },
+    "代码地图": {
+        "en": "Editor Minimap"
+    },
+    "回车补全": {
+        "en": "Press Enter Complete Function "
+    },
+    "空闲中": {
+        "en": "Idle"
+    },
+    "按 Tab 或Enter 补全函数\n": {
+        "en": "Press Tab or Enter to complete functions\n"
+    },
+    "确定终止计算？": {
+        "en": "Terminate the task?"
+    },
+    "终止计算": {
+        "en": "Terminate"
     }
 }

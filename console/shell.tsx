@@ -230,9 +230,6 @@ class ShellModel extends Model<ShellModel> {
         }
     }
     
-    async cancel () {
-        await ddb.cancel()
-    }
     
     async update_vars () {
         let objs = await ddb.call('objs', [true])
@@ -714,7 +711,7 @@ function Editor () {
                 <span className='text'>{t('执行')}</span>
             </span>
             <span >
-                <span style={{ marginRight: 10 }}>{t('代码地图')}</span>
+                <span style={{ marginRight: 6 }}>{t('代码地图')}</span>
                 <Switch size='small'
                     onChange={() => {
                         set_minimap_enable(!minimap_enable)
@@ -723,7 +720,7 @@ function Editor () {
             </span>
             
             <span style={{marginLeft:12}}>
-                <span style={{ marginRight:10 }}>{t('回车补全')}</span>
+                <span style={{ marginRight:6 }}>{t('回车补全')}</span>
                 <Switch size='small'
                     onChange={() => {
                         set_acceptSuggestionOnEnter(!acceptSuggestionOnEnter)
@@ -733,17 +730,16 @@ function Editor () {
             
             <span style={{marginLeft:'auto', marginRight:0}}>
                 {!status_bar_idle ?
-                <Popconfirm
-                title = {t('确定终止计算?')}
-                onConfirm = {async ()=>{
-                    await ddb.cancel()
-                }}
-                >
-                    <LoadingOutlined></LoadingOutlined>
-                    <span style={{background: '#F83737', color: '#EEEE' ,cursor:'pointer', marginLeft:10 , borderRadius: 20, padding:5}}>{t('执行中')}</span>
-                </Popconfirm>
-                :
-                    <span style={{ background: '#0073FF',color: '#EEEE', marginLeft: 10 , borderRadius: 20, padding:5}}>{t('空闲中')}</span>
+                    <Popconfirm
+                        title={t('确定终止计算？')}
+                        onConfirm={async () => {
+                            await ddb.cancel()
+                        }}
+                    >
+                        <LoadingOutlined></LoadingOutlined>
+                        <span className='status-bar' style={{ background: '#F83737', cursor: 'pointer'}}>{t('终止计算')}</span>
+                    </Popconfirm>:
+                    <span className='status-bar' style={{ background: '#0073FF'}}>{t('空闲中')}</span>
                 }
             </span>
         </div>
@@ -1152,11 +1148,11 @@ interface MenuItem {
 const table_menu_items: MenuItem[] = [
     { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema' , icon: <Icon component={SvgColumnRightClick} /> },
     { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows', icon: <Icon component={SvgScreen} /> },
-    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn', icon: <Icon component={ SvgAddColumn}></Icon> },
+    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn', icon: <Icon component={ SvgAddColumn} /> },
 ]
 
 const column_menu_items: MenuItem[] = [
-    { label: t('编辑'), key: '1', open: true, command: 'EditComment' , icon: <Icon component={SvgEdit}></Icon>}
+    { label: t('编辑'), key: '1', open: true, command: 'EditComment', icon: <Icon component={SvgEdit} /> }
 ]
 
 /** 数据库 context menu item 调用 Modal */
