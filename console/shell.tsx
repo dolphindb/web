@@ -81,7 +81,10 @@ import SvgChart from './shell.icons/chart.icon.svg'
 import SvgObject from './shell.icons/object.icon.svg'
 import SvgDatabase from './shell.icons/database.icon.svg'
 import SvgColumn from './shell.icons/column.icon.svg'
-
+import SvgColumnRightClick from './shell.icons/column-rightClick.icon.svg'
+import SvgAddColumn from './shell.icons/add-column.icon.svg'
+import SvgEdit from './shell.icons/edit.icon.svg'
+import SvgScreen from './shell.icons/screen.icon.svg'
 
 import { delta2str, delay } from 'xshell/utils.browser.js'
 import { red, blue, underline } from 'xshell/chalk.browser.js'
@@ -1100,17 +1103,14 @@ interface MenuItem {
     command: string
     icon?: React.ReactNode
 }
-const Img_ = (img_path: string)=>{
-    return <img src={img_path} width={14} height={14}></img>
-}
 const table_menu_items: MenuItem[] = [
-    { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema' , icon: Img_('./shell.icons/column.svg') },
-    { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows', icon: Img_('./shell.icons/screen.svg') },
-    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn', icon: Img_('./shell.icons/add_column.svg') },
+    { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema' , icon: <Icon component={SvgColumnRightClick} /> },
+    { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows', icon: <Icon component={SvgScreen} /> },
+    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn', icon: <Icon component={ SvgAddColumn}></Icon> },
 ]
 
 const column_menu_items: MenuItem[] = [
-    { label: t('编辑'), key: '1', open: true, command: 'EditComment' , icon: Img_('./shell.icons/edit.svg')}
+    { label: t('编辑'), key: '1', open: true, command: 'EditComment' , icon: <Icon component={SvgEdit}></Icon>}
 ]
 
 /** 数据库 context menu item 调用 Modal */
