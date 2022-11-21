@@ -9,10 +9,10 @@ import { Resizable } from 're-resizable'
 
 import type { BasicDataNode } from 'rc-tree'
 
-import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button, Switch } from 'antd'
+import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button, Switch, Popconfirm } from 'antd'
 const { Option } = Select
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined, LoadingOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
@@ -143,6 +143,8 @@ class ShellModel extends Model<ShellModel> {
     
     dbs: Map<string, DdbEntity>
     
+    status_bar_idle = true
+    
     options?: InspectOptions
     
     dirty = false
@@ -164,6 +166,8 @@ class ShellModel extends Model<ShellModel> {
             '\n' +
             time_start.format('YYYY.MM.DD HH:mm:ss.SSS')
         )
+        
+        this.set({status_bar_idle: false})
         
         try {
             // TEST
@@ -221,9 +225,14 @@ class ShellModel extends Model<ShellModel> {
                 message = message.replaceAll(/RefId:\s*(\w+)/g, underline(blue('RefId: $1')))
             this.term.writeln(red(message))
             throw error
+        } finally {
+            this.set({status_bar_idle: true})
         }
     }
     
+    async cancel () {
+        await ddb.cancel()
+    }
     
     async update_vars () {
         let objs = await ddb.call('objs', [true])
@@ -415,6 +424,8 @@ function Editor () {
     const [minimap_enable, set_minimap_enable] = useState(false)
     
     const [acceptSuggestionOnEnter, set_acceptSuggestionOnEnter] = useState(false)
+    
+    const {status_bar_idle} = shell.use(['status_bar_idle'])
     useEffect(() => {
         (async () => {
             if (inited)
@@ -718,6 +729,22 @@ function Editor () {
                         set_acceptSuggestionOnEnter(!acceptSuggestionOnEnter)
                     }}
                 ></Switch>
+            </span>
+            
+            <span style={{marginLeft:'auto', marginRight:0}}>
+                {!status_bar_idle ?
+                <Popconfirm
+                title = {t('确定终止计算?')}
+                onConfirm = {async ()=>{
+                    await ddb.cancel()
+                }}
+                >
+                    <LoadingOutlined></LoadingOutlined>
+                    <span style={{background: '#F83737', color: '#EEEE' ,cursor:'pointer', marginLeft:10 , borderRadius: 20, padding:5}}>{t('执行中')}</span>
+                </Popconfirm>
+                :
+                    <span style={{ background: '#0073FF',color: '#EEEE', marginLeft: 10 , borderRadius: 20, padding:5}}>{t('空闲中')}</span>
+                }
             </span>
         </div>
         
