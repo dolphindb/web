@@ -9,7 +9,7 @@ import { Resizable } from 're-resizable'
 
 import type { BasicDataNode } from 'rc-tree'
 
-import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button } from 'antd'
+import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button, Switch } from 'antd'
 const { Option } = Select
 
 import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined } from '@ant-design/icons'
@@ -412,7 +412,9 @@ function Editor () {
     
     const [inited, set_inited] = useState(Boolean(shell.editor))
     
+    const [minimap_enable, set_minimap_enable] = useState(false)
     
+    const [acceptSuggestionOnEnter, set_acceptSuggestionOnEnter] = useState(false)
     useEffect(() => {
         (async () => {
             if (inited)
@@ -700,6 +702,23 @@ function Editor () {
                 <CaretRightOutlined />
                 <span className='text'>{t('执行')}</span>
             </span>
+            <span >
+                <span style={{ marginRight: 10 }}>{t('代码地图')}</span>
+                <Switch size='small'
+                    onChange={() => {
+                        set_minimap_enable(!minimap_enable)
+                    }}
+                ></Switch>
+            </span>
+            
+            <span style={{marginLeft:12}}>
+                <span style={{ marginRight:10 }}>{t('回车补全')}</span>
+                <Switch size='small'
+                    onChange={() => {
+                        set_acceptSuggestionOnEnter(!acceptSuggestionOnEnter)
+                    }}
+                ></Switch>
+            </span>
         </div>
         
         <MonacoEditor
@@ -712,7 +731,7 @@ function Editor () {
             
             options={{
                 minimap: {
-                    enabled: false
+                    enabled: minimap_enable
                 },
                 
                 fontFamily: 'MyFont',
@@ -784,7 +803,7 @@ function Editor () {
                     enabled: false,
                 },
                 
-                acceptSuggestionOnEnter: 'off',
+                acceptSuggestionOnEnter: acceptSuggestionOnEnter? 'on': 'off',
                 
                 quickSuggestions: {
                     other: true,
@@ -978,7 +997,7 @@ function Term () {
             
             term.writeln(
                 t('左侧编辑器使用指南:\n') +
-                t('按 Tab 补全函数\n') +
+                t('按 Tab 或Enter 补全函数\n') +
                 t('按 Ctrl + E 执行选中代码或光标所在行代码\n') +
                 t('按 Ctrl + S 保存代码\n') +
                 t('按 Ctrl + D 向下复制行\n') +
