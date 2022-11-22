@@ -1008,7 +1008,7 @@ function Term () {
 
 function TreeView () {
     return <div className='treeview-content'>
-        <Resizable
+        {/* <Resizable
             className='treeview-resizable-split treeview-resizable-split1'
             enable={{
                 top: false,
@@ -1028,7 +1028,7 @@ function TreeView () {
             <div className='databases treeview-split treeview-split1'>
                 <DBs />
             </div>
-        </Resizable>
+        </Resizable> */}
         <div className='treeview-resizable-split2'>
             <div className='treeview-resizable-split21'>
                 <Variables shared={false} />
