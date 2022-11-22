@@ -736,8 +736,10 @@ function Editor () {
                             await ddb.cancel()
                         }}
                     >
-                        <LoadingOutlined></LoadingOutlined>
-                        <span className='status-bar' style={{ background: '#F83737', cursor: 'pointer'}}>{t('终止计算')}</span>
+                        <span className='status-bar' style={{ background: '#F83737', cursor: 'pointer' }}>{t('终止计算')}
+                            <div style = {{width:10 , display:'inline-block'}}></div>
+                            <LoadingOutlined></LoadingOutlined>
+                        </span>
                     </Popconfirm>:
                     <span className='status-bar' style={{ background: '#0073FF'}}>{t('空闲中')}</span>
                 }
