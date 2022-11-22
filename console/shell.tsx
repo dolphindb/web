@@ -405,7 +405,7 @@ let module_code = ''
 
 
 function Editor () {
-    const { citic } = model.use(['citic'])
+    const { citic, code_template } = model.use(['citic', 'code_template'])
     
     const [inited, set_inited] = useState(Boolean(shell.editor))
     
@@ -794,7 +794,7 @@ function Editor () {
                 editor.setValue(
                     module_code || 
                     localStorage.getItem(storage_keys.code) || 
-                    (citic ? 
+                    (code_template && citic ? 
                         'def GTJA_alpha_100 (close, volume) {\n' +
                         '    return -1 * rowRank(X=mcovar(rowRank(X=close, percent=true), rowRank(X=volume, percent=true), 5), percent=true) \n' +
                         '}\n' +
