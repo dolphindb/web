@@ -1598,6 +1598,9 @@ function DBs () {
         
         <div className='tree-content'>
             <Tree
+                //https://ant.design/components/tree#components-tree-demo-virtual-scroll:~:text=%2D-,height,virtual%20scroll%20height.%20Will%20not%20support%20horizontal%20scroll%20when%20enable%20this,-number
+                //"Config virtual scroll height. Will not support horizontal scroll when enable this"
+                height={256}
                 showIcon
                 focusable={false}
                 blockNode
