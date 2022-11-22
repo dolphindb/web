@@ -62,7 +62,7 @@ export class DdbModel extends Model<DdbModel> {
         super()
         const params = new URLSearchParams(location.search)
         this.header = params.get('header') !== '0'
-        this.code_template = params.get('code-template') !== '1'
+        this.code_template = params.get('code-template') === '1'
     }
     
     
