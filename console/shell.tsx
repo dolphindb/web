@@ -1025,7 +1025,7 @@ function Term () {
             
             term.writeln(
                 t('左侧编辑器使用指南:\n') +
-                t('按 Tab 或Enter 补全函数\n') +
+                t('按 Tab 或 Enter 补全函数\n') +
                 t('按 Ctrl + E 执行选中代码或光标所在行代码\n') +
                 t('按 Ctrl + S 保存代码\n') +
                 t('按 Ctrl + D 向下复制行\n') +
