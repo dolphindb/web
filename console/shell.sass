@@ -207,12 +207,29 @@
                             .text
                                 margin-left: 2px
                                 
-                        .status-bar
-                            color: #eeeeee
-                            margin-left: 10px
-                            border-radius: 20px
-                            padding: 5px
-                    
+                        .switch-box
+                            margin-right: 12px
+                            .switch-title
+                                margin-right: 6px
+                            
+                        .status-bar-box
+                            margin-left: auto
+                            margin-right: 0px
+                            .status-bar
+                                color: #eeeeee
+                                margin-left: 10px
+                                border-radius: 20px
+                                padding: 5px
+                        
+                            .status-bar.terminate
+                                background: #F83737
+                                cursor: pointer
+                                .place-holder
+                                    width: 10px
+                                    display: inline-block
+                            
+                            .status-bar.idle
+                                background: #0073FF
                     .monaco-editor
                         .line-numbers
                             color: #888888
@@ -274,3 +291,6 @@
         
 .db-context-menu
     background-color: #FFFFFF
+    
+.antd-icon-to-blue
+    color: #4A5EED

@@ -12,7 +12,7 @@ import type { BasicDataNode } from 'rc-tree'
 import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button, Switch, Popconfirm } from 'antd'
 const { Option } = Select
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined, LoadingOutlined } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined, LoadingOutlined, EyeOutlined, EditOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
@@ -81,11 +81,8 @@ import SvgChart from './shell.icons/chart.icon.svg'
 import SvgObject from './shell.icons/object.icon.svg'
 import SvgDatabase from './shell.icons/database.icon.svg'
 import SvgColumn from './shell.icons/column.icon.svg'
-import SvgColumnRightClick from './shell.icons/column-rightClick.icon.svg'
+import SvgViewTableStructure from './shell.icons/view-table-structure.icon.svg'
 import SvgAddColumn from './shell.icons/add-column.icon.svg'
-import SvgEdit from './shell.icons/edit.icon.svg'
-import SvgScreen from './shell.icons/screen.icon.svg'
-
 import { delta2str, delay } from 'xshell/utils.browser.js'
 import { red, blue, underline } from 'xshell/chalk.browser.js'
 
@@ -717,8 +714,8 @@ function Editor () {
                 <CaretRightOutlined />
                 <span className='text'>{t('执行')}</span>
             </span>
-            <span >
-                <span style={{ marginRight: 6 }}>{t('代码地图')}</span>
+            <span className='switch-box'>
+                <span className='switch-title'>{t('代码地图')}</span>
                 <Switch size='small'
                     onChange={() => {
                         set_minimap_enable(!minimap_enable)
@@ -726,8 +723,8 @@ function Editor () {
                 ></Switch>
             </span>
             
-            <span style={{marginLeft:12}}>
-                <span style={{ marginRight:6 }}>{t('回车补全')}</span>
+            <span className='switch-box'>
+                <span className='switch-title'>{t('回车补全')}</span>
                 <Switch size='small'
                     onChange={() => {
                         set_acceptSuggestionOnEnter(!acceptSuggestionOnEnter)
@@ -735,21 +732,20 @@ function Editor () {
                 ></Switch>
             </span>
             
-            <span style={{marginLeft:'auto', marginRight:0}}>
-                {!status_bar_idle ?
-                    <Popconfirm
+            <span className='status-bar-box'>
+                {!status_bar_idle ? <Popconfirm
                         title={t('确定终止计算？')}
                         onConfirm={async () => {
                             await ddb.cancel()
                         }}
                     >
-                        <span className='status-bar' style={{ background: '#F83737', cursor: 'pointer' }}>{t('终止计算')}
-                            <div style = {{width:10 , display:'inline-block'}}></div>
-                            <LoadingOutlined></LoadingOutlined>
+                        <span className ='status-bar terminate'>{t('终止计算')}
+                            <div className = 'place-holder'></div>
+                            <LoadingOutlined />
                         </span>
-                    </Popconfirm>:
-                    <span className='status-bar' style={{ background: '#0073FF'}}>{t('空闲中')}</span>
-                }
+                    </Popconfirm> 
+                : 
+                    <span className='status-bar idle'>{t('空闲中')}</span>}
             </span>
         </div>
         
@@ -835,7 +831,7 @@ function Editor () {
                     enabled: false,
                 },
                 
-                acceptSuggestionOnEnter: acceptSuggestionOnEnter? 'on': 'off',
+                acceptSuggestionOnEnter: acceptSuggestionOnEnter ? 'on' : 'off',
                 
                 quickSuggestions: {
                     other: true,
@@ -1137,13 +1133,13 @@ interface MenuItem {
     icon?: React.ReactNode
 }
 const table_menu_items: MenuItem[] = [
-    { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema' , icon: <Icon component={SvgColumnRightClick} /> },
-    { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows', icon: <Icon component={SvgScreen} /> },
-    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn', icon: <Icon component={ SvgAddColumn} /> },
+    { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema' , icon: <Icon component = {SvgViewTableStructure} /> },
+    { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows', icon: <EyeOutlined className ='antd-icon-to-blue' /> },
+    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn', icon: <Icon component = { SvgAddColumn} /> },
 ]
 
 const column_menu_items: MenuItem[] = [
-    { label: t('编辑'), key: '1', open: true, command: 'EditComment', icon: <Icon component={SvgEdit} /> }
+    { label: t('编辑'), key: '1', open: true, command: 'EditComment', icon: <EditOutlined className ='antd-icon-to-blue' /> }
 ]
 
 /** 数据库 context menu item 调用 Modal */
