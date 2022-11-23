@@ -156,6 +156,13 @@ class ShellModel extends Model<ShellModel> {
         let dbs = new Map<string, DdbEntity>()
         for (const path of (await ddb.call<DdbVectorStringObj>('getClusterDFSDatabases')).value)
             dbs.set(path, new DdbEntity({ path }))
+            
+        // LOCAL: OFF 测试虚拟滚动
+        // for (let i = 0;  i < 10000;  i++) {
+        //     const path = `dfs://mockdb${i}`
+        //     dbs.set(path, new DdbEntity({ path }))
+        // }
+        
         this.set({ dbs })
     }
     
@@ -414,7 +421,7 @@ let module_code = ''
 
 
 function Editor () {
-    const { citic } = model.use(['citic'])
+    const { citic, code_template } = model.use(['citic', 'code_template'])
     
     const [inited, set_inited] = useState(Boolean(shell.editor))
     
@@ -759,10 +766,10 @@ function Editor () {
                     enabled: minimap_enable
                 },
                 
-                fontFamily: 'MyFont',
+                fontFamily: 'Menlo, \'Ubuntu Mono\', Consolas, PingFangSC, \'Noto Sans CJK SC\', \'Microsoft YaHei\'',
                 fontSize: 16,
                 insertSpaces: true,
-                codeLensFontFamily: 'MyFont',
+                codeLensFontFamily: 'Menlo, \'Ubuntu Mono\', Consolas, PingFangSC, \'Noto Sans CJK SC\', \'Microsoft YaHei\'',
                 folding: true,
                 largeFileOptimizations: true,
                 matchBrackets: 'always',
@@ -841,7 +848,7 @@ function Editor () {
                 editor.setValue(
                     module_code || 
                     localStorage.getItem(storage_keys.code) || 
-                    (citic ? 
+                    (code_template && citic ? 
                         'def GTJA_alpha_100 (close, volume) {\n' +
                         '    return -1 * rowRank(X=mcovar(rowRank(X=close, percent=true), rowRank(X=volume, percent=true), 5), percent=true) \n' +
                         '}\n' +
@@ -974,7 +981,7 @@ function Term () {
         ;(async () => {
             // --- init term
             let term = shell.term = new Terminal({
-                fontFamily: 'MyFont',
+                fontFamily: 'Menlo, Ubuntu Mono, Consolas, PingFangSC, Noto Sans CJK SC, Microsoft YaHei',
                 fontSize: 16,
                 
                 cursorStyle: 'bar',
@@ -1055,27 +1062,9 @@ function Term () {
 
 function TreeView () {
     return <div className='treeview-content'>
-        <Resizable
-            className='treeview-resizable-split treeview-resizable-split1'
-            enable={{
-                top: false,
-                right: false,
-                bottom: true,
-                left: false,
-                topRight: false,
-                bottomRight: false,
-                bottomLeft: false,
-                topLeft: false
-            }}
-            defaultSize={{ height: '30%', width: '100%' }}
-            minHeight='22px'
-            handleStyles={{ bottom: { height: 20, bottom: -10 } }}
-            handleClasses={{ bottom: 'resizable-handle' }}
-        >
-            <div className='databases treeview-split treeview-split1'>
-                <DBs />
-            </div>
-        </Resizable>
+        <div className='databases treeview-split treeview-split1'>
+            <DBs />
+        </div>
         <div className='treeview-resizable-split2'>
             <div className='treeview-resizable-split21'>
                 <Variables shared={false} />
@@ -1343,13 +1332,13 @@ interface DBTriad {
 function DBItemTitle ({
     entity,
     items,
-    key,
+    _key: key,
     onChange,
     extra,
 }: {
     entity: DBTriad
     items: MenuItem[]
-    key: string
+    _key: string
     onChange: (menu: ContextMenu) => void
     extra?: string
 }) {
@@ -1359,7 +1348,7 @@ function DBItemTitle ({
         const item = items.filter(item => item.key === _key)[0]
         if (item.open) 
             onChange({
-                key,
+                key: _key,
                 open: true,
                 command: item.command,
                 ...entity
@@ -1367,7 +1356,7 @@ function DBItemTitle ({
          else {
             await context_menu_function_items[item.command](entity)
             onChange({
-                key,
+                key: _key,
                 open: false,
                 ...entity
             })
@@ -1491,7 +1480,7 @@ class TableEntity {
             <DBItemTitle 
                 entity={{ type: 'table', database: this.ddb_path, table: this.name }}
                 items={table_menu_items}
-                key={`${this.ddb_path}/${this.name}`}
+                _key={`${this.ddb_path}/${this.name}`}
                 onChange={onChange}
             />,
             
@@ -1506,7 +1495,7 @@ class TableEntity {
                     <DBItemTitle 
                         entity={{ type: 'column', database: this.ddb_path, table: this.name, column: column.name }}
                         items={column_menu_items}
-                        key={key}
+                        _key={key}
                         onChange={onChange}
                         extra={DdbType[column.type]}
                     />,
@@ -1598,13 +1587,13 @@ function DBs () {
         
         <div className='tree-content'>
             <Tree
-                //https://ant.design/components/tree#components-tree-demo-virtual-scroll:~:text=%2D-,height,virtual%20scroll%20height.%20Will%20not%20support%20horizontal%20scroll%20when%20enable%20this,-number
-                //"Config virtual scroll height. Will not support horizontal scroll when enable this"
-                height={256}
+                className='database-tree'
                 showIcon
                 focusable={false}
                 blockNode
                 showLine
+                // 启用虚拟滚动
+                height={256}
                 treeData={
                     Array.from(dbs.values())
                         .map(ddb_entity => ddb_entity.to_tree_data_item(on_menu))
@@ -1620,7 +1609,7 @@ function DBs () {
                 }}
                 selectedKeys={selected_keys}
                 onContextMenu={event => { event.preventDefault() }}
-                onSelect={(keys) => {
+                onSelect={keys => {
                     set_selected_keys(keys)
                 }}
             />

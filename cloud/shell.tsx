@@ -38,7 +38,7 @@ export function Shell () {
         }
         
         let term = new Terminal({
-            fontFamily: 'MyFont',
+            fontFamily: 'Menlo, Ubuntu Mono, Consolas, PingFangSC, Noto Sans CJK SC, Microsoft YaHei',
             fontSize: 16,
             
             cursorStyle: 'bar',
