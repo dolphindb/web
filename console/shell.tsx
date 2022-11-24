@@ -151,14 +151,18 @@ class ShellModel extends Model<ShellModel> {
     
     async load_dbs () {
         let dbs = new Map<string, DdbEntity>()
-        for (const path of (await ddb.call<DdbVectorStringObj>('getClusterDFSDatabases')).value)
-            dbs.set(path, new DdbEntity({ path }))
+        //for (const path of (await ddb.call<DdbVectorStringObj>('getClusterDFSDatabases')).value)
+            //dbs.set(path, new DdbEntity({ path }))
             
         // LOCAL: OFF 测试虚拟滚动
-        // for (let i = 0;  i < 10000;  i++) {
-        //     const path = `dfs://mockdb${i}`
-        //     dbs.set(path, new DdbEntity({ path }))
-        // }
+         for (let i = 0;  i < 100;  i++) {
+            for (let j =0; j< 100; j++){
+                const path = `dfs://${i}.${j}`
+                const tables = [new TableEntity({name: path, ddb_path:path, labels:['sdsadfs'], column_schema:[{name:'Id', type:5}]})]
+                dbs.set(path, new DdbEntity({ path ,tables}))
+            }
+
+         }
         
         this.set({ dbs })
     }
@@ -1526,13 +1530,12 @@ function DBs () {
             return
         
         try {
-            const tables = (await ddb.eval<DdbObj<DdbObj[]>>(`each(def (x): loadTable("${key}", x, memoryMode=false), getTables(database("${key}")))`))
-                .value.map(tb =>
-                    new TableEntity({
-                        name: tb.name,
-                        ddb_path: key,
-                        column_schema: (tb.value as DdbObj[]).map(col => ({ name: col.name, type: col.type }))
-                    })
+            const tables = (
+                    [new TableEntity({
+                        name: '',
+                        ddb_path: Math.random().toString(),
+                        column_schema: [{name:'Id', type: 4}]
+                    })]
                 )
             
             const dbs_ = new Map(dbs)
@@ -1591,8 +1594,41 @@ function DBs () {
                 // 启用虚拟滚动
                 height={256}
                 treeData={
-                    Array.from(dbs.values())
-                        .map(ddb_entity => ddb_entity.to_tree_data_item(on_menu))
+                    (()=>{
+                        const dbs_ = Array.from(dbs.values())
+                        
+                        var _tree_data :TreeDataItem[] = []
+                        const prefix_group_map = new Map()  as Map<string, DdbEntity[]>
+                        
+                        for (let i=0; i<dbs_.length; i++){
+                            //    dfs://a.b
+                            const [part1, part2] = dbs_[i].path.slice(6).split('.')
+                            
+                            
+                            if (!prefix_group_map.get(part1)){
+                                prefix_group_map.set(part1, [dbs_[i]])
+                            }
+                            else{
+                                prefix_group_map.set(part1, prefix_group_map.get(part1).concat([dbs_[i]]))
+                            }
+                        }
+                        
+                        for (let i of prefix_group_map.keys()){
+                            const new_group = new TreeDataItem(
+                                `group ${i}`,
+                                `group ${i}`,
+                                null,
+                                prefix_group_map.get(i).map(
+                                    ddb_entity => ddb_entity.to_tree_data_item(on_menu)
+                                )
+                            )
+                            _tree_data = _tree_data.concat([
+                                new_group
+                            ])
+                        }
+                        
+                        return _tree_data
+                    })()
                 }
                 loadData={load_data}
                 onLoad={keys => {
