@@ -1511,18 +1511,57 @@ class TableEntity {
 
 
 function DBs () {
-    const { dbs } = shell.use(['dbs'])
+    const model_dbs = shell.use(['dbs']).dbs
     const [expanded_keys, set_expanded_keys] = useState([])
     const [loaded_keys, set_loaded_keys] = useState([])
     const [menu, on_menu] = useState<ContextMenu | null>()
     const [selected_keys, set_selected_keys] = useState([])
+    const [grouped_tree_data, set_grouped_tree_data] = useState<TreeDataItem[]>([])
     
     useEffect(() => {
         if (menu?.key)
             set_selected_keys([menu.key])
     }, [menu])
     
-    if (!dbs)
+    useEffect(()=>{
+        if(!model_dbs ){
+            return
+        }
+        
+        const dbs_ = Array.from(model_dbs.values())
+        var _tree_data :TreeDataItem[] = []
+        const prefix_group_map = new Map()  as Map<string, DdbEntity[]>
+        
+        for (let i=0; i<dbs_.length; i++){
+            //    dfs://a.b
+            const [part1, part2] = dbs_[i].path.slice(6).split('.')
+            
+            
+            if (!prefix_group_map.get(part1)){
+                prefix_group_map.set(part1, [dbs_[i]])
+            }
+            else{
+                prefix_group_map.set(part1, prefix_group_map.get(part1).concat([dbs_[i]]))
+            }
+        }
+        
+        for (let i of prefix_group_map.keys()){
+            const new_group = new TreeDataItem(
+                `group-${i}`,
+                `group-${i}`,
+                null,
+                prefix_group_map.get(i).map(
+                    ddb_entity => ddb_entity.to_tree_data_item(on_menu)
+                )
+            )
+            _tree_data = _tree_data.concat([
+                new_group
+            ])
+        }
+        set_grouped_tree_data(_tree_data)
+    },[model_dbs])
+    
+    if (!model_dbs)
         return
     
     async function load_data ({ key, needLoad }: Partial<TreeDataItem>) {
@@ -1530,34 +1569,60 @@ function DBs () {
             return
         
         try {
-            const tables = (
-                    [new TableEntity({
-                        name: '',
-                        ddb_path: Math.random().toString(),
-                        column_schema: [{name:'Id', type: 4}]
-                    })]
+            const tables = (await ddb.eval<DdbObj<DdbObj[]>>(`each(def (x): loadTable("${key}", x, memoryMode=false), getTables(database("${key}")))`))
+                .value.map(tb =>
+                    new TableEntity({
+                        name: tb.name,
+                        ddb_path: key,
+                        column_schema: (tb.value as DdbObj[]).map(col => ({ name: col.name, type: col.type }))
+                    })
                 )
             
-            const dbs_ = new Map(dbs)
-            dbs.delete(key)
-            dbs_.set(key, new DdbEntity({ path: key, tables }))
-            shell.set({ dbs: dbs_ })
+            const [part1, part2] = key.slice(6).split('.')
+            
+            const wihch_group_the_key_belong_to = grouped_tree_data.map(x=>{
+                return x.key
+            }).findIndex(x=>x === `group-${part1}`)
+            
+            const which_DbEntity_the_key_match = (grouped_tree_data[wihch_group_the_key_belong_to].children as unknown as DdbEntity[]).map(
+                x => x.path
+            ).findIndex(x=> x===part1 )
+            
+            const grouped_tree_data_ = grouped_tree_data
+            grouped_tree_data_[wihch_group_the_key_belong_to][which_DbEntity_the_key_match] = new DdbEntity({ path: key, tables })
+            
+            set_grouped_tree_data(grouped_tree_data_)
+            
+            
         } catch (error) {
             let i = (error.message as string).indexOf('<NotAuthenticated>')
             if (i === -1)
                 i = (error.message as string).indexOf('<NoPrivilege>')
             const errmsg = i === -1 ? error.message as string : (error.message as string).slice(i)
-            const dbs_ = new Map(dbs)
-            dbs.delete(key)
-            dbs_.set(key, new DdbEntity({ path: key, empty: true }))
-            shell.set({ dbs: dbs_ })
+
+            
+            const [part1, part2] = key.slice(6).split('.')
+            
+            const wihch_group_the_key_belong_to = grouped_tree_data.map(x=>{
+                return x.key
+            }).findIndex(x=>x === `group-${part1}`)
+            
+            const which_DbEntity_the_key_match = (grouped_tree_data[wihch_group_the_key_belong_to].children as unknown as DdbEntity[]).map(
+                x => x.path
+            ).findIndex(x=> x===part1 )
+            
+            const grouped_tree_data_ = grouped_tree_data
+            grouped_tree_data_[wihch_group_the_key_belong_to][which_DbEntity_the_key_match] = new DdbEntity({ path: key, empty: true })
+            
+            set_grouped_tree_data(grouped_tree_data_)
+            
             set_loaded_keys([...loaded_keys, key])
             message.error(errmsg)
             shell.term.writeln(red(errmsg))
             throw error
         }
     }
-    
+        
     
     return <div className='database-panel'>
         <div className='type'>
@@ -1594,41 +1659,7 @@ function DBs () {
                 // 启用虚拟滚动
                 height={256}
                 treeData={
-                    (()=>{
-                        const dbs_ = Array.from(dbs.values())
-                        
-                        var _tree_data :TreeDataItem[] = []
-                        const prefix_group_map = new Map()  as Map<string, DdbEntity[]>
-                        
-                        for (let i=0; i<dbs_.length; i++){
-                            //    dfs://a.b
-                            const [part1, part2] = dbs_[i].path.slice(6).split('.')
-                            
-                            
-                            if (!prefix_group_map.get(part1)){
-                                prefix_group_map.set(part1, [dbs_[i]])
-                            }
-                            else{
-                                prefix_group_map.set(part1, prefix_group_map.get(part1).concat([dbs_[i]]))
-                            }
-                        }
-                        
-                        for (let i of prefix_group_map.keys()){
-                            const new_group = new TreeDataItem(
-                                `group ${i}`,
-                                `group ${i}`,
-                                null,
-                                prefix_group_map.get(i).map(
-                                    ddb_entity => ddb_entity.to_tree_data_item(on_menu)
-                                )
-                            )
-                            _tree_data = _tree_data.concat([
-                                new_group
-                            ])
-                        }
-                        
-                        return _tree_data
-                    })()
+                    grouped_tree_data
                 }
                 loadData={load_data}
                 onLoad={keys => {
