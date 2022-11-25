@@ -12,7 +12,7 @@ import type { BasicDataNode } from 'rc-tree'
 import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button, Switch, Popconfirm } from 'antd'
 const { Option } = Select
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined, LoadingOutlined, EyeOutlined, EditOutlined } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined, LoadingOutlined, EyeOutlined, EditOutlined, FolderOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
@@ -151,14 +151,14 @@ class ShellModel extends Model<ShellModel> {
     
     async load_dbs () {
         let dbs = new Map<string, DdbEntity>()
-        //for (const path of (await ddb.call<DdbVectorStringObj>('getClusterDFSDatabases')).value)
-            //dbs.set(path, new DdbEntity({ path }))
+        for (const path of (await ddb.call<DdbVectorStringObj>('getClusterDFSDatabases')).value)
+            dbs.set(path, new DdbEntity({ path }))
             
         // LOCAL: OFF 测试虚拟滚动
-         for (let i = 0;  i < 100;  i++) {
-            for (let j =0; j< 100; j++){
+         for (let i = 0;  i < 3;  i++) {
+            for (let j =0; j< 3; j++){
                 const path = `dfs://${i}.${j}`
-                const tables = [new TableEntity({name: path, ddb_path:path, labels:['sdsadfs'], column_schema:[{name:'Id', type:5}]})]
+                const tables = [new TableEntity({name: `table_of_${i}_${j}`, ddb_path:path, labels:['sdsadfs'], column_schema:[{name:'Id', type:5}]})]
                 dbs.set(path, new DdbEntity({ path ,tables}))
             }
 
@@ -1439,13 +1439,19 @@ class DdbEntity {
 
     tables: TableEntity[] = []
 
+    path_part1: string
+    path_part2: string
+    
     constructor(data: Partial<DdbEntity>) {
         Object.assign(this, data)
+        const [part1, part2] = this.path.slice(6).split('.')
+        this.path_part1 = part1
+        this.path_part2 = part2
     }
 
     to_tree_data_item (on_menu): TreeDataItem {
         return new TreeDataItem(
-            <span className='name'>{this.path}</span>,
+            <span className='name'>{this.path_part2 || this.path}</span>,
             this.path,
             <Icon component={SvgDatabase} />,
             this.tables.map(table => table.to_tree_data_item(on_menu)),
@@ -1517,6 +1523,7 @@ function DBs () {
     const [menu, on_menu] = useState<ContextMenu | null>()
     const [selected_keys, set_selected_keys] = useState([])
     const [grouped_tree_data, set_grouped_tree_data] = useState<TreeDataItem[]>([])
+    const [index_of_path_in_grouped_tree_data, set_index_of_path_in_grouped_tree_data] = useState<Map<string, number[]>>(new Map())
     
     useEffect(() => {
         if (menu?.key)
@@ -1527,15 +1534,20 @@ function DBs () {
         if(!model_dbs ){
             return
         }
-        
+        const performance_start = performance.now()
         const dbs_ = Array.from(model_dbs.values())
-        var _tree_data :TreeDataItem[] = []
-        const prefix_group_map = new Map()  as Map<string, DdbEntity[]>
+        var group_with_path_part2 :TreeDataItem[] = []
+        const prefix_group_map: Map<string, DdbEntity[]> = new Map()
+        const dbs_without_path_part2: TreeDataItem[] = []
         
         for (let i=0; i<dbs_.length; i++){
             //    dfs://a.b
             const [part1, part2] = dbs_[i].path.slice(6).split('.')
             
+            if (!part2){
+                dbs_without_path_part2.push(dbs_[i].to_tree_data_item(on_menu))
+                continue;
+            }
             
             if (!prefix_group_map.get(part1)){
                 prefix_group_map.set(part1, [dbs_[i]])
@@ -1547,18 +1559,35 @@ function DBs () {
         
         for (let i of prefix_group_map.keys()){
             const new_group = new TreeDataItem(
+                `dfs://${i}`,
                 `group-${i}`,
-                `group-${i}`,
-                null,
+                <FolderOutlined className='antd-icon-to-blue'/>,
                 prefix_group_map.get(i).map(
                     ddb_entity => ddb_entity.to_tree_data_item(on_menu)
-                )
+                ),
             )
-            _tree_data = _tree_data.concat([
-                new_group
-            ])
+            group_with_path_part2.push(new_group)
         }
-        set_grouped_tree_data(_tree_data)
+        
+        const tree_data = dbs_without_path_part2.concat(group_with_path_part2)
+        
+        for (let i=0; i<tree_data.length; i++){
+            if (tree_data[i].key.startsWith('group-')){
+                const children_length = tree_data[i].children.length
+                for (let j=0; j<children_length; j++){
+                    index_of_path_in_grouped_tree_data.set(tree_data[i].children[j].key, [i,j])
+                }
+                
+            }else{
+                index_of_path_in_grouped_tree_data.set(tree_data[i].key, [i])
+            }
+        }
+        const performance_end = performance.now()
+        
+        console.log(`Performance: ${performance_end-performance_start} ms`)
+        set_index_of_path_in_grouped_tree_data(index_of_path_in_grouped_tree_data)
+        
+        set_grouped_tree_data(tree_data)
     },[model_dbs])
     
     if (!model_dbs)
@@ -1580,18 +1609,18 @@ function DBs () {
             
             const [part1, part2] = key.slice(6).split('.')
             
-            const wihch_group_the_key_belong_to = grouped_tree_data.map(x=>{
-                return x.key
-            }).findIndex(x=>x === `group-${part1}`)
             
-            const which_DbEntity_the_key_match = (grouped_tree_data[wihch_group_the_key_belong_to].children as unknown as DdbEntity[]).map(
-                x => x.path
-            ).findIndex(x=> x===part1 )
-            
-            const grouped_tree_data_ = grouped_tree_data
-            grouped_tree_data_[wihch_group_the_key_belong_to][which_DbEntity_the_key_match] = new DdbEntity({ path: key, tables })
-            
-            set_grouped_tree_data(grouped_tree_data_)
+            if (part2){
+                const [index1, index2] = index_of_path_in_grouped_tree_data.get(key)
+                const grouped_tree_data_ = grouped_tree_data
+                grouped_tree_data_[index1][index2] = new DdbEntity({ path: key, tables })
+                set_grouped_tree_data(grouped_tree_data_)
+            }else{
+                const [index] = index_of_path_in_grouped_tree_data.get(key)
+                const grouped_tree_data_ = grouped_tree_data
+                grouped_tree_data_[index] = new DdbEntity({ path: key, tables }).to_tree_data_item(on_menu)
+                set_grouped_tree_data(grouped_tree_data_)
+            }
             
             
         } catch (error) {
@@ -1603,18 +1632,18 @@ function DBs () {
             
             const [part1, part2] = key.slice(6).split('.')
             
-            const wihch_group_the_key_belong_to = grouped_tree_data.map(x=>{
-                return x.key
-            }).findIndex(x=>x === `group-${part1}`)
             
-            const which_DbEntity_the_key_match = (grouped_tree_data[wihch_group_the_key_belong_to].children as unknown as DdbEntity[]).map(
-                x => x.path
-            ).findIndex(x=> x===part1 )
-            
-            const grouped_tree_data_ = grouped_tree_data
-            grouped_tree_data_[wihch_group_the_key_belong_to][which_DbEntity_the_key_match] = new DdbEntity({ path: key, empty: true })
-            
-            set_grouped_tree_data(grouped_tree_data_)
+            if (part2){
+                const [index1, index2] = index_of_path_in_grouped_tree_data.get(key)
+                const grouped_tree_data_ = grouped_tree_data
+                grouped_tree_data_[index1][index2] = new DdbEntity({ path: key, empty:true })
+                set_grouped_tree_data(grouped_tree_data_)
+            }else{
+                const [index] = index_of_path_in_grouped_tree_data.get(key)
+                const grouped_tree_data_ = grouped_tree_data
+                grouped_tree_data_[index] = new DdbEntity({ path: key, empty:true }).to_tree_data_item(on_menu)
+                set_grouped_tree_data(grouped_tree_data_)
+            }
             
             set_loaded_keys([...loaded_keys, key])
             message.error(errmsg)
