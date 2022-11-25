@@ -52,7 +52,18 @@ export class DdbModel extends Model<DdbModel> {
     options?: InspectOptions
     
     /** 是否显示顶部导航栏，传 header=0 时隐藏，便于嵌入 web 页面 */
-    header = new URLSearchParams(location.search).get('header') !== '0'
+    header: boolean
+    
+    /** 是否在代码为空时设置代码模板 */
+    code_template: boolean
+    
+    
+    constructor () {
+        super()
+        const params = new URLSearchParams(location.search)
+        this.header = params.get('header') !== '0'
+        this.code_template = params.get('code-template') === '1'
+    }
     
     
     async init () {

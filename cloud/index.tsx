@@ -1,7 +1,6 @@
 import 'antd/dist/antd.css'
 
 import 'xshell/scroll-bar.sass'
-import '../myfont.sass'
 
 import './index.sass'
 
