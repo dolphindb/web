@@ -1702,7 +1702,7 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
     const [nfs_form] = Form.useForm()
     const [s3_form] = Form.useForm()
 
-    const not_required = new Set(['provider'])
+    const not_required = new Set(['provider', 'endpoint', 'region'])
     const form_object = { 'nfs': nfs_form, 's3': s3_form }
     useEffect(() => {
         (async () => {
@@ -1831,7 +1831,7 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                                 <Input />
                             </Form.Item>
                         ].concat(
-                        ['provider', 'accessKey', 'secretAccessKey', 'endpoint'].map(
+                        ['provider', 'region', 'accessKey', 'secretAccessKey', 'endpoint'].map(
                             (x) => {
                                 return !(x === 'provider') ? <Form.Item
                                     name={x}
@@ -1982,6 +1982,12 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                                                         </Descriptions.Item>
 
                                                         <Descriptions.Item
+                                                            label={translate_dict['region']}
+                                                        >
+                                                            {sourceKey_detail[data.sourceKey]['region']}
+                                                        </Descriptions.Item>
+                                                        
+                                                        <Descriptions.Item
                                                             label={translate_dict['accessKey']}
                                                         >
                                                             {sourceKey_detail[data.sourceKey]['accessKey']}
@@ -2084,6 +2090,7 @@ const translate_dict = {
     restores: t('还原'),
     endpoint: t('服务地址'),
     provider: t('供应商'),
+    region: t('区域'),
     accessKey: t('访问密钥'),
     secretAccessKey: t('加密密钥'),
     path: t('共享目录', { context: 'backup' }),
@@ -2495,6 +2502,12 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
                                                                                         label={translate_dict['provider']}
                                                                                     >
                                                                                         {sourceKey_detail[x]['provider']}
+                                                                                    </Descriptions.Item>
+                                                                                    
+                                                                                    <Descriptions.Item
+                                                                                        label={translate_dict['region']}
+                                                                                    >
+                                                                                        {sourceKey_detail[x]['region']}
                                                                                     </Descriptions.Item>
 
                                                                                     <Descriptions.Item
@@ -2965,6 +2978,12 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => 
                                         label={translate_dict['provider']}
                                     >
                                         {sourceKey_detail[sourceKey_detail_modal_name]['provider']}
+                                    </Descriptions.Item>
+                                    
+                                    <Descriptions.Item
+                                        label={translate_dict['region']}
+                                    >
+                                        {sourceKey_detail[sourceKey_detail_modal_name]['region']}
                                     </Descriptions.Item>
 
                                     <Descriptions.Item

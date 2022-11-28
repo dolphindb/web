@@ -1150,5 +1150,8 @@
     },
     "储存临时备份文件的储存卷名称": {
         "en": "The name of the storage volume where temporary backup files are stored"
+    },
+    "区域": {
+        "en": "Region"
     }
 }
