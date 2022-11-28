@@ -155,6 +155,10 @@ class ShellModel extends Model<ShellModel> {
             dbs.set(path, new DdbEntity({ path }))
             
         // LOCAL: OFF 测试虚拟滚动
+        // for (let i = 0;  i < 10000;  i++) {
+        //     const path = `dfs://mockdb${i}`
+        //     dbs.set(path, new DdbEntity({ path }))
+        // }
          for (let i = 0;  i <100 ;  i++) {
             for (let j =0; j< 500; j++){
                 const path = `dfs://${i}.${j}`
