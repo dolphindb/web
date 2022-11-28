@@ -1444,6 +1444,7 @@ class DdbEntity {
     constructor(data: Partial<DdbEntity>) {
         Object.assign(this, data)
         const [part1, part2] = this.path.slice(6).split('.')
+        // dfs://a.b   ->   [part1, part2] = [a, b]
         this.path_part1 = part1
         this.path_part2 = part2
     }
@@ -1541,7 +1542,7 @@ function DBs () {
     }, [menu])
     
     useEffect(()=>{
-        if(!model_dbs ){
+        if(!model_dbs){
             return
         }
         
@@ -1549,27 +1550,25 @@ function DBs () {
         
         //  dfs://a.b形式的库将会被归入group_with_path_part2   dfs://xxx的普通数据库将会被归入dbs_without_path_part2
                 
-        const group_with_path_part2 :TreeDataItem[] = []
+        const group_with_path_part2: TreeDataItem[] = []
         const dbs_without_path_part2: TreeDataItem[] = []
         
         //记录某个group底下有哪些数据库
         const part1_group_map: Map<string, DdbEntity[]> = new Map()
         
         
-        for (let i=0; i<dbs_.length; i++){
+        for (let i = 0; i < dbs_.length; i++){
             const [part1, part2] = dbs_[i].path.slice(6).split('.')
             
             if (!part2){
                 dbs_without_path_part2.push(dbs_[i].to_tree_data_item(on_menu))
-                continue;
+                continue
             }
             
-            if (!part1_group_map.get(part1)){
+            if (!part1_group_map.get(part1))
                 part1_group_map.set(part1, [dbs_[i]])
-            }
-            else{
+            else
                 part1_group_map.set(part1, part1_group_map.get(part1).concat([dbs_[i]]))
-            }
         }
         
         for (let i of part1_group_map.keys()){
@@ -1589,13 +1588,10 @@ function DBs () {
         for (let i=0; i<tree_data.length; i++){
             if (tree_data[i].key.startsWith('group-')){
                 const children_length = tree_data[i].children.length
-                for (let j=0; j<children_length; j++){
+                for (let j=0; j<children_length; j++)
                     index_of_path_in_grouped_tree_data.set(tree_data[i].children[j].key, [i,j])
-                }
-                
-            }else{
+            }else
                 index_of_path_in_grouped_tree_data.set(tree_data[i].key, [i])
-            }
         }
         
         set_index_of_path_in_grouped_tree_data(index_of_path_in_grouped_tree_data)
@@ -1633,34 +1629,29 @@ function DBs () {
             set_loaded_keys([...loaded_keys, key])
             message.error(errmsg)
             shell.term.writeln(red(errmsg))
-            
             if_error_when_fetching_tables = 1
             err = error
         } finally{
-            
             const [part1, part2] = key.slice(6).split('.')
-            
             if (part2){
                 const [index1, index2] = index_of_path_in_grouped_tree_data.get(key)
                 const grouped_tree_data_ = [...tree_data]
                 grouped_tree_data_[index1][index2] = 
                     tables_?
-                    new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu):
-                    new DdbEntity({ path: key, empty:true }).to_tree_data_item(on_menu)
+                        new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu):
+                        new DdbEntity({ path: key, empty:true }).to_tree_data_item(on_menu)
                 
                 set_tree_data(grouped_tree_data_)
-                
             }else{
                 const [index] = index_of_path_in_grouped_tree_data.get(key)
                 const grouped_tree_data_ = [...tree_data]
                 grouped_tree_data_[index] = 
                     tables_?
-                    new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu):
-                    new DdbEntity({ path: key, empty:true }).to_tree_data_item(on_menu)
+                        new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu):
+                        new DdbEntity({ path: key, empty:true }).to_tree_data_item(on_menu)
                     
                 set_tree_data(grouped_tree_data_)
             }
-            
             if (if_error_when_fetching_tables)
                 throw err
         }
