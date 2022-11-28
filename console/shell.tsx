@@ -155,13 +155,12 @@ class ShellModel extends Model<ShellModel> {
             dbs.set(path, new DdbEntity({ path }))
             
         // LOCAL: OFF 测试虚拟滚动
-         for (let i = 0;  i < 3;  i++) {
-            for (let j =0; j< 3; j++){
+         for (let i = 0;  i <100 ;  i++) {
+            for (let j =0; j< 500; j++){
                 const path = `dfs://${i}.${j}`
                 const tables = [new TableEntity({name: `table_of_${i}_${j}`, ddb_path:path, labels:['sdsadfs'], column_schema:[{name:'Id', type:5}]})]
                 dbs.set(path, new DdbEntity({ path ,tables}))
             }
-
          }
         
         this.set({ dbs })
@@ -1522,7 +1521,18 @@ function DBs () {
     const [loaded_keys, set_loaded_keys] = useState([])
     const [menu, on_menu] = useState<ContextMenu | null>()
     const [selected_keys, set_selected_keys] = useState([])
-    const [grouped_tree_data, set_grouped_tree_data] = useState<TreeDataItem[]>([])
+    
+    /*
+        tree_data每个节点都是一个DdbEntity或者TableEntity, 在构造tree_data时会调用to_tree_data_item将上述entity转化为真正的TreeDataItem
+        
+        当库/表很多的时候，如果更新其中一项就要重新构造整个tree_data的话就会发生很多次不必要的to_tree_data_item调用
+        
+        此处做一个缓存操作，tree_data只会在首次加载组件时完成一次从头到尾的构建，并构造一个map，键是TreeDataItem的key，值是这个TreeDataItem在树中的位置position
+        
+        每次展开一个树节点时，会调用load_data, 读取当前正在操作的key，更新TreeDataItem。通过treeData[position] = new_TreeDataItem的方式更新树。这样每次调用load_data就只会发生一次to_tree_data_item调用
+    */
+   
+    const [tree_data, set_tree_data] = useState<TreeDataItem[]>([])
     const [index_of_path_in_grouped_tree_data, set_index_of_path_in_grouped_tree_data] = useState<Map<string, number[]>>(new Map())
     
     useEffect(() => {
@@ -1534,14 +1544,19 @@ function DBs () {
         if(!model_dbs ){
             return
         }
-        const performance_start = performance.now()
+        
         const dbs_ = Array.from(model_dbs.values())
-        var group_with_path_part2 :TreeDataItem[] = []
-        const prefix_group_map: Map<string, DdbEntity[]> = new Map()
+        
+        //  dfs://a.b形式的库将会被归入group_with_path_part2   dfs://xxx的普通数据库将会被归入dbs_without_path_part2
+                
+        const group_with_path_part2 :TreeDataItem[] = []
         const dbs_without_path_part2: TreeDataItem[] = []
         
+        //记录某个group底下有哪些数据库
+        const part1_group_map: Map<string, DdbEntity[]> = new Map()
+        
+        
         for (let i=0; i<dbs_.length; i++){
-            //    dfs://a.b
             const [part1, part2] = dbs_[i].path.slice(6).split('.')
             
             if (!part2){
@@ -1549,20 +1564,20 @@ function DBs () {
                 continue;
             }
             
-            if (!prefix_group_map.get(part1)){
-                prefix_group_map.set(part1, [dbs_[i]])
+            if (!part1_group_map.get(part1)){
+                part1_group_map.set(part1, [dbs_[i]])
             }
             else{
-                prefix_group_map.set(part1, prefix_group_map.get(part1).concat([dbs_[i]]))
+                part1_group_map.set(part1, part1_group_map.get(part1).concat([dbs_[i]]))
             }
         }
         
-        for (let i of prefix_group_map.keys()){
+        for (let i of part1_group_map.keys()){
             const new_group = new TreeDataItem(
                 `dfs://${i}`,
                 `group-${i}`,
                 <FolderOutlined className='antd-icon-to-blue'/>,
-                prefix_group_map.get(i).map(
+                part1_group_map.get(i).map(
                     ddb_entity => ddb_entity.to_tree_data_item(on_menu)
                 ),
             )
@@ -1582,12 +1597,11 @@ function DBs () {
                 index_of_path_in_grouped_tree_data.set(tree_data[i].key, [i])
             }
         }
-        const performance_end = performance.now()
         
-        console.log(`Performance: ${performance_end-performance_start} ms`)
         set_index_of_path_in_grouped_tree_data(index_of_path_in_grouped_tree_data)
         
-        set_grouped_tree_data(tree_data)
+        set_tree_data(tree_data)
+        
     },[model_dbs])
     
     if (!model_dbs)
@@ -1597,6 +1611,9 @@ function DBs () {
         if (!needLoad)
             return
         
+        var if_error_when_fetching_tables = 0
+        var err = null
+        var tables_ = null
         try {
             const tables = (await ddb.eval<DdbObj<DdbObj[]>>(`each(def (x): loadTable("${key}", x, memoryMode=false), getTables(database("${key}")))`))
                 .value.map(tb =>
@@ -1607,51 +1624,48 @@ function DBs () {
                     })
                 )
             
-            const [part1, part2] = key.slice(6).split('.')
-            
-            
-            if (part2){
-                const [index1, index2] = index_of_path_in_grouped_tree_data.get(key)
-                const grouped_tree_data_ = grouped_tree_data
-                grouped_tree_data_[index1][index2] = new DdbEntity({ path: key, tables })
-                set_grouped_tree_data(grouped_tree_data_)
-            }else{
-                const [index] = index_of_path_in_grouped_tree_data.get(key)
-                const grouped_tree_data_ = grouped_tree_data
-                grouped_tree_data_[index] = new DdbEntity({ path: key, tables }).to_tree_data_item(on_menu)
-                set_grouped_tree_data(grouped_tree_data_)
-            }
-            
-            
+                tables_ = tables
         } catch (error) {
             let i = (error.message as string).indexOf('<NotAuthenticated>')
             if (i === -1)
                 i = (error.message as string).indexOf('<NoPrivilege>')
             const errmsg = i === -1 ? error.message as string : (error.message as string).slice(i)
-
-            
-            const [part1, part2] = key.slice(6).split('.')
-            
-            
-            if (part2){
-                const [index1, index2] = index_of_path_in_grouped_tree_data.get(key)
-                const grouped_tree_data_ = grouped_tree_data
-                grouped_tree_data_[index1][index2] = new DdbEntity({ path: key, empty:true })
-                set_grouped_tree_data(grouped_tree_data_)
-            }else{
-                const [index] = index_of_path_in_grouped_tree_data.get(key)
-                const grouped_tree_data_ = grouped_tree_data
-                grouped_tree_data_[index] = new DdbEntity({ path: key, empty:true }).to_tree_data_item(on_menu)
-                set_grouped_tree_data(grouped_tree_data_)
-            }
-            
             set_loaded_keys([...loaded_keys, key])
             message.error(errmsg)
             shell.term.writeln(red(errmsg))
-            throw error
+            
+            if_error_when_fetching_tables = 1
+            err = error
+        } finally{
+            
+            const [part1, part2] = key.slice(6).split('.')
+            
+            if (part2){
+                const [index1, index2] = index_of_path_in_grouped_tree_data.get(key)
+                const grouped_tree_data_ = [...tree_data]
+                grouped_tree_data_[index1][index2] = 
+                    tables_?
+                    new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu):
+                    new DdbEntity({ path: key, empty:true }).to_tree_data_item(on_menu)
+                
+                set_tree_data(grouped_tree_data_)
+                
+            }else{
+                const [index] = index_of_path_in_grouped_tree_data.get(key)
+                const grouped_tree_data_ = [...tree_data]
+                grouped_tree_data_[index] = 
+                    tables_?
+                    new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu):
+                    new DdbEntity({ path: key, empty:true }).to_tree_data_item(on_menu)
+                    
+                set_tree_data(grouped_tree_data_)
+            }
+            
+            if (if_error_when_fetching_tables)
+                throw err
         }
     }
-        
+    
     
     return <div className='database-panel'>
         <div className='type'>
@@ -1688,7 +1702,7 @@ function DBs () {
                 // 启用虚拟滚动
                 height={256}
                 treeData={
-                    grouped_tree_data
+                    tree_data
                 }
                 loadData={load_data}
                 onLoad={keys => {
