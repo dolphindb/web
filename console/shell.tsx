@@ -1539,7 +1539,7 @@ function DBs () {
     */
    
     const [tree_data, set_tree_data] = useState<TreeDataItem[]>([])
-    const [index_of_path_in_grouped_tree_data, set_index_of_path_in_grouped_tree_data] = useState<Map<string, number[]>>(new Map())
+    const index_of_path_in_grouped_tree_data = useRef<Map<string, number[]>>(new Map())
     
     useEffect(() => {
         if (menu?.key)
@@ -1595,12 +1595,10 @@ function DBs () {
             if (tree_data[i].key.startsWith('group-')){
                 const children_length = tree_data[i].children.length
                 for (let j=0; j<children_length; j++)
-                    index_of_path_in_grouped_tree_data.set(tree_data[i].children[j].key, [i,j])
+                    index_of_path_in_grouped_tree_data.current.set(tree_data[i].children[j].key, [i,j])
             }else
-                index_of_path_in_grouped_tree_data.set(tree_data[i].key, [i])
+                index_of_path_in_grouped_tree_data.current.set(tree_data[i].key, [i])
         }
-        
-        set_index_of_path_in_grouped_tree_data(index_of_path_in_grouped_tree_data)
         
         set_tree_data(tree_data)
         
@@ -1640,14 +1638,14 @@ function DBs () {
             
             const grouped_tree_data_ = [...tree_data]
             if (part2){
-                const [index1, index2] = index_of_path_in_grouped_tree_data.get(key)
+                const [index1, index2] = index_of_path_in_grouped_tree_data.current.get(key)
                 grouped_tree_data_[index1][index2] = 
                     tables_?
                         new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu):
                         new DdbEntity({ path: key, empty:true }).to_tree_data_item(on_menu)
                 
             }else{
-                const [index] = index_of_path_in_grouped_tree_data.get(key)
+                const [index] = index_of_path_in_grouped_tree_data.current.get(key)
                 grouped_tree_data_[index] = 
                     tables_?
                         new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu):
