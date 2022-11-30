@@ -14,7 +14,7 @@ html, body
         height: 100%
     
     .header
-        padding: 0px 20px
+        padding: 0px 10px
         height: 40px
         line-height: 40px
         
@@ -47,6 +47,7 @@ html, body
                 margin-right: 6px
             
         .logo
+            margin-left: 5px
             width: 90px
             height: 40px
         
@@ -144,6 +145,7 @@ html, body
                 
                 .text
                     margin-top: 1px
+                    color: #707070
                 
                 &:hover
                     background-color: #e6e6e6
@@ -156,6 +158,8 @@ html, body
                 &.collapsed
                     .collapse-icon
                         flex: 1
+                        display: flex
+                        justify-content: center
             
             .ant-layout-sider-trigger
                 background: #fafafa
@@ -173,22 +177,22 @@ html, body
                 
                 color: #707070
                 
+                &.ant-menu-inline-collapsed
+                    width: 50px
+                
                 .icon-menu
                     font-size: 16px
                     color: #707070
+                    display: flex
+                    align-items: center
+                    justify-content: center
+                    height: 100%
                 
                 .ant-menu-item
-                    margin-top: unset
-                    margin-bottom: unset
-                    width: 100%
-                    
-                .ant-menu-item:not(:last-child)
-                    margin-top: unset
-                    margin-bottom: unset
+                    padding-inline: unset
                 
-                .ant-menu-submenu-title
-                    margin-top: unset
-                    margin-bottom: unset
+                .ant-menu-item-selected::after
+                    transform: none
                 
                 .ant-menu-item-selected
                     .icon-menu
@@ -198,9 +202,6 @@ html, body
                     color: #2e2e2e
                     font-weight: bold
                     
-                .ant-menu-item::after
-                    border-right: 4px solid #707070
-                
                 .ant-menu-item:hover
                     color: #2e2e2e
                     background-color: #e6e6e6
@@ -237,7 +238,9 @@ html, body
     
 .head-bar-info
     .ant-card
-        &-head-title
+        box-shadow: unset
+        
+        .ant-card-head-title
             font-weight: bold
     
     .license-card

@@ -5,8 +5,10 @@ import './shell.sass'
 
 import { default as React, useRef, useEffect, useState } from 'react'
 
-import { PageHeader, Typography } from 'antd'
+import { Typography } from 'antd'
 const { Title } = Typography
+
+import { PageHeader } from '@ant-design/pro-layout'
 
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'

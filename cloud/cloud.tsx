@@ -18,7 +18,6 @@ import {
     message, 
     Tooltip, 
     Popconfirm, 
-    PageHeader, 
     Descriptions,
     Tabs,
     Layout,
@@ -32,8 +31,11 @@ import {
     Empty,
     Popover,
 } from 'antd'
+
+import { PageHeader } from '@ant-design/pro-layout'
+
 import { InboxOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
-import type { PresetStatusColorType } from 'antd/lib/_util/colors.js'
+import type { PresetStatusColorType } from 'antd/es/_util/colors.js'
 import type { AlignType } from 'rc-table/lib/interface.js'
 
 import { delay } from 'xshell/utils.browser.js'
@@ -77,7 +79,7 @@ function ClusterDetail () {
     
     const { name } = cluster
 
-    const [field, set_field] = useState<FieldType>('info') 
+    const [field, set_field] = useState<FieldType>('info')
 
     const fields : FieldType[] = ['info', 'config', 'monitor', 'backup']
 
@@ -1702,7 +1704,7 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
     const [nfs_form] = Form.useForm()
     const [s3_form] = Form.useForm()
 
-    const not_required = new Set(['provider'])
+    const not_required = new Set(['provider', 'endpoint', 'region'])
     const form_object = { 'nfs': nfs_form, 's3': s3_form }
     useEffect(() => {
         (async () => {
@@ -1831,7 +1833,7 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                                 <Input />
                             </Form.Item>
                         ].concat(
-                        ['provider', 'accessKey', 'secretAccessKey', 'endpoint'].map(
+                        ['provider', 'region', 'accessKey', 'secretAccessKey', 'endpoint'].map(
                             (x) => {
                                 return !(x === 'provider') ? <Form.Item
                                     name={x}
@@ -1982,6 +1984,12 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                                                         </Descriptions.Item>
 
                                                         <Descriptions.Item
+                                                            label={translate_dict['region']}
+                                                        >
+                                                            {sourceKey_detail[data.sourceKey]['region']}
+                                                        </Descriptions.Item>
+                                                        
+                                                        <Descriptions.Item
                                                             label={translate_dict['accessKey']}
                                                         >
                                                             {sourceKey_detail[data.sourceKey]['accessKey']}
@@ -2084,6 +2092,7 @@ const translate_dict = {
     restores: t('还原'),
     endpoint: t('服务地址'),
     provider: t('供应商'),
+    region: t('区域'),
     accessKey: t('访问密钥'),
     secretAccessKey: t('加密密钥'),
     path: t('共享目录', { context: 'backup' }),
@@ -2495,6 +2504,12 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
                                                                                         label={translate_dict['provider']}
                                                                                     >
                                                                                         {sourceKey_detail[x]['provider']}
+                                                                                    </Descriptions.Item>
+                                                                                    
+                                                                                    <Descriptions.Item
+                                                                                        label={translate_dict['region']}
+                                                                                    >
+                                                                                        {sourceKey_detail[x]['region']}
                                                                                     </Descriptions.Item>
 
                                                                                     <Descriptions.Item
@@ -2965,6 +2980,12 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => 
                                         label={translate_dict['provider']}
                                     >
                                         {sourceKey_detail[sourceKey_detail_modal_name]['provider']}
+                                    </Descriptions.Item>
+                                    
+                                    <Descriptions.Item
+                                        label={translate_dict['region']}
+                                    >
+                                        {sourceKey_detail[sourceKey_detail_modal_name]['region']}
                                     </Descriptions.Item>
 
                                     <Descriptions.Item

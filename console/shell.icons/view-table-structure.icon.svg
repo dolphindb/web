@@ -1,7 +1,7 @@
-<svg width="14" height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="1" height="13" rx="0.5" fill="#3760F0"/>
-<rect x="9" width="1" height="5" rx="0.5" transform="rotate(90 9 0)" fill="#3760F0"/>
-<rect x="14" y="4" width="1" height="10" rx="0.5" transform="rotate(90 14 4)" fill="#3760F0"/>
-<rect x="11" y="8" width="1" height="7" rx="0.5" transform="rotate(90 11 8)" fill="#3760F0"/>
-<rect x="7" y="12" width="1" height="3" rx="0.5" transform="rotate(90 7 12)" fill="#3760F0"/>
+<svg id="图层_1" data-name="图层 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12.13 12.29">
+    <circle cx="8" cy="8" r="2" fill="none" stroke="#444"/>
+    <line x1="9.71" y1="9.88" x2="11.63" y2="11.79" fill="none" stroke="#444" stroke-linecap="round"/>
+    <path d="M12,8.79V3a2,2,0,0,0-2-2H3A2,2,0,0,0,1,3v7a2,2,0,0,0,2,2H8.79" transform="translate(-0.5 -0.5)" fill="none" stroke="#444" stroke-linecap="round"/>
+    <path d="M1,4H12" transform="translate(-0.5 -0.5)" fill="none" stroke="#444"/>
+    <path d="M4,1V12" transform="translate(-0.5 -0.5)" fill="none" stroke="#444"/>
 </svg>

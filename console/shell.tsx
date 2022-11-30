@@ -9,10 +9,10 @@ import { Resizable } from 're-resizable'
 
 import type { BasicDataNode } from 'rc-tree'
 
-import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button, Switch, Popconfirm } from 'antd'
+import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button, Popconfirm, Switch } from 'antd'
 const { Option } = Select
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined, LoadingOutlined, EyeOutlined, EditOutlined, FolderOutlined } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined, EyeOutlined, EditOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
@@ -81,8 +81,10 @@ import SvgChart from './shell.icons/chart.icon.svg'
 import SvgObject from './shell.icons/object.icon.svg'
 import SvgDatabase from './shell.icons/database.icon.svg'
 import SvgColumn from './shell.icons/column.icon.svg'
-import SvgViewTableStructure from './shell.icons/view-table-structure.icon.svg'
 import SvgAddColumn from './shell.icons/add-column.icon.svg'
+import SvgViewTableStructure from './shell.icons/view-table-structure.icon.svg'
+
+
 import { delta2str, delay } from 'xshell/utils.browser.js'
 import { red, blue, underline } from 'xshell/chalk.browser.js'
 
@@ -144,6 +146,9 @@ class ShellModel extends Model<ShellModel> {
     
     options?: InspectOptions
     
+    
+    executing = false
+    
     dirty = false
     
     confirmation_registered = false
@@ -178,7 +183,7 @@ class ShellModel extends Model<ShellModel> {
             time_start.format('YYYY.MM.DD HH:mm:ss.SSS')
         )
         
-        this.set({status_bar_idle: false})
+        this.set({ executing: true })
         
         try {
             // TEST
@@ -237,7 +242,7 @@ class ShellModel extends Model<ShellModel> {
             this.term.writeln(red(message))
             throw error
         } finally {
-            this.set({status_bar_idle: true})
+            this.set({ executing: false })
         }
     }
     
@@ -427,13 +432,18 @@ let module_code = ''
 function Editor () {
     const { citic, code_template } = model.use(['citic', 'code_template'])
     
+    const { executing } = shell.use(['executing'])
+    
     const [inited, set_inited] = useState(Boolean(shell.editor))
     
-    const [minimap_enable, set_minimap_enable] = useState(false)
+    const [minimap, set_minimap] = useState(() => 
+        localStorage.getItem(storage_keys.minimap) === '1'
+    )
     
-    const [acceptSuggestionOnEnter, set_acceptSuggestionOnEnter] = useState(false)
+    const [enter_completion, set_enter_completion] = useState(() => 
+        localStorage.getItem(storage_keys.enter_completion) === '1'
+    )
     
-    const {status_bar_idle} = shell.use(['status_bar_idle'])
     useEffect(() => {
         (async () => {
             if (inited)
@@ -713,47 +723,56 @@ function Editor () {
     
     return <div className='editor'>
         <div className='toolbar'>
-            <span className='action save' title={t('保存代码至浏览器中')} onClick={save}>
-                <SaveOutlined />
-                <span className='text'>{t('保存')}</span>
-            </span>
-            <span className='action execute' title={t('执行选中代码或光标所在行代码')} onClick={execute}>
-                <CaretRightOutlined />
-                <span className='text'>{t('执行')}</span>
-            </span>
-            <span className='switch-box'>
-                <span className='switch-title'>{t('代码地图')}</span>
-                <Switch size='small'
-                    onChange={() => {
-                        set_minimap_enable(!minimap_enable)
-                    }}
-                ></Switch>
-            </span>
+            <div className='actions'>
+                <span className='action save' title={t('保存代码至浏览器中')} onClick={save}>
+                    <SaveOutlined />
+                    <span className='text'>{t('保存')}</span>
+                </span>
+                <span className='action execute' title={t('执行选中代码或光标所在行代码')} onClick={execute}>
+                    <CaretRightOutlined />
+                    <span className='text'>{t('执行')}</span>
+                </span>
+            </div>
             
-            <span className='switch-box'>
-                <span className='switch-title'>{t('回车补全')}</span>
-                <Switch size='small'
-                    onChange={() => {
-                        set_acceptSuggestionOnEnter(!acceptSuggestionOnEnter)
-                    }}
-                ></Switch>
-            </span>
+            <div className='settings'>
+                <span className='setting'>
+                    <span className='text'>{t('代码地图')}</span>
+                    <Switch
+                        checked={minimap}
+                        size='small'
+                        onChange={ checked => {
+                            set_minimap(checked)
+                            localStorage.setItem(storage_keys.minimap, checked ? '1' : '0')
+                        }} />
+                </span>
+                
+                <span className='setting'>
+                    <span className='text'>{t('回车补全')}</span>
+                    <Switch
+                        checked={enter_completion}
+                        size='small'
+                        onChange={ checked => {
+                            set_enter_completion(checked)
+                            localStorage.setItem(storage_keys.enter_completion, checked ? '1' : '0')
+                        }} />
+                </span>
+            </div>
             
-            <span className='status-bar-box'>
-                {!status_bar_idle ? <Popconfirm
-                        title={t('确定终止计算？')}
-                        onConfirm={async () => {
-                            await ddb.cancel()
-                        }}
+            <div className='padding' />
+            
+            <div className='statuses'>{
+                executing ?
+                    <Popconfirm
+                        title={t('是否取消执行中的作业？')}
+                        okText={t('取消作业')}
+                        cancelText={t('不要取消')}
+                        onConfirm={async () => { await ddb.cancel() }}
                     >
-                        <span className ='status-bar terminate'>{t('终止计算')}
-                            <div className = 'place-holder'></div>
-                            <LoadingOutlined />
-                        </span>
-                    </Popconfirm> 
-                : 
-                    <span className='status-bar idle'>{t('空闲中')}</span>}
-            </span>
+                        <span className='status executing'>{t('执行中')}</span>
+                    </Popconfirm>
+                :
+                    <span className='status idle'>{t('空闲中')}</span>
+            }</div>
         </div>
         
         <MonacoEditor
@@ -766,7 +785,7 @@ function Editor () {
             
             options={{
                 minimap: {
-                    enabled: minimap_enable
+                    enabled: minimap
                 },
                 
                 fontFamily: 'Menlo, \'Ubuntu Mono\', Consolas, PingFangSC, \'Noto Sans CJK SC\', \'Microsoft YaHei\'',
@@ -838,7 +857,7 @@ function Editor () {
                     enabled: false,
                 },
                 
-                acceptSuggestionOnEnter: acceptSuggestionOnEnter ? 'on' : 'off',
+                acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
                 
                 quickSuggestions: {
                     other: true,
@@ -1140,13 +1159,13 @@ interface MenuItem {
     icon?: React.ReactNode
 }
 const table_menu_items: MenuItem[] = [
-    { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema' , icon: <Icon component = {SvgViewTableStructure} /> },
-    { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows', icon: <EyeOutlined className ='antd-icon-to-blue' /> },
-    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn', icon: <Icon component = { SvgAddColumn} /> },
+    { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema', icon: <Icon component={SvgViewTableStructure} /> },
+    { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows', icon: <EyeOutlined /> },
+    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn', icon: <Icon component={SvgAddColumn} /> },
 ]
 
 const column_menu_items: MenuItem[] = [
-    { label: t('编辑'), key: '1', open: true, command: 'EditComment', icon: <EditOutlined className ='antd-icon-to-blue' /> }
+    { label: t('修改注释'), key: '1', open: true, command: 'EditComment', icon: <EditOutlined /> }
 ]
 
 /** 数据库 context menu item 调用 Modal */
@@ -1160,7 +1179,7 @@ const context_menu_function_items = {
     ShowRows: async (triad: DBTriad) => {
         const { database, table } = triad
         try {
-            const ddbobj = await ddb.eval(`select top 100 * from loadTable("${database}","${table}")`)
+            const ddbobj = await ddb.eval(`select top 100 * from loadTable("${database}", "${table}")`)
             ddbobj.name = `${table} (${t('前 100 行')})`
             shell.set({ result: { type: 'object', data: ddbobj } })
         } catch (error) {
@@ -1197,7 +1216,7 @@ function AddColumn ({
     onCancel: () => void
     loadData: ({ key, needLoad }: { key: string, needLoad: boolean }) => void
 }) {
-    const colTypes = [
+    const coltypes = [
         'BOOL',
         'CHAR',
         'SHORT',
@@ -1223,7 +1242,7 @@ function AddColumn ({
         'BLOB',
         'COMPLEX',
         'POINT'
-    ]
+    ] as const
     
     const [form] = Form.useForm()
     const onFinish = async values => {
@@ -1240,32 +1259,32 @@ function AddColumn ({
         form.resetFields()
         onOk()
     }
+    
     const onAbord = () => {
         form.resetFields()
         onCancel()
     }
-    return (
-        <Form name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish} className='db-modal-form'>
-            <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
-                <Input placeholder={t('输入名字')} />
-            </Form.Item>
-            <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型！') }]}>
-                <Select showSearch placeholder={t('选择类型')}>
-                    {colTypes.map(v => (
-                        <Option key={v}>{v}</Option>
-                    ))}
-                </Select>
-            </Form.Item>
-            <Form.Item className='db-modal-content-button-group'>
-                <Button type='primary' htmlType='submit'>
-                    {t('确定')}
-                </Button>
-                <Button htmlType='button' onClick={onAbord}>
-                    {t('取消')}
-                </Button>
-            </Form.Item>
-        </Form>
-    )
+    
+    return <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish}>
+        <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
+            <Input placeholder={t('输入名字')} />
+        </Form.Item>
+        <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型！') }]}>
+            <Select showSearch placeholder={t('选择类型')}>
+                {coltypes.map(v => (
+                    <Option key={v}>{v}</Option>
+                ))}
+            </Select>
+        </Form.Item>
+        <Form.Item className='db-modal-content-button-group'>
+            <Button type='primary' htmlType='submit'>
+                {t('确定')}
+            </Button>
+            <Button htmlType='button' onClick={onAbord}>
+                {t('取消')}
+            </Button>
+        </Form.Item>
+    </Form>
 }
 
 function EditComment ({
@@ -1731,34 +1750,26 @@ function DBModal ({ open, database, table, column, command, loadData }: {
     command: string,
     loadData: ({ key, needLoad }: { key: string, needLoad: boolean }) => void,
 }) {
+    const [is_modal_open, set_is_modal_open] = useState<boolean>(open)
     
     useEffect(() => {
-        setIsModalOpen(open)
+        set_is_modal_open(open)
     }, [open])
     
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(open)
-    
-    const handleOk = async () => {
-        setIsModalOpen(false)
-    }
-    
-    const handleCancel = () => {
-        setIsModalOpen(false)
-    }
-    
-    const ModalContent = context_menu_modal_items[command] || function () {
-        return <div></div>
-    }
+    const ModalContent = context_menu_modal_items[command] || (() => <div />)
     
     const genTitle = (command: string): string => {
         return table_menu_items.find(v => v.command === command)?.label || column_menu_items.find(v => v.command === command)?.label || ''
     }
     
-    return <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel} title={genTitle(command)}>
+    return <Modal className='db-modal' open={is_modal_open} onOk={() => { set_is_modal_open(false) }} onCancel={() => { set_is_modal_open(false) }} title={genTitle(command)}>
         <div className='db-modal-content'>
-            <ModalContent database={database} table={table} column={column}
-                onOk={() => { setIsModalOpen(false) }}
-                onCancel={() => { setIsModalOpen(false) }}
+            <ModalContent
+                database={database}
+                table={table}
+                column={column}
+                onOk={() => { set_is_modal_open(false) }}
+                onCancel={() => { set_is_modal_open(false) }}
                 loadData={loadData} />
         </div>
     </Modal>

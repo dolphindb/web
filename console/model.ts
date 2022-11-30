@@ -13,6 +13,8 @@ export const storage_keys = {
     collapsed: 'ddb.collapsed',
     code: 'ddb.code',
     session: 'ddb.session',
+    minimap: 'ddb.editor.minimap',
+    enter_completion: 'ddb.editor.enter_completion',
 } as const
 
 const username_guest = 'guest' as const
@@ -87,15 +89,15 @@ export class DdbModel extends Model<DdbModel> {
         if (this.citic) {
             console.log(t('当前为中信证券的 web, 启用单点登录'))
             
-            const session = url.searchParams.get('sessionData') || localStorage.getItem(storage_keys.session)
+            const session = url.searchParams.get('mandate_code') || localStorage.getItem(storage_keys.session)
             if (session) {
-                url.searchParams.delete('sessionData')
+                url.searchParams.delete('mandate_code')
                 history.replaceState(null, '', url.toString())
                 await this.login_by_session(session)
             } else if (citic_param)
                 this.set({ logined: true, username: '马世超' })
             else if (is_subpath) {
-                console.log(t('没有 sessionData 参数，将会跳转到登录页'))
+                console.log(t('没有 mandate_code 参数，将会跳转到登录页'))
                 location.pathname = '/'
                 return
             } else
