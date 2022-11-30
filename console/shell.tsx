@@ -163,15 +163,14 @@ class ShellModel extends Model<ShellModel> {
         //     dbs.set(path, new DdbEntity({ path }))
         // }
         
-        /* 测试多级数据库树
-        for (let i = 0;  i <100 ;  i++) {
-            for (let j =0; j< 500; j++){
-                const path = `dfs://${i}.${j}`
-                const tables = [new TableEntity({name: `table_of_${i}_${j}`, ddb_path:path, labels:['sdsadfs'], column_schema:[{name:'Id', type:5}]})]
-                dbs.set(path, new DdbEntity({ path ,tables}))
-            }
-         }
-        */
+        // 测试多级数据库树
+        // for (let i = 0;  i <100 ;  i++) {
+        //     for (let j =0; j< 500; j++){
+        //         const path = `dfs://${i}.${j}`
+        //         const tables = [new TableEntity({name: `table_of_${i}_${j}`, ddb_path:path, labels:['sdsadfs'], column_schema:[{name:'Id', type:5}]})]
+        //         dbs.set(path, new DdbEntity({ path ,tables}))
+        //     }
+        //  }
         
         this.set({ dbs })
     }
@@ -431,7 +430,7 @@ let module_code = ''
 
 
 function Editor () {
-    const { citic, code_template } = model.use(['citic', 'code_template'])
+    const { code_template } = model.use(['code_template'])
     
     const { executing } = shell.use(['executing'])
     
@@ -871,21 +870,7 @@ function Editor () {
                 editor.setValue(
                     module_code || 
                     localStorage.getItem(storage_keys.code) || 
-                    (code_template && citic ? 
-                        'def GTJA_alpha_100 (close, volume) {\n' +
-                        '    return -1 * rowRank(X=mcovar(rowRank(X=close, percent=true), rowRank(X=volume, percent=true), 5), percent=true) \n' +
-                        '}\n' +
-                        '\n' +
-                        "factor_name = 'GTJA_alpha_100'\n" +
-                        "factor_params = { 'WIND.ASHAREEODPRICES': ['S_DQ_CLOSE', 'S_DQ_VOLUME'] }\n" +
-                        'start_date = date(2022.01.01)\n' +
-                        'end_date = today()\n' +
-                        'res = calc_factor(start_date, end_date, factor_name, factor_params)\n' +
-                        "factor_id = save_factor(res, 'ALL', factor_name)\n" +
-                        'print(factor_id)\n' +
-                        '\n'
-                    :
-                        '')
+                    ''
                 )
                 
                 editor.addAction({
@@ -1159,6 +1144,7 @@ interface MenuItem {
     command: string
     icon?: React.ReactNode
 }
+
 const table_menu_items: MenuItem[] = [
     { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema', icon: <Icon component={SvgViewTableStructure} /> },
     { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows', icon: <EyeOutlined /> },
@@ -1468,12 +1454,12 @@ class DdbEntity {
     constructor(data: Partial<DdbEntity>) {
         Object.assign(this, data)
         const [part1, ...part2_] = this.path.slice(6).split('.')
-        const part2 = part2_?.join('.')
+        const part2 = part2_.join('.')
         // dfs://a.b   ->   [part1, part2] = [a, b]
         this.path_part1 = part1
         this.path_part2 = part2
     }
-
+    
     to_tree_data_item (on_menu): TreeDataItem {
         return new TreeDataItem(
             <span className='name'>{this.path_part2 || this.path}</span>,
@@ -1542,20 +1528,20 @@ class TableEntity {
 
 
 function DBs () {
-    const model_dbs = shell.use(['dbs']).dbs
+    const { dbs } = shell.use(['dbs'])
     const [expanded_keys, set_expanded_keys] = useState([])
     const [loaded_keys, set_loaded_keys] = useState([])
     const [menu, on_menu] = useState<ContextMenu | null>()
     const [selected_keys, set_selected_keys] = useState([])
     
     /*
-        tree_data每个节点都是一个DdbEntity或者TableEntity, 在构造tree_data时会调用to_tree_data_item将上述entity转化为真正的TreeDataItem
+        tree_data 每个节点都是一个 DdbEntity 或者 TableEntity, 在构造 tree_data 时会调用 to_tree_data_item 将上述 entity 转化为真正的 TreeDataItem
         
-        当库/表很多的时候，如果更新其中一项就要重新构造整个tree_data的话就会发生很多次不必要的to_tree_data_item调用
+        当库 / 表很多的时候，如果更新其中一项就要重新构造整个 tree_data 的话就会发生很多次不必要的 to_tree_data_item 调用
         
-        此处做一个缓存操作，tree_data只会在首次加载组件时完成一次从头到尾的构建，并构造一个map，键是TreeDataItem的key，值是这个TreeDataItem在树中的位置position
+        此处做一个缓存操作，tree_data 只会在首次加载组件时完成一次从头到尾的构建，并构造一个 map，键是 TreeDataItem 的 key，值是这个 TreeDataItem 在树中的位置 position
         
-        每次展开一个树节点时，会调用load_data, 读取当前正在操作的key，更新TreeDataItem。通过treeData[position] = new_TreeDataItem的方式更新树。这样每次调用load_data就只会发生一次to_tree_data_item调用
+        每次展开一个树节点时，会调用 load_data, 读取当前正在操作的 key，更新 TreeDataItem 。通过 treeData[position] = new_TreeDataItem 的方式更新树。这样每次调用 load_data 就只会发生一次 to_tree_data_item 调用
     */
    
     const [tree_data, set_tree_data] = useState<TreeDataItem[]>([])
@@ -1566,65 +1552,55 @@ function DBs () {
             set_selected_keys([menu.key])
     }, [menu])
     
-    useEffect(()=>{
-        if(!model_dbs){
+    useEffect(() => {
+        if (!dbs) 
             return
-        }
         
-        const dbs_ = [...model_dbs.values()]
+        //  dfs://a.b 形式的库将会被归入 group_with_path_part2   dfs://xxx 的普通数据库将会被归入 dbs_without_path_part2
         
-        //  dfs://a.b形式的库将会被归入group_with_path_part2   dfs://xxx的普通数据库将会被归入dbs_without_path_part2
-                
         const group_with_path_part2: TreeDataItem[] = []
         const dbs_without_path_part2: TreeDataItem[] = []
         
-        //记录某个group底下有哪些数据库
+        // 记录某个 group 底下有哪些数据库
         const part1_group_map: Map<string, DdbEntity[]> = new Map()
         
-        
-        for (let db of dbs_){
+        for (const db of dbs.values()) {
             const [part1, ...part2_] = db.path.slice(6).split('.')
             const part2 = part2_?.join('.')
             
-            if (!part2){
+            if (!part2) {
                 dbs_without_path_part2.push(db.to_tree_data_item(on_menu))
                 continue
             }
             
-            if (!part1_group_map.has(part1))
-                part1_group_map.set(part1, [db])
-            else
-                part1_group_map.get(part1).push(db)
+            if (!part1_group_map.has(part1)) part1_group_map.set(part1, [db])
+            else part1_group_map.get(part1).push(db)
         }
         
-        for (let i of part1_group_map.keys()){
+        for (const key of part1_group_map.keys()) {
             const new_group = new TreeDataItem(
-                <span className='name'>{`dfs://${i}/`}</span>,
-                `group-${i}`,
-                <FolderOutlined className='antd-icon-to-blue'/>,
-                part1_group_map.get(i).map(
-                    ddb_entity => ddb_entity.to_tree_data_item(on_menu)
-                ),
+                <span className='name'>{`dfs://${key}/`}</span>,
+                `group-${key}`,
+                <FolderOutlined className='antd-icon-to-blue' />,
+                part1_group_map.get(key).map(ddb_entity => ddb_entity.to_tree_data_item(on_menu))
             )
             group_with_path_part2.push(new_group)
         }
         
         const tree_data = dbs_without_path_part2.concat(group_with_path_part2)
         
-        for (let i=0; i<tree_data.length; i++){
-            if (tree_data[i].key.startsWith('group-')){
+        for (let i = 0; i < tree_data.length; i++) 
+            if (tree_data[i].key.startsWith('group-')) {
                 const children_length = tree_data[i].children.length
-                for (let j=0; j<children_length; j++)
-                    index_of_path_in_grouped_tree_data.current.set(tree_data[i].children[j].key, [i,j])
-            }else
+                for (let j = 0; j < children_length; j++)
+                    index_of_path_in_grouped_tree_data.current.set(tree_data[i].children[j].key, [i, j])
+            } else
                 index_of_path_in_grouped_tree_data.current.set(tree_data[i].key, [i])
-        }
         
         set_tree_data(tree_data)
-        
-    },[model_dbs])
+    }, [dbs])
     
-    if (!model_dbs)
+    if (!dbs)
         return
     
     async function load_data ({ key, needLoad }: Partial<TreeDataItem>) {
@@ -1654,22 +1630,19 @@ function DBs () {
             throw error
         } finally{
             const [part1, ...part2_] = key.slice(6).split('.')
-            const part2 = part2_?.join('.')
+            const part2 = part2_.join('.')
             
             const grouped_tree_data_ = [...tree_data]
-            if (part2){
+            if (part2) {
                 const [index1, index2] = index_of_path_in_grouped_tree_data.current.get(key)
-                grouped_tree_data_[index1][index2] = 
-                    tables_?
-                        new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu):
-                        new DdbEntity({ path: key, empty:true }).to_tree_data_item(on_menu)
-                
-            }else{
+                grouped_tree_data_[index1][index2] = tables_
+                    ? new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu)
+                    : new DdbEntity({ path: key, empty: true }).to_tree_data_item(on_menu)
+            } else {
                 const [index] = index_of_path_in_grouped_tree_data.current.get(key)
-                grouped_tree_data_[index] = 
-                    tables_?
-                        new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu):
-                        new DdbEntity({ path: key, empty:true }).to_tree_data_item(on_menu)
+                grouped_tree_data_[index] = tables_
+                    ? new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu)
+                    : new DdbEntity({ path: key, empty: true }).to_tree_data_item(on_menu)
             }
             
             set_tree_data(grouped_tree_data_)
@@ -1711,9 +1684,7 @@ function DBs () {
                 showLine
                 // 启用虚拟滚动
                 height={256}
-                treeData={
-                    tree_data
-                }
+                treeData={tree_data}
                 loadData={load_data}
                 onLoad={keys => {
                     set_loaded_keys([...keys])

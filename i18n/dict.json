@@ -1156,5 +1156,32 @@
     },
     "this.streaming.data 中的元素应该是 vector": {
         "en": "Elements in this.streaming.data should be vector"
+    },
+    "没有 mandate_code 参数，将会跳转到登录页": {
+        "en": "Without the mandatory_code parameter, it will jump to the login page"
+    },
+    "代码地图": {
+        "en": "Code Map"
+    },
+    "回车补全": {
+        "en": "Enter Completion"
+    },
+    "是否取消执行中的作业？": {
+        "en": "Do you want to cancel the job in progress?"
+    },
+    "取消作业": {
+        "en": "Cancel Job"
+    },
+    "不要取消": {
+        "en": "Do Not Cancel"
+    },
+    "执行中": {
+        "en": "Executing"
+    },
+    "空闲中": {
+        "en": "Idle"
+    },
+    "按 Tab 或 Enter 补全函数\n": {
+        "en": "Press Tab or Enter to complete functions\n"
     }
 }
