@@ -402,6 +402,13 @@ function DdbSider () {
                     icon: <MenuIcon view='shell' />,
                     label: t('交互编程'),
                 },
+                
+                // {
+                //    key: 'dashboard',
+                //    icon: <MenuIcon view='dashboard' />,
+                //    label: t('数据看板')
+                // },
+                
                 // {
                 //     key: 'data',
                 //     label: t('数据'),
