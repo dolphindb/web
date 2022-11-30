@@ -430,7 +430,7 @@ let module_code = ''
 
 
 function Editor () {
-    const { citic, code_template } = model.use(['citic', 'code_template'])
+    const { code_template } = model.use(['code_template'])
     
     const { executing } = shell.use(['executing'])
     
@@ -870,21 +870,7 @@ function Editor () {
                 editor.setValue(
                     module_code || 
                     localStorage.getItem(storage_keys.code) || 
-                    (code_template && citic ? 
-                        'def GTJA_alpha_100 (close, volume) {\n' +
-                        '    return -1 * rowRank(X=mcovar(rowRank(X=close, percent=true), rowRank(X=volume, percent=true), 5), percent=true) \n' +
-                        '}\n' +
-                        '\n' +
-                        "factor_name = 'GTJA_alpha_100'\n" +
-                        "factor_params = { 'WIND.ASHAREEODPRICES': ['S_DQ_CLOSE', 'S_DQ_VOLUME'] }\n" +
-                        'start_date = date(2022.01.01)\n' +
-                        'end_date = today()\n' +
-                        'res = calc_factor(start_date, end_date, factor_name, factor_params)\n' +
-                        "factor_id = save_factor(res, 'ALL', factor_name)\n" +
-                        'print(factor_id)\n' +
-                        '\n'
-                    :
-                        '')
+                    ''
                 )
                 
                 editor.addAction({
