@@ -163,6 +163,9 @@ const authorizations = {
 function License () {
     const { version, license } = model.use(['version', 'license'])
     
+    if (!license)
+        return
+    
     const auth = authorizations[license.authorization] || license.authorization
     
     return <Popover

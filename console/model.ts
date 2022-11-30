@@ -92,6 +92,7 @@ export class DdbModel extends Model<DdbModel> {
             await this.check_leader_and_redirect()
         })()
         
+        this.get_license()
         
         this.goto_default_view()
         
