@@ -1153,5 +1153,8 @@
     },
     "区域": {
         "en": "Region"
+    },
+    "this.streaming.data 中的元素应该是 vector": {
+        "en": "Elements in this.streaming.data should be vector"
     }
 }

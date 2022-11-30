@@ -1,19 +1,16 @@
-import 'antd/dist/antd.css'
-
 import 'xshell/scroll-bar.sass'
 
 import './index.sass'
 
 import { default as React, useEffect } from 'react'
 import { createRoot as create_root } from 'react-dom/client'
-import {
-    Layout, 
-    ConfigProvider,
-} from 'antd'
-import zh from 'antd/lib/locale/zh_CN.js'
-import en from 'antd/lib/locale/en_US.js'
-import ja from 'antd/lib/locale/ja_JP.js'
-import ko from 'antd/lib/locale/ko_KR.js'
+
+import { ConfigProvider } from 'antd'
+
+import zh from 'antd/locale/zh_CN.js'
+import en from 'antd/locale/en_US.js'
+import ja from 'antd/locale/ja_JP.js'
+import ko from 'antd/locale/ko_KR.js'
 
 import { model } from './model.js'
 

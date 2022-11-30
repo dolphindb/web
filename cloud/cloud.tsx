@@ -18,7 +18,6 @@ import {
     message, 
     Tooltip, 
     Popconfirm, 
-    PageHeader, 
     Descriptions,
     Tabs,
     Layout,
@@ -32,8 +31,11 @@ import {
     Empty,
     Popover,
 } from 'antd'
+
+import { PageHeader } from '@ant-design/pro-layout'
+
 import { InboxOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
-import type { PresetStatusColorType } from 'antd/lib/_util/colors.js'
+import type { PresetStatusColorType } from 'antd/es/_util/colors.js'
 import type { AlignType } from 'rc-table/lib/interface.js'
 
 import { delay } from 'xshell/utils.browser.js'
@@ -77,7 +79,7 @@ function ClusterDetail () {
     
     const { name } = cluster
 
-    const [field, set_field] = useState<FieldType>('info') 
+    const [field, set_field] = useState<FieldType>('info')
 
     const fields : FieldType[] = ['info', 'config', 'monitor', 'backup']
 

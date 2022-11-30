@@ -1,5 +1,3 @@
-import 'antd/dist/antd.css'
-
 import 'xshell/scroll-bar.sass'
 
 import './index.sass'
@@ -47,10 +45,10 @@ import {
 } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
-import zh from 'antd/lib/locale/zh_CN.js'
-import en from 'antd/lib/locale/en_US.js'
-import ja from 'antd/lib/locale/ja_JP.js'
-import ko from 'antd/lib/locale/ko_KR.js'
+import zh from 'antd/locale/zh_CN.js'
+import en from 'antd/locale/en_US.js'
+import ja from 'antd/locale/ja_JP.js'
+import ko from 'antd/locale/ko_KR.js'
 
 import { date2str } from 'dolphindb/browser.js'
 
@@ -398,7 +396,7 @@ function DdbSider () {
     const { view, node_type, collapsed } = model.use(['view', 'node_type', 'collapsed'])
     
     return <Layout.Sider
-        width={130}
+        width={120}
         className='sider'
         theme='light'
         collapsible
@@ -424,7 +422,7 @@ function DdbSider () {
             onSelect={({ key }) => {
                 model.set({ view: key as DdbModel['view'] })
             }}
-            inlineIndent={20}
+            inlineIndent={10}
             items={[
                 // {
                 //     key: 'overview',
@@ -499,7 +497,7 @@ function Settings () {
             return { value: null, status: 'error' }
         
         const num = Number(text)
-        if (num === NaN) 
+        if (Number.isNaN(num)) 
             return { value: null, status: 'error' }
         
         if (num < 0 || num > 20) 

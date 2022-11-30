@@ -13,6 +13,8 @@ export const storage_keys = {
     collapsed: 'ddb.collapsed',
     code: 'ddb.code',
     session: 'ddb.session',
+    minimap: 'ddb.editor.minimap',
+    enter_completion: 'ddb.editor.enter_completion',
 } as const
 
 const username_guest = 'guest' as const

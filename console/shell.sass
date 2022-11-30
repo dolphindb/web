@@ -40,7 +40,7 @@
             .type
                 display: flex
                 justify-content: space-between
-                padding: 0px 10px
+                padding: 4px 10px
                 background-color: #f0f0f0
                 color: #000000
                 font-size: 14px
@@ -193,19 +193,42 @@
                         background-color: #f0f0f0
                         box-shadow: inset -1px -2px 0 #e5e5e5
                         
-                        padding: 0px 10px
+                        padding: 4px 10px
                         
-                        .action
-                            cursor: pointer
+                        color: #444444
+                        
+                        .actions
+                            .action
+                                cursor: pointer
+                                
+                                margin-right: 12px
+                                
+                                .text
+                                    margin-left: 6px
+                        
+                            .action.execute
+                                .text
+                                    margin-left: 2px
+                        
+                        .settings
+                            margin-left: 24px
                             
-                            margin-right: 12px
+                            .setting
+                                margin-right: 16px
+                                
+                                .text
+                                    margin-right: 6px
+                        
+                        .padding
+                            flex: 1
+                        
+                        .statuses
+                            user-select: none
                             
-                            .text
-                                margin-left: 6px
-                    
-                        .action.execute
-                            .text
-                                margin-left: 2px
+                            .status.executing
+                                color: #c72e0f
+                                cursor: pointer
+                        
                     
                     .monaco-editor
                         .line-numbers
@@ -248,23 +271,25 @@
 .ant-modal-mask
     background-color: unset
 
-.ant-modal-content
-    .ant-modal-footer
-        display: none
-    .ant-form-item-label > label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before
-        content: ''
-    
-    .db-modal-content-button-group
-        .ant-col
-            width: 100%
-            max-width: 100%
+.db-modal
+    .ant-modal-content
+        padding: 20px 24px 1px 10px
         
-        .ant-form-item-control-input-content
-            display: flex
-            justify-content: flex-end
-            gap: 10px
+        .ant-modal-footer
+            display: none
         
+        .ant-form-item-label > label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before
+            content: ''
         
-        
+        .db-modal-content-button-group
+            .ant-col
+                width: 100%
+                max-width: 100%
+            
+            .ant-form-item-control-input-content
+                display: flex
+                justify-content: flex-end
+                gap: 10px
+
 .db-context-menu
     background-color: #FFFFFF

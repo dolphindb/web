@@ -9,10 +9,10 @@ import { Resizable } from 're-resizable'
 
 import type { BasicDataNode } from 'rc-tree'
 
-import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button } from 'antd'
+import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button, Popconfirm, Switch } from 'antd'
 const { Option } = Select
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined, EyeOutlined, EditOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
@@ -81,6 +81,8 @@ import SvgChart from './shell.icons/chart.icon.svg'
 import SvgObject from './shell.icons/object.icon.svg'
 import SvgDatabase from './shell.icons/database.icon.svg'
 import SvgColumn from './shell.icons/column.icon.svg'
+import SvgAddColumn from './shell.icons/add-column.icon.svg'
+import SvgViewTableStructure from './shell.icons/view-table-structure.icon.svg'
 
 
 import { delta2str, delay } from 'xshell/utils.browser.js'
@@ -142,6 +144,9 @@ class ShellModel extends Model<ShellModel> {
     
     options?: InspectOptions
     
+    
+    executing = false
+    
     dirty = false
     
     confirmation_registered = false
@@ -168,6 +173,8 @@ class ShellModel extends Model<ShellModel> {
             '\n' +
             time_start.format('YYYY.MM.DD HH:mm:ss.SSS')
         )
+        
+        this.set({ executing: true })
         
         try {
             // TEST
@@ -225,6 +232,8 @@ class ShellModel extends Model<ShellModel> {
                 message = message.replaceAll(/RefId:\s*(\w+)/g, underline(blue('RefId: $1')))
             this.term.writeln(red(message))
             throw error
+        } finally {
+            this.set({ executing: false })
         }
     }
     
@@ -414,8 +423,17 @@ let module_code = ''
 function Editor () {
     const { citic, code_template } = model.use(['citic', 'code_template'])
     
+    const { executing } = shell.use(['executing'])
+    
     const [inited, set_inited] = useState(Boolean(shell.editor))
     
+    const [minimap, set_minimap] = useState(() => 
+        localStorage.getItem(storage_keys.minimap) === '1'
+    )
+    
+    const [enter_completion, set_enter_completion] = useState(() => 
+        localStorage.getItem(storage_keys.enter_completion) === '1'
+    )
     
     useEffect(() => {
         (async () => {
@@ -696,14 +714,56 @@ function Editor () {
     
     return <div className='editor'>
         <div className='toolbar'>
-            <span className='action save' title={t('保存代码至浏览器中')} onClick={save}>
-                <SaveOutlined />
-                <span className='text'>{t('保存')}</span>
-            </span>
-            <span className='action execute' title={t('执行选中代码或光标所在行代码')} onClick={execute}>
-                <CaretRightOutlined />
-                <span className='text'>{t('执行')}</span>
-            </span>
+            <div className='actions'>
+                <span className='action save' title={t('保存代码至浏览器中')} onClick={save}>
+                    <SaveOutlined />
+                    <span className='text'>{t('保存')}</span>
+                </span>
+                <span className='action execute' title={t('执行选中代码或光标所在行代码')} onClick={execute}>
+                    <CaretRightOutlined />
+                    <span className='text'>{t('执行')}</span>
+                </span>
+            </div>
+            
+            <div className='settings'>
+                <span className='setting'>
+                    <span className='text'>{t('代码地图')}</span>
+                    <Switch
+                        checked={minimap}
+                        size='small'
+                        onChange={ checked => {
+                            set_minimap(checked)
+                            localStorage.setItem(storage_keys.minimap, checked ? '1' : '0')
+                        }} />
+                </span>
+                
+                <span className='setting'>
+                    <span className='text'>{t('回车补全')}</span>
+                    <Switch
+                        checked={enter_completion}
+                        size='small'
+                        onChange={ checked => {
+                            set_enter_completion(checked)
+                            localStorage.setItem(storage_keys.enter_completion, checked ? '1' : '0')
+                        }} />
+                </span>
+            </div>
+            
+            <div className='padding' />
+            
+            <div className='statuses'>{
+                executing ?
+                    <Popconfirm
+                        title={t('是否取消执行中的作业？')}
+                        okText={t('取消作业')}
+                        cancelText={t('不要取消')}
+                        onConfirm={async () => { await ddb.cancel() }}
+                    >
+                        <span className='status executing'>{t('执行中')}</span>
+                    </Popconfirm>
+                :
+                    <span className='status idle'>{t('空闲中')}</span>
+            }</div>
         </div>
         
         <MonacoEditor
@@ -716,7 +776,7 @@ function Editor () {
             
             options={{
                 minimap: {
-                    enabled: false
+                    enabled: minimap
                 },
                 
                 fontFamily: 'Menlo, \'Ubuntu Mono\', Consolas, PingFangSC, \'Noto Sans CJK SC\', \'Microsoft YaHei\'',
@@ -788,7 +848,7 @@ function Editor () {
                     enabled: false,
                 },
                 
-                acceptSuggestionOnEnter: 'off',
+                acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
                 
                 quickSuggestions: {
                     other: true,
@@ -982,7 +1042,7 @@ function Term () {
             
             term.writeln(
                 t('左侧编辑器使用指南:\n') +
-                t('按 Tab 补全函数\n') +
+                t('按 Tab 或 Enter 补全函数\n') +
                 t('按 Ctrl + E 执行选中代码或光标所在行代码\n') +
                 t('按 Ctrl + S 保存代码\n') +
                 t('按 Ctrl + D 向下复制行\n') +
@@ -1087,16 +1147,17 @@ interface MenuItem {
     key: string
     open: boolean
     command: string
+    icon?: React.ReactNode
 }
 
 const table_menu_items: MenuItem[] = [
-    { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema' },
-    { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows' },
-    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn' },
+    { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema', icon: <Icon component={SvgViewTableStructure} /> },
+    { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows', icon: <EyeOutlined /> },
+    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn', icon: <Icon component={SvgAddColumn} /> },
 ]
 
 const column_menu_items: MenuItem[] = [
-    { label: t('修改注释'), key: '1', open: true, command: 'EditComment' }
+    { label: t('修改注释'), key: '1', open: true, command: 'EditComment', icon: <EditOutlined /> }
 ]
 
 /** 数据库 context menu item 调用 Modal */
@@ -1110,7 +1171,7 @@ const context_menu_function_items = {
     ShowRows: async (triad: DBTriad) => {
         const { database, table } = triad
         try {
-            const ddbobj = await ddb.eval(`select top 100 * from loadTable("${database}","${table}")`)
+            const ddbobj = await ddb.eval(`select top 100 * from loadTable("${database}", "${table}")`)
             ddbobj.name = `${table} (${t('前 100 行')})`
             shell.set({ result: { type: 'object', data: ddbobj } })
         } catch (error) {
@@ -1147,7 +1208,7 @@ function AddColumn ({
     onCancel: () => void
     loadData: ({ key, needLoad }: { key: string, needLoad: boolean }) => void
 }) {
-    const colTypes = [
+    const coltypes = [
         'BOOL',
         'CHAR',
         'SHORT',
@@ -1173,7 +1234,7 @@ function AddColumn ({
         'BLOB',
         'COMPLEX',
         'POINT'
-    ]
+    ] as const
     
     const [form] = Form.useForm()
     const onFinish = async values => {
@@ -1190,32 +1251,32 @@ function AddColumn ({
         form.resetFields()
         onOk()
     }
+    
     const onAbord = () => {
         form.resetFields()
         onCancel()
     }
-    return (
-        <Form name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish} className='db-modal-form'>
-            <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
-                <Input placeholder={t('输入名字')} />
-            </Form.Item>
-            <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型！') }]}>
-                <Select showSearch placeholder={t('选择类型')}>
-                    {colTypes.map(v => (
-                        <Option key={v}>{v}</Option>
-                    ))}
-                </Select>
-            </Form.Item>
-            <Form.Item className='db-modal-content-button-group'>
-                <Button type='primary' htmlType='submit'>
-                    {t('确定')}
-                </Button>
-                <Button htmlType='button' onClick={onAbord}>
-                    {t('取消')}
-                </Button>
-            </Form.Item>
-        </Form>
-    )
+    
+    return <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish}>
+        <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
+            <Input placeholder={t('输入名字')} />
+        </Form.Item>
+        <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型！') }]}>
+            <Select showSearch placeholder={t('选择类型')}>
+                {coltypes.map(v => (
+                    <Option key={v}>{v}</Option>
+                ))}
+            </Select>
+        </Form.Item>
+        <Form.Item className='db-modal-content-button-group'>
+            <Button type='primary' htmlType='submit'>
+                {t('确定')}
+            </Button>
+            <Button htmlType='button' onClick={onAbord}>
+                {t('取消')}
+            </Button>
+        </Form.Item>
+    </Form>
 }
 
 function EditComment ({
@@ -1588,34 +1649,26 @@ function DBModal ({ open, database, table, column, command, loadData }: {
     command: string,
     loadData: ({ key, needLoad }: { key: string, needLoad: boolean }) => void,
 }) {
+    const [is_modal_open, set_is_modal_open] = useState<boolean>(open)
     
     useEffect(() => {
-        setIsModalOpen(open)
+        set_is_modal_open(open)
     }, [open])
     
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(open)
-    
-    const handleOk = async () => {
-        setIsModalOpen(false)
-    }
-    
-    const handleCancel = () => {
-        setIsModalOpen(false)
-    }
-    
-    const ModalContent = context_menu_modal_items[command] || function () {
-        return <div></div>
-    }
+    const ModalContent = context_menu_modal_items[command] || (() => <div />)
     
     const genTitle = (command: string): string => {
         return table_menu_items.find(v => v.command === command)?.label || column_menu_items.find(v => v.command === command)?.label || ''
     }
     
-    return <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel} title={genTitle(command)}>
+    return <Modal className='db-modal' open={is_modal_open} onOk={() => { set_is_modal_open(false) }} onCancel={() => { set_is_modal_open(false) }} title={genTitle(command)}>
         <div className='db-modal-content'>
-            <ModalContent database={database} table={table} column={column}
-                onOk={() => { setIsModalOpen(false) }}
-                onCancel={() => { setIsModalOpen(false) }}
+            <ModalContent
+                database={database}
+                table={table}
+                column={column}
+                onOk={() => { set_is_modal_open(false) }}
+                onCancel={() => { set_is_modal_open(false) }}
                 loadData={loadData} />
         </div>
     </Modal>
