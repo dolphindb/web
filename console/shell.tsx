@@ -12,7 +12,7 @@ import type { BasicDataNode } from 'rc-tree'
 import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button, Popconfirm, Switch } from 'antd'
 const { Option } = Select
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined, EyeOutlined, EditOutlined } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
@@ -142,8 +142,6 @@ class ShellModel extends Model<ShellModel> {
     
     dbs: Map<string, DdbEntity>
     
-    status_bar_idle = true
-    
     options?: InspectOptions
     
     
@@ -164,13 +162,16 @@ class ShellModel extends Model<ShellModel> {
         //     const path = `dfs://mockdb${i}`
         //     dbs.set(path, new DdbEntity({ path }))
         // }
-         for (let i = 0;  i <100 ;  i++) {
+        
+        /* 测试多级数据库树
+        for (let i = 0;  i <100 ;  i++) {
             for (let j =0; j< 500; j++){
                 const path = `dfs://${i}.${j}`
                 const tables = [new TableEntity({name: `table_of_${i}_${j}`, ddb_path:path, labels:['sdsadfs'], column_schema:[{name:'Id', type:5}]})]
                 dbs.set(path, new DdbEntity({ path ,tables}))
             }
          }
+        */
         
         this.set({ dbs })
     }
@@ -1306,7 +1307,7 @@ function EditComment ({
         if (database && table && column) 
             try {
                 await ddb.eval(`setColumnComment(loadTable(database("${database}"), "${table}"), { "${column}": "${comment.replaceAll('"', '\\"')}" })`)
-                message.success(t('编辑成功'))
+                message.success(t('修改注释成功'))
             } catch (error) {
                 message.error(error)
             }
@@ -1641,7 +1642,7 @@ function DBs () {
                     })
                 )
             
-                tables_ = tables
+            tables_ = tables
         } catch (error) {
             let i = (error.message as string).indexOf('<NotAuthenticated>')
             if (i === -1)
