@@ -1602,7 +1602,7 @@ function DBs (props:{height:number}) {
         
         for (const key of part1_group_map.keys()) {
             const new_group = new TreeDataItem(
-                <span className='name'>{`dfs://${key}/`}</span>,
+                <span className='name'>{`dfs://${key}`}</span>,
                 `group-${key}`,
                 <FolderOutlined className='antd-icon-to-blue' />,
                 part1_group_map.get(key).map(ddb_entity => ddb_entity.to_tree_data_item(on_menu))
@@ -1658,7 +1658,7 @@ function DBs (props:{height:number}) {
             const grouped_tree_data_ = [...tree_data]
             if (part2) {
                 const [index1, index2] = index_of_path_in_grouped_tree_data.current.get(key)
-                grouped_tree_data_[index1][index2] = tables_
+                grouped_tree_data_[index1].children[index2] = tables_
                     ? new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu)
                     : new DdbEntity({ path: key, empty: true }).to_tree_data_item(on_menu)
             } else {
