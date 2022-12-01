@@ -1069,10 +1069,33 @@ function Term () {
 
 
 function TreeView () {
+    const [db_Height, set_db_Height] = useState(256)
     return <div className='treeview-content'>
-        <div className='databases treeview-split treeview-split1'>
-            <DBs />
-        </div>
+        <Resizable
+            className='treeview-resizable-split treeview-resizable-split1'
+            enable={{
+                top: false,
+                right: false,
+                bottom: true,
+                left: false,
+                topRight: false,
+                bottomRight: false,
+                bottomLeft: false,
+                topLeft: false
+            }}
+            minHeight='22px'
+            handleStyles={{ bottom: { height: 20, bottom: -10 } }}
+            handleClasses={{ bottom: 'resizable-handle' }}
+            onResizeStop={
+                (event, direction, elementRef, delta)=>{
+                    set_db_Height(db_Height + delta.height)
+                }
+            }
+        >
+            <div className='databases treeview-split treeview-split1'>
+                <DBs height={db_Height} />
+            </div>
+        </Resizable>
         <div className='treeview-resizable-split2'>
             <div className='treeview-resizable-split21'>
                 <Variables shared={false} />
@@ -1527,7 +1550,7 @@ class TableEntity {
 }
 
 
-function DBs () {
+function DBs (props:{height:number}) {
     const { dbs } = shell.use(['dbs'])
     const [expanded_keys, set_expanded_keys] = useState([])
     const [loaded_keys, set_loaded_keys] = useState([])
@@ -1683,7 +1706,7 @@ function DBs () {
                 blockNode
                 showLine
                 // 启用虚拟滚动
-                height={256}
+                height={props.height}
                 treeData={tree_data}
                 loadData={load_data}
                 onLoad={keys => {
