@@ -356,7 +356,7 @@ function Perf () {
 }
 
 function DdbSider () {
-    const { view, node_type, collapsed } = model.use(['view', 'node_type', 'collapsed'])
+    const { view, node_type, collapsed, dev } = model.use(['view', 'node_type', 'collapsed', 'dev'])
     
     return <Layout.Sider
         width={120}
@@ -392,7 +392,7 @@ function DdbSider () {
                 //     icon: <AppstoreOutlined />,
                 //     label: t('总览'),
                 // },
-                ... node_type === NodeType.controller ? [{
+                ... (node_type === NodeType.controller || dev) ? [{
                     key: 'cluster',
                     icon: <MenuIcon view='cluster' />,
                     label: t('集群总览'),
@@ -402,6 +402,13 @@ function DdbSider () {
                     icon: <MenuIcon view='shell' />,
                     label: t('交互编程'),
                 },
+                
+                ... dev ? [{
+                       key: 'dashboard',
+                       icon: <MenuIcon view='dashboard' />,
+                       label: t('数据看板')
+                }] : [ ],
+                
                 // {
                 //     key: 'data',
                 //     label: t('数据'),

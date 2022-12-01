@@ -303,7 +303,12 @@ export let webpack = {
         if (!production)
             this.compiler.outputFileSystem = mfs
         
-        await new Promise<Stats>((resolve, reject) => {
+        await this.run()
+    },
+    
+    
+    async run () {
+        return new Promise<Stats>((resolve, reject) => {
             this.compiler.run((error, stats) => {
                 if (stats)
                     console.log(stats.toString(config.stats))
@@ -315,10 +320,6 @@ export let webpack = {
                 else
                     resolve(stats)
             })
-        })
-        
-        await new Promise(resolve => {
-            this.compiler.close(resolve)
         })
     }
 }

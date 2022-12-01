@@ -4,21 +4,34 @@ global.started_at = new Date()
 
 import fs from 'fs'
 
-import type { Context } from 'koa'
+import { type Context } from 'koa'
 
-import { request_json, log_section, inspect, create_mfs, UFS } from 'xshell'
+import { request_json, inspect, create_mfs, UFS, Remote } from 'xshell'
 import { Server } from 'xshell/server.js'
 
 import { get_monaco, webpack, fpd_root, fpd_out_console } from './webpack.js'
 
 
 class DevServer extends Server {
+    ddb_backend = '127.0.0.1:8848'
+    
+    override remote = new Remote({
+        funcs: {
+            async recompile () {
+                await webpack.run()
+                return [ ]
+            }
+        }
+    })
+    
+    
     constructor () {
-        super(8432, { rpc: true })
+        super(8432)
     }
     
     override async router (ctx: Context) {
         const {
+            request,
             request: {
                 query,
                 method,
@@ -29,13 +42,29 @@ class DevServer extends Server {
             },
         } = ctx
         
-        let { request, response } = ctx
+        let { response } = ctx
         
         let { path } = request
         
+        if (
+            request.path === '/console' ||
+            request.path === '/cloud'
+        ) {
+            const path_ = `${request.path}/`
+            response.redirect(path_)
+            response.status = 301
+            console.log(`301 重定向  ${request.originalUrl} → ${path_}`.yellow)
+            return true
+        }
+        
+        if (path === '/console/') {
+            this.ddb_backend = `${query.hostname || '127.0.0.1'}:${query.port || '8848'}`
+            path = '/console/index.html'
+        }
+        
         if (dapi && method === 'POST') {
-            const data = await request_json(`http://127.0.0.1:8848${path}`, { body })
-            log_section(`${body.functionName}(${inspect(body.params?.[0]?.value)})`)
+            const data = await request_json(`http://${this.ddb_backend}${path}`, { body })
+            console.log(`${body.functionName}(${inspect(body.params, { compact: true })})`)
             console.log(response.body = data)
             return true
         }
@@ -77,14 +106,6 @@ class DevServer extends Server {
             return true
         }
         
-        let font_matches = /^\/(?:console|cloud)\/fonts\/(myfontb?.woff2)/.exec(path)
-        if (font_matches)
-            return this.try_send(ctx, font_matches[1], {
-                root: `${fpd_root}node_modules/xshell/`,
-                fs,
-                log_404: true
-            })
-            
         for (const prefix of ['/console/vs/', '/min-maps/vs/'] as const)
             if (path.startsWith(prefix))
                 return this.try_send(ctx, path.slice(prefix.length), {
@@ -132,16 +153,13 @@ let server = new DevServer()
 await Promise.all([
     get_monaco(),
     server.start(),
-    webpack.build({
-        production: false,
-        mfs
-    })
+    webpack.build({ production: false, mfs })
 ])
 
 console.log(
     'devserver 启动完成\n' +
     '请使用浏览器打开:\n' +
-    'http://localhost:8432/console/index.html?hostname=127.0.0.1&port=8848\n' +
-    'http://localhost:8432/cloud/index.html'
+    'http://localhost:8432/console/?hostname=127.0.0.1&port=8848\n' +
+    'http://localhost:8432/cloud/'
 )
 
