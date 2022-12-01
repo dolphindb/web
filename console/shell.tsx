@@ -1069,7 +1069,8 @@ function Term () {
 
 
 function TreeView () {
-    const [db_Height, set_db_Height] = useState(256)
+    const [db_height, set_db_height] = useState(256)
+    
     return <div className='treeview-content'>
         <Resizable
             className='treeview-resizable-split treeview-resizable-split1'
@@ -1087,13 +1088,13 @@ function TreeView () {
             handleStyles={{ bottom: { height: 20, bottom: -10 } }}
             handleClasses={{ bottom: 'resizable-handle' }}
             onResizeStop={
-                (event, direction, elementRef, delta)=>{
-                    set_db_Height(db_Height + delta.height)
+                (event, direction, elementRef, delta) => {
+                    set_db_height(db_height + delta.height)
                 }
             }
         >
             <div className='databases treeview-split treeview-split1'>
-                <DBs height={db_Height} />
+                <DBs height={db_height} />
             </div>
         </Resizable>
         <div className='treeview-resizable-split2'>
@@ -1550,7 +1551,7 @@ class TableEntity {
 }
 
 
-function DBs (props:{height:number}) {
+function DBs ({ height }: { height: number }) {
     const { dbs } = shell.use(['dbs'])
     const [expanded_keys, set_expanded_keys] = useState([])
     const [loaded_keys, set_loaded_keys] = useState([])
@@ -1604,7 +1605,7 @@ function DBs (props:{height:number}) {
             const new_group = new TreeDataItem(
                 <span className='name'>{`dfs://${key}`}</span>,
                 `group-${key}`,
-                <FolderOutlined className='antd-icon-to-blue' />,
+                <FolderOutlined color='#4a5eed' />,
                 part1_group_map.get(key).map(ddb_entity => ddb_entity.to_tree_data_item(on_menu))
             )
             group_with_path_part2.push(new_group)
@@ -1706,7 +1707,7 @@ function DBs (props:{height:number}) {
                 blockNode
                 showLine
                 // 启用虚拟滚动
-                height={props.height}
+                height={height}
                 treeData={tree_data}
                 loadData={load_data}
                 onLoad={keys => {

@@ -6,7 +6,7 @@ import fs from 'fs'
 
 import { type Context } from 'koa'
 
-import { request_json, inspect, create_mfs, UFS, Remote } from 'xshell'
+import { request_json, inspect, create_mfs, UFS, Remote, set_inspect_options } from 'xshell'
 import { Server } from 'xshell/server.js'
 
 import { get_monaco, webpack, fpd_root, fpd_out_console } from './webpack.js'
@@ -141,6 +141,9 @@ class DevServer extends Server {
         )
     }
 }
+
+
+set_inspect_options()
 
 console.log('fpd_root:', fpd_root)
 
