@@ -4,9 +4,9 @@ global.started_at = new Date()
 
 import fs from 'fs'
 
-import type { Context } from 'koa'
+import { type Context } from 'koa'
 
-import { request_json, inspect, create_mfs, UFS } from 'xshell'
+import { request_json, inspect, create_mfs, UFS, Remote } from 'xshell'
 import { Server } from 'xshell/server.js'
 
 import { get_monaco, webpack, fpd_root, fpd_out_console } from './webpack.js'
@@ -15,8 +15,18 @@ import { get_monaco, webpack, fpd_root, fpd_out_console } from './webpack.js'
 class DevServer extends Server {
     ddb_backend = '127.0.0.1:8848'
     
+    override remote = new Remote({
+        funcs: {
+            async recompile () {
+                await webpack.run()
+                return [ ]
+            }
+        }
+    })
+    
+    
     constructor () {
-        super(8432, { rpc: true })
+        super(8432)
     }
     
     override async router (ctx: Context) {
@@ -143,10 +153,7 @@ let server = new DevServer()
 await Promise.all([
     get_monaco(),
     server.start(),
-    webpack.build({
-        production: false,
-        mfs
-    })
+    webpack.build({ production: false, mfs })
 ])
 
 console.log(

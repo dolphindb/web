@@ -22,6 +22,9 @@ const username_guest = 'guest' as const
 export class DdbModel extends Model<DdbModel> {
     inited = false
     
+    /** 在本地开发模式 */
+    dev: boolean
+    
     collapsed = localStorage.getItem(storage_keys.collapsed) === 'true'
     
     view = '' as 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'cluster' | 'login' | 'dfs' | 'log'
@@ -59,6 +62,9 @@ export class DdbModel extends Model<DdbModel> {
     
     constructor () {
         super()
+        
+        this.dev = location.pathname.endsWith('/console/')
+        
         const params = new URLSearchParams(location.search)
         this.header = params.get('header') !== '0'
         this.code_template = params.get('code-template') === '1'
