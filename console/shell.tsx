@@ -1087,6 +1087,8 @@ function TreeView () {
             minHeight='22px'
             handleStyles={{ bottom: { height: 20, bottom: -10 } }}
             handleClasses={{ bottom: 'resizable-handle' }}
+            // 这个Resizable包括 TitleBar 和 TreeContent, TitleBar占27px高度
+            defaultSize = {{height: 256 + 27, width:'100%'}}
             onResizeStop={
                 (event, direction, elementRef, delta) => {
                     set_db_height(db_height + delta.height)
