@@ -7,7 +7,6 @@
     "scripts": {
         "install.ci": "npm ci --include=dev --force",
         "dev": "tsc --project ./tsconfig.node.json && node ./dev.js",
-        "server": "tsc --project ./tsconfig.node.json && cross-env NODE_EXTRA_CA_CERTS=./server/cert/dolphindb.crt node ./server/index.js",
         "typecheck": "tsc --noEmit",
         "build": "tsc --project ./tsconfig.node.json && node ./build.js",
         "build.cloud": "tsc --project ./tsconfig.node.json && node ./build.js cloud",
