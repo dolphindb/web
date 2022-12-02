@@ -30,6 +30,19 @@ export const fpd_out_cloud = `${fpd_root}web.cloud/`
 
 
 export async function get_monaco (update = false) {
+    let enable_proxy = true
+    
+    try {
+        await request('https://cdn.jsdelivr.net/', {
+            timeout: 1000,
+            proxy: MyProxy.socks5,
+        })
+    } catch (error) {
+        enable_proxy = false
+    }
+    
+    console.log('proxy:', enable_proxy)
+    
     return Promise.all(
         [
             'loader.js',
@@ -59,7 +72,7 @@ export async function get_monaco (update = false) {
                     {
                         encoding: 'binary',
                         retries: true,
-                        proxy: MyProxy.socks5
+                        ... enable_proxy ? { proxy: MyProxy.socks5 } : { }
                     }
                 ),
                 { mkdir: true }
