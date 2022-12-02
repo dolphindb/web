@@ -68,19 +68,6 @@ export async function get_monaco (update = false) {
     )
 }
 
-export async function copy_fonts (is_cloud: boolean) {
-    await Promise.all(
-        (['myfont.woff2', 'myfontb.woff2'] as const).map(async fname => {
-            const fp_out = `${(is_cloud ? fpd_out_cloud : fpd_out_console)}fonts/${fname}`
-            
-            if (fexists(fp_out))
-                return
-            
-            return fcopy(`${fpd_root}node_modules/xshell/${fname}`, fp_out)
-        })
-    )
-}
-
 
 const config: Configuration = {
     name: 'DdbWeb',
