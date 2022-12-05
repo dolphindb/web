@@ -1,7 +1,7 @@
 {
     "name": "dolphindb-web",
     "engines": {
-        "node": ">=18.8.0"
+        "node": ">=19.2.0"
     },
     "type": "module",
     "scripts": {
@@ -46,7 +46,6 @@
         "@ant-design/pro-layout": "^7.3.3",
         "@monaco-editor/react": "^4.4.6",
         "antd": "^5.0.3",
-        "cross-env": "^7.0.3",
         "dayjs": "^1.11.6",
         "dolphindb": "^2.0.902",
         "final-form": "^4.20.7",
