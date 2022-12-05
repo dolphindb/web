@@ -9,10 +9,10 @@ import { Resizable } from 're-resizable'
 
 import type { BasicDataNode } from 'rc-tree'
 
-import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button } from 'antd'
+import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button, Popconfirm, Switch } from 'antd'
 const { Option } = Select
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
@@ -81,6 +81,8 @@ import SvgChart from './shell.icons/chart.icon.svg'
 import SvgObject from './shell.icons/object.icon.svg'
 import SvgDatabase from './shell.icons/database.icon.svg'
 import SvgColumn from './shell.icons/column.icon.svg'
+import SvgAddColumn from './shell.icons/add-column.icon.svg'
+import SvgViewTableStructure from './shell.icons/view-table-structure.icon.svg'
 
 
 import { delta2str, delay } from 'xshell/utils.browser.js'
@@ -142,6 +144,9 @@ class ShellModel extends Model<ShellModel> {
     
     options?: InspectOptions
     
+    
+    executing = false
+    
     dirty = false
     
     confirmation_registered = false
@@ -158,6 +163,15 @@ class ShellModel extends Model<ShellModel> {
         //     dbs.set(path, new DdbEntity({ path }))
         // }
         
+        // 测试多级数据库树
+        // for (let i = 0;  i <100 ;  i++) {
+        //     for (let j =0; j< 500; j++){
+        //         const path = `dfs://${i}.${j}`
+        //         const tables = [new TableEntity({name: `table_of_${i}_${j}`, ddb_path:path, labels:['sdsadfs'], column_schema:[{name:'Id', type:5}]})]
+        //         dbs.set(path, new DdbEntity({ path ,tables}))
+        //     }
+        //  }
+        
         this.set({ dbs })
     }
     
@@ -168,6 +182,8 @@ class ShellModel extends Model<ShellModel> {
             '\n' +
             time_start.format('YYYY.MM.DD HH:mm:ss.SSS')
         )
+        
+        this.set({ executing: true })
         
         try {
             // TEST
@@ -225,6 +241,8 @@ class ShellModel extends Model<ShellModel> {
                 message = message.replaceAll(/RefId:\s*(\w+)/g, underline(blue('RefId: $1')))
             this.term.writeln(red(message))
             throw error
+        } finally {
+            this.set({ executing: false })
         }
     }
     
@@ -412,10 +430,19 @@ let module_code = ''
 
 
 function Editor () {
-    const { citic, code_template } = model.use(['citic', 'code_template'])
+    const { code_template } = model.use(['code_template'])
+    
+    const { executing } = shell.use(['executing'])
     
     const [inited, set_inited] = useState(Boolean(shell.editor))
     
+    const [minimap, set_minimap] = useState(() => 
+        localStorage.getItem(storage_keys.minimap) === '1'
+    )
+    
+    const [enter_completion, set_enter_completion] = useState(() => 
+        localStorage.getItem(storage_keys.enter_completion) === '1'
+    )
     
     useEffect(() => {
         (async () => {
@@ -696,14 +723,56 @@ function Editor () {
     
     return <div className='editor'>
         <div className='toolbar'>
-            <span className='action save' title={t('保存代码至浏览器中')} onClick={save}>
-                <SaveOutlined />
-                <span className='text'>{t('保存')}</span>
-            </span>
-            <span className='action execute' title={t('执行选中代码或光标所在行代码')} onClick={execute}>
-                <CaretRightOutlined />
-                <span className='text'>{t('执行')}</span>
-            </span>
+            <div className='actions'>
+                <span className='action save' title={t('保存代码至浏览器中')} onClick={save}>
+                    <SaveOutlined />
+                    <span className='text'>{t('保存')}</span>
+                </span>
+                <span className='action execute' title={t('执行选中代码或光标所在行代码')} onClick={execute}>
+                    <CaretRightOutlined />
+                    <span className='text'>{t('执行')}</span>
+                </span>
+            </div>
+            
+            <div className='settings'>
+                <span className='setting'>
+                    <span className='text'>{t('代码地图')}</span>
+                    <Switch
+                        checked={minimap}
+                        size='small'
+                        onChange={ checked => {
+                            set_minimap(checked)
+                            localStorage.setItem(storage_keys.minimap, checked ? '1' : '0')
+                        }} />
+                </span>
+                
+                <span className='setting'>
+                    <span className='text'>{t('回车补全')}</span>
+                    <Switch
+                        checked={enter_completion}
+                        size='small'
+                        onChange={ checked => {
+                            set_enter_completion(checked)
+                            localStorage.setItem(storage_keys.enter_completion, checked ? '1' : '0')
+                        }} />
+                </span>
+            </div>
+            
+            <div className='padding' />
+            
+            <div className='statuses'>{
+                executing ?
+                    <Popconfirm
+                        title={t('是否取消执行中的作业？')}
+                        okText={t('取消作业')}
+                        cancelText={t('不要取消')}
+                        onConfirm={async () => { await ddb.cancel() }}
+                    >
+                        <span className='status executing'>{t('执行中')}</span>
+                    </Popconfirm>
+                :
+                    <span className='status idle'>{t('空闲中')}</span>
+            }</div>
         </div>
         
         <MonacoEditor
@@ -716,7 +785,7 @@ function Editor () {
             
             options={{
                 minimap: {
-                    enabled: false
+                    enabled: minimap
                 },
                 
                 fontFamily: 'Menlo, \'Ubuntu Mono\', Consolas, PingFangSC, \'Noto Sans CJK SC\', \'Microsoft YaHei\'',
@@ -788,7 +857,7 @@ function Editor () {
                     enabled: false,
                 },
                 
-                acceptSuggestionOnEnter: 'off',
+                acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
                 
                 quickSuggestions: {
                     other: true,
@@ -801,21 +870,7 @@ function Editor () {
                 editor.setValue(
                     module_code || 
                     localStorage.getItem(storage_keys.code) || 
-                    (code_template && citic ? 
-                        'def GTJA_alpha_100 (close, volume) {\n' +
-                        '    return -1 * rowRank(X=mcovar(rowRank(X=close, percent=true), rowRank(X=volume, percent=true), 5), percent=true) \n' +
-                        '}\n' +
-                        '\n' +
-                        "factor_name = 'GTJA_alpha_100'\n" +
-                        "factor_params = { 'WIND.ASHAREEODPRICES': ['S_DQ_CLOSE', 'S_DQ_VOLUME'] }\n" +
-                        'start_date = date(2022.01.01)\n' +
-                        'end_date = today()\n' +
-                        'res = calc_factor(start_date, end_date, factor_name, factor_params)\n' +
-                        "factor_id = save_factor(res, 'ALL', factor_name)\n" +
-                        'print(factor_id)\n' +
-                        '\n'
-                    :
-                        '')
+                    ''
                 )
                 
                 editor.addAction({
@@ -982,7 +1037,7 @@ function Term () {
             
             term.writeln(
                 t('左侧编辑器使用指南:\n') +
-                t('按 Tab 补全函数\n') +
+                t('按 Tab 或 Enter 补全函数\n') +
                 t('按 Ctrl + E 执行选中代码或光标所在行代码\n') +
                 t('按 Ctrl + S 保存代码\n') +
                 t('按 Ctrl + D 向下复制行\n') +
@@ -1014,10 +1069,36 @@ function Term () {
 
 
 function TreeView () {
+    const [db_height, set_db_height] = useState(256)
+    
     return <div className='treeview-content'>
-        <div className='databases treeview-split treeview-split1'>
-            <DBs />
-        </div>
+        <Resizable
+            className='treeview-resizable-split treeview-resizable-split1'
+            enable={{
+                top: false,
+                right: false,
+                bottom: true,
+                left: false,
+                topRight: false,
+                bottomRight: false,
+                bottomLeft: false,
+                topLeft: false
+            }}
+            minHeight='22px'
+            handleStyles={{ bottom: { height: 20, bottom: -10 } }}
+            handleClasses={{ bottom: 'resizable-handle' }}
+            // 这个 Resizable 包括 TitleBar 和 TreeContent, TitleBar 占 27px 高度
+            defaultSize={{ height: 256 + 27, width: '100%' }}
+            onResizeStop={
+                (event, direction, elementRef, delta) => {
+                    set_db_height(db_height + delta.height)
+                }
+            }
+        >
+            <div className='databases treeview-split treeview-split1'>
+                <DBs height={db_height} />
+            </div>
+        </Resizable>
         <div className='treeview-resizable-split2'>
             <div className='treeview-resizable-split21'>
                 <Variables shared={false} />
@@ -1087,16 +1168,17 @@ interface MenuItem {
     key: string
     open: boolean
     command: string
+    icon?: React.ReactNode
 }
 
 const table_menu_items: MenuItem[] = [
-    { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema' },
-    { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows' },
-    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn' },
+    { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema', icon: <Icon component={SvgViewTableStructure} /> },
+    { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows', icon: <EyeOutlined /> },
+    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn', icon: <Icon component={SvgAddColumn} /> },
 ]
 
 const column_menu_items: MenuItem[] = [
-    { label: t('修改注释'), key: '1', open: true, command: 'EditComment' }
+    { label: t('修改注释'), key: '1', open: true, command: 'EditComment', icon: <EditOutlined /> }
 ]
 
 /** 数据库 context menu item 调用 Modal */
@@ -1110,7 +1192,7 @@ const context_menu_function_items = {
     ShowRows: async (triad: DBTriad) => {
         const { database, table } = triad
         try {
-            const ddbobj = await ddb.eval(`select top 100 * from loadTable("${database}","${table}")`)
+            const ddbobj = await ddb.eval(`select top 100 * from loadTable("${database}", "${table}")`)
             ddbobj.name = `${table} (${t('前 100 行')})`
             shell.set({ result: { type: 'object', data: ddbobj } })
         } catch (error) {
@@ -1147,7 +1229,7 @@ function AddColumn ({
     onCancel: () => void
     loadData: ({ key, needLoad }: { key: string, needLoad: boolean }) => void
 }) {
-    const colTypes = [
+    const coltypes = [
         'BOOL',
         'CHAR',
         'SHORT',
@@ -1173,7 +1255,7 @@ function AddColumn ({
         'BLOB',
         'COMPLEX',
         'POINT'
-    ]
+    ] as const
     
     const [form] = Form.useForm()
     const onFinish = async values => {
@@ -1190,32 +1272,32 @@ function AddColumn ({
         form.resetFields()
         onOk()
     }
+    
     const onAbord = () => {
         form.resetFields()
         onCancel()
     }
-    return (
-        <Form name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish} className='db-modal-form'>
-            <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
-                <Input placeholder={t('输入名字')} />
-            </Form.Item>
-            <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型！') }]}>
-                <Select showSearch placeholder={t('选择类型')}>
-                    {colTypes.map(v => (
-                        <Option key={v}>{v}</Option>
-                    ))}
-                </Select>
-            </Form.Item>
-            <Form.Item className='db-modal-content-button-group'>
-                <Button type='primary' htmlType='submit'>
-                    {t('确定')}
-                </Button>
-                <Button htmlType='button' onClick={onAbord}>
-                    {t('取消')}
-                </Button>
-            </Form.Item>
-        </Form>
-    )
+    
+    return <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish}>
+        <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
+            <Input placeholder={t('输入名字')} />
+        </Form.Item>
+        <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型！') }]}>
+            <Select showSearch placeholder={t('选择类型')}>
+                {coltypes.map(v => (
+                    <Option key={v}>{v}</Option>
+                ))}
+            </Select>
+        </Form.Item>
+        <Form.Item className='db-modal-content-button-group'>
+            <Button type='primary' htmlType='submit'>
+                {t('确定')}
+            </Button>
+            <Button htmlType='button' onClick={onAbord}>
+                {t('取消')}
+            </Button>
+        </Form.Item>
+    </Form>
 }
 
 function EditComment ({
@@ -1392,13 +1474,21 @@ class DdbEntity {
 
     tables: TableEntity[] = []
 
+    path_part1: string
+    path_part2: string
+    
     constructor(data: Partial<DdbEntity>) {
         Object.assign(this, data)
+        const [part1, ...part2_] = this.path.slice(6).split('.')
+        const part2 = part2_.join('.')
+        // dfs://a.b   ->   [part1, part2] = [a, b]
+        this.path_part1 = part1
+        this.path_part2 = part2
     }
-
+    
     to_tree_data_item (on_menu): TreeDataItem {
         return new TreeDataItem(
-            <span className='name'>{this.path}</span>,
+            <span className='name'>{this.path_part2 || this.path}</span>,
             this.path,
             <Icon component={SvgDatabase} />,
             this.tables.map(table => table.to_tree_data_item(on_menu)),
@@ -1463,17 +1553,78 @@ class TableEntity {
 }
 
 
-function DBs () {
+function DBs ({ height }: { height: number }) {
     const { dbs } = shell.use(['dbs'])
     const [expanded_keys, set_expanded_keys] = useState([])
     const [loaded_keys, set_loaded_keys] = useState([])
     const [menu, on_menu] = useState<ContextMenu | null>()
     const [selected_keys, set_selected_keys] = useState([])
     
+    /*
+        tree_data 每个节点都是一个 DdbEntity 或者 TableEntity, 在构造 tree_data 时会调用 to_tree_data_item 将上述 entity 转化为真正的 TreeDataItem
+        
+        当库 / 表很多的时候，如果更新其中一项就要重新构造整个 tree_data 的话就会发生很多次不必要的 to_tree_data_item 调用
+        
+        此处做一个缓存操作，tree_data 只会在首次加载组件时完成一次从头到尾的构建，并构造一个 map，键是 TreeDataItem 的 key，值是这个 TreeDataItem 在树中的位置 position
+        
+        每次展开一个树节点时，会调用 load_data, 读取当前正在操作的 key，更新 TreeDataItem 。通过 treeData[position] = new_TreeDataItem 的方式更新树。这样每次调用 load_data 就只会发生一次 to_tree_data_item 调用
+    */
+   
+    const [tree_data, set_tree_data] = useState<TreeDataItem[]>([])
+    const index_of_path_in_grouped_tree_data = useRef<Map<string, number[]>>(new Map())
+    
     useEffect(() => {
         if (menu?.key)
             set_selected_keys([menu.key])
     }, [menu])
+    
+    useEffect(() => {
+        if (!dbs) 
+            return
+        
+        //  dfs://a.b 形式的库将会被归入 group_with_path_part2   dfs://xxx 的普通数据库将会被归入 dbs_without_path_part2
+        
+        const group_with_path_part2: TreeDataItem[] = []
+        const dbs_without_path_part2: TreeDataItem[] = []
+        
+        // 记录某个 group 底下有哪些数据库
+        const part1_group_map: Map<string, DdbEntity[]> = new Map()
+        
+        for (const db of dbs.values()) {
+            const [part1, ...part2_] = db.path.slice(6).split('.')
+            const part2 = part2_?.join('.')
+            
+            if (!part2) {
+                dbs_without_path_part2.push(db.to_tree_data_item(on_menu))
+                continue
+            }
+            
+            if (!part1_group_map.has(part1)) part1_group_map.set(part1, [db])
+            else part1_group_map.get(part1).push(db)
+        }
+        
+        for (const key of part1_group_map.keys()) {
+            const new_group = new TreeDataItem(
+                <span className='name'>{`dfs://${key}`}</span>,
+                `group-${key}`,
+                <FolderOutlined color='#4a5eed' />,
+                part1_group_map.get(key).map(ddb_entity => ddb_entity.to_tree_data_item(on_menu))
+            )
+            group_with_path_part2.push(new_group)
+        }
+        
+        const tree_data = dbs_without_path_part2.concat(group_with_path_part2)
+        
+        for (let i = 0; i < tree_data.length; i++) 
+            if (tree_data[i].key.startsWith('group-')) {
+                const children_length = tree_data[i].children.length
+                for (let j = 0; j < children_length; j++)
+                    index_of_path_in_grouped_tree_data.current.set(tree_data[i].children[j].key, [i, j])
+            } else
+                index_of_path_in_grouped_tree_data.current.set(tree_data[i].key, [i])
+        
+        set_tree_data(tree_data)
+    }, [dbs])
     
     if (!dbs)
         return
@@ -1482,6 +1633,7 @@ function DBs () {
         if (!needLoad)
             return
         
+        let tables_ = null
         try {
             const tables = (await ddb.eval<DdbObj<DdbObj[]>>(`each(def (x): loadTable("${key}", x, memoryMode=false), getTables(database("${key}")))`))
                 .value.map(tb =>
@@ -1492,23 +1644,34 @@ function DBs () {
                     })
                 )
             
-            const dbs_ = new Map(dbs)
-            dbs.delete(key)
-            dbs_.set(key, new DdbEntity({ path: key, tables }))
-            shell.set({ dbs: dbs_ })
+            tables_ = tables
         } catch (error) {
             let i = (error.message as string).indexOf('<NotAuthenticated>')
             if (i === -1)
                 i = (error.message as string).indexOf('<NoPrivilege>')
             const errmsg = i === -1 ? error.message as string : (error.message as string).slice(i)
-            const dbs_ = new Map(dbs)
-            dbs.delete(key)
-            dbs_.set(key, new DdbEntity({ path: key, empty: true }))
-            shell.set({ dbs: dbs_ })
             set_loaded_keys([...loaded_keys, key])
             message.error(errmsg)
             shell.term.writeln(red(errmsg))
             throw error
+        } finally{
+            const [part1, ...part2_] = key.slice(6).split('.')
+            const part2 = part2_.join('.')
+            
+            const grouped_tree_data_ = [...tree_data]
+            if (part2) {
+                const [index1, index2] = index_of_path_in_grouped_tree_data.current.get(key)
+                grouped_tree_data_[index1].children[index2] = tables_
+                    ? new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu)
+                    : new DdbEntity({ path: key, empty: true }).to_tree_data_item(on_menu)
+            } else {
+                const [index] = index_of_path_in_grouped_tree_data.current.get(key)
+                grouped_tree_data_[index] = tables_
+                    ? new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu)
+                    : new DdbEntity({ path: key, empty: true }).to_tree_data_item(on_menu)
+            }
+            
+            set_tree_data(grouped_tree_data_)
         }
     }
     
@@ -1546,11 +1709,8 @@ function DBs () {
                 blockNode
                 showLine
                 // 启用虚拟滚动
-                height={256}
-                treeData={
-                    Array.from(dbs.values())
-                        .map(ddb_entity => ddb_entity.to_tree_data_item(on_menu))
-                }
+                height={height}
+                treeData={tree_data}
                 loadData={load_data}
                 onLoad={keys => {
                     set_loaded_keys([...keys])
@@ -1588,34 +1748,26 @@ function DBModal ({ open, database, table, column, command, loadData }: {
     command: string,
     loadData: ({ key, needLoad }: { key: string, needLoad: boolean }) => void,
 }) {
+    const [is_modal_open, set_is_modal_open] = useState<boolean>(open)
     
     useEffect(() => {
-        setIsModalOpen(open)
+        set_is_modal_open(open)
     }, [open])
     
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(open)
-    
-    const handleOk = async () => {
-        setIsModalOpen(false)
-    }
-    
-    const handleCancel = () => {
-        setIsModalOpen(false)
-    }
-    
-    const ModalContent = context_menu_modal_items[command] || function () {
-        return <div></div>
-    }
+    const ModalContent = context_menu_modal_items[command] || (() => <div />)
     
     const genTitle = (command: string): string => {
         return table_menu_items.find(v => v.command === command)?.label || column_menu_items.find(v => v.command === command)?.label || ''
     }
     
-    return <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel} title={genTitle(command)}>
+    return <Modal className='db-modal' open={is_modal_open} onOk={() => { set_is_modal_open(false) }} onCancel={() => { set_is_modal_open(false) }} title={genTitle(command)}>
         <div className='db-modal-content'>
-            <ModalContent database={database} table={table} column={column}
-                onOk={() => { setIsModalOpen(false) }}
-                onCancel={() => { setIsModalOpen(false) }}
+            <ModalContent
+                database={database}
+                table={table}
+                column={column}
+                onOk={() => { set_is_modal_open(false) }}
+                onCancel={() => { set_is_modal_open(false) }}
                 loadData={loadData} />
         </div>
     </Modal>

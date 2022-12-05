@@ -1,5 +1,3 @@
-import 'antd/dist/antd.css'
-
 import 'xshell/scroll-bar.sass'
 
 import './index.sass'
@@ -47,10 +45,10 @@ import {
 } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
-import zh from 'antd/lib/locale/zh_CN.js'
-import en from 'antd/lib/locale/en_US.js'
-import ja from 'antd/lib/locale/ja_JP.js'
-import ko from 'antd/lib/locale/ko_KR.js'
+import zh from 'antd/locale/zh_CN.js'
+import en from 'antd/locale/en_US.js'
+import ja from 'antd/locale/ja_JP.js'
+import ko from 'antd/locale/ko_KR.js'
 
 import { date2str } from 'dolphindb/browser.js'
 
@@ -80,7 +78,7 @@ const locales = { zh, en, ja, ko }
 
 
 function DolphinDB () {
-    const { inited, citic, header } = model.use(['inited', 'citic', 'header'])
+    const { inited, header } = model.use(['inited', 'header'])
     
     useEffect(() => {
         model.init()
@@ -91,7 +89,7 @@ function DolphinDB () {
     
     return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false}>
         <Layout className='root-layout'>
-            { header && <Layout.Header className={`header ${ citic ? 'citic' : '' }`}>
+            { header && <Layout.Header className='header'>
                 <DdbHeader />
             </Layout.Header> }
             <Layout className='body'>
@@ -106,7 +104,7 @@ function DolphinDB () {
 
 
 function DdbHeader () {
-    const { logined, username, node_alias, citic, node_type } = model.use(['logined', 'username', 'node_alias', 'citic', 'node_type'])
+    const { logined, username, node_alias, node_type } = model.use(['logined', 'username', 'node_alias', 'node_type'])
     
     useEffect(() => {
         if (!node_alias)
@@ -115,71 +113,39 @@ function DdbHeader () {
     }, [node_alias])
     
     return <>
-        <img className='logo' src={ citic ? './citicsai.png' : './ddb.svg' } />
-        
-        { citic && <a className='home' href='/'>
-            <HomeOutlined className='icon' size={500} color='#dddddd' />
-            <span className='text'>{t('首页')}</span>
-        </a> }
+        <img className='logo' src='./ddb.svg' />
         
         <div className='padding' />
         
-        { !citic && <div className='section'><Status /></div> }
+        <div className='section'><Status /></div>
         
-        { !citic && <div className='section'><License /></div> }
+        <div className='section'><License /></div>
         
-        { !citic && <Settings /> }
+        <Settings />
         
         <div className='section'>
             <div className='user'>{
                 <Dropdown
                     menu={{
                         className: 'menu',
-                        items: citic ?
-                            [
+                        items: [
+                            logined ?
                                 {
-                                    key: 'license',
-                                    label: <License />,
-                                    icon: <InfoOutlined />,
-                                },
+                                    key: 'logout',
+                                    icon: <LogoutOutlined />,
+                                    label: <a className='logout' onClick={() => { model.logout() }}>{t('注销')}</a>,
+                                }
+                            :
                                 {
-                                    key: 'status',
-                                    label: <Status />,
-                                    icon: <InfoCircleOutlined />
-                                },
-                                {
-                                    key: 'settings',
-                                    label: <Settings />,
-                                    icon: <SettingOutlined />
-                                },
-                                ... node_type === NodeType.controller ? [
-                                    {
-                                        key: 'login',
-                                        icon: <LoginOutlined />,
-                                        label: <a className='login' onClick={() => { model.set({ view: 'login' }) }}>{t('登录')}</a>,
-                                    }
-                                ] : [ ]
-                            ]
-                        :
-                            [
-                                logined ?
-                                    {
-                                        key: 'logout',
-                                        icon: <LogoutOutlined />,
-                                        label: <a className='logout' onClick={() => { model.logout() }}>{t('注销')}</a>,
-                                    }
-                                :
-                                    {
-                                        key: 'login',
-                                        icon: <LoginOutlined />,
-                                        label: <a className='login' onClick={() => { model.set({ view: 'login' }) }}>{t('登录')}</a>,
-                                    }
-                            ]
+                                    key: 'login',
+                                    icon: <LoginOutlined />,
+                                    label: <a className='login' onClick={() => { model.set({ view: 'login' }) }}>{t('登录')}</a>,
+                                }
+                        ]
                     }}
                 >
-                    <a className={`username ${citic ? 'citic' : ''}`}>
-                        { !citic && <Avatar className='avatar' icon={<UserOutlined /> } size='small' />}{' '}
-                        { citic ? `欢迎您，${username}` : username } <DownOutlined />
+                    <a className='username'>
+                        <Avatar className='avatar' icon={<UserOutlined /> } size='small' /> {username} <DownOutlined />
                     </a>
                 </Dropdown>
             }</div>
@@ -195,14 +161,17 @@ const authorizations = {
 }
 
 function License () {
-    const { version, license, citic } = model.use(['version', 'license', 'citic'])
+    const { version, license } = model.use(['version', 'license'])
+    
+    if (!license)
+        return
     
     const auth = authorizations[license.authorization] || license.authorization
     
     return <Popover
         placement='bottomLeft'
         zIndex={1060}
-        trigger={ citic ? 'click' : 'hover' }
+        trigger='hover'
         content={
             <div className='license-card head-bar-info'>
                 <Card size='small' bordered={false} title={`${auth} v${version}`}>
@@ -221,22 +190,17 @@ function License () {
                 </Card>
             </div>
         }
-    >{
-        citic ?
-            <div>{auth}</div>
-        :
-            <Tag className='license' color={ citic ? '#3e4655' :'#f2f2f2' }>{auth}</Tag>
-    }</Popover>
+    >
+        <Tag className='license' color='#f2f2f2'>{auth}</Tag>
+    </Popover>
 }
 
 
 function Status () {
-    const { citic } = model.use(['citic'])
-    
     return <Popover
         placement='bottomLeft'
         zIndex={1060}
-        trigger={ citic ? 'click' : 'hover' }
+        trigger='hover'
         content={
             <div className='head-bar-info'>
                 <Card
@@ -260,16 +224,13 @@ function Status () {
                 </Card>
             </div>
         }
-    >{
-        citic ?
-            <div>{t('状态')}</div>
-        :
-            <Tag
-                className='node-info' 
-                color={ citic ? '#3e4655' :'#f2f2f2' }
-                onMouseOver={() => { model.get_cluster_perf() }}
-            >{t('状态')}</Tag>
-    }</Popover>
+    >
+        <Tag
+            className='node-info' 
+            color='#f2f2f2'
+            onMouseOver={() => { model.get_cluster_perf() }}
+        >{t('状态')}</Tag>
+    </Popover>
 }
 
 
@@ -395,10 +356,10 @@ function Perf () {
 }
 
 function DdbSider () {
-    const { view, node_type, collapsed } = model.use(['view', 'node_type', 'collapsed'])
+    const { view, node_type, collapsed, dev } = model.use(['view', 'node_type', 'collapsed', 'dev'])
     
     return <Layout.Sider
-        width={130}
+        width={120}
         className='sider'
         theme='light'
         collapsible
@@ -424,14 +385,14 @@ function DdbSider () {
             onSelect={({ key }) => {
                 model.set({ view: key as DdbModel['view'] })
             }}
-            inlineIndent={20}
+            inlineIndent={10}
             items={[
                 // {
                 //     key: 'overview',
                 //     icon: <AppstoreOutlined />,
                 //     label: t('总览'),
                 // },
-                ... node_type === NodeType.controller ? [{
+                ... (node_type === NodeType.controller || dev) ? [{
                     key: 'cluster',
                     icon: <MenuIcon view='cluster' />,
                     label: t('集群总览'),
@@ -441,6 +402,13 @@ function DdbSider () {
                     icon: <MenuIcon view='shell' />,
                     label: t('交互编程'),
                 },
+                
+                ... dev ? [{
+                       key: 'dashboard',
+                       icon: <MenuIcon view='dashboard' />,
+                       label: t('数据看板')
+                }] : [ ],
+                
                 // {
                 //     key: 'data',
                 //     label: t('数据'),
@@ -476,8 +444,6 @@ function DdbSider () {
 function Settings () {
     type DecimalsStatus = null | 'error'
     
-    const { citic } = model.use(['citic'])
-    
     const [decimals, set_decimals] = useState<{ status: DecimalsStatus, value: number | null }>(
         { status: null, value: model.options?.decimals ?? null }
     )
@@ -499,7 +465,7 @@ function Settings () {
             return { value: null, status: 'error' }
         
         const num = Number(text)
-        if (num === NaN) 
+        if (Number.isNaN(num)) 
             return { value: null, status: 'error' }
         
         if (num < 0 || num > 20) 
@@ -511,7 +477,7 @@ function Settings () {
     
     return <div className='header-settings'>
         <Popover
-            trigger={ citic ? 'click' : 'hover' }
+            trigger='hover'
             placement='bottomLeft'
             zIndex={1060}
             content={
@@ -554,16 +520,13 @@ function Settings () {
                     </Card>
                 </div>
             }
-        >{
-            citic ?
-                <div>{t('设置')}</div>
-            :
-                <SettingFilled className='header-settings-icon'
-                    style={{ fontSize: '20px', color: '#707070' }}
-                    onMouseOver={() => {
-                        set_decimals({ value: model.options?.decimals ?? null, status: null })
-                    }} />
-        }</Popover>
+        >
+            <SettingFilled className='header-settings-icon'
+                style={{ fontSize: '20px', color: '#707070' }}
+                onMouseOver={() => {
+                    set_decimals({ value: model.options?.decimals ?? null, status: null })
+                }} />
+        </Popover>
     </div>
     
 }

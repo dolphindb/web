@@ -18,7 +18,6 @@ import {
     message, 
     Tooltip, 
     Popconfirm, 
-    PageHeader, 
     Descriptions,
     Tabs,
     Layout,
@@ -32,8 +31,11 @@ import {
     Empty,
     Popover,
 } from 'antd'
+
+import { PageHeader } from '@ant-design/pro-layout'
+
 import { InboxOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
-import type { PresetStatusColorType } from 'antd/lib/_util/colors.js'
+import type { PresetStatusColorType } from 'antd/es/_util/colors.js'
 import type { AlignType } from 'rc-table/lib/interface.js'
 
 import { delay } from 'xshell/utils.browser.js'
@@ -77,7 +79,7 @@ function ClusterDetail () {
     
     const { name } = cluster
 
-    const [field, set_field] = useState<FieldType>('info') 
+    const [field, set_field] = useState<FieldType>('info')
 
     const fields : FieldType[] = ['info', 'config', 'monitor', 'backup']
 
@@ -1831,7 +1833,7 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                                 <Input />
                             </Form.Item>
                         ].concat(
-                        ['provider', 'region' , 'accessKey', 'secretAccessKey', 'endpoint'].map(
+                        ['provider', 'region', 'accessKey', 'secretAccessKey', 'endpoint'].map(
                             (x) => {
                                 return !(x === 'provider') ? <Form.Item
                                     name={x}
@@ -2090,7 +2092,7 @@ const translate_dict = {
     restores: t('还原'),
     endpoint: t('服务地址'),
     provider: t('供应商'),
-    region:t('区域'),
+    region: t('区域'),
     accessKey: t('访问密钥'),
     secretAccessKey: t('加密密钥'),
     path: t('共享目录', { context: 'backup' }),

@@ -30,6 +30,19 @@ export const fpd_out_cloud = `${fpd_root}web.cloud/`
 
 
 export async function get_monaco (update = false) {
+    let enable_proxy = true
+    
+    try {
+        await request('https://cdn.jsdelivr.net/', {
+            timeout: 1000,
+            proxy: MyProxy.socks5,
+        })
+    } catch (error) {
+        enable_proxy = false
+    }
+    
+    console.log('proxy:', enable_proxy)
+    
     return Promise.all(
         [
             'loader.js',
@@ -59,24 +72,11 @@ export async function get_monaco (update = false) {
                     {
                         encoding: 'binary',
                         retries: true,
-                        proxy: MyProxy.socks5
+                        ... enable_proxy ? { proxy: MyProxy.socks5 } : { }
                     }
                 ),
                 { mkdir: true }
             )
-        })
-    )
-}
-
-export async function copy_fonts (is_cloud: boolean) {
-    await Promise.all(
-        (['myfont.woff2', 'myfontb.woff2'] as const).map(async fname => {
-            const fp_out = `${(is_cloud ? fpd_out_cloud : fpd_out_console)}fonts/${fname}`
-            
-            if (fexists(fp_out))
-                return
-            
-            return fcopy(`${fpd_root}node_modules/xshell/${fname}`, fp_out)
         })
     )
 }
@@ -303,7 +303,12 @@ export let webpack = {
         if (!production)
             this.compiler.outputFileSystem = mfs
         
-        await new Promise<Stats>((resolve, reject) => {
+        await this.run()
+    },
+    
+    
+    async run () {
+        return new Promise<Stats>((resolve, reject) => {
             this.compiler.run((error, stats) => {
                 if (stats)
                     console.log(stats.toString(config.stats))
@@ -315,10 +320,6 @@ export let webpack = {
                 else
                     resolve(stats)
             })
-        })
-        
-        await new Promise(resolve => {
-            this.compiler.close(resolve)
         })
     }
 }

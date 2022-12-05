@@ -13,12 +13,17 @@ export const storage_keys = {
     collapsed: 'ddb.collapsed',
     code: 'ddb.code',
     session: 'ddb.session',
+    minimap: 'ddb.editor.minimap',
+    enter_completion: 'ddb.editor.enter_completion',
 } as const
 
 const username_guest = 'guest' as const
 
 export class DdbModel extends Model<DdbModel> {
     inited = false
+    
+    /** 在本地开发模式 */
+    dev: boolean
     
     collapsed = localStorage.getItem(storage_keys.collapsed) === 'true'
     
@@ -42,9 +47,6 @@ export class DdbModel extends Model<DdbModel> {
     
     license: DdbLicense
     
-    /** 是否为中信证券用户 */
-    citic = false
-    
     first_get_server_log_length = true
     
     first_get_server_log = true
@@ -60,6 +62,9 @@ export class DdbModel extends Model<DdbModel> {
     
     constructor () {
         super()
+        
+        this.dev = location.pathname.endsWith('/console/')
+        
         const params = new URLSearchParams(location.search)
         this.header = params.get('header') !== '0'
         this.code_template = params.get('code-template') === '1'
@@ -69,7 +74,14 @@ export class DdbModel extends Model<DdbModel> {
     async init () {
         console.log(t('console 开始初始化'))
         
-        let url = new URL(location.href)
+        const test = new URLSearchParams(location.search).get('test')
+        if (test) {
+            const obj = await ddb.eval(`1..${test}`)
+            console.log(obj.toString())
+            await ddb.upload(['b'], [obj])
+            return
+        }
+        
         
         /** 检测 ddb 是否通过 nginx 代理，部署在子路径下 */
         const is_subpath = location.pathname === '/dolphindb/'
@@ -78,34 +90,11 @@ export class DdbModel extends Model<DdbModel> {
         
         ddb.autologin = false
         
-        const license = await this.get_license()
-        
-        const citic_param = url.searchParams.get('citic') === '1'
-        this.set({ citic: license.clientName === 'CITIC Securities' || location.hostname.includes('citicsinfo') || location.hostname === '172.23.122.19' || citic_param })
-        
-        // 中心证券单点登录
-        if (this.citic) {
-            console.log(t('当前为中信证券的 web, 启用单点登录'))
-            
-            const session = url.searchParams.get('sessionData') || localStorage.getItem(storage_keys.session)
-            if (session) {
-                url.searchParams.delete('sessionData')
-                history.replaceState(null, '', url.toString())
-                await this.login_by_session(session)
-            } else if (citic_param)
-                this.set({ logined: true, username: '马世超' })
-            else if (is_subpath) {
-                console.log(t('没有 sessionData 参数，将会跳转到登录页'))
-                location.pathname = '/'
-                return
-            } else
-                console.log(t('通过非 /dolphindb/ 路径直接访问中信证券 web'))
-        } else
-            try {
-                await this.login_by_ticket()
-            } catch {
-                console.log(t('ticket 登录失败'))
-            }
+        try {
+            await this.login_by_ticket()
+        } catch {
+            console.log(t('ticket 登录失败'))
+        }
         
         await Promise.all([
             this.get_node_type(),
@@ -118,6 +107,7 @@ export class DdbModel extends Model<DdbModel> {
             await this.check_leader_and_redirect()
         })()
         
+        this.get_license()
         
         this.goto_default_view()
         
