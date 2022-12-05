@@ -70,6 +70,7 @@ import SvgDashboard from './dashboard.icon.svg'
 import SvgJob from './job.icon.svg'
 import SvgDFS from './dfs.icon.svg'
 import SvgLog from './log.icon.svg'
+import SvgArrowDown from './arrow.down.icon.svg'
 
 
 const { Text } = Typography
@@ -104,7 +105,7 @@ function DolphinDB () {
 
 
 function DdbHeader () {
-    const { logined, username, node_alias, node_type } = model.use(['logined', 'username', 'node_alias', 'node_type'])
+    const { logined, username, node_alias } = model.use(['logined', 'username', 'node_alias'])
     
     useEffect(() => {
         if (!node_alias)
@@ -145,7 +146,7 @@ function DdbHeader () {
                     }}
                 >
                     <a className='username'>
-                        <Avatar className='avatar' icon={<UserOutlined /> } size='small' /> {username} <DownOutlined />
+                        <Avatar className='avatar' icon={<UserOutlined /> } size='small' />{username}<Icon className='arrow-down' component={SvgArrowDown} />
                     </a>
                 </Dropdown>
             }</div>
