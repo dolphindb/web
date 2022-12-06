@@ -36,7 +36,7 @@ export async function get_monaco (update = false) {
         enable_proxy = false
     }
     
-    console.log('proxy:', enable_proxy)
+    console.log('是否使用代理拉取最新 monaco 编辑器:', enable_proxy)
     
     return Promise.all(
         [
@@ -289,7 +289,6 @@ export let webpack = {
                         'window.js': './console/window.tsx'
                     }
             config.mode = 'production'
-            config.devtool = false
             config.output.path = is_cloud ? fpd_out_cloud : fpd_out_console
         }
         
