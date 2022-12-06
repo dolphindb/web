@@ -4,7 +4,7 @@ import './index.sass'
 
 
 import { default as React, useEffect, useState } from 'react'
-import { createRoot as create_root } from 'react-dom/client'
+import { createRoot } from 'react-dom/client'
 
 import {
     Layout, 
@@ -570,6 +570,6 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 
-create_root(
+createRoot(
     document.querySelector('.root')
 ).render(<DolphinDB/>)

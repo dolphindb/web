@@ -2,12 +2,7 @@ import { fileURLToPath } from 'url'
 
 import path from 'upath'
 
-import {
-    default as Webpack,
-    type Compiler,
-    type Configuration,
-    type Stats,
-} from 'webpack'
+import { default as Webpack, type Compiler, type Configuration, type Stats } from 'webpack'
 
 // 需要分析 bundle 大小时开启
 // import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
@@ -17,7 +12,7 @@ import type { Options as TSLoaderOptions } from 'ts-loader'
 import sass from 'sass'
 import type { Options as SassOptions } from 'sass-loader'
 
-import { type MFS, request, fwrite, fexists, fcopy, MyProxy } from 'xshell'
+import { type MFS, request, fwrite, fexists, MyProxy } from 'xshell'
 
 
 export const fpd_root = `${path.dirname(fileURLToPath(import.meta.url))}/`
