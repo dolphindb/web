@@ -234,6 +234,9 @@ const column_names = {
     remoteIP: t('客户端 IP'),
     remotePort: t('客户端端口'),
     
+    clientIp: t('客户端 IP'),
+    clientPort: t('客户端端口'),
+    
     totalTasks: t('全部任务'),
     
     finishedTasks: t('已完成任务'),
