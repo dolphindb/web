@@ -1183,5 +1183,11 @@
     },
     "按 Tab 或 Enter 补全函数\n": {
         "en": "Press Tab or Enter to complete functions\n"
+    },
+    "控制是否显示缩略图": {
+        "en": "Controls whether code mini map are displayed"
+    },
+    "控制除了 Tab 键以外，Enter 键是否同样可以接受建议。这能减少“插入新行”和“接受建议”命令之间的歧义。": {
+        "en": "Controls whether the Enter key accepts suggestions in addition to the Tab key. This reduces the ambiguity between the \"insert newline\" and \"accept suggestion\" commands."
     }
 }

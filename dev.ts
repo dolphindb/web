@@ -4,7 +4,7 @@ global.started_at = new Date()
 
 import fs from 'fs'
 
-import { type Context } from 'koa'
+import type { Context } from 'koa'
 
 import { request_json, inspect, create_mfs, UFS, Remote, set_inspect_options } from 'xshell'
 import { Server } from 'xshell/server.js'
@@ -145,7 +145,7 @@ class DevServer extends Server {
 
 set_inspect_options()
 
-console.log('fpd_root:', fpd_root)
+console.log('根目录:', fpd_root)
 
 let mfs = create_mfs()
 let ufs = new UFS([mfs, fs])
@@ -160,8 +160,7 @@ await Promise.all([
 ])
 
 console.log(
-    'devserver 启动完成\n' +
-    '请使用浏览器打开:\n' +
+    '开发服务器启动成功，请使用浏览器打开:\n' +
     'http://localhost:8432/console/?hostname=127.0.0.1&port=8848\n' +
     'http://localhost:8432/cloud/'
 )

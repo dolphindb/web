@@ -1,12 +1,13 @@
 {
     "include": [
-        "./console/index.tsx",
-        "./console/window.tsx",
-        "./cloud/index.tsx",
-        "./server/index.ts",
         "./dev.ts",
         "./build.ts",
         "./global.d.ts",
+        
+        "./console/index.tsx",
+        "./console/window.tsx",
+        
+        "./cloud/index.tsx",
     ],
     
     "compilerOptions": {
@@ -71,18 +72,6 @@
         "noUnusedLocals": false,
         "noUnusedParameters": false,
         "skipLibCheck": true,
-    },
-    
-    // --- watch options
-    "watchOptions": {
-        "excludeDirectories": [
-            "**/node_modules",
-        ],
-        
-        "watchFile": "useFsEvents",
-        "watchDirectory": "useFsEvents",
-        
-        "fallbackPolling": "dynamicPriority"
     }
 }
 
