@@ -736,7 +736,7 @@ function Editor () {
             
             <div className='settings'>
                 <span className='setting'>
-                    <span className='text'>{t('代码地图')}</span>
+                    <span className='text' title={t('控制是否显示缩略图')}>{t('代码地图')}</span>
                     <Switch
                         checked={minimap}
                         size='small'
@@ -747,7 +747,7 @@ function Editor () {
                 </span>
                 
                 <span className='setting'>
-                    <span className='text'>{t('回车补全')}</span>
+                    <span className='text' title={t('控制除了 Tab 键以外，Enter 键是否同样可以接受建议。这能减少“插入新行”和“接受建议”命令之间的歧义。')}>{t('回车补全')}</span>
                     <Switch
                         checked={enter_completion}
                         size='small'
