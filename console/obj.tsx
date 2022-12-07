@@ -1756,7 +1756,7 @@ function Chart ({
                         }}
                         meta={{
                             row: {
-                                formatter: (value, index) => data[index].row_ 
+                                formatter: (value, index) => format(obj.value.data.value.rows.type, value, obj.le)
                             },
                             vol: {
                                 alias: t('成交量'),
@@ -1791,7 +1791,7 @@ function Chart ({
                                     if (type === 'x') {
                                         const item = items[0]
                                         textContent = item ? item.data.row_ : defaultContent
-                                    } else 
+                                    } else
                                         textContent = defaultContent.toFixed(2)
                                     
                                     return {
