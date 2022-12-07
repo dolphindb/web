@@ -703,6 +703,11 @@ export function StreamingTable ({
                     handler (message) {
                         console.log(message)
                         
+                        if (message.error) {
+                            console.error(message.error)
+                            return
+                        }
+                        
                         const time = new Date().getTime()
                         
                         rreceived.current += message.rows
@@ -767,14 +772,13 @@ export function StreamingTable ({
     }, [rauto_append.current])
     
     
-    if (!rddb.current?.streaming.schema || !rddbapi.current)
+    if (!rddb.current?.streaming.data || !rddbapi.current)
         return null
     
     const {
         current: {
             streaming: {
                 data,
-                schema,
                 window: {
                     rows: winrows,
                     offset,
@@ -790,8 +794,8 @@ export function StreamingTable ({
     for (let i = 0;  i < page_size;  i++)
         rows[i] = i;
     
-    let cols = new Array<StreamingTableColumn>(schema.cols)
-    for (let i = 0;  i < schema.cols;  i++)
+    let cols = new Array<StreamingTableColumn>(data.rows)
+    for (let i = 0;  i < data.rows;  i++)
         cols[i] = new StreamingTableColumn({
             streaming,
             index: i,
@@ -921,7 +925,7 @@ export function StreamingTable ({
             { ctx !== 'webview' && <div className='info'>
                 <span className='type'>{t('流表')}</span>
                 <span className='name'>{table}</span>
-                <span className='desc'>{t('窗口')}: {winsize} {t('行')} {schema.cols} {t('列')}, {t('偏移量')}: {offset}</span>
+                <span className='desc'>{t('窗口')}: {winsize} {t('行')} {data.rows} {t('列')}, {t('偏移量')}: {offset}</span>
             </div> }
             
             <AntTable
@@ -1030,11 +1034,12 @@ class StreamingTableColumn implements TableColumnType <number> {
         
         this.key = this.index
         
-        this.col = this.streaming.schema.value[this.index]
+        this.col = this.streaming.data.value[this.index]
+        assert(this.col.form === DdbForm.vector, t('this.streaming.data 中的元素应该是 vector'))
         
         this.title = <Tooltip
                 title={DdbType[this.col.type === DdbType.symbol_extended ? DdbType.symbol : this.col.type]}
-            >{this.col.name}</Tooltip>
+            >{this.streaming.colnames[this.index]}</Tooltip>
         
         this.align = TableColumn.left_align_types.has(this.col.type) ? 'left' : 'right'
     }
@@ -1831,7 +1836,6 @@ function Chart ({
         
         <div className='bottom-bar'>
             <div className='actions'>
-                {/* @ts-ignore */}
                 {(ctx === 'page' || ctx === 'embed') && <Icon
                     className='icon-link'
                     title={t('在新窗口中打开')}

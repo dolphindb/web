@@ -4,7 +4,7 @@ import process from 'process'
 
 import { fcopy, fdelete, fmkdir } from 'xshell'
 
-import { get_monaco, webpack, copy_fonts, fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd_src_cloud } from './webpack.js'
+import { get_monaco, webpack, fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd_src_cloud } from './webpack.js'
 
 
 if (process.argv.includes('cloud')) {
@@ -18,7 +18,6 @@ if (process.argv.includes('cloud')) {
         fcopy(`${fpd_root}README.md`, `${fpd_out_cloud}README.md`),
         fcopy(`${fpd_root}README.zh.md`, `${fpd_out_cloud}README.zh.md`),
         
-        copy_fonts(true),
         webpack.build({ production: true, is_cloud: true })
     ])
 } else {
@@ -28,7 +27,7 @@ if (process.argv.includes('cloud')) {
     await Promise.all([
         fcopy(`${fpd_root}src/`, fpd_out_console),
         
-        ... ['index.html', 'window.html', 'ddb.svg', 'citicsai.png'].map(async fname => 
+        ... ['index.html', 'window.html', 'ddb.svg'].map(async fname => 
             fcopy(fpd_src_console + fname, fpd_out_console + fname)),
         
         fcopy(`${fpd_root}README.md`, `${fpd_out_console}README.md`),
@@ -36,7 +35,6 @@ if (process.argv.includes('cloud')) {
         
         fcopy(`${fpd_root}node_modules/vscode-oniguruma/release/onig.wasm`, `${fpd_out_console}onig.wasm`),
         
-        copy_fonts(false),
         get_monaco(),
         webpack.build({ production: true, is_cloud: false })
     ])

@@ -95,6 +95,9 @@ function DatanodeConfig () {
                 { name: 'lanCluster', value: 'int', default: '= 0', tip: '' },
                 { name: 'maxPartitionNumPerQuery', value: 'int', default: '= 65536', tip: '' },
                 { name: 'newValuePartitionPolicy', value: ['add', 'skip', 'fail'], default: '= skip', tip: '' },
+                {
+                    name: 'enableConcurrentDimensionalTableWrite', value: [0, 1], default: 0, tip: 'Whether to allow concurrent writing, modification, and deletion of dimensional tables. The default value is false.'
+                },
                 { name: 'chunkCacheEngineMemSize', value: 'int', default: '0', tip: 'The volume (GB) of cache engine.' },
                 {
                     name: 'memoryReleaseRate',
@@ -602,6 +605,12 @@ function ControllerConfig () {
             default: 'controller',
             tip: 'Node mode. Possible modes are controller / agent / dataNode.',
             disabled: true
+        },
+        {
+            name: 'preloadModules',
+            value: '',
+            default: 'plugins::mysql,system::log::fileLog',
+            tip: 'Modules or plugins that are automatically loaded after system startup. If multiple modules or plugins need to be loaded, separate them with commas.'
         },
         { name: 'localSite', value: '', default: '', tip: 'Specify host address, port number and alias of the local node.', disabled: true },
         { name: 'clusterConfig', value: '', default: 'cluster.cfg', tip: 'Specify the location for Nodes Config file.' },
