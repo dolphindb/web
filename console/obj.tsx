@@ -1488,7 +1488,7 @@ function Chart ({
                         let dataobj: any = { }
                         
                         dataobj.row = row_labels[j]
-                        //dataobj.row_ = formati(rows_, j, options)
+                        dataobj.row_ = formati(rows_, j, options)
 
                         dataobj.open = to_chart_data(data[j], datatype)
                         dataobj.high = to_chart_data(data[rows + j], datatype)
@@ -1743,7 +1743,6 @@ function Chart ({
                     return <Stock
                         data={data}
                         xField='row'
-                        //写成xField='row_'将会画不出图来，原因未知
                         yField={['open', 'close', 'high', 'low']}
                         xAxis={{
                             title: {
@@ -1757,7 +1756,7 @@ function Chart ({
                         }}
                         meta={{
                             row: {
-                                formatter: (value, index) => format(obj.value.data.value.rows.type, value, obj.value.data.value.rows.le)
+                                formatter: (value, index) => format(obj.value.data.value.rows.type, value, obj.le)
                             },
                             vol: {
                                 alias: t('成交量'),
@@ -1792,7 +1791,7 @@ function Chart ({
                                     if (type === 'x') {
                                         const item = items[0]
                                         textContent = item ? item.data.row_ : defaultContent
-                                    } else 
+                                    } else
                                         textContent = defaultContent.toFixed(2)
                                     
                                     return {
