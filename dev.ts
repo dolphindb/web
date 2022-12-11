@@ -9,7 +9,7 @@ import type { Context } from 'koa'
 import { request_json, inspect, create_mfs, UFS, Remote, set_inspect_options } from 'xshell'
 import { Server } from 'xshell/server.js'
 
-import { get_monaco, webpack, fpd_root, fpd_out_console } from './webpack.js'
+import { webpack, fpd_root, fpd_out_console, get_vendors } from './webpack.js'
 
 
 class DevServer extends Server {
@@ -31,7 +31,6 @@ class DevServer extends Server {
     
     override async router (ctx: Context) {
         const {
-            request,
             request: {
                 query,
                 method,
@@ -42,9 +41,7 @@ class DevServer extends Server {
             },
         } = ctx
         
-        let { response } = ctx
-        
-        let { path } = request
+        let { request, response } = ctx
         
         if (
             request.path === '/console' ||
@@ -57,10 +54,13 @@ class DevServer extends Server {
             return true
         }
         
-        if (path === '/console/') {
+        if (request.path === '/console/') {
             this.ddb_backend = `${query.hostname || '127.0.0.1'}:${query.port || '8848'}`
-            path = '/console/index.html'
+            request.path = '/console/index.html'
         }
+        
+        if (request.path === '/cloud/')
+            request.path = '/cloud/index.html'
         
         if (dapi && method === 'POST') {
             const data = await request_json(`http://${this.ddb_backend}${path}`, { body })
@@ -68,6 +68,8 @@ class DevServer extends Server {
             console.log(response.body = data)
             return true
         }
+        
+        const { path } = request
         
         if (path.startsWith('/v1/grafana/url')) {
             response.body = await request_json(
@@ -114,8 +116,21 @@ class DevServer extends Server {
                     log_404: true
                 })
         
+        for (const prefix of ['/console/vendors/', '/cloud/vendors/'] as const)
+            if (path.startsWith(prefix))
+                return this.try_send(ctx, path.slice(prefix.length), {
+                    root: `${fpd_out_console}vendors/`,
+                    fs,
+                    log_404: true
+                })
+        
         if (path === '/console/onig.wasm') {
             await this.fsend(ctx, `${fpd_root}node_modules/vscode-oniguruma/release/onig.wasm`, { fs, absolute: true })
+            return true
+        }
+        
+        if (path === '/console/docs.zh.json' || path === '/console/docs.en.json') {
+            await this.fsend(ctx, `${fpd_root}node_modules/dolphindb/${path.slice('/console/'.length)}`, { fs, absolute: true })
             return true
         }
         
@@ -154,7 +169,7 @@ let ufs = new UFS([mfs, fs])
 let server = new DevServer()
 
 await Promise.all([
-    get_monaco(),
+    get_vendors(true),
     server.start(),
     webpack.build({ production: false, mfs })
 ])
