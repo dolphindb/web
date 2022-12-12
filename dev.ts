@@ -62,14 +62,14 @@ class DevServer extends Server {
         if (request.path === '/cloud/')
             request.path = '/cloud/index.html'
         
+        const { path } = request
+        
         if (dapi && method === 'POST') {
             const data = await request_json(`http://${this.ddb_backend}${path}`, { body })
             console.log(`${body.functionName}(${inspect(body.params, { compact: true })})`)
             console.log(response.body = data)
             return true
         }
-        
-        const { path } = request
         
         if (path.startsWith('/v1/grafana/url')) {
             response.body = await request_json(
