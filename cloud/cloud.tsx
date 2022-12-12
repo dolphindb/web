@@ -962,7 +962,7 @@ function NodeList ({
                 },
                 {
                     title: t('创建时间'),
-                    dataIndex: 'creationTimestamp',
+                    dataIndex: 'creation_timestamp',
                     render: (creationTimestamp: ClusterNode['creation_timestamp']) =>
                         dayjs(creationTimestamp).format('YYYY.MM.DD HH:mm:ss')
                 },
@@ -1647,7 +1647,7 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
 
 
 function ShowBackupRestoreSourceKey() {
-    const [tag, set_tag] = useState<'backups' | 'restores' | 'sourceKey'>('backups')
+    const [tag, set_tag] = useState<'backups' | 'restores' | 'source_key'>('backups')
     return <Tabs
         defaultActiveKey="1"
         size='large'
@@ -1664,7 +1664,7 @@ function ShowBackupRestoreSourceKey() {
                     break;
 
                 case '3':
-                    set_tag('sourceKey')
+                    set_tag('source_key')
             }
         }}
 
@@ -1834,7 +1834,7 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                                 <Input />
                             </Form.Item>
                         ].concat(
-                        ['provider', 'region', 'accessKey', 'secretAccessKey', 'endpoint'].map(
+                        ['provider', 'region', 'access_key', 'secret_access_key', 'endpoint'].map(
                             (x) => {
                                 return !(x === 'provider') ? <Form.Item
                                     name={x}
@@ -1880,8 +1880,8 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
             return
         }
         const _data = await request_json_with_error_handling(`/v1/dolphindbs/${namespace}/${model.cluster.name}/${props.type}/${props.name}`) as OneBakcupDetail
-        //createTimestamp不展示,记为undefined
-        const data = { ..._data, phase: _data?.status.phase, createTimestamp:undefined } as FlattenBackupDetail
+        //create_timestamp不展示,记为undefined
+        const data = { ..._data, phase: _data?.status.phase, create_timestamp:undefined } as FlattenBackupDetail
         setData(data)
     }
 
@@ -1938,7 +1938,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                                     {
                                         sourceKey_detail && sourceKey_detail[data.source_key] ?
                                             (
-                                                (!sourceKey_detail[data.source_key]['accessKey']) ?
+                                                (!sourceKey_detail[data.source_key]['access_key']) ?
 
                                                     <Descriptions bordered
                                                         column={1}
@@ -1991,16 +1991,16 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                                                         </Descriptions.Item>
                                                         
                                                         <Descriptions.Item
-                                                            label={translate_dict['accessKey']}
+                                                            label={translate_dict['access_key']}
                                                         >
-                                                            {sourceKey_detail[data.source_key]['accessKey']}
+                                                            {sourceKey_detail[data.source_key]['access_key']}
                                                         </Descriptions.Item>
 
 
                                                         <Descriptions.Item
-                                                            label={translate_dict['secretAccessKey']}
+                                                            label={translate_dict['secret_access_key']}
                                                         >
-                                                            {sourceKey_detail[data.source_key]['secretAccessKey']}
+                                                            {sourceKey_detail[data.source_key]['secret_access_key']}
                                                         </Descriptions.Item>
 
                                                         <Descriptions.Item
@@ -2056,7 +2056,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
             }
 
             {
-                data.dolphindbName && data.dolphindbNamespace ?
+                data.dolphindb_name && data.dolphindb_namespace ?
                     <Descriptions
                         title={
                             <Title level={4}>{t('集群信息')}</Title>
@@ -2064,8 +2064,8 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                         column={2}
                         bordered
                     >
-                        <Descriptions.Item label={t('命名空间')}>{data.dolphindbNamespace || ' '}</Descriptions.Item>
-                        <Descriptions.Item label={t('名称', { context: 'backup' })}>{data.dolphindbName || ' '}</Descriptions.Item>
+                        <Descriptions.Item label={t('命名空间')}>{data.dolphindb_namespace || ' '}</Descriptions.Item>
+                        <Descriptions.Item label={t('名称', { context: 'backup' })}>{data.dolphindb_name || ' '}</Descriptions.Item>
                     </Descriptions>
                     : undefined}
 
@@ -2079,12 +2079,12 @@ const translate_dict = {
     ServerInfo: t('服务器信息'),
     namespace: t('命名空间'),
     name: t('名称'),
-    remoteType: t('云端储存类型'),
-    sourceKey: t('云端储存配置'),
+    remote_type: t('云端储存类型'),
+    source_key: t('云端储存配置'),
     prefix: t('桶名'),
-    storageClassName: t('储存类名称'),
-    storageResource: t('储存空间'),
-    maxBackups: t('最大备份数'),
+    storage_class_name: t('储存类名称'),
+    storage_resource: t('储存空间'),
+    max_backups: t('最大备份数'),
     pause: t('暂停'),
     host: t('主机'),
     port: t('端口'),
@@ -2094,8 +2094,8 @@ const translate_dict = {
     endpoint: t('服务地址'),
     provider: t('供应商'),
     region: t('区域'),
-    accessKey: t('访问密钥'),
-    secretAccessKey: t('加密密钥'),
+    access_key: t('访问密钥'),
+    secret_access_key: t('加密密钥'),
     path: t('共享目录', { context: 'backup' }),
     Scheduling: t('调度中'),
     Running: t('运行中'),
@@ -2104,12 +2104,12 @@ const translate_dict = {
     Cleaned: t('清理完成'),
     Failed: t('运行失败'),
     Invalid: t('参数异常'),
-    dolphindbNamespace: t('命名空间'),
-    dolphindbName: t('名称'),
+    dolphindb_namespace: t('命名空间'),
+    dolphindb_name: t('名称'),
     type: t('类型')
 }
 
-const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => {
+const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_key' }) => {
     const [sourcekey_modal_open, set_sourcekey_modal_open] = useState(false)
 
     const [fetched_list_of_namesace, set_isntances_list_of_namespace] = useState<ListOfBackups>(undefined)
@@ -2142,7 +2142,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
 
     const [selectable_names, set_selectable_names] = useState<string[]>([])
 
-    const [init_value_of_restore_modal, set_init_value_of_restore_modal] = useState<{ dolphindbNamespace: string, dolphindbName }>()
+    const [init_value_of_restore_modal, set_init_value_of_restore_modal] = useState<{ dolphindb_namespace: string, dolphindb_name }>()
 
     const [selected_remoteType, set_selected_remoteType] = useState<string>()
 
@@ -2224,7 +2224,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
             return
         }
         try {
-            form_instance_backup.setFieldValue('sourceKey', sourceKeys[0])
+            form_instance_backup.setFieldValue('source_key', sourceKeys[0])
             set_selected_remoteType(sourceKey_detail[sourceKeys[0]]['type'])
         } catch (e) {
             console.log(e)
@@ -2283,7 +2283,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
                             set_detail_modal_open(true)
                         }}>{data_item.name}</Link>,
 
-                        createTimestamp: data_item.createTimestamp,
+                        create_timestamp: data_item.create_timestamp,
 
                         phase: translate_dict[data_item.phase],
                         operation:
@@ -2333,7 +2333,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
                                         onClick={
                                             () => {
                                                 set_restore_modal_open(true)
-                                                set_init_value_of_restore_modal({ dolphindbNamespace: namespaces[0].name, dolphindbName: undefined })
+                                                set_init_value_of_restore_modal({ dolphindb_namespace: namespaces[0].name, dolphindb_name: undefined })
                                                 refresh_selectable_names(namespaces[0].name)
                                                 refresh_content_of_restore_modal(data_item.name)
                                             }}
@@ -2362,8 +2362,8 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
                 />
                 <Column
                     title={t('创建时间', { context: 'backup' })}
-                    key='createTimestamp'
-                    dataIndex={'createTimestamp'}
+                    key='create_timestamp'
+                    dataIndex={'create_timestamp'}
                 />
                 {true ? <Column
                     title={t('状态')}
@@ -2429,10 +2429,10 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
                 colon={false}
             >
                 <>
-                    <Form.Item label={translate_dict['sourceKey']} className={'sourceKey'} rules={[{ required: true, message: t('此项必填') }]} tooltip={t('储存备份文件的储存系统配置')}>
+                    <Form.Item label={translate_dict['source_key']} className={'source_key'} rules={[{ required: true, message: t('此项必填') }]} tooltip={t('储存备份文件的储存系统配置')}>
                         <Space align='start'>
                             <Form.Item
-                                name='sourceKey'
+                                name='source_key'
                                 rules={[{ required: true, message: t('此项必填') }]}
                             >
                                 <Select placeholder="sourceKey"
@@ -2470,7 +2470,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
                                                                 {
                                                                     sourceKey_detail && sourceKey_detail[x] ?
                                                                         (
-                                                                            (!sourceKey_detail[x]['accessKey']) ?
+                                                                            (!sourceKey_detail[x]['access_key']) ?
 
                                                                                 <Descriptions bordered
                                                                                     column={1}
@@ -2514,16 +2514,16 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
                                                                                     </Descriptions.Item>
 
                                                                                     <Descriptions.Item
-                                                                                        label={translate_dict['accessKey']}
+                                                                                        label={translate_dict['access_key']}
                                                                                     >
-                                                                                        {sourceKey_detail[x]['accessKey']}
+                                                                                        {sourceKey_detail[x]['access_key']}
                                                                                     </Descriptions.Item>
 
 
                                                                                     <Descriptions.Item
-                                                                                        label={translate_dict['secretAccessKey']}
+                                                                                        label={translate_dict['secret_access_key']}
                                                                                     >
-                                                                                        {sourceKey_detail[x]['secretAccessKey']}
+                                                                                        {sourceKey_detail[x]['secret_access_key']}
                                                                                     </Descriptions.Item>
 
                                                                                     <Descriptions.Item
@@ -2569,8 +2569,8 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
                             </Form.Item>}
 
                         <Form.Item
-                            name={'storageClassName'}
-                            label={translate_dict['storageClassName']}
+                            name={'storage_class_name'}
+                            label={translate_dict['storage_class_name']}
                             tooltip={t('储存临时备份文件的储存卷名称')}
                         >
 
@@ -2589,8 +2589,8 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
 
 
                         <Form.Item
-                            name={'storageResource'}
-                            label={translate_dict['storageResource']}
+                            name={'storage_resource'}
+                            label={translate_dict['storage_resource']}
                         >
                             <InputNumber addonAfter='Gi' min={1} ></InputNumber>
                         </Form.Item>
@@ -2610,7 +2610,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
                     {t('取消')}
                 </Button>,
                 <Button key="submit" type="primary" onClick={async () => {
-                    const { dolphindbNamespace, dolphindbName } = await form_instance_restore.validateFields()
+                    const { dolphindb_namespace, dolphindb_name } = await form_instance_restore.validateFields()
                     if (!content_of_restore_modal) {
                         message.error('The backup info corresponding to this restore is empty. Coder assertion failed.')
                         return
@@ -2627,8 +2627,8 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
                                 storageClassName: content_of_restore_modal.storage_class_name,
                                 storageResource: `${GiProcess(content_of_restore_modal.storage_resource)}`,
                                 saveDir: content_of_restore_modal.save_dir,
-                                dolphindbName: dolphindbName,
-                                dolphindbNamespace: dolphindbNamespace,
+                                dolphindb_name: dolphindb_name,
+                                dolphindb_namespace: dolphindb_namespace,
                                 from: content_of_restore_modal.from
                             }
                         }
@@ -2655,11 +2655,11 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
             >
 
 
-                <Form.Item name='dolphindbNamespace' label={translate_dict['dolphindbNamespace']}
+                <Form.Item name='dolphindb_namespace' label={translate_dict['dolphindb_namespace']}
                     rules={[{ required: true, message: t('此项必填') }]}>
                     <Select onChange={async (value) => {
                         refresh_selectable_names(value)
-                        set_init_value_of_restore_modal({ dolphindbNamespace: value, dolphindbName: undefined })
+                        set_init_value_of_restore_modal({ dolphindb_namespace: value, dolphindb_name: undefined })
                     }}
                         value={'dolphindb'}
                     >
@@ -2675,8 +2675,8 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
                 </Form.Item>
 
                 <Form.Item
-                    name={'dolphindbName'}
-                    label={translate_dict['dolphindbName']}
+                    name={'dolphindb_name'}
+                    label={translate_dict['dolphindb_name']}
                     rules={[{ required: true, message: t('此项必填') }]}
                 >
                     <Select>
@@ -2705,7 +2705,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
 
 }
 
-const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => {
+const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_key' }) => {
 
     const [fetched_restore_list_of_namesace, set_restore_isntances_list_of_namespace] = useState<ListOfRestores>()
 
@@ -2760,7 +2760,7 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKe
                             set_detail_modal_open(true)
                         }}>{data_item.name}</Link>,
 
-                        createTimestamp: data_item.createTimestamp,
+                        create_timestamp: data_item.create_timestamp,
 
                         phase: translate_dict[data_item.phase],
                         operation:
@@ -2788,8 +2788,8 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKe
                 />
                 <Column
                     title={t('创建时间', { context: 'backup' })}
-                    key='createTimestamp'
-                    dataIndex={'createTimestamp'}
+                    key='create_timestamp'
+                    dataIndex={'create_timestamp'}
                 />
                 {true ? <Column
                     title={t('状态')}
@@ -2812,7 +2812,7 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKe
     </div>
 }
 
-const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => {
+const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) => {
     const [sourceKey_detail, set_sourceKey_detail] = useState()
 
     const [refresher, set_refresher] = useState(0)
@@ -2842,7 +2842,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => 
 
     useInterval(
         () => {
-            if (props.tag === 'sourceKey') {
+            if (props.tag === 'source_key') {
                 refresh_sourceKey_detail()
             }
             return
@@ -2990,16 +2990,16 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'sourceKey' }) => 
                                     </Descriptions.Item>
 
                                     <Descriptions.Item
-                                        label={translate_dict['accessKey']}
+                                        label={translate_dict['access_key']}
                                     >
-                                        {sourceKey_detail[sourceKey_detail_modal_name]['accessKey']}
+                                        {sourceKey_detail[sourceKey_detail_modal_name]['access_key']}
                                     </Descriptions.Item>
 
 
                                     <Descriptions.Item
-                                        label={translate_dict['secretAccessKey']}
+                                        label={translate_dict['secret_access_key']}
                                     >
-                                        {sourceKey_detail[sourceKey_detail_modal_name]['secretAccessKey']}
+                                        {sourceKey_detail[sourceKey_detail_modal_name]['secret_access_key']}
                                     </Descriptions.Item>
 
                                     <Descriptions.Item
@@ -3052,7 +3052,7 @@ const request_json_with_error_handling = async (url, options?) => {
 
 function useInterval(callback, delay) {
     const savedCallback = useRef();
-\
+
     useEffect(() => {
         savedCallback.current = callback;
     });
@@ -3105,7 +3105,7 @@ type ListOfBackups = {
     count: number
     items: {
         name: string
-        createTimestamp: string
+        create_timestamp: string
         phase: string
     }[]
     page_num: number
@@ -3130,7 +3130,7 @@ type OneBakcupDetail = {
 } | undefined
 
 type ListOfRestores = ListOfBackups
-type OneRestoreDetail = OneBakcupDetail & { dolphindbName, dolphindbNamespace, from }
+type OneRestoreDetail = OneBakcupDetail & { dolphindb_name, dolphindb_namespace, from }
 
 type SourceKeyDetail = {
     type: 'nfs',
@@ -3149,6 +3149,6 @@ type FlattenBackupDetail = {
     name, prefix, remote_type, save_dir, source_key, create_timestamp, phase, storage_class_name, storage_resource, stored_path
 }
 
-type FlattenRestoreDetail = FlattenBackupDetail & { dolphindbName, dolphindbNamespace, from }
+type FlattenRestoreDetail = FlattenBackupDetail & { dolphindb_name, dolphindb_namespace, from }
 
 type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
