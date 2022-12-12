@@ -30,6 +30,7 @@ import {
     Space,
     Empty,
     Popover,
+    Col,
 } from 'antd'
 
 import { PageHeader } from '@ant-design/pro-layout'
@@ -952,17 +953,17 @@ function NodeList ({
                 {
                     title: t('数据储存空间'),
                     dataIndex: 'datasize',
-                    render: () => cluster[mode]?.dataSize
+                    render: () => cluster[mode]?.data_size
                 },
                 {
                     title: t('日志储存空间'),
                     dataIndex: 'logsize',
-                    render: () => cluster[mode]?.logSize
+                    render: () => cluster[mode]?.log_size
                 },
                 {
                     title: t('创建时间'),
                     dataIndex: 'creationTimestamp',
-                    render: (creationTimestamp: ClusterNode['creationTimestamp']) =>
+                    render: (creationTimestamp: ClusterNode['creation_timestamp']) =>
                         dayjs(creationTimestamp).format('YYYY.MM.DD HH:mm:ss')
                 },
                 {
@@ -1925,9 +1926,9 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                     }
                     bordered
                 >
-                    <Descriptions.Item label={t('云端储存类型')}>{data.remoteType}</Descriptions.Item>
+                    <Descriptions.Item label={t('云端储存类型')}>{data.remote_type}</Descriptions.Item>
                     <Descriptions.Item label={t('云端储存配置')}>{
-                        <Popover title={data.sourceKey}
+                        <Popover title={data.source_key}
                             mouseEnterDelay={0}
                             mouseLeaveDelay={0}
                             placement={'left'}
@@ -1935,9 +1936,9 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                             content={
                                 <div>
                                     {
-                                        sourceKey_detail && sourceKey_detail[data.sourceKey] ?
+                                        sourceKey_detail && sourceKey_detail[data.source_key] ?
                                             (
-                                                (!sourceKey_detail[data.sourceKey]['accessKey']) ?
+                                                (!sourceKey_detail[data.source_key]['accessKey']) ?
 
                                                     <Descriptions bordered
                                                         column={1}
@@ -1946,19 +1947,19 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                                                         <Descriptions.Item
                                                             label={translate_dict['type']}
                                                         >
-                                                            {sourceKey_detail[data.sourceKey]['type']}
+                                                            {sourceKey_detail[data.source_key]['type']}
                                                         </Descriptions.Item>
 
                                                         <Descriptions.Item
                                                             label={translate_dict['endpoint']}
                                                         >
-                                                            {sourceKey_detail[data.sourceKey]['endpoint']}
+                                                            {sourceKey_detail[data.source_key]['endpoint']}
                                                         </Descriptions.Item>
 
                                                         <Descriptions.Item
                                                             label={translate_dict['path']}
                                                         >
-                                                            {sourceKey_detail[data.sourceKey]['path']}
+                                                            {sourceKey_detail[data.source_key]['path']}
                                                         </Descriptions.Item>
 
                                                     </Descriptions>
@@ -1975,37 +1976,37 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                                                             label={
                                                                 translate_dict['type']
                                                             }>
-                                                            {sourceKey_detail[data.sourceKey]['type']}
+                                                            {sourceKey_detail[data.source_key]['type']}
                                                         </Descriptions.Item>
                                                         <Descriptions.Item
                                                             label={translate_dict['provider']}
                                                         >
-                                                            {sourceKey_detail[data.sourceKey]['provider']}
+                                                            {sourceKey_detail[data.source_key]['provider']}
                                                         </Descriptions.Item>
 
                                                         <Descriptions.Item
                                                             label={translate_dict['region']}
                                                         >
-                                                            {sourceKey_detail[data.sourceKey]['region']}
+                                                            {sourceKey_detail[data.source_key]['region']}
                                                         </Descriptions.Item>
                                                         
                                                         <Descriptions.Item
                                                             label={translate_dict['accessKey']}
                                                         >
-                                                            {sourceKey_detail[data.sourceKey]['accessKey']}
+                                                            {sourceKey_detail[data.source_key]['accessKey']}
                                                         </Descriptions.Item>
 
 
                                                         <Descriptions.Item
                                                             label={translate_dict['secretAccessKey']}
                                                         >
-                                                            {sourceKey_detail[data.sourceKey]['secretAccessKey']}
+                                                            {sourceKey_detail[data.source_key]['secretAccessKey']}
                                                         </Descriptions.Item>
 
                                                         <Descriptions.Item
                                                             label={translate_dict['endpoint']}
                                                         >
-                                                            {sourceKey_detail[data.sourceKey]['endpoint']}
+                                                            {sourceKey_detail[data.source_key]['endpoint']}
                                                         </Descriptions.Item>
 
 
@@ -2016,7 +2017,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                                     }
                                 </div>
                             }
-                        >{<Link>{data.sourceKey}</Link>}</Popover>
+                        >{<Link>{data.source_key}</Link>}</Popover>
                     }</Descriptions.Item>
                     {
                         props.type === 'restores' ?
@@ -2034,13 +2035,13 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                     }
                     bordered
                 >
-                    <Descriptions.Item label={t('储存路径')}>{data.storedPath || ' '}</Descriptions.Item>
+                    <Descriptions.Item label={t('储存路径')}>{data.stored_path || ' '}</Descriptions.Item>
 
                 </Descriptions>
             </div>
 
             {
-                data.storageClassName && data.storageResource ?
+                data.storage_class_name && data.storage_resource ?
                     <Descriptions
                         title={
                             <Title level={4}>{t('储存信息')}</Title>
@@ -2048,8 +2049,8 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                         column={2}
                         bordered
                     >
-                        <Descriptions.Item label={t('储存类名称')}>{data.storageClassName || ' '}</Descriptions.Item>
-                        <Descriptions.Item label={t('储存空间')}>{data.storageResource ? GiProcess(data.storageResource) : ' '}</Descriptions.Item>
+                        <Descriptions.Item label={t('储存类名称')}>{data.storage_class_name || ' '}</Descriptions.Item>
+                        <Descriptions.Item label={t('储存空间')}>{data.storage_resource ? GiProcess(data.storage_resource) : ' '}</Descriptions.Item>
                     </Descriptions>
                     : undefined
             }
@@ -2620,12 +2621,12 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'sourceKey
                             body: {
                                 name: model.cluster.name,
                                 namespace: model.cluster.namespace,
-                                sourceKey: content_of_restore_modal.sourceKey,
-                                remoteType: content_of_restore_modal.remoteType,
+                                sourceKey: content_of_restore_modal.source_key,
+                                remoteType: content_of_restore_modal.remote_type,
                                 prefix: content_of_restore_modal.prefix,
-                                storageClassName: content_of_restore_modal.storageClassName,
-                                storageResource: `${GiProcess(content_of_restore_modal.storageResource)}`,
-                                saveDir: content_of_restore_modal.saveDir,
+                                storageClassName: content_of_restore_modal.storage_class_name,
+                                storageResource: `${GiProcess(content_of_restore_modal.storage_resource)}`,
+                                saveDir: content_of_restore_modal.save_dir,
                                 dolphindbName: dolphindbName,
                                 dolphindbNamespace: dolphindbNamespace,
                                 from: content_of_restore_modal.from
@@ -3051,7 +3052,7 @@ const request_json_with_error_handling = async (url, options?) => {
 
 function useInterval(callback, delay) {
     const savedCallback = useRef();
-
+\
     useEffect(() => {
         savedCallback.current = callback;
     });
@@ -3107,25 +3108,25 @@ type ListOfBackups = {
         createTimestamp: string
         phase: string
     }[]
-    pageNum: number
-    pageSize: number
-    pageTotal: number
+    page_num: number
+    page_size: number
+    page_total: number
 } | undefined
 
 type OneBakcupDetail = {
     name: string
     prefix: string
-    remoteType: string
-    saveDir: string
-    sourceKey: string
+    remote_type: string
+    save_dir: string
+    source_key: string
     status: {
-        createTimestamp: string
+        create_timestamp: string
         name: string
         phase: string
     }
-    storageClassName: string
-    storageResource: string
-    storedPath: string
+    storage_class_name: string
+    storage_resource: string
+    stored_path: string
 } | undefined
 
 type ListOfRestores = ListOfBackups
@@ -3139,13 +3140,13 @@ type SourceKeyDetail = {
     type: 's3',
     endpoint: string
     provider: string
-    secretAccessKey: string
-    accessKey: string
+    secret_access_key: string
+    access_key: string
 } | undefined
 
 
 type FlattenBackupDetail = {
-    name, prefix, remoteType, saveDir, sourceKey, createTimestamp, phase, storageClassName, storageResource, storedPath
+    name, prefix, remote_type, save_dir, source_key, create_timestamp, phase, storage_class_name, storage_resource, stored_path
 }
 
 type FlattenRestoreDetail = FlattenBackupDetail & { dolphindbName, dolphindbNamespace, from }
