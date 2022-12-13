@@ -36,10 +36,6 @@
         "newLine": "lf",
         "lib": ["ESNext", "DOM"],
         "importHelpers": true,
-        // "watch": false
-        // "incremental": true,
-        // "tsBuildInfoFile": "./build/.tsbuildinfo",
-        
         
         // --- emit
         "declaration": false,

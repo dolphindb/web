@@ -310,7 +310,10 @@ const config: Configuration = {
         hints: false,
     },
     
-    cache: false,
+    cache: {
+        type: 'memory',
+        maxGenerations: 1,
+    },
     
     ignoreWarnings: [
         /Failed to parse source map/
@@ -361,6 +364,7 @@ export let webpack = {
                     }
             config.mode = 'production'
             config.output.path = is_cloud ? fpd_out_cloud : fpd_out_console
+            config.cache = false
         }
         
         this.compiler = Webpack(config)
