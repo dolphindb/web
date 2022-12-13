@@ -9,8 +9,12 @@ import type { Context } from 'koa'
 import { request_json, inspect, create_mfs, UFS, Remote, set_inspect_options } from 'xshell'
 import { Server } from 'xshell/server.js'
 
+import { DDB, DdbVectorString } from 'dolphindb'
+
 import { webpack, fpd_root, fpd_out_console, get_vendors } from './webpack.js'
 
+
+let c0 = new DDB('ws://127.0.0.1:8850')
 
 class DevServer extends Server {
     ddb_backend = '127.0.0.1:8848'
@@ -19,6 +23,11 @@ class DevServer extends Server {
         funcs: {
             async recompile () {
                 await webpack.run()
+                return [ ]
+            },
+            
+            async start_data_node () {
+                await c0.call('startDataNode', [new DdbVectorString(['d0', 'd1'])])
                 return [ ]
             }
         }

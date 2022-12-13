@@ -311,8 +311,8 @@ const config: Configuration = {
     },
     
     cache: {
-        type: 'memory',
-        maxGenerations: 1,
+        type: 'filesystem',
+        compression: 'brotli',
     },
     
     ignoreWarnings: [
