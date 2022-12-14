@@ -1,5 +1,4 @@
 import { fileURLToPath } from 'url'
-
 import path from 'upath'
 
 import { default as Webpack, type Compiler, type Configuration, type Stats } from 'webpack'
