@@ -1,7 +1,7 @@
 {
     "name": "dolphindb-web",
     "engines": {
-        "node": ">=19.2.0"
+        "node": ">=19.3.0"
     },
     "type": "module",
     "scripts": {
@@ -31,7 +31,7 @@
         "@types/react-dom": "^18.0.9",
         "@types/sass-loader": "^8.0.3",
         "@types/webpack-bundle-analyzer": "^4.6.0",
-        "css-loader": "^6.7.2",
+        "css-loader": "^6.7.3",
         "koa-compress": "^5.1.0",
         "react": "^18.2.0",
         "sass": "^1.56.2",
@@ -60,7 +60,7 @@
         "tslib": "^2.4.1",
         "vscode-oniguruma": "^1.7.0",
         "vscode-textmate": "^8.0.0",
-        "xshell": "^0.0.71",
+        "xshell": "^0.0.72",
         "xterm": "^5.0.0",
         "xterm-addon-fit": "^0.6.0",
         "xterm-addon-web-links": "^0.7.0",
