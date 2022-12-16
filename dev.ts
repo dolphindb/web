@@ -159,7 +159,7 @@ class DevServer extends Server {
                 {
                     root: fpd_root,
                     fs: ufs,
-                    log_404: false
+                    log_404: true
                 }
             )
         )
