@@ -56,6 +56,7 @@ import {
 } from './model.js'
 
 import icon_add from './add.svg'
+import { useForm } from 'antd/lib/form/Form.js'
 
 const { Column } = Table;
 const { Option } = Select
@@ -155,7 +156,7 @@ function ClusterDetailMenuItem({
 function InfoTab() {
     const { cluster } = model.use(['cluster'])
     
-    const { namespace, name, log_mode, version, storage_class_name, services, status, created_at } = cluster
+    const { namespace, name, log_mode, version, storage_class, services, status, created_at } = cluster
     
     return (
         <>
@@ -177,7 +178,7 @@ function InfoTab() {
                 </Descriptions.Item>
                 <Descriptions.Item label={t('日志模式')}>{log_modes[log_mode]}</Descriptions.Item>
                 <Descriptions.Item label={t('创建时间')}>{created_at.format('YYYY.MM.DD HH:mm:ss')}</Descriptions.Item>
-                <Descriptions.Item label={t('储存类')}>{storage_class_name}</Descriptions.Item>
+                <Descriptions.Item label={t('存储类')}>{storage_class}</Descriptions.Item>
             </Descriptions>
             
             <Descriptions
@@ -217,7 +218,8 @@ function Clusters () {
     
     const [queries, set_queries] = useState<QueryOptions>(default_queries)
     
-    
+    const [update_modal_open, set_update_modal_open] = useState(false)
+    const [update_form] = useForm()
     useEffect(() => {
         let flag = true
         ;(async () => {
@@ -259,6 +261,7 @@ function Clusters () {
             >{t('刷新')}</Button>
         </div>
         
+
         
         <Table
             className='list'
@@ -338,20 +341,68 @@ function Clusters () {
                     title: t('操作'),
                     key: 'actions',
                     render (value, cluster) {
-                        return <Popconfirm
-                            title={t('确认删除集群')}
-                            onConfirm={async () => {
-                                try {
-                                    await model.delete(cluster)
-                                    message.success(t('集群删除成功'))
-                                    await model.get_clusters(queries)
-                                } catch (error) {
-                                    message.error(JSON.stringify(error))
-                                }
+                        return <><Space>
+                            <Popconfirm
+                                title={t('确认删除集群')}
+                                onConfirm={async () => {
+                                    try {
+                                        await model.delete(cluster)
+                                        message.success(t('集群删除成功'))
+                                        await model.get_clusters(queries)
+                                    } catch (error) {
+                                        message.error(JSON.stringify(error))
+                                    }
+                                }}
+                            >
+                                <Link>{t('删除')}</Link>
+                            </Popconfirm>
+
+                            <Link onClick={() => {
+                                set_update_modal_open(true)
+                            }}>
+                                {t('升级')}
+                            </Link>
+                        </Space>
+                        <Modal
+                            open={update_modal_open}
+                            onCancel={() => {
+                                set_update_modal_open(false)
+                            }}
+                            
+                            onOk={async () => {
+                                const form_values = await update_form.validateFields()
+                                await request_json(
+                                    `v1/dolphindbs/${cluster.namespace}/${cluster.name}`,
+                                    {
+                                        method: 'post',
+                                        body: form_values
+                                    }
+                                )
                             }}
                         >
-                            <Link>{t('删除')}</Link>
-                        </Popconfirm>
+                            <Form>
+                                <Form.Item
+                                    name={'version'}
+                                    label={'版本'}
+                                >
+                                    <Input></Input>
+                                </Form.Item>
+                                
+                                <Form.Item
+                                name={['datanode', 'replicas']}
+                                >
+                                    <InputNumber></InputNumber>
+                                </Form.Item>
+                                
+                                <Form.Item
+                                name={['datanode', 'resources', 'limits']}
+                                >
+                                    <InputNumber></InputNumber>
+                                </Form.Item>
+                                
+                            </Form>
+
+                        </Modal></>
                     }
                 }
             ]}
@@ -455,16 +506,23 @@ function CreateClusterPanel({
         let values = await form.validateFields()
 
         const { mode, cluster_type } = values
-        
+
         values.datanode.data_size = Number(values.datanode.data_size)
-        
+
         if (cluster_type === 'singlecontroller')
             values.controller.replicas = 0
-        
+
         if (mode === 'standalone')
             delete values.controller
+            
         
-        
+        const fields = ['controller', 'datanode', 'computenode'];
+        fields.forEach(field => {
+            values[field].resources.limits.memory = `${values[field].resources.limits.memory}Gi`;
+            values[field].resources.requests.memory = `${values[field].resources.requests.memory}Gi`;
+        });
+
+
         try {
             await model.create(values)
             message.success(t('集群创建成功'))
@@ -473,7 +531,7 @@ function CreateClusterPanel({
             message.error(t('集群创建失败'))
             throw error
         }
-        
+
         await model.get_clusters(queries)
     }
 
@@ -481,6 +539,29 @@ function CreateClusterPanel({
         form.resetFields()
     }
 
+    function createValidateLimitFunction(field, limitField, lowerLimit) {
+        return (rule, value, callback) => {
+            console.log(field, limitField, lowerLimit)
+          const formData = form.getFieldsValue();
+          if (lowerLimit) {
+            if (value >= formData[field]['resources']['limits'][limitField]) {
+              callback(`${t(field)} ${t(limitField)} ${t('下限必须小于上限')}`);
+            } else {
+              formData[field]['resources']['requests'][limitField] = value;
+              callback();
+            }
+          } else {
+            if (value <= formData[field]['resources']['requests'][limitField]) {
+              callback(`${t(field)} ${t(limitField)} ${t('上限必须大于下限')}`);
+            } else {
+              formData[field]['resources']['limits'][limitField] = value;
+              callback();
+            }
+          }
+        };
+      }
+      
+      
     return (
         <Modal 
             className='cloud-create-panel'
@@ -518,8 +599,14 @@ function CreateClusterPanel({
                         log_size: 1,
                         port: 31210,
                         resources: {
-                            cpu: 1,
-                            memory: 1,
+                            limits:{
+                                cpu: 0.2,
+                                memory: 1
+                            },
+                            requests:{
+                                cpu: 0,
+                                memory: 0.5
+                            }
                         }
                     },
                     datanode: {
@@ -528,8 +615,14 @@ function CreateClusterPanel({
                         log_size: 1,
                         port: 32210,
                         resources: {
-                            cpu: 1,
-                            memory: 1,
+                            limits:{
+                                cpu: 0.2,
+                                memory: 1
+                            },
+                            requests:{
+                                cpu: 0,
+                                memory: 0.5
+                            }
                         }
                     },
                     computenode: {
@@ -538,8 +631,14 @@ function CreateClusterPanel({
                         log_size: 1,
                         port: 32210,
                         resources: {
-                            cpu: 1,
-                            memory: 1,
+                            limits:{
+                                cpu: 0.2,
+                                memory: 1
+                            },
+                            requests:{
+                                cpu: 0,
+                                memory: 0.5
+                            }
                         }
                     },
                     namespace: namespaces.length !== 0 ? namespaces[0].name : '',
@@ -604,7 +703,7 @@ function CreateClusterPanel({
                     </Select>
                 </Form.Item>
 
-                <Form.Item name='storage_class' label={t('储存类')}>
+                <Form.Item name='storage_class' label={t('存储类')}>
                     <Select placeholder='Please select a storage class' >
                         {
                             storageclasses.length !== 0 ?
@@ -671,15 +770,30 @@ function CreateClusterPanel({
                     
                     <Form.Item name={['controller', 'port']} label={t('端口')} rules={[{ required: true }]}>
                         <InputNumber min={0} />
-                    </Form.Item>
+                    </Form.Item>                    
                     
-                    <Form.Item name={['controller', 'resources', 'cpu']} label='CPU' rules={[{ required: true }]}>
-                        <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
-                    </Form.Item>
+                    <Form.Item label='CPU' >
+                    <Input.Group compact>
+                        <Form.Item name={['controller', 'resources', 'requests', 'cpu']} label={t('下限')} rules={[{ required: true, validator: createValidateLimitFunction('controller', 'cpu', true) }]}  className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                        </Form.Item>
+                        <Form.Item name={['controller', 'resources', 'limits', 'cpu']} label={t('上限')} rules={[{ required: true, validator: createValidateLimitFunction('controller', 'cpu', false) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                        </Form.Item>
+                    </Input.Group>
+                </Form.Item>
                     
-                    <Form.Item name={['controller', 'resources', 'memory']} label={t('内存')} rules={[{ required: true }]}>
-                        <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi'/>
-                    </Form.Item>
+                <Form.Item label={t('内存')}>
+                    <Input.Group compact>
+                        <Form.Item name={['controller', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ required: true, validator: createValidateLimitFunction('controller', 'meomory', true) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                        </Form.Item>
+                        <Form.Item name={['controller', 'resources', 'limits','memory']} label={t('上限')} rules={[{ required: true, validator: createValidateLimitFunction('controller', 'memory', false) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                        </Form.Item>
+                    </Input.Group>
+                </Form.Item>
+
                 </> }
 
                 <Divider orientation='left'>{t('数据节点')}</Divider>
@@ -700,12 +814,26 @@ function CreateClusterPanel({
                     <InputNumber min={0} />
                 </Form.Item>
                 
-                <Form.Item name={['datanode', 'resources', 'cpu']} label='CPU' rules={[{ required: true }]}>
-                    <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
+                <Form.Item label='CPU' >
+                    <Input.Group compact>
+                        <Form.Item name={['datanode', 'resources', 'requests', 'cpu']} label={t('下限')} rules={[{ required: true, validator: createValidateLimitFunction('datanode', 'cpu', true) }]}  className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                        </Form.Item>
+                        <Form.Item name={['datanode', 'resources', 'limits', 'cpu']} label={t('上限')} rules={[{ required: true, validator: createValidateLimitFunction('datanode', 'cpu', false) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                        </Form.Item>
+                    </Input.Group>
                 </Form.Item>
-                
-                <Form.Item name={['datanode', 'resources', 'memory']} label={t('内存')} rules={[{ required: true }]}>
-                    <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi'/>
+                    
+                <Form.Item label={t('内存')}>
+                    <Input.Group compact>
+                        <Form.Item name={['datanode', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ required: true, validator: createValidateLimitFunction('datanode', 'meomory', true) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                        </Form.Item>
+                        <Form.Item name={['datanode', 'resources', 'limits','memory']} label={t('上限')} rules={[{ required: true, validator: createValidateLimitFunction('datanode', 'memory', false) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                        </Form.Item>
+                    </Input.Group>
                 </Form.Item>
                 
                { mode === 'cluster' && <>
@@ -727,12 +855,27 @@ function CreateClusterPanel({
                         <InputNumber min={0} />
                     </Form.Item>
                     
-                    <Form.Item name={['computenode', 'resources', 'cpu']} label='CPU' rules={[{ required: true }]}>
-                        <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
+                    <Form.Item label='CPU'>
+                        <Input.Group compact>
+                        <Form.Item name={['computenode', 'resources','requests' , 'cpu']} label={t('下限')} rules={[{ required: true, validator: createValidateLimitFunction('computenode', 'cpu', true) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                        </Form.Item>
+                        
+                        <Form.Item name={['computenode', 'resources', 'limits', 'cpu']} label={t('上限')} rules={[{ required: true, validator: createValidateLimitFunction('computenode', 'cpu', false) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                        </Form.Item>
+                        </Input.Group>
                     </Form.Item>
                     
-                    <Form.Item name={['computenode', 'resources', 'memory']} label={t('内存')} rules={[{ required: true }]}>
-                        <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi'/>
+                    <Form.Item label={t('内存')}>
+                        <Input.Group compact>
+                            <Form.Item name={['computenode', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ required: true, validator: createValidateLimitFunction('computenode', 'memory', true) }]} className={'limit'}>
+                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                            </Form.Item>
+                            <Form.Item name={['computenode', 'resources', 'limits','memory']} label={t('上限')} rules={[{ required: true, validator: createValidateLimitFunction('computenode', 'memory', false) }]} className={'limit'}>
+                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                            </Form.Item>
+                        </Input.Group>
                     </Form.Item>
                </> }
             </Form>
@@ -951,12 +1094,12 @@ function NodeList ({
                     }
                 },
                 {
-                    title: t('数据储存空间'),
+                    title: t('数据存储空间'),
                     dataIndex: 'datasize',
                     render: () => cluster[mode]?.data_size
                 },
                 {
-                    title: t('日志储存空间'),
+                    title: t('日志存储空间'),
                     dataIndex: 'logsize',
                     render: () => cluster[mode]?.log_size
                 },
@@ -1683,7 +1826,7 @@ function ShowBackupRestoreSourceKey() {
                 children: <RestoreListOfNamespace tag={tag}></RestoreListOfNamespace>
             },
             {
-                label: t('云端储存配置'),
+                label: t('云端存储配置'),
                 key: '3',
                 children: <SourceKeyList tag={tag}></SourceKeyList>
             },
@@ -1718,7 +1861,7 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
 
     return <Modal
 
-        title={t('添加云端储存配置')}
+        title={t('添加云端存储配置')}
         open={source_key_modal_info.open}
         onCancel={() => { props.set_sourcekey_modal_open(false) }}
         footer={[
@@ -1926,8 +2069,8 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                     }
                     bordered
                 >
-                    <Descriptions.Item label={t('云端储存类型')}>{data.remote_type}</Descriptions.Item>
-                    <Descriptions.Item label={t('云端储存配置')}>{
+                    <Descriptions.Item label={t('云端存储类型')}>{data.remote_type}</Descriptions.Item>
+                    <Descriptions.Item label={t('云端存储配置')}>{
                         <Popover title={data.source_key}
                             mouseEnterDelay={0}
                             mouseLeaveDelay={0}
@@ -2035,22 +2178,22 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                     }
                     bordered
                 >
-                    <Descriptions.Item label={t('储存路径')}>{data.stored_path || ' '}</Descriptions.Item>
+                    <Descriptions.Item label={t('存储路径')}>{data.stored_path || ' '}</Descriptions.Item>
 
                 </Descriptions>
             </div>
 
             {
-                data.storage_class_name && data.storage_resource ?
+                data.storage_class && data.storage_resource ?
                     <Descriptions
                         title={
-                            <Title level={4}>{t('储存信息')}</Title>
+                            <Title level={4}>{t('存储信息')}</Title>
                         }
                         column={2}
                         bordered
                     >
-                        <Descriptions.Item label={t('储存类名称')}>{data.storage_class_name || ' '}</Descriptions.Item>
-                        <Descriptions.Item label={t('储存空间')}>{data.storage_resource ? GiProcess(data.storage_resource) : ' '}</Descriptions.Item>
+                        <Descriptions.Item label={t('存储类名称')}>{data.storage_class || ' '}</Descriptions.Item>
+                        <Descriptions.Item label={t('存储空间')}>{data.storage_resource ? GiProcess(data.storage_resource) : ' '}</Descriptions.Item>
                     </Descriptions>
                     : undefined
             }
@@ -2079,11 +2222,11 @@ const translate_dict = {
     ServerInfo: t('服务器信息'),
     namespace: t('命名空间'),
     name: t('名称'),
-    remote_type: t('云端储存类型'),
-    source_key: t('云端储存配置'),
+    remote_type: t('云端存储类型'),
+    source_key: t('云端存储配置'),
     prefix: t('桶名'),
-    storage_class_name: t('储存类名称'),
-    storage_resource: t('储存空间'),
+    storage_class: t('存储类名称'),
+    storage_resource: t('存储空间'),
     max_backups: t('最大备份数'),
     pause: t('暂停'),
     host: t('主机'),
@@ -2110,7 +2253,7 @@ const translate_dict = {
 }
 
 const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_key' }) => {
-    const [sourcekey_modal_open, set_sourcekey_modal_open] = useState(false)
+    const [sourcekey_modal_open, set_sourcekey_modal_open] = useState(false) 
 
     const [fetched_list_of_namesace, set_isntances_list_of_namespace] = useState<ListOfBackups>(undefined)
 
@@ -2253,7 +2396,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                 onClick={async () => {
                     set_backup_modal_open(true)
                     //one_restore_detail中有许多属性，但是此处只用赋值其中三个，其他全为undefined
-                    set_content_of_backup_modal({ source_key: source_keys[0], remote_type: 's3', storage_class_name: storage_class.sort().reverse()[0], storage_resource: 10 })
+                    set_content_of_backup_modal({ source_key: source_keys[0], remote_type: 's3', storage_class: storage_class.sort().reverse()[0], storage_resource: 10 })
                 }}
             >
                 <img className='icon-add' src={icon_add} />
@@ -2305,7 +2448,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                         onConfirm={async () => {
                                             const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${data_item.name}`)
 
-                                            var { source_key, remote_type, prefix, storage_class_name, storage_resource } = data
+                                            var { source_key, remote_type, prefix, storage_class, storage_resource } = data
 
                                             await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`,
                                                 {
@@ -2316,7 +2459,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                                         source_key: source_key,
                                                         remote_type: remote_type,
                                                         prefix: prefix,
-                                                        storage_class_name: storage_class_name,
+                                                        storage_class: storage_class,
                                                         storage_resource: `${GiProcess(storage_resource)}`
                                                     }
                                                 }
@@ -2388,7 +2531,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                     {t('取消')}
                 </Button>,
                 <Button key="submit" type="primary" onClick={async () => {
-                    var { source_key, prefix, storage_class_name, storage_resource } = await form_instance_backup.validateFields()
+                    var { source_key, prefix, storage_class, storage_resource } = await form_instance_backup.validateFields()
                     if (!source_key_detail) {
                         //source_key_detail在打开Modal的时候会被set，所以其必有值
                         message.error('SourceKey detail is none. Coder assertion failed')
@@ -2404,7 +2547,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                 source_key: source_key,
                                 remote_type: remote_type,
                                 prefix: prefix,
-                                storage_class_name: storage_class_name,
+                                storage_class: storage_class,
                                 storage_resource: `${GiProcess(storage_resource)}`
                             }
                         }
@@ -2429,7 +2572,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                 colon={false}
             >
                 <>
-                    <Form.Item label={translate_dict['source_key']} className={'source_key'} rules={[{ required: true, message: t('此项必填') }]} tooltip={t('储存备份文件的储存系统配置')}>
+                    <Form.Item label={translate_dict['source_key']} className={'source_key'} rules={[{ required: true, message: t('此项必填') }]} tooltip={t('存储备份文件的存储系统配置')}>
                         <Space align='start'>
                             <Form.Item
                                 name='source_key'
@@ -2551,7 +2694,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                 type='primary'
                                 onClick={() => {
                                     set_sourcekey_modal_open(true)
-                                }}>{t('添加云端储存配置')}</Button>
+                                }}>{t('添加云端存储配置')}</Button>
 
                         </Space>
                     </Form.Item>
@@ -2569,9 +2712,9 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                             </Form.Item>}
 
                         <Form.Item
-                            name={'storage_class_name'}
-                            label={translate_dict['storage_class_name']}
-                            tooltip={t('储存临时备份文件的储存卷名称')}
+                            name={'storage_class'}
+                            label={translate_dict['storage_class']}
+                            tooltip={t('存储临时备份文件的存储卷名称')}
                         >
 
                             <Select >
@@ -2624,7 +2767,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                 source_key: content_of_restore_modal.source_key,
                                 remote_type: content_of_restore_modal.remote_type,
                                 prefix: content_of_restore_modal.prefix,
-                                storage_class_name: content_of_restore_modal.storage_class_name,
+                                storage_class: content_of_restore_modal.storage_class,
                                 storage_resource: `${GiProcess(content_of_restore_modal.storage_resource)}`,
                                 saveDir: content_of_restore_modal.save_dir,
                                 dolphindb_name: dolphindb_name,
@@ -2860,7 +3003,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
                 }}
             >
                 <img className='icon-add' src={icon_add} />
-                <span>{t('添加云端储存配置')}</span>
+                <span>{t('添加云端存储配置')}</span>
             </Button>
 
             <Button
@@ -3124,7 +3267,7 @@ type OneBakcupDetail = {
         name: string
         phase: string
     }
-    storage_class_name: string
+    storage_class: string
     storage_resource: string
     stored_path: string
 } | undefined
@@ -3146,7 +3289,7 @@ type SourceKeyDetail = {
 
 
 type FlattenBackupDetail = {
-    name, prefix, remote_type, save_dir, source_key, create_timestamp, phase, storage_class_name, storage_resource, stored_path
+    name, prefix, remote_type, save_dir, source_key, create_timestamp, phase, storage_class, storage_resource, stored_path
 }
 
 type FlattenRestoreDetail = FlattenBackupDetail & { dolphindb_name, dolphindb_namespace, from }
