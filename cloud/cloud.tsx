@@ -213,7 +213,7 @@ function InfoTab() {
 
 function Clusters () {
     const { clusters, versions, namespaces } = model.use(['clusters', 'versions', 'namespaces'])
-    
+    const [current_cluster, set_current_cluster] = useState<Cluster>(undefined)
     const [create_panel_visible, set_create_panel_visible] = useState(false)
     
     const [queries, set_queries] = useState<QueryOptions>(default_queries)
@@ -358,51 +358,13 @@ function Clusters () {
                             </Popconfirm>
 
                             <Link onClick={() => {
+                                set_current_cluster(cluster)
                                 set_update_modal_open(true)
                             }}>
                                 {t('升级')}
                             </Link>
                         </Space>
-                        <Modal
-                            open={update_modal_open}
-                            onCancel={() => {
-                                set_update_modal_open(false)
-                            }}
-                            
-                            onOk={async () => {
-                                const form_values = await update_form.validateFields()
-                                await request_json(
-                                    `v1/dolphindbs/${cluster.namespace}/${cluster.name}`,
-                                    {
-                                        method: 'post',
-                                        body: form_values
-                                    }
-                                )
-                            }}
-                        >
-                            <Form>
-                                <Form.Item
-                                    name={'version'}
-                                    label={'版本'}
-                                >
-                                    <Input></Input>
-                                </Form.Item>
-                                
-                                <Form.Item
-                                name={['datanode', 'replicas']}
-                                >
-                                    <InputNumber></InputNumber>
-                                </Form.Item>
-                                
-                                <Form.Item
-                                name={['datanode', 'resources', 'limits']}
-                                >
-                                    <InputNumber></InputNumber>
-                                </Form.Item>
-                                
-                            </Form>
-
-                        </Modal></>
+                            </>
                     }
                 }
             ]}
@@ -465,7 +427,143 @@ function Clusters () {
                 showQuickJumper: true,
             }}
         />
-        
+        <Modal
+                                className='cloud-create-panel'
+                                open={update_modal_open}
+                                title={t(`升级${current_cluster?.name}`)}
+                                onCancel={() => { set_update_modal_open(false) }}
+                                width={'800px'}
+                                mask={false}
+                                footer={<>
+                                    <Button type='primary' htmlType='submit' className='submit' onClick={async () => {
+                                        var form_values = await update_form.validateFields()
+
+                                        const fields = ['controller', 'datanode', 'computenode'];
+                                        fields.forEach(field => {
+                                            if (form_values[field].resources.limits.memory) {
+                                              form_values[field].resources.limits.memory = `${form_values[field].resources.limits.memory}Gi`;
+                                            }
+                                            if (form_values[field].resources.requests.memory) {
+                                              form_values[field].resources.requests.memory = `${form_values[field].resources.requests.memory}Gi`;
+                                            }
+                                          });
+                                          
+                                        
+                                        const removeEmptyProperties = (obj) => {
+                                            for (const propName in obj) {
+                                              if (obj[propName] === null || obj[propName] === undefined || (typeof obj[propName] === 'object' && Object.keys(obj[propName]).length === 0)) {
+                                                delete obj[propName];
+                                              } else if (typeof obj[propName] === 'object') {
+                                                removeEmptyProperties(obj[propName]);
+                                                if (Object.keys(obj[propName]).length === 0) {
+                                                  delete obj[propName];
+                                                }
+                                              }
+                                            }
+                                          };
+                                          
+                                        removeEmptyProperties(form_values);
+                                        
+                                        await request_json(
+                                            `v1/dolphindbs/${current_cluster?.namespace}/${current_cluster?.name}`,
+                                            {
+                                                method: 'put',
+                                                body: form_values
+                                            }
+                                        )
+                                    }}>{t('提交')}</Button>
+                                </>}
+                            >
+                                <Form
+                                    form={update_form}
+                                    name='cluster-form'
+                                    className='cluster-create-form'
+                                    labelAlign='left'
+                                    labelCol={{ span: 6 }}
+                                    wrapperCol={{ span: 16 }}
+                                    colon={false}
+                                    requiredMark={false}
+                                >
+                                    <Divider orientation='left'>{t('版本')}</Divider>
+                                    <Form.Item name={'versions'} label={t('版本')}>
+                                        <Input></Input>
+                                    </Form.Item>
+
+                                    <Divider orientation='left'>{t('控制节点')}</Divider>
+
+                                    <Form.Item label='CPU' >
+                                        <Input.Group compact>
+                                            <Form.Item name={['controller', 'resources', 'requests', 'cpu']} label={t('下限')} className={'limit'}>
+                                                <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                                            </Form.Item>
+                                            <Form.Item name={['controller', 'resources', 'limits', 'cpu']} label={t('上限')} className={'limit'}>
+                                                <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                                            </Form.Item>
+                                        </Input.Group>
+                                    </Form.Item>
+
+                                    <Form.Item label={t('内存')}>
+                                        <Input.Group compact>
+                                            <Form.Item name={['controller', 'resources', 'requests', 'memory']} label={t('下限')} className={'limit'}>
+                                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                                            </Form.Item>
+                                            <Form.Item name={['controller', 'resources', 'limits', 'memory']} label={t('上限')} className={'limit'}>
+                                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                                            </Form.Item>
+                                        </Input.Group>
+                                    </Form.Item>
+
+
+                                    <Divider orientation='left'>{t('数据节点')}</Divider>
+                                    <Form.Item label='CPU' >
+                                        <Input.Group compact>
+                                            <Form.Item name={['datanode', 'resources', 'requests', 'cpu']} label={t('下限')} className={'limit'}>
+                                                <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                                            </Form.Item>
+                                            <Form.Item name={['datanode', 'resources', 'limits', 'cpu']} label={t('上限')} className={'limit'}>
+                                                <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                                            </Form.Item>
+                                        </Input.Group>
+                                    </Form.Item>
+
+                                    <Form.Item label={t('内存')}>
+                                        <Input.Group compact>
+                                            <Form.Item name={['datanode', 'resources', 'requests', 'memory']} label={t('下限')} className={'limit'}>
+                                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                                            </Form.Item>
+                                            <Form.Item name={['datanode', 'resources', 'limits', 'memory']} label={t('上限')} className={'limit'}>
+                                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                                            </Form.Item>
+                                        </Input.Group>
+                                    </Form.Item>
+
+                                    <Divider orientation='left'>{t('计算节点')}</Divider>
+
+                                    <Form.Item label='CPU'>
+                                        <Input.Group compact>
+                                            <Form.Item name={['computenode', 'resources', 'requests', 'cpu']} label={t('下限')} className={'limit'}>
+                                                <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                                            </Form.Item>
+
+                                            <Form.Item name={['computenode', 'resources', 'limits', 'cpu']} label={t('上限')} className={'limit'}>
+                                                <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                                            </Form.Item>
+                                        </Input.Group>
+                                    </Form.Item>
+
+                                    <Form.Item label={t('内存')}>
+                                        <Input.Group compact>
+                                            <Form.Item name={['computenode', 'resources', 'requests', 'memory']} label={t('下限')} className={'limit'}>
+                                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                                            </Form.Item>
+                                            <Form.Item name={['computenode', 'resources', 'limits', 'memory']} label={t('上限')} className={'limit'}>
+                                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                                            </Form.Item>
+                                        </Input.Group>
+                                    </Form.Item>
+
+                                </Form>
+                            </Modal>
         
         <CreateClusterPanel
             visible={create_panel_visible}
@@ -541,9 +639,11 @@ function CreateClusterPanel({
 
     function createValidateLimitFunction(field, limitField, lowerLimit) {
         return (rule, value, callback) => {
-            console.log(field, limitField, lowerLimit)
+          console.log(field, limitField, lowerLimit);
           const formData = form.getFieldsValue();
-          if (lowerLimit) {
+          if (!value || !formData[field]['resources']['limits'][limitField]) {
+            callback();
+          } else if (lowerLimit) {
             if (value >= formData[field]['resources']['limits'][limitField]) {
               callback(`${t(field)} ${t(limitField)} ${t('下限必须小于上限')}`);
             } else {
@@ -560,6 +660,7 @@ function CreateClusterPanel({
           }
         };
       }
+      
       
       
     return (
