@@ -49,7 +49,7 @@
         "@monaco-editor/react": "^4.4.6",
         "antd": "^5.1.0",
         "dayjs": "^1.11.7",
-        "dolphindb": "^2.0.907",
+        "dolphindb": "^2.0.908",
         "final-form": "^4.20.7",
         "lodash": "^4.17.21",
         "re-resizable": "^6.9.9",
@@ -58,9 +58,9 @@
         "tslib": "^2.4.1",
         "vscode-oniguruma": "^1.7.0",
         "vscode-textmate": "^8.0.0",
-        "xshell": "^0.0.73",
+        "xshell": "^0.0.74",
         "xterm": "^5.1.0",
-        "xterm-addon-fit": "^0.6.0",
+        "xterm-addon-fit": "^0.7.0",
         "xterm-addon-web-links": "^0.8.0",
         "xterm-addon-webgl": "^0.14.0"
     }
