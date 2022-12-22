@@ -648,14 +648,12 @@ function Table ({
 
 
 export function StreamingTable ({
-    url,
     table,
     action,
     autologin = false,
     ctx,
     options,
 }: {
-    url: string
     table: string
     action?: string
     autologin?: boolean
@@ -695,7 +693,7 @@ export function StreamingTable ({
     
     useEffect(() => {
         ;(async () => {
-            let ddb = rddb.current = new DDB(url, {
+            let ddb = rddb.current = new DDB(undefined, {
                 autologin,
                 streaming: {
                     table,
@@ -722,7 +720,7 @@ export function StreamingTable ({
                 }
             })
             
-            let ddbapi = rddbapi.current = new DDB(url)
+            let ddbapi = rddbapi.current = new DDB()
             
             // LOCAL: 创建流表
             await ddbapi.eval(
