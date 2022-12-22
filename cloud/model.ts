@@ -162,7 +162,7 @@ export class CloudModel extends Model <CloudModel> {
 
     async get_cluster (cluster_overview: Cluster) {
         let cluster = await request_json(`/v1/dolphindbs/${cluster_overview.namespace}/${cluster_overview.name}`)
-        cluster.created_at = dayjs(cluster.creationTimestamp)
+        cluster.created_at = dayjs(cluster.creation_timestamp)
         
         console.log('cluster:', cluster)
         this.set({
@@ -202,25 +202,25 @@ export interface Cluster {
     log_mode: string
     cluster_type?: string
     version: string
-    storage_class_name: string
+    storage_class: string
     created_at: Dayjs
     controller: {
         replicas: number
         resources: any
-        dataSize: string
-        logSize: string
+        data_size: string
+        log_size: string
     }
     datanode: {
         replicas: number
         resources: any
-        dataSize: string
-        logSize: string
+        data_size: string
+        log_size: string
     }
     computenode: {
         replicas: number
         resources: any
-        dataSize: string
-        logSize: string
+        data_size: string
+        log_size: string
     }
     status: {
         phase: 'Available' | string
@@ -258,7 +258,7 @@ export interface StorageClass {
 export interface ClusterNode {
     namespace: string
     name: string
-    creationTimestamp: string
+    creation_timestamp: string
     resources: {
         limits: {
             cpu: string
