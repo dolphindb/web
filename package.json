@@ -59,7 +59,7 @@
         "tslib": "^2.4.1",
         "vscode-oniguruma": "^1.7.0",
         "vscode-textmate": "^8.0.0",
-        "xshell": "^0.0.74",
+        "xshell": "^0.0.75",
         "xterm": "^5.1.0",
         "xterm-addon-fit": "^0.7.0",
         "xterm-addon-web-links": "^0.8.0",
