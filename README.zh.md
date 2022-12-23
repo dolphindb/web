@@ -30,23 +30,49 @@ https://github.com/dolphindb/Tutorials_CN/blob/master/%E5%AE%89%E8%A3%85%E5%92%8
 
 ### 构建及开发方法
 ```shell
+# 安装最新版的 nodejs
+# https://nodejs.org/en/download/current/
+
 git clone https://github.com/dolphindb/web.git
 
 cd web
 
-npm i --force
+npm install --force
 
-# 1. 构建 console
+# 参考 package.json 中的 scripts
+
+# 构建 console
 npm run build
 # 完成后产物在 web 文件夹中
 
-# 2. 构建 cloud
+# 构建 cloud
 npm run build.cloud
 # 完成后产物在 web.cloud 文件夹中
 
-# 3. 开发
+# 开发
 npm run dev
 
-# 4. 扫描词条
+# 扫描词条
 npm run scan
+# 手动补全未翻译词条
+# 再次运行扫描以更新词典文件 dict.json
+npm run scan
+```
+
+#### CI 构建
+```shell
+# 安装项目依赖
+npm ci --include=dev
+
+# 构建 console 项目
+npm run build
+
+# 构建结束后 ./web/ 文件夹中的所有文件作为 dolphindb server 目录中的 web/
+rsync -av --delete ./web/ jenkins@192.168.1.204:/hdd/ftp/origin/console/
+
+# 构建 cloud 项目
+npm run build.cloud
+
+# 构建结束后 ./web.cloud/ 文件夹中的所有文件作为产物
+rsync -av --delete ./web.cloud/ jenkins@192.168.1.204:/hdd/ftp/origin/cloud/
 ```
