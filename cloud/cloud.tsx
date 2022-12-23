@@ -30,7 +30,6 @@ import {
     Space,
     Empty,
     Popover,
-    Col,
 } from 'antd'
 
 import { PageHeader } from '@ant-design/pro-layout'
