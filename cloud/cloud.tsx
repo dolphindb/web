@@ -482,7 +482,7 @@ function Clusters () {
                     removeEmptyProperties(values)
                     try {
                         await request_json(
-                            `v1/dolphindbs/${current_cluster.namespace}/${current_cluster.name}`,
+                            `v1/dolphindbs/${current_cluster?.namespace}/${current_cluster?.name}`,
                             {
                                 method: 'put',
                                 body: values
