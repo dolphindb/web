@@ -3,8 +3,7 @@
     
     "include": [
         "./dev.ts",
-        "./build.ts",
-        "./server/index.ts",
+        "./build.ts"
     ],
     
     "exclude": [

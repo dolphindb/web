@@ -4,13 +4,17 @@ global.started_at = new Date()
 
 import fs from 'fs'
 
-import { type Context } from 'koa'
+import type { Context } from 'koa'
 
 import { request_json, inspect, create_mfs, UFS, Remote, set_inspect_options } from 'xshell'
 import { Server } from 'xshell/server.js'
 
-import { get_monaco, webpack, fpd_root, fpd_out_console } from './webpack.js'
+import { DDB, DdbVectorString } from 'dolphindb'
 
+import { webpack, fpd_root, fpd_out_console, get_vendors } from './webpack.js'
+
+
+let c0 = new DDB('ws://127.0.0.1:8850')
 
 class DevServer extends Server {
     ddb_backend = '127.0.0.1:8848'
@@ -19,6 +23,11 @@ class DevServer extends Server {
         funcs: {
             async recompile () {
                 await webpack.run()
+                return [ ]
+            },
+            
+            async start_data_node () {
+                await c0.call('startDataNode', [new DdbVectorString(['d0', 'd1'])])
                 return [ ]
             }
         }
@@ -31,7 +40,6 @@ class DevServer extends Server {
     
     override async router (ctx: Context) {
         const {
-            request,
             request: {
                 query,
                 method,
@@ -42,9 +50,7 @@ class DevServer extends Server {
             },
         } = ctx
         
-        let { response } = ctx
-        
-        let { path } = request
+        let { request, response } = ctx
         
         if (
             request.path === '/console' ||
@@ -57,10 +63,15 @@ class DevServer extends Server {
             return true
         }
         
-        if (path === '/console/') {
+        if (request.path === '/console/') {
             this.ddb_backend = `${query.hostname || '127.0.0.1'}:${query.port || '8848'}`
-            path = '/console/index.html'
+            request.path = '/console/index.html'
         }
+        
+        if (request.path === '/cloud/')
+            request.path = '/cloud/index.html'
+        
+        const { path } = request
         
         if (dapi && method === 'POST') {
             const data = await request_json(`http://${this.ddb_backend}${path}`, { body })
@@ -114,8 +125,21 @@ class DevServer extends Server {
                     log_404: true
                 })
         
+        for (const prefix of ['/console/vendors/', '/cloud/vendors/'] as const)
+            if (path.startsWith(prefix))
+                return this.try_send(ctx, path.slice(prefix.length), {
+                    root: `${fpd_out_console}vendors/`,
+                    fs,
+                    log_404: true
+                })
+        
         if (path === '/console/onig.wasm') {
             await this.fsend(ctx, `${fpd_root}node_modules/vscode-oniguruma/release/onig.wasm`, { fs, absolute: true })
+            return true
+        }
+        
+        if (path === '/console/docs.zh.json' || path === '/console/docs.en.json') {
+            await this.fsend(ctx, `${fpd_root}node_modules/dolphindb/${path.slice('/console/'.length)}`, { fs, absolute: true })
             return true
         }
         
@@ -135,7 +159,7 @@ class DevServer extends Server {
                 {
                     root: fpd_root,
                     fs: ufs,
-                    log_404: false
+                    log_404: true
                 }
             )
         )
@@ -145,7 +169,7 @@ class DevServer extends Server {
 
 set_inspect_options()
 
-console.log('fpd_root:', fpd_root)
+console.log('根目录:', fpd_root)
 
 let mfs = create_mfs()
 let ufs = new UFS([mfs, fs])
@@ -154,14 +178,13 @@ let ufs = new UFS([mfs, fs])
 let server = new DevServer()
 
 await Promise.all([
-    get_monaco(),
+    get_vendors(true),
     server.start(),
     webpack.build({ production: false, mfs })
 ])
 
 console.log(
-    'devserver 启动完成\n' +
-    '请使用浏览器打开:\n' +
+    '开发服务器启动成功，请使用浏览器打开:\n' +
     'http://localhost:8432/console/?hostname=127.0.0.1&port=8848\n' +
     'http://localhost:8432/cloud/'
 )

@@ -1,12 +1,13 @@
 {
     "include": [
-        "./console/index.tsx",
-        "./console/window.tsx",
-        "./cloud/index.tsx",
-        "./server/index.ts",
         "./dev.ts",
         "./build.ts",
         "./global.d.ts",
+        
+        "./console/index.tsx",
+        "./console/window.tsx",
+        
+        "./cloud/index.tsx",
     ],
     
     "compilerOptions": {
@@ -35,10 +36,9 @@
         "newLine": "lf",
         "lib": ["ESNext", "DOM"],
         "importHelpers": true,
-        // "watch": false
-        // "incremental": true,
-        // "tsBuildInfoFile": "./build/.tsbuildinfo",
         
+        "incremental": true,
+        "tsBuildInfoFile": "./node_modules/.tsbuildinfo",
         
         // --- emit
         "declaration": false,
@@ -71,18 +71,6 @@
         "noUnusedLocals": false,
         "noUnusedParameters": false,
         "skipLibCheck": true,
-    },
-    
-    // --- watch options
-    "watchOptions": {
-        "excludeDirectories": [
-            "**/node_modules",
-        ],
-        
-        "watchFile": "useFsEvents",
-        "watchDirectory": "useFsEvents",
-        
-        "fallbackPolling": "dynamicPriority"
     }
 }
 

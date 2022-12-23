@@ -23,7 +23,7 @@ const Icon: typeof _Icon.default = _Icon as any
 
 import { Line, Pie, Bar, Column, Scatter, Area, DualAxes, Histogram, Stock } from '@ant-design/plots'
 
-import { nanoid } from 'nanoid'
+import { genid } from 'xshell/utils.browser.js'
 
 
 import {
@@ -242,25 +242,25 @@ function build_tree_data (
             if (valueobj.form === DdbForm.dict) 
                 node = {
                     title: key + ': ',
-                    key: nanoid(),
+                    key: genid(),
                     children: build_tree_data(valueobj, { remote, ctx, ddb })
                 }
              else if (valueobj.form === DdbForm.scalar) {
                 let value = format(valueobj.type, valueobj.value, valueobj.le, { ...options, quote: true, nullstr: true })
                 node = {
                     title: key + ': ' + value,
-                    key: nanoid()
+                    key: genid()
                 }
             } else {
                 const View = views[valueobj.form] || Default
                 
                 node = {
                     title: key + ':',
-                    key: nanoid(),
+                    key: genid(),
                     children: [
                         {
                             title: <View obj={valueobj} ctx={ctx} ddb={ddb} remote={remote} />,
-                            key: nanoid()
+                            key: genid()
                         }
                     ]
                 }
@@ -268,7 +268,7 @@ function build_tree_data (
          else
             node = {
                 title: key + ': ' + formati(dict_value, i, options),
-                key: nanoid()
+                key: genid()
             }
         
         tree_data.push(node)
@@ -648,14 +648,12 @@ function Table ({
 
 
 export function StreamingTable ({
-    url,
     table,
     action,
     autologin = false,
     ctx,
     options,
 }: {
-    url: string
     table: string
     action?: string
     autologin?: boolean
@@ -695,7 +693,7 @@ export function StreamingTable ({
     
     useEffect(() => {
         ;(async () => {
-            let ddb = rddb.current = new DDB(url, {
+            let ddb = rddb.current = new DDB(undefined, {
                 autologin,
                 streaming: {
                     table,
@@ -722,7 +720,7 @@ export function StreamingTable ({
                 }
             })
             
-            let ddbapi = rddbapi.current = new DDB(url)
+            let ddbapi = rddbapi.current = new DDB()
             
             // LOCAL: 创建流表
             await ddbapi.eval(
@@ -1756,7 +1754,7 @@ function Chart ({
                         }}
                         meta={{
                             row: {
-                                formatter: (value, index) => data[index].row_ 
+                                formatter: (value, index) => format(obj.value.data.value.rows.type, value, obj.le)
                             },
                             vol: {
                                 alias: t('成交量'),
@@ -1791,7 +1789,7 @@ function Chart ({
                                     if (type === 'x') {
                                         const item = items[0]
                                         textContent = item ? item.data.row_ : defaultContent
-                                    } else 
+                                    } else
                                         textContent = defaultContent.toFixed(2)
                                     
                                     return {

@@ -4,7 +4,7 @@ import process from 'process'
 
 import { fcopy, fdelete, fmkdir } from 'xshell'
 
-import { get_monaco, webpack, fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd_src_cloud } from './webpack.js'
+import { get_vendors, copy_docs, webpack, fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd_src_cloud } from './webpack.js'
 
 
 if (process.argv.includes('cloud')) {
@@ -17,6 +17,8 @@ if (process.argv.includes('cloud')) {
         
         fcopy(`${fpd_root}README.md`, `${fpd_out_cloud}README.md`),
         fcopy(`${fpd_root}README.zh.md`, `${fpd_out_cloud}README.zh.md`),
+        
+        get_vendors(false),
         
         webpack.build({ production: true, is_cloud: true })
     ])
@@ -35,7 +37,10 @@ if (process.argv.includes('cloud')) {
         
         fcopy(`${fpd_root}node_modules/vscode-oniguruma/release/onig.wasm`, `${fpd_out_console}onig.wasm`),
         
-        get_monaco(),
+        get_vendors(true),
+        
+        copy_docs(),
+        
         webpack.build({ production: true, is_cloud: false })
     ])
 }

@@ -17,12 +17,18 @@ const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
 
-import { Terminal } from 'xterm'
+// import { Terminal } from 'xterm'
+declare global {
+    var Terminal: typeof import('xterm').Terminal
+}
+
 import { FitAddon } from 'xterm-addon-fit'
 import { WebglAddon } from 'xterm-addon-webgl'
 import { WebLinksAddon } from 'xterm-addon-web-links'
 
-import debounce from 'lodash/debounce.js'
+import { debounce } from 'lodash'
+
+import { request_json } from 'xshell/net.browser.js'
 
 import { default as MonacoEditor, loader } from '@monaco-editor/react'
 
@@ -60,11 +66,6 @@ import {
 
 import { keywords, constants, tm_language } from 'dolphindb/language.js'
 
-// LOCAL: OFF
-// import docs from 'dolphindb/docs.zh.json'
-import docs_zh from 'dolphindb/docs.zh.json'
-import docs_en from 'dolphindb/docs.en.json'
-
 import theme from './shell.theme.js'
 
 
@@ -98,8 +99,6 @@ import { Obj, DdbObjRef } from './obj.js'
 import { model, storage_keys } from './model.js'
 
 
-const docs = language === 'zh' ? docs_zh : docs_en
-
 loader.config({
     paths: {
         // vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.34.0/min/vs'
@@ -120,15 +119,17 @@ loader.config({
 const constants_lower = constants.map(constant => 
     constant.toLowerCase())
 
-const funcs = Object.keys(docs)
-const funcs_lower = funcs.map(func => 
-    func.toLowerCase())
+
+let docs = { }
+
+let funcs: string[] = [ ]
+let funcs_lower: string[] = [ ]
 
 
 type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef }
 
 class ShellModel extends Model<ShellModel> {
-    term: Terminal
+    term: import('xterm').Terminal
     
     fit_addon: FitAddon
     
@@ -430,8 +431,6 @@ let module_code = ''
 
 
 function Editor () {
-    const { code_template } = model.use(['code_template'])
-    
     const { executing } = shell.use(['executing'])
     
     const [inited, set_inited] = useState(Boolean(shell.editor))
@@ -464,6 +463,19 @@ function Editor () {
             
             if (!wasm_loaded) {
                 wasm_loaded = true
+                
+                ;(async () => {
+                    if (language === 'zh')
+                        docs = await request_json('./docs.zh.json')
+                    else
+                        docs = await request_json('./docs.en.json')
+                    
+                    funcs = Object.keys(docs)
+                    funcs_lower = funcs.map(func => 
+                        func.toLowerCase())
+                    
+                    console.log(t('函数文档 {{fname}} 已加载', { fname: `docs.${language}.json` }))
+                })()
                 
                 // Using the response directly only works if the server sets the MIME type 'application/wasm'.
                 // Otherwise, a TypeError is thrown when using the streaming compiler.
@@ -735,7 +747,7 @@ function Editor () {
             </div>
             
             <div className='settings'>
-                <span className='setting'>
+                <span className='setting' title={t('控制是否显示缩略图')}>
                     <span className='text'>{t('代码地图')}</span>
                     <Switch
                         checked={minimap}
@@ -746,7 +758,7 @@ function Editor () {
                         }} />
                 </span>
                 
-                <span className='setting'>
+                <span className='setting' title={t('控制除了 Tab 键以外，Enter 键是否同样可以接受建议。这能减少“插入新行”和“接受建议”命令之间的歧义。')}>
                     <span className='text'>{t('回车补全')}</span>
                     <Switch
                         checked={enter_completion}

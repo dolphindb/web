@@ -4,7 +4,7 @@ import './index.sass'
 
 
 import { default as React, useEffect, useState } from 'react'
-import { createRoot as create_root } from 'react-dom/client'
+import { createRoot } from 'react-dom/client'
 
 import {
     Layout, 
@@ -20,7 +20,10 @@ import {
     Tooltip,
     Button,
     InputNumber,
-    message
+    message,
+    
+    // @ts-ignore 使用了 antd-with-locales 之后 window.antd 变量中有 locales 属性
+    locales
 } from 'antd'
 
 import {
@@ -45,10 +48,6 @@ import {
 } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
-import zh from 'antd/locale/zh_CN.js'
-import en from 'antd/locale/en_US.js'
-import ja from 'antd/locale/ja_JP.js'
-import ko from 'antd/locale/ko_KR.js'
 
 import { date2str } from 'dolphindb/browser.js'
 
@@ -70,11 +69,17 @@ import SvgDashboard from './dashboard.icon.svg'
 import SvgJob from './job.icon.svg'
 import SvgDFS from './dfs.icon.svg'
 import SvgLog from './log.icon.svg'
+import SvgArrowDown from './arrow.down.icon.svg'
 
 
 const { Text } = Typography
 
-const locales = { zh, en, ja, ko }
+const locale_names = {
+    zh: 'zh_CN',
+    en: 'en_US',
+    ja: 'ja_JP',
+    ko: 'ko_KR'
+} as const
 
 
 function DolphinDB () {
@@ -87,7 +92,7 @@ function DolphinDB () {
     if (!inited)
         return null
     
-    return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false}>
+    return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false}>
         <Layout className='root-layout'>
             { header && <Layout.Header className='header'>
                 <DdbHeader />
@@ -104,7 +109,7 @@ function DolphinDB () {
 
 
 function DdbHeader () {
-    const { logined, username, node_alias, node_type } = model.use(['logined', 'username', 'node_alias', 'node_type'])
+    const { logined, username, node_alias } = model.use(['logined', 'username', 'node_alias'])
     
     useEffect(() => {
         if (!node_alias)
@@ -145,7 +150,7 @@ function DdbHeader () {
                     }}
                 >
                     <a className='username'>
-                        <Avatar className='avatar' icon={<UserOutlined /> } size='small' /> {username} <DownOutlined />
+                        <Avatar className='avatar' icon={<UserOutlined /> } size='small' />{username}<Icon className='arrow-down' component={SvgArrowDown} />
                     </a>
                 </Dropdown>
             }</div>
@@ -569,6 +574,6 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 
-create_root(
+createRoot(
     document.querySelector('.root')
 ).render(<DolphinDB/>)

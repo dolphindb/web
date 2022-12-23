@@ -74,15 +74,6 @@ export class DdbModel extends Model<DdbModel> {
     async init () {
         console.log(t('console 开始初始化'))
         
-        const test = new URLSearchParams(location.search).get('test')
-        if (test) {
-            const obj = await ddb.eval(`1..${test}`)
-            console.log(obj.toString())
-            await ddb.upload(['b'], [obj])
-            return
-        }
-        
-        
         /** 检测 ddb 是否通过 nginx 代理，部署在子路径下 */
         const is_subpath = location.pathname === '/dolphindb/'
         if (is_subpath)
