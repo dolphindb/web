@@ -490,7 +490,7 @@ function Clusters () {
                                     body: values
                                 })
                             } catch (err) {
-                                message.error(t('更新失败，请查看网络请求'))
+                                message.error(t('升级失败，请查看网络请求'))
                                 throw err
                             }
                         }}
@@ -872,7 +872,7 @@ function CreateClusterPanel({
                     </Select>
                 </Form.Item>
 
-                <Form.Item name='storage_class' label={t('储存类')}>
+                <Form.Item name='storage_class' label={t('存储类')}>
                     <Select placeholder='Please select a storage class' >
                         {
                             storageclasses.length !== 0 ?

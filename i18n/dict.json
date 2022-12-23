@@ -230,7 +230,7 @@
     "创建时间": {
         "en": "created at"
     },
-    "储存类": {
+    "存储类": {
         "en": "storage class"
     },
     "输出到文件": {
@@ -274,12 +274,6 @@
     },
     "资源限制": {
         "en": "Resources Limit"
-    },
-    "数据储存空间": {
-        "en": "data size"
-    },
-    "日志储存空间": {
-        "en": "log size"
     },
     "确认重启？": {
         "en": "Restart node?"
@@ -1097,7 +1091,7 @@
     "桶名": {
         "en": "Prefix"
     },
-    "储存类名称": {
+    "存储类名称": {
         "en": "Storage Class Name"
     },
     "名称_backup": {
@@ -1112,25 +1106,25 @@
     "完成": {
         "en": "Complete"
     },
-    "云端储存配置": {
+    "云端存储配置": {
         "en": "Cloud Storage Configuration"
     },
-    "添加云端储存配置": {
+    "添加云端存储配置": {
         "en": "Add Cloud Storage Configuration"
     },
-    "云端储存类型": {
+    "云端存储类型": {
         "en": "Cloud Storage Type"
     },
     "备份源": {
         "en": "Source of Backup"
     },
-    "储存路径": {
+    "存储路径": {
         "en": "Storage Path"
     },
-    "储存信息": {
+    "存储信息": {
         "en": "Storage Information"
     },
-    "储存空间": {
+    "存储空间": {
         "en": "Storage Space"
     },
     "确认删除？": {
@@ -1145,10 +1139,10 @@
     "类型_backup": {
         "en": "Type"
     },
-    "储存备份文件的储存系统配置": {
+    "存储备份文件的存储系统配置": {
         "en": "Storage system configuration for storing backup files"
     },
-    "储存临时备份文件的储存卷名称": {
+    "存储临时备份文件的存储卷名称": {
         "en": "The name of the storage volume where temporary backup files are stored"
     },
     "区域": {
@@ -1192,5 +1186,23 @@
     },
     "函数文档 {{fname}} 已加载": {
         "en": "function documentation {{fname}} loaded"
+    },
+    "下限必须小于上限": {
+        "en": "Lower limit must be less than upper limit"
+    },
+    "上限必须大于下限": {
+        "en": "Upper limit must be greater than lower limit"
+    },
+    "升级": {
+        "en": "Upgrade"
+    },
+    "下限": {
+        "en": "Lower Limit"
+    },
+    "上限": {
+        "en": "Upper Limit"
+    },
+    "升级失败，请查看网络请求": {
+        "en": "Upgrade failed, please check the network request"
     }
 }
