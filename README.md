@@ -30,23 +30,49 @@ https://github.com/dolphindb/Tutorials_EN/blob/master/k8s_deployment.md
 
 ### Build and Development
 ```shell
+# Install the latest version of nodejs
+# https://nodejs.org/en/download/current/
+
 git clone https://github.com/dolphindb/web.git
 
 cd web
 
-npm i --force
+npm install --force
 
-# 1. Build the console
+# Refer to scripts in package.json
+
+# build console
 npm run build
-# The finished product is in the web folder
+# After completion the product is in the web folder
 
-# 2. Build the cloud
+# build cloud
 npm run build.cloud
-# The finished product is in the web.cloud folder
+# After completion, the product is in the web.cloud folder
 
-# 3. Development
+# development
 npm run dev
 
-# 4. Scan entry
+# scan entries
 npm run scan
-````
+# Manually complete untranslated entries
+# Run the scan again to update the dictionary file dict.json
+npm run scan
+```
+
+#### CI builds
+```shell
+# Install project dependencies
+npm ci --include=dev
+
+# Build the console project
+npm run build
+
+# After the build is complete, all files in the ./web/ folder are used as web/ in the dolphindb server directory
+rsync -av --delete ./web/ jenkins@192.168.1.204:/hdd/ftp/origin/console/
+
+# build cloud project
+npm run build.cloud
+
+# After the build finishes, all files in the ./web.cloud/ folder are used as artifacts
+rsync -av --delete ./web.cloud/ jenkins@192.168.1.204:/hdd/ftp/origin/cloud/
+```
