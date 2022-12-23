@@ -47,7 +47,7 @@ function DolphinDB () {
 
 
 function DdbHeader () {
-    return <div className='header'>
+    return <div className='ddb-header'>
         <img className='logo' src='./cloud.svg' />
         
         <div className='padding' />
