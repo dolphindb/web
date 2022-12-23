@@ -800,10 +800,10 @@ function Editor () {
                     enabled: minimap
                 },
                 
-                fontFamily: 'Menlo, \'Ubuntu Mono\', Consolas, PingFangSC, \'Noto Sans CJK SC\', \'Microsoft YaHei\'',
+                fontFamily: 'MyFont, Menlo, \'Ubuntu Mono\', Consolas, PingFangSC, \'Noto Sans CJK SC\', \'Microsoft YaHei\'',
                 fontSize: 16,
                 insertSpaces: true,
-                codeLensFontFamily: 'Menlo, \'Ubuntu Mono\', Consolas, PingFangSC, \'Noto Sans CJK SC\', \'Microsoft YaHei\'',
+                codeLensFontFamily: 'MyFont, Menlo, \'Ubuntu Mono\', Consolas, PingFangSC, \'Noto Sans CJK SC\', \'Microsoft YaHei\'',
                 folding: true,
                 largeFileOptimizations: true,
                 matchBrackets: 'always',
@@ -1001,7 +1001,7 @@ function Term () {
         ;(async () => {
             // --- init term
             let term = shell.term = new Terminal({
-                fontFamily: 'Menlo, Ubuntu Mono, Consolas, PingFangSC, Noto Sans CJK SC, Microsoft YaHei',
+                fontFamily: 'MyFont, Menlo, Ubuntu Mono, Consolas, PingFangSC, Noto Sans CJK SC, Microsoft YaHei',
                 fontSize: 16,
                 
                 cursorStyle: 'bar',
