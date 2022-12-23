@@ -1207,5 +1207,23 @@
     },
     "升级 {{name}}": {
         "en": "Upgrade {{name}}"
+    },
+    "的词典": {
+        "en": " dict"
+    },
+    "的集合": {
+        "en": " set"
+    },
+    "的向量": {
+        "en": " vector"
+    },
+    "的表格": {
+        "en": " table"
+    },
+    "的流表": {
+        "en": " streaming table"
+    },
+    "的矩阵": {
+        "en": " matrix"
     }
 }
