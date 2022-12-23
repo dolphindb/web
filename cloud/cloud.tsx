@@ -459,7 +459,7 @@ function Clusters () {
         <Modal
             className='cloud-create-panel'
             open={update_modal_open}
-            title={t(`升级{{name}}`, {name:current_cluster?.name})}
+            title={t('升级 {{name}}', { name:current_cluster?.name })}
             onCancel={() => {
                 set_update_modal_open(false)
             }}

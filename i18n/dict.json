@@ -1205,7 +1205,7 @@
     "升级失败，请查看网络请求": {
         "en": "Upgrade failed, please check the network request"
     },
-    "升级{{name}}": {
+    "升级 {{name}}": {
         "en": "Upgrade"
     }
 }
