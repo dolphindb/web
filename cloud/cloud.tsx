@@ -56,7 +56,6 @@ import {
 } from './model.js'
 
 import icon_add from './add.svg'
-import { useForm } from 'antd/lib/form/Form.js'
 
 const { Column } = Table;
 const { Option } = Select
@@ -210,6 +209,19 @@ function InfoTab() {
     )
 }
 
+//把json里面值为 undefined, null, {}的键全部去掉
+const removeEmptyProperties = (obj) => {
+    for (const propName in obj) {
+        if (obj[propName] === null || obj[propName] === undefined || (typeof obj[propName] === 'object' && Object.keys(obj[propName]).length === 0)) {
+            delete obj[propName]
+        } else if (typeof obj[propName] === 'object') {
+            removeEmptyProperties(obj[propName])
+            if (Object.keys(obj[propName]).length === 0) {
+                delete obj[propName]
+            }
+        }
+    }
+}
 
 function Clusters () {
     const { clusters, versions, namespaces } = model.use(['clusters', 'versions', 'namespaces'])
@@ -219,7 +231,29 @@ function Clusters () {
     const [queries, set_queries] = useState<QueryOptions>(default_queries)
     
     const [update_modal_open, set_update_modal_open] = useState(false)
-    const [update_form] = useForm()
+    const [update_form] = Form.useForm()
+    
+    // 3种node_type X [cpu, memory] X [上限(limist)，下限(requests)] 共12种组合，每个组合代表一个Form.Item，需要一个校验函数，所以一共需要构造12个校验函数
+    function create_Validate_Limit_Function(node_type, limitField, lowerLimit) {
+        return (rule, value, callback) => {
+            const formData = update_form.getFieldsValue()
+            if (!value || !formData[node_type]['resources']['limits'][limitField]) {
+                callback()
+            } else if (lowerLimit) {
+                if (value >= formData[node_type]['resources']['limits'][limitField]) {
+                    callback(`${t(node_type)} ${t(limitField)} ${t('下限必须小于上限')}`)
+                } else {
+                    callback()
+                }
+            } else {
+                if (value <= formData[node_type]['resources']['requests'][limitField]) {
+                    callback(`${t(node_type)} ${t(limitField)} ${t('上限必须大于下限')}`)
+                } else {
+                    callback()
+                }
+            }
+        }
+    }
     useEffect(() => {
         let flag = true
         ;(async () => {
@@ -261,7 +295,6 @@ function Clusters () {
             >{t('刷新')}</Button>
         </div>
         
-
         
         <Table
             className='list'
@@ -356,7 +389,7 @@ function Clusters () {
                             >
                                 <Link>{t('删除')}</Link>
                             </Popconfirm>
-
+                            
                             <Link onClick={() => {
                                 set_current_cluster(cluster)
                                 set_update_modal_open(true)
@@ -364,7 +397,7 @@ function Clusters () {
                                 {t('升级')}
                             </Link>
                         </Space>
-                            </>
+                        </>
                     }
                 }
             ]}
@@ -428,142 +461,129 @@ function Clusters () {
             }}
         />
         <Modal
-                                className='cloud-create-panel'
-                                open={update_modal_open}
-                                title={t(`升级${current_cluster?.name}`)}
-                                onCancel={() => { set_update_modal_open(false) }}
-                                width={'800px'}
-                                mask={false}
-                                footer={<>
-                                    <Button type='primary' htmlType='submit' className='submit' onClick={async () => {
-                                        var form_values = await update_form.validateFields()
+            className='cloud-create-panel'
+            open={update_modal_open}
+            title={t(`升级${current_cluster?.name}`)}
+            onCancel={() => { set_update_modal_open(false) }}
+            width={'800px'}
+            mask={false}
+            footer={<>
+                <Button type='primary' htmlType='submit' className='submit' onClick={async () => {
+                    var values = await update_form.validateFields()
+                    const fields = ['controller', 'datanode', 'computenode']
+                    fields.forEach(field => {
+                        if (values[field].resources.limits.memory) {
+                            values[field].resources.limits.memory = `${values[field].resources.limits.memory}Gi`
+                        }
+                        if (values[field].resources.requests.memory) {
+                            values[field].resources.requests.memory = `${values[field].resources.requests.memory}Gi`
+                        }
+                    })
+                    
+                    removeEmptyProperties(values)
+                    try {
+                        await request_json(
+                            `v1/dolphindbs/${current_cluster.namespace}/${current_cluster.name}`,
+                            {
+                                method: 'put',
+                                body: values
+                            }
+                        )
+                    } catch (err) {
+                        message.error(t('更新失败，请查看网络请求'))
+                    }
+                }}>{t('提交')}</Button>
+            </>}
+        >
+            <Form
+                form={update_form}
+                name='cluster-form'
+                className='cluster-create-form'
+                labelAlign='left'
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 16 }}
+                colon={false}
+                requiredMark={false}
+            >
+                <Divider orientation='left'>{t('版本')}</Divider>
+                <Form.Item name={'versions'} label={t('版本')}>
+                    <Input/>
+                </Form.Item>
 
-                                        const fields = ['controller', 'datanode', 'computenode'];
-                                        fields.forEach(field => {
-                                            if (form_values[field].resources.limits.memory) {
-                                              form_values[field].resources.limits.memory = `${form_values[field].resources.limits.memory}Gi`;
-                                            }
-                                            if (form_values[field].resources.requests.memory) {
-                                              form_values[field].resources.requests.memory = `${form_values[field].resources.requests.memory}Gi`;
-                                            }
-                                          });
-                                          
-                                        
-                                        const removeEmptyProperties = (obj) => {
-                                            for (const propName in obj) {
-                                              if (obj[propName] === null || obj[propName] === undefined || (typeof obj[propName] === 'object' && Object.keys(obj[propName]).length === 0)) {
-                                                delete obj[propName];
-                                              } else if (typeof obj[propName] === 'object') {
-                                                removeEmptyProperties(obj[propName]);
-                                                if (Object.keys(obj[propName]).length === 0) {
-                                                  delete obj[propName];
-                                                }
-                                              }
-                                            }
-                                          };
-                                          
-                                        removeEmptyProperties(form_values);
-                                        
-                                        await request_json(
-                                            `v1/dolphindbs/${current_cluster?.namespace}/${current_cluster?.name}`,
-                                            {
-                                                method: 'put',
-                                                body: form_values
-                                            }
-                                        )
-                                    }}>{t('提交')}</Button>
-                                </>}
-                            >
-                                <Form
-                                    form={update_form}
-                                    name='cluster-form'
-                                    className='cluster-create-form'
-                                    labelAlign='left'
-                                    labelCol={{ span: 6 }}
-                                    wrapperCol={{ span: 16 }}
-                                    colon={false}
-                                    requiredMark={false}
-                                >
-                                    <Divider orientation='left'>{t('版本')}</Divider>
-                                    <Form.Item name={'versions'} label={t('版本')}>
-                                        <Input></Input>
-                                    </Form.Item>
+                <Divider orientation='left'>{t('控制节点')}</Divider>
 
-                                    <Divider orientation='left'>{t('控制节点')}</Divider>
+                <Form.Item label='CPU' >
+                    <Input.Group compact>
+                        <Form.Item name={['controller', 'resources', 'requests', 'cpu']} label={t('下限')} rules={[{ validator: create_Validate_Limit_Function('controller', 'cpu', true) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
+                        </Form.Item>
+                        <Form.Item name={['controller', 'resources', 'limits', 'cpu']} label={t('上限')} rules={[{ validator: create_Validate_Limit_Function('controller', 'cpu', false) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
+                        </Form.Item>
+                    </Input.Group>
+                </Form.Item>
 
-                                    <Form.Item label='CPU' >
-                                        <Input.Group compact>
-                                            <Form.Item name={['controller', 'resources', 'requests', 'cpu']} label={t('下限')} className={'limit'}>
-                                                <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
-                                            </Form.Item>
-                                            <Form.Item name={['controller', 'resources', 'limits', 'cpu']} label={t('上限')} className={'limit'}>
-                                                <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
-                                            </Form.Item>
-                                        </Input.Group>
-                                    </Form.Item>
-
-                                    <Form.Item label={t('内存')}>
-                                        <Input.Group compact>
-                                            <Form.Item name={['controller', 'resources', 'requests', 'memory']} label={t('下限')} className={'limit'}>
-                                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
-                                            </Form.Item>
-                                            <Form.Item name={['controller', 'resources', 'limits', 'memory']} label={t('上限')} className={'limit'}>
-                                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
-                                            </Form.Item>
-                                        </Input.Group>
-                                    </Form.Item>
+                <Form.Item label={t('内存')}>
+                    <Input.Group compact>
+                        <Form.Item name={['controller', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ validator: create_Validate_Limit_Function('controller', 'meomory', true) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                        </Form.Item>
+                        <Form.Item name={['controller', 'resources', 'limits', 'memory']} label={t('上限')} rules={[{ validator: create_Validate_Limit_Function('controller', 'memory', false) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                        </Form.Item>
+                    </Input.Group>
+                </Form.Item>
 
 
-                                    <Divider orientation='left'>{t('数据节点')}</Divider>
-                                    <Form.Item label='CPU' >
-                                        <Input.Group compact>
-                                            <Form.Item name={['datanode', 'resources', 'requests', 'cpu']} label={t('下限')} className={'limit'}>
-                                                <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
-                                            </Form.Item>
-                                            <Form.Item name={['datanode', 'resources', 'limits', 'cpu']} label={t('上限')} className={'limit'}>
-                                                <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
-                                            </Form.Item>
-                                        </Input.Group>
-                                    </Form.Item>
+                <Divider orientation='left'>{t('数据节点')}</Divider>
+                <Form.Item label='CPU' >
+                    <Input.Group compact>
+                        <Form.Item name={['datanode', 'resources', 'requests', 'cpu']} label={t('下限')} rules={[{ validator: create_Validate_Limit_Function('datanode', 'cpu', true) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
+                        </Form.Item>
+                        <Form.Item name={['datanode', 'resources', 'limits', 'cpu']} label={t('上限')} rules={[{ validator: create_Validate_Limit_Function('datanode', 'cpu', false) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
+                        </Form.Item>
+                    </Input.Group>
+                </Form.Item>
 
-                                    <Form.Item label={t('内存')}>
-                                        <Input.Group compact>
-                                            <Form.Item name={['datanode', 'resources', 'requests', 'memory']} label={t('下限')} className={'limit'}>
-                                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
-                                            </Form.Item>
-                                            <Form.Item name={['datanode', 'resources', 'limits', 'memory']} label={t('上限')} className={'limit'}>
-                                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
-                                            </Form.Item>
-                                        </Input.Group>
-                                    </Form.Item>
+                <Form.Item label={t('内存')}>
+                    <Input.Group compact>
+                        <Form.Item name={['datanode', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ validator: create_Validate_Limit_Function('datanode', 'meomory', true) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                        </Form.Item>
+                        <Form.Item name={['datanode', 'resources', 'limits', 'memory']} label={t('上限')} rules={[{ validator: create_Validate_Limit_Function('datanode', 'memory', false) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                        </Form.Item>
+                    </Input.Group>
+                </Form.Item>
 
-                                    <Divider orientation='left'>{t('计算节点')}</Divider>
+                <Divider orientation='left'>{t('计算节点')}</Divider>
 
-                                    <Form.Item label='CPU'>
-                                        <Input.Group compact>
-                                            <Form.Item name={['computenode', 'resources', 'requests', 'cpu']} label={t('下限')} className={'limit'}>
-                                                <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
-                                            </Form.Item>
+                <Form.Item label='CPU'>
+                    <Input.Group compact>
+                        <Form.Item name={['computenode', 'resources', 'requests', 'cpu']} label={t('下限')} rules={[{ validator: create_Validate_Limit_Function('computenode', 'cpu', true) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
+                        </Form.Item>
 
-                                            <Form.Item name={['computenode', 'resources', 'limits', 'cpu']} label={t('上限')} className={'limit'}>
-                                                <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
-                                            </Form.Item>
-                                        </Input.Group>
-                                    </Form.Item>
+                        <Form.Item name={['computenode', 'resources', 'limits', 'cpu']} label={t('上限')} rules={[{ validator: create_Validate_Limit_Function('computenode', 'cpu', false) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
+                        </Form.Item>
+                    </Input.Group>
+                </Form.Item>
 
-                                    <Form.Item label={t('内存')}>
-                                        <Input.Group compact>
-                                            <Form.Item name={['computenode', 'resources', 'requests', 'memory']} label={t('下限')} className={'limit'}>
-                                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
-                                            </Form.Item>
-                                            <Form.Item name={['computenode', 'resources', 'limits', 'memory']} label={t('上限')} className={'limit'}>
-                                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
-                                            </Form.Item>
-                                        </Input.Group>
-                                    </Form.Item>
-
-                                </Form>
-                            </Modal>
+                <Form.Item label={t('内存')}>
+                    <Input.Group compact>
+                        <Form.Item name={['computenode', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ validator: create_Validate_Limit_Function('computenode', 'memory', true) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                        </Form.Item>
+                        <Form.Item name={['computenode', 'resources', 'limits', 'memory']} label={t('上限')} rules={[{ validator: create_Validate_Limit_Function('computenode', 'memory', false) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                        </Form.Item>
+                    </Input.Group>
+                </Form.Item>
+            </Form>
+        </Modal>
         
         <CreateClusterPanel
             visible={create_panel_visible}
@@ -604,23 +624,27 @@ function CreateClusterPanel({
         let values = await form.validateFields()
 
         const { mode, cluster_type } = values
-
+        
         values.datanode.data_size = Number(values.datanode.data_size)
-
+        
         if (cluster_type === 'singlecontroller')
             values.controller.replicas = 0
-
+        
         if (mode === 'standalone')
             delete values.controller
-            
         
-        const fields = ['controller', 'datanode', 'computenode'];
-        fields.forEach(field => {
-            values[field].resources.limits.memory = `${values[field].resources.limits.memory}Gi`;
-            values[field].resources.requests.memory = `${values[field].resources.requests.memory}Gi`;
-        });
-
-
+        
+            const fields = ['controller', 'datanode', 'computenode']
+            fields.forEach(field => {
+                if (values[field].resources.limits.memory) {
+                    values[field].resources.limits.memory = `${values[field].resources.limits.memory}Gi`
+                }
+                if (values[field].resources.requests.memory) {
+                    values[field].resources.requests.memory = `${values[field].resources.requests.memory}Gi`
+                }
+            })
+            
+            removeEmptyProperties(values)
         try {
             await model.create(values)
             message.success(t('集群创建成功'))
@@ -629,40 +653,34 @@ function CreateClusterPanel({
             message.error(t('集群创建失败'))
             throw error
         }
-
+        
         await model.get_clusters(queries)
     }
 
     const onReset = () => {
         form.resetFields()
     }
-
-    function createValidateLimitFunction(field, limitField, lowerLimit) {
+    function create_Validate_Limit_Function(node_type, limitField, lowerLimit) {
         return (rule, value, callback) => {
-          console.log(field, limitField, lowerLimit);
-          const formData = form.getFieldsValue();
-          if (!value || !formData[field]['resources']['limits'][limitField]) {
-            callback();
-          } else if (lowerLimit) {
-            if (value >= formData[field]['resources']['limits'][limitField]) {
-              callback(`${t(field)} ${t(limitField)} ${t('下限必须小于上限')}`);
+            const formData = form.getFieldsValue()
+            if (!value || !formData[node_type]['resources']['limits'][limitField]) {
+                callback()
+            } else if (lowerLimit) {
+                if (value >= formData[node_type]['resources']['limits'][limitField]) {
+                    callback(`${t(node_type)} ${t(limitField)} ${t('下限必须小于上限')}`)
+                } else {
+                    callback()
+                }
             } else {
-              formData[field]['resources']['requests'][limitField] = value;
-              callback();
+                if (value <= formData[node_type]['resources']['requests'][limitField]) {
+                    callback(`${t(node_type)} ${t(limitField)} ${t('上限必须大于下限')}`)
+                } else {
+                    callback()
+                }
             }
-          } else {
-            if (value <= formData[field]['resources']['requests'][limitField]) {
-              callback(`${t(field)} ${t(limitField)} ${t('上限必须大于下限')}`);
-            } else {
-              formData[field]['resources']['limits'][limitField] = value;
-              callback();
-            }
-          }
-        };
-      }
-      
-      
-      
+        }
+    }
+
     return (
         <Modal 
             className='cloud-create-panel'
@@ -703,10 +721,6 @@ function CreateClusterPanel({
                             limits:{
                                 cpu: 0.2,
                                 memory: 1
-                            },
-                            requests:{
-                                cpu: 0,
-                                memory: 0.5
                             }
                         }
                     },
@@ -719,10 +733,6 @@ function CreateClusterPanel({
                             limits:{
                                 cpu: 0.2,
                                 memory: 1
-                            },
-                            requests:{
-                                cpu: 0,
-                                memory: 0.5
                             }
                         }
                     },
@@ -735,10 +745,6 @@ function CreateClusterPanel({
                             limits:{
                                 cpu: 0.2,
                                 memory: 1
-                            },
-                            requests:{
-                                cpu: 0,
-                                memory: 0.5
                             }
                         }
                     },
@@ -804,7 +810,7 @@ function CreateClusterPanel({
                     </Select>
                 </Form.Item>
 
-                <Form.Item name='storage_class' label={t('存储类')}>
+                <Form.Item name='storage_class' label={t('储存类')}>
                     <Select placeholder='Please select a storage class' >
                         {
                             storageclasses.length !== 0 ?
@@ -871,30 +877,30 @@ function CreateClusterPanel({
                     
                     <Form.Item name={['controller', 'port']} label={t('端口')} rules={[{ required: true }]}>
                         <InputNumber min={0} />
-                    </Form.Item>                    
+                    </Form.Item>
                     
                     <Form.Item label='CPU' >
                     <Input.Group compact>
-                        <Form.Item name={['controller', 'resources', 'requests', 'cpu']} label={t('下限')} rules={[{ required: true, validator: createValidateLimitFunction('controller', 'cpu', true) }]}  className={'limit'}>
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                        <Form.Item name={['controller', 'resources', 'requests', 'cpu']} label={t('下限')} rules={[{ validator: create_Validate_Limit_Function('controller', 'cpu', true) }]}  className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
                         </Form.Item>
-                        <Form.Item name={['controller', 'resources', 'limits', 'cpu']} label={t('上限')} rules={[{ required: true, validator: createValidateLimitFunction('controller', 'cpu', false) }]} className={'limit'}>
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                        <Form.Item name={['controller', 'resources', 'limits', 'cpu']} label={t('上限')} rules={[{ required: true, validator: create_Validate_Limit_Function('controller', 'cpu', false) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
                         </Form.Item>
                     </Input.Group>
                 </Form.Item>
                     
                 <Form.Item label={t('内存')}>
                     <Input.Group compact>
-                        <Form.Item name={['controller', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ required: true, validator: createValidateLimitFunction('controller', 'meomory', true) }]} className={'limit'}>
+                        <Form.Item name={['controller', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ validator: create_Validate_Limit_Function('controller', 'meomory', true) }]} className={'limit'}>
                             <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
                         </Form.Item>
-                        <Form.Item name={['controller', 'resources', 'limits','memory']} label={t('上限')} rules={[{ required: true, validator: createValidateLimitFunction('controller', 'memory', false) }]} className={'limit'}>
+                        <Form.Item name={['controller', 'resources', 'limits','memory']} label={t('上限')} rules={[{ required: true, validator: create_Validate_Limit_Function('controller', 'memory', false) }]} className={'limit'}>
                             <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
                         </Form.Item>
                     </Input.Group>
                 </Form.Item>
-
+                
                 </> }
 
                 <Divider orientation='left'>{t('数据节点')}</Divider>
@@ -917,21 +923,21 @@ function CreateClusterPanel({
                 
                 <Form.Item label='CPU' >
                     <Input.Group compact>
-                        <Form.Item name={['datanode', 'resources', 'requests', 'cpu']} label={t('下限')} rules={[{ required: true, validator: createValidateLimitFunction('datanode', 'cpu', true) }]}  className={'limit'}>
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                        <Form.Item name={['datanode', 'resources', 'requests', 'cpu']} label={t('下限')} rules={[{ validator: create_Validate_Limit_Function('datanode', 'cpu', true) }]}  className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
                         </Form.Item>
-                        <Form.Item name={['datanode', 'resources', 'limits', 'cpu']} label={t('上限')} rules={[{ required: true, validator: createValidateLimitFunction('datanode', 'cpu', false) }]} className={'limit'}>
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                        <Form.Item name={['datanode', 'resources', 'limits', 'cpu']} label={t('上限')} rules={[{ required: true, validator: create_Validate_Limit_Function('datanode', 'cpu', false) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
                         </Form.Item>
                     </Input.Group>
                 </Form.Item>
                     
                 <Form.Item label={t('内存')}>
                     <Input.Group compact>
-                        <Form.Item name={['datanode', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ required: true, validator: createValidateLimitFunction('datanode', 'meomory', true) }]} className={'limit'}>
+                        <Form.Item name={['datanode', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ validator: create_Validate_Limit_Function('datanode', 'meomory', true) }]} className={'limit'}>
                             <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
                         </Form.Item>
-                        <Form.Item name={['datanode', 'resources', 'limits','memory']} label={t('上限')} rules={[{ required: true, validator: createValidateLimitFunction('datanode', 'memory', false) }]} className={'limit'}>
+                        <Form.Item name={['datanode', 'resources', 'limits','memory']} label={t('上限')} rules={[{ required: true, validator: create_Validate_Limit_Function('datanode', 'memory', false) }]} className={'limit'}>
                             <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
                         </Form.Item>
                     </Input.Group>
@@ -958,22 +964,22 @@ function CreateClusterPanel({
                     
                     <Form.Item label='CPU'>
                         <Input.Group compact>
-                        <Form.Item name={['computenode', 'resources','requests' , 'cpu']} label={t('下限')} rules={[{ required: true, validator: createValidateLimitFunction('computenode', 'cpu', true) }]} className={'limit'}>
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                        <Form.Item name={['computenode', 'resources','requests' , 'cpu']} label={t('下限')} rules={[{ validator: create_Validate_Limit_Function('computenode', 'cpu', true) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
                         </Form.Item>
                         
-                        <Form.Item name={['computenode', 'resources', 'limits', 'cpu']} label={t('上限')} rules={[{ required: true, validator: createValidateLimitFunction('computenode', 'cpu', false) }]} className={'limit'}>
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}></InputNumber>
+                        <Form.Item name={['computenode', 'resources', 'limits', 'cpu']} label={t('上限')} rules={[{ required: true, validator: create_Validate_Limit_Function('computenode', 'cpu', false) }]} className={'limit'}>
+                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
                         </Form.Item>
                         </Input.Group>
                     </Form.Item>
                     
                     <Form.Item label={t('内存')}>
                         <Input.Group compact>
-                            <Form.Item name={['computenode', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ required: true, validator: createValidateLimitFunction('computenode', 'memory', true) }]} className={'limit'}>
+                            <Form.Item name={['computenode', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ validator: create_Validate_Limit_Function('computenode', 'memory', true) }]} className={'limit'}>
                                 <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
                             </Form.Item>
-                            <Form.Item name={['computenode', 'resources', 'limits','memory']} label={t('上限')} rules={[{ required: true, validator: createValidateLimitFunction('computenode', 'memory', false) }]} className={'limit'}>
+                            <Form.Item name={['computenode', 'resources', 'limits','memory']} label={t('上限')} rules={[{ required: true, validator: create_Validate_Limit_Function('computenode', 'memory', false) }]} className={'limit'}>
                                 <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
                             </Form.Item>
                         </Input.Group>
@@ -1129,7 +1135,7 @@ function NodeList ({
     const [cloud_upload_props, set_cloud_upload_props] = useState({ namespace: '', name: '', instance: '' })
     
     return <>
-        <CloudUpload {...cloud_upload_props} modal_open={cloud_upload_modal_open} set_modal_open={set_cloud_upload_modal_open}></CloudUpload>
+        <CloudUpload {...cloud_upload_props} modal_open={cloud_upload_modal_open} set_modal_open={set_cloud_upload_modal_open} />
         
         <Table
             className='config-table'
@@ -1785,7 +1791,7 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
                 <Title level={4}>{t('上传文件至 {{instance}}', { instance: props.instance })}</Title>
                 <Form form={form_instance}>
                     <Form.Item name='to' label={t('文件上传路径')} required colon={false}>
-                        <Input placeholder={t('Pod 内路径，如: /data/ddb/server/')}></Input>
+                        <Input placeholder={t('Pod 内路径，如: /data/ddb/server/')} />
                     </Form.Item>
                 </Form>
                 <Upload.Dragger
@@ -1865,7 +1871,7 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
                             strokeWidth={3}
                             format={percent => percent && `${parseFloat(percent.toFixed(2))}%`}
                             percent={(progress.loaded / progress.total) * 100}
-                        ></Progress>
+                        />
                     ) : undefined}
                     
                     {error_ ? (
@@ -1877,7 +1883,7 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
                             strokeWidth={3}
                             status='exception'
                             percent={100}
-                        ></Progress>
+                        />
                     ) : undefined}
                     
                     {show_text && loaded_ ? <div>{t('文件 {{filename}} 上传成功', { filename })}</div> : undefined}
@@ -1918,18 +1924,18 @@ function ShowBackupRestoreSourceKey() {
                 label: translate_dict['backups'],
                 key: '1',
                 children: <ErrorBoundary>
-                    <BackupListOfNamespace tag={tag}></BackupListOfNamespace>
+                    <BackupListOfNamespace tag={tag}/>
                 </ErrorBoundary>
             },
             {
                 label: translate_dict['restores'],
                 key: '2',
-                children: <RestoreListOfNamespace tag={tag}></RestoreListOfNamespace>
+                children: <RestoreListOfNamespace tag={tag}/>
             },
             {
                 label: t('云端存储配置'),
                 key: '3',
-                children: <SourceKeyList tag={tag}></SourceKeyList>
+                children: <SourceKeyList tag={tag}/>
             },
         ]}
     />
@@ -2040,7 +2046,7 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                                                 label={translate_dict[x]}
                                                 rules={!not_required.has(x) ? [{ message: t('此项必填'), required: true }] : []}
                                             >
-                                                <Input></Input>
+                                                <Input/>
                                             </Form.Item>
                                         ))}
                                 </>
@@ -2084,7 +2090,9 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                                     name={x}
                                     label={translate_dict[x]}
                                     rules={!not_required.has(x) ? [{ message: t('此项必填'), required: true }] : []}
-                                ><Input></Input></Form.Item> :
+                                >
+                                    <Input/>
+                                    </Form.Item> :
                                     <Form.Item
                                         name={'provider'}
                                         label={translate_dict['provider']}
@@ -2620,7 +2628,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                     dataIndex={'operation'}
                 />
             </Table> :
-            <Empty></Empty>
+            <Empty/>
         }
         <Modal
             className='backup-modal'
@@ -2809,7 +2817,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                 label={translate_dict['prefix']}
                                 rules={[{ required: true, message: t('此项必填') }]}
                             >
-                                <Input></Input>
+                                <Input/>
                             </Form.Item>}
 
                         <Form.Item
@@ -2836,7 +2844,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                             name={'storage_resource'}
                             label={translate_dict['storage_resource']}
                         >
-                            <InputNumber addonAfter='Gi' min={1} ></InputNumber>
+                            <InputNumber addonAfter='Gi' min={1}  />
                         </Form.Item>
                     </>
                 </>
@@ -2940,7 +2948,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
             sourcekey_modaol_open={sourcekey_modal_open}
             set_sourcekey_modal_open={set_sourcekey_modal_open}
             refresh_source_key={refresh_source_key}
-        ></SourceKeyModal> : <div />}
+        /> : <div />}
 
 
         <ErrorBoundary>
@@ -3046,11 +3054,11 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
                     dataIndex={'operation'}
                 />
             </Table> :
-            <Empty></Empty>
+            <Empty/>
         }
 
         <ErrorBoundary>
-            <DashboardForOneName name={name_of_current_opened_detail} type={'restores'} open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }}></DashboardForOneName>
+            <DashboardForOneName name={name_of_current_opened_detail} type={'restores'} open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }} />
         </ErrorBoundary>
 
     </div>
@@ -3124,7 +3132,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
             sourcekey_modaol_open={sourcekey_modal_open}
             set_sourcekey_modal_open={set_sourcekey_modal_open}
             refresh_source_key={refresh_source_key}
-        ></SourceKeyModal> : <div />}
+        /> : <div />}
 
         {source_key_detail ?
             <Table dataSource={Object.keys(source_key_detail).map(
