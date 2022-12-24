@@ -116,8 +116,7 @@ loader.config({
 })
 
 
-const constants_lower = constants.map(constant => 
-    constant.toLowerCase())
+const constants_lower = constants.map(constant => constant.toLowerCase())
 
 
 let docs = { }
@@ -465,16 +464,15 @@ function Editor () {
                 wasm_loaded = true
                 
                 ;(async () => {
-                    if (language === 'zh')
-                        docs = await request_json('./docs.zh.json')
-                    else
-                        docs = await request_json('./docs.en.json')
+                    const fname = `docs.${ language === 'zh' ? 'zh' : 'en' }.json`
+                    
+                    docs = await request_json(`./${fname}`)
                     
                     funcs = Object.keys(docs)
                     funcs_lower = funcs.map(func => 
                         func.toLowerCase())
                     
-                    console.log(t('函数文档 {{fname}} 已加载', { fname: `docs.${language}.json` }))
+                    console.log(t('函数文档 {{fname}} 已加载', { fname }))
                 })()
                 
                 // Using the response directly only works if the server sets the MIME type 'application/wasm'.
