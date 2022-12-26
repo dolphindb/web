@@ -89,9 +89,14 @@ class DevServer extends Server {
                 })
             } catch (error) {
                 console.log(error)
-                response.body = error.response.body
-                response.status = error.response.statusCode
-                response.type = 'json'
+                if (error.response) {
+                    response.body = error.response.body
+                    response.status = error.response.statusCode
+                    response.type = 'json'
+                } else {
+                    response.status = 500
+                    response.body = inspect(error, { colors: false })
+                }
             }
             return true
         }
