@@ -17,11 +17,19 @@ import { ReloadOutlined } from '@ant-design/icons'
 
 import { DdbObj, nulls, format, DdbType } from 'dolphindb/browser.js'
 
-import { t } from '../i18n/index.js'
+import { language, t } from '../i18n/index.js'
 import { model, type DdbJob } from './model.js'
 
 
 const { Title, Text, Link } = Typography
+
+
+const statuses = {
+    queuing: t('排队中'),
+    running: t('运行中', { context: 'job.status' }),
+    completed: t('已完成'),
+    failed: t('出错了'),
+}
 
 
 export function Job () {
@@ -350,8 +358,9 @@ function add_status_col (cols: ColumnType<DdbJob>[]) {
     const col_status: ColumnType<DdbJob> = {
         title: 'status',
         key: 'status',
+        width: language === 'zh' ? '80px' : '100px',
         render: (value, job) => 
-            <Text type={job.theme}>{job.status}</Text>
+            <Text type={job.theme}>{statuses[job.status] || job.status}</Text>
     }
     
     cols.splice(i_priority, 0, col_status)
@@ -383,7 +392,7 @@ function filter_job_rows (jobs: DdbJob[], query: string) {
         jobId?.includes(query) ||
         rootJobId?.includes(query) ||
         (desc || jobDesc)?.includes(query) ||
-        status?.includes(query) ||
+        (status && (status.includes(query) || statuses[status]?.includes(query))) ||
         node?.includes(query) ||
         (userId || userID)?.includes(query) ||
         (remoteIP && format(DdbType.ipaddr, remoteIP, true).includes(query))
@@ -399,7 +408,7 @@ function compute_status_info (job: DdbJob) {
     }
     
     if (errorMsg) {
-        job.status = 'error'
+        job.status = 'failed'
         job.theme = 'danger'
         return job
     }

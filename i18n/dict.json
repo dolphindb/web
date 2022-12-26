@@ -1225,5 +1225,17 @@
     },
     "的矩阵": {
         "en": " matrix"
+    },
+    "排队中": {
+        "en": "queuing"
+    },
+    "已完成": {
+        "en": "completed"
+    },
+    "出错了": {
+        "en": "failed"
+    },
+    "运行中_job.status": {
+        "en": "running"
     }
 }
