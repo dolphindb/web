@@ -20,6 +20,8 @@
 
 如需更新 web 界面，在右边的 releases 中 (https://github.com/dolphindb/web/releases) 下载最新的 web.xxxx.xx.xx.xx.zip 压缩包，用压缩包中的 web 文件夹直接替换 DolphinDB server 安装目录中的 web 文件夹即可，可以热替换，不需要重启服务器，替换后刷新网页即可。
 
+如果需要通过 nginx 部署到子路径下（不建议，多转发一次会降低性能），可以参考 [./nginx.conf](./nginx.conf)
+
 
 ### Cloud: DolphinDB K8S 云平台 Web 管理界面
 ![](./cloud/demo.png)

@@ -20,6 +20,7 @@ Use a browser to access the `IP:port` of the DolphinDB server to use
 
 To update the web interface, download the latest web.xxxx.xx.xx.xx.zip archive in the releases on the right (https://github.com/dolphindb/web/releases), and use the web files in the archive The folder can directly replace the web folder in the DolphinDB server installation directory. It can be hot-replaced without restarting the server, and the webpage can be refreshed after the replacement.
 
+If you need to deploy to a subpath through nginx (not recommended, one more forwarding will reduce performance), you can refer to [./nginx.conf](./nginx.conf)
 
 ### Cloud: DolphinDB K8S cloud platform web management interface
 ![](./cloud/demo.png)

@@ -94,7 +94,7 @@ function DolphinDB () {
     
     return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false}>
         <Layout className='root-layout'>
-            { header && <Layout.Header className='header'>
+            { header && <Layout.Header className='ddb-header'>
                 <DdbHeader />
             </Layout.Header> }
             <Layout className='body'>
