@@ -80,58 +80,41 @@ class DevServer extends Server {
             return true
         }
         
-        if (path.startsWith('/v1/grafana/url')) {
-            response.body = await request_json(
-                `http://192.168.0.75:31832${path}`,
-                {
+        if (path.startsWith('/v1/')) {
+            try {
+                response.body = await request_json(`http://192.168.1.99:30080${path}`, {
                     method: method as any,
                     queries: query,
                     body,
-                }
-            )
-            return true
-        }
-        
-        if (path.startsWith('/dolphindb-webserver')) {
-                try {
-                    response.body = await request_json(`http://192.168.1.99:30080${path}`, {
-                        method: method as any,
-                        queries: query,
-                        body,
-                    })
-                } catch (error) {
-                    response.body = error.response.body
-                    response.status = error.response.statusCode
-                    response.type = 'json'
-                }
-            return true
-        }
-        
-        if (path.startsWith('/v1')) {
-            response.body = await request_json(`http://192.168.0.75:31302${path}`, {
-                method: method as any,
-                queries: query,
-                body,
-            })
-            
+                })
+            } catch (error) {
+                console.log(error)
+                response.body = error.response.body
+                response.status = error.response.statusCode
+                response.type = 'json'
+            }
             return true
         }
         
         for (const prefix of ['/console/vs/', '/min-maps/vs/'] as const)
-            if (path.startsWith(prefix))
-                return this.try_send(ctx, path.slice(prefix.length), {
+            if (path.startsWith(prefix)) {
+                await this.try_send(ctx, path.slice(prefix.length), {
                     root: `${fpd_out_console}vs/`,
                     fs,
                     log_404: true
                 })
+                return true
+            }
         
         for (const prefix of ['/console/vendors/', '/cloud/vendors/'] as const)
-            if (path.startsWith(prefix))
-                return this.try_send(ctx, path.slice(prefix.length), {
+            if (path.startsWith(prefix)) {
+                await this.try_send(ctx, path.slice(prefix.length), {
                     root: `${fpd_out_console}vendors/`,
                     fs,
                     log_404: true
                 })
+                return true
+            }
         
         if (path === '/console/onig.wasm') {
             await this.fsend(ctx, `${fpd_root}node_modules/vscode-oniguruma/release/onig.wasm`, { fs, absolute: true })
@@ -169,7 +152,7 @@ class DevServer extends Server {
 
 set_inspect_options()
 
-console.log('根目录:', fpd_root)
+console.log('项目根目录:', fpd_root)
 
 let mfs = create_mfs()
 let ufs = new UFS([mfs, fs])
