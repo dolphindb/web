@@ -66,7 +66,7 @@ import {
 
 import { keywords, constants, tm_language } from 'dolphindb/language.js'
 
-import theme from './shell.theme.js'
+import { theme } from 'dolphindb/theme.js'
 
 
 import SvgVar from './shell.icons/variable.icon.svg'
