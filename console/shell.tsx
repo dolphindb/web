@@ -788,9 +788,6 @@ function Editor () {
             
             language='dolphindb'
             
-            theme='dolphindb-theme'
-            // theme='Dark+ (default dark)'
-            
             options={{
                 minimap: {
                     enabled: minimap

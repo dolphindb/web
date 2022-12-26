@@ -78,3 +78,7 @@ npm run build.cloud
 # 构建结束后 ./web.cloud/ 文件夹中的所有文件作为产物
 rsync -av --delete ./web.cloud/ jenkins@192.168.1.204:/hdd/ftp/origin/cloud/
 ```
+
+
+#### hacks
+打开 node_modules/@monaco-editor/react/package.json, 加入 type: "module" ，用来修复 `<MonacoEditor>` 的 ts 类型报错

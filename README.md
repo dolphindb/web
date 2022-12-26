@@ -77,3 +77,6 @@ npm run build.cloud
 # After the build finishes, all files in the ./web.cloud/ folder are used as artifacts
 rsync -av --delete ./web.cloud/ jenkins@192.168.1.204:/hdd/ftp/origin/cloud/
 ```
+
+#### hacks
+Open node_modules/@monaco-editor/react/package.json, add type: "module" to fix `<MonacoEditor>`'s ts type error
