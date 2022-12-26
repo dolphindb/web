@@ -137,6 +137,9 @@
             flex-direction: column
             justify-content: flex-start
             
+            .treeview-split
+                height: 100%
+            
             .treeview-resizable-split1
                 overflow: hidden
                 
@@ -167,8 +170,6 @@
                 min-height: 22px
                 overflow-y: hidden
                 
-                /* 设置变量区 z-index 到顶层，否则向上拖动时，database-tree 高度尚未变化，会遮挡拖动手柄 */
-                z-index: 1000
             
             .treeview-resizable-split22
                 max-height: calc(100% - 22px) !important
