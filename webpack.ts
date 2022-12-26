@@ -28,7 +28,7 @@ async function get_proxy () {
         const proxy = process.env.http_proxy || MyProxy.socks5
         
         await request('https://cdn.jsdelivr.net/', {
-            timeout: 1000,
+            timeout: 2000,
             proxy,
         })
         
