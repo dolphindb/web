@@ -169,7 +169,7 @@ await Promise.all([
 console.log(
     '\n' +
     '开发服务器启动成功，请使用浏览器打开:\n'.green +
-    'http://localhost:8432/console/?hostname=127.0.0.1&port=8848\n' +
-    'http://localhost:8432/cloud/'
+    'http://localhost:8432/console/?hostname=127.0.0.1&port=8848\n'.blue.underline +
+    'http://localhost:8432/cloud/'.blue.underline
 )
 
