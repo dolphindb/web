@@ -66,7 +66,7 @@ import {
 
 import { keywords, constants, tm_language } from 'dolphindb/language.js'
 
-import { theme } from 'dolphindb/theme.js'
+import { theme_light } from 'dolphindb/theme.light.js'
 
 
 import SvgVar from './shell.icons/variable.icon.svg'
@@ -478,9 +478,7 @@ function Editor () {
                 // Using the response directly only works if the server sets the MIME type 'application/wasm'.
                 // Otherwise, a TypeError is thrown when using the streaming compiler.
                 // We therefore use the non-streaming compiler :(.
-                await loadWASM(
-                    await fetch('./onig.wasm')
-                )
+                await loadWASM(await fetch('./onig.wasm'))
             }
             
             
@@ -2105,10 +2103,7 @@ const grammars: {
 
 
 let registry = new Registry({
-    onigLib: Promise.resolve({
-        createOnigScanner,
-        createOnigString
-    }),
+    onigLib: Promise.resolve({ createOnigScanner, createOnigString }),
     
     async loadGrammar (scopeName: string): Promise<IRawGrammar | null> {
         const scopeNameInfo = grammars[scopeName]
@@ -2139,7 +2134,7 @@ let registry = new Registry({
         return grammar ? grammar.injections : undefined
     },
     
-    theme
+    theme: theme_light
 })
 
 
