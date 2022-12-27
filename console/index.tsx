@@ -7,7 +7,7 @@ import { default as React, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import {
-    Layout, 
+    Layout,
     Menu,
     ConfigProvider,
     Dropdown,
@@ -21,18 +21,18 @@ import {
     Button,
     InputNumber,
     message,
-    
+
     // @ts-ignore 使用了 antd-with-locales 之后 window.antd 变量中有 locales 属性
     locales
 } from 'antd'
 
 import {
     default as _Icon,
-    AppstoreOutlined, 
-    DatabaseOutlined, 
-    DownOutlined, 
+    AppstoreOutlined,
+    DatabaseOutlined,
+    DownOutlined,
     LoginOutlined,
-    LogoutOutlined, 
+    LogoutOutlined,
     TableOutlined,
     UserOutlined,
     DoubleLeftOutlined,
@@ -82,21 +82,21 @@ const locale_names = {
 } as const
 
 
-function DolphinDB () {
+function DolphinDB() {
     const { inited, header } = model.use(['inited', 'header'])
-    
+
     useEffect(() => {
         model.init()
-    }, [ ])
-    
+    }, [])
+
     if (!inited)
         return null
-    
+
     return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false}>
         <Layout className='root-layout'>
-            { header && <Layout.Header className='ddb-header'>
+            {header && <Layout.Header className='ddb-header'>
                 <DdbHeader />
-            </Layout.Header> }
+            </Layout.Header>}
             <Layout className='body'>
                 <DdbSider />
                 <Layout.Content className='view'>
@@ -108,26 +108,26 @@ function DolphinDB () {
 }
 
 
-function DdbHeader () {
+function DdbHeader() {
     const { logined, username, node_alias } = model.use(['logined', 'username', 'node_alias'])
-    
+
     useEffect(() => {
         if (!node_alias)
             return
         document.title = `DolphinDB - ${node_alias}`
     }, [node_alias])
-    
+
     return <>
         <img className='logo' src='./ddb.svg' />
-        
+
         <div className='padding' />
-        
+
         <div className='section'><Status /></div>
-        
+
         <div className='section'><License /></div>
-        
+
         <Settings />
-        
+
         <div className='section'>
             <div className='user'>{
                 <Dropdown
@@ -140,7 +140,7 @@ function DdbHeader () {
                                     icon: <LogoutOutlined />,
                                     label: <a className='logout' onClick={() => { model.logout() }}>{t('注销')}</a>,
                                 }
-                            :
+                                :
                                 {
                                     key: 'login',
                                     icon: <LoginOutlined />,
@@ -150,7 +150,7 @@ function DdbHeader () {
                     }}
                 >
                     <a className='username'>
-                        <Avatar className='avatar' icon={<UserOutlined /> } size='small' />{username}<Icon className='arrow-down' component={SvgArrowDown} />
+                        <Avatar className='avatar' icon={<UserOutlined />} size='small' />{username}<Icon className='arrow-down' component={SvgArrowDown} />
                     </a>
                 </Dropdown>
             }</div>
@@ -165,14 +165,14 @@ const authorizations = {
     commercial: t('商业版')
 }
 
-function License () {
+function License() {
     const { version, license } = model.use(['version', 'license'])
-    
+
     if (!license)
         return
-    
+
     const auth = authorizations[license.authorization] || license.authorization
-    
+
     return <Popover
         placement='bottomLeft'
         zIndex={1060}
@@ -187,7 +187,7 @@ function License () {
                         <Descriptions.Item label={t('过期时间')}>{date2str(license.expiration)}</Descriptions.Item>
                         <Descriptions.Item label={t('绑定 CPU')}>{String(license.bindCPU)}</Descriptions.Item>
                         <Descriptions.Item label={t('版本')}>{license.version}</Descriptions.Item>
-                        <Descriptions.Item label={t('模块数量')}>{ license.modules === -1n ? '∞' : license.modules.toString() }</Descriptions.Item>
+                        <Descriptions.Item label={t('模块数量')}>{license.modules === -1n ? '∞' : license.modules.toString()}</Descriptions.Item>
                         <Descriptions.Item label={t('每节点最大可用内存')}>{license.maxMemoryPerNode}</Descriptions.Item>
                         <Descriptions.Item label={t('每节点最大可用核数')}>{license.maxCoresPerNode}</Descriptions.Item>
                         <Descriptions.Item label={t('最大节点数')}>{license.maxNodes}</Descriptions.Item>
@@ -200,8 +200,15 @@ function License () {
     </Popover>
 }
 
+const node_types = {
+    data_node: t('数据节点'),
+    controller: t('控制节点'),
+    single: t('单机节点'),
+    computing_node: t('计算节点'),
+}
 
-function Status () {
+function Status() {
+    const { node_type } = model.use(['node'])
     return <Popover
         placement='bottomLeft'
         zIndex={1060}
@@ -210,7 +217,7 @@ function Status () {
             <div className='head-bar-info'>
                 <Card
                     size='small'
-                    title={t('状态')}
+                    title={node_types[NodeType[node_type]]}
                     bordered={false}
                     extra={
                         <div
@@ -231,7 +238,7 @@ function Status () {
         }
     >
         <Tag
-            className='node-info' 
+            className='node-info'
             color='#f2f2f2'
             onMouseOver={() => { model.get_cluster_perf() }}
         >{t('状态')}</Tag>
@@ -239,9 +246,8 @@ function Status () {
 }
 
 
-function Perf () {
-    const { node } = model.use(['node'])
-
+function Perf() {
+    const { node, node_type } = model.use(['node'])
     if (!node)
         return null
 
@@ -360,9 +366,9 @@ function Perf () {
     )
 }
 
-function DdbSider () {
+function DdbSider() {
     const { view, node_type, collapsed, dev } = model.use(['view', 'node_type', 'collapsed', 'dev'])
-    
+
     return <Layout.Sider
         width={120}
         className='sider'
@@ -401,19 +407,19 @@ function DdbSider () {
                     key: 'cluster',
                     icon: <MenuIcon view='cluster' />,
                     label: t('集群总览'),
-                }] : [ ],
+                }] : [],
                 {
                     key: 'shell',
                     icon: <MenuIcon view='shell' />,
                     label: t('交互编程'),
                 },
-                
-                ... dev ? [{
-                       key: 'dashboard',
-                       icon: <MenuIcon view='dashboard' />,
-                       label: t('数据看板')
-                }] : [ ],
-                
+
+                ...dev ? [{
+                    key: 'dashboard',
+                    icon: <MenuIcon view='dashboard' />,
+                    label: t('数据看板')
+                }] : [],
+
                 // {
                 //     key: 'data',
                 //     label: t('数据'),
@@ -435,7 +441,7 @@ function DdbSider () {
                     key: 'dfs',
                     icon: <MenuIcon view='dfs' />,
                     label: t('文件系统'),
-                }] : [ ],
+                }] : [],
                 {
                     key: 'log',
                     icon: <MenuIcon view='log' />,
@@ -446,40 +452,40 @@ function DdbSider () {
     </Layout.Sider>
 }
 
-function Settings () {
+function Settings() {
     type DecimalsStatus = null | 'error'
-    
+
     const [decimals, set_decimals] = useState<{ status: DecimalsStatus, value: number | null }>(
         { status: null, value: model.options?.decimals ?? null }
     )
-    
-    function confirm () {
+
+    function confirm() {
         if (decimals.status === null) {
             model.set({ options: { decimals: decimals.value } })
             message.success(t('设置成功，目前小数位数为：') + (decimals.value === null ? t('实际位数') : decimals.value))
         } else
             set_decimals({ status: null, value: model.options?.decimals ? model.options.decimals : null })
     }
-    
-    function validate (text: string): { status: DecimalsStatus, value: null | number } {
+
+    function validate(text: string): { status: DecimalsStatus, value: null | number } {
         text = text.trim()
-        if (text.length === 0) 
+        if (text.length === 0)
             return { value: null, status: null }
-        
-        if (!/^[0-9]*$/.test(text)) 
+
+        if (!/^[0-9]*$/.test(text))
             return { value: null, status: 'error' }
-        
+
         const num = Number(text)
-        if (Number.isNaN(num)) 
+        if (Number.isNaN(num))
             return { value: null, status: 'error' }
-        
-        if (num < 0 || num > 20) 
+
+        if (num < 0 || num > 20)
             return { value: num, status: 'error' }
-        
+
         return { value: num, status: null }
     }
-    
-    
+
+
     return <div className='header-settings'>
         <Popover
             trigger='hover'
@@ -533,7 +539,7 @@ function Settings () {
                 }} />
         </Popover>
     </div>
-    
+
 }
 
 const views = {
@@ -546,16 +552,16 @@ const views = {
     log: Log,
 }
 
-function DdbContent () {
+function DdbContent() {
     const { view } = model.use(['view'])
-    
+
     const View = views[view]
-    
+
     if (!View)
         return null
-    
+
     return <div className={`view-card ${view}`}>
-        <View/>
+        <View />
     </div>
 }
 
@@ -569,11 +575,11 @@ const svgs = {
     log: SvgLog,
 }
 
-function MenuIcon ({ view }: { view: DdbModel['view'] }) {
+function MenuIcon({ view }: { view: DdbModel['view'] }) {
     return <Icon className='icon-menu' component={svgs[view]} />
 }
 
 
 createRoot(
     document.querySelector('.root')
-).render(<DolphinDB/>)
+).render(<DolphinDB />)

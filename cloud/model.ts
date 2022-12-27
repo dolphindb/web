@@ -16,13 +16,13 @@ export const default_queries = {
 }
 
 
-export class CloudModel extends Model <CloudModel> {
+export class CloudModel extends Model<CloudModel> {
     inited = false
-    
+
     view: 'cloud' | 'shell' = new URLSearchParams(location.search).get('view') as 'cloud' | 'shell' || 'cloud'
-    
-    clusters: Cluster[] = [ ]
-    
+
+    clusters: Cluster[] = []
+
     cluster: Cluster
 
     namespaces: Namespace[] = []
@@ -30,45 +30,45 @@ export class CloudModel extends Model <CloudModel> {
     storageclasses: StorageClass[] = []
 
     versions: string[] = []
-    
+
     show_all_config = false
-    
+
     monitor_url: string
-    
-    
-    async init () {
+
+
+    async init() {
         await Promise.all([
             this.get_clusters(default_queries),
             this.get_namespaces(),
             this.get_storageclasses(),
             this.get_versions(),
         ])
-        
+
         this.get_monitor_url()
-        
+
         this.set({
             inited: true,
         })
     }
-    
-    async get_monitor_url () {
+
+    async get_monitor_url() {
         const { ip, port } = await request_json('/v1/grafana/url')
-        
+
         this.set({
             monitor_url: '//' + ip + ':' + port
         })
     }
-    
-    async get_clusters (queries: QueryOptions) {
+
+    async get_clusters(queries: QueryOptions) {
         const { items: clusters } = await request_json('/v1/dolphindbs', { queries })
-        
+
         console.log('clusters:', clusters)
-        
+
         this.set({
             clusters
         })
     }
-    
+
     /** 获取 namespace 字段可选值 */
     async get_namespaces() {
         const { items: namespaces } = await request_json('/v1/namespaces')
@@ -95,24 +95,24 @@ export class CloudModel extends Model <CloudModel> {
             versions
         })
     }
-    
-    async create (params) {
+
+    async create(params) {
         console.log('新建集群:', params)
-        
+
         await request_json('/v1/dolphindbs', {
             body: params,
         })
     }
-    
-    
-    async delete (cluster: Cluster) {
+
+
+    async delete(cluster: Cluster) {
         return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}`, {
             method: 'delete',
         })
     }
-    
-    
-    async get_cluster_nodes (cluster: Cluster) {
+
+
+    async get_cluster_nodes(cluster: Cluster) {
         const { items: nodes } = await request_json(
             // /v1/dolphindbs/<namespace>/<name>/instances
             `/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances`,
@@ -122,37 +122,37 @@ export class CloudModel extends Model <CloudModel> {
                 }
             }
         )
-        
+
         let { Datanode: datanodes, Controller: controllers, Computenode: computenodes, ...others } = nodes
-        console.log('nodes:',nodes)
-        
+        console.log('nodes:', nodes)
+
         if (controllers)
-            controllers.sort((a, b) => 
+            controllers.sort((a, b) =>
                 a.name.localeCompare(b.name))
 
         if (datanodes)
-            datanodes.sort((a, b) => 
+            datanodes.sort((a, b) =>
                 a.name.localeCompare(b.name))
-                
+
         if (computenodes)
             computenodes.sort((a, b) =>
                 a.name.localeCompare(b.name))
-            
-        
-        
+
+
+
         return { controllers, datanodes, computenodes, ...others }
     }
-    
-    
-    async creat_cluster_node_service (cluster: Cluster, instanceName: string) {
-        return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${instanceName}/services`,{
+
+
+    async creat_cluster_node_service(cluster: Cluster, instanceName: string) {
+        return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${instanceName}/services`, {
             method: 'post',
         })
 
     }
 
 
-    async delete_cluster_node_service (cluster: Cluster, instanceName: string) {
+    async delete_cluster_node_service(cluster: Cluster, instanceName: string) {
         return request_json(
             `/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${instanceName}/services`, {
             method: 'delete',
@@ -160,33 +160,33 @@ export class CloudModel extends Model <CloudModel> {
     }
 
 
-    async get_cluster (cluster_overview: Cluster) {
+    async get_cluster(cluster_overview: Cluster) {
         let cluster = await request_json(`/v1/dolphindbs/${cluster_overview.namespace}/${cluster_overview.name}`)
         cluster.created_at = dayjs(cluster.creation_timestamp)
-        
+
         console.log('cluster:', cluster)
         this.set({
             cluster
         })
     }
 
-    async get_cluster_config (cluster: Cluster): Promise<ClusterConfig> {
+    async get_cluster_config(cluster: Cluster): Promise<ClusterConfig> {
         return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/configs`, {
             queries: {
                 show_custom_config: !this.show_all_config
             }
         })
     }
-    
-    async update_cluster_config (cluster: Cluster, newconfig: ClusterConfig) {
+
+    async update_cluster_config(cluster: Cluster, newconfig: ClusterConfig) {
         return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/configs`, {
             method: 'put',
             body: newconfig,
         })
     }
 
-    
-    async restart_node (node: ClusterNode) {
+
+    async restart_node(node: ClusterNode) {
         await request_json(`/v1/dolphindbs/${this.cluster.namespace}/${this.cluster.name}/instances/${node.name}/restart`, {
             method: 'put',
             // body: node

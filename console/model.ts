@@ -59,7 +59,7 @@ export class DdbModel extends Model<DdbModel> {
     /** 是否在代码为空时设置代码模板 */
     code_template: boolean
     
-    
+    DdbModel
     constructor () {
         super()
         
