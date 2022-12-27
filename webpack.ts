@@ -334,12 +334,12 @@ const config: Configuration = {
         
         timings: true,
         
-        children: true,
+        children: false,
         
         assets: true,
         assetsSpace: 20,
         
-        modules: true,
+        modules: false,
         modulesSpace: 20,
         
         cachedAssets: false,
@@ -379,7 +379,10 @@ export let webpack = {
         return new Promise<Stats>((resolve, reject) => {
             this.compiler.run((error, stats) => {
                 if (stats)
-                    console.log(stats.toString(config.stats))
+                    console.log(
+                        stats.toString(config.stats)
+                            .replace(/\n\s*.*DdbWeb.* compiled .*successfully.* in (.*)/, '\n编译成功，用时 $1'.green)
+                    )
                 
                 if (error)
                     reject(error)
