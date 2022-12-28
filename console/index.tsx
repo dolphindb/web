@@ -242,7 +242,7 @@ function Status () {
             className='node-info' 
             color='#f2f2f2'
             onMouseOver={() => { model.get_cluster_perf() }}
-        >{node_types[node_type]}</Tag>
+        >{node_types[node_type].toLowerCase()}</Tag>
     </Popover>
 }
 
