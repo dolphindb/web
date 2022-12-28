@@ -200,15 +200,16 @@ function License () {
     </Popover>
 }
 
-const node_types = {
-    data_node: t('数据节点'),
-    controller: t('控制节点'),
-    single: t('单机节点'),
-    computing_node: t('计算节点'),
+const node_status_types = {
+    data_node: t('数据节点状态'),
+    controller: t('控制节点状态'),
+    single: t('单机节点状态'),
+    computing_node: t('计算节点状态'),
 }
 
 function Status () {
-    const { node_type } = model.use(['node'])
+    const { node_type } = model.use(['node_type'])
+    
     return <Popover
         placement='bottomLeft'
         zIndex={1060}
@@ -217,7 +218,7 @@ function Status () {
             <div className='head-bar-info'>
                 <Card
                     size='small'
-                    title={node_types[NodeType[node_type]]}
+                    title={node_status_types[NodeType[node_type]]}
                     bordered={false}
                     extra={
                         <div
@@ -241,7 +242,7 @@ function Status () {
             className='node-info' 
             color='#f2f2f2'
             onMouseOver={() => { model.get_cluster_perf() }}
-        >{t('状态')}</Tag>
+        >{node_status_types[NodeType[node_type]]}</Tag>
     </Popover>
 }
 
