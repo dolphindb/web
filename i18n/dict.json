@@ -203,6 +203,9 @@
     "状态": {
         "en": "status"
     },
+    "状态_node_type": {
+        "en": "Status"
+    },
     "操作": {
         "en": "actions"
     },

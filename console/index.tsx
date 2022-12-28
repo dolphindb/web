@@ -209,7 +209,6 @@ const node_types = {
 
 function Status () {
     const { node_type } = model.use(['node_type'])
-    const status = t('状态').charAt(0).toUpperCase() + t('状态').slice(1)
     
     return <Popover
         placement='bottomLeft'
@@ -219,7 +218,7 @@ function Status () {
             <div className='head-bar-info'>
                 <Card
                     size='small'
-                    title={node_types[node_type] + status}
+                    title={node_types[node_type] + t('状态', { context: 'node_type' })}
                     bordered={false}
                     extra={
                         <div
@@ -243,7 +242,7 @@ function Status () {
             className='node-info' 
             color='#f2f2f2'
             onMouseOver={() => { model.get_cluster_perf() }}
-        >{node_types[node_type] + status}</Tag>
+        >{node_types[node_type]}</Tag>
     </Popover>
 }
 
