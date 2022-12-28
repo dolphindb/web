@@ -380,20 +380,11 @@
     "控制节点": {
         "en": "Controllers"
     },
-    "控制节点状态": {
-        "en": "Controllers Status"
-    },
     "数据节点": {
         "en": "Datanodes"
     },
-    "数据节点状态": {
-        "en": "Datanodes Status"
-    },
     "单机节点": {
-        "en": "Standalone"
-    },
-    "单机节点状态": {
-        "en": "Standalone Status"
+        "en": " Standalone"
     },
     "单机": {
         "en": "Standalone"
@@ -403,9 +394,6 @@
     },
     "计算节点": {
         "en": "Computenodes"
-    },
-    "计算节点状态": {
-        "en": "Computenodes Status"
     },
     "计算节点配置": {
         "en": "Computenode Configuration"
