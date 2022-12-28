@@ -200,8 +200,15 @@ function License () {
     </Popover>
 }
 
+const node_types = {
+    data_node: t('数据节点'),
+    controller: t('控制节点'),
+    single: t('单机节点'),
+    computing_node: t('计算节点'),
+}
 
 function Status () {
+    const { node_type } = model.use(['node'])
     return <Popover
         placement='bottomLeft'
         zIndex={1060}
@@ -210,7 +217,7 @@ function Status () {
             <div className='head-bar-info'>
                 <Card
                     size='small'
-                    title={t('状态')}
+                    title={node_types[NodeType[node_type]]}
                     bordered={false}
                     extra={
                         <div
