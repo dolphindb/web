@@ -201,10 +201,10 @@ function License () {
 }
 
 const node_types = {
-    data_node: t('数据节点'),
-    controller: t('控制节点'),
-    single: t('单机节点'),
-    computing_node: t('计算节点'),
+    [NodeType.data_node]: t('数据节点'),
+    [NodeType.controller]: t('控制节点'),
+    [NodeType.single]: t('单机节点'),
+    [NodeType.computing_node]: t('计算节点'),
 }
 
 function Status () {
@@ -219,7 +219,7 @@ function Status () {
             <div className='head-bar-info'>
                 <Card
                     size='small'
-                    title={node_types[NodeType[node_type]] + status}
+                    title={node_types[node_type] + status}
                     bordered={false}
                     extra={
                         <div
@@ -243,7 +243,7 @@ function Status () {
             className='node-info' 
             color='#f2f2f2'
             onMouseOver={() => { model.get_cluster_perf() }}
-        >{node_types[NodeType[node_type]] + status}</Tag>
+        >{node_types[node_type] + status}</Tag>
     </Popover>
 }
 
