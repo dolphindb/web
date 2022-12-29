@@ -618,10 +618,10 @@
         "en": "CPU load average"
     },
     "worker 线程数": {
-        "en": "worker count"
+        "en": "workers"
     },
-    "excutor 线程数": {
-        "en": "executor count"
+    "executor 线程数": {
+        "en": "executors"
     },
     "磁盘": {
         "en": "Disk"
