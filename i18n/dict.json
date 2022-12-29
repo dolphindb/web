@@ -203,6 +203,9 @@
     "状态": {
         "en": "status"
     },
+    "状态_node_type": {
+        "en": " Status"
+    },
     "操作": {
         "en": "actions"
     },
@@ -380,11 +383,29 @@
     "控制节点": {
         "en": "Controllers"
     },
+    "控制节点_node_type": {
+        "en": "controller"
+    },
+    "控制节点_node_type_title": {
+        "en": "Controller"
+    },
     "数据节点": {
         "en": "Datanodes"
     },
+    "数据节点_node_type": {
+        "en": "datanode"
+    },
+    "数据节点_node_type_title": {
+        "en": "Datanode"
+    },
     "单机节点": {
         "en": " Standalone"
+    },
+    "单机节点_node_type": {
+        "en": "single"
+    },
+    "单机节点_node_type_title": {
+        "en": "Single"
     },
     "单机": {
         "en": "Standalone"
@@ -394,6 +415,12 @@
     },
     "计算节点": {
         "en": "Computenodes"
+    },
+    "计算节点_node_type": {
+        "en": "computenode"
+    },
+    "计算节点_node_type_title": {
+        "en": "Computenode"
     },
     "计算节点配置": {
         "en": "Computenode Configuration"
@@ -627,7 +654,7 @@
         "en": "Network"
     },
     "磁盘可用空间占比": {
-        "en": "Disk available space ratio"
+        "en": "disk available space ratio"
     },
     "数据库": {
         "en": "Database"
