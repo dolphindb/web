@@ -207,6 +207,13 @@ const node_types = {
     [NodeType.computing_node]: t('计算节点'),
 }
 
+const lowercase_node_types = {
+    [NodeType.data_node]: t('数据节点', { context: 'node_type' }),
+    [NodeType.controller]: t('控制节点', { context: 'node_type' }),
+    [NodeType.single]: t('单机节点', { context: 'node_type' }),
+    [NodeType.computing_node]: t('计算节点', { context: 'node_type' }),
+}
+
 function Status () {
     const { node_type } = model.use(['node_type'])
     
@@ -242,7 +249,7 @@ function Status () {
             className='node-info' 
             color='#f2f2f2'
             onMouseOver={() => { model.get_cluster_perf() }}
-        >{node_types[node_type].toLowerCase()}</Tag>
+        >{lowercase_node_types[node_type]}</Tag>
     </Popover>
 }
 

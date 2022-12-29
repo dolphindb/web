@@ -383,11 +383,20 @@
     "控制节点": {
         "en": "Controllers"
     },
+    "控制节点_node_type": {
+        "en": "Controllers"
+    },
     "数据节点": {
         "en": "Datanodes"
     },
+    "数据节点_node_type": {
+        "en": "datanodes"
+    },
     "单机节点": {
         "en": " Standalone"
+    },
+    "单机节点_node_type": {
+        "en": " standalone"
     },
     "单机": {
         "en": "Standalone"
@@ -397,6 +406,9 @@
     },
     "计算节点": {
         "en": "Computenodes"
+    },
+    "计算节点_node_type": {
+        "en": "computenodes"
     },
     "计算节点配置": {
         "en": "Computenode Configuration"
