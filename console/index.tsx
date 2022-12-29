@@ -283,7 +283,7 @@ function Perf () {
                 <Descriptions.Item label={t('worker 线程数')}>
                     {node.workerNum}
                 </Descriptions.Item>
-                <Descriptions.Item label={t('excutor 线程数')}>
+                <Descriptions.Item label={t('executor 线程数')}>
                     {node.executorNum}
                 </Descriptions.Item>
             </Descriptions >

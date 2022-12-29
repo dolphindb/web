@@ -620,7 +620,7 @@
     "worker 线程数": {
         "en": "worker count"
     },
-    "excutor 线程数": {
+    "executor 线程数": {
         "en": "executor count"
     },
     "磁盘": {
