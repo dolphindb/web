@@ -200,11 +200,11 @@ function License () {
     </Popover>
 }
 
-const node_types = {
-    [NodeType.data_node]: t('数据节点'),
-    [NodeType.controller]: t('控制节点'),
-    [NodeType.single]: t('单机节点'),
-    [NodeType.computing_node]: t('计算节点'),
+const uppercase_node_types = {
+    [NodeType.data_node]: t('数据节点', { context: 'node_type_title' }),
+    [NodeType.controller]: t('控制节点', { context: 'node_type_title' }),
+    [NodeType.single]: t('单机节点', { context: 'node_type_title' }),
+    [NodeType.computing_node]: t('计算节点', { context: 'node_type_title' }),
 }
 
 const lowercase_node_types = {
@@ -225,7 +225,7 @@ function Status () {
             <div className='head-bar-info'>
                 <Card
                     size='small'
-                    title={node_types[node_type] + t('状态', { context: 'node_type' })}
+                    title={uppercase_node_types[node_type] + t('状态', { context: 'node_type' })}
                     bordered={false}
                     extra={
                         <div
