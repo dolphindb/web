@@ -66,7 +66,7 @@ import {
 
 import { keywords, constants, tm_language } from 'dolphindb/language.js'
 
-import theme from './shell.theme.js'
+import { theme_light } from 'dolphindb/theme.light.js'
 
 
 import SvgVar from './shell.icons/variable.icon.svg'
@@ -116,8 +116,7 @@ loader.config({
 })
 
 
-const constants_lower = constants.map(constant => 
-    constant.toLowerCase())
+const constants_lower = constants.map(constant => constant.toLowerCase())
 
 
 let docs = { }
@@ -465,24 +464,21 @@ function Editor () {
                 wasm_loaded = true
                 
                 ;(async () => {
-                    if (language === 'zh')
-                        docs = await request_json('./docs.zh.json')
-                    else
-                        docs = await request_json('./docs.en.json')
+                    const fname = `docs.${ language === 'zh' ? 'zh' : 'en' }.json`
+                    
+                    docs = await request_json(`./${fname}`)
                     
                     funcs = Object.keys(docs)
                     funcs_lower = funcs.map(func => 
                         func.toLowerCase())
                     
-                    console.log(t('函数文档 {{fname}} 已加载', { fname: `docs.${language}.json` }))
+                    console.log(t('函数文档 {{fname}} 已加载', { fname }))
                 })()
                 
                 // Using the response directly only works if the server sets the MIME type 'application/wasm'.
                 // Otherwise, a TypeError is thrown when using the streaming compiler.
                 // We therefore use the non-streaming compiler :(.
-                await loadWASM(
-                    await fetch('./onig.wasm')
-                )
+                await loadWASM(await fetch('./onig.wasm'))
             }
             
             
@@ -791,9 +787,6 @@ function Editor () {
             defaultLanguage='dolphindb'
             
             language='dolphindb'
-            
-            theme='dolphindb-theme'
-            // theme='Dark+ (default dark)'
             
             options={{
                 minimap: {
@@ -2107,10 +2100,7 @@ const grammars: {
 
 
 let registry = new Registry({
-    onigLib: Promise.resolve({
-        createOnigScanner,
-        createOnigString
-    }),
+    onigLib: Promise.resolve({ createOnigScanner, createOnigString }),
     
     async loadGrammar (scopeName: string): Promise<IRawGrammar | null> {
         const scopeNameInfo = grammars[scopeName]
@@ -2141,7 +2131,7 @@ let registry = new Registry({
         return grammar ? grammar.injections : undefined
     },
     
-    theme
+    theme: theme_light
 })
 
 

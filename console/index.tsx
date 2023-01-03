@@ -200,8 +200,23 @@ function License () {
     </Popover>
 }
 
+const uppercase_node_types = {
+    [NodeType.data_node]: t('数据节点', { context: 'node_type_title' }),
+    [NodeType.controller]: t('控制节点', { context: 'node_type_title' }),
+    [NodeType.single]: t('单机节点', { context: 'node_type_title' }),
+    [NodeType.computing_node]: t('计算节点', { context: 'node_type_title' }),
+}
+
+const lowercase_node_types = {
+    [NodeType.data_node]: t('数据节点', { context: 'node_type' }),
+    [NodeType.controller]: t('控制节点', { context: 'node_type' }),
+    [NodeType.single]: t('单机节点', { context: 'node_type' }),
+    [NodeType.computing_node]: t('计算节点', { context: 'node_type' }),
+}
 
 function Status () {
+    const { node_type } = model.use(['node_type'])
+    
     return <Popover
         placement='bottomLeft'
         zIndex={1060}
@@ -210,7 +225,7 @@ function Status () {
             <div className='head-bar-info'>
                 <Card
                     size='small'
-                    title={t('状态')}
+                    title={uppercase_node_types[node_type] + t('状态', { context: 'node_type' })}
                     bordered={false}
                     extra={
                         <div
@@ -234,7 +249,7 @@ function Status () {
             className='node-info' 
             color='#f2f2f2'
             onMouseOver={() => { model.get_cluster_perf() }}
-        >{t('状态')}</Tag>
+        >{lowercase_node_types[node_type]}</Tag>
     </Popover>
 }
 
@@ -268,7 +283,7 @@ function Perf () {
                 <Descriptions.Item label={t('worker 线程数')}>
                     {node.workerNum}
                 </Descriptions.Item>
-                <Descriptions.Item label={t('excutor 线程数')}>
+                <Descriptions.Item label={t('executor 线程数')}>
                     {node.executorNum}
                 </Descriptions.Item>
             </Descriptions >

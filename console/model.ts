@@ -547,7 +547,7 @@ export interface DdbJob {
     runningTask?: number
     
     // --- computed (getRecentJobs)
-    status?: 'queuing' | 'error' | 'running' | 'completed'
+    status?: 'queuing' | 'failed' | 'running' | 'completed'
     theme?: BaseType
     
     // --- computed (getConsoleJobs)

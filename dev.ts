@@ -48,6 +48,7 @@ class DevServer extends Server {
                     'x-ddb': dapi
                 }
             },
+            headers
         } = ctx
         
         let { request, response } = ctx
@@ -80,58 +81,47 @@ class DevServer extends Server {
             return true
         }
         
-        if (path.startsWith('/v1/grafana/url')) {
-            response.body = await request_json(
-                `http://192.168.0.75:31832${path}`,
-                {
+        if (path.startsWith('/v1/')) {
+            try {
+                response.body = await request_json(`http://192.168.0.75:31302${path}`, {
                     method: method as any,
                     queries: query,
+                    headers: headers as Record<string, string>,
                     body,
-                }
-            )
-            return true
-        }
-        
-        if (path.startsWith('/dolphindb-webserver')) {
-                try {
-                    response.body = await request_json(`http://192.168.1.99:30080${path}`, {
-                        method: method as any,
-                        queries: query,
-                        body,
-                    })
-                } catch (error) {
+                })
+            } catch (error) {
+                console.log(error)
+                if (error.response) {
                     response.body = error.response.body
                     response.status = error.response.statusCode
                     response.type = 'json'
+                } else {
+                    response.status = 500
+                    response.body = inspect(error, { colors: false })
                 }
-            return true
-        }
-        
-        if (path.startsWith('/v1')) {
-            response.body = await request_json(`http://192.168.0.75:31302${path}`, {
-                method: method as any,
-                queries: query,
-                body,
-            })
-            
+            }
             return true
         }
         
         for (const prefix of ['/console/vs/', '/min-maps/vs/'] as const)
-            if (path.startsWith(prefix))
-                return this.try_send(ctx, path.slice(prefix.length), {
+            if (path.startsWith(prefix)) {
+                await this.try_send(ctx, path.slice(prefix.length), {
                     root: `${fpd_out_console}vs/`,
                     fs,
                     log_404: true
                 })
+                return true
+            }
         
         for (const prefix of ['/console/vendors/', '/cloud/vendors/'] as const)
-            if (path.startsWith(prefix))
-                return this.try_send(ctx, path.slice(prefix.length), {
+            if (path.startsWith(prefix)) {
+                await this.try_send(ctx, path.slice(prefix.length), {
                     root: `${fpd_out_console}vendors/`,
                     fs,
                     log_404: true
                 })
+                return true
+            }
         
         if (path === '/console/onig.wasm') {
             await this.fsend(ctx, `${fpd_root}node_modules/vscode-oniguruma/release/onig.wasm`, { fs, absolute: true })
@@ -169,7 +159,7 @@ class DevServer extends Server {
 
 set_inspect_options()
 
-console.log('根目录:', fpd_root)
+console.log('项目根目录:', fpd_root)
 
 let mfs = create_mfs()
 let ufs = new UFS([mfs, fs])
@@ -183,9 +173,46 @@ await Promise.all([
     webpack.build({ production: false, mfs })
 ])
 
+
+// 监听终端快捷键
+// https://stackoverflow.com/a/12506613/7609214
+
+let { stdin } = process
+
+stdin.setRawMode(true)
+
+stdin.resume()
+
+stdin.setEncoding('utf-8')
+
+// on any data into stdin
+stdin.on('data', function (key: any) {
+    // ctrl-c ( end of text )
+    if (key === '\u0003')
+        process.exit()
+    
+    // write the key to stdout all normal like
+    console.log(key)
+    
+    switch (key) {
+        case 'r':
+            webpack.run()
+            break
+            
+        case 'x':
+            process.exit()
+    }
+})
+
+
 console.log(
-    '开发服务器启动成功，请使用浏览器打开:\n' +
-    'http://localhost:8432/console/?hostname=127.0.0.1&port=8848\n' +
-    'http://localhost:8432/cloud/'
+    '\n' +
+    '开发服务器启动成功，请使用浏览器打开:\n'.green +
+    'http://localhost:8432/console/?hostname=127.0.0.1&port=8848\n'.blue.underline +
+    'http://localhost:8432/cloud/\n'.blue.underline +
+    '\n' +
+    '终端快捷键:\n' +
+    'r: 重新编译\n' +
+    'x: 退出开发服务器'
 )
 
