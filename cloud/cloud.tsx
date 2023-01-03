@@ -509,6 +509,7 @@ function Clusters () {
                 wrapperCol={{ span: 16 }}
                 colon={false}
                 requiredMark={false}
+                initialValues={{...current_cluster, versions: current_cluster?.version}}
             >
                 <Divider orientation='left'>{t('版本')}</Divider>
                 <Form.Item name={'versions'} label={t('版本')}>
@@ -525,7 +526,7 @@ function Clusters () {
                             rules={[{ validator: create_validate_limit_function('controller', 'cpu', true) }]}
                             className='limit'
                         >
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
+                            <InputNumber min={0} addonAfter={t('核')} />
                         </Form.Item>
                         <Form.Item
                             name={['controller', 'resources', 'limits', 'cpu']}
@@ -533,7 +534,7 @@ function Clusters () {
                             rules={[{ validator: create_validate_limit_function('controller', 'cpu', false) }]}
                             className='limit'
                         >
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
+                            <InputNumber min={0} addonAfter={t('核')} />
                         </Form.Item>
                     </Input.Group>
                 </Form.Item>
@@ -543,10 +544,10 @@ function Clusters () {
                         <Form.Item
                             name={['controller', 'resources', 'requests', 'memory']}
                             label={t('下限')}
-                            rules={[{ validator: create_validate_limit_function('controller', 'meomory', true) }]}
+                            rules={[{ validator: create_validate_limit_function('controller', 'memory', true) }]}
                             className='limit'
                         >
-                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                            <InputNumber min={0} addonAfter='Gi' />
                         </Form.Item>
                         <Form.Item
                             name={['controller', 'resources', 'limits', 'memory']}
@@ -554,7 +555,7 @@ function Clusters () {
                             rules={[{ validator: create_validate_limit_function('controller', 'memory', false) }]}
                             className='limit'
                         >
-                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                            <InputNumber min={0} addonAfter='Gi' />
                         </Form.Item>
                     </Input.Group>
                 </Form.Item>
@@ -568,7 +569,7 @@ function Clusters () {
                             rules={[{ validator: create_validate_limit_function('datanode', 'cpu', true) }]}
                             className='limit'
                         >
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
+                            <InputNumber min={0} addonAfter={t('核')} />
                         </Form.Item>
                         <Form.Item
                             name={['datanode', 'resources', 'limits', 'cpu']}
@@ -576,7 +577,7 @@ function Clusters () {
                             rules={[{ validator: create_validate_limit_function('datanode', 'cpu', false) }]}
                             className='limit'
                         >
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
+                            <InputNumber min={0} addonAfter={t('核')} />
                         </Form.Item>
                     </Input.Group>
                 </Form.Item>
@@ -586,10 +587,10 @@ function Clusters () {
                         <Form.Item
                             name={['datanode', 'resources', 'requests', 'memory']}
                             label={t('下限')}
-                            rules={[{ validator: create_validate_limit_function('datanode', 'meomory', true) }]}
+                            rules={[{ validator: create_validate_limit_function('datanode', 'memory', true) }]}
                             className='limit'
                         >
-                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                            <InputNumber min={0} addonAfter='Gi' />
                         </Form.Item>
                         <Form.Item
                             name={['datanode', 'resources', 'limits', 'memory']}
@@ -597,7 +598,7 @@ function Clusters () {
                             rules={[{ validator: create_validate_limit_function('datanode', 'memory', false) }]}
                             className='limit'
                         >
-                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                            <InputNumber min={0} addonAfter='Gi' />
                         </Form.Item>
                     </Input.Group>
                 </Form.Item>
@@ -612,7 +613,7 @@ function Clusters () {
                             rules={[{ validator: create_validate_limit_function('computenode', 'cpu', true) }]}
                             className='limit'
                         >
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
+                            <InputNumber min={0} addonAfter={t('核')} />
                         </Form.Item>
                         
                         <Form.Item
@@ -621,7 +622,7 @@ function Clusters () {
                             rules={[{ validator: create_validate_limit_function('computenode', 'cpu', false) }]}
                             className='limit'
                         >
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
+                            <InputNumber min={0} addonAfter={t('核')} />
                         </Form.Item>
                     </Input.Group>
                 </Form.Item>
@@ -634,7 +635,7 @@ function Clusters () {
                             rules={[{ validator: create_validate_limit_function('computenode', 'memory', true) }]}
                             className='limit'
                         >
-                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                            <InputNumber min={0} addonAfter='Gi' />
                         </Form.Item>
                         <Form.Item
                             name={['computenode', 'resources', 'limits', 'memory']}
@@ -642,7 +643,7 @@ function Clusters () {
                             rules={[{ validator: create_validate_limit_function('computenode', 'memory', false) }]}
                             className='limit'
                         >
-                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                            <InputNumber min={0} addonAfter='Gi' />
                         </Form.Item>
                     </Input.Group>
                 </Form.Item>
@@ -930,11 +931,11 @@ function CreateClusterPanel({
                     </Form.Item>}
                     
                     <Form.Item name={['controller', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]}>
-                        <InputNumber min={0} placeholder='0.1, 1, 2, ...'  addonAfter='Gi' />
+                        <InputNumber min={0}  addonAfter='Gi' />
                     </Form.Item>
 
                     <Form.Item name={['controller', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]}>
-                        <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
+                        <InputNumber min={0} addonAfter='Gi' />
                     </Form.Item>
                     
                     <Form.Item name={['controller', 'port']} label={t('端口')} rules={[{ required: true }]}>
@@ -944,21 +945,21 @@ function CreateClusterPanel({
                     <Form.Item label='CPU' >
                     <Input.Group compact>
                         <Form.Item name={['controller', 'resources', 'requests', 'cpu']} label={t('下限')} rules={[{ validator: create_validate_limit_function('controller', 'cpu', true) }]}  className='limit'>
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
+                            <InputNumber min={0} addonAfter={t('核')}/>
                         </Form.Item>
                         <Form.Item name={['controller', 'resources', 'limits', 'cpu']} label={t('上限')} rules={[{ required: true, validator: create_validate_limit_function('controller', 'cpu', false) }]} className='limit'>
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')}/>
+                            <InputNumber min={0} addonAfter={t('核')}/>
                         </Form.Item>
                     </Input.Group>
                 </Form.Item>
                     
                 <Form.Item label={t('内存')}>
                     <Input.Group compact>
-                        <Form.Item name={['controller', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ validator: create_validate_limit_function('controller', 'meomory', true) }]} className='limit'>
-                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                        <Form.Item name={['controller', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ validator: create_validate_limit_function('controller', 'memory', true) }]} className='limit'>
+                            <InputNumber min={0} addonAfter='Gi' />
                         </Form.Item>
                         <Form.Item name={['controller', 'resources', 'limits','memory']} label={t('上限')} rules={[{ required: true, validator: create_validate_limit_function('controller', 'memory', false) }]} className='limit'>
-                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                            <InputNumber min={0} addonAfter='Gi' />
                         </Form.Item>
                     </Input.Group>
                 </Form.Item>
@@ -972,11 +973,11 @@ function CreateClusterPanel({
                 </Form.Item>}
                 
                 <Form.Item name={['datanode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]}>
-                    <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
+                    <InputNumber min={0} addonAfter='Gi' />
                 </Form.Item>
 
                 <Form.Item name={['datanode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]}>
-                    <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
+                    <InputNumber min={0} addonAfter='Gi' />
                 </Form.Item>
                 
                 <Form.Item name={['datanode', 'port']} label={t('端口')} rules={[{ required: true }]}>
@@ -986,21 +987,21 @@ function CreateClusterPanel({
                 <Form.Item label='CPU' >
                     <Input.Group compact>
                         <Form.Item name={['datanode', 'resources', 'requests', 'cpu']} label={t('下限')} rules={[{ validator: create_validate_limit_function('datanode', 'cpu', true) }]}  className='limit'>
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
+                            <InputNumber min={0} addonAfter={t('核')} />
                         </Form.Item>
                         <Form.Item name={['datanode', 'resources', 'limits', 'cpu']} label={t('上限')} rules={[{ required: true, validator: create_validate_limit_function('datanode', 'cpu', false) }]} className='limit'>
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
+                            <InputNumber min={0} addonAfter={t('核')} />
                         </Form.Item>
                     </Input.Group>
                 </Form.Item>
                     
                 <Form.Item label={t('内存')}>
                     <Input.Group compact>
-                        <Form.Item name={['datanode', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ validator: create_validate_limit_function('datanode', 'meomory', true) }]} className='limit'>
-                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                        <Form.Item name={['datanode', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ validator: create_validate_limit_function('datanode', 'memory', true) }]} className='limit'>
+                            <InputNumber min={0} addonAfter='Gi' />
                         </Form.Item>
                         <Form.Item name={['datanode', 'resources', 'limits','memory']} label={t('上限')} rules={[{ required: true, validator: create_validate_limit_function('datanode', 'memory', false) }]} className='limit'>
-                            <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                            <InputNumber min={0} addonAfter='Gi' />
                         </Form.Item>
                     </Input.Group>
                 </Form.Item>
@@ -1013,11 +1014,11 @@ function CreateClusterPanel({
                     </Form.Item>
                     
                     <Form.Item name={['computenode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]}>
-                        <InputNumber min={0} placeholder='0.1, 1, 2, ...'  addonAfter='Gi' />
+                        <InputNumber min={0}  addonAfter='Gi' />
                     </Form.Item>
 
                     <Form.Item name={['computenode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]}>
-                        <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter='Gi' />
+                        <InputNumber min={0} addonAfter='Gi' />
                     </Form.Item>
                     
                     <Form.Item name={['computenode', 'port']} label={t('端口')} rules={[{ required: true }]}>
@@ -1027,11 +1028,11 @@ function CreateClusterPanel({
                     <Form.Item label='CPU'>
                         <Input.Group compact>
                         <Form.Item name={['computenode', 'resources','requests' , 'cpu']} label={t('下限')} rules={[{ validator: create_validate_limit_function('computenode', 'cpu', true) }]} className='limit'>
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
+                            <InputNumber min={0} addonAfter={t('核')} />
                         </Form.Item>
                         
                         <Form.Item name={['computenode', 'resources', 'limits', 'cpu']} label={t('上限')} rules={[{ required: true, validator: create_validate_limit_function('computenode', 'cpu', false) }]} className='limit'>
-                            <InputNumber min={0} placeholder='0.1, 1, 2, ...' addonAfter={t('核')} />
+                            <InputNumber min={0} addonAfter={t('核')} />
                         </Form.Item>
                         </Input.Group>
                     </Form.Item>
@@ -1039,10 +1040,10 @@ function CreateClusterPanel({
                     <Form.Item label={t('内存')}>
                         <Input.Group compact>
                             <Form.Item name={['computenode', 'resources', 'requests', 'memory']} label={t('下限')} rules={[{ validator: create_validate_limit_function('computenode', 'memory', true) }]} className='limit'>
-                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                                <InputNumber min={0} addonAfter='Gi' />
                             </Form.Item>
                             <Form.Item name={['computenode', 'resources', 'limits','memory']} label={t('上限')} rules={[{ required: true, validator: create_validate_limit_function('computenode', 'memory', false) }]} className='limit'>
-                                <InputNumber min={0} placeholder='0.5, 1, 2, 4, ...' addonAfter='Gi' />
+                                <InputNumber min={0} addonAfter='Gi' />
                             </Form.Item>
                         </Input.Group>
                     </Form.Item>

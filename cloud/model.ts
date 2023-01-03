@@ -206,19 +206,46 @@ export interface Cluster {
     created_at: Dayjs
     controller: {
         replicas: number
-        resources: any
+        resources: {
+            limits: {
+                cpu: number,
+                memory: string
+            },
+            requests: {
+                cpu:number,
+                memory: string
+            }
+        }
         data_size: string
         log_size: string
     }
     datanode: {
         replicas: number
-        resources: any
+        resources: {
+            limits: {
+                cpu: number,
+                memory: string
+            },
+            requests: {
+                cpu:number,
+                memory: string
+            }
+        }
         data_size: string
         log_size: string
     }
     computenode: {
         replicas: number
-        resources: any
+        resources: {
+            limits: {
+                cpu: number,
+                memory: string
+            },
+            requests: {
+                cpu:number,
+                memory: string
+            }
+        }
         data_size: string
         log_size: string
     }
