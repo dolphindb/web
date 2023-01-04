@@ -11,7 +11,7 @@ import { Server } from 'xshell/server.js'
 
 import { DDB, DdbVectorString } from 'dolphindb'
 
-import { webpack, fpd_root, fpd_out_console, get_vendors } from './webpack.js'
+import { webpack, fpd_root, fpd_node_modules } from './webpack.js'
 
 
 let c0 = new DDB('ws://127.0.0.1:8850')
@@ -37,6 +37,7 @@ class DevServer extends Server {
     constructor () {
         super(8432)
     }
+    
     
     override async router (ctx: Context) {
         const {
@@ -106,7 +107,7 @@ class DevServer extends Server {
         for (const prefix of ['/console/vs/', '/min-maps/vs/'] as const)
             if (path.startsWith(prefix)) {
                 await this.try_send(ctx, path.slice(prefix.length), {
-                    root: `${fpd_out_console}vs/`,
+                    root: `${fpd_node_modules}monaco-editor/dev/vs/`,
                     fs,
                     log_404: true
                 })
@@ -115,21 +116,25 @@ class DevServer extends Server {
         
         for (const prefix of ['/console/vendors/', '/cloud/vendors/'] as const)
             if (path.startsWith(prefix)) {
-                await this.try_send(ctx, path.slice(prefix.length), {
-                    root: `${fpd_out_console}vendors/`,
-                    fs,
-                    log_404: true
-                })
+                await this.try_send(
+                    ctx,
+                    path.slice(prefix.length),
+                    {
+                        root: fpd_node_modules,
+                        fs,
+                        log_404: true
+                    }
+                )
                 return true
             }
         
         if (path === '/console/onig.wasm') {
-            await this.fsend(ctx, `${fpd_root}node_modules/vscode-oniguruma/release/onig.wasm`, { fs, absolute: true })
+            await this.fsend(ctx, `${fpd_node_modules}vscode-oniguruma/release/onig.wasm`, { fs, absolute: true })
             return true
         }
         
         if (path === '/console/docs.zh.json' || path === '/console/docs.en.json') {
-            await this.fsend(ctx, `${fpd_root}node_modules/dolphindb/${path.slice('/console/'.length)}`, { fs, absolute: true })
+            await this.fsend(ctx, `${fpd_node_modules}dolphindb/${path.slice('/console/'.length)}`, { fs, absolute: true })
             return true
         }
         
@@ -168,7 +173,6 @@ let ufs = new UFS([mfs, fs])
 let server = new DevServer()
 
 await Promise.all([
-    get_vendors(true),
     server.start(),
     webpack.build({ production: false, mfs })
 ])

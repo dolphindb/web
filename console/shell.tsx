@@ -478,7 +478,7 @@ function Editor () {
                 // Using the response directly only works if the server sets the MIME type 'application/wasm'.
                 // Otherwise, a TypeError is thrown when using the streaming compiler.
                 // We therefore use the non-streaming compiler :(.
-                await loadWASM(await fetch('./onig.wasm'))
+                await loadWASM(await fetch('./vendors/vscode-oniguruma/release/onig.wasm'))
             }
             
             
