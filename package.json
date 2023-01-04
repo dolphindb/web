@@ -53,6 +53,7 @@
         "final-form": "^4.20.7",
         "js-cookie": "^3.0.1",
         "lodash": "^4.17.21",
+        "monaco-editor": "^0.34.1",
         "re-resizable": "^6.9.9",
         "react-dom": "^18.2.0",
         "react-object-model": "^1.0.0",
