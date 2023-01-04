@@ -128,11 +128,6 @@ class DevServer extends Server {
                 return true
             }
         
-        if (path === '/console/onig.wasm') {
-            await this.fsend(ctx, `${fpd_node_modules}vscode-oniguruma/release/onig.wasm`, { fs, absolute: true })
-            return true
-        }
-        
         if (path === '/console/docs.zh.json' || path === '/console/docs.en.json') {
             await this.fsend(ctx, `${fpd_node_modules}dolphindb/${path.slice('/console/'.length)}`, { fs, absolute: true })
             return true
