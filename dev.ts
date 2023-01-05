@@ -67,11 +67,11 @@ class DevServer extends Server {
         
         if (request.path === '/console/') {
             this.ddb_backend = `${query.hostname || '127.0.0.1'}:${query.port || '8848'}`
-            request.path = '/console/index.html'
+            request.path = '/console/index.dev.html'
         }
         
         if (request.path === '/cloud/')
-            request.path = '/cloud/index.html'
+            request.path = '/cloud/index.dev.html'
         
         const { path } = request
         
