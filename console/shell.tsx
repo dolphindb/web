@@ -911,7 +911,7 @@ function Editor () {
             }}
             
             onChange={(value, event) => {
-                shell.save_debounced()
+                shell.save_debounced(value)
             }}
         />
     </div>
