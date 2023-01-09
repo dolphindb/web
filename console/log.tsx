@@ -41,7 +41,7 @@ export function Log () {
             const length = temp > default_length ? default_length : temp
             await get_log(length, offset)
         } catch (error) {
-            Modal.error({ title: error.message })
+            model.show_error({ error })
             throw error
         }
     }

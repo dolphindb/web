@@ -2,6 +2,8 @@ import type { BaseType } from 'antd/lib/typography/Base/index.js'
 
 import { Model } from 'react-object-model'
 
+import { Modal } from 'antd'
+
 import { ddb, DdbFunctionType, DdbObj, DdbInt, DdbLong, type InspectOptions } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
@@ -450,6 +452,18 @@ export class DdbModel extends Model<DdbModel> {
         console.log('get_server_log', offset, length, logs.length)
         
         return logs
+    }
+    
+    
+    show_error ({ error, title, content }: { error?: Error, title?: string, content?: string }) {
+        Modal.error({
+            className: 'modal-error',
+            title: title || error?.message,
+            ... (content || error) ? {
+                content: content || error.stack.slice(error.stack.indexOf('\n') + 1)
+            } : { },
+            width: 800,
+        })
     }
 }
 
