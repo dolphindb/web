@@ -702,10 +702,28 @@ function CreateClusterPanel({
             const fields = ['controller', 'datanode', 'computenode']
             fields.forEach(field => {
                 if (values[field].resources.limits.memory) {
-                    values[field].resources.limits.memory = `${values[field].resources.limits.memory}Gi`
+                    values[field].resources.limits.memory = {
+                        unit: 'Gi',
+                        value: values[field].resources.limits.memory
+                    }
                 }
                 if (values[field].resources.requests.memory) {
-                    values[field].resources.requests.memory = `${values[field].resources.requests.memory}Gi`
+                    values[field].resources.requests.memory = {
+                        unit: 'Gi',
+                        value: values[field].resources.requests.memory
+                    }
+                }
+                if (values[field].resources.limits.cpu) {
+                    values[field].resources.limits.cpu = {
+                        unit: '',
+                        value: values[field].resources.limits.cpu
+                    }
+                }
+                if (values[field].resources.requests.cpu) {
+                    values[field].resources.requests.cpu = {
+                        unit: '',
+                        value: values[field].resources.requests.cpu
+                    }
                 }
             })
             
@@ -1253,14 +1271,14 @@ function NodeList ({
                     title: 'cpu',
                     dataIndex: ['resources', 'limits', 'cpu'],
                     render: (cpu)=>{
-                        return <div>{cpu? cpu : '-'}</div>
+                        return <div>{cpu? `${cpu.value}${cpu.unit || ''}` : '-'}</div>
                     }
                 },
                 {
                     title: t('内存'),
                     dataIndex: ['resources', 'limits', 'memory'],
                     render: (memory)=>{
-                        return <div>{memory? memory : '-'}</div>
+                        return <div>{memory? `${memory.value}${memory.unit}` : '-'}</div>
                     }
                 },
                 {
