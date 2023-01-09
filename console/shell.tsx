@@ -147,10 +147,8 @@ class ShellModel extends Model<ShellModel> {
     
     executing = false
     
-    dirty = false
     
-    confirmation_registered = false
-    
+    unload_registered = false
     
     async load_dbs () {
         let dbs = new Map<string, DdbEntity>()
@@ -329,35 +327,27 @@ class ShellModel extends Model<ShellModel> {
         // console.log('vars:', this.vars)
     }
     
-    beforeunload (event: BeforeUnloadEvent) {
-        event.returnValue = ''
+    save (code = this.editor.getValue()) {
+        localStorage.setItem(storage_keys.code, code)
     }
     
-    register_confirmation () {
-        if (!this.confirmation_registered) {
-            window.addEventListener('beforeunload', this.beforeunload)
-            this.confirmation_registered = true
-        }
-    }
+    save_debounced = debounce(this.save.bind(this), 500, { leading: false, trailing: true })
     
-    unregister_confirmation () {
-        if (this.confirmation_registered) {
-            window.removeEventListener('beforeunload', this.beforeunload)
-            this.confirmation_registered = false
-        }
-    }
     
-    update_title () {
-        document.title = `${this.dirty ? '• ' : ''}DolphinDB - ${model.node_alias}`
-    }
-    
-    set_dirty (dirty: boolean) {
-        this.set({ dirty })
-        if (dirty)
-            this.register_confirmation()
-        else
-            this.unregister_confirmation()
-        this.update_title()
+    async execute () {
+        const { editor } = this
+        
+        const selection = editor.getSelection()
+        const model = editor.getModel()
+        
+        await this.eval(
+            selection.isEmpty() ?
+                model.getLineContent(selection.startLineNumber)
+            :
+                model.getValueInRange(selection, monaco.editor.EndOfLinePreference.LF)
+        )
+        
+        await this.update_vars()
     }
 }
 
@@ -426,8 +416,6 @@ let monaco: Monaco
 
 let wasm_loaded = false
 
-let module_code = ''
-
 
 function Editor () {
     const { executing } = shell.use(['executing'])
@@ -443,7 +431,12 @@ function Editor () {
     )
     
     useEffect(() => {
-        (async () => {
+        function beforeunload (event: BeforeUnloadEvent) {
+            shell.save()
+            // event.returnValue = ''
+        }
+        
+        ;(async () => {
             if (inited)
                 return
             
@@ -478,7 +471,7 @@ function Editor () {
                 // Using the response directly only works if the server sets the MIME type 'application/wasm'.
                 // Otherwise, a TypeError is thrown when using the streaming compiler.
                 // We therefore use the non-streaming compiler :(.
-                await loadWASM(await fetch('./onig.wasm'))
+                await loadWASM(await fetch('./vendors/vscode-oniguruma/release/onig.wasm'))
             }
             
             
@@ -690,39 +683,13 @@ function Editor () {
             
             await document.fonts.ready
             
+            window.addEventListener('beforeunload', beforeunload)
+            
             set_inited(true)
         })()
+        
+        return () => { window.removeEventListener('beforeunload', beforeunload) }
     }, [ ])
-    
-    
-    function save () {
-        localStorage.setItem(
-            storage_keys.code,
-            shell.editor.getValue()
-        )
-        
-        message.success(
-            t('代码已保存在浏览器中')
-        )
-        
-        shell.set_dirty(false)
-    }
-    
-    async function execute () {
-        const { editor } = shell
-        
-        const selection = editor.getSelection()
-        const model = editor.getModel()
-        
-        await shell.eval(
-            selection.isEmpty() ?
-                model.getLineContent(selection.startLineNumber)
-            :
-                model.getValueInRange(selection, monaco.editor.EndOfLinePreference.LF)
-        )
-        
-        await shell.update_vars()
-    }
     
     
     if (!inited)
@@ -732,11 +699,7 @@ function Editor () {
     return <div className='editor'>
         <div className='toolbar'>
             <div className='actions'>
-                <span className='action save' title={t('保存代码至浏览器中')} onClick={save}>
-                    <SaveOutlined />
-                    <span className='text'>{t('保存')}</span>
-                </span>
-                <span className='action execute' title={t('执行选中代码或光标所在行代码')} onClick={execute}>
+                <span className='action execute' title={t('执行选中代码或光标所在行代码')} onClick={() => { shell.execute() }}>
                     <CaretRightOutlined />
                     <span className='text'>{t('执行')}</span>
                 </span>
@@ -872,11 +835,7 @@ function Editor () {
             }}
             
             onMount={(editor, monaco: Monaco) => {
-                editor.setValue(
-                    module_code || 
-                    localStorage.getItem(storage_keys.code) || 
-                    ''
-                )
+                editor.setValue(localStorage.getItem(storage_keys.code) || '')
                 
                 editor.addAction({
                     id: 'dolphindb.execute',
@@ -887,7 +846,9 @@ function Editor () {
                     
                     label: t('DolphinDB: 执行代码'),
                     
-                    run: execute
+                    run () {
+                        shell.execute()
+                    }
                 })
                 
                 editor.addAction({
@@ -899,7 +860,9 @@ function Editor () {
                     
                     label: t('DolphinDB: 保存代码'),
                     
-                    run: save,
+                    run () {
+                        shell.save()
+                    },
                 })
                 
                 editor.addAction({
@@ -948,11 +911,7 @@ function Editor () {
             }}
             
             onChange={(value, event) => {
-                module_code = value
-                if (shell.dirty)
-                    shell.update_title()
-                else
-                    shell.set_dirty(true)
+                shell.save_debounced(value)
             }}
         />
     </div>
@@ -1044,7 +1003,6 @@ function Term () {
                 t('左侧编辑器使用指南:\n') +
                 t('按 Tab 或 Enter 补全函数\n') +
                 t('按 Ctrl + E 执行选中代码或光标所在行代码\n') +
-                t('按 Ctrl + S 保存代码\n') +
                 t('按 Ctrl + D 向下复制行\n') +
                 t('按 Ctrl + Y 删除行\n') +
                 t('按 F1 查看更多编辑器命令')
