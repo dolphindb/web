@@ -3,10 +3,10 @@
         "en": "Console"
     },
     "注销": {
-        "en": "Logout"
+        "en": "Log out"
     },
     "登录": {
-        "en": "Login"
+        "en": "Log in"
     },
     "集群总览": {
         "en": "Cluster"
@@ -951,7 +951,7 @@
         "en": "Direct access to CITIC Securities web through a path other than /dolphindb/"
     },
     "ticket 登录失败": {
-        "en": "ticket login failed"
+        "en": "ticket logged in failed"
     },
     "{{username}} 使用账号密码登陆成功": {
         "en": "{{username}} successfully logged in with the account password"
@@ -966,7 +966,7 @@
         "en": "Failed to log in through session, will jump to the single sign-on page"
     },
     "通过 session 登录成功:": {
-        "en": "Successful login through session:"
+        "en": "Successful logged in by session:"
     },
     "节点类型:": {
         "en": "node type:"
@@ -1264,5 +1264,11 @@
     },
     "运行中_job.status": {
         "en": "running"
+    },
+    "登录后可查看当前节点日志": {
+        "en": "You need to be logged in to view the logs of the current node"
+    },
+    "去登录": {
+        "en": "To log in"
     }
 }

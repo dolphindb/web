@@ -144,7 +144,7 @@ function DdbHeader () {
                                 {
                                     key: 'login',
                                     icon: <LoginOutlined />,
-                                    label: <a className='login' onClick={() => { model.set({ view: 'login' }) }}>{t('登录')}</a>,
+                                    label: <a className='login' onClick={() => { model.goto_login() }}>{t('登录')}</a>,
                                 }
                         ]
                     }}

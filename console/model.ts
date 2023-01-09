@@ -19,6 +19,8 @@ export const storage_keys = {
 
 const username_guest = 'guest' as const
 
+export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'cluster' | 'login' | 'dfs' | 'log'
+
 export class DdbModel extends Model<DdbModel> {
     inited = false
     
@@ -27,7 +29,10 @@ export class DdbModel extends Model<DdbModel> {
     
     collapsed = localStorage.getItem(storage_keys.collapsed) === 'true'
     
-    view = '' as 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'cluster' | 'login' | 'dfs' | 'log'
+    view = '' as PageViews
+    
+    /** 重定向 view */
+    redirection?: PageViews
     
     logined = false
     
@@ -68,6 +73,7 @@ export class DdbModel extends Model<DdbModel> {
         const params = new URLSearchParams(location.search)
         this.header = params.get('header') !== '0'
         this.code_template = params.get('code-template') === '1'
+        this.redirection = params.get('redirection') as PageViews
     }
     
     
@@ -196,8 +202,8 @@ export class DdbModel extends Model<DdbModel> {
         this.set({
             logined: false,
             username: username_guest,
-            view: 'login',
         })
+        this.goto_login()
     }
     
     
@@ -247,6 +253,21 @@ export class DdbModel extends Model<DdbModel> {
         return license
     }
     
+    /**
+     * 去登录页
+     * @param redirection 设置登录完成后的回跳页面，默认取当前 view
+     */
+    goto_login (redirection: PageViews = this.view) {
+        this.set({ view: 'login', redirection })
+    }
+    
+    goto_redirection () {
+        if (this.redirection) 
+            this.set({ view: this.redirection })
+        else
+            // 保留旧跳转逻辑
+            this.goto_default_view()
+    }
     
     goto_default_view () {
         this.set({
