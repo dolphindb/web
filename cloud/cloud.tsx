@@ -237,14 +237,14 @@ function Clusters () {
             if (!value || !formData[node_type]['resources']['limits'][limitField]) 
                 callback()
              else if (lowerLimit) 
-                if (value >= formData[node_type]['resources']['limits'][limitField]) 
-                    callback(`${t(node_type)} ${t(limitField)} ${t('下限必须小于上限')}`)
+                if (value > formData[node_type]['resources']['limits'][limitField]) 
+                    callback(`${t(node_type)} ${t(limitField)} ${t('下限必须小于或等于上限')}`)
                  else 
                     callback()
                 
              else 
-                if (value <= formData[node_type]['resources']['requests'][limitField]) 
-                    callback(`${t(node_type)} ${t(limitField)} ${t('上限必须大于下限')}`)
+                if (value < formData[node_type]['resources']['requests'][limitField]) 
+                    callback(`${t(node_type)} ${t(limitField)} ${t('上限必须大于或等于下限')}`)
                  else 
                     callback()
         }
@@ -265,6 +265,38 @@ function Clusters () {
         }
     }, [queries])
     
+    useEffect(()=>{
+        const updated_init_value = (()=>{
+            let obj = {}
+            const fields = ['controller', 'datanode', 'computenode']
+            
+            
+            if (!current_cluster){
+                return {}
+            }
+            
+            obj.version = current_cluster.version
+            console.log(current_cluster.name)
+            fields.forEach((field: 'controller' | 'datanode' | 'computenode')  => {
+                obj[field] = {
+                    resources: {
+                        limits: {
+                            cpu: current_cluster[field].resources.limits.cpu.value,
+                            memory: current_cluster[field].resources.limits.memory.value
+                        },
+                        requests: {
+                            cpu: current_cluster[field].resources.requests.cpu.value,
+                            memory: current_cluster[field].resources.requests.memory.value
+                        },
+                        
+                    }
+                }
+            })
+            
+            return obj
+        })()
+        update_form.setFieldsValue( updated_init_value )
+    }, [current_cluster, update_form])
     
     return <div className='clusters'>
         <Title className='title-overview' level={3}>{t('集群管理')}</Title>
@@ -475,24 +507,44 @@ function Clusters () {
                             var values = await update_form.validateFields()
                             const fields = ['controller', 'datanode', 'computenode']
                             fields.forEach(field => {
-                                if (values[field].resources.limits.memory) 
-                                    values[field].resources.limits.memory = `${values[field].resources.limits.memory}Gi`
-                                
-                                if (values[field].resources.requests.memory) 
-                                    values[field].resources.requests.memory = `${values[field].resources.requests.memory}Gi`
-                                
+                                if (values[field].resources.limits.memory) {
+                                    values[field].resources.limits.memory = {
+                                        unit: 'Gi',
+                                        value: values[field].resources.limits.memory
+                                    }
+                                }
+                                if (values[field].resources.requests.memory) {
+                                    values[field].resources.requests.memory = {
+                                        unit: 'Gi',
+                                        value: values[field].resources.requests.memory
+                                    }
+                                }
+                                if (values[field].resources.limits.cpu) {
+                                    values[field].resources.limits.cpu = {
+                                        unit: '',
+                                        value: values[field].resources.limits.cpu
+                                    }
+                                }
+                                if (values[field].resources.requests.cpu) {
+                                    values[field].resources.requests.cpu = {
+                                        unit: '',
+                                        value: values[field].resources.requests.cpu
+                                    }
+                                }
                             })
                             
                             removeEmptyProperties(values)
                             try {
-                                await request_json(`v1/dolphindbs/${current_cluster?.namespace}/${current_cluster?.name}`, {
+                                await request_json(`/v1/dolphindbs/${current_cluster?.namespace}/${current_cluster?.name}`, {
                                     method: 'put',
                                     body: values
                                 })
+                                message.success(t('升级成功'))
                             } catch (err) {
                                 message.error(t('升级失败，请查看网络请求'))
                                 throw err
                             }
+                            set_update_modal_open(false)
                         }}
                     >
                         {t('提交')}
@@ -509,11 +561,20 @@ function Clusters () {
                 wrapperCol={{ span: 16 }}
                 colon={false}
                 requiredMark={false}
-                initialValues={{...current_cluster, versions: current_cluster?.version}}
+
             >
-                <Divider orientation='left'>{t('版本')}</Divider>
-                <Form.Item name={'versions'} label={t('版本')}>
-                    <Input />
+                <Divider orientation='left'>{t('基础信息')}</Divider>
+                <Form.Item name='version' label={t('版本')} rules={[{ required: true }]}>
+                    <Select>
+                        {
+                            versions.length !== 0 ?
+                            versions.map(v => (
+                                <Option value={v} key={v}>{v}</Option>
+                            ))
+                            :
+                            <Option value=''>{''}</Option>
+                        }
+                    </Select>
                 </Form.Item>
                 
                 <Divider orientation='left'>{t('控制节点')}</Divider>
@@ -749,14 +810,14 @@ function CreateClusterPanel({
             if (!value || !formData[node_type]['resources']['limits'][limitField]) 
                 callback()
              else if (lowerLimit) 
-                if (value >= formData[node_type]['resources']['limits'][limitField]) 
-                    callback(`${t(node_type)} ${t(limitField)} ${t('下限必须小于上限')}`)
+                if (value > formData[node_type]['resources']['limits'][limitField]) 
+                    callback(`${t(node_type)} ${t(limitField)} ${t('下限必须小于或等于上限')}`)
                  else 
                     callback()
                 
              else 
-                if (value <= formData[node_type]['resources']['requests'][limitField]) 
-                    callback(`${t(node_type)} ${t(limitField)} ${t('上限必须大于下限')}`)
+                if (value < formData[node_type]['resources']['requests'][limitField]) 
+                    callback(`${t(node_type)} ${t(limitField)} ${t('上限必须大于或等于下限')}`)
                  else 
                     callback()
         }
