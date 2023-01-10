@@ -1370,6 +1370,7 @@ function NodeList ({
                     render (_, node) {
                         return <Space>
                             <Link
+                                disabled = {node.status.phase === 'Running' ? false : true}
                                 target='_blank'
                                 href={
                                     '?' + new URLSearchParams({
@@ -1418,6 +1419,7 @@ function NodeList ({
                             }
                             
                             <Popconfirm
+                                disabled = {node.status.phase === 'Running' ? false : true}
                                 title={t('确认重启？')}
                                 onConfirm={async () => {
                                     try {
@@ -1430,19 +1432,25 @@ function NodeList ({
                                     get_nodes()
                                 }}
                             >
-                                <Link className='restart'>{t('重启')}</Link>
+                                <Link 
+                                    disabled = {node.status.phase === 'Running' ? false : true}
+                                    className='restart'>{t('重启')}
+                                </Link>
                             </Popconfirm>
                             
-                            <Link onClick={
-                                () => {
-                                    set_cloud_upload_modal_open(true)
-                                    set_cloud_upload_props({
-                                        namespace: cluster.namespace,
-                                        name: cluster.name,
-                                        instance: node.name
-                                    })
-                                }
-                            }>{t('上传文件')}</Link>
+                            <Link 
+                                disabled={node.status.phase === 'Running' ? false : true}
+                                onClick={
+                                    () => {
+                                        set_cloud_upload_modal_open(true)
+                                        set_cloud_upload_props({
+                                            namespace: cluster.namespace,
+                                            name: cluster.name,
+                                            instance: node.name
+                                        })
+                                    }
+                                }>{t('上传文件')}
+                            </Link>
                         </Space>
                     }
                 }
@@ -2681,7 +2689,6 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
 
                         phase: translate_dict[data_item.phase],
                         operation:
-                            !(data_item.phase === 'Cleaning') ?
                                 [
                                     <Popconfirm
                                         title={t('确认删除？')}
@@ -2691,10 +2698,11 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                         }}
                                         onCancel={() => { }}
                                     >
-                                        <a href="#">{t('删除')} </a>
+                                        <Link href="#">{t('删除')} </Link>
                                     </Popconfirm>,
 
                                     <Popconfirm
+                                        disabled = {data_item.phase === 'Complete' ? false : true}
                                         title={t('确认重新触发？')}
                                         onConfirm={async () => {
                                             const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${data_item.name}`)
@@ -2720,10 +2728,14 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                         }}
                                         onCancel={() => { }}
                                     >
-                                        <a href="#">{t('重新触发')} </a>
+                                        <Link
+                                            disabled={data_item.phase === 'Complete' || data_item.phase === 'Failed' ? false : true}
+                                            href="#">{t('重新触发')} 
+                                        </Link>
                                     </Popconfirm>,
 
                                     <Link
+                                        disabled = {data_item.phase === 'Complete' ? false : true}
                                         onClick={
                                             () => {
                                                 set_restore_modal_open(true)
@@ -2735,13 +2747,6 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                         {translate_dict['restores'] + ' '}
                                     </Link>,
 
-                                ] :
-                                [
-                                    <Space>
-                                        <a style={{ color: 'gray' }}>{t('删除')}</a>
-                                        <a style={{ color: 'gray' }}>{t('重新触发')}</a>
-                                        <a style={{ color: 'gray' }}>{t('还原')}</a>
-                                    </Space>
                                 ]
                     }
                 }
