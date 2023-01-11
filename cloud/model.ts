@@ -208,12 +208,24 @@ export interface Cluster {
         replicas: number
         resources: {
             limits: {
-                cpu: number,
-                memory: string
+                cpu: {
+                    unit?: string
+                    value: number
+                },
+                memory: {
+                    unit: string
+                    value: number
+                },
             },
             requests: {
-                cpu:number,
-                memory: string
+                cpu: {
+                    unit?: string
+                    value: number
+                },
+                memory: {
+                    unit: string
+                    value: number
+                },
             }
         }
         data_size: string
@@ -223,12 +235,24 @@ export interface Cluster {
         replicas: number
         resources: {
             limits: {
-                cpu: number,
-                memory: string
+                cpu: {
+                    unit?: string
+                    value: number
+                },
+                memory: {
+                    unit: string
+                    value: number
+                },
             },
             requests: {
-                cpu:number,
-                memory: string
+                cpu: {
+                    unit?: string
+                    value: number
+                },
+                memory: {
+                    unit: string
+                    value: number
+                },
             }
         }
         data_size: string
@@ -238,12 +262,24 @@ export interface Cluster {
         replicas: number
         resources: {
             limits: {
-                cpu: number,
-                memory: string
+                cpu: {
+                    unit?: string
+                    value: number
+                },
+                memory: {
+                    unit: string
+                    value: number
+                },
             },
             requests: {
-                cpu:number,
-                memory: string
+                cpu: {
+                    unit?: string
+                    value: number
+                },
+                memory: {
+                    unit: string
+                    value: number
+                },
             }
         }
         data_size: string
