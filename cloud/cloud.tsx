@@ -2117,6 +2117,7 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
     
     useEffect(()=>{
         s3_form.setFieldValue('provider', providers[0])
+        set_selected_provider(providers[0])
     }, [providers])
 
 
@@ -2355,88 +2356,8 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                             placement={'left'}
 
                             content={
-                                <div>
-                                    {
-                                        source_key_detail && source_key_detail[data.source_key] ?
-                                            (
-                                                (!source_key_detail[data.source_key]['access_key']) ?
+                                source_key_detail ? <SourceKeyPanel single_sourceKey_detail={source_key_detail[data.source_key]}/> : undefined
 
-                                                    <Descriptions bordered
-                                                        column={1}
-                                                    //layout='vertical'
-                                                    >
-                                                        <Descriptions.Item
-                                                            label={translate_dict['type']}
-                                                        >
-                                                            {source_key_detail[data.source_key]['type']}
-                                                        </Descriptions.Item>
-
-                                                        <Descriptions.Item
-                                                            label={translate_dict['endpoint']}
-                                                        >
-                                                            {source_key_detail[data.source_key]['endpoint']}
-                                                        </Descriptions.Item>
-
-                                                        <Descriptions.Item
-                                                            label={translate_dict['path']}
-                                                        >
-                                                            {source_key_detail[data.source_key]['path']}
-                                                        </Descriptions.Item>
-
-                                                    </Descriptions>
-
-                                                    :
-
-
-
-                                                    <Descriptions bordered
-                                                        column={1}
-                                                    //layout='vertical'
-                                                    >
-                                                        <Descriptions.Item
-                                                            label={
-                                                                translate_dict['type']
-                                                            }>
-                                                            {source_key_detail[data.source_key]['type']}
-                                                        </Descriptions.Item>
-                                                        <Descriptions.Item
-                                                            label={translate_dict['provider']}
-                                                        >
-                                                            {source_key_detail[data.source_key]['provider']}
-                                                        </Descriptions.Item>
-
-                                                        <Descriptions.Item
-                                                            label={translate_dict['region']}
-                                                        >
-                                                            {source_key_detail[data.source_key]['region']}
-                                                        </Descriptions.Item>
-                                                        
-                                                        <Descriptions.Item
-                                                            label={translate_dict['access_key']}
-                                                        >
-                                                            {source_key_detail[data.source_key]['access_key']}
-                                                        </Descriptions.Item>
-
-
-                                                        <Descriptions.Item
-                                                            label={translate_dict['secret_access_key']}
-                                                        >
-                                                            {source_key_detail[data.source_key]['secret_access_key']}
-                                                        </Descriptions.Item>
-
-                                                        <Descriptions.Item
-                                                            label={translate_dict['endpoint']}
-                                                        >
-                                                            {source_key_detail[data.source_key]['endpoint']}
-                                                        </Descriptions.Item>
-
-
-                                                    </Descriptions>
-
-                                            ) :
-                                            undefined
-                                    }
-                                </div>
                             }
                         >{<Link>{data.source_key}</Link>}</Popover>
                     }</Descriptions.Item>
@@ -2884,79 +2805,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                                         placement={'left'}
 
                                                         content={
-                                                            <div>
-                                                                {
-                                                                    source_key_detail && source_key_detail[x] ?
-                                                                        (
-                                                                            (!source_key_detail[x]['access_key']) ?
-
-                                                                                <Descriptions bordered
-                                                                                    column={1}
-                                                                                //layout='vertical'
-                                                                                >
-                                                                                    <Descriptions.Item
-                                                                                        label={translate_dict['type']}>
-                                                                                        {source_key_detail[x]['type']}
-                                                                                    </Descriptions.Item>
-                                                                                    <Descriptions.Item
-                                                                                        label={translate_dict['endpoint']}
-                                                                                    >
-                                                                                        {source_key_detail[x]['endpoint']}
-                                                                                    </Descriptions.Item>
-
-                                                                                    <Descriptions.Item
-                                                                                        label={translate_dict['path']}
-                                                                                    >
-                                                                                        {source_key_detail[x]['path']}
-                                                                                    </Descriptions.Item>
-
-                                                                                </Descriptions>
-                                                                                :
-                                                                                <Descriptions bordered
-                                                                                    column={1}
-                                                                                //layout='vertical'
-                                                                                >
-                                                                                    <Descriptions.Item label={translate_dict['type']}>
-                                                                                        {source_key_detail[x]['type']}
-                                                                                    </Descriptions.Item>
-                                                                                    <Descriptions.Item
-                                                                                        label={translate_dict['provider']}
-                                                                                    >
-                                                                                        {source_key_detail[x]['provider']}
-                                                                                    </Descriptions.Item>
-                                                                                    
-                                                                                    <Descriptions.Item
-                                                                                        label={translate_dict['region']}
-                                                                                    >
-                                                                                        {source_key_detail[x]['region']}
-                                                                                    </Descriptions.Item>
-
-                                                                                    <Descriptions.Item
-                                                                                        label={translate_dict['access_key']}
-                                                                                    >
-                                                                                        {source_key_detail[x]['access_key']}
-                                                                                    </Descriptions.Item>
-
-
-                                                                                    <Descriptions.Item
-                                                                                        label={translate_dict['secret_access_key']}
-                                                                                    >
-                                                                                        {source_key_detail[x]['secret_access_key']}
-                                                                                    </Descriptions.Item>
-
-                                                                                    <Descriptions.Item
-                                                                                        label={translate_dict['endpoint']}
-                                                                                    >
-                                                                                        {source_key_detail[x]['endpoint']}
-                                                                                    </Descriptions.Item>
-
-
-                                                                                </Descriptions>
-
-                                                                        ) :
-                                                                        undefined
-                                                                }
-                                                            </div>
+                                                            source_key_detail ? <SourceKeyPanel single_sourceKey_detail={source_key_detail[x]}/> : undefined
                                                         }
                                                     >{x}</Popover>
                                                 </Option>
@@ -3230,6 +3079,94 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
     </div>
 }
 
+const SourceKeyPanel = ({single_sourceKey_detail}) => {
+    return <>
+        {
+            single_sourceKey_detail ?
+                (
+                    (single_sourceKey_detail['type'] === 'nfs') ?
+
+                        <Descriptions bordered
+                            column={1}
+                        //layout='vertical'
+                        >
+                            <Descriptions.Item
+                                label={translate_dict['type']}
+                            >
+                                {single_sourceKey_detail['type']}
+                            </Descriptions.Item>
+                            <Descriptions.Item
+                                label={translate_dict['endpoint']}
+                            >
+                                {single_sourceKey_detail['endpoint']}
+                            </Descriptions.Item>
+
+                            <Descriptions.Item
+                                label={translate_dict['path']}
+                            >
+                                {single_sourceKey_detail['path']}
+                            </Descriptions.Item>
+
+                        </Descriptions>
+                        :
+                        <Descriptions bordered
+                            column={1}
+                        //layout='vertical'
+                        >
+                            <Descriptions.Item
+                                label={translate_dict['type']}
+                            >
+                                {single_sourceKey_detail['type']}
+                            </Descriptions.Item>
+
+                            <Descriptions.Item
+                                label={translate_dict['provider']}
+                            >
+                                {single_sourceKey_detail['provider']}
+                            </Descriptions.Item>
+
+                            {
+                                !(single_sourceKey_detail['provider'] === 'Ceph' || single_sourceKey_detail['provider'] === 'Minio') ?
+                                    <Descriptions.Item
+                                        label={translate_dict['region']}
+                                    >
+                                        {single_sourceKey_detail['region']}
+                                    </Descriptions.Item> :
+                                    undefined
+                            }
+
+                            <Descriptions.Item
+                                label={translate_dict['access_key']}
+                            >
+                                {single_sourceKey_detail['access_key']}
+                            </Descriptions.Item>
+
+
+                            <Descriptions.Item
+                                label={translate_dict['secret_access_key']}
+                            >
+                                {single_sourceKey_detail['secret_access_key']}
+                            </Descriptions.Item>
+
+                            {
+                                !(single_sourceKey_detail['provider'] === 'AWS') ?
+                                    <Descriptions.Item
+                                        label={translate_dict['endpoint']}
+                                    >
+                                        {single_sourceKey_detail['endpoint']}
+                                    </Descriptions.Item> :
+                                    undefined
+                            }
+
+
+                        </Descriptions>
+
+                ) :
+                undefined
+        }
+    </>
+}
+
 const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) => {
     const [source_key_detail, set_source_key_detail] = useState()
 
@@ -3351,87 +3288,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
                 set_source_key_detail_modal_open(false)
             }} footer={false}
         >
-            <div>
-                {
-                    source_key_detail && source_key_detail[source_key_detail_modal_name] ?
-                        (
-                            (source_key_detail[source_key_detail_modal_name]['type'] === 'nfs') ?
-
-                                <Descriptions bordered
-                                    column={1}
-                                //layout='vertical'
-                                >
-                                    <Descriptions.Item
-                                        label={translate_dict['type']}
-                                    >
-                                        {source_key_detail[source_key_detail_modal_name]['type']}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item
-                                        label={translate_dict['endpoint']}
-                                    >
-                                        {source_key_detail[source_key_detail_modal_name]['endpoint']}
-                                    </Descriptions.Item>
-
-                                    <Descriptions.Item
-                                        label={translate_dict['path']}
-                                    >
-                                        {source_key_detail[source_key_detail_modal_name]['path']}
-                                    </Descriptions.Item>
-
-                                </Descriptions>
-
-                                :
-
-
-
-                                <Descriptions bordered
-                                    column={1}
-                                //layout='vertical'
-                                >
-                                    <Descriptions.Item
-                                        label={translate_dict['type']}
-                                    >
-                                        {source_key_detail[source_key_detail_modal_name]['type']}
-                                    </Descriptions.Item>
-
-                                    <Descriptions.Item
-                                        label={translate_dict['provider']}
-                                    >
-                                        {source_key_detail[source_key_detail_modal_name]['provider']}
-                                    </Descriptions.Item>
-                                    
-                                    <Descriptions.Item
-                                        label={translate_dict['region']}
-                                    >
-                                        {source_key_detail[source_key_detail_modal_name]['region']}
-                                    </Descriptions.Item>
-
-                                    <Descriptions.Item
-                                        label={translate_dict['access_key']}
-                                    >
-                                        {source_key_detail[source_key_detail_modal_name]['access_key']}
-                                    </Descriptions.Item>
-
-
-                                    <Descriptions.Item
-                                        label={translate_dict['secret_access_key']}
-                                    >
-                                        {source_key_detail[source_key_detail_modal_name]['secret_access_key']}
-                                    </Descriptions.Item>
-
-                                    <Descriptions.Item
-                                        label={translate_dict['endpoint']}
-                                    >
-                                        {source_key_detail[source_key_detail_modal_name]['endpoint']}
-                                    </Descriptions.Item>
-
-
-                                </Descriptions>
-
-                        ) :
-                        undefined
-                }
-            </div>
+            {source_key_detail ? <SourceKeyPanel single_sourceKey_detail={source_key_detail[source_key_detail_modal_name]}/> : undefined}
 
         </Modal>
     </div>
