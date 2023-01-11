@@ -2708,7 +2708,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
 
                         phase: translate_dict[data_item.phase],
                         operation:
-                                [
+                                <Space>
                                     <Popconfirm
                                         title={t('确认删除？')}
                                         onConfirm={async () => {
@@ -2718,7 +2718,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                         onCancel={() => { }}
                                     >
                                         <Link href="#">{t('删除')} </Link>
-                                    </Popconfirm>,
+                                    </Popconfirm>
 
                                     <Popconfirm
                                         disabled = {data_item.phase === 'Complete' ? false : true}
@@ -2751,7 +2751,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                             disabled={data_item.phase === 'Complete' || data_item.phase === 'Failed' ? false : true}
                                             href="#">{t('重新触发')} 
                                         </Link>
-                                    </Popconfirm>,
+                                    </Popconfirm>
 
                                     <Link
                                         disabled = {data_item.phase === 'Complete' ? false : true}
@@ -2764,9 +2764,9 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                             }}
                                     >
                                         {translate_dict['restores'] + ' '}
-                                    </Link>,
+                                    </Link>
 
-                                ]
+                                    </Space>
                     }
                 }
             )}
