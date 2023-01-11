@@ -1397,7 +1397,7 @@ function NodeList ({
                                             }
                                         }}
                                     >
-                                        <Link className='restart'>{t('启动')}</Link>
+                                        <Link>{t('启动')}</Link>
                                     </Popconfirm>
                                 ) : (
                                     <Popconfirm
@@ -1413,7 +1413,7 @@ function NodeList ({
                                             }
                                         }}
                                     >
-                                        <Link className='restart'>{t('暂停')}</Link>
+                                        <Link>{t('暂停')}</Link>
                                     </Popconfirm>
                                 )
                             }
@@ -1434,7 +1434,7 @@ function NodeList ({
                             >
                                 <Link 
                                     disabled = {node.status.phase === 'Running' ? false : true}
-                                    className='restart'>{t('重启')}
+                                >{t('重启')}
                                 </Link>
                             </Popconfirm>
                             
