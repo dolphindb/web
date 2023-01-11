@@ -44,9 +44,9 @@ import {
     Registry,
     parseRawGrammar,
     type IGrammar,
-    type IRawGrammar,
     type StateStack,
 } from 'vscode-textmate'
+import { type IRawGrammar } from 'vscode-textmate/release/rawGrammar.js'
 
 import { createOnigScanner, createOnigString, loadWASM } from 'vscode-oniguruma'
 

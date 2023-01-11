@@ -2,7 +2,7 @@ import './login.sass'
 
 import React from 'react'
 
-import { Form, Input, Button, Typography, message } from 'antd'
+import { Form, Input, Button, message } from 'antd'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
 
 import { t } from '../i18n/index.js'
@@ -25,11 +25,16 @@ export function Login () {
                 onFinish={async values => {
                     try {
                         await model.login_by_password(values.username, values.password)
-                        model.goto_default_view()
-                        message.success(t('登录成功'))
                     } catch (error) {
-                        message.error(t('用户名或密码错误'))
+                        if (error.message === 'The user name or password is incorrect.')
+                            message.error(t('用户名或密码错误'))
+                        else
+                            model.show_error({ error })
+                        throw error
                     }
+                    
+                    message.success(t('登录成功'))
+                    model.goto_redirection()
                 }}
             >
                 <Form.Item name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
