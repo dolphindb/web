@@ -2101,6 +2101,7 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
 
     const [source_key_modal_info, set_source_key_modal_info] = useState<AddSourceKeyModalInfo>({ type: 'nfs', open: props.sourcekey_modaol_open })
     const [providers, set_providers] = useState([''])
+    const [selected_provider, set_selected_provider] = useState('')
 
     const [nfs_form] = Form.useForm()
     const [s3_form] = Form.useForm()
@@ -2113,6 +2114,10 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
             set_providers(fetched_providers)
         })()
     }, [])
+    
+    useEffect(()=>{
+        s3_form.setFieldValue('provider', providers[0])
+    }, [providers])
 
 
 
@@ -2234,27 +2239,41 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                                 <Input />
                             </Form.Item>
                         ].concat(
-                        ['provider', 'region', 'access_key', 'secret_access_key', 'endpoint'].map(
-                            (x) => {
-                                return !(x === 'provider') ? <Form.Item
-                                    name={x}
-                                    label={translate_dict[x]}
-                                    rules={!not_required.has(x) ? [{ message: t('此项必填'), required: true }] : []}
-                                >
-                                    <Input/>
-                                    </Form.Item> :
-                                    <Form.Item
-                                        name={'provider'}
-                                        label={translate_dict['provider']}
+                            [
+                                <Form.Item key='provider' name={'provider'} label={translate_dict['provider']}>
+                                    <Select
+                                    onSelect={(x)=>{
+                                        set_selected_provider(x)
+                                    }}
                                     >
-                                        <Select>
-                                            {providers.map((x) => {
-                                                return <Option value={x}> {x} </Option>
-                                            })}
-                                        </Select>
-                                    </Form.Item>
-                            }
-                        ))}
+                                        {providers.map((x) => {
+                                            return <Option value={x}> {x} </Option>
+                                        })}
+                                    </Select>
+                                </Form.Item>,
+
+                                !(selected_provider === 'Ceph' || selected_provider === 'Minio')? <Form.Item key='region' name={'region'} label={translate_dict['region']}
+                                >
+                                    <Input />
+                                </Form.Item> : undefined,
+
+                                <Form.Item key='access_key' name={'access_key'} label={translate_dict['access_key']}
+                                    rules={[{ message: t('此项必填'), required: true }]}
+                                >
+                                    <Input />
+                                </Form.Item>,
+
+                                <Form.Item key='secret_access_key' name={'secret_access_key'} label={translate_dict['secret_access_key']}
+                                    rules={[{ message: t('此项必填'), required: true }]}
+                                >
+                                    <Input />
+                                </Form.Item>,
+
+                                selected_provider === 'AWS' ? undefined : <Form.Item key='endpoint' name={'endpoint'} label={translate_dict['endpoint']}
+                                >
+                                    <Input />
+                                </Form.Item>
+                            ])}
                     </Form>
                 }
             ]}
