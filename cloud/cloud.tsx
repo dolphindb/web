@@ -74,6 +74,10 @@ export function Cloud () {
 /** Type of cluster detail field: 'info' or 'config' */
 type FieldType = 'info' | 'config' | 'monitor' | 'backup'
 
+function Iframe () {
+    return <iframe className='iframe' src={ model.monitor_url }></iframe>
+}
+
 function ClusterDetail () {
     const { cluster } = model.use(['cluster'])
     
@@ -86,7 +90,8 @@ function ClusterDetail () {
     const Content = {
         info: <InfoTab />,
         config: <ClusterConfigs cluster={cluster} />,
-        backup: <ShowBackupRestoreSourceKey />
+        backup: <ShowBackupRestoreSourceKey />,
+        monitor: <Iframe />
     }
     
     return (
@@ -125,10 +130,7 @@ function ClusterDetailMenuItem({
     value: FieldType
 }) {
     const onButtonClick = () => {
-        if (value === 'monitor')
-            window.open(model.monitor_url, '_blank')
-        else
-            onClick(value)
+        onClick(value)
     }
     
     let currClass = 'detail-menu-item'
