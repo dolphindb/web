@@ -209,7 +209,6 @@ export interface Cluster {
         resources: {
             limits: {
                 cpu: {
-                    unit?: string
                     value: number
                 },
                 memory: {
@@ -219,7 +218,6 @@ export interface Cluster {
             },
             requests: {
                 cpu: {
-                    unit?: string
                     value: number
                 },
                 memory: {
@@ -236,7 +234,6 @@ export interface Cluster {
         resources: {
             limits: {
                 cpu: {
-                    unit?: string
                     value: number
                 },
                 memory: {
@@ -246,7 +243,6 @@ export interface Cluster {
             },
             requests: {
                 cpu: {
-                    unit?: string
                     value: number
                 },
                 memory: {
@@ -263,7 +259,6 @@ export interface Cluster {
         resources: {
             limits: {
                 cpu: {
-                    unit?: string
                     value: number
                 },
                 memory: {
@@ -273,7 +268,6 @@ export interface Cluster {
             },
             requests: {
                 cpu: {
-                    unit?: string
                     value: number
                 },
                 memory: {

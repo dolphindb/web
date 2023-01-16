@@ -563,7 +563,6 @@ function Clusters () {
                 wrapperCol={{ span: 16 }}
                 colon={false}
                 requiredMark={false}
-
             >
                 <Divider orientation='left'>{t('基础信息')}</Divider>
                 <Form.Item name='version' label={t('版本')} rules={[{ required: true }]}>
@@ -1334,7 +1333,7 @@ function NodeList ({
                     title: 'cpu',
                     dataIndex: ['resources', 'limits', 'cpu'],
                     render: (cpu)=>{
-                        return <div>{cpu? `${cpu.value}${cpu.unit || ''}` : '-'}</div>
+                        return <div>{cpu? `${cpu.value}` : '-'}</div>
                     }
                 },
                 {
@@ -2644,7 +2643,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                     </Popconfirm>
 
                                     <Popconfirm
-                                        disabled = {data_item.phase === 'Complete' ? false : true}
+                                        disabled={ data_item.phase === 'Complete' ? false : true }
                                         title={t('确认重新触发？')}
                                         onConfirm={async () => {
                                             const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${data_item.name}`)
@@ -2671,13 +2670,13 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                         onCancel={() => { }}
                                     >
                                         <Link
-                                            disabled={data_item.phase === 'Complete' || data_item.phase === 'Failed' ? false : true}
+                                            disabled={ data_item.phase === 'Complete' || data_item.phase === 'Failed' ? false : true }
                                             href="#">{t('重新触发')} 
                                         </Link>
                                     </Popconfirm>
 
                                     <Link
-                                        disabled = {data_item.phase === 'Complete' ? false : true}
+                                        disabled={ data_item.phase === 'Complete' ? false : true }
                                         onClick={
                                             () => {
                                                 set_restore_modal_open(true)
