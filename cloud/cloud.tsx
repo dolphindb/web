@@ -2091,9 +2091,10 @@ type AddSourceKeyModalInfo = {
     open: boolean
 }
 
-function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open, refresh_source_key }) {
+function SourceKeyModal( { sourcekey_modaol_open, set_sourcekey_modal_open, refresh_source_key }) {
+    //SourceKeyModal可能需要改变父组件的状态，最后一个参数refresh_source_key是一个父组件的set_state函数
 
-    const [source_key_modal_info, set_source_key_modal_info] = useState<AddSourceKeyModalInfo>({ type: 'nfs', open: props.sourcekey_modaol_open })
+    const [source_key_modal_info, set_source_key_modal_info] = useState<AddSourceKeyModalInfo>({ type: 'nfs', open: sourcekey_modaol_open })
     const [providers, set_providers] = useState([''])
     const [selected_provider, set_selected_provider] = useState('')
 
@@ -2120,9 +2121,9 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
 
         title={t('添加云端存储配置')}
         open={source_key_modal_info.open}
-        onCancel={() => { props.set_sourcekey_modal_open(false) }}
+        onCancel={() => { set_sourcekey_modal_open(false) }}
         footer={[
-            <Button key="back" onClick={() => { props.set_sourcekey_modal_open(false) }}>
+            <Button key="back" onClick={() => { set_sourcekey_modal_open(false) }}>
                 {t('取消')}
             </Button>,
             <Button key="submit" type="primary" onClick={async () => {
@@ -2132,8 +2133,8 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                         method: 'post',
                         body: { ...form_data, type: source_key_modal_info.type },
                     })
-                    props.refresh_source_key()
-                    props.set_sourcekey_modal_open(false)
+                    refresh_source_key()
+                    set_sourcekey_modal_open(false)
                 }
                 catch (err) {
                     const resp = await err.response.json()
@@ -3181,8 +3182,6 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
     }
 
 
-    const refresh_source_key = async () => {
-    }
 
 
     useEffect(() => {
@@ -3228,7 +3227,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
         {sourcekey_modal_open ? <SourceKeyModal
             sourcekey_modaol_open={sourcekey_modal_open}
             set_sourcekey_modal_open={set_sourcekey_modal_open}
-            refresh_source_key={refresh_source_key}
+            refresh_source_key={ () => {} }
         /> : <div />}
 
         {source_key_detail ?
