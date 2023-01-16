@@ -18,7 +18,7 @@ if (process.argv.includes('cloud')) {
         fcopy(`${fpd_root}README.md`, `${fpd_out_cloud}README.md`),
         fcopy(`${fpd_root}README.zh.md`, `${fpd_out_cloud}README.zh.md`),
         
-        copy_vendors(false),
+        copy_vendors(fpd_out_cloud, false),
         
         webpack.build({ production: true, is_cloud: true })
     ])
@@ -35,7 +35,7 @@ if (process.argv.includes('cloud')) {
         fcopy(`${fpd_root}README.md`, `${fpd_out_console}README.md`),
         fcopy(`${fpd_root}README.zh.md`, `${fpd_out_console}README.zh.md`),
         
-        copy_vendors(true),
+        copy_vendors(fpd_out_console, true),
         
         ... ['zh', 'en'].map(language =>
             fcopy(`${fpd_node_modules}dolphindb/docs.${language}.json`, `${fpd_out_console}docs.${language}.json`)
@@ -46,9 +46,9 @@ if (process.argv.includes('cloud')) {
 }
 
 
-async function copy_vendors (monaco: boolean) {
-    const fpd_vendors = `${fpd_out_console}vendors/`
-    const fpd_monaco = `${fpd_out_console}vs/`
+async function copy_vendors (fpd_out: string, monaco: boolean) {
+    const fpd_vendors = `${fpd_out}vendors/`
+    const fpd_monaco = `${fpd_out}vs/`
     
     
     await fmkdir(fpd_vendors)
