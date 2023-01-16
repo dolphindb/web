@@ -1371,7 +1371,7 @@ function NodeList ({
                     render (_, node) {
                         return <Space>
                             <Link
-                                disabled = {node.status.phase === 'Running' ? false : true}
+                                disabled = {node.status.phase !== 'Running'}
                                 target='_blank'
                                 href={
                                     '?' + new URLSearchParams({
@@ -1420,7 +1420,7 @@ function NodeList ({
                             }
                             
                             <Popconfirm
-                                disabled = {node.status.phase === 'Running' ? false : true}
+                                disabled = {node.status.phase !== 'Running'}
                                 title={t('确认重启？')}
                                 onConfirm={async () => {
                                     try {
@@ -1434,13 +1434,13 @@ function NodeList ({
                                 }}
                             >
                                 <Link 
-                                    disabled = {node.status.phase === 'Running' ? false : true}
+                                    disabled = {node.status.phase !== 'Running'}
                                 >{t('重启')}
                                 </Link>
                             </Popconfirm>
                             
                             <Link 
-                                disabled={node.status.phase === 'Running' ? false : true}
+                                disabled={node.status.phase !== 'Running'}
                                 onClick={
                                     () => {
                                         set_cloud_upload_modal_open(true)
@@ -2643,7 +2643,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                     </Popconfirm>
 
                                     <Popconfirm
-                                        disabled={ data_item.phase === 'Complete' ? false : true }
+                                        disabled={ data_item.phase !== 'Complete'}
                                         title={t('确认重新触发？')}
                                         onConfirm={async () => {
                                             const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${data_item.name}`)
@@ -2670,13 +2670,13 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                         onCancel={() => { }}
                                     >
                                         <Link
-                                            disabled={ data_item.phase === 'Complete' || data_item.phase === 'Failed' ? false : true }
+                                            disabled={ !(data_item.phase === 'Complete' || data_item.phase === 'Failed')}
                                             href="#">{t('重新触发')} 
                                         </Link>
                                     </Popconfirm>
 
                                     <Link
-                                        disabled={ data_item.phase === 'Complete' ? false : true }
+                                        disabled={ data_item.phase !== 'Complete'}
                                         onClick={
                                             () => {
                                                 set_restore_modal_open(true)
