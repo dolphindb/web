@@ -206,19 +206,76 @@ export interface Cluster {
     created_at: Dayjs
     controller: {
         replicas: number
-        resources: any
+        resources: {
+            limits: {
+                cpu: {
+                    value: number
+                },
+                memory: {
+                    unit: string
+                    value: number
+                },
+            },
+            requests: {
+                cpu: {
+                    value: number
+                },
+                memory: {
+                    unit: string
+                    value: number
+                },
+            }
+        }
         data_size: string
         log_size: string
     }
     datanode: {
         replicas: number
-        resources: any
+        resources: {
+            limits: {
+                cpu: {
+                    value: number
+                },
+                memory: {
+                    unit: string
+                    value: number
+                },
+            },
+            requests: {
+                cpu: {
+                    value: number
+                },
+                memory: {
+                    unit: string
+                    value: number
+                },
+            }
+        }
         data_size: string
         log_size: string
     }
     computenode: {
         replicas: number
-        resources: any
+        resources: {
+            limits: {
+                cpu: {
+                    value: number
+                },
+                memory: {
+                    unit: string
+                    value: number
+                },
+            },
+            requests: {
+                cpu: {
+                    value: number
+                },
+                memory: {
+                    unit: string
+                    value: number
+                },
+            }
+        }
         data_size: string
         log_size: string
     }
@@ -284,8 +341,8 @@ export interface ClusterConfigItem {
 }
 
 export interface ClusterConfig {
-    cluster_config?: ClusterConfigItem[],
-    controller_config?: ClusterConfigItem[],
+    cluster_config?: ClusterConfigItem[]
+    controller_config?: ClusterConfigItem[]
     agent_config?: ClusterConfigItem[]
     dolphindb_config?: ClusterConfigItem[]
 }
