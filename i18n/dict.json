@@ -1270,5 +1270,14 @@
     },
     "去登录": {
         "en": "To log in"
+    },
+    "下限必须小于或等于上限": {
+        "en": "The lower bound must be less than or equal to the upper bound"
+    },
+    "上限必须大于或等于下限": {
+        "en": "The upper bound must be greater than or equal to lower bound"
+    },
+    "升级成功": {
+        "en": "Update successed"
     }
 }
