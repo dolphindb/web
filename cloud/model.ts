@@ -341,8 +341,8 @@ export interface ClusterConfigItem {
 }
 
 export interface ClusterConfig {
-    cluster_config?: ClusterConfigItem[],
-    controller_config?: ClusterConfigItem[],
+    cluster_config?: ClusterConfigItem[]
+    controller_config?: ClusterConfigItem[]
     agent_config?: ClusterConfigItem[]
     dolphindb_config?: ClusterConfigItem[]
 }

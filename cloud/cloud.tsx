@@ -74,8 +74,8 @@ export function Cloud () {
 /** Type of cluster detail field: 'info' or 'config' */
 type FieldType = 'info' | 'config' | 'monitor' | 'backup'
 
-function Iframe () {
-    return <iframe className='iframe' src={ model.monitor_url }></iframe>
+function Monitor () {
+    return <iframe className='iframe' src={ model.monitor_url } />
 }
 
 function ClusterDetail () {
@@ -91,7 +91,7 @@ function ClusterDetail () {
         info: <InfoTab />,
         config: <ClusterConfigs cluster={cluster} />,
         backup: <ShowBackupRestoreSourceKey />,
-        monitor: <Iframe />
+        monitor: <Monitor />
     }
     
     return (
@@ -129,10 +129,6 @@ function ClusterDetailMenuItem({
     onClick: (value: FieldType) => void,
     value: FieldType
 }) {
-    const onButtonClick = () => {
-        onClick(value)
-    }
-    
     let currClass = 'detail-menu-item'
     
     if (focused)
@@ -145,7 +141,7 @@ function ClusterDetailMenuItem({
         backup: t('备份管理')
     }
     
-    return <div className={currClass} onClick={onButtonClick}>
+    return <div className={currClass} onClick={() => { onClick(value) }}>
         <span className='font-content-wrapper'>
             {displayValue[value]}
         </span>
@@ -267,19 +263,18 @@ function Clusters () {
         }
     }, [queries])
     
-    useEffect(()=>{
-        const updated_init_value = (()=>{
-            let obj = {}
+    useEffect(() => {
+        const updated_init_value = (() => {
+            let obj = { }
             const fields = ['controller', 'datanode', 'computenode']
             
+            if (!current_cluster) 
+                return { }
             
-            if (!current_cluster){
-                return {}
-            }
             
             obj.version = current_cluster.version
             console.log(current_cluster.name)
-            fields.forEach((field: 'controller' | 'datanode' | 'computenode')  => {
+            fields.forEach((field: 'controller' | 'datanode' | 'computenode') => {
                 obj[field] = {
                     resources: {
                         limits: {
@@ -289,15 +284,14 @@ function Clusters () {
                         requests: {
                             cpu: current_cluster[field].resources.requests.cpu.value,
                             memory: current_cluster[field].resources.requests.memory.value
-                        },
-                        
+                        }
                     }
                 }
             })
             
             return obj
         })()
-        update_form.setFieldsValue( updated_init_value )
+        update_form.setFieldsValue(updated_init_value)
     }, [current_cluster, update_form])
     
     return <div className='clusters'>
@@ -1333,14 +1327,14 @@ function NodeList ({
                     title: 'cpu',
                     dataIndex: ['resources', 'limits', 'cpu'],
                     render: (cpu)=>{
-                        return <div>{cpu? `${cpu.value}` : '-'}</div>
+                        return <div>{cpu ? cpu.value : '-'}</div>
                     }
                 },
                 {
                     title: t('内存'),
                     dataIndex: ['resources', 'limits', 'memory'],
                     render: (memory)=>{
-                        return <div>{memory? `${memory.value}${memory.unit}` : '-'}</div>
+                        return <div>{memory ? `${memory.value}${memory.unit}` : '-'}</div>
                     }
                 },
                 {
@@ -1369,9 +1363,11 @@ function NodeList ({
                     title: t('操作'),
                     width: 300,
                     render (_, node) {
+                        const running = node.status.phase === 'Running'
+                        
                         return <Space>
                             <Link
-                                disabled = {node.status.phase !== 'Running'}
+                                disabled={!running}
                                 target='_blank'
                                 href={
                                     '?' + new URLSearchParams({
@@ -1420,7 +1416,7 @@ function NodeList ({
                             }
                             
                             <Popconfirm
-                                disabled = {node.status.phase !== 'Running'}
+                                disabled={!running}
                                 title={t('确认重启？')}
                                 onConfirm={async () => {
                                     try {
@@ -1433,14 +1429,11 @@ function NodeList ({
                                     get_nodes()
                                 }}
                             >
-                                <Link 
-                                    disabled = {node.status.phase !== 'Running'}
-                                >{t('重启')}
-                                </Link>
+                                <Link disabled={!running}>{t('重启')}</Link>
                             </Popconfirm>
                             
                             <Link 
-                                disabled={node.status.phase !== 'Running'}
+                                disabled={!running}
                                 onClick={
                                     () => {
                                         set_cloud_upload_modal_open(true)
@@ -2116,13 +2109,13 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
         })()
     }, [])
     
-    useEffect(()=>{
+    useEffect(() => {
         s3_form.setFieldValue('provider', providers[0])
         set_selected_provider(providers[0])
     }, [providers])
 
 
-
+    
     return <Modal
 
         title={t('添加云端存储配置')}
@@ -2223,8 +2216,6 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                         labelCol={{ span: 6 }}
                         wrapperCol={{ span: 16 }}
                     >
-
-                        {[
                             <Form.Item
                                 name='name'
                                 label={translate_dict.name}
@@ -2240,42 +2231,40 @@ function SourceKeyModal(props: { sourcekey_modaol_open, set_sourcekey_modal_open
                             >
                                 <Input />
                             </Form.Item>
-                        ].concat(
-                            [
-                                <Form.Item key='provider' name={'provider'} label={translate_dict['provider']}>
-                                    <Select
-                                    onSelect={(x)=>{
-                                        set_selected_provider(x)
-                                    }}
-                                    >
-                                        {providers.map((x) => {
-                                            return <Option value={x}> {x} </Option>
-                                        })}
-                                    </Select>
-                                </Form.Item>,
-
-                                !(selected_provider === 'Ceph' || selected_provider === 'Minio')? <Form.Item key='region' name={'region'} label={translate_dict['region']}
+                            
+                            <Form.Item key='provider' name={'provider'} label={translate_dict['provider']}>
+                                <Select
+                                onSelect={(x)=>{
+                                    set_selected_provider(x)
+                                }}
                                 >
-                                    <Input />
-                                </Form.Item> : undefined,
-
-                                <Form.Item key='access_key' name={'access_key'} label={translate_dict['access_key']}
-                                    rules={[{ message: t('此项必填'), required: true }]}
-                                >
-                                    <Input />
-                                </Form.Item>,
-
-                                <Form.Item key='secret_access_key' name={'secret_access_key'} label={translate_dict['secret_access_key']}
-                                    rules={[{ message: t('此项必填'), required: true }]}
-                                >
-                                    <Input />
-                                </Form.Item>,
-
-                                selected_provider === 'AWS' ? undefined : <Form.Item key='endpoint' name={'endpoint'} label={translate_dict['endpoint']}
-                                >
+                                    {providers.map((x) => {
+                                        return <Option value={x}> {x} </Option>
+                                    })}
+                                </Select>
+                            </Form.Item>
+                            
+                            { !(selected_provider === 'Ceph' || selected_provider === 'Minio') && <Form.Item key='region' name={'region'} label={translate_dict['region']}>
                                     <Input />
                                 </Form.Item>
-                            ])}
+                            }
+                            
+                            <Form.Item key='access_key' name='access_key' label={translate_dict['access_key']}
+                                rules={[{ message: t('此项必填'), required: true }]}
+                            >
+                                <Input />
+                            </Form.Item>
+
+                            <Form.Item key='secret_access_key' name='secret_access_key' label={translate_dict['secret_access_key']}
+                                rules={[{ message: t('此项必填'), required: true }]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            
+                            { selected_provider !== 'AWS' && <Form.Item key='endpoint' name='endpoint' label={translate_dict['endpoint']}
+                            >
+                                <Input />
+                            </Form.Item>}
                     </Form>
                 }
             ]}
@@ -3081,6 +3070,11 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
 }
 
 const SourceKeyPanel = ({single_sourceKey_detail}) => {
+    if (!single_sourceKey_detail)
+        return null
+    
+    const { type } = single_sourceKey_detail
+    
     return <>
         {
             single_sourceKey_detail ?
@@ -3092,7 +3086,7 @@ const SourceKeyPanel = ({single_sourceKey_detail}) => {
                         //layout='vertical'
                         >
                             <Descriptions.Item
-                                label={translate_dict['type']}
+                                label={t('类型')}
                             >
                                 {single_sourceKey_detail['type']}
                             </Descriptions.Item>
