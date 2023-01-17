@@ -236,13 +236,13 @@ function Clusters () {
                 callback()
              else if (lowerLimit) 
                 if (value > formData[node_type]['resources']['limits'][limitField]) 
-                    callback(`${t('下限必须小于或等于上限')}`)
+                    callback(t('下限必须小于或等于上限'))
                  else 
                     callback()
                 
              else 
                 if (value < formData[node_type]['resources']['requests'][limitField]) 
-                    callback(`${t('上限必须大于或等于下限')}`)
+                    callback(t('上限必须大于或等于下限'))
                  else 
                     callback()
         }
@@ -2369,7 +2369,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
     const { cluster } = model.use(['cluster'])
     const { namespace } = cluster
     const [data, setData] = useState<FlattenBackupDetail & FlattenRestoreDetail>()
-    const [source_key_detail, set_source_key_detail] = useState({})
+    const [source_key_detail, set_source_key_detail] = useState<SourceKeyDetail[]>([])
 
     async function fetch_data() {
         if (!props.name) {
@@ -2599,6 +2599,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
             refresh_instances_list_of_namespace()
         }, [refresher]
     )
+
     useEffect(
         () => {
             form_instance_backup.resetFields()
@@ -3477,21 +3478,37 @@ type OneBakcupDetail = {
 }
 
 type ListOfRestores = ListOfBackups
-type OneRestoreDetail = OneBakcupDetail & { dolphindb_name, dolphindb_namespace, from }
+type OneRestoreDetail = OneBakcupDetail & { dolphindb_name:string, dolphindb_namespace:string, from:string }
 
-type SourceKeyDetail = {
-    type: 'nfs' | 's3',
-    path: string
-    endpoint: string
-    provider?: string
-    secret_access_key?: string
-    access_key?: string,
-    region?: string
+type SourceKeyDetail = 
+{
+    [key: string]: {
+        type: 'nfs'
+        endpoint: string
+        path: string
+    }
+} &
+{
+    [key: string]: {
+        type: 's3'
+        endpoint: string
+        provider: string
+        secret_access_key: string
+        access_key: string
+    }
 }
-
 
 type FlattenBackupDetail = {
-    name, prefix, remote_type, save_dir, source_key, create_timestamp, phase, storage_class, storage_resource, stored_path
+    name: string
+    prefix: string
+    remote_type: string
+    save_dir: string
+    source_key: string
+    create_timestamp: string
+    phase: string
+    storage_class: string
+    storage_resource: number
+    stored_path: string
 }
 
-type FlattenRestoreDetail = FlattenBackupDetail & { dolphindb_name, dolphindb_namespace, from }
+type FlattenRestoreDetail = FlattenBackupDetail & { dolphindb_name:string, dolphindb_namespace, from:string }
