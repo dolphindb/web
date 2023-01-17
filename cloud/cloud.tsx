@@ -2368,7 +2368,8 @@ const GiProcess = (str: string | number) => {
 const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => void, type: 'backups' | 'restores' }> = (props) => {
     const { cluster } = model.use(['cluster'])
     const { namespace } = cluster
-    const [data, setData] = useState<FlattenBackupDetail & FlattenRestoreDetail>()
+    //@ts-ignore
+    const [{phase, remote_type, source_key, from, stored_path, storage_class, storage_resource, dolphindb_name, dolphindb_namespace}, setData] = useState<FlattenBackupDetail | FlattenRestoreDetail>()
     const [source_key_detail, set_source_key_detail] = useState<SourceKeyDetail[]>([])
 
     async function fetch_data() {
@@ -2390,7 +2391,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
         })()
     }, [props.open])
 
-    if (!data) {
+    if (!phase) {
         return undefined
     }
     return <Modal open={props.open} width={'70%'} onCancel={props.onCancel} footer={false}>
@@ -2411,7 +2412,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                 >
                     <Descriptions.Item label={t('命名空间')}>{namespace}</Descriptions.Item>
                     <Descriptions.Item label={t('名称')}>{props.name}</Descriptions.Item>
-                    <Descriptions.Item label={t('状态')}>{translate_dict[data.phase]}</Descriptions.Item>
+                    <Descriptions.Item label={t('状态')}>{translate_dict[phase]}</Descriptions.Item>
                 </Descriptions>
             </div>
 
@@ -2422,23 +2423,23 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                     }
                     bordered
                 >
-                    <Descriptions.Item label={t('云端存储类型')}>{data.remote_type}</Descriptions.Item>
+                    <Descriptions.Item label={t('云端存储类型')}>{remote_type}</Descriptions.Item>
                     <Descriptions.Item label={t('云端存储配置')}>{
-                        <Popover title={data.source_key}
+                        <Popover title={source_key}
                             mouseEnterDelay={0}
                             mouseLeaveDelay={0}
                             placement={'left'}
 
                             content={
-                                source_key_detail ? <SourceKeyPanel single_sourceKey_detail={source_key_detail[data.source_key]}/> : undefined
+                                source_key_detail ? <SourceKeyPanel single_sourceKey_detail={source_key_detail[source_key]}/> : undefined
 
                             }
-                        >{<Link>{data.source_key}</Link>}</Popover>
+                        >{<Link>{source_key}</Link>}</Popover>
                     }</Descriptions.Item>
                     {
                         props.type === 'restores' ?
                             <Descriptions.Item label={t('备份源')}>
-                                {data.from}
+                                {from}
                             </Descriptions.Item> :
                             undefined
                     }
@@ -2451,13 +2452,13 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                     }
                     bordered
                 >
-                    <Descriptions.Item label={t('存储路径')}>{data.stored_path || ' '}</Descriptions.Item>
+                    <Descriptions.Item label={t('存储路径')}>{stored_path || ' '}</Descriptions.Item>
 
                 </Descriptions>
             </div>
 
             {
-                data.storage_class && data.storage_resource ?
+                storage_class && storage_resource ?
                     <Descriptions
                         title={
                             <Title level={4}>{t('存储信息')}</Title>
@@ -2465,14 +2466,14 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                         column={2}
                         bordered
                     >
-                        <Descriptions.Item label={t('存储类名称')}>{data.storage_class || ' '}</Descriptions.Item>
-                        <Descriptions.Item label={t('存储空间')}>{data.storage_resource ? GiProcess(data.storage_resource) : ' '}</Descriptions.Item>
+                        <Descriptions.Item label={t('存储类名称')}>{storage_class || ' '}</Descriptions.Item>
+                        <Descriptions.Item label={t('存储空间')}>{storage_resource ? GiProcess(storage_resource) : ' '}</Descriptions.Item>
                     </Descriptions>
                     : undefined
             }
 
             {
-                data.dolphindb_name && data.dolphindb_namespace ?
+                dolphindb_name && dolphindb_namespace ?
                     <Descriptions
                         title={
                             <Title level={4}>{t('集群信息')}</Title>
@@ -2480,8 +2481,8 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                         column={2}
                         bordered
                     >
-                        <Descriptions.Item label={t('命名空间')}>{data.dolphindb_namespace || ' '}</Descriptions.Item>
-                        <Descriptions.Item label={t('名称', { context: 'backup' })}>{data.dolphindb_name || ' '}</Descriptions.Item>
+                        <Descriptions.Item label={t('命名空间')}>{dolphindb_namespace || ' '}</Descriptions.Item>
+                        <Descriptions.Item label={t('名称', { context: 'backup' })}>{dolphindb_name || ' '}</Descriptions.Item>
                     </Descriptions>
                     : undefined}
 
@@ -3156,7 +3157,8 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
     </div>
 }
 
-const SourceKeyPanel = ({single_sourceKey_detail}: {single_sourceKey_detail: SourceKeyDetail})  => {
+const SourceKeyPanel = ({single_sourceKey_detail}: {single_sourceKey_detail:  SourceKeyDetail[string]})  => {
+    //@ts-ignore
     const { type, endpoint, provider, region, access_key, secret_access_key, path} = single_sourceKey_detail
     if (!single_sourceKey_detail)
         return null
@@ -3228,13 +3230,12 @@ const SourceKeyPanel = ({single_sourceKey_detail}: {single_sourceKey_detail: Sou
                     </Descriptions.Item>
 
                     {
-                        !(provider === 'AWS') ?
+                        !(provider === 'AWS') &&
                             <Descriptions.Item
                                 label={t('服务地址')}
                             >
                                 {endpoint}
-                            </Descriptions.Item> :
-                            undefined
+                            </Descriptions.Item>
                     }
 
 
@@ -3482,20 +3483,17 @@ type OneRestoreDetail = OneBakcupDetail & { dolphindb_name:string, dolphindb_nam
 
 type SourceKeyDetail = 
 {
-    [key: string]: {
+    [key: string]: ({
         type: 'nfs'
         endpoint: string
         path: string
-    }
-} &
-{
-    [key: string]: {
+    } | {
         type: 's3'
         endpoint: string
         provider: string
         secret_access_key: string
         access_key: string
-    }
+    })
 }
 
 type FlattenBackupDetail = {
@@ -3511,4 +3509,4 @@ type FlattenBackupDetail = {
     stored_path: string
 }
 
-type FlattenRestoreDetail = FlattenBackupDetail & { dolphindb_name:string, dolphindb_namespace, from:string }
+type FlattenRestoreDetail = FlattenBackupDetail & { dolphindb_name:string, dolphindb_namespace:string, from:string }
