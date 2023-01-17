@@ -275,6 +275,8 @@ function Clusters () {
             obj.version = current_cluster.version
             console.log(current_cluster.name)
             fields.forEach((field: 'controller' | 'datanode' | 'computenode') => {
+                if (!current_cluster[field])
+                    return
                 obj[field] = {
                     resources: {
                         limits: {
@@ -503,6 +505,9 @@ function Clusters () {
                             var values = await update_form.validateFields()
                             const fields = ['controller', 'datanode', 'computenode']
                             fields.forEach(field => {
+                                if (!values[field]) 
+                                    return
+                                
                                 if (values[field].resources.limits.memory) {
                                     values[field].resources.limits.memory = {
                                         unit: 'Gi',
@@ -769,6 +774,9 @@ function CreateClusterPanel({
         
             const fields = ['controller', 'datanode', 'computenode']
             fields.forEach(field => {
+                if (!values[field])
+                    return
+                
                 if (values[field].resources.limits.memory) {
                     values[field].resources.limits.memory = {
                         unit: 'Gi',
