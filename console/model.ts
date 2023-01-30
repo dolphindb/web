@@ -460,7 +460,7 @@ export class DdbModel extends Model<DdbModel> {
             className: 'modal-error',
             title: title || error?.message,
             ... (content || error) ? {
-                content: content || error.stack.slice(error.stack.indexOf('\n') + 1)
+                content: content || error.stack
             } : { },
             width: 800,
         })
