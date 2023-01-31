@@ -101,10 +101,9 @@ export class DdbModel extends Model<DdbModel> {
             this.get_controller_alias(),
         ])
         
-        ;(async () => {
-            await this.get_cluster_perf()
-            await this.check_leader_and_redirect()
-        })()
+        await this.get_cluster_perf()
+        
+        await this.check_leader_and_redirect()
         
         this.get_license()
         
@@ -300,15 +299,11 @@ export class DdbModel extends Model<DdbModel> {
         
         console.log(t('集群节点:'), nodes)
         
-        const node = nodes.find(node => 
-            node.name === this.node_alias)
+        const node = nodes.find(node => node.name === this.node_alias)
         
         console.log(t('当前节点:'), node)
         
-        this.set({
-            nodes,
-            node
-        })
+        this.set({ nodes, node })
     }
     
     
@@ -393,7 +388,7 @@ export class DdbModel extends Model<DdbModel> {
     async get_server_log_length () {
         let length: bigint
         
-        if (this.node_type === NodeType.data_node) {
+        if (this.node_type === NodeType.data_node || this.node_type === NodeType.computing_node) {
             if (this.first_get_server_log_length) {
                 await ddb.eval(
                     'def get_server_log_length_by_agent (host, port, node_alias) {\n' +
@@ -422,7 +417,7 @@ export class DdbModel extends Model<DdbModel> {
     async get_server_log (offset: bigint, length: bigint) {
         let logs: string[]
         
-        if (this.node_type === NodeType.data_node) {
+        if (this.node_type === NodeType.data_node || this.node_type === NodeType.computing_node) {
             if (this.first_get_server_log) {
                 await ddb.eval(
                     'def get_server_log_by_agent (host, port, length, offset, node_alias) {\n' +
