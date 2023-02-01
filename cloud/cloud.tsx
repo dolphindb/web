@@ -74,8 +74,8 @@ export function Cloud () {
 /** Type of cluster detail field: 'info' or 'config' */
 type FieldType = 'info' | 'config' | 'monitor' | 'backup'
 
-function Monitor () {
-    return <iframe className='iframe' src={ model.monitor_url } />
+function Monitor ({ cluster }:{ cluster: Cluster }) {
+    return <iframe className='iframe' src={ model.monitor_url + '/?' +`&var-cluster_name=${cluster.name}&var-dolphindb_node=All` } />
 }
 
 function ClusterDetail () {
@@ -91,7 +91,7 @@ function ClusterDetail () {
         info: <InfoTab />,
         config: <ClusterConfigs cluster={cluster} />,
         backup: <ShowBackupRestoreSourceKey />,
-        monitor: <Monitor />
+        monitor: <Monitor cluster={cluster}/>
     }
     
     return (
@@ -166,7 +166,7 @@ function InfoTab() {
                 <Descriptions.Item label={t('命名空间')}>{namespace}</Descriptions.Item>
                 <Descriptions.Item label={t('名称')}>{name}</Descriptions.Item>
                 <Descriptions.Item label={t('状态')}>
-                    <ClusterOrBackupStatus {...status}/>
+                    <ClusterOrBackupStatus {...status} type='cluster'/>
                 </Descriptions.Item>
                 <Descriptions.Item label={t('版本')}>{version}</Descriptions.Item>
                 <Descriptions.Item label={t('模式')}>
@@ -394,7 +394,7 @@ function Clusters () {
                     title: t('状态'),
                     dataIndex: 'status',
                     render: (status: ClusterNode['status']) => 
-                        <ClusterOrBackupStatus {...status} />
+                        <ClusterOrBackupStatus {...status} type='cluster'/>
                 },
                 {
                     title: t('操作'),
@@ -1277,11 +1277,6 @@ function Mode ({
 }
 
 
-const statuses: Record<string, PresetStatusColorType> = {
-    Available: 'success',
-    Running: 'success',
-    Progressing: 'processing',
-}
 
 
 function ClusterNodes ({
@@ -1460,7 +1455,7 @@ function NodeList ({
                     title: t('状态'),
                     dataIndex: 'status',
                     render: (status: ClusterNode['status']) => 
-                        <ClusterOrBackupStatus {...status} />
+                        <ClusterOrBackupStatus {...status} type='cluster'/>
                 },
                 {
                     title: t('操作'),
@@ -1556,46 +1551,49 @@ function NodeList ({
     </>
 }
 
-const phases = {
-    Available: '运行正常',
-    Ready: '准备中',
-    Progressing: '准备中',
-    Unschedulable: '等待调度',
-    Unavailable: '故障',
-    Unknown: '未知',
-    Running: '运行中',
-    Paused: '已暂停'
-} as const
+const cluster_statuses: Record<string, PresetStatusColorType> = {
+    Available: 'success',
+    Running: 'success',
+    Progressing: 'processing',
+}
+
+const backup_statuses: Record<string, PresetStatusColorType> = {
+    Failed: 'error',
+    Complete: 'success',
+    
+    Scheduling: 'processing',
+    Running: 'processing',
+    Cleaning: 'processing',
+}
 
 function ClusterOrBackupStatus ({
     phase,
-    message
+    message,
+    type
 }: {
     phase: string
     message?: string
+    type: 'cluster' | 'backup'
 }) {
     phase ||= 'Processing'
-    
+    const stuatus_group = {
+        cluster: cluster_statuses,
+        backup: backup_statuses
+    }
     return <Badge
         className='badge-status'
         text={
             message ? 
-                <Tooltip title={message}>
+                <Tooltip title={message} overlayStyle={{maxWidth: '800px'}}>
                     <Text underline>{
-                        language === 'zh' ?
-                            phases[phase] || phase
-                        :
-                            phase
+                        translate_dict[phase]
                     }</Text>
                 </Tooltip>
             :
             
-                language === 'zh' ?
-                    phases[phase] || phase
-                :
-                    phase
+            translate_dict[phase]
         }
-        status={statuses[phase] || 'default'}
+        status={stuatus_group[type][phase] || 'default'}
     />
 }
 
@@ -2543,7 +2541,14 @@ const translate_dict = {
     Invalid: t('参数异常'),
     dolphindb_namespace: t('命名空间'),
     dolphindb_name: t('名称'),
-    type: t('类型')
+    type: t('类型'),
+    Available: t('运行正常'),
+    Ready: t('准备中'),
+    Progressing: t('准备中'),
+    Unschedulable: t('等待调度'),
+    Unavailable: t('故障'),
+    Unknown: t('未知'),
+    Paused: t('已暂停'),
 }
 
 const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_key' }) => {
@@ -2722,7 +2727,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
 
                         create_timestamp: create_timestamp,
 
-                        phase: <ClusterOrBackupStatus phase={phase} message={message} />,
+                        phase: <ClusterOrBackupStatus phase={phase} message={message} type='backup' />,
                         operation:
                                 <Space>
                                     <Popconfirm
@@ -3129,7 +3134,7 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
 
                         create_timestamp: create_timestamp,
 
-                        phase: <ClusterOrBackupStatus message={message} phase={phase}/>,
+                        phase: <ClusterOrBackupStatus phase={phase} message={message} type='backup' />,
                         
                         operation:
                             [

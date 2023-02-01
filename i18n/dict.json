@@ -1279,5 +1279,23 @@
     },
     "升级成功": {
         "en": "Update successed"
+    },
+    "运行正常": {
+        "en": "Available"
+    },
+    "准备中": {
+        "en": "Ready"
+    },
+    "等待调度": {
+        "en": "Unschedulable"
+    },
+    "故障": {
+        "en": "Unavailable"
+    },
+    "未知": {
+        "en": "Unknown"
+    },
+    "已暂停": {
+        "en": "Paused"
     }
 }
