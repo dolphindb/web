@@ -166,7 +166,7 @@ function InfoTab() {
                 <Descriptions.Item label={t('命名空间')}>{namespace}</Descriptions.Item>
                 <Descriptions.Item label={t('名称')}>{name}</Descriptions.Item>
                 <Descriptions.Item label={t('状态')}>
-                    <ClusterStatus {...status}/>
+                    <ClusterOrBackupStatus {...status}/>
                 </Descriptions.Item>
                 <Descriptions.Item label={t('版本')}>{version}</Descriptions.Item>
                 <Descriptions.Item label={t('模式')}>
@@ -394,7 +394,7 @@ function Clusters () {
                     title: t('状态'),
                     dataIndex: 'status',
                     render: (status: ClusterNode['status']) => 
-                        <ClusterStatus {...status} />
+                        <ClusterOrBackupStatus {...status} />
                 },
                 {
                     title: t('操作'),
@@ -1460,7 +1460,7 @@ function NodeList ({
                     title: t('状态'),
                     dataIndex: 'status',
                     render: (status: ClusterNode['status']) => 
-                        <ClusterStatus {...status} />
+                        <ClusterOrBackupStatus {...status} />
                 },
                 {
                     title: t('操作'),
@@ -1567,7 +1567,7 @@ const phases = {
     Paused: '已暂停'
 } as const
 
-function ClusterStatus ({
+function ClusterOrBackupStatus ({
     phase,
     message
 }: {
@@ -2722,27 +2722,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
 
                         create_timestamp: create_timestamp,
 
-                        phase: <Badge
-                        className='badge-status'
-                        text={
-                            message ? 
-                                <Tooltip title={message}>
-                                    <Text underline>{
-                                        language === 'zh' ?
-                                            phases[phase] || phase
-                                        :
-                                            phase
-                                    }</Text>
-                                </Tooltip>
-                            :
-                            
-                                language === 'zh' ?
-                                    phases[phase] || phase
-                                :
-                                    phase
-                        }
-                        status={statuses[phase] || 'default'}
-                    />,
+                        phase: <ClusterOrBackupStatus phase={phase} message={message} />,
                         operation:
                                 <Space>
                                     <Popconfirm
@@ -3149,27 +3129,7 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
 
                         create_timestamp: create_timestamp,
 
-                        phase: <Badge
-                        className='badge-status'
-                        text={
-                            message ? 
-                                <Tooltip title={message}>
-                                    <Text underline>{
-                                        language === 'zh' ?
-                                            phases[phase] || phase
-                                        :
-                                            phase
-                                    }</Text>
-                                </Tooltip>
-                            :
-                            
-                                language === 'zh' ?
-                                    phases[phase] || phase
-                                :
-                                    phase
-                        }
-                        status={statuses[phase] || 'default'}
-                    />,
+                        phase: <ClusterOrBackupStatus message={message} phase={phase}/>,
                         
                         operation:
                             [
@@ -3228,7 +3188,7 @@ const SourceKeyPanel = ({single_sourceKey_detail}: {single_sourceKey_detail:  So
     
     return <>
         {
-            (type === 'nfs') ?
+            type === 'nfs' ?
 
                 <Descriptions bordered
                     column={1}
