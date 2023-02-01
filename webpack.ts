@@ -275,7 +275,7 @@ export let webpack = {
                 if (error)
                     reject(error)
                 else if (stats.hasErrors())
-                    reject(new Error('构建失败'))
+                    reject(new Error('编译失败'))
                 else
                     resolve(stats)
             })

@@ -12,7 +12,7 @@ import type { BasicDataNode } from 'rc-tree'
 import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button, Popconfirm, Switch } from 'antd'
 const { Option } = Select
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, SaveOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
@@ -46,7 +46,7 @@ import {
     type IGrammar,
     type StateStack,
 } from 'vscode-textmate'
-import { type IRawGrammar } from 'vscode-textmate/release/rawGrammar.js'
+import type { IRawGrammar } from 'vscode-textmate/release/rawGrammar.js'
 
 import { createOnigScanner, createOnigString, loadWASM } from 'vscode-oniguruma'
 

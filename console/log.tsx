@@ -27,7 +27,7 @@ export function Log () {
     
     useEffect(() => {
         // 数据节点需要登录
-        if (!logined && node_type === NodeType.data_node) 
+        if (!logined && (node_type === NodeType.data_node || node_type === NodeType.computing_node)) 
             set_show_login_required_info(true)
          else 
             init()
