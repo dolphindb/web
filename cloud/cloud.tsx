@@ -275,7 +275,7 @@ function Clusters () {
             obj.version = current_cluster.version
             console.log(current_cluster.name)
             fields.forEach((field: 'controller' | 'datanode' | 'computenode') => {
-                //临时，实际条件应该为 `!current_cluster[field]`
+                // 等后台实现，实际条件应该为 `!current_cluster[field]`
                 if (!current_cluster[field]?.resources?.limits)
                     return
                 obj[field] = {
@@ -1551,20 +1551,20 @@ function NodeList ({
     </>
 }
 
-const cluster_statuses: Record<string, PresetStatusColorType> = {
+const cluster_statuses = {
     Available: 'success',
     Running: 'success',
     Progressing: 'processing',
-}
+} satisfies Record<string, PresetStatusColorType> 
 
-const backup_statuses: Record<string, PresetStatusColorType> = {
+const backup_statuses = {
     Failed: 'error',
     Complete: 'success',
     
     Scheduling: 'processing',
     Running: 'processing',
     Cleaning: 'processing',
-}
+} satisfies Record<string, PresetStatusColorType>
 
 function ClusterOrBackupStatus ({
     phase,
@@ -1584,14 +1584,14 @@ function ClusterOrBackupStatus ({
         className='badge-status'
         text={
             message ? 
-                <Tooltip title={message} overlayStyle={{maxWidth: '800px'}}>
+                <Tooltip title={message} overlayStyle={{ maxWidth: '800px' }}>
                     <Text underline>{
-                        translate_dict[phase]
+                        translate_dict[phase] || phase
                     }</Text>
                 </Tooltip>
             :
             
-            translate_dict[phase]
+            translate_dict[phase] || phase
         }
         status={stuatus_group[type][phase] || 'default'}
     />
@@ -2409,10 +2409,10 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
         })()
     }, [props.open])
 
-    if (!phase) {
+    if (!phase)
         return undefined
-    }
-    return <Modal open={props.open} width={'70%'} onCancel={props.onCancel} footer={false}>
+    
+    return <Modal open={props.open} width='70%' onCancel={props.onCancel} footer={false}>
         <div className='dashboard-for-one-name'>
             <PageHeader
                 title={
@@ -2446,8 +2446,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                         <Popover title={source_key}
                             mouseEnterDelay={0}
                             mouseLeaveDelay={0}
-                            placement={'left'}
-
+                            placement='left'
                             content={
                                 source_key_detail ? <SourceKeyPanel single_sourceKey_detail={source_key_detail[source_key]}/> : undefined
 
@@ -2583,7 +2582,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
 
     const [selectable_names, set_selectable_names] = useState<string[]>([])
 
-    const [init_value_of_restore_modal, set_init_value_of_restore_modal] = useState<{ dolphindb_namespace: string, dolphindb_name:string }>()
+    const [init_value_of_restore_modal, set_init_value_of_restore_modal] = useState<{ dolphindb_namespace: string, dolphindb_name: string }>()
 
     const [selected_remote_type, set_selected_remote_type] = useState<string>()
 
@@ -2718,7 +2717,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
         {!_.isEmpty(fetched_list_of_namesace) ?
             <Table dataSource={fetched_list_of_namesace.items.map(
                 data_item => {
-                    const {message, create_timestamp, phase, name} = data_item
+                    const { message, create_timestamp, phase, name } = data_item
                     return {
                         name: <Link onClick={() => {
                             set_name_of_current_opened_detail(name)
