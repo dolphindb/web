@@ -107,24 +107,18 @@ export function Shell () {
         ;(async () => {
             ws = await connect_websocket(url, {
                 on_close (event, ws) {
-                    term.writeln(
-                        t('连接已关闭')
-                    )
+                    term.writeln(t('连接已关闭'))
                 },
                 
-                on_error (event, ws) {
-                    term.writeln(
-                        t('连接出错: ') + url
-                    )
+                on_error (error, ws) {
+                    term.writeln(error.toString())
                 },
                 
-                on_message ({ data }, ws) {
+                on_message (data, ws) {
                     if (typeof data === 'string')
                         term.write(data)
                     else
-                        term.write(
-                            new Uint8Array(data)
-                        )
+                        term.write(new Uint8Array(data))
                 }
             })
             
