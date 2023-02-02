@@ -1283,9 +1283,6 @@
     "运行正常": {
         "en": "Available"
     },
-    "准备中": {
-        "en": "Ready"
-    },
     "等待调度": {
         "en": "Unschedulable"
     },
@@ -1297,5 +1294,11 @@
     },
     "已暂停": {
         "en": "Paused"
+    },
+    "准备中_ready": {
+        "en": "Ready"
+    },
+    "准备中_processing": {
+        "en": "Processing"
     }
 }
