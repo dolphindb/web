@@ -1566,6 +1566,14 @@ const backup_statuses = {
     Cleaning: 'processing',
 } satisfies Record<string, PresetStatusColorType>
 
+const restore_statuses = {
+    Failed: 'error',
+    Complete: 'success',
+    
+    Scheduling: 'processing',
+    Running: 'processing',
+} satisfies Record<string, PresetStatusColorType>
+
 function ClusterOrBackupStatus ({
     phase,
     message,
@@ -1573,12 +1581,13 @@ function ClusterOrBackupStatus ({
 }: {
     phase: string
     message?: string
-    type: 'cluster' | 'backup'
+    type: 'cluster' | 'backup' | 'restore'
 }) {
     phase ||= 'Processing'
     const stuatus_group = {
         cluster: cluster_statuses,
-        backup: backup_statuses
+        backup: backup_statuses,
+        restore: restore_statuses
     }
     return <Badge
         className='badge-status'
@@ -2542,8 +2551,8 @@ const translate_dict = {
     dolphindb_name: t('名称'),
     type: t('类型'),
     Available: t('运行正常'),
-    Ready: t('准备中'),
-    Progressing: t('准备中'),
+    Ready: t('准备中', { context: 'ready' }),
+    Progressing: t('准备中', { context: 'processing' }),
     Unschedulable: t('等待调度'),
     Unavailable: t('故障'),
     Unknown: t('未知'),
@@ -2730,6 +2739,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                         operation:
                                 <Space>
                                     <Popconfirm
+                                        disabled={ phase === 'Cleaning'}
                                         title={t('确认删除？')}
                                         onConfirm={async () => {
                                             await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${name}`, { method: 'delete' })
@@ -3133,7 +3143,7 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
 
                         create_timestamp: create_timestamp,
 
-                        phase: <ClusterOrBackupStatus phase={phase} message={message} type='backup' />,
+                        phase: <ClusterOrBackupStatus phase={phase} message={message} type='restore' />,
                         
                         operation:
                             [
@@ -3483,7 +3493,7 @@ type ListOfBackups = {
     items: {
         name: string
         create_timestamp: string
-        phase: string
+        phase: keyof typeof backup_statuses
         message: string
     }[]
     page_num: number
@@ -3508,6 +3518,8 @@ type OneBakcupDetail = {
 }
 
 type ListOfRestores = ListOfBackups
+// 此处 ListOfRestores 和 ListOfBackups并不完全一样，它们的items.phase相差一项'Cleaning'，但是在类型使用过程中几乎无差别
+
 type OneRestoreDetail = OneBakcupDetail & { dolphindb_name:string, dolphindb_namespace:string, from:string }
 
 type SourceKeyDetail = 
