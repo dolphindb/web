@@ -16,6 +16,7 @@ function DatanodeConfig () {
                 },
                 { name: 'logFile', value: '', default: 'DolphinDBlog', tip: 'The path and name of the log file' },
                 { name: 'logLevel', value: ['DEBUG', 'INFO', 'WARNING', 'ERROR'], default: '= INFO', tip: 'The retention hierarchy of log files.' },
+                { name: 'logRetentionTime', value: '', default: '30', tip: 'Set the retention time of syslog. Logs older than the specified retention time will be deleted. The default value is 30, the unit is "day", and the type is floating point, such as: 0.5 means 12 hours. If set to 0, it means no cleanup.' },
                 { name: 'redoLogPurgeInterval', value: 'int', default: '30', tip: ' The time interval (s) for deleting redo logs.' },
                 { name: 'redoLogPurgeLimit', value: 'int', default: '4000', tip: 'The maximum amount of disk space (MB) used by redo logs.' },
                 {
