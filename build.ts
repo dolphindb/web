@@ -71,7 +71,6 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
             '@ant-design/plots/dist/plots.min.js',
             '@ant-design/plots/dist/plots.min.js.map',
             'echarts/dist/echarts.min.js',
-            'echarts/dist/echarts.min.js.map',
         ].map(async fp =>
             fcopy(`${fpd_node_modules}${fp}`, `${fpd_vendors}${fp}`)
         ),
