@@ -894,16 +894,16 @@ function Editor () {
                 })
                 
                 
-                let { widget } = editor.getContribution('editor.contrib.suggestController') as any
+                // let { widget } = editor.getContribution('editor.contrib.suggestController') as any
                 
-                if (widget) {
-                    const { value: suggest_widget } = widget
-                    suggest_widget._setDetailsVisible(true)
-                    // suggest_widget._persistedSize.store({
-                    //     width: 200,
-                    //     height: 256
-                    // })
-                }
+                // if (widget) {
+                //     const { value: suggest_widget } = widget
+                //     suggest_widget._setDetailsVisible(true)
+                //     // suggest_widget._persistedSize.store({
+                //     //     width: 200,
+                //     //     height: 256
+                //     // })
+                // }
                 
                 inject_css()
                 
