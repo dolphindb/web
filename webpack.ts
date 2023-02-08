@@ -62,6 +62,7 @@ const config: Configuration = {
         dayjs: 'dayjs',
         '@ant-design/icons': 'icons',
         '@ant-design/plots': 'Plots',
+        echarts: 'echarts',
     },
     
     resolve: {
