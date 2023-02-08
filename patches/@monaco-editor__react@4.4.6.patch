@@ -1,0 +1,12 @@
+diff --git a/package.json b/package.json
+index 50bd5ba63f5be1ee84327e28dde160621b0201f6..47d48454ba90dc2766f0bfc7d75f95f3f0f3b38d 100644
+--- a/package.json
++++ b/package.json
+@@ -3,6 +3,7 @@
+   "version": "4.4.6",
+   "description": "Monaco Editor for React - use the monaco-editor in any React application without needing to use webpack (or rollup/parcel/etc) configuration files / plugins",
+   "author": "Suren Atoyan <contact@surenatoyan.com>",
++  "type": "module",
+   "main": "lib/cjs/index.js",
+   "module": "lib/es/index.js",
+   "unpkg": "lib/umd/monaco-react.min.js",

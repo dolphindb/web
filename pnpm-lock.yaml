@@ -1,5 +1,10 @@
 lockfileVersion: '6.0'
 
+patchedDependencies:
+  '@monaco-editor/react@4.4.6':
+    hash: fzxvse5qvjl4n7n4h42f6hxc2y
+    path: patches/@monaco-editor__react@4.4.6.patch
+
 dependencies:
   '@ant-design/icons':
     specifier: ^5.0.1
@@ -12,7 +17,7 @@ dependencies:
     version: 7.6.1(antd@5.2.0)(react-dom@18.2.0)(react@18.2.0)
   '@monaco-editor/react':
     specifier: ^4.4.6
-    version: 4.4.6(monaco-editor@0.35.0)(react-dom@18.2.0)(react@18.2.0)
+    version: 4.4.6(patch_hash=fzxvse5qvjl4n7n4h42f6hxc2y)(monaco-editor@0.35.0)(react-dom@18.2.0)(react@18.2.0)
   antd:
     specifier: ^5.2.0
     version: 5.2.0(react-dom@18.2.0)(react@18.2.0)
@@ -1805,7 +1810,7 @@ packages:
       state-local: 1.0.7
     dev: false
 
-  /@monaco-editor/react@4.4.6(monaco-editor@0.35.0)(react-dom@18.2.0)(react@18.2.0):
+  /@monaco-editor/react@4.4.6(patch_hash=fzxvse5qvjl4n7n4h42f6hxc2y)(monaco-editor@0.35.0)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-Gr3uz3LYf33wlFE3eRnta4RxP5FSNxiIV9ENn2D2/rN8KgGAD8ecvcITRtsbbyuOuNkwbuHYxfeaz2Vr+CtyFA==}
     peerDependencies:
       monaco-editor: '>= 0.25.0 < 1'
@@ -1818,6 +1823,7 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
+    patched: true
 
   /@polka/url@1.0.0-next.21:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}

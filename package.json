@@ -67,5 +67,10 @@
         "xterm-addon-fit": "^0.7.0",
         "xterm-addon-web-links": "^0.8.0",
         "xterm-addon-webgl": "^0.14.0"
+    },
+    "pnpm": {
+        "patchedDependencies": {
+            "@monaco-editor/react@4.4.6": "patches/@monaco-editor__react@4.4.6.patch"
+        }
     }
 }
