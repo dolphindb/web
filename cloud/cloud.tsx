@@ -2542,6 +2542,7 @@ const translate_dict = {
     path: t('共享目录', { context: 'backup' }),
     Scheduling: t('调度中'),
     Running: t('运行中'),
+    Pending: t('准备中', { context: 'pending'}),
     Complete: t('运行完毕'),
     Cleaning: t('清理中'),
     Cleaned: t('清理完成'),
