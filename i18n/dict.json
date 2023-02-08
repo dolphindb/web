@@ -1300,5 +1300,8 @@
     },
     "准备中_processing": {
         "en": "Processing"
+    },
+    "准备中_pending": {
+        "en": "Pending"
     }
 }
