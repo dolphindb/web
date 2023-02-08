@@ -34,6 +34,10 @@ https://github.com/dolphindb/Tutorials_EN/blob/master/k8s_deployment.md
 # Install the latest version of nodejs
 # https://nodejs.org/en/download/current/
 
+# Install the pnpm package manager
+corepack enable
+corepack prepare pnpm@latest --activate
+
 git clone https://github.com/dolphindb/web.git
 
 cd web
@@ -79,4 +83,4 @@ rsync -av --delete ./web.cloud/ jenkins@192.168.1.204:/hdd/ftp/origin/cloud/
 ```
 
 #### hacks
-Open node_modules/@monaco-editor/react/package.json, add type: "module" to fix `<MonacoEditor>`'s ts type error
+The project patched @monaco-editor/react/package.json, adding type: "module" to fix `<MonacoEditor>`'s ts type error, which will be automatically modified when installing with pnpm

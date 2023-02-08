@@ -35,6 +35,10 @@ https://github.com/dolphindb/Tutorials_CN/blob/master/%E5%AE%89%E8%A3%85%E5%92%8
 # 安装最新版的 nodejs
 # https://nodejs.org/en/download/current/
 
+# 安装 pnpm 包管理器
+corepack enable
+corepack prepare pnpm@latest --activate
+
 git clone https://github.com/dolphindb/web.git
 
 cd web
@@ -81,4 +85,4 @@ rsync -av --delete ./web.cloud/ jenkins@192.168.1.204:/hdd/ftp/origin/cloud/
 
 
 #### hacks
-打开 node_modules/@monaco-editor/react/package.json, 加入 type: "module" ，用来修复 `<MonacoEditor>` 的 ts 类型报错
+项目以 patch 的形式在 @monaco-editor/react/package.json, 加入 type: "module" ，用来修复 `<MonacoEditor>` 的 ts 类型报错，使用 pnpm 安装时会自动修改
