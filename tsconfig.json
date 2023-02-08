@@ -54,7 +54,7 @@
         // --- features
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "preserveSymlinks": true,
+        "preserveSymlinks": false,
         "jsx": "react",
         "removeComments": false,
         "preserveConstEnums": true,
