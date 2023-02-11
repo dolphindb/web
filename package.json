@@ -71,7 +71,8 @@
     },
     "pnpm": {
         "patchedDependencies": {
-            "@monaco-editor/react@4.4.6": "patches/@monaco-editor__react@4.4.6.patch"
+            "@monaco-editor/react@4.4.6": "patches/@monaco-editor__react@4.4.6.patch",
+            "webpack@5.75.0": "patches/webpack@5.75.0.patch"
         }
     }
 }
