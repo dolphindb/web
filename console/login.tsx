@@ -19,8 +19,8 @@ export function Login () {
                 className='form'
                 layout='vertical'
                 initialValues={{
-                    username: '',
-                    password: ''
+                    username: model.dev ? 'admin' : '',
+                    password: model.dev ? '123456' : ''
                 }}
                 onFinish={async values => {
                     try {

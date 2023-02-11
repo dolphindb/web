@@ -80,7 +80,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async init () {
-        console.log(t('console 开始初始化'))
+        console.log(t('web 开始初始化，当前处于{{mode}}模式', { mode: this.dev ? t('开发') : t('生产') }))
         
         /** 检测 ddb 是否通过 nginx 代理，部署在子路径下 */
         const is_subpath = location.pathname === '/dolphindb/'
@@ -93,6 +93,13 @@ export class DdbModel extends Model<DdbModel> {
             await this.login_by_ticket()
         } catch {
             console.log(t('ticket 登录失败'))
+            
+            if (this.dev)
+                try {
+                    await this.login_by_password('admin', '123456')
+                } catch {
+                    console.log(t('使用默认账号密码登录失败'))
+                }
         }
         
         await Promise.all([
