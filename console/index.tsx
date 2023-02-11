@@ -288,12 +288,6 @@ function Perf () {
                 </Descriptions.Item>
             </Descriptions >
             <Descriptions className='table' column={2} bordered size='small' title={t('磁盘')}>
-                <Descriptions.Item label={t('当前连接')}>
-                    {node.connectionNum}
-                </Descriptions.Item>
-                <Descriptions.Item label={t('最大连接')}>
-                    {node.maxConnections}
-                </Descriptions.Item>
                 <Descriptions.Item label={t('磁盘读速率')}>
                     {Number(node.diskReadRate).to_fsize_str()}/s
                 </Descriptions.Item>
@@ -317,6 +311,12 @@ function Perf () {
                 </Descriptions.Item>
             </Descriptions >
             <Descriptions className='table' column={2} bordered size='small' title={t('网络', { context: "perf" })}>
+                <Descriptions.Item label={t('当前连接')}>
+                    {node.connectionNum}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('最大连接')}>
+                    {node.maxConnections}
+                </Descriptions.Item>
                 <Descriptions.Item label={t('网络接收速率')}>
                     {Number(node.networkRecvRate).to_fsize_str()}/s
                 </Descriptions.Item>
