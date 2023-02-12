@@ -70,9 +70,9 @@ export class DdbModel extends Model<DdbModel> {
     constructor () {
         super()
         
-        this.dev = location.pathname.endsWith('/console/')
-        
         const params = new URLSearchParams(location.search)
+        
+        this.dev = location.pathname.endsWith('/console/') || params.get('dev') === '1'
         this.header = params.get('header') !== '0'
         this.code_template = params.get('code-template') === '1'
         this.redirection = params.get('redirection') as PageViews
