@@ -68,6 +68,8 @@ const config: Configuration = {
     resolve: {
         extensions: ['.js'],
         
+        symlinks: true,
+        
         plugins: [{
             apply (resolver) {
                 const target = resolver.ensureHook('file')
