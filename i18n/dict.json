@@ -1303,5 +1303,17 @@
     },
     "准备中_pending": {
         "en": "Pending"
+    },
+    "web 开始初始化，当前处于{{mode}}模式": {
+        "en": "The web starts to initialize and is currently in {{mode}} mode"
+    },
+    "开发": {
+        "en": "development"
+    },
+    "生产": {
+        "en": "production"
+    },
+    "使用默认账号密码登录失败": {
+        "en": "Failed to log in with the default account and password"
     }
 }
