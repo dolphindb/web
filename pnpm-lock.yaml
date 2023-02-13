@@ -28,8 +28,8 @@ dependencies:
     specifier: ^1.11.7
     version: 1.11.7
   dolphindb:
-    specifier: ^2.0.923
-    version: 2.0.923(react-dom@18.2.0)
+    specifier: ^2.0.924
+    version: 2.0.924(react-dom@18.2.0)
   echarts:
     specifier: ^5.4.1
     version: 5.4.1
@@ -93,8 +93,8 @@ devDependencies:
     specifier: ^18.13.0
     version: 18.13.0
   '@types/react':
-    specifier: ^18.0.27
-    version: 18.0.27
+    specifier: ^18.0.28
+    version: 18.0.28
   '@types/react-dom':
     specifier: ^18.0.10
     version: 18.0.10
@@ -141,8 +141,8 @@ devDependencies:
     specifier: ^5.75.0
     version: 5.75.0(patch_hash=faqtortd22qroflotam232alda)
   webpack-bundle-analyzer:
-    specifier: ^4.7.0
-    version: 4.7.0
+    specifier: ^4.8.0
+    version: 4.8.0
 
 packages:
 
@@ -1753,6 +1753,11 @@ packages:
     engines: {node: '>=10'}
     dev: false
 
+  /@discoveryjs/json-ext@0.5.7:
+    resolution: {integrity: sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==}
+    engines: {node: '>=10.0.0'}
+    dev: true
+
   /@emotion/hash@0.8.0:
     resolution: {integrity: sha512-kBJtf7PH6aWwZ6fka3zQ0p6SBYzx4fl1LoZXE2RrnYST9Xljm7WfKJrU4g/Xr3Beg72MLrp1AWNUmuYJTL7Cow==}
     dev: false
@@ -2198,11 +2203,11 @@ packages:
   /@types/react-dom@18.0.10:
     resolution: {integrity: sha512-E42GW/JA4Qv15wQdqJq8DL4JhNpB3prJgjgapN3qJT9K2zO5IIAQh4VXvCEDupoqAwnz0cY4RlXeC/ajX5SFHg==}
     dependencies:
-      '@types/react': 18.0.27
+      '@types/react': 18.0.28
     dev: true
 
-  /@types/react@18.0.27:
-    resolution: {integrity: sha512-3vtRKHgVxu3Jp9t718R9BuzoD4NcQ8YJ5XRzsSKxNDiDonD2MXIT1TmSkenxuCycZJoQT5d2vE8LwWJxBC1gmA==}
+  /@types/react@18.0.28:
+    resolution: {integrity: sha512-RD0ivG1kEztNBdoAK7lekI9M+azSnitIn85h4iOiaLjaTrMjzslhaqCGaI4IyCJ1RljWiLCEu4jyrLLgqxBTew==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
@@ -3315,8 +3320,8 @@ packages:
     resolution: {integrity: sha512-53rsFbGdwMwlF7qvCt0ypLM5V5/Mbl0szB7GPN8y9NCcbknYOeVVXdrXEq+90IwAfrrzt6Hd+u2E2ntakICU8w==}
     dev: false
 
-  /dolphindb@2.0.923(react-dom@18.2.0):
-    resolution: {integrity: sha512-QX1nLUaP9gU4Ut4wYQrysTZLvy//6hlXjouqPe9vbyqnTW1QRl/ZdiuRAvn6y5rDnMHyAoEOrR9sEMq/ZUa3Kw==}
+  /dolphindb@2.0.924(react-dom@18.2.0):
+    resolution: {integrity: sha512-Gy9ps89z26RfWwTKta2UlVVbuyfopZWgqxMiHVxZbfA+ewTF+7ZJcDQfBevB4+7X/+CeMKSBfsKhDGBhlXoSOQ==}
     engines: {node: '>=19.3.0'}
     dependencies:
       dayjs: 1.11.7
@@ -6678,11 +6683,12 @@ packages:
       defaults: 1.0.4
     dev: false
 
-  /webpack-bundle-analyzer@4.7.0:
-    resolution: {integrity: sha512-j9b8ynpJS4K+zfO5GGwsAcQX4ZHpWV+yRiHDiL+bE0XHJ8NiPYLTNVQdlFYWxtpg9lfAQNlwJg16J9AJtFSXRg==}
+  /webpack-bundle-analyzer@4.8.0:
+    resolution: {integrity: sha512-ZzoSBePshOKhr+hd8u6oCkZVwpVaXgpw23ScGLFpR6SjYI7+7iIWYarjN6OEYOfRt8o7ZyZZQk0DuMizJ+LEIg==}
     engines: {node: '>= 10.13.0'}
     hasBin: true
     dependencies:
+      '@discoveryjs/json-ext': 0.5.7
       acorn: 8.8.2
       acorn-walk: 8.2.0
       chalk: 4.1.2
