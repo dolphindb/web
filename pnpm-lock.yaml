@@ -28,8 +28,8 @@ dependencies:
     specifier: ^1.11.7
     version: 1.11.7
   dolphindb:
-    specifier: ^2.0.926
-    version: 2.0.926(react-dom@18.2.0)
+    specifier: ^2.0.927
+    version: 2.0.927(react-dom@18.2.0)
   echarts:
     specifier: ^5.4.1
     version: 5.4.1
@@ -117,11 +117,11 @@ devDependencies:
     specifier: ^18.2.0
     version: 18.2.0
   sass:
-    specifier: ^1.58.0
-    version: 1.58.0
+    specifier: ^1.58.1
+    version: 1.58.1
   sass-loader:
     specifier: ^13.2.0
-    version: 13.2.0(sass@1.58.0)(webpack@5.75.0)
+    version: 13.2.0(sass@1.58.1)(webpack@5.75.0)
   source-map-loader:
     specifier: ^4.0.1
     version: 4.0.1(webpack@5.75.0)
@@ -3320,8 +3320,8 @@ packages:
     resolution: {integrity: sha512-53rsFbGdwMwlF7qvCt0ypLM5V5/Mbl0szB7GPN8y9NCcbknYOeVVXdrXEq+90IwAfrrzt6Hd+u2E2ntakICU8w==}
     dev: false
 
-  /dolphindb@2.0.926(react-dom@18.2.0):
-    resolution: {integrity: sha512-DiHeP94UHGQoTiYKLDwPSbNuTcQNO6Z1vdz/Q1V88bQ8T6QiTBGqCvfvI9SPppLJXfSE6adkphhicGGoBiK0kA==}
+  /dolphindb@2.0.927(react-dom@18.2.0):
+    resolution: {integrity: sha512-jS7ClZ9IqvHGhErUX97G0ZdZA6BzUPgkYXzG96Pxs/Tu3Uzj09klcgpVeNBTZxT9bp/pCpkdPPGkf2ijPReFLA==}
     engines: {node: '>=19.3.0'}
     dependencies:
       dayjs: 1.11.7
@@ -5832,7 +5832,7 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /sass-loader@13.2.0(sass@1.58.0)(webpack@5.75.0):
+  /sass-loader@13.2.0(sass@1.58.1)(webpack@5.75.0):
     resolution: {integrity: sha512-JWEp48djQA4nbZxmgC02/Wh0eroSUutulROUusYJO9P9zltRbNN80JCBHqRGzjd4cmZCa/r88xgfkjGD0TXsHg==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
@@ -5853,12 +5853,12 @@ packages:
     dependencies:
       klona: 2.0.6
       neo-async: 2.6.2
-      sass: 1.58.0
+      sass: 1.58.1
       webpack: 5.75.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     dev: true
 
-  /sass@1.58.0:
-    resolution: {integrity: sha512-PiMJcP33DdKtZ/1jSjjqVIKihoDc6yWmYr9K/4r3fVVIEDAluD0q7XZiRKrNJcPK3qkLRF/79DND1H5q1LBjgg==}
+  /sass@1.58.1:
+    resolution: {integrity: sha512-bnINi6nPXbP1XNRaranMFEBZWUfdW/AF16Ql5+ypRxfTvCRTTKrLsMIakyDcayUt2t/RZotmL4kgJwNH5xO+bg==}
     engines: {node: '>=12.0.0'}
     hasBin: true
     dependencies:
