@@ -218,7 +218,7 @@ function Dict ({
         
         <div className='bottom-bar'>
             <div className='info'>
-                <span className='desc'>{_obj.rows} {t('个键')} { objref ? `(${Number(objref.bytes).to_fsize_str()}) ` : '' }</span>
+                <span className='desc'>{_obj.rows} {t('个键')}{ objref ? ` (${Number(objref.bytes).to_fsize_str()}) ` : '' }</span>
                 <span className='type'>{t('的词典')}</span>
             </div> 
         </div>
@@ -613,7 +613,7 @@ function Table ({
         
         <div className='bottom-bar'>
             <div className='info'>
-                <span className='desc'>{ info.rows ? `${info.rows} ${t('行')} ` : ' ' }{info.cols} {t('列')} { objref ? `(${Number(objref.bytes).to_fsize_str()}) ` : '' }</span>
+                <span className='desc'>{ info.rows ? `${info.rows} ${t('行')} ` : ' ' }{info.cols} {t('列')}{ objref ? ` (${Number(objref.bytes).to_fsize_str()}) ` : '' }</span>
                 <span className='type'>{t('的表格')}</span>
                 { info.name && <span className='name'>{info.name}</span> }
             </div>
@@ -949,7 +949,7 @@ export function StreamingTable ({
         
         <div className='bottom-bar'>
             <div className='info'>
-                <span className='desc'>{t('窗口')}: {winsize} {t('行')} {data.rows} {t('列')}, {t('偏移量')}: {offset}</span>
+                <span className='desc'>{t('窗口')}: {winsize} {t('行')} {data.rows} {t('列')}, {t('偏移量')}: {offset}</span> 
                 <span className='type'>{t('的流表')}</span>
                 <span className='name'>{table}</span>
             </div>
@@ -1238,7 +1238,7 @@ function Matrix ({
         
         <div className='bottom-bar'>
             <div className='info'>
-                <span className='desc'>{info.rows} {t('行')} {info.cols} {t('列')} { objref ? `(${Number(objref.bytes).to_fsize_str()}) ` : '' }</span>
+                <span className='desc'>{info.rows} {t('行')} {info.cols} {t('列')}{ objref ? ` (${Number(objref.bytes).to_fsize_str()}) ` : '' }</span>
                 <span className='type'>{t('的矩阵')}</span>
                 { info.name && <span className='name'>{info.name}</span> }
             </div>
