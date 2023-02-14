@@ -10,6 +10,7 @@ import {
     Button,
     Switch,
     Select,
+    Descriptions,
     
     type TableColumnType,
 } from 'antd'
@@ -651,14 +652,14 @@ function Table ({
 
 export function StreamingTable ({
     table,
-    action,
-    autologin = false,
+    username,
+    password,
     ctx,
     options,
 }: {
     table: string
-    action?: string
-    autologin?: boolean
+    username?: string
+    password?: string
     ctx: Context
     options?: InspectOptions
 }) {
@@ -694,36 +695,38 @@ export function StreamingTable ({
     
     
     useEffect(() => {
-        ;(async () => {
-            let ddb = rddb.current = new DDB(undefined, {
-                autologin,
-                streaming: {
-                    table,
-                    action,
-                    handler (message) {
-                        console.log(message)
-                        
-                        if (message.error) {
-                            console.error(message.error)
-                            return
-                        }
-                        
-                        const time = new Date().getTime()
-                        
-                        rreceived.current += message.rows
-                        
-                        // 冻结或者未到更新时间
-                        if (rrate.current === -1 || time - rlast.current < rrate.current)
-                            return
-                        
-                        rlast.current = time
-                        rerender({ })
+        let ddb = rddb.current = new DDB(undefined, {
+            autologin: Boolean(username),
+            username,
+            password,
+            streaming: {
+                table,
+                handler (message) {
+                    console.log(message)
+                    
+                    if (message.error) {
+                        console.error(message.error)
+                        return
                     }
+                    
+                    const time = new Date().getTime()
+                    
+                    rreceived.current += message.rows
+                    
+                    // 冻结或者未到更新时间
+                    if (rrate.current === -1 || time - rlast.current < rrate.current)
+                        return
+                    
+                    rlast.current = time
+                    rerender({ })
                 }
-            })
-            
-            let ddbapi = rddbapi.current = new DDB()
-            
+            }
+        })
+        
+        let ddbapi = rddbapi.current = new DDB()
+        
+        
+        ;(async () => {
             // LOCAL: 创建流表
             await ddbapi.eval(
                 'try {\n' +
@@ -750,6 +753,8 @@ export function StreamingTable ({
             
             rerender({ })
         })()
+        
+        return () => { ddb?.disconnect() }
     }, [ ])
     
     
