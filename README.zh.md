@@ -43,46 +43,42 @@ git clone https://github.com/dolphindb/web.git
 
 cd web
 
-npm install --force
+pnpm install --force
 
 # 参考 package.json 中的 scripts
 
 # 构建 console
-npm run build
+pnpm run build
 # 完成后产物在 web 文件夹中
 
 # 构建 cloud
-npm run build.cloud
+pnpm run build.cloud
 # 完成后产物在 web.cloud 文件夹中
 
 # 开发
-npm run dev
+pnpm run dev
 
 # 扫描词条
-npm run scan
+pnpm run scan
 # 手动补全未翻译词条
 # 再次运行扫描以更新词典文件 dict.json
-npm run scan
+pnpm run scan
 ```
 
 #### CI 构建
 ```shell
 # 安装项目依赖
-npm ci --include=dev
+pnpm ci --include=dev
 
 # 构建 console 项目
-npm run build
+pnpm run build
 
 # 构建结束后 ./web/ 文件夹中的所有文件作为 dolphindb server 目录中的 web/
 rsync -av --delete ./web/ jenkins@192.168.1.204:/hdd/ftp/origin/console/
 
 # 构建 cloud 项目
-npm run build.cloud
+pnpm run build.cloud
 
 # 构建结束后 ./web.cloud/ 文件夹中的所有文件作为产物
 rsync -av --delete ./web.cloud/ jenkins@192.168.1.204:/hdd/ftp/origin/cloud/
 ```
-
-
-#### hacks
-项目以 patch 的形式在 @monaco-editor/react/package.json, 加入 type: "module" ，用来修复 `<MonacoEditor>` 的 ts 类型报错，使用 pnpm 安装时会自动修改

@@ -42,45 +42,42 @@ git clone https://github.com/dolphindb/web.git
 
 cd web
 
-npm install --force
+pnpm install --force
 
 # Refer to scripts in package.json
 
 # build console
-npm run build
+pnpm run build
 # After completion the product is in the web folder
 
 # build cloud
-npm run build.cloud
+pnpm run build.cloud
 # After completion, the product is in the web.cloud folder
 
 # development
-npm run dev
+pnpm run dev
 
 # scan entries
-npm run scan
+pnpm run scan
 # Manually complete untranslated entries
 # Run the scan again to update the dictionary file dict.json
-npm run scan
+pnpm run scan
 ```
 
 #### CI builds
 ```shell
 # Install project dependencies
-npm ci --include=dev
+pnpm ci --include=dev
 
 # Build the console project
-npm run build
+pnpm run build
 
 # After the build is complete, all files in the ./web/ folder are used as web/ in the dolphindb server directory
 rsync -av --delete ./web/ jenkins@192.168.1.204:/hdd/ftp/origin/console/
 
 # build cloud project
-npm run build.cloud
+pnpm run build.cloud
 
 # After the build finishes, all files in the ./web.cloud/ folder are used as artifacts
 rsync -av --delete ./web.cloud/ jenkins@192.168.1.204:/hdd/ftp/origin/cloud/
 ```
-
-#### hacks
-The project patched @monaco-editor/react/package.json, adding type: "module" to fix `<MonacoEditor>`'s ts type error, which will be automatically modified when installing with pnpm
