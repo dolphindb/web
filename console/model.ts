@@ -27,7 +27,10 @@ export class DdbModel extends Model<DdbModel> {
     inited = false
     
     /** 在本地开发模式 */
-    dev: boolean
+    dev = false
+    
+    /** 通过 cdn 访问的 web */
+    cdn = false
     
     collapsed = localStorage.getItem(storage_keys.collapsed) === 'true'
     
@@ -73,6 +76,7 @@ export class DdbModel extends Model<DdbModel> {
         const params = new URLSearchParams(location.search)
         
         this.dev = location.pathname.endsWith('/console/') || params.get('dev') === '1'
+        this.cdn = location.hostname === 'cdn.dolphindb.cn' || params.get('cdn') === '1'
         this.header = params.get('header') !== '0'
         this.code_template = params.get('code-template') === '1'
         this.redirection = params.get('redirection') as PageViews
