@@ -253,6 +253,15 @@ export let webpack = {
             config.mode = 'production'
             config.output.path = is_cloud ? fpd_out_cloud : fpd_out_console
             config.cache = false
+            
+            const { LicenseWebpackPlugin } = await import('license-webpack-plugin')
+            config.plugins.push(
+                new LicenseWebpackPlugin({
+                    perChunkOutput: false,
+                    outputFilename: 'ThirdPartyNotice.txt',
+                    excludedPackageTest: pkgname => pkgname === 'xshell' || pkgname === 'react-object-model'
+                }) as any
+            )
         }
         
         this.compiler = Webpack(config)

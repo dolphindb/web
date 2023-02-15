@@ -15,8 +15,8 @@ if (process.argv.includes('cloud')) {
         ... ['index.html', 'cloud.svg', 'ddb.png'].map(async fname => 
             fcopy(fpd_src_cloud + fname, fpd_out_cloud + fname)),
         
-        fcopy(`${fpd_root}README.md`, `${fpd_out_cloud}README.md`),
-        fcopy(`${fpd_root}README.zh.md`, `${fpd_out_cloud}README.zh.md`),
+        ... ['README.md', 'README.zh.md', 'LICENSE.txt'].map(async fname => 
+            fcopy(fpd_root + fname, fpd_out_cloud + fname)),
         
         copy_vendors(fpd_out_cloud, false),
         
@@ -32,8 +32,8 @@ if (process.argv.includes('cloud')) {
         ... ['index.html', 'window.html', 'ddb.svg'].map(async fname => 
             fcopy(fpd_src_console + fname, fpd_out_console + fname)),
         
-        fcopy(`${fpd_root}README.md`, `${fpd_out_console}README.md`),
-        fcopy(`${fpd_root}README.zh.md`, `${fpd_out_console}README.zh.md`),
+        ... ['README.md', 'README.zh.md', 'LICENSE.txt'].map(async fname => 
+            fcopy(fpd_root + fname, fpd_out_console + fname)),
         
         copy_vendors(fpd_out_console, true),
         
