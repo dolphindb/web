@@ -197,7 +197,7 @@ function License () {
             </div>
         }
     >
-        <Tag className='license' color='#f2f2f2'>{auth}</Tag>
+        <Tag className='license' color='#f2f2f2'>{auth} v{version}</Tag>
     </Popover>
 }
 
@@ -247,7 +247,7 @@ function Status () {
         }
     >
         <Tag
-            className='node-info' 
+            className='node-info'
             color='#f2f2f2'
             onMouseOver={() => { model.get_cluster_perf() }}
         >{lowercase_node_types[node_type]}</Tag>
