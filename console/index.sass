@@ -205,13 +205,18 @@ html, body
     .ant-card
         box-shadow: unset
         
+        .ant-card-head
+            border-bottom: none !important
+        
+        .ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-label, .ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-content
+            padding: 2px 6px
+        
         .ant-card-head-title
             font-weight: bold
-    
-    .license-card
-        .ant-card-head
-            border-bottom: 0px
-            margin-bottom: -10px
+        
+        .build-time
+            margin-top: 10px
+            color: #e6e6e6
     
     .refresh
         cursor: pointer
@@ -266,6 +271,9 @@ html, body
     align-items: stretch
     justify-content: space-around
     gap: 10px
+    
+    .ant-card-head
+        border-bottom: none !important
     
     .ant-descriptions-header
         margin-bottom: 4px
