@@ -515,26 +515,30 @@ interface DdbNode {
     
     jobLoad: number
     
+    // 下面这些统计时间都不准确，和 timer 结果不一致，不要使用
+    // ex1 = table(rand(1.0000,10000000) as c1)
+    // timer select count(*) from ex1 where c1 > 0.5 and c1 <=0.8
+    // 执行十次后，实际执行时间和返回的不一致
     /** 单位 ns */
     medLast10QueryTime: bigint
     maxLast10QueryTime: bigint
     medLast100QueryTime: bigint
     maxLast100QueryTime: bigint
     maxRunningQueryTime: bigint
-
+    
     diskCapacity: bigint
     diskFreeSpace: bigint
     diskFreeSpaceRatio: number
-
+    
     lastMinuteWriteVolume: bigint
     lastMinuteReadVolume: bigint
-
+    
     lastMinuteNetworkSend: bigint
     lastMinuteNetworkRecv: bigint
-
+    
     lastMsgLatency: bigint
     cumMsgLatency: bigint
-
+    
     publicName: string
     
     isLeader: boolean
