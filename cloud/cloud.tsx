@@ -3444,6 +3444,7 @@ function useInterval(callback, delay) {
 
     useEffect(() => {
         function tick() {
+            // @ts-ignore
             savedCallback.current();
         }
 
