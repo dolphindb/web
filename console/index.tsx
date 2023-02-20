@@ -1,4 +1,5 @@
 import 'xshell/scroll-bar.sass'
+import { delta2str } from 'xshell/utils.browser.js'
 
 import './index.sass'
 
@@ -360,16 +361,16 @@ function Perf () {
             </Descriptions >
             <Descriptions className='table' column={2} bordered size='small' title={t('查询')}>
                 <Descriptions.Item label={t('前 10 个查询耗费中间值')}>
-                    {Number(node.medLast10QueryTime)} ms
+                    {delta2str(Number(node.medLast10QueryTime)/(10**6))}
                 </Descriptions.Item>
                 <Descriptions.Item label={t('前 10 个查询耗费最大值')}>
-                    {Number(node.maxLast10QueryTime)} ms
+                    {delta2str(Number(node.maxLast10QueryTime)/(10**6))}
                 </Descriptions.Item>
                 <Descriptions.Item label={t('前 100 个查询耗费中间值')}>
-                    {Number(node.medLast100QueryTime)} ms
+                    {delta2str(Number(node.medLast100QueryTime)/(10**6))}
                 </Descriptions.Item>
                 <Descriptions.Item label={t('前 100 个查询耗费最大值')}>
-                    {Number(node.maxLast100QueryTime)} ms
+                    {delta2str(Number(node.maxLast100QueryTime)/(10**6))}
                 </Descriptions.Item>
             </Descriptions>
         </div>
