@@ -538,7 +538,7 @@ function Clusters () {
                             removeEmptyProperties(values)
                             try {
                                 await request_json(`/v1/dolphindbs/${current_cluster?.namespace}/${current_cluster?.name}`, {
-                                    method: 'put',
+                                    method: 'PUT',
                                     body: values
                                 })
                                 message.success(t('升级成功'))
@@ -1484,7 +1484,7 @@ function NodeList ({
                                         onConfirm={async () => {
                                             try {
                                                 await request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${node.name}/start`, {
-                                                    method: 'put'
+                                                    method: 'PUT'
                                                 })
                                                 message.success(t('启动成功'))
                                             } catch (error) {
@@ -1500,7 +1500,7 @@ function NodeList ({
                                         onConfirm={async () => {
                                             try {
                                                 await request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${node.name}/pause`, {
-                                                    method: 'put'
+                                                    method: 'PUT'
                                                 })
                                                 message.success(t('暂停成功'))
                                             } catch (error) {
@@ -2240,7 +2240,6 @@ function SourceKeyModal( { sourcekey_modaol_open, set_sourcekey_modal_open, refr
                 const form_data = await form_object[source_key_modal_info.type].validateFields()
                 try {
                     await request_json_with_error_handling('/v1/dolphindbs/backups/config', {
-                        method: 'post',
                         body: { ...form_data, type: source_key_modal_info.type },
                     })
                     refresh_source_key()
@@ -2743,7 +2742,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                         disabled={ phase === 'Cleaning'}
                                         title={t('确认删除？')}
                                         onConfirm={async () => {
-                                            await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${name}`, { method: 'delete' })
+                                            await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${name}`, { method: 'DELETE' })
                                             set_refresher(refresher + 1)
                                         }}
                                         onCancel={() => { }}
@@ -2761,7 +2760,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
 
                                             await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`,
                                                 {
-                                                    method: 'post',
+                                                    method: 'POST',
                                                     body: {
                                                         name: model.cluster.name,
                                                         namespace: model.cluster.namespace,
@@ -2846,7 +2845,6 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                     const remote_type = source_key_detail[source_key]['type']
                     await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`,
                         {
-                            method: 'post',
                             body: {
                                 name: model.cluster.name,
                                 namespace: model.cluster.namespace,
@@ -2997,7 +2995,6 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                     }
                     await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores`,
                         {
-                            method: 'post',
                             body: {
                                 name: model.cluster.name,
                                 namespace: model.cluster.namespace,
@@ -3151,7 +3148,7 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
                                 <Popconfirm
                                     title={t('确认删除？')}
                                     onConfirm={async () => {
-                                        await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores/${name}`, { method: 'delete' })
+                                        await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores/${name}`, { method: 'DELETE' })
                                         set_refresher(refresher + 1)
                                     }}
                                     onCancel={() => { }}
@@ -3364,7 +3361,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
                                 <Popconfirm
                                     title={t('确认删除？')}
                                     onConfirm={async () => {
-                                        await request_json_with_error_handling(`/v1/dolphindbs/backups/config/${data_item}`, { method: 'delete' })
+                                        await request_json_with_error_handling(`/v1/dolphindbs/backups/config/${data_item}`, { method: 'DELETE' })
                                         set_refresher(refresher + 1)
                                     }}
                                     onCancel={() => { }}
