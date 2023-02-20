@@ -1315,5 +1315,14 @@
     },
     "使用默认账号密码登录失败": {
         "en": "Failed to log in with the default account and password"
+    },
+    "license 版本": {
+        "en": "license version"
+    },
+    "web 构建时间": {
+        "en": "web build time"
+    },
+    "web 开始初始化，当前处于{{mode}}模式，构建时间是 {{time}}": {
+        "en": "The web starts to initialize, it is currently in {{mode}} mode, and the build time is {{time}}"
     }
 }
