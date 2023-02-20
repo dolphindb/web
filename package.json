@@ -5,7 +5,7 @@
     },
     "type": "module",
     "scripts": {
-        "install.ci": "npm ci --include=dev --force",
+        "install.ci": "pnpm ci --include=dev",
         "dev": "tsc --project ./tsconfig.node.json && node ./dev.js",
         "typecheck": "tsc --noEmit",
         "build": "tsc --project ./tsconfig.node.json && node ./build.js",
