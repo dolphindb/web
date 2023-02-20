@@ -1011,7 +1011,26 @@ function CreateClusterPanel({
                         }
                     </Select>
                 </Form.Item>
-
+                
+                <Form.Item noStyle dependencies={[['version']]}>
+                    {({ getFieldValue })=>{
+                        const version:string = getFieldValue('version')
+                        
+                        if (version.startsWith('v1')) {
+                            if (version.slice(1,version.length) < '1.30.21')
+                                return
+                        }
+                        if (version.startsWith('v2')) {
+                            if (version.slice(1,version.length) < '2.00.9')
+                                return
+                        }
+                        
+                        return <Form.Item label={ t('Lisence Server地址') } name='license_server_address'>
+                            <Input/>
+                        </Form.Item>
+                    }}
+                </Form.Item>
+                
                 <Form.Item name='log_mode' label={t('日志模式')} rules={[{ required: true }]}>
                     <Select>
                         <Option value={0}>{t('输出到文件')}</Option>
