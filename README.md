@@ -66,6 +66,10 @@ pnpm run scan
 
 #### CI builds
 ```shell
+# Install the pnpm package manager
+corepack enable
+corepack prepare pnpm@latest --activate
+
 # Install project dependencies
 pnpm ci --include=dev
 

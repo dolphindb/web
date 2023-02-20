@@ -67,6 +67,10 @@ pnpm run scan
 
 #### CI 构建
 ```shell
+# 安装 pnpm 包管理器
+corepack enable
+corepack prepare pnpm@latest --activate
+
 # 安装项目依赖
 pnpm ci --include=dev
 
