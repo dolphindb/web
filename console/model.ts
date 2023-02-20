@@ -515,6 +515,7 @@ interface DdbNode {
     
     jobLoad: number
     
+    /** 单位 ns */
     medLast10QueryTime: bigint
     maxLast10QueryTime: bigint
     medLast100QueryTime: bigint
