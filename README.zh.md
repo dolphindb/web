@@ -72,7 +72,7 @@ corepack enable
 corepack prepare pnpm@latest --activate
 
 # 安装项目依赖
-pnpm ci --include=dev
+pnpm run install.ci
 
 # 构建 console 项目
 pnpm run build

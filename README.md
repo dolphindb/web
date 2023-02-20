@@ -71,7 +71,7 @@ corepack enable
 corepack prepare pnpm@latest --activate
 
 # Install project dependencies
-pnpm ci --include=dev
+pnpm run install.ci
 
 # Build the console project
 pnpm run build
