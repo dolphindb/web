@@ -1012,7 +1012,6 @@ function CreateClusterPanel({
                     </Select>
                 </Form.Item>
                 
-                
                 <Form.Item name='log_mode' label={t('日志模式')} rules={[{ required: true }]}>
                     <Select>
                         <Option value={0}>{t('输出到文件')}</Option>
@@ -1021,7 +1020,9 @@ function CreateClusterPanel({
                     </Select>
                 </Form.Item>
                 
-                {mode === 'cluster' &&
+                
+                
+                { mode === 'cluster' &&
                     <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
                         <Select>
                             <Option value='singlecontroller'>{t('单控制节点')}</Option>
@@ -1048,6 +1049,7 @@ function CreateClusterPanel({
                         </Form.Item>
                     }}
                 </Form.Item>
+                
                 { mode === 'cluster' && <>
 
                     <Divider orientation='left'>{t('控制节点')}</Divider>
