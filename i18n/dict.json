@@ -1325,7 +1325,7 @@
     "web 开始初始化，当前处于{{mode}}模式，构建时间是 {{time}}": {
         "en": "The web starts to initialize, it is currently in {{mode}} mode, and the build time is {{time}}"
     },
-    "Lisence Server 地址": {
-        "en": "Lisence Server Address"
+    "License Server 地址": {
+        "en": "License Server Address"
     }
 }

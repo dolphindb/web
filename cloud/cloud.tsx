@@ -1044,7 +1044,7 @@ function CreateClusterPanel({
                                 return
                         }
                         
-                        return <Form.Item label={ t('Lisence Server 地址') } name='license_server_address'>
+                        return <Form.Item label={ t('License Server 地址') } name='license_server_address'>
                             <Input/>
                         </Form.Item>
                     }}
