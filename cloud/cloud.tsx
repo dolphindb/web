@@ -1012,6 +1012,24 @@ function CreateClusterPanel({
                     </Select>
                 </Form.Item>
                 
+                
+                <Form.Item name='log_mode' label={t('日志模式')} rules={[{ required: true }]}>
+                    <Select>
+                        <Option value={0}>{t('输出到文件')}</Option>
+                        <Option value={1}>{t('输出到标准输出')}</Option>
+                        <Option value={2}>{t('同时输出到文件和标准输出')}</Option>
+                    </Select>
+                </Form.Item>
+                
+                {mode === 'cluster' &&
+                    <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
+                        <Select>
+                            <Option value='singlecontroller'>{t('单控制节点')}</Option>
+                            <Option value='multicontroller'>{t('多控制节点')}</Option>
+                        </Select>
+                    </Form.Item>
+                }
+
                 <Form.Item noStyle dependencies={[['version']]}>
                     {({ getFieldValue })=>{
                         const version:string = getFieldValue('version')
@@ -1025,29 +1043,12 @@ function CreateClusterPanel({
                                 return
                         }
                         
-                        return <Form.Item label={ t('Lisence Server地址') } name='license_server_address'>
+                        return <Form.Item label={ t('Lisence Server 地址') } name='license_server_address'>
                             <Input/>
                         </Form.Item>
                     }}
                 </Form.Item>
-                
-                <Form.Item name='log_mode' label={t('日志模式')} rules={[{ required: true }]}>
-                    <Select>
-                        <Option value={0}>{t('输出到文件')}</Option>
-                        <Option value={1}>{t('输出到标准输出')}</Option>
-                        <Option value={2}>{t('同时输出到文件和标准输出')}</Option>
-                    </Select>
-                </Form.Item>
-                
-
-
                 { mode === 'cluster' && <>
-                    <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
-                        <Select>
-                            <Option value='singlecontroller'>{t('单控制节点')}</Option>
-                            <Option value='multicontroller'>{t('多控制节点')}</Option>
-                        </Select>
-                    </Form.Item>
 
                     <Divider orientation='left'>{t('控制节点')}</Divider>
                     
