@@ -42,7 +42,8 @@ git clone https://github.com/dolphindb/web.git
 
 cd web
 
-pnpm install --force
+# install project dependencies
+pnpm install
 
 # Refer to scripts in package.json
 

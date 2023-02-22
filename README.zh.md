@@ -43,7 +43,8 @@ git clone https://github.com/dolphindb/web.git
 
 cd web
 
-pnpm install --force
+# 安装项目依赖
+pnpm install
 
 # 参考 package.json 中的 scripts
 
