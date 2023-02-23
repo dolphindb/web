@@ -1327,5 +1327,14 @@
     },
     "License Server 地址": {
         "en": "License Server Address"
+    },
+    "运行以下脚本时出错:\n": {
+        "en": "An error occurred while running the following script:\n"
+    },
+    "调用 {{func}} 函数时出错，参数为:\n": {
+        "en": "Error calling {{func}} function with arguments:\n"
+    },
+    "调用栈:\n": {
+        "en": "Call stack:\n"
     }
 }

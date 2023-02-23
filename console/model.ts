@@ -4,7 +4,7 @@ import { Model } from 'react-object-model'
 
 import { Modal } from 'antd'
 
-import { ddb, DdbFunctionType, DdbObj, DdbInt, DdbLong, type InspectOptions } from 'dolphindb/browser.js'
+import { ddb, DdbFunctionType, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
 
@@ -468,10 +468,39 @@ export class DdbModel extends Model<DdbModel> {
         Modal.error({
             className: 'modal-error',
             title: title || error?.message,
-            ... (content || error) ? {
-                content: content || error.stack
-            } : { },
-            width: 800,
+            content: (() => {
+                if (content)
+                    return content
+                    
+                if (error) {
+                    let s = ''
+                    
+                    if (error instanceof DdbDatabaseError) {
+                        const { type, options } = error
+                        switch (type) {
+                            case 'script':
+                                s += t('运行以下脚本时出错:\n') +
+                                    error.options.script + '\n'
+                                break
+                            
+                            case 'function':
+                                s += t('调用 {{func}} 函数时出错，参数为:\n', { func: error.options.func }) +
+                                    options.args.map(arg => arg.toString())
+                                        .join_lines()
+                                break
+                        }
+                    }
+                    
+                    s += t('调用栈:\n') +
+                        error.stack
+                    
+                    if (error.cause)
+                        s += (error.cause as Error).stack
+                    
+                    return s
+                }
+            })(),
+            width: 1000,
         })
     }
 }
