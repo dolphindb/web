@@ -550,6 +550,9 @@ interface DdbNode {
     // ex1 = table(rand(1.0000,10000000) as c1)
     // timer select count(*) from ex1 where c1 > 0.5 and c1 <=0.8
     // 执行十次后，实际执行时间和返回的不一致
+    // 目前发现这两种不会统计
+    // 1. 不含 join 的内存表查询
+    // 2. SINGLE 模式，使用 snapshot 的查询
     /** 单位 ns */
     medLast10QueryTime: bigint
     maxLast10QueryTime: bigint
