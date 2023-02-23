@@ -15,7 +15,7 @@
 ### Console: DolphinDB database web management interface
 ![](./console/demo.png)
 
-#### 在线版本
+#### Online Version
 The latest build of the web has been deployed to a CDN . You can connect the opened web interface to any remote or local DolphinDB server by setting the hostname and port parameters in the URL, for example:
 http://cdn.dolphindb.cn/web/index.html?view=shell&language=zh&hostname=115.239.209.123&port=8892
 
