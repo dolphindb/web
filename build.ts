@@ -93,7 +93,10 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
                 'base/worker/workerMain.js.map',
                 'base/browser/ui/codicons/codicon/codicon.ttf',
             ].map(async fp =>
-                fcopy(`${fpd_node_modules}monaco-editor/${ fp.endsWith('.map') ? 'min-maps' : 'min' }/vs/${fp}`, `${fpd_monaco_maps}${fp}`)
+                fcopy(
+                    `${fpd_node_modules}monaco-editor/${ fp.endsWith('.map') ? 'min-maps' : 'min' }/vs/${fp}`,
+                    `${ fp.endsWith('.map') ? fpd_monaco_maps : fpd_monaco }${fp}`
+                )
             )
         :
             [ ]
