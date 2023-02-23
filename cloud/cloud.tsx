@@ -2773,7 +2773,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                     </Popconfirm>
 
                                     <Popconfirm
-                                        disabled={ phase !== 'Complete'}
+                                        disabled={ !(phase === 'Complete' || phase === 'Failed')}
                                         title={t('确认重新触发？')}
                                         onConfirm={async () => {
                                             const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${name}`)
