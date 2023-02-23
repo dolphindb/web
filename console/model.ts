@@ -119,6 +119,8 @@ export class DdbModel extends Model<DdbModel> {
         
         await this.check_leader_and_redirect()
         
+        console.log(t('web 初始化成功'))
+        
         this.get_license()
         
         this.goto_default_view()
@@ -250,7 +252,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_version () {
-        let { value: version } = await ddb.call<DdbObj<string>>('version', [ ])
+        let { value: version } = await ddb.call<DdbObj<string>>('version')
         version = version.split(' ')[0]
         this.set({ version })
         console.log(t('版本:'), version)

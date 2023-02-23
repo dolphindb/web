@@ -152,9 +152,10 @@ class ShellModel extends Model<ShellModel> {
     
     async load_dbs () {
         let dbs = new Map<string, DdbEntity>()
+        
         for (const path of (await ddb.call<DdbVectorStringObj>('getClusterDFSDatabases')).value)
             dbs.set(path, new DdbEntity({ path }))
-            
+        
         // LOCAL: OFF 测试虚拟滚动
         // for (let i = 0;  i < 10000;  i++) {
         //     const path = `dfs://mockdb${i}`
@@ -1614,10 +1615,17 @@ function DBs ({ height }: { height: number }) {
             let i = (error.message as string).indexOf('<NotAuthenticated>')
             if (i === -1)
                 i = (error.message as string).indexOf('<NoPrivilege>')
-            const errmsg = i === -1 ? error.message as string : (error.message as string).slice(i)
+            
+            if (i === -1)
+                model.show_error({ error })
+            else {
+                const errmsg = (error.message as string).slice(i)
+                message.error(errmsg)
+                shell.term.writeln(red(errmsg))
+            }
+            
             set_loaded_keys([...loaded_keys, key])
-            message.error(errmsg)
-            shell.term.writeln(red(errmsg))
+            
             throw error
         } finally{
             const [part1, ...part2_] = key.slice(6).split('.')
