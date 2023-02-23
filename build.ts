@@ -49,6 +49,7 @@ if (process.argv.includes('cloud')) {
 async function copy_vendors (fpd_out: string, monaco: boolean) {
     const fpd_vendors = `${fpd_out}vendors/`
     const fpd_monaco = `${fpd_out}vs/`
+    const fpd_monaco_maps = `${fpd_out}min-maps/vs/`
     
     
     await fmkdir(fpd_vendors)
@@ -92,7 +93,7 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
                 'base/worker/workerMain.js.map',
                 'base/browser/ui/codicons/codicon/codicon.ttf',
             ].map(async fp =>
-                fcopy(`${fpd_node_modules}monaco-editor/${ fp.endsWith('.map') ? 'min-maps' : 'min' }/vs/${fp}`, `${fpd_monaco}${fp}`)
+                fcopy(`${fpd_node_modules}monaco-editor/${ fp.endsWith('.map') ? 'min-maps' : 'min' }/vs/${fp}`, `${fpd_monaco_maps}${fp}`)
             )
         :
             [ ]
