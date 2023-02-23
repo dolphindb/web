@@ -17,7 +17,7 @@
 
 #### Online Version
 The latest build of the web has been deployed to a CDN . You can connect the opened web interface to any remote or local DolphinDB server by setting the hostname and port parameters in the URL, for example:
-http://cdn.dolphindb.cn/web/index.html?view=shell&language=zh&hostname=115.239.209.123&port=8892
+http://cdn.dolphindb.cn/web/index.html?view=shell&hostname=115.239.209.123&port=8892
 
 (If a blank page is displayed after opening, you need to manually click the address bar and change the url to a link starting with http://)
 
