@@ -87,7 +87,13 @@ function DolphinDB () {
     const { inited, header } = model.use(['inited', 'header'])
     
     useEffect(() => {
-        model.init()
+        (async () => {
+            try {
+                await model.init()
+            } catch (error) {
+                model.show_error({ error })
+            }
+        })()
     }, [ ])
     
     if (!inited)

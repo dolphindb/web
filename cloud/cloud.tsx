@@ -1033,20 +1033,21 @@ function CreateClusterPanel({
 
                 <Form.Item noStyle dependencies={[['version']]}>
                     {({ getFieldValue })=>{
-                        const version:string = getFieldValue('version')
+                        const version: string = getFieldValue('version')
                         
-                        if (version.startsWith('v1')) {
-                            if (version.slice(1,version.length) < '1.30.21')
+                        if (version.startsWith('v1')) 
+                            if (version.slice(1, version.length) < '1.30.21')
                                 return
-                        }
-                        if (version.startsWith('v2')) {
-                            if (version.slice(1,version.length) < '2.00.9')
-                                return
-                        }
                         
-                        return <Form.Item label={ t('License Server 地址') } name='license_server_address'>
-                            <Input/>
-                        </Form.Item>
+                        if (version.startsWith('v2')) 
+                            if (version.slice(1, version.length) < '2.00.9')
+                                return
+                        
+                        return (
+                            <Form.Item label={t('License Server 地址')} name='license_server_address'>
+                                <Input />
+                            </Form.Item>
+                        )
                     }}
                 </Form.Item>
                 
