@@ -15,14 +15,13 @@
 ### Console: DolphinDB database web management interface
 ![](./console/demo.png)
 
-#### Instructions
-##### Online Version
+#### 在线版本
 The latest build of the web has been deployed to a CDN . You can connect the opened web interface to any remote or local DolphinDB server by setting the hostname and port parameters in the URL, for example:
 http://cdn.dolphindb.cn/web/index.html?view=shell&language=zh&hostname=115.239.209.123&port=8892
 
 (If a blank page is displayed after opening, you need to manually click the address bar and change the url to a link starting with http://)
 
-##### Offline Local Deployment (no need to restart the server, hot replacement is possible)
+#### Offline Local Deployment (no need to restart the server, hot replacement is possible)
 ```shell
 # cd the directory where the dolphindb executable is located
 cd /path/to/dolphindb-dir/
@@ -50,11 +49,10 @@ If you need to deploy to a subpath through nginx (not recommended, one more forw
 ### Cloud: DolphinDB K8S cloud platform web management interface
 ![](./cloud/demo.png)
 
-#### Instructions
 https://github.com/dolphindb/Tutorials_EN/blob/master/k8s_deployment.md
 
 
-### Build and Development
+### Development
 ```shell
 # Install the latest version of nodejs
 # https://nodejs.org/en/download/current/
@@ -72,14 +70,6 @@ pnpm install
 
 # Refer to scripts in package.json
 
-# build console
-pnpm run build
-# After completion the product is in the web folder
-
-# build cloud
-pnpm run build.cloud
-# After completion, the product is in the web.cloud folder
-
 # development
 pnpm run dev
 
@@ -88,26 +78,4 @@ pnpm run scan
 # Manually complete untranslated entries
 # Run the scan again to update the dictionary file dict.json
 pnpm run scan
-```
-
-#### CI builds
-```shell
-# Install the pnpm package manager
-corepack enable
-corepack prepare pnpm@latest --activate
-
-# Install project dependencies
-pnpm run install.ci
-
-# Build the console project
-pnpm run build
-
-# After the build is complete, all files in the ./web/ folder are used as web/ in the dolphindb server directory
-rsync -av --delete ./web/ jenkins@192.168.1.204:/hdd/ftp/origin/console/
-
-# build cloud project
-pnpm run build.cloud
-
-# After the build finishes, all files in the ./web.cloud/ folder are used as artifacts
-rsync -av --delete ./web.cloud/ jenkins@192.168.1.204:/hdd/ftp/origin/cloud/
 ```
