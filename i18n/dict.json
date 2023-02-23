@@ -1336,5 +1336,8 @@
     },
     "调用栈:\n": {
         "en": "Call stack:\n"
+    },
+    "web 初始化成功": {
+        "en": "web initialization succeeded"
     }
 }
