@@ -66,6 +66,7 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
             'dayjs/dayjs.min.js',
             'lodash/lodash.min.js',
             'xterm/lib/xterm.js',
+            'xterm/lib/xterm.js.map',
             'antd/dist/antd-with-locales.min.js',
             'antd/dist/antd-with-locales.min.js.map',
             '@ant-design/icons/dist/index.umd.min.js',
