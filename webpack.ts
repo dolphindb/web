@@ -257,11 +257,12 @@ export let webpack = {
             config.cache = false
             
             const { LicenseWebpackPlugin } = await import('license-webpack-plugin')
+            const ignoreds = new Set(['xshell', 'react-object-model', '@ant-design/icons-svg', '@ant-design/pro-layout', '@ant-design/pro-provider'])
             config.plugins.push(
                 new LicenseWebpackPlugin({
                     perChunkOutput: false,
                     outputFilename: 'ThirdPartyNotice.txt',
-                    excludedPackageTest: pkgname => pkgname === 'xshell' || pkgname === 'react-object-model'
+                    excludedPackageTest: pkgname => ignoreds.has(pkgname),
                 }) as any
             )
         }
