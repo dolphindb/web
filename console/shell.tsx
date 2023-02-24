@@ -1394,25 +1394,42 @@ function DBItemTitle ({
 
 
 class TreeDataItem implements BasicDataNode {
-    title: React.ReactElement
     key: string
-    children?: TreeDataItem[]
-    icon?: any
-    tooltip?: string
-    isLeaf?: boolean
-    needLoad?: boolean
+    
     className?: string
     
-    constructor (
-        title: string | React.ReactElement,
-        key: string,
-        icon?: any,
-        children?: TreeDataItem[],
-        tooltip?: string,
-        isLeaf?: boolean,
-        needLoad?: boolean,
+    title: React.ReactElement
+    
+    children?: TreeDataItem[]
+    
+    icon?: any
+    
+    tooltip?: string
+    
+    isLeaf?: boolean
+    
+    needLoad?: boolean
+    
+    
+    constructor ({
+        key,
+        className,
+        title,
+        children,
+        icon,
+        tooltip,
+        isLeaf,
+        needLoad
+    }: {
+        key: string
         className?: string
-    ) {
+        title: string | React.ReactElement
+        children?: TreeDataItem[]
+        icon?: any
+        tooltip?: string
+        isLeaf?: boolean
+        needLoad?: boolean
+    }) {
         const name = typeof title === 'string' ? /^(\w+)/.exec(title)[1] : ''
         
         this.title = <>{typeof title === 'string' ? (
@@ -1443,6 +1460,7 @@ class DdbEntity {
     path_part1: string
     path_part2: string
     
+    
     constructor(data: Partial<DdbEntity>) {
         Object.assign(this, data)
         const [part1, ...part2_] = this.path.slice(6).split('.')
@@ -1452,17 +1470,17 @@ class DdbEntity {
         this.path_part2 = part2
     }
     
+    
     to_tree_data_item (on_menu): TreeDataItem {
-        return new TreeDataItem(
-            <span className='name'>{this.path_part2 || this.path}</span>,
-            this.path,
-            <Icon component={SvgDatabase} />,
-            this.tables.map(table => table.to_tree_data_item(on_menu)),
-            null,
-            false,
-            true,
-            this.empty ? 'ant-tree-treenode-empty' : null
-        )
+        return new TreeDataItem({
+            title: <span className='name'>{this.path_part2 || this.path}</span>,
+            key: this.path,
+            icon: <Icon component={SvgDatabase} />,
+            children: this.tables.map(table => table.to_tree_data_item(on_menu)),
+            isLeaf: false,
+            needLoad: true,
+            className: this.empty ? 'ant-tree-treenode-empty' : null
+        })
     }
 }
 
@@ -1485,42 +1503,44 @@ class TableEntity {
     }
     
     to_tree_data_item (onChange: (menu: ContextMenu) => void): TreeDataItem {
-        return new TreeDataItem(
-            <DBItemTitle 
-                entity={{ type: 'table', database: this.ddb_path, table: this.name }}
-                items={table_menu_items}
-                _key={`${this.ddb_path}/${this.name}`}
-                onChange={onChange}
-            />,
+        return new TreeDataItem({
+            title: 
+                <DBItemTitle 
+                    entity={{ type: 'table', database: this.ddb_path, table: this.name }}
+                    items={table_menu_items}
+                    _key={`${this.ddb_path}/${this.name}`}
+                    onChange={onChange}
+                />,
+            key: `${this.ddb_path}/${this.name}`,
+            icon: <Icon component={SvgTable} />,
             
-            `${this.ddb_path}/${this.name}`,
-            
-            <Icon component={SvgTable} />,
-            
-            this.column_schema.map(column => {
+            children: this.column_schema.map(column => {
                 const key = `${this.ddb_path}/${this.name}/${column.name}`
                 
-                return new TreeDataItem(
-                    <DBItemTitle 
-                        entity={{ type: 'column', database: this.ddb_path, table: this.name, column: column.name }}
-                        items={column_menu_items}
-                        _key={key}
-                        onChange={onChange}
-                        extra={DdbType[column.type]}
-                    />,
+                return new TreeDataItem({
+                    title: 
+                        <DBItemTitle 
+                            entity={{ type: 'column', database: this.ddb_path, table: this.name, column: column.name }}
+                            items={column_menu_items}
+                            _key={key}
+                            onChange={onChange}
+                            extra={DdbType[column.type]}
+                        />,
                     key,
-                    <Icon component={SvgColumn} />,
-                    null, null, true)
+                    icon: <Icon component={SvgColumn} />,
+                    isLeaf: true
+                })
             }),
-            null,
-            false
-        )
+            
+            isLeaf: false
+        })
     }
 }
 
 
 function DBs ({ height }: { height: number }) {
     const { dbs } = shell.use(['dbs'])
+    
     const [expanded_keys, set_expanded_keys] = useState([])
     const [loaded_keys, set_loaded_keys] = useState([])
     const [menu, on_menu] = useState<ContextMenu | null>()
@@ -1535,14 +1555,15 @@ function DBs ({ height }: { height: number }) {
         
         每次展开一个树节点时，会调用 load_data, 读取当前正在操作的 key，更新 TreeDataItem 。通过 treeData[position] = new_TreeDataItem 的方式更新树。这样每次调用 load_data 就只会发生一次 to_tree_data_item 调用
     */
-   
-    const [tree_data, set_tree_data] = useState<TreeDataItem[]>([])
+    
+    const [tree_data, set_tree_data] = useState<TreeDataItem[]>([ ])
     const index_of_path_in_grouped_tree_data = useRef<Map<string, number[]>>(new Map())
     
     useEffect(() => {
         if (menu?.key)
             set_selected_keys([menu.key])
     }, [menu])
+    
     
     useEffect(() => {
         if (!dbs) 
@@ -1565,21 +1586,26 @@ function DBs ({ height }: { height: number }) {
                 continue
             }
             
-            if (!part1_group_map.has(part1)) part1_group_map.set(part1, [db])
-            else part1_group_map.get(part1).push(db)
+            if (!part1_group_map.has(part1))
+                part1_group_map.set(part1, [db])
+            else
+                part1_group_map.get(part1).push(db)
         }
         
         for (const key of part1_group_map.keys()) {
-            const new_group = new TreeDataItem(
-                <span className='name'>{`dfs://${key}`}</span>,
-                `group-${key}`,
-                <FolderOutlined color='#4a5eed' />,
-                part1_group_map.get(key).map(ddb_entity => ddb_entity.to_tree_data_item(on_menu))
-            )
+            const new_group = new TreeDataItem({
+                title: <span className='name'>{`dfs://${key}`}</span>,
+                key: `group-${key}`,
+                icon: <FolderOutlined color='#4a5eed' />,
+                children: part1_group_map.get(key)
+                    .map(ddb_entity => 
+                        ddb_entity.to_tree_data_item(on_menu))
+            })
+            
             group_with_path_part2.push(new_group)
         }
         
-        const tree_data = dbs_without_path_part2.concat(group_with_path_part2)
+        let tree_data = dbs_without_path_part2.concat(group_with_path_part2)
         
         for (let i = 0; i < tree_data.length; i++) 
             if (tree_data[i].key.startsWith('group-')) {
@@ -1627,8 +1653,8 @@ function DBs ({ height }: { height: number }) {
             set_loaded_keys([...loaded_keys, key])
             
             throw error
-        } finally{
-            const [part1, ...part2_] = key.slice(6).split('.')
+        } finally {
+            const [part1, ...part2_] = key.slice('dfs://'.length).split('.')
             const part2 = part2_.join('.')
             
             const grouped_tree_data_ = [...tree_data]
@@ -1658,16 +1684,12 @@ function DBs ({ height }: { height: number }) {
                     set_expanded_keys([])
                     set_loaded_keys([])
                 }}>
-                    <Tooltip title={t('刷新')} color={'grey'}>
+                    <Tooltip title={t('刷新')} color='grey'>
                         <SyncOutlined />
                     </Tooltip>
                 </span>
-                <span
-                    onClick={() => {
-                        set_expanded_keys([])
-                    }}
-                >
-                    <Tooltip title={t('全部折叠')} color={'grey'}>
+                <span onClick={() => { set_expanded_keys([]) }}>
+                    <Tooltip title={t('全部折叠')} color='grey'>
                         <MinusSquareOutlined />
                     </Tooltip>
                 </span>
@@ -1681,20 +1703,27 @@ function DBs ({ height }: { height: number }) {
                 focusable={false}
                 blockNode
                 showLine
+                
                 // 启用虚拟滚动
                 height={height}
+                
                 treeData={tree_data}
+                
+                loadedKeys={loaded_keys}
                 loadData={load_data}
                 onLoad={keys => {
                     set_loaded_keys([...keys])
                 }}
+                
                 expandedKeys={expanded_keys}
-                loadedKeys={loaded_keys}
                 onExpand={keys => {
                     set_expanded_keys([...keys])
                 }}
+                
                 selectedKeys={selected_keys}
+                
                 onContextMenu={event => { event.preventDefault() }}
+                
                 onSelect={keys => {
                     set_selected_keys(keys)
                 }}
@@ -1757,15 +1786,15 @@ function Variables ({ shared }: { shared?: boolean }) {
         return v.shared === shared
     }) : []
     
-    let scalar = new TreeDataItem('scalar', '0', <Icon component={SvgScalar} />)
-    let vector = new TreeDataItem('vector', '1', <Icon component={SvgVector} />)
-    let pair = new TreeDataItem('pair', '2', <Icon component={SvgPair} />)
-    let matrix = new TreeDataItem('matrix', '3', <Icon component={SvgMatrix} />)
-    let set = new TreeDataItem('set', '4', <Icon component={SvgSet} />)
-    let dict = new TreeDataItem('dict', '5', <Icon component={SvgDict} />)
-    let table = new TreeDataItem('table', '6', <Icon component={SvgTable} />)
-    let chart = new TreeDataItem('chartr', '7', <Icon component={SvgChart} />)
-    let object = new TreeDataItem('object', '9', <Icon component={SvgObject} />)
+    let scalar  = new TreeDataItem({ title: 'scalar', key: '0', icon: <Icon component={SvgScalar} /> })
+    let vector  = new TreeDataItem({ title: 'vector', key: '1', icon: <Icon component={SvgVector} /> })
+    let pair    = new TreeDataItem({ title: 'pair',   key: '2', icon: <Icon component={SvgPair} /> })
+    let matrix  = new TreeDataItem({ title: 'matrix', key: '3', icon: <Icon component={SvgMatrix} /> })
+    let set     = new TreeDataItem({ title: 'set',    key: '4', icon: <Icon component={SvgSet} /> })
+    let dict    = new TreeDataItem({ title: 'dict',   key: '5', icon: <Icon component={SvgDict} /> })
+    let table   = new TreeDataItem({ title: 'table',  key: '6', icon: <Icon component={SvgTable} /> })
+    let chart   = new TreeDataItem({ title: 'chart',  key: '7', icon: <Icon component={SvgChart} /> })
+    let object  = new TreeDataItem({ title: 'object', key: '8', icon: <Icon component={SvgObject} /> })
     
     let scalars: TreeDataItem[] = []
     let vectors: TreeDataItem[] = []
@@ -1780,47 +1809,47 @@ function Variables ({ shared }: { shared?: boolean }) {
     for (const v of vars_)
         switch (v.form) {
             case DdbForm.scalar:
-                scalars.push(new TreeDataItem(v.label, v.name))
+                scalars.push(new TreeDataItem({ title: v.label, key: v.name }))
                 scalar.children = scalars
                 break
                 
             case DdbForm.vector:
-                vectors.push(new TreeDataItem(v.label, v.name))
+                vectors.push(new TreeDataItem({ title: v.label, key: v.name }))
                 vector.children = vectors
                 break
                 
             case DdbForm.pair:
-                pairs.push(new TreeDataItem(v.label, v.name))
+                pairs.push(new TreeDataItem({ title: v.label, key: v.name }))
                 pair.children = pairs
                 break
                 
             case DdbForm.matrix:
-                matrixs.push(new TreeDataItem(v.label, v.name))
+                matrixs.push(new TreeDataItem({ title: v.label, key: v.name }))
                 matrix.children = matrixs
                 break
                 
             case DdbForm.set:
-                sets.push(new TreeDataItem(v.label, v.name))
+                sets.push(new TreeDataItem({ title: v.label, key: v.name }))
                 set.children = sets
                 break
                 
             case DdbForm.dict:
-                dicts.push(new TreeDataItem(v.label, v.name))
+                dicts.push(new TreeDataItem({ title: v.label, key: v.name }))
                 dict.children = dicts
                 break
                 
             case DdbForm.table:
-                tables.push(new TreeDataItem(v.label, v.name))
+                tables.push(new TreeDataItem({ title: v.label, key: v.name }))
                 table.children = tables
                 break
                 
             case DdbForm.chart:
-                charts.push(new TreeDataItem(v.label, v.name))
+                charts.push(new TreeDataItem({ title: v.label, key: v.name }))
                 chart.children = charts
                 break
                 
             case DdbForm.object:
-                objects.push(new TreeDataItem(v.label, v.name))
+                objects.push(new TreeDataItem({ title: v.label, key: v.name }))
                 object.children = objects
                 break
         }
