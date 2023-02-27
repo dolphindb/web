@@ -1653,7 +1653,7 @@ function DBs ({ height }: { height: number }) {
             if (i === -1)
                 i = (error.message as string).indexOf('<NoPrivilege>')
             
-            if (i === -1)
+            if (i === -1 || model.dev)
                 model.show_error({ error })
             else {
                 const errmsg = (error.message as string).slice(i)
