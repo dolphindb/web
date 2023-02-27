@@ -153,7 +153,22 @@ class ShellModel extends Model<ShellModel> {
     async load_dbs () {
         let dbs = new Map<string, DdbEntity>()
         
-        for (const path of (await ddb.call<DdbVectorStringObj>('getClusterDFSDatabases')).value)
+        // ['dfs://数据库路径/表名', ...]
+        // 假设数据库路径不含有 /
+        // 不能使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
+        const { value: fp_tables } = await ddb.call<DdbVectorStringObj>('getClusterDFSTables')
+        
+        let fp_dbs = new Set<string>()
+        for (const fp_table of fp_tables)
+            // 找到数据库后面的斜杠位置，截取前面部分的字符串
+            fp_dbs.add(
+                fp_table.slice(
+                    0,
+                    fp_table.indexOf('/', 'dfs://'.length)
+                )
+            )
+        
+        for (const path of fp_dbs)
             dbs.set(path, new DdbEntity({ path }))
         
         // LOCAL: OFF 测试虚拟滚动
