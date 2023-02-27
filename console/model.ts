@@ -29,6 +29,9 @@ export class DdbModel extends Model<DdbModel> {
     /** 在本地开发模式 */
     dev = false
     
+    /** 通过 ticket 或用户名密码自动登录，默认为 true 传 autologin=0 关闭 */
+    autologin = true
+    
     /** 通过 cdn 访问的 web */
     cdn = false
     
@@ -41,7 +44,7 @@ export class DdbModel extends Model<DdbModel> {
     
     logined = false
     
-    username = localStorage.getItem(storage_keys.username) || username_guest
+    username: string = username_guest
     
     node_type: NodeType
     
@@ -76,6 +79,7 @@ export class DdbModel extends Model<DdbModel> {
         const params = new URLSearchParams(location.search)
         
         this.dev = location.pathname.endsWith('/console/') || params.get('dev') === '1'
+        this.autologin = params.get('autologin') !== '0'
         this.cdn = location.hostname === 'cdn.dolphindb.cn' || params.get('cdn') === '1'
         this.header = params.get('header') !== '0'
         this.code_template = params.get('code-template') === '1'
@@ -96,18 +100,19 @@ export class DdbModel extends Model<DdbModel> {
         
         ddb.autologin = false
         
-        try {
-            await this.login_by_ticket()
-        } catch {
-            console.log(t('ticket 登录失败'))
-            
-            if (this.dev)
-                try {
-                    await this.login_by_password('admin', '123456')
-                } catch {
-                    console.log(t('使用默认账号密码登录失败'))
-                }
-        }
+        if (this.autologin)
+            try {
+                await this.login_by_ticket()
+            } catch {
+                console.log(t('ticket 登录失败'))
+                
+                if (this.dev)
+                    try {
+                        await this.login_by_password('admin', '123456')
+                    } catch {
+                        console.log(t('使用默认账号密码登录失败'))
+                    }
+            }
         
         await Promise.all([
             this.get_node_type(),
@@ -153,17 +158,18 @@ export class DdbModel extends Model<DdbModel> {
     
     async login_by_ticket () {
         const ticket = localStorage.getItem(storage_keys.ticket)
-        if (!ticket) {
-            this.set({ logined: false, username: username_guest })
+        if (!ticket)
             throw new Error(t('没有自动登录的 ticket'))
-        }
+        
+        const last_username = localStorage.getItem(storage_keys.username)
+        if (!last_username)
+            throw new Error(t('没有自动登录的 username'))
         
         try {
             await ddb.call('authenticateByTicket', [ticket], { urgent: true })
-            this.set({ logined: true })
-            console.log(t('{{username}} 使用 ticket 登陆成功', { username: this.username }))
+            this.set({ logined: true, username: last_username })
+            console.log(t('{{username}} 使用 ticket 登陆成功', { username: last_username }))
         } catch (error) {
-            this.set({ logined: false, username: username_guest })
             localStorage.removeItem(storage_keys.ticket)
             localStorage.removeItem(storage_keys.username)
             throw error

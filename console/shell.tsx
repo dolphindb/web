@@ -142,6 +142,8 @@ class ShellModel extends Model<ShellModel> {
     
     dbs: Map<string, DdbEntity>
     
+    tables: string[]
+    
     options?: InspectOptions
     
     
@@ -156,6 +158,8 @@ class ShellModel extends Model<ShellModel> {
         // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
         const { value: fp_tables } = await ddb.call<DdbVectorStringObj>('getClusterDFSTables')
+        
+        this.set({ tables: fp_tables })
         
         let fp_dbs = new Set<string>()
         for (const fp_table of fp_tables)
@@ -173,7 +177,7 @@ class ShellModel extends Model<ShellModel> {
         //     dbs.set(path, new DdbEntity({ path }))
         // }
         
-        // 测试多级数据库树
+        // TEST: 测试多级数据库树
         // for (let i = 0;  i <100 ;  i++) {
         //     for (let j =0; j< 500; j++){
         //         const path = `dfs://${i}.${j}`
@@ -184,6 +188,7 @@ class ShellModel extends Model<ShellModel> {
         
         this.set({ dbs })
     }
+    
     
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
@@ -338,6 +343,7 @@ class ShellModel extends Model<ShellModel> {
         
         // console.log('vars:', this.vars)
     }
+    
     
     save (code = this.editor.getValue()) {
         localStorage.setItem(storage_keys.code, code)
@@ -1638,14 +1644,22 @@ function DBs ({ height }: { height: number }) {
         
         let tables_ = null
         try {
-            const tables = (await ddb.eval<DdbObj<DdbObj[]>>(`each(def (x): loadTable("${key}", x, memoryMode=false), getTables(database("${key}")))`))
-                .value.map(tb =>
-                    new TableEntity({
-                        name: tb.name,
-                        ddb_path: key,
-                        column_schema: (tb.value as DdbObj[]).map(col => ({ name: col.name, type: col.type }))
-                    })
-                )
+            const tables = (
+                await ddb.eval<DdbObj<DdbObj[]>>(
+                    'each(\n' +
+                    `    def (table_name): loadTable("${key}", table_name, memoryMode=false),\n` +
+                    `    ${shell.tables.filter(table => table.startsWith(key))
+                            .map(table => table.slice(table.lastIndexOf('/') + 1).quote('double'))
+                            .join(', ')
+                            .bracket('square')}\n` +
+                    ')\n')
+            ).value.map(tb =>
+                new TableEntity({
+                    name: tb.name,
+                    ddb_path: key,
+                    column_schema: (tb.value as DdbObj[]).map(col => ({ name: col.name, type: col.type }))
+                })
+            )
             
             tables_ = tables
         } catch (error) {
