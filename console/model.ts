@@ -100,6 +100,12 @@ export class DdbModel extends Model<DdbModel> {
         
         ddb.autologin = false
         
+        await Promise.all([
+            this.get_node_type(),
+            this.get_node_alias(),
+            this.get_controller_alias(),
+        ])
+        
         if (this.autologin)
             try {
                 await this.login_by_ticket()
@@ -107,7 +113,6 @@ export class DdbModel extends Model<DdbModel> {
                 console.log(t('ticket 登录失败'))
                 
                 if (this.dev) {
-                    await this.get_node_type()
                     try {
                         await this.login_by_password('admin', '123456')
                     } catch {
@@ -115,12 +120,6 @@ export class DdbModel extends Model<DdbModel> {
                     }
                 }
             }
-        
-        await Promise.all([
-            this.get_node_type(),
-            this.get_node_alias(),
-            this.get_controller_alias(),
-        ])
         
         await this.get_cluster_perf()
         
@@ -234,9 +233,7 @@ export class DdbModel extends Model<DdbModel> {
     
     async get_node_type () {
         const { value: node_type } = await ddb.call<DdbObj<NodeType>>('getNodeType', [ ], { urgent: true })
-        this.set({
-            node_type
-        })
+        this.set({ node_type })
         console.log(t('节点类型:'), NodeType[node_type])
         return node_type
     }
@@ -244,12 +241,11 @@ export class DdbModel extends Model<DdbModel> {
     
     async get_node_alias () {
         const { value: node_alias } = await ddb.call<DdbObj<string>>('getNodeAlias', [ ], { urgent: true })
-        this.set({
-            node_alias
-        })
+        this.set({ node_alias })
         console.log(t('节点名称:'), node_alias)
         return node_alias
     }
+    
     
     async get_controller_alias () {
         const { value: controller_alias } = await ddb.call<DdbObj<string>>('getControllerAlias', [ ], { urgent: true })
