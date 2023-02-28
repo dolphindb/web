@@ -106,12 +106,14 @@ export class DdbModel extends Model<DdbModel> {
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                if (this.dev)
+                if (this.dev) {
+                    await this.get_node_type()
                     try {
                         await this.login_by_password('admin', '123456')
                     } catch {
                         console.log(t('使用 admin 账号密码登录失败'))
                     }
+                }
             }
         
         await Promise.all([
