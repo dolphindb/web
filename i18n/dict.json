@@ -1339,5 +1339,11 @@
     },
     "web 初始化成功": {
         "en": "web initialization succeeded"
+    },
+    "使用 admin 账号密码登录失败": {
+        "en": "Log in with admin account password failed"
+    },
+    "没有自动登录的 username": {
+        "en": "No autologin username"
     }
 }

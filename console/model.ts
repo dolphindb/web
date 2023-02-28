@@ -110,7 +110,7 @@ export class DdbModel extends Model<DdbModel> {
                     try {
                         await this.login_by_password('admin', '123456')
                     } catch {
-                        console.log(t('使用默认账号密码登录失败'))
+                        console.log(t('使用 admin 账号密码登录失败'))
                     }
             }
         
