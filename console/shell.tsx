@@ -12,7 +12,7 @@ const { Option } = Select
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined, BorderOutlined } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined, SlackSquareFilled } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
@@ -59,6 +59,7 @@ import {
     DdbType,
     format,
     DdbFunctionType,
+    DdbInt,
     type DdbFunctionDefValue,
     type InspectOptions,
     type DdbVectorStringObj,
@@ -88,6 +89,7 @@ import SvgDatabase from './shell.icons/database.icon.svg'
 import SvgColumn from './shell.icons/column.icon.svg'
 import SvgAddColumn from './shell.icons/add-column.icon.svg'
 import SvgViewTableStructure from './shell.icons/view-table-structure.icon.svg'
+import SvgPartition from './shell.icons/partition.icon.svg'
 import SvgPartitions from './shell.icons/partitions.icon.svg'
 
 
@@ -174,7 +176,6 @@ class ShellModel extends Model<ShellModel> {
                 code.replaceAll('\r\n', '\n')
             )
             
-            console.log(ddbobj)
             
             if (
                 ddbobj.form === DdbForm.chart ||
@@ -348,22 +349,13 @@ class ShellModel extends Model<ShellModel> {
             const db_path = `${table_path.slice(0, index_slash)}/`
             
             let db = dbs.get(db_path)
-            if (db)
-                db.children.push()
-            else {
+            if (!db) {
                 db = new Database(db_path)
-                db.children.push(
-                    new Table(db, `${table_path}/`)
-                )
                 dbs.set(db_path, db)
             }
+            
+            db.children.push(new Table(db, `${table_path}/`))
         }
-        
-        // LOCAL: OFF 测试虚拟滚动
-        // for (let i = 0;  i < 10000;  i++) {
-        //     const path = `dfs://mockdb${i}`
-        //     dbs.set(path, new DdbEntity({ path }))
-        // }
         
         // TEST: 测试多级数据库树
         // for (let i = 0;  i <100 ;  i++) {
@@ -379,14 +371,52 @@ class ShellModel extends Model<ShellModel> {
     
     
     /** - path: 类似 dfs://Crypto_TSDB_14/, dfs://Crypto_TSDB_14/20100101_20110101/ 的路径 */
-    async load_partitions (root: PartitionRoot, node: Partition | PartitionRoot) {
-        // filename, filetype, size, chunks, sites
-        const { value: [{ value: filenames }, { value: filetypes }] } = await ddb.call<
+    async load_partitions (root: PartitionRoot, node: PartitionDirectory | PartitionRoot) {
+        const {
+            rows,
+            value: [{ value: filenames }, { value: filetypes }, /* sizes */, { value: chunks_column }, /* sites */ ]
+        } = await ddb.call<
             DdbTableObj<[DdbVectorStringObj, DdbVectorInt, DdbVectorLong, DdbVectorStringObj, DdbVectorStringObj]>
         >('getDFSDirectoryContent', [node.path.slice('dfs:/'.length)])
         
-        return filenames.filter((filename, index) => filetypes[index] === DfsFileType.NORMAL_DIR)
-            .map(filename => new Partition(root, node, `${node.path}${filename}/`))
+        let directories: PartitionDirectory[] = [ ]
+        let file: PartitionFile
+        
+        for (let i = 0;  i < rows;  i++)
+            switch (filetypes[i]) {
+                case DfsFileType.directory:
+                    directories.push(
+                        new PartitionDirectory(root, node, `${node.path}${filenames[i]}/`)
+                    )
+                    break
+                
+                case DfsFileType.file_partition: {
+                    const chunks = chunks_column[i].split(',')
+                    assert(chunks.length === 1, 'chunks.length === 1')
+                    const chunk = chunks[0]
+                    
+                    const { value: tables } = await ddb.call<DdbVectorStringObj>('getTablesByTabletChunk', [chunk])
+                    assert(tables.length === 1, t('getTablesByTabletChunk 应该只返回一个对应的 table'))
+                    
+                    if (tables[0] === node.root.table.name) {
+                        assert(!file, t('应该只有一个满足条件的 PartitionFile 在 PartitionDirectory 下面'))
+                        file = new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk)
+                        
+                        i = rows // break
+                    }
+                    
+                    break
+                }
+            }
+        
+        // directories 和 files 中应该只有一个有值，另一个为空
+        if (directories.length) {
+            assert(!file, t('directories 和 file 应该只有一个有值，另一个为空'))
+            return directories
+        } else if (file) {
+            assert(!directories.length, t('directories 和 file 应该只有一个有值，另一个为空'))
+            return [file]
+        }
     }
 }
 
@@ -1432,6 +1462,24 @@ function DBItemTitle ({
 }
 
 
+enum DfsFileType {
+    /** 分区文件夹 (NORMAL_DIR) */
+    directory,
+    
+    PARTITION_DIRV0,
+    
+    NORMAL_FILEV0,
+    
+    SMALLFILE_DIR,
+    
+    /** 分区文件 chunk (PARTITION_DIR) */
+    file_partition,
+    
+    /** 如 domain, table.tbl, ... 等文件 (NORMAL_FILE) */
+    file_normal
+}
+
+
 class TreeDataItem implements DataNode {
     key: string
     
@@ -1558,9 +1606,9 @@ class Table implements DataNode {
     
     
     async show_rows () {
-        let ddbobj = await ddb.eval(`select top 100 * from loadTable(${this.db.path.slice(0, -1).quote('double')}, ${this.name.quote('double')})`)
-        ddbobj.name = `${this.name} (${t('前 100 行')})`
-        shell.set({ result: { type: 'object', data: ddbobj } })
+        let obj = await ddb.eval(`select top 100 * from loadTable(${this.db.path.slice(0, -1).quote('double')}, ${this.name.quote('double')})`)
+        obj.name = `${this.name} (${t('前 100 行')})`
+        shell.set({ result: { type: 'object', data: obj } })
     }
 }
 
@@ -1597,15 +1645,10 @@ class Column implements DataNode {
 }
 
 
-enum DfsFileType {
-    NORMAL_DIR, PARTITION_DIRV0, NORMAL_FILEV0, SMALLFILE_DIR, PARTITION_DIR, NORMAL_FILE
-}
-
-
-class Partition implements DataNode {
-    type = 'partition' as const
+class PartitionDirectory implements DataNode {
+    type = 'partition-directory' as const
     
-    self: Partition
+    self: PartitionDirectory
     
     key: string
     
@@ -1616,20 +1659,22 @@ class Partition implements DataNode {
     
     title: string
     
-    className = 'partition'
+    className = 'partition-directory'
     
-    icon = <BorderOutlined />
+    icon = <FolderOutlined />
     
     isLeaf = false
     
     root: PartitionRoot
     
-    parent: Partition | PartitionRoot
+    parent: PartitionDirectory | PartitionRoot
     
-    children?: Partition[]
+    children?: PartitionDirectory[] | PartitionFile[]
+    
+    chunks?: string[]
     
     
-    constructor (root: PartitionRoot, parent: Partition | PartitionRoot, path: string) {
+    constructor (root: PartitionRoot, parent: PartitionDirectory | PartitionRoot, path: string) {
         this.self = this
         this.parent = parent
         this.root = root
@@ -1644,18 +1689,66 @@ class Partition implements DataNode {
     
     
     async load_children () {
-        if (!this.children) {
+        if (!this.children)
             this.children = await shell.load_partitions(this.root, this)
-            this.isLeaf = true
-        }
+    }
+}
+
+
+class PartitionFile implements DataNode {
+    type = 'partition-file' as const
+    
+    self: PartitionFile
+    
+    key: string
+    
+    /** 以 dfs:// 开头，不以 / 结尾 */
+    path: string
+    
+    name: string
+    
+    title: string
+    
+    className = 'partition-file'
+    
+    // icon = <Icon component={SvgPartition} />
+    icon = <SlackSquareFilled />
+    
+    isLeaf = true
+    
+    root: PartitionRoot
+    
+    parent: PartitionDirectory | PartitionRoot
+    
+    /** 类似 7fd1b1bd-ebf8-f789-764d-8ad76ce38194 这样的 chunk id */
+    chunk: string
+    
+    
+    constructor (root: PartitionRoot, parent: PartitionDirectory | PartitionRoot, path: string, chunk: string) {
+        this.self = this
+        this.parent = parent
+        this.root = root
+        this.key = this.path = path
+        
+        this.chunk = chunk
+        
+        // 找到最后一个 / 的位置，从后面开始截取
+        this.title = this.name = t('分区数据')
     }
     
     
     async show_rows () {
-        await ddb.call()
+        const { table } = this.root
+        const { db } = table
+        
+        // readTabletChunk(chunkId, dbUrl, chunkPath, tableName, offset, length, [cid=-1])
+        // readTabletChunk('cb0a78f4-5a44-e388-c040-9e53cbc041b7', 'dfs://SH_TSDB_entrust', '/SH_TSDB_entrust/20210104/Key0/6Ny', `entrust, 0, 50)
+        let obj = await ddb.call<DdbTableObj>('readTabletChunk', [this.chunk, db.path.slice(0, -1), this.path.slice('dfs:/'.length), table.name, new DdbInt(0), new DdbInt(100)])
+        
+        obj.name = `${this.path.slice(db.path.length, this.path.lastIndexOf('/'))} ${t('分区的数据')} (${t('前 100 行')})`
+        shell.set({ result: { type: 'object', data: obj } })
     }
 }
-
 
 class ColumnRoot implements DataNode {
     type = 'column-root' as const
@@ -1717,7 +1810,7 @@ class PartitionRoot implements DataNode {
     
     root: PartitionRoot
     
-    children: Partition[]
+    children: PartitionDirectory[]
     
     
     constructor (table: Table) {
@@ -1731,7 +1824,7 @@ class PartitionRoot implements DataNode {
     
     async load_children () {
         if (!this.children)
-            this.children = await shell.load_partitions(this, this)
+            this.children = (await shell.load_partitions(this, this)) as PartitionDirectory[]
     }
 }
 
@@ -2009,12 +2102,12 @@ function DBs ({ height }: { height: number }) {
                 treeData={dbs}
                 
                 loadedKeys={loaded_keys}
-                loadData={async (node: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | Partition>) => {
+                loadData={async (node: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
                     try {
                         switch (node.type) {
                             case 'column-root':
                             case 'partition-root':
-                            case 'partition':
+                            case 'partition-directory':
                                 await node.self.load_children()
                                 
                                 shell.set({ dbs: [...dbs] })
@@ -2033,11 +2126,12 @@ function DBs ({ height }: { height: number }) {
                 expandedKeys={expanded_keys}
                 onExpand={ keys => { set_expanded_keys(keys) }}
                 
-                onClick={async (event, node: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | Partition>) => {
-                    switch (node.type) {
+                onClick={async (event, { self: node, type }: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
+                    switch (type) {
                         case 'database': 
                         case 'partition-root': 
-                        case 'column-root': {
+                        case 'column-root': 
+                        case 'partition-directory': {
                             // 切换展开状态
                             let found = false
                             let keys_ = [ ]
@@ -2056,16 +2150,13 @@ function DBs ({ height }: { height: number }) {
                         }
                         
                         case 'table':
+                        case 'partition-file':
                             try {
-                                await node.db.children.find(table => table.name === node.name)
-                                    .show_rows()
+                                await node.show_rows()
                             } catch (error) {
                                 model.show_error({ error })
                                 throw error
                             }
-                            break
-                            
-                        case 'partition':
                             break
                     }
                 }}
