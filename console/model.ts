@@ -471,6 +471,8 @@ export class DdbModel extends Model<DdbModel> {
     
     
     show_error ({ error, title, content }: { error?: Error, title?: string, content?: string }) {
+        console.log(error)
+        
         Modal.error({
             className: 'modal-error',
             title: title || error?.message,

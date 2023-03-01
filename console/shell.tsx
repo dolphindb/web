@@ -7,10 +7,10 @@ import { default as React, useEffect, useRef, useState } from 'react'
 
 import { Resizable } from 're-resizable'
 
-import type { BasicDataNode } from 'rc-tree'
-
 import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button, Popconfirm, Switch } from 'antd'
 const { Option } = Select
+
+import type { DataNode, EventDataNode } from 'antd/es/tree'
 
 import { default as _Icon, SyncOutlined, MinusSquareOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
@@ -62,6 +62,10 @@ import {
     type DdbFunctionDefValue,
     type InspectOptions,
     type DdbVectorStringObj,
+    type DdbTableObj,
+    type DdbVectorObj,
+    type DdbVectorInt,
+    type DdbVectorLong,
 } from 'dolphindb/browser.js'
 
 import { keywords, constants, tm_language } from 'dolphindb/language.js'
@@ -86,7 +90,7 @@ import SvgAddColumn from './shell.icons/add-column.icon.svg'
 import SvgViewTableStructure from './shell.icons/view-table-structure.icon.svg'
 
 
-import { delta2str, delay } from 'xshell/utils.browser.js'
+import { delta2str, delay, assert } from 'xshell/utils.browser.js'
 import { red, blue, underline } from 'xshell/chalk.browser.js'
 
 import { Model } from 'react-object-model'
@@ -140,9 +144,7 @@ class ShellModel extends Model<ShellModel> {
     
     vars: DdbVar[]
     
-    dbs: Map<string, DdbEntity>
-    
-    tables: string[]
+    dbs: Database[]
     
     options?: InspectOptions
     
@@ -151,43 +153,6 @@ class ShellModel extends Model<ShellModel> {
     
     
     unload_registered = false
-    
-    async load_dbs () {
-        let dbs = new Map<string, DdbEntity>()
-        
-        // ['dfs://数据库路径(可能包含/)/表名', ...]
-        // 不能使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
-        const { value: fp_tables } = await ddb.call<DdbVectorStringObj>('getClusterDFSTables')
-        
-        this.set({ tables: fp_tables })
-        
-        let fp_dbs = new Set<string>()
-        for (const fp_table of fp_tables)
-            // 找到数据库最后一个斜杠位置，截取前面部分的字符串作为库名
-            fp_dbs.add(
-                fp_table.slice(0, fp_table.lastIndexOf('/'))
-            )
-        
-        for (const path of fp_dbs)
-            dbs.set(path, new DdbEntity({ path }))
-        
-        // LOCAL: OFF 测试虚拟滚动
-        // for (let i = 0;  i < 10000;  i++) {
-        //     const path = `dfs://mockdb${i}`
-        //     dbs.set(path, new DdbEntity({ path }))
-        // }
-        
-        // TEST: 测试多级数据库树
-        // for (let i = 0;  i <100 ;  i++) {
-        //     for (let j =0; j< 500; j++){
-        //         const path = `dfs://${i}.${j}`
-        //         const tables = [new TableEntity({name: `table_of_${i}_${j}`, ddb_path:path, labels:['sdsadfs'], column_schema:[{name:'Id', type:5}]})]
-        //         dbs.set(path, new DdbEntity({ path ,tables}))
-        //     }
-        //  }
-        
-        this.set({ dbs })
-    }
     
     
     async eval (code = this.editor.getValue()) {
@@ -235,14 +200,14 @@ class ShellModel extends Model<ShellModel> {
                         case DdbForm.table:
                         case DdbForm.vector:
                             return blue(
-                                ddbobj.inspect_type().trimEnd()
+                                ddbobj.inspect_type()
                             ) + '\n'
                         
                         default: {
                             if (ddbobj.type === DdbType.void)
                                 return ''
                             
-                            return ddbobj.toString({ ...this.options, colors: true, nullstr: true, quote: true }).trimEnd() + '\n'
+                            return ddbobj.toString({ ...this.options, colors: true, nullstr: true, quote: true }) + '\n'
                         }
                     }
                 })() +
@@ -367,9 +332,64 @@ class ShellModel extends Model<ShellModel> {
         
         await this.update_vars()
     }
+    
+    
+    async load_dbs () {
+        // ['dfs://数据库路径(可能包含/)/表名', ...]
+        // 不能使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
+        const { value: table_paths } = await ddb.call<DdbVectorStringObj>('getClusterDFSTables')
+        
+        let dbs = new Map<string, Database>()
+        for (const table_path of table_paths) {
+            // 找到数据库最后一个斜杠位置，截取前面部分的字符串作为库名
+            const index_slash = table_path.lastIndexOf('/')
+            
+            const db_path = `${table_path.slice(0, index_slash)}/`
+            
+            let db = dbs.get(db_path)
+            if (db)
+                db.children.push()
+            else {
+                db = new Database(db_path)
+                db.children.push(
+                    new Table(db, `${table_path}/`)
+                )
+                dbs.set(db_path, db)
+            }
+        }
+        
+        // LOCAL: OFF 测试虚拟滚动
+        // for (let i = 0;  i < 10000;  i++) {
+        //     const path = `dfs://mockdb${i}`
+        //     dbs.set(path, new DdbEntity({ path }))
+        // }
+        
+        // TEST: 测试多级数据库树
+        // for (let i = 0;  i <100 ;  i++) {
+        //     for (let j =0; j< 500; j++){
+        //         const path = `dfs://${i}.${j}`
+        //         const tables = [new TableEntity({name: `table_of_${i}_${j}`, ddb_path:path, labels:['sdsadfs'], column_schema:[{name:'Id', type:5}]})]
+        //         dbs.set(path, new DdbEntity({ path ,tables}))
+        //     }
+        //  }
+        
+        this.set({ dbs: [...dbs.values()] })
+    }
+    
+    
+    /** - path: 类似 dfs://Crypto_TSDB_14/, dfs://Crypto_TSDB_14/20100101_20110101/ 的路径 */
+    async load_partitions (root: PartitionRoot, node: Partition | PartitionRoot) {
+        // filename, filetype, size, chunks, sites
+        const { value: [{ value: filenames }, { value: filetypes }] } = await ddb.call<
+            DdbTableObj<[DdbVectorStringObj, DdbVectorInt, DdbVectorLong, DdbVectorStringObj, DdbVectorStringObj]>
+        >('getDFSDirectoryContent', [node.path.slice('dfs:/'.length)])
+        
+        return filenames.filter((filename, index) => filetypes[index] === DfsFileType.NORMAL_DIR)
+            .map(filename => new Partition(root, node, `${node.path}${filename}/`))
+    }
 }
 
-let shell = new ShellModel()
+let shell = window.shell = new ShellModel()
 
 
 export function Shell () {
@@ -1082,6 +1102,7 @@ function TreeView () {
                 <DBs height={db_height} />
             </div>
         </Resizable>
+        
         <div className='treeview-resizable-split2'>
             <div className='treeview-resizable-split21'>
                 <Variables shared={false} />
@@ -1410,7 +1431,7 @@ function DBItemTitle ({
 }
 
 
-class TreeDataItem implements BasicDataNode {
+class TreeDataItem implements DataNode {
     key: string
     
     className?: string
@@ -1467,39 +1488,284 @@ class TreeDataItem implements BasicDataNode {
 }
 
 
-class DdbEntity {
+class Database implements DataNode {
+    type = 'database' as const
+    
+    self: Database
+    
+    key: string
+    
+    /** 以 dfs:// 开头，以 / 结尾 */
     path: string
-
-    empty = false // after load
-
-    tables: TableEntity[] = []
-
-    path_part1: string
-    path_part2: string
+    
+    title: React.ReactNode
+    
+    className = 'db'
+    
+    icon = <Icon component={SvgDatabase} />
+    
+    isLeaf = false
+    
+    /** tables */
+    children: Table[] = [ ]
     
     
-    constructor(data: Partial<DdbEntity>) {
-        Object.assign(this, data)
-        const [part1, ...part2_] = this.path.slice(6).split('.')
-        const part2 = part2_.join('.')
-        // dfs://a.b   ->   [part1, part2] = [a, b]
-        this.path_part1 = part1
-        this.path_part2 = part2
-    }
-    
-    
-    to_tree_data_item (on_menu): TreeDataItem {
-        return new TreeDataItem({
-            title: <span className='name'>{this.path_part2 || this.path}</span>,
-            key: this.path,
-            icon: <Icon component={SvgDatabase} />,
-            children: this.tables.map(table => table.to_tree_data_item(on_menu)),
-            isLeaf: false,
-            needLoad: true,
-            className: this.empty ? 'ant-tree-treenode-empty' : null
-        })
+    constructor (path: string) {
+        this.self = this
+        assert(path.startsWith('dfs://'), t('数据库路径应该以 dfs:// 开头'))
+        this.key = this.path = path
+        this.title = <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1)}</span>
     }
 }
+
+
+class Table implements DataNode {
+    type = 'table' as const
+    
+    self: Table
+    
+    key: string
+    
+    /** 以 dfs:// 开头，以 / 结尾 */
+    path: string
+    
+    name: string
+    
+    title: string
+    
+    className = 'table'
+    
+    icon = <Icon component={SvgTable} />
+    
+    isLeaf = false
+    
+    db: Database
+    
+    // children: Column[]
+    children: [ColumnRoot, PartitionRoot]
+    
+    obj: DdbTableObj
+    
+    
+    constructor (db: Database, path: string) {
+        this.self = this
+        this.db = db
+        this.key = this.path = path
+        this.title = this.name = path.slice(db.path.length, -1)
+        this.children = [new ColumnRoot(this), new PartitionRoot(this)]
+    }
+    
+    
+    async show_rows () {
+        let ddbobj = await ddb.eval(`select top 100 * from loadTable(${this.db.path.slice(0, -1).quote('double')}, ${this.name.quote('double')})`)
+        ddbobj.name = `${this.name} (${t('前 100 行')})`
+        shell.set({ result: { type: 'object', data: ddbobj } })
+    }
+}
+
+
+class Column implements DataNode {
+    type = 'column' as const
+    
+    self: Column
+    
+    key: string
+    
+    title: React.ReactNode
+    
+    className = 'column'
+    
+    icon = <Icon component={SvgColumn} />
+    
+    isLeaf = true
+    
+    root: ColumnRoot
+    
+    obj: DdbVectorObj
+    
+    
+    constructor (root: ColumnRoot, obj: DdbVectorObj) {
+        this.self = this
+        this.root = root
+        this.obj = obj
+        this.key = `${root.table.path}/${obj.name}`
+        this.title = <>
+            <span className='column-name'>{obj.name}</span>: {DdbType[obj.type]}
+        </>
+    }
+}
+
+
+enum DfsFileType {
+    NORMAL_DIR, PARTITION_DIRV0, NORMAL_FILEV0, SMALLFILE_DIR, PARTITION_DIR, NORMAL_FILE
+}
+
+
+class Partition implements DataNode {
+    type = 'partition' as const
+    
+    self: Partition
+    
+    key: string
+    
+    /** 以 dfs:// 开头，以 / 结尾 */
+    path: string
+    
+    name: string
+    
+    title: string
+    
+    className = 'partition'
+    
+    icon = <Icon component={SvgColumn} />
+    
+    isLeaf = false
+    
+    root: PartitionRoot
+    
+    parent: Partition | PartitionRoot
+    
+    children?: Partition[]
+    
+    
+    constructor (root: PartitionRoot, parent: Partition | PartitionRoot, path: string) {
+        this.self = this
+        this.parent = parent
+        this.root = root
+        this.key = this.path = path
+        
+        // 找到除了最后一个 / 之外的前一个斜杠的位置，开始截取
+        this.title = this.name = path.slice(
+            path.lastIndexOf('/', path.length - 2) + 1,
+            -1
+        )
+    }
+    
+    
+    async load_children () {
+        if (!this.children) {
+            this.children = await shell.load_partitions(this.root, this)
+            this.isLeaf = true
+        }
+    }
+    
+    
+    async show_rows () {
+        await ddb.call()
+    }
+}
+
+
+class ColumnRoot implements DataNode {
+    type = 'column-root' as const
+    
+    self: ColumnRoot
+    
+    key: string
+    
+    title = t('列')
+    
+    className = 'category'
+    
+    isLeaf = false
+    
+    table: Table
+    
+    obj: DdbTableObj
+    
+    children: Column[]
+    
+    
+    constructor (table: Table) {
+        this.self = this
+        this.table = table
+        this.key = `${table.path}${this.type}/`
+    }
+    
+    
+    async load_children () {
+        if (!this.children) {
+            this.obj = await ddb.call<DdbTableObj>('loadTable', [this.table.db.path.slice(0, -1), this.table.name])
+            this.children = this.obj.value.map(col => 
+                new Column(this, col))
+        }
+    }
+}
+
+
+class PartitionRoot implements DataNode {
+    type = 'partition-root' as const
+    
+    self: PartitionRoot
+    
+    key: string
+    
+    path: string
+    
+    title = t('分区')
+    
+    className = 'category'
+    
+    isLeaf = false
+    
+    table: Table
+    
+    root: PartitionRoot
+    
+    children: Partition[]
+    
+    
+    constructor (table: Table) {
+        this.self = this
+        this.root = this
+        this.table = table
+        this.key = `${table.path}${this.type}/`
+        this.path = table.db.path
+    }
+    
+    
+    async load_children () {
+        if (!this.children)
+            this.children = await shell.load_partitions(this, this)
+    }
+}
+
+
+
+
+// class DdbEntity {
+//     path: string
+    
+//     empty = false
+
+//     tables: TableEntity[] = []
+
+//     path_part1: string
+//     path_part2: string
+    
+    
+//     constructor(data: Partial<DdbEntity>) {
+//         Object.assign(this, data)
+//         const [part1, ...part2_] = this.path.slice(6).split('.')
+//         const part2 = part2_.join('.')
+//         // dfs://a.b   ->   [part1, part2] = [a, b]
+//         this.path_part1 = part1
+//         this.path_part2 = part2
+//     }
+    
+    
+//     to_tree_data_item (on_menu): TreeDataItem {
+//         return new TreeDataItem({
+//             title: <span className='name'>{this.path_part2 || this.path}</span>,
+//             key: this.path,
+//             icon: <Icon component={SvgDatabase} />,
+//             children: this.tables.map(table => table.to_tree_data_item(on_menu)),
+//             isLeaf: false,
+//             needLoad: true,
+//             className: this.empty ? 'ant-tree-treenode-empty' : null
+//         })
+//     }
+// }
 
 
 
@@ -1558,10 +1824,11 @@ class TableEntity {
 function DBs ({ height }: { height: number }) {
     const { dbs } = shell.use(['dbs'])
     
-    const [expanded_keys, set_expanded_keys] = useState([])
-    const [loaded_keys, set_loaded_keys] = useState([])
-    const [menu, on_menu] = useState<ContextMenu | null>()
-    const [selected_keys, set_selected_keys] = useState([])
+    
+    const [expanded_keys, set_expanded_keys] = useState([ ])
+    const [loaded_keys, set_loaded_keys] = useState([ ])
+    // const [menu, on_menu] = useState<ContextMenu | null>()
+    // const [selected_keys, set_selected_keys] = useState([])
     
     /*
         tree_data 每个节点都是一个 DdbEntity 或者 TableEntity, 在构造 tree_data 时会调用 to_tree_data_item 将上述 entity 转化为真正的 TreeDataItem
@@ -1573,131 +1840,133 @@ function DBs ({ height }: { height: number }) {
         每次展开一个树节点时，会调用 load_data, 读取当前正在操作的 key，更新 TreeDataItem 。通过 treeData[position] = new_TreeDataItem 的方式更新树。这样每次调用 load_data 就只会发生一次 to_tree_data_item 调用
     */
     
-    const [tree_data, set_tree_data] = useState<TreeDataItem[]>([ ])
-    const index_of_path_in_grouped_tree_data = useRef<Map<string, number[]>>(new Map())
+    // const [tree_data, set_tree_data] = useState<TreeDataItem[]>([ ])
+    // const index_of_path_in_grouped_tree_data = useRef<Map<string, number[]>>(new Map())
     
-    useEffect(() => {
-        if (menu?.key)
-            set_selected_keys([menu.key])
-    }, [menu])
+    // useEffect(() => {
+    //     if (menu?.key)
+    //         set_selected_keys([menu.key])
+    // }, [menu])
     
     
-    useEffect(() => {
-        if (!dbs) 
-            return
+    // useEffect(() => {
+    //     if (!dbs)
+    //         return
         
-        //  dfs://a.b 形式的库将会被归入 group_with_path_part2   dfs://xxx 的普通数据库将会被归入 dbs_without_path_part2
+    //     //  dfs://a.b 形式的库将会被归入 groups   dfs://xxx 的普通数据库将会被归入 _dbs
         
-        const group_with_path_part2: TreeDataItem[] = []
-        const dbs_without_path_part2: TreeDataItem[] = []
+    //     const groups: TreeDataItem[] = []
+    //     const _dbs: TreeDataItem[] = []
         
-        // 记录某个 group 底下有哪些数据库
-        const part1_group_map: Map<string, DdbEntity[]> = new Map()
+    //     // 记录某个 group 底下有哪些数据库
+    //     const group_dbs: Map<string, DdbEntity[]> = new Map()
         
-        for (const db of dbs.values()) {
-            const [part1, ...part2_] = db.path.slice(6).split('.')
-            const part2 = part2_?.join('.')
+    //     for (const db of dbs.values()) {
+    //         const [part1, ...part2_] = db.path.slice(6).split('.')
+    //         const part2 = part2_?.join('.')
             
-            if (!part2) {
-                dbs_without_path_part2.push(db.to_tree_data_item(on_menu))
-                continue
-            }
+    //         if (!part2) {
+    //             _dbs.push(db.to_tree_data_item(on_menu))
+    //             continue
+    //         }
             
-            if (!part1_group_map.has(part1))
-                part1_group_map.set(part1, [db])
-            else
-                part1_group_map.get(part1).push(db)
-        }
+    //         if (!group_dbs.has(part1))
+    //             group_dbs.set(part1, [db])
+    //         else
+    //             group_dbs.get(part1).push(db)
+    //     }
         
-        for (const key of part1_group_map.keys()) {
-            const new_group = new TreeDataItem({
-                title: <span className='name'>{`dfs://${key}`}</span>,
-                key: `group-${key}`,
-                icon: <FolderOutlined color='#4a5eed' />,
-                children: part1_group_map.get(key)
-                    .map(ddb_entity => 
-                        ddb_entity.to_tree_data_item(on_menu))
-            })
+    //     for (const key of group_dbs.keys()) {
+    //         const new_group = new TreeDataItem({
+    //             title: <span className='name'>{`dfs://${key}`}</span>,
+    //             key: `group-${key}`,
+    //             icon: <FolderOutlined color='#4a5eed' />,
+    //             children: group_dbs.get(key)
+    //                 .map(ddb_entity => 
+    //                     ddb_entity.to_tree_data_item(on_menu))
+    //         })
             
-            group_with_path_part2.push(new_group)
-        }
+    //         groups.push(new_group)
+    //     }
         
-        let tree_data = dbs_without_path_part2.concat(group_with_path_part2)
+    //     let tree_data = _dbs.concat(groups)
         
-        for (let i = 0; i < tree_data.length; i++) 
-            if (tree_data[i].key.startsWith('group-')) {
-                const children_length = tree_data[i].children.length
-                for (let j = 0; j < children_length; j++)
-                    index_of_path_in_grouped_tree_data.current.set(tree_data[i].children[j].key, [i, j])
-            } else
-                index_of_path_in_grouped_tree_data.current.set(tree_data[i].key, [i])
+    //     for (let i = 0; i < tree_data.length; i++) 
+    //         if (tree_data[i].key.startsWith('group-')) {
+    //             const children_length = tree_data[i].children.length
+    //             for (let j = 0; j < children_length; j++)
+    //                 index_of_path_in_grouped_tree_data.current.set(tree_data[i].children[j].key, [i, j])
+    //         } else
+    //             index_of_path_in_grouped_tree_data.current.set(tree_data[i].key, [i])
         
-        set_tree_data(tree_data)
-    }, [dbs])
+    //     set_tree_data(tree_data)
+    // }, [dbs])
+    
     
     if (!dbs)
         return
     
-    async function load_data ({ key, needLoad }: Partial<TreeDataItem>) {
-        if (!needLoad)
-            return
+    
+    // async function load_data ({ key, needLoad }: Partial<TreeDataItem>) {
+    //     if (!needLoad)
+    //         return
         
-        let tables_ = null
-        try {
-            const tables = (
-                await ddb.eval<DdbObj<DdbObj[]>>(
-                    'each(\n' +
-                    `    def (table_name): loadTable("${key}", table_name, memoryMode=false),\n` +
-                    `    ${shell.tables.filter(table => table.startsWith(key))
-                            .map(table => table.slice(table.lastIndexOf('/') + 1).quote('double'))
-                            .join(', ')
-                            .bracket('square')}\n` +
-                    ')\n')
-            ).value.map(tb =>
-                new TableEntity({
-                    name: tb.name,
-                    ddb_path: key,
-                    column_schema: (tb.value as DdbObj[]).map(col => ({ name: col.name, type: col.type }))
-                })
-            )
+    //     let tables_ = null
+    //     try {
+    //         const tables = (
+    //             await ddb.eval<DdbObj<DdbObj[]>>(
+    //                 'each(\n' +
+    //                 `    def (table_name): loadTable("${key}", table_name, memoryMode=false),\n` +
+    //                 `    ${shell.tables.filter(table => table.startsWith(key))
+    //                         .map(table => table.slice(table.lastIndexOf('/') + 1).quote('double'))
+    //                         .join(', ')
+    //                         .bracket('square')}\n` +
+    //                 ')\n')
+    //         ).value.map(tb =>
+    //             new TableEntity({
+    //                 name: tb.name,
+    //                 ddb_path: key,
+    //                 column_schema: (tb.value as DdbObj[]).map(col => ({ name: col.name, type: col.type }))
+    //             })
+    //         )
             
-            tables_ = tables
-        } catch (error) {
-            let i = (error.message as string).indexOf('<NotAuthenticated>')
-            if (i === -1)
-                i = (error.message as string).indexOf('<NoPrivilege>')
+    //         tables_ = tables
+    //     } catch (error) {
+    //         let i = (error.message as string).indexOf('<NotAuthenticated>')
+    //         if (i === -1)
+    //             i = (error.message as string).indexOf('<NoPrivilege>')
             
-            if (i === -1 || model.dev)
-                model.show_error({ error })
-            else {
-                const errmsg = (error.message as string).slice(i)
-                message.error(errmsg)
-                shell.term.writeln(red(errmsg))
-            }
+    //         if (i === -1 || model.dev)
+    //             model.show_error({ error })
+    //         else {
+    //             const errmsg = (error.message as string).slice(i)
+    //             message.error(errmsg)
+    //             shell.term.writeln(red(errmsg))
+    //         }
             
-            set_loaded_keys([...loaded_keys, key])
+    //         set_loaded_keys([...loaded_keys, key])
             
-            throw error
-        } finally {
-            const [part1, ...part2_] = key.slice('dfs://'.length).split('.')
-            const part2 = part2_.join('.')
+    //         throw error
+    //     } finally {
+    //         const [part1, ...part2_] = key.slice('dfs://'.length).split('.')
+    //         const part2 = part2_.join('.')
             
-            const grouped_tree_data_ = [...tree_data]
-            if (part2) {
-                const [index1, index2] = index_of_path_in_grouped_tree_data.current.get(key)
-                grouped_tree_data_[index1].children[index2] = tables_
-                    ? new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu)
-                    : new DdbEntity({ path: key, empty: true }).to_tree_data_item(on_menu)
-            } else {
-                const [index] = index_of_path_in_grouped_tree_data.current.get(key)
-                grouped_tree_data_[index] = tables_
-                    ? new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu)
-                    : new DdbEntity({ path: key, empty: true }).to_tree_data_item(on_menu)
-            }
+    //         const grouped_tree_data_ = [...tree_data]
+    //         if (part2) {
+    //             const [index1, index2] = index_of_path_in_grouped_tree_data.current.get(key)
+    //             grouped_tree_data_[index1].children[index2] = tables_
+    //                 ? new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu)
+    //                 : new DdbEntity({ path: key, empty: true }).to_tree_data_item(on_menu)
+    //         } else {
+    //             const [index] = index_of_path_in_grouped_tree_data.current.get(key)
+    //             grouped_tree_data_[index] = tables_
+    //                 ? new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu)
+    //                 : new DdbEntity({ path: key, empty: true }).to_tree_data_item(on_menu)
+    //         }
             
-            set_tree_data(grouped_tree_data_)
-        }
-    }
+    //         set_tree_data(grouped_tree_data_)
+    //     }
+    // }
     
     
     return <div className='database-panel'>
@@ -1706,8 +1975,8 @@ function DBs ({ height }: { height: number }) {
             <span className='extra'>
                 <span onClick={async () => {
                     await shell.load_dbs()
-                    set_expanded_keys([])
-                    set_loaded_keys([])
+                    set_expanded_keys([ ])
+                    set_loaded_keys([ ])
                 }}>
                     <Tooltip title={t('刷新')} color='grey'>
                         <SyncOutlined />
@@ -1732,37 +2001,83 @@ function DBs ({ height }: { height: number }) {
                 // 启用虚拟滚动
                 height={height}
                 
-                treeData={tree_data}
+                treeData={dbs}
                 
                 loadedKeys={loaded_keys}
-                loadData={load_data}
-                onLoad={keys => {
-                    set_loaded_keys([...keys])
+                loadData={async (node: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | Partition>) => {
+                    try {
+                        switch (node.type) {
+                            case 'column-root':
+                            case 'partition-root':
+                            case 'partition':
+                                await node.self.load_children()
+                                
+                                shell.set({ dbs: [...dbs] })
+                                
+                                break
+                        }
+                    } catch (error) {
+                        model.show_error({ error })
+                        
+                        // 这里不往上扔错误，避免 rc-tree 自动重试造成多个错误弹窗
+                        // throw error
+                    }
                 }}
+                onLoad={ keys => { set_loaded_keys(keys) }}
                 
                 expandedKeys={expanded_keys}
-                onExpand={keys => {
-                    set_expanded_keys([...keys])
+                onExpand={ keys => { set_expanded_keys(keys) }}
+                
+                onClick={async (event, node: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | Partition>) => {
+                    switch (node.type) {
+                        case 'database': 
+                        case 'partition-root': 
+                        case 'column-root': {
+                            // 切换展开状态
+                            let found = false
+                            let keys_ = [ ]
+                            
+                            for (const key of expanded_keys)
+                                if (key === node.key)
+                                    found = true
+                                else
+                                    keys_.push(key)
+                            
+                            if (!found)
+                                keys_.push(node.key)
+                            
+                            set_expanded_keys(keys_)
+                            break
+                        }
+                        
+                        case 'table':
+                            try {
+                                await node.db.children.find(table => table.name === node.name)
+                                    .show_rows()
+                            } catch (error) {
+                                model.show_error({ error })
+                                throw error
+                            }
+                            break
+                            
+                        case 'partition':
+                            break
+                    }
                 }}
                 
-                selectedKeys={selected_keys}
                 
-                onContextMenu={event => { event.preventDefault() }}
-                
-                onSelect={keys => {
-                    set_selected_keys(keys)
-                }}
+                // onContextMenu={event => { event.preventDefault() }}
             />
         </div>
         
-        <DBModal
+        {/* <DBModal
             open={menu && menu.open}
             command={menu ? menu.command : ''}
             database={menu?.database}
             table={menu?.table}
             column={menu?.column}
             loadData={load_data}
-        />
+        /> */}
     </div>
 }
 
