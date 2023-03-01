@@ -12,7 +12,7 @@ const { Option } = Select
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined, BorderOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
@@ -88,6 +88,7 @@ import SvgDatabase from './shell.icons/database.icon.svg'
 import SvgColumn from './shell.icons/column.icon.svg'
 import SvgAddColumn from './shell.icons/add-column.icon.svg'
 import SvgViewTableStructure from './shell.icons/view-table-structure.icon.svg'
+import SvgPartitions from './shell.icons/partitions.icon.svg'
 
 
 import { delta2str, delay, assert } from 'xshell/utils.browser.js'
@@ -1617,7 +1618,7 @@ class Partition implements DataNode {
     
     className = 'partition'
     
-    icon = <Icon component={SvgColumn} />
+    icon = <BorderOutlined />
     
     isLeaf = false
     
@@ -1667,6 +1668,8 @@ class ColumnRoot implements DataNode {
     
     className = 'category'
     
+    icon = <Icon component={SvgColumn} />
+    
     isLeaf = false
     
     table: Table
@@ -1705,6 +1708,8 @@ class PartitionRoot implements DataNode {
     title = t('分区')
     
     className = 'category'
+    
+    icon = <Icon component={SvgPartitions} />
     
     isLeaf = false
     
