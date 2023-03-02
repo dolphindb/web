@@ -105,6 +105,8 @@ import { Obj, DdbObjRef } from './obj.js'
 
 import { model, storage_keys } from './model.js'
 
+// 在 React DevTool 中显示的组件名字
+MonacoEditor.displayName = 'MonacoEditor'
 
 loader.config({
     paths: {
@@ -815,176 +817,178 @@ function Editor () {
             }</div>
         </div>
         
-        <MonacoEditor
-            defaultLanguage='dolphindb'
-            
-            language='dolphindb'
-            
-            options={{
-                minimap: {
-                    enabled: minimap
-                },
+        <div className='monaco-container'>
+            <MonacoEditor
+                defaultLanguage='dolphindb'
                 
-                fontFamily: 'MyFont, Menlo, \'Ubuntu Mono\', Consolas, PingFangSC, \'Noto Sans CJK SC\', \'Microsoft YaHei\'',
-                fontSize: 16,
-                insertSpaces: true,
-                codeLensFontFamily: 'MyFont, Menlo, \'Ubuntu Mono\', Consolas, PingFangSC, \'Noto Sans CJK SC\', \'Microsoft YaHei\'',
-                folding: true,
-                largeFileOptimizations: true,
-                matchBrackets: 'always',
-                smoothScrolling: false,
-                suggest: {
-                    insertMode: 'replace',
-                    snippetsPreventQuickSuggestions: false,
-                },
+                language='dolphindb'
                 
-                wordBasedSuggestions: true,
-                
-                mouseWheelZoom: true,
-                guides: {
-                    indentation: false,
-                    bracketPairs: false,
-                    highlightActiveIndentation: false,
-                },
-                
-                detectIndentation: true,
-                tabSize: 4,
-                
-                codeLens: true,
-                roundedSelection: false,
-                wordWrap: 'on',
-                
-                scrollBeyondLastLine: false,
-                scrollbar: {
-                    vertical: 'visible'
-                },
-                
-                find: {
-                    loop: true,
-                    seedSearchStringFromSelection: 'selection',
-                },
-                
-                acceptSuggestionOnCommitCharacter: false,
-                
-                mouseWheelScrollSensitivity: 2,
-                dragAndDrop: false,
-                renderControlCharacters: true,
-                lineNumbers: 'on',
-                showFoldingControls: 'mouseover',
-                foldingStrategy: 'indentation',
-                accessibilitySupport: 'off',
-                autoIndent: 'advanced',
-                snippetSuggestions: 'none',
-                renderLineHighlight: 'none',
-                trimAutoWhitespace: false,
-                hideCursorInOverviewRuler: true,
-                renderWhitespace: 'none',
-                overviewRulerBorder: true,
-                
-                gotoLocation: {
-                    multipleDeclarations: 'peek',
-                    multipleTypeDefinitions: 'peek',
-                    multipleDefinitions: 'peek',
-                },
-                
-                foldingHighlight: false,
-                unfoldOnClickAfterEndOfLine: true,
-                
-                inlayHints: {
-                    enabled: false,
-                },
-                
-                acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
-                
-                quickSuggestions: {
-                    other: true,
-                    comments: true,
-                    strings: true,
-                },
-            }}
-            
-            onMount={(editor, monaco: Monaco) => {
-                editor.setValue(localStorage.getItem(storage_keys.code) || '')
-                
-                editor.addAction({
-                    id: 'dolphindb.execute',
-                    
-                    keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE
-                    ],
-                    
-                    label: t('DolphinDB: 执行代码'),
-                    
-                    run () {
-                        shell.execute()
-                    }
-                })
-                
-                editor.addAction({
-                    id: 'dolphindb.save',
-                    
-                    keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS
-                    ],
-                    
-                    label: t('DolphinDB: 保存代码'),
-                    
-                    run () {
-                        shell.save()
+                options={{
+                    minimap: {
+                        enabled: minimap
                     },
-                })
-                
-                editor.addAction({
-                    id: 'duplicate_line',
                     
-                    keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyD
-                    ],
+                    fontFamily: 'MyFont, Menlo, \'Ubuntu Mono\', Consolas, PingFangSC, \'Noto Sans CJK SC\', \'Microsoft YaHei\'',
+                    fontSize: 16,
+                    insertSpaces: true,
+                    codeLensFontFamily: 'MyFont, Menlo, \'Ubuntu Mono\', Consolas, PingFangSC, \'Noto Sans CJK SC\', \'Microsoft YaHei\'',
+                    folding: true,
+                    largeFileOptimizations: true,
+                    matchBrackets: 'always',
+                    smoothScrolling: false,
+                    suggest: {
+                        insertMode: 'replace',
+                        snippetsPreventQuickSuggestions: false,
+                    },
                     
-                    label: t('向下复制行'),
+                    wordBasedSuggestions: true,
                     
-                    async run (editor: monacoapi.editor.IStandaloneCodeEditor) {
-                        await editor.getAction('editor.action.copyLinesDownAction').run()
-                    }
-                })
-                
-                editor.addAction({
-                    id: 'delete_lines',
+                    mouseWheelZoom: true,
+                    guides: {
+                        indentation: false,
+                        bracketPairs: false,
+                        highlightActiveIndentation: false,
+                    },
                     
-                    keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyY
-                    ],
+                    detectIndentation: true,
+                    tabSize: 4,
                     
-                    label: t('删除行'),
+                    codeLens: true,
+                    roundedSelection: false,
+                    wordWrap: 'on',
                     
-                    async run (editor: monacoapi.editor.IStandaloneCodeEditor) {
-                        await editor.getAction('editor.action.deleteLines').run()
-                    }
-                })
+                    scrollBeyondLastLine: false,
+                    scrollbar: {
+                        vertical: 'visible'
+                    },
+                    
+                    find: {
+                        loop: true,
+                        seedSearchStringFromSelection: 'selection',
+                    },
+                    
+                    acceptSuggestionOnCommitCharacter: false,
+                    
+                    mouseWheelScrollSensitivity: 2,
+                    dragAndDrop: false,
+                    renderControlCharacters: true,
+                    lineNumbers: 'on',
+                    showFoldingControls: 'mouseover',
+                    foldingStrategy: 'indentation',
+                    accessibilitySupport: 'off',
+                    autoIndent: 'advanced',
+                    snippetSuggestions: 'none',
+                    renderLineHighlight: 'none',
+                    trimAutoWhitespace: false,
+                    hideCursorInOverviewRuler: true,
+                    renderWhitespace: 'none',
+                    overviewRulerBorder: true,
+                    
+                    gotoLocation: {
+                        multipleDeclarations: 'peek',
+                        multipleTypeDefinitions: 'peek',
+                        multipleDefinitions: 'peek',
+                    },
+                    
+                    foldingHighlight: false,
+                    unfoldOnClickAfterEndOfLine: true,
+                    
+                    inlayHints: {
+                        enabled: false,
+                    },
+                    
+                    acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
+                    
+                    quickSuggestions: {
+                        other: true,
+                        comments: true,
+                        strings: true,
+                    },
+                }}
                 
-                // 使 suggest details 始终保持显示，see: https://github.com/microsoft/monaco-editor/issues/3216
-                // monaco@0.35.0 采用 minify 过的代码，在不使用 esm bundle 的情况下，无法直接访问 suggestWidget 的属性
-                // 我们采用一种暴力的方法，直接访问 suggestWidget 的私有属性
-                // 可以从 esm 包中找到原函数 (monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestWidget.js)
-                // 文件内搜索 `_setDetailsVisible` 可以搜 "expandSuggestionDocs" 这个字段
-                // 然后对比 dev 包中的代码 (monaco-editor/dev/vs/editor/editor.main.js)
-                // 也搜索 "expandSuggestionDocs" 这个字段，找到 `_setDetailsVisible` minify 之后的函数名，写在下面
-                ;(editor.getContribution('editor.contrib.suggestController') as any).widget.value.X(true)
+                onMount={(editor, monaco: Monaco) => {
+                    editor.setValue(localStorage.getItem(storage_keys.code) || '')
+                    
+                    editor.addAction({
+                        id: 'dolphindb.execute',
+                        
+                        keybindings: [
+                            monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE
+                        ],
+                        
+                        label: t('DolphinDB: 执行代码'),
+                        
+                        run () {
+                            shell.execute()
+                        }
+                    })
+                    
+                    editor.addAction({
+                        id: 'dolphindb.save',
+                        
+                        keybindings: [
+                            monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS
+                        ],
+                        
+                        label: t('DolphinDB: 保存代码'),
+                        
+                        run () {
+                            shell.save()
+                        },
+                    })
+                    
+                    editor.addAction({
+                        id: 'duplicate_line',
+                        
+                        keybindings: [
+                            monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyD
+                        ],
+                        
+                        label: t('向下复制行'),
+                        
+                        async run (editor: monacoapi.editor.IStandaloneCodeEditor) {
+                            await editor.getAction('editor.action.copyLinesDownAction').run()
+                        }
+                    })
+                    
+                    editor.addAction({
+                        id: 'delete_lines',
+                        
+                        keybindings: [
+                            monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyY
+                        ],
+                        
+                        label: t('删除行'),
+                        
+                        async run (editor: monacoapi.editor.IStandaloneCodeEditor) {
+                            await editor.getAction('editor.action.deleteLines').run()
+                        }
+                    })
+                    
+                    // 使 suggest details 始终保持显示，see: https://github.com/microsoft/monaco-editor/issues/3216
+                    // monaco@0.35.0 采用 minify 过的代码，在不使用 esm bundle 的情况下，无法直接访问 suggestWidget 的属性
+                    // 我们采用一种暴力的方法，直接访问 suggestWidget 的私有属性
+                    // 可以从 esm 包中找到原函数 (monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestWidget.js)
+                    // 文件内搜索 `_setDetailsVisible` 可以搜 "expandSuggestionDocs" 这个字段
+                    // 然后对比 dev 包中的代码 (monaco-editor/dev/vs/editor/editor.main.js)
+                    // 也搜索 "expandSuggestionDocs" 这个字段，找到 `_setDetailsVisible` minify 之后的函数名，写在下面
+                    ;(editor.getContribution('editor.contrib.suggestController') as any).widget.value.X(true)
+                    
+                    // suggest_widget._persistedSize.store({
+                    //     width: 200,
+                    //     height: 256
+                    // })
+                    
+                    inject_css()
+                    
+                    shell.set({ editor, monaco })
+                }}
                 
-                // suggest_widget._persistedSize.store({
-                //     width: 200,
-                //     height: 256
-                // })
-                
-                inject_css()
-                
-                shell.set({ editor, monaco })
-            }}
-            
-            onChange={(value, event) => {
-                shell.save_debounced(value)
-            }}
-        />
+                onChange={(value, event) => {
+                    shell.save_debounced(value)
+                }}
+            />
+        </div>
     </div>
 }
 
