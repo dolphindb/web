@@ -1652,7 +1652,7 @@ class PartitionDirectory implements DataNode {
     
     key: string
     
-    /** 以 dfs:// 开头，以 / 结尾 */
+    /** 以 dfs:// 开头，以 / 结尾，如 dfs://A.compo/pt/20170807/0_50/ */
     path: string
     
     name: string
@@ -1678,7 +1678,11 @@ class PartitionDirectory implements DataNode {
         this.self = this
         this.parent = parent
         this.root = root
-        this.key = this.path = path
+        this.path = path
+        
+        // key 需要带上表路径避免重复
+        const { table } = root
+        this.key = table.path + path.slice(table.db.path.length)
         
         // 找到除了最后一个 / 之外的前一个斜杠的位置，开始截取
         this.title = this.name = path.slice(
@@ -1702,7 +1706,7 @@ class PartitionFile implements DataNode {
     
     key: string
     
-    /** 以 dfs:// 开头，不以 / 结尾 */
+    /** 以 dfs:// 开头，不以 / 结尾，如 dfs://A.compo/pt2/20170807/0_50/3xeU */
     path: string
     
     name: string
@@ -1728,7 +1732,11 @@ class PartitionFile implements DataNode {
         this.self = this
         this.parent = parent
         this.root = root
-        this.key = this.path = path
+        this.path = path
+        
+        // key 需要带上表路径避免重复
+        const { table } = root
+        this.key = table.path + path.slice(table.db.path.length)
         
         this.chunk = chunk
         
