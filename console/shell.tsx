@@ -2096,83 +2096,81 @@ function DBs ({ height }: { height: number }) {
             </span>
         </div>
         
-        <div className='tree-content'>
-            <Tree
-                className='database-tree'
-                showIcon
-                focusable={false}
-                blockNode
-                showLine
-                
-                // 启用虚拟滚动
-                height={height}
-                
-                treeData={dbs}
-                
-                loadedKeys={loaded_keys}
-                loadData={async (node: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
-                    try {
-                        switch (node.type) {
-                            case 'column-root':
-                            case 'partition-root':
-                            case 'partition-directory':
-                                await node.self.load_children()
-                                
-                                shell.set({ dbs: [...dbs] })
-                                
-                                break
-                        }
-                    } catch (error) {
-                        model.show_error({ error })
-                        
-                        // 这里不往上扔错误，避免 rc-tree 自动重试造成多个错误弹窗
-                        // throw error
-                    }
-                }}
-                onLoad={ keys => { set_loaded_keys(keys) }}
-                
-                expandedKeys={expanded_keys}
-                onExpand={ keys => { set_expanded_keys(keys) }}
-                
-                onClick={async (event, { self: node, type }: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
-                    switch (type) {
-                        case 'database': 
-                        case 'partition-root': 
-                        case 'column-root': 
-                        case 'partition-directory': {
-                            // 切换展开状态
-                            let found = false
-                            let keys_ = [ ]
+        <Tree
+            className='database-tree'
+            showIcon
+            focusable={false}
+            blockNode
+            showLine
+            
+            // 启用虚拟滚动
+            height={height}
+            
+            treeData={dbs}
+            
+            loadedKeys={loaded_keys}
+            loadData={async (node: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
+                try {
+                    switch (node.type) {
+                        case 'column-root':
+                        case 'partition-root':
+                        case 'partition-directory':
+                            await node.self.load_children()
                             
-                            for (const key of expanded_keys)
-                                if (key === node.key)
-                                    found = true
-                                else
-                                    keys_.push(key)
+                            shell.set({ dbs: [...dbs] })
                             
-                            if (!found)
-                                keys_.push(node.key)
-                            
-                            set_expanded_keys(keys_)
-                            break
-                        }
-                        
-                        case 'table':
-                        case 'partition-file':
-                            try {
-                                await node.show_rows()
-                            } catch (error) {
-                                model.show_error({ error })
-                                throw error
-                            }
                             break
                     }
-                }}
-                
-                
-                // onContextMenu={event => { event.preventDefault() }}
-            />
-        </div>
+                } catch (error) {
+                    model.show_error({ error })
+                    
+                    // 这里不往上扔错误，避免 rc-tree 自动重试造成多个错误弹窗
+                    // throw error
+                }
+            }}
+            onLoad={ keys => { set_loaded_keys(keys) }}
+            
+            expandedKeys={expanded_keys}
+            onExpand={ keys => { set_expanded_keys(keys) }}
+            
+            onClick={async (event, { self: node, type }: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
+                switch (type) {
+                    case 'database': 
+                    case 'partition-root': 
+                    case 'column-root': 
+                    case 'partition-directory': {
+                        // 切换展开状态
+                        let found = false
+                        let keys_ = [ ]
+                        
+                        for (const key of expanded_keys)
+                            if (key === node.key)
+                                found = true
+                            else
+                                keys_.push(key)
+                        
+                        if (!found)
+                            keys_.push(node.key)
+                        
+                        set_expanded_keys(keys_)
+                        break
+                    }
+                    
+                    case 'table':
+                    case 'partition-file':
+                        try {
+                            await node.show_rows()
+                        } catch (error) {
+                            model.show_error({ error })
+                            throw error
+                        }
+                        break
+                }
+            }}
+            
+            
+            // onContextMenu={event => { event.preventDefault() }}
+        />
         
         {/* <DBModal
             open={menu && menu.open}

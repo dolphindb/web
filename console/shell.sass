@@ -23,19 +23,11 @@
             flex-direction: column
             white-space: nowrap
             overflow: hidden
-            .tree-content
+            
+            .database-tree
                 height: 100%
-                mask-image: linear-gradient(to top, transparent, black), linear-gradient(to left, transparent 17px, black 17px)
-                mask-size: 100% 20000px
-                mask-position: left bottom
-                -webkit-mask-image: linear-gradient(to top, transparent,black), linear-gradient(to left, transparent 17px, black 17px)
-                -webkit-mask-size: 100% 50000px
-                -webkit-mask-position: left bottom
-                transition: mask-position 0.3s, -webkit-mask-position 0.3s
                 overflow-y: auto
                 overflow-x: hidden
-            .tree-content:hover
-                -webkit-mask-position: left top
             
             .type
                 display: flex
