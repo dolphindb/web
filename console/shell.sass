@@ -203,6 +203,8 @@
                 
                 .editor
                     height: 100%
+                    display: flex
+                    flex-direction: column
                     
                     .toolbar
                         display: flex
@@ -246,21 +248,24 @@
                             .status.executing
                                 color: #c72e0f
                                 cursor: pointer
-                        
                     
-                    .monaco-editor
-                        .line-numbers
-                            color: #888888
+                    .monaco-container
+                        flex-grow: 1
+                        min-height: 0px
                         
-                        .active-line-number.line-numbers
-                            color: #444444
+                        .monaco-editor
+                            .line-numbers
+                                color: #888888
+                            
+                            .active-line-number.line-numbers
+                                color: #444444
+                            
                         
-                    
-                    .monaco-editor, .monaco-editor-background, .monaco-editor .inputarea.ime-input
-                        background-color: #ffffff
-                    
-                    .monaco-editor .margin
-                        background-color: #ffffff
+                        .monaco-editor, .monaco-editor-background, .monaco-editor .inputarea.ime-input
+                            background-color: #ffffff
+                        
+                        .monaco-editor .margin
+                            background-color: #ffffff
             
             
             .term
