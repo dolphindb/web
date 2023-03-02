@@ -61,14 +61,12 @@ import { Cluster } from './cluster.js'
 import { Shell } from './shell.js'
 import { DashBoard } from './dashboard.js'
 import { Job } from './job.js'
-import { DFS } from './dfs.js'
 import { Log } from './log.js'
 
 import SvgCluster from './cluster.icon.svg'
 import SvgShell from './shell.icon.svg'
 import SvgDashboard from './dashboard.icon.svg'
 import SvgJob from './job.icon.svg'
-import SvgDFS from './dfs.icon.svg'
 import SvgLog from './log.icon.svg'
 import SvgArrowDown from './arrow.down.icon.svg'
 
@@ -441,11 +439,6 @@ function DdbSider () {
                     icon: <MenuIcon view='job' />,
                     label: t('作业管理'),
                 },
-                ... (!cdn && (node_type === NodeType.controller || node_type === NodeType.single)) ? [{
-                    key: 'dfs',
-                    icon: <MenuIcon view='dfs' />,
-                    label: t('文件系统'),
-                }] : [ ],
                 {
                     key: 'log',
                     icon: <MenuIcon view='log' />,
@@ -552,7 +545,6 @@ const views = {
     shell: Shell,
     dashboard: DashBoard,
     job: Job,
-    dfs: DFS,
     log: Log,
 }
 
@@ -575,7 +567,6 @@ const svgs = {
     shell: SvgShell,
     dashboard: SvgDashboard,
     job: SvgJob,
-    dfs: SvgDFS,
     log: SvgLog,
 }
 
