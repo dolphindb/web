@@ -1609,7 +1609,7 @@ class Table implements DataNode {
     }
     
     
-    async show_rows () {
+    async inspect () {
         let obj = await ddb.eval(`select top 100 * from loadTable(${this.db.path.slice(0, -1).quote('double')}, ${this.name.quote('double')})`)
         obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
@@ -1749,7 +1749,7 @@ class PartitionFile implements DataNode {
     }
     
     
-    async show_rows () {
+    async inspect () {
         const { table } = this.root
         const { db } = table
         
@@ -2163,7 +2163,7 @@ function DBs ({ height }: { height: number }) {
                     case 'table':
                     case 'partition-file':
                         try {
-                            await node.show_rows()
+                            await node.inspect()
                         } catch (error) {
                             model.show_error({ error })
                             throw error
