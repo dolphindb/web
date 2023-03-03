@@ -28,8 +28,8 @@ dependencies:
     specifier: ^1.11.7
     version: 1.11.7
   dolphindb:
-    specifier: ^2.0.936
-    version: 2.0.936(react-dom@18.2.0)
+    specifier: ^2.0.938
+    version: 2.0.938(react-dom@18.2.0)
   echarts:
     specifier: ^5.4.1
     version: 5.4.1
@@ -90,8 +90,8 @@ devDependencies:
     specifier: ^4.14.191
     version: 4.14.191
   '@types/node':
-    specifier: ^18.14.2
-    version: 18.14.2
+    specifier: ^18.14.4
+    version: 18.14.4
   '@types/react':
     specifier: ^18.0.28
     version: 18.0.28
@@ -113,9 +113,6 @@ devDependencies:
   rc-table:
     specifier: ^7.31.0
     version: 7.31.0(react-dom@18.2.0)(react@18.2.0)
-  rc-tree:
-    specifier: ^5.7.2
-    version: 5.7.2(react-dom@18.2.0)(react@18.2.0)
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -2203,20 +2200,20 @@ packages:
   /@types/accepts@1.3.5:
     resolution: {integrity: sha512-jOdnI/3qTpHABjM5cx1Hc0sKsPoYCp+DP/GJRGtDlPd7fiV9oXGGIcjW/ZOxLIvjGz8MA+uMZI9metHlgqbgwQ==}
     dependencies:
-      '@types/node': 18.14.2
+      '@types/node': 18.14.4
     dev: true
 
   /@types/body-parser@1.19.2:
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 18.14.2
+      '@types/node': 18.14.4
     dev: true
 
   /@types/connect@3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 18.14.2
+      '@types/node': 18.14.4
     dev: true
 
   /@types/content-disposition@0.5.5:
@@ -2229,7 +2226,7 @@ packages:
       '@types/connect': 3.4.35
       '@types/express': 4.17.17
       '@types/keygrip': 1.0.2
-      '@types/node': 18.14.2
+      '@types/node': 18.14.4
     dev: true
 
   /@types/d3-timer@2.0.1:
@@ -2257,7 +2254,7 @@ packages:
   /@types/express-serve-static-core@4.17.33:
     resolution: {integrity: sha512-TPBqmR/HRYI3eC2E5hmiivIzv+bidAfXofM+sbonAGvyDhySGw9/PQZFt2BLOrjUUR++4eJVpx6KnLQK1Fk9tA==}
     dependencies:
-      '@types/node': 18.14.2
+      '@types/node': 18.14.4
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
     dev: true
@@ -2303,7 +2300,7 @@ packages:
       '@types/http-errors': 2.0.1
       '@types/keygrip': 1.0.2
       '@types/koa-compose': 3.2.5
-      '@types/node': 18.14.2
+      '@types/node': 18.14.4
     dev: true
 
   /@types/lodash@4.14.191:
@@ -2317,11 +2314,11 @@ packages:
   /@types/node-sass@4.11.3:
     resolution: {integrity: sha512-wXPCn3t9uu5rR4zXNSLasZHQMuRzUKBsdi4MsgT8uq4Lp1gQQo+T2G23tGj4SSgDHeNBle6vGseZtM2XV/X9bw==}
     dependencies:
-      '@types/node': 18.14.2
+      '@types/node': 18.14.4
     dev: true
 
-  /@types/node@18.14.2:
-    resolution: {integrity: sha512-1uEQxww3DaghA0RxqHx0O0ppVlo43pJhepY51OxuQIKHpjbnYLA7vcdwioNPzIqmC2u3I/dmylcqjlh0e7AyUA==}
+  /@types/node@18.14.4:
+    resolution: {integrity: sha512-VhCw7I7qO2X49+jaKcAUwi3rR+hbxT5VcYF493+Z5kMLI0DL568b7JI4IDJaxWFH0D/xwmGJNoXisyX+w7GH/g==}
     dev: true
 
   /@types/parse-json@4.0.0:
@@ -2365,7 +2362,7 @@ packages:
   /@types/sass@1.43.1:
     resolution: {integrity: sha512-BPdoIt1lfJ6B7rw35ncdwBZrAssjcwzI5LByIrYs+tpXlj/CAkuVdRsgZDdP4lq5EjyWzwxZCqAoFyHKFwp32g==}
     dependencies:
-      '@types/node': 18.14.2
+      '@types/node': 18.14.4
     dev: true
 
   /@types/scheduler@0.16.2:
@@ -2376,7 +2373,7 @@ packages:
     resolution: {integrity: sha512-z5xyF6uh8CbjAu9760KDKsH2FcDxZ2tFCsA4HIMWE6IkiYMXfVoa+4f9KX+FN0ZLsaMw1WNG2ETLA6N+/YA+cg==}
     dependencies:
       '@types/mime': 3.0.1
-      '@types/node': 18.14.2
+      '@types/node': 18.14.4
     dev: true
 
   /@types/source-list-map@0.1.2:
@@ -2396,7 +2393,7 @@ packages:
   /@types/webpack-bundle-analyzer@4.6.0:
     resolution: {integrity: sha512-XeQmQCCXdZdap+A/60UKmxW5Mz31Vp9uieGlHB3T4z/o2OLVLtTI3bvTuS6A2OWd/rbAAQiGGWIEFQACu16szA==}
     dependencies:
-      '@types/node': 18.14.2
+      '@types/node': 18.14.4
       tapable: 2.2.1
       webpack: 5.75.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     transitivePeerDependencies:
@@ -2409,7 +2406,7 @@ packages:
   /@types/webpack-sources@3.2.0:
     resolution: {integrity: sha512-Ft7YH3lEVRQ6ls8k4Ff1oB4jN6oy/XmU6tQISKdhfh+1mR+viZFphS6WL0IrtDOzvefmJg5a0s7ZQoRXwqTEFg==}
     dependencies:
-      '@types/node': 18.14.2
+      '@types/node': 18.14.4
       '@types/source-list-map': 0.1.2
       source-map: 0.7.4
     dev: true
@@ -2417,7 +2414,7 @@ packages:
   /@types/webpack@4.41.33:
     resolution: {integrity: sha512-PPajH64Ft2vWevkerISMtnZ8rTs4YmRbs+23c402J0INmxDKCrhZNvwZYtzx96gY2wAtXdrK1BS2fiC8MlLr3g==}
     dependencies:
-      '@types/node': 18.14.2
+      '@types/node': 18.14.4
       '@types/tapable': 1.0.8
       '@types/uglify-js': 3.17.1
       '@types/webpack-sources': 3.2.0
@@ -3494,8 +3491,8 @@ packages:
     resolution: {integrity: sha512-53rsFbGdwMwlF7qvCt0ypLM5V5/Mbl0szB7GPN8y9NCcbknYOeVVXdrXEq+90IwAfrrzt6Hd+u2E2ntakICU8w==}
     dev: false
 
-  /dolphindb@2.0.936(react-dom@18.2.0):
-    resolution: {integrity: sha512-f2esu3mfrYWVVi1/907oxeRQTXKPg04g9saJd76MwPw9piNGJXdIQQIq1o93C6fWI1wuKnpi4S5ixtHXC7hpOg==}
+  /dolphindb@2.0.938(react-dom@18.2.0):
+    resolution: {integrity: sha512-wwyj6jIYijAh4imZKTcWN3uIT9Imwf5rvqZvyBT1EB8/zrRbuglU+/kpR4a8VN5hqQgWid/Hljx0AVMTZVG19A==}
     engines: {node: '>=19.7.0'}
     dependencies:
       dayjs: 1.11.7
@@ -4426,7 +4423,7 @@ packages:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 18.14.2
+      '@types/node': 18.14.4
       merge-stream: 2.0.0
       supports-color: 8.1.1
     dev: true
@@ -5287,6 +5284,7 @@ packages:
       rc-util: 5.27.2(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /rc-notification@5.0.2(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-74wUFiLlyr6lRGEY1m1BaTiDp+0lIT4FRAblMnh9FApyK2JGdsSLbrQ/1rgM7d2N/IX5UIr8kLLW3TdXxFt/jQ==}
@@ -5575,6 +5573,7 @@ packages:
       rc-virtual-list: 3.4.13(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /rc-trigger@5.3.4(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-mQv+vas0TwKcjAO2izNPkqR4j86OemLRmvL2nOzdP9OWNWA1ivoTt5hzFqYNW9zACwmTezRiN8bttrC7cZzYSw==}
@@ -5629,6 +5628,7 @@ packages:
       rc-util: 5.27.2(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /re-resizable@6.9.9(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-l+MBlKZffv/SicxDySKEEh42hR6m5bAHfNu3Tvxks2c4Ah+ldnWjfnVRwxo/nxF27SsUsxDS0raAzFuJNKABXA==}
