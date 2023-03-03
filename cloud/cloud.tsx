@@ -3026,7 +3026,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                 prefix: content_of_restore_modal.prefix,
                                 storage_class: content_of_restore_modal.storage_class,
                                 storage_resource: `${GiProcess(content_of_restore_modal.storage_resource)}`,
-                                saveDir: content_of_restore_modal.save_dir,
+                                save_dir: content_of_restore_modal.save_dir,
                                 dolphindb_name: dolphindb_name,
                                 dolphindb_namespace: dolphindb_namespace,
                                 from: content_of_restore_modal.from
