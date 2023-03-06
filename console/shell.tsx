@@ -450,12 +450,16 @@ export function Shell () {
     }, [options])
     
     useEffect(() => {
-        shell.load_dbs()
-        try {
-            shell.define_get_schema()
-        } catch ( error ){
-            model.show_error({ error })
+        async function dbs_init () {
+            try {
+                await shell.define_get_schema()
+                await shell.load_dbs()
+            } catch (error) {
+                model.show_error({ error })
+            }
         }
+        
+        dbs_init()
     }, [ ])
     
     return <>
