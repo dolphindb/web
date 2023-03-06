@@ -12,7 +12,7 @@ const { Option } = Select
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined, SlackSquareFilled } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined, SlackSquareFilled, TableOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
@@ -67,6 +67,7 @@ import {
     type DdbVectorObj,
     type DdbVectorInt,
     type DdbVectorLong,
+    type DdbDictObj
 } from 'dolphindb/browser.js'
 
 import { keywords, constants, tm_language } from 'dolphindb/language.js'
@@ -158,6 +159,8 @@ class ShellModel extends Model<ShellModel> {
     
     
     unload_registered = false
+    
+    load_schema_defined = false
     
     
     async eval (code = this.editor.getValue()) {
@@ -420,6 +423,20 @@ class ShellModel extends Model<ShellModel> {
             return [file]
         }
     }
+    
+    
+    async define_load_schema () {
+        if (this.load_schema_defined)
+            return
+        
+        await ddb.eval(
+            'def load_schema (db_path, tb_name) {\n' +
+            '    return schema(loadTable(db_path, tb_name))\n' +
+            '}\n'
+        )
+        
+        shell.set({ load_schema_defined: true })
+    }
 }
 
 let shell = window.shell = new ShellModel()
@@ -434,7 +451,15 @@ export function Shell () {
     }, [options])
     
     useEffect(() => {
-        shell.load_dbs()
+        (async () => {
+            try {
+                await shell.define_load_schema()
+                await shell.load_dbs()
+            } catch (error) {
+                model.show_error({ error })
+                throw error
+            }
+        })()
     }, [ ])
     
     return <>
@@ -1577,6 +1602,7 @@ class Table implements DataNode {
     
     self: Table
     
+    /** 以 / 结尾 */
     key: string
     
     /** 以 dfs:// 开头，以 / 结尾 */
@@ -1594,8 +1620,7 @@ class Table implements DataNode {
     
     db: Database
     
-    // children: Column[]
-    children: [ColumnRoot, PartitionRoot]
+    children: [Schema, ColumnRoot, PartitionRoot]
     
     obj: DdbTableObj
     
@@ -1605,7 +1630,7 @@ class Table implements DataNode {
         this.db = db
         this.key = this.path = path
         this.title = this.name = path.slice(db.path.length, -1)
-        this.children = [new ColumnRoot(this), new PartitionRoot(this)]
+        this.children = [new Schema(this), new ColumnRoot(this), new PartitionRoot(this)]
     }
     
     
@@ -1613,6 +1638,48 @@ class Table implements DataNode {
         let obj = await ddb.eval(`select top 100 * from loadTable(${this.db.path.slice(0, -1).quote('double')}, ${this.name.quote('double')})`)
         obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
+    }
+}
+
+
+class Schema implements DataNode {
+    type = 'schema' as const
+    
+    self: Schema
+    
+    key: string
+    
+    title = 'schema' as const
+    
+    className = 'schema'
+    
+    icon = <TableOutlined />
+    
+    isLeaf = true as const
+    
+    table: Table
+    
+    
+    constructor (table: Table) {
+        this.self = this
+        this.table = table
+        this.key = `${table.key}schema`
+    }
+    
+    
+    async inspect () {
+        shell.set(
+            {
+                result: {
+                    type: 'object',
+                    data: await ddb.call<DdbDictObj<DdbVectorStringObj>>(
+                        // 这个函数在 define_load_schema 中已定义
+                        'load_schema',
+                        [this.table.db.path, this.table.name]
+                    )
+                }
+            }
+        )
     }
 }
 
@@ -2137,7 +2204,7 @@ function DBs ({ height }: { height: number }) {
             expandedKeys={expanded_keys}
             onExpand={ keys => { set_expanded_keys(keys) }}
             
-            onClick={async (event, { self: node, type }: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
+            onClick={async (event, { self: node, type }: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>) => {
                 switch (type) {
                     case 'database': 
                     case 'partition-root': 
@@ -2162,6 +2229,7 @@ function DBs ({ height }: { height: number }) {
                     
                     case 'table':
                     case 'partition-file':
+                    case 'schema':
                         try {
                             await node.inspect()
                         } catch (error) {
