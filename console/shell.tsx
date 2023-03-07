@@ -1624,6 +1624,7 @@ class Table implements DataNode {
     
     obj: DdbTableObj
     
+    schema: DdbDictObj<DdbVectorStringObj>
     
     constructor (db: Database, path: string) {
         this.self = this
@@ -1638,6 +1639,18 @@ class Table implements DataNode {
         let obj = await ddb.eval(`select top 100 * from loadTable(${this.db.path.slice(0, -1).quote('double')}, ${this.name.quote('double')})`)
         obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
+    }
+    
+    
+    async get_schema () {
+        if (!this.schema) {
+            this.schema = await ddb.call<DdbDictObj<DdbVectorStringObj>>(
+                // 这个函数在 define_load_schema 中已定义
+                'load_schema',
+                [this.db.path, this.name]
+            )
+        }
+        return this.schema
     }
 }
 
@@ -1672,11 +1685,7 @@ class Schema implements DataNode {
             {
                 result: {
                     type: 'object',
-                    data: await ddb.call<DdbDictObj<DdbVectorStringObj>>(
-                        // 这个函数在 define_load_schema 中已定义
-                        'load_schema',
-                        [this.table.db.path, this.table.name]
-                    )
+                    data: await this.table.get_schema()
                 }
             }
         )
@@ -1704,13 +1713,12 @@ class Column implements DataNode {
     obj: DdbVectorObj
     
     
-    constructor (root: ColumnRoot, obj: DdbVectorObj) {
+    constructor (root: ColumnRoot, colDef:{ comment: string, extrea, name: string, typeInt, typeString }) {
         this.self = this
         this.root = root
-        this.obj = obj
-        this.key = `${root.table.path}/${obj.name}`
+        this.key = `${root.table.path}/${colDef.name}`
         this.title = <>
-            <span className='column-name'>{obj.name}</span>: {DdbType[obj.type]}
+            <span className='column-name'>{colDef.name}</span>: {DdbType[colDef.typeInt]} {colDef.comment}
         </>
     }
 }
@@ -1860,9 +1868,13 @@ class ColumnRoot implements DataNode {
     
     async load_children () {
         if (!this.children) {
-            this.obj = await ddb.call<DdbTableObj>('loadTable', [this.table.db.path.slice(0, -1), this.table.name])
-            this.children = this.obj.value.map(col => 
-                new Column(this, col))
+            const schema_coldefs = (
+                await this.table.get_schema()
+            ).to_dict<{ colDefs: DdbTableObj }>()
+            .colDefs
+            .to_rows<{ comment: string, extrea, name: string, typeInt, typeString }>()
+            
+            this.children = schema_coldefs.map(colDef => new Column(this, colDef))
         }
     }
 }
