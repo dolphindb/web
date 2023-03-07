@@ -1626,6 +1626,7 @@ class Table implements DataNode {
     
     schema: DdbDictObj<DdbVectorStringObj>
     
+    
     constructor (db: Database, path: string) {
         this.self = this
         this.db = db
