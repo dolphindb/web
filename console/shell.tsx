@@ -160,7 +160,7 @@ class ShellModel extends Model<ShellModel> {
     
     unload_registered = false
     
-    get_schema_defined = false
+    load_schema_defined = false
     
     
     async eval (code = this.editor.getValue()) {
@@ -425,16 +425,17 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
-    async define_get_schema () {
-        if (this.get_schema_defined)
+    async define_load_schema () {
+        if (this.load_schema_defined)
             return
         
         await ddb.eval(
-            'def get_schema (db_path, tb_name) {\n' +
+            'def load_schema (db_path, tb_name) {\n' +
             '    return schema(loadTable(db_path, tb_name))\n' +
             '}\n'
         )
-        shell.set({ get_schema_defined: true })
+        
+        shell.set({ load_schema_defined: true })
     }
 }
 
@@ -450,16 +451,15 @@ export function Shell () {
     }, [options])
     
     useEffect(() => {
-        async function dbs_init () {
+        (async () => {
             try {
-                await shell.define_get_schema()
+                await shell.define_load_schema()
                 await shell.load_dbs()
             } catch (error) {
                 model.show_error({ error })
+                throw error
             }
-        }
-        
-        dbs_init()
+        })()
     }, [ ])
     
     return <>
@@ -1672,12 +1672,10 @@ class Schema implements DataNode {
             {
                 result: {
                     type: 'object',
-                    data: await ddb.call<DdbDictObj<DdbVectorObj<string[]>>>(
-                        'get_schema',
-                        [
-                            this.table.db.path,
-                            this.table.name
-                        ]
+                    data: await ddb.call<DdbDictObj<DdbVectorStringObj>>(
+                        // 这个函数在 define_load_schema 中已定义
+                        'load_schema',
+                        [this.table.db.path, this.table.name]
                     )
                 }
             }
