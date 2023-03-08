@@ -221,7 +221,7 @@ const lowercase_node_types = {
 }
 
 function Status () {
-    const { node_type } = model.use(['node_type'])
+    const { node_type, node_alias } = model.use(['node_type', 'node_alias'])
     
     return <Popover
         placement='bottomLeft'
@@ -255,7 +255,7 @@ function Status () {
             className='node-info'
             color='#f2f2f2'
             onMouseOver={() => { model.get_cluster_perf() }}
-        >{lowercase_node_types[node_type]}</Tag>
+        >{lowercase_node_types[node_type]} {node_alias}</Tag>
     </Popover>
 }
 
