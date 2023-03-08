@@ -28,8 +28,8 @@ dependencies:
     specifier: ^1.11.7
     version: 1.11.7
   dolphindb:
-    specifier: ^2.0.944
-    version: 2.0.944(react-dom@18.2.0)
+    specifier: ^2.0.945
+    version: 2.0.945(react-dom@18.2.0)
   echarts:
     specifier: ^5.4.1
     version: 5.4.1
@@ -64,8 +64,8 @@ dependencies:
     specifier: ^9.0.0
     version: 9.0.0
   xshell:
-    specifier: ^1.0.17
-    version: 1.0.17(react-dom@18.2.0)
+    specifier: ^1.0.18
+    version: 1.0.18(react-dom@18.2.0)
   xterm:
     specifier: ^5.1.0
     version: 5.1.0
@@ -2328,7 +2328,6 @@ packages:
 
   /@types/node@18.14.6:
     resolution: {integrity: sha512-93+VvleD3mXwlLI/xASjw0FzKcwzl3OdTCzm1LaRfqgS21gfFtK3zDXM5Op9TeeMsJVOaJ2VRDpT9q4Y3d0AvA==}
-    dev: true
 
   /@types/parse-json@4.0.0:
     resolution: {integrity: sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==}
@@ -2425,6 +2424,12 @@ packages:
       anymatch: 3.1.3
       source-map: 0.6.1
     dev: true
+
+  /@types/ws@8.5.4:
+    resolution: {integrity: sha512-zdQDHKUgcX/zBc4GrwsE/7dVdAD8JR4EuiAXiiUhhfyIJXXb2+PrGshFyeXWQPMmmZ2XxgaqclgpIC7eTXc1mg==}
+    dependencies:
+      '@types/node': 18.14.6
+    dev: false
 
   /@umijs/route-utils@4.0.1:
     resolution: {integrity: sha512-+1ixf1BTOLuH+ORb4x8vYMPeIt38n9q0fJDwhv9nSxrV46mxbLF0nmELIo9CKQB2gHfuC4+hww6xejJ6VYnBHQ==}
@@ -3496,14 +3501,14 @@ packages:
     resolution: {integrity: sha512-53rsFbGdwMwlF7qvCt0ypLM5V5/Mbl0szB7GPN8y9NCcbknYOeVVXdrXEq+90IwAfrrzt6Hd+u2E2ntakICU8w==}
     dev: false
 
-  /dolphindb@2.0.944(react-dom@18.2.0):
-    resolution: {integrity: sha512-SI7SstsTeMqRsSPP3m/hButaXxQINsoD5/hM9U7IBt9aFMMo9MH6ENr5MJByLEQOFNZbIlvSAB6hXWiQJ1h7Vw==}
+  /dolphindb@2.0.945(react-dom@18.2.0):
+    resolution: {integrity: sha512-bqcTpkNWDl+Jg8WkCRPl6pmqvXm28KL7PNNcAtxVElwrQjXPi8r5moBzm0EfzDosS3iV+G6x8WxMAqI6I39gqQ==}
     engines: {node: '>=19.7.0'}
     dependencies:
       dayjs: 1.11.7
       ipaddr.js: 2.0.1
       tslib: 2.5.0
-      xshell: 1.0.17(react-dom@18.2.0)
+      xshell: 1.0.18(react-dom@18.2.0)
     transitivePeerDependencies:
       - bufferutil
       - react-dom
@@ -6872,8 +6877,8 @@ packages:
         optional: true
     dev: false
 
-  /xshell@1.0.17(react-dom@18.2.0):
-    resolution: {integrity: sha512-jMpH02jP6U/dxoDj3DXOzr6an2N9G9UuUab4lldq2KSL/yWfrRpQvN8VFTqjzBtSIOtmsH+NM8OvHK/6KiH1fA==}
+  /xshell@1.0.18(react-dom@18.2.0):
+    resolution: {integrity: sha512-Xyd+aYaxaWQU3vOu0hHNlMDkYbEFj5OiY9coYLUnyU0rMSGKT3wObAEcrCrjdvytokVfJfSdb8Ayf096G2Womg==}
     engines: {node: '>=19.7.0', vscode: '>=1.75.1'}
     hasBin: true
     dependencies:
@@ -6881,6 +6886,7 @@ packages:
       '@babel/parser': 7.21.2
       '@babel/traverse': 7.21.2
       '@koa/cors': 4.0.0
+      '@types/ws': 8.5.4
       archiver: 5.3.1
       byte-size: 8.1.0
       chalk: 5.2.0
