@@ -161,6 +161,8 @@ class ShellModel extends Model<ShellModel> {
     
     load_schema_defined = false
     
+    peek_table_defined = false
+    
     
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
@@ -445,6 +447,20 @@ class ShellModel extends Model<ShellModel> {
         
         shell.set({ load_schema_defined: true })
     }
+    
+    
+    async define_peek_table () {
+        if (this.peek_table_defined)
+            return
+        
+        await ddb.eval(
+            'def peek_table (db_path, tb_name) {\n' +
+            '    return select top 100 * from loadTable(db_path, tb_name)\n' +
+            '}\n'
+        )
+        
+        shell.set({ peek_table_defined: true })
+    }
 }
 
 let shell = window.shell = new ShellModel()
@@ -461,7 +477,10 @@ export function Shell () {
     useEffect(() => {
         (async () => {
             try {
-                await shell.define_load_schema()
+                await Promise.all([
+                    shell.define_load_schema(),
+                    shell.define_peek_table()
+                ])
                 await shell.load_dbs()
             } catch (error) {
                 model.show_error({ error })
@@ -1645,7 +1664,8 @@ class Table implements DataNode {
     
     
     async inspect () {
-        let obj = await ddb.eval(`select top 100 * from loadTable(${this.db.path.slice(0, -1).quote('double')}, ${this.name.quote('double')})`)
+        // 这个函数在 define_peek_table 中已定义
+        let obj = await ddb.call('peek_table', [this.db.path.slice(0, -1), this.name])
         obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
     }
