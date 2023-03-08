@@ -207,17 +207,17 @@ function License () {
 }
 
 const uppercase_node_types = {
-    [NodeType.data_node]: t('数据节点', { context: 'node_type_title' }),
+    [NodeType.data]: t('数据节点', { context: 'node_type_title' }),
     [NodeType.controller]: t('控制节点', { context: 'node_type_title' }),
     [NodeType.single]: t('单机节点', { context: 'node_type_title' }),
-    [NodeType.computing_node]: t('计算节点', { context: 'node_type_title' }),
+    [NodeType.computing]: t('计算节点', { context: 'node_type_title' }),
 }
 
 const lowercase_node_types = {
-    [NodeType.data_node]: t('数据节点', { context: 'node_type' }),
+    [NodeType.data]: t('数据节点', { context: 'node_type' }),
     [NodeType.controller]: t('控制节点', { context: 'node_type' }),
     [NodeType.single]: t('单机节点', { context: 'node_type' }),
-    [NodeType.computing_node]: t('计算节点', { context: 'node_type' }),
+    [NodeType.computing]: t('计算节点', { context: 'node_type' }),
 }
 
 function Status () {

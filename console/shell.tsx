@@ -64,7 +64,6 @@ import {
     type InspectOptions,
     type DdbVectorStringObj,
     type DdbTableObj,
-    type DdbVectorObj,
     type DdbVectorInt,
     type DdbVectorLong,
     type DdbDictObj
@@ -104,7 +103,7 @@ import { t, language } from '../i18n/index.js'
 
 import { Obj, DdbObjRef } from './obj.js'
 
-import { model, storage_keys } from './model.js'
+import { model, NodeType, storage_keys } from './model.js'
 
 // 在 React DevTool 中显示的组件名字
 MonacoEditor.displayName = 'MonacoEditor'
@@ -379,10 +378,15 @@ class ShellModel extends Model<ShellModel> {
     async load_partitions (root: PartitionRoot, node: PartitionDirectory | PartitionRoot) {
         const {
             rows,
-            value: [{ value: filenames }, { value: filetypes }, /* sizes */, { value: chunks_column }, /* sites */ ]
+            value: [{ value: filenames }, { value: filetypes }, /* sizes */, { value: chunks_column }, { value: sites }]
         } = await ddb.call<
             DdbTableObj<[DdbVectorStringObj, DdbVectorInt, DdbVectorLong, DdbVectorStringObj, DdbVectorStringObj]>
-        >('getDFSDirectoryContent', [node.path.slice('dfs:/'.length)])
+        >(
+            // 函数要在 controller (且是 leader) 上调用
+            'getDFSDirectoryContent',
+            [node.path.slice('dfs:/'.length)],
+            model.node.mode !== NodeType.controller ? { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc } : { }
+        )
         
         let directories: PartitionDirectory[] = [ ]
         let file: PartitionFile
@@ -400,7 +404,11 @@ class ShellModel extends Model<ShellModel> {
                     assert(chunks.length === 1, 'chunks.length === 1')
                     const chunk = chunks[0]
                     
-                    const { value: tables } = await ddb.call<DdbVectorStringObj>('getTablesByTabletChunk', [chunk])
+                    // todo: 需要在有数据的数据节点上调用，否则会报错
+                    const { value: tables } = await ddb.call<DdbVectorStringObj>(
+                        'getTablesByTabletChunk',
+                        [chunk]
+                    )
                     assert(tables.length === 1, t('getTablesByTabletChunk 应该只返回一个对应的 table'))
                     
                     if (tables[0] === node.root.table.name) {
