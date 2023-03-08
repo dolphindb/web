@@ -477,10 +477,6 @@ export function Shell () {
     useEffect(() => {
         (async () => {
             try {
-                await Promise.all([
-                    shell.define_load_schema(),
-                    shell.define_peek_table()
-                ])
                 await shell.load_dbs()
             } catch (error) {
                 model.show_error({ error })
@@ -1664,7 +1660,7 @@ class Table implements DataNode {
     
     
     async inspect () {
-        // 这个函数在 define_peek_table 中已定义
+        await shell.define_peek_table()
         let obj = await ddb.call('peek_table', [this.db.path.slice(0, -1), this.name])
         obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
@@ -1672,12 +1668,14 @@ class Table implements DataNode {
     
     
     async get_schema () {
-        if (!this.schema)
+        if (!this.schema) {
+            await shell.define_load_schema()
             this.schema = await ddb.call<DdbDictObj<DdbVectorStringObj>>(
                 // 这个函数在 define_load_schema 中已定义
                 'load_schema',
                 [this.db.path, this.name]
             )
+        }
         
         return this.schema
     }
