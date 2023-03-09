@@ -1345,5 +1345,8 @@
     },
     "没有自动登录的 username": {
         "en": "No autologin username"
+    },
+    "结构": {
+        "en": "schema"
     }
 }
