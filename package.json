@@ -38,7 +38,7 @@
         "ts-loader": "^9.4.2",
         "typescript": "^4.9.5",
         "upath": "^2.0.1",
-        "webpack": "^5.75.0",
+        "webpack": "^5.76.0",
         "webpack-bundle-analyzer": "^4.8.0"
     },
     "dependencies": {
@@ -69,7 +69,7 @@
     "pnpm": {
         "patchedDependencies": {
             "@monaco-editor/react@4.4.6": "patches/@monaco-editor__react@4.4.6.patch",
-            "webpack@5.75.0": "patches/webpack@5.75.0.patch"
+            "webpack@5.76.0": "patches/webpack@5.76.0.patch"
         }
     }
 }
