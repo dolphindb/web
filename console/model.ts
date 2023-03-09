@@ -520,7 +520,7 @@ export class DdbModel extends Model<DdbModel> {
                         error.stack
                     
                     if (error.cause)
-                        s += (error.cause as Error).stack
+                        s += '\n' + (error.cause as Error).stack
                     
                     return s
                 }

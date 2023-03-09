@@ -28,8 +28,8 @@ dependencies:
     specifier: ^1.11.7
     version: 1.11.7
   dolphindb:
-    specifier: ^2.0.946
-    version: 2.0.946(react-dom@18.2.0)
+    specifier: ^2.0.947
+    version: 2.0.947(react-dom@18.2.0)
   echarts:
     specifier: ^5.4.1
     version: 5.4.1
@@ -64,8 +64,8 @@ dependencies:
     specifier: ^9.0.0
     version: 9.0.0
   xshell:
-    specifier: ^1.0.18
-    version: 1.0.18(react-dom@18.2.0)
+    specifier: ^1.0.19
+    version: 1.0.19(react-dom@18.2.0)
   xterm:
     specifier: ^5.1.0
     version: 5.1.0
@@ -3501,14 +3501,14 @@ packages:
     resolution: {integrity: sha512-53rsFbGdwMwlF7qvCt0ypLM5V5/Mbl0szB7GPN8y9NCcbknYOeVVXdrXEq+90IwAfrrzt6Hd+u2E2ntakICU8w==}
     dev: false
 
-  /dolphindb@2.0.946(react-dom@18.2.0):
-    resolution: {integrity: sha512-bbJJ26fsnYPdNQy7GS7g/wIyCjAQ3/sj1yWIcFnDWw1rsKxFWb36Cvvj8vctYPJ5xBs9NkxF0M62fPSP2/Iz1w==}
+  /dolphindb@2.0.947(react-dom@18.2.0):
+    resolution: {integrity: sha512-lAQc2oJ6Tfbu5ZqgjrvcLircXzjGFAtE7STXIQxuT9Levyj84vJPP/R6I7wRWQ+KUQL0bKoBrg3A/8AdEzIGJA==}
     engines: {node: '>=19.7.0'}
     dependencies:
       dayjs: 1.11.7
       ipaddr.js: 2.0.1
       tslib: 2.5.0
-      xshell: 1.0.18(react-dom@18.2.0)
+      xshell: 1.0.19(react-dom@18.2.0)
     transitivePeerDependencies:
       - bufferutil
       - react-dom
@@ -6877,8 +6877,8 @@ packages:
         optional: true
     dev: false
 
-  /xshell@1.0.18(react-dom@18.2.0):
-    resolution: {integrity: sha512-Xyd+aYaxaWQU3vOu0hHNlMDkYbEFj5OiY9coYLUnyU0rMSGKT3wObAEcrCrjdvytokVfJfSdb8Ayf096G2Womg==}
+  /xshell@1.0.19(react-dom@18.2.0):
+    resolution: {integrity: sha512-3sCMZNORhGbeSH8L04Fjc18YgjU/JcLMvvgUnVoZRMrqPuWKVCDnGQvfKqBXspPYUnL8EZoD4rZ38BOQfT50sQ==}
     engines: {node: '>=19.7.0', vscode: '>=1.75.1'}
     hasBin: true
     dependencies:
