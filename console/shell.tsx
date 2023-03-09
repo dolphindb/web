@@ -1690,7 +1690,7 @@ class Schema implements DataNode {
     
     key: string
     
-    title = 'schema' as const
+    title = t('结构')
     
     className = 'schema'
     
