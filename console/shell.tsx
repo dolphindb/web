@@ -2284,7 +2284,7 @@ function DBs ({ height }: { height: number }) {
                         }
                         break
                     
-                    case 'table': {                        
+                    case 'table': {
                         // 一个 Table 有两种属性 expanded + peeked，共四种状态。以下代码完成4种状态的流转
                         let expanded = false
                         let peeked = node.peeked
@@ -2296,24 +2296,9 @@ function DBs ({ height }: { height: number }) {
                             else
                                 keys_.push(key)
                         
-                        if (!expanded) {
-                            if (!peeked) {
-                                // 不展开 + 不展示 -> 不展开 + 展示
-                            } else {
-                                // 不展开 + 展示 -> 展开 + 展示
-                                keys_.push(node.key)
-                                set_expanded_keys(keys_)
-                            }
-                        } else {
-                            if (!peeked) {
-                                // 展开 + 不展示 -> 展开 + 展示
-                                keys_.push(node.key)
-                                set_expanded_keys(keys_)
-                            } else {
-                                // 展开 + 展示 -> 不展开 + 展示    
-                                set_expanded_keys(keys_)
-                            }
-                        }
+                        if (!(expanded === peeked))
+                            keys_.push(node.key)
+                        set_expanded_keys(keys_)
                         
                         try {
                             await node.inspect()
