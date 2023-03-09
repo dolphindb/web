@@ -2048,7 +2048,7 @@ function DBs ({ height }: { height: number }) {
     
     const [expanded_keys, set_expanded_keys] = useState([ ])
     const [loaded_keys, set_loaded_keys] = useState([ ])
-    const previous_clicked_node = useRef<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>(null)
+    const previous_clicked_node = useRef<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
     // const [menu, on_menu] = useState<ContextMenu | null>()
     // const [selected_keys, set_selected_keys] = useState([])
     
@@ -2323,6 +2323,7 @@ function DBs ({ height }: { height: number }) {
                             throw error
                         }
                         node.peeked = true
+                        break
                     }
                 }
                 previous_clicked_node.current = node
