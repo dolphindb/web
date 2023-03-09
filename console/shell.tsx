@@ -52,7 +52,6 @@ import { createOnigScanner, createOnigString, loadWASM } from 'vscode-oniguruma'
 
 
 import {
-    ddb,
     DdbForm,
     type DdbMessage,
     DdbObj,
@@ -178,7 +177,7 @@ class ShellModel extends Model<ShellModel> {
             // TEST
             // throw new Error('xxxxx. RefId: S00001. xxxx RefId:S00002')
             
-            let ddbobj = await ddb.eval(
+            let ddbobj = await model.ddb.eval(
                 code.replaceAll('\r\n', '\n')
             )
             
@@ -236,7 +235,7 @@ class ShellModel extends Model<ShellModel> {
     
     
     async update_vars () {
-        let objs = await ddb.call('objs', [true])
+        let objs = await model.ddb.call('objs', [true])
         
         const vars_data = objs
             .to_rows()
@@ -299,8 +298,8 @@ class ShellModel extends Model<ShellModel> {
         let imutables = vars_data.filter(v => v.form === DdbForm.scalar || v.form === DdbForm.pair)
         
         if (imutables.length) {
-            const { value: values } = await ddb.eval<DdbObj<DdbObj[]>>(
-                `(${imutables.map(({ name }) => name).join(', ')}, 0)${ddb.python ? '.toddb()' : ''}`
+            const { value: values } = await model.ddb.eval<DdbObj<DdbObj[]>>(
+                `(${imutables.map(({ name }) => name).join(', ')}, 0)${model.ddb.python ? '.toddb()' : ''}`
             )
             
             for (let i = 0; i < values.length - 1; i++)
@@ -345,7 +344,7 @@ class ShellModel extends Model<ShellModel> {
     async load_dbs () {
         // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
-        const { value: table_paths } = await ddb.call<DdbVectorStringObj>('getClusterDFSTables')
+        const { value: table_paths } = await model.ddb.call<DdbVectorStringObj>('getClusterDFSTables')
         
         let dbs = new Map<string, Database>()
         for (const table_path of table_paths) {
@@ -381,7 +380,7 @@ class ShellModel extends Model<ShellModel> {
         const {
             rows,
             value: [{ value: filenames }, { value: filetypes }, /* sizes */, { value: chunks_column }, { value: sites }]
-        } = await ddb.call<
+        } = await model.ddb.call<
             DdbTableObj<[DdbVectorStringObj, DdbVectorInt, DdbVectorLong, DdbVectorStringObj, DdbVectorStringObj]>
         >(
             // 函数要在 controller (且是 leader) 上调用
@@ -407,7 +406,7 @@ class ShellModel extends Model<ShellModel> {
                     const chunk = chunks[0]
                     
                     // todo: 需要在有数据的数据节点上调用，否则会报错
-                    const { value: tables } = await ddb.call<DdbVectorStringObj>(
+                    const { value: tables } = await model.ddb.call<DdbVectorStringObj>(
                         'getTablesByTabletChunk',
                         [chunk]
                     )
@@ -439,7 +438,7 @@ class ShellModel extends Model<ShellModel> {
         if (this.load_schema_defined)
             return
         
-        await ddb.eval(
+        await model.ddb.eval(
             'def load_schema (db_path, tb_name) {\n' +
             '    return schema(loadTable(db_path, tb_name))\n' +
             '}\n'
@@ -453,7 +452,7 @@ class ShellModel extends Model<ShellModel> {
         if (this.peek_table_defined)
             return
         
-        await ddb.eval(
+        await model.ddb.eval(
             'def peek_table (db_path, tb_name) {\n' +
             '    return select top 100 * from loadTable(db_path, tb_name)\n' +
             '}\n'
@@ -856,7 +855,7 @@ function Editor () {
                         title={t('是否取消执行中的作业？')}
                         okText={t('取消作业')}
                         cancelText={t('不要取消')}
-                        onConfirm={async () => { await ddb.cancel() }}
+                        onConfirm={async () => { await model.ddb.cancel() }}
                     >
                         <span className='status executing'>{t('执行中')}</span>
                     </Popconfirm>
@@ -1118,7 +1117,7 @@ function Term () {
             
             term.loadAddon(new WebglAddon())
             
-            ddb.listeners.push(printer)
+            model.ddb.listeners.push(printer)
             
             rterminal.current.children[0]?.dispatchEvent(new Event('mousedown'))
             
@@ -1133,7 +1132,7 @@ function Term () {
         })()
         
         return () => {
-            ddb.listeners = ddb.listeners.filter(handler => handler !== printer)
+            model.ddb.listeners = model.ddb.listeners.filter(handler => handler !== printer)
             
             window.removeEventListener('resize', on_resize)
         }
@@ -1232,9 +1231,9 @@ function DataView () {
                 return
             
             return type === 'object' ?
-                <Obj obj={data} ddb={ddb} ctx='embed' options={options} />
+                <Obj obj={data} ddb={model.ddb} ctx='embed' options={options} />
             :
-                <Obj objref={data} ddb={ddb} ctx='embed' options={options} />
+                <Obj objref={data} ddb={model.ddb} ctx='embed' options={options} />
         })()
     }</div>
 }
@@ -1279,7 +1278,7 @@ const context_menu_function_items = {
     ShowRows: async (triad: DBTriad) => {
         const { database, table } = triad
         try {
-            const ddbobj = await ddb.eval(`select top 100 * from loadTable("${database}", "${table}")`)
+            const ddbobj = await model.ddb.eval(`select top 100 * from loadTable("${database}", "${table}")`)
             ddbobj.name = `${table} (${t('前 100 行')})`
             shell.set({ result: { type: 'object', data: ddbobj } })
         } catch (error) {
@@ -1291,7 +1290,7 @@ const context_menu_function_items = {
     ShowSchema: async (triad: DBTriad) => {
         const { database, table } = triad
         try {
-            const ddbobj = await ddb.eval(`select * from schema(loadTable("${database}","${table}")).colDefs`)
+            const ddbobj = await model.ddb.eval(`select * from schema(loadTable("${database}","${table}")).colDefs`)
             ddbobj.name = `${table}.schema`
             shell.set({ result: { type: 'object', data: ddbobj } })
         } catch (error) {
@@ -1349,7 +1348,7 @@ function AddColumn ({
         const { column, type } = values
         if (database && table) 
             try {
-                await ddb.eval(`addColumn(loadTable(database("${database}"), "${table}"), ["${column}"], [${type.toUpperCase()}])`)
+                await model.ddb.eval(`addColumn(loadTable(database("${database}"), "${table}"), ["${column}"], [${type.toUpperCase()}])`)
                 message.success(t('添加成功'))
                 loadData({ key: database, needLoad: true })
             } catch (error) {
@@ -1405,7 +1404,7 @@ function EditComment ({
         const { comment } = values
         if (database && table && column) 
             try {
-                await ddb.eval(`setColumnComment(loadTable(database("${database}"), "${table}"), { "${column}": "${comment.replaceAll('"', '\\"')}" })`)
+                await model.ddb.eval(`setColumnComment(loadTable(database("${database}"), "${table}"), { "${column}": "${comment.replaceAll('"', '\\"')}" })`)
                 message.success(t('修改注释成功'))
             } catch (error) {
                 message.error(error)
@@ -1663,7 +1662,7 @@ class Table implements DataNode {
     
     async inspect () {
         await shell.define_peek_table()
-        let obj = await ddb.call('peek_table', [this.db.path.slice(0, -1), this.name])
+        let obj = await model.ddb.call('peek_table', [this.db.path.slice(0, -1), this.name])
         obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
     }
@@ -1672,7 +1671,7 @@ class Table implements DataNode {
     async get_schema () {
         if (!this.schema) {
             await shell.define_load_schema()
-            this.schema = await ddb.call<DdbDictObj<DdbVectorStringObj>>(
+            this.schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                 // 这个函数在 define_load_schema 中已定义
                 'load_schema',
                 [this.db.path, this.name]
@@ -1862,7 +1861,7 @@ class PartitionFile implements DataNode {
         
         // readTabletChunk(chunkId, dbUrl, chunkPath, tableName, offset, length, [cid=-1])
         // readTabletChunk('cb0a78f4-5a44-e388-c040-9e53cbc041b7', 'dfs://SH_TSDB_entrust', '/SH_TSDB_entrust/20210104/Key0/6Ny', `entrust, 0, 50)
-        let obj = await ddb.call<DdbTableObj>('readTabletChunk', [this.chunk, db.path.slice(0, -1), this.path.slice('dfs:/'.length), table.name, new DdbInt(0), new DdbInt(100)])
+        let obj = await model.ddb.call<DdbTableObj>('readTabletChunk', [this.chunk, db.path.slice(0, -1), this.path.slice('dfs:/'.length), table.name, new DdbInt(0), new DdbInt(100)])
         
         obj.name = `${this.path.slice(db.path.length, this.path.lastIndexOf('/'))} ${t('分区的数据')} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
@@ -2136,7 +2135,7 @@ function DBs ({ height }: { height: number }) {
     //     let tables_ = null
     //     try {
     //         const tables = (
-    //             await ddb.eval<DdbObj<DdbObj[]>>(
+    //             await model.ddb.eval<DdbObj<DdbObj[]>>(
     //                 'each(\n' +
     //                 `    def (table_name): loadTable("${key}", table_name, memoryMode=false),\n` +
     //                 `    ${shell.tables.filter(table => table.startsWith(key))
