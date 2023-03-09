@@ -28,8 +28,8 @@ dependencies:
     specifier: ^1.11.7
     version: 1.11.7
   dolphindb:
-    specifier: ^2.0.945
-    version: 2.0.945(react-dom@18.2.0)
+    specifier: ^2.0.946
+    version: 2.0.946(react-dom@18.2.0)
   echarts:
     specifier: ^5.4.1
     version: 5.4.1
@@ -3501,8 +3501,8 @@ packages:
     resolution: {integrity: sha512-53rsFbGdwMwlF7qvCt0ypLM5V5/Mbl0szB7GPN8y9NCcbknYOeVVXdrXEq+90IwAfrrzt6Hd+u2E2ntakICU8w==}
     dev: false
 
-  /dolphindb@2.0.945(react-dom@18.2.0):
-    resolution: {integrity: sha512-bqcTpkNWDl+Jg8WkCRPl6pmqvXm28KL7PNNcAtxVElwrQjXPi8r5moBzm0EfzDosS3iV+G6x8WxMAqI6I39gqQ==}
+  /dolphindb@2.0.946(react-dom@18.2.0):
+    resolution: {integrity: sha512-bbJJ26fsnYPdNQy7GS7g/wIyCjAQ3/sj1yWIcFnDWw1rsKxFWb36Cvvj8vctYPJ5xBs9NkxF0M62fPSP2/Iz1w==}
     engines: {node: '>=19.7.0'}
     dependencies:
       dayjs: 1.11.7
