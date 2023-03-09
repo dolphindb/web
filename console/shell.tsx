@@ -64,7 +64,6 @@ import {
     type InspectOptions,
     type DdbVectorStringObj,
     type DdbTableObj,
-    type DdbVectorObj,
     type DdbVectorInt,
     type DdbVectorLong,
     type DdbDictObj
@@ -104,7 +103,7 @@ import { t, language } from '../i18n/index.js'
 
 import { Obj, DdbObjRef } from './obj.js'
 
-import { model, storage_keys } from './model.js'
+import { model, NodeType, storage_keys } from './model.js'
 
 // 在 React DevTool 中显示的组件名字
 MonacoEditor.displayName = 'MonacoEditor'
@@ -161,6 +160,8 @@ class ShellModel extends Model<ShellModel> {
     unload_registered = false
     
     load_schema_defined = false
+    
+    peek_table_defined = false
     
     
     async eval (code = this.editor.getValue()) {
@@ -379,10 +380,15 @@ class ShellModel extends Model<ShellModel> {
     async load_partitions (root: PartitionRoot, node: PartitionDirectory | PartitionRoot) {
         const {
             rows,
-            value: [{ value: filenames }, { value: filetypes }, /* sizes */, { value: chunks_column }, /* sites */ ]
+            value: [{ value: filenames }, { value: filetypes }, /* sizes */, { value: chunks_column }, { value: sites }]
         } = await ddb.call<
             DdbTableObj<[DdbVectorStringObj, DdbVectorInt, DdbVectorLong, DdbVectorStringObj, DdbVectorStringObj]>
-        >('getDFSDirectoryContent', [node.path.slice('dfs:/'.length)])
+        >(
+            // 函数要在 controller (且是 leader) 上调用
+            'getDFSDirectoryContent',
+            [node.path.slice('dfs:/'.length)],
+            model.node.mode !== NodeType.controller ? { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc } : { }
+        )
         
         let directories: PartitionDirectory[] = [ ]
         let file: PartitionFile
@@ -400,7 +406,11 @@ class ShellModel extends Model<ShellModel> {
                     assert(chunks.length === 1, 'chunks.length === 1')
                     const chunk = chunks[0]
                     
-                    const { value: tables } = await ddb.call<DdbVectorStringObj>('getTablesByTabletChunk', [chunk])
+                    // todo: 需要在有数据的数据节点上调用，否则会报错
+                    const { value: tables } = await ddb.call<DdbVectorStringObj>(
+                        'getTablesByTabletChunk',
+                        [chunk]
+                    )
                     assert(tables.length === 1, t('getTablesByTabletChunk 应该只返回一个对应的 table'))
                     
                     if (tables[0] === node.root.table.name) {
@@ -437,6 +447,20 @@ class ShellModel extends Model<ShellModel> {
         
         shell.set({ load_schema_defined: true })
     }
+    
+    
+    async define_peek_table () {
+        if (this.peek_table_defined)
+            return
+        
+        await ddb.eval(
+            'def peek_table (db_path, tb_name) {\n' +
+            '    return select top 100 * from loadTable(db_path, tb_name)\n' +
+            '}\n'
+        )
+        
+        shell.set({ peek_table_defined: true })
+    }
 }
 
 let shell = window.shell = new ShellModel()
@@ -453,7 +477,6 @@ export function Shell () {
     useEffect(() => {
         (async () => {
             try {
-                await shell.define_load_schema()
                 await shell.load_dbs()
             } catch (error) {
                 model.show_error({ error })
@@ -1637,7 +1660,8 @@ class Table implements DataNode {
     
     
     async inspect () {
-        let obj = await ddb.eval(`select top 100 * from loadTable(${this.db.path.slice(0, -1).quote('double')}, ${this.name.quote('double')})`)
+        await shell.define_peek_table()
+        let obj = await ddb.call('peek_table', [this.db.path.slice(0, -1), this.name])
         obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
     }
@@ -1645,12 +1669,14 @@ class Table implements DataNode {
     
     async get_schema () {
         if (!this.schema) {
+            await shell.define_load_schema()
             this.schema = await ddb.call<DdbDictObj<DdbVectorStringObj>>(
                 // 这个函数在 define_load_schema 中已定义
                 'load_schema',
                 [this.db.path, this.name]
             )
         }
+        
         return this.schema
     }
 }
@@ -1711,15 +1737,13 @@ class Column implements DataNode {
     
     root: ColumnRoot
     
-    obj: DdbVectorObj
     
-    
-    constructor (root: ColumnRoot, colDef:{ comment: string, extrea, name: string, typeInt, typeString }) {
+    constructor (root: ColumnRoot, col: { comment: string, extra: number, name: string, typeInt: number, typeString: string }) {
         this.self = this
         this.root = root
-        this.key = `${root.table.path}/${colDef.name}`
+        this.key = `${root.table.path}${col.name}`
         this.title = <>
-            <span className='column-name'>{colDef.name}</span>: {DdbType[colDef.typeInt]} {colDef.comment}
+            <span className='column-name'>{col.name}</span>: {DdbType[col.typeInt]} {col.comment}
         </>
     }
 }
@@ -1873,9 +1897,9 @@ class ColumnRoot implements DataNode {
                 await this.table.get_schema()
             ).to_dict<{ colDefs: DdbTableObj }>()
             .colDefs
-            .to_rows<{ comment: string, extrea, name: string, typeInt, typeString }>()
+            .to_rows<{ comment: string, extra: number, name: string, typeInt: number, typeString: string }>()
             
-            this.children = schema_coldefs.map(colDef => new Column(this, colDef))
+            this.children = schema_coldefs.map(col => new Column(this, col))
         }
     }
 }

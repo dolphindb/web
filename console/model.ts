@@ -50,6 +50,8 @@ export class DdbModel extends Model<DdbModel> {
     
     node_alias: string
     
+    
+    /** 通过 getControllerAlias 得到 */
     controller_alias: string
     
     nodes: DdbNode[]
@@ -408,7 +410,7 @@ export class DdbModel extends Model<DdbModel> {
     async get_server_log_length () {
         let length: bigint
         
-        if (this.node_type === NodeType.data_node || this.node_type === NodeType.computing_node) {
+        if (this.node_type === NodeType.data || this.node_type === NodeType.computing) {
             if (this.first_get_server_log_length) {
                 await ddb.eval(
                     'def get_server_log_length_by_agent (host, port, node_alias) {\n' +
@@ -437,7 +439,7 @@ export class DdbModel extends Model<DdbModel> {
     async get_server_log (offset: bigint, length: bigint) {
         let logs: string[]
         
-        if (this.node_type === NodeType.data_node || this.node_type === NodeType.computing_node) {
+        if (this.node_type === NodeType.data || this.node_type === NodeType.computing) {
             if (this.first_get_server_log) {
                 await ddb.eval(
                     'def get_server_log_by_agent (host, port, length, offset, node_alias) {\n' +
@@ -514,11 +516,11 @@ export class DdbModel extends Model<DdbModel> {
 }
 
 export enum NodeType {
-    data_node = 0,
+    data = 0,
     agent = 1,
     controller = 2,
     single = 3,
-    computing_node = 4,
+    computing = 4,
 }
 
 
