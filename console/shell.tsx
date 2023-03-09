@@ -477,10 +477,6 @@ export function Shell () {
     useEffect(() => {
         (async () => {
             try {
-                await Promise.all([
-                    shell.define_load_schema(),
-                    shell.define_peek_table()
-                ])
                 await shell.load_dbs()
             } catch (error) {
                 model.show_error({ error })
@@ -1645,6 +1641,8 @@ class Table implements DataNode {
     
     isLeaf = false
     
+    peeked = false
+    
     db: Database
     
     children: [Schema, ColumnRoot, PartitionRoot]
@@ -1664,7 +1662,7 @@ class Table implements DataNode {
     
     
     async inspect () {
-        // 这个函数在 define_peek_table 中已定义
+        await shell.define_peek_table()
         let obj = await ddb.call('peek_table', [this.db.path.slice(0, -1), this.name])
         obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
@@ -1672,14 +1670,21 @@ class Table implements DataNode {
     
     
     async get_schema () {
-        if (!this.schema)
+        if (!this.schema) {
+            await shell.define_load_schema()
             this.schema = await ddb.call<DdbDictObj<DdbVectorStringObj>>(
                 // 这个函数在 define_load_schema 中已定义
                 'load_schema',
                 [this.db.path, this.name]
             )
+        }
         
         return this.schema
+    }
+    
+    
+    clear_peeked () {
+        this.peeked = false
     }
 }
 
@@ -2043,6 +2048,7 @@ function DBs ({ height }: { height: number }) {
     
     const [expanded_keys, set_expanded_keys] = useState([ ])
     const [loaded_keys, set_loaded_keys] = useState([ ])
+    const previous_clicked_node = useRef<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>(null)
     // const [menu, on_menu] = useState<ContextMenu | null>()
     // const [selected_keys, set_selected_keys] = useState([])
     
@@ -2244,6 +2250,9 @@ function DBs ({ height }: { height: number }) {
             onExpand={ keys => { set_expanded_keys(keys) }}
             
             onClick={async (event, { self: node, type }: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>) => {
+                const previous = previous_clicked_node.current
+                if (previous?.key !== node.key && previous?.type === 'table')
+                    previous?.clear_peeked()
                 switch (type) {
                     case 'database': 
                     case 'partition-root': 
@@ -2266,7 +2275,6 @@ function DBs ({ height }: { height: number }) {
                         break
                     }
                     
-                    case 'table':
                     case 'partition-file':
                     case 'schema':
                         try {
@@ -2276,7 +2284,48 @@ function DBs ({ height }: { height: number }) {
                             throw error
                         }
                         break
+                    
+                    case 'table': {                        
+                        // 一个 Table 有两种属性 expanded + peeked，共四种状态。以下代码完成4种状态的流转
+                        let expanded = false
+                        let peeked = node.peeked
+                        let keys_ = []
+                        
+                        for (const key of expanded_keys)
+                            if (key === node.key)
+                                expanded = true
+                            else
+                                keys_.push(key)
+                        
+                        if (!expanded) {
+                            if (!peeked) {
+                                // 不展开 + 不展示 -> 不展开 + 展示
+                            } else {
+                                // 不展开 + 展示 -> 展开 + 展示
+                                keys_.push(node.key)
+                                set_expanded_keys(keys_)
+                            }
+                        } else {
+                            if (!peeked) {
+                                // 展开 + 不展示 -> 展开 + 展示
+                                keys_.push(node.key)
+                                set_expanded_keys(keys_)
+                            } else {
+                                // 展开 + 展示 -> 不展开 + 展示    
+                                set_expanded_keys(keys_)
+                            }
+                        }
+                        
+                        try {
+                            await node.inspect()
+                        } catch (error) {
+                            model.show_error({ error })
+                            throw error
+                        }
+                        node.peeked = true
+                    }
                 }
+                previous_clicked_node.current = node
             }}
             
             
