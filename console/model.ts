@@ -91,7 +91,7 @@ export class DdbModel extends Model<DdbModel> {
         this.ddb = new DDB(
             (this.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
                 '://' +
-                params.get('hostname') || (this.dev ? '127.0.0.1' : location.hostname) +
+                (params.get('hostname') || (this.dev ? '127.0.0.1' : location.hostname)) +
                 
                 // 一般 location.port 可能是空字符串
                 (port ? `:${port}` : '') +
