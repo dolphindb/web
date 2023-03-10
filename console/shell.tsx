@@ -91,6 +91,9 @@ import SvgViewTableStructure from './shell.icons/view-table-structure.icon.svg'
 import SvgPartition from './shell.icons/partition.icon.svg'
 import SvgPartitions from './shell.icons/partitions.icon.svg'
 import SvgSchema from './shell.icons/schema.icon.svg'
+import SvgPartitionFile from './shell.icons/partition-file.icon.svg'
+import SvgColumnRoot from './shell.icons/column-root.icon.svg'
+import SvgPartitionDirectory from './shell.icons/partition-directory.icon.svg'
 
 
 import { delta2str, delay, assert } from 'xshell/utils.browser.js'
@@ -1772,7 +1775,7 @@ class PartitionDirectory implements DataNode {
     
     className = 'partition-directory'
     
-    icon = <FolderOutlined />
+    icon = <Icon component={SvgPartitionDirectory} />
     
     isLeaf = false
     
@@ -1827,7 +1830,7 @@ class PartitionFile implements DataNode {
     className = 'partition-file'
     
     // icon = <Icon component={SvgPartition} />
-    icon = <SlackSquareFilled />
+    icon = <Icon component={SvgPartitionFile} />
     
     isLeaf = true
     
@@ -1889,7 +1892,7 @@ class ColumnRoot implements DataNode {
     
     className = 'category'
     
-    icon = <Icon component={SvgColumn} />
+    icon = <Icon component={SvgColumnRoot} />
     
     isLeaf = false
     
