@@ -406,7 +406,7 @@ class ShellModel extends Model<ShellModel> {
                     const chunk = chunks[0]
                     // 这里假定对应的 sites 字段一定不是空字符串
                     const site_node = sites[i].split(':')[0]
-                    assert(site_node !== '', t('此 sites 字段一定不是空字符串'))
+                    assert(site_node !== '', t('此 sites 字段不应该是空字符串'))
                     // todo: 需要在有数据的数据节点上调用，否则会报错
                     const { value: tables } = await model.ddb.call<DdbVectorStringObj>(
                         'getTablesByTabletChunk',
