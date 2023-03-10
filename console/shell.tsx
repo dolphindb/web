@@ -404,17 +404,18 @@ class ShellModel extends Model<ShellModel> {
                     const chunks = chunks_column[i].split(',')
                     assert(chunks.length === 1, 'chunks.length === 1')
                     const chunk = chunks[0]
-                    
+                    const site_node = sites[i].split(':')[0]
                     // todo: 需要在有数据的数据节点上调用，否则会报错
                     const { value: tables } = await model.ddb.call<DdbVectorStringObj>(
                         'getTablesByTabletChunk',
-                        [chunk]
+                        [chunk],
+                        site_node !== model.node_alias ? { node: site_node, func_type: DdbFunctionType.SystemFunc } : { }
                     )
                     assert(tables.length === 1, t('getTablesByTabletChunk 应该只返回一个对应的 table'))
                     
                     if (tables[0] === node.root.table.name) {
                         assert(!file, t('应该只有一个满足条件的 PartitionFile 在 PartitionDirectory 下面'))
-                        file = new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk)
+                        file = new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk, site_node)
                         
                         i = rows // break
                     }
@@ -1832,8 +1833,9 @@ class PartitionFile implements DataNode {
     /** 类似 7fd1b1bd-ebf8-f789-764d-8ad76ce38194 这样的 chunk id */
     chunk: string
     
+    site_node: string
     
-    constructor (root: PartitionRoot, parent: PartitionDirectory | PartitionRoot, path: string, chunk: string) {
+    constructor (root: PartitionRoot, parent: PartitionDirectory | PartitionRoot, path: string, chunk: string, site_node: string) {
         this.self = this
         this.parent = parent
         this.root = root
@@ -1847,6 +1849,8 @@ class PartitionFile implements DataNode {
         
         // 找到最后一个 / 的位置，从后面开始截取
         this.title = this.name = t('分区数据')
+        
+        this.site_node = site_node
     }
     
     
@@ -1856,7 +1860,11 @@ class PartitionFile implements DataNode {
         
         // readTabletChunk(chunkId, dbUrl, chunkPath, tableName, offset, length, [cid=-1])
         // readTabletChunk('cb0a78f4-5a44-e388-c040-9e53cbc041b7', 'dfs://SH_TSDB_entrust', '/SH_TSDB_entrust/20210104/Key0/6Ny', `entrust, 0, 50)
-        let obj = await model.ddb.call<DdbTableObj>('readTabletChunk', [this.chunk, db.path.slice(0, -1), this.path.slice('dfs:/'.length), table.name, new DdbInt(0), new DdbInt(100)])
+        let obj = await model.ddb.call<DdbTableObj>(
+            'readTabletChunk',
+            [this.chunk, db.path.slice(0, -1), this.path.slice('dfs:/'.length), table.name, new DdbInt(0), new DdbInt(100)],
+            this.site_node !== model.node_alias ? { node: this.site_node, func_type: DdbFunctionType.SystemFunc } : { }
+        )
         
         obj.name = `${this.path.slice(db.path.length, this.path.lastIndexOf('/'))} ${t('分区的数据')} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
