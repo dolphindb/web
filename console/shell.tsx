@@ -90,6 +90,7 @@ import SvgAddColumn from './shell.icons/add-column.icon.svg'
 import SvgViewTableStructure from './shell.icons/view-table-structure.icon.svg'
 import SvgPartition from './shell.icons/partition.icon.svg'
 import SvgPartitions from './shell.icons/partitions.icon.svg'
+import SvgSchema from './shell.icons/schema.icon.svg'
 
 
 import { delta2str, delay, assert } from 'xshell/utils.browser.js'
@@ -1699,7 +1700,7 @@ class Schema implements DataNode {
     
     className = 'schema'
     
-    icon = <TableOutlined />
+    icon = <Icon component={SvgSchema} />
     
     isLeaf = true as const
     
