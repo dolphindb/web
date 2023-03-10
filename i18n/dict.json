@@ -1346,7 +1346,31 @@
     "没有自动登录的 username": {
         "en": "No autologin username"
     },
+    "getTablesByTabletChunk 应该只返回一个对应的 table": {
+        "en": "getTablesByTabletChunk should only return a corresponding table"
+    },
+    "应该只有一个满足条件的 PartitionFile 在 PartitionDirectory 下面": {
+        "en": "There should be only one PartitionFile that satisfies the condition under PartitionDirectory"
+    },
+    "directories 和 file 应该只有一个有值，另一个为空": {
+        "en": "directories and file should only have a value, the other should be empty"
+    },
+    "数据库路径应该以 dfs:// 开头": {
+        "en": "The database path should start with dfs://"
+    },
     "结构": {
         "en": "schema"
+    },
+    "分区数据": {
+        "en": "partition data"
+    },
+    "分区的数据": {
+        "en": "partitioned data"
+    },
+    "分区": {
+        "en": "partitions"
+    },
+    "sites 中应该有存放 chunk 所在节点的信息": {
+        "en": "There should be information about the node where the chunk is stored in sites"
     }
 }

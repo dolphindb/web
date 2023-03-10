@@ -4,7 +4,7 @@ import { Model } from 'react-object-model'
 
 import { Modal } from 'antd'
 
-import { ddb, DdbFunctionType, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError } from 'dolphindb/browser.js'
+import { DDB, DdbFunctionType, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
 
@@ -34,6 +34,8 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 通过 cdn 访问的 web */
     cdn = false
+    
+    ddb: DDB
     
     collapsed = localStorage.getItem(storage_keys.collapsed) === 'true'
     
@@ -83,6 +85,25 @@ export class DdbModel extends Model<DdbModel> {
         this.dev = location.pathname.endsWith('/console/') || params.get('dev') === '1'
         this.autologin = params.get('autologin') !== '0'
         this.cdn = location.hostname === 'cdn.dolphindb.cn' || params.get('cdn') === '1'
+        
+        const port = params.get('port') || (this.dev ? '8848' : location.port)
+        
+        this.ddb = new DDB(
+            (this.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
+                '://' +
+                (params.get('hostname') || (this.dev ? '127.0.0.1' : location.hostname)) +
+                
+                // 一般 location.port 可能是空字符串
+                (port ? `:${port}` : '') +
+                
+                // 检测 ddb 是否通过 nginx 代理，部署在子路径下
+                (location.pathname === '/dolphindb/' ? '/dolphindb/' : ''),
+            {
+                autologin: false,
+                verbose: params.get('verbose') === '1'
+            }
+        )
+        
         this.header = params.get('header') !== '0'
         this.code_template = params.get('code-template') === '1'
         this.redirection = params.get('redirection') as PageViews
@@ -95,12 +116,6 @@ export class DdbModel extends Model<DdbModel> {
             time: BUILD_TIME
         }))
         
-        /** 检测 ddb 是否通过 nginx 代理，部署在子路径下 */
-        const is_subpath = location.pathname === '/dolphindb/'
-        if (is_subpath)
-            ddb.url += 'dolphindb/'
-        
-        ddb.autologin = false
         
         await Promise.all([
             this.get_node_type(),
@@ -140,12 +155,12 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async login_by_password (username: string, password: string) {
-        ddb.username = username
-        ddb.password = password
-        await ddb.call('login', [username, password], { urgent: true })
+        this.ddb.username = username
+        this.ddb.password = password
+        await this.ddb.call('login', [username, password], { urgent: true })
         
         const ticket = (
-            await ddb.call<DdbObj<string>>('getAuthenticatedUserTicket', [ ], {
+            await this.ddb.call<DdbObj<string>>('getAuthenticatedUserTicket', [ ], {
                 urgent: true,
                 ... this.node_type === NodeType.controller || this.node_type === NodeType.single ? { } : { node: this.controller_alias, func_type: DdbFunctionType.SystemFunc }
             })
@@ -169,7 +184,7 @@ export class DdbModel extends Model<DdbModel> {
             throw new Error(t('没有自动登录的 username'))
         
         try {
-            await ddb.call('authenticateByTicket', [ticket], { urgent: true })
+            await this.ddb.call('authenticateByTicket', [ticket], { urgent: true })
             this.set({ logined: true, username: last_username })
             console.log(t('{{username}} 使用 ticket 登陆成功', { username: last_username }))
         } catch (error) {
@@ -184,10 +199,10 @@ export class DdbModel extends Model<DdbModel> {
     async login_by_session (session: string) {
         // https://dolphindb1.atlassian.net/browse/DPLG-581
         
-        await ddb.call('login', ['guest', '123456'])
+        await this.ddb.call('login', ['guest', '123456'])
         
         const result = (
-            await ddb.call('authenticateBySession', [session])
+            await this.ddb.call('authenticateBySession', [session])
         ).to_dict<{ code: number, message: string, username: string, raw: string }>({ strip: true })
         
         if (result.code) {
@@ -223,7 +238,7 @@ export class DdbModel extends Model<DdbModel> {
         localStorage.removeItem(storage_keys.username)
         localStorage.setItem(storage_keys.session_id, '0')
         
-        ddb.call('logout', [ ], { urgent: true })
+        this.ddb.call('logout', [ ], { urgent: true })
         
         this.set({
             logined: false,
@@ -234,7 +249,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_node_type () {
-        const { value: node_type } = await ddb.call<DdbObj<NodeType>>('getNodeType', [ ], { urgent: true })
+        const { value: node_type } = await this.ddb.call<DdbObj<NodeType>>('getNodeType', [ ], { urgent: true })
         this.set({ node_type })
         console.log(t('节点类型:'), NodeType[node_type])
         return node_type
@@ -242,7 +257,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_node_alias () {
-        const { value: node_alias } = await ddb.call<DdbObj<string>>('getNodeAlias', [ ], { urgent: true })
+        const { value: node_alias } = await this.ddb.call<DdbObj<string>>('getNodeAlias', [ ], { urgent: true })
         this.set({ node_alias })
         console.log(t('节点名称:'), node_alias)
         return node_alias
@@ -250,7 +265,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_controller_alias () {
-        const { value: controller_alias } = await ddb.call<DdbObj<string>>('getControllerAlias', [ ], { urgent: true })
+        const { value: controller_alias } = await this.ddb.call<DdbObj<string>>('getControllerAlias', [ ], { urgent: true })
         this.set({ controller_alias })
         console.log(t('控制节点:'), controller_alias)
         return controller_alias
@@ -258,7 +273,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_version () {
-        let { value: version } = await ddb.call<DdbObj<string>>('version')
+        let { value: version } = await this.ddb.call<DdbObj<string>>('version')
         version = version.split(' ')[0]
         this.set({ version })
         console.log(t('版本:'), version)
@@ -268,7 +283,7 @@ export class DdbModel extends Model<DdbModel> {
     
     async get_license () {
         const license = (
-            await ddb.call<DdbObj<DdbObj[]>>('license')
+            await this.ddb.call<DdbObj<DdbObj[]>>('license')
         ).to_dict<DdbLicense>({ strip: true })
         
         console.log('license:', license)
@@ -306,7 +321,7 @@ export class DdbModel extends Model<DdbModel> {
     */
     async get_cluster_perf () {
         const nodes = (
-            await ddb.call<DdbObj<DdbObj[]>>('getClusterPerf', [true], {
+            await this.ddb.call<DdbObj<DdbObj[]>>('getClusterPerf', [true], {
                 urgent: true,
                 
                 ... this.node_type === NodeType.controller || this.node_type === NodeType.single ? 
@@ -345,7 +360,7 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     async get_console_jobs () {
-        return ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', [ ], {
+        return this.ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', [ ], {
             urgent: true,
             nodes: this.node_type === NodeType.controller ? 
                     this.nodes.filter(node => 
@@ -360,7 +375,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_recent_jobs () {
-        return ddb.call<DdbObj<DdbObj[]>>('getRecentJobs', [ ], {
+        return this.ddb.call<DdbObj<DdbObj[]>>('getRecentJobs', [ ], {
             urgent: true,
             nodes: this.node_type === NodeType.controller ? 
                     this.nodes.filter(node => 
@@ -375,7 +390,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_scheduled_jobs () {
-        return ddb.call<DdbObj<DdbObj[]>>('getScheduledJobs', [ ], {
+        return this.ddb.call<DdbObj<DdbObj[]>>('getScheduledJobs', [ ], {
             urgent: true,
             nodes: this.node_type === NodeType.controller ? 
                 this.nodes.filter(node => node.state === DdbNodeState.online && node.mode !== NodeType.agent)
@@ -387,12 +402,12 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async cancel_console_job (job: DdbJob) {
-        return ddb.call('cancelConsoleJob', [job.rootJobId], { urgent: true })
+        return this.ddb.call('cancelConsoleJob', [job.rootJobId], { urgent: true })
     }
     
     
     async cancel_job (job: DdbJob) {
-        return ddb.call('cancelJob', [job.jobId], {
+        return this.ddb.call('cancelJob', [job.jobId], {
             urgent: true,
             ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node, func_type: DdbFunctionType.SystemProc }
         })
@@ -400,7 +415,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async delete_scheduled_job (job: DdbJob) {
-        return ddb.call('deleteScheduledJob', [job.jobId], {
+        return this.ddb.call('deleteScheduledJob', [job.jobId], {
             urgent: true,
             ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node, func_type: DdbFunctionType.SystemProc }
         })
@@ -412,7 +427,7 @@ export class DdbModel extends Model<DdbModel> {
         
         if (this.node_type === NodeType.data || this.node_type === NodeType.computing) {
             if (this.first_get_server_log_length) {
-                await ddb.eval(
+                await this.ddb.eval(
                     'def get_server_log_length_by_agent (host, port, node_alias) {\n' +
                     '    conn_agent = xdb(host, port)\n' +
                     "    length = remoteRun(conn_agent, 'getServerLogLength', node_alias)\n" +
@@ -423,12 +438,12 @@ export class DdbModel extends Model<DdbModel> {
                 this.first_get_server_log_length = false
             }
             const [host, port] = this.node.agentSite.split(':')
-            ;({ value: length } = await ddb.call<DdbObj<bigint>>(
+            ;({ value: length } = await this.ddb.call<DdbObj<bigint>>(
                 'get_server_log_length_by_agent',
                 [host, new DdbInt(Number(port)), this.node_alias]
             ))
         } else
-            ({ value: length } = await ddb.call<DdbObj<bigint>>('getServerLogLength', [this.node_alias]))
+            ({ value: length } = await this.ddb.call<DdbObj<bigint>>('getServerLogLength', [this.node_alias]))
         
         console.log('get_server_log_length', length)
         
@@ -441,7 +456,7 @@ export class DdbModel extends Model<DdbModel> {
         
         if (this.node_type === NodeType.data || this.node_type === NodeType.computing) {
             if (this.first_get_server_log) {
-                await ddb.eval(
+                await this.ddb.eval(
                     'def get_server_log_by_agent (host, port, length, offset, node_alias) {\n' +
                     '    conn_agent = xdb(host, port)\n' +
                     "    logs = remoteRun(conn_agent, 'getServerLog', length, offset, true, node_alias)\n" +
@@ -454,12 +469,12 @@ export class DdbModel extends Model<DdbModel> {
             
             const [host, port] = this.node.agentSite.split(':')
             
-            ;({ value: logs } = await ddb.call<DdbObj<string[]>>(
+            ;({ value: logs } = await this.ddb.call<DdbObj<string[]>>(
                 'get_server_log_by_agent',
                 [host, new DdbInt(Number(port)), new DdbLong(length), new DdbLong(offset), this.node_alias]
             ))
         } else
-            ({ value: logs } = await ddb.call<DdbObj<string[]>>(
+            ({ value: logs } = await this.ddb.call<DdbObj<string[]>>(
                 'getServerLog',
                 [new DdbLong(length), new DdbLong(offset), true, this.node_alias]
             ))
@@ -505,7 +520,7 @@ export class DdbModel extends Model<DdbModel> {
                         error.stack
                     
                     if (error.cause)
-                        s += (error.cause as Error).stack
+                        s += '\n' + (error.cause as Error).stack
                     
                     return s
                 }

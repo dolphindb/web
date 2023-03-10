@@ -52,7 +52,6 @@ import { createOnigScanner, createOnigString, loadWASM } from 'vscode-oniguruma'
 
 
 import {
-    ddb,
     DdbForm,
     type DdbMessage,
     DdbObj,
@@ -178,7 +177,7 @@ class ShellModel extends Model<ShellModel> {
             // TEST
             // throw new Error('xxxxx. RefId: S00001. xxxx RefId:S00002')
             
-            let ddbobj = await ddb.eval(
+            let ddbobj = await model.ddb.eval(
                 code.replaceAll('\r\n', '\n')
             )
             
@@ -236,7 +235,7 @@ class ShellModel extends Model<ShellModel> {
     
     
     async update_vars () {
-        let objs = await ddb.call('objs', [true])
+        let objs = await model.ddb.call('objs', [true])
         
         const vars_data = objs
             .to_rows()
@@ -299,8 +298,8 @@ class ShellModel extends Model<ShellModel> {
         let imutables = vars_data.filter(v => v.form === DdbForm.scalar || v.form === DdbForm.pair)
         
         if (imutables.length) {
-            const { value: values } = await ddb.eval<DdbObj<DdbObj[]>>(
-                `(${imutables.map(({ name }) => name).join(', ')}, 0)${ddb.python ? '.toddb()' : ''}`
+            const { value: values } = await model.ddb.eval<DdbObj<DdbObj[]>>(
+                `(${imutables.map(({ name }) => name).join(', ')}, 0)${model.ddb.python ? '.toddb()' : ''}`
             )
             
             for (let i = 0; i < values.length - 1; i++)
@@ -345,7 +344,7 @@ class ShellModel extends Model<ShellModel> {
     async load_dbs () {
         // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
-        const { value: table_paths } = await ddb.call<DdbVectorStringObj>('getClusterDFSTables')
+        const { value: table_paths } = await model.ddb.call<DdbVectorStringObj>('getClusterDFSTables')
         
         let dbs = new Map<string, Database>()
         for (const table_path of table_paths) {
@@ -381,7 +380,7 @@ class ShellModel extends Model<ShellModel> {
         const {
             rows,
             value: [{ value: filenames }, { value: filetypes }, /* sizes */, { value: chunks_column }, { value: sites }]
-        } = await ddb.call<
+        } = await model.ddb.call<
             DdbTableObj<[DdbVectorStringObj, DdbVectorInt, DdbVectorLong, DdbVectorStringObj, DdbVectorStringObj]>
         >(
             // 函数要在 controller (且是 leader) 上调用
@@ -406,16 +405,21 @@ class ShellModel extends Model<ShellModel> {
                     assert(chunks.length === 1, 'chunks.length === 1')
                     const chunk = chunks[0]
                     
-                    // todo: 需要在有数据的数据节点上调用，否则会报错
-                    const { value: tables } = await ddb.call<DdbVectorStringObj>(
+                    // 这里假定对应的 sites 字段一定不是空字符串
+                    const site_node = sites[i].split(',')[0].split(':')[0]
+                    assert(site_node, t('sites 中应该有存放 chunk 所在节点的信息'))
+                    
+                    const { value: tables } = await model.ddb.call<DdbVectorStringObj>(
                         'getTablesByTabletChunk',
-                        [chunk]
+                        [chunk],
+                        // sites 字段里面的就是 node_alias
+                        site_node !== model.node_alias ? { node: site_node, func_type: DdbFunctionType.SystemFunc } : { }
                     )
                     assert(tables.length === 1, t('getTablesByTabletChunk 应该只返回一个对应的 table'))
                     
                     if (tables[0] === node.root.table.name) {
                         assert(!file, t('应该只有一个满足条件的 PartitionFile 在 PartitionDirectory 下面'))
-                        file = new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk)
+                        file = new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk, site_node)
                         
                         i = rows // break
                     }
@@ -439,7 +443,7 @@ class ShellModel extends Model<ShellModel> {
         if (this.load_schema_defined)
             return
         
-        await ddb.eval(
+        await model.ddb.eval(
             'def load_schema (db_path, tb_name) {\n' +
             '    return schema(loadTable(db_path, tb_name))\n' +
             '}\n'
@@ -453,7 +457,7 @@ class ShellModel extends Model<ShellModel> {
         if (this.peek_table_defined)
             return
         
-        await ddb.eval(
+        await model.ddb.eval(
             'def peek_table (db_path, tb_name) {\n' +
             '    return select top 100 * from loadTable(db_path, tb_name)\n' +
             '}\n'
@@ -856,7 +860,7 @@ function Editor () {
                         title={t('是否取消执行中的作业？')}
                         okText={t('取消作业')}
                         cancelText={t('不要取消')}
-                        onConfirm={async () => { await ddb.cancel() }}
+                        onConfirm={async () => { await model.ddb.cancel() }}
                     >
                         <span className='status executing'>{t('执行中')}</span>
                     </Popconfirm>
@@ -1118,7 +1122,7 @@ function Term () {
             
             term.loadAddon(new WebglAddon())
             
-            ddb.listeners.push(printer)
+            model.ddb.listeners.push(printer)
             
             rterminal.current.children[0]?.dispatchEvent(new Event('mousedown'))
             
@@ -1133,7 +1137,7 @@ function Term () {
         })()
         
         return () => {
-            ddb.listeners = ddb.listeners.filter(handler => handler !== printer)
+            model.ddb.listeners = model.ddb.listeners.filter(handler => handler !== printer)
             
             window.removeEventListener('resize', on_resize)
         }
@@ -1232,9 +1236,9 @@ function DataView () {
                 return
             
             return type === 'object' ?
-                <Obj obj={data} ddb={ddb} ctx='embed' options={options} />
+                <Obj obj={data} ddb={model.ddb} ctx='embed' options={options} />
             :
-                <Obj objref={data} ddb={ddb} ctx='embed' options={options} />
+                <Obj objref={data} ddb={model.ddb} ctx='embed' options={options} />
         })()
     }</div>
 }
@@ -1279,7 +1283,7 @@ const context_menu_function_items = {
     ShowRows: async (triad: DBTriad) => {
         const { database, table } = triad
         try {
-            const ddbobj = await ddb.eval(`select top 100 * from loadTable("${database}", "${table}")`)
+            const ddbobj = await model.ddb.eval(`select top 100 * from loadTable("${database}", "${table}")`)
             ddbobj.name = `${table} (${t('前 100 行')})`
             shell.set({ result: { type: 'object', data: ddbobj } })
         } catch (error) {
@@ -1291,7 +1295,7 @@ const context_menu_function_items = {
     ShowSchema: async (triad: DBTriad) => {
         const { database, table } = triad
         try {
-            const ddbobj = await ddb.eval(`select * from schema(loadTable("${database}","${table}")).colDefs`)
+            const ddbobj = await model.ddb.eval(`select * from schema(loadTable("${database}","${table}")).colDefs`)
             ddbobj.name = `${table}.schema`
             shell.set({ result: { type: 'object', data: ddbobj } })
         } catch (error) {
@@ -1349,7 +1353,7 @@ function AddColumn ({
         const { column, type } = values
         if (database && table) 
             try {
-                await ddb.eval(`addColumn(loadTable(database("${database}"), "${table}"), ["${column}"], [${type.toUpperCase()}])`)
+                await model.ddb.eval(`addColumn(loadTable(database("${database}"), "${table}"), ["${column}"], [${type.toUpperCase()}])`)
                 message.success(t('添加成功'))
                 loadData({ key: database, needLoad: true })
             } catch (error) {
@@ -1405,7 +1409,7 @@ function EditComment ({
         const { comment } = values
         if (database && table && column) 
             try {
-                await ddb.eval(`setColumnComment(loadTable(database("${database}"), "${table}"), { "${column}": "${comment.replaceAll('"', '\\"')}" })`)
+                await model.ddb.eval(`setColumnComment(loadTable(database("${database}"), "${table}"), { "${column}": "${comment.replaceAll('"', '\\"')}" })`)
                 message.success(t('修改注释成功'))
             } catch (error) {
                 message.error(error)
@@ -1641,6 +1645,8 @@ class Table implements DataNode {
     
     isLeaf = false
     
+    peeked = false
+    
     db: Database
     
     children: [Schema, ColumnRoot, PartitionRoot]
@@ -1661,7 +1667,7 @@ class Table implements DataNode {
     
     async inspect () {
         await shell.define_peek_table()
-        let obj = await ddb.call('peek_table', [this.db.path.slice(0, -1), this.name])
+        let obj = await model.ddb.call('peek_table', [this.db.path.slice(0, -1), this.name])
         obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
     }
@@ -1670,7 +1676,7 @@ class Table implements DataNode {
     async get_schema () {
         if (!this.schema) {
             await shell.define_load_schema()
-            this.schema = await ddb.call<DdbDictObj<DdbVectorStringObj>>(
+            this.schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                 // 这个函数在 define_load_schema 中已定义
                 'load_schema',
                 [this.db.path, this.name]
@@ -1831,8 +1837,10 @@ class PartitionFile implements DataNode {
     /** 类似 7fd1b1bd-ebf8-f789-764d-8ad76ce38194 这样的 chunk id */
     chunk: string
     
+    /** chunk 所在的集群中的节点 alias */
+    site_node: string
     
-    constructor (root: PartitionRoot, parent: PartitionDirectory | PartitionRoot, path: string, chunk: string) {
+    constructor (root: PartitionRoot, parent: PartitionDirectory | PartitionRoot, path: string, chunk: string, site_node: string) {
         this.self = this
         this.parent = parent
         this.root = root
@@ -1846,6 +1854,8 @@ class PartitionFile implements DataNode {
         
         // 找到最后一个 / 的位置，从后面开始截取
         this.title = this.name = t('分区数据')
+        
+        this.site_node = site_node
     }
     
     
@@ -1855,7 +1865,12 @@ class PartitionFile implements DataNode {
         
         // readTabletChunk(chunkId, dbUrl, chunkPath, tableName, offset, length, [cid=-1])
         // readTabletChunk('cb0a78f4-5a44-e388-c040-9e53cbc041b7', 'dfs://SH_TSDB_entrust', '/SH_TSDB_entrust/20210104/Key0/6Ny', `entrust, 0, 50)
-        let obj = await ddb.call<DdbTableObj>('readTabletChunk', [this.chunk, db.path.slice(0, -1), this.path.slice('dfs:/'.length), table.name, new DdbInt(0), new DdbInt(100)])
+        // 从 site_node 对应的节点读取 chunk
+        let obj = await model.ddb.call<DdbTableObj>(
+            'readTabletChunk',
+            [this.chunk, db.path.slice(0, -1), this.path.slice('dfs:/'.length), table.name, new DdbInt(0), new DdbInt(100)],
+            this.site_node !== model.node_alias ? { node: this.site_node, func_type: DdbFunctionType.SystemFunc } : { }
+        )
         
         obj.name = `${this.path.slice(db.path.length, this.path.lastIndexOf('/'))} ${t('分区的数据')} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
@@ -2041,6 +2056,7 @@ function DBs ({ height }: { height: number }) {
     
     const [expanded_keys, set_expanded_keys] = useState([ ])
     const [loaded_keys, set_loaded_keys] = useState([ ])
+    const previous_clicked_node = useRef<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
     // const [menu, on_menu] = useState<ContextMenu | null>()
     // const [selected_keys, set_selected_keys] = useState([])
     
@@ -2128,7 +2144,7 @@ function DBs ({ height }: { height: number }) {
     //     let tables_ = null
     //     try {
     //         const tables = (
-    //             await ddb.eval<DdbObj<DdbObj[]>>(
+    //             await model.ddb.eval<DdbObj<DdbObj[]>>(
     //                 'each(\n' +
     //                 `    def (table_name): loadTable("${key}", table_name, memoryMode=false),\n` +
     //                 `    ${shell.tables.filter(table => table.startsWith(key))
@@ -2242,6 +2258,10 @@ function DBs ({ height }: { height: number }) {
             onExpand={ keys => { set_expanded_keys(keys) }}
             
             onClick={async (event, { self: node, type }: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>) => {
+                const previous = previous_clicked_node.current
+                if (previous && previous.key !== node.key && previous.type === 'table')
+                    previous.peeked = false
+                
                 switch (type) {
                     case 'database': 
                     case 'partition-root': 
@@ -2264,7 +2284,6 @@ function DBs ({ height }: { height: number }) {
                         break
                     }
                     
-                    case 'table':
                     case 'partition-file':
                     case 'schema':
                         try {
@@ -2274,7 +2293,38 @@ function DBs ({ height }: { height: number }) {
                             throw error
                         }
                         break
+                    
+                    case 'table': {
+                        // 一个 Table 有两种属性 expanded + peeked，共四种状态。以下代码完成4种状态的流转
+                        let expanded = false
+                        const  { peeked } = node
+                        let keys_ = []
+                        
+                        for (const key of expanded_keys)
+                            if (key === node.key)
+                                expanded = true
+                            else
+                                keys_.push(key)
+                        
+                        if (expanded !== peeked)
+                            keys_.push(node.key)
+                        
+                        set_expanded_keys(keys_)
+                        
+                        try {
+                            await node.inspect()
+                        } catch (error) {
+                            model.show_error({ error })
+                            throw error
+                        }
+                        
+                        node.peeked = true
+                        
+                        break
+                    }
                 }
+                
+                previous_clicked_node.current = node
             }}
             
             
