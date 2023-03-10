@@ -404,11 +404,14 @@ class ShellModel extends Model<ShellModel> {
                     const chunks = chunks_column[i].split(',')
                     assert(chunks.length === 1, 'chunks.length === 1')
                     const chunk = chunks[0]
+                    // 这里假定对应的 sites 字段一定不是空字符串
                     const site_node = sites[i].split(':')[0]
+                    assert(site_node !== '', t('此 sites 字段一定不是空字符串'))
                     // todo: 需要在有数据的数据节点上调用，否则会报错
                     const { value: tables } = await model.ddb.call<DdbVectorStringObj>(
                         'getTablesByTabletChunk',
                         [chunk],
+                        // 文档没有说明过 sites 字段里面的就是 node_alias，只是在开发过程中发现二者相同
                         site_node !== model.node_alias ? { node: site_node, func_type: DdbFunctionType.SystemFunc } : { }
                     )
                     assert(tables.length === 1, t('getTablesByTabletChunk 应该只返回一个对应的 table'))
@@ -1863,6 +1866,7 @@ class PartitionFile implements DataNode {
         let obj = await model.ddb.call<DdbTableObj>(
             'readTabletChunk',
             [this.chunk, db.path.slice(0, -1), this.path.slice('dfs:/'.length), table.name, new DdbInt(0), new DdbInt(100)],
+            // 文档没有说明过 sites 字段里面的就是 node_alias，只是在开发过程中发现二者相同
             this.site_node !== model.node_alias ? { node: this.site_node, func_type: DdbFunctionType.SystemFunc } : { }
         )
         
