@@ -1829,7 +1829,6 @@ class PartitionFile implements DataNode {
     
     className = 'partition-file'
     
-    // icon = <Icon component={SvgPartition} />
     icon = <Icon component={SvgPartitionFile} />
     
     isLeaf = true
