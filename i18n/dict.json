@@ -1369,5 +1369,8 @@
     },
     "分区": {
         "en": "partitions"
+    },
+    "此 sites 字段不应该是空字符串": {
+        "en": "The sites field should not be an empty string"
     }
 }
