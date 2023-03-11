@@ -1,4 +1,4 @@
-import type { BaseType } from 'antd/lib/typography/Base/index.js'
+import type { BaseType } from 'antd/es/typography/Base/index.js'
 
 import { Model } from 'react-object-model'
 
