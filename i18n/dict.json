@@ -1372,5 +1372,11 @@
     },
     "sites 中应该有存放 chunk 所在节点的信息": {
         "en": "There should be information about the node where the chunk is stored in sites"
+    },
+    "登录后查看": {
+        "en": "Log in to view"
+    },
+    "去登陆": {
+        "en": "To log in"
     }
 }
