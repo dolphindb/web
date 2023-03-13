@@ -7,8 +7,7 @@ import { default as React, useEffect, useRef, useState } from 'react'
 
 import { Resizable } from 're-resizable'
 
-import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button, Popconfirm, Switch, Typography } from 'antd'
-const { Link } = Typography
+import { Dropdown, message, Tooltip, Tree, Modal, Form, Input, Select, Button, Popconfirm, Switch } from 'antd'
 const { Option } = Select
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
@@ -152,7 +151,7 @@ class ShellModel extends Model<ShellModel> {
     
     vars: DdbVar[]
     
-    dbs: Database[] = []
+    dbs: Database[]
     
     options?: InspectOptions
     
@@ -475,7 +474,8 @@ let shell = window.shell = new ShellModel()
 
 
 export function Shell () {
-    const { options, logined } = model.use(['options', 'logined'])
+    const { options } = model.use(['options'])
+    
     useEffect(() => {
         shell.options = options
         shell.update_vars()
@@ -483,8 +483,6 @@ export function Shell () {
     
     useEffect(() => {
         (async () => {
-            if (!logined)
-                return
             try {
                 await shell.load_dbs()
             } catch (error) {
@@ -2137,6 +2135,8 @@ function DBs ({ height }: { height: number }) {
     // }, [dbs])
     
     
+    if (!dbs)
+        return
     
     
     // async function load_data ({ key, needLoad }: Partial<TreeDataItem>) {
@@ -2204,7 +2204,7 @@ function DBs ({ height }: { height: number }) {
     return <div className='database-panel'>
         <div className='type'>
             {t('数据库')}
-            { (logined && !dbs?.length) && <span className='extra'>
+            { (logined || dbs?.length) ? <span className='extra'>
                 <span onClick={async () => {
                     await shell.load_dbs()
                     set_expanded_keys([ ])
@@ -2219,7 +2219,7 @@ function DBs ({ height }: { height: number }) {
                         <MinusSquareOutlined />
                     </Tooltip>
                 </span>
-            </span> }
+            </span> : undefined }
         </div>
         { (logined || dbs?.length) ?
             <Tree
