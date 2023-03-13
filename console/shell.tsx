@@ -2336,15 +2336,13 @@ function DBs ({ height }: { height: number }) {
                     
                     // onContextMenu={event => { event.preventDefault() }}
                 /> :
-
-                    <div className='login-to-view'>
-                        <span>{t('登录后查看')}</span>
-                        <Link
-                            onClick={() => model.goto_login()}
-                            underline={false}
-                        >{t('去登陆')}</Link>
-                    </div>
-
+                <div className='login-to-view'>
+                    <span>{t('登录后查看')}</span>
+                    <Link
+                        onClick={() => model.goto_login()}
+                        underline={false}
+                    >{t('去登陆')}</Link>
+                </div>
         }
         
         {/* <DBModal
