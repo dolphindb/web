@@ -2336,7 +2336,7 @@ function DBs ({ height }: { height: number }) {
                     
                     // onContextMenu={event => { event.preventDefault() }}
                 /> :
-                <div className='database-login-interceptor'>
+
                     <div className='login-to-view'>
                         <span>{t('登录后查看')}</span>
                         <Link
@@ -2344,7 +2344,7 @@ function DBs ({ height }: { height: number }) {
                             underline={false}
                         >{t('去登陆')}</Link>
                     </div>
-                </div>
+
         }
         
         {/* <DBModal
