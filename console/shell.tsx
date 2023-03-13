@@ -152,7 +152,7 @@ class ShellModel extends Model<ShellModel> {
     
     vars: DdbVar[]
     
-    dbs: Database[]
+    dbs: Database[] = []
     
     options?: InspectOptions
     
@@ -346,7 +346,7 @@ class ShellModel extends Model<ShellModel> {
     
     
     async load_dbs () {
-        // ['dfs://数据库路径(可能包含/)/表名', ...]
+            // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
         const { value: table_paths } = await model.ddb.call<DdbVectorStringObj>('getClusterDFSTables')
         
@@ -475,8 +475,7 @@ let shell = window.shell = new ShellModel()
 
 
 export function Shell () {
-    const { options } = model.use(['options'])
-    
+    const { options, logined } = model.use(['options', 'logined'])
     useEffect(() => {
         shell.options = options
         shell.update_vars()
@@ -484,6 +483,8 @@ export function Shell () {
     
     useEffect(() => {
         (async () => {
+            if (!logined)
+                return
             try {
                 await shell.load_dbs()
             } catch (error) {
@@ -2142,8 +2143,6 @@ function DBs ({ height }: { height: number }) {
     // }, [dbs])
     
     
-    if (!dbs)
-        return
     
     
     // async function load_data ({ key, needLoad }: Partial<TreeDataItem>) {
@@ -2211,31 +2210,34 @@ function DBs ({ height }: { height: number }) {
     return <div className='database-panel'>
         <div className='type'>
             {t('数据库')}
-            <span className='extra'>
-                <span onClick={async () => {
-                    await shell.load_dbs()
-                    set_expanded_keys([ ])
-                    set_loaded_keys([ ])
-                }}>
-                    <Tooltip title={t('刷新')} color='grey'>
-                        <SyncOutlined />
-                    </Tooltip>
-                </span>
-                <span onClick={() => { set_expanded_keys([]) }}>
-                    <Tooltip title={t('全部折叠')} color='grey'>
-                        <MinusSquareOutlined />
-                    </Tooltip>
-                </span>
-            </span>
+            {
+                logined ?
+                    <span className='extra'>
+                        <span onClick={async () => {
+                            await shell.load_dbs()
+                            set_expanded_keys([ ])
+                            set_loaded_keys([ ])
+                        }}>
+                            <Tooltip title={t('刷新')} color='grey'>
+                                <SyncOutlined />
+                            </Tooltip>
+                        </span>
+                        <span onClick={() => { set_expanded_keys([]) }}>
+                            <Tooltip title={t('全部折叠')} color='grey'>
+                                <MinusSquareOutlined />
+                            </Tooltip>
+                        </span>
+                    </span> : undefined
+            }
         </div>
         {
             show_login_required_info?
 
                 <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                    <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <div style={{ flex: 1, display: 'flex',justifyContent: 'center', alignItems: 'center' ,
+                flexDirection: 'column', color:'#cccccc'
+                }}>
                         <span>{t('登录后查看')}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                         <Link
                             onClick={() => model.goto_login()}
                             underline={false}
