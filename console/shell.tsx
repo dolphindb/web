@@ -2061,12 +2061,6 @@ function DBs ({ height }: { height: number }) {
     const [expanded_keys, set_expanded_keys] = useState([ ])
     const [loaded_keys, set_loaded_keys] = useState([ ])
     const previous_clicked_node = useRef<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
-    const [show_login_required_info, set_show_login_required_info] = useState(false)
-    useEffect(() => {
-        //提交之前记得换回这个 !logined && dbs.length === 0
-        if (!logined)
-            set_show_login_required_info(true)
-    }, [ ])
     // const [menu, on_menu] = useState<ContextMenu | null>()
     // const [selected_keys, set_selected_keys] = useState([])
     
@@ -2211,7 +2205,7 @@ function DBs ({ height }: { height: number }) {
         <div className='type'>
             {t('数据库')}
             {
-                logined ?
+                logined &&
                     <span className='extra'>
                         <span onClick={async () => {
                             await shell.load_dbs()
@@ -2227,24 +2221,11 @@ function DBs ({ height }: { height: number }) {
                                 <MinusSquareOutlined />
                             </Tooltip>
                         </span>
-                    </span> : undefined
+                    </span>
             }
         </div>
         {
-            show_login_required_info?
-
-                <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                    <div style={{ flex: 1, display: 'flex',justifyContent: 'center', alignItems: 'center' ,
-                flexDirection: 'column', color:'#cccccc'
-                }}>
-                        <span>{t('登录后查看')}</span>
-                        <Link
-                            onClick={() => model.goto_login()}
-                            underline={false}
-                        >{t('去登陆')}</Link>
-                    </div>
-                </div>
-                :
+            logined ?
                 <Tree
                     className='database-tree'
                     showIcon
@@ -2354,7 +2335,16 @@ function DBs ({ height }: { height: number }) {
                     
                     
                     // onContextMenu={event => { event.preventDefault() }}
-                />
+                /> :
+                <div className='database-login-interceptor'>
+                    <div className='login-to-view'>
+                        <span>{t('登录后查看')}</span>
+                        <Link
+                            onClick={() => model.goto_login()}
+                            underline={false}
+                        >{t('去登陆')}</Link>
+                    </div>
+                </div>
         }
         
         {/* <DBModal
