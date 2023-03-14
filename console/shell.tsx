@@ -380,18 +380,15 @@ class ShellModel extends Model<ShellModel> {
             return `${tb_path.slice(0, index_slash)}/`
         })
         
-        
-        
-        
         // 每一项都不会以 '/' 结尾
         const group_paths_unique = [... new Set(db_paths.map(db_path=>{
-            const index_slash = db_path.lastIndexOf('/')
-            return `${db_path.slice(0, index_slash)}`
+            const index_dot = db_path.lastIndexOf('.')
+            return `${db_path.slice(0, index_dot)}`
         }))]
         
         const group_paths_all = db_paths.map(db_path=>{
-            const index_slash = db_path.lastIndexOf('/')
-            return `${db_path.slice(0, index_slash)}`
+            const index_dot = db_path.lastIndexOf('.')
+            return `${db_path.slice(0, index_dot)}`
         })
         
         const [tree_, set_] = buildTree(group_paths_unique)
@@ -401,9 +398,9 @@ class ShellModel extends Model<ShellModel> {
         
         for (const db_path of db_paths ) {
             
-            const index_slash = db_path.lastIndexOf('/') ;
+            const index_dot = db_path.lastIndexOf('.') ;
             
-            console.log(set_.get(`${db_path.slice(0, index_slash)}`).children.push(new Database(
+            console.log(set_.get(`${db_path.slice(0, index_dot)}`).children.push(new Database(
                 db_path
             )))
         }
