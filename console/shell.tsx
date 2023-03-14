@@ -376,13 +376,13 @@ class ShellModel extends Model<ShellModel> {
         const mock_return = [
             'dfs://g1.sg1.ssg1/m/db1/tb1',
             'dfs://g1.sg1.ssg1/m/db2/tb1',
-            //'dfs://g1.sg2.ssg1/m/db1/tb1',
-            //'dfs://g1.sg1.ssg2/m/db1/tb1'
+            'dfs://g1.sg2.ssg1/m/db1/tb1',
+            'dfs://g1.sg1.ssg2/m/db1/tb1'
         ]
         // 假定所有的 return 值都不会以 / 结尾，且一定会有库名，且一定会有表名，且二者之间一定有 '/'
 
         let hash_map = new Map<string, Database | DatabaseGroup | Table>()
-
+        hash_map.set('', {children: []})
         // 'dfs://g1.sg1.ssg1/m/db1/tb1'
         for (const table_path of mock_return) 
         {
@@ -408,38 +408,22 @@ class ShellModel extends Model<ShellModel> {
             const partitioned = mult_tmp.concat(tmp3).concat(tmp4)
 
             let sum = ''
-            hash_map.set(sum, {children: []})
             for (let i = 0; i < partitioned.length; i++) {
                 const pre_sum = sum
                 sum += partitioned[i];
                 
                 console.log('Current', sum)
 
-                if (!hash_map.has(pre_sum)) {
-                    console.log('not hashed')
-                    console.log(sum[sum.length-1])
-                    switch (sum[sum.length-1]) {
-                        case '.':
-                            console.log('hit dot- not hashed')
-                            hash_map.set(sum, new DatabaseGroup(sum))
-                            break
-                        case '/':
-                            hash_map.set(sum, new Database(sum))
-                            break
-                        default:
-                            
-                            // 到了 Table 的时候，它的父节点一定已经存在于 hashmap中
-                            console.log('Bad Assertion!')
-                            break
-                    }
-                } else {
-                    console.log(' hashed')
+                if (!hash_map.has(sum)) {
+                    // sum 不在 hash_map 中，但 pre 一定在
+                    if (!hash_map.has(pre_sum))
+                        console.log('Bad assert')
+
                     const parent = hash_map.get(pre_sum)
                     
                     var new_node
                     switch (sum[sum.length-1]) {
                         case '.':
-                            console.log('hit-dot-not-hash')
                             new_node = new DatabaseGroup(sum)
                             parent.children.push(new_node)
                             hash_map.set(sum, new_node)
@@ -455,12 +439,15 @@ class ShellModel extends Model<ShellModel> {
                             hash_map.set(sum, new_node)
                             break
                     }
+                } else {
+                    console.log(' hashed')
                 }
 
             }
-
+            console.log('one item finished')
             console.log(hash_map)
-            console.log('end')
+            console.log(table_path)
+            
         }
 
 
