@@ -3,7 +3,7 @@ import { Model } from 'react-object-model'
 import { Modal } from 'antd'
 import type { BaseType } from 'antd/es/typography/Base/index.js'
 
-import { DDB, DdbFunctionType, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError } from 'dolphindb/browser.js'
+import { DDB, DdbFunctionType, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError, DdbStringObj } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
 
@@ -278,7 +278,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_login_required () {
-        const { value } = await this.ddb.call<DdbObj<string>>('getConfig', ['webLoginRequired'], { urgent: true })
+        const { value } = await this.ddb.call<DdbStringObj>('getConfig', ['webLoginRequired'], { urgent: true })
         const login_required = value === '1' || value === 'true'
         this.set({ login_required })
         // 开发用 this.set({ login_required: true })
