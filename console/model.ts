@@ -51,7 +51,7 @@ export class DdbModel extends Model<DdbModel> {
     
     node_alias: string
     
-    web_login_required = false
+    login_required = false
     
     
     /** 通过 getControllerAlias 得到 */
@@ -122,7 +122,7 @@ export class DdbModel extends Model<DdbModel> {
             this.get_node_type(),
             this.get_node_alias(),
             this.get_controller_alias(),
-            this.get_web_login_required()
+            this.get_login_required()
         ])
         
         if (this.autologin)
@@ -150,7 +150,7 @@ export class DdbModel extends Model<DdbModel> {
         
         this.goto_default_view()
         
-        if (this.web_login_required && !this.logined)
+        if (this.login_required && !this.logined)
             this.goto_login()
         
         this.set({ inited: true })
@@ -277,13 +277,12 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    async get_web_login_required () {
-        const { value: web_login_required_str } = await this.ddb.call<DdbObj<string>>('getConfig', ['webLoginRequired'], { urgent: true })
-        const web_login_required = web_login_required_str === '1'
-        this.set({ web_login_required })
-        //开发用 this.set({ web_login_required: true })
-        console.log(('webLoginRequired'), web_login_required)
-        return web_login_required
+    async get_login_required () {
+        const login_required = (await this.ddb.call<DdbObj<string>>('getConfig', ['webLoginRequired'], { urgent: true })).value === '1'
+        this.set({ login_required })
+        // 开发用 this.set({ login_required: true })
+        console.log(t('web 强制登录:'), login_required)
+        return login_required
     }
     
     

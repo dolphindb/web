@@ -53,6 +53,12 @@ rsync -av --delete ./web/ root@192.168.1.204:/path/to/dolphindb-dir/web/
 https://github.com/dolphindb/Tutorials_CN/blob/master/%E5%AE%89%E8%A3%85%E5%92%8C%E9%83%A8%E7%BD%B2/k8s_deployment.md
 
 
+### server 版本依赖
+支持 .json 后缀的文档 docs.zh.json: v1.30.21, v2.00.9
+    解决方法 5c33e01aba4103fba5ecf6387a6807a5848e4197, 分支 server-2.00.8_1.30.20
+
+支持 .wasm 文件: v1.30.20, v2.00.8
+
 ### 开发
 ```shell
 # 安装最新版的 nodejs
