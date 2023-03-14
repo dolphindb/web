@@ -365,6 +365,50 @@ class ShellModel extends Model<ShellModel> {
             db.children.push(new Table(db, `${table_path}/`))
         }
         
+        const mock_return = [
+            'dfs://db1/tb1',
+            'dfs://g1.db1/tb1',
+            'dfs://g1.db1/tb2',
+            'dfs://g1.sg1.db1/tb1',
+            'dfs://g1.sg1.db2/tb1',
+            'dfs://g1.sg2.db1/tb1',
+        ]
+        // 假定所有的 return 值都不会以 / 结尾，且一定会有库名，且一定会有表名，且二者之间一定有 '/'
+        
+        const db_paths = mock_return.map(tb_path=>{
+            const index_slash = tb_path.lastIndexOf('/')
+            return `${tb_path.slice(0, index_slash)}/`
+        })
+        
+        
+        
+        
+        // 每一项都不会以 '/' 结尾
+        const group_paths_unique = [... new Set(db_paths.map(db_path=>{
+            const index_slash = db_path.lastIndexOf('/')
+            return `${db_path.slice(0, index_slash)}`
+        }))]
+        
+        const group_paths_all = db_paths.map(db_path=>{
+            const index_slash = db_path.lastIndexOf('/')
+            return `${db_path.slice(0, index_slash)}`
+        })
+        
+        const [tree_, set_] = buildTree(group_paths_unique)
+        
+        console.log('init',tree_)
+        console.log(set_)
+        
+        for (const db_path of db_paths ) {
+            
+            const index_slash = db_path.lastIndexOf('/') ;
+            
+            console.log(set_.get(`${db_path.slice(0, index_slash)}`).children.push(new Database(
+                db_path
+            )))
+        }
+        
+        console.log('the tree:', tree_)
         // TEST: 测试多级数据库树
         // for (let i = 0;  i <100 ;  i++) {
         //     for (let j =0; j< 500; j++){
@@ -1594,7 +1638,59 @@ class TreeDataItem implements DataNode {
         this.className = className
     }
 }
+function buildTree(list) {
+    const tree = new Map();
+    const rootNode = { key: '', children: [] };
+    tree.set('', rootNode);
 
+    for (const item of list) {
+        var parts = item.split('.');
+        let parent = rootNode;
+        let key = '';
+
+        for (const part of parts) {
+            key += `${key ? '.' : ''}${part}`;
+            let node = tree.get(key);
+            if (!node) {
+                node = { key, children: [], title: key};
+                tree.set(key, node);
+                parent.children.push(node);
+            }
+            parent = node;
+        }
+    }
+    return [rootNode.children, tree];
+}
+
+const list = [
+  'dfs://a.b.c',
+  'dfs://a.b.c.d.e',
+  'dfs://a.b.d'
+
+];
+
+const rootNode = buildTree(list);
+
+console.log(rootNode);
+
+class DatabaseGroup implements DataNode {
+    type = 'database-group' as const
+    
+    self: DatabaseGroup
+    
+    /** 一定以/结尾 */
+    key: string
+    
+    title: string
+    
+    children: (Database | DatabaseGroup)[] = []
+    
+    constructor (key_: string) {
+        this.self = this
+        this.key = key_
+        this.title = key_
+    }
+}
 
 class Database implements DataNode {
     type = 'database' as const
