@@ -1381,5 +1381,8 @@
     },
     "web 强制登录:": {
         "en": "web login required:"
+    },
+    "请登录": {
+        "en": "Please log in"
     }
 }

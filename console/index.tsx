@@ -368,7 +368,7 @@ function Perf () {
 }
 
 function DdbSider () {
-    const { view, node_type, collapsed } = model.use(['view', 'node_type', 'collapsed'])
+    const { view, node_type, collapsed, logined, login_required } = model.use(['view', 'node_type', 'collapsed', 'logined', 'login_required'])
     const { cdn, dev } = model
     
     return <Layout.Sider
@@ -396,6 +396,10 @@ function DdbSider () {
             theme='light'
             selectedKeys={[view]}
             onSelect={({ key }) => {
+                if (login_required && !logined) {
+                    message.error(t('请登录'))
+                    return
+                }
                 model.set({ view: key as DdbModel['view'] })
             }}
             inlineIndent={10}
