@@ -278,7 +278,8 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_login_required () {
-        const login_required = (await this.ddb.call<DdbObj<string>>('getConfig', ['webLoginRequired'], { urgent: true })).value === '1'
+        const { value } = await this.ddb.call<DdbObj<string>>('getConfig', ['webLoginRequired'], { urgent: true })
+        const login_required = value === '1' || value === 'true'
         this.set({ login_required })
         // 开发用 this.set({ login_required: true })
         console.log(t('web 强制登录:'), login_required)
