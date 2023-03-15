@@ -1697,6 +1697,11 @@ class DatabaseGroup implements DataNode {
     
     title: string
     
+    className = 'db'
+    // icon
+    
+    isLeaf = false
+    
     children: (Database | DatabaseGroup)[] = []
     
     constructor (key_: string) {
@@ -2175,7 +2180,7 @@ function DBs ({ height }: { height: number }) {
     
     const [expanded_keys, set_expanded_keys] = useState([ ])
     const [loaded_keys, set_loaded_keys] = useState([ ])
-    const previous_clicked_node = useRef<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
+    const previous_clicked_node = useRef<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
     // const [menu, on_menu] = useState<ContextMenu | null>()
     // const [selected_keys, set_selected_keys] = useState([])
     
@@ -2352,7 +2357,7 @@ function DBs ({ height }: { height: number }) {
                 treeData={dbs}
                 
                 loadedKeys={loaded_keys}
-                loadData={async (node: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
+                loadData={async (node: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
                     try {
                         switch (node.type) {
                             case 'column-root':
@@ -2376,7 +2381,7 @@ function DBs ({ height }: { height: number }) {
                 expandedKeys={expanded_keys}
                 onExpand={ keys => { set_expanded_keys(keys) }}
                 
-                onClick={async (event, { self: node, type }: EventDataNode<Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>) => {
+                onClick={async (event, { self: node, type }: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>) => {
                     const previous = previous_clicked_node.current
                     if (previous && previous.key !== node.key && previous.type === 'table')
                         previous.peeked = false
@@ -2385,7 +2390,8 @@ function DBs ({ height }: { height: number }) {
                         case 'database': 
                         case 'partition-root': 
                         case 'column-root': 
-                        case 'partition-directory': {
+                        case 'partition-directory': 
+                        case 'database-group': {
                             // 切换展开状态
                             let found = false
                             let keys_ = [ ]
