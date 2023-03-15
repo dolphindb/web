@@ -342,8 +342,7 @@ class ShellModel extends Model<ShellModel> {
         
         await this.update_vars()
     }
-    
-    
+
     async load_dbs () {
             // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
@@ -365,7 +364,7 @@ class ShellModel extends Model<ShellModel> {
             db.children.push(new Table(db, `${table_path}/`))
         }
         
-        const mock_return = [
+        const mock_return_ = [
             'dfs://db1/tb1',
             'dfs://g1.db1/tb1',
             'dfs://g1.db1/tb2',
@@ -373,39 +372,85 @@ class ShellModel extends Model<ShellModel> {
             'dfs://g1.sg1.db2/tb1',
             'dfs://g1.sg2.db1/tb1',
         ]
+
+        const mock_return = [
+            'dfs://g1.sg1.ssg1/m/db1/tb1',
+            'dfs://g1.sg1.ssg1/m/db2/tb1',
+            'dfs://g1.sg2.ssg1/m/db1/tb1',
+            'dfs://g1.sg1.ssg2/m/db1/tb1'
+        ]
         // 假定所有的 return 值都不会以 / 结尾，且一定会有库名，且一定会有表名，且二者之间一定有 '/'
-        
-        const db_paths = mock_return.map(tb_path=>{
-            const index_slash = tb_path.lastIndexOf('/')
-            return `${tb_path.slice(0, index_slash)}/`
-        })
-        
-        // 每一项都不会以 '/' 结尾
-        const group_paths_unique = [... new Set(db_paths.map(db_path=>{
-            const index_dot = db_path.lastIndexOf('.')
-            return `${db_path.slice(0, index_dot)}`
-        }))]
-        
-        const group_paths_all = db_paths.map(db_path=>{
-            const index_dot = db_path.lastIndexOf('.')
-            return `${db_path.slice(0, index_dot)}`
-        })
-        
-        const [tree_, set_] = buildTree(group_paths_unique)
-        
-        console.log('init',tree_)
-        console.log(set_)
-        
-        for (const db_path of db_paths ) {
+
+        let hash_map = new Map<string, Database | DatabaseGroup | Table>()
+        hash_map.set('', {children: []})
+        // 'dfs://g1.sg1.ssg1/m/db1/tb1'
+        for (const table_path of mock_return) 
+        {
+            // 假定最后一个 '.' 之后的路径不会再被归为 group
+
+            // 'dfs://g1.sg1.'
+            const tmp1 = table_path.slice(0, table_path.lastIndexOf('.') + 1)
+
+            // ['dfs://g1', 'sg1.']
+            const mult_tmp = tmp1.split(/(?<=\.)/);
+
+            // 'ssg1/m/db1/tb1'
+            const tmp2 = table_path.slice(table_path.lastIndexOf('.') + 1, table_path.length)
+
+            // 'ssg1/m/db1/'
+            const tmp3 = tmp2.slice(0,tmp2.lastIndexOf('/') + 1)
+
+            // 'tb1'
+            const tmp4 = tmp2.slice(tmp2.lastIndexOf('/') + 1, tmp2.length)
+
+            mult_tmp.join('') + tmp3 + tmp4 === table_path
             
-            const index_dot = db_path.lastIndexOf('.') ;
+            const partitioned = mult_tmp.concat(tmp3).concat(tmp4)
+
+            let sum = ''
+            for (let i = 0; i < partitioned.length; i++) {
+                const pre_sum = sum
+                sum += partitioned[i];
+                
+                console.log('Current', sum)
+
+                if (!hash_map.has(sum)) {
+                    // sum 不在 hash_map 中，但 pre 一定在
+                    if (!hash_map.has(pre_sum))
+                        console.log('Bad assert')
+
+                    const parent = hash_map.get(pre_sum)
+                    
+                    var new_node
+                    switch (sum[sum.length-1]) {
+                        case '.':
+                            new_node = new DatabaseGroup(sum)
+                            parent.children.push(new_node)
+                            hash_map.set(sum, new_node)
+                            break
+                        case '/':
+                            new_node = new Database(sum)
+                            parent.children.push(new_node)
+                            hash_map.set(sum, new_node)
+                            break
+                        default:
+                            new_node = new Table(parent as Database, sum)
+                            parent.children.push(new_node)
+                            hash_map.set(sum, new_node)
+                            break
+                    }
+                } else {
+                    console.log(' hashed')
+                }
+
+            }
+            console.log('one item finished')
+            console.log(hash_map)
+            console.log(table_path)
             
-            console.log(set_.get(`${db_path.slice(0, index_dot)}`).children.push(new Database(
-                db_path
-            )))
         }
-        
-        console.log('the tree:', tree_)
+
+
         // TEST: 测试多级数据库树
         // for (let i = 0;  i <100 ;  i++) {
         //     for (let j =0; j< 500; j++){
@@ -415,7 +460,7 @@ class ShellModel extends Model<ShellModel> {
         //     }
         //  }
         
-        this.set({ dbs: [...dbs.values()] })
+        this.set({ dbs: [...hash_map.get("").children] })
     }
     
     
