@@ -379,13 +379,6 @@ class ShellModel extends Model<ShellModel> {
             'dfs://g1.sg1.ssg1/m/db1/tb1',
             'dfs://group_with_slash/same_group.sg1.db1/tb1'
         ]
-
-        const mock_return_ = [
-            'dfs://g1.sg1.ssg1/m/db1/tb1',
-            'dfs://g1.sg1.ssg1/m/db2/tb1',
-            'dfs://g1.sg2.ssg1/m/db1/tb1',
-            'dfs://g1.sg1.ssg2/m/db1/tb1'
-        ]
         // 假定所有的 return 值都不会以 / 结尾
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
         // 库名可能有 / 且不可能有 .
@@ -393,7 +386,7 @@ class ShellModel extends Model<ShellModel> {
         let hash_map = new Map<string, Database | DatabaseGroup | Table | { children }>()
         hash_map.set('', {children: []})
         // 'dfs://g1.sg1.ssg1/m/db1/tb1'
-        for (const table_path of mock_return)
+        for (const table_path of table_paths)
         {
             // 假定最后一个 '.' 之后的路径不会再被归为 group
 
@@ -402,7 +395,7 @@ class ShellModel extends Model<ShellModel> {
             const tmp1 = table_path.slice(0, table_path.lastIndexOf('.') + 1)
 
             // ['dfs://g1.', 'sg1.']
-            const group_part = tmp1.split(/(?<=\.)/);
+            const group_part = tmp1.split(/(?<=\.)/)
 
             // 'ssg1/m/db1/tb1'
             const tmp2 = table_path.slice(table_path.lastIndexOf('.') + 1, table_path.length)
@@ -440,7 +433,7 @@ class ShellModel extends Model<ShellModel> {
                             hash_map.set(sum, new_node)
                             break
                         default:
-                            new_node = new Table(parent as Database, sum)
+                            new_node = new Table(parent as Database, `${sum}/`)
                             parent.children.push(new_node)
                             hash_map.set(sum, new_node)
                             break
@@ -1680,47 +1673,14 @@ class TreeDataItem implements DataNode {
         this.className = className
     }
 }
-function buildTree(list) {
-    const tree = new Map();
-    const rootNode = { key: '', children: [] };
-    tree.set('', rootNode);
 
-    for (const item of list) {
-        var parts = item.split('.');
-        let parent = rootNode;
-        let key = '';
-
-        for (const part of parts) {
-            key += `${key ? '.' : ''}${part}`;
-            let node = tree.get(key);
-            if (!node) {
-                node = { key, children: [], title: key};
-                tree.set(key, node);
-                parent.children.push(node);
-            }
-            parent = node;
-        }
-    }
-    return [rootNode.children, tree];
-}
-
-const list = [
-  'dfs://a.b.c',
-  'dfs://a.b.c.d.e',
-  'dfs://a.b.d'
-
-];
-
-const rootNode = buildTree(list);
-
-console.log(rootNode);
 
 class DatabaseGroup implements DataNode {
     type = 'database-group' as const
     
     self: DatabaseGroup
     
-    /** 一定以/结尾 */
+    /** 一定以 . 结尾 */
     key: string
     
     title: string
@@ -1730,7 +1690,10 @@ class DatabaseGroup implements DataNode {
     constructor (key_: string) {
         this.self = this
         this.key = key_
-        this.title = key_
+        const dot_arr = key_.slice('dfs://'.length, key_.length).split(/(?<=\.)/)
+        const dot = dot_arr[dot_arr.length - 1]
+        const no_dot = dot.slice(0, dot.length - 1)
+        this.title = no_dot
     }
 }
 
@@ -1760,7 +1723,11 @@ class Database implements DataNode {
         this.self = this
         assert(path.startsWith('dfs://'), t('数据库路径应该以 dfs:// 开头'))
         this.key = this.path = path
-        this.title = <span title={path.slice(0, -1)}>{this.key}</span>
+        const tmp1 = path.slice('dfs://'.length, -1)
+        console.log('tmp1', tmp1)
+        const tmp2 = tmp1.slice(tmp1.lastIndexOf('.') + 1, tmp1.length)
+        console.log('tmp2', tmp2)
+        this.title = <span title={path.slice(0, -1)}>{tmp2}</span>
     }
 }
 
@@ -1801,7 +1768,7 @@ class Table implements DataNode {
         this.self = this
         this.db = db
         this.key = this.path = path
-        this.title = this.name = this.key
+        this.title = this.name = path.slice(db.path.length, -1)
         this.children = [new Schema(this), new ColumnRoot(this), new PartitionRoot(this)]
     }
     
