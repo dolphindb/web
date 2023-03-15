@@ -1679,7 +1679,7 @@ class DatabaseGroup implements DataNode {
     
     className = 'database-group'
     
-    // icon后续补上
+    icon = <Icon component={SvgPartitionDirectory} />
     
     isLeaf = false as const
     
