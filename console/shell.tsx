@@ -151,7 +151,7 @@ class ShellModel extends Model<ShellModel> {
     
     vars: DdbVar[]
     
-    dbs: Database[]
+    dbs: (Database | DatabaseGroup)[]
     
     options?: InspectOptions
     
@@ -342,7 +342,8 @@ class ShellModel extends Model<ShellModel> {
         
         await this.update_vars()
     }
-
+    
+    
     async load_dbs () {
             // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
@@ -364,61 +365,66 @@ class ShellModel extends Model<ShellModel> {
             db.children.push(new Table(db, `${table_path}/`))
         }
         
-        const mock_return_ = [
+        const mock_return = [
             'dfs://db1/tb1',
             'dfs://g1.db1/tb1',
             'dfs://g1.db1/tb2',
             'dfs://g1.sg1.db1/tb1',
             'dfs://g1.sg1.db2/tb1',
             'dfs://g1.sg2.db1/tb1',
+            'dfs://long.g1.sg1.ssg1.sssg1.db1/tb1',
+            'dfs://double-dot..g1/db1/tb',
+            'dfs://double-dot..g1.sg1.db1/tb',
+            'dfs://double-dot..g1.sg2.db1/tb',
+            'dfs://g1.sg1.ssg1/m/db1/tb1',
+            'dfs://group_with_slash/same_group.sg1.db1/tb1'
         ]
 
-        const mock_return = [
+        const mock_return_ = [
             'dfs://g1.sg1.ssg1/m/db1/tb1',
             'dfs://g1.sg1.ssg1/m/db2/tb1',
             'dfs://g1.sg2.ssg1/m/db1/tb1',
             'dfs://g1.sg1.ssg2/m/db1/tb1'
         ]
-        // 假定所有的 return 值都不会以 / 结尾，且一定会有库名，且一定会有表名，且二者之间一定有 '/'
-
-        let hash_map = new Map<string, Database | DatabaseGroup | Table>()
+        // 假定所有的 return 值都不会以 / 结尾
+        // 库和表之间以最后一个 / 隔开。表名不可能有 /
+        // 库名可能有 / 且不可能有 .
+        // 点号用于作组名分割。可能没有组（也就是没有.号），但一定有库和表
+        let hash_map = new Map<string, Database | DatabaseGroup | Table | { children }>()
         hash_map.set('', {children: []})
         // 'dfs://g1.sg1.ssg1/m/db1/tb1'
-        for (const table_path of mock_return) 
+        for (const table_path of mock_return)
         {
             // 假定最后一个 '.' 之后的路径不会再被归为 group
 
             // 'dfs://g1.sg1.'
+            // 如果没有出现 '.' 那么tmp1 = ''
             const tmp1 = table_path.slice(0, table_path.lastIndexOf('.') + 1)
 
-            // ['dfs://g1', 'sg1.']
-            const mult_tmp = tmp1.split(/(?<=\.)/);
+            // ['dfs://g1.', 'sg1.']
+            const group_part = tmp1.split(/(?<=\.)/);
 
             // 'ssg1/m/db1/tb1'
             const tmp2 = table_path.slice(table_path.lastIndexOf('.') + 1, table_path.length)
 
             // 'ssg1/m/db1/'
-            const tmp3 = tmp2.slice(0,tmp2.lastIndexOf('/') + 1)
+            const db_part = tmp2.slice(0, tmp2.lastIndexOf('/') + 1)
 
             // 'tb1'
-            const tmp4 = tmp2.slice(tmp2.lastIndexOf('/') + 1, tmp2.length)
+            const tb_part = tmp2.slice(tmp2.lastIndexOf('/') + 1, tmp2.length)
 
-            mult_tmp.join('') + tmp3 + tmp4 === table_path
+            assert(group_part.join('') + db_part + tb_part === table_path, t('分割后路径相加应该等于全路径'))
             
-            const partitioned = mult_tmp.concat(tmp3).concat(tmp4)
+            const partitioned = group_part.concat(db_part).concat(tb_part)
 
             let sum = ''
             for (let i = 0; i < partitioned.length; i++) {
                 const pre_sum = sum
-                sum += partitioned[i];
+                sum += partitioned[i]
                 
-                console.log('Current', sum)
-
                 if (!hash_map.has(sum)) {
                     // sum 不在 hash_map 中，但 pre 一定在
-                    if (!hash_map.has(pre_sum))
-                        console.log('Bad assert')
-
+                    assert(hash_map.has(pre_sum), t('前缀部分应该已经存在于 hash_map 中'))
                     const parent = hash_map.get(pre_sum)
                     
                     var new_node
@@ -440,17 +446,11 @@ class ShellModel extends Model<ShellModel> {
                             break
                     }
                 } else {
-                    console.log(' hashed')
+                    console.log('hashed')
                 }
 
             }
-            console.log('one item finished')
-            console.log(hash_map)
-            console.log(table_path)
-            
         }
-
-
         // TEST: 测试多级数据库树
         // for (let i = 0;  i <100 ;  i++) {
         //     for (let j =0; j< 500; j++){
@@ -1760,7 +1760,7 @@ class Database implements DataNode {
         this.self = this
         assert(path.startsWith('dfs://'), t('数据库路径应该以 dfs:// 开头'))
         this.key = this.path = path
-        this.title = <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1)}</span>
+        this.title = <span title={path.slice(0, -1)}>{this.key}</span>
     }
 }
 
@@ -1801,7 +1801,7 @@ class Table implements DataNode {
         this.self = this
         this.db = db
         this.key = this.path = path
-        this.title = this.name = path.slice(db.path.length, -1)
+        this.title = this.name = this.key
         this.children = [new Schema(this), new ColumnRoot(this), new PartitionRoot(this)]
     }
     
