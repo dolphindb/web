@@ -349,111 +349,92 @@ class ShellModel extends Model<ShellModel> {
         // 不能使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
         const { value: table_paths } = await model.ddb.call<DdbVectorStringObj>('getClusterDFSTables')
         
-        let dbs = new Map<string, Database>()
-        for (const table_path of table_paths) {
-            // 找到数据库最后一个斜杠位置，截取前面部分的字符串作为库名
-            const index_slash = table_path.lastIndexOf('/')
-            
-            const db_path = `${table_path.slice(0, index_slash)}/`
-            
-            let db = dbs.get(db_path)
-            if (!db) {
-                db = new Database(db_path)
-                dbs.set(db_path, db)
-            }
-            
-            db.children.push(new Table(db, `${table_path}/`))
-        }
+        // const mock_return = [
+        //     'dfs://db1/tb1',
+        //     'dfs://g1.db1/tb1',
+        //     'dfs://g1.db1/tb2',
+        //     'dfs://g1.sg1.db1/tb1',
+        //     'dfs://g1.sg1.db2/tb1',
+        //     'dfs://g1.sg2.db1/tb1',
+        //     'dfs://long.g1.sg1.ssg1.sssg1.db1/tb1',
+        //      // 即使有两个连续点号，也不进行任何特殊处理。用户在界面上看到的将会有一个 group 的标题为空
+        //     'dfs://double-dot..g1/db1/tb',
+        //     'dfs://double-dot..g1.sg1.db1/tb',
+        //     'dfs://double-dot..g1.sg2.db1/tb',
+        //     'dfs://g1.sg1.ssg1/m/db1/tb1',
+        //     'dfs://group_with_slash/same_group.sg1.db1/tb1'
+        // ]
         
-        const mock_return = [
-            'dfs://db1/tb1',
-            'dfs://g1.db1/tb1',
-            'dfs://g1.db1/tb2',
-            'dfs://g1.sg1.db1/tb1',
-            'dfs://g1.sg1.db2/tb1',
-            'dfs://g1.sg2.db1/tb1',
-            'dfs://long.g1.sg1.ssg1.sssg1.db1/tb1',
-            'dfs://double-dot..g1/db1/tb',
-            'dfs://double-dot..g1.sg1.db1/tb',
-            'dfs://double-dot..g1.sg2.db1/tb',
-            'dfs://g1.sg1.ssg1/m/db1/tb1',
-            'dfs://group_with_slash/same_group.sg1.db1/tb1'
-        ]
         // 假定所有的 return 值都不会以 / 结尾
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
         // 库名可能有 / 且不可能有 .
-        // 点号用于作组名分割。可能没有组（也就是没有.号），但一定有库和表
-        let hash_map = new Map<string | '', { children: (Database | DatabaseGroup)[], type: 'root'} | Database | DatabaseGroup | Table
-        >()
-        hash_map.set('', {children: [], type:'root'})
-        // 'dfs://g1.sg1.ssg1/m/db1/tb1'
-        for (const table_path of mock_return) {
-            // 假定最后一个 '.' 之后的路径不会再被归为 group
-
-            // 'dfs://g1.sg1.'
-            // 如果没有出现 '.' 那么tmp1 = ''
-            const tmp1 = table_path.slice(0, table_path.lastIndexOf('.') + 1)
-
-            // ['dfs://g1.', 'sg1.']
-            const group_part = tmp1.split(/(?<=\.)/)
-
-            // 'ssg1/m/db1/tb1'
-            const tmp2 = table_path.slice(table_path.lastIndexOf('.') + 1, table_path.length)
-
-            // 'ssg1/m/db1/'
-            const db_part = tmp2.slice(0, tmp2.lastIndexOf('/') + 1)
-
-            // 'tb1'
-            const tb_part = tmp2.slice(tmp2.lastIndexOf('/') + 1, tmp2.length)
-
-            assert(group_part.join('') + db_part + tb_part === table_path, t('分割后路径相加应该等于全路径'))
+        // 全路径中可能没有组（也就是没有点号），但一定有库和表
+        let hash_map = new Map<string, { children: (Database | DatabaseGroup)[], type: 'root'} | Database | DatabaseGroup | Table>()
+        hash_map.set('', {children: [], type: 'root'})
+        // table_path = 'dfs://g1.sg1.ssg1/m/db1/tb1'
+        for (const table_path of table_paths) {
+            // tmp1 = 'dfs://g1.sg1.'  如果全路径中没有出现 '.' 那么tmp1 = ''
+            const group_str = table_path.slice(0, table_path.lastIndexOf('.') + 1)
             
-            const partitioned = group_part.concat(db_part).concat(tb_part)
-
-            let sum = ''
+            // ['dfs://g1.', 'sg1.'] 这里用正则零宽断言，效果是把字符串按照 '.' 分割，且分隔符会被包含在每一项的后面
+            const group_arr = group_str.split(/(?<=\.)/)
+            
+            // 'ssg1/m/db1/tb1'
+            const db_and_tb_str = table_path.slice(table_path.lastIndexOf('.') + 1)
+            
+            // 'ssg1/m/db1/'
+            const db_str = db_and_tb_str.slice(0, db_and_tb_str.lastIndexOf('/') + 1)
+            
+            // 'tb1'
+            const tb_str = db_and_tb_str.slice(db_and_tb_str.lastIndexOf('/') + 1)
+            
+            assert(group_arr.join('') + db_str + tb_str === table_path, t('分割后路径相加应该等于全路径'))
+            
+            // ['dfs://g1.', 'sg1.', 'ssg1/m/db1/', 'tb1']
+            const partitioned = group_arr.concat(db_str).concat(tb_str)
+            
+            let current_path = ''
             for (let i = 0; i < partitioned.length; i++) {
-                const pre_sum = sum
-                sum += partitioned[i]
+                const prefix = current_path
+                current_path += partitioned[i]
                 
-                if (!hash_map.has(sum)) {
-                    // sum 不在 hash_map 中，但 pre 一定在
-                    assert(hash_map.has(pre_sum), t('前缀部分应该已经存在于 hash_map 中'))
-                    const parent = hash_map.get(pre_sum)
+                if (!hash_map.has(current_path)) {
+                    // 字符串的前缀一定已经被处理过，才会轮到当前字符串被处理
+                    assert(hash_map.has(prefix), t('前缀部分应该已经存在于 hash_map 中'))
+                    let parent = hash_map.get(prefix)
                     
-                    var new_node
-                    switch (sum[sum.length-1]) {
+                    //var new_node
+                    switch (current_path[current_path.length-1]) {
                         case '.':
                             if (parent.type === 'root' || parent.type === 'database-group') {
-                                new_node = new DatabaseGroup(sum)
+                                const new_node = new DatabaseGroup(current_path)
                                 parent.children.push(new_node)
-                                hash_map.set(sum, new_node)
+                                hash_map.set(current_path, new_node)
                             } else {
                                 assert(t('如果路径以.结尾，则路径前缀一定对应 root 或者 database-group'))
                             }
                             break
                         case '/':
                             if (parent.type === 'root' || parent.type === 'database-group') {
-                                new_node = new Database(sum)
+                                const new_node = new Database(current_path)
                                 parent.children.push(new_node)
-                                hash_map.set(sum, new_node)
+                                hash_map.set(current_path, new_node)
                             } else {
                                 assert(t('如果路径以/结尾，则路径前缀一定对应 root 或者 database-group'))
                             }
                             break
                         default:
                             if (parent.type === 'database') {
-                                new_node = new Table(parent as Database, `${sum}/`)
+                                const new_node = new Table(parent as Database, `${current_path}/`)
                                 parent.children.push(new_node)
-                                hash_map.set(sum, new_node)
+                                hash_map.set(current_path, new_node)
                             } else {
                                 assert(t('如果路径既不以 / 又不以 . 结尾，则路径前缀一定对应database'))
                             }
                             break
                     }
-                } else {
-                    console.log('hashed')
                 }
-
+                // 如果 hash_map 中已经有这个字符串，说明树里面已经有这个节点，那就什么也不做
             }
         }
         // TEST: 测试多级数据库树
@@ -464,8 +445,7 @@ class ShellModel extends Model<ShellModel> {
         //         dbs.set(path, new DdbEntity({ path ,tables}))
         //     }
         //  }
-        const tp = hash_map.get('')
-        this.set({ dbs: [...hash_map.get('').children] })
+        this.set({ dbs: hash_map.get('').children })
     }
     
     
@@ -1697,19 +1677,26 @@ class DatabaseGroup implements DataNode {
     
     title: string
     
-    className = 'db'
-    // icon
+    className = 'database-group'
     
-    isLeaf = false
+    // icon后续补上
+    
+    isLeaf = false as const
     
     children: (Database | DatabaseGroup)[] = []
     
-    constructor (key_: string) {
+    
+    constructor (key: string) {
         this.self = this
-        this.key = key_
-        const dot_arr = key_.slice('dfs://'.length, key_.length).split(/(?<=\.)/)
+        
+        // dfs:a.b.c.
+        this.key = key
+        // ['a.', 'b.', 'c.'] 零宽断言
+        const dot_arr = key.slice('dfs://'.length).split(/(?<=\.)/)
+        // 'c.'
         const dot = dot_arr[dot_arr.length - 1]
-        const no_dot = dot.slice(0, dot.length - 1)
+        // 'c'
+        const no_dot = dot.slice(0, -1)
         this.title = no_dot
     }
 }
@@ -1740,11 +1727,14 @@ class Database implements DataNode {
         this.self = this
         assert(path.startsWith('dfs://'), t('数据库路径应该以 dfs:// 开头'))
         this.key = this.path = path
-        const tmp1 = path.slice('dfs://'.length, -1)
-        console.log('tmp1', tmp1)
-        const tmp2 = tmp1.slice(tmp1.lastIndexOf('.') + 1, tmp1.length)
-        console.log('tmp2', tmp2)
-        this.title = <span title={path.slice(0, -1)}>{tmp2}</span>
+        
+        // 'a.b.db'
+        const full_tb_name = path.slice('dfs://'.length, -1)
+        
+        // 'db'
+        const last_tb_name = full_tb_name.slice(full_tb_name.lastIndexOf('.') + 1)
+        
+        this.title = <span title={path.slice(0, -1)}>{last_tb_name}</span>
     }
 }
 
@@ -2387,11 +2377,11 @@ function DBs ({ height }: { height: number }) {
                         previous.peeked = false
                     
                     switch (type) {
+                        case 'database-group': 
                         case 'database': 
                         case 'partition-root': 
                         case 'column-root': 
-                        case 'partition-directory': 
-                        case 'database-group': {
+                        case 'partition-directory': {
                             // 切换展开状态
                             let found = false
                             let keys_ = [ ]
