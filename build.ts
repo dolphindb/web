@@ -31,6 +31,11 @@ if (process.argv.includes('cloud')) {
         
         ... ['index.html', 'window.html', 'ddb.svg'].map(async fname => 
             fcopy(fpd_src_console + fname, fpd_out_console + fname)),
+            
+        // InterProcessIO.cpp 里面有以下代码
+        // if(getLoginFlag() == false && type == "text/html" && getCmd() != "POST")
+        //     webFile = WEBSERVER_PATH + "/login.html";
+        fcopy(`${fpd_src_console}index.html`, `${fpd_out_console}login.html`),
         
         ... ['README.md', 'README.zh.md', 'LICENSE.txt'].map(async fname => 
             fcopy(fpd_root + fname, fpd_out_console + fname)),
