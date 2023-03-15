@@ -383,11 +383,11 @@ class ShellModel extends Model<ShellModel> {
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
         // 库名可能有 / 且不可能有 .
         // 点号用于作组名分割。可能没有组（也就是没有.号），但一定有库和表
-        let hash_map = new Map<string, Database | DatabaseGroup | Table | { children }>()
-        hash_map.set('', {children: []})
+        let hash_map = new Map<string | '', { children: (Database | DatabaseGroup)[], type: 'root'} | Database | DatabaseGroup | Table
+        >()
+        hash_map.set('', {children: [], type:'root'})
         // 'dfs://g1.sg1.ssg1/m/db1/tb1'
-        for (const table_path of table_paths)
-        {
+        for (const table_path of mock_return) {
             // 假定最后一个 '.' 之后的路径不会再被归为 group
 
             // 'dfs://g1.sg1.'
@@ -423,19 +423,31 @@ class ShellModel extends Model<ShellModel> {
                     var new_node
                     switch (sum[sum.length-1]) {
                         case '.':
-                            new_node = new DatabaseGroup(sum)
-                            parent.children.push(new_node)
-                            hash_map.set(sum, new_node)
+                            if (parent.type === 'root' || parent.type === 'database-group') {
+                                new_node = new DatabaseGroup(sum)
+                                parent.children.push(new_node)
+                                hash_map.set(sum, new_node)
+                            } else {
+                                assert(t('如果路径以.结尾，则路径前缀一定对应 root 或者 database-group'))
+                            }
                             break
                         case '/':
-                            new_node = new Database(sum)
-                            parent.children.push(new_node)
-                            hash_map.set(sum, new_node)
+                            if (parent.type === 'root' || parent.type === 'database-group') {
+                                new_node = new Database(sum)
+                                parent.children.push(new_node)
+                                hash_map.set(sum, new_node)
+                            } else {
+                                assert(t('如果路径以/结尾，则路径前缀一定对应 root 或者 database-group'))
+                            }
                             break
                         default:
-                            new_node = new Table(parent as Database, `${sum}/`)
-                            parent.children.push(new_node)
-                            hash_map.set(sum, new_node)
+                            if (parent.type === 'database') {
+                                new_node = new Table(parent as Database, `${sum}/`)
+                                parent.children.push(new_node)
+                                hash_map.set(sum, new_node)
+                            } else {
+                                assert(t('如果路径既不以 / 又不以 . 结尾，则路径前缀一定对应database'))
+                            }
                             break
                     }
                 } else {
@@ -452,8 +464,8 @@ class ShellModel extends Model<ShellModel> {
         //         dbs.set(path, new DdbEntity({ path ,tables}))
         //     }
         //  }
-        
-        this.set({ dbs: [...hash_map.get("").children] })
+        const tp = hash_map.get('')
+        this.set({ dbs: [...hash_map.get('').children] })
     }
     
     
