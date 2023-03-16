@@ -6,7 +6,7 @@ import type { BaseType } from 'antd/es/typography/Base/index.js'
 import { DDB, DdbFunctionType, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError, DdbStringObj } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
-import { navigateToNode } from './utils/navigate.js'
+
 
 export const storage_keys = {
     ticket: 'ddb.ticket',
