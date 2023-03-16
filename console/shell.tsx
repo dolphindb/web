@@ -26,7 +26,7 @@ import { FitAddon } from 'xterm-addon-fit'
 import { WebglAddon } from 'xterm-addon-webgl'
 import { WebLinksAddon } from 'xterm-addon-web-links'
 
-import { debounce, lastIndexOf } from 'lodash'
+import { debounce } from 'lodash'
 
 import { request_json } from 'xshell/net.browser.js'
 
@@ -349,66 +349,61 @@ class ShellModel extends Model<ShellModel> {
         // 不能使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
         const { value: table_paths } = await model.ddb.call<DdbVectorStringObj>('getClusterDFSTables')
         
-        const mock_return = [
-            'dfs://db1/tb1',
-            'dfs://g1.db1/tb1',
-            'dfs://g1.db1/tb.2',
-            'dfs://g1.db1/tb2',
-            'dfs://g1.sg1.db1/tb1',
-            'dfs://g1.sg1.db2/tb1',
-            'dfs://g1.sg2.db1/tb1',
-            'dfs://long.g1.sg1.ssg1.sssg1.db1/tb1',
-             // 即使有两个连续点号，也不进行任何特殊处理。用户在界面上看到的将会有一个 group 的标题为空
-            'dfs://double-dot..g1/db1/tb',
-            'dfs://double-dot..g1.sg1.db1/tb',
-            'dfs://double-dot..g1.sg2.db1/tb',
-            'dfs://g1.sg1.ssg1/m/db1/tb1',
-            'dfs://group_with_slash/same_group.sg1.db1/tb1'
-        ]
-        
-        // 假定所有的 return 值都不会以 / 结尾
+        // const mock_return = [
+        //     'dfs://db1/tb1',
+        //     'dfs://g1.db1/tb1',
+        //     'dfs://g1.db1/tb.2',
+        //     'dfs://g1./db1/tb2',
+        //     'dfs://long.g1.sg1.ssg1.sssg1.db1/tb1',
+        //     // 即使有两个连续点号，也不进行任何特殊处理。用户在界面上看到的将会有一个 group 的标题为空
+        //     'dfs://double-dot..g1/db1/tb',
+        //     'dfs://double-dot..g1.sg1.db1/tb',
+        //     'dfs://double-dot..g1.sg2.db1/tb',
+        //     'dfs://db-with-slash/db1/tb1',
+        //     'dfs://group_with_slash/g1.sg1.db1/tb1'
+        // ]
+        //
+        // 假定所有的 table_name 值都不会以 / 结尾
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
-        // 库名可能有 / 且不可能有 .
         // 全路径中可能没有组（也就是没有点号），但一定有库和表
-        // 假定不会出现 ./
         let hash_map = new Map<string, | Database | DatabaseGroup | Table>()
         let root = []
         for (const table_path of table_paths) {
+            // 找到数据库最后一个斜杠位置，截取前面部分的字符串作为库名
             const index_slash = table_path.lastIndexOf('/')
-            const db_path = table_path.slice(0, index_slash + 1)
-            let pointer = 0
+            
+            const db_path = `${table_path.slice(0, index_slash)}/`
+            
+            let parent_pointer = 0
             let parent = {children: root}
+            let current_pointer: number
             // while 循环用来处理 DatabaseGroup
-            while (-1 < pointer) {
-                const current_pointer = db_path.indexOf('.', pointer + 1)
-                if (current_pointer === -1)
-                    break
-
+            while ((current_pointer = db_path.indexOf('.', parent_pointer + 1)) !== -1) {
                 const group_key = table_path.slice(0, current_pointer + 1)
-                const current_node = hash_map.get(group_key)
-                if (!current_node) {
-                    const new_node = new DatabaseGroup(group_key)
-                    parent.children.push(new_node)
-                    hash_map.set(group_key, new_node)
-                    parent = new_node
-                } else {
-                    parent = current_node
-                }
-                pointer = current_pointer
+                const group_node = hash_map.get(group_key)
+                if (!group_node) {
+                    const group = new DatabaseGroup(group_key)
+                    parent.children.push(group)
+                    hash_map.set(group_key, group)
+                    parent = group
+                } else
+                    parent = group_node
+                
+                parent_pointer = current_pointer
             }
             // 处理 Database
             const db_node = hash_map.get(db_path)
             if (!db_node) {
-                const new_node = new Database(db_path)
-                parent.children.push(new_node)
-                hash_map.set(db_path, new_node)
-                parent = new_node
-            } else {
+                const database = new Database(db_path)
+                parent.children.push(database)
+                hash_map.set(db_path, database)
+                parent = database
+            } else
                 parent = db_node
-            }
+            
             // 处理 Table
-            const new_node = new Table(parent, `${table_path}/`)
-            parent.children.push(new_node)
+            const table = new Table(parent as Database, `${table_path}/`)
+            parent.children.push(table)
         }
         // TEST: 测试多级数据库树
         // for (let i = 0;  i <100 ;  i++) {
@@ -1661,16 +1656,8 @@ class DatabaseGroup implements DataNode {
     
     constructor (key: string) {
         this.self = this
-        
-        // dfs:a.b.c.
         this.key = key
-        // ['a.', 'b.', 'c.'] 零宽断言
-        const dot_arr = key.slice('dfs://'.length).split(/(?<=\.)/)
-        // 'c.'
-        const dot = dot_arr[dot_arr.length - 1]
-        // 'c'
-        const no_dot = dot.slice(0, -1)
-        this.title = no_dot
+        this.title = key.slice('dfs://'.length).slice(0, -1).split('.').slice(-1)[0]
     }
 }
 
@@ -1701,13 +1688,13 @@ class Database implements DataNode {
         assert(path.startsWith('dfs://'), t('数据库路径应该以 dfs:// 开头'))
         this.key = this.path = path
         
-        // 'a.b.db'
-        const full_tb_name = path.slice('dfs://'.length, -1)
+        // 此时path可能有点号， 如 'a.b.db'
+        const dotted_db_name = path.slice('dfs://'.length, -1)
         
-        // 'db'
-        const last_tb_name = full_tb_name.slice(full_tb_name.lastIndexOf('.') + 1)
+        // 将 'a.b.db' 转换成 'db'
+        const db_name = dotted_db_name.slice(dotted_db_name.lastIndexOf('.') + 1)
         
-        this.title = <span title={path.slice(0, -1)}>{last_tb_name}</span>
+        this.title = <span title={path.slice(0, -1)}>{db_name}</span>
     }
 }
 
