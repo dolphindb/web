@@ -6,6 +6,7 @@ import type { BaseType } from 'antd/es/typography/Base/index.js'
 import { DDB, DdbFunctionType, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError, DdbStringObj } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
+import { navigateToNode } from './utils/navigate.js'
 
 export const storage_keys = {
     ticket: 'ddb.ticket',
@@ -369,10 +370,10 @@ export class DdbModel extends Model<DdbModel> {
             
             if (leader) {
                 alert(
-                    t('您访问的这个控制结点现在不是高可用 (raft) 集群的 leader 结点, 将会为您自动跳转到集群当前的 leader 结点: ') + leader.site
+                    t('您访问的这个控制结点现在不是高可用 (raft) 集群的 leader 结点, 将会为您自动跳转到集群当前的 leader 结点: ') + `${leader.publicName || leader.host}:${leader.port}`
                 )
                 
-                location.host = `${leader.host}:${leader.port}`
+                this.navigate_to_node(leader, { keep_current_query: true })
             }
         }
     }
@@ -546,7 +547,52 @@ export class DdbModel extends Model<DdbModel> {
             width: 1000,
         })
     }
+    
+    
+    navigate_to_node (node: DdbNode, options?: NavigateToOptions) {
+        this.navigate_to(node.publicName || node.host, node.port, options)
+    }
+    
+    
+    navigate_to (
+        hostname: string,
+        port: string | number,
+        options: NavigateToOptions = { }
+    ) {
+        const {
+            pathname = location.pathname,
+            query: extra_query,
+            keep_current_query = false,
+            open = false
+        } = options
+        
+        const current_params = new URLSearchParams(location.search)
+        const is_query_params_mode = current_params.get('hostname') || current_params.get('port')
+        
+        const new_params = new URLSearchParams(extra_query)
+        
+        if (keep_current_query) 
+            current_params.forEach((v, key) => {
+                !new_params.has(key) && new_params.set(key, v)
+            })
+            
+        
+        if (is_query_params_mode) {
+            new_params.set('hostname', hostname)
+            new_params.set('port', port.toString())
+        }
+        
+        const url_hostname = is_query_params_mode ? location.hostname : hostname
+        const url_port = is_query_params_mode ? location.port : port
+        const url = `${location.protocol}//${url_hostname}:${url_port}${pathname}?${new_params.toString()}`
+        
+        if (open) 
+            window.open(url, '_blank')
+         else
+            location.href = url
+    }
 }
+
 
 export enum NodeType {
     data = 0,
@@ -682,6 +728,14 @@ export interface DdbJob {
 enum DdbNodeState {
     online = 1,
     offline = 0,
+}
+
+
+interface NavigateToOptions {
+    pathname?: string
+    query?: ConstructorParameters<typeof URLSearchParams>[0]
+    keep_current_query?: boolean
+    open?: boolean
 }
 
 
