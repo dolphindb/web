@@ -7,6 +7,7 @@ import { DDB, DdbFunctionType, DdbObj, DdbInt, DdbLong, type InspectOptions, Ddb
 
 import { t } from '../i18n/index.js'
 
+
 export const storage_keys = {
     ticket: 'ddb.ticket',
     username: 'ddb.username',
@@ -57,9 +58,19 @@ export class DdbModel extends Model<DdbModel> {
     /** 通过 getControllerAlias 得到 */
     controller_alias: string
     
+    
+    // --- 通过 getClusterPerf 拿到的集群节点信息
     nodes: DdbNode[]
     
     node: DdbNode
+    
+    /** 控制节点 */
+    controller: DdbNode
+    
+    /** 通过 getClusterPerf 取集群中的某个数据节点，方便后续 rpc 到数据节点执行操作 */
+    datanode: DdbNode
+    // --- 
+    
     
     version: string
     
@@ -354,28 +365,45 @@ export class DdbModel extends Model<DdbModel> {
         
         console.log(t('集群节点:'), nodes)
         
-        const node = nodes.find(node => node.name === this.node_alias)
+        let node: DdbNode, controller: DdbNode, datanode: DdbNode
+        
+        for (const _node of nodes) {
+            if (_node.name === this.node_alias)
+                node = _node
+            
+            if (_node.mode === NodeType.controller)
+                if (_node.isLeader)
+                    controller = _node
+                else
+                    controller ??= _node
+            
+            if (_node.mode === NodeType.data)
+                datanode ??= _node
+        }
         
         console.log(t('当前节点:'), node)
+        if (node.mode !== NodeType.single)
+            console.log(t('控制节点:'), controller, t('数据节点:'), datanode)
         
-        this.set({ nodes, node })
+        this.set({ nodes, node, controller, datanode })
     }
     
     
     async check_leader_and_redirect () {
         if (this.node.mode === NodeType.controller && 'isLeader' in this.node && this.node.isLeader === false) {
-            const leader = this.nodes.find(node => 
-                node.isLeader)
+            const leader = this.nodes.find(node => node.isLeader)
             
             if (leader) {
                 alert(
-                    t('您访问的这个控制结点现在不是高可用 (raft) 集群的 leader 结点, 将会为您自动跳转到集群当前的 leader 结点: ') + leader.site
+                    t('您访问的这个控制结点现在不是高可用 (raft) 集群的 leader 结点, 将会为您自动跳转到集群当前的 leader 结点: ') + 
+                    `${leader.publicName || leader.host}:${leader.port}`
                 )
                 
-                location.host = `${leader.host}:${leader.port}`
+                this.navigate_to_node(leader, { keep_current_query: true })
             }
         }
     }
+    
     
     async get_console_jobs () {
         return this.ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', [ ], {
@@ -546,7 +574,52 @@ export class DdbModel extends Model<DdbModel> {
             width: 1000,
         })
     }
+    
+    
+    navigate_to_node (node: DdbNode, options?: NavigateToOptions) {
+        this.navigate_to(node.publicName || node.host, node.port, options)
+    }
+    
+    
+    navigate_to (
+        hostname: string,
+        port: string | number,
+        options: NavigateToOptions = { }
+    ) {
+        const {
+            pathname = location.pathname,
+            query: extra_query,
+            keep_current_query = false,
+            open = false
+        } = options
+        
+        const current_params = new URLSearchParams(location.search)
+        const is_query_params_mode = current_params.get('hostname') || current_params.get('port')
+        
+        const new_params = new URLSearchParams(extra_query)
+        
+        if (keep_current_query) 
+            current_params.forEach((v, key) => {
+                !new_params.has(key) && new_params.set(key, v)
+            })
+            
+        
+        if (is_query_params_mode) {
+            new_params.set('hostname', hostname)
+            new_params.set('port', port.toString())
+        }
+        
+        const url_hostname = is_query_params_mode ? location.hostname : hostname
+        const url_port = is_query_params_mode ? location.port : port
+        const url = `${location.protocol}//${url_hostname}:${url_port}${pathname}?${new_params.toString()}`
+        
+        if (open) 
+            window.open(url, '_blank')
+         else
+            location.href = url
+    }
 }
+
 
 export enum NodeType {
     data = 0,
@@ -682,6 +755,14 @@ export interface DdbJob {
 enum DdbNodeState {
     online = 1,
     offline = 0,
+}
+
+
+interface NavigateToOptions {
+    pathname?: string
+    query?: ConstructorParameters<typeof URLSearchParams>[0]
+    keep_current_query?: boolean
+    open?: boolean
 }
 
 
