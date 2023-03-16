@@ -371,7 +371,7 @@ class ShellModel extends Model<ShellModel> {
         // 全路径中可能没有组（也就是没有点号），但一定有库和表
         let hash_map = new Map<string, { children: (Database | DatabaseGroup)[]} | Database | DatabaseGroup | Table>()
         hash_map.set('', {children: []})
-        let root = []
+        let root = {children: []}
         // table_path = 'dfs://g1.sg1.ssg1/m/db1/tb1'
         for (const table_path of mock_return) {
             // 先把最后一个 / 找到，记为 indexof_slash
@@ -385,7 +385,9 @@ class ShellModel extends Model<ShellModel> {
             let parent_
             while (-1 < pointer){
                 if (pointer === 0) {
-                    parent_ = hash_map.get('')
+                    
+                    parent_ = root
+                    
                 }
                 const current_pointer = path_without_table.indexOf('.', pointer + 1)
                 
@@ -412,19 +414,21 @@ class ShellModel extends Model<ShellModel> {
             
             const db_path = table_path.slice(0, index_slash + 1)
             
-            if (!hash_map.has(db_path)) {
-                // prefix一定存在于 hash_map
-                let parent = hash_map.get(prefix)
-                
+            const db_node = hash_map.get(db_path)
+            if (!db_node) {
                 const new_node = new Database(db_path)
-                parent.children.push(new_node)
+                parent_.children.push(new_node)
                 hash_map.set(db_path, new_node)
+                
+                parent_ = new_node
+            } else {
+                parent_ = db_node
             }
+
             
-            let parent = hash_map.get(db_path)
-            const new_node = new Table(parent, table_path)
-            parent.children.push(new_node)
-            hash_map.set(db_path, new_node)
+            const new_node = new Table(parent_, `${table_path}/`)
+            parent_.children.push(new_node)
+            hash_map.set(table_path, new_node)
         }
         // TEST: 测试多级数据库树
         // for (let i = 0;  i <100 ;  i++) {
@@ -434,7 +438,7 @@ class ShellModel extends Model<ShellModel> {
         //         dbs.set(path, new DdbEntity({ path ,tables}))
         //     }
         //  }
-        this.set({ dbs: hash_map.get('').children })
+        this.set({ dbs: root.children })
     }
     
     
