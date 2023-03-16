@@ -667,9 +667,20 @@ interface DdbNode {
     // ... 省略了一些
 }
 
-interface DdbLicense {
+export enum LicenseTypes {
+    /** 其他方式 */
+    Other = 0,
+    /** 机器指纹绑定 */
+    MachineFingerPrintBind = 1,
+    /** 在线验证 */
+    OnlineVerify = 2,
+    /** LicenseServer 验证 */
+    LicenseServerVerify = 3,
+}
+
+export interface DdbLicense {
     authorization: string
-    licenseType: number
+    licenseType: LicenseTypes
     maxMemoryPerNode: number
     maxCoresPerNode: number
     clientName: string
@@ -678,6 +689,8 @@ interface DdbLicense {
     maxNodes: number
     version: string
     modules: bigint
+    /** 仅 licenseType = 3 时可用 */
+    licenseServerSite?: string
 }
 
 export interface DdbJob {

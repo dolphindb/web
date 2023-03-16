@@ -54,7 +54,7 @@ import { date2str } from 'dolphindb/browser.js'
 
 import { language, t } from '../i18n/index.js'
 
-import { model, DdbModel, NodeType, storage_keys } from './model.js'
+import { model, DdbModel, NodeType, storage_keys, DdbLicense, LicenseTypes } from './model.js'
 
 import { Login } from './login.js'
 import { Cluster } from './cluster.js'
@@ -170,13 +170,22 @@ const authorizations = {
     commercial: t('商业版')
 }
 
+const licenseTypes: Record<DdbLicense['licenseType'], string> = {
+    [LicenseTypes.Other]: t('其他方式'),
+    [LicenseTypes.MachineFingerPrintBind]: t('机器指纹绑定'),
+    [LicenseTypes.OnlineVerify]: t('在线验证'),
+    [LicenseTypes.LicenseServerVerify]: t('LicenseServer验证'),
+}
+
 function License () {
-    const { version, license } = model.use(['version', 'license'])
+    const { version, license, node } = model.use(['version', 'license',  'node'])
     
     if (!license)
         return
     
     const auth = authorizations[license.authorization] || license.authorization
+    const license_type = licenseTypes[license.licenseType] || license.licenseType
+    const is_license_server = license.licenseType === LicenseTypes.LicenseServerVerify && license.licenseServerSite === node.site
     
     return <Popover
         placement='bottomLeft'
@@ -188,7 +197,8 @@ function License () {
                     <Descriptions bordered size='small' column={2}>
                         <Descriptions.Item label={t('授权类型')}>{auth}</Descriptions.Item>
                         <Descriptions.Item label={t('授权客户')}>{license.clientName}</Descriptions.Item>
-                        <Descriptions.Item label={t('许可类型')}>{license.licenseType}</Descriptions.Item>
+                        <Descriptions.Item label={t('许可类型')}>{license_type}</Descriptions.Item>
+                        {license_type === LicenseTypes.LicenseServerVerify && <Descriptions.Item label={t('是否为 LicenseServer')}>{is_license_server ? t('是') : t('否')}</Descriptions.Item>}
                         <Descriptions.Item label={t('过期时间')}>{date2str(license.expiration)}</Descriptions.Item>
                         <Descriptions.Item label={t('绑定 CPU')}>{String(license.bindCPU)}</Descriptions.Item>
                         <Descriptions.Item label={t('license 版本')}>{license.version}</Descriptions.Item>
