@@ -352,6 +352,7 @@ class ShellModel extends Model<ShellModel> {
         const mock_return = [
             'dfs://db1/tb1',
             'dfs://g1.db1/tb1',
+            'dfs://g1.db1/tb.2',
             'dfs://g1.db1/tb2',
             'dfs://g1.sg1.db1/tb1',
             'dfs://g1.sg1.db2/tb1',
@@ -369,36 +370,32 @@ class ShellModel extends Model<ShellModel> {
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
         // 库名可能有 / 且不可能有 .
         // 全路径中可能没有组（也就是没有点号），但一定有库和表
-        let hash_map = new Map<string, { children: (Database | DatabaseGroup)[]} | Database | DatabaseGroup | Table>()
-        hash_map.set('', {children: []})
+        // 假定不会出现 ./
+        let hash_map = new Map<string, | Database | DatabaseGroup | Table>()
         let root = []
         // table_path = 'dfs://g1.sg1.ssg1/m/db1/tb1'
         for (const table_path of mock_return) {
-            // 先把最后一个 / 找到，记为 indexof_slash
             const index_slash = table_path.lastIndexOf('/')
-            // 假定不会出现 ./
             
             const path_without_table = table_path.slice(0, index_slash + 1)
             let pointer = 0
-            
             let parent_
             while (-1 < pointer){
-                if (pointer === 0) {
+                if (pointer === 0)
                     parent_ = {children: root}
-                }
+                
                 const current_pointer = path_without_table.indexOf('.', pointer + 1)
                 
-                if (current_pointer === -1) {
+                if (current_pointer === -1)
                     break
-                }
-                // +1 才会包含点号
-                const current_key = table_path.slice(0, current_pointer + 1)
+
+                const group_key = table_path.slice(0, current_pointer + 1)
                 
-                const current_node = hash_map.get(current_key)
+                const current_node = hash_map.get(group_key)
                 if (!current_node) {
-                    const new_node = new DatabaseGroup(current_key)
+                    const new_node = new DatabaseGroup(group_key)
                     parent_.children.push(new_node)
-                    hash_map.set(current_key, new_node)
+                    hash_map.set(group_key, new_node)
                     
                     parent_ = new_node
                 } else {
