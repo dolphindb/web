@@ -26,7 +26,7 @@ import { FitAddon } from 'xterm-addon-fit'
 import { WebglAddon } from 'xterm-addon-webgl'
 import { WebLinksAddon } from 'xterm-addon-web-links'
 
-import { debounce } from 'lodash'
+import { debounce, lastIndexOf } from 'lodash'
 
 import { request_json } from 'xshell/net.browser.js'
 
@@ -349,93 +349,77 @@ class ShellModel extends Model<ShellModel> {
         // 不能使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
         const { value: table_paths } = await model.ddb.call<DdbVectorStringObj>('getClusterDFSTables')
         
-        // const mock_return = [
-        //     'dfs://db1/tb1',
-        //     'dfs://g1.db1/tb1',
-        //     'dfs://g1.db1/tb2',
-        //     'dfs://g1.sg1.db1/tb1',
-        //     'dfs://g1.sg1.db2/tb1',
-        //     'dfs://g1.sg2.db1/tb1',
-        //     'dfs://long.g1.sg1.ssg1.sssg1.db1/tb1',
-        //      // 即使有两个连续点号，也不进行任何特殊处理。用户在界面上看到的将会有一个 group 的标题为空
-        //     'dfs://double-dot..g1/db1/tb',
-        //     'dfs://double-dot..g1.sg1.db1/tb',
-        //     'dfs://double-dot..g1.sg2.db1/tb',
-        //     'dfs://g1.sg1.ssg1/m/db1/tb1',
-        //     'dfs://group_with_slash/same_group.sg1.db1/tb1'
-        // ]
+        const mock_return = [
+            'dfs://db1/tb1',
+            'dfs://g1.db1/tb1',
+            'dfs://g1.db1/tb2',
+            'dfs://g1.sg1.db1/tb1',
+            'dfs://g1.sg1.db2/tb1',
+            'dfs://g1.sg2.db1/tb1',
+            'dfs://long.g1.sg1.ssg1.sssg1.db1/tb1',
+             // 即使有两个连续点号，也不进行任何特殊处理。用户在界面上看到的将会有一个 group 的标题为空
+            'dfs://double-dot..g1/db1/tb',
+            'dfs://double-dot..g1.sg1.db1/tb',
+            'dfs://double-dot..g1.sg2.db1/tb',
+            'dfs://g1.sg1.ssg1/m/db1/tb1',
+            'dfs://group_with_slash/same_group.sg1.db1/tb1'
+        ]
         
         // 假定所有的 return 值都不会以 / 结尾
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
         // 库名可能有 / 且不可能有 .
         // 全路径中可能没有组（也就是没有点号），但一定有库和表
-        let hash_map = new Map<string, { children: (Database | DatabaseGroup)[], type: 'root'} | Database | DatabaseGroup | Table>()
-        hash_map.set('', {children: [], type: 'root'})
+        let hash_map = new Map<string, { children: (Database | DatabaseGroup)[]} | Database | DatabaseGroup | Table>()
+        hash_map.set('', {children: []})
+        
         // table_path = 'dfs://g1.sg1.ssg1/m/db1/tb1'
-        for (const table_path of table_paths) {
-            // tmp1 = 'dfs://g1.sg1.'  如果全路径中没有出现 '.' 那么tmp1 = ''
-            const group_str = table_path.slice(0, table_path.lastIndexOf('.') + 1)
+        for (const table_path of mock_return) {
+            // 先把最后一个 / 找到，记为 indexof_slash
+            const index_slash = table_path.lastIndexOf('/')
+            // 假定不会出现 ./
             
-            // ['dfs://g1.', 'sg1.'] 这里用正则零宽断言，效果是把字符串按照 '.' 分割，且分隔符会被包含在每一项的后面
-            const group_arr = group_str.split(/(?<=\.)/)
+            const path_without_table = table_path.slice(0, index_slash + 1)
+            let pointer = 0
+            let prefix = ''
             
-            // 'ssg1/m/db1/tb1'
-            const db_and_tb_str = table_path.slice(table_path.lastIndexOf('.') + 1)
-            
-            // 'ssg1/m/db1/'
-            const db_str = db_and_tb_str.slice(0, db_and_tb_str.lastIndexOf('/') + 1)
-            
-            // 'tb1'
-            const tb_str = db_and_tb_str.slice(db_and_tb_str.lastIndexOf('/') + 1)
-            
-            assert(group_arr.join('') + db_str + tb_str === table_path, t('分割后路径相加应该等于全路径'))
-            
-            // ['dfs://g1.', 'sg1.', 'ssg1/m/db1/', 'tb1']
-            const partitioned = group_arr.concat(db_str).concat(tb_str)
-            
-            let current_path = ''
-            for (let i = 0; i < partitioned.length; i++) {
-                const prefix = current_path
-                current_path += partitioned[i]
+            while (-1 < pointer){
                 
-                if (!hash_map.has(current_path)) {
-                    // 字符串的前缀一定已经被处理过，才会轮到当前字符串被处理
-                    assert(hash_map.has(prefix), t('前缀部分应该已经存在于 hash_map 中'))
+                const current_pointer = path_without_table.indexOf('.', pointer + 1)
+                
+                if (current_pointer === -1) {
+                    break
+                }
+                // +1 才会包含点号
+                const current_key = table_path.slice(0, current_pointer + 1)
+                
+                if (!hash_map.has(current_key)) {
+                    // prefix一定存在于 hash_map
                     let parent = hash_map.get(prefix)
                     
-                    //var new_node
-                    switch (current_path[current_path.length-1]) {
-                        case '.':
-                            if (parent.type === 'root' || parent.type === 'database-group') {
-                                const new_node = new DatabaseGroup(current_path)
-                                parent.children.push(new_node)
-                                hash_map.set(current_path, new_node)
-                            } else {
-                                assert(t('如果路径以.结尾，则路径前缀一定对应 root 或者 database-group'))
-                            }
-                            break
-                        case '/':
-                            if (parent.type === 'root' || parent.type === 'database-group') {
-                                const new_node = new Database(current_path)
-                                parent.children.push(new_node)
-                                hash_map.set(current_path, new_node)
-                            } else {
-                                assert(t('如果路径以/结尾，则路径前缀一定对应 root 或者 database-group'))
-                            }
-                            break
-                        default:
-                            if (parent.type === 'database') {
-                                const new_node = new Table(parent as Database, `${current_path}/`)
-                                parent.children.push(new_node)
-                                hash_map.set(current_path, new_node)
-                            } else {
-                                assert(t('如果路径既不以 / 又不以 . 结尾，则路径前缀一定对应database'))
-                            }
-                            break
-                    }
+                    const new_node = new DatabaseGroup(current_key)
+                    parent.children.push(new_node)
+                    hash_map.set(current_key, new_node)
                 }
-                // 如果 hash_map 中已经有这个字符串，说明树里面已经有这个节点，那就什么也不做
+                
+                pointer = current_pointer
+                prefix = current_key
             }
+            
+            const db_path = table_path.slice(0, index_slash + 1)
+            
+            if (!hash_map.has(db_path)) {
+                // prefix一定存在于 hash_map
+                let parent = hash_map.get(prefix)
+                
+                const new_node = new Database(db_path)
+                parent.children.push(new_node)
+                hash_map.set(db_path, new_node)
+            }
+            
+            let parent = hash_map.get(db_path)
+            const new_node = new Table(parent, table_path)
+            parent.children.push(new_node)
+            hash_map.set(db_path, new_node)
         }
         // TEST: 测试多级数据库树
         // for (let i = 0;  i <100 ;  i++) {
