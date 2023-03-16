@@ -371,7 +371,7 @@ class ShellModel extends Model<ShellModel> {
         // 全路径中可能没有组（也就是没有点号），但一定有库和表
         let hash_map = new Map<string, { children: (Database | DatabaseGroup)[]} | Database | DatabaseGroup | Table>()
         hash_map.set('', {children: []})
-        
+        let root = []
         // table_path = 'dfs://g1.sg1.ssg1/m/db1/tb1'
         for (const table_path of mock_return) {
             // 先把最后一个 / 找到，记为 indexof_slash
@@ -382,8 +382,11 @@ class ShellModel extends Model<ShellModel> {
             let pointer = 0
             let prefix = ''
             
+            let parent_
             while (-1 < pointer){
-                
+                if (pointer === 0) {
+                    parent_ = hash_map.get('')
+                }
                 const current_pointer = path_without_table.indexOf('.', pointer + 1)
                 
                 if (current_pointer === -1) {
@@ -392,13 +395,15 @@ class ShellModel extends Model<ShellModel> {
                 // +1 才会包含点号
                 const current_key = table_path.slice(0, current_pointer + 1)
                 
-                if (!hash_map.has(current_key)) {
-                    // prefix一定存在于 hash_map
-                    let parent = hash_map.get(prefix)
-                    
+                const current_node = hash_map.get(current_key)
+                if (!current_node) {
                     const new_node = new DatabaseGroup(current_key)
-                    parent.children.push(new_node)
+                    parent_.children.push(new_node)
                     hash_map.set(current_key, new_node)
+                    
+                    parent_ = new_node
+                } else {
+                    parent_ = current_node
                 }
                 
                 pointer = current_pointer
