@@ -1670,7 +1670,11 @@ class Table implements DataNode {
     
     async inspect () {
         await shell.define_peek_table()
-        let obj = await model.ddb.call('peek_table', [this.db.path.slice(0, -1), this.name])
+        let obj = await model.ddb.call(
+            'peek_table',
+            [this.db.path.slice(0, -1), this.name],
+            model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
+        )
         obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
     }
@@ -1682,7 +1686,8 @@ class Table implements DataNode {
             this.schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                 // 这个函数在 define_load_schema 中已定义
                 'load_schema',
-                [this.db.path, this.name]
+                [this.db.path, this.name],
+                model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
             )
         }
         
