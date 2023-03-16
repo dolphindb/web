@@ -372,8 +372,11 @@ export class DdbModel extends Model<DdbModel> {
                 node = _node
             
             if (_node.mode === NodeType.controller)
-                controller ??= _node
-                
+                if (_node.isLeader)
+                    controller = _node
+                else
+                    controller ??= _node
+            
             if (_node.mode === NodeType.data)
                 datanode ??= _node
         }
