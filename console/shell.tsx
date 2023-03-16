@@ -373,55 +373,42 @@ class ShellModel extends Model<ShellModel> {
         // 假定不会出现 ./
         let hash_map = new Map<string, | Database | DatabaseGroup | Table>()
         let root = []
-        // table_path = 'dfs://g1.sg1.ssg1/m/db1/tb1'
-        for (const table_path of mock_return) {
+        for (const table_path of table_paths) {
             const index_slash = table_path.lastIndexOf('/')
-            
-            const path_without_table = table_path.slice(0, index_slash + 1)
+            const db_path = table_path.slice(0, index_slash + 1)
             let pointer = 0
-            let parent_
-            while (-1 < pointer){
-                if (pointer === 0)
-                    parent_ = {children: root}
-                
-                const current_pointer = path_without_table.indexOf('.', pointer + 1)
-                
+            let parent = {children: root}
+            // while 循环用来处理 DatabaseGroup
+            while (-1 < pointer) {
+                const current_pointer = db_path.indexOf('.', pointer + 1)
                 if (current_pointer === -1)
                     break
 
                 const group_key = table_path.slice(0, current_pointer + 1)
-                
                 const current_node = hash_map.get(group_key)
                 if (!current_node) {
                     const new_node = new DatabaseGroup(group_key)
-                    parent_.children.push(new_node)
+                    parent.children.push(new_node)
                     hash_map.set(group_key, new_node)
-                    
-                    parent_ = new_node
+                    parent = new_node
                 } else {
-                    parent_ = current_node
+                    parent = current_node
                 }
-                
                 pointer = current_pointer
             }
-            
-            const db_path = table_path.slice(0, index_slash + 1)
-            
+            // 处理 Database
             const db_node = hash_map.get(db_path)
             if (!db_node) {
                 const new_node = new Database(db_path)
-                parent_.children.push(new_node)
+                parent.children.push(new_node)
                 hash_map.set(db_path, new_node)
-                
-                parent_ = new_node
+                parent = new_node
             } else {
-                parent_ = db_node
+                parent = db_node
             }
-
-            
-            const new_node = new Table(parent_, `${table_path}/`)
-            parent_.children.push(new_node)
-            hash_map.set(table_path, new_node)
+            // 处理 Table
+            const new_node = new Table(parent, `${table_path}/`)
+            parent.children.push(new_node)
         }
         // TEST: 测试多级数据库树
         // for (let i = 0;  i <100 ;  i++) {
