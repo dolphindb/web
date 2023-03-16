@@ -367,15 +367,15 @@ export class DdbModel extends Model<DdbModel> {
         
         let node: DdbNode, controller: DdbNode, datanode: DdbNode
         
-        for (const nd of nodes) {
-            if (nd.name === this.node_alias)
-                node = node
+        for (const _node of nodes) {
+            if (_node.name === this.node_alias)
+                node = _node
             
-            if (nd.mode === NodeType.controller)
-                controller ??= nd
+            if (_node.mode === NodeType.controller)
+                controller ??= _node
                 
-            if (nd.mode === NodeType.data)
-                datanode ??= nd
+            if (_node.mode === NodeType.data)
+                datanode ??= _node
         }
         
         console.log(t('当前节点:'), node)
