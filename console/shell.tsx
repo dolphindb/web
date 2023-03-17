@@ -349,7 +349,7 @@ class ShellModel extends Model<ShellModel> {
         // 不能使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
         const { value: table_paths } = await model.ddb.call<DdbVectorStringObj>('getClusterDFSTables')
         
-        // const mock_return = [
+        // const table_paths = [
         //     'dfs://db1/tb1',
         //     'dfs://g1.db1/tb1',
         //     'dfs://g1.db1/tb.2',
@@ -366,45 +366,46 @@ class ShellModel extends Model<ShellModel> {
         // 假定所有的 table_name 值都不会以 / 结尾
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
         // 全路径中可能没有组（也就是没有点号），但一定有库和表
-        let hash_map = new Map<string, Database | DatabaseGroup | Table>()
-        let root = []
+        let hash_map = new Map<string, Database | DatabaseGroup>()
+        let root: (Database | DatabaseGroup)[] = [ ]
         for (const table_path of table_paths) {
             // 找到数据库最后一个斜杠位置，截取前面部分的字符串作为库名
             const index_slash = table_path.lastIndexOf('/')
             
             const db_path = `${table_path.slice(0, index_slash)}/`
             
-            let parent_pointer = 0
-            let parent = {children: root}
-            let current_pointer: number
-            // while 循环用来处理 DatabaseGroup
-            while ((current_pointer = db_path.indexOf('.', parent_pointer + 1)) !== -1) {
-                const group_key = table_path.slice(0, current_pointer + 1)
-                const group_node = hash_map.get(group_key)
-                if (!group_node) {
+            let parent: Database | DatabaseGroup | { children: (Database | DatabaseGroup)[] } = { children: root }
+            
+            // for 循环用来处理 database group
+            for (let index = 0;  index = db_path.indexOf('.', index) + 1;  ) {
+                const group_key = table_path.slice(0, index)
+                const group = hash_map.get(group_key)
+                if (group)
+                    parent = group
+                else {
                     const group = new DatabaseGroup(group_key)
-                    parent.children.push(group)
+                    ;(parent as DatabaseGroup).children.push(group)
                     hash_map.set(group_key, group)
                     parent = group
-                } else
-                    parent = group_node
-                
-                parent_pointer = current_pointer
+                }
             }
-            // 处理 Database
-            const db_node = hash_map.get(db_path)
-            if (!db_node) {
-                const database = new Database(db_path)
-                parent.children.push(database)
-                hash_map.set(db_path, database)
-                parent = database
-            } else
-                parent = db_node
             
-            // 处理 Table
+            // 处理 database
+            const db = hash_map.get(db_path) as Database
+            if (db)
+                parent = db
+            else {
+                const db = new Database(db_path)
+                ;(parent as DatabaseGroup).children.push(db)
+                hash_map.set(db_path, db)
+                parent = db
+            }
+            
+            // 处理 table
             const table = new Table(parent as Database, `${table_path}/`)
             parent.children.push(table)
         }
+        
         // TEST: 测试多级数据库树
         // for (let i = 0;  i <100 ;  i++) {
         //     for (let j =0; j< 500; j++){
@@ -413,6 +414,7 @@ class ShellModel extends Model<ShellModel> {
         //         dbs.set(path, new DdbEntity({ path ,tables}))
         //     }
         //  }
+        
         this.set({ dbs: root })
     }
     
@@ -1657,9 +1659,10 @@ class DatabaseGroup implements DataNode {
     constructor (key: string) {
         this.self = this
         this.key = key
-        this.title = key.slice('dfs://'.length).slice(0, -1).split('.').slice(-1)[0]
+        this.title = key.slice('dfs://'.length, -1).split('.').at(-1)
     }
 }
+
 
 class Database implements DataNode {
     type = 'database' as const
@@ -1687,14 +1690,7 @@ class Database implements DataNode {
         this.self = this
         assert(path.startsWith('dfs://'), t('数据库路径应该以 dfs:// 开头'))
         this.key = this.path = path
-        
-        // 此时path可能有点号， 如 'a.b.db'
-        const dotted_db_name = path.slice('dfs://'.length, -1)
-        
-        // 将 'a.b.db' 转换成 'db'
-        const db_name = dotted_db_name.slice(dotted_db_name.lastIndexOf('.') + 1)
-        
-        this.title = <span title={path.slice(0, -1)}>{db_name}</span>
+        this.title = <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1).split('.').at(-1)}</span>
     }
 }
 
