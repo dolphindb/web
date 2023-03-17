@@ -395,7 +395,7 @@ export class DdbModel extends Model<DdbModel> {
             
             if (leader) {
                 alert(
-                    t('您访问的这个控制结点现在不是高可用 (raft) 集群的 leader 结点, 将会为您自动跳转到集群当前的 leader 结点: ') + 
+                    t('您访问的这个控制节点现在不是高可用 (raft) 集群的 leader 节点, 将会为您自动跳转到集群当前的 leader 节点: ') + 
                     `${leader.publicName || leader.host}:${leader.port}`
                 )
                 
