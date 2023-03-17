@@ -1659,7 +1659,7 @@ class DatabaseGroup implements DataNode {
     constructor (key: string) {
         this.self = this
         this.key = key
-        this.title = key.slice('dfs://'.length, -1).split('.').last
+        this.title = key.slice('dfs://'.length, -1).split('.').at(-1)
     }
 }
 
@@ -1690,7 +1690,7 @@ class Database implements DataNode {
         this.self = this
         assert(path.startsWith('dfs://'), t('数据库路径应该以 dfs:// 开头'))
         this.key = this.path = path
-        this.title = <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1).split('.').last}</span>
+        this.title = <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1).split('.').at(-1)}</span>
     }
 }
 
