@@ -389,17 +389,46 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
+    async check_server_reachable(host: string, port: number) {
+        return new Promise<string>((resolve, reject) => {
+            // use static resource to avoid CORS
+            const check_url = `${location.protocol}//${host}:${port}/ico/logo.png?${Date.now()}`
+			const image = new Image();
+			image.addEventListener('load', () => resolve(host));
+			image.addEventListener('error', () => reject(false));
+			image.src = check_url;
+		});
+    }
+    
+    
+    async find_node_reachable_host (node: DdbNode) {
+        const hosts = [...node.publicName.split(';').map(name => name.trim()), node.host]
+        const port = node.port
+        try {
+            const host = await Promise.any(hosts.map(host => this.check_server_reachable(host, port)))
+            return host
+        } catch (err) {
+            throw new Error(t('没有找到可以正常访问的节点'))
+        }
+    }
+    
+    
     async check_leader_and_redirect () {
         if (this.node.mode === NodeType.controller && 'isLeader' in this.node && this.node.isLeader === false) {
             const leader = this.nodes.find(node => node.isLeader)
             
             if (leader) {
-                alert(
-                    t('您访问的这个控制节点现在不是高可用 (raft) 集群的 leader 节点, 将会为您自动跳转到集群当前的 leader 节点: ') + 
-                    `${leader.publicName || leader.host}:${leader.port}`
-                )
-                
-                this.navigate_to_node(leader, { keep_current_query: true })
+                try {
+                    const host = await this.find_node_reachable_host(leader)
+                    alert(
+                        t('您访问的这个控制节点现在不是高可用 (raft) 集群的 leader 节点, 将会为您自动跳转到集群当前的 leader 节点: ') + 
+                        `${host}:${leader.port}`
+                    )
+                    this.navigate_to(host, leader.port, { keep_current_query: true })
+                } catch (err) {
+                    alert(err.message + t(', 即将关闭页面'))
+                    window.close()
+                }
             }
         }
     }

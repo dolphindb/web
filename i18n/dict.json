@@ -1387,5 +1387,11 @@
     },
     "数据节点:": {
         "en": "datanode:"
+    },
+    "没有找到可以正常访问的节点": {
+        "en": "Can not find a node that can be accessed normally"
+    },
+    ", 即将关闭页面": {
+        "en": ", the page will be closed"
     }
 }
