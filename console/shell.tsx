@@ -12,7 +12,7 @@ const { Option } = Select
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined, SlackSquareFilled, TableOutlined } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, PlusSquareOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined, SlackSquareFilled, TableOutlined, FileAddOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
@@ -166,6 +166,17 @@ class ShellModel extends Model<ShellModel> {
     
     peek_table_defined = false
     
+    
+    current_key: string
+    
+    current_type: 'column-root' | 'column'
+    
+    click =  1
+    
+    
+    on_click () {
+        this.set({click: this.click + 1})
+    }
     
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
@@ -1319,7 +1330,7 @@ const column_menu_items: MenuItem[] = [
 
 /** 数据库 context menu item 调用 Modal */
 const context_menu_modal_items = {
-    EditComment,
+    //EditComment,
     AddColumn
 }
 
@@ -1352,19 +1363,7 @@ const context_menu_function_items = {
 
 
 
-function AddColumn ({
-    database,
-    table,
-    onOk,
-    onCancel,
-    loadData
-}: {
-    database: string
-    table: string
-    onOk: () => void
-    onCancel: () => void
-    loadData: ({ key, needLoad }: { key: string, needLoad: boolean }) => void
-}) {
+function AddColumn () {
     const coltypes = [
         'BOOL',
         'CHAR',
@@ -1394,24 +1393,30 @@ function AddColumn ({
     ] as const
     
     const [form] = Form.useForm()
+    const {current_key, current_type} = shell.use(['current_key', 'current_type'])
     const onFinish = async values => {
         const { column, type } = values
-        if (database && table) 
+        
+        // tb_path 结尾没有 /
+        const tb_path = current_key.slice(0, -'/column-root/'.length )
+        const index = tb_path.lastIndexOf('/')
+        const [database, table] = [tb_path.slice(0, index), tb_path.slice(index + 1)]
+        
+        // 这个条件判断提交前要去掉
+        if (true)
             try {
+                // 这里需不需要优化成先定义函数
                 await model.ddb.eval(`addColumn(loadTable(database("${database}"), "${table}"), ["${column}"], [${type.toUpperCase()}])`)
                 message.success(t('添加成功'))
-                loadData({ key: database, needLoad: true })
             } catch (error) {
                 message.error(error.message)
             }
         
         form.resetFields()
-        onOk()
     }
     
     const onAbord = () => {
         form.resetFields()
-        onCancel()
     }
     
     return <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish}>
@@ -1960,7 +1965,7 @@ class ColumnRoot implements DataNode {
     
     key: string
     
-    title = t('列')
+    title: React.ReactElement
     
     className = 'category'
     
@@ -1979,6 +1984,33 @@ class ColumnRoot implements DataNode {
         this.self = this
         this.table = table
         this.key = `${table.path}${this.type}/`
+        this.title = <div
+            style={{
+                display: 'flex',
+                justifyContent: 'space-between'
+            }}
+        >
+            {t('列')}
+
+            
+            <div onClick={(event) => {
+                shell.set({ current_key: this.key, current_type: this.type})
+                shell.on_click()
+                event.stopPropagation()
+            }}
+            >
+                <span
+                    style={{
+                        paddingRight: 5,
+                        zIndex: 3000
+                    }}
+                >
+                    <Tooltip title={t('添加列')} color='grey'>
+                        <PlusSquareOutlined />
+                    </Tooltip>
+                </span>
+            </div>
+        </div>
     }
     
     
@@ -2414,47 +2446,25 @@ function DBs ({ height }: { height: number }) {
             </div>
         }
         
-        {/* <DBModal
-            open={menu && menu.open}
-            command={menu ? menu.command : ''}
-            database={menu?.database}
-            table={menu?.table}
-            column={menu?.column}
-            loadData={load_data}
-        /> */}
+        <DBModal/>
     </div>
 }
 
 
-function DBModal ({ open, database, table, column, command, loadData }: {
-    open: boolean
-    database?: string,
-    table?: string,
-    column?: string,
-    command: string,
-    loadData: ({ key, needLoad }: { key: string, needLoad: boolean }) => void,
-}) {
-    const [is_modal_open, set_is_modal_open] = useState<boolean>(open)
+function DBModal () {
+    const {current_key, current_type, click} = shell.use(['current_key', 'current_type', 'click'])
+    const [is_modal_open, set_is_modal_open] = useState<boolean>(false)
     
     useEffect(() => {
-        set_is_modal_open(open)
-    }, [open])
+    //考虑这个条件是否可以优化
+    if (current_key && current_key !== '')
+        set_is_modal_open(true)
+    }, [click])
     
-    const ModalContent = context_menu_modal_items[command] || (() => <div />)
     
-    const genTitle = (command: string): string => {
-        return table_menu_items.find(v => v.command === command)?.label || column_menu_items.find(v => v.command === command)?.label || ''
-    }
-    
-    return <Modal className='db-modal' open={is_modal_open} onOk={() => { set_is_modal_open(false) }} onCancel={() => { set_is_modal_open(false) }} title={genTitle(command)}>
+    return <Modal className='db-modal' open={is_modal_open} onOk={() => { set_is_modal_open(false) }} onCancel={() => { set_is_modal_open(false) }} title='tmp'>
         <div className='db-modal-content'>
-            <ModalContent
-                database={database}
-                table={table}
-                column={column}
-                onOk={() => { set_is_modal_open(false) }}
-                onCancel={() => { set_is_modal_open(false) }}
-                loadData={loadData} />
+            { current_type === 'column-root' ? <AddColumn/> : undefined}
         </div>
     </Modal>
 }
