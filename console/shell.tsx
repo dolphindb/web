@@ -366,7 +366,7 @@ class ShellModel extends Model<ShellModel> {
         // 假定所有的 table_name 值都不会以 / 结尾
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
         // 全路径中可能没有组（也就是没有点号），但一定有库和表
-        let hash_map = new Map<string, | Database | DatabaseGroup | Table>()
+        let hash_map = new Map<string, Database | DatabaseGroup | Table>()
         let root = []
         for (const table_path of table_paths) {
             // 找到数据库最后一个斜杠位置，截取前面部分的字符串作为库名
