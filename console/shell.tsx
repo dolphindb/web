@@ -85,6 +85,7 @@ import SvgTable from './shell.icons/table.icon.svg'
 import SvgChart from './shell.icons/chart.icon.svg'
 import SvgObject from './shell.icons/object.icon.svg'
 import SvgDatabase from './shell.icons/database.icon.svg'
+import SvgDatabaseGroup from './shell.icons/database-group.icon.svg'
 import SvgColumn from './shell.icons/column.icon.svg'
 import SvgAddColumn from './shell.icons/add-column.icon.svg'
 import SvgViewTableStructure from './shell.icons/view-table-structure.icon.svg'
@@ -1649,7 +1650,7 @@ class DatabaseGroup implements DataNode {
     
     className = 'database-group'
     
-    icon = <Icon component={SvgPartitionDirectory} />
+    icon = <Icon component={SvgDatabaseGroup} />
     
     isLeaf = false as const
     
