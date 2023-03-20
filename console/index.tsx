@@ -174,7 +174,7 @@ const licenseTypes: Record<DdbLicense['licenseType'], string> = {
     [LicenseTypes.Other]: t('其他方式'),
     [LicenseTypes.MachineFingerprintBind]: t('机器指纹绑定'),
     [LicenseTypes.OnlineVerify]: t('在线验证'),
-    [LicenseTypes.LicenseServerVerify]: t('LicenseServer 验证'),
+    [LicenseTypes.LicenseServerVerify]: 'LicenseServer',
 }
 
 function License () {
