@@ -167,7 +167,8 @@ function DdbHeader () {
 const authorizations = {
     trial: t('试用版'),
     community: t('社区版'),
-    commercial: t('商业版')
+    commercial: t('商业版'),
+    test: t('测试版'),
 }
 
 const licenseTypes: Record<DdbLicense['licenseType'], string> = {
