@@ -172,20 +172,20 @@ const authorizations = {
 
 const licenseTypes: Record<DdbLicense['licenseType'], string> = {
     [LicenseTypes.Other]: t('其他方式'),
-    [LicenseTypes.MachineFingerPrintBind]: t('机器指纹绑定'),
+    [LicenseTypes.MachineFingerprintBind]: t('机器指纹绑定'),
     [LicenseTypes.OnlineVerify]: t('在线验证'),
     [LicenseTypes.LicenseServerVerify]: t('LicenseServer验证'),
 }
 
 function License () {
-    const { version, license, node } = model.use(['version', 'license',  'node'])
+    const { version, license, node, license_server } = model.use(['version', 'license',  'node', 'license_server'])
     
     if (!license)
         return
     
     const auth = authorizations[license.authorization] || license.authorization
     const license_type = licenseTypes[license.licenseType] || license.licenseType
-    const is_license_server = license.licenseType === LicenseTypes.LicenseServerVerify && license.licenseServerSite === node.site
+    const is_license_server = license.licenseType === LicenseTypes.LicenseServerVerify && license_server?.site === node.site
     
     return <Popover
         placement='bottomLeft'
@@ -198,13 +198,23 @@ function License () {
                         <Descriptions.Item label={t('授权类型')}>{auth}</Descriptions.Item>
                         <Descriptions.Item label={t('授权客户')}>{license.clientName}</Descriptions.Item>
                         <Descriptions.Item label={t('许可类型')}>{license_type}</Descriptions.Item>
-                        {license_type === LicenseTypes.LicenseServerVerify && <Descriptions.Item label={t('是否为 LicenseServer')}>{is_license_server ? t('是') : t('否')}</Descriptions.Item>}
+                        {license.licenseType === LicenseTypes.LicenseServerVerify && <Descriptions.Item label={t('是否为 LicenseServer')}>{is_license_server ? t('是') : t('否')}</Descriptions.Item>}
                         <Descriptions.Item label={t('过期时间')}>{date2str(license.expiration)}</Descriptions.Item>
                         <Descriptions.Item label={t('绑定 CPU')}>{String(license.bindCPU)}</Descriptions.Item>
                         <Descriptions.Item label={t('license 版本')}>{license.version}</Descriptions.Item>
                         <Descriptions.Item label={t('模块数量')}>{ license.modules === -1n ? '∞' : license.modules.toString() }</Descriptions.Item>
-                        <Descriptions.Item label={t('每节点最大可用内存')}>{license.maxMemoryPerNode}</Descriptions.Item>
-                        <Descriptions.Item label={t('每节点最大可用核数')}>{license.maxCoresPerNode}</Descriptions.Item>
+                        {
+                            is_license_server ?
+                            <>
+                                <Descriptions.Item label={t('所有节点最大可用内存')}>{license_server.resource.maxMemory}</Descriptions.Item>
+                                <Descriptions.Item label={t('所有节点最大可用核数')}>{license_server.resource.maxCores}</Descriptions.Item>
+                            </>
+                            : 
+                            <>
+                                <Descriptions.Item label={t('每节点最大可用内存')}>{license.maxMemoryPerNode}</Descriptions.Item>
+                                <Descriptions.Item label={t('每节点最大可用核数')}>{license.maxCoresPerNode}</Descriptions.Item>
+                            </>
+                        }
                         <Descriptions.Item label={t('最大节点数')}>{license.maxNodes}</Descriptions.Item>
                         <Descriptions.Item label={t('web 构建时间')}>{BUILD_TIME}</Descriptions.Item>
                     </Descriptions>

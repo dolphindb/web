@@ -66,6 +66,8 @@ export class DdbModel extends Model<DdbModel> {
     
     license: DdbLicense
     
+    license_server?: DdbLicenseServer
+    
     first_get_server_log_length = true
     
     first_get_server_log = true
@@ -147,7 +149,7 @@ export class DdbModel extends Model<DdbModel> {
         
         console.log(t('web 初始化成功'))
         
-        this.get_license()
+        this.get_license_info()
         
         this.goto_default_view()
         
@@ -296,8 +298,16 @@ export class DdbModel extends Model<DdbModel> {
         return version
     }
     
+    async get_license_info () {
+        const license = await this.get_license_self_info()
+        
+        if (license.licenseType === LicenseTypes.LicenseServerVerify) {
+            await this.get_license_server_info()
+        }
+    }
     
-    async get_license () {
+    
+    async get_license_self_info () {
         const license = (
             await this.ddb.call<DdbObj<DdbObj[]>>('license')
         ).to_dict<DdbLicense>({ strip: true })
@@ -305,6 +315,20 @@ export class DdbModel extends Model<DdbModel> {
         console.log('license:', license)
         this.set({ license })
         return license
+    }
+    
+    async get_license_server_info () {
+        const [license_server_site, license_server_resource] = await Promise.all([
+            this.ddb.call<DdbStringObj>('getConfig', ['licenseServerSite']).then(res => res.value),
+            this.ddb.call<DdbObj<DdbObj[]>>('getLicenseServerResourceInfo').then(res => res.to_dict<DdbLicenseServerResource>({ strip: true }))
+        ])
+        
+        this.set({ 
+            license_server: {
+                site: license_server_site,
+                resource: license_server_resource
+            }
+        })
     }
     
     /**
@@ -671,7 +695,7 @@ export enum LicenseTypes {
     /** 其他方式 */
     Other = 0,
     /** 机器指纹绑定 */
-    MachineFingerPrintBind = 1,
+    MachineFingerprintBind = 1,
     /** 在线验证 */
     OnlineVerify = 2,
     /** LicenseServer 验证 */
@@ -689,8 +713,20 @@ export interface DdbLicense {
     maxNodes: number
     version: string
     modules: bigint
-    /** 仅 licenseType = 3 时可用 */
-    licenseServerSite?: string
+}
+
+export interface DdbLicenseServerResource {
+    availableCores: number
+    availableMemory: number
+    maxCores: number
+    maxNodes: number
+    maxMemory: number
+    expiration: number
+}
+
+export interface DdbLicenseServer {
+    site: string
+    resource: DdbLicenseServerResource
 }
 
 export interface DdbJob {
