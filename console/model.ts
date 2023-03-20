@@ -418,17 +418,58 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
+    async find_node_closest_host (node: DdbNode) {
+        const ip_pattern = /\d+\.\d+\.\d+\.\d+/
+        const current_host = window.location.hostname
+        const current_host_parts = ip_pattern.test(current_host) 
+            ? current_host.split('.') 
+            : current_host.split('.').reverse()
+        
+        const hosts = [...node.publicName.split(';').map(name => name.trim()), node.host]
+        
+        const calc_host_score = (hostname: string) => {
+            const compare_host_parts = ip_pattern.test(hostname) 
+                ? hostname.split('.') 
+                : hostname.split('.').reverse()
+            const score = compare_host_parts.reduce((total_score, part, i) => {
+                const part_score = part === current_host_parts[i] 
+                    ? 2 << (compare_host_parts.length - i) 
+                    : 0
+                return total_score + part_score
+            }, 0)
+            
+            return score
+        }
+
+        const [closest] = hosts.slice(1).reduce<readonly [string, number]>((prev, hostname) => {
+            if (hostname === current_host) {
+                return [hostname, Infinity]
+            }
+            
+            const [_, closest_score] = prev
+            const score = calc_host_score(hostname)
+            if (score > closest_score) {
+                return [hostname, score]
+            }
+            
+            return prev
+        }, [hosts[0], calc_host_score(hosts[0])] as const);
+        
+        return closest
+    }
+    
+    
     async check_leader_and_redirect () {
         if (this.node.mode === NodeType.controller && 'isLeader' in this.node && this.node.isLeader === false) {
             const leader = this.nodes.find(node => node.isLeader)
             
             if (leader) {
+                const host = await this.find_node_closest_host(leader)
                 alert(
                     t('您访问的这个控制节点现在不是高可用 (raft) 集群的 leader 节点, 将会为您自动跳转到集群当前的 leader 节点: ') + 
-                    `${leader.publicName || leader.host}:${leader.port}`
+                    `${host}:${leader.port}`
                 )
-                
-                this.navigate_to_node(leader, { keep_current_query: true })
+                this.navigate_to(host, leader.port, { keep_current_query: true })
             }
         }
     }

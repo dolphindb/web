@@ -1423,5 +1423,11 @@
     },
     "所有节点可用核数之和": {
         "en": "The sum of available cores of all nodes"
+    },
+    "没有找到可以正常访问的节点": {
+        "en": "Can not find a node that can be accessed normally"
+    },
+    ", 即将关闭页面": {
+        "en": ", the page will be closed"
     }
 }
