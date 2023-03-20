@@ -420,10 +420,12 @@ export class DdbModel extends Model<DdbModel> {
     
     async find_node_closest_host (node: DdbNode) {
         const ip_pattern = /\d+\.\d+\.\d+\.\d+/
-        const current_host = window.location.hostname
-        const current_host_parts = ip_pattern.test(current_host) 
-            ? current_host.split('.') 
-            : current_host.split('.').reverse()
+        
+        const params = new URLSearchParams(location.search)
+        const current_connect_host = params.get('hostname') || location.hostname
+        const current_connect_host_parts = ip_pattern.test(current_connect_host) 
+            ? current_connect_host.split('.') 
+            : current_connect_host.split('.').reverse()
         
         const hosts = [...node.publicName.split(';').map(name => name.trim()), node.host]
         
@@ -432,7 +434,7 @@ export class DdbModel extends Model<DdbModel> {
                 ? hostname.split('.') 
                 : hostname.split('.').reverse()
             const score = compare_host_parts.reduce((total_score, part, i) => {
-                const part_score = part === current_host_parts[i] 
+                const part_score = part === current_connect_host_parts[i] 
                     ? 2 << (compare_host_parts.length - i) 
                     : 0
                 return total_score + part_score
@@ -442,7 +444,7 @@ export class DdbModel extends Model<DdbModel> {
         }
 
         const [closest] = hosts.slice(1).reduce<readonly [string, number]>((prev, hostname) => {
-            if (hostname === current_host) {
+            if (hostname === current_connect_host) {
                 return [hostname, Infinity]
             }
             
