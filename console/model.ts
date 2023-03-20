@@ -389,27 +389,44 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    async check_server_reachable(host: string, port: number) {
-        return new Promise<string>((resolve, reject) => {
-            // use static resource to avoid CORS
-            const check_url = `${location.protocol}//${host}:${port}/ico/logo.png?${Date.now()}`
-			const image = new Image();
-			image.addEventListener('load', () => resolve(host));
-			image.addEventListener('error', () => reject(false));
-			image.src = check_url;
-		});
-    }
-    
-    
-    async find_node_reachable_host (node: DdbNode) {
+    async find_node_closest_host (node: DdbNode) {
+        const ip_pattern = /\d+\.\d+\.\d+\.\d+/
+        const current_host = window.location.hostname
+        const current_host_parts = ip_pattern.test(current_host) 
+            ? current_host.split('.') 
+            : current_host.split('.').reverse()
+        
         const hosts = [...node.publicName.split(';').map(name => name.trim()), node.host]
-        const port = node.port
-        try {
-            const host = await Promise.any(hosts.map(host => this.check_server_reachable(host, port)))
-            return host
-        } catch (err) {
-            throw new Error(t('没有找到可以正常访问的节点'))
+        
+        const calc_host_score = (hostname: string) => {
+            const compare_host_parts = ip_pattern.test(hostname) 
+                ? hostname.split('.') 
+                : hostname.split('.').reverse()
+            const score = compare_host_parts.reduce((total_score, part, i) => {
+                const part_score = part === current_host_parts[i] 
+                    ? 2 << (compare_host_parts.length - i) 
+                    : 0
+                return total_score + part_score
+            }, 0)
+            
+            return score
         }
+
+        const [closest] = hosts.slice(1).reduce<readonly [string, number]>((prev, hostname) => {
+            if (hostname === current_host) {
+                return [hostname, Infinity]
+            }
+            
+            const [_, closest_scroe] = prev
+            const score = calc_host_score(hostname)
+            if (score > closest_scroe) {
+                return [hostname, score]
+            }
+            
+            return prev
+        }, [hosts[0], calc_host_score(hosts[0])] as const);
+        
+        return closest
     }
     
     
@@ -418,17 +435,12 @@ export class DdbModel extends Model<DdbModel> {
             const leader = this.nodes.find(node => node.isLeader)
             
             if (leader) {
-                try {
-                    const host = await this.find_node_reachable_host(leader)
-                    alert(
-                        t('您访问的这个控制节点现在不是高可用 (raft) 集群的 leader 节点, 将会为您自动跳转到集群当前的 leader 节点: ') + 
-                        `${host}:${leader.port}`
-                    )
-                    this.navigate_to(host, leader.port, { keep_current_query: true })
-                } catch (err) {
-                    alert(err.message + t(', 即将关闭页面'))
-                    window.close()
-                }
+                const host = await this.find_node_closest_host(leader)
+                alert(
+                    t('您访问的这个控制节点现在不是高可用 (raft) 集群的 leader 节点, 将会为您自动跳转到集群当前的 leader 节点: ') + 
+                    `${host}:${leader.port}`
+                )
+                this.navigate_to(host, leader.port, { keep_current_query: true })
             }
         }
     }
