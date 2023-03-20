@@ -437,7 +437,7 @@
     "多控制节点": {
         "en": "multicontroller"
     },
-    "您访问的这个控制结点现在不是高可用 (raft) 集群的 leader 结点, 将会为您自动跳转到集群当前的 leader 结点: ": {
+    "您访问的这个控制节点现在不是高可用 (raft) 集群的 leader 节点, 将会为您自动跳转到集群当前的 leader 节点: ": {
         "en": "The controller you're visiting is not the raft leader in the high-availability cluster. You will be redirected to the current leader: "
     },
     "左侧编辑器使用指南:\n": {
@@ -1411,5 +1411,8 @@
     },
     "所有节点最大可用核数": {
         "en": "Max cores all nodes"
+    },
+    "数据节点:": {
+        "en": "datanode:"
     }
 }
