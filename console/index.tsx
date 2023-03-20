@@ -207,8 +207,8 @@ function License () {
                         {
                             is_license_server ?
                             <>
-                                <Descriptions.Item label={t('所有节点最大可用内存')}>{license_server.resource.maxMemory}</Descriptions.Item>
-                                <Descriptions.Item label={t('所有节点最大可用核数')}>{license_server.resource.maxCores}</Descriptions.Item>
+                                <Descriptions.Item label={t('所有节点可用内存之和')}>{license_server.resource.maxMemory}</Descriptions.Item>
+                                <Descriptions.Item label={t('所有节点可用核数之和')}>{license_server.resource.maxCores}</Descriptions.Item>
                             </>
                             : 
                             <>

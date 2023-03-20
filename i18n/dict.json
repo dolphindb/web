@@ -1417,5 +1417,11 @@
     },
     "测试版": {
         "en": "test"
+    },
+    "所有节点可用内存之和": {
+        "en": "The sum of available memory of all nodes"
+    },
+    "所有节点可用核数之和": {
+        "en": "The sum of available cores of all nodes"
     }
 }
