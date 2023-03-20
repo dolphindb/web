@@ -1385,6 +1385,33 @@
     "请登录": {
         "en": "Please log in"
     },
+    "其他方式": {
+        "en": "Other"
+    },
+    "机器指纹绑定": {
+        "en": "Machine Fingerprint Bind"
+    },
+    "在线验证": {
+        "en": "Online Verify"
+    },
+    "LicenseServer 验证": {
+        "en": "LicenseServer Verify"
+    },
+    "是否为 LicenseServer": {
+        "en": "Is LicenseServer"
+    },
+    "是": {
+        "en": "Yes"
+    },
+    "否": {
+        "en": "No"
+    },
+    "所有节点最大可用内存": {
+        "en": "Max memory all nodes"
+    },
+    "所有节点最大可用核数": {
+        "en": "Max cores all nodes"
+    },
     "数据节点:": {
         "en": "datanode:"
     }

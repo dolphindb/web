@@ -3,7 +3,7 @@ import { Model } from 'react-object-model'
 import { Modal } from 'antd'
 import type { BaseType } from 'antd/es/typography/Base/index.js'
 
-import { DDB, DdbFunctionType, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError, DdbStringObj } from 'dolphindb/browser.js'
+import { DDB, DdbFunctionType, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError, DdbStringObj, type DdbDictObj, type DdbVectorStringObj } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
 
@@ -75,6 +75,8 @@ export class DdbModel extends Model<DdbModel> {
     version: string
     
     license: DdbLicense
+    
+    license_server?: DdbLicenseServer
     
     first_get_server_log_length = true
     
@@ -157,7 +159,7 @@ export class DdbModel extends Model<DdbModel> {
         
         console.log(t('web 初始化成功'))
         
-        this.get_license()
+        this.get_license_info()
         
         this.goto_default_view()
         
@@ -307,7 +309,17 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    async get_license () {
+    /** 获取 license 相关信息 */
+    async get_license_info () {
+        const license = await this.get_license_self_info()
+        
+        if (license.licenseType === LicenseTypes.LicenseServerVerify)
+            await this.get_license_server_info()
+    }
+    
+    
+    /** 获取节点的 license 信息 */
+    async get_license_self_info () {
         const license = (
             await this.ddb.call<DdbObj<DdbObj[]>>('license')
         ).to_dict<DdbLicense>({ strip: true })
@@ -316,6 +328,23 @@ export class DdbModel extends Model<DdbModel> {
         this.set({ license })
         return license
     }
+    
+    
+    /** 如果节点是 license server, 获取 license server 相关信息 */
+    async get_license_server_info () {
+        const [license_server_site, license_server_resource] = await Promise.all([
+            this.ddb.call<DdbStringObj>('getConfig', ['licenseServerSite']).then(res => res.value),
+            this.ddb.call<DdbDictObj<DdbVectorStringObj>>('getLicenseServerResourceInfo').then(res => res.to_dict<DdbLicenseServerResource>({ strip: true }))
+        ])
+        
+        this.set({ 
+            license_server: {
+                site: license_server_site,
+                resource: license_server_resource
+            }
+        })
+    }
+    
     
     /**
      * 去登录页
@@ -694,9 +723,20 @@ interface DdbNode {
     // ... 省略了一些
 }
 
-interface DdbLicense {
+export enum LicenseTypes {
+    /** 其他方式 */
+    Other = 0,
+    /** 机器指纹绑定 */
+    MachineFingerprintBind = 1,
+    /** 在线验证 */
+    OnlineVerify = 2,
+    /** LicenseServer 验证 */
+    LicenseServerVerify = 3,
+}
+
+export interface DdbLicense {
     authorization: string
-    licenseType: number
+    licenseType: LicenseTypes
     maxMemoryPerNode: number
     maxCoresPerNode: number
     clientName: string
@@ -705,6 +745,20 @@ interface DdbLicense {
     maxNodes: number
     version: string
     modules: bigint
+}
+
+export interface DdbLicenseServerResource {
+    availableCores: number
+    availableMemory: number
+    maxCores: number
+    maxNodes: number
+    maxMemory: number
+    expiration: number
+}
+
+export interface DdbLicenseServer {
+    site: string
+    resource: DdbLicenseServerResource
 }
 
 export interface DdbJob {
