@@ -12,7 +12,7 @@ const { Option } = Select
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, PlusSquareOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined, SlackSquareFilled, TableOutlined } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined, SlackSquareFilled, TableOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
@@ -1328,8 +1328,8 @@ const column_menu_items: MenuItem[] = [
 
 /** 数据库 context menu item 调用 Modal */
 const context_menu_modal_items = {
-    EditComment,
-    AddColumn
+    column: EditComment,
+    'column-root': AddColumn
 }
 
 /** 数据库 context menu item 调用函数 */
@@ -1361,7 +1361,11 @@ const context_menu_function_items = {
 
 
 
-function AddColumn () {
+function AddColumn ({
+    set_is_modal_open
+}: {
+    set_is_modal_open: (boolean) => void
+}) {
     const coltypes = [
         'BOOL',
         'CHAR',
@@ -1391,15 +1395,14 @@ function AddColumn () {
     ] as const
     
     const [form] = Form.useForm()
-    const {current_node, click_count} = shell.use(['click_count', 'current_node']) as {current_node: ColumnRoot, click_count:number}
-    const [is_modal_open, set_is_modal_open] = useState(false)
+    const {current_node} = shell.use(['click_count', 'current_node']) as {current_node: ColumnRoot, click_count:number}
     const onFinish = async values => {
         const { column, type } = values
         try {
             // 调用该函数时，数据库路径不能以 / 结尾
             await model.ddb.eval(`addColumn(loadTable(database("${current_node.table.db.path.slice(0, -1)}"), "${current_node.table.name}"), ["${column}"], [${type.toUpperCase()}])`)
-            await current_node.load_children()
             message.success(t('添加成功'))
+            await current_node.load_children()
         } catch (error) {
             message.error(error.message)
         }
@@ -1412,13 +1415,8 @@ function AddColumn () {
         form.resetFields()
         set_is_modal_open(false)
     }
-    useEffect(() => {
-        if (current_node?.type === 'column-root')
-            set_is_modal_open(true)
-        }, [click_count])
     
-    return <Modal className='db-modal' open={is_modal_open} onCancel={() => { set_is_modal_open(false) }} title={'添加列'}>
-        <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish}>
+    return <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish}>
             <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
                 <Input placeholder={t('输入名字')} />
             </Form.Item>
@@ -1438,12 +1436,14 @@ function AddColumn () {
                 </Button>
             </Form.Item>
         </Form>
-    </Modal>
 }
 
-function EditComment () {
-    const {current_node, click_count} = shell.use(['click_count', 'current_node']) as {current_node: Column, click_count:number}
-    const [is_modal_open, set_is_modal_open] = useState(false)
+function EditComment ({
+    set_is_modal_open
+}: {
+    set_is_modal_open: (boolean) => void
+}){
+    const {current_node} = shell.use(['click_count', 'current_node']) as {current_node: Column, click_count:number}
     const [form] = Form.useForm()
     const onFinish = async values => {
         const { comment } = values
@@ -1454,6 +1454,7 @@ function EditComment () {
         } catch (error) {
             message.error(error)
         }
+        
         form.resetFields()
         set_is_modal_open(false)
     }
@@ -1461,12 +1462,7 @@ function EditComment () {
         form.resetFields()
         set_is_modal_open(false)
     }
-    useEffect(() => {
-        if (current_node?.type === 'column')
-            set_is_modal_open(true)
-        }, [click_count])
     return (
-        <Modal className='db-modal' open={is_modal_open} onOk={() => { set_is_modal_open(false) }} onCancel={() => { set_is_modal_open(false) }} title={t('修改列注释')}>
             <Form
                 labelWrap
                 name='edit-comment'
@@ -1488,7 +1484,6 @@ function EditComment () {
                     </Button>
                 </Form.Item>
             </Form>
-        </Modal>
     )
 }
 
@@ -1825,14 +1820,16 @@ class Column implements DataNode {
         this.key = `${root.table.path}${col.name}`
         this.name = col.name
         this.title = <div className='column-title'>
-            <div><span className='column-name'>{col.name}</span>: {DdbType[col.typeInt]} {col.comment} </div>
+            <div>
+                <span className='column-name'>{col.name}</span>: {DdbType[col.typeInt]} {col.comment} 
+            </div>
             <div className='edit-comment-button' onClick={(event) => {
                 shell.set({ current_node: this })
                 shell.on_click()
                 event.stopPropagation()
             }}
             >
-                <Tooltip title={t('修改列注释')} color='grey'>
+                <Tooltip title={t('修改注释')} color='grey'>
                     <EditOutlined />
                 </Tooltip>
             </div>
@@ -1997,7 +1994,7 @@ class ColumnRoot implements DataNode {
             }}
             >
                 <Tooltip title={t('添加列')} color='grey'>
-                    <PlusSquareOutlined />
+                    <Icon component={SvgAddColumn} />
                 </Tooltip>
             </div>
         </div>
@@ -2433,13 +2430,29 @@ function DBs ({ height }: { height: number }) {
                 <a onClick={() => model.goto_login()}>{t('去登陆')}</a>
             </div>
         }
-        <AddColumn />
-        <EditComment />
+        <DBModal />
     </div>
 }
 
 
+function DBModal () {
+    const [is_modal_open, set_is_modal_open] = useState(false)
+    const { current_node, click_count } = shell.use(['current_node', 'click_count'])
+    useEffect(() => {
+        if (current_node?.type)
+            set_is_modal_open(true)
+    }, [click_count])
+    
+    const ModalContent = context_menu_modal_items[current_node?.type] || (() => <div />)
 
+    return <Modal className='db-modal' open={is_modal_open} onOk={() => { set_is_modal_open(false) }} onCancel={() => { set_is_modal_open(false) }} title={current_node?.type === 'column' ? t('修改注释') : t('添加列')}>
+        <div className='db-modal-content'>
+            <ModalContent
+                set_is_modal_open={set_is_modal_open}
+            />
+        </div>
+    </Modal>
+}
 
 
 
