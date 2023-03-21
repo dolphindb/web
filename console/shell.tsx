@@ -12,7 +12,7 @@ const { Option } = Select
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, PlusSquareOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined, SlackSquareFilled, TableOutlined, FileAddOutlined } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, PlusSquareOutlined, CaretRightOutlined, EyeOutlined, EditOutlined, FolderOutlined, SlackSquareFilled, TableOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import dayjs from 'dayjs'
@@ -175,7 +175,7 @@ class ShellModel extends Model<ShellModel> {
     
     
     on_click () {
-        this.set({click: this.click + 1})
+        this.set({ click: this.click + 1 })
     }
     
     async eval (code = this.editor.getValue()) {
@@ -1393,33 +1393,38 @@ function AddColumn () {
     ] as const
     
     const [form] = Form.useForm()
-    const {current_key, current_type} = shell.use(['current_key', 'current_type'])
+    const {current_key, current_type, click} = shell.use(['current_key', 'current_type', 'click'])
+    const [is_modal_open, set_modal_open] = useState(false)
     const onFinish = async values => {
         const { column, type } = values
-        
         // tb_path 结尾没有 /
         const tb_path = current_key.slice(0, -'/column-root/'.length )
         const index = tb_path.lastIndexOf('/')
-        const [database, table] = [tb_path.slice(0, index), tb_path.slice(index + 1)]
+        const [database, table] = [tb_path.slice(0, index + 1), tb_path.slice(index + 1)]
         
-        // 这个条件判断提交前要去掉
-        if (true)
-            try {
-                // 这里需不需要优化成先定义函数
-                await model.ddb.eval(`addColumn(loadTable(database("${database}"), "${table}"), ["${column}"], [${type.toUpperCase()}])`)
-                message.success(t('添加成功'))
-            } catch (error) {
-                message.error(error.message)
-            }
+        try {
+            await model.ddb.eval(`addColumn(loadTable(database("${database}"), "${table}"), ["${column}"], [${type.toUpperCase()}])`)
+            message.success(t('添加成功'))
+            // 这里本应自动地刷新内容
+        } catch (error) {
+            message.error(error.message)
+        }
         
         form.resetFields()
+        set_modal_open(false)
     }
     
     const onAbord = () => {
         form.resetFields()
+        set_modal_open(false)
     }
+    useEffect(() => {
+        if (current_type === 'column-root')
+            set_modal_open(true)
+        }, [click])
     
-    return <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish}>
+    return <Modal className='db-modal' open={is_modal_open} onCancel={() => { set_modal_open(false) }} title={'添加列'}>
+    <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish}>
         <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
             <Input placeholder={t('输入名字')} />
         </Form.Item>
@@ -1439,6 +1444,7 @@ function AddColumn () {
             </Button>
         </Form.Item>
     </Form>
+    </Modal>
 }
 
 function EditComment ({
@@ -1984,31 +1990,17 @@ class ColumnRoot implements DataNode {
         this.self = this
         this.table = table
         this.key = `${table.path}${this.type}/`
-        this.title = <div
-            style={{
-                display: 'flex',
-                justifyContent: 'space-between'
-            }}
-        >
+        this.title = <div className='column-root-title'>
             {t('列')}
-
-            
-            <div onClick={(event) => {
-                shell.set({ current_key: this.key, current_type: this.type})
+            <div className='add-column-button' onClick={(event) => {
+                shell.set({ current_key: this.key, current_type: this.type })
                 shell.on_click()
                 event.stopPropagation()
             }}
             >
-                <span
-                    style={{
-                        paddingRight: 5,
-                        zIndex: 3000
-                    }}
-                >
-                    <Tooltip title={t('添加列')} color='grey'>
-                        <PlusSquareOutlined />
-                    </Tooltip>
-                </span>
+                <Tooltip title={t('添加列')} color='grey'>
+                    <PlusSquareOutlined />
+                </Tooltip>
             </div>
         </div>
     }
@@ -2445,29 +2437,12 @@ function DBs ({ height }: { height: number }) {
                 <a onClick={() => model.goto_login()}>{t('去登陆')}</a>
             </div>
         }
-        
-        <DBModal/>
+        <AddColumn />
     </div>
 }
 
 
-function DBModal () {
-    const {current_key, current_type, click} = shell.use(['current_key', 'current_type', 'click'])
-    const [is_modal_open, set_is_modal_open] = useState<boolean>(false)
-    
-    useEffect(() => {
-    //考虑这个条件是否可以优化
-    if (current_key && current_key !== '')
-        set_is_modal_open(true)
-    }, [click])
-    
-    
-    return <Modal className='db-modal' open={is_modal_open} onOk={() => { set_is_modal_open(false) }} onCancel={() => { set_is_modal_open(false) }} title='tmp'>
-        <div className='db-modal-content'>
-            { current_type === 'column-root' ? <AddColumn/> : undefined}
-        </div>
-    </Modal>
-}
+
 
 
 
