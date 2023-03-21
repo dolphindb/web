@@ -1444,10 +1444,11 @@ function AddColumn () {
                     new DdbInt(DdbType[type.toLocaleLowerCase()])
                 ])
                 message.success(t('添加成功'))
-                await current_node.load_children()
+                await current_node.load_children(false)
                 shell.refresh_dbs()
             } catch (error) {
                 message.error(error.message)
+                throw error
             }
             
             form.resetFields()
@@ -1499,10 +1500,11 @@ function EditComment (){
                             comment
                         ])
                         message.success(t('设置注释成功'))
-                        await current_node.root.load_children()
+                        await current_node.root.load_children(false)
                         shell.refresh_dbs()
                     } catch (error) {
                         message.error(error)
+                        throw error
                     }
                     
                     form.resetFields()
@@ -1791,8 +1793,8 @@ class Table implements DataNode {
     }
     
     
-    async get_schema () {
-        // 需要修改成按情况缓存
+    async get_schema (use_cache: boolean = true) {
+        if (!this.schema || !use_cache)
             await shell.define_load_schema()
             this.schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                 // 这个函数在 define_load_schema 中已定义
@@ -2052,14 +2054,16 @@ class ColumnRoot implements DataNode {
     }
     
     
-    async load_children () {
-        const schema_coldefs = (
-            await this.table.get_schema()
-        ).to_dict<{ colDefs: DdbTableObj }>()
-        .colDefs
-        .to_rows<{ comment: string, extra: number, name: string, typeInt: number, typeString: string }>()
-        
-        this.children = schema_coldefs.map(col => new Column(this, col))
+    async load_children (use_cache: boolean = true) {
+        if (!this.children || !use_cache) {
+            const schema_coldefs = (
+                await this.table.get_schema(use_cache)
+            ).to_dict<{ colDefs: DdbTableObj }>()
+            .colDefs
+            .to_rows<{ comment: string, extra: number, name: string, typeInt: number, typeString: string }>()
+            
+            this.children = schema_coldefs.map(col => new Column(this, col))
+        }
     }
 }
 
