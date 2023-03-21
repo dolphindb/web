@@ -327,15 +327,21 @@ function Perf () {
                 <Descriptions.Item label={t('前一分钟写磁盘量')}>
                     {Number(node.lastMinuteWriteVolume).to_fsize_str()}
                 </Descriptions.Item>
-                <Descriptions.Item label={t('磁盘剩余容量')}>
-                    {Number(node.diskFreeSpace).to_fsize_str()}
-                </Descriptions.Item>
-                <Descriptions.Item label={t('磁盘总容量')}>
-                    {Number(node.diskCapacity).to_fsize_str()}
-                </Descriptions.Item>
-                <Descriptions.Item label={t('磁盘可用空间占比')}>
-                    {(node.diskFreeSpaceRatio * 100).toFixed(2)}%
-                </Descriptions.Item>
+                {
+                    node.mode !== NodeType.controller 
+                    ? <>
+                        <Descriptions.Item label={t('磁盘剩余容量')}>
+                            {Number(node.diskFreeSpace).to_fsize_str()}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={t('磁盘总容量')}>
+                            {Number(node.diskCapacity).to_fsize_str()}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={t('磁盘可用空间占比')}>
+                            {(node.diskFreeSpaceRatio * 100).toFixed(2)}%
+                        </Descriptions.Item>
+                    </>
+                    : null
+                }
             </Descriptions >
             <Descriptions className='table' column={2} bordered size='small' title={t('网络', { context: "perf" })}>
                 <Descriptions.Item label={t('当前连接')}>
