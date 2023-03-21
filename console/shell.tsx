@@ -1328,7 +1328,7 @@ const column_menu_items: MenuItem[] = [
 
 /** 数据库 context menu item 调用 Modal */
 const context_menu_modal_items = {
-    //EditComment,
+    EditComment,
     AddColumn
 }
 
@@ -1391,18 +1391,13 @@ function AddColumn () {
     ] as const
     
     const [form] = Form.useForm()
-    const {current_node, click_count} = shell.use(['click_count', 'current_node'])
+    const {current_node, click_count} = shell.use(['click_count', 'current_node']) as {current_node: ColumnRoot, click_count:number}
     const [is_modal_open, set_modal_open] = useState(false)
     const onFinish = async values => {
         const { column, type } = values
-        // tb_path 结尾没有 /
-        const tb_path = current_node.key.slice(0, -'/column-root/'.length )
-        const index = tb_path.lastIndexOf('/')
-        const [database, table] = [tb_path.slice(0, index + 1), tb_path.slice(index + 1)]
-        
         try {
-            await model.ddb.eval(`addColumn(loadTable(database("${database}"), "${table}"), ["${column}"], [${type.toUpperCase()}])`)
-            await (current_node as ColumnRoot).load_children()
+            await model.ddb.eval(`addColumn(loadTable(database("${current_node.table.db.path}"), "${current_node.table.name}"), ["${column}"], [${type.toUpperCase()}])`)
+            await current_node.load_children()
             message.success(t('添加成功'))
         } catch (error) {
             message.error(error.message)
