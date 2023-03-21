@@ -112,28 +112,18 @@
                 display: block
                 width: 100%
                 
-                .column-title
+                .column-title, .column-root-title
+                    display: flex
+                    justify-content: space-between
                     .column-name
                         font-weight: bold
-                
-                .column-title:hover
-                    display: flex
-                    justify-content: space-between
-                    
-                    .edit-comment-button
-                        display: inline
+                    .edit-comment-button, .add-column-button
                         padding-right: 5px
+                        visibility: hidden
                     
-                .column-root-title
-                    .add-column-button
-                        display: none
-                
-                .column-root-title:hover
-                    display: flex
-                    justify-content: space-between
-                    .add-column-button
-                        display: inline
-                        padding-right: 5px
+                    &:hover
+                        .edit-comment-button, .add-column-button
+                            visibility: unset
                 
                 .ant-dropdown-trigger
                     display: inline-block

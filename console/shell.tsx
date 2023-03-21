@@ -1744,14 +1744,13 @@ class Table implements DataNode {
     
     async get_schema () {
             await shell.define_load_schema()
-            const schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
+            return await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                 // 这个函数在 define_load_schema 中已定义
                 'load_schema',
                 // 调用该函数时，数据库路径不能以 / 结尾
                 [this.db.path.slice(0, -1), this.name],
                 model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
             )
-        return schema
     }
 }
 
