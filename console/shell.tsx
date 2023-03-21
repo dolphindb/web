@@ -1150,6 +1150,16 @@ function Term () {
             })
             
             term.loadAddon(shell.fit_addon = new FitAddon())
+
+            term.attachCustomKeyEventHandler(e => {
+                const is_win = navigator.platform.indexOf('Win') > -1
+                const is_linux = navigator.platform.indexOf('Linux') > -1
+                if ((is_win || is_linux) && e.ctrlKey && e.key === 'c' && term.hasSelection()) {
+                    document.execCommand('copy')
+                    return false
+                }
+                return true
+            })
             
             term.loadAddon(
                 new WebLinksAddon(
