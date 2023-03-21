@@ -2480,8 +2480,10 @@ function DBs ({ height }: { height: number }) {
 
 function DBModal () {
     const { current_node, is_modal_open } = shell.use(['current_node', 'is_modal_open'])
-    
-    const ModalContent = context_menu_modal_items[current_node?.type] || (() => <div />)
+    if (!current_node)
+        return
+
+    const ModalContent = context_menu_modal_items[current_node.type]
     
     return <Modal className='db-modal' open={is_modal_open} onOk={() => { shell.set({ is_modal_open: false }) }} onCancel={() => { shell.set({ is_modal_open: false }) }} title={current_node?.type === 'column' ? t('设置注释') : t('添加列')}>
         <div className='db-modal-content'>
