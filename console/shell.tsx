@@ -165,6 +165,10 @@ class ShellModel extends Model<ShellModel> {
     load_schema_defined = false
     
     peek_table_defined = false
+
+    add_column_defined = false
+
+    set_comment_defined = false
     
     
     current_node: ColumnRoot | Column
@@ -524,6 +528,34 @@ class ShellModel extends Model<ShellModel> {
         )
         
         shell.set({ peek_table_defined: true })
+    }
+
+
+    async define_add_column () {
+        if (this.add_column_defined)
+            return
+        
+        await model.ddb.eval(
+            'def add_column (db_path, tb_name, col_name, col_typeInt) {\n' +
+            // addColumn 的最后一个参数不能是 ['INT'], 只能是 [ INT ] 或者对应的 typeInt [ 4 ]
+            `    addColumn(loadTable(database(db_path), tb_name), [ col_name ], [ col_typeInt ])\n` + 
+            '}\n'
+        )
+        shell.set({ add_column_defined: true })
+    }
+
+
+    async define_set_comment () {
+        if (this.set_comment_defined)
+            return
+        
+        await model.ddb.eval(
+            'def set_comment (db_path, tb_name, col_name, col_type) {\n' +
+            // setColumnComment 的最后一个参数是动态的字典，因此用 dict 来构造
+            '    setColumnComment(loadTable(database(db_path), tb_name), dict([ col_name ], [ col_type ]))\n' +
+            '}\n'
+        )
+        shell.set({ set_comment_defined: true })
     }
 }
 
@@ -1401,10 +1433,16 @@ function AddColumn () {
     
     return <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={
         async values => {
-            const { column, type } = values
+            const { column, type } : { column: string, type: string } = values
             try {
+                await shell.define_add_column()
                 // 调用该函数时，数据库路径不能以 / 结尾
-                await model.ddb.eval(`addColumn(loadTable(database("${current_node.table.db.path.slice(0, -1)}"), "${current_node.table.name}"), ["${column}"], [${type.toUpperCase()}])`)
+                await model.ddb.call('add_column', [
+                    current_node.table.db.path.slice(0, -1),
+                    current_node.table.name,
+                    column,
+                    new DdbInt(DdbType[type.toLocaleLowerCase()])
+                ])
                 message.success(t('添加成功'))
                 await current_node.load_children()
                 shell.refresh_dbs()
@@ -1453,7 +1491,13 @@ function EditComment (){
                 async values => {
                     const { comment } = values
                     try {
-                        await model.ddb.eval(`setColumnComment(loadTable(database("${current_node.root.table.db.path.slice(0, -1)}"), "${current_node.root.table.name}"), { "${current_node.name}": "${comment.replaceAll('"', '\\"')}" })`)
+                        await shell.define_set_comment()
+                        await model.ddb.call('set_comment', [
+                            current_node.root.table.db.path.slice(0, -1),
+                            current_node.root.table.name,
+                            current_node.name,
+                            comment
+                        ])
                         message.success(t('设置注释成功'))
                         await current_node.root.load_children()
                         shell.refresh_dbs()
