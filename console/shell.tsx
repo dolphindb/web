@@ -1398,28 +1398,24 @@ function AddColumn () {
     
     const [form] = Form.useForm()
     const { current_node } = shell.use(['current_node']) as { current_node: ColumnRoot }
-    const onFinish = async values => {
-        const { column, type } = values
-        try {
-            // 调用该函数时，数据库路径不能以 / 结尾
-            await model.ddb.eval(`addColumn(loadTable(database("${current_node.table.db.path.slice(0, -1)}"), "${current_node.table.name}"), ["${column}"], [${type.toUpperCase()}])`)
-            message.success(t('添加成功'))
-            await current_node.load_children()
-            shell.refresh_dbs()
-        } catch (error) {
-            message.error(error.message)
+    
+    return <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={
+        async values => {
+            const { column, type } = values
+            try {
+                // 调用该函数时，数据库路径不能以 / 结尾
+                await model.ddb.eval(`addColumn(loadTable(database("${current_node.table.db.path.slice(0, -1)}"), "${current_node.table.name}"), ["${column}"], [${type.toUpperCase()}])`)
+                message.success(t('添加成功'))
+                await current_node.load_children()
+                shell.refresh_dbs()
+            } catch (error) {
+                message.error(error.message)
+            }
+            
+            form.resetFields()
+            shell.set({ is_modal_open: false })
         }
-        
-        form.resetFields()
-        shell.set({ is_modal_open: false })
-    }
-    
-    const onAbord = () => {
-        form.resetFields()
-        shell.set({ is_modal_open: false })
-    }
-    
-    return <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish}>
+    }>
         <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
             <Input placeholder={t('输入名字')} />
         </Form.Item>
@@ -1434,7 +1430,12 @@ function AddColumn () {
             <Button type='primary' htmlType='submit'>
                 {t('确定')}
             </Button>
-            <Button htmlType='button' onClick={onAbord}>
+            <Button htmlType='button' onClick={
+                () => {
+                    form.resetFields()
+                    shell.set({ is_modal_open: false })
+                }
+            }>
                 {t('取消')}
             </Button>
         </Form.Item>
@@ -1444,29 +1445,26 @@ function AddColumn () {
 function EditComment (){
     const { current_node } = shell.use(['current_node']) as { current_node: Column }
     const [form] = Form.useForm()
-    const onFinish = async values => {
-        const { comment } = values
-        try {
-            await model.ddb.eval(`setColumnComment(loadTable(database("${current_node.root.table.db.path.slice(0, -1)}"), "${current_node.root.table.name}"), { "${current_node.name}": "${comment.replaceAll('"', '\\"')}" })`)
-            message.success(t('设置注释成功'))
-            await current_node.root.load_children()
-            shell.refresh_dbs()
-        } catch (error) {
-            message.error(error)
-        }
-        
-        form.resetFields()
-        shell.set({ is_modal_open: false })
-    }
-    const onAbord = () => {
-        form.resetFields()
-        shell.set({ is_modal_open: false })
-    }
     return (
         <Form
             labelWrap
             name='edit-comment'
-            onFinish={onFinish}
+            onFinish={
+                async values => {
+                    const { comment } = values
+                    try {
+                        await model.ddb.eval(`setColumnComment(loadTable(database("${current_node.root.table.db.path.slice(0, -1)}"), "${current_node.root.table.name}"), { "${current_node.name}": "${comment.replaceAll('"', '\\"')}" })`)
+                        message.success(t('设置注释成功'))
+                        await current_node.root.load_children()
+                        shell.refresh_dbs()
+                    } catch (error) {
+                        message.error(error)
+                    }
+                    
+                    form.resetFields()
+                    shell.set({ is_modal_open: false })
+                }
+            }
             labelCol={{ span: 4 }}
             wrapperCol={{ span: 20 }}
             className='db-modal-form'
@@ -1479,7 +1477,12 @@ function EditComment (){
                 <Button type='primary' htmlType='submit'>
                     {t('确定')}
                 </Button>
-                <Button htmlType='button' onClick={onAbord}>
+                <Button htmlType='button' onClick={
+                    () => {
+                        form.resetFields()
+                        shell.set({ is_modal_open: false })
+                    }
+                }>
                     {t('取消')}
                 </Button>
             </Form.Item>
