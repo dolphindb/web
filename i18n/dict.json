@@ -437,7 +437,7 @@
     "多控制节点": {
         "en": "multicontroller"
     },
-    "您访问的这个控制结点现在不是高可用 (raft) 集群的 leader 结点, 将会为您自动跳转到集群当前的 leader 结点: ": {
+    "您访问的这个控制节点现在不是高可用 (raft) 集群的 leader 节点, 将会为您自动跳转到集群当前的 leader 节点: ": {
         "en": "The controller you're visiting is not the raft leader in the high-availability cluster. You will be redirected to the current leader: "
     },
     "左侧编辑器使用指南:\n": {
@@ -1385,7 +1385,49 @@
     "请登录": {
         "en": "Please log in"
     },
+    "其他方式": {
+        "en": "Other"
+    },
+    "机器指纹绑定": {
+        "en": "Machine Fingerprint Bind"
+    },
+    "在线验证": {
+        "en": "Online Verify"
+    },
+    "LicenseServer 验证": {
+        "en": "LicenseServer Verify"
+    },
+    "是否为 LicenseServer": {
+        "en": "Is LicenseServer"
+    },
+    "是": {
+        "en": "Yes"
+    },
+    "否": {
+        "en": "No"
+    },
+    "所有节点最大可用内存": {
+        "en": "Max memory all nodes"
+    },
+    "所有节点最大可用核数": {
+        "en": "Max cores all nodes"
+    },
     "数据节点:": {
         "en": "datanode:"
+    },
+    "测试版": {
+        "en": "test"
+    },
+    "所有节点可用内存之和": {
+        "en": "The sum of available memory of all nodes"
+    },
+    "所有节点可用核数之和": {
+        "en": "The sum of available cores of all nodes"
+    },
+    "没有找到可以正常访问的节点": {
+        "en": "Can not find a node that can be accessed normally"
+    },
+    ", 即将关闭页面": {
+        "en": ", the page will be closed"
     }
 }
