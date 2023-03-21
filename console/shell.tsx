@@ -172,8 +172,10 @@ class ShellModel extends Model<ShellModel> {
     
     
     current_node: ColumnRoot | Column
-    
-    is_modal_open = false
+
+    add_column_modal_visible = false
+
+    set_comment_modal_visible = false
     
     
     async eval (code = this.editor.getValue()) {
@@ -1419,111 +1421,129 @@ function AddColumn () {
     ] as const
     
     const [form] = Form.useForm()
-    const { current_node } = shell.use(['current_node']) as { current_node: ColumnRoot }
+    const { current_node , add_column_modal_visible} = shell.use(['current_node', 'add_column_modal_visible']) as { current_node: ColumnRoot , add_column_modal_visible: boolean}
     
-    return <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={
-        async values => {
-            const { column, type } : { column: string, type: string } = values
-            try {
-                await shell.define_add_column()
-                // 调用该函数时，数据库路径不能以 / 结尾
-                await model.ddb.call('add_column', [
-                    current_node.table.db.path.slice(0, -1),
-                    current_node.table.name,
-                    column,
-                    new DdbInt(DdbType[type.toLocaleLowerCase()])
-                ])
-                message.success(t('添加成功'))
-                await current_node.load_children(false)
-                shell.set({ dbs: [...shell.dbs] })
-            } catch (error) {
-                message.error(error.message)
-                throw error
-            }
-            
-            form.resetFields()
-            shell.set({ is_modal_open: false })
-        }
-    }>
-        <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
-            <Input placeholder={t('输入名字')} />
-        </Form.Item>
-        <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型！') }]}>
-            <Select showSearch placeholder={t('选择类型')}>
-                {coltypes.map(v => (
-                    <Option key={v}>{v}</Option>
-                ))}
-            </Select>
-        </Form.Item>
-        <Form.Item className='db-modal-content-button-group'>
-            <Button type='primary' htmlType='submit'>
-                {t('确定')}
-            </Button>
-            <Button htmlType='button' onClick={
-                () => {
-                    form.resetFields()
-                    shell.set({ is_modal_open: false })
-                }
-            }>
-                {t('取消')}
-            </Button>
-        </Form.Item>
-    </Form>
+    return <Modal 
+                className='db-modal'
+                open={add_column_modal_visible} 
+                onCancel={() => { shell.set({ add_column_modal_visible: false }) }} 
+                title={t('添加列')}
+            >
+                <Form 
+                    className='db-modal-form' 
+                    name='add-column' 
+                    labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} 
+                    form={form} 
+                    onFinish={
+                        async values => {
+                            const { column, type } : { column: string, type: string } = values
+                            try {
+                                await shell.define_add_column()
+                                // 调用该函数时，数据库路径不能以 / 结尾
+                                await model.ddb.call('add_column', [
+                                    current_node.table.db.path.slice(0, -1),
+                                    current_node.table.name,
+                                    column,
+                                    new DdbInt(DdbType[type.toLocaleLowerCase()])
+                                ])
+                                message.success(t('添加成功'))
+                                await current_node.load_children(false)
+                                shell.set({ dbs: [...shell.dbs] })
+                            } catch (error) {
+                                message.error(error.message)
+                                throw error
+                            }
+                            
+                            form.resetFields()
+                            shell.set({ add_column_modal_visible: false })
+                        }
+                }>
+                    <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
+                        <Input placeholder={t('输入名字')} />
+                    </Form.Item>
+                    <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型！') }]}>
+                        <Select showSearch placeholder={t('选择类型')}>
+                            {coltypes.map(v => (
+                                <Option key={v}>{v}</Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    <Form.Item className='db-modal-content-button-group'>
+                        <Button type='primary' htmlType='submit'>
+                            {t('确定')}
+                        </Button>
+                        <Button htmlType='button' onClick={
+                            () => {
+                                form.resetFields()
+                                shell.set({ add_column_modal_visible: false })
+                            }
+                        }>
+                            {t('取消')}
+                        </Button>
+                    </Form.Item>
+                </Form>
+    </Modal>
 }
 
-function EditComment (){
-    const { current_node } = shell.use(['current_node']) as { current_node: Column }
+function EditComment () {
+    const { current_node, set_comment_modal_visible } = shell.use(['current_node', 'set_comment_modal_visible']) as { current_node: Column, set_comment_modal_visible: boolean }
     const [form] = Form.useForm()
-    return (
-        <Form
-            labelWrap
-            name='edit-comment'
-            onFinish={
-                async values => {
-                    const { comment } = values
-                    try {
-                        await shell.define_set_comment()
-                        await model.ddb.call('set_comment', [
-                            current_node.root.table.db.path.slice(0, -1),
-                            current_node.root.table.name,
-                            current_node.name,
-                            comment
-                        ])
-                        message.success(t('设置注释成功'))
-                        await current_node.root.load_children(false)
-                        shell.set({ dbs: [...shell.dbs] })
-                    } catch (error) {
-                        message.error(error)
-                        throw error
+    return <Modal 
+                className='db-modal' 
+                open={set_comment_modal_visible} 
+                onOk={() => { shell.set({ set_comment_modal_visible: false }) }} 
+                onCancel={() => { shell.set({ set_comment_modal_visible: false }) }} 
+                title={t('设置注释')}
+            >
+                <Form
+                    labelWrap
+                    name='edit-comment'
+                    onFinish={
+                        async values => {
+                            const { comment } = values
+                            try {
+                                await shell.define_set_comment()
+                                await model.ddb.call('set_comment', [
+                                    current_node.root.table.db.path.slice(0, -1),
+                                    current_node.root.table.name,
+                                    current_node.name,
+                                    comment
+                                ])
+                                message.success(t('设置注释成功'))
+                                await current_node.root.load_children(false)
+                                shell.set({ dbs: [...shell.dbs] })
+                            } catch (error) {
+                                message.error(error)
+                                throw error
+                            }
+                            
+                            form.resetFields()
+                            shell.set({ set_comment_modal_visible: false })
+                        }
                     }
-                    
-                    form.resetFields()
-                    shell.set({ is_modal_open: false })
-                }
-            }
-            labelCol={{ span: 4 }}
-            wrapperCol={{ span: 20 }}
-            className='db-modal-form'
-            form={form}
-        >
-            <Form.Item label={t('注释')} name='comment' initialValue=''>
-                <Input />
-            </Form.Item>
-            <Form.Item className='db-modal-content-button-group'>
-                <Button type='primary' htmlType='submit'>
-                    {t('确定')}
-                </Button>
-                <Button htmlType='button' onClick={
-                    () => {
-                        form.resetFields()
-                        shell.set({ is_modal_open: false })
-                    }
-                }>
-                    {t('取消')}
-                </Button>
-            </Form.Item>
-        </Form>
-    )
+                    labelCol={{ span: 4 }}
+                    wrapperCol={{ span: 20 }}
+                    className='db-modal-form'
+                    form={form}
+                >
+                    <Form.Item label={t('注释')} name='comment' initialValue=''>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item className='db-modal-content-button-group'>
+                        <Button type='primary' htmlType='submit'>
+                            {t('确定')}
+                        </Button>
+                        <Button htmlType='button' onClick={
+                            () => {
+                                form.resetFields()
+                                shell.set({ set_comment_modal_visible: false })
+                            }
+                        }>
+                            {t('取消')}
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
 }
 
 interface DBTriad {
@@ -1866,8 +1886,8 @@ class Column implements DataNode {
             <div>
                 <span className='column-name'>{col.name}</span>: {DdbType[col.typeInt]} {col.comment} 
             </div>
-            <div className='edit-comment-button' onClick={(event) => {
-                shell.set({ current_node: this, is_modal_open: true })
+            <div className='edit-comment-button' onClick={ event => {
+                shell.set({ current_node: this, set_comment_modal_visible: true })
                 event.stopPropagation()
             }}
             >
@@ -2029,8 +2049,8 @@ class ColumnRoot implements DataNode {
         this.key = `${table.path}${this.type}/`
         this.title = <div className='column-root-title'>
             {t('列')}
-            <div className='add-column-button' onClick={(event) => {
-                shell.set({ current_node: this , is_modal_open: true})
+            <div className='add-column-button' onClick={ event => {
+                shell.set({ current_node: this , add_column_modal_visible: true})
                 event.stopPropagation()
             }}
             >
@@ -2473,24 +2493,12 @@ function DBs ({ height }: { height: number }) {
                 <a onClick={() => model.goto_login()}>{t('去登陆')}</a>
             </div>
         }
-        <DBModal />
+        <AddColumn />
+        <EditComment />
     </div>
 }
 
 
-function DBModal () {
-    const { current_node, is_modal_open } = shell.use(['current_node', 'is_modal_open'])
-    if (!current_node)
-        return
-
-    const ModalContent = context_menu_modal_items[current_node.type]
-    
-    return <Modal className='db-modal' open={is_modal_open} onOk={() => { shell.set({ is_modal_open: false }) }} onCancel={() => { shell.set({ is_modal_open: false }) }} title={current_node?.type === 'column' ? t('设置注释') : t('添加列')}>
-        <div className='db-modal-content'>
-            <ModalContent />
-        </div>
-    </Modal>
-}
 
 
 
