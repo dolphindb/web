@@ -1396,7 +1396,8 @@ function AddColumn () {
     const onFinish = async values => {
         const { column, type } = values
         try {
-            await model.ddb.eval(`addColumn(loadTable(database("${current_node.table.db.path}"), "${current_node.table.name}"), ["${column}"], [${type.toUpperCase()}])`)
+            // 调用该函数时，数据库路径不能以 / 结尾
+            await model.ddb.eval(`addColumn(loadTable(database("${current_node.table.db.path.slice(0, -1)}"), "${current_node.table.name}"), ["${column}"], [${type.toUpperCase()}])`)
             await current_node.load_children()
             message.success(t('添加成功'))
         } catch (error) {
@@ -1729,8 +1730,6 @@ class Table implements DataNode {
     
     obj: DdbTableObj
     
-    schema: DdbDictObj<DdbVectorStringObj>
-    
     
     constructor (db: Database, path: string) {
         this.self = this
@@ -1754,17 +1753,15 @@ class Table implements DataNode {
     
     
     async get_schema () {
-        if (!this.schema) {
             await shell.define_load_schema()
-            this.schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
+            const schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                 // 这个函数在 define_load_schema 中已定义
                 'load_schema',
-                [this.db.path, this.name],
+                // 调用该函数时，数据库路径不能以 / 结尾
+                [this.db.path.slice(0, -1), this.name],
                 model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
             )
-        }
-        
-        return this.schema
+        return schema
     }
 }
 
@@ -2000,15 +1997,13 @@ class ColumnRoot implements DataNode {
     
     
     async load_children () {
-        if (!this.children) {
-            const schema_coldefs = (
-                await this.table.get_schema()
-            ).to_dict<{ colDefs: DdbTableObj }>()
-            .colDefs
-            .to_rows<{ comment: string, extra: number, name: string, typeInt: number, typeString: string }>()
-            
-            this.children = schema_coldefs.map(col => new Column(this, col))
-        }
+        const schema_coldefs = (
+            await this.table.get_schema()
+        ).to_dict<{ colDefs: DdbTableObj }>()
+        .colDefs
+        .to_rows<{ comment: string, extra: number, name: string, typeInt: number, typeString: string }>()
+        
+        this.children = schema_coldefs.map(col => new Column(this, col))
     }
 }
 
