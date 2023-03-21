@@ -169,11 +169,11 @@ class ShellModel extends Model<ShellModel> {
     
     current_node: ColumnRoot | Column
     
-    click =  1
+    click_count =  1
     
     
     on_click () {
-        this.set({ click: this.click + 1 })
+        this.set({ click_count: this.click_count + 1 })
     }
     
     async eval (code = this.editor.getValue()) {
@@ -1391,7 +1391,7 @@ function AddColumn () {
     ] as const
     
     const [form] = Form.useForm()
-    const {current_node, click} = shell.use(['click', 'current_node'])
+    const {current_node, click_count} = shell.use(['click_count', 'current_node'])
     const [is_modal_open, set_modal_open] = useState(false)
     const onFinish = async values => {
         const { column, type } = values
@@ -1419,7 +1419,7 @@ function AddColumn () {
     useEffect(() => {
         if (current_node?.type === 'column-root')
             set_modal_open(true)
-        }, [click])
+        }, [click_count])
     
     return <Modal className='db-modal' open={is_modal_open} onCancel={() => { set_modal_open(false) }} title={'添加列'}>
         <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish}>
