@@ -1422,6 +1422,8 @@ function AddColumn () {
     
     const [form] = Form.useForm()
     const { current_node , add_column_modal_visible} = shell.use(['current_node', 'add_column_modal_visible']) as { current_node: ColumnRoot , add_column_modal_visible: boolean}
+    if (!current_node)
+        return
     
     return <Modal 
                 className='db-modal'
@@ -1488,6 +1490,13 @@ function AddColumn () {
 function EditComment () {
     const { current_node, set_comment_modal_visible } = shell.use(['current_node', 'set_comment_modal_visible']) as { current_node: Column, set_comment_modal_visible: boolean }
     const [form] = Form.useForm()
+    useEffect(() => {
+        if (current_node)
+            form.setFieldsValue({ comment: current_node.col.comment })
+    }, [ current_node ])
+
+    if (!current_node)
+        return
     return <Modal 
                 className='db-modal' 
                 open={set_comment_modal_visible} 
@@ -1506,7 +1515,7 @@ function EditComment () {
                                 await model.ddb.call('set_comment', [
                                     current_node.root.table.db.path.slice(0, -1),
                                     current_node.root.table.name,
-                                    current_node.name,
+                                    current_node.col.name,
                                     comment
                                 ])
                                 message.success(t('设置注释成功'))
@@ -1874,14 +1883,14 @@ class Column implements DataNode {
     
     root: ColumnRoot
     
-    name: string
+    col: { comment: string, extra: number, name: string, typeInt: number, typeString: string }
     
     
     constructor (root: ColumnRoot, col: { comment: string, extra: number, name: string, typeInt: number, typeString: string }) {
         this.self = this
         this.root = root
         this.key = `${root.table.path}${col.name}`
-        this.name = col.name
+        this.col = col
         this.title = <div className='column-title'>
             <div>
                 <span className='column-name'>{col.name}</span>: {DdbType[col.typeInt]} {col.comment} 
