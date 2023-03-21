@@ -167,9 +167,7 @@ class ShellModel extends Model<ShellModel> {
     peek_table_defined = false
     
     
-    current_key: string
-    
-    current_type: 'column-root' | 'column'
+    current_node: ColumnRoot | Column
     
     click =  1
     
@@ -1393,19 +1391,19 @@ function AddColumn () {
     ] as const
     
     const [form] = Form.useForm()
-    const {current_key, current_type, click} = shell.use(['current_key', 'current_type', 'click'])
+    const {current_node, click} = shell.use(['click', 'current_node'])
     const [is_modal_open, set_modal_open] = useState(false)
     const onFinish = async values => {
         const { column, type } = values
         // tb_path 结尾没有 /
-        const tb_path = current_key.slice(0, -'/column-root/'.length )
+        const tb_path = current_node.key.slice(0, -'/column-root/'.length )
         const index = tb_path.lastIndexOf('/')
         const [database, table] = [tb_path.slice(0, index + 1), tb_path.slice(index + 1)]
         
         try {
             await model.ddb.eval(`addColumn(loadTable(database("${database}"), "${table}"), ["${column}"], [${type.toUpperCase()}])`)
+            await (current_node as ColumnRoot).load_children()
             message.success(t('添加成功'))
-            // 这里本应自动地刷新内容
         } catch (error) {
             message.error(error.message)
         }
@@ -1419,31 +1417,31 @@ function AddColumn () {
         set_modal_open(false)
     }
     useEffect(() => {
-        if (current_type === 'column-root')
+        if (current_node?.type === 'column-root')
             set_modal_open(true)
         }, [click])
     
     return <Modal className='db-modal' open={is_modal_open} onCancel={() => { set_modal_open(false) }} title={'添加列'}>
-    <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish}>
-        <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
-            <Input placeholder={t('输入名字')} />
-        </Form.Item>
-        <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型！') }]}>
-            <Select showSearch placeholder={t('选择类型')}>
-                {coltypes.map(v => (
-                    <Option key={v}>{v}</Option>
-                ))}
-            </Select>
-        </Form.Item>
-        <Form.Item className='db-modal-content-button-group'>
-            <Button type='primary' htmlType='submit'>
-                {t('确定')}
-            </Button>
-            <Button htmlType='button' onClick={onAbord}>
-                {t('取消')}
-            </Button>
-        </Form.Item>
-    </Form>
+        <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish}>
+            <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
+                <Input placeholder={t('输入名字')} />
+            </Form.Item>
+            <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型！') }]}>
+                <Select showSearch placeholder={t('选择类型')}>
+                    {coltypes.map(v => (
+                        <Option key={v}>{v}</Option>
+                    ))}
+                </Select>
+            </Form.Item>
+            <Form.Item className='db-modal-content-button-group'>
+                <Button type='primary' htmlType='submit'>
+                    {t('确定')}
+                </Button>
+                <Button htmlType='button' onClick={onAbord}>
+                    {t('取消')}
+                </Button>
+            </Form.Item>
+        </Form>
     </Modal>
 }
 
@@ -1993,7 +1991,7 @@ class ColumnRoot implements DataNode {
         this.title = <div className='column-root-title'>
             {t('列')}
             <div className='add-column-button' onClick={(event) => {
-                shell.set({ current_key: this.key, current_type: this.type })
+                shell.set({ current_node: this })
                 shell.on_click()
                 event.stopPropagation()
             }}
