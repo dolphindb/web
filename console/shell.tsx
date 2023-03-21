@@ -1329,7 +1329,7 @@ const table_menu_items: MenuItem[] = [
 ]
 
 const column_menu_items: MenuItem[] = [
-    { label: t('修改注释'), key: '1', open: true, command: 'EditComment', icon: <EditOutlined /> }
+    { label: t('设置注释'), key: '1', open: true, command: 'EditComment', icon: <EditOutlined /> }
 ]
 
 /** 数据库 context menu item 调用 Modal */
@@ -1448,7 +1448,7 @@ function EditComment (){
         const { comment } = values
         try {
             await model.ddb.eval(`setColumnComment(loadTable(database("${current_node.root.table.db.path.slice(0, -1)}"), "${current_node.root.table.name}"), { "${current_node.name}": "${comment.replaceAll('"', '\\"')}" })`)
-            message.success(t('修改注释成功'))
+            message.success(t('设置注释成功'))
             await current_node.root.load_children()
             shell.refresh_dbs()
         } catch (error) {
@@ -1472,7 +1472,7 @@ function EditComment (){
             className='db-modal-form'
             form={form}
         >
-            <Form.Item label={t('注释')} name='comment' rules={[{ required: true, message: t('请输入注释') }]}>
+            <Form.Item label={t('注释')} name='comment' initialValue=''>
                 <Input />
             </Form.Item>
             <Form.Item className='db-modal-content-button-group'>
@@ -1720,6 +1720,8 @@ class Table implements DataNode {
     
     obj: DdbTableObj
     
+    schema: DdbDictObj<DdbVectorStringObj>
+    
     
     constructor (db: Database, path: string) {
         this.self = this
@@ -1743,14 +1745,17 @@ class Table implements DataNode {
     
     
     async get_schema () {
+        // 需要修改成按情况缓存
             await shell.define_load_schema()
-            return await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
+            this.schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                 // 这个函数在 define_load_schema 中已定义
                 'load_schema',
                 // 调用该函数时，数据库路径不能以 / 结尾
                 [this.db.path.slice(0, -1), this.name],
                 model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
             )
+        
+        return this.schema
     }
 }
 
@@ -1828,7 +1833,7 @@ class Column implements DataNode {
                 event.stopPropagation()
             }}
             >
-                <Tooltip title={t('修改注释')} color='grey'>
+                <Tooltip title={t('设置注释')} color='grey'>
                     <EditOutlined />
                 </Tooltip>
             </div>
@@ -2439,7 +2444,7 @@ function DBModal () {
     
     const ModalContent = context_menu_modal_items[current_node?.type] || (() => <div />)
     
-    return <Modal className='db-modal' open={is_modal_open} onOk={() => { shell.set({ is_modal_open: false }) }} onCancel={() => { shell.set({ is_modal_open: false }) }} title={current_node?.type === 'column' ? t('修改注释') : t('添加列')}>
+    return <Modal className='db-modal' open={is_modal_open} onOk={() => { shell.set({ is_modal_open: false }) }} onCancel={() => { shell.set({ is_modal_open: false }) }} title={current_node?.type === 'column' ? t('设置注释') : t('添加列')}>
         <div className='db-modal-content'>
             <ModalContent />
         </div>

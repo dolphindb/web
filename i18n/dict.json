@@ -854,9 +854,6 @@
     "显示前一百行数据": {
         "en": "Show first 100 rows"
     },
-    "修改注释": {
-        "en": "Edit comment"
-    },
     "添加成功": {
         "en": "Add successfully"
     },
@@ -875,14 +872,8 @@
     "选择类型": {
         "en": "Select type"
     },
-    "修改注释成功": {
-        "en": "Modify comment successfully"
-    },
     "注释": {
         "en": "Comment"
-    },
-    "请输入注释": {
-        "en": "Please enter comment"
     },
     "启动成功": {
         "en": "Start succeeded"
@@ -1429,5 +1420,11 @@
     },
     ", 即将关闭页面": {
         "en": ", the page will be closed"
+    },
+    "设置注释": {
+        "en": "Set comment"
+    },
+    "设置注释成功": {
+        "en": "Set comment successfully"
     }
 }
