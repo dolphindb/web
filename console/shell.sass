@@ -112,9 +112,18 @@
                 display: block
                 width: 100%
                 
-                .column-name
-                    font-weight: bold
+                .column-title
+                    .column-name
+                        font-weight: bold
                 
+                .column-title:hover
+                    display: flex
+                    justify-content: space-between
+                    
+                    .edit-comment-button
+                        display: inline
+                        padding-right: 5px
+                    
                 .column-root-title
                     .add-column-button
                         display: none

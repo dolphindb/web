@@ -1392,7 +1392,7 @@ function AddColumn () {
     
     const [form] = Form.useForm()
     const {current_node, click_count} = shell.use(['click_count', 'current_node']) as {current_node: ColumnRoot, click_count:number}
-    const [is_modal_open, set_modal_open] = useState(false)
+    const [is_modal_open, set_is_modal_open] = useState(false)
     const onFinish = async values => {
         const { column, type } = values
         try {
@@ -1405,19 +1405,19 @@ function AddColumn () {
         }
         
         form.resetFields()
-        set_modal_open(false)
+        set_is_modal_open(false)
     }
     
     const onAbord = () => {
         form.resetFields()
-        set_modal_open(false)
+        set_is_modal_open(false)
     }
     useEffect(() => {
         if (current_node?.type === 'column-root')
-            set_modal_open(true)
+            set_is_modal_open(true)
         }, [click_count])
     
-    return <Modal className='db-modal' open={is_modal_open} onCancel={() => { set_modal_open(false) }} title={'添加列'}>
+    return <Modal className='db-modal' open={is_modal_open} onCancel={() => { set_is_modal_open(false) }} title={'添加列'}>
         <Form className='db-modal-form' name='add-column' labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} onFinish={onFinish}>
             <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
                 <Input placeholder={t('输入名字')} />
@@ -1441,59 +1441,54 @@ function AddColumn () {
     </Modal>
 }
 
-function EditComment ({
-    database,
-    table,
-    column,
-    onOk,
-    onCancel
-}: {
-    database: string
-    table: string
-    column: string
-    onOk: () => void
-    onCancel: () => void
-}) {
+function EditComment () {
+    const {current_node, click_count} = shell.use(['click_count', 'current_node']) as {current_node: Column, click_count:number}
+    const [is_modal_open, set_is_modal_open] = useState(false)
     const [form] = Form.useForm()
     const onFinish = async values => {
         const { comment } = values
-        if (database && table && column) 
-            try {
-                await model.ddb.eval(`setColumnComment(loadTable(database("${database}"), "${table}"), { "${column}": "${comment.replaceAll('"', '\\"')}" })`)
-                message.success(t('修改注释成功'))
-            } catch (error) {
-                message.error(error)
-            }
-        
+        try {
+            await model.ddb.eval(`setColumnComment(loadTable(database("${current_node.root.table.db.path.slice(0, -1)}"), "${current_node.root.table.name}"), { "${current_node.name}": "${comment.replaceAll('"', '\\"')}" })`)
+            await current_node.root.load_children()
+            message.success(t('修改注释成功'))
+        } catch (error) {
+            message.error(error)
+        }
         form.resetFields()
-        onOk()
+        set_is_modal_open(false)
     }
     const onAbord = () => {
         form.resetFields()
-        onCancel()
+        set_is_modal_open(false)
     }
+    useEffect(() => {
+        if (current_node?.type === 'column')
+            set_is_modal_open(true)
+        }, [click_count])
     return (
-        <Form
-            labelWrap
-            name='edit-comment'
-            onFinish={onFinish}
-            labelCol={{ span: 4 }}
-            wrapperCol={{ span: 20 }}
-            className='db-modal-form'
-            form={form}
-        >
-            <Form.Item label={t('注释')} name='comment' rules={[{ required: true, message: t('请输入注释') }]}>
-                <Input />
-            </Form.Item>
-            <Form.Item className='db-modal-content-button-group'>
-                <Button type='primary' htmlType='submit'>
-                    {t('确定')}
-                </Button>
-                <Button htmlType='button' onClick={onAbord}>
-                    {t('取消')}
-                </Button>
-            </Form.Item>
-        </Form>
+        <Modal className='db-modal' open={is_modal_open} onOk={() => { set_is_modal_open(false) }} onCancel={() => { set_is_modal_open(false) }} title={t('修改列注释')}>
+            <Form
+                labelWrap
+                name='edit-comment'
+                onFinish={onFinish}
+                labelCol={{ span: 4 }}
+                wrapperCol={{ span: 20 }}
+                className='db-modal-form'
+                form={form}
+            >
+                <Form.Item label={t('注释')} name='comment' rules={[{ required: true, message: t('请输入注释') }]}>
+                    <Input />
+                </Form.Item>
+                <Form.Item className='db-modal-content-button-group'>
+                    <Button type='primary' htmlType='submit'>
+                        {t('确定')}
+                    </Button>
+                    <Button htmlType='button' onClick={onAbord}>
+                        {t('取消')}
+                    </Button>
+                </Form.Item>
+            </Form>
+        </Modal>
     )
 }
 
@@ -1821,14 +1816,27 @@ class Column implements DataNode {
     
     root: ColumnRoot
     
+    name: string
+    
     
     constructor (root: ColumnRoot, col: { comment: string, extra: number, name: string, typeInt: number, typeString: string }) {
         this.self = this
         this.root = root
         this.key = `${root.table.path}${col.name}`
-        this.title = <>
-            <span className='column-name'>{col.name}</span>: {DdbType[col.typeInt]} {col.comment}
-        </>
+        this.name = col.name
+        this.title = <div className='column-title'>
+            <div><span className='column-name'>{col.name}</span>: {DdbType[col.typeInt]} {col.comment} </div>
+            <div className='edit-comment-button' onClick={(event) => {
+                shell.set({ current_node: this })
+                shell.on_click()
+                event.stopPropagation()
+            }}
+            >
+                <Tooltip title={t('修改列注释')} color='grey'>
+                    <EditOutlined />
+                </Tooltip>
+            </div>
+        </div>
     }
 }
 
@@ -2426,6 +2434,7 @@ function DBs ({ height }: { height: number }) {
             </div>
         }
         <AddColumn />
+        <EditComment />
     </div>
 }
 
