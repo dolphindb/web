@@ -1491,7 +1491,7 @@ function EditComment () {
     const { current_node, set_comment_modal_visible } = shell.use(['current_node', 'set_comment_modal_visible']) as { current_node: Column, set_comment_modal_visible: boolean }
     const [form] = Form.useForm()
     useEffect(() => {
-        if (current_node)
+        if (current_node?.type === 'column')
             form.setFieldsValue({ comment: current_node.col.comment })
     }, [ current_node ])
 
@@ -1535,7 +1535,7 @@ function EditComment () {
                     className='db-modal-form'
                     form={form}
                 >
-                    <Form.Item label={t('注释')} name='comment' initialValue=''>
+                    <Form.Item label={t('注释')} name='comment'>
                         <Input />
                     </Form.Item>
                     <Form.Item className='db-modal-content-button-group'>
