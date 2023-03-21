@@ -176,16 +176,6 @@ class ShellModel extends Model<ShellModel> {
     is_modal_open = false
     
     
-    set_modal_open (open: boolean) {
-        this.set({ is_modal_open: open })
-    }
-    
-    
-    refresh_dbs () {
-        this.set({ dbs: [...this.dbs] })
-    }
-    
-    
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
         
@@ -1445,7 +1435,7 @@ function AddColumn () {
                 ])
                 message.success(t('添加成功'))
                 await current_node.load_children(false)
-                shell.refresh_dbs()
+                shell.set({ dbs: [...shell.dbs] })
             } catch (error) {
                 message.error(error.message)
                 throw error
@@ -1501,7 +1491,7 @@ function EditComment (){
                         ])
                         message.success(t('设置注释成功'))
                         await current_node.root.load_children(false)
-                        shell.refresh_dbs()
+                        shell.set({ dbs: [...shell.dbs] })
                     } catch (error) {
                         message.error(error)
                         throw error
@@ -1877,8 +1867,7 @@ class Column implements DataNode {
                 <span className='column-name'>{col.name}</span>: {DdbType[col.typeInt]} {col.comment} 
             </div>
             <div className='edit-comment-button' onClick={(event) => {
-                shell.set({ current_node: this })
-                shell.set_modal_open(true)
+                shell.set({ current_node: this, is_modal_open: true })
                 event.stopPropagation()
             }}
             >
@@ -2041,8 +2030,7 @@ class ColumnRoot implements DataNode {
         this.title = <div className='column-root-title'>
             {t('列')}
             <div className='add-column-button' onClick={(event) => {
-                shell.set({ current_node: this })
-                shell.set_modal_open(true)
+                shell.set({ current_node: this , is_modal_open: true})
                 event.stopPropagation()
             }}
             >
