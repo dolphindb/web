@@ -332,13 +332,19 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 如果节点是 license server, 获取 license server 相关信息 */
     async get_license_server_info () {
-        const [license_server_site, license_server_resource] = await Promise.all([
-            this.ddb.call<DdbStringObj>('getConfig', ['licenseServerSite']).then(res => res.value),
-            this.ddb.call<DdbDictObj<DdbVectorStringObj>>('getLicenseServerResourceInfo').then(res => res.to_dict<DdbLicenseServerResource>({ strip: true }))
-        ])
+        const license_server_site = (
+            await this.ddb.call<DdbStringObj>('getConfig', ['licenseServerSite'])
+        ).value;
+        
+        const is_license_server_node = this.license.licenseType === LicenseTypes.LicenseServerVerify && license_server_site === this.node.site
+        
+        const license_server_resource = is_license_server_node 
+            ? (await this.ddb.call<DdbDictObj<DdbVectorStringObj>>('getLicenseServerResourceInfo')).to_dict<DdbLicenseServerResource>({ strip: true }) 
+            : null
         
         this.set({ 
             license_server: {
+                is_license_server_node,
                 site: license_server_site,
                 resource: license_server_resource
             }
@@ -799,7 +805,8 @@ export interface DdbLicenseServerResource {
 
 export interface DdbLicenseServer {
     site: string
-    resource: DdbLicenseServerResource
+    is_license_server_node: boolean
+    resource: DdbLicenseServerResource | null
 }
 
 export interface DdbJob {
