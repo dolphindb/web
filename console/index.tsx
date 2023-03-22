@@ -189,7 +189,7 @@ function License () {
     const is_license_server_node = license_server?.is_license_server_node
     
     return <Popover
-        placement='bottomLeft'
+        placement='bottomRight'
         zIndex={1060}
         trigger='hover'
         content={
@@ -245,7 +245,7 @@ function Status () {
     const { node_type, node_alias } = model.use(['node_type', 'node_alias'])
     
     return <Popover
-        placement='bottomLeft'
+        placement='bottomRight'
         zIndex={1060}
         trigger='hover'
         content={
@@ -513,7 +513,7 @@ function Settings () {
     return <div className='header-settings'>
         <Popover
             trigger='hover'
-            placement='bottomLeft'
+            placement='bottomRight'
             zIndex={1060}
             content={
                 <div className='header-settings-content head-bar-info'>
