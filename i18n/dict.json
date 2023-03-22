@@ -860,13 +860,10 @@
     "列名": {
         "en": "Name"
     },
-    "请输入列名！": {
+    "请输入列名": {
         "en": "Please enter the column name!"
     },
-    "输入名字": {
-        "en": "Enter the name of the column"
-    },
-    "请选择该列的类型！": {
+    "请选择该列的类型": {
         "en": "Please select the type of the column!"
     },
     "选择类型": {
@@ -1426,5 +1423,8 @@
     },
     "设置注释成功": {
         "en": "Set comment successfully"
+    },
+    "输入列名，支持包含特殊字符": {
+        "en": "Enter the name of the column, which supports special characters"
     }
 }

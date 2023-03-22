@@ -1384,7 +1384,6 @@ function AddColumn () {
         'SYMBOL',
         'STRING',
         'UUID',
-        'DICT',
         'IPADDR',
         'INT128',
         'BLOB',
@@ -1467,10 +1466,15 @@ function SetColumnComment () {
     const { current_node, set_column_comment_modal_visible } = shell.use(['current_node', 'set_column_comment_modal_visible']) as { current_node: Column, set_column_comment_modal_visible: boolean }
     const [form] = Form.useForm()
     
-    if (!current_node || current_node.type !== 'column')
+    useEffect(() => {
+        if (current_node?.type === 'column')
+            form.setFieldsValue({ comment: current_node.comment })
+    }, [current_node])
+    
+    if (!current_node)
         return
         
-    let { col, root } = current_node
+    let { name, root } = current_node
     
     return <Modal 
         className='db-modal' 
@@ -1481,14 +1485,13 @@ function SetColumnComment () {
         <Form
             labelWrap
             name='edit-comment'
-            initialValues={{ comment: col.comment }}
             onFinish={ async ({ comment }: { comment: string }) => {
                 try {
                     await shell.define_set_column_comment()
                     await model.ddb.call('set_column_comment', [
                         root.table.db.path.slice(0, -1),
                         root.table.name,
-                        col.name,
+                        name,
                         comment
                     ])
                     message.success(t('设置注释成功'))
@@ -1786,14 +1789,22 @@ class Column implements DataNode {
     
     root: ColumnRoot
     
-    col: { comment: string, extra: number, name: string, typeInt: number, typeString: string }
+    comment: string
+    
+    extra: number
+    
+    name: string
+    
+    typeInt: number
+    
+    typeString: string
     
     
     constructor (root: ColumnRoot, col: { comment: string, extra: number, name: string, typeInt: number, typeString: string }) {
         this.self = this
         this.root = root
         this.key = `${root.table.path}${col.name}`
-        this.col = col
+        Object.assign(this, col)
         this.title = <div className='column-title'>
             <div>
                 <span className='column-name'>{col.name}</span>: {DdbType[col.typeInt]} {col.comment} 
