@@ -328,7 +328,8 @@ function append_action_col (
                                 type === 'stop' ? t('停止作业指令发送成功') : t('删除作业成功')
                             )
                         } catch (error) {
-                            message.error(error.message)
+                            model.show_error({ error })
+                            throw error
                         }
                     }}
                 >

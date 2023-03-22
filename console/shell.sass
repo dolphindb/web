@@ -112,8 +112,20 @@
                 display: block
                 width: 100%
                 
-                .column-name
-                    font-weight: bold
+                .column-title, .column-root-title
+                    display: flex
+                    justify-content: space-between
+                    
+                    .column-name
+                        font-weight: bold
+                    
+                    .edit-comment-button, .add-column-button
+                        padding-right: 10px
+                        visibility: hidden
+                    
+                    &:hover
+                        .edit-comment-button, .add-column-button
+                            visibility: visilbe
                 
                 .ant-dropdown-trigger
                     display: inline-block
@@ -307,7 +319,7 @@
 
 .db-modal
     .ant-modal-content
-        padding: 20px 24px 1px 10px
+        padding: 20px 24px 1px 24px
         
         .ant-modal-footer
             display: none
