@@ -13,8 +13,10 @@ import type { Options as TSLoaderOptions } from 'ts-loader'
 import sass from 'sass'
 import type { Options as SassOptions } from 'sass-loader'
 
-import { type MFS } from 'xshell'
+import { fexists, type MFS } from 'xshell'
 
+
+const ramdisk = fexists('t:/TEMP/', { print: false })
 
 export const fpd_root = `${path.dirname(fileURLToPath(import.meta.url))}/`
 
@@ -23,7 +25,7 @@ export const fpd_node_modules = `${fpd_root}node_modules/`
 export const fpd_src_console = `${fpd_root}console/`
 export const fpd_src_cloud = `${fpd_root}cloud/`
 
-export const fpd_out_console = `${fpd_root}web/`
+export const fpd_out_console = ramdisk ? `t:/ddb/web/` : `${fpd_root}web/`
 export const fpd_out_cloud = `${fpd_root}web.cloud/`
 
 
@@ -202,7 +204,13 @@ const config: Configuration = {
     
     cache: {
         type: 'filesystem',
-        compression: 'brotli',
+        
+        ... ramdisk ? {
+            cacheDirectory: 't:/ddb/web.webpack/',
+            compression: false
+        } : {
+            compression: 'brotli',
+        }
     },
     
     ignoreWarnings: [
