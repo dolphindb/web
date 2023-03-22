@@ -168,14 +168,14 @@ class ShellModel extends Model<ShellModel> {
 
     add_column_defined = false
 
-    set_comment_defined = false
+    set_column_comment_defined = false
     
     
     current_node: ColumnRoot | Column
     
     add_column_modal_visible = false
     
-    set_comment_modal_visible = false
+    set_column_comment_modal_visible = false
     
     
     async eval (code = this.editor.getValue()) {
@@ -528,26 +528,30 @@ class ShellModel extends Model<ShellModel> {
             return
         
         await model.ddb.eval(
-            'def add_column (db_path, tb_name, col_name, col_typeInt) {\n' +
-            // addColumn 的最后一个参数不能是 ['INT'], 只能是 [ INT ] 或者对应的 typeInt [ 4 ]
-            '    addColumn(loadTable(database(db_path), tb_name), [ col_name ], [ col_typeInt ])\n' + 
+            'def add_column (db_path, tb_name, col_name, col_type) {\n' +
+            // addColumn 的最后一个参数不能是 'INT', 只能是 INT 或者对应的 typeInt 4
+            // https://www.dolphindb.cn/cn/help/DatabaseandDistributedComputing/DatabaseOperations/AddColumns.html?highlight=addcolumn
+            // https://www.dolphindb.cn/cn/help/FunctionsandCommands/CommandsReferences/a/addColumn.html
+            '    addColumn(loadTable(database(db_path), tb_name), col_name, col_type)\n' + 
             '}\n'
         )
+        
         shell.set({ add_column_defined: true })
     }
 
 
-    async define_set_comment () {
-        if (this.set_comment_defined)
+    async define_set_column_comment () {
+        if (this.set_column_comment_defined)
             return
         
         await model.ddb.eval(
-            'def set_comment (db_path, tb_name, col_name, col_comment) {\n' +
+            'def set_column_comment (db_path, tb_name, col_name, col_comment) {\n' +
             // setColumnComment 的最后一个参数是动态的字典，因此用 dict 来构造
-            '    setColumnComment(loadTable(database(db_path), tb_name), dict([ col_name ], [ col_comment ]))\n' +
+            '    setColumnComment(loadTable(database(db_path), tb_name), dict([col_name], [col_comment]))\n' +
             '}\n'
         )
-        shell.set({ set_comment_defined: true })
+        
+        shell.set({ set_column_comment_defined: true })
     }
 }
 
@@ -1356,44 +1360,10 @@ interface MenuItem {
     icon?: React.ReactNode
 }
 
-const table_menu_items: MenuItem[] = [
-    { label: t('查看数据表结构'),   key: '1', open: false, command: 'ShowSchema', icon: <Icon component={SvgViewTableStructure} /> },
-    { label: t('查看前一百行数据'), key: '2', open: false, command: 'ShowRows', icon: <EyeOutlined /> },
-    { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn', icon: <Icon component={SvgAddColumn} /> },
-]
-
-
-
-/** 数据库 context menu item 调用函数 */
-const context_menu_function_items = {
-    ShowRows: async (triad: DBTriad) => {
-        const { database, table } = triad
-        try {
-            const ddbobj = await model.ddb.eval(`select top 100 * from loadTable("${database}", "${table}")`)
-            ddbobj.name = `${table} (${t('前 100 行')})`
-            shell.set({ result: { type: 'object', data: ddbobj } })
-        } catch (error) {
-            message.error(JSON.stringify(error))
-            throw error
-        }
-    },
-    
-    ShowSchema: async (triad: DBTriad) => {
-        const { database, table } = triad
-        try {
-            const ddbobj = await model.ddb.eval(`select * from schema(loadTable("${database}","${table}")).colDefs`)
-            ddbobj.name = `${table}.schema`
-            shell.set({ result: { type: 'object', data: ddbobj } })
-        } catch (error) {
-            message.error(JSON.stringify(error))
-            throw error
-        }
-    }
-}
-
-
 
 function AddColumn () {
+    // DdbType 中对应枚举的大写，排除一些不能添加的类型
+    // todo: 让邹杨测试，有没有遗漏，有没有不能加的
     const coltypes = [
         'BOOL',
         'CHAR',
@@ -1419,212 +1389,142 @@ function AddColumn () {
         'INT128',
         'BLOB',
         'COMPLEX',
-        'POINT'
+        'POINT',
+        
+        // 'DURATION',
+        // decimal32, 64, 128
     ] as const
     
     const [form] = Form.useForm()
-    const { current_node, add_column_modal_visible } = shell.use(['current_node', 'add_column_modal_visible']) as { current_node: ColumnRoot , add_column_modal_visible: boolean }
+    
+    let { current_node, add_column_modal_visible } = shell.use(['current_node', 'add_column_modal_visible']) as { current_node: ColumnRoot, add_column_modal_visible: boolean }
+    
     if (!current_node)
         return
     
+    let { table, children } = current_node
+    
     return <Modal 
-                className='db-modal'
-                open={add_column_modal_visible} 
-                onCancel={() => { shell.set({ add_column_modal_visible: false }) }} 
-                title={t('添加列')}
-            >
-                <Form 
-                    className='db-modal-form' 
-                    name='add-column' 
-                    labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} 
-                    form={form} 
-                    onFinish={
-                        async values => {
-                            const { column, type } : { column: string, type: string } = values
-                            try {
-                                await shell.define_add_column()
-                                // 调用该函数时，数据库路径不能以 / 结尾
-                                await model.ddb.call('add_column', [
-                                    current_node.table.db.path.slice(0, -1),
-                                    current_node.table.name,
-                                    column,
-                                    new DdbInt(DdbType[type.toLocaleLowerCase()])
-                                ])
-                                message.success(t('添加成功'))
-                                await current_node.load_children(false)
-                                shell.set({ dbs: [...shell.dbs] })
-                            } catch (error) {
-                                message.error(error.message)
-                                throw error
-                            }
-                            
-                            form.resetFields()
-                            shell.set({ add_column_modal_visible: false })
-                        }
-                }>
-                    <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名！') }]}>
-                        <Input placeholder={t('输入名字')} />
-                    </Form.Item>
-                    <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型！') }]}>
-                        <Select showSearch placeholder={t('选择类型')}>
-                            {coltypes.map(v => (
-                                <Option key={v}>{v}</Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item className='db-modal-content-button-group'>
-                        <Button type='primary' htmlType='submit'>
-                            {t('确定')}
-                        </Button>
-                        <Button htmlType='button' onClick={
-                            () => {
-                                form.resetFields()
-                                shell.set({ add_column_modal_visible: false })
-                            }
-                        }>
-                            {t('取消')}
-                        </Button>
-                    </Form.Item>
-                </Form>
+        className='db-modal'
+        open={add_column_modal_visible} 
+        onCancel={() => { shell.set({ add_column_modal_visible: false }) }} 
+        title={t('添加列')}
+    >
+        <Form
+            className='db-modal-form' 
+            name='add-column' 
+            labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} 
+            form={form}
+            onFinish={
+                async ({ column, type }: { column: string, type: string }) => {
+                    try {
+                        await shell.define_add_column()
+                        // 调用该函数时，数据库路径不能以 / 结尾
+                        await model.ddb.call('add_column', [
+                            table.db.path.slice(0, -1),
+                            table.name,
+                            column,
+                            new DdbInt(DdbType[type.toLocaleLowerCase()])
+                        ])
+                        message.success(t('添加成功'))
+                        current_node.children = null
+                        table.schema = null
+                        await current_node.load_children()
+                        shell.set({ dbs: [...shell.dbs] })
+                    } catch (error) {
+                        model.show_error({ error })
+                        throw error
+                    }
+                    
+                    form.resetFields()
+                    shell.set({ add_column_modal_visible: false })
+                }
+        }>
+            <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名') }]}>
+                <Input placeholder={t('输入列名，支持包含特殊字符')} />
+            </Form.Item>
+            <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型') }]}>
+                <Select showSearch placeholder={t('选择类型')}>
+                    { coltypes.map(v => <Option key={v}>{v}</Option>) }
+                </Select>
+            </Form.Item>
+            <Form.Item className='db-modal-content-button-group'>
+                <Button type='primary' htmlType='submit'>
+                    {t('确定')}
+                </Button>
+                <Button htmlType='button' onClick={() => {
+                    form.resetFields()
+                    shell.set({ add_column_modal_visible: false })
+                }}>
+                    {t('取消')}
+                </Button>
+            </Form.Item>
+        </Form>
     </Modal>
 }
 
-function EditComment () {
-    const { current_node, set_comment_modal_visible } = shell.use(['current_node', 'set_comment_modal_visible']) as { current_node: Column, set_comment_modal_visible: boolean }
+function SetColumnComment () {
+    const { current_node, set_column_comment_modal_visible } = shell.use(['current_node', 'set_column_comment_modal_visible']) as { current_node: Column, set_column_comment_modal_visible: boolean }
     const [form] = Form.useForm()
-    useEffect(() => {
-        if (current_node?.type === 'column')
-            form.setFieldsValue({ comment: current_node.col.comment })
-    }, [ current_node ])
-
-    if (!current_node)
+    
+    if (!current_node || current_node.type !== 'column')
         return
+        
+    let { col, root } = current_node
+    
     return <Modal 
-                className='db-modal' 
-                open={set_comment_modal_visible} 
-                onOk={() => { shell.set({ set_comment_modal_visible: false }) }} 
-                onCancel={() => { shell.set({ set_comment_modal_visible: false }) }} 
-                title={t('设置注释')}
-            >
-                <Form
-                    labelWrap
-                    name='edit-comment'
-                    onFinish={
-                        async values => {
-                            const { comment } = values
-                            try {
-                                await shell.define_set_comment()
-                                await model.ddb.call('set_comment', [
-                                    current_node.root.table.db.path.slice(0, -1),
-                                    current_node.root.table.name,
-                                    current_node.col.name,
-                                    comment
-                                ])
-                                message.success(t('设置注释成功'))
-                                await current_node.root.load_children(false)
-                                shell.set({ dbs: [...shell.dbs] })
-                            } catch (error) {
-                                message.error(error)
-                                throw error
-                            }
-                            
-                            form.resetFields()
-                            shell.set({ set_comment_modal_visible: false })
-                        }
-                    }
-                    labelCol={{ span: 4 }}
-                    wrapperCol={{ span: 20 }}
-                    className='db-modal-form'
-                    form={form}
-                >
-                    <Form.Item label={t('注释')} name='comment'>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item className='db-modal-content-button-group'>
-                        <Button type='primary' htmlType='submit'>
-                            {t('确定')}
-                        </Button>
-                        <Button htmlType='button' onClick={
-                            () => {
-                                form.resetFields()
-                                shell.set({ set_comment_modal_visible: false })
-                            }
-                        }>
-                            {t('取消')}
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Modal>
-}
-
-interface DBTriad {
-    type: 'database' | 'table' | 'column'
-    database: string
-    table?: string
-    column?: string
-}
-
-/** 数据库表，数据库列的标题和右键菜单 */
-function DBItemTitle ({
-    entity,
-    items,
-    _key: key,
-    onChange,
-    extra,
-}: {
-    entity: DBTriad
-    items: MenuItem[]
-    _key: string
-    onChange: (menu: ContextMenu) => void
-    extra?: string
-}) {
-    const name = entity[entity.type]
-    
-    const onClick = async ({ key: _key }) => {
-        const item = items.filter(item => item.key === _key)[0]
-        if (item.open) 
-            onChange({
-                key: _key,
-                open: true,
-                command: item.command,
-                ...entity
-            })
-         else {
-            await context_menu_function_items[item.command](entity)
-            onChange({
-                key: _key,
-                open: false,
-                ...entity
-            })
-        }
-    }
-    
-    
-    return <Dropdown
-        trigger={['contextMenu']}
-        onOpenChange={open => {
-            if (open) 
-                onChange({ key, open: false, ...entity })
-        }}
-        menu={{
-            className: 'db-context-menu',
-            items,
-            onClick,
-        }}
+        className='db-modal' 
+        open={set_column_comment_modal_visible} 
+        onCancel={() => { shell.set({ set_column_comment_modal_visible: false }) }} 
+        title={t('设置注释')}
     >
-        <span
-            className={`db-item-${entity.type}`}
-            onClick={async event => {
-                if (entity.type === 'table') {
-                    await context_menu_function_items.ShowRows(entity)
-                    onChange({ key, open: false, ...entity })
+        <Form
+            labelWrap
+            name='edit-comment'
+            initialValues={{ comment: col.comment }}
+            onFinish={ async ({ comment }: { comment: string }) => {
+                try {
+                    await shell.define_set_column_comment()
+                    await model.ddb.call('set_column_comment', [
+                        root.table.db.path.slice(0, -1),
+                        root.table.name,
+                        col.name,
+                        comment
+                    ])
+                    message.success(t('设置注释成功'))
+                    root.children = null
+                    root.table.schema = null
+                    await root.load_children()
+                    shell.set({ dbs: [...shell.dbs] })
+                } catch (error) {
+                    model.show_error({ error })
+                    throw error
                 }
+                
+                form.resetFields()
+                shell.set({ set_column_comment_modal_visible: false })
             }}
+            labelCol={{ span: 4 }}
+            wrapperCol={{ span: 20 }}
+            className='db-modal-form'
+            form={form}
         >
-            <span className='name'>{name}</span>
-            {extra ? `: ${extra}` : ''}
-        </span>
-    </Dropdown>
+            <Form.Item label={t('注释')} name='comment'>
+                <Input />
+            </Form.Item>
+            <Form.Item className='db-modal-content-button-group'>
+                <Button type='primary' htmlType='submit'>
+                    {t('确定')}
+                </Button>
+                <Button htmlType='button' onClick={() => {
+                    form.resetFields()
+                    shell.set({ set_column_comment_modal_visible: false })
+                }}>
+                    {t('取消')}
+                </Button>
+            </Form.Item>
+        </Form>
+    </Modal>
 }
 
 
@@ -1814,8 +1714,8 @@ class Table implements DataNode {
     }
     
     
-    async get_schema (use_cache: boolean = true) {
-        if (!this.schema || !use_cache)
+    async get_schema () {
+        if (!this.schema) {
             await shell.define_load_schema()
             this.schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                 // 这个函数在 define_load_schema 中已定义
@@ -1824,6 +1724,7 @@ class Table implements DataNode {
                 [this.db.path.slice(0, -1), this.name],
                 model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
             )
+        }
         
         return this.schema
     }
@@ -1898,7 +1799,7 @@ class Column implements DataNode {
                 <span className='column-name'>{col.name}</span>: {DdbType[col.typeInt]} {col.comment} 
             </div>
             <div className='edit-comment-button' onClick={ event => {
-                shell.set({ current_node: this, set_comment_modal_visible: true })
+                shell.set({ current_node: this, set_column_comment_modal_visible: true })
                 event.stopPropagation()
             }}
             >
@@ -2063,8 +1964,7 @@ class ColumnRoot implements DataNode {
             <div className='add-column-button' onClick={ event => {
                 shell.set({ current_node: this, add_column_modal_visible: true })
                 event.stopPropagation()
-            }}
-            >
+            }}>
                 <Tooltip title={t('添加列')} color='grey'>
                     <Icon component={SvgAddColumn} />
                 </Tooltip>
@@ -2073,10 +1973,10 @@ class ColumnRoot implements DataNode {
     }
     
     
-    async load_children (use_cache: boolean = true) {
-        if (!this.children || !use_cache) {
+    async load_children () {
+        if (!this.children) {
             const schema_coldefs = (
-                await this.table.get_schema(use_cache)
+                await this.table.get_schema()
             ).to_dict<{ colDefs: DdbTableObj }>()
             .colDefs
             .to_rows<{ comment: string, extra: number, name: string, typeInt: number, typeString: string }>()
@@ -2127,96 +2027,6 @@ class PartitionRoot implements DataNode {
 }
 
 
-
-
-// class DdbEntity {
-//     path: string
-    
-//     empty = false
-
-//     tables: TableEntity[] = []
-
-//     path_part1: string
-//     path_part2: string
-    
-    
-//     constructor(data: Partial<DdbEntity>) {
-//         Object.assign(this, data)
-//         const [part1, ...part2_] = this.path.slice(6).split('.')
-//         const part2 = part2_.join('.')
-//         // dfs://a.b   ->   [part1, part2] = [a, b]
-//         this.path_part1 = part1
-//         this.path_part2 = part2
-//     }
-    
-    
-//     to_tree_data_item (on_menu): TreeDataItem {
-//         return new TreeDataItem({
-//             title: <span className='name'>{this.path_part2 || this.path}</span>,
-//             key: this.path,
-//             icon: <Icon component={SvgDatabase} />,
-//             children: this.tables.map(table => table.to_tree_data_item(on_menu)),
-//             isLeaf: false,
-//             needLoad: true,
-//             className: this.empty ? 'ant-tree-treenode-empty' : null
-//         })
-//     }
-// }
-
-
-
-class TableEntity {
-    name: string
-    
-    ddb_path: string
-    
-    labels: string[]
-    
-    column_schema: { name: string, type: DdbType }[]
-    
-    constructor(data: Partial<TableEntity>) {
-        Object.assign(this, data)
-        this.labels = this.column_schema?.map(obj =>
-            `${obj.name}<${DdbType[obj.type]}>`
-        )
-    }
-    
-    to_tree_data_item (onChange: (menu: ContextMenu) => void): TreeDataItem {
-        return new TreeDataItem({
-            title: 
-                <DBItemTitle 
-                    entity={{ type: 'table', database: this.ddb_path, table: this.name }}
-                    items={table_menu_items}
-                    _key={`${this.ddb_path}/${this.name}`}
-                    onChange={onChange}
-                />,
-            key: `${this.ddb_path}/${this.name}`,
-            icon: <Icon component={SvgTable} />,
-            
-            children: this.column_schema.map(column => {
-                const key = `${this.ddb_path}/${this.name}/${column.name}`
-                
-                return new TreeDataItem({
-                    title: 
-                        <DBItemTitle 
-                            entity={{ type: 'column', database: this.ddb_path, table: this.name, column: column.name }}
-                            items={column_menu_items}
-                            _key={key}
-                            onChange={onChange}
-                            extra={DdbType[column.type]}
-                        />,
-                    key,
-                    icon: <Icon component={SvgColumn} />,
-                    isLeaf: true
-                })
-            }),
-            
-            isLeaf: false
-        })
-    }
-}
-
-
 function DBs ({ height }: { height: number }) {
     const { dbs } = shell.use(['dbs'])
     const { logined } = model.use(['logined'])
@@ -2224,147 +2034,9 @@ function DBs ({ height }: { height: number }) {
     const [expanded_keys, set_expanded_keys] = useState([ ])
     const [loaded_keys, set_loaded_keys] = useState([ ])
     const previous_clicked_node = useRef<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
-    // const [menu, on_menu] = useState<ContextMenu | null>()
-    // const [selected_keys, set_selected_keys] = useState([])
-    
-    /*
-        tree_data 每个节点都是一个 DdbEntity 或者 TableEntity, 在构造 tree_data 时会调用 to_tree_data_item 将上述 entity 转化为真正的 TreeDataItem
-        
-        当库 / 表很多的时候，如果更新其中一项就要重新构造整个 tree_data 的话就会发生很多次不必要的 to_tree_data_item 调用
-        
-        此处做一个缓存操作，tree_data 只会在首次加载组件时完成一次从头到尾的构建，并构造一个 map，键是 TreeDataItem 的 key，值是这个 TreeDataItem 在树中的位置 position
-        
-        每次展开一个树节点时，会调用 load_data, 读取当前正在操作的 key，更新 TreeDataItem 。通过 treeData[position] = new_TreeDataItem 的方式更新树。这样每次调用 load_data 就只会发生一次 to_tree_data_item 调用
-    */
-    
-    // const [tree_data, set_tree_data] = useState<TreeDataItem[]>([ ])
-    // const index_of_path_in_grouped_tree_data = useRef<Map<string, number[]>>(new Map())
-    
-    // useEffect(() => {
-    //     if (menu?.key)
-    //         set_selected_keys([menu.key])
-    // }, [menu])
-    
-    
-    // useEffect(() => {
-    //     if (!dbs)
-    //         return
-        
-    //     //  dfs://a.b 形式的库将会被归入 groups   dfs://xxx 的普通数据库将会被归入 _dbs
-        
-    //     const groups: TreeDataItem[] = []
-    //     const _dbs: TreeDataItem[] = []
-        
-    //     // 记录某个 group 底下有哪些数据库
-    //     const group_dbs: Map<string, DdbEntity[]> = new Map()
-        
-    //     for (const db of dbs.values()) {
-    //         const [part1, ...part2_] = db.path.slice(6).split('.')
-    //         const part2 = part2_?.join('.')
-            
-    //         if (!part2) {
-    //             _dbs.push(db.to_tree_data_item(on_menu))
-    //             continue
-    //         }
-            
-    //         if (!group_dbs.has(part1))
-    //             group_dbs.set(part1, [db])
-    //         else
-    //             group_dbs.get(part1).push(db)
-    //     }
-        
-    //     for (const key of group_dbs.keys()) {
-    //         const new_group = new TreeDataItem({
-    //             title: <span className='name'>{`dfs://${key}`}</span>,
-    //             key: `group-${key}`,
-    //             icon: <FolderOutlined color='#4a5eed' />,
-    //             children: group_dbs.get(key)
-    //                 .map(ddb_entity => 
-    //                     ddb_entity.to_tree_data_item(on_menu))
-    //         })
-            
-    //         groups.push(new_group)
-    //     }
-        
-    //     let tree_data = _dbs.concat(groups)
-        
-    //     for (let i = 0; i < tree_data.length; i++) 
-    //         if (tree_data[i].key.startsWith('group-')) {
-    //             const children_length = tree_data[i].children.length
-    //             for (let j = 0; j < children_length; j++)
-    //                 index_of_path_in_grouped_tree_data.current.set(tree_data[i].children[j].key, [i, j])
-    //         } else
-    //             index_of_path_in_grouped_tree_data.current.set(tree_data[i].key, [i])
-        
-    //     set_tree_data(tree_data)
-    // }, [dbs])
-    
     
     if (!dbs)
         return
-    
-    
-    // async function load_data ({ key, needLoad }: Partial<TreeDataItem>) {
-    //     if (!needLoad)
-    //         return
-        
-    //     let tables_ = null
-    //     try {
-    //         const tables = (
-    //             await model.ddb.eval<DdbObj<DdbObj[]>>(
-    //                 'each(\n' +
-    //                 `    def (table_name): loadTable("${key}", table_name, memoryMode=false),\n` +
-    //                 `    ${shell.tables.filter(table => table.startsWith(key))
-    //                         .map(table => table.slice(table.lastIndexOf('/') + 1).quote('double'))
-    //                         .join(', ')
-    //                         .bracket('square')}\n` +
-    //                 ')\n')
-    //         ).value.map(tb =>
-    //             new TableEntity({
-    //                 name: tb.name,
-    //                 ddb_path: key,
-    //                 column_schema: (tb.value as DdbObj[]).map(col => ({ name: col.name, type: col.type }))
-    //             })
-    //         )
-            
-    //         tables_ = tables
-    //     } catch (error) {
-    //         let i = (error.message as string).indexOf('<NotAuthenticated>')
-    //         if (i === -1)
-    //             i = (error.message as string).indexOf('<NoPrivilege>')
-            
-    //         if (i === -1 || model.dev)
-    //             model.show_error({ error })
-    //         else {
-    //             const errmsg = (error.message as string).slice(i)
-    //             message.error(errmsg)
-    //             shell.term.writeln(red(errmsg))
-    //         }
-            
-    //         set_loaded_keys([...loaded_keys, key])
-            
-    //         throw error
-    //     } finally {
-    //         const [part1, ...part2_] = key.slice('dfs://'.length).split('.')
-    //         const part2 = part2_.join('.')
-            
-    //         const grouped_tree_data_ = [...tree_data]
-    //         if (part2) {
-    //             const [index1, index2] = index_of_path_in_grouped_tree_data.current.get(key)
-    //             grouped_tree_data_[index1].children[index2] = tables_
-    //                 ? new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu)
-    //                 : new DdbEntity({ path: key, empty: true }).to_tree_data_item(on_menu)
-    //         } else {
-    //             const [index] = index_of_path_in_grouped_tree_data.current.get(key)
-    //             grouped_tree_data_[index] = tables_
-    //                 ? new DdbEntity({ path: key, tables: tables_ }).to_tree_data_item(on_menu)
-    //                 : new DdbEntity({ path: key, empty: true }).to_tree_data_item(on_menu)
-    //         }
-            
-    //         set_tree_data(grouped_tree_data_)
-    //     }
-    // }
-    
     
     return <div className='database-panel'>
         <div className='type'>
@@ -2505,7 +2177,7 @@ function DBs ({ height }: { height: number }) {
             </div>
         }
         <AddColumn />
-        <EditComment />
+        <SetColumnComment />
     </div>
 }
 
