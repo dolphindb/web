@@ -1800,14 +1800,20 @@ class Column implements DataNode {
     typeString: string
     
     
-    constructor (root: ColumnRoot, col: { comment: string, extra: number, name: string, typeInt: number, typeString: string }) {
+    constructor (root: ColumnRoot, { comment, extra, name, typeInt, typeString }: { comment: string, extra: number, name: string, typeInt: number, typeString: string }) {
         this.self = this
         this.root = root
-        this.key = `${root.table.path}${col.name}`
-        Object.assign(this, col)
+        this.key = `${root.table.path}${name}`
+        
+        this.comment = comment
+        this.extra = extra
+        this.name = name
+        this.typeInt = typeInt
+        this.typeString = typeString
+        
         this.title = <div className='column-title'>
             <div>
-                <span className='column-name'>{col.name}</span>: {DdbType[col.typeInt]} {col.comment} 
+                <span className='column-name'>{name}</span>: {DdbType[typeInt]} {comment} 
             </div>
             <div className='edit-comment-button' onClick={ event => {
                 shell.set({ current_node: this, set_column_comment_modal_visible: true })
