@@ -172,9 +172,9 @@ class ShellModel extends Model<ShellModel> {
     
     
     current_node: ColumnRoot | Column
-
+    
     add_column_modal_visible = false
-
+    
     set_comment_modal_visible = false
     
     
@@ -530,7 +530,7 @@ class ShellModel extends Model<ShellModel> {
         await model.ddb.eval(
             'def add_column (db_path, tb_name, col_name, col_typeInt) {\n' +
             // addColumn 的最后一个参数不能是 ['INT'], 只能是 [ INT ] 或者对应的 typeInt [ 4 ]
-            `    addColumn(loadTable(database(db_path), tb_name), [ col_name ], [ col_typeInt ])\n` + 
+            '    addColumn(loadTable(database(db_path), tb_name), [ col_name ], [ col_typeInt ])\n' + 
             '}\n'
         )
         shell.set({ add_column_defined: true })
@@ -1362,15 +1362,7 @@ const table_menu_items: MenuItem[] = [
     { label: t('添加列'),           key: '3', open: true,  command: 'AddColumn', icon: <Icon component={SvgAddColumn} /> },
 ]
 
-const column_menu_items: MenuItem[] = [
-    { label: t('设置注释'), key: '1', open: true, command: 'EditComment', icon: <EditOutlined /> }
-]
 
-/** 数据库 context menu item 调用 Modal */
-const context_menu_modal_items = {
-    column: EditComment,
-    'column-root': AddColumn
-}
 
 /** 数据库 context menu item 调用函数 */
 const context_menu_function_items = {
@@ -1431,7 +1423,7 @@ function AddColumn () {
     ] as const
     
     const [form] = Form.useForm()
-    const { current_node , add_column_modal_visible} = shell.use(['current_node', 'add_column_modal_visible']) as { current_node: ColumnRoot , add_column_modal_visible: boolean}
+    const { current_node, add_column_modal_visible } = shell.use(['current_node', 'add_column_modal_visible']) as { current_node: ColumnRoot , add_column_modal_visible: boolean }
     if (!current_node)
         return
     
@@ -2069,7 +2061,7 @@ class ColumnRoot implements DataNode {
         this.title = <div className='column-root-title'>
             {t('列')}
             <div className='add-column-button' onClick={ event => {
-                shell.set({ current_node: this , add_column_modal_visible: true})
+                shell.set({ current_node: this, add_column_modal_visible: true })
                 event.stopPropagation()
             }}
             >
