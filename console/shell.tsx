@@ -542,9 +542,9 @@ class ShellModel extends Model<ShellModel> {
             return
         
         await model.ddb.eval(
-            'def set_comment (db_path, tb_name, col_name, col_type) {\n' +
+            'def set_comment (db_path, tb_name, col_name, col_comment) {\n' +
             // setColumnComment 的最后一个参数是动态的字典，因此用 dict 来构造
-            '    setColumnComment(loadTable(database(db_path), tb_name), dict([ col_name ], [ col_type ]))\n' +
+            '    setColumnComment(loadTable(database(db_path), tb_name), dict([ col_name ], [ col_comment ]))\n' +
             '}\n'
         )
         shell.set({ set_comment_defined: true })
