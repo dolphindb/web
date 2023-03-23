@@ -102,7 +102,7 @@ function DolphinDB () {
             { header && <Layout.Header className='ddb-header'>
                 <DdbHeader />
             </Layout.Header> }
-            <Layout className='body'>
+            <Layout className='body' hasSider>
                 <DdbSider />
                 <Layout.Content className='view'>
                     <DdbContent />
