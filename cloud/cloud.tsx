@@ -1604,7 +1604,7 @@ function ClusterOrBackupStatus ({
 }: {
     phase: string
     message?: string
-    type: 'cluster' | 'backup' | 'restore'
+    type: 'cluster' | 'backup' | 'restore' | 'node'
 }) {
     phase ||= 'Processing'
     const stuatus_group = {
@@ -1618,12 +1618,12 @@ function ClusterOrBackupStatus ({
             message ? 
                 <Tooltip title={message} overlayStyle={{ maxWidth: '800px' }}>
                     <Text underline>{
-                        translate_dict[phase] || phase
+                        type === 'node' && phase === 'Ready' ? t('运行中', { context: 'node_status' }) : translate_dict[phase] || phase
                     }</Text>
                 </Tooltip>
             :
             
-            translate_dict[phase] || phase
+            type === 'node' && phase === 'Ready' ? t('运行中', { context: 'node_status' }) : translate_dict[phase] || phase
         }
         status={stuatus_group[type][phase] || 'default'}
     />
@@ -2538,7 +2538,6 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
         </div>
     </Modal>
 }
-
 const translate_dict = {
     BasicInfo: t('基础信息'),
     ServerInfo: t('服务器信息'),
@@ -2562,23 +2561,23 @@ const translate_dict = {
     access_key: t('访问密钥'),
     secret_access_key: t('加密密钥'),
     path: t('共享目录', { context: 'backup' }),
-    Scheduling: t('调度中'),
-    Running: t('运行中'),
-    Pending: t('准备中', { context: 'pending'}),
-    Complete: t('运行完毕'),
+    Scheduling: t('调度中', { context: 'backup' }),
+    Running: t('运行中', { context: 'backup' }),
+    Pending: t('准备中'),
+    Complete: t('运行完成'),
     Cleaning: t('清理中'),
     Cleaned: t('清理完成'),
-    Failed: t('运行失败'),
+    Failed: t('运行失败', { context: 'backup' }),
     Invalid: t('参数异常'),
     dolphindb_namespace: t('命名空间'),
     dolphindb_name: t('名称'),
     type: t('类型'),
     Available: t('运行正常'),
-    Ready: t('准备中', { context: 'ready' }),
-    Progressing: t('准备中', { context: 'processing' }),
+    Ready: t('已就绪'),
+    Progressing: t('调度中', { context: 'cluster' }),
     Unschedulable: t('等待调度'),
-    Unavailable: t('故障'),
-    Unknown: t('未知'),
+    Unavailable: t('运行失败', {context: 'cluster'}),
+    Unknown: t('未就绪'),
     Paused: t('已暂停'),
 }
 
@@ -2836,11 +2835,11 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                     key='create_timestamp'
                     dataIndex={'create_timestamp'}
                 />
-                {true ? <Column
+                <Column
                     title={t('状态')}
                     key='phase'
                     dataIndex={'phase'}
-                /> : undefined}
+                />
                 <Column
                     title={t('操作', { context: 'backup' })}
                     key='operation'
@@ -3194,11 +3193,11 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
                     key='create_timestamp'
                     dataIndex={'create_timestamp'}
                 />
-                {true ? <Column
+                <Column
                     title={t('状态')}
                     key='phase'
                     dataIndex={'phase'}
-                /> : undefined}
+                />
                 <Column
                     title={t('操作', { context: 'backup' })}
                     key='operation'
