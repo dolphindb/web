@@ -2058,7 +2058,7 @@ function DBs ({ height }: { height: number }) {
     return <div className='database-panel'>
         <div className='type'>
             {t('数据库')}
-            { Boolean(logined || dbs.length) && <span className='extra'>
+            <span className='extra'>
                 <span onClick={async () => {
                     await shell.load_dbs()
                     set_expanded_keys([ ])
@@ -2073,9 +2073,9 @@ function DBs ({ height }: { height: number }) {
                         <MinusSquareOutlined />
                     </Tooltip>
                 </span>
-            </span> }
+            </span>
         </div>
-        { (logined || dbs?.length) ?
+        { (logined || dbs.length) ?
             <Tree
                 className='database-tree'
                 showIcon
