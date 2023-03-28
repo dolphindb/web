@@ -1070,20 +1070,11 @@
     "调度中": {
         "en": "Scheduled"
     },
-    "运行中": {
-        "en": "Running"
-    },
-    "运行完毕": {
-        "en": "Complete"
-    },
     "清理中": {
         "en": "Complete"
     },
     "清理完成": {
         "en": "Cleaned"
-    },
-    "运行失败": {
-        "en": "Failed"
     },
     "参数异常": {
         "en": "Invalid"
@@ -1274,20 +1265,8 @@
     "等待调度": {
         "en": "Unschedulable"
     },
-    "故障": {
-        "en": "Unavailable"
-    },
-    "未知": {
-        "en": "Unknown"
-    },
     "已暂停": {
         "en": "Paused"
-    },
-    "准备中_ready": {
-        "en": "Ready"
-    },
-    "准备中_processing": {
-        "en": "Processing"
     },
     "准备中_pending": {
         "en": "Pending"
@@ -1435,9 +1414,6 @@
     },
     "运行中_backup": {
         "en": "Running"
-    },
-    "准备中": {
-        "en": "Pending"
     },
     "运行完成": {
         "en": "Complete"
