@@ -1478,7 +1478,7 @@ function NodeList ({
                     title: t('状态'),
                     dataIndex: 'status',
                     render: (status: ClusterNode['status']) => 
-                        <ClusterOrBackupStatus {...status} type='cluster'/>
+                        <ClusterOrBackupStatus {...status} type='node'/>
                 },
                 {
                     title: t('操作'),
@@ -1618,12 +1618,12 @@ function ClusterOrBackupStatus ({
             message ? 
                 <Tooltip title={message} overlayStyle={{ maxWidth: '800px' }}>
                     <Text underline>{
-                        type === 'node' && phase === 'Ready' ? t('运行中', { context: 'node_status' }) : translate_dict[phase] || phase
+                        type === 'node' && phase === 'Ready' ? t('运行中', { context: 'node' }) : translate_dict[phase] || phase
                     }</Text>
                 </Tooltip>
             :
             
-            type === 'node' && phase === 'Ready' ? t('运行中', { context: 'node_status' }) : translate_dict[phase] || phase
+            type === 'node' && phase === 'Ready' ? t('运行中', { context: 'node' }) : translate_dict[phase] || phase
         }
         status={stuatus_group[type][phase] || 'default'}
     />
@@ -2538,6 +2538,8 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
         </div>
     </Modal>
 }
+
+// 翻译对照 https://dolphindb1.atlassian.net/wiki/spaces/CC/pages/629080480/DolphinDB+Backup
 const translate_dict = {
     BasicInfo: t('基础信息'),
     ServerInfo: t('服务器信息'),

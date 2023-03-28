@@ -1426,5 +1426,35 @@
     },
     "输入列名，支持包含特殊字符": {
         "en": "Enter the name of the column, which supports special characters"
+    },
+    "运行中_node": {
+        "en": "Ready"
+    },
+    "调度中_backup": {
+        "en": "Scheduling"
+    },
+    "运行中_backup": {
+        "en": "Running"
+    },
+    "准备中": {
+        "en": "Pending"
+    },
+    "运行完成": {
+        "en": "Complete"
+    },
+    "运行失败_backup": {
+        "en": "Failed"
+    },
+    "已就绪": {
+        "en": "Ready"
+    },
+    "调度中_cluster": {
+        "en": "Progressing"
+    },
+    "运行失败_cluster": {
+        "en": "Unavailable"
+    },
+    "未就绪": {
+        "en": "Unknown"
     }
 }
