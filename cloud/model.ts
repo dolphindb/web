@@ -1,3 +1,4 @@
+import { Modal } from 'antd'
 import {
     default as dayjs,
     type Dayjs,
@@ -5,7 +6,8 @@ import {
 
 import { Model } from 'react-object-model'
 
-import { request_json } from 'xshell/net.browser.js'
+import { request_json, type RequestError } from 'xshell/net.browser.js'
+import { t } from '../i18n/index.js'
 
 
 export const default_queries = {
@@ -190,6 +192,41 @@ export class CloudModel extends Model <CloudModel> {
         await request_json(`/v1/dolphindbs/${this.cluster.namespace}/${this.cluster.name}/instances/${node.name}/restart`, {
             method: 'PUT',
             // body: node
+        })
+    }
+    
+    show_error ({ error, title, content }: { error?: Error | RequestError, title?: string, content?: string }) {
+        console.log(error)
+        
+        Modal.error({
+            className: 'modal-error',
+            title: title || error?.message,
+            content: (() => {
+                if (content)
+                    return content
+                    
+                if (error) {
+                    let s = ''
+                    
+                    // 假定不会遇到其它不是 RequestError 但又有 response 字段的错误
+                    if ('response' in error) {
+                        const { url, text } = error.response
+                        s += t('请求 {{ url }} 时出错', { url }) + '\n'
+                        
+                        // k8s 的每个请求如果不是 2xx 响应的话，都会带上 error_message 字段
+                        s += (JSON.parse(text) as { error_message: string }).error_message + '\n'
+                        
+                        s += t('调用栈:\n') +
+                            error.stack + '\n'
+                        
+                        if (error.cause)
+                            s += (error.cause as Error).stack
+                        
+                        return s
+                    }
+                }
+            })(),
+            width: 1000,
         })
     }
 }
