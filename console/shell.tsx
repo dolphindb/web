@@ -2068,11 +2068,11 @@ function DBs ({ height }: { height: number }) {
                         <SyncOutlined />
                     </Tooltip>
                 </span> 
-                { Boolean(logined || dbs.length) && <span onClick={() => { set_expanded_keys([]) }}>
+                <span onClick={() => { set_expanded_keys([]) }}>
                     <Tooltip title={t('全部折叠')} color='grey'>
                         <MinusSquareOutlined />
                     </Tooltip>
-                </span> }
+                </span>
             </span>
         </div>
         { (logined || dbs.length) ?
