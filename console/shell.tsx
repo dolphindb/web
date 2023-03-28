@@ -2205,7 +2205,7 @@ function DBs ({ height }: { height: number }) {
 function Variables ({ shared }: { shared?: boolean }) {
     const { vars } = shell.use(['vars'])
     
-    const [expandedKeys, setExpandedKeys] = useState(Array(10).fill(0).map((_x, i) => i.toString()))
+    const [expanded_keys, set_expanded_keys] = useState(Array(9).fill(0).map((_x, i) => String(i)))
     
     const vars_ = vars ? vars.filter(v => {
         return v.shared === shared
@@ -2279,18 +2279,11 @@ function Variables ({ shared }: { shared?: boolean }) {
                 break
         }
     
-    let treedata = [scalar, object, pair, vector, set, dict, matrix, table, chart].filter(node => node.children)
-    
-    // console.log('treedata', treedata)
-    
-    function onExpand (keys, obj) {
-        setExpandedKeys([...keys])
-    }
     
     return <div
         className={`variables treeview-split ${shared ? 'treeview-split3 shared' : 'treeview-split2 local'}`}>
         <div className='type'>{shared ? t('共享变量') : t('本地变量')}
-            <span onClick={() => { setExpandedKeys([]) }}>
+            <span onClick={() => { set_expanded_keys([]) }}>
                 <Tooltip title={t('全部折叠')} color={'grey'}>
                 <MinusSquareOutlined />
                 </Tooltip>
@@ -2304,18 +2297,21 @@ function Variables ({ shared }: { shared?: boolean }) {
                 blockNode
                 showLine
                 motion={null}
-                treeData={treedata}
-                expandedKeys={expandedKeys}
-                onExpand={onExpand}
-                onSelect={async ([key]) => {
+                treeData={[scalar, object, pair, vector, set, dict, matrix, table, chart].filter(node => node.children)}
+                
+                expandedKeys={expanded_keys}
+                onExpand={(keys: string[]) => { set_expanded_keys(keys) }}
+                expandAction='click'
+                
+                onClick={(event, { key }: EventDataNode<TreeDataItem>) => {
                     if (!key)
                         return
-
+                    
                     const v = vars.find(node => node.name === key)
                     
                     if (!v)
                         return
-
+                    
                     if (
                         v.form === DdbForm.chart ||
                         v.form === DdbForm.dict ||
