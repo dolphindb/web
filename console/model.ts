@@ -34,6 +34,9 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 通过 cdn 访问的 web */
     cdn = false
+
+    /** 启用详细日志，包括执行的代码和运行代码返回的变量 */
+    verbose = false
     
     ddb: DDB
     
@@ -99,6 +102,7 @@ export class DdbModel extends Model<DdbModel> {
         this.dev = location.pathname.endsWith('/console/') || params.get('dev') === '1'
         this.autologin = params.get('autologin') !== '0'
         this.cdn = location.hostname === 'cdn.dolphindb.cn' || params.get('cdn') === '1'
+        this.verbose = params.get('verbose') === '1'
         
         const port = params.get('port') || (this.dev ? '8848' : location.port)
         
@@ -114,7 +118,7 @@ export class DdbModel extends Model<DdbModel> {
                 (location.pathname === '/dolphindb/' ? '/dolphindb/' : ''),
             {
                 autologin: false,
-                verbose: params.get('verbose') === '1'
+                verbose: this.verbose
             }
         )
         

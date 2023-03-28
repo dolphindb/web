@@ -196,6 +196,8 @@ class ShellModel extends Model<ShellModel> {
                 code.replaceAll('\r\n', '\n')
             )
             
+            if (model.verbose)
+                console.log('=>', ddbobj.toString())
             
             if (
                 ddbobj.form === DdbForm.chart ||
