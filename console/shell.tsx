@@ -2058,7 +2058,7 @@ function DBs ({ height }: { height: number }) {
     return <div className='database-panel'>
         <div className='type'>
             {t('数据库')}
-            { Boolean(logined || dbs.length) && <span className='extra'>
+            <span className='extra'>
                 <span onClick={async () => {
                     await shell.load_dbs()
                     set_expanded_keys([ ])
@@ -2067,15 +2067,15 @@ function DBs ({ height }: { height: number }) {
                     <Tooltip title={t('刷新')} color='grey'>
                         <SyncOutlined />
                     </Tooltip>
-                </span>
-                <span onClick={() => { set_expanded_keys([]) }}>
+                </span> 
+                { Boolean(logined || dbs.length) && <span onClick={() => { set_expanded_keys([]) }}>
                     <Tooltip title={t('全部折叠')} color='grey'>
                         <MinusSquareOutlined />
                     </Tooltip>
-                </span>
-            </span> }
+                </span> }
+            </span>
         </div>
-        { (logined || dbs?.length) ?
+        { (logined || dbs.length) ?
             <Tree
                 className='database-tree'
                 showIcon
