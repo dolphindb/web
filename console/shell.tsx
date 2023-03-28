@@ -2067,7 +2067,7 @@ function DBs ({ height }: { height: number }) {
                     <Tooltip title={t('刷新')} color='grey'>
                         <SyncOutlined />
                     </Tooltip>
-                </span> 
+                </span>
                 <span onClick={() => { set_expanded_keys([]) }}>
                     <Tooltip title={t('全部折叠')} color='grey'>
                         <MinusSquareOutlined />
