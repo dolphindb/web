@@ -1576,8 +1576,11 @@ function NodeList ({
 
 const cluster_statuses = {
     Available: 'success',
-    Running: 'success',
+    Ready: 'processing',
     Progressing: 'processing',
+    Unschedulable: 'processing',
+    Unavailable: 'error',
+    Unknown: 'default'
 } satisfies Record<string, PresetStatusColorType> 
 
 const backup_statuses = {
@@ -1586,6 +1589,8 @@ const backup_statuses = {
     
     Scheduling: 'processing',
     Running: 'processing',
+    
+    // 疑似弃用
     Cleaning: 'processing',
 } satisfies Record<string, PresetStatusColorType>
 
@@ -1595,6 +1600,14 @@ const restore_statuses = {
     
     Scheduling: 'processing',
     Running: 'processing',
+} satisfies Record<string, PresetStatusColorType>
+
+const node_statuses = {
+    Ready: 'success',
+    Progressing: 'processing',
+    Unschedulable: 'processing',
+    Unavailable: 'error',
+    Paused: 'default'
 } satisfies Record<string, PresetStatusColorType>
 
 function ClusterOrBackupStatus ({
@@ -1607,10 +1620,11 @@ function ClusterOrBackupStatus ({
     type: 'cluster' | 'backup' | 'restore' | 'node'
 }) {
     phase ||= 'Processing'
-    const stuatus_group = {
+    const status_group = {
         cluster: cluster_statuses,
         backup: backup_statuses,
-        restore: restore_statuses
+        restore: restore_statuses,
+        node: node_statuses
     }
     return <Badge
         className='badge-status'
@@ -1618,14 +1632,14 @@ function ClusterOrBackupStatus ({
             message ? 
                 <Tooltip title={message} overlayStyle={{ maxWidth: '800px' }}>
                     <Text underline>{
-                        type === 'node' && phase === 'Ready' ? t('运行中', { context: 'node' }) : translate_dict[phase] || phase
+                        status_translate[type][phase] || phase
                     }</Text>
                 </Tooltip>
             :
             
-            type === 'node' && phase === 'Ready' ? t('运行中', { context: 'node' }) : translate_dict[phase] || phase
+            status_translate[type][phase] || phase
         }
-        status={stuatus_group[type][phase] || 'default'}
+        status={status_group[type][phase] || 'default'}
     />
 }
 
@@ -2234,7 +2248,6 @@ function SourceKeyModal( { sourcekey_modaol_open, set_sourcekey_modal_open, refr
     const [nfs_form] = Form.useForm()
     const [s3_form] = Form.useForm()
 
-    const not_required = new Set(['provider', 'endpoint', 'region'])
     const form_object = { 'nfs': nfs_form, 's3': s3_form }
     useEffect(() => {
         (async () => {
@@ -2305,34 +2318,36 @@ function SourceKeyModal( { sourcekey_modaol_open, set_sourcekey_modal_open, refr
                                 labelCol={{ span: 6 }}
                                 wrapperCol={{ span: 16 }}
                             >
-                                <>
-                                    {[
-                                        <Form.Item
-                                            name='name'
-                                            label={t('名称')}
-                                            tooltip={t("只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")}
-                                            rules={[{
-                                                required: true, 
-                                                pattern: new RegExp('^[a-z]([-a-z0-9]*[a-z0-9])*$'),
-                                            }]}
-                                            messageVariables={{
-                                                pattern: t("集群名称只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")
-                                            }}
-                                            validateTrigger='onBlur'
-                                        >
-                                            <Input />
-                                        </Form.Item>
-                                    ].concat(
-                                        ['endpoint', 'path'].map(
-                                            x => <Form.Item
-                                                name={x}
-                                                label={translate_dict[x]}
-                                                rules={!not_required.has(x) ? [{ message: t('此项必填'), required: true }] : []}
-                                            >
-                                                <Input/>
-                                            </Form.Item>
-                                        ))}
-                                </>
+                            <>
+                                <Form.Item
+                                    name='name'
+                                    label={t('名称')}
+                                    tooltip={t("只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")}
+                                    rules={[{
+                                        required: true,
+                                        pattern: new RegExp('^[a-z]([-a-z0-9]*[a-z0-9])*$'),
+                                    }]}
+                                    messageVariables={{
+                                        pattern: t("集群名称只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")
+                                    }}
+                                    validateTrigger='onBlur'
+                                >
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item
+                                    name={'endpoint'}
+                                    label={t('服务地址')}
+                                >
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item
+                                    name={'path'}
+                                    label={t('共享目录', { context: 'backup' })}
+                                    rules={[{ message: t('此项必填'), required: true }]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </>
                             </Form>
                         </>
                 },
@@ -2461,7 +2476,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                 >
                     <Descriptions.Item label={t('命名空间')}>{namespace}</Descriptions.Item>
                     <Descriptions.Item label={t('名称')}>{props.name}</Descriptions.Item>
-                    <Descriptions.Item label={t('状态')}>{translate_dict[phase]}</Descriptions.Item>
+                    <Descriptions.Item label={t('状态')}>{status_translate.backup[phase]}</Descriptions.Item>
                 </Descriptions>
             </div>
 
@@ -2540,47 +2555,38 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
 }
 
 // 翻译对照 https://dolphindb1.atlassian.net/wiki/spaces/CC/pages/629080480/DolphinDB+Backup
-const translate_dict = {
-    BasicInfo: t('基础信息'),
-    ServerInfo: t('服务器信息'),
-    namespace: t('命名空间'),
-    name: t('名称'),
-    remote_type: t('云端存储类型'),
-    source_key: t('云端存储配置'),
-    prefix: t('桶名'),
-    storage_class: t('存储类名称'),
-    storage_resource: t('存储空间'),
-    max_backups: t('最大备份数'),
-    pause: t('暂停'),
-    host: t('主机'),
-    port: t('端口'),
-    userId: t('用户名'),
-    backups: t('备份'),
-    restores: t('还原'),
-    endpoint: t('服务地址'),
-    provider: t('供应商'),
-    region: t('区域'),
-    access_key: t('访问密钥'),
-    secret_access_key: t('加密密钥'),
-    path: t('共享目录', { context: 'backup' }),
-    Scheduling: t('调度中', { context: 'backup' }),
-    Running: t('运行中', { context: 'backup' }),
-    Pending: t('准备中', { context: 'pending'}),
-    Complete: t('运行完成'),
-    Cleaning: t('清理中'),
-    Cleaned: t('清理完成'),
-    Failed: t('运行失败', { context: 'backup' }),
-    Invalid: t('参数异常'),
-    dolphindb_namespace: t('命名空间'),
-    dolphindb_name: t('名称'),
-    type: t('类型'),
+const cluster_status_translate = {
     Available: t('运行正常'),
     Ready: t('已就绪'),
     Progressing: t('调度中', { context: 'cluster' }),
     Unschedulable: t('等待调度'),
-    Unavailable: t('运行失败', {context: 'cluster'}),
-    Unknown: t('未就绪'),
-    Paused: t('已暂停'),
+    Unavailable: t('运行失败', { context: 'cluster' }),
+    Unknown: t('未就绪')
+}
+
+const node_status_translate = {
+    ...cluster_status_translate,
+    Ready: t('运行中', { context: 'node' }),
+}
+
+const backup_and_restore_translate = {
+    Running: t('运行中', { context: 'backup' }),
+    Complete: t('运行完成'),
+    Scheduling: t('调度中', { context: 'backup' }),
+    Failed: t('运行失败', { context: 'backup' }),
+    
+    // 以下状态疑似弃用
+    Cleaning: t('清理中'),
+    Pending: t('准备中', { context: 'pending'}),
+    Cleaned: t('清理完成'),
+    Paused: t('已暂停')
+}
+
+const status_translate = {
+    cluster: cluster_status_translate,
+    node: node_status_translate,
+    backup: backup_and_restore_translate,
+    restore: backup_and_restore_translate
 }
 
 const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_key' }) => {
