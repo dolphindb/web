@@ -1574,6 +1574,8 @@ function NodeList ({
     </>
 }
 
+
+// 颜色对照 https://dolphindb1.atlassian.net/wiki/spaces/CC/pages/629080480/DolphinDB+Backup
 const cluster_statuses = {
     Available: 'success',
     Ready: 'processing',
@@ -1603,12 +1605,18 @@ const restore_statuses = {
 } satisfies Record<string, PresetStatusColorType>
 
 const node_statuses = {
+    ...cluster_statuses,
     Ready: 'success',
-    Progressing: 'processing',
-    Unschedulable: 'processing',
-    Unavailable: 'error',
     Paused: 'default'
 } satisfies Record<string, PresetStatusColorType>
+
+const status_group = {
+    cluster: cluster_statuses,
+    backup: backup_statuses,
+    restore: restore_statuses,
+    node: node_statuses
+}
+
 
 function ClusterOrBackupStatus ({
     phase,
@@ -1620,12 +1628,6 @@ function ClusterOrBackupStatus ({
     type: 'cluster' | 'backup' | 'restore' | 'node'
 }) {
     phase ||= 'Processing'
-    const status_group = {
-        cluster: cluster_statuses,
-        backup: backup_statuses,
-        restore: restore_statuses,
-        node: node_statuses
-    }
     return <Badge
         className='badge-status'
         text={
@@ -2335,13 +2337,13 @@ function SourceKeyModal( { sourcekey_modaol_open, set_sourcekey_modal_open, refr
                                     <Input />
                                 </Form.Item>
                                 <Form.Item
-                                    name={'endpoint'}
+                                    name='endpoint'
                                     label={t('服务地址')}
                                 >
                                     <Input />
                                 </Form.Item>
                                 <Form.Item
-                                    name={'path'}
+                                    name='path'
                                     label={t('共享目录', { context: 'backup' })}
                                     rules={[{ message: t('此项必填'), required: true }]}
                                 >
@@ -2567,6 +2569,7 @@ const cluster_status_translate = {
 const node_status_translate = {
     ...cluster_status_translate,
     Ready: t('运行中', { context: 'node' }),
+    Paused: t('已暂停')
 }
 
 const backup_and_restore_translate = {
@@ -2579,7 +2582,6 @@ const backup_and_restore_translate = {
     Cleaning: t('清理中'),
     Pending: t('准备中', { context: 'pending'}),
     Cleaned: t('清理完成'),
-    Paused: t('已暂停')
 }
 
 const status_translate = {
