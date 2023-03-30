@@ -218,13 +218,14 @@ export class CloudModel extends Model <CloudModel> {
                         try {
                             s += (JSON.parse(text)?.error_message || t('服务端未返回错误信息')) + '\n'
                         } catch(error) {
-                            s += t('解析服务端发送的 JSON 信息时发生错误') + '\n'
+                            // 这个 error 不往上抛
+                            s += t('JSON 解析出错，待解析文本 {{ text }}', { text }) + '\n'
                         }
                     }
                     
                     s += t('调用栈:\n') +
                         error.stack + '\n'
-                
+                    
                     if (error.cause)
                         s += (error.cause as Error).stack
                     
