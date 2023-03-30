@@ -213,17 +213,22 @@ export class CloudModel extends Model <CloudModel> {
                         const { url, text } = error.response
                         s += t('请求 {{ url }} 时出错', { url }) + '\n'
                         
-                        // k8s 的每个请求如果不是 2xx 响应的话，都会带上 error_message 字段
-                        s += (JSON.parse(text) as { error_message: string }).error_message + '\n'
+                        s += t('错误信息:') + '\n'
                         
-                        s += t('调用栈:\n') +
-                            error.stack + '\n'
-                        
-                        if (error.cause)
-                            s += (error.cause as Error).stack
-                        
-                        return s
+                        try {
+                            s += (JSON.parse(text)?.error_message || t('服务端未返回错误信息')) + '\n'
+                        } catch(error) {
+                            s += t('解析服务端发送的 JSON 信息时发生错误') + '\n'
+                        }
                     }
+                    
+                    s += t('调用栈:\n') +
+                        error.stack + '\n'
+                
+                    if (error.cause)
+                        s += (error.cause as Error).stack
+                    
+                    return s
                 }
             })(),
             width: 1000,
