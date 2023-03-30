@@ -1,4 +1,4 @@
-import { Modal } from 'antd'
+import { message } from 'antd'
 import {
     default as dayjs,
     type Dayjs,
@@ -195,45 +195,16 @@ export class CloudModel extends Model <CloudModel> {
         })
     }
     
-    show_error ({ error, title, content }: { error?: Error | RequestError, title?: string, content?: string }) {
+    json_short_error (error: RequestError) {
         console.log(error)
-        
-        Modal.error({
-            className: 'modal-error',
-            title: title || error?.message,
-            content: (() => {
-                if (content)
-                    return content
-                    
-                if (error) {
-                    let s = ''
-                    
-                    // 假定不会遇到其它不是 RequestError 但又有 response 字段的错误
-                    if ('response' in error) {
-                        const { url, text } = error.response
-                        s += t('请求 {{ url }} 时出错', { url }) + '\n'
-                        
-                        s += t('错误信息:') + '\n'
-                        
-                        try {
-                            s += (JSON.parse(text)?.error_message || t('服务端未返回错误信息')) + '\n'
-                        } catch(error) {
-                            // 这个 error 不往上抛
-                            s += t('JSON 解析出错，待解析文本 {{ text }}', { text }) + '\n'
-                        }
-                    }
-                    
-                    s += t('调用栈:\n') +
-                        error.stack + '\n'
-                    
-                    if (error.cause)
-                        s += (error.cause as Error).stack
-                    
-                    return s
-                }
-            })(),
-            width: 1000,
-        })
+        let s = ''
+        try {
+            s += JSON.parse(error.response.text).error_message || t('服务端未返回错误信息')
+        } catch(err) {
+            // 这个 err不是原始错误，不往上抛
+            s += t('JSON 解析出错，待解析文本 {{ text }}', { text: error.response.text })
+        }
+        message.error(s)
     }
 }
 

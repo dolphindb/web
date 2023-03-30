@@ -821,7 +821,7 @@ function CreateClusterPanel({
             message.success(t('集群创建成功'))
             closePanel()
         } catch (error) {
-            model.show_error({ error, title: t('集群创建失败') })
+            model.json_short_error(error)
             throw error
         }
         
