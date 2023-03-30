@@ -6,7 +6,7 @@ import fs from 'fs'
 
 import type { Context } from 'koa'
 
-import { request_json, inspect, create_mfs, UFS, Remote, set_inspect_options } from 'xshell'
+import { request_json, inspect, create_mfs, UFS, Remote, set_inspect_options, RequestError } from 'xshell'
 import { Server } from 'xshell/server.js'
 
 import { DDB, DdbVectorString } from 'dolphindb'
@@ -93,8 +93,9 @@ class DevServer extends Server {
             } catch (error) {
                 console.log(error)
                 if (error.response) {
-                    response.body = error.response.body
-                    response.status = error.response.statusCode
+                    const { text, status } = error.response as RequestError['response']
+                    response.body = text
+                    response.status = status
                     response.type = 'json'
                 } else {
                     response.status = 500
