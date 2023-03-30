@@ -1596,13 +1596,7 @@ const backup_statuses = {
     Cleaning: 'processing',
 } satisfies Record<string, PresetStatusColorType>
 
-const restore_statuses = {
-    Failed: 'error',
-    Complete: 'success',
-    
-    Scheduling: 'processing',
-    Running: 'processing',
-} satisfies Record<string, PresetStatusColorType>
+const restore_statuses = backup_statuses
 
 const node_statuses = {
     ...cluster_statuses,
@@ -2478,6 +2472,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                 >
                     <Descriptions.Item label={t('命名空间')}>{namespace}</Descriptions.Item>
                     <Descriptions.Item label={t('名称')}>{props.name}</Descriptions.Item>
+                    {/* 目前为止, backup 和 restore 采用相同的状态映射 */}
                     <Descriptions.Item label={t('状态')}>{status_translate.backup[phase]}</Descriptions.Item>
                 </Descriptions>
             </div>
@@ -2572,7 +2567,7 @@ const node_status_translate = {
     Paused: t('已暂停')
 }
 
-const backup_and_restore_translate = {
+const backup_status_translate = {
     Running: t('运行中', { context: 'backup' }),
     Complete: t('运行完成'),
     Scheduling: t('调度中', { context: 'backup' }),
@@ -2584,11 +2579,13 @@ const backup_and_restore_translate = {
     Cleaned: t('清理完成'),
 }
 
+const restore_status_translate = backup_status_translate
+
 const status_translate = {
     cluster: cluster_status_translate,
     node: node_status_translate,
-    backup: backup_and_restore_translate,
-    restore: backup_and_restore_translate
+    backup: backup_status_translate,
+    restore: restore_status_translate
 }
 
 const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_key' }) => {
