@@ -36,7 +36,7 @@
         "source-map-loader": "^4.0.1",
         "style-loader": "^3.3.2",
         "ts-loader": "^9.4.2",
-        "typescript": "^5.0.2",
+        "typescript": "^5.0.3",
         "upath": "^2.0.1",
         "webpack": "^5.77.0",
         "webpack-bundle-analyzer": "^4.8.0"
@@ -60,7 +60,7 @@
         "tslib": "^2.5.0",
         "vscode-oniguruma": "^1.7.0",
         "vscode-textmate": "^9.0.0",
-        "xshell": "^1.0.21",
+        "xshell": "^1.0.22",
         "xterm": "^5.1.0",
         "xterm-addon-fit": "^0.7.0",
         "xterm-addon-web-links": "^0.8.0",

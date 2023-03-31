@@ -64,8 +64,8 @@ dependencies:
     specifier: ^9.0.0
     version: 9.0.0
   xshell:
-    specifier: ^1.0.21
-    version: 1.0.21(react-dom@18.2.0)
+    specifier: ^1.0.22
+    version: 1.0.22(react-dom@18.2.0)
   xterm:
     specifier: ^5.1.0
     version: 5.1.0
@@ -130,10 +130,10 @@ devDependencies:
     version: 3.3.2(webpack@5.77.0)
   ts-loader:
     specifier: ^9.4.2
-    version: 9.4.2(typescript@5.0.2)(webpack@5.77.0)
+    version: 9.4.2(typescript@5.0.3)(webpack@5.77.0)
   typescript:
-    specifier: ^5.0.2
-    version: 5.0.2
+    specifier: ^5.0.3
+    version: 5.0.3
   upath:
     specifier: ^2.0.1
     version: 2.0.1
@@ -3365,15 +3365,9 @@ packages:
       regexp.prototype.flags: 1.4.3
     dev: false
 
-  /deepmerge@4.3.0:
-    resolution: {integrity: sha512-z2wJZXrmeHdvYJp/Ux55wIjqo81G5Bp4c+oELTW+7ar6SogWHajt5a9gO3s3IDaGSAXjDk0vlQKN3rms8ab3og==}
-    engines: {node: '>=0.10.0'}
-    dev: false
-
   /deepmerge@4.3.1:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
     engines: {node: '>=0.10.0'}
-    dev: true
 
   /defaults@1.0.4:
     resolution: {integrity: sha512-eFuaLoy/Rxalv2kr+lqMlUnrDWV+3j4pljOIJgLIhI058IQfWJ7vXhyEIHu+HtC738klGALYxOKDO0bQP3tg8A==}
@@ -3423,7 +3417,7 @@ packages:
       dayjs: 1.11.7
       ipaddr.js: 2.0.1
       tslib: 2.5.0
-      xshell: 1.0.21(react-dom@18.2.0)
+      xshell: 1.0.22(react-dom@18.2.0)
     transitivePeerDependencies:
       - bufferutil
       - react-dom
@@ -3737,8 +3731,8 @@ packages:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
     dev: false
 
-  /fs-extra@11.1.0:
-    resolution: {integrity: sha512-0rcTq621PD5jM/e0a3EJoGC/1TC5ZBCERW82LQuwfGnCa1V8w7dpYH1yNu+SLb6E5dkeCBzKEyLGlFrnr+dUyw==}
+  /fs-extra@11.1.1:
+    resolution: {integrity: sha512-MGIE4HOvQCeUCzmlHs0vXpih4ysz4wg9qiSAu6cd42lVwPbTM1TjV7RusoyQqMmk/95gdQZX72u+YW+c3eEpFQ==}
     engines: {node: '>=14.14'}
     dependencies:
       graceful-fs: 4.2.10
@@ -3985,8 +3979,8 @@ packages:
       toidentifier: 1.0.1
     dev: false
 
-  /i18next-scanner@4.1.1:
-    resolution: {integrity: sha512-FyaCdEBC8O9zPkAGKfhR8oNQSxQUALnqv++zajBj1aLviDgKyXkhAciHlKS0I8DKqLHMeuNdWODMpRdTuXavqg==}
+  /i18next-scanner@4.2.0:
+    resolution: {integrity: sha512-Qmty1KDZN0QpT58tseKJ48mM8pduXiY/WwQ5P+Qd+2oQLmcQJxohDPGEmN+dRfOhHTV6w2evO2beiz9sadP1Pw==}
     engines: {node: '>=12'}
     hasBin: true
     dependencies:
@@ -3998,12 +3992,12 @@ packages:
       chalk: 4.1.2
       clone-deep: 4.0.1
       commander: 9.5.0
-      deepmerge: 4.3.0
+      deepmerge: 4.3.1
       ensure-type: 1.5.1
       eol: 0.9.1
       esprima-next: 5.8.4
       gulp-sort: 2.0.0
-      i18next: 22.4.11
+      i18next: 22.4.13
       lodash: 4.17.21
       parse5: 6.0.1
       sortobject: 4.16.0
@@ -4012,8 +4006,8 @@ packages:
       vinyl-fs: 3.0.3
     dev: false
 
-  /i18next@22.4.11:
-    resolution: {integrity: sha512-ShfTzXVMjXdF2iPiT/wbizOrssLh9Ab6VpuVROihLCAu+u25KbZiEYVgsA0W6g0SgjPa/JmGWcUEV/g6cKzEjQ==}
+  /i18next@22.4.13:
+    resolution: {integrity: sha512-GX7flMHRRqQA0I1yGLmaZ4Hwt1JfLqagk8QPDPZsqekbKtXsuIngSVWM/s3SLgNkrEXjA+0sMGNuOEkkmyqmWg==}
     dependencies:
       '@babel/runtime': 7.20.13
     dev: false
@@ -4601,13 +4595,6 @@ packages:
     engines: {node: '>= 0.6'}
     dev: false
 
-  /memfs@3.4.13:
-    resolution: {integrity: sha512-omTM41g3Skpvx5dSYeZIbXKcXoAVc/AoMNwn9TKx++L/gaen/+4TTttmu8ZSch5vfVJ8uJvGbroTsIlslRg6lg==}
-    engines: {node: '>= 4.0.0'}
-    dependencies:
-      fs-monkey: 1.0.3
-    dev: false
-
   /merge-stream@2.0.0:
     resolution: {integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==}
     dev: true
@@ -4770,17 +4757,17 @@ packages:
     hasBin: true
     dev: true
 
-  /ora@6.1.2:
-    resolution: {integrity: sha512-EJQ3NiP5Xo94wJXIzAyOtSb0QEIAUu7m8t6UZ9krbz0vAJqr92JpcK/lEXg91q6B9pEGqrykkd2EQplnifDSBw==}
+  /ora@6.3.0:
+    resolution: {integrity: sha512-1/D8uRFY0ay2kgBpmAwmSA404w4OoPVhHMqRqtjvrcK/dnzcEZxMJ+V4DUbyICu8IIVRclHcOf5wlD1tMY4GUQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
-      bl: 5.1.0
       chalk: 5.2.0
       cli-cursor: 4.0.0
       cli-spinners: 2.7.0
       is-interactive: 2.0.0
       is-unicode-supported: 1.3.0
       log-symbols: 5.1.0
+      stdin-discarder: 0.1.0
       strip-ansi: 7.0.1
       wcwidth: 1.0.1
     dev: false
@@ -5560,7 +5547,7 @@ packages:
       react: 18.2.0
       scheduler: 0.23.0
 
-  /react-i18next@12.2.0(i18next@22.4.11)(react-dom@18.2.0)(react@18.2.0):
+  /react-i18next@12.2.0(i18next@22.4.13)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-5XeVgSygaGfyFmDd2WcXvINRw2WEC1XviW1LXY/xLOEMzsCFRwKqfnHN+hUjla8ZipbVJR27GCMSuTr0BhBBBQ==}
     peerDependencies:
       i18next: '>= 19.0.0'
@@ -5575,7 +5562,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.20.13
       html-parse-stringify: 3.0.1
-      i18next: 22.4.11
+      i18next: 22.4.13
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
@@ -6025,6 +6012,13 @@ packages:
     engines: {node: '>= 0.8'}
     dev: false
 
+  /stdin-discarder@0.1.0:
+    resolution: {integrity: sha512-xhV7w8S+bUwlPTb4bAOUQhv8/cSS5offJuX8GQGq32ONF0ZtDWKfkdomM3HMRA+LhX6um/FZ0COqlwsjD53LeQ==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    dependencies:
+      bl: 5.1.0
+    dev: false
+
   /stream-buffers@3.0.2:
     resolution: {integrity: sha512-DQi1h8VEBA/lURbSwFtEHnSTb9s2/pwLEaFuNhXwy1Dx3Sa0lOuYT2yNUr4/j2fs8oCAMANtrZ5OrPZtyVs3MQ==}
     engines: {node: '>= 0.10.0'}
@@ -6351,7 +6345,7 @@ packages:
       url-parse: 1.5.10
     dev: false
 
-  /ts-loader@9.4.2(typescript@5.0.2)(webpack@5.77.0):
+  /ts-loader@9.4.2(typescript@5.0.3)(webpack@5.77.0):
     resolution: {integrity: sha512-OmlC4WVmFv5I0PpaxYb+qGeGOdm5giHU7HwDDUjw59emP2UYMHy9fFSDcYgSNoH8sXcj4hGCSEhlDZ9ULeDraA==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -6362,7 +6356,7 @@ packages:
       enhanced-resolve: 5.12.0
       micromatch: 4.0.5
       semver: 7.3.8
-      typescript: 5.0.2
+      typescript: 5.0.3
       webpack: 5.77.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     dev: true
 
@@ -6399,8 +6393,8 @@ packages:
       is-typed-array: 1.1.10
     dev: false
 
-  /typescript@5.0.2:
-    resolution: {integrity: sha512-wVORMBGO/FAs/++blGNeAVdbNKtIh1rbBL2EyQ1+J9lClJ93KiiKe8PmFIVdXhHcyv44SL9oglmfeSsndo0jRw==}
+  /typescript@5.0.3:
+    resolution: {integrity: sha512-xv8mOEDnigb/tN9PSMTwSEqAnUvkoXMQlicOb0IUVDBSQCgBSaAAROUZYy2IcUy5qU6XajK5jjjO7TMWqBTKZA==}
     engines: {node: '>=12.20'}
     hasBin: true
 
@@ -6766,8 +6760,8 @@ packages:
         optional: true
     dev: false
 
-  /xshell@1.0.21(react-dom@18.2.0):
-    resolution: {integrity: sha512-V0ySxw2FBzPRoa5Q9pjA8ytwqfi2ad5Ms+lBy9OJ4kzOb1Ut1S5ZQsCpVHY7K7yB+AkM2Q2KEjVmKx0TEhGufw==}
+  /xshell@1.0.22(react-dom@18.2.0):
+    resolution: {integrity: sha512-QjN3PbrAdUlFnfVigXu7O0NuSR1Ff/9AdA/YD6YD9Uif/WSGIHvNsBBQvbzApbHbInXXWwpyR3F24WkSFWrNdw==}
     engines: {node: '>=19.8.1', vscode: '>=1.76.0'}
     hasBin: true
     dependencies:
@@ -6787,30 +6781,29 @@ packages:
       commander: 10.0.0
       emoji-regex: 10.2.1
       fetch-cookie: 2.1.0
-      fs-extra: 11.1.0
+      fs-extra: 11.1.1
       fs-monkey: 1.0.3
       gulp-sort: 2.0.0
       hash-string: 1.0.0
-      i18next: 22.4.11
-      i18next-scanner: 4.1.1
+      i18next: 22.4.13
+      i18next-scanner: 4.2.0
       js-cookie: 3.0.1
       koa: 2.14.1
       koa-compress: 5.1.0
       koa-useragent: 4.1.0
       lodash: 4.17.21
       map-stream: 0.0.7
-      memfs: 3.4.13
-      ora: 6.1.2
+      ora: 6.3.0
       qs: 6.11.1
       react: 18.2.0
-      react-i18next: 12.2.0(i18next@22.4.11)(react-dom@18.2.0)(react@18.2.0)
+      react-i18next: 12.2.0(i18next@22.4.13)(react-dom@18.2.0)(react@18.2.0)
       resolve-path: 1.4.0
       stream-buffers: 3.0.2
       strip-ansi: 7.0.1
       through2: 4.0.2
       tough-cookie: 4.1.2
       tslib: 2.5.0
-      typescript: 5.0.2
+      typescript: 5.0.3
       undici: 5.21.0
       upath: 2.0.1
       vinyl: 3.0.0
