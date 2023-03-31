@@ -206,76 +206,19 @@ export interface Cluster {
     created_at: Dayjs
     controller: {
         replicas: number
-        resources: {
-            limits: {
-                cpu: {
-                    value: number
-                },
-                memory: {
-                    unit: string
-                    value: number
-                },
-            },
-            requests: {
-                cpu: {
-                    value: number
-                },
-                memory: {
-                    unit: string
-                    value: number
-                },
-            }
-        }
+        resources: ClusterNode['resources']
         data_size: string
         log_size: string
     }
     datanode: {
         replicas: number
-        resources: {
-            limits: {
-                cpu: {
-                    value: number
-                },
-                memory: {
-                    unit: string
-                    value: number
-                },
-            },
-            requests: {
-                cpu: {
-                    value: number
-                },
-                memory: {
-                    unit: string
-                    value: number
-                },
-            }
-        }
+        resources: ClusterNode['resources']
         data_size: string
         log_size: string
     }
     computenode: {
         replicas: number
-        resources: {
-            limits: {
-                cpu: {
-                    value: number
-                },
-                memory: {
-                    unit: string
-                    value: number
-                },
-            },
-            requests: {
-                cpu: {
-                    value: number
-                },
-                memory: {
-                    unit: string
-                    value: number
-                },
-            }
-        }
+        resources: ClusterNode['resources']
         data_size: string
         log_size: string
     }
@@ -316,10 +259,30 @@ export interface ClusterNode {
     namespace: string
     name: string
     creation_timestamp: string
+    /** resources.limits 一定有cpu字段和memory字段  
+        resources.requests 同上  
+        cpu 中未必有 value 字段，一定没有 unit 字段  
+        memory 中未必有 value 字段，一定有 unit 字段 */
     resources: {
+        /** 上限 */
         limits: {
-            cpu: string
-            memory: string
+            cpu: {
+                value?: number
+            },
+            memory: {
+                unit: string
+                value?: number
+            },
+        },
+        /** 下限 */
+        requests: {
+            cpu: {
+                value?: number
+            },
+            memory: {
+                unit: string
+                value?: number
+            },
         }
     }
     status: {
