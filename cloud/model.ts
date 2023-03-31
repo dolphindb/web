@@ -16,10 +16,12 @@ export const default_queries = {
 }
 
 
+export type PageViews = 'cluster' | 'grafana'
+
 export class CloudModel extends Model <CloudModel> {
     inited = false
     
-    view: 'cloud' | 'shell' = new URLSearchParams(location.search).get('view') as 'cloud' | 'shell' || 'cloud'
+    view: PageViews = 'cluster'
     
     clusters: Cluster[] = [ ]
     
@@ -34,6 +36,8 @@ export class CloudModel extends Model <CloudModel> {
     show_all_config = false
     
     monitor_url: string
+    
+    collapsed = localStorage.getItem('ddb-cloud.collapsed') === 'true'
     
     
     async init () {
