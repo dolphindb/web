@@ -259,10 +259,10 @@ export interface ClusterNode {
     namespace: string
     name: string
     creation_timestamp: string
-    /** resources.limits一定有cpu字段和memory字段  
-        resources.requests同上  
-        cpu中未必有value字段，一定没有unit字段  
-        memory中未必有value字段，一定有unit字段 */
+    /** resources.limits 一定有cpu字段和memory字段  
+        resources.requests 同上  
+        cpu 中未必有 value 字段，一定没有 unit 字段  
+        memory 中未必有 value 字段，一定有 unit 字段 */
     resources: {
         /** 上限 */
         limits: {
