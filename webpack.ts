@@ -16,17 +16,18 @@ import type { Options as SassOptions } from 'sass-loader'
 import { fexists } from 'xshell'
 
 
-const ramdisk = fexists('t:/TEMP/', { print: false })
-
 export const fpd_root = `${path.dirname(fileURLToPath(import.meta.url))}/`
+
+const ramdisk = fexists('t:/TEMP/', { print: false })
+const fpd_ramdisk_root = 't:/2/ddb/web/'
 
 export const fpd_node_modules = `${fpd_root}node_modules/`
 
 export const fpd_src_console = `${fpd_root}console/`
 export const fpd_src_cloud = `${fpd_root}cloud/`
 
-export const fpd_out_console = ramdisk ? `t:/2/ddb/web/web/` : `${fpd_root}web/`
-export const fpd_out_cloud = ramdisk ? `t:/2/ddb/web/web.cloud/` : `${fpd_root}web.cloud/`
+export const fpd_out_console = `${ ramdisk ? fpd_ramdisk_root : fpd_root }web/`
+export const fpd_out_cloud = `${ ramdisk ? fpd_ramdisk_root : fpd_root }web.cloud/`
 
 
 export let webpack = {
@@ -227,7 +228,7 @@ export let webpack = {
                 version: is_cloud ? 'cloud' : 'web',
                 
                 ... ramdisk ? {
-                    cacheDirectory: 't:/2/ddb/web/webpack/',
+                    cacheDirectory: `${fpd_ramdisk_root}webpack/`,
                     compression: false
                 } : {
                     compression: 'brotli',
