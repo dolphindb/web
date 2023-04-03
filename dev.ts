@@ -1,17 +1,13 @@
 #!/usr/bin/env node
 
-global.started_at = new Date()
-
-import fs from 'fs'
-
 import type { Context } from 'koa'
 
-import { request_json, inspect, create_mfs, UFS, Remote, set_inspect_options } from 'xshell'
+import { request_json, inspect, Remote, set_inspect_options } from 'xshell'
 import { Server } from 'xshell/server.js'
 
 import { DDB, DdbVectorString } from 'dolphindb'
 
-import { webpack, fpd_root, fpd_node_modules } from './webpack.js'
+import { webpack, fpd_root, fpd_node_modules, fpd_src_console, fpd_src_cloud } from './webpack.js'
 
 
 let c0 = new DDB('ws://127.0.0.1:8850')
@@ -108,7 +104,6 @@ class DevServer extends Server {
             if (path.startsWith(prefix)) {
                 await this.try_send(ctx, path.slice(prefix.length), {
                     root: `${fpd_node_modules}monaco-editor/dev/vs/`,
-                    fs,
                     log_404: true
                 })
                 return true
@@ -121,7 +116,6 @@ class DevServer extends Server {
                     path.slice(prefix.length),
                     {
                         root: fpd_node_modules,
-                        fs,
                         log_404: true
                     }
                 )
@@ -129,30 +123,46 @@ class DevServer extends Server {
             }
         
         if (path === '/console/docs.zh.json' || path === '/console/docs.en.json') {
-            await this.fsend(ctx, `${fpd_node_modules}dolphindb/${path.slice('/console/'.length)}`, { fs, absolute: true })
+            await this.fsend(ctx, `${fpd_node_modules}dolphindb/${path.slice('/console/'.length)}`, { absolute: true })
             return true
         }
         
-        return (
-            await this.try_send(
-                ctx,
-                path.replace(/^\/console\//, ''),
-                {
-                    root: `${fpd_root}src/`,
-                    fs,
-                    log_404: false
-                }
-            ) ||
-            await this.try_send(
-                ctx,
-                path,
-                {
-                    root: fpd_root,
-                    fs: ufs,
-                    log_404: true
-                }
+        const project = /^\/(console|cloud)\//.exec(path)?.[1] as undefined | 'console' | 'cloud'
+        if (project) {
+            // 去掉前面 /console/ 部分的剩余路径
+            const fp = path.slice(project.length + 2)
+            
+            return (
+                (project === 'console' && await this.try_send(
+                    ctx,
+                    fp,
+                    {
+                        root: `${fpd_root}src/`,
+                        log_404: false
+                    }
+                )) ||
+                
+                // index.js
+                await this.try_send(
+                    ctx,
+                    fp,
+                    {
+                        root: webpack.config.output.path,
+                        log_404: false
+                    }
+                ) ||
+                
+                // index.html
+                await this.try_send(
+                    ctx,
+                    fp,
+                    {
+                        root: project === 'console' ? fpd_src_console : fpd_src_cloud,
+                        log_404: true
+                    }
+                )
             )
-        )
+        }
     }
 }
 
@@ -161,15 +171,11 @@ set_inspect_options()
 
 console.log('项目根目录:', fpd_root)
 
-let mfs = create_mfs()
-let ufs = new UFS([mfs, fs])
-
-
 let server = new DevServer()
 
 await Promise.all([
     server.start(),
-    webpack.build({ production: false, mfs })
+    webpack.build({ production: false })
 ])
 
 
