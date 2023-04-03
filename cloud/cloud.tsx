@@ -409,7 +409,7 @@ function Clusters () {
                                         message.success(t('集群删除成功'))
                                         await model.get_clusters(queries)
                                     } catch (error) {
-                                        message.error(JSON.stringify(error))
+                                        model.json_error(error)
                                     }
                                 }}
                             >
@@ -543,7 +543,7 @@ function Clusters () {
                                 })
                                 message.success(t('升级成功'))
                             } catch (err) {
-                                message.error(t('升级失败，请查看网络请求'))
+                                model.json_error(err)
                                 throw err
                             }
                             set_update_modal_open(false)
@@ -821,7 +821,7 @@ function CreateClusterPanel({
             message.success(t('集群创建成功'))
             closePanel()
         } catch (error) {
-            model.json_short_error(error)
+            model.json_error(error)
             throw error
         }
         
@@ -1421,7 +1421,7 @@ function NodeList ({
                                             message.success(t('服务删除成功'))
                                             await get_nodes()
                                         } catch (error) {
-                                            message.error(`${t('服务删除失败')} ${JSON.stringify(error)}`)
+                                            model.json_error(error)
                                         }
                                     }}
                                 >
@@ -1437,7 +1437,7 @@ function NodeList ({
                                         message.success(t('服务创建成功'))
                                         await get_nodes()
                                     } catch (error) {
-                                        message.error(`${t('服务创建失败')} ${JSON.stringify(error)}`)
+                                        model.json_error(error)
                                     }
                                 }}
                             >
@@ -1511,7 +1511,7 @@ function NodeList ({
                                                 })
                                                 message.success(t('启动成功'))
                                             } catch (error) {
-                                                message.error(`${t('启动节点失败')} ${JSON.stringify(error)}`)
+                                                model.json_error(error)
                                             }
                                         }}
                                     >
@@ -1527,7 +1527,7 @@ function NodeList ({
                                                 })
                                                 message.success(t('暂停成功'))
                                             } catch (error) {
-                                                message.error(`${t('暂停节点失败')} ${JSON.stringify(error)}`)
+                                                model.json_error(error)
                                             }
                                         }}
                                     >
@@ -1544,7 +1544,7 @@ function NodeList ({
                                         await model.restart_node(node)
                                         message.success(t('正在重启节点'))
                                     } catch (error) {
-                                        message.error(`${t('重启节点失败')} ${JSON.stringify(error)}`)
+                                        model.json_error(error)
                                     }
                                     await delay(2000)
                                     get_nodes()
@@ -1741,7 +1741,7 @@ function ClusterConfigs ({
             fetchClusterConfig()
         } catch (err) {
             console.error(err);
-            message.error(t('参数修改失败'))
+            model.json_error(err)
         } finally {
             setSubmitPopVisible(false)
         }

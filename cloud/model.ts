@@ -8,6 +8,7 @@ import { Model } from 'react-object-model'
 
 import { request_json, type RequestError } from 'xshell/net.browser.js'
 import { language, t } from '../i18n/index.js'
+import { assert } from 'xshell/utils.browser.js'
 
 
 export const default_queries = {
@@ -241,7 +242,8 @@ export class CloudModel extends Model <CloudModel> {
         })
     }
     
-    json_short_error (error: RequestError) {
+    json_error (error: RequestError) {
+        assert('response' in error, t('不是 request_json 错误'))
         console.log(error)
         let s = ''
         try {
