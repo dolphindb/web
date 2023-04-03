@@ -64,10 +64,9 @@ const { Title, Text, Link } = Typography
 export function Cloud () {
     const { cluster } = model.use(['cluster'])
     
-    if (cluster)
-        return <ClusterDetail />
-    
-    return <Clusters />
+    return <div className='cloud'>
+        { cluster ? <ClusterDetail /> : <Clusters /> }
+    </div>
 }
 
 
