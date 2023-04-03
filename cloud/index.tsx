@@ -9,7 +9,6 @@ import {
     ConfigProvider,
     
     Layout,
-    
     // @ts-ignore 使用了 antd-with-locales 之后 window.antd 变量中有 locales 属性
     locales,
     Menu,
@@ -68,7 +67,6 @@ function DolphinDB () {
             </Layout>
         </Layout>
     </ConfigProvider>
-    
 }
 
 
@@ -87,13 +85,7 @@ const views: {[key in PageViews]: any}= {
 }
 
 function Grafana () {
-    const [src, set_source] = useState('//192.168.0.65:32083/?&var-cluster_name=sdf&var-dolphindb_node=All')
-    
-    useEffect(()=>{
-        console.log('RELOAD')
-    }, [src])
-    
-    return <iframe className='iframe' src={src}/>
+    return <iframe className='iframe' src={new URL('/explore?orgId=1&left=%5B%22now-1h%22,%22now%22,%22Loki%22,%7B%22refId%22:%22A%22%7D%5D', location.href).toString()}/>
 }
 
 
@@ -148,7 +140,7 @@ function DdbSider () {
             theme='light'
             selectedKeys={[view]}
             onSelect={({ key }) => {
-                model.set({ view: key as PageViews })
+                model.set({ view: key as PageViews})
             }}
             inlineIndent={10}
             items={[

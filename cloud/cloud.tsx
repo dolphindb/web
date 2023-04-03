@@ -297,8 +297,6 @@ function Clusters () {
     }, [current_cluster, update_form])
     
     return <div className='clusters'>
-        <Title className='title-overview' level={3}>{t('集群管理')}</Title>
-        
         <div className='actions'>
             <Button
                 type='primary'
