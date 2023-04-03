@@ -3433,32 +3433,11 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
 }
 
 const request_json_with_error_handling = async (url, options?) => {
-    if (options) {
-        try {
-            return await request_json(url, options)
-        }
-        catch (err) {
-            const resp = await err.response.json()
-            Modal.error(
-                {
-                    title: 'Error',
-                    content: resp["errorMessage"]
-                }
-            )
-        }
-    } else {
-        try {
-            return await request_json(url)
-        }
-        catch (err) {
-            const resp = await err.response.json()
-            Modal.error(
-                {
-                    title: 'Error',
-                    content: resp["errorMessage"]
-                }
-            )
-        }
+    try {
+        return await request_json(url, options)
+    }
+    catch (error) {
+        model.json_error(error)
     }
 }
 
