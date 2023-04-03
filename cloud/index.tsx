@@ -2,7 +2,7 @@ import 'xshell/scroll-bar.sass'
 
 import './index.sass'
 
-import { default as React, useEffect, useState } from 'react'
+import { default as React, useEffect } from 'react'
 import { createRoot as create_root } from 'react-dom/client'
 
 import {
@@ -21,6 +21,7 @@ import {
     DoubleRightOutlined,
 } from '@ant-design/icons'
 import SvgCluster from './cluster.icon.svg'
+import SvgLog from './log.icon.svg'
 
 const Icon: typeof _Icon.default = _Icon as any
 
@@ -41,7 +42,7 @@ const locale_names = {
 
 const svgs: {[key in PageViews]: any} = {
     cluster: SvgCluster,
-    grafana: SvgCluster
+    grafana: SvgLog
 }
 
 function DolphinDB () {
@@ -152,7 +153,7 @@ function DdbSider () {
                 {
                     key: 'grafana',
                     icon: <MenuIcon view='grafana' />,
-                    label: t('嵌入页面'),
+                    label: t('日志管理'),
                 }
             ]}
         />
