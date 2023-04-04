@@ -243,7 +243,7 @@ export class CloudModel extends Model <CloudModel> {
     }
     
     
-    json_error (error: RequestError) {
+    show_json_error (error: RequestError) {
         if (!error.response)
             return
         

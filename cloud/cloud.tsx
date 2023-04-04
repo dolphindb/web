@@ -409,7 +409,7 @@ function Clusters () {
                                         message.success(t('集群删除成功'))
                                         await model.get_clusters(queries)
                                     } catch (error) {
-                                        model.json_error(error)
+                                        model.show_json_error(error)
                                         throw error
                                     }
                                 }}
@@ -544,7 +544,7 @@ function Clusters () {
                                 })
                                 message.success(t('升级成功'))
                             } catch (err) {
-                                model.json_error(err)
+                                model.show_json_error(err)
                                 throw err
                             }
                             set_update_modal_open(false)
@@ -822,7 +822,7 @@ function CreateClusterPanel({
             message.success(t('集群创建成功'))
             closePanel()
         } catch (error) {
-            model.json_error(error)
+            model.show_json_error(error)
             throw error
         }
         
@@ -1422,7 +1422,7 @@ function NodeList ({
                                             message.success(t('服务删除成功'))
                                             await get_nodes()
                                         } catch (error) {
-                                            model.json_error(error)
+                                            model.show_json_error(error)
                                             throw error
                                         }
                                     }}
@@ -1439,7 +1439,7 @@ function NodeList ({
                                         message.success(t('服务创建成功'))
                                         await get_nodes()
                                     } catch (error) {
-                                        model.json_error(error)
+                                        model.show_json_error(error)
                                         throw error
                                     }
                                 }}
@@ -1524,7 +1524,7 @@ function NodeList ({
                                                 })
                                                 message.success(t('启动成功'))
                                             } catch (error) {
-                                                model.json_error(error)
+                                                model.show_json_error(error)
                                                 throw error
                                             }
                                         }}
@@ -1541,7 +1541,7 @@ function NodeList ({
                                                 })
                                                 message.success(t('暂停成功'))
                                             } catch (error) {
-                                                model.json_error(error)
+                                                model.show_json_error(error)
                                                 throw error
                                             }
                                         }}
@@ -1559,7 +1559,7 @@ function NodeList ({
                                         await model.restart_node(node)
                                         message.success(t('正在重启节点'))
                                     } catch (error) {
-                                        model.json_error(error)
+                                        model.show_json_error(error)
                                         throw error
                                     }
                                     await delay(2000)
@@ -1757,7 +1757,7 @@ function ClusterConfigs ({
             fetchClusterConfig()
         } catch (err) {
             console.error(err);
-            model.json_error(err)
+            model.show_json_error(err)
             throw err
         } finally {
             setSubmitPopVisible(false)
@@ -3454,7 +3454,7 @@ const request_json_with_error_handling = async (url: string, options?: RequestOp
         return await request_json(url, options)
     }
     catch (error) {
-        model.json_error(error)
+        model.show_json_error(error)
         throw error
     }
 }
