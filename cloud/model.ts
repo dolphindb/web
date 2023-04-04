@@ -7,7 +7,6 @@ import {
 import { Model } from 'react-object-model'
 
 import { request_json, type RequestError } from 'xshell/net.browser.js'
-import { assert } from 'xshell/utils.browser.js'
 import { language, t } from '../i18n/index.js'
 
 
