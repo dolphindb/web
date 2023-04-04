@@ -19,7 +19,7 @@ export const default_queries = {
 
 // https://dolphindb1.atlassian.net/wiki/spaces/CC/pages/633864261
 // 现阶段只考虑中文和英文翻译
-const part1_map = {
+const error_code_map = {
     E000000: '内部错误!',
     E000001: '无效参数!',
     E000002: '集群已存在!',
@@ -44,7 +44,7 @@ const part1_map = {
     E000021: '备份云端存储配置已存在!',
 } as const
 
-const part2_map = {
+const error_message_map = {
     'PageNum is invalid.': '页码不可用',
     'PageSize is invalid.': '页数据条数不可用',
     'request body invalid.': '请求内容不可用',
@@ -242,6 +242,7 @@ export class CloudModel extends Model <CloudModel> {
         })
     }
     
+    
     json_error (error: RequestError) {
         if (!error.response)
             return
@@ -260,7 +261,7 @@ export class CloudModel extends Model <CloudModel> {
             const part1 = error_message.slice(0, index_exclamation + 1)
             const part2 = error_message.slice(index_exclamation + 1, index_dot + 1).trim()
             
-            s += language === 'zh' ? `${part1_map[error_code]} ${part2_map[part2]}` : `${part1} ${part2}`
+            s += language === 'zh' ? `${error_code_map[error_code]} ${error_message_map[part2]}` : `${part1} ${part2}`
         } catch(err) {
             // 这个 err不是原始错误，不往上抛
             s += t('转译错误信息出错，待解析文本 {{ text }}', { text: error.response.text })
