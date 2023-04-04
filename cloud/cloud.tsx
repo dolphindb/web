@@ -39,7 +39,7 @@ import type { PresetStatusColorType } from 'antd/es/_util/colors.js'
 import type { AlignType } from 'rc-table/lib/interface.js'
 
 import { delay } from 'xshell/utils.browser.js'
-import { request_json } from 'xshell/net.browser.js'
+import { type RequestOptions, request_json } from 'xshell/net.browser.js'
 
 import { language, t } from '../i18n/index.js'
 import {
@@ -410,6 +410,7 @@ function Clusters () {
                                         await model.get_clusters(queries)
                                     } catch (error) {
                                         model.json_error(error)
+                                        throw error
                                     }
                                 }}
                             >
@@ -1422,6 +1423,7 @@ function NodeList ({
                                             await get_nodes()
                                         } catch (error) {
                                             model.json_error(error)
+                                            throw error
                                         }
                                     }}
                                 >
@@ -1438,6 +1440,7 @@ function NodeList ({
                                         await get_nodes()
                                     } catch (error) {
                                         model.json_error(error)
+                                        throw error
                                     }
                                 }}
                             >
@@ -1522,6 +1525,7 @@ function NodeList ({
                                                 message.success(t('启动成功'))
                                             } catch (error) {
                                                 model.json_error(error)
+                                                throw error
                                             }
                                         }}
                                     >
@@ -1538,6 +1542,7 @@ function NodeList ({
                                                 message.success(t('暂停成功'))
                                             } catch (error) {
                                                 model.json_error(error)
+                                                throw error
                                             }
                                         }}
                                     >
@@ -1555,6 +1560,7 @@ function NodeList ({
                                         message.success(t('正在重启节点'))
                                     } catch (error) {
                                         model.json_error(error)
+                                        throw error
                                     }
                                     await delay(2000)
                                     get_nodes()
@@ -1752,6 +1758,7 @@ function ClusterConfigs ({
         } catch (err) {
             console.error(err);
             model.json_error(err)
+            throw err
         } finally {
             setSubmitPopVisible(false)
         }
@@ -3442,12 +3449,13 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
     </div>
 }
 
-const request_json_with_error_handling = async (url, options?) => {
+const request_json_with_error_handling = async (url: string, options?: RequestOptions) => {
     try {
         return await request_json(url, options)
     }
     catch (error) {
         model.json_error(error)
+        throw error
     }
 }
 

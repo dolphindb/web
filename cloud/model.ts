@@ -43,7 +43,7 @@ const part1_map = {
     E000019: '备份不存在!',
     E000020: '还原不存在!',
     E000021: '备份云端存储配置已存在!',
-  } as const
+} as const
 
 const part2_map = {
     'PageNum is invalid.': '页码不可用',
@@ -244,8 +244,9 @@ export class CloudModel extends Model <CloudModel> {
     }
     
     json_error (error: RequestError) {
-        assert('response' in error, t('不是 request_json 错误'))
-        console.log(error)
+        if (!error.response)
+            return
+        
         let s = ''
         try {
             const { error_message, error_code } : { error_message: string, error_code: string} = JSON.parse(error.response.text)
@@ -263,7 +264,7 @@ export class CloudModel extends Model <CloudModel> {
             s += language === 'zh' ? `${part1_map[error_code]} ${part2_map[part2]}` : `${part1} ${part2}`
         } catch(err) {
             // 这个 err不是原始错误，不往上抛
-            s += t('转译错误信息出错，待解析文本 {{ text }}', { text: error.response?.text })
+            s += t('转译错误信息出错，待解析文本 {{ text }}', { text: error.response.text })
         }
         message.error(s)
     }
