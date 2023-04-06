@@ -290,5 +290,12 @@ export let webpack = {
                     resolve(stats)
             })
         })
+    },
+    
+    
+    async close () {
+        await new Promise(resolve => {
+            this.compiler.close(resolve)
+        })
     }
 }
