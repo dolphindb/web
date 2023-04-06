@@ -38,7 +38,7 @@
         "ts-loader": "^9.4.2",
         "typescript": "^5.0.3",
         "upath": "^2.0.1",
-        "webpack": "^5.77.0",
+        "webpack": "^5.78.0",
         "webpack-bundle-analyzer": "^4.8.0"
     },
     "dependencies": {
@@ -53,7 +53,7 @@
         "final-form": "^4.20.9",
         "js-cookie": "^3.0.1",
         "lodash": "^4.17.21",
-        "monaco-editor": "^0.36.1",
+        "monaco-editor": "^0.37.0",
         "re-resizable": "^6.9.9",
         "react-dom": "^18.2.0",
         "react-object-model": "^1.0.3",
