@@ -230,7 +230,7 @@ export class CloudModel extends Model <CloudModel> {
         
         let s = ''
         try {
-            const { error_message, error_code } : { error_message: string, error_code: string} = JSON.parse(error.response.text)
+            const { error_message, error_code } : { error_message: string, error_code: string } = JSON.parse(error.response.text)
             
             
             s = language === 'zh' ? error_code_map[error_code] + '！' : error_message.slice(0, error_message.indexOf('!') + 1)

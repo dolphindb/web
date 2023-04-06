@@ -543,9 +543,9 @@ function Clusters () {
                                     body: values
                                 })
                                 message.success(t('升级成功'))
-                            } catch (err) {
-                                model.show_json_error(err)
-                                throw err
+                            } catch (error) {
+                                model.show_json_error(error)
+                                throw error
                             }
                             set_update_modal_open(false)
                         }}
@@ -1755,10 +1755,10 @@ function ClusterConfigs ({
             await model.update_cluster_config(cluster, editedConfig)
             message.success(t('参数修改成功'))
             fetchClusterConfig()
-        } catch (err) {
-            console.error(err);
-            model.show_json_error(err)
-            throw err
+        } catch (error) {
+            console.error(error);
+            model.show_json_error(error)
+            throw error
         } finally {
             setSubmitPopVisible(false)
         }
@@ -3452,8 +3452,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
 const request_json_with_error_handling = async (url: string, options?: RequestOptions) => {
     try {
         return await request_json(url, options)
-    }
-    catch (error) {
+    } catch (error) {
         model.show_json_error(error)
         throw error
     }
