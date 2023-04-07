@@ -65,7 +65,7 @@ export function Cloud () {
     const { cluster } = model.use(['cluster'])
     
     return <div className='cloud'>
-        { cluster ? <ClusterDetail /> : <Clusters /> }
+        {cluster ? <ClusterDetail /> : <Clusters />}
     </div>
 }
 

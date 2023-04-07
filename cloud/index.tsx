@@ -42,7 +42,7 @@ const locale_names = {
 
 const svgs: {[key in PageViews]: any} = {
     cluster: SvgCluster,
-    grafana: SvgLog
+    log: SvgLog
 }
 
 function DolphinDB () {
@@ -82,11 +82,11 @@ function DdbHeader () {
 
 const views: {[key in PageViews]: any}= {
     cluster: Cloud,
-    grafana: Grafana
+    log: Log
 }
 
-function Grafana () {
-    return <iframe className='iframe' src={new URL('/explore?orgId=1&left=%5B%22now-1h%22,%22now%22,%22Loki%22,%7B%22refId%22:%22A%22%7D%5D', location.href).toString()}/>
+function Log () {
+    return <iframe className='iframe' src={model.monitor_url + '/explore?orgId=1&left=%5B%22now-1h%22,%22now%22,%22Loki%22,%7B%22refId%22:%22A%22%7D%5D'}/>
 }
 
 
@@ -94,10 +94,6 @@ function DdbContent () {
     const { view } = model.use(['view'])
     
     const View = views[view]
-    
-    useEffect(()=>{
-        console.log('current view', view)
-    }, [view])
     
     if (!View)
         return null
@@ -151,8 +147,8 @@ function DdbSider () {
                     label: t('集群管理'),
                 },
                 {
-                    key: 'grafana',
-                    icon: <MenuIcon view='grafana' />,
+                    key: 'log',
+                    icon: <MenuIcon view='log' />,
                     label: t('日志管理'),
                 }
             ]}
