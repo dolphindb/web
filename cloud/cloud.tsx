@@ -64,10 +64,9 @@ const { Title, Text, Link } = Typography
 export function Cloud () {
     const { cluster } = model.use(['cluster'])
     
-    if (cluster)
-        return <ClusterDetail />
-    
-    return <Clusters />
+    return <div className='cloud'>
+        { cluster ? <ClusterDetail /> : <Clusters /> }
+    </div>
 }
 
 
@@ -298,8 +297,6 @@ function Clusters () {
     }, [current_cluster, update_form])
     
     return <div className='clusters'>
-        <Title className='title-overview' level={3}>{t('集群管理')}</Title>
-        
         <div className='actions'>
             <Button
                 type='primary'
@@ -1278,7 +1275,7 @@ function ServiceNode ({
             :
                 type
             }: </span>}
-        <a className='link' target='_blank' href={`//${link}`}>{link}</a>
+        <a className='link' target='_blank' href={`http://${link}`}>{link}</a>
     </div>
 }
 

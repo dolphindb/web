@@ -46,10 +46,12 @@ const error_codes = {
 
 
 
+export type PageViews = 'cluster' | 'log'
+
 export class CloudModel extends Model <CloudModel> {
     inited = false
     
-    view: 'cloud' | 'shell' = new URLSearchParams(location.search).get('view') as 'cloud' | 'shell' || 'cloud'
+    view: PageViews = 'cluster'
     
     clusters: Cluster[] = [ ]
     
@@ -63,7 +65,10 @@ export class CloudModel extends Model <CloudModel> {
     
     show_all_config = false
     
+    /** 以 http 开头, k8s 要求即使父页面用 https, iframe 也要用 http */
     monitor_url: string
+    
+    collapsed = localStorage.getItem('ddb-cloud.collapsed') === 'true'
     
     
     async init () {
@@ -85,7 +90,7 @@ export class CloudModel extends Model <CloudModel> {
         const { ip, port } = await request_json('/v1/grafana/url')
         
         this.set({
-            monitor_url: '//' + ip + ':' + port
+            monitor_url: `http://${ip}:${port}`
         })
     }
     
