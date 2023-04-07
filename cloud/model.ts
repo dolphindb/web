@@ -19,7 +19,7 @@ export const default_queries = {
 
 // https://dolphindb1.atlassian.net/wiki/spaces/CC/pages/633864261
 // 现阶段只考虑中文和英文翻译
-const error_code_map = {
+const error_codes = {
     E000000: '内部错误',
     E000001: '无效参数',
     E000002: '集群已存在',
@@ -231,9 +231,7 @@ export class CloudModel extends Model <CloudModel> {
         let s = ''
         try {
             const { error_message, error_code } : { error_message: string, error_code: string } = JSON.parse(error.response.text)
-            
-            
-            s = language === 'zh' ? error_code_map[error_code] + '！' : error_message.slice(0, error_message.indexOf('!') + 1)
+            s = language === 'zh' ? error_codes[error_code] : error_message.slice(0, error_message.indexOf('!'))
         } catch(err) {
             // 这个 err不是原始错误，不往上抛
             s = t('转译错误信息出错，待解析文本 {{ text }}', { text: error.response.text })

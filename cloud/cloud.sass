@@ -240,22 +240,11 @@
         
         .ant-modal-content
             display: inline-block
-            //padding: 15px 19px 15px 19px
+            
             .ant-modal-body
-                display: inline-flex
-                .ant-modal-confirm-body-wrapper
-                    display: inline-flex
-    
-    .ant-modal-confirm-body
-        display: inline-flex
-        .ant-modal-confirm-content
-            padding-right: 5px
-            flex-grow: 1
-            text-align: center
-    .ant-modal-close
-        float: right
-        position: relative
-        top: -20px
-        right: -20px
-        .ant-modal-close-x
-            transform: scale(0.8)
+                display: flex
+            
+            .ant-modal-close
+                float: right
+                position: static
+                transform: scale(0.8) translate(20px, -20px)
