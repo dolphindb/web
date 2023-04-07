@@ -1,3 +1,4 @@
+import { Modal } from 'antd'
 import {
     default as dayjs,
     type Dayjs,
@@ -5,7 +6,8 @@ import {
 
 import { Model } from 'react-object-model'
 
-import { request_json } from 'xshell/net.browser.js'
+import { request_json, type RequestError } from 'xshell/net.browser.js'
+import { language, t } from '../i18n/index.js'
 
 
 export const default_queries = {
@@ -14,6 +16,34 @@ export const default_queries = {
     sortField: ['namespace', 'name'],
     sortBy: ['asc', 'asc'],
 }
+
+// https://dolphindb1.atlassian.net/wiki/spaces/CC/pages/633864261
+// 现阶段只考虑中文和英文翻译
+const error_codes = {
+    E000000: '内部错误',
+    E000001: '无效参数',
+    E000002: '集群已存在',
+    E000003: '集群不存在',
+    E000004: '集群 Configmap 不存在',
+    E000005: '集群配置不能为空',
+    E000006: '集群配置不存在',
+    E000007: '集群配置不可用',
+    E000008: 'Pod 不存在',
+    E000009: 'Service 不存在',
+    E000010: '启动终端失败',
+    E000011: '保存临时文件失败',
+    E000012: '上传文件失败',
+    E000013: '解析上传文件失败',
+    E000014: '重启 Pod 失败',
+    E000015: 'Statefulset 不存在',
+    E000016: '启动 Pod 失败',
+    E000017: '暂停 Pod 失败',
+    E000018: '未允许的操作',
+    E000019: '备份不存在',
+    E000020: '还原不存在',
+    E000021: '备份云端存储配置已存在',
+} as const
+
 
 
 export type PageViews = 'cluster' | 'grafana'
@@ -194,6 +224,28 @@ export class CloudModel extends Model <CloudModel> {
         await request_json(`/v1/dolphindbs/${this.cluster.namespace}/${this.cluster.name}/instances/${node.name}/restart`, {
             method: 'PUT',
             // body: node
+        })
+    }
+    
+    
+    show_json_error (error: RequestError) {
+        if (!error.response)
+            return
+        
+        let s = ''
+        try {
+            const { error_message, error_code } : { error_message: string, error_code: string } = JSON.parse(error.response.text)
+            s = language === 'zh' ? error_codes[error_code] : error_message.slice(0, error_message.indexOf('!'))
+        } catch (err) {
+            // 这个 err 不是原始错误，不往上抛
+            s = t('转译错误信息出错，待解析文本 {{ text }}', { text: error.response.text })
+        }
+        
+        Modal.error({
+            content: s,
+            footer: false,
+            closable: true,
+            wrapClassName: 'json-error'
         })
     }
 }

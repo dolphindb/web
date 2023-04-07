@@ -1113,8 +1113,9 @@ function Editor () {
                     // 可以从 esm 包中找到原函数 (monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestWidget.js)
                     // 文件内搜索 `_setDetailsVisible` 可以搜 "expandSuggestionDocs" 这个字段
                     // 然后对比 dev 包中的代码 (monaco-editor/dev/vs/editor/editor.main.js)
-                    // 也搜索 "expandSuggestionDocs" 这个字段，找到 `_setDetailsVisible` minify 之后的函数名，写在下面
-                    ;(editor.getContribution('editor.contrib.suggestController') as any).widget.value.X(true)
+                    // 也搜索 "expandSuggestionDocs" 这个字段，找到 `_setDetailsVisible` minify 之后的函数名（现在是 X），写在下面
+                    // edit: 0.37.0 版本又改回来了，直接调用 _setDetailsVisible 就可以了
+                    ;(editor.getContribution('editor.contrib.suggestController') as any).widget.value._setDetailsVisible(true)
                     
                     // suggest_widget._persistedSize.store({
                     //     width: 200,
