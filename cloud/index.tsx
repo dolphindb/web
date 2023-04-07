@@ -15,6 +15,10 @@ import {
     Typography,
 } from 'antd'
 
+import { CloudModel, model, PageViews } from './model.js'
+
+import { language, t } from '../i18n/index.js'
+
 import {
     default as _Icon,
     DoubleLeftOutlined,
@@ -22,16 +26,12 @@ import {
 } from '@ant-design/icons'
 import SvgCluster from './cluster.icon.svg'
 import SvgLog from './log.icon.svg'
-
 const Icon: typeof _Icon.default = _Icon as any
-
-import { CloudModel, model, PageViews } from './model.js'
-
-import { language, t } from '../i18n/index.js'
 
 import { Cloud } from './cloud.js'
 
 const { Text } = Typography
+
 const locale_names = {
     zh: 'zh_CN',
     en: 'en_US',
@@ -40,10 +40,11 @@ const locale_names = {
 } as const
 
 
-const svgs: {[key in PageViews]: any} = {
+const svgs:{[key in PageViews]} = {
     cluster: SvgCluster,
-    log: SvgLog
-}
+    log: SvgLog,
+} as const
+
 
 function DolphinDB () {
     const { inited } = model.use(['inited'])
@@ -72,21 +73,22 @@ function DolphinDB () {
 
 
 function DdbHeader () {
-    return <div>
+    return <>
         <img className='logo' src='./cloud.svg' />
         
         <div className='padding' />
-    </div>
+    </>
 }
 
 
-const views: {[key in PageViews]: any}= {
+const views: {[key in PageViews]: () => JSX.Element} = {
     cluster: Cloud,
     log: Log
-}
+} as const
 
 function Log () {
-    return <iframe className='iframe' src={model.monitor_url + '/explore?orgId=1&left=%5B%22now-1h%22,%22now%22,%22Loki%22,%7B%22refId%22:%22A%22%7D%5D'}/>
+    // k8s 要求 url 参数部分完全写死
+    return <iframe className='log-iframe' src={model.monitor_url + '/explore?orgId=1&left=%5B%22now-1h%22,%22now%22,%22Loki%22,%7B%22refId%22:%22A%22%7D%5D'}/>
 }
 
 
@@ -98,8 +100,7 @@ function DdbContent () {
     if (!View)
         return null
     
-    // 这里要决定是 view-card 还是 view
-    return <div className={`view-card ${view}`}>
+    return <div className={view}>
         <View/>
     </div>
 }
