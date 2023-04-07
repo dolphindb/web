@@ -1275,7 +1275,7 @@ function ServiceNode ({
             :
                 type
             }: </span>}
-        <a className='link' target='_blank' href={`//${link}`}>{link}</a>
+        <a className='link' target='_blank' href={`http://${link}`}>{link}</a>
     </div>
 }
 
