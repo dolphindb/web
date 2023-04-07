@@ -1,4 +1,4 @@
-import { message } from 'antd'
+import { Modal } from 'antd'
 import {
     default as dayjs,
     type Dayjs,
@@ -20,49 +20,30 @@ export const default_queries = {
 // https://dolphindb1.atlassian.net/wiki/spaces/CC/pages/633864261
 // 现阶段只考虑中文和英文翻译
 const error_codes = {
-    E000000: '内部错误!',
-    E000001: '无效参数!',
-    E000002: '集群已存在!',
-    E000003: '集群不存在!',
-    E000004: '集群 Configmap 不存在!',
-    E000005: '集群配置不能为空!',
-    E000006: '集群配置不存在!',
-    E000007: '集群配置不可用!',
-    E000008: 'Pod 不存在!',
-    E000009: 'Service 不存在!',
-    E000010: '启动终端失败!',
-    E000011: '保存临时文件失败!',
-    E000012: '上传文件失败!',
-    E000013: '解析上传文件失败!',
-    E000014: '重启 Pod 失败!',
-    E000015: 'Statefulset 不存在!',
-    E000016: '启动 Pod 失败!',
-    E000017: '暂停 Pod 失败!',
-    E000018: '未允许的操作!',
-    E000019: '备份不存在!',
-    E000020: '还原不存在!',
-    E000021: '备份云端存储配置已存在!',
+    E000000: '内部错误',
+    E000001: '无效参数',
+    E000002: '集群已存在',
+    E000003: '集群不存在',
+    E000004: '集群 Configmap 不存在',
+    E000005: '集群配置不能为空',
+    E000006: '集群配置不存在',
+    E000007: '集群配置不可用',
+    E000008: 'Pod 不存在',
+    E000009: 'Service 不存在',
+    E000010: '启动终端失败',
+    E000011: '保存临时文件失败',
+    E000012: '上传文件失败',
+    E000013: '解析上传文件失败',
+    E000014: '重启 Pod 失败',
+    E000015: 'Statefulset 不存在',
+    E000016: '启动 Pod 失败',
+    E000017: '暂停 Pod 失败',
+    E000018: '未允许的操作',
+    E000019: '备份不存在',
+    E000020: '还原不存在',
+    E000021: '备份云端存储配置已存在',
 } as const
 
-const error_messages = {
-    'PageNum is invalid.': '页码不可用',
-    'PageSize is invalid.': '页数据条数不可用',
-    'request body invalid.': '请求内容不可用',
-    'invalid remote type.': '云端存储类型不可用',
-    'invalid storage resource.': '存储空间大小不可用',
-    "The namespace can't be empty.": '命名空间不可为空',
-    "The name can't be empty.": '名字不可为空',
-    'The replicas can not be less than original.': '升级后副本数不可小于原值',
-    'Standalone instance is forbidden to operate.': '单机节点不支持该操作',
-    'Controller instance is forbidden to operate.': '控制节点不支持该操作',
-    'new websocket handler from http failed.': '初始化 Websocket 失败',
-    'The pod path should not be empty': '上传路径不能为空',
-    'instance index should be smaller than controller replicas.': '节点索引必须小于控制节点副本数',
-    'instance index should be smaller than datanode replicas.': '节点索引必须小于数据节点副本数',
-    'instance index should be smaller than computenode replicas.': '节点索引必须小于计算节点副本数',
-    'instance name should be the name of controller or datanode statefulset.': '节点名称不可用',
-    '': ''
-} as const
 
 
 export class CloudModel extends Model <CloudModel> {
@@ -250,23 +231,18 @@ export class CloudModel extends Model <CloudModel> {
         let s = ''
         try {
             const { error_message, error_code } : { error_message: string, error_code: string } = JSON.parse(error.response.text)
-            
-            // 第一段错误信息以 ! 结尾，且中间不包含 !，表示 error_code 对应的含义
-            // 第二段错误信息以 . 结尾，且中间不包含 ! 或 .，表示
-            // 可能存在第三段信息，但第三段信息不展示，第二段信息和第三段信息之间可能有空格
-            const index_exclamation = error_message.indexOf('!')
-            const index_dot = error_message.indexOf('.', index_exclamation)
-            
-            const part1 = error_message.slice(0, index_exclamation + 1)
-            const part2 = error_message.slice(index_exclamation + 1, index_dot + 1).trim()
-            
-            s = language === 'zh' ? `${error_codes[error_code]} ${error_messages[part2]}` : `${part1} ${part2}`
+            s = language === 'zh' ? error_codes[error_code] : error_message.slice(0, error_message.indexOf('!'))
         } catch (err) {
-            // 这个 err不是原始错误，不往上抛
+            // 这个 err 不是原始错误，不往上抛
             s = t('转译错误信息出错，待解析文本 {{ text }}', { text: error.response.text })
         }
         
-        message.error(s)
+        Modal.error({
+            content: s,
+            footer: false,
+            closable: true,
+            wrapClassName: 'json-error'
+        })
     }
 }
 
