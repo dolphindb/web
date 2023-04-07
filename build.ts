@@ -45,6 +45,8 @@ if (process.argv.includes('cloud')) {
     ])
 }
 
+await webpack.close()
+
 
 async function copy_vendors (fpd_out: string, monaco: boolean) {
     const fpd_vendors = `${fpd_out}vendors/`
