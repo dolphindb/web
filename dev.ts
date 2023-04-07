@@ -80,7 +80,7 @@ class DevServer extends Server {
         
         if (path.startsWith('/v1/')) {
             try {
-                response.body = await request_json(`http://192.168.0.65:32480${path}`, {
+                response.body = await request_json(`http://192.168.0.65:31223${path}`, {
                     method: method as any,
                     queries: query,
                     headers: headers as Record<string, string>,
