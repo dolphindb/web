@@ -9,28 +9,29 @@ import {
     ConfigProvider,
     
     Layout,
-    // @ts-ignore 使用了 antd-with-locales 之后 window.antd 变量中有 locales 属性
-    locales,
     Menu,
     Typography,
+    
+    // @ts-ignore 使用了 antd-with-locales 之后 window.antd 变量中有 locales 属性
+    locales
 } from 'antd'
-
-import { CloudModel, model, PageViews } from './model.js'
-
-import { language, t } from '../i18n/index.js'
 
 import {
     default as _Icon,
     DoubleLeftOutlined,
     DoubleRightOutlined,
 } from '@ant-design/icons'
-import SvgCluster from './cluster.icon.svg'
-import SvgLog from './log.icon.svg'
 const Icon: typeof _Icon.default = _Icon as any
+const { Text } = Typography
 
+import { language, t } from '../i18n/index.js'
+
+import { CloudModel, model, PageViews } from './model.js'
 import { Cloud } from './cloud.js'
 
-const { Text } = Typography
+import SvgCluster from './cluster.icon.svg'
+import SvgLog from './log.icon.svg'
+
 
 const locale_names = {
     zh: 'zh_CN',
@@ -40,7 +41,7 @@ const locale_names = {
 } as const
 
 
-const svgs:{[key in PageViews]} = {
+const svgs: { [key in PageViews]: any } = {
     cluster: SvgCluster,
     log: SvgLog,
 } as const
@@ -81,7 +82,7 @@ function DdbHeader () {
 }
 
 
-const views: {[key in PageViews]: () => JSX.Element} = {
+const views: { [key in PageViews]: () => JSX.Element } = {
     cluster: Cloud,
     log: Log
 } as const
