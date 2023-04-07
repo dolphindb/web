@@ -20,7 +20,7 @@ dependencies:
     version: 7.10.3(antd@5.4.0)(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)
   '@monaco-editor/react':
     specifier: ^4.4.6
-    version: 4.4.6(patch_hash=fzxvse5qvjl4n7n4h42f6hxc2y)(monaco-editor@0.37.0)(react-dom@18.2.0)(react@18.2.0)
+    version: 4.4.6(patch_hash=fzxvse5qvjl4n7n4h42f6hxc2y)(monaco-editor@0.37.1)(react-dom@18.2.0)(react@18.2.0)
   antd:
     specifier: ^5.4.0
     version: 5.4.0(react-dom@18.2.0)(react@18.2.0)
@@ -43,8 +43,8 @@ dependencies:
     specifier: ^4.17.21
     version: 4.17.21
   monaco-editor:
-    specifier: ^0.37.0
-    version: 0.37.0
+    specifier: ^0.37.1
+    version: 0.37.1
   re-resizable:
     specifier: ^6.9.9
     version: 6.9.9(react-dom@18.2.0)(react@18.2.0)
@@ -117,11 +117,11 @@ devDependencies:
     specifier: ^18.2.0
     version: 18.2.0
   sass:
-    specifier: ^1.60.0
-    version: 1.60.0
+    specifier: ^1.61.0
+    version: 1.61.0
   sass-loader:
     specifier: ^13.2.2
-    version: 13.2.2(sass@1.60.0)(webpack@5.78.0)
+    version: 13.2.2(sass@1.61.0)(webpack@5.78.0)
   source-map-loader:
     specifier: ^4.0.1
     version: 4.0.1(webpack@5.78.0)
@@ -1954,24 +1954,24 @@ packages:
       vary: 1.1.2
     dev: false
 
-  /@monaco-editor/loader@1.3.2(monaco-editor@0.37.0):
+  /@monaco-editor/loader@1.3.2(monaco-editor@0.37.1):
     resolution: {integrity: sha512-BTDbpHl3e47r3AAtpfVFTlAi7WXv4UQ/xZmz8atKl4q7epQV5e7+JbigFDViWF71VBi4IIBdcWP57Hj+OWuc9g==}
     peerDependencies:
       monaco-editor: '>= 0.21.0 < 1'
     dependencies:
-      monaco-editor: 0.37.0
+      monaco-editor: 0.37.1
       state-local: 1.0.7
     dev: false
 
-  /@monaco-editor/react@4.4.6(patch_hash=fzxvse5qvjl4n7n4h42f6hxc2y)(monaco-editor@0.37.0)(react-dom@18.2.0)(react@18.2.0):
+  /@monaco-editor/react@4.4.6(patch_hash=fzxvse5qvjl4n7n4h42f6hxc2y)(monaco-editor@0.37.1)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-Gr3uz3LYf33wlFE3eRnta4RxP5FSNxiIV9ENn2D2/rN8KgGAD8ecvcITRtsbbyuOuNkwbuHYxfeaz2Vr+CtyFA==}
     peerDependencies:
       monaco-editor: '>= 0.25.0 < 1'
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      '@monaco-editor/loader': 1.3.2(monaco-editor@0.37.0)
-      monaco-editor: 0.37.0
+      '@monaco-editor/loader': 1.3.2(monaco-editor@0.37.1)
+      monaco-editor: 0.37.1
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -2371,7 +2371,7 @@ packages:
       '@types/node': 18.15.11
       '@types/node-sass': 4.11.3
       '@types/webpack': 4.41.33
-      sass: 1.60.0
+      sass: 1.61.0
     dev: true
 
   /@types/scheduler@0.16.2:
@@ -4599,8 +4599,8 @@ packages:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
     dev: false
 
-  /monaco-editor@0.37.0:
-    resolution: {integrity: sha512-PrvIsrbD/uLQlzYqNnzrZ0yDCK+X3YoLgNx+fFZKvmgkDZxo9kJRvb5YNtCUesG4xjv44jEEKaHKE0demcEleg==}
+  /monaco-editor@0.37.1:
+    resolution: {integrity: sha512-jLXEEYSbqMkT/FuJLBZAVWGuhIb4JNwHE9kPTorAVmsdZ4UzHAfgWxLsVtD7pLRFaOwYPhNG9nUCpmFL1t/dIg==}
     dev: false
 
   /mrmime@1.0.1:
@@ -5757,7 +5757,7 @@ packages:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
     dev: true
 
-  /sass-loader@13.2.2(sass@1.60.0)(webpack@5.78.0):
+  /sass-loader@13.2.2(sass@1.61.0)(webpack@5.78.0):
     resolution: {integrity: sha512-nrIdVAAte3B9icfBiGWvmMhT/D+eCDwnk+yA7VE/76dp/WkHX+i44Q/pfo71NYbwj0Ap+PGsn0ekOuU1WFJ2AA==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
@@ -5778,13 +5778,13 @@ packages:
     dependencies:
       klona: 2.0.6
       neo-async: 2.6.2
-      sass: 1.60.0
+      sass: 1.61.0
       webpack: 5.78.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     dev: true
 
-  /sass@1.60.0:
-    resolution: {integrity: sha512-updbwW6fNb5gGm8qMXzVO7V4sWf7LMXnMly/JEyfbfERbVH46Fn6q02BX7/eHTdKpE7d+oTkMMQpFWNUMfFbgQ==}
-    engines: {node: '>=12.0.0'}
+  /sass@1.61.0:
+    resolution: {integrity: sha512-PDsN7BrVkNZK2+dj/dpKQAWZavbAQ87IXqVvw2+oEYI+GwlTWkvbQtL7F2cCNbMqJEYKPh1EcjSxsnqIb/kyaQ==}
+    engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
       chokidar: 3.5.3
