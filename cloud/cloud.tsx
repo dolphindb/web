@@ -858,7 +858,7 @@ function CreateClusterPanel({
             visible={visible}
             onOk={closePanel}
             onCancel={closePanel}   
-            width={'1200px'}
+            width={'900px'}
             footer={<>
                     <Button type='primary' htmlType='submit' className='submit' onClick={onSubmit}>{t('提交')}</Button>
                     <Button type='default' htmlType='reset' className='reset' onClick={onReset}>{t('重置')}</Button>
@@ -1032,7 +1032,7 @@ function CreateClusterPanel({
                     </Col>
                 </Row>
                 
-                <Row className='type-version-row'>
+                <Row className='optional-columns'>
                     { mode === 'cluster' &&
                         <Col span={12}>
                             <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
@@ -1073,68 +1073,86 @@ function CreateClusterPanel({
                 }
                 >
                     
-                    { cluster_type === 'multicontroller' && <Form.Item name={['controller', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
+                    <Row>
+                        
+                    { cluster_type === 'multicontroller' && <Col span={12}>
+                    <Form.Item name={['controller', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
                         <InputNumber min={3} precision={0} />
-                    </Form.Item>}
-                    
-                    <Form.Item name={['controller', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]}>
-                        <InputNumber min={0}  addonAfter='Gi' />
                     </Form.Item>
-
-                    <Form.Item name={['controller', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]}>
-                        <InputNumber min={0} addonAfter='Gi' />
-                    </Form.Item>
+                    </Col>
+                    }
                     
-                    <Form.Item name={['controller', 'port']} label={t('端口')} rules={[{ required: true }]}>
-                        <InputNumber min={0} />
-                    </Form.Item>
-                    
-                    <Form.Item label='CPU' >
-                    <Input.Group compact>
-                        <Form.Item 
-                            name={['controller', 'resources', 'requests', 'cpu']}
-                            dependencies={[['controller', 'resources', 'limits', 'cpu']]}
-                            label={t('下限')}
-                            rules={[{ validator: create_validate_limit_function('controller', 'cpu', true) }]}
-                            className='limit'
-                        >
-                            <InputNumber min={0} addonAfter={t('核')}/>
+                    <Col span={12}>
+                            <Form.Item name={['controller', 'port']} label={t('端口')} rules={[{ required: true }]}>
+                                <InputNumber min={0} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row>
+                    <Col span={12}>
+                        <Form.Item name={['controller', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]}>
+                            <InputNumber min={0}  addonAfter='Gi' />
                         </Form.Item>
-                        <Form.Item
-                            name={['controller', 'resources', 'limits', 'cpu']}
-                            dependencies={[['controller', 'resources', 'requests', 'cpu']]}
-                            label={t('上限')}
-                            rules={[{ required: true, validator: create_validate_limit_function('controller', 'cpu', false) }]}
-                            className='limit'
-                        >
-                            <InputNumber min={0} addonAfter={t('核')}/>
-                        </Form.Item>
-                    </Input.Group>
-                </Form.Item>
-                    
-                <Form.Item label={t('内存')}>
-                    <Input.Group compact>
-                        <Form.Item
-                            name={['controller', 'resources', 'requests', 'memory']}
-                            dependencies={[['controller', 'resources', 'limits', 'memory']]}
-                            label={t('下限')}
-                            rules={[{ validator: create_validate_limit_function('controller', 'memory', true) }]}
-                            className='limit'
-                        >
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item name={['controller', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]}>
                             <InputNumber min={0} addonAfter='Gi' />
                         </Form.Item>
-                        <Form.Item
-                            name={['controller', 'resources', 'limits', 'memory']}
-                            dependencies={[['controller', 'resources', 'requests', 'memory']]}
-                            label={t('上限')}
-                            rules={[{ required: true, validator: create_validate_limit_function('controller', 'memory', false) }]}
-                            className='limit'
-                        >
-                            <InputNumber min={0} addonAfter='Gi' />
-                        </Form.Item>
-                    </Input.Group>
-                </Form.Item>
-                
+                    </Col>
+                    
+                    </Row>
+                    
+                    <Row>
+                        <Col span={12}>
+                            <Form.Item label='CPU' >
+                                
+                                <Form.Item
+                                    name={['controller', 'resources', 'limits', 'cpu']}
+                                    dependencies={[['controller', 'resources', 'requests', 'cpu']]}
+                                    label={t('上限')}
+                                    rules={[{ required: true, validator: create_validate_limit_function('controller', 'cpu', false) }]}
+                                    className='limit'
+                                >
+                                    <InputNumber min={0} addonAfter={t('核')} />
+                                </Form.Item>
+                                <div style={{ height: 18 }}></div>
+                                <Form.Item
+                                    name={['controller', 'resources', 'requests', 'cpu']}
+                                    dependencies={[['controller', 'resources', 'limits', 'cpu']]}
+                                    label={t('下限')}
+                                    rules={[{ validator: create_validate_limit_function('controller', 'cpu', true) }]}
+                                    className='limit'
+                                >
+                                    <InputNumber min={0} addonAfter={t('核')} />
+                                </Form.Item>
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item label={t('内存')}>
+                                    <Form.Item
+                                        name={['controller', 'resources', 'limits', 'memory']}
+                                        dependencies={[['controller', 'resources', 'requests', 'memory']]}
+                                        label={t('上限')}
+                                        rules={[{ required: true, validator: create_validate_limit_function('controller', 'memory', false) }]}
+                                        className='limit'
+                                    >
+                                        <InputNumber min={0} addonAfter='Gi' />
+                                    </Form.Item>
+                                    <div style={{ height: 18 }}></div>
+                                    <Form.Item
+                                        name={['controller', 'resources', 'requests', 'memory']}
+                                        dependencies={[['controller', 'resources', 'limits', 'memory']]}
+                                        label={t('下限')}
+                                        rules={[{ validator: create_validate_limit_function('controller', 'memory', true) }]}
+                                        className='limit'
+                                    >
+                                        <InputNumber min={0} addonAfter='Gi' />
+                                    </Form.Item>
+                                
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    
                 </Collapse.Panel> }
 
                 <Collapse.Panel key={3} header={
