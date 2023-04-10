@@ -30,6 +30,9 @@ import {
     Space,
     Empty,
     Popover,
+    Row,
+    Col,
+    Collapse,
 } from 'antd'
 
 import { PageHeader } from '@ant-design/pro-layout'
@@ -560,7 +563,7 @@ function Clusters () {
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 16 }}
                 colon={false}
-                requiredMark={false}
+                
             >
                 <Divider orientation='left'>{t('基础信息')}</Divider>
                 <Form.Item name='version' label={t('版本')} rules={[{ required: true }]}>
@@ -855,7 +858,7 @@ function CreateClusterPanel({
             visible={visible}
             onOk={closePanel}
             onCancel={closePanel}   
-            width={'800px'}
+            width={'1200px'}
             footer={<>
                     <Button type='primary' htmlType='submit' className='submit' onClick={onSubmit}>{t('提交')}</Button>
                     <Button type='default' htmlType='reset' className='reset' onClick={onReset}>{t('重置')}</Button>
@@ -940,118 +943,135 @@ function CreateClusterPanel({
                     }
                 }}
                 colon={false}
-                requiredMark={false}
                 validateMessages={{
                     pattern: {
                         mismatch: '${pattern}'
                     }
                 }}
             >
-                <Divider orientation='left'>{t('基本信息')}</Divider>
-                <Form.Item 
-                    name='name' 
-                    label={t('名称')} 
-                    tooltip={t("只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")}
-                    rules={[{ 
-                            required: true, 
-                            pattern: new RegExp('^[a-z]([-a-z0-9]*[a-z0-9])*$'),
-                        }]}
-                    messageVariables={{
-                        pattern: t("集群名称只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")
-                    }}
-                    validateTrigger='onBlur'
+                <Collapse bordered={false}
+                    ghost={true}
+                    defaultActiveKey={1}
                 >
-                    <Input />
-                </Form.Item>
+                <Collapse.Panel key={1} header={
+                    <span className='ant-divider-inner-text'>{t('基本信息')}</span>
+                }>
+                <Row>
+                    <Col span={12}>
+                        <Form.Item name='namespace' label={t('命名空间')} rules={[{ required: true }]}>
+                            <Select placeholder='Please select a namespace'>
+                                {
+                                    namespaces.length !== 0 ?
+                                        namespaces.map(ns => (
+                                            <Option value={ns.name} key={ns.name}>{ns.name}</Option>
+                                        ))
+                                        :
+                                        <Option value=''>{''}</Option>
+                                }
+                            </Select>
+                        </Form.Item>
+                        <Form.Item name='version' label={t('版本')} rules={[{ required: true }]}>
+                            <Select>
+                                {
+                                    versions.length !== 0 ?
+                                        versions.map(v => (
+                                            <Option value={v} key={v}>{v}</Option>
+                                        ))
+                                        :
+                                        <Option value=''>{''}</Option>
+                                }
+                            </Select>
+                        </Form.Item>
+                        <Form.Item name='storage_class' label={t('存储类')}>
+                            <Select placeholder='Please select a storage class' >
+                                {
+                                    storageclasses.length !== 0 ?
+                                        storageclasses.map(sc => (
+                                            <Option value={sc.name} key={sc.name}>{sc.name}</Option>
+                                        ))
+                                        :
+                                        <Option value=''>{''}</Option>
+                                }
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
 
-                <Form.Item name='namespace' label={t('命名空间')}>
-                    <Select placeholder='Please select a namespace'>
-                        {
-                            namespaces.length !== 0 ?
-                            namespaces.map(ns => (
-                                <Option value={ns.name} key={ns.name}>{ns.name}</Option>
-                            ))
-                            :
-                            <Option value=''>{''}</Option>
-                        }
-                    </Select>
-                </Form.Item>
+                        <Form.Item
+                            name='name'
+                            label={t('名称')}
+                            tooltip={t("只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")}
+                            rules={[{
+                                required: true,
+                                pattern: new RegExp('^[a-z]([-a-z0-9]*[a-z0-9])*$'),
+                            }]}
+                            messageVariables={{
+                                pattern: t("集群名称只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")
+                            }}
+                            validateTrigger='onBlur'
+                        >
+                            <Input />
+                        </Form.Item>
+                    
+                        <Form.Item name='mode' label={t('模式')} rules={[{ required: true }]}>
+                            <Select>
+                                <Option value='standalone'>{t('单机节点')}</Option>
+                                <Option value='cluster'>{t('集群')}</Option>
+                            </Select>
+                        </Form.Item>
 
-                <Form.Item name='storage_class' label={t('存储类')}>
-                    <Select placeholder='Please select a storage class' >
-                        {
-                            storageclasses.length !== 0 ?
-                            storageclasses.map(sc => (
-                                <Option value={sc.name} key={sc.name}>{sc.name}</Option>
-                            ))
-                            :
-                            <Option value=''>{''}</Option>
-                        }
-                    </Select>
-                </Form.Item>
-                
-                <Form.Item name='mode' label={t('模式')} rules={[{ required: true }]}>
-                    <Select>
-                        <Option value='standalone'>{t('单机节点')}</Option>
-                        <Option value='cluster'>{t('集群')}</Option>
-                    </Select>
-                </Form.Item>
-                
-                <Form.Item name='version' label={t('版本')} rules={[{ required: true }]}>
-                    <Select>
-                        {
-                            versions.length !== 0 ?
-                            versions.map(v => (
-                                <Option value={v} key={v}>{v}</Option>
-                            ))
-                            :
-                            <Option value=''>{''}</Option>
-                        }
-                    </Select>
-                </Form.Item>
-                
-                <Form.Item name='log_mode' label={t('日志模式')} rules={[{ required: true }]}>
-                    <Select>
-                        <Option value={0}>{t('输出到文件')}</Option>
-                        <Option value={1}>{t('输出到标准输出')}</Option>
-                        <Option value={2}>{t('同时输出到文件和标准输出')}</Option>
-                    </Select>
-                </Form.Item>
-                
-                
-                
-                { mode === 'cluster' &&
-                    <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
-                        <Select>
-                            <Option value='singlecontroller'>{t('单控制节点')}</Option>
-                            <Option value='multicontroller'>{t('多控制节点')}</Option>
-                        </Select>
-                    </Form.Item>
-                }
 
-                <Form.Item noStyle dependencies={[['version']]}>
-                    {({ getFieldValue })=>{
-                        const version: string = getFieldValue('version')
-                        
-                        if (version.startsWith('v1')) 
-                            if (version.slice(1, version.length) < '1.30.21')
-                                return
-                        
-                        if (version.startsWith('v2')) 
-                            if (version.slice(1, version.length) < '2.00.9')
-                                return
-                        
-                        return (
-                            <Form.Item label={t('License Server 地址')} name='license_server_address'>
-                                <Input />
+
+                        <Form.Item name='log_mode' label={t('日志模式')} rules={[{ required: true }]}>
+                            <Select>
+                                <Option value={0}>{t('输出到文件')}</Option>
+                                <Option value={1}>{t('输出到标准输出')}</Option>
+                                <Option value={2}>{t('同时输出到文件和标准输出')}</Option>
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                
+                <Row className='type-version-row'>
+                    { mode === 'cluster' &&
+                        <Col span={12}>
+                            <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
+                                <Select>
+                                    <Option value='singlecontroller'>{t('单控制节点')}</Option>
+                                    <Option value='multicontroller'>{t('多控制节点')}</Option>
+                                </Select>
                             </Form.Item>
-                        )
-                    }}
-                </Form.Item>
-                
-                { mode === 'cluster' && <>
+                        </Col>
+                    }
+                    
+                    <Col span={12}>
+                        <Form.Item noStyle dependencies={[['version']]}>
+                            {({ getFieldValue }) => {
+                                const version: string = getFieldValue('version')
 
-                    <Divider orientation='left'>{t('控制节点')}</Divider>
+                                if (version.startsWith('v1'))
+                                    if (version.slice(1, version.length) < '1.30.21')
+                                        return
+
+                                if (version.startsWith('v2'))
+                                    if (version.slice(1, version.length) < '2.00.9')
+                                        return
+
+                                return (
+                                    <Form.Item label={t('License Server 地址')} name='license_server_address'>
+                                        <Input />
+                                    </Form.Item>
+                                )
+                            }}
+                        </Form.Item>
+                    </Col>
+                </Row>
+                </Collapse.Panel>
+                
+                { mode === 'cluster' && <Collapse.Panel key={2} header={
+                    <span className='ant-divider-inner-text'>{t('控制节点')}</span>
+                }
+                >
                     
                     { cluster_type === 'multicontroller' && <Form.Item name={['controller', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
                         <InputNumber min={3} precision={0} />
@@ -1115,9 +1135,12 @@ function CreateClusterPanel({
                     </Input.Group>
                 </Form.Item>
                 
-                </> }
+                </Collapse.Panel> }
 
-                <Divider orientation='left'>{t('数据节点')}</Divider>
+                <Collapse.Panel key={3} header={
+                    <span className='ant-divider-inner-text'>{t('数据节点')}</span>
+                }
+                >
                 
                 { mode === 'cluster' && <Form.Item name={['datanode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
                     <InputNumber min={0} precision={0} />
@@ -1179,9 +1202,13 @@ function CreateClusterPanel({
                         </Form.Item>
                     </Input.Group>
                 </Form.Item>
+                </Collapse.Panel>
                 
                { mode === 'cluster' && <>
-                    <Divider orientation='left'>{t('计算节点')}</Divider>
+               <Collapse.Panel key={4} header={
+                    <span className='ant-divider-inner-text'>{t('计算节点')}</span>
+                }
+                >
                     
                     <Form.Item name={['computenode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
                         <InputNumber min={0} precision={0} />
@@ -1245,7 +1272,11 @@ function CreateClusterPanel({
                             </Form.Item>
                         </Input.Group>
                     </Form.Item>
-               </> }
+                    </ Collapse.Panel>
+               </> 
+               
+               }
+               </Collapse>
             </Form>
         </Modal>
     )
@@ -2320,7 +2351,7 @@ function SourceKeyModal( { sourcekey_modaol_open, set_sourcekey_modal_open, refr
                                 name='nfs'
                                 form={nfs_form}
                                 colon={false}
-                                requiredMark={false}
+                                
                                 className='cluster-create-form'
                                 labelAlign='left'
                                 labelCol={{ span: 6 }}
@@ -2366,7 +2397,7 @@ function SourceKeyModal( { sourcekey_modaol_open, set_sourcekey_modal_open, refr
                         name='s3'
                         form={s3_form}
                         colon={false}
-                        requiredMark={false}
+                        
                         className='cluster-create-form'
                         labelAlign='left'
                         labelCol={{ span: 6 }}
@@ -2913,7 +2944,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                 initialValues={
                     content_of_backup_modal
                 }
-                requiredMark={false}
+                
                 colon={false}
             >
                 <>
@@ -3065,7 +3096,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                 labelAlign='left'
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 16 }}
-                requiredMark={false}
+                
                 colon={false}
                 initialValues={
                     init_value_of_restore_modal
