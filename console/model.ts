@@ -148,13 +148,13 @@ export class DdbModel extends Model<DdbModel> {
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                if (this.dev) {
+                if (this.dev) 
                     try {
                         await this.login_by_password('admin', '123456')
                     } catch {
                         console.log(t('使用 admin 账号密码登录失败'))
                     }
-                }
+                
             }
         
         await this.get_cluster_perf()
@@ -338,7 +338,7 @@ export class DdbModel extends Model<DdbModel> {
     async get_license_server_info () {
         const license_server_site = (
             await this.ddb.call<DdbStringObj>('getConfig', ['licenseServerSite'])
-        ).value;
+        ).value
         
         const is_license_server_node = this.license.licenseType === LicenseTypes.LicenseServerVerify && license_server_site === this.node.site
         
@@ -463,7 +463,7 @@ export class DdbModel extends Model<DdbModel> {
                 return [hostname, score]
             
             return prev
-        }, [hosts[0], calc_host_score(hosts[0])] as const);
+        }, [hosts[0], calc_host_score(hosts[0])] as const)
         
         return closest
     }

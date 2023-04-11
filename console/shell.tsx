@@ -649,7 +649,7 @@ function Editor () {
             // event.returnValue = ''
         }
         
-        ;(async () => {
+        (async () => {
             if (inited)
                 return
             
@@ -1145,7 +1145,7 @@ function Term () {
     
     useEffect(() => {
         if (!font_loaded) {
-            ;(async () => {
+            (async () => {
                 await document.fonts.ready
                 console.log(t('字体已全部加载'))
                 set_font_loaded(true)
@@ -1246,7 +1246,7 @@ function Term () {
     
     useEffect(() => {
         // wait for container ready
-        ;(async () => {
+        (async () => {
             await delay(500)
             shell.fit_addon?.fit()
         })()

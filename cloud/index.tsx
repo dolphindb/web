@@ -112,7 +112,7 @@ function MenuIcon ({ view }: { view: CloudModel['view'] }) {
 
 
 function DdbSider () {
-    const { view, collapsed} = model.use(['view', 'collapsed'])
+    const { view, collapsed } = model.use(['view', 'collapsed'])
     
     return <Layout.Sider
         width={120}
@@ -139,7 +139,7 @@ function DdbSider () {
             theme='light'
             selectedKeys={[view]}
             onSelect={({ key }) => {
-                model.set({ view: key as PageViews})
+                model.set({ view: key as PageViews })
             }}
             inlineIndent={10}
             items={[
