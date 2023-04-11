@@ -48,7 +48,7 @@ const svgs: { [key in PageViews]: any } = {
 
 
 function DolphinDB () {
-    const { inited, is_terminal } = model.use(['inited', 'is_terminal'])
+    const { inited, is_terminal: is_shell } = model.use(['inited', 'is_terminal'])
     
     useEffect(() => {
         model.init()
@@ -62,7 +62,7 @@ function DolphinDB () {
             <Layout.Header className='ddb-header'>
                 <DdbHeader />
             </Layout.Header>
-            { is_terminal ? <div className='view'> <Shell/> </div> : <Layout className='body' hasSider>
+            { is_shell ? <div className='view-shell' > <Shell /> </div>: <Layout className='body' hasSider>
                 <DdbSider />
                 <Layout.Content className='view'>
                     <DdbContent />
