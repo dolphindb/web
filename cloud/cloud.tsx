@@ -74,7 +74,7 @@ export function Cloud () {
 type FieldType = 'info' | 'config' | 'monitor' | 'backup'
 
 function Monitor ({ cluster }:{ cluster: Cluster }) {
-    return <iframe className='iframe' src={ `${model.monitor_url}/?var-cluster_name=${cluster.name}&var-dolphindb_node=All&orgId=1&kiosk` } />
+    return <iframe className='iframe' src={`${model.monitor_url}/?var-cluster_name=${cluster.name}&var-dolphindb_node=All&orgId=1&kiosk`} />
 }
 
 function ClusterDetail () {
