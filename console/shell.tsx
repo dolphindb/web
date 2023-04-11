@@ -2525,7 +2525,7 @@ let registry = new Registry({
     
     async loadGrammar (scopeName: string): Promise<IRawGrammar | null> {
         const scopeNameInfo = grammars[scopeName]
-        if (scopeNameInfo == null) 
+        if (scopeNameInfo === null || scopeNameInfo === undefined) 
             return null
         
         const grammar_text: string = JSON.stringify(tm_language)
@@ -2579,7 +2579,7 @@ class TokensProviderCache {
     
     getGrammar (scopeName: string, encodedLanguageId: number): Promise<IGrammar> {
         const grammar = this.scopeNameToGrammar.get(scopeName)
-        if (grammar != null) 
+        if (grammar) 
             return grammar
         
         
@@ -2623,7 +2623,7 @@ function create_style_element_for_colors_css (): HTMLStyleElement {
      else {
         // Though if we cannot find it, just append to <head>.
         let { head } = document
-        if (head == null) 
+        if (!head) 
             head = document.getElementsByTagName('head')[0]
         
         head?.appendChild(style)
