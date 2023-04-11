@@ -65,8 +65,8 @@ export class CloudModel extends Model <CloudModel> {
     
     show_all_config = false
     
-    /** 以 http 开头, k8s 要求即使父页面用 https, iframe 也要用 http */
-    monitor_url: string
+    /** 以 // 开头, 不以 / 结尾 */
+    monitor_url = `//${location.host}/grafana`
     
     collapsed = localStorage.getItem('ddb-cloud.collapsed') === 'true'
     
@@ -79,18 +79,9 @@ export class CloudModel extends Model <CloudModel> {
             this.get_versions(),
         ])
         
-        this.get_monitor_url()
         
         this.set({
             inited: true,
-        })
-    }
-    
-    async get_monitor_url () {
-        const { ip, port } = await request_json('/v1/grafana/url')
-        
-        this.set({
-            monitor_url: `http://${ip}:${port}`
         })
     }
     
