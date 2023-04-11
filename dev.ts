@@ -13,7 +13,8 @@ import { webpack, fpd_root, fpd_node_modules, fpd_src_console, fpd_src_cloud } f
 let c0 = new DDB('ws://127.0.0.1:8850')
 
 // k8s 开发环境使用自签名的证书
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+if (process.argv.includes('cloud'))
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 class DevServer extends Server {
     ddb_backend = '127.0.0.1:8848'
