@@ -48,7 +48,7 @@ const svgs: { [key in PageViews]: any } = {
 
 
 function DolphinDB () {
-    const { inited, is_terminal: is_shell } = model.use(['inited', 'is_terminal'])
+    const { inited, is_shell } = model.use(['inited', 'is_shell'])
     
     useEffect(() => {
         model.init()
