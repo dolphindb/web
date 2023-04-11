@@ -56,7 +56,7 @@ import {
 
 import icon_add from './add.svg'
 
-const { Column } = Table;
+const { Column } = Table
 const { Option } = Select
 const { Title, Text, Link } = Typography
 
@@ -119,7 +119,7 @@ function ClusterDetail () {
 }
 
 
-function ClusterDetailMenuItem({
+function ClusterDetailMenuItem ({
     focused,
     onClick,
     value
@@ -148,7 +148,7 @@ function ClusterDetailMenuItem({
 }
 
 
-function InfoTab() {
+function InfoTab () {
     const { cluster } = model.use(['cluster'])
     
     const { namespace, name, log_mode, version, storage_class, services, status, created_at } = cluster
@@ -507,30 +507,30 @@ function Clusters () {
                                 if (!values[field]?.resources?.limits)
                                     return
                                 
-                                if (values[field].resources.limits.memory) {
+                                if (values[field].resources.limits.memory) 
                                     values[field].resources.limits.memory = {
                                         unit: 'Gi',
                                         value: values[field].resources.limits.memory
                                     }
-                                }
-                                if (values[field].resources.requests.memory) {
+                                
+                                if (values[field].resources.requests.memory) 
                                     values[field].resources.requests.memory = {
                                         unit: 'Gi',
                                         value: values[field].resources.requests.memory
                                     }
-                                }
-                                if (values[field].resources.limits.cpu) {
+                                
+                                if (values[field].resources.limits.cpu) 
                                     values[field].resources.limits.cpu = {
                                         unit: '',
                                         value: values[field].resources.limits.cpu
                                     }
-                                }
-                                if (values[field].resources.requests.cpu) {
+                                
+                                if (values[field].resources.requests.cpu) 
                                     values[field].resources.requests.cpu = {
                                         unit: '',
                                         value: values[field].resources.requests.cpu
                                     }
-                                }
+                                
                             })
                             
                             removeEmptyProperties(values)
@@ -749,7 +749,7 @@ const sort_orders = {
     descend: 'desc',
 } as const
 
-function CreateClusterPanel({
+function CreateClusterPanel ({
     visible,
     closePanel,
     queries
@@ -787,30 +787,30 @@ function CreateClusterPanel({
                 if (!values[field]?.resources?.limits)
                     return
                 
-                if (values[field].resources.limits.memory) {
+                if (values[field].resources.limits.memory) 
                     values[field].resources.limits.memory = {
                         unit: 'Gi',
                         value: values[field].resources.limits.memory
                     }
-                }
-                if (values[field].resources.requests.memory) {
+                
+                if (values[field].resources.requests.memory) 
                     values[field].resources.requests.memory = {
                         unit: 'Gi',
                         value: values[field].resources.requests.memory
                     }
-                }
-                if (values[field].resources.limits.cpu) {
+                
+                if (values[field].resources.limits.cpu) 
                     values[field].resources.limits.cpu = {
                         unit: '',
                         value: values[field].resources.limits.cpu
                     }
-                }
-                if (values[field].resources.requests.cpu) {
+                
+                if (values[field].resources.requests.cpu) 
                     values[field].resources.requests.cpu = {
                         unit: '',
                         value: values[field].resources.requests.cpu
                     }
-                }
+                
             })
             
             removeEmptyProperties(values)
@@ -1708,13 +1708,13 @@ function ClusterConfigs ({
         const edited_list = editedConfig[field]
         const newEditedList = [...edited_list]
         const editedIndex = newEditedList.findIndex(item => item.name === newItem.name)
-        if (editedIndex > -1) {
+        if (editedIndex > -1) 
             newEditedList.splice(editedIndex, 1, {
                 ...newItem
             })
-        } else {
+         else 
             newEditedList.push(newItem)
-        }
+        
         const newEditedConfig = {
             [field]: newEditedList
         }
@@ -1738,7 +1738,7 @@ function ClusterConfigs ({
             fetchClusterConfig()
             message.success(t('参数重置成功'))
         } catch (error) {
-            console.error(error);
+            console.error(error)
             message.error(t('参数重置失败'))
         } finally {
             setResetPopVisible(false)
@@ -1753,7 +1753,7 @@ function ClusterConfigs ({
             message.success(t('参数修改成功'))
             fetchClusterConfig()
         } catch (error) {
-            console.error(error);
+            console.error(error)
             model.show_json_error(error)
             throw error
         } finally {
@@ -1834,7 +1834,7 @@ function ClusterConfigs ({
 }
 
 
-function ConfigEditableList({
+function ConfigEditableList ({
     type,
     configList,
     editedList,
@@ -1894,11 +1894,11 @@ function ConfigEditableList({
             editable: true,
             align: 'center' as AlignType,
             render: (_: any, record: ClusterConfigItem) => {
-                if (record.type === 'string') {
+                if (record.type === 'string') 
                     return `"${record.value}"`
-                } else {
+                 else 
                     return record.value
-                }
+                
             }
         },
         {
@@ -1909,11 +1909,11 @@ function ConfigEditableList({
             editable: false,
             align: 'center' as AlignType,
             render: (_: any, record: ClusterConfigItem) => {
-                if (record.type === 'string') {
+                if (record.type === 'string') 
                     return `"${record.default_value}"`
-                } else {
+                 else 
                     return record.default_value
-                }
+                
             }
         },
         {
@@ -1957,9 +1957,9 @@ function ConfigEditableList({
     ]
 
     const mergedColumns = columns.map(col => {
-        if (!col.editable) {
+        if (!col.editable) 
             return col
-        }
+        
         return {
             ...col,
             onCell: (record: ClusterConfigItem) => ({
@@ -2048,8 +2048,8 @@ const EditableCell: React.FC<EditableCellProps> = ({
           children
         )}
       </td>
-    );
-};
+    )
+}
 
 const log_modes = {
     0: t('输出到文件'),
@@ -2195,7 +2195,7 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
 }
 
 
-function ShowBackupRestoreSourceKey() {
+function ShowBackupRestoreSourceKey () {
     const [tag, set_tag] = useState<'backups' | 'restores' | 'source_key'>('backups')
     return <Tabs
         defaultActiveKey="1"
@@ -2206,11 +2206,11 @@ function ShowBackupRestoreSourceKey() {
             switch (key) {
                 case '1':
                     set_tag('backups')
-                    break;
+                    break
 
                 case '2':
                     set_tag('restores')
-                    break;
+                    break
 
                 case '3':
                     set_tag('source_key')
@@ -2246,8 +2246,8 @@ type AddSourceKeyModalInfo = {
     open: boolean
 }
 
-function SourceKeyModal( { sourcekey_modaol_open, set_sourcekey_modal_open, refresh_source_key }) {
-    //SourceKeyModal可能需要改变父组件的状态，最后一个参数refresh_source_key是一个父组件的set_state函数
+function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, refresh_source_key }) {
+    // SourceKeyModal可能需要改变父组件的状态，最后一个参数refresh_source_key是一个父组件的set_state函数
 
     const [source_key_modal_info, set_source_key_modal_info] = useState<AddSourceKeyModalInfo>({ type: 'nfs', open: sourcekey_modaol_open })
     const [providers, set_providers] = useState([''])
@@ -2440,24 +2440,23 @@ const GiProcess = (str: string | number) => {
 const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => void, type: 'backups' | 'restores' }> = (props) => {
     const { cluster } = model.use(['cluster'])
     const { namespace } = cluster
-    //@ts-ignore
-    const [{phase, remote_type, source_key, from, stored_path, storage_class, storage_resource, dolphindb_name, dolphindb_namespace}, setData] = useState<FlattenBackupDetail | FlattenRestoreDetail>({})
+    // @ts-ignore
+    const [{ phase, remote_type, source_key, from, stored_path, storage_class, storage_resource, dolphindb_name, dolphindb_namespace }, setData] = useState<FlattenBackupDetail | FlattenRestoreDetail>({})
     const [source_key_detail, set_source_key_detail] = useState<SourceKeyDetail[]>([])
 
-    async function fetch_data() {
-        if (!props.name) {
+    async function fetch_data () {
+        if (!props.name) 
             return
-        }
+        
         const _data = await request_json_with_error_handling(`/v1/dolphindbs/${namespace}/${model.cluster.name}/${props.type}/${props.name}`)
-        //create_timestamp不展示,记为undefined
+        // create_timestamp不展示,记为undefined
         const data = { ..._data, phase: _data?.status.phase, create_timestamp:undefined }
         setData(data)
     }
 
     useEffect(() => {
-        fetch_data();
-
-        (async () => {
+        fetch_data()
+        ;(async () => {
             const data = await request_json_with_error_handling(`/v1/dolphindbs/backups/config`) as SourceKeyDetail[]
             set_source_key_detail(data)
         })()
@@ -2587,7 +2586,7 @@ const backup_status_translations = {
     
     // 以下状态疑似弃用
     Cleaning: t('清理中'),
-    Pending: t('准备中', { context: 'pending'}),
+    Pending: t('准备中', { context: 'pending' }),
     Cleaned: t('清理完成'),
 }
 
@@ -2696,9 +2695,9 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
             refresh_source_key()
             refresh_source_key_detail()
             refresh_selectable_storage_class()
-        } else {
+        } else 
             set_refresher(refresher + 1)
-        }
+        
 
     }, [backup_modal_open])
 
@@ -2710,9 +2709,9 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
     }, [sourcekey_modal_open])
 
     useEffect(() => {
-        if (!(source_keys && source_key_detail)) {
+        if (!(source_keys && source_key_detail)) 
             return
-        }
+        
         try {
             form_instance_backup.setFieldValue('source_key', source_keys[0])
             set_selected_remote_type(source_key_detail[source_keys[0]]['type'])
@@ -2723,12 +2722,12 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
     }, [source_keys, source_key_detail])
 
 
-    //setInterval无法获取正确的props.tag，参考https://overreacted.io/zh-hans/making-setinterval-declarative-with-react-hooks/
+    // setInterval无法获取正确的props.tag，参考https://overreacted.io/zh-hans/making-setinterval-declarative-with-react-hooks/
     useInterval(
         () => {
-            if (props.tag === 'backups') {
+            if (props.tag === 'backups') 
                 refresh_instances_list_of_namespace()
-            }
+            
             return
         }, 5000
     )
@@ -2742,7 +2741,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                 className='button-create'
                 onClick={async () => {
                     set_backup_modal_open(true)
-                    //one_restore_detail中有许多属性，但是此处只用赋值其中三个，其他全为undefined
+                    // one_restore_detail中有许多属性，但是此处只用赋值其中三个，其他全为undefined
                     set_content_of_backup_modal({ source_key: source_keys[0], remote_type: 's3', storage_class: storage_class.sort().reverse()[0], storage_resource: 10 } as OneRestoreDetail)
                 }}
             >
@@ -2879,7 +2878,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                 <Button key="submit" type="primary" onClick={async () => {
                     var { source_key, prefix, storage_class, storage_resource } = await form_instance_backup.validateFields()
                     if (!source_key_detail) {
-                        //source_key_detail在打开Modal的时候会被set，所以其必有值
+                        // source_key_detail在打开Modal的时候会被set，所以其必有值
                         message.error('SourceKey detail is none. Coder assertion failed')
                         return
                     }
@@ -2906,7 +2905,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
         >
             <Form
                 form={form_instance_backup}
-                //className='cluster-create-form'
+                // className='cluster-create-form'
                 labelAlign='left'
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 16 }}
@@ -2934,8 +2933,8 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                             data = e.values
                                         }
                                         set_content_of_backup_modal(data)
-                                        //danger area end
-                                        //danger area是某些历史代码，原先是为了防止切换form select的时候由于重渲染会丢失其他formItem中已经填入的值。但是现在已经将form.resetValue去掉，原则上danger area部分可以直接移除，但目前还没试验过
+                                        // danger area end
+                                        // danger area是某些历史代码，原先是为了防止切换form select的时候由于重渲染会丢失其他formItem中已经填入的值。但是现在已经将form.resetValue去掉，原则上danger area部分可以直接移除，但目前还没试验过
                                         if (!source_key_detail) {
                                             message.error('Sourcekey empty. Coder assertion failed.')
                                             return
@@ -3052,7 +3051,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                         }
                     )
                     set_restore_modal_open(false)
-                    set_init_value_of_restore_modal({dolphindb_namespace:'', dolphindb_name:''})
+                    set_init_value_of_restore_modal({ dolphindb_namespace:'', dolphindb_name:'' })
 
                 }}>
                     {t('提交')}
@@ -3147,9 +3146,9 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
 
     useInterval(
         () => {
-            if (props.tag === 'restores') {
+            if (props.tag === 'restores') 
                 refresh_restore_instances_list_of_namespace()
-            }
+            
             return
         }, 5000
     )
@@ -3173,7 +3172,7 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
         {!_.isEmpty(fetched_restore_list_of_namesace) ?
             <Table dataSource={fetched_restore_list_of_namesace.items.map(
                 data_item => {
-                    const {message, create_timestamp, phase, name} = data_item
+                    const { message, create_timestamp, phase, name } = data_item
                     return {
                         name: <Link onClick={() => {
                             set_name_of_current_opened_detail(name)
@@ -3233,9 +3232,9 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
     </div>
 }
 
-const SourceKeyPanel = ({single_sourceKey_detail}: {single_sourceKey_detail:  SourceKeyDetail[string]})  => {
-    //@ts-ignore
-    const { type, endpoint, provider, region, access_key, secret_access_key, path} = single_sourceKey_detail
+const SourceKeyPanel = ({ single_sourceKey_detail }: {single_sourceKey_detail:  SourceKeyDetail[string]})  => {
+    // @ts-ignore
+    const { type, endpoint, provider, region, access_key, secret_access_key, path } = single_sourceKey_detail
     if (!single_sourceKey_detail)
         return null
     
@@ -3245,7 +3244,7 @@ const SourceKeyPanel = ({single_sourceKey_detail}: {single_sourceKey_detail:  So
 
                 <Descriptions bordered
                     column={1}
-                //layout='vertical'
+                // layout='vertical'
                 >
                     <Descriptions.Item
                         label={t('类型')}
@@ -3268,7 +3267,7 @@ const SourceKeyPanel = ({single_sourceKey_detail}: {single_sourceKey_detail:  So
                 :
                 <Descriptions bordered
                     column={1}
-                //layout='vertical'
+                // layout='vertical'
                 >
                     <Descriptions.Item
                         label={t('类型')}
@@ -3347,9 +3346,9 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
 
     useInterval(
         () => {
-            if (props.tag === 'source_key') {
+            if (props.tag === 'source_key') 
                 refresh_source_key_detail()
-            }
+            
             return
         }, 5000
     )
@@ -3384,7 +3383,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
         {sourcekey_modal_open ? <SourceKeyModal
             sourcekey_modaol_open={sourcekey_modal_open}
             set_sourcekey_modal_open={set_sourcekey_modal_open}
-            //refresh_source_key 用于改变父组件状态，但是在此不需要，因此传一个空函数
+            // refresh_source_key 用于改变父组件状态，但是在此不需要，因此传一个空函数
             refresh_source_key={ () => {} }
         /> : <div />}
 
@@ -3455,31 +3454,30 @@ const request_json_with_error_handling = async (url: string, options?: RequestOp
     }
 }
 
-function useInterval(callback, delay) {
-    const savedCallback = useRef();
+function useInterval (callback, delay) {
+    const savedCallback = useRef()
 
     useEffect(() => {
-        savedCallback.current = callback;
-    });
-
+        savedCallback.current = callback
+    })
     useEffect(() => {
-        function tick() {
+        function tick () {
             // @ts-ignore
-            savedCallback.current();
+            savedCallback.current()
         }
 
-        let id = setInterval(tick, delay);
-        return () => clearInterval(id);
-    }, [delay]);
+        let id = setInterval(tick, delay)
+        return () => clearInterval(id)
+    }, [delay])
 }
 
 class ErrorBoundary extends React.Component<any, any> {
-    constructor(props) {
-        super(props);
-        this.state = { error: null, errorInfo: null };
+    constructor (props) {
+        super(props)
+        this.state = { error: null, errorInfo: null }
     }
 
-    override componentDidCatch(error, errorInfo) {
+    override componentDidCatch (error, errorInfo) {
         // Catch errors in any components below and re-render with error message
         this.setState({
             error: error,
@@ -3488,8 +3486,8 @@ class ErrorBoundary extends React.Component<any, any> {
         // You can also log error messages to an error reporting service here
     }
 
-    override render() {
-        if (this.state.errorInfo) {
+    override render () {
+        if (this.state.errorInfo) 
             // Error path
             return (
                 <div>
@@ -3500,10 +3498,10 @@ class ErrorBoundary extends React.Component<any, any> {
                         {this.state.errorInfo.componentStack}
                     </details>
                 </div>
-            );
-        }
+            )
+        
         // Normally, just render children
-        return this.props.children;
+        return this.props.children
     }
 }
 

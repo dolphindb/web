@@ -98,7 +98,7 @@ export class CloudModel extends Model <CloudModel> {
     }
     
     /** 获取 namespace 字段可选值 */
-    async get_namespaces() {
+    async get_namespaces () {
         const { items: namespaces } = await request_json('/v1/namespaces')
         console.log('namespaces:', namespaces)
         this.set({
@@ -107,7 +107,7 @@ export class CloudModel extends Model <CloudModel> {
     }
 
     /** 获取 storage_class 字段可选值 */
-    async get_storageclasses() {
+    async get_storageclasses () {
         const { items: storageclasses } = await request_json('/v1/storageclasses')
         console.log('storageclasses:', storageclasses)
         this.set({
@@ -116,7 +116,7 @@ export class CloudModel extends Model <CloudModel> {
     }
 
     /** 获取 version 字段可选值 */
-    async get_versions() {
+    async get_versions () {
         const { items: versions } = await request_json('/v1/dolphindbs/versions')
         console.log('versions:', versions)
         this.set({

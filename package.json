@@ -10,7 +10,9 @@
         "typecheck": "tsc --noEmit",
         "build": "tsc --project ./tsconfig.node.json && node ./build.js",
         "build.cloud": "tsc --project ./tsconfig.node.json && node ./build.js cloud",
-        "scan": "i18n-scan --input \"**/*.{ts,tsx}\""
+        "scan": "i18n-scan --input \"**/*.{ts,tsx}\"",
+        "lint": "eslint \"**/*.{ts,tsx}\"",
+        "fix": "eslint --fix \"**/*.{ts,tsx}\""
     },
     "author": "Hongfei Shen <hongfei.shen@dolphindb.com> (https://dolphindb.net/hongfeishen)",
     "homepage": "https://github.com/dolphindb/web",
@@ -27,7 +29,10 @@
         "@types/react-dom": "^18.0.11",
         "@types/sass-loader": "^8.0.4",
         "@types/webpack-bundle-analyzer": "^4.6.0",
+        "@typescript-eslint/eslint-plugin": "^5.58.0",
+        "@typescript-eslint/parser": "^5.58.0",
         "css-loader": "^6.7.3",
+        "eslint": "^8.38.0",
         "license-webpack-plugin": "^4.0.2",
         "rc-table": "^7.31.1",
         "react": "^18.2.0",
