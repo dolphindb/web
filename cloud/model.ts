@@ -271,7 +271,8 @@ export interface Cluster {
         log_size: string
     }
     status: {
-        phase: 'Available' | string
+        // https://dolphindb1.atlassian.net/wiki/spaces/CC/pages/629080480/DolphinDB+Backup
+        phase: 'Available' | 'Ready' | 'Progressing' | 'Unschedulable' | 'Unavailable' | 'Unknown'
         message: string
     }
     services: {
@@ -334,7 +335,8 @@ export interface ClusterNode {
         }
     }
     status: {
-        phase: 'Available' | string
+        // https://dolphindb1.atlassian.net/wiki/spaces/CC/pages/629080480/DolphinDB+Backup
+        phase: 'Ready' | 'Progressing' | 'Unschedulable' | 'Unavailable' | 'Paused'
         message?: string
     }
     instance_service: {

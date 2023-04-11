@@ -1494,7 +1494,7 @@ function NodeList ({
                     title: t('操作'),
                     width: 300,
                     render (_, node) {
-                        const running = node.status.phase === 'Running'
+                        const running = node.status.phase === 'Ready'
                         
                         return <Space>
                             <Link
