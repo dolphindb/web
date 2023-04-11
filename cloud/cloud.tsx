@@ -488,7 +488,7 @@ function Clusters () {
         <Modal
             className='cloud-create-panel'
             open={update_modal_open}
-            title={t('升级 {{name}}', { name:current_cluster?.name })}
+            title={t('升级 {{name}}', { name: current_cluster?.name })}
             onCancel={() => {
                 set_update_modal_open(false)
             }}
@@ -1030,7 +1030,7 @@ function CreateClusterPanel ({
                 }
 
                 <Form.Item noStyle dependencies={[['version']]}>
-                    {({ getFieldValue })=>{
+                    {({ getFieldValue }) => {
                         const version: string = getFieldValue('version')
                         
                         if (version.startsWith('v1')) 
@@ -1459,7 +1459,7 @@ function NodeList ({
                 {
                     title: '内存',
                     dataIndex: ['resources'],
-                    render: (resources: ClusterNode['resources'])=>{
+                    render: (resources: ClusterNode['resources']) => {
                         const max = resources.limits.memory
                         const min = resources.requests.memory
                         return <div className='resources'>
@@ -1816,7 +1816,7 @@ function ClusterConfigs ({
                 title={t('确认提交?')}
                 visible={submitPopVisible}
                 onConfirm={onSubmitConfirm}
-                onCancel={() => {setSubmitPopVisible(false)}}
+                onCancel={() => { setSubmitPopVisible(false) }}
             >
                 <Button
                     type='primary'
@@ -1988,7 +1988,7 @@ function ConfigEditableList ({
                 bordered
                 dataSource={configList}
                 columns={mergedColumns}
-                rowClassName={(record) => {
+                rowClassName={record => {
                     if (editedList.find(val => val.name === record.name))
                         return 'editable-row edited-row' 
                     return 'editable-row'
@@ -2198,11 +2198,11 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
 function ShowBackupRestoreSourceKey () {
     const [tag, set_tag] = useState<'backups' | 'restores' | 'source_key'>('backups')
     return <Tabs
-        defaultActiveKey="1"
+        defaultActiveKey='1'
         size='large'
         centered
         destroyInactiveTabPane={true}
-        onChange={(key) => {
+        onChange={key => {
             switch (key) {
                 case '1':
                     set_tag('backups')
@@ -2277,10 +2277,10 @@ function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, ref
         open={source_key_modal_info.open}
         onCancel={() => { set_sourcekey_modal_open(false) }}
         footer={[
-            <Button key="back" onClick={() => { set_sourcekey_modal_open(false) }}>
+            <Button key='back' onClick={() => { set_sourcekey_modal_open(false) }}>
                 {t('取消')}
             </Button>,
-            <Button key="submit" type="primary" onClick={async () => {
+            <Button key='submit' type='primary' onClick={async () => {
                 const form_data = await form_object[source_key_modal_info.type].validateFields()
                 try {
                     await request_json_with_error_handling('/v1/dolphindbs/backups/config', {
@@ -2304,7 +2304,7 @@ function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, ref
         ]}
     >
         <Tabs
-            onChange={(activeKey) => {
+            onChange={activeKey => {
                 set_source_key_modal_info(
                     { ...source_key_modal_info, type: (activeKey as 'nfs' | 's3') }
                 )
@@ -2390,11 +2390,11 @@ function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, ref
                             
                             <Form.Item key='provider' name={'provider'} label={t('供应商')}>
                                 <Select
-                                onSelect={(x)=>{
+                                onSelect={x => {
                                     set_selected_provider(x)
                                 }}
                                 >
-                                    {providers.map((x) => {
+                                    {providers.map(x => {
                                         return <Option value={x}> {x} </Option>
                                     })}
                                 </Select>
@@ -2437,7 +2437,7 @@ const GiProcess = (str: string | number) => {
     return str.endsWith('Gi') ? str : str + 'Gi'
 }
 
-const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => void, type: 'backups' | 'restores' }> = (props) => {
+const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => void, type: 'backups' | 'restores' }> = props => {
     const { cluster } = model.use(['cluster'])
     const { namespace } = cluster
     // @ts-ignore
@@ -2450,7 +2450,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
         
         const _data = await request_json_with_error_handling(`/v1/dolphindbs/${namespace}/${model.cluster.name}/${props.type}/${props.name}`)
         // create_timestamp不展示,记为undefined
-        const data = { ..._data, phase: _data?.status.phase, create_timestamp:undefined }
+        const data = { ..._data, phase: _data?.status.phase, create_timestamp: undefined }
         setData(data)
     }
 
@@ -2657,13 +2657,13 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
         set_isntances_list_of_namespace(data)
     }
 
-    const refresh_content_of_restore_modal = async (instance_name) => {
+    const refresh_content_of_restore_modal = async instance_name => {
         const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${instance_name}`)
         data['from'] = instance_name
         set_content_of_restore_modal(data)
     }
 
-    const refresh_selectable_names = async (namespace) => {
+    const refresh_selectable_names = async namespace => {
         const data = await request_json_with_error_handling(`/v1/dolphindbs/?namespace=${namespace}`) as { items: { name, namespace }[] }
         set_selectable_names(data.items.map(x => x.name))
     }
@@ -2787,7 +2787,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                         }}
                                         onCancel={() => { }}
                                     >
-                                        <Link href="#">{t('删除')} </Link>
+                                        <Link href='#'>{t('删除')} </Link>
                                     </Popconfirm>
 
                                     <Popconfirm
@@ -2819,7 +2819,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                     >
                                         <Link
                                             disabled={ !(phase === 'Complete' || phase === 'Failed')}
-                                            href="#">{t('重新触发')} 
+                                            href='#'>{t('重新触发')} 
                                         </Link>
                                     </Popconfirm>
 
@@ -2872,10 +2872,10 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
             title={t('备份')}
             onCancel={() => { set_backup_modal_open(false) }}
             footer={[
-                <Button key="back" onClick={() => { set_backup_modal_open(false) }}>
+                <Button key='back' onClick={() => { set_backup_modal_open(false) }}>
                     {t('取消')}
                 </Button>,
-                <Button key="submit" type="primary" onClick={async () => {
+                <Button key='submit' type='primary' onClick={async () => {
                     var { source_key, prefix, storage_class, storage_resource } = await form_instance_backup.validateFields()
                     if (!source_key_detail) {
                         // source_key_detail在打开Modal的时候会被set，所以其必有值
@@ -2922,9 +2922,9 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                 name='source_key'
                                 rules={[{ required: true, message: t('此项必填') }]}
                             >
-                                <Select placeholder="source_key"
+                                <Select placeholder='source_key'
 
-                                    onSelect={async (value) => {
+                                    onSelect={async value => {
                                         // danger area start
                                         try {
                                             var data = (await form_instance_backup.validateFields())
@@ -3021,13 +3021,13 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
             title={t('还原')}
             onCancel={() => { set_restore_modal_open(false) }}
             footer={[
-                <Button key="back" onClick={() => { 
+                <Button key='back' onClick={() => { 
                     set_restore_modal_open(false)
-                    set_init_value_of_restore_modal({ dolphindb_name:'', dolphindb_namespace:'' }) }
+                    set_init_value_of_restore_modal({ dolphindb_name: '', dolphindb_namespace: '' }) }
                 }>
                     {t('取消')}
                 </Button>,
-                <Button key="submit" type="primary" onClick={async () => {
+                <Button key='submit' type='primary' onClick={async () => {
                     const { dolphindb_namespace, dolphindb_name } = await form_instance_restore.validateFields()
                     if (!content_of_restore_modal) {
                         message.error('The backup info corresponding to this restore is empty. Coder assertion failed.')
@@ -3051,7 +3051,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                         }
                     )
                     set_restore_modal_open(false)
-                    set_init_value_of_restore_modal({ dolphindb_namespace:'', dolphindb_name:'' })
+                    set_init_value_of_restore_modal({ dolphindb_namespace: '', dolphindb_name: '' })
 
                 }}>
                     {t('提交')}
@@ -3074,7 +3074,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
 
                 <Form.Item name='dolphindb_namespace' label={t('命名空间')}
                     rules={[{ required: true, message: t('此项必填') }]}>
-                    <Select onChange={async (value) => {
+                    <Select onChange={async value => {
                         refresh_selectable_names(value)
                         set_init_value_of_restore_modal({ dolphindb_namespace: value, dolphindb_name: undefined })
                     }}
@@ -3097,7 +3097,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                     rules={[{ required: true, message: t('此项必填') }]}
                 >
                     <Select>
-                        {selectable_names ? selectable_names.map((name) => {
+                        {selectable_names ? selectable_names.map(name => {
                             return <Option value={name} key={name} >{name}</Option>
                         }) :
                             undefined
@@ -3193,7 +3193,7 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
                                     }}
                                     onCancel={() => { }}
                                 >
-                                    <a href="#">{t('删除')} </a>
+                                    <a href='#'>{t('删除')} </a>
                                 </Popconfirm>]
                     }
                 }
@@ -3406,7 +3406,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
                                     }}
                                     onCancel={() => { }}
                                 >
-                                    <a href="#">{t('删除')} </a>
+                                    <a href='#'>{t('删除')} </a>
                                 </Popconfirm>]
                     }
                 }
