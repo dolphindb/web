@@ -155,9 +155,7 @@ export function Shell () {
             title={
                 <Title level={3}>Shell</Title>
             }
-            onBack={() => {
-                model.set({ view: 'cloud' })
-            }}
+            backIcon={null}
         />
         {font_loaded ?
             <div className='term' ref={rterminal} />
