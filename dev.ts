@@ -12,6 +12,9 @@ import { webpack, fpd_root, fpd_node_modules, fpd_src_console, fpd_src_cloud } f
 
 let c0 = new DDB('ws://127.0.0.1:8850')
 
+// k8s 开发环境使用自签名的证书
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 class DevServer extends Server {
     ddb_backend = '127.0.0.1:8848'
     
@@ -80,7 +83,7 @@ class DevServer extends Server {
         
         if (path.startsWith('/v1/')) {
             try {
-                response.body = await request_json(`http://192.168.0.65:31223${path}`, {
+                response.body = await request_json(`https://192.168.0.65:30443${path}`, {
                     method: method as any,
                     queries: query,
                     headers: headers as Record<string, string>,
