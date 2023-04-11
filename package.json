@@ -10,7 +10,9 @@
         "typecheck": "tsc --noEmit",
         "build": "tsc --project ./tsconfig.node.json && node ./build.js",
         "build.cloud": "tsc --project ./tsconfig.node.json && node ./build.js cloud",
-        "scan": "i18n-scan --input \"**/*.{ts,tsx}\""
+        "scan": "i18n-scan --input \"**/*.{ts,tsx}\"",
+        "lint": "eslint \"**/*.{ts,tsx}\"",
+        "fix": "eslint --fix \"**/*.{ts,tsx}\""
     },
     "author": "Hongfei Shen <hongfei.shen@dolphindb.com> (https://dolphindb.net/hongfeishen)",
     "homepage": "https://github.com/dolphindb/web",
