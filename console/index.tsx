@@ -339,7 +339,7 @@ function Perf () {
                     </Descriptions.Item>
                 </> }
             </Descriptions >
-            <Descriptions className='table' column={2} bordered size='small' title={t('网络', { context: "perf" })}>
+            <Descriptions className='table' column={2} bordered size='small' title={t('网络', { context: 'perf' })}>
                 <Descriptions.Item label={t('当前连接')}>
                     {node.connectionNum}
                 </Descriptions.Item>

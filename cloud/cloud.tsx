@@ -74,7 +74,7 @@ export function Cloud () {
 type FieldType = 'info' | 'config' | 'monitor' | 'backup'
 
 function Monitor ({ cluster }:{ cluster: Cluster }) {
-    return <iframe className='iframe' src={ model.monitor_url + '/?' +`&var-cluster_name=${cluster.name}&var-dolphindb_node=All` } />
+    return <iframe className='iframe' src={ model.monitor_url + '/?' + `&var-cluster_name=${cluster.name}&var-dolphindb_node=All` } />
 }
 
 function ClusterDetail () {
@@ -2256,7 +2256,7 @@ function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, ref
     const [nfs_form] = Form.useForm()
     const [s3_form] = Form.useForm()
 
-    const form_object = { 'nfs': nfs_form, 's3': s3_form }
+    const form_object = { nfs: nfs_form, s3: s3_form }
     useEffect(() => {
         (async () => {
             const fetched_providers = (await request_json_with_error_handling('/v1/dolphindbs/backups/providers'))['providers']
@@ -2294,7 +2294,7 @@ function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, ref
                     Modal.error(
                         {
                             title: 'Error',
-                            content: resp["errorMessage"]
+                            content: resp['errorMessage']
                         }
                     )
                 }
@@ -2457,7 +2457,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
     useEffect(() => {
         fetch_data()
         ;(async () => {
-            const data = await request_json_with_error_handling(`/v1/dolphindbs/backups/config`) as SourceKeyDetail[]
+            const data = await request_json_with_error_handling('/v1/dolphindbs/backups/config') as SourceKeyDetail[]
             set_source_key_detail(data)
         })()
     }, [props.open])
@@ -2636,13 +2636,13 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
     const [selected_remote_type, set_selected_remote_type] = useState<string>()
 
     const refresh_source_key = async () => {
-        const data = await request_json_with_error_handling(`/v1/dolphindbs/backups/config`)
+        const data = await request_json_with_error_handling('/v1/dolphindbs/backups/config')
         const fetched_source_keys = Object.keys(data)
         set_SourceKeys(fetched_source_keys)
     }
 
     const refresh_source_key_detail = async () => {
-        const data = await request_json_with_error_handling(`/v1/dolphindbs/backups/config`)
+        const data = await request_json_with_error_handling('/v1/dolphindbs/backups/config')
         set_source_key_detail(data)
 
     }
@@ -3332,7 +3332,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
 
 
     const refresh_source_key_detail = async () => {
-        const data = await request_json_with_error_handling(`/v1/dolphindbs/backups/config`)
+        const data = await request_json_with_error_handling('/v1/dolphindbs/backups/config')
         set_source_key_detail(data)
 
     }
