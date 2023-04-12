@@ -851,6 +851,26 @@ function CreateClusterPanel ({
         }
     }
     
+    const LicenseServer = <Form.Item noStyle dependencies={[['version']]}>
+        {({ getFieldValue }) => {
+            const version: string = getFieldValue('version')
+
+            if (version.startsWith('v1'))
+                if (version.slice(1, version.length) < '1.30.21')
+                    return
+
+            if (version.startsWith('v2'))
+                if (version.slice(1, version.length) < '2.00.9')
+                    return
+
+            return (
+                <Form.Item label={t('License Server 地址')} name='license_server_address'>
+                    <Input />
+                </Form.Item>
+            )
+        }}
+    </Form.Item>
+    
     return (
         <Modal 
             className='cloud-create-panel'
@@ -924,7 +944,8 @@ function CreateClusterPanel ({
                     resources: {
                         cpu: 1,
                         memory: 1,
-                    }
+                    },
+                    enable_jit: false
                 }}
 
                 onFieldsChange={(changeds, all) => {
@@ -955,7 +976,9 @@ function CreateClusterPanel ({
                 >
                 <Collapse.Panel key={1} header={
                     <span className='ant-divider-inner-text'>{t('基本信息')}</span>
-                }>
+                }
+                forceRender={true}
+                >
                 <Row>
                     <Col span={12}>
                         <Form.Item name='namespace' label={t('命名空间')} rules={[{ required: true }]}>
@@ -994,6 +1017,14 @@ function CreateClusterPanel ({
                                 }
                             </Select>
                         </Form.Item>
+                        
+                        <Form.Item name='mode' label={t('模式')} rules={[{ required: true }]}>
+                            <Select>
+                                <Option value='standalone'>{t('单机节点')}</Option>
+                                <Option value='cluster'>{t('集群')}</Option>
+                            </Select>
+                        </Form.Item>
+                        
                     </Col>
                     <Col span={12}>
 
@@ -1013,13 +1044,9 @@ function CreateClusterPanel ({
                             <Input />
                         </Form.Item>
                     
-                        <Form.Item name='mode' label={t('模式')} rules={[{ required: true }]}>
-                            <Select>
-                                <Option value='standalone'>{t('单机节点')}</Option>
-                                <Option value='cluster'>{t('集群')}</Option>
-                            </Select>
+                        <Form.Item name={'enable_jit'} label={t('启用 JIT')}>
+                            <Switch checkedChildren='ture' unCheckedChildren='false' autoFocus={true} />
                         </Form.Item>
-
 
 
                         <Form.Item name='log_mode' label={t('日志模式')} rules={[{ required: true }]}>
@@ -1029,50 +1056,31 @@ function CreateClusterPanel ({
                                 <Option value={2}>{t('同时输出到文件和标准输出')}</Option>
                             </Select>
                         </Form.Item>
+                        
+                        { mode === 'cluster' ? <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
+                            <Select>
+                                <Option value='singlecontroller'>{t('单控制节点')}</Option>
+                                <Option value='multicontroller'>{t('多控制节点')}</Option>
+                            </Select>
+                        </Form.Item> : LicenseServer }
+                        
                     </Col>
                 </Row>
                 
                 
                 
-                <Row className='optional-columns'>
-                    { mode === 'cluster' &&
-                        <Col span={12}>
-                            <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
-                                <Select>
-                                    <Option value='singlecontroller'>{t('单控制节点')}</Option>
-                                    <Option value='multicontroller'>{t('多控制节点')}</Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                    }
-                    
+                { mode === 'cluster' && <Row className='optional-columns'>
                     <Col span={12}>
-                        <Form.Item noStyle dependencies={[['version']]}>
-                            {({ getFieldValue }) => {
-                                const version: string = getFieldValue('version')
+                        { LicenseServer }
 
-                                if (version.startsWith('v1'))
-                                    if (version.slice(1, version.length) < '1.30.21')
-                                        return
-
-                                if (version.startsWith('v2'))
-                                    if (version.slice(1, version.length) < '2.00.9')
-                                        return
-
-                                return (
-                                    <Form.Item label={t('License Server 地址')} name='license_server_address'>
-                                        <Input />
-                                    </Form.Item>
-                                )
-                            }}
-                        </Form.Item>
                     </Col>
-                </Row>
+                </Row> }
                 </Collapse.Panel>
                 
                 { mode === 'cluster' && <Collapse.Panel key={2} header={
                     <span className='ant-divider-inner-text'>{t('控制节点')}</span>
                 }
+                forceRender={true}
                 >
                     
                     <Row className='optional-columns'>
@@ -1160,6 +1168,7 @@ function CreateClusterPanel ({
                 <Collapse.Panel key={3} header={
                     <span className='ant-divider-inner-text'>{t('数据节点')}</span>
                 }
+                forceRender={true}
                 >
 
                 <Row className='optional-columns'>
@@ -1237,6 +1246,7 @@ function CreateClusterPanel ({
                <Collapse.Panel key={4} header={
                     <span className='ant-divider-inner-text'>{t('计算节点')}</span>
                 }
+                forceRender={true}
                 >
                     <Row>
                         <Col span={12}>
@@ -1670,6 +1680,9 @@ const backup_statuses = {
     
     // 疑似弃用
     Cleaning: 'processing',
+    
+    // status.phase 有可能为 undefined, 展示时强行将其赋值为 Unschedulable
+    Unschedulable: 'processing',
 } satisfies Record<string, PresetStatusColorType>
 
 const restore_statuses = backup_statuses
@@ -1697,7 +1710,7 @@ function ClusterOrBackupStatus ({
     message?: string
     type: 'cluster' | 'backup' | 'restore' | 'node'
 }) {
-    phase ||= 'Processing'
+    phase ||= 'Unschedulable'
     return <Badge
         className='badge-status'
         text={
@@ -2651,6 +2664,9 @@ const backup_status_translations = {
     Cleaning: t('清理中'),
     Pending: t('准备中', { context: 'pending' }),
     Cleaned: t('清理完成'),
+    
+    // status.phase 有可能为 undefined, 展示时强行将其赋值为 Unschedulable
+    Unschedulable: t('等待调度')
 }
 
 const restore_status_translations = backup_status_translations
