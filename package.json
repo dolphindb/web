@@ -25,7 +25,7 @@
         "@types/koa": "^2.13.6",
         "@types/lodash": "^4.14.192",
         "@types/node": "^18.15.11",
-        "@types/react": "^18.0.33",
+        "@types/react": "^18.0.34",
         "@types/react-dom": "^18.0.11",
         "@types/sass-loader": "^8.0.4",
         "@types/webpack-bundle-analyzer": "^4.6.0",
@@ -36,12 +36,12 @@
         "license-webpack-plugin": "^4.0.2",
         "rc-table": "^7.31.1",
         "react": "^18.2.0",
-        "sass": "^1.61.0",
+        "sass": "^1.62.0",
         "sass-loader": "^13.2.2",
         "source-map-loader": "^4.0.1",
         "style-loader": "^3.3.2",
         "ts-loader": "^9.4.2",
-        "typescript": "^5.0.3",
+        "typescript": "^5.0.4",
         "upath": "^2.0.1",
         "webpack": "^5.78.0",
         "webpack-bundle-analyzer": "^4.8.0"
@@ -50,8 +50,8 @@
         "@ant-design/icons": "^5.0.1",
         "@ant-design/plots": "^1.2.5",
         "@ant-design/pro-layout": "^7.10.3",
-        "@monaco-editor/react": "^4.4.6",
-        "antd": "^5.4.0",
+        "@monaco-editor/react": "^4.5.0",
+        "antd": "^5.4.2",
         "dayjs": "^1.11.7",
         "dolphindb": "^2.0.954",
         "echarts": "^5.4.2",
@@ -65,7 +65,7 @@
         "tslib": "^2.5.0",
         "vscode-oniguruma": "^1.7.0",
         "vscode-textmate": "^9.0.0",
-        "xshell": "^1.0.23",
+        "xshell": "^1.0.24",
         "xterm": "^5.1.0",
         "xterm-addon-fit": "^0.7.0",
         "xterm-addon-web-links": "^0.8.0",
@@ -73,7 +73,6 @@
     },
     "pnpm": {
         "patchedDependencies": {
-            "@monaco-editor/react@4.4.6": "patches/@monaco-editor__react@4.4.6.patch",
             "webpack@5.78.0": "patches/webpack@5.78.0.patch"
         }
     }
