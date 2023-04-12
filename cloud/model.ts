@@ -53,6 +53,8 @@ export class CloudModel extends Model <CloudModel> {
     
     view: PageViews = 'cluster'
     
+    is_shell = new URLSearchParams(location.search).get('view') === 'shell'
+    
     clusters: Cluster[] = [ ]
     
     cluster: Cluster
@@ -65,8 +67,8 @@ export class CloudModel extends Model <CloudModel> {
     
     show_all_config = false
     
-    /** 以 http 开头, k8s 要求即使父页面用 https, iframe 也要用 http */
-    monitor_url: string
+    /** 以 // 开头, 不以 / 结尾 */
+    monitor_url = `//${location.host}/grafana`
     
     collapsed = localStorage.getItem('ddb-cloud.collapsed') === 'true'
     
@@ -79,18 +81,9 @@ export class CloudModel extends Model <CloudModel> {
             this.get_versions(),
         ])
         
-        this.get_monitor_url()
         
         this.set({
             inited: true,
-        })
-    }
-    
-    async get_monitor_url () {
-        const { ip, port } = await request_json('/v1/grafana/url')
-        
-        this.set({
-            monitor_url: `http://${ip}:${port}`
         })
     }
     
@@ -280,7 +273,8 @@ export interface Cluster {
         log_size: string
     }
     status: {
-        phase: 'Available' | string
+        // https://dolphindb1.atlassian.net/wiki/spaces/CC/pages/629080480/DolphinDB+Backup
+        phase: 'Available' | 'Ready' | 'Progressing' | 'Unschedulable' | 'Unavailable' | 'Unknown'
         message: string
     }
     services: {
@@ -343,7 +337,8 @@ export interface ClusterNode {
         }
     }
     status: {
-        phase: 'Available' | string
+        // https://dolphindb1.atlassian.net/wiki/spaces/CC/pages/629080480/DolphinDB+Backup
+        phase: 'Ready' | 'Progressing' | 'Unschedulable' | 'Unavailable' | 'Paused'
         message?: string
     }
     instance_service: {

@@ -24,7 +24,6 @@ import { connect_websocket } from 'xshell/net.browser.js'
 
 import { t } from '../i18n/index.js'
 
-import { model } from './model.js'
 
 
 export function Shell () {
@@ -155,9 +154,6 @@ export function Shell () {
             title={
                 <Title level={3}>Shell</Title>
             }
-            onBack={() => {
-                model.set({ view: 'cloud' })
-            }}
         />
         {font_loaded ?
             <div className='term' ref={rterminal} />
