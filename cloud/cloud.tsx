@@ -851,25 +851,6 @@ function CreateClusterPanel ({
         }
     }
     
-    const LicenseServer = <Form.Item noStyle dependencies={[['version']]}>
-        {({ getFieldValue }) => {
-            const version: string = getFieldValue('version')
-
-            if (version.startsWith('v1'))
-                if (version.slice(1, version.length) < '1.30.21')
-                    return
-
-            if (version.startsWith('v2'))
-                if (version.slice(1, version.length) < '2.00.9')
-                    return
-
-            return (
-                <Form.Item label={t('License Server 地址')} name='license_server_address'>
-                    <Input />
-                </Form.Item>
-            )
-        }}
-    </Form.Item>
     
     return (
         <Modal 
@@ -1018,12 +999,7 @@ function CreateClusterPanel ({
                             </Select>
                         </Form.Item>
                         
-                        <Form.Item name='mode' label={t('模式')} rules={[{ required: true }]}>
-                            <Select>
-                                <Option value='standalone'>{t('单机节点')}</Option>
-                                <Option value='cluster'>{t('集群')}</Option>
-                            </Select>
-                        </Form.Item>
+
                         
                     </Col>
                     <Col span={12}>
@@ -1057,24 +1033,51 @@ function CreateClusterPanel ({
                             </Select>
                         </Form.Item>
                         
-                        { mode === 'cluster' ? <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
+                    </Col>
+                </Row>
+                
+                <Row className='optional-columns'>
+                    <Col span={12}>
+                        <Form.Item name='mode' label={t('模式')} rules={[{ required: true }]}>
+                            <Select>
+                                <Option value='standalone'>{t('单机节点')}</Option>
+                                <Option value='cluster'>{t('集群')}</Option>
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                    
+                    {mode === 'cluster' && <Col span={12}>
+                        <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
                             <Select>
                                 <Option value='singlecontroller'>{t('单控制节点')}</Option>
                                 <Option value='multicontroller'>{t('多控制节点')}</Option>
                             </Select>
-                        </Form.Item> : LicenseServer }
-                        
-                    </Col>
-                </Row>
-                
-                
-                
-                { mode === 'cluster' && <Row className='optional-columns'>
+                        </Form.Item>
+                    </Col>}
+                    
                     <Col span={12}>
-                        { LicenseServer }
+                        <Form.Item noStyle dependencies={[['version']]}>
+                            {({ getFieldValue }) => {
+                                const version: string = getFieldValue('version')
 
+                                if (version.startsWith('v1'))
+                                    if (version.slice(1, version.length) < '1.30.21')
+                                        return
+
+                                if (version.startsWith('v2'))
+                                    if (version.slice(1, version.length) < '2.00.9')
+                                        return
+
+                                return (
+                                    <Form.Item label={t('License Server 地址')} name='license_server_address'>
+                                        <Input />
+                                    </Form.Item>
+                                )
+                            }}
+                        </Form.Item>
                     </Col>
-                </Row> }
+                        
+                </Row>
                 </Collapse.Panel>
                 
                 { mode === 'cluster' && <Collapse.Panel key={2} header={
