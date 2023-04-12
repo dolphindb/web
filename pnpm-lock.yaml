@@ -25,8 +25,8 @@ dependencies:
     specifier: ^1.11.7
     version: 1.11.7
   dolphindb:
-    specifier: ^2.0.954
-    version: 2.0.954(react-dom@18.2.0)
+    specifier: ^2.0.955
+    version: 2.0.955(react-dom@18.2.0)
   echarts:
     specifier: ^5.4.2
     version: 5.4.2
@@ -61,8 +61,8 @@ dependencies:
     specifier: ^9.0.0
     version: 9.0.0
   xshell:
-    specifier: ^1.0.24
-    version: 1.0.24(react-dom@18.2.0)
+    specifier: ^1.0.25
+    version: 1.0.25(react-dom@18.2.0)
   xterm:
     specifier: ^5.1.0
     version: 5.1.0
@@ -90,8 +90,8 @@ devDependencies:
     specifier: ^18.15.11
     version: 18.15.11
   '@types/react':
-    specifier: ^18.0.34
-    version: 18.0.34
+    specifier: ^18.0.35
+    version: 18.0.35
   '@types/react-dom':
     specifier: ^18.0.11
     version: 18.0.11
@@ -2436,11 +2436,11 @@ packages:
   /@types/react-dom@18.0.11:
     resolution: {integrity: sha512-O38bPbI2CWtgw/OoQoY+BRelw7uysmXbWvw3nLWO21H1HSh+GOlqPuXshJfjmpNlKiiSDG9cc1JZAaMmVdcTlw==}
     dependencies:
-      '@types/react': 18.0.34
+      '@types/react': 18.0.35
     dev: true
 
-  /@types/react@18.0.34:
-    resolution: {integrity: sha512-NO1UO8941541CJl1BeOXi8a9dNKFK09Gnru5ZJqkm4Q3/WoQJtHvmwt0VX0SB9YCEwe7TfSSxDuaNmx6H2BAIQ==}
+  /@types/react@18.0.35:
+    resolution: {integrity: sha512-6Laome31HpetaIUGFWl1VQ3mdSImwxtFZ39rh059a1MNnKGqBpC88J6NJ8n/Is3Qx7CefDGLgf/KhN/sYCf7ag==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
@@ -3648,14 +3648,14 @@ packages:
       esutils: 2.0.3
     dev: true
 
-  /dolphindb@2.0.954(react-dom@18.2.0):
-    resolution: {integrity: sha512-qPX7iHd/w6M9TXwLa8Q2kzAb8cfvoqi1R2OgaRPnmLYJHpNxkHLQYDfdIMOq6BRUVoZ7jcV5tAmcSKMW2b0NVQ==}
+  /dolphindb@2.0.955(react-dom@18.2.0):
+    resolution: {integrity: sha512-jgJglEvE9zLoCqnsoh129BWHeRYRs/YxFUSNgdnnXz/vHuRgSyA0Zrg6ginT6/U5I+o0TQ0vXbKTUyHZICjFMg==}
     engines: {node: '>=19.8.1'}
     dependencies:
       dayjs: 1.11.7
       ipaddr.js: 2.0.1
       tslib: 2.5.0
-      xshell: 1.0.24(react-dom@18.2.0)
+      xshell: 1.0.25(react-dom@18.2.0)
     transitivePeerDependencies:
       - bufferutil
       - react-dom
@@ -4116,10 +4116,6 @@ packages:
     dependencies:
       graceful-fs: 4.2.10
       through2: 2.0.5
-    dev: false
-
-  /fs-monkey@1.0.3:
-    resolution: {integrity: sha512-cybjIfiiE+pTWicSCLFHSrXZ6EilF30oh91FDP9S2B051prEa7QWfrVTQm10/dDpswBDXZugPa1Ogu8Yh+HV0Q==}
     dev: false
 
   /fs.realpath@1.0.0:
@@ -4847,8 +4843,8 @@ packages:
       express-useragent: 1.0.15
     dev: false
 
-  /koa@2.14.1:
-    resolution: {integrity: sha512-USJFyZgi2l0wDgqkfD27gL4YGno7TfUkcmOe6UOLFOVuN+J7FwnNu4Dydl4CUQzraM1lBAiGed0M9OVJoT0Kqw==}
+  /koa@2.14.2:
+    resolution: {integrity: sha512-VFI2bpJaodz6P7x2uyLiX6RLYpZmOJqNmoCst/Yyd7hQlszyPwG/I9CQJ63nOtKSxpt5M7NH67V6nJL2BwCl7g==}
     engines: {node: ^4.8.4 || ^6.10.1 || ^7.10.1 || >= 8.1.4}
     dependencies:
       accepts: 1.3.8
@@ -7252,9 +7248,9 @@ packages:
         optional: true
     dev: false
 
-  /xshell@1.0.24(react-dom@18.2.0):
-    resolution: {integrity: sha512-rK6mRsU9JeY8cGgsUpP699nsiocKNAsgqWjx7369nUh2Ly2u+xi+Nb7x0c/lLePa5HR0cc5aleqQZ09GHzQtpw==}
-    engines: {node: '>=19.8.1', vscode: '>=1.77.0'}
+  /xshell@1.0.25(react-dom@18.2.0):
+    resolution: {integrity: sha512-rb8wQxrOWAi1o2beKXK3ZtceqC2hBbh4sDuVKVt43eIyj65jh+OV+zjU8TPA0Xb7n/bHcU6gil/7sJwdn0BAww==}
+    engines: {node: '>=19.9.0', vscode: '>=1.77.0'}
     hasBin: true
     dependencies:
       '@babel/core': 7.21.4
@@ -7272,13 +7268,12 @@ packages:
       emoji-regex: 10.2.1
       fetch-cookie: 2.1.0
       fs-extra: 11.1.1
-      fs-monkey: 1.0.3
       gulp-sort: 2.0.0
       hash-string: 1.0.0
       i18next: 22.4.14
       i18next-scanner: 4.2.0
       js-cookie: 3.0.1
-      koa: 2.14.1
+      koa: 2.14.2
       koa-compress: 5.1.1
       koa-useragent: 4.1.0
       lodash: 4.17.21
