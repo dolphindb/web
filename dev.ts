@@ -158,7 +158,7 @@ class DevServer extends Server {
                 ) ||
                 
                 // index.html
-                await this.try_send(
+                this.try_send(
                     ctx,
                     fp,
                     {
