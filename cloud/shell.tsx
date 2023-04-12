@@ -34,7 +34,7 @@ export function Shell () {
     
     useEffect(() => {
         if (!font_loaded) {
-            ;(async () => {
+            (async () => {
                 await document.fonts.ready
                 console.log(t('字体已全部加载'))
                 set_font_loaded(true)
