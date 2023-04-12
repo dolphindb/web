@@ -489,7 +489,7 @@ function Clusters () {
         />
         
         <Modal
-            className='cloud-create-panel'
+            className='cloud-update'
             open={update_modal_open}
             title={t('升级 {{name}}', { name: current_cluster?.name })}
             onCancel={() => {
@@ -873,7 +873,7 @@ function CreateClusterPanel ({
     
     return (
         <Modal 
-            className='cloud-create-panel'
+            className='cloud-create-cluster'
             title={t('新建集群配置')}
             visible={visible}
             onOk={closePanel}
@@ -1100,12 +1100,12 @@ function CreateClusterPanel ({
                     </Row>
                     <Row>
                     <Col span={12}>
-                        <Form.Item name={['controller', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]}>
+                        <Form.Item name={['controller', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
                             <InputNumber min={0}  addonAfter='Gi' />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item name={['controller', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]}>
+                        <Form.Item name={['controller', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
                             <InputNumber min={0} addonAfter='Gi' />
                         </Form.Item>
                     </Col>
@@ -1186,7 +1186,7 @@ function CreateClusterPanel ({
                 <Row>
                     <Col span={12}>
 
-                        <Form.Item name={['datanode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]}>
+                        <Form.Item name={['datanode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
                             <InputNumber min={0} addonAfter='Gi' />
                         </Form.Item>
                         
@@ -1213,7 +1213,7 @@ function CreateClusterPanel ({
                     </Col>
                     
                     <Col span={12}>
-                        <Form.Item name={['datanode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]}>
+                        <Form.Item name={['datanode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
                             <InputNumber min={0} addonAfter='Gi' />
                         </Form.Item>
                         
@@ -1254,7 +1254,7 @@ function CreateClusterPanel ({
                                 <InputNumber min={0} precision={0} />
                             </Form.Item>
                             
-                            <Form.Item name={['computenode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]}>
+                            <Form.Item name={['computenode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
                                 <InputNumber min={0} addonAfter='Gi' />
                             </Form.Item>
                             
@@ -1286,7 +1286,7 @@ function CreateClusterPanel ({
                                     <InputNumber min={0} />
                                 </Form.Item>
 
-                                <Form.Item name={['computenode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]}>
+                                <Form.Item name={['computenode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
                                     <InputNumber min={0} addonAfter='Gi' />
                                 </Form.Item>
 
@@ -3085,6 +3085,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                         <Form.Item
                             name={'storage_resource'}
                             label={t('存储空间')}
+                            className='space'
                         >
                             <InputNumber addonAfter='Gi' min={1}  />
                         </Form.Item>

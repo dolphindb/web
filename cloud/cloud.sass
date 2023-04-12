@@ -169,23 +169,17 @@
                 align-items: center
 
 // modal
-.cloud-create-panel
+.cloud-create-cluster, .cloud-update
     
     .ant-divider-inner-text
         font-weight: bold
-        font-size: 16px
     
     .ant-row
         justify-content: center
     
     .ant-form-item-label
         padding-left: 15px
-        max-width: 100%
-        flex-grow: 0.2
     
-    .ant-form-item-control
-        max-width: unset
-        flex-grow: 0.8
     .ant-form-item
         margin-bottom: 18px
         .limit
@@ -195,12 +189,31 @@
             .ant-col
                 padding-left: 0px
     
+    .space
+        .ant-row
+            justify-content: left
+            
+            .ant-form-item-control
+                max-width: 150px
+    
     .optional-columns
         justify-content: unset
     
     .ant-form-item-required::before
         position: absolute
         right: -4px
+
+.cloud-create-cluster
+    .ant-divider-inner-text
+        font-size: 16px
+    
+    .ant-form-item-label
+        max-width: unset
+        flex-grow: 0.2
+
+    .ant-form-item-control
+        max-width: unset
+        flex-grow: 0.8
 
 .dashboard-for-one-name
     .ant-descriptions
