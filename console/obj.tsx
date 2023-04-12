@@ -195,7 +195,7 @@ function Dict ({
             
             const { node, name } = objref
             
-            console.log(`dict.fetch:`, name)
+            console.log('dict.fetch:', name)
             
             objref.obj = ddb ?
                 await ddb.eval<DdbDictObj>(name)
@@ -925,7 +925,7 @@ export function StreamingTable ({
         <div>上面两个应该相等</div>
         
         <div style={{ margin: '10px 0px' }}>
-            自动添加数据: <Switch onChange={(checked) => {
+            自动添加数据: <Switch onChange={checked => {
                 rauto_append.current = checked
                 rerender({ })
             }}/>
@@ -1686,7 +1686,7 @@ function Chart ({
                         radius={0.9}
                         label={{
                             type: 'spider',
-                            content: `{name}: {percentage}`,
+                            content: '{name}: {percentage}',
                         }}
                         padding='auto'
                     />

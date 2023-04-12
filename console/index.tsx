@@ -339,7 +339,7 @@ function Perf () {
                     </Descriptions.Item>
                 </> }
             </Descriptions >
-            <Descriptions className='table' column={2} bordered size='small' title={t('网络', { context: "perf" })}>
+            <Descriptions className='table' column={2} bordered size='small' title={t('网络', { context: 'perf' })}>
                 <Descriptions.Item label={t('当前连接')}>
                     {node.connectionNum}
                 </Descriptions.Item>
@@ -521,11 +521,11 @@ function Settings () {
                         <div className='decimals-toolbar'>
                             <span className='decimals-toolbar-input'>
                                 {t('设置小数位数: ')}
-                                <Tooltip title={t('输入应为空或介于 0 ~ 20')} placement="topLeft">
+                                <Tooltip title={t('输入应为空或介于 0 ~ 20')} placement='topLeft'>
                                     <InputNumber
                                         min={0}
                                         max={20}
-                                        onStep={(value) => {
+                                        onStep={value => {
                                             set_decimals(validate(value.toString()))
                                         }}
                                         onInput={(text: string) => {
