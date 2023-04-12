@@ -148,7 +148,7 @@ export function Shell () {
     }, [font_loaded])
     
     
-    return <div className='shell'>
+    return <>
         <PageHeader
             className='shell-header'
             title={
@@ -160,5 +160,5 @@ export function Shell () {
         :
             <div className='term-loading'>{t('正在加载字体...')}</div>
         }
-    </div>
+    </>
 }

@@ -62,17 +62,17 @@ function DolphinDB () {
             <Layout.Header className='ddb-header'>
                 <DdbHeader />
             </Layout.Header>
-        {is_shell ?
-            <div className='view-shell' >
-                <Shell />
-            </div>
-        :
-            <Layout className='body' hasSider>
-                <DdbSider />
-                <Layout.Content className='view'>
-                    <DdbContent />
-                </Layout.Content>
-            </Layout>}
+            {is_shell ?
+                <div className='view shell' >
+                    <Shell />
+                </div>
+            :
+                <Layout className='body' hasSider>
+                    <DdbSider />
+                    <Layout.Content className='view'>
+                        <DdbContent />
+                    </Layout.Content>
+                </Layout>}
         </Layout>
     </ConfigProvider>
 }
