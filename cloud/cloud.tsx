@@ -1278,7 +1278,7 @@ function CreateClusterPanel ({
                                     >
                                         <InputNumber min={0} addonAfter={t('核')} />
                                     </Form.Item>
-                                    <div style={{ height:18 }}></div>
+                                    <div style={{ height: 18 }}></div>
                                     <Form.Item
                                         name={['computenode', 'resources', 'requests', 'cpu']}
                                         dependencies={[['computenode', 'resources', 'limits', 'cpu']]}
