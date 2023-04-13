@@ -596,6 +596,9 @@ function Clusters () {
                 }
                 
                 <Divider orientation='left'>{t('数据节点')}</Divider>
+                {mode === 'cluster' && <Form.Item name={['datanode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
+                    <InputNumber min={0} precision={0} />
+                </Form.Item>}
                 <Form.Item label='CPU'>
                     <Input.Group compact>
                         <Form.Item
@@ -646,6 +649,9 @@ function Clusters () {
                     <>
                         <Divider orientation='left'>{t('计算节点')}</Divider>
 
+                        <Form.Item name={['computenode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
+                                <InputNumber min={0} precision={0} />
+                            </Form.Item>
                         <Form.Item label='CPU'>
                             <Input.Group compact>
                                 <Form.Item
@@ -813,7 +819,6 @@ function CreateClusterPanel ({
         }
     }
     
-    
     return (
         <Modal 
             className='cloud-create-cluster'
@@ -914,376 +919,364 @@ function CreateClusterPanel ({
                     }
                 }}
             >
-                <Collapse bordered={false}
-                    ghost={true}
-                    defaultActiveKey={1}
+                <Collapse
+                    bordered={false} ghost={true} defaultActiveKey={1}
                 >
-                <Collapse.Panel key={1} header={
-                    <span className='ant-divider-inner-text'>{t('基本信息')}</span>
-                }
-                forceRender={true}
-                >
-                <Row>
-                    <Col span={12}>
-                        <Form.Item name='namespace' label={t('命名空间')} rules={[{ required: true }]}>
-                            <Select placeholder='Please select a namespace'>
-                                {
-                                    namespaces.length !== 0 ?
-                                        namespaces.map(ns => (
-                                            <Option value={ns.name} key={ns.name}>{ns.name}</Option>
-                                        ))
-                                        :
-                                        <Option value=''>{''}</Option>
-                                }
-                            </Select>
-                        </Form.Item>
-                        <Form.Item name='version' label={t('版本')} rules={[{ required: true }]}>
-                            <Select>
-                                {
-                                    versions.length !== 0 ?
-                                        versions.map(v => (
-                                            <Option value={v} key={v}>{v}</Option>
-                                        ))
-                                        :
-                                        <Option value=''>{''}</Option>
-                                }
-                            </Select>
-                        </Form.Item>
-                        <Form.Item name='storage_class' label={t('存储类')}>
-                            <Select placeholder='Please select a storage class' >
-                                {
-                                    storageclasses.length !== 0 ?
-                                        storageclasses.map(sc => (
-                                            <Option value={sc.name} key={sc.name}>{sc.name}</Option>
-                                        ))
-                                        :
-                                        <Option value=''>{''}</Option>
-                                }
-                            </Select>
-                        </Form.Item>
-                        
+                    <Collapse.Panel
+                        key={1} header={<span className='ant-divider-inner-text'>{t('基本信息')}</span>} forceRender={true}
+                    >
+                        <Row>
+                            <Col span={12}>
+                                <Form.Item name='namespace' label={t('命名空间')} rules={[{ required: true }]}>
+                                    <Select placeholder='Please select a namespace'>
+                                        {
+                                            namespaces.length !== 0 ?
+                                                namespaces.map(ns => (
+                                                    <Option value={ns.name} key={ns.name}>{ns.name}</Option>
+                                                ))
+                                                :
+                                                <Option value=''>{''}</Option>
+                                        }
+                                    </Select>
+                                </Form.Item>
+                                <Form.Item name='version' label={t('版本')} rules={[{ required: true }]}>
+                                    <Select>
+                                        {
+                                            versions.length !== 0 ?
+                                                versions.map(v => (
+                                                    <Option value={v} key={v}>{v}</Option>
+                                                ))
+                                                :
+                                                <Option value=''>{''}</Option>
+                                        }
+                                    </Select>
+                                </Form.Item>
+                                <Form.Item name='storage_class' label={t('存储类')}>
+                                    <Select placeholder='Please select a storage class' >
+                                        {
+                                            storageclasses.length !== 0 ?
+                                                storageclasses.map(sc => (
+                                                    <Option value={sc.name} key={sc.name}>{sc.name}</Option>
+                                                ))
+                                                :
+                                                <Option value=''>{''}</Option>
+                                        }
+                                    </Select>
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
 
-                        
-                    </Col>
-                    <Col span={12}>
+                                <Form.Item
+                                    name='name'
+                                    label={t('名称')}
+                                    tooltip={t("只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")}
+                                    rules={[{
+                                        required: true,
+                                        pattern: new RegExp('^[a-z]([-a-z0-9]*[a-z0-9])*$'),
+                                    }]}
+                                    messageVariables={{
+                                        pattern: t("集群名称只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")
+                                    }}
+                                    validateTrigger='onBlur'
+                                >
+                                    <Input />
+                                </Form.Item>
+                            
+                                <Form.Item name={'enable_jit'} label={t('启用 JIT')} valuePropName='checked'>
+                                    <Switch />
+                                </Form.Item>
 
-                        <Form.Item
-                            name='name'
-                            label={t('名称')}
-                            tooltip={t("只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")}
-                            rules={[{
-                                required: true,
-                                pattern: new RegExp('^[a-z]([-a-z0-9]*[a-z0-9])*$'),
-                            }]}
-                            messageVariables={{
-                                pattern: t("集群名称只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")
-                            }}
-                            validateTrigger='onBlur'
-                        >
-                            <Input />
-                        </Form.Item>
-                    
-                        <Form.Item name={'enable_jit'} label={t('启用 JIT')} valuePropName='checked'>
-                            <Switch />
-                        </Form.Item>
-
-
-                        <Form.Item name='log_mode' label={t('日志模式')} rules={[{ required: true }]}>
-                            <Select>
-                                <Option value={0}>{t('输出到文件')}</Option>
-                                <Option value={1}>{t('输出到标准输出')}</Option>
-                                <Option value={2}>{t('同时输出到文件和标准输出')}</Option>
-                            </Select>
-                        </Form.Item>
-                        
-                    </Col>
-                </Row>
-                
-                <Row className='optional-columns'>
-                    <Col span={12}>
-                        <Form.Item name='mode' label={t('模式')} rules={[{ required: true }]}>
-                            <Select>
-                                <Option value='standalone'>{t('单机节点')}</Option>
-                                <Option value='cluster'>{t('集群')}</Option>
-                            </Select>
-                        </Form.Item>
-                    </Col>
-                    
-                    {mode === 'cluster' && <Col span={12}>
-                        <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
-                            <Select>
-                                <Option value='singlecontroller'>{t('单控制节点')}</Option>
-                                <Option value='multicontroller'>{t('多控制节点')}</Option>
-                            </Select>
-                        </Form.Item>
-                    </Col>}
-                    
-                    <Col span={12}>
-                        <Form.Item noStyle dependencies={[['version']]}>
-                            {({ getFieldValue }) => {
-                                const version: string = getFieldValue('version')
-
-                                if (version.startsWith('v1'))
-                                    if (version.slice(1, version.length) < '1.30.21')
-                                        return
-
-                                if (version.startsWith('v2'))
-                                    if (version.slice(1, version.length) < '2.00.9')
-                                        return
-
-                                return (
-                                    <Form.Item label={t('License Server 地址')} name='license_server_address'>
-                                        <Input />
-                                    </Form.Item>
-                                )
-                            }}
-                        </Form.Item>
-                    </Col>
-                        
-                </Row>
-                </Collapse.Panel>
-                
-                { mode === 'cluster' && <Collapse.Panel key={2} header={
-                    <span className='ant-divider-inner-text'>{t('控制节点')}</span>
-                }
-                forceRender={true}
-                >
-                    
-                    <Row className='optional-columns'>
-                        
-                    { cluster_type === 'multicontroller' && <Col span={12}>
-                    <Form.Item name={['controller', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
-                        <InputNumber min={3} precision={0} />
-                    </Form.Item>
-                    </Col>
-                    }
-                    
-                    <Col span={12}>
-                            <Form.Item name={['controller', 'port']} label={t('端口')} rules={[{ required: true }]}>
-                                <InputNumber min={0} />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row>
-                    <Col span={12}>
-                        <Form.Item name={['controller', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
-                            <InputNumber min={0}  addonAfter='Gi' />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name={['controller', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
-                            <InputNumber min={0} addonAfter='Gi' />
-                        </Form.Item>
-                    </Col>
-                    
-                    </Row>
-                    
-                    <Row>
-                        <Col span={12}>
-                            <Form.Item label='CPU' >
+                                <Form.Item name='log_mode' label={t('日志模式')} rules={[{ required: true }]}>
+                                    <Select>
+                                        <Option value={0}>{t('输出到文件')}</Option>
+                                        <Option value={1}>{t('输出到标准输出')}</Option>
+                                        <Option value={2}>{t('同时输出到文件和标准输出')}</Option>
+                                    </Select>
+                                </Form.Item>
                                 
-                                <Form.Item
-                                    name={['controller', 'resources', 'limits', 'cpu']}
-                                    dependencies={[['controller', 'resources', 'requests', 'cpu']]}
-                                    label={t('上限')}
-                                    rules={[{ required: true, validator: create_validate_limit_function('controller', 'cpu', false) }]}
-                                    className='limit'
-                                >
-                                    <InputNumber min={0} addonAfter={t('核')} />
+                            </Col>
+                        </Row>
+                    
+                        <Row className='optional-columns'>
+                            <Col span={12}>
+                                <Form.Item name='mode' label={t('模式')} rules={[{ required: true }]}>
+                                    <Select>
+                                        <Option value='standalone'>{t('单机节点')}</Option>
+                                        <Option value='cluster'>{t('集群')}</Option>
+                                    </Select>
                                 </Form.Item>
-                                <div style={{ height: 18 }}></div>
-                                <Form.Item
-                                    name={['controller', 'resources', 'requests', 'cpu']}
-                                    dependencies={[['controller', 'resources', 'limits', 'cpu']]}
-                                    label={t('下限')}
-                                    rules={[{ validator: create_validate_limit_function('controller', 'cpu', true) }]}
-                                    className='limit'
-                                >
-                                    <InputNumber min={0} addonAfter={t('核')} />
+                            </Col>
+                            
+                            {mode === 'cluster' && <Col span={12}>
+                                <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
+                                    <Select>
+                                        <Option value='singlecontroller'>{t('单控制节点')}</Option>
+                                        <Option value='multicontroller'>{t('多控制节点')}</Option>
+                                    </Select>
                                 </Form.Item>
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item label={t('内存')}>
-                                    <Form.Item
-                                        name={['controller', 'resources', 'limits', 'memory']}
-                                        dependencies={[['controller', 'resources', 'requests', 'memory']]}
-                                        label={t('上限')}
-                                        rules={[{ required: true, validator: create_validate_limit_function('controller', 'memory', false) }]}
-                                        className='limit'
-                                    >
+                            </Col>}
+                            
+                            <Col span={12}>
+                                <Form.Item noStyle dependencies={[['version']]}>
+                                    {({ getFieldValue }) => {
+                                        const version: string = getFieldValue('version')
+
+                                        if (version.startsWith('v1'))
+                                            if (version.slice(1, version.length) < '1.30.21')
+                                                return
+
+                                        if (version.startsWith('v2'))
+                                            if (version.slice(1, version.length) < '2.00.9')
+                                                return
+
+                                        return (
+                                            <Form.Item label={t('License Server 地址')} name='license_server_address'>
+                                                <Input />
+                                            </Form.Item>
+                                        )
+                                    }}
+                                </Form.Item>
+                            </Col>
+                                
+                        </Row>
+                    </Collapse.Panel>
+                    
+                    {mode === 'cluster' && <Collapse.Panel
+                        key={2}
+                        header={<span className='ant-divider-inner-text'>{t('控制节点')}</span>}
+                        forceRender={true}>
+                            <Row className='optional-columns'>
+                                {cluster_type === 'multicontroller' && <Col span={12}>
+                                    <Form.Item name={['controller', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
+                                        <InputNumber min={3} precision={0} />
+                                    </Form.Item>
+                                </Col>
+                                }
+
+                                <Col span={12}>
+                                    <Form.Item name={['controller', 'port']} label={t('端口')} rules={[{ required: true }]}>
+                                        <InputNumber min={0} />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={12}>
+                                    <Form.Item name={['controller', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
                                         <InputNumber min={0} addonAfter='Gi' />
                                     </Form.Item>
-                                    <div style={{ height: 18 }}></div>
-                                    <Form.Item
-                                        name={['controller', 'resources', 'requests', 'memory']}
-                                        dependencies={[['controller', 'resources', 'limits', 'memory']]}
-                                        label={t('下限')}
-                                        rules={[{ validator: create_validate_limit_function('controller', 'memory', true) }]}
-                                        className='limit'
-                                    >
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item name={['controller', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
                                         <InputNumber min={0} addonAfter='Gi' />
                                     </Form.Item>
-                                
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    
-                </Collapse.Panel> }
+                                </Col>
 
-                <Collapse.Panel key={3} header={
-                    <span className='ant-divider-inner-text'>{t('数据节点')}</span>
-                }
-                forceRender={true}
-                >
-
-                <Row className='optional-columns'>
-                    {mode === 'cluster' && <Col span={12}><Form.Item name={['datanode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
-                        <InputNumber min={0} precision={0} />
-                    </Form.Item>
-                    </Col>
-                    }
-                    <Col span={12}>
-                    <Form.Item name={['datanode', 'port']} label={t('端口')} rules={[{ required: true }]}>
-                            <InputNumber min={0} />
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col span={12}>
-
-                        <Form.Item name={['datanode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
-                            <InputNumber min={0} addonAfter='Gi' />
-                        </Form.Item>
+                            </Row>
                         
-                        <Form.Item label='CPU' >
-                            <Form.Item
-                                name={['datanode', 'resources', 'limits', 'cpu']}
-                                dependencies={[['datanode', 'resources', 'requests', 'cpu']]}
-                                label={t('上限')}
-                                rules={[{ required: true, validator: create_validate_limit_function('datanode', 'cpu', false) }]}
-                                className='limit'>
-                                <InputNumber min={0} addonAfter={t('核')} />
-                            </Form.Item>
-                            <div style={{ height: 18 }}></div>
-                            <Form.Item
-                                name={['datanode', 'resources', 'requests', 'cpu']}
-                                dependencies={[['datanode', 'resources', 'limits', 'cpu']]}
-                                label={t('下限')}
-                                rules={[{ validator: create_validate_limit_function('datanode', 'cpu', true) }]}
-                                className='limit'
-                            >
-                                <InputNumber min={0} addonAfter={t('核')} />
-                            </Form.Item>
-                        </Form.Item>
-                    </Col>
-                    
-                    <Col span={12}>
-                        <Form.Item name={['datanode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
-                            <InputNumber min={0} addonAfter='Gi' />
-                        </Form.Item>
+                            <Row>
+                                <Col span={12}>
+                                    <Form.Item label='CPU' >
+                                        
+                                        <Form.Item
+                                            name={['controller', 'resources', 'limits', 'cpu']}
+                                            dependencies={[['controller', 'resources', 'requests', 'cpu']]}
+                                            label={t('上限')}
+                                            rules={[{ required: true, validator: create_validate_limit_function('controller', 'cpu', false) }]}
+                                            className='limit'
+                                        >
+                                            <InputNumber min={0} addonAfter={t('核')} />
+                                        </Form.Item>
+                                        <div style={{ height: 18 }}></div>
+                                        <Form.Item
+                                            name={['controller', 'resources', 'requests', 'cpu']}
+                                            dependencies={[['controller', 'resources', 'limits', 'cpu']]}
+                                            label={t('下限')}
+                                            rules={[{ validator: create_validate_limit_function('controller', 'cpu', true) }]}
+                                            className='limit'
+                                        >
+                                            <InputNumber min={0} addonAfter={t('核')} />
+                                        </Form.Item>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item label={t('内存')}>
+                                            <Form.Item
+                                                name={['controller', 'resources', 'limits', 'memory']}
+                                                dependencies={[['controller', 'resources', 'requests', 'memory']]}
+                                                label={t('上限')}
+                                                rules={[{ required: true, validator: create_validate_limit_function('controller', 'memory', false) }]}
+                                                className='limit'
+                                            >
+                                                <InputNumber min={0} addonAfter='Gi' />
+                                            </Form.Item>
+                                            <div style={{ height: 18 }}></div>
+                                            <Form.Item
+                                                name={['controller', 'resources', 'requests', 'memory']}
+                                                dependencies={[['controller', 'resources', 'limits', 'memory']]}
+                                                label={t('下限')}
+                                                rules={[{ validator: create_validate_limit_function('controller', 'memory', true) }]}
+                                                className='limit'
+                                            >
+                                                <InputNumber min={0} addonAfter='Gi' />
+                                            </Form.Item>
+                                        
+                                    </Form.Item>
+                                </Col>
+                            </Row>
                         
-                        <Form.Item label={t('内存')}>
-                            <Form.Item
-                                name={['datanode', 'resources', 'limits', 'memory']}
-                                dependencies={[['datanode', 'resources', 'requests', 'memory']]}
-                                label={t('上限')}
-                                rules={[{ required: true, validator: create_validate_limit_function('datanode', 'memory', false) }]}
-                                className='limit'
-                            >
-                                <InputNumber min={0} addonAfter='Gi' />
-                            </Form.Item>
-                            <div style={{ height: 18 }}></div>
-                            <Form.Item
-                                name={['datanode', 'resources', 'requests', 'memory']}
-                                dependencies={[['datanode', 'resources', 'limits', 'memory']]}
-                                label={t('下限')}
-                                rules={[{ validator: create_validate_limit_function('datanode', 'memory', true) }]}
-                                className='limit'
-                            >
-                                <InputNumber min={0} addonAfter='Gi' />
-                            </Form.Item>
-                        </Form.Item>
-                    </Col>
-                </Row>
-                </Collapse.Panel>
-                
-               { mode === 'cluster' && <>
-               <Collapse.Panel key={4} header={
-                    <span className='ant-divider-inner-text'>{t('计算节点')}</span>
-                }
-                forceRender={true}
-                >
-                    <Row>
-                        <Col span={12}>
-                            <Form.Item name={['computenode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
+                    </Collapse.Panel> }
+
+                    <Collapse.Panel 
+                        key={3} 
+                        header={<span className='ant-divider-inner-text'>{t('数据节点')}</span>}
+                        forceRender={true}
+                    >
+
+                        <Row className='optional-columns'>
+                            {mode === 'cluster' && <Col span={12}><Form.Item name={['datanode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
                                 <InputNumber min={0} precision={0} />
                             </Form.Item>
-                            
-                            <Form.Item name={['computenode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
-                                <InputNumber min={0} addonAfter='Gi' />
-                            </Form.Item>
-                            
-                            
-                            <Form.Item label='CPU'>
+                            </Col>
+                            }
+                            <Col span={12}>
+                            <Form.Item name={['datanode', 'port']} label={t('端口')} rules={[{ required: true }]}>
+                                    <InputNumber min={0} />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={12}>
+
+                                <Form.Item name={['datanode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
+                                    <InputNumber min={0} addonAfter='Gi' />
+                                </Form.Item>
+                                
+                                <Form.Item label='CPU' >
                                     <Form.Item
-                                        name={['computenode', 'resources', 'limits', 'cpu']}
-                                        dependencies={[['computenode', 'resources', 'requests', 'cpu']]}
+                                        name={['datanode', 'resources', 'limits', 'cpu']}
+                                        dependencies={[['datanode', 'resources', 'requests', 'cpu']]}
                                         label={t('上限')}
-                                        rules={[{ required: true, validator: create_validate_limit_function('computenode', 'cpu', false) }]}
-                                        className='limit'
-                                    >
+                                        rules={[{ required: true, validator: create_validate_limit_function('datanode', 'cpu', false) }]}
+                                        className='limit'>
                                         <InputNumber min={0} addonAfter={t('核')} />
                                     </Form.Item>
                                     <div style={{ height: 18 }}></div>
                                     <Form.Item
-                                        name={['computenode', 'resources', 'requests', 'cpu']}
-                                        dependencies={[['computenode', 'resources', 'limits', 'cpu']]}
+                                        name={['datanode', 'resources', 'requests', 'cpu']}
+                                        dependencies={[['datanode', 'resources', 'limits', 'cpu']]}
                                         label={t('下限')}
-                                        rules={[{ validator: create_validate_limit_function('computenode', 'cpu', true) }]}
+                                        rules={[{ validator: create_validate_limit_function('datanode', 'cpu', true) }]}
                                         className='limit'
                                     >
                                         <InputNumber min={0} addonAfter={t('核')} />
                                     </Form.Item>
-                            </Form.Item>
-                        </Col>
-                            <Col span={12}>
-                                <Form.Item name={['computenode', 'port']} label={t('端口')} rules={[{ required: true }]}>
-                                    <InputNumber min={0} />
                                 </Form.Item>
-
-                                <Form.Item name={['computenode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
+                            </Col>
+                            
+                            <Col span={12}>
+                                <Form.Item name={['datanode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
                                     <InputNumber min={0} addonAfter='Gi' />
                                 </Form.Item>
-
+                                
                                 <Form.Item label={t('内存')}>
-
                                     <Form.Item
-                                        name={['computenode', 'resources', 'limits', 'memory']}
-                                        dependencies={[['computenode', 'resources', 'requests', 'memory']]}
+                                        name={['datanode', 'resources', 'limits', 'memory']}
+                                        dependencies={[['datanode', 'resources', 'requests', 'memory']]}
                                         label={t('上限')}
-                                        rules={[{ required: true, validator: create_validate_limit_function('computenode', 'memory', false) }]}
+                                        rules={[{ required: true, validator: create_validate_limit_function('datanode', 'memory', false) }]}
                                         className='limit'
                                     >
                                         <InputNumber min={0} addonAfter='Gi' />
                                     </Form.Item>
                                     <div style={{ height: 18 }}></div>
                                     <Form.Item
-                                        name={['computenode', 'resources', 'requests', 'memory']}
-                                        dependencies={[['computenode', 'resources', 'limits', 'memory']]}
+                                        name={['datanode', 'resources', 'requests', 'memory']}
+                                        dependencies={[['datanode', 'resources', 'limits', 'memory']]}
                                         label={t('下限')}
-                                        rules={[{ validator: create_validate_limit_function('computenode', 'memory', true) }]}
+                                        rules={[{ validator: create_validate_limit_function('datanode', 'memory', true) }]}
                                         className='limit'
                                     >
                                         <InputNumber min={0} addonAfter='Gi' />
                                     </Form.Item>
                                 </Form.Item>
                             </Col>
-                    </Row>
-                    </ Collapse.Panel>
-               </> 
-               
-               }
+                        </Row>
+                    </Collapse.Panel>
+                
+                    { mode === 'cluster' && <>
+                    <Collapse.Panel
+                        key={4}
+                        header={<span className='ant-divider-inner-text'>{t('计算节点')}</span>}
+                        forceRender={true}
+                        >
+                            <Row>
+                                <Col span={12}>
+                                    <Form.Item name={['computenode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
+                                        <InputNumber min={0} precision={0} />
+                                    </Form.Item>
+                                    
+                                    <Form.Item name={['computenode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
+                                        <InputNumber min={0} addonAfter='Gi' />
+                                    </Form.Item>
+                                    
+                                    
+                                    <Form.Item label='CPU'>
+                                            <Form.Item
+                                                name={['computenode', 'resources', 'limits', 'cpu']}
+                                                dependencies={[['computenode', 'resources', 'requests', 'cpu']]}
+                                                label={t('上限')}
+                                                rules={[{ required: true, validator: create_validate_limit_function('computenode', 'cpu', false) }]}
+                                                className='limit'
+                                            >
+                                                <InputNumber min={0} addonAfter={t('核')} />
+                                            </Form.Item>
+                                            <div style={{ height: 18 }}></div>
+                                            <Form.Item
+                                                name={['computenode', 'resources', 'requests', 'cpu']}
+                                                dependencies={[['computenode', 'resources', 'limits', 'cpu']]}
+                                                label={t('下限')}
+                                                rules={[{ validator: create_validate_limit_function('computenode', 'cpu', true) }]}
+                                                className='limit'
+                                            >
+                                                <InputNumber min={0} addonAfter={t('核')} />
+                                            </Form.Item>
+                                    </Form.Item>
+                                </Col>
+                                    <Col span={12}>
+                                        <Form.Item name={['computenode', 'port']} label={t('端口')} rules={[{ required: true }]}>
+                                            <InputNumber min={0} />
+                                        </Form.Item>
+
+                                        <Form.Item name={['computenode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
+                                            <InputNumber min={0} addonAfter='Gi' />
+                                        </Form.Item>
+
+                                        <Form.Item label={t('内存')}>
+
+                                            <Form.Item
+                                                name={['computenode', 'resources', 'limits', 'memory']}
+                                                dependencies={[['computenode', 'resources', 'requests', 'memory']]}
+                                                label={t('上限')}
+                                                rules={[{ required: true, validator: create_validate_limit_function('computenode', 'memory', false) }]}
+                                                className='limit'
+                                            >
+                                                <InputNumber min={0} addonAfter='Gi' />
+                                            </Form.Item>
+                                            <div style={{ height: 18 }}></div>
+                                            <Form.Item
+                                                name={['computenode', 'resources', 'requests', 'memory']}
+                                                dependencies={[['computenode', 'resources', 'limits', 'memory']]}
+                                                label={t('下限')}
+                                                rules={[{ validator: create_validate_limit_function('computenode', 'memory', true) }]}
+                                                className='limit'
+                                            >
+                                                <InputNumber min={0} addonAfter='Gi' />
+                                            </Form.Item>
+                                        </Form.Item>
+                                    </Col>
+                            </Row>
+                        </ Collapse.Panel>
+                    </>}
                </Collapse>
             </Form>
         </Modal>
