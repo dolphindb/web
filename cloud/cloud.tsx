@@ -774,7 +774,7 @@ function CreateClusterPanel ({
 
     const [form] = Form.useForm()
 
-    const { namespaces, storageclasses, versions } = model.use(['namespaces', 'storageclasses', 'versions'])
+    const { namespaces, storageclasses, versions, license_server_address } = model.use(['namespaces', 'storageclasses', 'versions', 'license_server_address'])
 
     const [mode, set_mode] = useState<ClusterMode>('cluster')
     
@@ -936,7 +936,8 @@ function CreateClusterPanel ({
                         cpu: 1,
                         memory: 1,
                     },
-                    enable_jit: false
+                    enable_jit: false,
+                    license_server_address
                 }}
 
                 onFieldsChange={(changeds, all) => {
