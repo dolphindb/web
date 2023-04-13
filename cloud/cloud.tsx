@@ -568,7 +568,7 @@ function Clusters () {
                 <Divider orientation='left'>{t('基础信息')}</Divider>
                     <Row className='row-left-margin'>
                         <Col span={12}>
-                            <Form.Item name='version' label={t('版本')} rules={[{ required: true }]} valuePropName='checked'>
+                            <Form.Item name='version' label={t('版本')} rules={[{ required: true }]} >
                                 <Select>
                                     {
                                         versions.length !== 0 ?
@@ -1031,8 +1031,8 @@ function CreateClusterPanel ({
                             <Input />
                         </Form.Item>
                     
-                        <Form.Item name={'enable_jit'} label={t('启用 JIT')}>
-                            <Switch checkedChildren='ture' unCheckedChildren='false' autoFocus={true} />
+                        <Form.Item name={'enable_jit'} label={t('启用 JIT')} valuePropName='checked'>
+                            <Switch />
                         </Form.Item>
 
 
