@@ -154,7 +154,7 @@ function ClusterDetailMenuItem ({
 function InfoTab () {
     const { cluster } = model.use(['cluster'])
     
-    const { namespace, name, log_mode, version, storage_class, services, status, created_at } = cluster
+    const { namespace, name, log_mode, version, storage_class, services, status, created_at, enable_jit } = cluster
     
     return (
         <>
@@ -167,16 +167,16 @@ function InfoTab () {
             >
                 <Descriptions.Item label={t('命名空间')}>{namespace}</Descriptions.Item>
                 <Descriptions.Item label={t('名称')}>{name}</Descriptions.Item>
-                <Descriptions.Item label={t('状态')}>
-                    <ClusterOrBackupStatus {...status} type='cluster'/>
-                </Descriptions.Item>
-                <Descriptions.Item label={t('版本')}>{version}</Descriptions.Item>
+                <Descriptions.Item label={t('版本')}>{version + (enable_jit ? '-JIT' : '')}</Descriptions.Item>
+                <Descriptions.Item label={t('日志模式')}>{log_modes[log_mode]}</Descriptions.Item>
                 <Descriptions.Item label={t('模式')}>
                     <Mode cluster={cluster} />
                 </Descriptions.Item>
-                <Descriptions.Item label={t('日志模式')}>{log_modes[log_mode]}</Descriptions.Item>
-                <Descriptions.Item label={t('创建时间')}>{created_at.format('YYYY.MM.DD HH:mm:ss')}</Descriptions.Item>
                 <Descriptions.Item label={t('存储类')}>{storage_class}</Descriptions.Item>
+                <Descriptions.Item label={t('创建时间')}>{created_at.format('YYYY.MM.DD HH:mm:ss')}</Descriptions.Item>
+                <Descriptions.Item label={t('状态')}>
+                    <ClusterOrBackupStatus {...status} type='cluster'/>
+                </Descriptions.Item>
             </Descriptions>
             
             <Descriptions
