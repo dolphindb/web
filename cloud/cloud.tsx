@@ -222,7 +222,8 @@ const removeEmptyProperties = obj => {
 
 function Clusters () {
     const { clusters, versions, namespaces } = model.use(['clusters', 'versions', 'namespaces'])
-    const [current_cluster, set_current_cluster] = useState<Cluster>(undefined)
+    const [ { mode, name, namespace, cluster_type }, set_current_cluster] = useState({} as Cluster)
+    
     const [create_panel_visible, set_create_panel_visible] = useState(false)
     
     const [queries, set_queries] = useState<QueryOptions>(default_queries)
@@ -231,21 +232,21 @@ function Clusters () {
     const [update_form] = Form.useForm()
     
     // 3种node_type X [cpu, memory] X [上限(limist)，下限(requests)] 共12种组合，每个组合代表一个Form.Item，需要一个校验函数，所以一共需要构造12个校验函数
-    function create_validate_limit_function (node_type, limitField, lowerLimit) {
+    function create_validate_limit_function (node_type: 'controller' | 'datanode' | 'computenode', limitField: 'cpu' | 'memory', lowerLimit:boolean) {
         return (rule, value, callback) => {
-            const formData = update_form.getFieldsValue()
-            if (!value || !formData[node_type]['resources']['limits'][limitField]) 
+            const formData: Cluster = update_form.getFieldsValue()
+            if (!value || !formData[node_type].resources.limits[limitField].value)
                 callback()
-             else if (lowerLimit) 
-                if (value > formData[node_type]['resources']['limits'][limitField]) 
+             else if (lowerLimit)
+                if (value > formData[node_type].resources.limits[limitField].value)
                     callback(t('下限必须小于或等于上限'))
-                 else 
+                 else
                     callback()
                 
-             else 
-                if (value < formData[node_type]['resources']['requests'][limitField]) 
+             else
+                if (value < formData[node_type].resources.requests[limitField].value)
                     callback(t('上限必须大于或等于下限'))
-                 else 
+                 else
                     callback()
         }
     }
@@ -265,40 +266,7 @@ function Clusters () {
         }
     }, [queries])
     
-    useEffect(() => {
-        const updated_init_value = (() => {
-            let obj = { } as any
-            const fields = ['controller', 'datanode', 'computenode']
-            
-            if (!current_cluster) 
-                return { }
-            
-            
-            obj.version = current_cluster.version
-            obj.enable_jit = current_cluster.enable_jit
-            fields.forEach((field: 'controller' | 'datanode' | 'computenode') => {
-                // 等后台实现，实际条件应该为 `!current_cluster[field]`
-                if (!current_cluster[field]?.resources?.limits)
-                    return
-                obj[field] = {
-                    resources: {
-                        limits: {
-                            cpu: current_cluster[field].resources.limits.cpu.value,
-                            memory: current_cluster[field].resources.limits.memory.value
-                        },
-                        requests: {
-                            cpu: current_cluster[field].resources.requests.cpu.value,
-                            memory: current_cluster[field].resources.requests.memory.value
-                        }
-                    }
-                }
-            })
-            
-            return obj
-        })()
-        update_form.setFieldsValue(updated_init_value)
-    }, [current_cluster, update_form])
-    
+
     return <div className='clusters'>
         <div className='actions'>
             <Button
@@ -419,6 +387,7 @@ function Clusters () {
                             
                             <Link onClick={() => {
                                 set_current_cluster(cluster)
+                                update_form.setFieldsValue(cluster)
                                 set_update_modal_open(true)
                             }}>
                                 {t('升级')}
@@ -491,7 +460,7 @@ function Clusters () {
         <Modal
             className='cloud-update'
             open={update_modal_open}
-            title={t('升级 {{name}}', { name: current_cluster?.name })}
+            title={t('升级 {{name}}', { name })}
             onCancel={() => {
                 set_update_modal_open(false)
             }}
@@ -504,41 +473,19 @@ function Clusters () {
                         htmlType='submit'
                         className='submit'
                         onClick={async () => {
-                            var values = await update_form.validateFields()
-                            const fields = ['controller', 'datanode', 'computenode']
-                            fields.forEach(field => {
-                                if (!values[field]?.resources?.limits)
-                                    return
+                            // values 的 unit 字段为 undefined
+                            let values: Cluster = await update_form.validateFields()
+                            ;(['controller', 'datanode', 'computenode'] as const).forEach(node_type => {
+                                if (values[node_type].resources.limits.memory.value !== undefined)
+                                    values[node_type].resources.limits.memory.unit = 'Gi'
                                 
-                                if (values[field].resources.limits.memory) 
-                                    values[field].resources.limits.memory = {
-                                        unit: 'Gi',
-                                        value: values[field].resources.limits.memory
-                                    }
-                                
-                                if (values[field].resources.requests.memory) 
-                                    values[field].resources.requests.memory = {
-                                        unit: 'Gi',
-                                        value: values[field].resources.requests.memory
-                                    }
-                                
-                                if (values[field].resources.limits.cpu) 
-                                    values[field].resources.limits.cpu = {
-                                        unit: '',
-                                        value: values[field].resources.limits.cpu
-                                    }
-                                
-                                if (values[field].resources.requests.cpu) 
-                                    values[field].resources.requests.cpu = {
-                                        unit: '',
-                                        value: values[field].resources.requests.cpu
-                                    }
-                                
+                                if (values[node_type].resources.requests.memory.value !== undefined)
+                                    values[node_type].resources.requests.memory.unit = 'Gi'
                             })
                             
                             removeEmptyProperties(values)
                             try {
-                                await request_json(`/v1/dolphindbs/${current_cluster?.namespace}/${current_cluster?.name}`, {
+                                await request_json(`/v1/dolphindbs/${namespace}/${name}`, {
                                     method: 'PUT',
                                     body: values
                                 })
@@ -590,15 +537,20 @@ function Clusters () {
                     </Row>
                 
                 {
-                    current_cluster?.mode === 'cluster' &&
+                    mode === 'cluster' &&
                     <>
                         <Divider orientation='left'>{t('控制节点')}</Divider>
-
+                        {cluster_type === 'multicontroller' && <Col span={12}>
+                            <Form.Item name={['controller', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
+                                <InputNumber min={3} precision={0} />
+                            </Form.Item>
+                        </Col>
+                        }
                         <Form.Item label='CPU'>
                             <Input.Group compact>
                                 <Form.Item
-                                    name={['controller', 'resources', 'requests', 'cpu']}
-                                    dependencies={[['controller', 'resources', 'limits', 'cpu']]}
+                                    name={['controller', 'resources', 'requests', 'cpu', 'value']}
+                                    dependencies={[['controller', 'resources', 'limits', 'value']]}
                                     label={t('下限')}
                                     rules={[{ validator: create_validate_limit_function('controller', 'cpu', true) }]}
                                     className='limit'
@@ -606,8 +558,8 @@ function Clusters () {
                                     <InputNumber min={0} addonAfter={t('核')} />
                                 </Form.Item>
                                 <Form.Item
-                                    name={['controller', 'resources', 'limits', 'cpu']}
-                                    dependencies={[['controller', 'resources', 'requests', 'cpu']]}
+                                    name={['controller', 'resources', 'limits', 'cpu', 'value']}
+                                    dependencies={[['controller', 'resources', 'requests', 'cpu', 'value']]}
                                     label={t('上限')}
                                     rules={[{ validator: create_validate_limit_function('controller', 'cpu', false) }]}
                                     className='limit'
@@ -620,8 +572,8 @@ function Clusters () {
                         <Form.Item label={t('内存')}>
                             <Input.Group compact>
                                 <Form.Item
-                                    name={['controller', 'resources', 'requests', 'memory']}
-                                    dependencies={[['controller', 'resources', 'limits', 'memory']]}
+                                    name={['controller', 'resources', 'requests', 'memory', 'value']}
+                                    dependencies={[['controller', 'resources', 'limits', 'memory', 'value']]}
                                     label={t('下限')}
                                     rules={[{ validator: create_validate_limit_function('controller', 'memory', true) }]}
                                     className='limit'
@@ -629,8 +581,8 @@ function Clusters () {
                                     <InputNumber min={0} addonAfter='Gi' />
                                 </Form.Item>
                                 <Form.Item
-                                    name={['controller', 'resources', 'limits', 'memory']}
-                                    dependencies={[['controller', 'resources', 'requests', 'memory']]}
+                                    name={['controller', 'resources', 'limits', 'memory', 'value']}
+                                    dependencies={[['controller', 'resources', 'requests', 'memory', 'value']]}
                                     label={t('上限')}
                                     rules={[{ validator: create_validate_limit_function('controller', 'memory', false) }]}
                                     className='limit'
@@ -647,8 +599,8 @@ function Clusters () {
                 <Form.Item label='CPU'>
                     <Input.Group compact>
                         <Form.Item
-                            name={['datanode', 'resources', 'requests', 'cpu']}
-                            dependencies={[['datanode', 'resources', 'limits', 'cpu']]}
+                            name={['datanode', 'resources', 'requests', 'cpu', 'value']}
+                            dependencies={[['datanode', 'resources', 'limits', 'cpu', 'value']]}
                             label={t('下限')}
                             rules={[{ validator: create_validate_limit_function('datanode', 'cpu', true) }]}
                             className='limit'
@@ -656,8 +608,8 @@ function Clusters () {
                             <InputNumber min={0} addonAfter={t('核')} />
                         </Form.Item>
                         <Form.Item
-                            name={['datanode', 'resources', 'limits', 'cpu']}
-                            dependencies={[['datanode', 'resources', 'requests', 'cpu']]}
+                            name={['datanode', 'resources', 'limits', 'cpu', 'value']}
+                            dependencies={[['datanode', 'resources', 'requests', 'cpu', 'value']]}
                             label={t('上限')}
                             rules={[{ validator: create_validate_limit_function('datanode', 'cpu', false) }]}
                             className='limit'
@@ -670,8 +622,8 @@ function Clusters () {
                 <Form.Item label={t('内存')}>
                     <Input.Group compact>
                         <Form.Item
-                            name={['datanode', 'resources', 'requests', 'memory']}
-                            dependencies={[['datanode', 'resources', 'limits', 'memory']]}
+                            name={['datanode', 'resources', 'requests', 'memory', 'value']}
+                            dependencies={[['datanode', 'resources', 'limits', 'memory', 'value']]}
                             label={t('下限')}
                             rules={[{ validator: create_validate_limit_function('datanode', 'memory', true) }]}
                             className='limit'
@@ -679,8 +631,8 @@ function Clusters () {
                             <InputNumber min={0} addonAfter='Gi' />
                         </Form.Item>
                         <Form.Item
-                            name={['datanode', 'resources', 'limits', 'memory']}
-                            dependencies={[['datanode', 'resources', 'requests', 'memory']]}
+                            name={['datanode', 'resources', 'limits', 'memory', 'value']}
+                            dependencies={[['datanode', 'resources', 'requests', 'memory', 'value']]}
                             label={t('上限')}
                             rules={[{ validator: create_validate_limit_function('datanode', 'memory', false) }]}
                             className='limit'
@@ -690,15 +642,15 @@ function Clusters () {
                     </Input.Group>
                 </Form.Item>
                 {
-                    current_cluster?.mode === 'cluster' &&
+                    mode === 'cluster' &&
                     <>
                         <Divider orientation='left'>{t('计算节点')}</Divider>
 
                         <Form.Item label='CPU'>
                             <Input.Group compact>
                                 <Form.Item
-                                    name={['computenode', 'resources', 'requests', 'cpu']}
-                                    dependencies={[['computenode', 'resources', 'limits', 'cpu']]}
+                                    name={['computenode', 'resources', 'requests', 'cpu', 'value']}
+                                    dependencies={[['computenode', 'resources', 'limits', 'cpu', 'value']]}
                                     label={t('下限')}
                                     rules={[{ validator: create_validate_limit_function('computenode', 'cpu', true) }]}
                                     className='limit'
@@ -707,8 +659,8 @@ function Clusters () {
                                 </Form.Item>
 
                                 <Form.Item
-                                    name={['computenode', 'resources', 'limits', 'cpu']}
-                                    dependencies={[['computenode', 'resources', 'requests', 'cpu']]}
+                                    name={['computenode', 'resources', 'limits', 'cpu', 'value']}
+                                    dependencies={[['computenode', 'resources', 'requests', 'cpu', 'value']]}
                                     label={t('上限')}
                                     rules={[{ validator: create_validate_limit_function('computenode', 'cpu', false) }]}
                                     className='limit'
@@ -721,8 +673,8 @@ function Clusters () {
                         <Form.Item label={t('内存')}>
                             <Input.Group compact>
                                 <Form.Item
-                                    name={['computenode', 'resources', 'requests', 'memory']}
-                                    dependencies={[['computenode', 'resources', 'limits', 'memory']]}
+                                    name={['computenode', 'resources', 'requests', 'memory', 'value']}
+                                    dependencies={[['computenode', 'resources', 'limits', 'memory', 'value']]}
                                     label={t('下限')}
                                     rules={[{ validator: create_validate_limit_function('computenode', 'memory', true) }]}
                                     className='limit'
@@ -730,8 +682,8 @@ function Clusters () {
                                     <InputNumber min={0} addonAfter='Gi' />
                                 </Form.Item>
                                 <Form.Item
-                                    name={['computenode', 'resources', 'limits', 'memory']}
-                                    dependencies={[['computenode', 'resources', 'requests', 'memory']]}
+                                    name={['computenode', 'resources', 'limits', 'memory', 'value']}
+                                    dependencies={[['computenode', 'resources', 'requests', 'memory', 'value']]}
                                     label={t('上限')}
                                     rules={[{ validator: create_validate_limit_function('computenode', 'memory', false) }]}
                                     className='limit'
