@@ -2,7 +2,7 @@
     .list
         margin-top: 20px
         
-    .cluster-create-form
+    .cluster-create-form, .update-form
         width: 600px
     
     .ant-input-number
@@ -169,16 +169,23 @@
                 align-items: center
 
 // modal
-.cloud-create-cluster, .cloud-update
+.cloud-create-panel
     
     .ant-divider-inner-text
         font-weight: bold
+        font-size: 16px
     
     .ant-row
         justify-content: center
     
     .ant-form-item-label
         padding-left: 15px
+        max-width: unset
+        flex-grow: 0.2
+    
+    .ant-form-item-control
+        max-width: unset
+        flex-grow: 0.8
     
     .ant-form-item
         margin-bottom: 18px
@@ -209,23 +216,6 @@
         position: absolute
         right: -4px
 
-.cloud-update
-    .ant-col
-        .ant-form-item-label
-            margin-left: 30px
-    
-
-.cloud-create-cluster
-    .ant-divider-inner-text
-        font-size: 16px
-    
-    .ant-form-item-label
-        max-width: unset
-        flex-grow: 0.2
-
-    .ant-form-item-control
-        max-width: unset
-        flex-grow: 0.8
 
 .dashboard-for-one-name
     .ant-descriptions
