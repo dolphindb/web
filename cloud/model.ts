@@ -300,7 +300,8 @@ export interface Cluster {
             ip: string
             port: string
         }
-    }
+    },
+    enable_jit?: boolean
 }
 
 

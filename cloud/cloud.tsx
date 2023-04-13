@@ -275,7 +275,7 @@ function Clusters () {
             
             
             obj.version = current_cluster.version
-            console.log(current_cluster.name)
+            obj.enable_jit = current_cluster.enable_jit
             fields.forEach((field: 'controller' | 'datanode' | 'computenode') => {
                 // 等后台实现，实际条件应该为 `!current_cluster[field]`
                 if (!current_cluster[field]?.resources?.limits)
@@ -566,18 +566,28 @@ function Clusters () {
                 
             >
                 <Divider orientation='left'>{t('基础信息')}</Divider>
-                <Form.Item name='version' label={t('版本')} rules={[{ required: true }]}>
-                    <Select>
-                        {
-                            versions.length !== 0 ?
-                            versions.map(v => (
-                                <Option value={v} key={v}>{v}</Option>
-                            ))
-                            :
-                            <Option value=''>{''}</Option>
-                        }
-                    </Select>
-                </Form.Item>
+                    <Row className='row-left-margin'>
+                        <Col span={12}>
+                            <Form.Item name='version' label={t('版本')} rules={[{ required: true }]} valuePropName='checked'>
+                                <Select>
+                                    {
+                                        versions.length !== 0 ?
+                                            versions.map(v => (
+                                                <Option value={v} key={v}>{v}</Option>
+                                            ))
+                                            :
+                                            <Option value=''>{''}</Option>
+                                    }
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        
+                        <Col span={12}>
+                            <Form.Item name='enable_jit' label={t('启用 JIT')} valuePropName='checked' className='update-jit'>
+                                <Switch />
+                            </Form.Item>
+                        </Col>
+                    </Row>
                 
                 {
                     current_cluster?.mode === 'cluster' &&
@@ -747,10 +757,6 @@ function Clusters () {
 }
 
 
-const sort_orders = {
-    ascend: 'asc',
-    descend: 'desc',
-} as const
 
 function CreateClusterPanel ({
     visible,
