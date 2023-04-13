@@ -583,7 +583,7 @@ function Clusters () {
                         </Col>
                         
                         <Col span={12}>
-                            <Form.Item name='enable_jit' label={t('启用 JIT')} valuePropName='checked' className='update-jit'>
+                            <Form.Item name='enable_jit' label={t('启用 JIT')} valuePropName='checked' >
                                 <Switch />
                             </Form.Item>
                         </Col>
@@ -757,6 +757,10 @@ function Clusters () {
 }
 
 
+const sort_orders = {
+    ascend: 'asc',
+    descend: 'desc',
+} as const
 
 function CreateClusterPanel ({
     visible,
