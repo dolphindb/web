@@ -43,7 +43,7 @@
         "ts-loader": "^9.4.2",
         "typescript": "^5.0.4",
         "upath": "^2.0.1",
-        "webpack": "^5.78.0",
+        "webpack": "^5.79.0",
         "webpack-bundle-analyzer": "^4.8.0"
     },
     "dependencies": {
@@ -73,7 +73,7 @@
     },
     "pnpm": {
         "patchedDependencies": {
-            "webpack@5.78.0": "patches/webpack@5.78.0.patch"
+            "webpack@5.79.0": "patches/webpack@5.79.0.patch"
         }
     }
 }
