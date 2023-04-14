@@ -75,7 +75,7 @@ export function Cloud () {
 /** Type of cluster detail field: 'info' or 'config' */
 type FieldType = 'info' | 'config' | 'monitor' | 'backup'
 
-function Monitor ({ cluster }:{ cluster: Cluster }) {
+function Monitor ({ cluster }: { cluster: Cluster }) {
     return <iframe className='iframe' src={`${model.monitor_url}/?var-cluster_name=${cluster.name}&var-dolphindb_node=All&orgId=1&kiosk`} />
 }
 
@@ -86,7 +86,7 @@ function ClusterDetail () {
 
     const [field, set_field] = useState<FieldType>('info')
 
-    const fields : FieldType[] = ['info', 'config', 'monitor', 'backup']
+    const fields: FieldType[] = ['info', 'config', 'monitor', 'backup']
 
     const Content = {
         info: <InfoTab />,
@@ -231,7 +231,7 @@ function Clusters () {
     const [update_form] = Form.useForm()
     
     // 3种node_type X [cpu, memory] X [上限(limist)，下限(requests)] 共12种组合，每个组合代表一个Form.Item，需要一个校验函数，所以一共需要构造12个校验函数
-    function create_validate_limit_function (node_type: 'controller' | 'datanode' | 'computenode', limitField: 'cpu' | 'memory', is_lowerLimit:boolean) {
+    function create_validate_limit_function (node_type: 'controller' | 'datanode' | 'computenode', limitField: 'cpu' | 'memory', is_lowerLimit: boolean) {
         return (rule, value, callback) => {
             const formData: Cluster = update_form.getFieldsValue()
             const upper = formData[node_type]?.resources.limits[limitField].value
@@ -797,7 +797,7 @@ function CreateClusterPanel ({
     const onReset = () => {
         form.resetFields()
     }
-    function create_validate_limit_function (node_type: 'controller' | 'datanode' | 'computenode', limitField: 'cpu' | 'memory', is_lowerLimit:boolean) {
+    function create_validate_limit_function (node_type: 'controller' | 'datanode' | 'computenode', limitField: 'cpu' | 'memory', is_lowerLimit: boolean) {
         return (rule, value, callback) => {
             const formData: Cluster = form.getFieldsValue()
             const upper = formData[node_type]?.resources.limits[limitField].value
@@ -3568,7 +3568,7 @@ type OneBakcupDetail = {
 type ListOfRestores = ListOfBackups
 // 此处 ListOfRestores 和 ListOfBackups并不完全一样，它们的items.phase相差一项'Cleaning'，但是在类型使用过程中几乎无差别
 
-type OneRestoreDetail = OneBakcupDetail & { dolphindb_name:string, dolphindb_namespace:string, from:string }
+type OneRestoreDetail = OneBakcupDetail & { dolphindb_name: string, dolphindb_namespace: string, from: string }
 
 type SourceKeyDetail = 
 {
@@ -3598,4 +3598,4 @@ type FlattenBackupDetail = {
     stored_path: string
 }
 
-type FlattenRestoreDetail = FlattenBackupDetail & { dolphindb_name:string, dolphindb_namespace:string, from:string }
+type FlattenRestoreDetail = FlattenBackupDetail & { dolphindb_name: string, dolphindb_namespace: string, from: string }
