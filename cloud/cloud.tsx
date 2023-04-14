@@ -237,11 +237,10 @@ function Clusters () {
             const upper = formData[node_type].resources.limits[limitField].value
             const lower = formData[node_type].resources.requests[limitField].value
             
-            if (upper === undefined || lower === undefined)
-                return
-            
             if (upper < lower)
                 is_lowerLimit ? callback(t('下限必须小于或等于上限')) : callback(t('上限必须大于或等于下限'))
+            
+            callback()
         }
     }
     useEffect(() => {
@@ -504,7 +503,6 @@ function Clusters () {
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 16 }}
                 colon={false}
-
             >
                 <Collapse bordered={false} ghost={true} defaultActiveKey={1}>
                     <Collapse.Panel
@@ -542,7 +540,7 @@ function Clusters () {
                         header={<span className='ant-divider-inner-text'>{t('控制节点')}</span>}
                         forceRender={true}>
                             {cluster_type === 'multicontroller' && <Row className='optional-columns'>
-                            <Col span={12}>
+                                <Col span={12}>
                                     <Form.Item name={['controller', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
                                         <InputNumber min={3} precision={0} />
                                     </Form.Item>
@@ -560,7 +558,7 @@ function Clusters () {
                                         >
                                             <InputNumber min={0} addonAfter={t('核')} />
                                         </Form.Item>
-                                        <div style={{ height: 18 }}></div>
+                                        <div className='space-filler' />
                                         <Form.Item
                                             name={['controller', 'resources', 'requests', 'cpu', 'value']}
                                             dependencies={[['controller', 'resources', 'limits', 'cpu', 'value']]}
@@ -574,25 +572,25 @@ function Clusters () {
                                 </Col>
                                 <Col span={12}>
                                     <Form.Item label={t('内存')}>
-                                            <Form.Item
-                                                name={['controller', 'resources', 'limits', 'memory', 'value']}
-                                                dependencies={[['controller', 'resources', 'requests', 'memory', 'value']]}
-                                                label={t('上限')}
-                                                rules={[{ validator: create_validate_limit_function('controller', 'memory', false) }]}
-                                                className='limit'
-                                            >
-                                                <InputNumber min={0} addonAfter='Gi' />
-                                            </Form.Item>
-                                            <div style={{ height: 18 }}></div>
-                                            <Form.Item
-                                                name={['controller', 'resources', 'requests', 'memory', 'value']}
-                                                dependencies={[['controller', 'resources', 'limits', 'memory', 'value']]}
-                                                label={t('下限')}
-                                                rules={[{ validator: create_validate_limit_function('controller', 'memory', true) }]}
-                                                className='limit'
-                                            >
-                                                <InputNumber min={0} addonAfter='Gi' />
-                                            </Form.Item>
+                                        <Form.Item
+                                            name={['controller', 'resources', 'limits', 'memory', 'value']}
+                                            dependencies={[['controller', 'resources', 'requests', 'memory', 'value']]}
+                                            label={t('上限')}
+                                            rules={[{ validator: create_validate_limit_function('controller', 'memory', false) }]}
+                                            className='limit'
+                                        >
+                                            <InputNumber min={0} addonAfter='Gi' />
+                                        </Form.Item>
+                                        <div className='space-filler' />
+                                        <Form.Item
+                                            name={['controller', 'resources', 'requests', 'memory', 'value']}
+                                            dependencies={[['controller', 'resources', 'limits', 'memory', 'value']]}
+                                            label={t('下限')}
+                                            rules={[{ validator: create_validate_limit_function('controller', 'memory', true) }]}
+                                            className='limit'
+                                        >
+                                            <InputNumber min={0} addonAfter='Gi' />
+                                        </Form.Item>
                                         
                                     </Form.Item>
                                 </Col>
@@ -604,12 +602,14 @@ function Clusters () {
                         header={<span className='ant-divider-inner-text'>{t('数据节点')}</span>}
                         forceRender={true}
                     >
-                        {mode === 'cluster' && <Row className='optional-columns'>
-                            <Col span={12}><Form.Item name={['datanode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
-                                <InputNumber min={0} precision={0} />
-                            </Form.Item>
-                            </Col>
-                        </Row>}
+                        {mode === 'cluster' && 
+                            <Row className='optional-columns'>
+                                <Col span={12}>
+                                    <Form.Item name={['datanode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
+                                        <InputNumber min={0} precision={0} />
+                                    </Form.Item>
+                                </Col>
+                            </Row>}
                         <Row>
                             <Col span={12}>
                                 <Form.Item label='CPU' >
@@ -621,7 +621,7 @@ function Clusters () {
                                         className='limit'>
                                         <InputNumber min={0} addonAfter={t('核')} />
                                     </Form.Item>
-                                    <div style={{ height: 18 }}></div>
+                                    <div className='space-filler' />
                                     <Form.Item
                                         name={['datanode', 'resources', 'requests', 'cpu', 'value']}
                                         dependencies={[['datanode', 'resources', 'limits', 'cpu']]}
@@ -645,7 +645,7 @@ function Clusters () {
                                     >
                                         <InputNumber min={0} addonAfter='Gi' />
                                     </Form.Item>
-                                    <div style={{ height: 18 }}></div>
+                                    <div className='space-filler' />
                                     <Form.Item
                                         name={['datanode', 'resources', 'requests', 'memory', 'value']}
                                         dependencies={[['datanode', 'resources', 'limits', 'memory']]}
@@ -659,7 +659,7 @@ function Clusters () {
                             </Col>
                         </Row>
                     </Collapse.Panel>
-                    {mode === 'cluster' && <>
+                    {mode === 'cluster' &&
                         <Collapse.Panel
                             key={4}
                             header={<span className='ant-divider-inner-text'>{t('计算节点')}</span>}
@@ -684,7 +684,7 @@ function Clusters () {
                                         >
                                             <InputNumber min={0} addonAfter={t('核')} />
                                         </Form.Item>
-                                        <div style={{ height: 18 }}></div>
+                                        <div className='space-filler' />
                                         <Form.Item
                                             name={['computenode', 'resources', 'requests', 'cpu', 'value']}
                                             dependencies={[['computenode', 'resources', 'limits', 'cpu']]}
@@ -697,9 +697,7 @@ function Clusters () {
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
-
                                     <Form.Item label={t('内存')}>
-
                                         <Form.Item
                                             name={['computenode', 'resources', 'limits', 'memory', 'value']}
                                             dependencies={[['computenode', 'resources', 'requests', 'memory']]}
@@ -709,7 +707,7 @@ function Clusters () {
                                         >
                                             <InputNumber min={0} addonAfter='Gi' />
                                         </Form.Item>
-                                        <div style={{ height: 18 }}></div>
+                                        <div className='space-filler' />
                                         <Form.Item
                                             name={['computenode', 'resources', 'requests', 'memory', 'value']}
                                             dependencies={[['computenode', 'resources', 'limits', 'memory']]}
@@ -722,8 +720,7 @@ function Clusters () {
                                     </Form.Item>
                                 </Col>
                             </Row>
-                        </ Collapse.Panel>
-                    </>}
+                        </ Collapse.Panel>}
                 </Collapse>
             </Form>
         </Modal>
@@ -784,7 +781,7 @@ function CreateClusterPanel ({
             if (values[node_type].resources.requests.memory.value !== undefined)
                 values[node_type].resources.requests.memory.unit = 'Gi'
         })
-            removeEmptyProperties(values)
+        removeEmptyProperties(values)
         try {
             await model.create(values)
             message.success(t('集群创建成功'))
@@ -806,11 +803,10 @@ function CreateClusterPanel ({
             const upper = formData[node_type].resources.limits[limitField].value
             const lower = formData[node_type].resources.requests[limitField].value
             
-            if (upper === undefined || lower === undefined)
-                return
-            
             if (upper < lower)
                 is_lowerLimit ? callback(t('下限必须小于或等于上限')) : callback(t('上限必须大于或等于下限'))
+            
+            callback()
         }
     }
     
@@ -972,8 +968,8 @@ function CreateClusterPanel ({
                                     </Select>
                                 </Form.Item>
                             </Col>
+                            
                             <Col span={12}>
-
                                 <Form.Item
                                     name='name'
                                     label={t('名称')}
@@ -1001,7 +997,6 @@ function CreateClusterPanel ({
                                         <Option value={2}>{t('同时输出到文件和标准输出')}</Option>
                                     </Select>
                                 </Form.Item>
-                                
                             </Col>
                         </Row>
                     
@@ -1037,15 +1032,12 @@ function CreateClusterPanel ({
                                             if (version.slice(1, version.length) < '2.00.9')
                                                 return
 
-                                        return (
-                                            <Form.Item label={t('License Server 地址')} name='license_server_address'>
+                                        return <Form.Item label={t('License Server 地址')} name='license_server_address'>
                                                 <Input />
                                             </Form.Item>
-                                        )
                                     }}
                                 </Form.Item>
                             </Col>
-                                
                         </Row>
                     </Collapse.Panel>
                     
@@ -1058,8 +1050,7 @@ function CreateClusterPanel ({
                                     <Form.Item name={['controller', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
                                         <InputNumber min={3} precision={0} />
                                     </Form.Item>
-                                </Col>
-                                }
+                                </Col>}
 
                                 <Col span={12}>
                                     <Form.Item name={['controller', 'port']} label={t('端口')} rules={[{ required: true }]}>
@@ -1067,24 +1058,14 @@ function CreateClusterPanel ({
                                     </Form.Item>
                                 </Col>
                             </Row>
+                            
                             <Row>
                                 <Col span={12}>
                                     <Form.Item name={['controller', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
                                         <InputNumber min={0} addonAfter='Gi' />
                                     </Form.Item>
-                                </Col>
-                                <Col span={12}>
-                                    <Form.Item name={['controller', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
-                                        <InputNumber min={0} addonAfter='Gi' />
-                                    </Form.Item>
-                                </Col>
-
-                            </Row>
-                        
-                            <Row>
-                                <Col span={12}>
+                                    
                                     <Form.Item label='CPU' >
-                                        
                                         <Form.Item
                                             name={['controller', 'resources', 'limits', 'cpu', 'value']}
                                             dependencies={[['controller', 'resources', 'requests', 'cpu']]}
@@ -1094,7 +1075,7 @@ function CreateClusterPanel ({
                                         >
                                             <InputNumber min={0} addonAfter={t('核')} />
                                         </Form.Item>
-                                        <div style={{ height: 18 }}></div>
+                                        <div className='space-filler' />
                                         <Form.Item
                                             name={['controller', 'resources', 'requests', 'cpu', 'value']}
                                             dependencies={[['controller', 'resources', 'limits', 'cpu']]}
@@ -1106,7 +1087,12 @@ function CreateClusterPanel ({
                                         </Form.Item>
                                     </Form.Item>
                                 </Col>
+                                
                                 <Col span={12}>
+                                    <Form.Item name={['controller', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
+                                        <InputNumber min={0} addonAfter='Gi' />
+                                    </Form.Item>
+                                    
                                     <Form.Item label={t('内存')}>
                                             <Form.Item
                                                 name={['controller', 'resources', 'limits', 'memory', 'value']}
@@ -1117,7 +1103,7 @@ function CreateClusterPanel ({
                                             >
                                                 <InputNumber min={0} addonAfter='Gi' />
                                             </Form.Item>
-                                            <div style={{ height: 18 }}></div>
+                                            <div className='space-filler' />
                                             <Form.Item
                                                 name={['controller', 'resources', 'requests', 'memory', 'value']}
                                                 dependencies={[['controller', 'resources', 'limits', 'memory']]}
@@ -1142,16 +1128,17 @@ function CreateClusterPanel ({
 
                         <Row className='optional-columns'>
                             {mode === 'cluster' && <Col span={12}><Form.Item name={['datanode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
-                                <InputNumber min={0} precision={0} />
-                            </Form.Item>
-                            </Col>
-                            }
+                                    <InputNumber min={0} precision={0} />
+                                </Form.Item>
+                            </Col>}
+                            
                             <Col span={12}>
-                            <Form.Item name={['datanode', 'port']} label={t('端口')} rules={[{ required: true }]}>
+                                <Form.Item name={['datanode', 'port']} label={t('端口')} rules={[{ required: true }]}>
                                     <InputNumber min={0} />
                                 </Form.Item>
                             </Col>
                         </Row>
+                        
                         <Row>
                             <Col span={12}>
 
@@ -1168,7 +1155,7 @@ function CreateClusterPanel ({
                                         className='limit'>
                                         <InputNumber min={0} addonAfter={t('核')} />
                                     </Form.Item>
-                                    <div style={{ height: 18 }}></div>
+                                    <div className='space-filler' />
                                     <Form.Item
                                         name={['datanode', 'resources', 'requests', 'cpu', 'value']}
                                         dependencies={[['datanode', 'resources', 'limits', 'cpu']]}
@@ -1196,7 +1183,7 @@ function CreateClusterPanel ({
                                     >
                                         <InputNumber min={0} addonAfter='Gi' />
                                     </Form.Item>
-                                    <div style={{ height: 18 }}></div>
+                                    <div className='space-filler' />
                                     <Form.Item
                                         name={['datanode', 'resources', 'requests', 'memory', 'value']}
                                         dependencies={[['datanode', 'resources', 'limits', 'memory']]}
@@ -1211,12 +1198,10 @@ function CreateClusterPanel ({
                         </Row>
                     </Collapse.Panel>
                 
-                    { mode === 'cluster' && <>
-                    <Collapse.Panel
+                    {mode === 'cluster' && <Collapse.Panel
                         key={4}
                         header={<span className='ant-divider-inner-text'>{t('计算节点')}</span>}
-                        forceRender={true}
-                        >
+                        forceRender={true} >
                             <Row>
                                 <Col span={12}>
                                     <Form.Item name={['computenode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
@@ -1229,38 +1214,38 @@ function CreateClusterPanel ({
                                     
                                     
                                     <Form.Item label='CPU'>
-                                            <Form.Item
-                                                name={['computenode', 'resources', 'limits', 'cpu', 'value']}
-                                                dependencies={[['computenode', 'resources', 'requests', 'cpu']]}
-                                                label={t('上限')}
-                                                rules={[{ required: true, validator: create_validate_limit_function('computenode', 'cpu', false) }]}
-                                                className='limit'
-                                            >
-                                                <InputNumber min={0} addonAfter={t('核')} />
-                                            </Form.Item>
-                                            <div style={{ height: 18 }}></div>
-                                            <Form.Item
-                                                name={['computenode', 'resources', 'requests', 'cpu', 'value']}
-                                                dependencies={[['computenode', 'resources', 'limits', 'cpu']]}
-                                                label={t('下限')}
-                                                rules={[{ validator: create_validate_limit_function('computenode', 'cpu', true) }]}
-                                                className='limit'
-                                            >
-                                                <InputNumber min={0} addonAfter={t('核')} />
-                                            </Form.Item>
+                                        <Form.Item
+                                            name={['computenode', 'resources', 'limits', 'cpu', 'value']}
+                                            dependencies={[['computenode', 'resources', 'requests', 'cpu']]}
+                                            label={t('上限')}
+                                            rules={[{ required: true, validator: create_validate_limit_function('computenode', 'cpu', false) }]}
+                                            className='limit'
+                                        >
+                                            <InputNumber min={0} addonAfter={t('核')} />
+                                        </Form.Item>
+                                        <div className='space-filler' />
+                                        <Form.Item
+                                            name={['computenode', 'resources', 'requests', 'cpu', 'value']}
+                                            dependencies={[['computenode', 'resources', 'limits', 'cpu']]}
+                                            label={t('下限')}
+                                            rules={[{ validator: create_validate_limit_function('computenode', 'cpu', true) }]}
+                                            className='limit'
+                                        >
+                                            <InputNumber min={0} addonAfter={t('核')} />
+                                        </Form.Item>
                                     </Form.Item>
                                 </Col>
+                                
                                 <Col span={12}>
                                     <Form.Item name={['computenode', 'port']} label={t('端口')} rules={[{ required: true }]}>
                                         <InputNumber min={0} />
                                     </Form.Item>
-
+                                    
                                     <Form.Item name={['computenode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
                                         <InputNumber min={0} addonAfter='Gi' />
                                     </Form.Item>
-
-                                <Form.Item label={t('内存')}>
-
+                                
+                                    <Form.Item label={t('内存')}>
                                         <Form.Item
                                             name={['computenode', 'resources', 'limits', 'memory', 'value']}
                                             dependencies={[['computenode', 'resources', 'requests', 'memory']]}
@@ -1270,7 +1255,7 @@ function CreateClusterPanel ({
                                         >
                                             <InputNumber min={0} addonAfter='Gi' />
                                         </Form.Item>
-                                        <div style={{ height: 18 }}></div>
+                                        <div className='space-filler' />
                                         <Form.Item
                                             name={['computenode', 'resources', 'requests', 'memory', 'value']}
                                             dependencies={[['computenode', 'resources', 'limits', 'memory']]}
@@ -1283,8 +1268,7 @@ function CreateClusterPanel ({
                                     </Form.Item>
                                 </Col>
                             </Row>
-                        </ Collapse.Panel>
-                    </>}
+                        </ Collapse.Panel>}
                </Collapse>
             </Form>
         </Modal>
