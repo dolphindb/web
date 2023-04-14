@@ -72,6 +72,7 @@ export class CloudModel extends Model <CloudModel> {
     
     collapsed = localStorage.getItem('ddb-cloud.collapsed') === 'true'
     
+    license_server_address: string
     
     async init () {
         await Promise.all([
@@ -81,9 +82,18 @@ export class CloudModel extends Model <CloudModel> {
             this.get_versions(),
         ])
         
+        this.get_license_server_address()
         
         this.set({
             inited: true,
+        })
+    }
+    
+    async get_license_server_address () {
+        const { address } = await request_json('/v1/licenseserver')
+        
+        this.set({
+            license_server_address: address
         })
     }
     
@@ -295,6 +305,7 @@ export interface Cluster {
             port: string
         }
     }
+    enable_jit?: boolean
 }
 
 

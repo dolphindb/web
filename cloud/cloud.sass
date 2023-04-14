@@ -2,7 +2,7 @@
     .list
         margin-top: 20px
         
-    .cluster-create-form
+    .cluster-create-form, .update-form
         width: 600px
     
     .ant-input-number
@@ -173,21 +173,54 @@
     
     .ant-divider-inner-text
         font-weight: bold
+        font-size: 16px
     
     .ant-row
         justify-content: center
     
     .ant-form-item-label
         padding-left: 15px
+        max-width: unset
+        flex-grow: 0.2
+    
+    .ant-form-item-control
+        max-width: unset
+        flex-grow: 0.8
     
     .ant-form-item
         margin-bottom: 18px
         .limit
-            width: 200px
-            margin-right: 10px
             margin-bottom: 0px
+            
+            .ant-row
+                justify-content: left
+            
+            .ant-form-item-label
+                max-width: 85px
+            
+            .ant-form-item-control
+                max-width: 130px
+            
             .ant-col
                 padding-left: 0px
+    
+    .space
+        .ant-row
+            justify-content: left
+            
+            .ant-form-item-control
+                max-width: 150px
+    
+    .optional-columns
+        justify-content: left
+    
+    .ant-form-item-required::before
+        position: absolute
+        right: -4px
+    
+    .space-filler
+        height: 18px
+
 
 .dashboard-for-one-name
     .ant-descriptions

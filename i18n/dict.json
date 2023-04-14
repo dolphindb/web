@@ -1433,7 +1433,13 @@
     "未就绪": {
         "en": "Unknown"
     },
-    "转译错误信息时出错，待解析文本 {{ text }}": {
+    "转译错误信息出错，待解析文本 {{ text }}": {
         "en": "An error occurred while translating the error message, text to be parsed: {{ text }}"
+    },
+    "启用 JIT": {
+        "en": "Enable JIT"
+    },
+    "日志管理": {
+        "en": "Log Management"
     }
 }
