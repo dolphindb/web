@@ -82,19 +82,10 @@ export class CloudModel extends Model <CloudModel> {
             this.get_versions(),
         ])
         
-        this.get_monitor_url()
         this.get_license_server_address()
         
         this.set({
             inited: true,
-        })
-    }
-    
-    async get_monitor_url () {
-        const { ip, port } = await request_json('/v1/grafana/url')
-        
-        this.set({
-            monitor_url: `http://${ip}:${port}`
         })
     }
     
@@ -313,7 +304,7 @@ export interface Cluster {
             ip: string
             port: string
         }
-    },
+    }
     enable_jit?: boolean
 }
 

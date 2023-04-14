@@ -234,8 +234,8 @@ function Clusters () {
     function create_validate_limit_function (node_type: 'controller' | 'datanode' | 'computenode', limitField: 'cpu' | 'memory', is_lowerLimit:boolean) {
         return (rule, value, callback) => {
             const formData: Cluster = update_form.getFieldsValue()
-            const upper = formData[node_type].resources.limits[limitField].value
-            const lower = formData[node_type].resources.requests[limitField].value
+            const upper = formData[node_type]?.resources.limits[limitField].value
+            const lower = formData[node_type]?.resources.requests[limitField].value
             
             if (upper < lower)
                 is_lowerLimit ? callback(t('下限必须小于或等于上限')) : callback(t('上限必须大于或等于下限'))
@@ -469,10 +469,10 @@ function Clusters () {
                             // values 的 unit 字段为 undefined
                             let values: Cluster = await update_form.validateFields()
                             ;(['controller', 'datanode', 'computenode'] as const).forEach(node_type => {
-                                if (values[node_type].resources.limits.memory.value !== undefined)
+                                if (values[node_type]?.resources.limits.memory.value !== undefined)
                                     values[node_type].resources.limits.memory.unit = 'Gi'
                                 
-                                if (values[node_type].resources.requests.memory.value !== undefined)
+                                if (values[node_type]?.resources.requests.memory.value !== undefined)
                                     values[node_type].resources.requests.memory.unit = 'Gi'
                             })
                             
@@ -775,10 +775,10 @@ function CreateClusterPanel ({
         
         
         ;(['controller', 'datanode', 'computenode'] as const).forEach(node_type => {
-            if (values[node_type].resources.limits.memory.value !== undefined)
+            if (values[node_type]?.resources.limits.memory.value !== undefined)
                 values[node_type].resources.limits.memory.unit = 'Gi'
             
-            if (values[node_type].resources.requests.memory.value !== undefined)
+            if (values[node_type]?.resources.requests.memory.value !== undefined)
                 values[node_type].resources.requests.memory.unit = 'Gi'
         })
         removeEmptyProperties(values)
@@ -800,8 +800,8 @@ function CreateClusterPanel ({
     function create_validate_limit_function (node_type: 'controller' | 'datanode' | 'computenode', limitField: 'cpu' | 'memory', is_lowerLimit:boolean) {
         return (rule, value, callback) => {
             const formData: Cluster = form.getFieldsValue()
-            const upper = formData[node_type].resources.limits[limitField].value
-            const lower = formData[node_type].resources.requests[limitField].value
+            const upper = formData[node_type]?.resources.limits[limitField].value
+            const lower = formData[node_type]?.resources.requests[limitField].value
             
             if (upper < lower)
                 is_lowerLimit ? callback(t('下限必须小于或等于上限')) : callback(t('上限必须大于或等于下限'))
