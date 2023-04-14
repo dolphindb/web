@@ -23,7 +23,6 @@ import {
     Layout,
     Modal,
     Switch,
-    Divider,
     Checkbox,
     Upload,
     Progress,
@@ -232,22 +231,17 @@ function Clusters () {
     const [update_form] = Form.useForm()
     
     // 3种node_type X [cpu, memory] X [上限(limist)，下限(requests)] 共12种组合，每个组合代表一个Form.Item，需要一个校验函数，所以一共需要构造12个校验函数
-    function create_validate_limit_function (node_type: 'controller' | 'datanode' | 'computenode', limitField: 'cpu' | 'memory', lowerLimit:boolean) {
+    function create_validate_limit_function (node_type: 'controller' | 'datanode' | 'computenode', limitField: 'cpu' | 'memory', is_lowerLimit:boolean) {
         return (rule, value, callback) => {
             const formData: Cluster = update_form.getFieldsValue()
-            if (!value || !formData[node_type].resources.limits[limitField].value)
-                callback()
-             else if (lowerLimit)
-                if (value > formData[node_type].resources.limits[limitField].value)
-                    callback(t('下限必须小于或等于上限'))
-                 else
-                    callback()
-                
-             else
-                if (value < formData[node_type].resources.requests[limitField].value)
-                    callback(t('上限必须大于或等于下限'))
-                 else
-                    callback()
+            const upper = formData[node_type].resources.limits[limitField].value
+            const lower = formData[node_type].resources.requests[limitField].value
+            
+            if (upper === undefined || lower === undefined)
+                return
+            
+            if (upper < lower)
+                is_lowerLimit ? callback(t('下限必须小于或等于上限')) : callback(t('上限必须大于或等于下限'))
         }
     }
     useEffect(() => {
@@ -806,22 +800,17 @@ function CreateClusterPanel ({
     const onReset = () => {
         form.resetFields()
     }
-    function create_validate_limit_function (node_type, limitField, lowerLimit) {
+    function create_validate_limit_function (node_type: 'controller' | 'datanode' | 'computenode', limitField: 'cpu' | 'memory', is_lowerLimit:boolean) {
         return (rule, value, callback) => {
-            const formData = form.getFieldsValue()
-            if (!value || !formData[node_type]['resources']['limits'][limitField]) 
-                callback()
-             else if (lowerLimit) 
-                if (value > formData[node_type]['resources']['limits'][limitField]) 
-                    callback(`${t('下限必须小于或等于上限')}`)
-                 else 
-                    callback()
-                
-             else 
-                if (value < formData[node_type]['resources']['requests'][limitField]) 
-                    callback(`${t('上限必须大于或等于下限')}`)
-                 else 
-                    callback()
+            const formData: Cluster = form.getFieldsValue()
+            const upper = formData[node_type].resources.limits[limitField].value
+            const lower = formData[node_type].resources.requests[limitField].value
+            
+            if (upper === undefined || lower === undefined)
+                return
+            
+            if (upper < lower)
+                is_lowerLimit ? callback(t('下限必须小于或等于上限')) : callback(t('上限必须大于或等于下限'))
         }
     }
     
