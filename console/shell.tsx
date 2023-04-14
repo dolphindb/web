@@ -30,7 +30,7 @@ import { debounce } from 'lodash'
 
 import { request_json } from 'xshell/net.browser.js'
 
-import { default as MonacoEditor, loader } from '@monaco-editor/react'
+import { Editor as MonacoEditor, loader } from '@monaco-editor/react'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 type Monaco = typeof monacoapi
@@ -1036,7 +1036,7 @@ function Editor () {
                     unfoldOnClickAfterEndOfLine: true,
                     
                     inlayHints: {
-                        enabled: false,
+                        enabled: 'off',
                     },
                     
                     acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
