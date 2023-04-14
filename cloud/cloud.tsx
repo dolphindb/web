@@ -77,7 +77,7 @@ export function Cloud () {
 type FieldType = 'info' | 'config' | 'monitor' | 'backup'
 
 function Monitor ({ cluster }:{ cluster: Cluster }) {
-    return <iframe className='iframe' src={ model.monitor_url + '/?' + `&var-cluster_name=${cluster.name}&var-dolphindb_node=All` } />
+    return <iframe className='iframe' src={`${model.monitor_url}/?var-cluster_name=${cluster.name}&var-dolphindb_node=All&orgId=1&kiosk`} />
 }
 
 function ClusterDetail () {
@@ -1545,7 +1545,7 @@ function NodeList ({
                     title: t('操作'),
                     width: 300,
                     render (_, node) {
-                        const running = node.status.phase === 'Running'
+                        const running = node.status.phase === 'Ready'
                         
                         return <Space>
                             <Link

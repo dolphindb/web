@@ -1589,7 +1589,7 @@ class TreeDataItem implements DataNode {
         isLeaf?: boolean
         needLoad?: boolean
     }) {
-        const name = typeof title === 'string' ? /^(\w+)/.exec(title)[1] : ''
+        const name = typeof title === 'string' ? (/^(\w+)/.exec(title)?.[1] || title) : ''
         
         this.title = <>{typeof title === 'string' ? (
                 <>
