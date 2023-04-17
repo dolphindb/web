@@ -58,13 +58,13 @@ import { model, DdbModel, NodeType, storage_keys, DdbLicense, LicenseTypes } fro
 
 import { Login } from './login.js'
 import { Cluster } from './cluster.js'
-import { Shell } from './shell.js'
+import { Shell } from './shell/index.js'
 import { DashBoard } from './dashboard.js'
 import { Job } from './job.js'
 import { Log } from './log.js'
 
 import SvgCluster from './cluster.icon.svg'
-import SvgShell from './shell.icon.svg'
+import SvgShell from './shell/index.icon.svg'
 import SvgDashboard from './dashboard.icon.svg'
 import SvgJob from './job.icon.svg'
 import SvgLog from './log.icon.svg'
