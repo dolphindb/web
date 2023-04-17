@@ -8,11 +8,11 @@
     display: flex
     
     
-    .treeview-resizable
+    .left-panels
         display: flex
         flex-direction: column
         
-        height: 100%
+        justify-content: flex-start
         
         overflow: hidden
         
@@ -158,50 +158,43 @@
                 align-items: center
                 color: #888888
         
-        
-        .treeview-content
+        .treeview-split
             height: 100%
+            
+        .treeview-resizable-split1
+            overflow: hidden
+            
+        .treeview-resizable-split1, .treeview-resizable-split2, .treeview-resizable-split22
+            .ant-tree-treenode
+                height: 20px
+                
+                .ant-tree-node-content-wrapper
+                    min-height: 18px
+                    height: 18px
+                    line-height: 18px
+                    
+                    .ant-tree-iconEle
+                        line-height: 18px
+            
+                .ant-tree-switcher-line-icon
+                    vertical-align: 2px
+        
+        .treeview-resizable-split2
+            min-height: 44px
+            flex-grow: 1
             display: flex
             flex-direction: column
             justify-content: flex-start
+        
+        .treeview-resizable-split21
+            flex-grow: 1
+            min-height: 22px
+            overflow-y: hidden
             
-            .treeview-split
-                height: 100%
-                
-            .treeview-resizable-split1
-                overflow: hidden
-                
-            .treeview-resizable-split1, .treeview-resizable-split2, .treeview-resizable-split22
-                .ant-tree-treenode
-                    height: 20px
-                    
-                    .ant-tree-node-content-wrapper
-                        min-height: 18px
-                        height: 18px
-                        line-height: 18px
-                        
-                        .ant-tree-iconEle
-                            line-height: 18px
-                
-                    .ant-tree-switcher-line-icon
-                        vertical-align: 2px
-            
-            .treeview-resizable-split2
-                min-height: 44px
-                flex-grow: 1
-                display: flex
-                flex-direction: column
-                justify-content: flex-start
-            
-            .treeview-resizable-split21
-                flex-grow: 1
-                min-height: 22px
-                overflow-y: hidden
-                
-            
-            .treeview-resizable-split22
-                max-height: calc(100% - 22px) !important
-    
+        
+        .treeview-resizable-split22
+            max-height: calc(100% - 22px) !important
+
     
     .content
         flex: 1

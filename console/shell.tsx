@@ -581,7 +581,7 @@ export function Shell () {
     
     return <>
         <Resizable
-            className='treeview-resizable'
+            className='left-panels'
             defaultSize={{ height: '100%', width: '13%' }}
             enable={{ top: false, right: true, bottom: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
             onResizeStop={async () => {
@@ -1262,9 +1262,9 @@ function Term () {
 function TreeView () {
     const [db_height, set_db_height] = useState(256)
     
-    return <div className='treeview-content'>
+    return <>
         <Resizable
-            className='treeview-resizable-split treeview-resizable-split1'
+            className='treeview-resizable-split1'
             enable={{
                 top: false,
                 right: false,
@@ -1296,7 +1296,7 @@ function TreeView () {
                 <Variables shared={false} />
             </div>
             <Resizable
-                className='treeview-resizable-split treeview-resizable-split22'
+                className='treeview-resizable-split22'
                 enable={{
                     top: true,
                     right: false,
@@ -1315,7 +1315,7 @@ function TreeView () {
                 <Variables shared />
             </Resizable>
         </div>
-    </div>
+    </>
 }
 
 
