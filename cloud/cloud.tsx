@@ -2292,7 +2292,7 @@ function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, ref
     const form_object = { nfs: nfs_form, s3: s3_form }
     useEffect(() => {
         (async () => {
-            const fetched_providers = (await request_json_with_error_handling('/v1/dolphindbs/backups/providers'))['providers']
+            const fetched_providers = (await request_json_with_error_handling('/v1/dolphindbs/backups/providers')).providers
             set_providers(fetched_providers)
         })()
     }, [])
@@ -2327,7 +2327,7 @@ function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, ref
                     Modal.error(
                         {
                             title: 'Error',
-                            content: resp['errorMessage']
+                            content: resp.errorMessage
                         }
                     )
                 }
@@ -2685,7 +2685,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
     }
 
     const refresh_selectable_storage_class = async () => {
-        const fetched_storage_class = (await request_json_with_error_handling('/v1/storageclasses'))['items'].map(x => x['name'])
+        const fetched_storage_class = (await request_json_with_error_handling('/v1/storageclasses')).items.map(x => x.name)
         set_storage_class(fetched_storage_class.sort().reverse())
     }
 
@@ -2696,7 +2696,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
 
     const refresh_content_of_restore_modal = async instance_name => {
         const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${instance_name}`)
-        data['from'] = instance_name
+        data.from = instance_name
         set_content_of_restore_modal(data)
     }
 
@@ -2751,7 +2751,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
         
         try {
             form_instance_backup.setFieldValue('source_key', source_keys[0])
-            set_selected_remote_type(source_key_detail[source_keys[0]]['type'])
+            set_selected_remote_type(source_key_detail[source_keys[0]].type)
         } catch (e) {
             console.log(e)
         }
@@ -2917,7 +2917,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                         message.error('SourceKey detail is none. Coder assertion failed')
                         return
                     }
-                    const remote_type = source_key_detail[source_key]['type']
+                    const remote_type = source_key_detail[source_key].type
                     await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`,
                         {
                             body: {
@@ -2974,7 +2974,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                             message.error('Sourcekey empty. Coder assertion failed.')
                                             return
                                         }
-                                        set_selected_remote_type(source_key_detail[value]['type'])
+                                        set_selected_remote_type(source_key_detail[value].type)
                                     }}
                                     style={{ width: 100 }}
                                 >
@@ -3427,7 +3427,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
                             set_source_key_detail_modal_name(data_item)
                             set_source_key_detail_modal_open(true)
                         }}>{data_item}</Link>,
-                        type: source_key_detail[data_item]['type'],
+                        type: source_key_detail[data_item].type,
                         operation:
                             [
                                 <Popconfirm
