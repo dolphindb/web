@@ -1972,7 +1972,7 @@ function ConfigEditableList ({
                 const editable = isEditing(record)
                 return editable ? (
                     <span>
-                        <Typography.Link onClick={() => save(record.name)} style={{ marginRight: 8 }}>
+                        <Typography.Link onClick={async () => save(record.name)} style={{ marginRight: 8 }}>
                         {t('保存更改')}
                         </Typography.Link>
                         <Typography.Link onClick={cancel}>

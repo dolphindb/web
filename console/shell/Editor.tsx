@@ -668,7 +668,7 @@ class TokensProviderCache {
         }
     }
     
-    getGrammar (scopeName: string, encodedLanguageId: number): Promise<IGrammar> {
+    async getGrammar (scopeName: string, encodedLanguageId: number): Promise<IGrammar> {
         const grammar = this.scopeNameToGrammar.get(scopeName)
         if (grammar) 
             return grammar
