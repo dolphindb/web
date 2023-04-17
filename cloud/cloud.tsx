@@ -504,11 +504,12 @@ function Clusters () {
                 wrapperCol={{ span: 16 }}
                 colon={false}
             >
-                <Collapse bordered={false} ghost={true} defaultActiveKey={1}>
+                <Collapse bordered={false} ghost defaultActiveKey={1}>
                     <Collapse.Panel
                         key={1}
                         header={<span className='ant-divider-inner-text'>{t('基本信息')}</span>}
-                        forceRender={true}>
+                        forceRender
+                    >
                         <Row className='row-left-margin'>
                             <Col span={12}>
                                 <Form.Item name='version' label={t('版本')} rules={[{ required: true }]} >
@@ -539,7 +540,8 @@ function Clusters () {
                     {mode === 'cluster' && <Collapse.Panel
                         key={2}
                         header={<span className='ant-divider-inner-text'>{t('控制节点')}</span>}
-                        forceRender={true}>
+                        forceRender
+                    >
                             {cluster_type === 'multicontroller' && <Row className='optional-columns'>
                                 <Col span={12}>
                                     <Form.Item name={['controller', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
@@ -601,7 +603,7 @@ function Clusters () {
                     <Collapse.Panel
                         key={3}
                         header={<span className='ant-divider-inner-text'>{t('数据节点')}</span>}
-                        forceRender={true}
+                        forceRender
                     >
                         {mode === 'cluster' && 
                             <Row className='optional-columns'>
@@ -664,7 +666,7 @@ function Clusters () {
                         <Collapse.Panel
                             key={4}
                             header={<span className='ant-divider-inner-text'>{t('计算节点')}</span>}
-                            forceRender={true}
+                            forceRender
                         >
                             <Row className='optional-columns'>
                                 <Col span={12}>
@@ -925,10 +927,10 @@ function CreateClusterPanel ({
                 }}
             >
                 <Collapse
-                    bordered={false} ghost={true} defaultActiveKey={1}
+                    bordered={false} ghost defaultActiveKey={1}
                 >
                     <Collapse.Panel
-                        key={1} header={<span className='ant-divider-inner-text'>{t('基本信息')}</span>} forceRender={true}
+                        key={1} header={<span className='ant-divider-inner-text'>{t('基本信息')}</span>} forceRender
                     >
                         <Row>
                             <Col span={12}>
@@ -1048,7 +1050,7 @@ function CreateClusterPanel ({
                     {mode === 'cluster' && <Collapse.Panel
                         key={2}
                         header={<span className='ant-divider-inner-text'>{t('控制节点')}</span>}
-                        forceRender={true}>
+                        forceRender>
                             <Row className='optional-columns'>
                                 {cluster_type === 'multicontroller' && <Col span={12}>
                                     <Form.Item name={['controller', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
@@ -1127,7 +1129,7 @@ function CreateClusterPanel ({
                     <Collapse.Panel 
                         key={3} 
                         header={<span className='ant-divider-inner-text'>{t('数据节点')}</span>}
-                        forceRender={true}
+                        forceRender
                     >
 
                         <Row className='optional-columns'>
@@ -1205,7 +1207,7 @@ function CreateClusterPanel ({
                     {mode === 'cluster' && <Collapse.Panel
                         key={4}
                         header={<span className='ant-divider-inner-text'>{t('计算节点')}</span>}
-                        forceRender={true} >
+                        forceRender >
                             <Row>
                                 <Col span={12}>
                                     <Form.Item name={['computenode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
@@ -2232,7 +2234,7 @@ function ShowBackupRestoreSourceKey () {
         defaultActiveKey='1'
         size='large'
         centered
-        destroyInactiveTabPane={true}
+        destroyInactiveTabPane
         onChange={key => {
             switch (key) {
                 case '1':
