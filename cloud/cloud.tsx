@@ -834,7 +834,7 @@ function CreateClusterPanel ({
             </>}
         >
             <Form
-                form = {form}
+                form={form}
                 name='cluster-form'
                 className='cluster-create-form'
                 labelAlign='left'
