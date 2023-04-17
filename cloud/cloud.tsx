@@ -1274,7 +1274,7 @@ function CreateClusterPanel ({
                                     </Form.Item>
                                 </Col>
                             </Row>
-                        </ Collapse.Panel>}
+                        </Collapse.Panel>}
                </Collapse>
             </Form>
         </Modal>
