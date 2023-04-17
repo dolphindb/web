@@ -330,21 +330,21 @@ export interface ClusterNode {
         limits: {
             cpu: {
                 value?: number
-            },
+            }
             memory: {
                 unit: string
                 value?: number
-            },
-        },
+            }
+        }
         /** 下限 */
         requests: {
             cpu: {
                 value?: number
-            },
+            }
             memory: {
                 unit: string
                 value?: number
-            },
+            }
         }
     }
     status: {
@@ -359,10 +359,10 @@ export interface ClusterNode {
 }
 
 export interface ClusterConfigItem {
-    name: string,
-    value: string,
-    default_value: string,
-    type: string,
+    name: string
+    value: string
+    default_value: string
+    type: string
     description: string
 }
 

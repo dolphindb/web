@@ -126,8 +126,8 @@ function ClusterDetailMenuItem ({
     onClick,
     value
 }: {
-    focused: boolean,
-    onClick: (value: FieldType) => void,
+    focused: boolean
+    onClick: (value: FieldType) => void
     value: FieldType
 }) {
     let currClass = 'detail-menu-item'
@@ -749,7 +749,7 @@ function CreateClusterPanel ({
     closePanel,
     queries
 }: {
-    visible: boolean,
+    visible: boolean
     closePanel: () => void
     queries: QueryOptions
 }) {
@@ -1412,7 +1412,7 @@ function NodeList ({
     nodes,
     get_nodes,
 }: {
-    cluster: Cluster,
+    cluster: Cluster
     mode: 'controller' | 'datanode' |'computenode'
     nodes: ClusterNode[]
     get_nodes: Function
@@ -1873,10 +1873,10 @@ function ConfigEditableList ({
     editedList,
     onConfigChange,
 }: {
-    type: ConfigType,
-    configList: ClusterConfigItem[],
-    editedList: ClusterConfigItem[],
-    onConfigChange: (config: Partial<ClusterConfigItem> & {name: string}, type: ConfigType) => void,
+    type: ConfigType
+    configList: ClusterConfigItem[]
+    editedList: ClusterConfigItem[]
+    onConfigChange: (config: Partial<ClusterConfigItem> & {name: string}, type: ConfigType) => void
 }) {
     const [form] = Form.useForm()
     const [editingName, setEditingName] = useState('')
