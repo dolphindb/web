@@ -2457,8 +2457,7 @@ function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, ref
                     </Form>
                 }
             ]}
-        >
-        </Tabs>
+         />
     </Modal>
 }
 
@@ -2796,9 +2795,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
             >{t('刷新')}</Button>
         </div>
 
-        <div style={{ height: '10px' }}>
-
-        </div>
+        <div style={{ height: '10px' }} />
 
 
         {!_.isEmpty(fetched_list_of_namesace) ?
@@ -3156,7 +3153,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
 
 
         <ErrorBoundary>
-            <DashboardForOneName name={name_of_current_opened_detail} type='backups' open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }}></DashboardForOneName>
+            <DashboardForOneName name={name_of_current_opened_detail} type='backups' open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }} />
         </ErrorBoundary>
     </div>
 
@@ -3204,9 +3201,7 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
             >{t('刷新')}</Button>
         </div>
 
-        <div style={{ height: '10px' }}>
-
-        </div>
+        <div style={{ height: '10px' }} />
 
         {!_.isEmpty(fetched_restore_list_of_namesace) ?
             <Table dataSource={fetched_restore_list_of_namesace.items.map(
@@ -3415,9 +3410,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
             >{t('刷新')}</Button>
         </div>
 
-        <div style={{ height: '10px' }}>
-
-        </div>
+        <div style={{ height: '10px' }} />
 
         {sourcekey_modal_open ? <SourceKeyModal
             sourcekey_modaol_open={sourcekey_modal_open}
