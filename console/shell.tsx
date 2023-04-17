@@ -88,7 +88,6 @@ import SvgDatabase from './shell.icons/database.icon.svg'
 import SvgDatabaseGroup from './shell.icons/database-group.icon.svg'
 import SvgColumn from './shell.icons/column.icon.svg'
 import SvgAddColumn from './shell.icons/add-column.icon.svg'
-import SvgViewTableStructure from './shell.icons/view-table-structure.icon.svg'
 import SvgPartitions from './shell.icons/partitions.icon.svg'
 import SvgSchema from './shell.icons/schema.icon.svg'
 import SvgPartitionFile from './shell.icons/partition-file.icon.svg'
@@ -1286,7 +1285,7 @@ function TreeView () {
                 }
             }
         >
-            <div className='databases treeview-split treeview-split1'>
+            <div className='panel'>
                 <DBs height={db_height} />
             </div>
         </Resizable>
@@ -2283,8 +2282,7 @@ function Variables ({ shared }: { shared?: boolean }) {
         }
     
     
-    return <div
-        className={`variables treeview-split ${shared ? 'treeview-split3 shared' : 'treeview-split2 local'}`}>
+    return <div className='panel'>
         <div className='type'>{shared ? t('共享变量') : t('本地变量')}
             <span onClick={() => { set_expanded_keys([]) }}>
                 <Tooltip title={t('全部折叠')} color={'grey'}>
