@@ -1413,7 +1413,7 @@ function NodeList ({
     get_nodes,
 }: {
     cluster: Cluster
-    mode: 'controller' | 'datanode' |'computenode'
+    mode: 'controller' | 'datanode' | 'computenode'
     nodes: ClusterNode[]
     get_nodes: Function
 }) {
@@ -1709,7 +1709,7 @@ function ClusterConfigs ({
         dolphindb_config: []
     })
 
-    const onConfigChange = (newItem: Partial<ClusterConfigItem> & {name: string}, type: ConfigType) => {
+    const onConfigChange = (newItem: Partial<ClusterConfigItem> & { name: string }, type: ConfigType) => {
         const name_dict = {
             cluster: 'cluster_config',
             controller: 'controller_config',
@@ -1876,7 +1876,7 @@ function ConfigEditableList ({
     type: ConfigType
     configList: ClusterConfigItem[]
     editedList: ClusterConfigItem[]
-    onConfigChange: (config: Partial<ClusterConfigItem> & {name: string}, type: ConfigType) => void
+    onConfigChange: (config: Partial<ClusterConfigItem> & { name: string }, type: ConfigType) => void
 }) {
     const [form] = Form.useForm()
     const [editingName, setEditingName] = useState('')
@@ -1904,7 +1904,7 @@ function ConfigEditableList ({
                 name,
                 value: String(row.value)
             }
-            onConfigChange(config as Partial<ClusterConfigItem> & {name: string}, type)
+            onConfigChange(config as Partial<ClusterConfigItem> & { name: string }, type)
             setEditingName('')
         } catch (err) {
             console.error('Form Validate Failed:', err)
@@ -3266,7 +3266,7 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
     </div>
 }
 
-const SourceKeyPanel = ({ single_sourceKey_detail }: {single_sourceKey_detail:  SourceKeyDetail[string]})  => {
+const SourceKeyPanel = ({ single_sourceKey_detail }: { single_sourceKey_detail:  SourceKeyDetail[string] })  => {
     // @ts-ignore
     const { type, endpoint, provider, region, access_key, secret_access_key, path } = single_sourceKey_detail
     if (!single_sourceKey_detail)

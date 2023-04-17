@@ -162,7 +162,7 @@ export class CloudModel extends Model <CloudModel> {
         )
         
         let { Datanode: datanodes, Controller: controllers, Computenode: computenodes, ...others } = nodes
-        console.log('nodes:',nodes)
+        console.log('nodes:', nodes)
         
         if (controllers)
             controllers.sort((a, b) => 
@@ -183,7 +183,7 @@ export class CloudModel extends Model <CloudModel> {
     
     
     async creat_cluster_node_service (cluster: Cluster, instanceName: string) {
-        return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${instanceName}/services`,{
+        return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${instanceName}/services`, {
             method: 'POST',
         })
 
