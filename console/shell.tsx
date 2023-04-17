@@ -2285,7 +2285,7 @@ function Variables ({ shared }: { shared?: boolean }) {
     return <div className='panel'>
         <div className='type'>{shared ? t('共享变量') : t('本地变量')}
             <span onClick={() => { set_expanded_keys([]) }}>
-                <Tooltip title={t('全部折叠')} color={'grey'}>
+                <Tooltip title={t('全部折叠')} color='grey'>
                 <MinusSquareOutlined />
                 </Tooltip>
             </span>

@@ -519,6 +519,7 @@ function Clusters () {
                                                     <Option value={v} key={v}>{v}</Option>
                                                 ))
                                                 :
+                                                // eslint-disable-next-line
                                                 <Option value=''>{''}</Option>
                                         }
                                     </Select>
@@ -817,7 +818,7 @@ function CreateClusterPanel ({
             visible={visible}
             onOk={closePanel}
             onCancel={closePanel}   
-            width={'900px'}
+            width='900px'
             footer={<>
                     <Button type='primary' htmlType='submit' className='submit' onClick={onSubmit}>{t('提交')}</Button>
                     <Button type='default' htmlType='reset' className='reset' onClick={onReset}>{t('重置')}</Button>
@@ -939,6 +940,7 @@ function CreateClusterPanel ({
                                                     <Option value={ns.name} key={ns.name}>{ns.name}</Option>
                                                 ))
                                                 :
+                                                // eslint-disable-next-line
                                                 <Option value=''>{''}</Option>
                                         }
                                     </Select>
@@ -951,6 +953,7 @@ function CreateClusterPanel ({
                                                     <Option value={v} key={v}>{v}</Option>
                                                 ))
                                                 :
+                                                // eslint-disable-next-line
                                                 <Option value=''>{''}</Option>
                                         }
                                     </Select>
@@ -963,6 +966,7 @@ function CreateClusterPanel ({
                                                     <Option value={sc.name} key={sc.name}>{sc.name}</Option>
                                                 ))
                                                 :
+                                                // eslint-disable-next-line
                                                 <Option value=''>{''}</Option>
                                         }
                                     </Select>
@@ -986,7 +990,7 @@ function CreateClusterPanel ({
                                     <Input />
                                 </Form.Item>
                             
-                                <Form.Item name={'enable_jit'} label={t('启用 JIT')} valuePropName='checked'>
+                                <Form.Item name='enable_jit' label={t('启用 JIT')} valuePropName='checked'>
                                     <Switch />
                                 </Form.Item>
 
@@ -2113,7 +2117,7 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
                 >{t('完成')}</Button>
             }
         >
-            <Space direction='vertical' style={{ width: '100%' }} size={'large'}>
+            <Space direction='vertical' style={{ width: '100%' }} size='large'>
                 <Title level={4}>{t('上传文件至 {{instance}}', { instance: props.instance })}</Title>
                 <Form form={form_instance}>
                     <Form.Item name='to' label={t('文件上传路径')} required colon={false}>
@@ -2415,7 +2419,7 @@ function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, ref
                                 <Input />
                             </Form.Item>
                             
-                            <Form.Item key='provider' name={'provider'} label={t('供应商')}>
+                            <Form.Item key='provider' name='provider' label={t('供应商')}>
                                 <Select
                                 onSelect={x => {
                                     set_selected_provider(x)
@@ -2427,7 +2431,7 @@ function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, ref
                                 </Select>
                             </Form.Item>
                             
-                            { !(selected_provider === 'Ceph' || selected_provider === 'Minio') && <Form.Item key='region' name={'region'} label={t('区域')}>
+                            { !(selected_provider === 'Ceph' || selected_provider === 'Minio') && <Form.Item key='region' name='region' label={t('区域')}>
                                     <Input />
                                 </Form.Item>
                             }
@@ -2523,7 +2527,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                     bordered
                 >
                     <Descriptions.Item label={t('云端存储类型')}>{remote_type}</Descriptions.Item>
-                    <Descriptions.Item label={t('云端存储配置')}>{
+                    <Descriptions.Item label={t('云端存储配置')}>
                         <Popover title={source_key}
                             mouseEnterDelay={0}
                             mouseLeaveDelay={0}
@@ -2532,8 +2536,10 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                                 source_key_detail ? <SourceKeyPanel single_sourceKey_detail={source_key_detail[source_key]}/> : undefined
 
                             }
-                        >{<Link>{source_key}</Link>}</Popover>
-                    }</Descriptions.Item>
+                        >
+                            <Link>{source_key}</Link>
+                        </Popover>
+                    </Descriptions.Item>
                     {
                         props.type === 'restores' ?
                             <Descriptions.Item label={t('备份源')}>
@@ -2875,23 +2881,23 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                 <Column
                     title={t('名称', { context: 'backup' })}
                     key='name'
-                    dataIndex={'name'}
+                    dataIndex='name'
                     width='20%'
                 />
                 <Column
                     title={t('创建时间', { context: 'backup' })}
                     key='create_timestamp'
-                    dataIndex={'create_timestamp'}
+                    dataIndex='create_timestamp'
                 />
                 <Column
                     title={t('状态')}
                     key='phase'
-                    dataIndex={'phase'}
+                    dataIndex='phase'
                 />
                 <Column
                     title={t('操作', { context: 'backup' })}
                     key='operation'
-                    dataIndex={'operation'}
+                    dataIndex='operation'
                 />
             </Table> :
             <Empty/>
@@ -2946,7 +2952,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                 colon={false}
             >
                 <>
-                    <Form.Item label={t('云端存储配置')} className={'source_key'} rules={[{ required: true, message: t('此项必填') }]} tooltip={t('存储备份文件的存储系统配置')}>
+                    <Form.Item label={t('云端存储配置')} className='source_key' rules={[{ required: true, message: t('此项必填') }]} tooltip={t('存储备份文件的存储系统配置')}>
                         <Space align='start'>
                             <Form.Item
                                 name='source_key'
@@ -2980,7 +2986,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                                     <Popover title={x}
                                                         mouseEnterDelay={0}
                                                         mouseLeaveDelay={0}
-                                                        placement={'left'}
+                                                        placement='left'
 
                                                         content={
                                                             source_key_detail ? <SourceKeyPanel single_sourceKey_detail={source_key_detail[x]}/> : undefined
@@ -3006,7 +3012,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                     <>{
                         selected_remote_type === 'nfs' ? undefined :
                             <Form.Item
-                                name={'prefix'}
+                                name='prefix'
                                 label={t('桶名')}
                                 rules={[{ required: true, message: t('此项必填') }]}
                             >
@@ -3014,7 +3020,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                             </Form.Item>}
 
                         <Form.Item
-                            name={'storage_class'}
+                            name='storage_class'
                             label={t('存储类名称')}
                             tooltip={t('存储临时备份文件的存储卷名称')}
                         >
@@ -3034,7 +3040,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
 
 
                         <Form.Item
-                            name={'storage_resource'}
+                            name='storage_resource'
                             label={t('存储空间')}
                             className='space'
                         >
@@ -3109,7 +3115,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                         refresh_selectable_names(value)
                         set_init_value_of_restore_modal({ dolphindb_namespace: value, dolphindb_name: undefined })
                     }}
-                        value={'dolphindb'}
+                        value='dolphindb'
                     >
                         {
                             namespaces.length !== 0 ?
@@ -3123,7 +3129,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                 </Form.Item>
 
                 <Form.Item
-                    name={'dolphindb_name'}
+                    name='dolphindb_name'
                     label={t('名称')}
                     rules={[{ required: true, message: t('此项必填') }]}
                 >
@@ -3148,7 +3154,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
 
 
         <ErrorBoundary>
-            <DashboardForOneName name={name_of_current_opened_detail} type={'backups'} open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }}></DashboardForOneName>
+            <DashboardForOneName name={name_of_current_opened_detail} type='backups' open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }}></DashboardForOneName>
         </ErrorBoundary>
     </div>
 
@@ -3234,30 +3240,30 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
                 <Column
                     title={t('名称', { context: 'backup' })}
                     key='name'
-                    dataIndex={'name'}
+                    dataIndex='name'
                     width='30%'
                 />
                 <Column
                     title={t('创建时间', { context: 'backup' })}
                     key='create_timestamp'
-                    dataIndex={'create_timestamp'}
+                    dataIndex='create_timestamp'
                 />
                 <Column
                     title={t('状态')}
                     key='phase'
-                    dataIndex={'phase'}
+                    dataIndex='phase'
                 />
                 <Column
                     title={t('操作', { context: 'backup' })}
                     key='operation'
-                    dataIndex={'operation'}
+                    dataIndex='operation'
                 />
             </Table> :
             <Empty/>
         }
 
         <ErrorBoundary>
-            <DashboardForOneName name={name_of_current_opened_detail} type={'restores'} open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }} />
+            <DashboardForOneName name={name_of_current_opened_detail} type='restores' open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }} />
         </ErrorBoundary>
 
     </div>
@@ -3447,18 +3453,18 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
                 <Column
                     title={t('名称', { context: 'backup' })}
                     key='name'
-                    dataIndex={'name'}
+                    dataIndex='name'
                     width='30%'
                 />
                 <Column
                     title={t('类型', { context: 'backup' })}
                     key='type'
-                    dataIndex={'type'}
+                    dataIndex='type'
                 />
                 <Column
                     title={t('操作', { context: 'backup' })}
                     key='operation'
-                    dataIndex={'operation'}
+                    dataIndex='operation'
                 />
             </Table>
             : undefined}

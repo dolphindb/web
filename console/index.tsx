@@ -134,7 +134,7 @@ function DdbHeader () {
         <Settings />
         
         <div className='section'>
-            <div className='user'>{
+            <div className='user'>
                 <Dropdown
                     menu={{
                         className: 'menu',
@@ -158,7 +158,7 @@ function DdbHeader () {
                         <Avatar className='avatar' icon={<UserOutlined /> } size='small' />{username}<Icon className='arrow-down' component={SvgArrowDown} />
                     </a>
                 </Dropdown>
-            }</div>
+            </div>
         </div>
     </>
 }
@@ -259,7 +259,7 @@ function Status () {
                             className='refresh'
                             onClick={() => { model.get_cluster_perf() }}
                         >
-                            <Tooltip title={t('刷新')} color={'grey'}>
+                            <Tooltip title={t('刷新')} color='grey'>
                                 <SyncOutlined className='icon' />
                             </Tooltip>
                         </div>
@@ -300,7 +300,7 @@ function Perf () {
                     {node.maxMemSize} GB
                 </Descriptions.Item>
             </Descriptions >
-            <Descriptions className='table' column={2} bordered size='small' title={'CPU'}>
+            <Descriptions className='table' column={2} bordered size='small' title='CPU'>
                 < Descriptions.Item label={t('CPU 占用率')} >
                     {node.cpuUsage.toFixed(1)} %
                 </Descriptions.Item >
