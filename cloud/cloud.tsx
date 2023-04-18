@@ -3354,7 +3354,7 @@ const SourceKeyPanel = ({ single_sourceKey_detail }: { single_sourceKey_detail: 
 }
 
 const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) => {
-    const [source_key_detail, set_source_key_detail] = useState()
+    const [source_key_detail, set_source_key_detail] = useState<SourceKeyDetail>()
 
     const [refresher, set_refresher] = useState(0)
 
