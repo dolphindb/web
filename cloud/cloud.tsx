@@ -1478,8 +1478,8 @@ function NodeList ({
                     title: 'cpu',
                     dataIndex: ['resources'],
                     render: (resources: ClusterNode['resources']) => {
-                        const max = resources.limits.cpu.value
-                        const min = resources.requests.cpu.value
+                        const max = resources?.limits.cpu.value
+                        const min = resources?.requests.cpu.value
                         return <div className='resources'>
                             <div>{ t('上限') + ' ' + (max !== undefined ? max : '-')  }</div>
                             <div>{ t('下限') + ' ' + (min !== undefined ? min : '-')  }</div>
@@ -1490,8 +1490,8 @@ function NodeList ({
                     title: '内存',
                     dataIndex: ['resources'],
                     render: (resources: ClusterNode['resources']) => {
-                        const max = resources.limits.memory
-                        const min = resources.requests.memory
+                        const max = resources?.limits.memory
+                        const min = resources?.requests.memory
                         return <div className='resources'>
                             <div>{ t('上限') + ' ' + (max.value !== undefined ? max.value + max.unit : '-') }</div>
                             <div>{ t('下限') + ' ' + (min.value !== undefined ? min.value + min.unit : '-') }</div>
