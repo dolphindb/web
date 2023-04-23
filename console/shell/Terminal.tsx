@@ -54,7 +54,7 @@ export function Terminal () {
         ;(async () => {
             // --- init term
             let term = shell.term = new window.Terminal({
-                fontFamily: 'MyFont, Menlo, Ubuntu Mono, Consolas, Dejavu Sans Mono, Noto Sans Mono, PingFangSC, Microsoft YaHei',
+                fontFamily: 'MyFont, Menlo, Ubuntu Mono, Consolas, Dejavu Sans Mono, Noto Sans Mono, PingFangSC, Microsoft YaHei, monospace',
                 fontSize: 16,
                 
                 cursorStyle: 'bar',

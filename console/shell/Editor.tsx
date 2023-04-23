@@ -410,10 +410,10 @@ export function Editor () {
                         enabled: minimap
                     },
                     
-                    fontFamily: 'MyFont, Menlo, \'Ubuntu Mono\', Consolas, \'Dejavu Sans Mono\', \'Noto Sans Mono\', PingFangSC, \'Microsoft YaHei\'',
+                    fontFamily: 'MyFont, Menlo, \'Ubuntu Mono\', Consolas, \'Dejavu Sans Mono\', \'Noto Sans Mono\', PingFangSC, \'Microsoft YaHei\', monospace',
                     fontSize: 16,
                     insertSpaces: true,
-                    codeLensFontFamily: 'MyFont, Menlo, \'Ubuntu Mono\', Consolas, \'Dejavu Sans Mono\', \'Noto Sans Mono\', PingFangSC, \'Microsoft YaHei\'',
+                    codeLensFontFamily: 'MyFont, Menlo, \'Ubuntu Mono\', Consolas, \'Dejavu Sans Mono\', \'Noto Sans Mono\', PingFangSC, \'Microsoft YaHei\', monospace',
                     folding: true,
                     largeFileOptimizations: true,
                     matchBrackets: 'always',

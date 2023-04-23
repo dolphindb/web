@@ -42,7 +42,7 @@ export function Shell () {
         }
         
         let term = new Terminal({
-            fontFamily: 'MyFont, Menlo, Ubuntu Mono, Consolas, Dejavu Sans Mono, Noto Sans Mono, PingFangSC, Microsoft YaHei',
+            fontFamily: 'MyFont, Menlo, Ubuntu Mono, Consolas, Dejavu Sans Mono, Noto Sans Mono, PingFangSC, Microsoft YaHei, monospace',
             fontSize: 16,
             
             cursorStyle: 'bar',
