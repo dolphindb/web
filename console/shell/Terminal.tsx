@@ -65,7 +65,7 @@ export function Terminal () {
                 
                 allowProposedApi: true,
 
-                scrollback: 5000,
+                scrollback: 100000,
                 
                 theme: {
                     background: '#ffffff',
