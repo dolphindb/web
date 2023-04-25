@@ -360,13 +360,12 @@ function Vector ({
         })()
     }, [obj, objref, page_index, page_size])
     
+    // 当 obj 为空的时候，我们需要等待其在 useEffect中重新拉取, 因此先返回null
+    if (!(obj || objref.obj)) 
+        return null
     
-    // if (!info.rows) 
-    //     if ([DdbType.symbol, DdbType.symbol_extended, DdbType.string].includes(objref.type))
-    //         return <>NULL</>
-    //     else
-    //         return <>0</>
-    
+    if (!info.rows) 
+        return <>{(obj || objref.obj).toString(options)}</>
     
     let rows = new Array<number>(nrows)
     for (let i = 0;  i < nrows;  i++)
