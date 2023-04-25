@@ -37,7 +37,7 @@ if (process.argv.includes('cloud')) {
         
         copy_vendors(fpd_out_console, true),
         
-        ... ['zh', 'en'].map(language =>
+        ... ['zh', 'en'].map(async language =>
             fcopy(`${fpd_node_modules}dolphindb/docs.${language}.json`, `${fpd_out_console}docs.${language}.json`)
         ),
         

@@ -28,7 +28,7 @@ import { language, t } from '../i18n/index.js'
 
 import { CloudModel, model, PageViews } from './model.js'
 import { Cloud } from './cloud.js'
-
+import { Shell } from './shell.js'
 import SvgCluster from './cluster.icon.svg'
 import SvgLog from './log.icon.svg'
 
@@ -48,7 +48,7 @@ const svgs: { [key in PageViews]: any } = {
 
 
 function DolphinDB () {
-    const { inited } = model.use(['inited'])
+    const { inited, is_shell } = model.use(['inited', 'is_shell'])
     
     useEffect(() => {
         model.init()
@@ -62,12 +62,17 @@ function DolphinDB () {
             <Layout.Header className='ddb-header'>
                 <DdbHeader />
             </Layout.Header>
-            <Layout className='body' hasSider>
-                <DdbSider />
-                <Layout.Content className='view'>
-                    <DdbContent />
-                </Layout.Content>
-            </Layout>
+            {is_shell ?
+                <div className='view shell' >
+                    <Shell />
+                </div>
+            :
+                <Layout className='body' hasSider>
+                    <DdbSider />
+                    <Layout.Content className='view'>
+                        <DdbContent />
+                    </Layout.Content>
+                </Layout>}
         </Layout>
     </ConfigProvider>
 }
@@ -112,7 +117,7 @@ function MenuIcon ({ view }: { view: CloudModel['view'] }) {
 
 
 function DdbSider () {
-    const { view, collapsed} = model.use(['view', 'collapsed'])
+    const { view, collapsed } = model.use(['view', 'collapsed'])
     
     return <Layout.Sider
         width={120}
@@ -139,7 +144,7 @@ function DdbSider () {
             theme='light'
             selectedKeys={[view]}
             onSelect={({ key }) => {
-                model.set({ view: key as PageViews})
+                model.set({ view: key as PageViews })
             }}
             inlineIndent={10}
             items={[

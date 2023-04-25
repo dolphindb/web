@@ -58,13 +58,13 @@ import { model, DdbModel, NodeType, storage_keys, DdbLicense, LicenseTypes } fro
 
 import { Login } from './login.js'
 import { Cluster } from './cluster.js'
-import { Shell } from './shell.js'
+import { Shell } from './shell/index.js'
 import { DashBoard } from './dashboard.js'
 import { Job } from './job.js'
 import { Log } from './log.js'
 
 import SvgCluster from './cluster.icon.svg'
-import SvgShell from './shell.icon.svg'
+import SvgShell from './shell/index.icon.svg'
 import SvgDashboard from './dashboard.icon.svg'
 import SvgJob from './job.icon.svg'
 import SvgLog from './log.icon.svg'
@@ -134,7 +134,7 @@ function DdbHeader () {
         <Settings />
         
         <div className='section'>
-            <div className='user'>{
+            <div className='user'>
                 <Dropdown
                     menu={{
                         className: 'menu',
@@ -158,7 +158,7 @@ function DdbHeader () {
                         <Avatar className='avatar' icon={<UserOutlined /> } size='small' />{username}<Icon className='arrow-down' component={SvgArrowDown} />
                     </a>
                 </Dropdown>
-            }</div>
+            </div>
         </div>
     </>
 }
@@ -259,7 +259,7 @@ function Status () {
                             className='refresh'
                             onClick={() => { model.get_cluster_perf() }}
                         >
-                            <Tooltip title={t('刷新')} color={'grey'}>
+                            <Tooltip title={t('刷新')} color='grey'>
                                 <SyncOutlined className='icon' />
                             </Tooltip>
                         </div>
@@ -300,7 +300,7 @@ function Perf () {
                     {node.maxMemSize} GB
                 </Descriptions.Item>
             </Descriptions >
-            <Descriptions className='table' column={2} bordered size='small' title={'CPU'}>
+            <Descriptions className='table' column={2} bordered size='small' title='CPU'>
                 < Descriptions.Item label={t('CPU 占用率')} >
                     {node.cpuUsage.toFixed(1)} %
                 </Descriptions.Item >
@@ -339,7 +339,7 @@ function Perf () {
                     </Descriptions.Item>
                 </> }
             </Descriptions >
-            <Descriptions className='table' column={2} bordered size='small' title={t('网络', { context: "perf" })}>
+            <Descriptions className='table' column={2} bordered size='small' title={t('网络', { context: 'perf' })}>
                 <Descriptions.Item label={t('当前连接')}>
                     {node.connectionNum}
                 </Descriptions.Item>
@@ -521,11 +521,11 @@ function Settings () {
                         <div className='decimals-toolbar'>
                             <span className='decimals-toolbar-input'>
                                 {t('设置小数位数: ')}
-                                <Tooltip title={t('输入应为空或介于 0 ~ 20')} placement="topLeft">
+                                <Tooltip title={t('输入应为空或介于 0 ~ 20')} placement='topLeft'>
                                     <InputNumber
                                         min={0}
                                         max={20}
-                                        onStep={(value) => {
+                                        onStep={value => {
                                             set_decimals(validate(value.toString()))
                                         }}
                                         onInput={(text: string) => {

@@ -195,7 +195,7 @@ function Dict ({
             
             const { node, name } = objref
             
-            console.log(`dict.fetch:`, name)
+            console.log('dict.fetch:', name)
             
             objref.obj = ddb ?
                 await ddb.eval<DdbDictObj>(name)
@@ -569,19 +569,22 @@ function Table ({
             
             const offset = page_size * page_index
             
-            if (offset >= rows)
-                return
-            
-            const script = `${name}[${offset}:${Math.min(offset + page_size, rows)}]`
-            
-            console.log('table.fetch:', script)
-            
-            if (ddb)
-                objref.obj = await ddb.eval(script)
-            else
-                objref.obj = DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [node, script])) as DdbTableObj
-            
-            render({ })
+            if (
+                // 允许在 rows 为 0 时拉一次空的 table[0:0] 获取 obj 用来显示列名
+                rows === 0 && offset === 0 ||
+                offset < rows
+            ) {
+                const script = `${name}[${offset}:${Math.min(offset + page_size, rows)}]`
+                
+                console.log('table.fetch:', script)
+                
+                if (ddb)
+                    objref.obj = await ddb.eval(script)
+                else
+                    objref.obj = DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [node, script])) as DdbTableObj
+                
+                render({ })
+            }
         })()
     }, [obj, objref, page_index, page_size])
     
@@ -600,7 +603,7 @@ function Table ({
             page_size,
             options,
         })
-        
+    
     
     return <div className='table'>
         <AntTable
@@ -808,7 +811,7 @@ export function StreamingTable ({
     
     let rows = new Array<number>(page_size)
     for (let i = 0;  i < page_size;  i++)
-        rows[i] = i;
+        rows[i] = i
     
     let cols = new Array<StreamingTableColumn>(data.rows)
     for (let i = 0;  i < data.rows;  i++)
@@ -930,7 +933,7 @@ export function StreamingTable ({
         <div>上面两个应该相等</div>
         
         <div style={{ margin: '10px 0px' }}>
-            自动添加数据: <Switch onChange={(checked) => {
+            自动添加数据: <Switch onChange={checked => {
                 rauto_append.current = checked
                 rerender({ })
             }}/>
@@ -1628,7 +1631,7 @@ function Chart ({
                                 text: titles.y_axis
                             }
                         }}
-                        isGroup={true}
+                        isGroup
                         label={{
                             position: 'middle',
                             layout: [
@@ -1691,7 +1694,7 @@ function Chart ({
                         radius={0.9}
                         label={{
                             type: 'spider',
-                            content: `{name}: {percentage}`,
+                            content: '{name}: {percentage}',
                         }}
                         padding='auto'
                     />
@@ -1743,7 +1746,7 @@ function Chart ({
                         className='chart-body'
                         data={data}
                         binField='value'
-                        stackField= 'col'
+                        stackField='col'
                         { ... bin_count ? { binNumber: Number(bin_count.value) } : { } }
                         xAxis={{
                             title: {

@@ -68,10 +68,16 @@ cd web
 # install project dependencies
 pnpm install
 
+# Copy .vscode/settings.template.json to .vscode/settings.json
+cp .vscode/settings.template.json .vscode/settings.json
+
 # Refer to scripts in package.json
 
 # development
 pnpm run dev
+
+# lint
+pnpm run lint
 
 # scan entries
 pnpm run scan

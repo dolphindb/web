@@ -8,17 +8,18 @@
     display: flex
     
     
-    .treeview-resizable
+    .left-panels
         display: flex
         flex-direction: column
         
-        height: 100%
+        justify-content: flex-start
         
         overflow: hidden
         
         border-right: 1px solid #e5e5e5
         
-        .treeview-split
+        .panel
+            height: 100%
             display: flex
             flex-direction: column
             white-space: nowrap
@@ -138,7 +139,6 @@
             .database-group.ant-tree-treenode, .db.ant-tree-treenode, .table.ant-tree-treenode
                 .ant-tree-title
                     font-weight: bold
-                    
             
             .dbtree-item-title
                 display: flex
@@ -158,50 +158,41 @@
                 align-items: center
                 color: #888888
         
+            
+        .treeview-resizable-split1
+            overflow: hidden
+            
+        .treeview-resizable-split1, .treeview-resizable-split2, .treeview-resizable-split22
+            .ant-tree-treenode
+                height: 20px
+                
+                .ant-tree-node-content-wrapper
+                    min-height: 18px
+                    height: 18px
+                    line-height: 18px
+                    
+                    .ant-tree-iconEle
+                        line-height: 18px
+            
+                .ant-tree-switcher-line-icon
+                    vertical-align: 2px
         
-        .treeview-content
-            height: 100%
+        .treeview-resizable-split2
+            min-height: 44px
+            flex-grow: 1
             display: flex
             flex-direction: column
             justify-content: flex-start
+        
+        .treeview-resizable-split21
+            flex-grow: 1
+            min-height: 22px
+            overflow-y: hidden
             
-            .treeview-split
-                height: 100%
-                
-            .treeview-resizable-split1
-                overflow: hidden
-                
-            .treeview-resizable-split1, .treeview-resizable-split2, .treeview-resizable-split22
-                .ant-tree-treenode
-                    height: 20px
-                    
-                    .ant-tree-node-content-wrapper
-                        min-height: 18px
-                        height: 18px
-                        line-height: 18px
-                        
-                        .ant-tree-iconEle
-                            line-height: 18px
-                
-                    .ant-tree-switcher-line-icon
-                        vertical-align: 2px
-            
-            .treeview-resizable-split2
-                min-height: 44px
-                flex-grow: 1
-                display: flex
-                flex-direction: column
-                justify-content: flex-start
-            
-            .treeview-resizable-split21
-                flex-grow: 1
-                min-height: 22px
-                overflow-y: hidden
-                
-            
-            .treeview-resizable-split22
-                max-height: calc(100% - 22px) !important
-    
+        
+        .treeview-resizable-split22
+            max-height: calc(100% - 22px) !important
+        
     
     .content
         flex: 1

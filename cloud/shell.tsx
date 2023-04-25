@@ -24,7 +24,6 @@ import { connect_websocket } from 'xshell/net.browser.js'
 
 import { t } from '../i18n/index.js'
 
-import { model } from './model.js'
 
 
 export function Shell () {
@@ -34,7 +33,7 @@ export function Shell () {
     
     useEffect(() => {
         if (!font_loaded) {
-            ;(async () => {
+            (async () => {
                 await document.fonts.ready
                 console.log(t('字体已全部加载'))
                 set_font_loaded(true)
@@ -43,7 +42,7 @@ export function Shell () {
         }
         
         let term = new Terminal({
-            fontFamily: 'MyFont, Menlo, Ubuntu Mono, Consolas, PingFangSC, Noto Sans CJK SC, Microsoft YaHei',
+            fontFamily: 'MyFont, Menlo, Ubuntu Mono, Consolas, Dejavu Sans Mono, Noto Sans Mono, PingFangSC, Microsoft YaHei, monospace',
             fontSize: 16,
             
             cursorStyle: 'bar',
@@ -55,6 +54,8 @@ export function Shell () {
             convertEol: true,
             
             allowProposedApi: true,
+
+            scrollback: 100000,
             
             theme: {
                 background: '#ffffff',
@@ -155,9 +156,6 @@ export function Shell () {
             title={
                 <Title level={3}>Shell</Title>
             }
-            onBack={() => {
-                model.set({ view: 'cloud' })
-            }}
         />
         {font_loaded ?
             <div className='term' ref={rterminal} />

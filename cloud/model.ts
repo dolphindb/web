@@ -53,6 +53,8 @@ export class CloudModel extends Model <CloudModel> {
     
     view: PageViews = 'cluster'
     
+    is_shell = new URLSearchParams(location.search).get('view') === 'shell'
+    
     clusters: Cluster[] = [ ]
     
     cluster: Cluster
@@ -65,11 +67,12 @@ export class CloudModel extends Model <CloudModel> {
     
     show_all_config = false
     
-    /** 以 http 开头, k8s 要求即使父页面用 https, iframe 也要用 http */
-    monitor_url: string
+    /** 以 // 开头, 不以 / 结尾 */
+    monitor_url = `//${location.host}/grafana`
     
     collapsed = localStorage.getItem('ddb-cloud.collapsed') === 'true'
     
+    license_server_address: string
     
     async init () {
         await Promise.all([
@@ -79,18 +82,18 @@ export class CloudModel extends Model <CloudModel> {
             this.get_versions(),
         ])
         
-        this.get_monitor_url()
+        this.get_license_server_address()
         
         this.set({
             inited: true,
         })
     }
     
-    async get_monitor_url () {
-        const { ip, port } = await request_json('/v1/grafana/url')
+    async get_license_server_address () {
+        const { address } = await request_json('/v1/licenseserver')
         
         this.set({
-            monitor_url: `http://${ip}:${port}`
+            license_server_address: address
         })
     }
     
@@ -105,7 +108,7 @@ export class CloudModel extends Model <CloudModel> {
     }
     
     /** 获取 namespace 字段可选值 */
-    async get_namespaces() {
+    async get_namespaces () {
         const { items: namespaces } = await request_json('/v1/namespaces')
         console.log('namespaces:', namespaces)
         this.set({
@@ -114,7 +117,7 @@ export class CloudModel extends Model <CloudModel> {
     }
 
     /** 获取 storage_class 字段可选值 */
-    async get_storageclasses() {
+    async get_storageclasses () {
         const { items: storageclasses } = await request_json('/v1/storageclasses')
         console.log('storageclasses:', storageclasses)
         this.set({
@@ -123,7 +126,7 @@ export class CloudModel extends Model <CloudModel> {
     }
 
     /** 获取 version 字段可选值 */
-    async get_versions() {
+    async get_versions () {
         const { items: versions } = await request_json('/v1/dolphindbs/versions')
         console.log('versions:', versions)
         this.set({
@@ -159,7 +162,7 @@ export class CloudModel extends Model <CloudModel> {
         )
         
         let { Datanode: datanodes, Controller: controllers, Computenode: computenodes, ...others } = nodes
-        console.log('nodes:',nodes)
+        console.log('nodes:', nodes)
         
         if (controllers)
             controllers.sort((a, b) => 
@@ -180,7 +183,7 @@ export class CloudModel extends Model <CloudModel> {
     
     
     async creat_cluster_node_service (cluster: Cluster, instanceName: string) {
-        return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${instanceName}/services`,{
+        return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${instanceName}/services`, {
             method: 'POST',
         })
 
@@ -235,7 +238,7 @@ export class CloudModel extends Model <CloudModel> {
         
         let s = ''
         try {
-            const { error_message, error_code } : { error_message: string, error_code: string } = JSON.parse(error.response.text)
+            const { error_message, error_code }: { error_message: string, error_code: string } = JSON.parse(error.response.text)
             s = language === 'zh' ? error_codes[error_code] : error_message.slice(0, error_message.indexOf('!'))
         } catch (err) {
             // 这个 err 不是原始错误，不往上抛
@@ -280,7 +283,8 @@ export interface Cluster {
         log_size: string
     }
     status: {
-        phase: 'Available' | string
+        // https://dolphindb1.atlassian.net/wiki/spaces/CC/pages/629080480/DolphinDB+Backup
+        phase: 'Available' | 'Ready' | 'Progressing' | 'Unschedulable' | 'Unavailable' | 'Unknown'
         message: string
     }
     services: {
@@ -301,6 +305,7 @@ export interface Cluster {
             port: string
         }
     }
+    enable_jit?: boolean
 }
 
 
@@ -316,34 +321,36 @@ export interface ClusterNode {
     namespace: string
     name: string
     creation_timestamp: string
-    /** resources.limits 一定有cpu字段和memory字段  
+    /** 可能直接没有 resources 字段
+        resources.limits 一定有 cpu 字段和 memory 字段  
         resources.requests 同上  
         cpu 中未必有 value 字段，一定没有 unit 字段  
         memory 中未必有 value 字段，一定有 unit 字段 */
-    resources: {
+    resources?: {
         /** 上限 */
         limits: {
             cpu: {
                 value?: number
-            },
+            }
             memory: {
                 unit: string
                 value?: number
-            },
-        },
+            }
+        }
         /** 下限 */
         requests: {
             cpu: {
                 value?: number
-            },
+            }
             memory: {
                 unit: string
                 value?: number
-            },
+            }
         }
     }
     status: {
-        phase: 'Available' | string
+        // https://dolphindb1.atlassian.net/wiki/spaces/CC/pages/629080480/DolphinDB+Backup
+        phase: 'Ready' | 'Progressing' | 'Unschedulable' | 'Unavailable' | 'Paused'
         message?: string
     }
     instance_service: {
@@ -353,10 +360,10 @@ export interface ClusterNode {
 }
 
 export interface ClusterConfigItem {
-    name: string,
-    value: string,
-    default_value: string,
-    type: string,
+    name: string
+    value: string
+    default_value: string
+    type: string
     description: string
 }
 

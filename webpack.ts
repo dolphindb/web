@@ -13,7 +13,7 @@ import type { Options as TSLoaderOptions } from 'ts-loader'
 import sass from 'sass'
 import type { Options as SassOptions } from 'sass-loader'
 
-import { fexists } from 'xshell'
+import { fexists, Lock } from 'xshell'
 
 
 export const fpd_root = `${path.dirname(fileURLToPath(import.meta.url))}/`
@@ -33,269 +33,274 @@ export const fpd_out_cloud = `${ ramdisk ? fpd_ramdisk_root : fpd_root }web.clou
 export let webpack = {
     config: null as Configuration,
     
-    compiler: null as Compiler,
+    lcompiler: new Lock<Compiler>(null),
     
     
     async build ({ production, is_cloud }: { production: boolean, is_cloud?: boolean }) {
-        this.compiler = Webpack(this.config = {
-            name: 'web',
-            
-            mode: production ? 'production' : 'development',
-            
-            devtool: 'source-map',
-            
-            entry: is_cloud ?
-                    { 'index.js': './cloud/index.tsx' }
-                :
-                    {
-                        'index.js': './console/index.tsx',
-                        'window.js': './console/window.tsx'
-                    },
-            
-            experiments: {
-                // outputModule: true,
-                topLevelAwait: true,
-            },
-            
-            output: {
-                path: is_cloud ? fpd_out_cloud : fpd_out_console,
-                filename: '[name]',
-                publicPath: '/',
-                pathinfo: true,
-                globalObject: 'globalThis',
-            },
-            
-            target: ['web', 'es2022'],
-            
-            externals: {
-                react: 'React',
-                'react-dom': 'ReactDOM',
-                lodash: '_',
-                xterm: 'Terminal',
-                antd: 'antd',
-                dayjs: 'dayjs',
-                '@ant-design/icons': 'icons',
-                '@ant-design/plots': 'Plots',
-                echarts: 'echarts',
-            },
-            
-            resolve: {
-                extensions: ['.js'],
+        await this.lcompiler.request(async () => {
+            this.lcompiler.resource = Webpack(this.config = {
+                name: 'web',
                 
-                symlinks: true,
+                mode: production ? 'production' : 'development',
                 
-                plugins: [{
-                    apply (resolver) {
-                        const target = resolver.ensureHook('file')
-                        
-                        for (const extension of ['.ts', '.tsx'] as const)
-                            resolver.getHook('raw-file').tapAsync('ResolveTypescriptPlugin', (request, ctx, callback) => {
-                                if (
-                                    typeof request.path !== 'string' ||
-                                    /(^|[\\/])node_modules($|[\\/])/.test(request.path)
-                                ) {
-                                    callback()
-                                    return
-                                }
-                                
-                                if (request.path.endsWith('.js')) {
-                                    const path = request.path.slice(0, -3) + extension
+                devtool: 'source-map',
+                
+                entry: is_cloud ?
+                        { 'index.js': './cloud/index.tsx' }
+                    :
+                        {
+                            'index.js': './console/index.tsx',
+                            'window.js': './console/window.tsx'
+                        },
+                
+                experiments: {
+                    // outputModule: true,
+                    topLevelAwait: true,
+                },
+                
+                output: {
+                    path: is_cloud ? fpd_out_cloud : fpd_out_console,
+                    filename: '[name]',
+                    publicPath: '/',
+                    pathinfo: true,
+                    globalObject: 'globalThis',
+                },
+                
+                target: ['web', 'es2022'],
+                
+                externals: {
+                    react: 'React',
+                    'react-dom': 'ReactDOM',
+                    lodash: '_',
+                    xterm: 'Terminal',
+                    antd: 'antd',
+                    dayjs: 'dayjs',
+                    '@ant-design/icons': 'icons',
+                    '@ant-design/plots': 'Plots',
+                    echarts: 'echarts',
+                },
+                
+                resolve: {
+                    extensions: ['.js'],
+                    
+                    symlinks: true,
+                    
+                    plugins: [{
+                        apply (resolver) {
+                            const target = resolver.ensureHook('file')
+                            
+                            for (const extension of ['.ts', '.tsx'] as const)
+                                resolver.getHook('raw-file').tapAsync('ResolveTypescriptPlugin', (request, ctx, callback) => {
+                                    if (
+                                        typeof request.path !== 'string' ||
+                                        /(^|[\\/])node_modules($|[\\/])/.test(request.path)
+                                    ) {
+                                        callback()
+                                        return
+                                    }
                                     
-                                    resolver.doResolve(
-                                        target,
-                                        {
-                                            ...request,
-                                            path,
-                                            relativePath: request.relativePath?.replace(/\.js$/, extension)
+                                    if (request.path.endsWith('.js')) {
+                                        const path = request.path.slice(0, -3) + extension
+                                        
+                                        resolver.doResolve(
+                                            target,
+                                            {
+                                                ...request,
+                                                path,
+                                                relativePath: request.relativePath?.replace(/\.js$/, extension)
+                                            },
+                                            `using path: ${path}`,
+                                            ctx,
+                                            callback
+                                        )
+                                    } else
+                                        callback()
+                                })
+                        }
+                    }]
+                },
+                
+                
+                module: {
+                    rules: [
+                        {
+                            test: /\.js$/,
+                            enforce: 'pre',
+                            use: ['source-map-loader'],
+                        },
+                        {
+                            test: /\.tsx?$/,
+                            exclude: /node_modules/,
+                            loader: 'ts-loader',
+                            // https://github.com/TypeStrong/ts-loader
+                            options: {
+                                configFile: `${fpd_root}tsconfig.json`,
+                                onlyCompileBundledFiles: true,
+                                transpileOnly: true,
+                            } as Partial<TSLoaderOptions>
+                        },
+                        {
+                            test: /\.s[ac]ss$/,
+                            use: [
+                                'style-loader',
+                                {
+                                    // https://github.com/webpack-contrib/css-loader
+                                    loader: 'css-loader',
+                                    options: {
+                                        url: false,
+                                    }
+                                },
+                                {
+                                    // https://webpack.js.org/loaders/sass-loader
+                                    loader: 'sass-loader',
+                                    options: {
+                                        implementation: sass,
+                                        // 解决 url(search.png) 打包出错的问题
+                                        webpackImporter: false,
+                                        sassOptions: {
+                                            indentWidth: 4,
                                         },
-                                        `using path: ${path}`,
-                                        ctx,
-                                        callback
-                                    )
-                                } else
-                                    callback()
-                            })
-                    }
-                }]
-            },
-            
-            
-            module: {
-                rules: [
-                    {
-                        test: /\.js$/,
-                        enforce: 'pre',
-                        use: ['source-map-loader'],
-                    },
-                    {
-                        test: /\.tsx?$/,
-                        exclude: /node_modules/,
-                        loader: 'ts-loader',
-                        // https://github.com/TypeStrong/ts-loader
-                        options: {
-                            configFile: `${fpd_root}tsconfig.json`,
-                            onlyCompileBundledFiles: true,
-                            transpileOnly: true,
-                        } as Partial<TSLoaderOptions>
-                    },
-                    {
-                        test: /\.s[ac]ss$/,
-                        use: [
-                            'style-loader',
-                            {
-                                // https://github.com/webpack-contrib/css-loader
-                                loader: 'css-loader',
-                                options: {
-                                    url: false,
+                                    } as SassOptions,
                                 }
-                            },
-                            {
-                                // https://webpack.js.org/loaders/sass-loader
-                                loader: 'sass-loader',
-                                options: {
-                                    implementation: sass,
-                                    // 解决 url(search.png) 打包出错的问题
-                                    webpackImporter: false,
-                                    sassOptions: {
-                                        indentWidth: 4,
-                                    },
-                                } as SassOptions,
-                            }
-                        ]
-                    },
-                    {
-                        test: /\.css$/,
-                        use: ['style-loader', 'css-loader']
-                    },
-                    {
-                        oneOf: [
-                            {
-                                test: /\.icon\.svg$/,
-                                issuer: /\.[jt]sx?$/,
-                                loader: '@svgr/webpack',
-                                options: { icon: true }
-                            },
-                            {
-                                test: /\.(svg|ico|png|jpe?g|gif|woff2?|ttf|eot|otf|mp4|webm|ogg|mp3|wav|flac|aac)$/,
-                                type: 'asset/inline',
-                            },
-                        ]
-                    },
-                    {
-                        test: /\.txt$/,
-                        type: 'asset/source',
-                    }
+                            ]
+                        },
+                        {
+                            test: /\.css$/,
+                            use: ['style-loader', 'css-loader']
+                        },
+                        {
+                            oneOf: [
+                                {
+                                    test: /\.icon\.svg$/,
+                                    issuer: /\.[jt]sx?$/,
+                                    loader: '@svgr/webpack',
+                                    options: { icon: true }
+                                },
+                                {
+                                    test: /\.(svg|ico|png|jpe?g|gif|woff2?|ttf|eot|otf|mp4|webm|ogg|mp3|wav|flac|aac)$/,
+                                    type: 'asset/inline',
+                                },
+                            ]
+                        },
+                        {
+                            test: /\.txt$/,
+                            type: 'asset/source',
+                        }
+                    ],
+                },
+                
+                
+                plugins: [
+                    new Webpack.DefinePlugin({
+                        BUILD_TIME: dayjs().format('YYYY.MM.DD HH:mm:ss').quote()
+                    }),
+                    
+                    ... await (async () => {
+                        if (production) {
+                            const { LicenseWebpackPlugin } = await import('license-webpack-plugin')
+                            const ignoreds = new Set(['xshell', 'react-object-model', '@ant-design/icons-svg', '@ant-design/pro-layout', '@ant-design/pro-provider'])
+                            return [
+                                new LicenseWebpackPlugin({
+                                    perChunkOutput: false,
+                                    outputFilename: 'ThirdPartyNotice.txt',
+                                    excludedPackageTest: pkgname => ignoreds.has(pkgname),
+                                }) as any
+                            ]
+                        } else
+                            return [ ]
+                    })(),
+                    
+                    // 需要分析 bundle 大小时开启
+                    // new BundleAnalyzerPlugin({ analyzerPort: 8880, openAnalyzer: false }),
                 ],
-            },
-            
-            
-            plugins: [
-                new Webpack.DefinePlugin({
-                    BUILD_TIME: dayjs().format('YYYY.MM.DD HH:mm:ss').quote()
-                }),
                 
-                ... await (async () => {
-                    if (production) {
-                        const { LicenseWebpackPlugin } = await import('license-webpack-plugin')
-                        const ignoreds = new Set(['xshell', 'react-object-model', '@ant-design/icons-svg', '@ant-design/pro-layout', '@ant-design/pro-provider'])
-                        return [
-                            new LicenseWebpackPlugin({
-                                perChunkOutput: false,
-                                outputFilename: 'ThirdPartyNotice.txt',
-                                excludedPackageTest: pkgname => ignoreds.has(pkgname),
-                            }) as any
-                        ]
-                    } else
-                        return [ ]
-                })(),
                 
-                // 需要分析 bundle 大小时开启
-                // new BundleAnalyzerPlugin({ analyzerPort: 8880, openAnalyzer: false }),
-            ],
-            
-            
-            optimization: {
-                minimize: false,
-            },
-            
-            performance: {
-                hints: false,
-            },
-            
-            cache: {
-                type: 'filesystem',
+                optimization: {
+                    minimize: false,
+                },
                 
-                version: is_cloud ? 'cloud' : 'web',
+                performance: {
+                    hints: false,
+                },
                 
-                ... ramdisk ? {
-                    cacheDirectory: `${fpd_ramdisk_root}webpack/`,
-                    compression: false
-                } : {
-                    compression: 'brotli',
-                }
-            },
-            
-            ignoreWarnings: [
-                /Failed to parse source map/
-            ],
-            
-            stats: {
-                colors: true,
+                cache: {
+                    type: 'filesystem',
+                    
+                    version: is_cloud ? 'cloud' : 'web',
+                    
+                    ... ramdisk ? {
+                        cacheDirectory: `${fpd_ramdisk_root}webpack/`,
+                        compression: false
+                    } : {
+                        compression: 'brotli',
+                    }
+                },
                 
-                context: fpd_root,
+                ignoreWarnings: [
+                    /Failed to parse source map/
+                ],
                 
-                entrypoints: false,
-                
-                errors: true,
-                errorDetails: true,
-                
-                hash: false,
-                
-                version: false,
-                
-                timings: true,
-                
-                children: false,
-                
-                assets: true,
-                assetsSpace: 20,
-                
-                modules: false,
-                modulesSpace: 20,
-                
-                cachedAssets: false,
-                cachedModules: false,
-            },
+                stats: {
+                    colors: true,
+                    
+                    context: fpd_root,
+                    
+                    entrypoints: false,
+                    
+                    errors: true,
+                    errorDetails: true,
+                    
+                    hash: false,
+                    
+                    version: false,
+                    
+                    timings: true,
+                    
+                    children: false,
+                    
+                    assets: true,
+                    assetsSpace: 20,
+                    
+                    modules: false,
+                    modulesSpace: 20,
+                    
+                    cachedAssets: false,
+                    cachedModules: false,
+                },
+            })
         })
-        
         
         await this.run()
     },
     
     
     async run () {
-        return new Promise<Stats>((resolve, reject) => {
-            this.compiler.run((error, stats) => {
-                if (stats)
-                    console.log(
-                        stats.toString(this.config.stats)
-                            .replace(/\n\s*.*web.* compiled .*successfully.* in (.*)/, '\n编译成功，用时 $1'.green)
-                    )
-                
-                if (error)
-                    reject(error)
-                else if (stats.hasErrors())
-                    reject(new Error('编译失败'))
-                else
-                    resolve(stats)
+        return this.lcompiler.request(async compiler =>
+            new Promise<Stats>((resolve, reject) => {
+                compiler.run((error, stats) => {
+                    if (stats)
+                        console.log(
+                            stats.toString(this.config.stats)
+                                .replace(/\n\s*.*web.* compiled .*successfully.* in (.*)/, '\n编译成功，用时 $1'.green)
+                        )
+                    
+                    if (error)
+                        reject(error)
+                    else if (stats.hasErrors())
+                        reject(new Error('编译失败'))
+                    else
+                        resolve(stats)
+                })
             })
-        })
+        )
     },
     
     
     async close () {
-        await new Promise(resolve => {
-            this.compiler.close(resolve)
-        })
+        await this.lcompiler.request(async compiler =>
+            new Promise(resolve => {
+                compiler.close(resolve)
+            })
+        )
     }
 }

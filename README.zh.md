@@ -75,10 +75,16 @@ cd web
 # 安装项目依赖
 pnpm install
 
+# 将 .vscode/settings.template.json 复制为 .vscode/settings.json
+cp .vscode/settings.template.json .vscode/settings.json
+
 # 参考 package.json 中的 scripts
 
 # 开发
 pnpm run dev
+
+# lint
+pnpm run lint
 
 # 扫描词条
 pnpm run scan
