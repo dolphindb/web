@@ -311,9 +311,12 @@ function Vector ({
         (ctx === 'page' || ctx === 'window') ? 200 : 100
     )
     
-    const nrows = Math.min(
-        Math.ceil(info.rows / ncols),
-        page_size / ncols
+    const nrows = info.rows === 0 ? 
+            0 
+        : 
+            Math.min(
+            Math.ceil(info.rows / ncols),
+            page_size / ncols
     )
     
     const [page_index, set_page_index] = useState(0)
@@ -336,31 +339,33 @@ function Vector ({
             
             const offset = page_size * page_index
             
-            if (offset >= rows)
-                return
-            
-            const script = form === DdbForm.set ?
+            // 允许在 rows 为 0 时拉一次空的 vector[0:0] 获取 obj 用来显示列名
+            if ((offset === 0 && rows === 0) || offset < rows ) {
+                const script = form === DdbForm.set ?
                     name
                 :
                     `${name}[${offset}:${Math.min(offset + page_size, rows)}]`
             
-            console.log(`${DdbForm[form]}.fetch:`, script)
+                console.log(`${DdbForm[form]}.fetch:`, script)
             
-            objref.obj = ddb ?
-                await ddb.eval(script)
-            :
-                DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [node, script])) as DdbObj<DdbObj[]>
+                objref.obj = ddb ?
+                    await ddb.eval(script)
+                :
+                    DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [node, script])) as DdbObj<DdbObj[]>
             
-            render({ })
+                render({ })
+            }
+            
+            
         })()
     }, [obj, objref, page_index, page_size])
     
     
-    if (!info.rows) 
-        if ([DdbType.symbol, DdbType.symbol_extended, DdbType.string].includes(objref.type))
-            return <>NULL</>
-        else
-            return <>0</>
+    // if (!info.rows) 
+    //     if ([DdbType.symbol, DdbType.symbol_extended, DdbType.string].includes(objref.type))
+    //         return <>NULL</>
+    //     else
+    //         return <>0</>
     
     
     let rows = new Array<number>(nrows)
