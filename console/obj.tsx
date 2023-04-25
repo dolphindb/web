@@ -356,13 +356,12 @@ function Vector ({
     }, [obj, objref, page_index, page_size])
     
     
-    if (!info.rows){
-        if([DdbType.symbol, DdbType.symbol_extended, DdbType.string].includes(objref.type))
+    if (!info.rows) 
+        if ([DdbType.symbol, DdbType.symbol_extended, DdbType.string].includes(objref.type))
             return <>NULL</>
         else
             return <>0</>
-    }
-        
+    
     
     let rows = new Array<number>(nrows)
     for (let i = 0;  i < nrows;  i++)
