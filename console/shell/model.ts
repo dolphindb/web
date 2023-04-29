@@ -75,6 +75,10 @@ class ShellModel extends Model<ShellModel> {
     
     set_column_comment_modal_visible = false
     
+    create_table_modal_visible = false
+    
+    create_table_modal_partition_count = 1
+    
     
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
