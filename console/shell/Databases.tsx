@@ -439,52 +439,77 @@ function CreateDatabase () {
             name='create-table'
             onFinish={async (table: CreateDatabaseFormInfo) => {
                 // database(directory, [partitionType], [partitionScheme], [locations], [engine=’OLAP’], [atomic=’TRANS’], [chunkGranularity=’TABLE’])
-                let scripts = []
                 const partitionCount = Number(table.partitionCount)
+                const dbName = table.dbPath.replace(/^dfs:\/\//, '')
                 
                 if (Number.isNaN(partitionCount) || partitionCount < 1 || partitionCount > 3) {
                     message.error(t('分区层级个数只能在 1-3 范围'))
                     return
                 }
                 
+                let createDBScript: string
+                
                 if (partitionCount === 1) {
-                    scripts.push(`database(directory="${table.dbPath}", partitionType=${table.firstPartitionType}, partitionScheme=${table.firstParitionArgs}, `)
+                    // for single partition scheme, we can create database directly in one line
+                    createDBScript = `${dbName} = database(directory="${table.dbPath}", partitionType=${table.firstPartitionType}, partitionScheme=${table.firstParitionArgs}, `
                     
                     if (table.partitionLocation)
-                        scripts[0] += `locations=${table.partitionLocation}, `
+                        createDBScript += `locations=${table.partitionLocation}, `
                     
-                    scripts[0] += `engine="${table.storageEngine}", atomic="${table.atomicLevel}"`
+                    createDBScript += `engine="${table.storageEngine}", atomic="${table.atomicLevel}"`
                     
                     if (enableChunkGranularityConfig)
-                        scripts[0] += `, chunkGranularity="${table.chunkGranularity}"`
+                        createDBScript += `, chunkGranularity="${table.chunkGranularity}"`
                     
-                    scripts[0] += ')'
+                    createDBScript += ')'
                 } else {
+                    // for multiple partition scheme, we need to create multiple databases and then combine them into one,
+                    // using the COMPO partition scheme
+                    const scripts: string[] = []
+                    
                     for (let i = 0; i < partitionCount; i++) {
                         const prefix = (['first', 'second', 'third'] as const)[i]
                         const type = table[`${prefix}PartitionType`]
                         const args = table[`${prefix}ParitionArgs`] || ''
-                        // @TODO: check usage of locations + paritionType=COMPO
+                        
+                        // we should not provide dbPath because these are all sub-databases that will be composed later
                         scripts.push(`db${i} = database(, partitionType=${type}, partitionScheme=${args})`)
                     }
                     
-                    scripts.push(`database(directory="${table.dbPath}", partitionType=COMPO, partitionScheme=[${
+                    // instead, we provide dbPath here
+                    let createCompoDBScript = `${dbName} = database(directory="${table.dbPath}", partitionType=COMPO, partitionScheme=[${
                         scripts.map((_, i) => `db${i}`).join(', ')
-                    }], `)
+                    }], `
                     
                     if (table.partitionLocation)
-                        scripts[scripts.length - 1] += `locations=${table.partitionLocation}, `
+                        createCompoDBScript += `locations=${table.partitionLocation}, `
                     
-                    scripts[scripts.length - 1] += `engine="${table.storageEngine}", atomic="${table.atomicLevel}"`
+                    createCompoDBScript += `engine="${table.storageEngine}", atomic="${table.atomicLevel}"`
                     
                     if (enableChunkGranularityConfig)
-                        scripts[scripts.length - 1] += `, chunkGranularity="${table.chunkGranularity}"`
+                        createCompoDBScript += `, chunkGranularity="${table.chunkGranularity}"`
                     
-                    scripts[scripts.length - 1] += ')'
+                    createCompoDBScript += ')'
+                    
+                    scripts.push(createCompoDBScript)
+                    
+                    createDBScript = scripts.join('\n')
                 }
                 
-                const script = scripts.join('\n')
-                console.log(script)
+                console.log(createDBScript)  // @FIXME: debug only, should be removed before MR
+                
+                try {
+                    await model.ddb.eval(createDBScript)
+                    message.success(t('创建数据库成功'))
+                    await shell.load_dbs()
+                    shell.set({ dbs: [...shell.dbs] })
+                    
+                    form.resetFields()
+                    shell.set({ create_table_modal_visible: false, create_table_modal_partition_count: 1 })
+                } catch (error) {
+                    model.show_error({ error })
+                    throw error
+                }
             }}
             labelWrap
             labelCol={{ span: 8 }}
@@ -571,7 +596,7 @@ function CreateDatabase () {
                 label={t('分区位置')}
                 name='partitionLocation'
             >
-                <Input />
+                <Input placeholder='e.g.: [`node1`node2, `node3] or [["ip1:port", "ip2:port"], "ip3:port"]' />
             </Form.Item>
             
             <Form.Item label={t('存储引擎')} name='storageEngine' initialValue='OLAP' required>
