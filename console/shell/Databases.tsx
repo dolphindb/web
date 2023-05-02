@@ -81,8 +81,8 @@ export function Databases () {
                 <div className='type'>
                     {t('数据库')}
                     <span className='extra'>
-                        <span onClick={() => { shell.set({ create_table_modal_visible: true }) }}>
-                            <Tooltip title={t('新建数据表')} color='grey'>
+                        <span onClick={() => { shell.set({ create_database_modal_visible: true }) }}>
+                            <Tooltip title={t('新建数据库')} color='grey'>
                                 <PlusSquareOutlined />
                             </Tooltip>
                         </span>
@@ -422,15 +422,15 @@ interface CreateDatabaseFormInfo {
 }
 
 function CreateDatabase () {
-    const { create_table_modal_visible, create_table_modal_partition_count } = shell.use(['create_table_modal_visible', 'create_table_modal_partition_count'])
+    const { create_database_modal_visible, create_database_partition_count } = shell.use(['create_database_modal_visible', 'create_database_partition_count'])
     const [form] = Form.useForm()
     
     const enableChunkGranularityConfig = true
     
     return <Modal
         className='db-modal show-required'
-        open={create_table_modal_visible}
-        onCancel={() => { shell.set({ create_table_modal_visible: false, create_table_modal_partition_count: 1 }) }}
+        open={create_database_modal_visible}
+        onCancel={() => { shell.set({ create_database_modal_visible: false, create_database_partition_count: 1 }) }}
         title={t('创建数据库')}
     >
         
@@ -505,7 +505,7 @@ function CreateDatabase () {
                     shell.set({ dbs: [...shell.dbs] })
                     
                     form.resetFields()
-                    shell.set({ create_table_modal_visible: false, create_table_modal_partition_count: 1 })
+                    shell.set({ create_database_modal_visible: false, create_database_partition_count: 1 })
                 } catch (error) {
                     model.show_error({ error })
                     throw error
@@ -545,12 +545,12 @@ function CreateDatabase () {
                     if (level < 1 || level > 3)
                         return
                     
-                    shell.set({ create_table_modal_partition_count: level })
+                    shell.set({ create_database_partition_count: level })
                 }} placeholder='1' type='number' />
             </Form.Item>
             
             {
-                Array.from(new Array(create_table_modal_partition_count), (_, i) => {
+                Array.from(new Array(create_database_partition_count), (_, i) => {
                     const classNamePrefix = ['first', 'second', 'third'][i]
                     const i18nPrefix = ['一级', '二级', '三级'][i]
                     
@@ -626,7 +626,7 @@ function CreateDatabase () {
                 </Button>
                 <Button htmlType='button' onClick={() => {
                     form.resetFields()
-                    shell.set({ create_table_modal_visible: false, create_table_modal_partition_count: 1 })
+                    shell.set({ create_database_modal_visible: false, create_database_partition_count: 1 })
                 }}>
                     {t('取消')}
                 </Button>

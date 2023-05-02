@@ -69,15 +69,17 @@ class ShellModel extends Model<ShellModel> {
     set_column_comment_defined = false
     
     
+    current_db: DatabaseGroup | Database
+    
     current_node: ColumnRoot | Column
     
     add_column_modal_visible = false
     
     set_column_comment_modal_visible = false
     
-    create_table_modal_visible = false
+    create_database_modal_visible = false
     
-    create_table_modal_partition_count = 1
+    create_database_partition_count = 1
     
     
     async eval (code = this.editor.getValue()) {
