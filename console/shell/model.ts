@@ -259,9 +259,18 @@ class ShellModel extends Model<ShellModel> {
     
     
     async load_dbs () {
-            // ['dfs://数据库路径(可能包含/)/表名', ...]
-        // 不能使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
+        // ['dfs://数据库路径(可能包含/)/表名', ...]
+        // 不能直接使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
+        // 但对于无数据表的数据库，仍然需要通过 getClusterDFSDatabases 来获取。因此要组合使用
         const { value: table_paths } = await model.ddb.call<DdbVectorStringObj>('getClusterDFSTables')
+        const { value: db_paths } = await model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases')
+        
+        // const db_paths = [
+        //     'dfs://db1',
+        //     'dfs://g1.db1',
+        //     'dfs://g1.db2',
+        //     'dfs://g1./db1',
+        // ...]
         
         // const table_paths = [
         //     'dfs://db1/tb1',
@@ -320,6 +329,36 @@ class ShellModel extends Model<ShellModel> {
             parent.children.push(table)
         }
         
+        for (const _db_path of db_paths) {
+            // 为 db_path 手动添加末尾的 / 以匹配此前 table_path 里面 parser 的行为
+            const db_path = _db_path + '/'
+            const existingDB = hash_map.get(db_path) as Database
+            // 检查是否已经在 table 的循环里处理过
+            if (existingDB)
+                continue
+            
+            console.log(2, db_path)
+            let parent: Database | DatabaseGroup | { children: (Database | DatabaseGroup)[] } = { children: root }
+            
+            // for 循环用来处理 database group
+            for (let index = 0;  index = db_path.indexOf('.', index) + 1;  ) {
+                const group_key = db_path.slice(0, index)
+                const group = hash_map.get(group_key)
+                if (group)
+                    parent = group
+                else {
+                    const group = new DatabaseGroup(group_key)
+                    ;(parent as DatabaseGroup).children.push(group)
+                    hash_map.set(group_key, group)
+                    parent = group
+                }
+            }
+            
+            const db = new Database(db_path)
+            ;(parent as DatabaseGroup).children.push(db)
+            hash_map.set(db_path, db)
+        }
+        
         // TEST: 测试多级数据库树
         // for (let i = 0;  i <100 ;  i++) {
         //     for (let j =0; j< 500; j++){
@@ -328,6 +367,9 @@ class ShellModel extends Model<ShellModel> {
         //         dbs.set(path, new DdbEntity({ path ,tables}))
         //     }
         //  }
+        
+        // 由于使用两个循环分别遍历 table 和 db，所以这里需要对得到的 db 进行排序，否则会出现 db_path 循环中添加的 db 都在最后的情况
+        root.sort((a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0)
         
         this.set({ dbs: root })
     }
