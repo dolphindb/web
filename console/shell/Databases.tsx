@@ -223,6 +223,7 @@ export function Databases () {
                 <AddColumn />
                 <SetColumnComment />
                 <CreateDatabase />
+                <CreateTable />
             </div>
         </div>
     </Resizable>
@@ -436,7 +437,7 @@ function CreateDatabase () {
         
         <Form
             className='db-modal-form'
-            name='create-table'
+            name='create-database'
             onFinish={async (table: CreateDatabaseFormInfo) => {
                 // database(directory, [partitionType], [partitionScheme], [locations], [engine=’OLAP’], [atomic=’TRANS’], [chunkGranularity=’TABLE’])
                 const partitionCount = Number(table.partitionCount)
@@ -520,7 +521,7 @@ function CreateDatabase () {
             <Form.Item label={t('数据库路径')} name='dbPath' initialValue='dfs://' required rules={[{
                 required: true,
                 validator: async (_, val: string) => {
-                    if (!val || val === 'dfs://') 
+                    if (!val || val === 'dfs://')
                         return Promise.reject(t('数据库路径不能为空'))
                     
                     if (!val.startsWith('dfs://'))
@@ -635,6 +636,118 @@ function CreateDatabase () {
     </Modal>
 }
 
+// Table（维度表）不支持 partitionColumns
+type TableTypes = 'Table' | 'PartitionedTable'
+type KeepDuplicates = 'ALL' | 'LAST' | 'FIRST'
+
+interface CreateTableFormInfo {
+    readonly dbPath: string
+    tableType: TableTypes
+    tableName: string
+    columnCount: string
+    columnNames: string[]
+    columnTypes: string[]
+    columnComments: string[]
+    partitionColumns: string  // e.g. `a or `a`b`c`d
+    compressMethods: string[]
+    sortColumns: string[]
+    // sortKeyMappingFunction 文档里连例子都没有，先不做
+    keepDuplicates: KeepDuplicates
+}
+
+function CreateTable () {
+    const { create_table_modal_visible, create_table_column_count } = shell.use(['create_table_modal_visible', 'create_table_column_count'])
+    const [form] = Form.useForm()
+    
+    return <Modal
+        className='db-modal show-required'
+        open={create_table_modal_visible}
+        onCancel={() => { shell.set({ create_table_modal_visible: false, create_table_column_count: 1 }) }}
+        title={t('创建数据表')}
+    >
+        
+        <Form
+            className='db-modal-form'
+            name='create-table'
+            onFinish={async (table: CreateTableFormInfo) => {
+                // baseTable=table(capacity:size, colNames, colTypes)
+                // t=db.createPartitionedTable(baseTable, tableName, [partitionColumns], [compressMethods], [sortColumns], [keepDuplicates=ALL], [sortKeyMappingFunction])
+                // t=db.createTable(baseTable, tableName, [compressMethods], [sortColumns], [keepDuplicates=ALL])
+                // t.append!(baseTable)
+                
+                // @TODO: arg check
+                
+                let createTableScript: string
+                
+                // @TODO: impl this
+                
+                console.log(createTableScript)  // @FIXME: debug only, should be removed before MR
+                
+                try {
+                    await model.ddb.eval(createTableScript)
+                    message.success(t('创建数据表成功'))
+                    await shell.load_dbs()
+                    shell.set({ dbs: [...shell.dbs] })
+                    
+                    form.resetFields()
+                    shell.set({ create_table_modal_visible: false, create_table_column_count: 1 })
+                } catch (error) {
+                    model.show_error({ error })
+                    throw error
+                }
+            }}
+            labelWrap
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 20 }}
+            form={form}
+        >
+            
+            <Form.Item label={t('数据库路径')} name='dbPath' initialValue='@TODO:' required>
+                <Input readOnly />
+            </Form.Item>
+            
+            <Form.Item label={t('列数')} name='columnCount' required rules={[{
+                required: true,
+                validator: async (_, val: number) => {
+                    if (val < 1)
+                        return Promise.reject(t('列数不能小于 1'))
+                }
+            }]} initialValue={1}>
+                <Input onChange={e => {
+                    const count = parseInt(e.target.value)
+                    if (count < 1 || count > 3)
+                        return
+                    
+                    shell.set({ create_table_column_count: count })
+                }} placeholder='1' type='number' />
+            </Form.Item>
+            
+            {
+                Array.from(new Array(create_table_column_count), (_, i) => {
+                    // @TODO: impl this
+                    
+                    return <div key={'create-table-modal-column-' + i}>
+                        { /* TODO: */ }
+                    </div>
+                })
+            }
+            
+            
+            <Form.Item className='db-modal-content-button-group'>
+                <Button type='primary' htmlType='submit'>
+                    {t('确定')}
+                </Button>
+                <Button htmlType='button' onClick={() => {
+                    form.resetFields()
+                    shell.set({ create_table_modal_visible: false, create_table_column_count: 1 })
+                }}>
+                    {t('取消')}
+                </Button>
+            </Form.Item>
+        </Form>
+    </Modal>
+}
+
 
 interface ContextMenu {
     /** TreeItem key */
@@ -708,7 +821,19 @@ export class Database implements DataNode {
         this.self = this
         assert(path.startsWith('dfs://'), t('数据库路径应该以 dfs:// 开头'))
         this.key = this.path = path
-        this.title = <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1).split('.').at(-1)}</span>
+        this.title = <div className='database-title'>
+            <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1).split('.').at(-1)}</span>
+            
+            <div className='create-table-button' onClick={ event => {
+                shell.set({ current_db: this, create_table_modal_visible: true })
+                event.stopPropagation()
+            }}>
+                <Tooltip title={t('创建表')} color='grey'>
+                    { /* @FIXME: should be replaced by a new icon */ }
+                    <Icon component={SvgAddColumn} />
+                </Tooltip>
+            </div>
+        </div>
     }
 }
 
