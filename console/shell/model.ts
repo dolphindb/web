@@ -268,8 +268,10 @@ class ShellModel extends Model<ShellModel> {
         // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能直接使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
         // 但对于无数据表的数据库，仍然需要通过 getClusterDFSDatabases 来获取。因此要组合使用
-        const { value: table_paths } = await model.ddb.call<DdbVectorStringObj>('getClusterDFSTables')
-        const { value: db_paths } = await model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases')
+        const [{ value: table_paths }, { value: db_paths }] = await Promise.all([
+            model.ddb.call<DdbVectorStringObj>('getClusterDFSTables'),
+            model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases')
+        ])
         
         // const db_paths = [
         //     'dfs://db1',
@@ -291,23 +293,28 @@ class ShellModel extends Model<ShellModel> {
         //     'dfs://db-with-slash/db1/tb1',
         //     'dfs://group_with_slash/g1.sg1.db1/tb1'
         // ]
-        //
+        
+        // 将 db_paths 和 table_paths 合并到 merged_paths 中。db_paths 内可能存在 table_paths 中没有的 db，例如能查到无表的库
+        // 需要手动为 db_paths 中的每个路径加上斜杠结尾
+        const merged_paths = db_paths.map(path => `${path}/`).concat(table_paths).sort((a, b) => a > b ? 1 : (a < b ? -1 : 0))
+        
         // 假定所有的 table_name 值都不会以 / 结尾
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
         // 全路径中可能没有组（也就是没有点号），但一定有库和表
         let hash_map = new Map<string, Database | DatabaseGroup>()
         let root: (Database | DatabaseGroup)[] = [ ]
-        for (const table_path of table_paths) {
+        for (const path of merged_paths) {
             // 找到数据库最后一个斜杠位置，截取前面部分的字符串作为库名
-            const index_slash = table_path.lastIndexOf('/')
+            const index_slash = path.lastIndexOf('/')
             
-            const db_path = `${table_path.slice(0, index_slash)}/`
+            const db_path = `${path.slice(0, index_slash)}/`
+            const table_name = path.slice(index_slash + 1)
             
             let parent: Database | DatabaseGroup | { children: (Database | DatabaseGroup)[] } = { children: root }
             
             // for 循环用来处理 database group
             for (let index = 0;  index = db_path.indexOf('.', index) + 1;  ) {
-                const group_key = table_path.slice(0, index)
+                const group_key = path.slice(0, index)
                 const group = hash_map.get(group_key)
                 if (group)
                     parent = group
@@ -330,39 +337,11 @@ class ShellModel extends Model<ShellModel> {
                 parent = db
             }
             
-            // 处理 table
-            const table = new Table(parent as Database, `${table_path}/`)
-            parent.children.push(table)
-        }
-        
-        for (const _db_path of db_paths) {
-            // 为 db_path 手动添加末尾的 / 以匹配此前 table_path 里面 parser 的行为
-            const db_path = _db_path + '/'
-            const existingDB = hash_map.get(db_path) as Database
-            // 检查是否已经在 table 的循环里处理过
-            if (existingDB)
-                continue
-            
-            console.log(2, db_path)
-            let parent: Database | DatabaseGroup | { children: (Database | DatabaseGroup)[] } = { children: root }
-            
-            // for 循环用来处理 database group
-            for (let index = 0;  index = db_path.indexOf('.', index) + 1;  ) {
-                const group_key = db_path.slice(0, index)
-                const group = hash_map.get(group_key)
-                if (group)
-                    parent = group
-                else {
-                    const group = new DatabaseGroup(group_key)
-                    ;(parent as DatabaseGroup).children.push(group)
-                    hash_map.set(group_key, group)
-                    parent = group
-                }
+            // 处理 table，如果 table_name 为空表明当前路径是 db_path 则不处理
+            if (table_name) {
+                const table = new Table(parent as Database, `${path}/`)
+                parent.children.push(table)
             }
-            
-            const db = new Database(db_path)
-            ;(parent as DatabaseGroup).children.push(db)
-            hash_map.set(db_path, db)
         }
         
         // TEST: 测试多级数据库树
@@ -373,9 +352,6 @@ class ShellModel extends Model<ShellModel> {
         //         dbs.set(path, new DdbEntity({ path ,tables}))
         //     }
         //  }
-        
-        // 由于使用两个循环分别遍历 table 和 db，所以这里需要对得到的 db 进行排序，否则会出现 db_path 循环中添加的 db 都在最后的情况
-        root.sort((a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0)
         
         this.set({ dbs: root })
     }
