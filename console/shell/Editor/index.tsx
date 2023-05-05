@@ -2,9 +2,9 @@ import './index.sass'
 
 import { default as React, useEffect, useState } from 'react'
 
-import { Editor as MonacoEditor, loader, type OnChange } from '@monaco-editor/react'
+import { Editor as MonacoEditor, loader, type OnChange, type OnMount } from '@monaco-editor/react'
 
-import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
+import type monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 export type Monaco = typeof monacoapi
 export type { monacoapi }
 
@@ -57,7 +57,7 @@ export function Editor ({
     value?: string
     minimap?: boolean
     enter_completion?: boolean
-    on_mount? (editor: monacoapi.editor.IStandaloneCodeEditor, monaco: Monaco): void
+    on_mount?: OnMount
     on_change?: OnChange
 }) {
     const [monaco_inited, set_monaco_inited] = useState(Boolean(monaco))
@@ -120,7 +120,7 @@ export function Editor ({
                 } : { },
             }}
             
-            onMount={(editor, monaco: Monaco) => {
+            onMount={(editor, monaco) => {
                 set_details_visible(editor)
                 
                 inject_css()
