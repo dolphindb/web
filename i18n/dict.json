@@ -1441,5 +1441,179 @@
     },
     "日志管理": {
         "en": "Log Management"
+    },
+    "复制": {
+        "en": "Copy"
+    },
+    "复制成功": {
+        "en": "Copied successfully"
+    },
+    "上一步": {
+        "en": "Previous"
+    },
+    "建表中...": {
+        "en": "Creating table..."
+    },
+    "创建失败": {
+        "en": "Creation has failed"
+    },
+    "创建成功": {
+        "en": "Successfully created"
+    },
+    "数据库路径": {
+        "en": "db path"
+    },
+    "表类型": {
+        "en": "table type"
+    },
+    "分布式表": {
+        "en": "partition table"
+    },
+    "维度表": {
+        "en": "dimension table"
+    },
+    "表名": {
+        "en": "table name"
+    },
+    "已存在相同名称的表": {
+        "en": "A table with an identical name already exists"
+    },
+    "数据列": {
+        "en": "data columns"
+    },
+    "分区列": {
+        "en": "partition columns"
+    },
+    "排序列": {
+        "en": "sort columns"
+    },
+    "重复值处理方式": {
+        "en": "de-duplicate method"
+    },
+    "保留全部": {
+        "en": "keep all"
+    },
+    "保留最后一项": {
+        "en": "keep last"
+    },
+    "保留第一项": {
+        "en": "keep first"
+    },
+    "下一步": {
+        "en": "Next"
+    },
+    "创建数据表": {
+        "en": "Create table"
+    },
+    "命令预览": {
+        "en": "Command preview"
+    },
+    "执行成功": {
+        "en": "Execution finished"
+    },
+    "创建数据库": {
+        "en": "Create database"
+    },
+    "数据库路径不能为空": {
+        "en": "db path cannot be empty"
+    },
+    "数据库路径不能包含双引号": {
+        "en": "db path cannot contain double quotes"
+    },
+    "请输入数据库路径": {
+        "en": "Please enter db path"
+    },
+    "分区层数": {
+        "en": "partition layer count"
+    },
+    "分区层数必须在1-3之间": {
+        "en": "Partition layer count must be between 1 and 3"
+    },
+    "分区类型不能为空": {
+        "en": "Partition type cannot be empty"
+    },
+    "顺序分区。分区方案格式为：整型标量，表示分区的数量。": {
+        "en": "Sequential partition. partitionScheme format: integer scalar, indicating the number of partitions."
+    },
+    "顺序分区": {
+        "en": "sequential partition"
+    },
+    "范围分区。分区方案格式为：向量，向量的任意两个相邻元素定义分区的范围。": {
+        "en": "Range partition. partitionScheme format: vector, where any two adjacent elements of the vector define the range of a sub-partition."
+    },
+    "范围分区": {
+        "en": "range partition"
+    },
+    "哈希分区。分区方案格式为：元组，第一个元素是分区列的数据类型，第二个元素是分区的数量。": {
+        "en": "Hash partition. partitionScheme format: tuple, where the first element is the data type of the partition column, and the second element is the number of partitions."
+    },
+    "哈希分区": {
+        "en": "hash partition"
+    },
+    "值分区。分区方案格式为：向量，向量的每个元素定义了一个分区。": {
+        "en": "Value partition. partitionScheme format: vector, where each element of the vector defines a partition."
+    },
+    "值分区": {
+        "en": "value partition"
+    },
+    "列表分区。分区方案格式为：嵌套向量，外层向量的每个元素定义了一个分区。": {
+        "en": "List partition. partitionScheme format: vector of vector, where each element of the outer vector defines a partition."
+    },
+    "列表分区": {
+        "en": "list partition"
+    },
+    "分区方案不能为空": {
+        "en": "Partition scheme cannot be empty"
+    },
+    "分区位置": {
+        "en": "partition location"
+    },
+    "存储引擎": {
+        "en": "storage engine"
+    },
+    "请选择存储引擎": {
+        "en": "Please select storage engine"
+    },
+    "OLAP 引擎。OLAP 数据表的每个列存储为一个文件，数据以追加的方式存储到相应的列文件中，因此，数据写入的顺序决定了它们的存储顺序。": {
+        "en": "OLAP engine. Each column of an OLAP table is stored as a file, and the data is stored in the corresponding column file in an append-only manner, so the order in which the data is written determines their storage order."
+    },
+    "TSDB 引擎。采用经典的 LSMT 模型，引入了排序列以提升在用户查询某个或少数几个设备（股票）在特定时间段数据的场景下的查询性能。": {
+        "en": "TSDB engine. Using the classic LSMT model, the sorted column is introduced to improve the query performance in the scenario where the user queries the data of a few devices (or stocks) in a specific time period."
+    },
+    "写入事务原子性": {
+        "en": "Transaction atomicity"
+    },
+    "请选择写入事务原子性": {
+        "en": "Please select transaction atomicity"
+    },
+    "写入事务的原子性层级为事务，即一个事务写入多个分区时，若某个分区被其他写入事务锁定而出现写入冲突，则该事务的写入全部失败。因此，该设置下，不允许并发写入同一个分区。": {
+        "en": "Transaction level transaction atomicity. That is, when a transaction writes to multiple partitions, if a partition is locked by another write transaction and a write conflict occurs, all writes of this transaction fail. Therefore, in this setting, concurrent writes to the same partition are not allowed."
+    },
+    "事务级原子性": {
+        "en": "transaction level transaction atomicity"
+    },
+    "写入事务的原子性层级为分区。若一个事务写入多个分区时，某分区被其它写入事务锁定而出现冲突，系统会完成其他分区的写入，同时对之前发生冲突的分区不断尝试写入，尝试数分钟后仍冲突才放弃。此设置下，允许并发写入同一个分区，但由于不能完全保证事务的原子性，可能出现部分分区写入成功而部分分区写入失败的情况。同时由于采用了重试机制，写入速度可能较慢。": {
+        "en": "Partition level transaction atomicity. If a transaction writes to multiple partitions, and one of the partitions is locked by another write transaction so that a conflict occurs, the system will complete the write to other partitions first, and continuously attempts to write to the conflicted partition, giving up after several minutes of unsuccessful attempts. In this setting, concurrent writes to the same partition are allowed, but because the atomicity of the transaction cannot be guaranteed, it is possible that some partitions are written successfully while others fail. At the same time, due to the retry mechanism, the write speed may be slower."
+    },
+    "分区级原子性": {
+        "en": "partition level transaction atomicity"
+    },
+    "分区粒度": {
+        "en": "chunk granularity"
+    },
+    "请选择分区粒度": {
+        "en": "Please select chunk granularity"
+    },
+    "表级分区，设置后支持同时写入同一分区的不同表。": {
+        "en": "Table level chunk granularity. Different tables can be written to the same partition at the same time."
+    },
+    "表级分区": {
+        "en": "table level chunk granularity"
+    },
+    "数据库级分区，设置后只支持同时写入不同分区。": {
+        "en": "Database level chunk granularity. Only different partitions can be written to at the same time."
+    },
+    "数据库级分区": {
+        "en": "database level chunk granularity"
     }
 }

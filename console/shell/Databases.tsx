@@ -28,6 +28,7 @@ import { t } from '../../i18n/index.js'
 import { model, NodeType } from '../model.js'
 import { shell } from './model.js'
 import { CreateTableModal } from './CreateTableModal.js'
+import { Editor } from '../components/editor/index.js'
 
 
 import SvgDatabase from './icons/database.icon.svg'
@@ -41,6 +42,7 @@ import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 import { DDB_COLUMN_DATA_TYPES } from '../constants/column-data-types.js'
+import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 
 
 export function Databases () {
@@ -85,7 +87,7 @@ export function Databases () {
                     {t('数据库')}
                     <span className='extra'>
                         <span onClick={() => { shell.set({ create_database_modal_visible: true }) }}>
-                            <Tooltip title={t('新建数据库')} color='grey'>
+                            <Tooltip title={t('创建数据库')} color='grey'>
                                 <PlusSquareOutlined />
                             </Tooltip>
                         </span>
@@ -394,26 +396,44 @@ function ConfirmCommand () {
                     shell.set({ dbs: [...shell.dbs] })
                 } catch (error) {
                     model.show_error({ error })
+                    // @ts-ignore
+                    window.temp = error
                     throw error
                 }
                 
                 form.resetFields()
                 shell.set({ confirm_command_modal_visible: false })
             }}
-            labelCol={{ span: 4 }}
-            wrapperCol={{ span: 20 }}
+            labelCol={{ span: 0 }}
+            wrapperCol={{ span: 24 }}
             className='db-modal-form'
             form={form}
         >
-            <Form.Item label={t('命令预览')} name='command' initialValue={generated_command}>
-                <Input.TextArea className='code-textarea' spellCheck={false} autoSize onChange={e => {
-                    shell.set({ generated_command: e.target.value })
-                }}/>
+            <Form.Item>
+                <Editor
+                    value={generated_command}
+                    className='confirm-command-code-editor'
+                    options={{
+                        readOnly: false,
+                        overviewRulerBorder: false,
+                        padding: {
+                            top: 8,
+                        },
+                    }}
+                    onChange={value => {
+                        shell.set({ generated_command: value })
+                    }}
+                />
+                <CopyIconButton
+                    type='link'
+                    text={generated_command}
+                    className='confirm-command-code-copy'
+                />
             </Form.Item>
-            
+                        
             <Form.Item className='db-modal-content-button-group'>
                 <Button type='primary' htmlType='submit'>
-                    {t('确定')}
+                    {t('执行')}
                 </Button>
                 <Button htmlType='button' onClick={() => {
                     form.resetFields()
@@ -431,20 +451,19 @@ type StorageEngine = 'OLAP' | 'TSDB'
 type AtomicLevel = 'TRANS' | 'CHUNK'
 type ChunkGranularity = 'TABLE' | 'DATABASE'
 
+interface Partition {
+    type: PartitionType
+    scheme: string
+}
+
 interface CreateDatabaseFormInfo {
     // dbPath 无 dfs:// 前缀
     dbPath: string
     partitionCount: string
-    firstPartitionType: PartitionType
-    firstPartitionScheme: string
-    secondPartitionType?: PartitionType | undefined
-    secondPartitionScheme?: string | undefined
-    thirdPartitionType?: PartitionType | undefined
-    thirdPartitionScheme?: string | undefined
+    partitions: Partition[]
     partitionLocation?: string | undefined
     storageEngine?: StorageEngine | undefined
     atomicLevel: AtomicLevel
-    // @TODO: 检查 enableChunkGranularityConfig 配置项
     chunkGranularity?: ChunkGranularity | undefined
 }
 
@@ -452,7 +471,12 @@ function CreateDatabase () {
     const { create_database_modal_visible, create_database_partition_count } = shell.use(['create_database_modal_visible', 'create_database_partition_count'])
     const [form] = Form.useForm()
     
+    // We just assume this is always turned on in dolphindb.cfg
     const enableChunkGranularityConfig = true
+    
+    useEffect(() => {
+        form.setFieldValue('partitions', [])
+    }, [])
     
     return <Modal
         className='db-modal show-required'
@@ -469,12 +493,13 @@ function CreateDatabase () {
                 const partitionCount = Number(table.partitionCount)
                 
                 if (Number.isNaN(partitionCount) || partitionCount < 1 || partitionCount > 3) {
-                    message.error(t('分区层数只能在 1-3 范围'))
+                    message.error(t('分区层数必须在1-3之间'))
                     return
                 }
                 
                 let createDBScript: string
                 
+                /* // disabled for now. generate SQL commands instead
                 if (partitionCount <= 1) {
                     // for single partition scheme, we can create database directly in one line
                     createDBScript = `database(directory="dfs://${table.dbPath}", partitionType=${table.firstPartitionType}, partitionScheme=${table.firstPartitionScheme}, `
@@ -522,7 +547,26 @@ function CreateDatabase () {
                     scripts.push(createCompoDBScript)
                     
                     createDBScript = scripts.join('\n')
+                }*/
+                
+                // create database directory partitioned by partitionType(partitionScheme),[partitionType(partitionScheme),partitionType(partitionScheme)],
+                // [engine='OLAP'], [atomic='TRANS'], [chunkGranularity='TABLE']
+                
+                // we can see that table.partitionLocation is not supported by the above grammar.
+                
+                createDBScript = `create database "dfs://${table.dbPath}" partitioned by `
+                
+                for (let i = 0; i < partitionCount; i++) {
+                    const { type, scheme } = table.partitions[i]
+                    
+                    createDBScript += `${type}(${scheme}), `
                 }
+                
+                createDBScript += `engine='${table.storageEngine}', `
+                createDBScript += `atomic='${table.atomicLevel}'`
+                
+                if (enableChunkGranularityConfig)
+                    createDBScript += `, chunkGranularity='${table.chunkGranularity}'`
                 
                 shell.set({ generated_command: createDBScript })
                 
@@ -565,13 +609,12 @@ function CreateDatabase () {
             
             {
                 Array.from(new Array(create_database_partition_count), (_, i) => {
-                    const classNamePrefix = ['first', 'second', 'third'][i]
                     const i18nPrefix = ['一级', '二级', '三级'][i]
                     
-                    return <div key={classNamePrefix}>
+                    return <div key={'create-db-' + i}>
                         <Form.Item
                             label={t(i18nPrefix + '分区类型')}
-                            name={classNamePrefix + 'PartitionType'}
+                            name={['partitions', i, 'type']}
                             required
                             rules={[{
                                 required: true,
@@ -600,7 +643,7 @@ function CreateDatabase () {
                                     value: 'VALUE',
                                 },
                                 {
-                                    label: <span title={t('列表分区。分区方案格式为：向量，向量的每个元素定义了一个分区。')}>{ t('列表分区') + ' (LIST)' }</span>,
+                                    label: <span title={t('列表分区。分区方案格式为：嵌套向量，外层向量的每个元素定义了一个分区。')}>{ t('列表分区') + ' (LIST)' }</span>,
                                     value: 'LIST',
                                 },
                             ]} />
@@ -608,11 +651,11 @@ function CreateDatabase () {
                         
                         <Form.Item
                             label={t(i18nPrefix + '分区方案')}
-                            name={classNamePrefix + 'PartitionScheme'}
+                            name={['partitions', i, 'scheme']}
                             required
                             rules={[{
                                 required: true,
-                                message: t('分区参数不能为空')
+                                message: t('分区方案不能为空')
                             }]}
                         >
                             <Input placeholder={t('请输入' + i18nPrefix + '分区方案')} />
@@ -621,12 +664,15 @@ function CreateDatabase () {
                 })
             }
             
-            <Form.Item
+            {
+            // disabled for now due to not supported by create database SQL command.
+            /* <Form.Item
                 label={t('分区位置')}
                 name='partitionLocation'
             >
                 <Input placeholder='e.g.: [`node1`node2, `node3] or [["ip1:port", "ip2:port"], "ip3:port"]' />
-            </Form.Item>
+            </Form.Item> */
+            }
             
             <Form.Item label={t('存储引擎')} name='storageEngine' required>
                 <Select placeholder={t('请选择存储引擎')} options={[
@@ -768,7 +814,7 @@ export class Database implements DataNode {
                         // user canceled
                     })
             }}>
-                <Tooltip title={t('创建表')} color='grey'>
+                <Tooltip title={t('创建数据表')} color='grey'>
                     { /* @FIXME: should be replaced by a new icon */ }
                     <Icon component={SvgAddColumn} />
                 </Tooltip>
