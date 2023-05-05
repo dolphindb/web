@@ -263,7 +263,7 @@ function AddColumn () {
                             table.db.path.slice(0, -1),
                             table.name,
                             column,
-                            new DdbInt(DdbType[type])
+                            new DdbInt(DdbType[type.toLocaleLowerCase()])
                         ])
                         message.success(t('添加成功'))
                         current_node.children = null

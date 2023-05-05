@@ -19,13 +19,19 @@ import {
     PreviewText,
     Submit,
 } from '@formily/antd-v5'
+import { mapKeys } from 'lodash'
 
 import { t } from '../../i18n/index.js'
 import { type Database } from './Databases.js'
-import { DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS } from '../constants/column-data-types.js'
+import {
+    DDBTypeNames,
+    DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS,
+    SUPPORT_SORT_COLUMN_TYPES,
+} from '../constants/column-data-types.js'
 import { Editor } from '../components/editor/index.js'
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 import { model } from '../model.js'
+import { isDDBTemporalType } from '../utils/ddb-data-types.js'
 
 import './CreateTableModal.scss'
 
@@ -41,16 +47,18 @@ enum KeepDuplicatesValues {
     FIRST = 'FIRST',
 }
 
+interface ICreateTableColumnFormValue {
+    name: string
+    type: DDBTypeNames
+    comment: string
+    compress: string
+}
+
 interface CreateTableFormValues {
     readonly dbPath: string
     tableType: TableTypes
     tableName: string
-    columns: Array<{
-        name: string
-        type: string
-        comment: string
-        compress: string
-    }>
+    columns: ICreateTableColumnFormValue[]
     partitionColumns: string[]
     sortColumns: string[]
     keepDuplicates: KeepDuplicatesValues
@@ -77,7 +85,7 @@ function useSteps (
 
     const prev = () => {
         const currentIndex = CreateTableSteps.indexOf(current)
-        if (currentIndex <= 0) 
+        if (currentIndex <= 0)
             return
 
         const step = CreateTableSteps[currentIndex - 1]
@@ -91,13 +99,12 @@ function useSteps (
 
     const next = (contextValue: any) => {
         const currentIndex = CreateTableSteps.indexOf(current)
-        if (currentIndex >= CreateTableSteps.length - 1) 
+        if (currentIndex >= CreateTableSteps.length - 1)
             return
 
-        const step = CreateTableSteps[currentIndex - 1]
         setContextMap({
             ...contextMap,
-            [step]: contextValue,
+            [current]: contextValue,
         })
         setCurrent(CreateTableSteps[currentIndex + 1])
     }
@@ -122,10 +129,43 @@ function CreateTableModalPreviewCode () {
     const steps = useContext(StepsContext)
     const database = useContext(DatabaseContext)
 
-    const code = useMemo(
-        () => 'getLicenseServerResourceInfo()',
-        [steps.contextMap[CreateTableStepsEnum.FillForm]]
-    )
+    const code = useMemo(() => {
+        const formValues: CreateTableFormValues =
+            steps.contextMap[CreateTableStepsEnum.FillForm]
+        const genCode =
+            `create table "${formValues.dbPath}"."${formValues.tableName}" (\n` +
+            `${formValues.columns
+                .map(column => {
+                    let baseColumn = `${column.name} ${column.type}`
+                    if (column.comment || column.compress) {
+                        baseColumn += '['
+                        if (column.comment)
+                            baseColumn += `comment=${JSON.stringify(
+                                column.comment
+                            )}`
+
+                        if (column.compress)
+                            baseColumn += `compress="${column.compress}"`
+
+                        baseColumn += ']'
+                    }
+                    return baseColumn
+                })
+                // indent and comma join
+                .map(line => `    ${line}`).join(', \n')}\n)\n` +
+            (formValues.partitionColumns?.length
+                ? `partitioned by ${formValues.partitionColumns.join(', ')},\n`
+                : '') +
+            (formValues.sortColumns?.length
+                ? `sortColumns=[${formValues.sortColumns
+                    .map(column => `"${column}"`)
+                    .join(', ')}],\n`
+                : '') +
+            (formValues.keepDuplicates
+                ? `keepDuplicates=${formValues.keepDuplicates}`
+                : '')
+        return genCode
+    }, [steps.contextMap[CreateTableStepsEnum.FillForm], database])
 
     return (
         <div className='create-table-preview-code'>
@@ -164,7 +204,6 @@ function CreateTableModalPreviewCode () {
 
 function CreateTableModalExecuteResult () {
     const steps = useContext(StepsContext)
-    const database = useContext(DatabaseContext)
     const modal = NiceModal.useModal()
 
     const { ddb } = model.use(['ddb'])
@@ -177,7 +216,7 @@ function CreateTableModalExecuteResult () {
             .then(result => {
                 console.log('result', result)
             })
-            .then(error => {
+            .catch(error => {
                 set_error(error)
             })
             .finally(() => {
@@ -188,7 +227,12 @@ function CreateTableModalExecuteResult () {
     if (loading)
         return (
             <Result
-                icon={<Spin spinning size='large' />}
+                icon={
+                    <Spin
+                        spinning
+                        size='large'
+                    />
+                }
                 title={t('建表中...')}
             />
         )
@@ -207,10 +251,15 @@ function CreateTableModalExecuteResult () {
                     >
                         {t('上一步')}
                     </Button>,
-                    <Button key='cancel' onClick={() => {
-                        modal.reject()
-                        modal.hide()
-                    }}>{t('取消')}</Button>,
+                    <Button
+                        key='cancel'
+                        onClick={() => {
+                            modal.reject()
+                            modal.hide()
+                        }}
+                    >
+                        {t('取消')}
+                    </Button>,
                 ]}
             />
         )
@@ -280,13 +329,9 @@ function CreateTableModalFillForm () {
     )
 
     const onSubmit = useCallback(async (formValues: CreateTableFormValues) => {
+        console.log(formValues)
         steps.next(formValues)
     }, [])
-
-    /**
-     * TODO:
-     * 排序列规则验证 https://www.dolphindb.cn/cn/help/200/FunctionsandCommands/FunctionReferences/c/createTable.html
-     */
 
     return (
         <Form
@@ -327,17 +372,23 @@ function CreateTableModalFillForm () {
                     title={t('表名')}
                     x-decorator='FormItem'
                     x-component='Input'
-                    x-validator={{
-                        triggerType: 'onBlur',
-                        validator (value: string, rule) {
-                            return database.children.find(
-                                child => child.name === value
-                            )
-                                ? rule.message
-                                : null
+                    x-validator={[
+                        {
+                            triggerType: 'onBlur',
+                            validator (value: string, rule) {
+                                return database.children.find(
+                                    child => child.name === value
+                                )
+                                    ? rule.message
+                                    : null
+                            },
+                            message: t('已存在相同名称的表'),
                         },
-                        message: t('已存在相同名称的表'),
-                    }}
+                        {
+                            pattern: /[a-zA-Z0-9_]/,
+                            message: t('只能包含字母、数字、下划线'),
+                        },
+                    ]}
                 />
                 <SchemaField.Array
                     required
@@ -364,13 +415,17 @@ function CreateTableModalFillForm () {
                         </SchemaField.Void>
                         <SchemaField.Void
                             x-component='ArrayTable.Column'
-                            x-component-props={{ title: '列名', width: 120 }}
+                            x-component-props={{ title: t('列名'), width: 120 }}
                         >
                             <SchemaField.String
                                 name='name'
                                 required
                                 x-decorator='FormItem'
                                 x-component='Input'
+                                x-validator={{
+                                    pattern: /[a-zA-Z0-9_]/,
+                                    message: t('只能包含字母、数字、下划线'),
+                                }}
                                 x-reactions={(field: Field) => {
                                     const hasSameColumn =
                                         field
@@ -383,7 +438,7 @@ function CreateTableModalFillForm () {
                                     field.setState({
                                         selfErrors:
                                             field.value && hasSameColumn
-                                                ? ['已存在相同名称的列']
+                                                ? [t('已存在相同名称的列')]
                                                 : null,
                                     })
                                 }}
@@ -392,7 +447,7 @@ function CreateTableModalFillForm () {
                         <SchemaField.Void
                             x-component='ArrayTable.Column'
                             x-component-props={{
-                                title: '数据类型',
+                                title: t('数据类型'),
                                 width: 100,
                             }}
                         >
@@ -401,12 +456,15 @@ function CreateTableModalFillForm () {
                                 required
                                 x-decorator='FormItem'
                                 x-component='Select'
+                                x-component-props={{
+                                    showSearch: true,
+                                }}
                                 enum={DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS}
                             />
                         </SchemaField.Void>
                         <SchemaField.Void
                             x-component='ArrayTable.Column'
-                            x-component-props={{ title: '备注', width: 150 }}
+                            x-component-props={{ title: t('备注'), width: 150 }}
                         >
                             <SchemaField.String
                                 name='comment'
@@ -417,7 +475,7 @@ function CreateTableModalFillForm () {
                         <SchemaField.Void
                             x-component='ArrayTable.Column'
                             x-component-props={{
-                                title: '压缩算法',
+                                title: t('压缩算法'),
                                 width: 100,
                             }}
                         >
@@ -448,11 +506,11 @@ function CreateTableModalFillForm () {
                     </SchemaField.Object>
                     <SchemaField.Void
                         x-component='ArrayTable.Addition'
-                        title='添加列'
+                        title={t('添加列')}
                     />
                 </SchemaField.Array>
                 <SchemaField.Array
-                    required
+                    // TODO: 通过 schema(database('dfs://A.compo')) 的分区类型判断分区列是否必填
                     name='partitionColumns'
                     title={t('分区列')}
                     x-decorator='FormItem'
@@ -478,8 +536,8 @@ function CreateTableModalFillForm () {
                                     enum: COLUMNS_REACTION_FULLFILL_EXPRESSION,
                                 },
                                 state: {
-                                    value: COLUMNS_REACTION_STATE_VALUE_EXPRESSION
-                                }
+                                    value: COLUMNS_REACTION_STATE_VALUE_EXPRESSION,
+                                },
                             },
                         },
                     ]}
@@ -490,19 +548,91 @@ function CreateTableModalFillForm () {
                     x-decorator='FormItem'
                     x-component='Select'
                     x-component-props={{ mode: 'multiple' }}
-                    x-reactions={{
-                        dependencies: {
-                            columns: 'columns',
-                        },
-                        fulfill: {
-                            schema: {
-                                enum: COLUMNS_REACTION_FULLFILL_EXPRESSION,
+                    x-reactions={[
+                        {
+                            dependencies: {
+                                columns: 'columns',
                             },
-                            state: {
-                                value: COLUMNS_REACTION_STATE_VALUE_EXPRESSION
-                            }
+                            fulfill: {
+                                schema: {
+                                    enum: COLUMNS_REACTION_FULLFILL_EXPRESSION,
+                                },
+                                state: {
+                                    value: COLUMNS_REACTION_STATE_VALUE_EXPRESSION,
+                                },
+                            },
                         },
-                    }}
+                        (field: Field) => {
+                            const columnsMap: Record<
+                                string,
+                                ICreateTableColumnFormValue
+                            > = mapKeys(
+                                field.query('columns').value(),
+                                column => column.name
+                            )
+                            const sortColumns: string[] = field.value
+
+                            const unsupportSortColumns = sortColumns.filter(
+                                column => {
+                                    const sortColumn = columnsMap[column]
+                                    return !SUPPORT_SORT_COLUMN_TYPES.includes(
+                                        sortColumn.type
+                                    )
+                                }
+                            )
+
+                            if (unsupportSortColumns.length) {
+                                field.setState({
+                                    selfErrors: [
+                                        t('列 {{columns}} 不支持排序', {
+                                            columns:
+                                                unsupportSortColumns.join(', '),
+                                        }),
+                                    ],
+                                })
+                                return
+                            }
+
+                            if (sortColumns.length > 1) {
+                                const lastColumnName =
+                                    sortColumns[sortColumns.length - 1]
+                                const lastColumn = columnsMap[lastColumnName]
+                                const indexesColumns = sortColumns.slice(0, -1)
+                                const unsupportIndexesColumns =
+                                    indexesColumns.filter(column => {
+                                        return [
+                                            'time',
+                                            'timestamp',
+                                            'nanotime',
+                                            'nanotimestamp',
+                                        ].includes(columnsMap[column].type)
+                                    })
+                                if (
+                                    isDDBTemporalType(lastColumn.type) &&
+                                    unsupportIndexesColumns.length
+                                ) {
+                                    field.setState({
+                                        selfErrors: [
+                                            t(
+                                                '索引列 {{columns}} 不能为 TIME, TIMESTAMP, NANOTIME, NANOTIMESTAMP 类型',
+                                                {
+                                                    columns:
+                                                        unsupportIndexesColumns.join(
+                                                            ', '
+                                                        ),
+                                                }
+                                            ),
+                                        ],
+                                    })
+                                    return
+                                }
+                            }
+
+                            field.setState({
+                                selfErrors: null,
+                            })
+                        },
+                    ]}
                 />
                 <SchemaField.String
                     required
