@@ -224,6 +224,7 @@ export function Databases () {
                 <SetColumnComment />
                 <CreateDatabase />
                 <CreateTable />
+                <ConfirmCommand />
             </div>
         </div>
     </Resizable>
@@ -400,6 +401,61 @@ function SetColumnComment () {
     </Modal>
 }
 
+function ConfirmCommand () {
+    const { generated_command, confirm_command_modal_visible } = shell.use(['generated_command', 'confirm_command_modal_visible'])
+    const [form] = Form.useForm()
+    
+    return <Modal
+        className='db-modal'
+        width='60vw'
+        open={confirm_command_modal_visible}
+        onCancel={() => { shell.set({ confirm_command_modal_visible: false }) }}
+        title={t('命令预览')}
+    >
+        <Form
+            labelWrap
+            name='confirm-command'
+            onFinish={async () => {
+                try {
+                    console.log('executing:', generated_command)
+                    await model.ddb.eval(generated_command)
+                    message.success(t('执行成功'))
+                    await shell.load_dbs()
+                    shell.set({ dbs: [...shell.dbs] })
+                } catch (error) {
+                    model.show_error({ error })
+                    throw error
+                }
+                
+                form.resetFields()
+                shell.set({ confirm_command_modal_visible: false })
+            }}
+            labelCol={{ span: 4 }}
+            wrapperCol={{ span: 20 }}
+            className='db-modal-form'
+            form={form}
+        >
+            <Form.Item label={t('命令预览')} name='command' initialValue={generated_command}>
+                <Input.TextArea className='code-textarea' spellCheck={false} autoSize onChange={e => {
+                    shell.set({ generated_command: e.target.value })
+                }}/>
+            </Form.Item>
+            
+            <Form.Item className='db-modal-content-button-group'>
+                <Button type='primary' htmlType='submit'>
+                    {t('确定')}
+                </Button>
+                <Button htmlType='button' onClick={() => {
+                    form.resetFields()
+                    shell.set({ confirm_command_modal_visible: false })
+                }}>
+                    {t('取消')}
+                </Button>
+            </Form.Item>
+        </Form>
+    </Modal>
+}
+
 type PartitionType = 'SEQ' | 'RANGE' | 'HASH' | 'VALUE' | 'LIST'
 type StorageEngine = 'OLAP' | 'TSDB'
 type AtomicLevel = 'TRANS' | 'CHUNK'
@@ -441,7 +497,6 @@ function CreateDatabase () {
             onFinish={async (table: CreateDatabaseFormInfo) => {
                 // database(directory, [partitionType], [partitionScheme], [locations], [engine=’OLAP’], [atomic=’TRANS’], [chunkGranularity=’TABLE’])
                 const partitionCount = Number(table.partitionCount)
-                const dbName = table.dbPath
                 
                 if (Number.isNaN(partitionCount) || partitionCount < 1 || partitionCount > 3) {
                     message.error(t('分区层数只能在 1-3 范围'))
@@ -450,9 +505,9 @@ function CreateDatabase () {
                 
                 let createDBScript: string
                 
-                if (partitionCount === 1) {
+                if (partitionCount <= 1) {
                     // for single partition scheme, we can create database directly in one line
-                    createDBScript = `${dbName} = database(directory="dfs://${table.dbPath}", partitionType=${table.firstPartitionType}, partitionScheme=${table.firstPartitionScheme}, `
+                    createDBScript = `database(directory="dfs://${table.dbPath}", partitionType=${table.firstPartitionType}, partitionScheme=${table.firstPartitionScheme}, `
                     
                     if (table.partitionLocation)
                         createDBScript += `locations=${table.partitionLocation}, `
@@ -462,7 +517,7 @@ function CreateDatabase () {
                     if (enableChunkGranularityConfig)
                         createDBScript += `, chunkGranularity="${table.chunkGranularity}"`
                     
-                    createDBScript += ')'
+                    createDBScript += ');'
                 } else {
                     // for multiple partition scheme, we need to create multiple databases and then combine them into one,
                     // using the COMPO partition scheme
@@ -474,11 +529,13 @@ function CreateDatabase () {
                         const args = table[`${prefix}PartitionScheme`] || ''
                         
                         // we should not provide dbPath because these are all sub-databases that will be composed later
-                        scripts.push(`db${i} = database(, partitionType=${type}, partitionScheme=${args})`)
+                        scripts.push(`db${i} = database(, partitionType=${type}, partitionScheme=${args});`)
                     }
                     
+                    scripts[scripts.length - 1] += '\n'
+                    
                     // instead, we provide dbPath here
-                    let createCompoDBScript = `${dbName} = database(directory="dfs://${table.dbPath}", partitionType=COMPO, partitionScheme=[${
+                    let createCompoDBScript = `database(directory="dfs://${table.dbPath}", partitionType=COMPO, partitionScheme=[${
                         scripts.map((_, i) => `db${i}`).join(', ')
                     }], `
                     
@@ -490,27 +547,16 @@ function CreateDatabase () {
                     if (enableChunkGranularityConfig)
                         createCompoDBScript += `, chunkGranularity="${table.chunkGranularity}"`
                     
-                    createCompoDBScript += ')'
+                    createCompoDBScript += ');'
                     
                     scripts.push(createCompoDBScript)
                     
                     createDBScript = scripts.join('\n')
                 }
                 
-                console.log(createDBScript)  // @FIXME: debug only, should be removed before MR
+                shell.set({ generated_command: createDBScript })
                 
-                try {
-                    await model.ddb.eval(createDBScript)
-                    message.success(t('创建数据库成功'))
-                    await shell.load_dbs()
-                    shell.set({ dbs: [...shell.dbs] })
-                    
-                    form.resetFields()
-                    shell.set({ create_database_modal_visible: false, create_database_partition_count: 1 })
-                } catch (error) {
-                    model.show_error({ error })
-                    throw error
-                }
+                shell.set({ create_database_modal_visible: false, confirm_command_modal_visible: true })
             }}
             labelWrap
             labelCol={{ span: 8 }}

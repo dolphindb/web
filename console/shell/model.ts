@@ -85,6 +85,10 @@ class ShellModel extends Model<ShellModel> {
     
     create_table_column_count = 1
     
+    generated_command: string
+    
+    confirm_command_modal_visible = false
+    
     
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
