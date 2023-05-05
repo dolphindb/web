@@ -2,7 +2,7 @@ import { default as React, useEffect, useRef, useState } from 'react'
 
 import { Resizable } from 're-resizable'
 
-import { message, Tooltip, Tree, Modal, Form, Input, Select, Button } from 'antd'
+import { message, Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber } from 'antd'
 const { Option } = Select
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
@@ -405,16 +405,16 @@ type StorageEngine = 'OLAP' | 'TSDB'
 type AtomicLevel = 'TRANS' | 'CHUNK'
 type ChunkGranularity = 'TABLE' | 'DATABASE'
 
-// @TODO: 抱怨 paritionLocation 根本不可能搞成 <Select />
 interface CreateDatabaseFormInfo {
+    // dbPath 无 dfs:// 前缀
     dbPath: string
     partitionCount: string
     firstPartitionType: PartitionType
-    firstParitionArgs: string
+    firstPartitionScheme: string
     secondPartitionType?: PartitionType | undefined
-    secondParitionArgs?: string | undefined
+    secondPartitionScheme?: string | undefined
     thirdPartitionType?: PartitionType | undefined
-    thirdParitionArgs?: string | undefined
+    thirdPartitionScheme?: string | undefined
     partitionLocation?: string | undefined
     storageEngine?: StorageEngine | undefined
     atomicLevel: AtomicLevel
@@ -441,10 +441,10 @@ function CreateDatabase () {
             onFinish={async (table: CreateDatabaseFormInfo) => {
                 // database(directory, [partitionType], [partitionScheme], [locations], [engine=’OLAP’], [atomic=’TRANS’], [chunkGranularity=’TABLE’])
                 const partitionCount = Number(table.partitionCount)
-                const dbName = table.dbPath.replace(/^dfs:\/\//, '')
+                const dbName = table.dbPath
                 
                 if (Number.isNaN(partitionCount) || partitionCount < 1 || partitionCount > 3) {
-                    message.error(t('分区层级个数只能在 1-3 范围'))
+                    message.error(t('分区层数只能在 1-3 范围'))
                     return
                 }
                 
@@ -452,7 +452,7 @@ function CreateDatabase () {
                 
                 if (partitionCount === 1) {
                     // for single partition scheme, we can create database directly in one line
-                    createDBScript = `${dbName} = database(directory="${table.dbPath}", partitionType=${table.firstPartitionType}, partitionScheme=${table.firstParitionArgs}, `
+                    createDBScript = `${dbName} = database(directory="dfs://${table.dbPath}", partitionType=${table.firstPartitionType}, partitionScheme=${table.firstPartitionScheme}, `
                     
                     if (table.partitionLocation)
                         createDBScript += `locations=${table.partitionLocation}, `
@@ -471,14 +471,14 @@ function CreateDatabase () {
                     for (let i = 0; i < partitionCount; i++) {
                         const prefix = (['first', 'second', 'third'] as const)[i]
                         const type = table[`${prefix}PartitionType`]
-                        const args = table[`${prefix}ParitionArgs`] || ''
+                        const args = table[`${prefix}PartitionScheme`] || ''
                         
                         // we should not provide dbPath because these are all sub-databases that will be composed later
                         scripts.push(`db${i} = database(, partitionType=${type}, partitionScheme=${args})`)
                     }
                     
                     // instead, we provide dbPath here
-                    let createCompoDBScript = `${dbName} = database(directory="${table.dbPath}", partitionType=COMPO, partitionScheme=[${
+                    let createCompoDBScript = `${dbName} = database(directory="dfs://${table.dbPath}", partitionType=COMPO, partitionScheme=[${
                         scripts.map((_, i) => `db${i}`).join(', ')
                     }], `
                     
@@ -518,31 +518,28 @@ function CreateDatabase () {
             form={form}
         >
             
-            <Form.Item label={t('数据库路径')} name='dbPath' initialValue='dfs://' required rules={[{
+            <Form.Item label={t('数据库路径')} name='dbPath' required rules={[{
                 required: true,
                 validator: async (_, val: string) => {
-                    if (!val || val === 'dfs://')
+                    if (!val)
                         return Promise.reject(t('数据库路径不能为空'))
-                    
-                    if (!val.startsWith('dfs://'))
-                        return Promise.reject(t('数据库路径必须以 dfs:// 开头'))
                     
                     if (val.includes('"'))
                         return Promise.reject(t('数据库路径不能包含双引号'))
                 }
             }]}>
-                <Input placeholder='dfs://' />
+                <Input addonBefore='dfs://' placeholder={t('请输入数据库路径')} />
             </Form.Item>
             
-            <Form.Item label={t('分区层级个数')} name='partitionCount' required rules={[{
+            <Form.Item label={t('分区层数')} name='partitionCount' required rules={[{
                 required: true,
                 validator: async (_, val: number) => {
                     if (val < 1 || val > 3)
-                        return Promise.reject(t('分区层级数必须在1-3之间'))
+                        return Promise.reject(t('分区层数必须在1-3之间'))
                 }
             }]} initialValue={1}>
-                <Input onChange={e => {
-                    const level = parseInt(e.target.value)
+                <InputNumber onChange={(e: string) => {
+                    const level = parseInt(e, 10)
                     if (level < 1 || level > 3)
                         return
                     
@@ -567,27 +564,42 @@ function CreateDatabase () {
                                         return Promise.reject(t('分区类型不能为空'))
                                 }
                             }]}
-                            initialValue='SEQ'
                         >
-                            <Select options={[
-                                { label: 'SEQ', value: 'SEQ' },
-                                { label: 'RANGE', value: 'RANGE' },
-                                { label: 'HASH', value: 'HASH' },
-                                { label: 'VALUE', value: 'VALUE' },
-                                { label: 'LIST', value: 'LIST' }
+                            <Select placeholder={t('请选择' + i18nPrefix + '分区类型')} options={[
+                                // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
+                                {
+                                    label: <span title={t('顺序分区。分区方案格式为：整型标量，表示分区的数量。')}>{ t('顺序分区') + ' (SEQ)' }</span>,
+                                    value: 'SEQ',
+                                },
+                                {
+                                    label: <span title={t('范围分区。分区方案格式为：向量，向量的任意两个相邻元素定义分区的范围。')}>{ t('范围分区') + ' (RANGE)' }</span>,
+                                    value: 'RANGE',
+                                },
+                                {
+                                    label: <span title={t('哈希分区。分区方案格式为：元组，第一个元素是分区列的数据类型，第二个元素是分区的数量。')}>{ t('哈希分区') + ' (HASH)' }</span>,
+                                    value: 'HASH',
+                                },
+                                {
+                                    label: <span title={t('值分区。分区方案格式为：向量，向量的每个元素定义了一个分区。')}>{ t('值分区') + ' (VALUE)' }</span>,
+                                    value: 'VALUE',
+                                },
+                                {
+                                    label: <span title={t('列表分区。分区方案格式为：向量，向量的每个元素定义了一个分区。')}>{ t('列表分区') + ' (LIST)' }</span>,
+                                    value: 'LIST',
+                                },
                             ]} />
                         </Form.Item>
                         
                         <Form.Item
-                            label={t(i18nPrefix + '分区参数')}
-                            name={classNamePrefix + 'ParitionArgs'}
+                            label={t(i18nPrefix + '分区方案')}
+                            name={classNamePrefix + 'PartitionScheme'}
                             required
                             rules={[{
                                 required: true,
                                 message: t('分区参数不能为空')
                             }]}
                         >
-                            <Input />
+                            <Input placeholder={t('请输入' + i18nPrefix + '分区方案')} />
                         </Form.Item>
                     </div>
                 })
@@ -600,24 +612,45 @@ function CreateDatabase () {
                 <Input placeholder='e.g.: [`node1`node2, `node3] or [["ip1:port", "ip2:port"], "ip3:port"]' />
             </Form.Item>
             
-            <Form.Item label={t('存储引擎')} name='storageEngine' initialValue='OLAP' required>
-                <Select options={[
-                    { label: 'OLAP', value: 'OLAP' },
-                    { label: 'TSDB', value: 'TSDB' }
+            <Form.Item label={t('存储引擎')} name='storageEngine' required>
+                <Select placeholder={t('请选择存储引擎')} options={[
+                    // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
+                    {
+                        label: <span title={t('OLAP 引擎。OLAP 数据表的每个列存储为一个文件，数据以追加的方式存储到相应的列文件中，因此，数据写入的顺序决定了它们的存储顺序。')}> OLAP </span>,
+                        value: 'OLAP',
+                    },
+                    {
+                        label: <span title={t('TSDB 引擎。采用经典的 LSMT 模型，引入了排序列以提升在用户查询某个或少数几个设备（股票）在特定时间段数据的场景下的查询性能。')}> TSDB </span>,
+                        value: 'TSDB',
+                    }
                 ]} />
             </Form.Item>
             
-            <Form.Item label={t('写入事务原子性')} name='atomicLevel' initialValue='TRANS' required>
-                <Select options={[
-                    { label: 'TRANS', value: 'TRANS' },
-                    { label: 'CHUNK', value: 'CHUNK' }
+            <Form.Item label={t('写入事务原子性')} name='atomicLevel' required>
+                <Select placeholder={t('请选择写入事务原子性')} options={[
+                    // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
+                    {
+                        label: <span title={t('写入事务的原子性层级为事务，即一个事务写入多个分区时，若某个分区被其他写入事务锁定而出现写入冲突，则该事务的写入全部失败。因此，该设置下，不允许并发写入同一个分区。')}>{ t('事务级原子性') + ' (TRANS)' }</span>,
+                        value: 'TRANS',
+                    },
+                    {
+                        label: <span title={t('写入事务的原子性层级为分区。若一个事务写入多个分区时，某分区被其它写入事务锁定而出现冲突，系统会完成其他分区的写入，同时对之前发生冲突的分区不断尝试写入，尝试数分钟后仍冲突才放弃。此设置下，允许并发写入同一个分区，但由于不能完全保证事务的原子性，可能出现部分分区写入成功而部分分区写入失败的情况。同时由于采用了重试机制，写入速度可能较慢。')}>{ t('分区级原子性') + ' (CHUNK)' }</span>,
+                        value: 'CHUNK',
+                    }
                 ]} />
             </Form.Item>
             
-            <Form.Item label={t('分区粒度')} name='chunkGranularity' initialValue='TABLE' required>
-                <Select options={[
-                    { label: 'TABLE', value: 'TABLE' },
-                    { label: 'DATABASE', value: 'DATABASE' }
+            <Form.Item label={t('分区粒度')} name='chunkGranularity' required>
+                <Select placeholder={t('请选择分区粒度')} options={[
+                    // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
+                    {
+                        label: <span title={t('表级分区，设置后支持同时写入同一分区的不同表。')}>{ t('表级分区') + ' (TABLE)' }</span>,
+                        value: 'TABLE'
+                    },
+                    {
+                        label: <span title={t('数据库级分区，设置后只支持同时写入不同分区。')}>{ t('数据库级分区') + ' (DATABASE)' }</span>,
+                        value: 'DATABASE'
+                    }
                 ]} />
             </Form.Item>
             
