@@ -5,7 +5,7 @@ import './index.sass'
 
 import { default as React, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-
+import NiceModal from '@ebay/nice-modal-react'
 
 import {
     Layout, 
@@ -604,4 +604,8 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 
 createRoot(
     document.querySelector('.root')
-).render(<DolphinDB/>)
+).render(
+    <NiceModal.Provider>
+        <DolphinDB/>
+    </NiceModal.Provider>
+)

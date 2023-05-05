@@ -67,10 +67,7 @@ class ShellModel extends Model<ShellModel> {
     add_column_defined = false
 
     set_column_comment_defined = false
-    
-    
-    current_db: DatabaseGroup | Database
-    
+        
     current_node: ColumnRoot | Column
     
     add_column_modal_visible = false
@@ -80,10 +77,6 @@ class ShellModel extends Model<ShellModel> {
     create_database_modal_visible = false
     
     create_database_partition_count = 1
-    
-    create_table_modal_visible = false
-    
-    create_table_column_count = 1
     
     generated_command: string
     

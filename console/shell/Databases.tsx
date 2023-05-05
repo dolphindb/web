@@ -1,4 +1,5 @@
 import { default as React, useEffect, useRef, useState } from 'react'
+import NiceModal from '@ebay/nice-modal-react'
 
 import { Resizable } from 're-resizable'
 
@@ -26,6 +27,7 @@ import { t } from '../../i18n/index.js'
 
 import { model, NodeType } from '../model.js'
 import { shell } from './model.js'
+import { CreateTableModal } from './CreateTableModal.js'
 
 
 import SvgDatabase from './icons/database.icon.svg'
@@ -38,6 +40,7 @@ import SvgPartitionFile from './icons/partition-file.icon.svg'
 import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
+import { DDB_COLUMN_DATA_TYPES } from '../constants/column-data-types.js'
 
 
 export function Databases () {
@@ -223,7 +226,6 @@ export function Databases () {
                 <AddColumn />
                 <SetColumnComment />
                 <CreateDatabase />
-                <CreateTable />
                 <ConfirmCommand />
             </div>
         </div>
@@ -232,38 +234,6 @@ export function Databases () {
 
 
 function AddColumn () {
-    // DdbType 中对应枚举的大写，排除一些不能添加的类型
-    // todo: 让邹杨测试，有没有遗漏，有没有不能加的
-    const coltypes = [
-        'BOOL',
-        'CHAR',
-        'SHORT',
-        'INT',
-        'LONG',
-        'DATE',
-        'MONTH',
-        'TIME',
-        'MINUTE',
-        'SECOND',
-        'DATETIME',
-        'TIMESTAMP',
-        'NANOTIME',
-        'NANOTIMESTAMP',
-        'FLOAT',
-        'DOUBLE',
-        'SYMBOL',
-        'STRING',
-        'UUID',
-        'IPADDR',
-        'INT128',
-        'BLOB',
-        'COMPLEX',
-        'POINT',
-        
-        // 'DURATION',
-        // decimal32, 64, 128
-    ] as const
-    
     const [form] = Form.useForm()
     
     let { current_node, add_column_modal_visible } = shell.use(['current_node', 'add_column_modal_visible']) as { current_node: ColumnRoot, add_column_modal_visible: boolean }
@@ -293,7 +263,7 @@ function AddColumn () {
                             table.db.path.slice(0, -1),
                             table.name,
                             column,
-                            new DdbInt(DdbType[type.toLocaleLowerCase()])
+                            new DdbInt(DdbType[type])
                         ])
                         message.success(t('添加成功'))
                         current_node.children = null
@@ -314,7 +284,7 @@ function AddColumn () {
             </Form.Item>
             <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型') }]}>
                 <Select showSearch placeholder={t('选择类型')}>
-                    { coltypes.map(v => <Option key={v}>{v}</Option>) }
+                    { DDB_COLUMN_DATA_TYPES.map(v => <Option key={v}>{v.toLocaleUpperCase()}</Option>) }
                 </Select>
             </Form.Item>
             <Form.Item className='db-modal-content-button-group'>
@@ -715,119 +685,6 @@ function CreateDatabase () {
     </Modal>
 }
 
-// Table（维度表）不支持 partitionColumns
-type TableTypes = 'Table' | 'PartitionedTable'
-type KeepDuplicates = 'ALL' | 'LAST' | 'FIRST'
-
-interface CreateTableFormInfo {
-    readonly dbPath: string
-    tableType: TableTypes
-    tableName: string
-    columnCount: string
-    columnNames: string[]
-    columnTypes: string[]
-    columnComments: string[]
-    partitionColumns: string  // e.g. `a or `a`b`c`d
-    compressMethods: string[]
-    sortColumns: string[]
-    // sortKeyMappingFunction 文档里连例子都没有，先不做
-    keepDuplicates: KeepDuplicates
-}
-
-function CreateTable () {
-    const { create_table_modal_visible, create_table_column_count } = shell.use(['create_table_modal_visible', 'create_table_column_count'])
-    const [form] = Form.useForm()
-    
-    return <Modal
-        className='db-modal show-required'
-        open={create_table_modal_visible}
-        onCancel={() => { shell.set({ create_table_modal_visible: false, create_table_column_count: 1 }) }}
-        title={t('创建数据表')}
-    >
-        
-        <Form
-            className='db-modal-form'
-            name='create-table'
-            onFinish={async (table: CreateTableFormInfo) => {
-                // baseTable=table(capacity:size, colNames, colTypes)
-                // t=db.createPartitionedTable(baseTable, tableName, [partitionColumns], [compressMethods], [sortColumns], [keepDuplicates=ALL], [sortKeyMappingFunction])
-                // t=db.createTable(baseTable, tableName, [compressMethods], [sortColumns], [keepDuplicates=ALL])
-                // t.append!(baseTable)
-                
-                // @TODO: arg check
-                
-                let createTableScript: string
-                
-                // @TODO: impl this
-                
-                console.log(createTableScript)  // @FIXME: debug only, should be removed before MR
-                
-                try {
-                    await model.ddb.eval(createTableScript)
-                    message.success(t('创建数据表成功'))
-                    await shell.load_dbs()
-                    shell.set({ dbs: [...shell.dbs] })
-                    
-                    form.resetFields()
-                    shell.set({ create_table_modal_visible: false, create_table_column_count: 1 })
-                } catch (error) {
-                    model.show_error({ error })
-                    throw error
-                }
-            }}
-            labelWrap
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 20 }}
-            form={form}
-        >
-            
-            <Form.Item label={t('数据库路径')} name='dbPath' initialValue='@TODO:' required>
-                <Input readOnly />
-            </Form.Item>
-            
-            <Form.Item label={t('列数')} name='columnCount' required rules={[{
-                required: true,
-                validator: async (_, val: number) => {
-                    if (val < 1)
-                        return Promise.reject(t('列数不能小于 1'))
-                }
-            }]} initialValue={1}>
-                <Input onChange={e => {
-                    const count = parseInt(e.target.value)
-                    if (count < 1 || count > 3)
-                        return
-                    
-                    shell.set({ create_table_column_count: count })
-                }} placeholder='1' type='number' />
-            </Form.Item>
-            
-            {
-                Array.from(new Array(create_table_column_count), (_, i) => {
-                    // @TODO: impl this
-                    
-                    return <div key={'create-table-modal-column-' + i}>
-                        { /* TODO: */ }
-                    </div>
-                })
-            }
-            
-            
-            <Form.Item className='db-modal-content-button-group'>
-                <Button type='primary' htmlType='submit'>
-                    {t('确定')}
-                </Button>
-                <Button htmlType='button' onClick={() => {
-                    form.resetFields()
-                    shell.set({ create_table_modal_visible: false, create_table_column_count: 1 })
-                }}>
-                    {t('取消')}
-                </Button>
-            </Form.Item>
-        </Form>
-    </Modal>
-}
-
-
 interface ContextMenu {
     /** TreeItem key */
     key: string
@@ -904,8 +761,12 @@ export class Database implements DataNode {
             <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1).split('.').at(-1)}</span>
             
             <div className='create-table-button' onClick={ event => {
-                shell.set({ current_db: this, create_table_modal_visible: true })
                 event.stopPropagation()
+                NiceModal.show(CreateTableModal, { database: this })
+                    .then(async () => shell.load_dbs())
+                    .catch(() => {
+                        // user canceled
+                    })
             }}>
                 <Tooltip title={t('创建表')} color='grey'>
                     { /* @FIXME: should be replaced by a new icon */ }
@@ -1248,8 +1109,8 @@ export class ColumnRoot implements DataNode {
             const schema_coldefs = (
                 await this.table.get_schema()
             ).to_dict<{ colDefs: DdbTableObj }>()
-            .colDefs
-            .to_rows<{ comment: string, extra: number, name: string, typeInt: number, typeString: string }>()
+                .colDefs
+                .to_rows<{ comment: string, extra: number, name: string, typeInt: number, typeString: string }>()
             
             this.children = schema_coldefs.map(col => new Column(this, col))
         }

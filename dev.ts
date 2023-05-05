@@ -184,47 +184,53 @@ await Promise.all([
 ])
 
 
-// 监听终端快捷键
-// https://stackoverflow.com/a/12506613/7609214
-
-let { stdin } = process
-
-stdin.setRawMode(true)
-
-stdin.resume()
-
-stdin.setEncoding('utf-8')
-
-// on any data into stdin
-stdin.on('data', function (key: any) {
-    // ctrl-c ( end of text )
-    if (key === '\u0003')
-        process.exit()
+if (process.argv.includes('--watch')) 
+    webpack.watch()
+ else {
+    // 监听终端快捷键
+    // https://stackoverflow.com/a/12506613/7609214
     
-    // write the key to stdout all normal like
-    console.log(key)
+    let { stdin } = process
     
-    switch (key) {
-        case 'r':
-            webpack.run()
-            break
-            
-        case 'x':
+    stdin.setRawMode(true)
+    
+    stdin.resume()
+    
+    stdin.setEncoding('utf-8')
+    
+    // on any data into stdin
+    stdin.on('data', function (key: any) {
+        // ctrl-c ( end of text )
+        if (key === '\u0003')
             process.exit()
-    }
-})
+        
+        // write the key to stdout all normal like
+        console.log(key)
+        
+        switch (key) {
+            case 'r':
+                webpack.run()
+                break
+                
+            case 'x':
+                process.exit()
+        }
+    })
+    
+    console.log(
+        '\n' +
+        '开发服务器启动成功，请使用浏览器打开:\n'.green +
+        'http://localhost:8432/console/?view=shell&hostname=115.239.209.123&port=8892\n'.blue.underline +
+        'http://localhost:8432/console/?view=shell&hostname=192.168.0.16&port=20002\n'.blue.underline +
+        'http://localhost:8432/console/?hostname=127.0.0.1&port=8848\n'.blue.underline +
+        'http://localhost:8432/cloud/\n'.blue.underline +
+        '\n' +
+        '终端快捷键:\n' +
+        'r: 重新编译\n' +
+        'x: 退出开发服务器'
+    )
+}
 
 
-console.log(
-    '\n' +
-    '开发服务器启动成功，请使用浏览器打开:\n'.green +
-    'http://localhost:8432/console/?view=shell&hostname=115.239.209.123&port=8892\n'.blue.underline +
-    'http://localhost:8432/console/?view=shell&hostname=192.168.0.16&port=20002\n'.blue.underline +
-    'http://localhost:8432/console/?hostname=127.0.0.1&port=8848\n'.blue.underline +
-    'http://localhost:8432/cloud/\n'.blue.underline +
-    '\n' +
-    '终端快捷键:\n' +
-    'r: 重新编译\n' +
-    'x: 退出开发服务器'
-)
+
 

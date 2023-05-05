@@ -4,10 +4,9 @@
         "./build.ts",
         "./global.d.ts",
         
-        "./console/index.tsx",
-        "./console/window.tsx",
+        "./console",
         
-        "./cloud/index.tsx",
+        "./cloud",
     ],
     
     "compilerOptions": {
