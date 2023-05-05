@@ -286,7 +286,7 @@ function AddColumn () {
             </Form.Item>
             <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型') }]}>
                 <Select showSearch placeholder={t('选择类型')}>
-                    { DDB_COLUMN_DATA_TYPES.map(v => <Option key={v}>{v.toLocaleUpperCase()}</Option>) }
+                    { DDB_COLUMN_DATA_TYPES.map(v => <Option key={v}>{v.toUpperCase()}</Option>) }
                 </Select>
             </Form.Item>
             <Form.Item className='db-modal-content-button-group'>
