@@ -13,6 +13,8 @@ import { loadWASM } from 'vscode-oniguruma'
 
 import { t, language } from '../../../i18n/index.js'
 
+import { model } from '../../model.js'
+
 import { register_tokenizer, inject_css } from './tokenizer.js'
 import { load_docs, register_docs, set_details_visible } from './docs.js'
 import { settings } from './settings.js'
@@ -40,7 +42,7 @@ loader.config({
 
 let monaco: Monaco
 
-let wasm_loaded = false
+let monaco_initing = false
 
 
 export function Editor ({
@@ -64,31 +66,42 @@ export function Editor ({
     
     useEffect(() => {
         (async () => {
-            if (!monaco_inited) {
-                monaco = await loader.init() as typeof monacoapi
+            if (!monaco && !monaco_initing) {
+                monaco_initing = true
                 
-                if (!wasm_loaded) {
-                    wasm_loaded = true
+                try {
+                    let _monaco = await loader.init() as typeof monacoapi
                     
-                    load_docs()
+                    const pdocs = load_docs()
                     
                     // Using the response directly only works if the server sets the MIME type 'application/wasm'.
                     // Otherwise, a TypeError is thrown when using the streaming compiler.
                     // We therefore use the non-streaming compiler :(.
                     await loadWASM(await fetch('./vendors/vscode-oniguruma/release/onig.wasm'))
+                    
+                    let { languages } = _monaco
+                    
+                    languages.register({ id: 'dolphindb' })
+                    
+                    await register_tokenizer(languages)
+                    
+                    register_docs(languages)
+                    
+                    await document.fonts.ready
+                    
+                    await pdocs
+                    
+                    monaco = _monaco
+                    
+                    set_monaco_inited(true)
+                    
+                    console.log('monaco 已初始化')
+                } catch (error) {
+                    model.show_error(error)
+                    throw error
+                } finally {
+                    monaco_initing = false
                 }
-                
-                let { languages } = monaco
-                
-                languages.register({ id: 'dolphindb' })
-                
-                await register_tokenizer(languages)
-                
-                register_docs(languages)
-                
-                await document.fonts.ready
-                
-                set_monaco_inited(true)
             }
         })()
     }, [ ])

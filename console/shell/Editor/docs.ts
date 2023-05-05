@@ -240,8 +240,7 @@ export async function load_docs () {
     docs = await request_json(`./${fname}`)
     
     funcs = Object.keys(docs)
-    funcs_lower = funcs.map(func => 
-        func.toLowerCase())
+    funcs_lower = funcs.map(func => func.toLowerCase())
     
     console.log(t('函数文档 {{fname}} 已加载', { fname }))
 }
