@@ -10,7 +10,8 @@ import { delay } from 'xshell/utils.browser.js'
 import { model } from '../model.js'
 import { shell } from './model.js'
 
-import { Editor } from './Editor.js'
+import { ShellEditor } from './ShellEditor.js'
+// import { Editor } from './Editor/index.js'
 import { Terminal } from './Terminal.js'
 import { DataView } from './DataView.js'
 import { Databases } from './Databases.js'
@@ -99,7 +100,8 @@ export function Shell () {
                         shell.fit_addon?.fit()
                     }}
                 >
-                    <Editor />
+                    <ShellEditor />
+                    {/* <Editor readonly default_value='objs(true)'/> */}
                 </Resizable>
                 
                 <Terminal />
