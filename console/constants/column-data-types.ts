@@ -3,9 +3,7 @@ import { DdbType } from 'dolphindb/browser.js'
 
 export type DDBTypeNames = Uppercase<keyof typeof DdbType>
 
-/**
- * 数据表的列数据类型
- */
+/** 数据表的列数据类型 */
 export const DDB_COLUMN_DATA_TYPES: DDBTypeNames[] = [
     'BOOL',
     'CHAR',
@@ -33,9 +31,7 @@ export const DDB_COLUMN_DATA_TYPES: DDBTypeNames[] = [
     'POINT',
 ]
 
-/**
- * 支持排序的列类型
- */
+/** 支持排序的列类型 */
 export const SUPPORT_SORT_COLUMN_TYPES: DDBTypeNames[] = [
     'CHAR',
     'SHORT',

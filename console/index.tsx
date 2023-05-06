@@ -98,17 +98,19 @@ function DolphinDB () {
         return null
     
     return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false}>
-        <Layout className='root-layout'>
-            { header && <Layout.Header className='ddb-header'>
-                <DdbHeader />
-            </Layout.Header> }
-            <Layout className='body' hasSider>
-                <DdbSider />
-                <Layout.Content className='view'>
-                    <DdbContent />
-                </Layout.Content>
+        <NiceModal.Provider>
+            <Layout className='root-layout'>
+                { header && <Layout.Header className='ddb-header'>
+                    <DdbHeader />
+                </Layout.Header> }
+                <Layout className='body' hasSider>
+                    <DdbSider />
+                    <Layout.Content className='view'>
+                        <DdbContent />
+                    </Layout.Content>
+                </Layout>
             </Layout>
-        </Layout>
+        </NiceModal.Provider>
     </ConfigProvider>
 }
 
@@ -604,8 +606,4 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 
 createRoot(
     document.querySelector('.root')
-).render(
-    <NiceModal.Provider>
-        <DolphinDB/>
-    </NiceModal.Provider>
-)
+).render(<DolphinDB/>)

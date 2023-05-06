@@ -67,7 +67,8 @@ class ShellModel extends Model<ShellModel> {
     add_column_defined = false
 
     set_column_comment_defined = false
-        
+    
+    
     current_node: ColumnRoot | Column
     
     add_column_modal_visible = false
@@ -78,6 +79,8 @@ class ShellModel extends Model<ShellModel> {
     
     create_database_partition_count = 1
     
+    
+    /** 创建数据库的脚本 */
     generated_command: string
     
     confirm_command_modal_visible = false

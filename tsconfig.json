@@ -4,9 +4,9 @@
         "./build.ts",
         "./global.d.ts",
         
-        "./console",
+        "./console/",
         
-        "./cloud",
+        "./cloud/",
     ],
     
     "compilerOptions": {

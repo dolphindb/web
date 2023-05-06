@@ -186,7 +186,7 @@ await Promise.all([
 
 if (process.argv.includes('--watch')) 
     webpack.watch()
- else {
+else {
     // 监听终端快捷键
     // https://stackoverflow.com/a/12506613/7609214
     

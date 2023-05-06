@@ -1,8 +1,11 @@
+import React, { useEffect, useState } from 'react'
+
+import { Button, ButtonProps, Tooltip } from 'antd'
 import { CheckOutlined, CopyOutlined } from '@ant-design/icons'
 import copy from 'copy-to-clipboard'
-import { Button, ButtonProps, Tooltip } from 'antd'
-import React, { useEffect, useState } from 'react'
+
 import { t } from '../../../i18n/index.js'
+
 
 interface CopyIconButtonProps extends Omit<ButtonProps, 'children' | 'onClick'> {
     text: string
@@ -14,7 +17,7 @@ interface CopyIconButtonProps extends Omit<ButtonProps, 'children' | 'onClick'> 
 const COPY_TOOLTIPS = [t('复制'), t('复制成功')]
 
 export function CopyIconButton (props: CopyIconButtonProps) {
-    const { onCopy: on_copy_props, text, copyOptions: copy_options, copyTooltips: copy_tooltips = COPY_TOOLTIPS, ...button_props } = props
+    const { onCopy: on_copy_props, text, copyOptions: copy_options, copyTooltips = COPY_TOOLTIPS, ...button_props } = props
     const [copied, set_copied] = useState(false)
 
     const onCopy = () => {
@@ -33,7 +36,7 @@ export function CopyIconButton (props: CopyIconButtonProps) {
     }, [copied])
 
     return (
-        <Tooltip title={copied ? copy_tooltips[1] : copy_tooltips[0]}>
+        <Tooltip title={copied ? copyTooltips[1] : copyTooltips[0]}>
             <Button
                 icon={copied ? <CheckOutlined /> : <CopyOutlined />}
                 onClick={onCopy}

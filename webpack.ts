@@ -274,17 +274,17 @@ export let webpack = {
     },
     
     watch () {
-        this.lcompiler.resource.watch({}, (error, stats) => {
-                if (error)  {
-                    console.error(error)
-                    return
-                }
-                
-                if (stats)
-                    console.log(
-                        stats.toString(this.config.stats)
-                            .replace(/\n\s*.*web.* compiled .*successfully.* in (.*)/, '\n编译成功，用时 $1'.green)
-                    )
+        this.lcompiler.resource.watch({ }, (error, stats) => {
+            if (error)  {
+                console.error(error)
+                return
+            }
+            
+            if (stats)
+                console.log(
+                    stats.toString(this.config.stats)
+                        .replace(/\n\s*.*web.* compiled .*successfully.* in (.*)/, '\n编译成功，用时 $1'.green)
+                )
         })
     },
     
