@@ -26,10 +26,14 @@ import {
 
 import { t } from '../../i18n/index.js'
 
+import { DDB_COLUMN_DATA_TYPES } from '../constants/column-data-types.js'
+import { CopyIconButton } from '../components/copy/CopyIconButton.js'
+
 import { model, NodeType } from '../model.js'
 import { shell } from './model.js'
-import { CreateTableModal } from './CreateTableModal.js'
 
+import { Editor } from './Editor/index.js'
+import { CreateTableModal } from './CreateTableModal.js'
 
 import SvgDatabase from './icons/database.icon.svg'
 import SvgDatabaseGroup from './icons/database-group.icon.svg'
@@ -42,9 +46,6 @@ import SvgPartitionFile from './icons/partition-file.icon.svg'
 import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
-import { DDB_COLUMN_DATA_TYPES } from '../constants/column-data-types.js'
-import { CopyIconButton } from '../components/copy/CopyIconButton.js'
-import { Editor } from './Editor/index.js'
 
 
 export function Databases () {
@@ -267,7 +268,7 @@ function AddColumn () {
                             table.db.path.slice(0, -1),
                             table.name,
                             column,
-                            new DdbInt(DdbType[type.toLocaleLowerCase()])
+                            new DdbInt(DdbType[type.toLowerCase()])
                         ])
                         message.success(t('添加成功'))
                         current_node.children = null
@@ -288,7 +289,7 @@ function AddColumn () {
             </Form.Item>
             <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型') }]}>
                 <Select showSearch placeholder={t('选择类型')}>
-                    { DDB_COLUMN_DATA_TYPES.map(v => <Option key={v}>{v.toUpperCase()}</Option>) }
+                    { DDB_COLUMN_DATA_TYPES.map(v => <Option key={v}>{v}</Option>) }
                 </Select>
             </Form.Item>
             <Form.Item className='db-modal-content-button-group'>
@@ -491,7 +492,6 @@ function CreateDatabase () {
         onCancel={() => { shell.set({ create_database_modal_visible: false, create_database_partition_count: 1 }) }}
         title={t('创建数据库')}
     >
-        
         <Form
             className='db-modal-form'
             name='create-database'
@@ -577,16 +577,17 @@ function CreateDatabase () {
                 if (enableChunkGranularityConfig)
                     createDBScript += `,\nchunkGranularity='${table.chunkGranularity}'`
                 
-                shell.set({ generated_command: createDBScript + '\n' })
-                
-                shell.set({ create_database_modal_visible: false, confirm_command_modal_visible: true })
+                shell.set({
+                    generated_command: createDBScript + '\n',
+                    create_database_modal_visible: false,
+                    confirm_command_modal_visible: true
+                })
             }}
             labelWrap
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 20 }}
             form={form}
         >
-            
             <Form.Item label={t('数据库路径')} name='dbPath' required rules={[{
                 required: true,
                 validator: async (_, val: string) => {
@@ -637,7 +638,7 @@ function CreateDatabase () {
                                 }
                             }]}
                         >
-                            <Select placeholder={t('请选择' + i18nPrefix + '分区类型')} options={[
+                            <Select placeholder={t('请选择{{i18nPrefix}}分区类型', { i18nPrefix })} options={[
                                 // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
                                 {
                                     label: <span title={t('顺序分区。分区方案格式为：整型标量，表示分区的数量。')}>{ t('顺序分区') + ' (SEQ)' }</span>,
@@ -749,24 +750,6 @@ function CreateDatabase () {
             </Form.Item>
         </Form>
     </Modal>
-}
-
-interface ContextMenu {
-    /** TreeItem key */
-    key: string
-    open: boolean
-    command?: string
-    database: string
-    table?: string
-    column?: string
-}
-
-interface MenuItem {
-    label: string
-    key: string
-    open: boolean
-    command: string
-    icon?: React.ReactNode
 }
 
 
@@ -1177,8 +1160,8 @@ export class ColumnRoot implements DataNode {
             const schema_coldefs = (
                 await this.table.get_schema()
             ).to_dict<{ colDefs: DdbTableObj }>()
-                .colDefs
-                .to_rows<{ comment: string, extra: number, name: string, typeInt: number, typeString: string }>()
+            .colDefs
+            .to_rows<{ comment: string, extra: number, name: string, typeInt: number, typeString: string }>()
             
             this.children = schema_coldefs.map(col => new Column(this, col))
         }

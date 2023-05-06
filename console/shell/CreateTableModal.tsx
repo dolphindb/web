@@ -116,11 +116,10 @@ function CreateTableModalPreviewCode () {
                 <Editor 
                     value={code} 
                     readonly 
-                    minimap={false} 
                     options={{ 
                         padding: { top: 8 }, 
                         overviewRulerBorder: false 
-                    }} 
+                    }}
                 />
                 <CopyIconButton
                     type='link'
