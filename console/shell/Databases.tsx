@@ -28,7 +28,6 @@ import { t } from '../../i18n/index.js'
 import { model, NodeType } from '../model.js'
 import { shell } from './model.js'
 import { CreateTableModal } from './CreateTableModal.js'
-import { Editor } from '../components/editor/index.js'
 
 
 import SvgDatabase from './icons/database.icon.svg'
@@ -44,6 +43,7 @@ import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 import { DDB_COLUMN_DATA_TYPES } from '../constants/column-data-types.js'
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
+import { Editor } from './Editor/index.js'
 
 
 export function Databases () {
@@ -411,22 +411,24 @@ function ConfirmCommand () {
             form={form}
         >
             <Form.Item>
-                <Editor
-                    value={generated_command}
-                    className='confirm-command-code-editor'
-                    options={{
-                        readOnly: true,
-                        overviewRulerBorder: false,
-                        padding: {
-                            top: 8,
-                        },
-                    }}
-                />
-                <CopyIconButton
-                    type='link'
-                    text={generated_command}
-                    className='confirm-command-code-copy'
-                />
+                <div className='confirm-command-code-editor'>
+                    <Editor
+                        value={generated_command}
+                        readonly
+                        minimap={false}
+                        options={{
+                            padding: {
+                                top: 8,
+                            },
+                            overviewRulerBorder: false,
+                        }}
+                    />
+                    <CopyIconButton
+                        type='link'
+                        text={generated_command}
+                        className='confirm-command-code-copy'
+                    />
+                </div>
             </Form.Item>
                         
             <Form.Item className='db-modal-content-button-group'>

@@ -122,14 +122,12 @@ function CreateTableModalPreviewCode () {
                         overviewRulerBorder: false 
                     }} 
                 />
+                <CopyIconButton
+                    type='link'
+                    text={code}
+                    className='create-table-preview-code-copy'
+                />
             </div>
-
-            <CopyIconButton
-                type='link'
-                text={code}
-                className='create-table-preview-code-copy'
-            />
-
             <div className='create-table-preview-code-action'>
                 <Button onClick={steps.prev}>{t('上一步')}</Button>
                 <Button type='primary' onClick={() => steps.next(code)}>
