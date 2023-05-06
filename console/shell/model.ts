@@ -30,7 +30,7 @@ import { DdbObjRef } from '../obj.js'
 
 import { model, NodeType, storage_keys } from '../model.js'
 
-import { type Monaco, monaco } from './Editor.js'
+import type { Monaco } from './Editor/index.js'
 import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, Table } from './Databases.js'
 import { DdbVar } from './Variables.js'
 
@@ -254,7 +254,7 @@ class ShellModel extends Model<ShellModel> {
             selection.isEmpty() ?
                 model.getLineContent(selection.startLineNumber)
             :
-                model.getValueInRange(selection, monaco.editor.EndOfLinePreference.LF)
+                model.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF)
         )
         
         await this.update_vars()

@@ -216,21 +216,18 @@ if (process.argv.includes('--watch'))
                 process.exit()
         }
     })
-    
-    console.log(
-        '\n' +
-        '开发服务器启动成功，请使用浏览器打开:\n'.green +
-        'http://localhost:8432/console/?view=shell&hostname=115.239.209.123&port=8892\n'.blue.underline +
-        'http://localhost:8432/console/?view=shell&hostname=192.168.0.16&port=20002\n'.blue.underline +
-        'http://localhost:8432/console/?hostname=127.0.0.1&port=8848\n'.blue.underline +
-        'http://localhost:8432/cloud/\n'.blue.underline +
-        '\n' +
-        '终端快捷键:\n' +
-        'r: 重新编译\n' +
-        'x: 退出开发服务器'
-    )
 }
 
-
-
+console.log(
+    '\n' +
+    '开发服务器启动成功，请使用浏览器打开:\n'.green +
+    'http://localhost:8432/console/?view=shell&hostname=115.239.209.123&port=8892\n'.blue.underline +
+    'http://localhost:8432/console/?view=shell&hostname=192.168.0.16&port=20002\n'.blue.underline +
+    'http://localhost:8432/console/?hostname=127.0.0.1&port=8848\n'.blue.underline +
+    'http://localhost:8432/cloud/\n'.blue.underline +
+    '\n' +
+    '终端快捷键:\n' +
+    'r: 重新编译\n' +
+    'x: 退出开发服务器'
+)
 
