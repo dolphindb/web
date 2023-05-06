@@ -1615,5 +1615,29 @@
     },
     "数据库级分区": {
         "en": "database level chunk granularity"
+    },
+    "只能包含字母、数字、下划线": {
+        "en": "Can only contain letters, numbers, and underscores"
+    },
+    "已存在相同名称的列": {
+        "en": "A column with an identical name already exists"
+    },
+    "数据类型": {
+        "en": "Data Type"
+    },
+    "备注": {
+        "en": "Comment"
+    },
+    "压缩算法": {
+        "en": "Compression"
+    },
+    "列 {{columns}} 不支持排序": {
+        "en": "Column {{columns}} does not support sorting"
+    },
+    "索引列 {{columns}} 不能为 TIME, TIMESTAMP, NANOTIME, NANOTIMESTAMP 类型": {
+        "en": "Index column {{columns}} cannot be of type TIME, TIMESTAMP, NANOTIME, and NANOTIMESTAMP"
+    },
+    "清空": {
+        "en": "Clear"
     }
 }

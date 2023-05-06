@@ -414,14 +414,11 @@ function ConfirmCommand () {
                     value={generated_command}
                     className='confirm-command-code-editor'
                     options={{
-                        readOnly: false,
+                        readOnly: true,
                         overviewRulerBorder: false,
                         padding: {
                             top: 8,
                         },
-                    }}
-                    onChange={value => {
-                        shell.set({ generated_command: value })
                     }}
                 />
                 <CopyIconButton
@@ -722,7 +719,14 @@ function CreateDatabase () {
                 </Button>
                 <Button htmlType='button' onClick={() => {
                     form.resetFields()
-                    shell.set({ create_database_modal_visible: false, create_database_partition_count: 1 })
+                    form.setFieldValue('partitions', [])
+                    
+                    shell.set({ create_database_partition_count: 1 })
+                }}>
+                    {t('清空')}
+                </Button>
+                <Button htmlType='button' onClick={() => {
+                    shell.set({ create_database_modal_visible: false })
                 }}>
                     {t('取消')}
                 </Button>
