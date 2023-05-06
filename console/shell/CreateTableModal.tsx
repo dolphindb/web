@@ -20,12 +20,12 @@ import {
     DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS,
     SUPPORT_SORT_COLUMN_TYPES,
 } from '../constants/column-data-types.js'
-import { Editor } from '../components/editor/index.js'
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 import { model } from '../model.js'
 import { isDDBTemporalType } from '../utils/ddb-data-types.js'
 import { useSteps } from '../utils/hooks/use-steps.js'
 import { useAsyncEffect } from '../utils/hooks/use-async-effect.js'
+import { Editor } from './Editor/index.js'
 
 import './CreateTableModal.scss'
 
@@ -90,21 +90,21 @@ function CreateTableModalPreviewCode () {
             .map(line => `    ${line}`)
             .join(',\n')
 
-        const partition = form_values.partitionColumns?.length ? 
+        const partition = form_values.partitionColumns?.length ?
             `partitioned by ${form_values.partitionColumns.join(', ')}`
-            : ''
-        const sorts = form_values.sortColumns?.length ? 
+            : null
+        const sorts = form_values.sortColumns?.length ?
             `sortColumns=[${form_values.sortColumns.map(column => `"${column}"`).join(', ')}]`
-            : ''
-        const keepDuplicates = form_values.keepDuplicates ? 
-            `keepDuplicates=${form_values.keepDuplicates}` 
-            : ''
-            
+            : null
+        const keepDuplicates = form_values.keepDuplicates ?
+            `keepDuplicates=${form_values.keepDuplicates}`
+            : null
+
         const generatedCode =
             `create table "${form_values.dbPath}"."${form_values.tableName}" (\n` +
             `${columns}\n` +
             ')\n' +
-            `${[partition, sorts, keepDuplicates].join(',\n')}`
+            `${[partition, sorts, keepDuplicates].filter(Boolean).join(',\n')}`
 
 
         return generatedCode
@@ -112,16 +112,17 @@ function CreateTableModalPreviewCode () {
 
     return (
         <div className='create-table-preview-code'>
-            <Editor
-                value={code}
-                className='create-table-preview-code-editor'
-                options={{
-                    readOnly: true,
-                    padding: {
-                        top: 8,
-                    },
-                }}
-            />
+            <div className='create-table-preview-code-editor'>
+                <Editor 
+                    value={code} 
+                    readonly 
+                    minimap={false} 
+                    options={{ 
+                        padding: { top: 8 }, 
+                        overviewRulerBorder: false 
+                    }} 
+                />
+            </div>
 
             <CopyIconButton
                 type='link'
@@ -238,7 +239,7 @@ const COLUMNS_REACTION_FULLFILL_EXPRESSION =
     '{{ $deps.columns?.filter(col => col.name).map(column => ({ label: column.name, value: column.name })) || []  }}'
 const COLUMNS_REACTION_STATE_VALUE_EXPRESSION =
     '{{ $self.value?.filter(col => $deps.columns.some(depCol => depCol.name === col)) || []  }}'
-    
+
 function CreateTableModalFillForm () {
     const steps = useContext(StepsContext)
     const database = useContext(DatabaseContext)

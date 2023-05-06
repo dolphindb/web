@@ -53,6 +53,7 @@ export function Editor ({
     enter_completion,
     on_mount,
     on_change,
+    options,
 }: {
     readonly?: boolean
     default_value?: string
@@ -61,6 +62,7 @@ export function Editor ({
     enter_completion?: boolean
     on_mount?: OnMount
     on_change?: OnChange
+    options?: monacoapi.editor.IStandaloneEditorConstructionOptions
 }) {
     const [monaco_inited, set_monaco_inited] = useState(Boolean(monaco))
     
@@ -131,6 +133,8 @@ export function Editor ({
                     readOnly: true,
                     domReadOnly: true,
                 } : { },
+                
+                ...options,
             }}
             
             onMount={(editor, monaco) => {
