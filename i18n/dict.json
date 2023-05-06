@@ -1476,7 +1476,7 @@
         "en": "table name"
     },
     "已存在相同名称的表": {
-        "en": "A table with an identical name already exists"
+        "en": "A table with the same name already exists"
     },
     "数据列": {
         "en": "data columns"
