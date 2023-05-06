@@ -1617,10 +1617,10 @@
         "en": "database level chunk granularity"
     },
     "只能包含字母、数字、下划线": {
-        "en": "Can only contain letters, numbers, and underscores"
+        "en": "Only letters, numbers, and underscores are allowed"
     },
     "已存在相同名称的列": {
-        "en": "A column with an identical name already exists"
+        "en": "A column with the same name already exists"
     },
     "数据类型": {
         "en": "Data Type"

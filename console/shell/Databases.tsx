@@ -35,6 +35,7 @@ import SvgDatabase from './icons/database.icon.svg'
 import SvgDatabaseGroup from './icons/database-group.icon.svg'
 import SvgColumn from './icons/column.icon.svg'
 import SvgAddColumn from './icons/add-column.icon.svg'
+import SvgCreateTable from './icons/create-table.icon.svg'
 import SvgPartitions from './icons/partitions.icon.svg'
 import SvgSchema from './icons/schema.icon.svg'
 import SvgPartitionFile from './icons/partition-file.icon.svg'
@@ -822,17 +823,19 @@ export class Database implements DataNode {
         this.title = <div className='database-title'>
             <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1).split('.').at(-1)}</span>
             
-            <div className='create-table-button' onClick={ event => {
-                event.stopPropagation()
-                NiceModal.show(CreateTableModal, { database: this })
-                    .then(async () => shell.load_dbs())
-                    .catch(() => {
-                        // user canceled
-                    })
-            }}>
-                <Tooltip title={t('创建数据表')} color='grey'>
-                    { /* @FIXME: should be replaced by a new icon */ }
-                    <Icon component={SvgAddColumn} />
+            <div className='database-actions'> 
+                <Tooltip title={t('创建数据表')} color='grey' destroyTooltipOnHide>
+                    <Icon 
+                        component={SvgCreateTable}
+                        onClick={ event => {
+                            event.stopPropagation()
+                            NiceModal.show(CreateTableModal, { database: this })
+                                .then(async () => shell.load_dbs())
+                                .catch(() => {
+                                    // user canceled
+                                })
+                        }} 
+                    />
                 </Tooltip>
             </div>
         </div>

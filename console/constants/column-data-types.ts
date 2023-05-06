@@ -49,7 +49,6 @@ export const SUPPORT_SORT_COLUMN_TYPES: DDBTypeNames[] = [
     'DATETIME',
     'TIMESTAMP',
     'NANOTIME',
-    'NANOTIME',
     'NANOTIMESTAMP',
     'STRING',
     'SYMBOL',

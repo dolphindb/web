@@ -1,10 +1,4 @@
-import React, {
-    useCallback,
-    useContext,
-    useEffect,
-    useMemo,
-    useState,
-} from 'react'
+import React, { useCallback, useContext, useMemo, useState } from 'react'
 import NiceModal from '@ebay/nice-modal-react'
 import { Button, Modal, Result, SelectProps, Spin } from 'antd'
 import { createForm, Field } from '@formily/core'
@@ -16,11 +10,9 @@ import {
     Select,
     ArrayTable,
     FormButtonGroup,
-    PreviewText,
     Submit,
 } from '@formily/antd-v5'
 import { mapKeys } from 'lodash'
-
 import { t } from '../../i18n/index.js'
 import { type Database } from './Databases.js'
 import {
@@ -32,6 +24,8 @@ import { Editor } from '../components/editor/index.js'
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 import { model } from '../model.js'
 import { isDDBTemporalType } from '../utils/ddb-data-types.js'
+import { useSteps } from '../utils/hooks/use-steps.js'
+import { useAsyncEffect } from '../utils/hooks/use-async-effect.js'
 
 import './CreateTableModal.scss'
 
@@ -74,55 +68,6 @@ const DatabaseContext = React.createContext({} as Database)
 
 const StepsContext = React.createContext({} as ReturnType<typeof useSteps>)
 
-function useSteps (
-    initialStep: CreateTableStepsEnum = CreateTableStepsEnum.FillForm
-) {
-    const [current, setCurrent] = useState(initialStep)
-
-    const [contextMap, setContextMap] = useState<
-        Partial<Record<CreateTableStepsEnum, any>>
-    >({})
-
-    const prev = () => {
-        const currentIndex = CreateTableSteps.indexOf(current)
-        if (currentIndex <= 0)
-            return
-
-        const step = CreateTableSteps[currentIndex - 1]
-        setContextMap({
-            ...contextMap,
-            // delete current step context value
-            [current]: undefined,
-        })
-        setCurrent(step)
-    }
-
-    const next = (contextValue: any) => {
-        const currentIndex = CreateTableSteps.indexOf(current)
-        if (currentIndex >= CreateTableSteps.length - 1)
-            return
-
-        setContextMap({
-            ...contextMap,
-            [current]: contextValue,
-        })
-        setCurrent(CreateTableSteps[currentIndex + 1])
-    }
-
-    const reset = () => {
-        setCurrent(initialStep)
-        setContextMap({})
-    }
-
-    return {
-        current,
-        contextMap,
-        prev,
-        next,
-        reset,
-    }
-}
-
 // ================ 建表代码预览 ================
 
 function CreateTableModalPreviewCode () {
@@ -130,42 +75,40 @@ function CreateTableModalPreviewCode () {
     const database = useContext(DatabaseContext)
 
     const code = useMemo(() => {
-        const formValues: CreateTableFormValues =
-            steps.contextMap[CreateTableStepsEnum.FillForm]
-        const genCode =
-            `create table "${formValues.dbPath}"."${formValues.tableName}" (\n` +
-            `${formValues.columns
-                .map(column => {
-                    let baseColumn = `${column.name} ${column.type}`
-                    if (column.comment || column.compress) {
-                        baseColumn += '['
-                        if (column.comment)
-                            baseColumn += `comment=${JSON.stringify(
-                                column.comment
-                            )}`
+        const form_values: CreateTableFormValues =
+            steps.context_map[CreateTableStepsEnum.FillForm]
 
-                        if (column.compress)
-                            baseColumn += `compress="${column.compress}"`
+        const columns = form_values.columns
+            .map(column => {
+                const str = `${column.name} ${column.type}`
+                const comment = column.comment ? `comment=${JSON.stringify(column.comment)}` : ''
+                const compress = column.compress ? `compress="${column.compress}"` : ''
+                const options = [comment, compress].filter(Boolean).join(', ')
+                return str + (options ? `[${options}]` : '')
+            })
+            // indent and comma join
+            .map(line => `    ${line}`)
+            .join(',\n')
 
-                        baseColumn += ']'
-                    }
-                    return baseColumn
-                })
-                // indent and comma join
-                .map(line => `    ${line}`).join(', \n')}\n)\n` +
-            (formValues.partitionColumns?.length
-                ? `partitioned by ${formValues.partitionColumns.join(', ')},\n`
-                : '') +
-            (formValues.sortColumns?.length
-                ? `sortColumns=[${formValues.sortColumns
-                    .map(column => `"${column}"`)
-                    .join(', ')}],\n`
-                : '') +
-            (formValues.keepDuplicates
-                ? `keepDuplicates=${formValues.keepDuplicates}`
-                : '')
-        return genCode
-    }, [steps.contextMap[CreateTableStepsEnum.FillForm], database])
+        const partition = form_values.partitionColumns?.length ? 
+            `partitioned by ${form_values.partitionColumns.join(', ')}`
+            : ''
+        const sorts = form_values.sortColumns?.length ? 
+            `sortColumns=[${form_values.sortColumns.map(column => `"${column}"`).join(', ')}]`
+            : ''
+        const keepDuplicates = form_values.keepDuplicates ? 
+            `keepDuplicates=${form_values.keepDuplicates}` 
+            : ''
+            
+        const generatedCode =
+            `create table "${form_values.dbPath}"."${form_values.tableName}" (\n` +
+            `${columns}\n` +
+            ')\n' +
+            `${[partition, sorts, keepDuplicates].join(',\n')}`
+
+
+        return generatedCode
+    }, [steps.context_map[CreateTableStepsEnum.FillForm], database])
 
     return (
         <div className='create-table-preview-code'>
@@ -174,7 +117,6 @@ function CreateTableModalPreviewCode () {
                 className='create-table-preview-code-editor'
                 options={{
                     readOnly: true,
-                    overviewRulerBorder: false,
                     padding: {
                         top: 8,
                     },
@@ -189,10 +131,7 @@ function CreateTableModalPreviewCode () {
 
             <div className='create-table-preview-code-action'>
                 <Button onClick={steps.prev}>{t('上一步')}</Button>
-                <Button
-                    type='primary'
-                    onClick={() => steps.next(code)}
-                >
+                <Button type='primary' onClick={() => steps.next(code)}>
                     {t('执行')}
                 </Button>
             </div>
@@ -210,29 +149,22 @@ function CreateTableModalExecuteResult () {
     const [loading, set_loading] = useState(false)
     const [error, set_error] = useState(null)
 
-    useEffect(() => {
-        const code = steps.contextMap[CreateTableStepsEnum.PreviewCode]
-        ddb.eval(code)
-            .then(result => {
-                console.log('result', result)
-            })
-            .catch(error => {
-                set_error(error)
-            })
-            .finally(() => {
-                set_loading(false)
-            })
+    useAsyncEffect(async () => {
+        const code = steps.context_map[CreateTableStepsEnum.PreviewCode]
+        set_loading(true)
+        try {
+            await ddb.eval(code)
+        } catch (error) {
+            set_error(error)
+        } finally {
+            set_loading(false)
+        }
     }, [])
 
     if (loading)
         return (
             <Result
-                icon={
-                    <Spin
-                        spinning
-                        size='large'
-                    />
-                }
+                icon={<Spin spinning size='large' />}
                 title={t('建表中...')}
             />
         )
@@ -244,11 +176,7 @@ function CreateTableModalExecuteResult () {
                 title={t('创建失败')}
                 subTitle={error.message}
                 extra={[
-                    <Button
-                        key='prev'
-                        type='primary'
-                        onClick={steps.prev}
-                    >
+                    <Button key='prev' type='primary' onClick={steps.prev}>
                         {t('上一步')}
                     </Button>,
                     <Button
@@ -292,7 +220,6 @@ const SchemaField = createSchemaField({
         Input,
         Select,
         ArrayTable,
-        PreviewText,
     },
 })
 
@@ -311,7 +238,7 @@ const COLUMNS_REACTION_FULLFILL_EXPRESSION =
     '{{ $deps.columns?.filter(col => col.name).map(column => ({ label: column.name, value: column.name })) || []  }}'
 const COLUMNS_REACTION_STATE_VALUE_EXPRESSION =
     '{{ $self.value?.filter(col => $deps.columns.some(depCol => depCol.name === col)) || []  }}'
-
+    
 function CreateTableModalFillForm () {
     const steps = useContext(StepsContext)
     const database = useContext(DatabaseContext)
@@ -322,14 +249,13 @@ function CreateTableModalFillForm () {
             createForm({
                 initialValues: {
                     dbPath: database.path.slice(0, -1),
-                    ...steps.contextMap[CreateTableStepsEnum.FillForm],
+                    ...steps.context_map[CreateTableStepsEnum.FillForm],
                 },
             }),
         []
     )
 
     const onSubmit = useCallback(async (formValues: CreateTableFormValues) => {
-        console.log(formValues)
         steps.next(formValues)
     }, [])
 
@@ -346,7 +272,10 @@ function CreateTableModalFillForm () {
                     name='dbPath'
                     title={t('数据库路径')}
                     x-decorator='FormItem'
-                    x-component='PreviewText'
+                    x-component='Input'
+                    x-component-props={{
+                        disabled: true,
+                    }}
                 />
                 <SchemaField.String
                     required
@@ -601,10 +530,10 @@ function CreateTableModalFillForm () {
                                 const unsupportIndexesColumns =
                                     indexesColumns.filter(column => {
                                         return [
-                                            'time',
-                                            'timestamp',
-                                            'nanotime',
-                                            'nanotimestamp',
+                                            'TIME',
+                                            'TIMESTAMP',
+                                            'NANOTIME',
+                                            'NANOTIMESTAMP',
                                         ].includes(columnsMap[column].type)
                                     })
                                 if (
@@ -655,16 +584,6 @@ function CreateTableModalFillForm () {
                             value: KeepDuplicatesValues.FIRST,
                         },
                     ]}
-                    x-reactions={[
-                        {
-                            dependencies: { type: 'type' },
-                            fulfill: {
-                                state: {
-                                    hidden: `{{ $deps.type === "${TableTypes.Table}" }}`,
-                                },
-                            },
-                        },
-                    ]}
                 />
             </SchemaField>
 
@@ -690,7 +609,10 @@ interface Props {
 export const CreateTableModal = NiceModal.create<Props>(({ database }) => {
     const modal = NiceModal.useModal()
 
-    const steps = useSteps()
+    const steps = useSteps<CreateTableStepsEnum>(
+        CreateTableStepsEnum.FillForm,
+        CreateTableSteps
+    )
 
     return (
         <Modal

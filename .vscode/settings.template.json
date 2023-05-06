@@ -4,10 +4,12 @@
     "editor.trimAutoWhitespace": false,
     "editor.formatOnSave": false,
     "editor.formatOnPaste": false,
-    "prettier.tabWidth": 4,
     "editor.tabSize": 4,
     "editor.codeActionsOnSave": {
         "source.fixAll": true,
         "source.organizeImports": false
+    },
+    "[typescript][typescriptreact]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
     }
 }
