@@ -1616,8 +1616,8 @@
     "数据库级分区": {
         "en": "database level chunk granularity"
     },
-    "只能包含字母、数字、下划线": {
-        "en": "Only letters, numbers, and underscores are allowed"
+    "只能是以字母开头，仅包含字母、数字、下划线的字符串": {
+        "en": "Can only start with a letter, and contain only letters, numbers, and underscores"
     },
     "已存在相同名称的列": {
         "en": "A column with the same name already exists"

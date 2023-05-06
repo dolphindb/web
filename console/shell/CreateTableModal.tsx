@@ -312,8 +312,8 @@ function CreateTableModalFillForm () {
                             message: t('已存在相同名称的表'),
                         },
                         {
-                            pattern: /[a-zA-Z0-9_]/,
-                            message: t('只能包含字母、数字、下划线'),
+                            pattern: /^[a-zA-Z]([a-zA-Z0-9_])*$/,
+                            message: t('只能是以字母开头，仅包含字母、数字、下划线的字符串'),
                         },
                     ]}
                 />
@@ -350,8 +350,8 @@ function CreateTableModalFillForm () {
                                 x-decorator='FormItem'
                                 x-component='Input'
                                 x-validator={{
-                                    pattern: /[a-zA-Z0-9_]/,
-                                    message: t('只能包含字母、数字、下划线'),
+                                    pattern: /^[a-zA-Z]([a-zA-Z0-9_])*$/,
+                                    message: t('只能是以字母开头，仅包含字母、数字、下划线的字符串'),
                                 }}
                                 x-reactions={(field: Field) => {
                                     const hasSameColumn =
