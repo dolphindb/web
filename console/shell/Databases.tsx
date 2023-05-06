@@ -382,7 +382,7 @@ function ConfirmCommand () {
         width='60vw'
         open={confirm_command_modal_visible}
         onCancel={() => { shell.set({ confirm_command_modal_visible: false }) }}
-        title={t('命令预览')}
+        title={t('脚本预览')}
     >
         <Form
             labelWrap
@@ -431,6 +431,12 @@ function ConfirmCommand () {
             <Form.Item className='db-modal-content-button-group'>
                 <Button type='primary' htmlType='submit'>
                     {t('执行')}
+                </Button>
+                <Button htmlType='button' onClick={() => {
+                    shell.set({ confirm_command_modal_visible: false })
+                    shell.set({ create_database_modal_visible: true })
+                }}>
+                    {t('上一步')}
                 </Button>
                 <Button htmlType='button' onClick={() => {
                     form.resetFields()
@@ -551,7 +557,9 @@ function CreateDatabase () {
                 
                 // we can see that table.partitionLocation is not supported by the above grammar.
                 
-                createDBScript = `create database "dfs://${table.dbPath}" partitioned by `
+                // NOTE: `partitioned by paritionType(partitionScheme), ...paritionType(partitionScheme)` must be placed in one line, or
+                // the parser will complain about syntax error.
+                createDBScript = `create database "dfs://${table.dbPath}"\npartitioned by `
                 
                 for (let i = 0; i < partitionCount; i++) {
                     const { type, scheme } = table.partitions[i]
@@ -559,13 +567,13 @@ function CreateDatabase () {
                     createDBScript += `${type}(${scheme}), `
                 }
                 
-                createDBScript += `engine='${table.storageEngine}', `
+                createDBScript += `\nengine='${table.storageEngine}',\n`
                 createDBScript += `atomic='${table.atomicLevel}'`
                 
                 if (enableChunkGranularityConfig)
-                    createDBScript += `, chunkGranularity='${table.chunkGranularity}'`
+                    createDBScript += `,\nchunkGranularity='${table.chunkGranularity}'`
                 
-                shell.set({ generated_command: createDBScript })
+                shell.set({ generated_command: createDBScript + '\n' })
                 
                 shell.set({ create_database_modal_visible: false, confirm_command_modal_visible: true })
             }}
@@ -601,6 +609,10 @@ function CreateDatabase () {
                         return
                     
                     shell.set({ create_database_partition_count: level })
+                    
+                    if (level < 3) 
+                        for (let i = level; i < 3; i++) 
+                            form.resetFields([['partitions', i, 'type'], ['partitions', i, 'scheme']])
                 }} placeholder='1' type='number' />
             </Form.Item>
             
@@ -715,7 +727,7 @@ function CreateDatabase () {
             
             <Form.Item className='db-modal-content-button-group'>
                 <Button type='primary' htmlType='submit'>
-                    {t('确定')}
+                    {t('预览')}
                 </Button>
                 <Button htmlType='button' onClick={() => {
                     form.resetFields()

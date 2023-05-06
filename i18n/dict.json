@@ -1639,5 +1639,11 @@
     },
     "清空": {
         "en": "Clear"
+    },
+    "预览": {
+        "en": "Preview"
+    },
+    "脚本预览": {
+        "en": "script Preview"
     }
 }
