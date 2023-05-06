@@ -1,5 +1,5 @@
 import { isFunction } from 'lodash'
-import { useEffect, type EffectCallback, type DependencyList } from 'react'
+import { useEffect, type DependencyList } from 'react'
 
 function isAsyncGenerator (
     val: AsyncGenerator<void, void, void> | Promise<void>
