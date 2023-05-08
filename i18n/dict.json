@@ -1672,5 +1672,8 @@
     },
     "仅支持单机节点和数据节点创建数据表": {
         "en": "Only single node and data node support create table"
+    },
+    "当前节点不是数据节点或单机节点，暂不支持在当前节点上创建数据库。": {
+        "en": "The current node is not a data node or a single node, and does not support creating database yet."
     }
 }
