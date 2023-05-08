@@ -803,21 +803,31 @@ export class Database implements DataNode {
         this.self = this
         assert(path.startsWith('dfs://'), t('数据库路径应该以 dfs:// 开头'))
         this.key = this.path = path
+        
+        // 仅单节点和数据节点可以创建表
+        const enable_create_table = [NodeType.single, NodeType.data].includes(model.node_type)
+        
+        const onclick_create_table: React.MouseEventHandler<HTMLSpanElement> = enable_create_table ? event => {
+            event.stopPropagation()
+            NiceModal.show(CreateTableModal, { database: this })
+                .then(async () => shell.load_dbs())
+                .catch(() => {
+                    // user canceled
+                })
+        } : event => {
+            event.stopPropagation()
+        }
+        
         this.title = <div className='database-title'>
             <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1).split('.').at(-1)}</span>
             
             <div className='database-actions'> 
-                <Tooltip title={t('创建数据表')} color='grey' destroyTooltipOnHide>
+                <Tooltip title={enable_create_table ? t('创建数据表') : t('仅支持单机节点和数据节点创建数据表')} color='grey' destroyTooltipOnHide>
                     <Icon 
+                        disabled
+                        className={enable_create_table ? '' : 'disabled'}
                         component={SvgCreateTable}
-                        onClick={ event => {
-                            event.stopPropagation()
-                            NiceModal.show(CreateTableModal, { database: this })
-                                .then(async () => shell.load_dbs())
-                                .catch(() => {
-                                    // user canceled
-                                })
-                        }} 
+                        onClick={onclick_create_table} 
                     />
                 </Tooltip>
             </div>

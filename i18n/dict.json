@@ -1669,5 +1669,8 @@
     },
     "三级": {
         "en": "third"
+    },
+    "仅支持单机节点和数据节点创建数据表": {
+        "en": "Only single node and data node support create table"
     }
 }
