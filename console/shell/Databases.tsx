@@ -392,7 +392,7 @@ function ConfirmCommand () {
             name='confirm-command'
             onFinish={async () => {
                 try {
-                    console.log(t('创建数据的脚本:'))
+                    console.log(t('创建数据库的脚本:'))
                     console.log(generated_command)
                     await model.ddb.eval(generated_command)
                     message.success(t('创建数据库成功'))
@@ -587,12 +587,12 @@ function CreateDatabase () {
         >
             <Form.Item label={t('数据库路径')} name='dbPath' required rules={[{
                 required: true,
-                validator: async (_, val: string) => {
+                validator: (_, val: string) => {
                     if (!val)
-                        return Promise.reject(t('数据库路径不能为空'))
+                        throw new TypeError(t('数据库路径不能为空'))
                     
                     if (val.includes('"'))
-                        return Promise.reject(t('数据库路径不能包含双引号'))
+                        throw new TypeError(t('数据库路径不能包含双引号'))
                 }
             }]}>
                 <Input addonBefore='dfs://' placeholder={t('请输入数据库路径')} />
@@ -600,9 +600,9 @@ function CreateDatabase () {
             
             <Form.Item label={t('分区层数')} name='partitionCount' required rules={[{
                 required: true,
-                validator: async (_, val: number) => {
+                validator: (_, val: number) => {
                     if (val < 1 || val > 3)
-                        return Promise.reject(t('分区层数必须在1-3之间'))
+                        throw new TypeError(t('分区层数必须在1-3之间'))
                 }
             }]} initialValue={1}>
                 <InputNumber onChange={(e: string) => {
@@ -620,22 +620,22 @@ function CreateDatabase () {
             
             {
                 Array.from(new Array(create_database_partition_count), (_, i) => {
-                    const i18nPrefix = ['一级', '二级', '三级'][i]
+                    const i18nIndex = [t('一级'), t('二级'), t('三级')][i]
                     
                     return <div key={'create-db-' + i}>
                         <Form.Item
-                            label={t(i18nPrefix + '分区类型')}
+                            label={t('{{i18nIndex}}分区类型', { i18nIndex })}
                             name={['partitions', i, 'type']}
                             required
                             rules={[{
                                 required: true,
-                                validator: async (_, val: PartitionType) => {
+                                validator: (_, val: PartitionType) => {
                                     if (!val)
-                                        return Promise.reject(t('分区类型不能为空'))
+                                        throw new TypeError(t('分区类型不能为空'))
                                 }
                             }]}
                         >
-                            <Select placeholder={t('请选择{{i18nPrefix}}分区类型', { i18nPrefix })} options={[
+                            <Select placeholder={t('请选择{{i18nIndex}}分区类型', { i18nIndex })} options={[
                                 // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
                                 {
                                     label: <span title={t('顺序分区。分区方案格式为：整型标量，表示分区的数量。')}>{ t('顺序分区') + ' (SEQ)' }</span>,
@@ -661,7 +661,7 @@ function CreateDatabase () {
                         </Form.Item>
                         
                         <Form.Item
-                            label={t(i18nPrefix + '分区方案')}
+                            label={t('{{i18nIndex}}分区方案', { i18nIndex })}
                             name={['partitions', i, 'scheme']}
                             required
                             rules={[{
@@ -669,7 +669,7 @@ function CreateDatabase () {
                                 message: t('分区方案不能为空')
                             }]}
                         >
-                            <Input placeholder={t('请输入' + i18nPrefix + '分区方案')} />
+                            <Input placeholder={t('请输入{{i18nIndex}}分区方案', { i18nIndex })} />
                         </Form.Item>
                     </div>
                 })
