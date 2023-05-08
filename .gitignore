@@ -16,3 +16,4 @@ node_modules/
 /i18n/stats.json
 
 /.vscode/settings.json
+/.vscode/launch.json

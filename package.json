@@ -60,7 +60,7 @@
         "antd": "^5.4.6",
         "copy-to-clipboard": "^3.3.3",
         "dayjs": "^1.11.7",
-        "dolphindb": "^2.0.958",
+        "dolphindb": "^2.0.963",
         "echarts": "^5.4.2",
         "final-form": "^4.20.9",
         "js-cookie": "^3.0.5",
