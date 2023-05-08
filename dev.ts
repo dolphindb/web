@@ -222,7 +222,7 @@ console.log(
     '\n' +
     '开发服务器启动成功，请使用浏览器打开:\n'.green +
     'http://localhost:8432/console/?view=shell&hostname=115.239.209.123&port=8892\n'.blue.underline +
-    'http://localhost:8432/console/?view=shell&hostname=192.168.0.37&port=20003\n'.blue.underline +
+    'http://localhost:8432/console/?view=shell&hostname=192.168.0.37&port=20000\n'.blue.underline +
     'http://localhost:8432/console/?hostname=127.0.0.1&port=8848\n'.blue.underline +
     'http://localhost:8432/cloud/\n'.blue.underline +
     '\n' +

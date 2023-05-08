@@ -58,6 +58,8 @@ export function Databases () {
     const [loaded_keys, set_loaded_keys] = useState([ ])
     const previous_clicked_node = useRef<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
     
+    const enable_create_db = [NodeType.data, NodeType.single].includes(model.use(['node_type']).node_type)
+
     if (!dbs)
         return
     
@@ -89,9 +91,15 @@ export function Databases () {
                 <div className='type'>
                     {t('数据库')}
                     <span className='extra'>
-                        <span onClick={() => { shell.set({ create_database_modal_visible: true }) }}>
-                            <Tooltip title={t('创建数据库')} color='grey'>
-                                <PlusSquareOutlined />
+                        <span onClick={() => {
+                            if (enable_create_db)
+                                shell.set({ create_database_modal_visible: true })
+                        }}>
+                            <Tooltip title={enable_create_db ? t('创建数据库') : t('仅支持单机节点和数据节点创建数据库')} color='grey'>
+                                <PlusSquareOutlined
+                                    disabled={!enable_create_db}
+                                    className={enable_create_db ? '' : 'disabled'}
+                                />
                             </Tooltip>
                         </span>
                         <span onClick={async () => {
@@ -759,7 +767,7 @@ function CreateDatabase () {
             </Form.Item>
         </Form>
     :
-        <span>{t('当前节点不是数据节点或单机节点，暂不支持在当前节点上创建数据库。')}</span>
+        null
     }
     </Modal>
 }
