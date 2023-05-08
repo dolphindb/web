@@ -1642,5 +1642,35 @@
     },
     "脚本预览": {
         "en": "script Preview"
+    },
+    "创建数据库的脚本:": {
+        "en": "Scripts for creating database:"
+    },
+    "创建数据库成功": {
+        "en": "Database created successfully."
+    },
+    "{{i18nIndex}}分区类型": {
+        "en": "{{i18nIndex}} partition's type"
+    },
+    "请选择{{i18nIndex}}分区类型": {
+        "en": "Please select the partition type of the {{i18nIndex}} partition"
+    },
+    "{{i18nIndex}}分区方案": {
+        "en": "{{i18nIndex}} partition's scheme"
+    },
+    "请输入{{i18nIndex}}分区方案": {
+        "en": "Please enter the partition scheme of the {{i18nIndex}} partition"
+    },
+    "一级": {
+        "en": "first"
+    },
+    "二级": {
+        "en": "second"
+    },
+    "三级": {
+        "en": "third"
+    },
+    "仅支持单机节点和数据节点创建数据表": {
+        "en": "Only single node and data node support create table"
     }
 }
