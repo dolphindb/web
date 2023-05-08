@@ -473,10 +473,17 @@ interface CreateDatabaseFormInfo {
 
 function CreateDatabase () {
     const { create_database_modal_visible, create_database_partition_count } = shell.use(['create_database_modal_visible', 'create_database_partition_count'])
+    const { node_type, node, datanode } = model.use(['node_type', 'node', 'datanode'])
     const [form] = Form.useForm()
     
     // We just assume this is always turned on in dolphindb.cfg
     const enableChunkGranularityConfig = true
+    const shouldRunOnCurrNode = node_type === NodeType.data || node_type === NodeType.single
+
+    let runOnNode = node.name
+    // @TODO: not supported until we have support for running SQL statements inside anonymous function
+    // if (!shouldRunOnCurrNode)
+    //     runOnNode = datanode.name
     
     useEffect(() => {
         form.setFieldValue('partitions', [])
@@ -487,7 +494,8 @@ function CreateDatabase () {
         open={create_database_modal_visible}
         onCancel={() => { shell.set({ create_database_modal_visible: false, create_database_partition_count: 1 }) }}
         title={t('创建数据库')}
-    >
+    > {
+    shouldRunOnCurrNode ?
         <Form
             className='db-modal-form'
             name='create-database'
@@ -573,6 +581,10 @@ function CreateDatabase () {
                 
                 if (enableChunkGranularityConfig)
                     createDBScript += `,\nchunkGranularity='${table.chunkGranularity}'`
+                
+                if (!shouldRunOnCurrNode)
+                    createDBScript = `rpc("${runOnNode}", def () {\n\n${createDBScript}\n\n});`
+                
                 
                 shell.set({
                     generated_command: createDBScript + '\n',
@@ -746,6 +758,8 @@ function CreateDatabase () {
                 </Button>
             </Form.Item>
         </Form>
+        : <span>{t('当前节点不是数据节点或单机节点，暂不支持在当前节点上创建数据库。')}</span>
+    }
     </Modal>
 }
 
