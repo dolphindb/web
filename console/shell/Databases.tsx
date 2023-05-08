@@ -494,7 +494,7 @@ function CreateDatabase () {
         open={create_database_modal_visible}
         onCancel={() => { shell.set({ create_database_modal_visible: false, create_database_partition_count: 1 }) }}
         title={t('创建数据库')}
-    > {
+    >{
     shouldRunOnCurrNode ?
         <Form
             className='db-modal-form'
@@ -582,9 +582,9 @@ function CreateDatabase () {
                 if (enableChunkGranularityConfig)
                     createDBScript += `,\nchunkGranularity='${table.chunkGranularity}'`
                 
-                if (!shouldRunOnCurrNode)
-                    createDBScript = `rpc("${runOnNode}", def () {\n\n${createDBScript}\n\n});`
-                
+                // 等后端支持
+                // if (!shouldRunOnCurrNode)
+                //     createDBScript = `rpc("${runOnNode}", def () {\n\n${createDBScript}\n\n});`
                 
                 shell.set({
                     generated_command: createDBScript + '\n',
@@ -758,7 +758,8 @@ function CreateDatabase () {
                 </Button>
             </Form.Item>
         </Form>
-        : <span>{t('当前节点不是数据节点或单机节点，暂不支持在当前节点上创建数据库。')}</span>
+    :
+        <span>{t('当前节点不是数据节点或单机节点，暂不支持在当前节点上创建数据库。')}</span>
     }
     </Modal>
 }
@@ -821,16 +822,19 @@ export class Database implements DataNode {
         // 仅单节点和数据节点可以创建表
         const enable_create_table = [NodeType.single, NodeType.data].includes(model.node_type)
         
-        const onclick_create_table: React.MouseEventHandler<HTMLSpanElement> = enable_create_table ? event => {
-            event.stopPropagation()
-            NiceModal.show(CreateTableModal, { database: this })
-                .then(async () => shell.load_dbs())
-                .catch(() => {
-                    // user canceled
-                })
-        } : event => {
-            event.stopPropagation()
-        }
+        const onclick_create_table: React.MouseEventHandler<HTMLSpanElement> = enable_create_table ?
+            event => {
+                event.stopPropagation()
+                NiceModal.show(CreateTableModal, { database: this })
+                    .then(async () => shell.load_dbs())
+                    .catch(() => {
+                        // user canceled
+                    })
+            }
+        :
+            event => {
+                event.stopPropagation()
+            }
         
         this.title = <div className='database-title'>
             <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1).split('.').at(-1)}</span>
@@ -838,7 +842,7 @@ export class Database implements DataNode {
             <div className='database-actions'> 
                 <Tooltip title={enable_create_table ? t('创建数据表') : t('仅支持单机节点和数据节点创建数据表')} color='grey' destroyTooltipOnHide>
                     <Icon 
-                        disabled
+                        disabled={!enable_create_table}
                         className={enable_create_table ? '' : 'disabled'}
                         component={SvgCreateTable}
                         onClick={onclick_create_table} 
