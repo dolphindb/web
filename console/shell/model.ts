@@ -270,7 +270,8 @@ class ShellModel extends Model<ShellModel> {
         // 但对于无数据表的数据库，仍然需要通过 getClusterDFSDatabases 来获取。因此要组合使用
         const [{ value: table_paths }, { value: db_paths }] = await Promise.all([
             model.ddb.call<DdbVectorStringObj>('getClusterDFSTables'),
-            model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases')
+            // 可能因为用户没有数据库的权限报错，单独 catch 并返回空数组
+            model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases').catch(() => ({ value: [] })),
         ])
         
         // const db_paths = [
