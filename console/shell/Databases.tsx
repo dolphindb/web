@@ -587,7 +587,7 @@ function CreateDatabase () {
         >
             <Form.Item label={t('数据库路径')} name='dbPath' required rules={[{
                 required: true,
-                validator: (_, val: string) => {
+                validator: async (_, val: string) => {
                     if (!val)
                         throw new TypeError(t('数据库路径不能为空'))
                     
@@ -600,7 +600,7 @@ function CreateDatabase () {
             
             <Form.Item label={t('分区层数')} name='partitionCount' required rules={[{
                 required: true,
-                validator: (_, val: number) => {
+                validator: async (_, val: number) => {
                     if (val < 1 || val > 3)
                         throw new TypeError(t('分区层数必须在1-3之间'))
                 }
@@ -629,7 +629,7 @@ function CreateDatabase () {
                             required
                             rules={[{
                                 required: true,
-                                validator: (_, val: PartitionType) => {
+                                validator: async (_, val: PartitionType) => {
                                     if (!val)
                                         throw new TypeError(t('分区类型不能为空'))
                                 }
