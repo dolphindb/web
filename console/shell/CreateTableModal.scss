@@ -1,0 +1,35 @@
+.create-table-form {
+    margin-bottom: 24px;
+    
+    &-columns-table {
+        .ant-table td .ant-formily-item:not(.ant-formily-item-feedback-layout-popover) .ant-formily-item-help {
+            position: unset;
+            box-shadow: none;
+            background-color: transparent;
+        }
+    }
+}
+
+.create-table-preview-code {
+    margin-bottom: 24px;
+    position: relative;
+    
+    &-copy {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+    }
+    
+    &-editor {
+        border: 1px solid #DDD;
+        height: 400px;
+    }
+    
+    &-action {
+        margin-top: 48px;
+        
+        display: flex;
+        justify-content: flex-end;
+        gap: 32px;
+    }
+}

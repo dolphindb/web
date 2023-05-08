@@ -47,6 +47,10 @@
                 .extra
                     display: flex
                     gap: 14px
+
+                    .disabled
+                        color: #aaaaaa
+                        cursor: not-allowed
                 
                 .anticon
                     cursor: pointer
@@ -130,6 +134,23 @@
                     
                     &:hover
                         .edit-comment-button, .add-column-button
+                            visibility: visible
+                
+                .database-title
+                    display: flex
+                    justify-content: space-between
+                    
+                    .database-actions
+                        padding-left: 10px
+                        padding-right: 10px
+                        visibility: hidden
+                        
+                        .disabled
+                            color: #aaaaaa
+                            cursor: not-allowed
+                    
+                    &:hover
+                        .database-actions
                             visibility: visible
                 
                 .ant-dropdown-trigger
@@ -313,6 +334,20 @@
                 display: flex
                 justify-content: flex-end
                 gap: 10px
+        
+    .confirm-command-code-copy
+        position: absolute
+        top: 8px
+        right: 8px
+    
+    .confirm-command-code-editor
+        border: 1px solid #DDD
+        height: 500px
 
+.db-modal.show-required
+    .ant-modal-content
+        .ant-form-item-label > label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before
+            content: '*'
+    
 .db-context-menu
     background-color: #FFFFFF

@@ -1,6 +1,4 @@
 {
-    "$schema": "./.eslintrc.schema.json",
-    
     "root": true,
     
     "ignorePatterns": ["**/*.d.ts"],

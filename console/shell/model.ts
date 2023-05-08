@@ -75,6 +75,16 @@ class ShellModel extends Model<ShellModel> {
     
     set_column_comment_modal_visible = false
     
+    create_database_modal_visible = false
+    
+    create_database_partition_count = 1
+    
+    
+    /** 创建数据库的脚本 */
+    generated_command: string
+    
+    confirm_command_modal_visible = false
+    
     
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
@@ -255,9 +265,24 @@ class ShellModel extends Model<ShellModel> {
     
     
     async load_dbs () {
-            // ['dfs://数据库路径(可能包含/)/表名', ...]
-        // 不能使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
-        const { value: table_paths } = await model.ddb.call<DdbVectorStringObj>('getClusterDFSTables')
+        // ['dfs://数据库路径(可能包含/)/表名', ...]
+        // 不能直接使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
+        // 但对于无数据表的数据库，仍然需要通过 getClusterDFSDatabases 来获取。因此要组合使用
+        const [{ value: table_paths }, { value: db_paths }] = await Promise.all([
+            model.ddb.call<DdbVectorStringObj>('getClusterDFSTables'),
+            // 可能因为用户没有数据库的权限报错，单独 catch 并返回空数组
+            model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases').catch(() => {
+                console.error('load_dbs: getClusterDFSDatabases error')
+                return { value: [] }
+            }),
+        ])
+        
+        // const db_paths = [
+        //     'dfs://db1',
+        //     'dfs://g1.db1',
+        //     'dfs://g1.db2',
+        //     'dfs://g1./db1',
+        // ...]
         
         // const table_paths = [
         //     'dfs://db1/tb1',
@@ -272,23 +297,28 @@ class ShellModel extends Model<ShellModel> {
         //     'dfs://db-with-slash/db1/tb1',
         //     'dfs://group_with_slash/g1.sg1.db1/tb1'
         // ]
-        //
+        
+        // 将 db_paths 和 table_paths 合并到 merged_paths 中。db_paths 内可能存在 table_paths 中没有的 db，例如能查到无表的库
+        // 需要手动为 db_paths 中的每个路径加上斜杠结尾
+        const merged_paths = db_paths.map(path => `${path}/`).concat(table_paths).sort()
+        
         // 假定所有的 table_name 值都不会以 / 结尾
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
         // 全路径中可能没有组（也就是没有点号），但一定有库和表
         let hash_map = new Map<string, Database | DatabaseGroup>()
         let root: (Database | DatabaseGroup)[] = [ ]
-        for (const table_path of table_paths) {
+        for (const path of merged_paths) {
             // 找到数据库最后一个斜杠位置，截取前面部分的字符串作为库名
-            const index_slash = table_path.lastIndexOf('/')
+            const index_slash = path.lastIndexOf('/')
             
-            const db_path = `${table_path.slice(0, index_slash)}/`
+            const db_path = `${path.slice(0, index_slash)}/`
+            const table_name = path.slice(index_slash + 1)
             
             let parent: Database | DatabaseGroup | { children: (Database | DatabaseGroup)[] } = { children: root }
             
             // for 循环用来处理 database group
             for (let index = 0;  index = db_path.indexOf('.', index) + 1;  ) {
-                const group_key = table_path.slice(0, index)
+                const group_key = path.slice(0, index)
                 const group = hash_map.get(group_key)
                 if (group)
                     parent = group
@@ -311,9 +341,11 @@ class ShellModel extends Model<ShellModel> {
                 parent = db
             }
             
-            // 处理 table
-            const table = new Table(parent as Database, `${table_path}/`)
-            parent.children.push(table)
+            // 处理 table，如果 table_name 为空表明当前路径是 db_path 则不处理
+            if (table_name) {
+                const table = new Table(parent as Database, `${path}/`)
+                parent.children.push(table)
+            }
         }
         
         // TEST: 测试多级数据库树
