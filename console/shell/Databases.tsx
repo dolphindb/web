@@ -503,7 +503,7 @@ function CreateDatabase () {
         onCancel={() => { shell.set({ create_database_modal_visible: false, create_database_partition_count: 1 }) }}
         title={t('创建数据库')}
     >{
-    shouldRunOnCurrNode ?
+    shouldRunOnCurrNode &&
         <Form
             className='db-modal-form'
             name='create-database'
@@ -766,8 +766,6 @@ function CreateDatabase () {
                 </Button>
             </Form.Item>
         </Form>
-    :
-        null
     }
     </Modal>
 }
