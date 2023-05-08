@@ -271,7 +271,10 @@ class ShellModel extends Model<ShellModel> {
         const [{ value: table_paths }, { value: db_paths }] = await Promise.all([
             model.ddb.call<DdbVectorStringObj>('getClusterDFSTables'),
             // 可能因为用户没有数据库的权限报错，单独 catch 并返回空数组
-            model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases').catch(() => ({ value: [] })),
+            model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases').catch(() => {
+                console.error('load_dbs: getClusterDFSDatabases error')
+                return { value: [] }
+            }),
         ])
         
         // const db_paths = [
