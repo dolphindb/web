@@ -392,15 +392,14 @@ function ConfirmCommand () {
             name='confirm-command'
             onFinish={async () => {
                 try {
-                    console.log('executing:', generated_command)
+                    console.log(t('创建数据的脚本:'))
+                    console.log(generated_command)
                     await model.ddb.eval(generated_command)
-                    message.success(t('执行成功'))
+                    message.success(t('创建数据库成功'))
                     await shell.load_dbs()
                     shell.set({ dbs: [...shell.dbs] })
                 } catch (error) {
                     model.show_error({ error })
-                    // @ts-ignore
-                    window.temp = error
                     throw error
                 }
                 
@@ -417,11 +416,8 @@ function ConfirmCommand () {
                     <Editor
                         value={generated_command}
                         readonly
-                        minimap={false}
                         options={{
-                            padding: {
-                                top: 8,
-                            },
+                            padding: { top: 8 },
                             overviewRulerBorder: false,
                         }}
                     />
@@ -432,14 +428,13 @@ function ConfirmCommand () {
                     />
                 </div>
             </Form.Item>
-                        
+            
             <Form.Item className='db-modal-content-button-group'>
                 <Button type='primary' htmlType='submit'>
                     {t('执行')}
                 </Button>
                 <Button htmlType='button' onClick={() => {
-                    shell.set({ confirm_command_modal_visible: false })
-                    shell.set({ create_database_modal_visible: true })
+                    shell.set({ confirm_command_modal_visible: false, create_database_modal_visible: true })
                 }}>
                     {t('上一步')}
                 </Button>
@@ -453,6 +448,7 @@ function ConfirmCommand () {
         </Form>
     </Modal>
 }
+
 
 type PartitionType = 'SEQ' | 'RANGE' | 'HASH' | 'VALUE' | 'LIST'
 type StorageEngine = 'OLAP' | 'TSDB'
@@ -484,7 +480,7 @@ function CreateDatabase () {
     
     useEffect(() => {
         form.setFieldValue('partitions', [])
-    }, [])
+    }, [ ])
     
     return <Modal
         className='db-modal show-required'
@@ -554,7 +550,8 @@ function CreateDatabase () {
                     scripts.push(createCompoDBScript)
                     
                     createDBScript = scripts.join('\n')
-                }*/
+                }
+                */
                 
                 // create database directory partitioned by partitionType(partitionScheme),[partitionType(partitionScheme),partitionType(partitionScheme)],
                 // [engine='OLAP'], [atomic='TRANS'], [chunkGranularity='TABLE']
