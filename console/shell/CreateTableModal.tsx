@@ -68,6 +68,8 @@ const DatabaseContext = React.createContext({} as Database)
 
 const StepsContext = React.createContext({} as ReturnType<typeof useSteps>)
 
+const escapeColumnName = (name: string) => `_${JSON.stringify(name)}`
+
 // ================ 建表代码预览 ================
 
 function CreateTableModalPreviewCode () {
@@ -91,7 +93,7 @@ function CreateTableModalPreviewCode () {
             .join(',\n')
 
         const partition = form_values.partitionColumns?.length ?
-            `partitioned by ${form_values.partitionColumns.join(', ')}`
+            `partitioned by ${form_values.partitionColumns.map(escapeColumnName).join(', ')}`
             : null
         const sorts = form_values.sortColumns?.length ?
             `sortColumns=[${form_values.sortColumns.map(column => `"${column}"`).join(', ')}]`
@@ -115,7 +117,7 @@ function CreateTableModalPreviewCode () {
             <div className='create-table-preview-code-editor'>
                 <Editor 
                     value={code} 
-                    readonly 
+                    readonly
                     options={{ 
                         padding: { top: 8 }, 
                         overviewRulerBorder: false 
@@ -222,6 +224,10 @@ const SchemaField = createSchemaField({
 })
 
 const DDB_COLUMN_COMPRESS_METHODS_SELECT_OPTIONS: SelectProps['options'] = [
+    {
+        label: t('默认'),
+        value: null,
+    },
     {
         label: 'LZ4',
         value: 'lz4',
@@ -402,6 +408,7 @@ function CreateTableModalFillForm () {
                                 name='compress'
                                 x-decorator='FormItem'
                                 x-component='Select'
+                                default={null}
                                 enum={
                                     DDB_COLUMN_COMPRESS_METHODS_SELECT_OPTIONS
                                 }

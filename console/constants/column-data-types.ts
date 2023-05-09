@@ -29,6 +29,9 @@ export const DDB_COLUMN_DATA_TYPES: DDBTypeNames[] = [
     'BLOB',
     'COMPLEX',
     'POINT',
+    
+    'DECIMAL32',
+    'DECIMAL64',
 ]
 
 /** 支持排序的列类型 */
@@ -48,6 +51,9 @@ export const SUPPORT_SORT_COLUMN_TYPES: DDBTypeNames[] = [
     'NANOTIMESTAMP',
     'STRING',
     'SYMBOL',
+    
+    'DECIMAL32',
+    'DECIMAL64',
 ]
 
 export const DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS: SelectProps['options'] =
