@@ -401,6 +401,11 @@ class ShellModel extends Model<ShellModel> {
                         // sites 字段里面的就是 node_alias
                         site_node !== model.node_alias ? { node: site_node, func_type: DdbFunctionType.SystemFunc } : { }
                     )
+                    
+                    // 可能是空的数据库，里面还没有表，也没有数据
+                    if (!tables.length)
+                        return [ ]
+                    
                     assert(tables.length === 1, t('getTablesByTabletChunk 应该只返回一个对应的 table'))
                     
                     if (tables[0] === node.root.table.name) {
