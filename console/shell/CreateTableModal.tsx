@@ -117,7 +117,8 @@ function CreateTableModalPreviewCode () {
             <div className='create-table-preview-code-editor'>
                 <Editor 
                     value={code} 
-                    readonly 
+                    readonly
+                    minimap={false}
                     options={{ 
                         padding: { top: 8 }, 
                         overviewRulerBorder: false 

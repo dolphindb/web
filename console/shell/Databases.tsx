@@ -424,6 +424,7 @@ function ConfirmCommand () {
                     <Editor
                         value={generated_command}
                         readonly
+                        minimap={false}
                         options={{
                             padding: { top: 8 },
                             overviewRulerBorder: false,
