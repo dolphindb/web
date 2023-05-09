@@ -124,7 +124,7 @@ export function Editor ({
                 
                 minimap: {
                     ... settings.minimap,
-                    enabled: minimap
+                    ... minimap === undefined ? { } : { enabled: minimap }
                 },
                 
                 acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
