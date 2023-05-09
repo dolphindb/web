@@ -247,7 +247,25 @@ class ShellModel extends Model<ShellModel> {
     save_debounced = debounce(this.save.bind(this), 500, { leading: false, trailing: true })
     
     
+    // execute selected or all.
     async execute () {
+        const { editor } = this
+        
+        const selection = editor.getSelection()
+        const model = editor.getModel()
+        
+        await this.eval(
+            selection.isEmpty() ?
+                model.getValue()
+            :
+                model.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF)
+        )
+        
+        await this.update_vars()
+    }
+
+    // execute selected or current line.
+    async executeCurrentLine () {
         const { editor } = this
         
         const selection = editor.getSelection()

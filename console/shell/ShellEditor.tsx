@@ -42,7 +42,7 @@ export function ShellEditor () {
     return <div className='shell-editor'>
         <div className='toolbar'>
             <div className='actions'>
-                <span className='action execute' title={t('执行选中代码或光标所在行代码')} onClick={() => { shell.execute() }}>
+                <span className='action execute' title={t('执行选中代码或全部代码')} onClick={() => { shell.execute() }}>
                     <CaretRightOutlined />
                     <span className='text'>{t('执行')}</span>
                 </span>
@@ -95,19 +95,39 @@ export function ShellEditor () {
             enter_completion={enter_completion}
             
             on_mount={(editor, monaco) => {
+                editor.getDomNode()?.addEventListener('keydown', e => {
+                    // Ctrl + R is used to execute code, so we need to disable the browser's refresh shortcut
+                    if (e.ctrlKey && e.key === 'r')
+                        e.preventDefault()
+                })
+
                 editor.setValue(localStorage.getItem(storage_keys.code) || '')
                 
                 editor.addAction({
                     id: 'dolphindb.execute',
                     
                     keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE
+                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyR
                     ],
                     
                     label: t('DolphinDB: 执行代码'),
                     
                     run () {
                         shell.execute()
+                    }
+                })
+
+                editor.addAction({
+                    id: 'dolphindb.executeCurrentLine',
+
+                    keybindings: [
+                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE
+                    ],
+
+                    label: t('DolphinDB: 执行当前行代码'),
+
+                    run () {
+                        shell.executeCurrentLine()
                     }
                 })
                 
