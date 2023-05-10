@@ -300,7 +300,7 @@ class ShellModel extends Model<ShellModel> {
         
         // 将 db_paths 和 table_paths 合并到 merged_paths 中。db_paths 内可能存在 table_paths 中没有的 db，例如能查到无表的库
         // 需要手动为 db_paths 中的每个路径加上斜杠结尾
-        const merged_paths = db_paths.map(path => `${path}/`).concat(table_paths).sort((a, b) => a > b ? 1 : (a < b ? -1 : 0))
+        const merged_paths = db_paths.map(path => `${path}/`).concat(table_paths).sort()
         
         // 假定所有的 table_name 值都不会以 / 结尾
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
@@ -401,6 +401,11 @@ class ShellModel extends Model<ShellModel> {
                         // sites 字段里面的就是 node_alias
                         site_node !== model.node_alias ? { node: site_node, func_type: DdbFunctionType.SystemFunc } : { }
                     )
+                    
+                    // 可能是空的数据库，里面还没有表，也没有数据
+                    if (!tables.length)
+                        return [ ]
+                    
                     assert(tables.length === 1, t('getTablesByTabletChunk 应该只返回一个对应的 table'))
                     
                     if (tables[0] === node.root.table.name) {

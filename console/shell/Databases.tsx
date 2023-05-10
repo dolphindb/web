@@ -50,7 +50,7 @@ import { AddColumnModal } from './AddColumnModal.js'
 
 export function Databases () {
     const { dbs } = shell.use(['dbs'])
-    const { logined } = model.use(['logined'])
+    const { logined, node_type } = model.use(['logined', 'node_type'])
     
     const [db_height, set_db_height] = useState(256)
     
@@ -58,7 +58,7 @@ export function Databases () {
     const [loaded_keys, set_loaded_keys] = useState([ ])
     const previous_clicked_node = useRef<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
     
-    const enable_create_db = [NodeType.data, NodeType.single].includes(model.use(['node_type']).node_type)
+    const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
 
     if (!dbs)
         return
@@ -353,7 +353,6 @@ function ConfirmCommand () {
                     <Editor
                         value={generated_command}
                         readonly
-                        minimap={false}
                         options={{
                             padding: { top: 8 },
                             overviewRulerBorder: false,
