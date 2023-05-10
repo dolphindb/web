@@ -176,6 +176,7 @@ function CreateTableModalExecuteResult () {
                 status='error'
                 title={t('创建失败')}
                 subTitle={error.message}
+                className='create-table-result__error'
                 extra={[
                     <Button key='prev' type='primary' onClick={steps.prev}>
                         {t('上一步')}
@@ -227,7 +228,7 @@ const SchemaField = createSchemaField({
 const DDB_COLUMN_COMPRESS_METHODS_SELECT_OPTIONS: SelectProps['options'] = [
     {
         label: t('默认'),
-        value: null,
+        value: '',
     },
     {
         label: 'LZ4',
@@ -409,7 +410,7 @@ function CreateTableModalFillForm () {
                                 name='compress'
                                 x-decorator='FormItem'
                                 x-component='Select'
-                                default={null}
+                                default=''
                                 enum={
                                     DDB_COLUMN_COMPRESS_METHODS_SELECT_OPTIONS
                                 }

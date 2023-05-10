@@ -33,3 +33,10 @@
         gap: 32px;
     }
 }
+
+.create-table-result__error {
+    .ant-result-subtitle {
+        color: #333;
+        text-align: left;
+    }
+}
