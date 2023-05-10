@@ -7,6 +7,14 @@
             box-shadow: none;
             background-color: transparent;
         }
+        
+        &-scale {
+            margin-top: 8px;
+            
+            .ant-formily-item-label {
+                font-size: 12px;
+            }
+        }
     }
 }
 

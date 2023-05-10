@@ -26,7 +26,6 @@ import {
 
 import { t } from '../../i18n/index.js'
 
-import { DDB_COLUMN_DATA_TYPES } from '../constants/column-data-types.js'
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 
 import { model, NodeType } from '../model.js'
@@ -46,6 +45,7 @@ import SvgPartitionFile from './icons/partition-file.icon.svg'
 import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
+import { AddColumnModal } from './AddColumnModal.js'
 
 
 export function Databases () {
@@ -236,83 +236,12 @@ export function Databases () {
                         <a onClick={() => model.goto_login()}>{t('去登陆')}</a>
                     </div>
                 }
-                <AddColumn />
                 <SetColumnComment />
                 <CreateDatabase />
                 <ConfirmCommand />
             </div>
         </div>
     </Resizable>
-}
-
-
-function AddColumn () {
-    const [form] = Form.useForm()
-    
-    let { current_node, add_column_modal_visible } = shell.use(['current_node', 'add_column_modal_visible']) as { current_node: ColumnRoot, add_column_modal_visible: boolean }
-    
-    if (!current_node)
-        return
-    
-    let { table, children } = current_node
-    
-    return <Modal 
-        className='db-modal'
-        open={add_column_modal_visible} 
-        onCancel={() => { shell.set({ add_column_modal_visible: false }) }} 
-        title={t('添加列')}
-    >
-        <Form
-            className='db-modal-form' 
-            name='add-column' 
-            labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} 
-            form={form}
-            onFinish={
-                async ({ column, type }: { column: string, type: string }) => {
-                    try {
-                        await shell.define_add_column()
-                        // 调用该函数时，数据库路径不能以 / 结尾
-                        await model.ddb.call('add_column', [
-                            table.db.path.slice(0, -1),
-                            table.name,
-                            column,
-                            new DdbInt(DdbType[type.toLowerCase()])
-                        ])
-                        message.success(t('添加成功'))
-                        current_node.children = null
-                        table.schema = null
-                        await current_node.load_children()
-                        shell.set({ dbs: [...shell.dbs] })
-                    } catch (error) {
-                        model.show_error({ error })
-                        throw error
-                    }
-                    
-                    form.resetFields()
-                    shell.set({ add_column_modal_visible: false })
-                }
-        }>
-            <Form.Item label={t('列名')} name='column' rules={[{ required: true, message: t('请输入列名') }]}>
-                <Input placeholder={t('输入列名，支持包含特殊字符')} />
-            </Form.Item>
-            <Form.Item label={t('类型')} name='type' rules={[{ required: true, message: t('请选择该列的类型') }]}>
-                <Select showSearch placeholder={t('选择类型')}>
-                    { DDB_COLUMN_DATA_TYPES.map(v => <Option key={v}>{v}</Option>) }
-                </Select>
-            </Form.Item>
-            <Form.Item className='db-modal-content-button-group'>
-                <Button type='primary' htmlType='submit'>
-                    {t('确定')}
-                </Button>
-                <Button htmlType='button' onClick={() => {
-                    form.resetFields()
-                    shell.set({ add_column_modal_visible: false })
-                }}>
-                    {t('取消')}
-                </Button>
-            </Form.Item>
-        </Form>
-    </Modal>
 }
 
 
@@ -833,7 +762,9 @@ export class Database implements DataNode {
             event => {
                 event.stopPropagation()
                 NiceModal.show(CreateTableModal, { database: this })
-                    .then(async () => shell.load_dbs())
+                    .then(async () => {
+                        shell.load_dbs()
+                    })
                     .catch(() => {
                         // user canceled
                     })
@@ -1176,7 +1107,7 @@ export class ColumnRoot implements DataNode {
         this.title = <div className='column-root-title'>
             {t('列')}
             <div className='add-column-button' onClick={ event => {
-                shell.set({ current_node: this, add_column_modal_visible: true })
+                NiceModal.show(AddColumnModal, { node: this })
                 event.stopPropagation()
             }}>
                 <Tooltip title={t('添加列')} color='grey'>

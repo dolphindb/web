@@ -1,18 +1,13 @@
-import React, { useCallback, useContext, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import NiceModal from '@ebay/nice-modal-react'
-import { Button, Modal, Result, SelectProps, Spin } from 'antd'
+import { Button, Modal, Result, SelectProps, Spin, message } from 'antd'
 import { createForm, Field } from '@formily/core'
-import { createSchemaField } from '@formily/react'
 import {
     Form,
-    FormItem,
-    Input,
-    Select,
-    ArrayTable,
     FormButtonGroup,
     Submit,
 } from '@formily/antd-v5'
-import { mapKeys } from 'lodash'
+import { castArray, mapKeys } from 'lodash'
 import { t } from '../../i18n/index.js'
 import { type Database } from './Databases.js'
 import {
@@ -22,12 +17,15 @@ import {
 } from '../constants/column-data-types.js'
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 import { model } from '../model.js'
-import { isDDBTemporalType } from '../utils/ddb-data-types.js'
+import { generateDDBDataTypeLiteral, isDDBDecimalType, isDDBTemporalType } from '../utils/ddb-data-types.js'
 import { useSteps } from '../utils/hooks/use-steps.js'
 import { useAsyncEffect } from '../utils/hooks/use-async-effect.js'
 import { Editor } from './Editor/index.js'
+import { DDBTypeSelectorSchemaFields, SchemaField } from '../components/formily/index.js'
 
 import './CreateTableModal.scss'
+import { DdbType } from 'dolphindb/browser.js'
+import { DdbObj } from 'dolphindb'
 
 // Table（维度表）不支持 partitionColumns
 enum TableTypes {
@@ -44,6 +42,7 @@ enum KeepDuplicatesValues {
 interface ICreateTableColumnFormValue {
     name: string
     type: DDBTypeNames
+    scale?: number
     comment: string
     compress: string
 }
@@ -82,7 +81,7 @@ function CreateTableModalPreviewCode () {
 
         const columns = form_values.columns
             .map(column => {
-                const str = `${column.name} ${column.type}`
+                const str = `${column.name} ${generateDDBDataTypeLiteral(column)}`
                 const comment = column.comment ? `comment=${JSON.stringify(column.comment)}` : ''
                 const compress = column.compress ? `compress="${column.compress}"` : ''
                 const options = [comment, compress].filter(Boolean).join(', ')
@@ -215,15 +214,6 @@ function CreateTableModalExecuteResult () {
 
 // ================ 建表表单 ================
 
-const SchemaField = createSchemaField({
-    components: {
-        FormItem,
-        Input,
-        Select,
-        ArrayTable,
-    },
-})
-
 const DDB_COLUMN_COMPRESS_METHODS_SELECT_OPTIONS: SelectProps['options'] = [
     {
         label: t('默认'),
@@ -247,6 +237,21 @@ const COLUMNS_REACTION_STATE_VALUE_EXPRESSION =
 function CreateTableModalFillForm () {
     const steps = useContext(StepsContext)
     const database = useContext(DatabaseContext)
+    
+    useEffect(() => {
+        model.ddb.eval(`schema(database("${database.path}"))`).then(res => {
+            const schema = res.to_dict()
+            const partitionTypeNameList = castArray(schema.partitionTypeName.value as string | string[])
+            const partitionSchemaList = castArray(schema.partitionSchema.value as number | DdbObj).map(v => v instanceof DdbObj ? DdbType[v.type].toUpperCase() : v)
+            form.setFieldState('partitionInfo', {
+                value: partitionTypeNameList.map((typeName, index) => 
+                    `${typeName}(${partitionSchemaList[index]})`
+                ).join(', ')
+            })
+        }).catch(() => {
+            message.error(t('分区信息获取失败'))
+        })
+    }, [database])
 
     // restore form value from steps context
     const form = useMemo(
@@ -272,10 +277,21 @@ function CreateTableModalFillForm () {
             className='create-table-form'
             onAutoSubmit={onSubmit}
         >
-            <SchemaField>
+            <SchemaField scope={{
+                ...DDBTypeSelectorSchemaFields.ScopeValues,
+            }}>
                 <SchemaField.String
                     name='dbPath'
                     title={t('数据库路径')}
+                    x-decorator='FormItem'
+                    x-component='Input'
+                    x-component-props={{
+                        disabled: true,
+                    }}
+                />
+                <SchemaField.String
+                    name='partitionInfo'
+                    title={t('分区规则')}
                     x-decorator='FormItem'
                     x-component='Input'
                     x-component-props={{
@@ -385,8 +401,19 @@ function CreateTableModalFillForm () {
                                 x-component-props={{
                                     showSearch: true,
                                 }}
-                                enum={DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS}
+                                // 标准 SQL 语句还不支持 DECIMAL 类型，所以暂时不开放，支持后可以直接替换成下面的 DDBTypeSelectorSchemaFields
+                                enum={DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS.filter(item => !isDDBDecimalType(item.value as DDBTypeNames))}
                             />
+                            {/* <DDBTypeSelectorSchemaFields 
+                                typeField={{
+                                    title: null,
+                                }}
+                                scaleField={{
+                                    ['x-decorator-props']: {
+                                        className: 'create-table-form-columns-table-scale',
+                                    },
+                                }}
+                            /> */}
                         </SchemaField.Void>
                         <SchemaField.Void
                             x-component='ArrayTable.Column'
@@ -440,6 +467,7 @@ function CreateTableModalFillForm () {
                     // TODO: 通过 schema(database('dfs://A.compo')) 的分区类型判断分区列是否必填
                     name='partitionColumns'
                     title={t('分区列')}
+                    description={t('请根据分区规则顺序选择分区列')}
                     x-decorator='FormItem'
                     x-component='Select'
                     x-component-props={{ mode: 'multiple' }}
@@ -614,7 +642,6 @@ export const CreateTableModal = NiceModal.create<Props>(({ database }) => {
 
     return (
         <Modal
-            className='db-modal'
             width={1000}
             open={modal.visible}
             onCancel={() => {

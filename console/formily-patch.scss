@@ -1,0 +1,6 @@
+.ant-formily-item
+.ant-formily-item-control
+.ant-formily-item-control-content
+.ant-formily-item-control-content-component:has(.ant-input-number) {
+    line-height: inherit;
+}
