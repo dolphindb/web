@@ -449,8 +449,8 @@
     "按 Ctrl + E 执行选中代码或光标所在行代码\n": {
         "en": "Press Ctrl + E to execute selected code or the line of code where the cursor is placed\n"
     },
-    "按 Ctrl + R 执行选中代码或全部代码\n": {
-        "en": "Press Ctrl + R to execute selected code or all code\n"
+    "按 Ctrl + Shift + E 执行选中代码或全部代码\n": {
+        "en": "Press Ctrl + Shift + E to execute selected code or all code\n"
     },
     "按 Ctrl + S 保存代码\n": {
         "en": "Press Ctrl + S to save the code\n"

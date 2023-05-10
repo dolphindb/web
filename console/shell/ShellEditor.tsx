@@ -95,25 +95,19 @@ export function ShellEditor () {
             enter_completion={enter_completion}
             
             on_mount={(editor, monaco) => {
-                editor.getDomNode()?.addEventListener('keydown', e => {
-                    // Ctrl + R is used to execute code, so we need to disable the browser's refresh shortcut
-                    if (e.ctrlKey && e.key === 'r')
-                        e.preventDefault()
-                })
-
                 editor.setValue(localStorage.getItem(storage_keys.code) || '')
                 
                 editor.addAction({
                     id: 'dolphindb.execute',
                     
                     keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyR
+                        monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyE
                     ],
                     
                     label: t('DolphinDB: 执行代码'),
                     
                     run () {
-                        shell.execute()
+                        shell.execute({ currentLine: false })
                     }
                 })
 
@@ -127,7 +121,7 @@ export function ShellEditor () {
                     label: t('DolphinDB: 执行当前行代码'),
 
                     run () {
-                        shell.executeCurrentLine()
+                        shell.execute({ currentLine: true })
                     }
                 })
                 

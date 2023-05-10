@@ -247,40 +247,27 @@ class ShellModel extends Model<ShellModel> {
     save_debounced = debounce(this.save.bind(this), 500, { leading: false, trailing: true })
     
     
-    // execute selected or all.
-    async execute () {
+    // if there are selected text, execute selected; otherwise execute all or current line,
+    // corresponding to options.currentLine
+    async execute (options: { currentLine?: boolean } = {}) {
         const { editor } = this
         
         const selection = editor.getSelection()
         const model = editor.getModel()
         
-        await this.eval(
-            selection.isEmpty() ?
-                model.getValue()
-            :
-                model.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF)
-        )
+        if (selection.isEmpty())
+            await this.eval(
+                options.currentLine ?
+                    model.getLineContent(selection.startLineNumber)
+                :
+                    model.getValue()
+            )
+        else
+            await this.eval(model.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF))
         
         await this.update_vars()
     }
 
-    // execute selected or current line.
-    async executeCurrentLine () {
-        const { editor } = this
-        
-        const selection = editor.getSelection()
-        const model = editor.getModel()
-        
-        await this.eval(
-            selection.isEmpty() ?
-                model.getLineContent(selection.startLineNumber)
-            :
-                model.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF)
-        )
-        
-        await this.update_vars()
-    }
-    
     
     async load_dbs () {
         // ['dfs://数据库路径(可能包含/)/表名', ...]
