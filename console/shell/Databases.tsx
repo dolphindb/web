@@ -33,6 +33,7 @@ import { shell } from './model.js'
 
 import { Editor } from './Editor/index.js'
 import { CreateTableModal } from './CreateTableModal.js'
+import { AddColumnModal } from './AddColumnModal.js'
 
 import SvgDatabase from './icons/database.icon.svg'
 import SvgDatabaseGroup from './icons/database-group.icon.svg'
@@ -45,7 +46,6 @@ import SvgPartitionFile from './icons/partition-file.icon.svg'
 import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
-import { AddColumnModal } from './AddColumnModal.js'
 
 
 export function Databases () {
@@ -946,7 +946,7 @@ export class Column implements DataNode {
                 shell.set({ current_node: this, set_column_comment_modal_visible: true })
                 event.stopPropagation()
             }}
-            >
+        >
                 <Tooltip title={t('设置注释')} color='grey'>
                     <EditOutlined />
                 </Tooltip>
