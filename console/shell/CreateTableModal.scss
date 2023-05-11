@@ -1,11 +1,17 @@
 .create-table-form {
-    margin-bottom: 24px;
-    
     &-columns-table {
         .ant-table td .ant-formily-item:not(.ant-formily-item-feedback-layout-popover) .ant-formily-item-help {
             position: unset;
             box-shadow: none;
             background-color: transparent;
+        }
+        
+        &-scale {
+            margin-top: 8px;
+            
+            .ant-formily-item-label {
+                font-size: 12px;
+            }
         }
     }
 }
@@ -31,5 +37,12 @@
         display: flex;
         justify-content: flex-end;
         gap: 32px;
+    }
+}
+
+.create-table-result__error {
+    .ant-result-subtitle {
+        color: #333;
+        text-align: left;
     }
 }

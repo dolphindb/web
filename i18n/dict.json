@@ -1684,5 +1684,20 @@
     },
     "仅支持单机节点和数据节点创建数据库": {
         "en": "Only single node and data node support create database"
+    },
+    "小数位数": {
+        "en": "Scale"
+    },
+    "请输入小数位数": {
+        "en": "Please input scale"
+    },
+    "小数位数超出限制": {
+        "en": "Scale out of limit"
+    },
+    "分区方案": {
+        "en": "Partition Schema"
+    },
+    "请根据分区方案顺序选择分区列": {
+        "en": "Please select partition columns according to partition schema"
     }
 }
