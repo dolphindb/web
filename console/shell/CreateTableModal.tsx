@@ -245,13 +245,13 @@ function CreateTableModalFillForm () {
             const schema = res.to_dict()
             const partitionTypeNameList = castArray(schema.partitionTypeName.value as string | string[])
             const partitionSchemaList = castArray(schema.partitionSchema.value as number | DdbObj).map(v => v instanceof DdbObj ? DdbType[v.type].toUpperCase() : v)
-            form.setFieldState('partitionInfo', {
+            form.setFieldState('dbPartitionSchema', {
                 value: partitionTypeNameList.map((typeName, index) => 
                     `${typeName}(${partitionSchemaList[index]})`
                 ).join(', ')
             })
-        }).catch(() => {
-            message.error(t('分区信息获取失败'))
+        }).catch(error => {
+            model.show_error({ error })
         })
     }, [database])
 
@@ -290,8 +290,8 @@ function CreateTableModalFillForm () {
                     }}
                 />
                 <SchemaField.String
-                    name='partitionInfo'
-                    title={t('分区规则')}
+                    name='dbPartitionSchema'
+                    title={t('分区方案')}
                     x-decorator='FormItem'
                     x-component='Input'
                     x-component-props={{
@@ -467,7 +467,7 @@ function CreateTableModalFillForm () {
                     // TODO: 通过 schema(database('dfs://A.compo')) 的分区类型判断分区列是否必填
                     name='partitionColumns'
                     title={t('分区列')}
-                    description={t('请根据分区规则顺序选择分区列')}
+                    description={t('请根据分区方案顺序选择分区列')}
                     x-decorator='FormItem'
                     x-component='Select'
                     x-component-props={{ mode: 'multiple' }}
