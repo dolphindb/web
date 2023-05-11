@@ -99,20 +99,6 @@ export function ShellEditor () {
                 
                 editor.addAction({
                     id: 'dolphindb.execute',
-                    
-                    keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyE
-                    ],
-                    
-                    label: t('DolphinDB: 执行代码'),
-                    
-                    run () {
-                        shell.execute('line')
-                    }
-                })
-
-                editor.addAction({
-                    id: 'dolphindb.executeCurrentLine',
 
                     keybindings: [
                         monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE
@@ -120,6 +106,20 @@ export function ShellEditor () {
 
                     label: t('DolphinDB: 执行当前行代码'),
 
+                    run () {
+                        shell.execute('line')
+                    }
+                })
+                
+                editor.addAction({
+                    id: 'dolphindb.execute_all',
+                    
+                    keybindings: [
+                        monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyE
+                    ],
+                    
+                    label: t('DolphinDB: 执行代码'),
+                    
                     run () {
                         shell.execute('all')
                     }
