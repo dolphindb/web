@@ -762,7 +762,6 @@ export class Database implements DataNode {
                 event.stopPropagation()
                 NiceModal.show(CreateTableModal, { database: this })
                     .then(async () => {
-                        // TODO: catch
                         shell.load_dbs().catch(error => {
                             model.show_error({ error })
                         })
