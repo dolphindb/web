@@ -42,7 +42,7 @@ export function ShellEditor () {
     return <div className='shell-editor'>
         <div className='toolbar'>
             <div className='actions'>
-                <span className='action execute' title={t('执行选中代码或光标所在行代码')} onClick={() => { shell.execute() }}>
+                <span className='action execute' title={t('执行选中代码或全部代码')} onClick={() => { shell.execute('all') }}>
                     <CaretRightOutlined />
                     <span className='text'>{t('执行')}</span>
                 </span>
@@ -99,15 +99,29 @@ export function ShellEditor () {
                 
                 editor.addAction({
                     id: 'dolphindb.execute',
-                    
+
                     keybindings: [
                         monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE
+                    ],
+
+                    label: t('DolphinDB: 执行当前行代码'),
+
+                    run () {
+                        shell.execute('line')
+                    }
+                })
+                
+                editor.addAction({
+                    id: 'dolphindb.execute_all',
+                    
+                    keybindings: [
+                        monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyE
                     ],
                     
                     label: t('DolphinDB: 执行代码'),
                     
                     run () {
-                        shell.execute()
+                        shell.execute('all')
                     }
                 })
                 
