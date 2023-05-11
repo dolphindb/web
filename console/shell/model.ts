@@ -247,9 +247,7 @@ class ShellModel extends Model<ShellModel> {
     save_debounced = debounce(this.save.bind(this), 500, { leading: false, trailing: true })
     
     
-    // if there are selected text, execute selected; otherwise execute all or current line,
-    // corresponding to options.currentLine
-    async execute (options: { currentLine?: boolean } = {}) {
+    async execute (default_selection: 'all' | 'line') {
         const { editor } = this
         
         const selection = editor.getSelection()
@@ -257,17 +255,17 @@ class ShellModel extends Model<ShellModel> {
         
         if (selection.isEmpty())
             await this.eval(
-                options.currentLine ?
+                default_selection === 'line' ?
                     model.getLineContent(selection.startLineNumber)
                 :
-                    model.getValue()
+                    model.getValue(this.monaco.editor.EndOfLinePreference.LF)
             )
         else
             await this.eval(model.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF))
         
         await this.update_vars()
     }
-
+    
     
     async load_dbs () {
         // ['dfs://数据库路径(可能包含/)/表名', ...]
