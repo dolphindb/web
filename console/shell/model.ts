@@ -71,7 +71,6 @@ class ShellModel extends Model<ShellModel> {
     
     current_node: ColumnRoot | Column
     
-    add_column_modal_visible = false
     
     set_column_comment_modal_visible = false
     

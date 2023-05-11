@@ -1,10 +1,14 @@
-import NiceModal from '@ebay/nice-modal-react'
-import { type ColumnRoot } from './Databases.js'
-import { t } from '../../i18n/index.js'
-import { createForm } from '@formily/core'
-import React, { useCallback, useMemo } from 'react'
+import { default as React, useMemo } from 'react'
+
 import { Button, Modal, message } from 'antd'
+
+import { createForm } from '@formily/core'
 import { Form, FormButtonGroup, Submit } from '@formily/antd-v5'
+
+import NiceModal from '@ebay/nice-modal-react'
+
+import type { ColumnRoot } from './Databases.js'
+import { t } from '../../i18n/index.js'
 import { DDBTypeSelectorSchemaFields, SchemaField } from '../components/formily/index.js'
 import { shell } from './model.js'
 import { model } from '../model.js'
@@ -28,10 +32,10 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
         []
     )
     
-    const { table } = node
-    
-    const onSubmit = useCallback(async (formValues: IAddColumnFormValues) => {
+    async function onSubmit (formValues: IAddColumnFormValues) {
         try {
+            const { table } = node
+            
             await shell.define_add_column()
             // 调用该函数时，数据库路径不能以 / 结尾
             await model.ddb.call('add_column', [
@@ -50,9 +54,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
         } catch (error) {
             model.show_error({ error })
         }
-        
-    }, [])
-    
+    }
     
     return <Modal 
         open={modal.visible} 

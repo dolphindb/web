@@ -1,8 +1,11 @@
+import React from 'react'
+
 import { isDDBDecimalType } from '../../../utils/ddb-data-types.js'
 import { getDecimalScaleRange, isAvailableDecimalScale } from '../../../utils/decimal.js'
-import React from 'react'
+
 import { t } from '../../../../i18n/index.js'
 import { DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS } from '../../../constants/column-data-types.js'
+
 import { SchemaField } from '../SchemaField/index.js'
 
 interface DDBTypeSelectorSchemaFieldsProps {

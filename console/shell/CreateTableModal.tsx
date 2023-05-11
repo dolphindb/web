@@ -1,4 +1,6 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import './CreateTableModal.scss'
+
+import { default as React, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import NiceModal from '@ebay/nice-modal-react'
 import { Button, Modal, Result, SelectProps, Spin, message } from 'antd'
 import { createForm, Field } from '@formily/core'
@@ -8,6 +10,10 @@ import {
     Submit,
 } from '@formily/antd-v5'
 import { castArray, mapKeys } from 'lodash'
+
+import { DdbType } from 'dolphindb/browser.js'
+import { DdbObj } from 'dolphindb'
+
 import { t } from '../../i18n/index.js'
 import { type Database } from './Databases.js'
 import {
@@ -23,9 +29,6 @@ import { useAsyncEffect } from '../utils/hooks/use-async-effect.js'
 import { Editor } from './Editor/index.js'
 import { DDBTypeSelectorSchemaFields, SchemaField } from '../components/formily/index.js'
 
-import './CreateTableModal.scss'
-import { DdbType } from 'dolphindb/browser.js'
-import { DdbObj } from 'dolphindb'
 
 // Table（维度表）不支持 partitionColumns
 enum TableTypes {
@@ -161,13 +164,12 @@ function CreateTableModalExecuteResult () {
     }, [])
 
     if (loading)
-        return (
-            <Result
-                icon={<Spin spinning size='large' />}
-                title={t('建表中...')}
-            />
-        )
-
+        return <Result
+            icon={<Spin spinning size='large' />}
+            title={t('建表中...')}
+        />
+        
+    
     if (error)
         return (
             <Result
@@ -277,9 +279,7 @@ function CreateTableModalFillForm () {
             className='create-table-form'
             onAutoSubmit={onSubmit}
         >
-            <SchemaField scope={{
-                ...DDBTypeSelectorSchemaFields.ScopeValues,
-            }}>
+            <SchemaField scope={{ ...DDBTypeSelectorSchemaFields.ScopeValues }}>
                 <SchemaField.String
                     name='dbPath'
                     title={t('数据库路径')}
