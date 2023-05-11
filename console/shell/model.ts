@@ -247,18 +247,21 @@ class ShellModel extends Model<ShellModel> {
     save_debounced = debounce(this.save.bind(this), 500, { leading: false, trailing: true })
     
     
-    async execute () {
+    async execute (default_selection: 'all' | 'line') {
         const { editor } = this
         
         const selection = editor.getSelection()
         const model = editor.getModel()
         
-        await this.eval(
-            selection.isEmpty() ?
-                model.getLineContent(selection.startLineNumber)
-            :
-                model.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF)
-        )
+        if (selection.isEmpty())
+            await this.eval(
+                default_selection === 'line' ?
+                    model.getLineContent(selection.startLineNumber)
+                :
+                    model.getValue(this.monaco.editor.EndOfLinePreference.LF)
+            )
+        else
+            await this.eval(model.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF))
         
         await this.update_vars()
     }
