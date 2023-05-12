@@ -766,6 +766,7 @@ export class Database implements DataNode {
                     await shell.load_dbs()
                 } catch (error) {
                     model.show_error({ error })
+                    throw error
                 }
             }
         :

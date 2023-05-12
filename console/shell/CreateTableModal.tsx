@@ -1,8 +1,8 @@
 import './CreateTableModal.scss'
 
-import { default as React, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { default as React, useCallback, useContext, useMemo, useState } from 'react'
 import NiceModal from '@ebay/nice-modal-react'
-import { Button, Divider, Empty, Modal, Result, SelectProps, Spin } from 'antd'
+import { Button, Modal, Result, SelectProps, Spin } from 'antd'
 import { createForm, Field } from '@formily/core'
 import {
     Form,
