@@ -58,6 +58,7 @@
         "@formily/react": "^2.2.23",
         "@monaco-editor/react": "^4.5.1",
         "antd": "^5.4.7",
+        "classnames": "^2.3.2",
         "copy-to-clipboard": "^3.3.3",
         "dayjs": "^1.11.7",
         "dolphindb": "^2.0.963",

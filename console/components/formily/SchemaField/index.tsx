@@ -1,4 +1,4 @@
-import { ArrayTable, FormItem, Input, NumberPicker, Select } from '@formily/antd-v5'
+import { ArrayTable, FormItem, Input, NumberPicker, PreviewText, Select, Space } from '@formily/antd-v5'
 import { createSchemaField } from '@formily/react'
 
 /**
@@ -11,5 +11,7 @@ export const SchemaField = createSchemaField({
         Select,
         NumberPicker,
         ArrayTable,
+        Space,
+        PreviewText,
     },
 })
