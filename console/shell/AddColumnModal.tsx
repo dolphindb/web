@@ -58,10 +58,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
     
     return <Modal 
         open={modal.visible} 
-        onCancel={() => {
-            modal.reject()
-            modal.hide()
-        }}
+        onCancel={modal.hide}
         afterClose={modal.remove}
         title={t('添加列')}
         footer={null}
@@ -93,10 +90,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
             </SchemaField>
             <FormButtonGroup align='right'>
                 <Submit type='primary'>{t('确定')}</Submit>
-                <Button htmlType='button' onClick={() => {
-                    modal.reject()
-                    modal.hide()
-                }}>
+                <Button htmlType='button' onClick={modal.hide}>
                     {t('取消')}
                 </Button>
             </FormButtonGroup>

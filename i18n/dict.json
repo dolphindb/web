@@ -1699,5 +1699,8 @@
     },
     "请根据分区方案顺序选择分区列": {
         "en": "Please select partition columns according to partition schema"
+    },
+    "该数据库没有需要配置的分区列": {
+        "en": "This database has no partition columns that need to be configured"
     }
 }

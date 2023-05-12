@@ -2,7 +2,7 @@ import './CreateTableModal.scss'
 
 import { default as React, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import NiceModal from '@ebay/nice-modal-react'
-import { Button, Modal, Result, SelectProps, Spin } from 'antd'
+import { Button, Divider, Empty, Modal, Result, SelectProps, Spin } from 'antd'
 import { createForm, Field } from '@formily/core'
 import {
     Form,
@@ -11,8 +11,7 @@ import {
 } from '@formily/antd-v5'
 import { mapKeys } from 'lodash'
 
-import { DdbType } from 'dolphindb/browser.js'
-import { DdbObj } from 'dolphindb'
+import { DdbType, DdbObj } from 'dolphindb/browser.js'
 
 import { t } from '../../i18n/index.js'
 import { type Database } from './Databases.js'
@@ -56,8 +55,8 @@ interface CreateTableFormValues {
     tableType: TableTypes
     tableName: string
     columns: ICreateTableColumnFormValue[]
-    partitionColumns: string[]
-    sortColumns: string[]
+    partitionColumns?: string[]
+    sortColumns?: string[]
     keepDuplicates: KeepDuplicatesValues
 }
 
@@ -67,7 +66,7 @@ enum CreateTableStepsEnum {
     ExecuteResult = 'execute-result',
 }
 
-const DatabaseContext = React.createContext({} as Database)
+const PropsContext = React.createContext({} as Props)
 
 const StepsContext = React.createContext({} as ReturnType<typeof useSteps>)
 
@@ -77,7 +76,7 @@ const escapeColumnName = (name: string) => `_${JSON.stringify(name)}`
 
 function CreateTableModalPreviewCode () {
     const steps = useContext(StepsContext)
-    const database = useContext(DatabaseContext)
+    const database = useContext(PropsContext)
 
     const code = useMemo(() => {
         const form_values: CreateTableFormValues =
@@ -118,12 +117,12 @@ function CreateTableModalPreviewCode () {
     return (
         <div className='create-table-preview-code'>
             <div className='create-table-preview-code-editor'>
-                <Editor 
-                    value={code} 
+                <Editor
+                    value={code}
                     readonly
-                    options={{ 
-                        padding: { top: 8 }, 
-                        overviewRulerBorder: false 
+                    options={{
+                        padding: { top: 8 },
+                        overviewRulerBorder: false
                     }}
                 />
                 <CopyIconButton
@@ -169,8 +168,8 @@ function CreateTableModalExecuteResult () {
             icon={<Spin spinning size='large' />}
             title={t('建表中...')}
         />
-        
-    
+
+
     if (error)
         return (
             <Result
@@ -184,10 +183,7 @@ function CreateTableModalExecuteResult () {
                     </Button>,
                     <Button
                         key='cancel'
-                        onClick={() => {
-                            modal.reject()
-                            modal.hide()
-                        }}
+                        onClick={modal.hide}
                     >
                         {t('取消')}
                     </Button>,
@@ -234,12 +230,10 @@ const DDB_COLUMN_COMPRESS_METHODS_SELECT_OPTIONS: SelectProps['options'] = [
 
 const COLUMNS_REACTION_FULLFILL_EXPRESSION =
     '{{ $deps.columns?.filter(col => col.name).map(column => ({ label: column.name, value: column.name })) || []  }}'
-const COLUMNS_REACTION_STATE_VALUE_EXPRESSION =
-    '{{ $self.value?.filter(col => $deps.columns.some(depCol => depCol.name === col)) || []  }}'
-    
-const getPartitionSchemeDescription = (partitionTypeName: PartitionTypeName, schema: DdbObj) => {
+
+const getPartitionSchemeDescription = ({ schema, typeName }: IPartition) => {
     let schemaType = ''
-    switch (partitionTypeName) {
+    switch (typeName) {
         case PartitionTypeName.LIST:
             // 列表分区参数是 any vector，为了获取正确的数据类型（类型是唯一的），需要多取一层
             schemaType = DdbType[schema.value[0].type].toUpperCase()
@@ -257,33 +251,40 @@ const getPartitionSchemeDescription = (partitionTypeName: PartitionTypeName, sch
             schemaType = DdbType[schema.type].toUpperCase()
             break
     }
-    
-    return `${partitionTypeName}(${schemaType})`
+
+    return `${typeName}(${schemaType})`
 }
-    
+
+interface IPartition {
+    typeName: PartitionTypeName
+    schema: DdbObj
+}
+
 function CreateTableModalFillForm () {
     const steps = useContext(StepsContext)
-    const database = useContext(DatabaseContext)
-    
-    useEffect(() => {
-        model.ddb.eval(`schema(database("${database.path}"))`).then(res => {
-            const schema = res.to_dict()
-            const partitionTypeNameList = []
-            const partitionSchemaList = []
-            if (Array.isArray(schema.partitionTypeName.value)) {
-                partitionTypeNameList.push(...schema.partitionTypeName.value)
-                partitionSchemaList.push(...schema.partitionSchema.value as unknown as DdbObj[])
-            } else {
-                partitionTypeNameList.push(schema.partitionTypeName.value)
-                partitionSchemaList.push(schema.partitionSchema)
-            }
-            form.setFieldState('dbPartitionSchema', {
-                value: partitionTypeNameList.map((typeName, index) => getPartitionSchemeDescription(typeName, partitionSchemaList[index])).join(', ')
+    const { database, schema } = useContext(PropsContext)
+
+    const partitionList = useMemo(() => {
+        const partitions: IPartition[] = []
+        if (Array.isArray(schema.partitionTypeName.value))
+            partitions.push(...schema.partitionTypeName.value.map((typeName, index) => ({
+                typeName,
+                schema: schema.partitionSchema.value[index] as DdbObj,
+            })))
+        else
+            partitions.push({
+                typeName: schema.partitionTypeName.value as PartitionTypeName,
+                schema: schema.partitionSchema,
             })
-        }).catch(error => {
-            model.show_error({ error })
-        })
-    }, [database])
+
+        return partitions
+    }, [schema])
+
+    const configurablePartitions = useMemo(
+        // SEQ 顺序分区不配置方案，需要排除
+        () => partitionList.filter(({ typeName }) => typeName !== PartitionTypeName.SEQ),
+        [partitionList]
+    )
 
     // restore form value from steps context
     const form = useMemo(
@@ -313,15 +314,6 @@ function CreateTableModalFillForm () {
                 <SchemaField.String
                     name='dbPath'
                     title={t('数据库路径')}
-                    x-decorator='FormItem'
-                    x-component='Input'
-                    x-component-props={{
-                        disabled: true,
-                    }}
-                />
-                <SchemaField.String
-                    name='dbPartitionSchema'
-                    title={t('分区方案')}
                     x-decorator='FormItem'
                     x-component='Input'
                     x-component-props={{
@@ -493,14 +485,11 @@ function CreateTableModalFillForm () {
                         title={t('添加列')}
                     />
                 </SchemaField.Array>
-                <SchemaField.Array
-                    // TODO: 通过 schema(database('dfs://A.compo')) 的分区类型判断分区列是否必填
+                <SchemaField.Void
                     name='partitionColumns'
                     title={t('分区列')}
-                    description={t('请根据分区方案顺序选择分区列')}
+                    description={configurablePartitions.length > 0 ? t('请根据分区方案顺序选择分区列') : undefined}
                     x-decorator='FormItem'
-                    x-component='Select'
-                    x-component-props={{ mode: 'multiple' }}
                     x-reactions={[
                         {
                             dependencies: {
@@ -512,21 +501,48 @@ function CreateTableModalFillForm () {
                                 },
                             },
                         },
-                        {
-                            dependencies: {
-                                columns: 'columns',
-                            },
-                            fulfill: {
-                                schema: {
-                                    enum: COLUMNS_REACTION_FULLFILL_EXPRESSION,
-                                },
-                                state: {
-                                    value: COLUMNS_REACTION_STATE_VALUE_EXPRESSION,
-                                },
-                            },
-                        },
                     ]}
-                />
+                >
+                    {
+                        configurablePartitions.length > 0 
+                            ? configurablePartitions.map((partition, index) =>
+                                <SchemaField.String
+                                    required
+                                    name={`partitionColumns[${index}]`}
+                                    key={index}
+                                    title={getPartitionSchemeDescription(partition)}
+                                    x-decorator='FormItem'
+                                    x-decorator-props={{
+                                        labelCol: 5,
+                                        labelAlign: 'left',
+                                    }}
+                                    x-component='Select'
+                                    x-reactions={[
+                                        {
+                                            dependencies: {
+                                                columns: 'columns',
+                                            },
+                                            fulfill: {
+                                                schema: {
+                                                    enum: COLUMNS_REACTION_FULLFILL_EXPRESSION,
+                                                },
+                                                state: {
+                                                    value: '{{ $deps.columns.some(depCol => depCol.name === $self.value) ? $self.value : null }}',
+                                                },
+                                            },
+                                        },
+                                    ]}
+                                />)
+                            : <SchemaField.Void
+                                x-component='p'
+                                x-component-props={{
+                                    className: 'no-partition-scheme',
+                                    children: t('该数据库没有需要配置的分区列'),
+                                }}
+                            />
+                    }
+                </SchemaField.Void>
+
                 <SchemaField.Array
                     name='sortColumns'
                     title={t('排序列')}
@@ -543,7 +559,7 @@ function CreateTableModalFillForm () {
                                     enum: COLUMNS_REACTION_FULLFILL_EXPRESSION,
                                 },
                                 state: {
-                                    value: COLUMNS_REACTION_STATE_VALUE_EXPRESSION,
+                                    value: '{{ $self.value?.filter(col => $deps.columns.some(depCol => depCol.name === col)) || []  }}',
                                 },
                             },
                         },
@@ -660,9 +676,10 @@ const CreateTableSteps = [
 
 interface Props {
     database: Database
+    schema: Record<string, DdbObj>
 }
 
-export const CreateTableModal = NiceModal.create<Props>(({ database }) => {
+export const CreateTableModal = NiceModal.create<Props>(props => {
     const modal = NiceModal.useModal()
 
     const steps = useSteps<CreateTableStepsEnum>(
@@ -674,16 +691,13 @@ export const CreateTableModal = NiceModal.create<Props>(({ database }) => {
         <Modal
             width={1000}
             open={modal.visible}
-            onCancel={() => {
-                modal.reject()
-                modal.hide()
-            }}
+            onCancel={modal.hide}
             maskClosable={false}
             title={t('创建数据表')}
             afterClose={modal.remove}
             footer={null}
         >
-            <DatabaseContext.Provider value={database}>
+            <PropsContext.Provider value={props}>
                 <StepsContext.Provider value={steps}>
                     {steps.current === CreateTableStepsEnum.FillForm && (
                         <CreateTableModalFillForm />
@@ -695,7 +709,7 @@ export const CreateTableModal = NiceModal.create<Props>(({ database }) => {
                         <CreateTableModalExecuteResult />
                     )}
                 </StepsContext.Provider>
-            </DatabaseContext.Provider>
+            </PropsContext.Provider>
         </Modal>
     )
 })

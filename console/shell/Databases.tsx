@@ -758,17 +758,15 @@ export class Database implements DataNode {
         const enable_create_table = [NodeType.single, NodeType.data].includes(model.node_type)
         
         const onclick_create_table: React.MouseEventHandler<HTMLSpanElement> = enable_create_table ?
-            event => {
+            async event => {
                 event.stopPropagation()
-                NiceModal.show(CreateTableModal, { database: this })
-                    .then(async () => {
-                        shell.load_dbs().catch(error => {
-                            model.show_error({ error })
-                        })
-                    })
-                    .catch(() => {
-                        // user canceled
-                    })
+                try {
+                    const databaseSchema = (await model.ddb.eval(`schema(database("${this.path}"))`)).to_dict()
+                    await NiceModal.show(CreateTableModal, { database: this, schema: databaseSchema })
+                    await shell.load_dbs()
+                } catch (error) {
+                    model.show_error({ error })
+                }
             }
         :
             event => {
@@ -1108,8 +1106,8 @@ export class ColumnRoot implements DataNode {
         this.title = <div className='column-root-title'>
             {t('列')}
             <div className='add-column-button' onClick={ event => {
-                NiceModal.show(AddColumnModal, { node: this })
                 event.stopPropagation()
+                NiceModal.show(AddColumnModal, { node: this })
             }}>
                 <Tooltip title={t('添加列')} color='grey'>
                     <Icon component={SvgAddColumn} />
