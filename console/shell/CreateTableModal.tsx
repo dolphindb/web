@@ -2,14 +2,14 @@ import './CreateTableModal.scss'
 
 import { default as React, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import NiceModal from '@ebay/nice-modal-react'
-import { Button, Modal, Result, SelectProps, Spin, message } from 'antd'
+import { Button, Modal, Result, SelectProps, Spin } from 'antd'
 import { createForm, Field } from '@formily/core'
 import {
     Form,
     FormButtonGroup,
     Submit,
 } from '@formily/antd-v5'
-import { castArray, mapKeys } from 'lodash'
+import { mapKeys } from 'lodash'
 
 import { DdbType } from 'dolphindb/browser.js'
 import { DdbObj } from 'dolphindb'
@@ -28,6 +28,7 @@ import { useSteps } from '../utils/hooks/use-steps.js'
 import { useAsyncEffect } from '../utils/hooks/use-async-effect.js'
 import { Editor } from './Editor/index.js'
 import { DDBTypeSelectorSchemaFields, SchemaField } from '../components/formily/index.js'
+import { PartitionTypeName } from '../constants/partition-type.js'
 
 
 // Table（维度表）不支持 partitionColumns
@@ -235,7 +236,31 @@ const COLUMNS_REACTION_FULLFILL_EXPRESSION =
     '{{ $deps.columns?.filter(col => col.name).map(column => ({ label: column.name, value: column.name })) || []  }}'
 const COLUMNS_REACTION_STATE_VALUE_EXPRESSION =
     '{{ $self.value?.filter(col => $deps.columns.some(depCol => depCol.name === col)) || []  }}'
-
+    
+const getPartitionSchemeDescription = (partitionTypeName: PartitionTypeName, schema: DdbObj) => {
+    let schemaType = ''
+    switch (partitionTypeName) {
+        case PartitionTypeName.LIST:
+            // 列表分区参数是 any vector，为了获取正确的数据类型（类型是唯一的），需要多取一层
+            schemaType = DdbType[schema.value[0].type].toUpperCase()
+            break
+        case PartitionTypeName.SEQ:
+            // 顺序分区没有确定的数据类型，只取数量作为描述
+            schemaType = schema.value.toString()
+            break
+        case PartitionTypeName.HASH:
+            // FIXME: HASH 分区服务器返回有误，没有返回数据类型，只返回了分区数量，无法正确展示，待服务器修复
+            schemaType = schema.value.toString()
+            break
+        default:
+            // RANGE(TYPE), VALUE(TYPE)
+            schemaType = DdbType[schema.type].toUpperCase()
+            break
+    }
+    
+    return `${partitionTypeName}(${schemaType})`
+}
+    
 function CreateTableModalFillForm () {
     const steps = useContext(StepsContext)
     const database = useContext(DatabaseContext)
@@ -243,12 +268,17 @@ function CreateTableModalFillForm () {
     useEffect(() => {
         model.ddb.eval(`schema(database("${database.path}"))`).then(res => {
             const schema = res.to_dict()
-            const partitionTypeNameList = castArray(schema.partitionTypeName.value as string | string[])
-            const partitionSchemaList = castArray(schema.partitionSchema.value as number | DdbObj).map(v => v instanceof DdbObj ? DdbType[v.type].toUpperCase() : v)
+            const partitionTypeNameList = []
+            const partitionSchemaList = []
+            if (Array.isArray(schema.partitionTypeName.value)) {
+                partitionTypeNameList.push(...schema.partitionTypeName.value)
+                partitionSchemaList.push(...schema.partitionSchema.value as unknown as DdbObj[])
+            } else {
+                partitionTypeNameList.push(schema.partitionTypeName.value)
+                partitionSchemaList.push(schema.partitionSchema)
+            }
             form.setFieldState('dbPartitionSchema', {
-                value: partitionTypeNameList.map((typeName, index) => 
-                    `${typeName}(${partitionSchemaList[index]})`
-                ).join(', ')
+                value: partitionTypeNameList.map((typeName, index) => getPartitionSchemeDescription(typeName, partitionSchemaList[index])).join(', ')
             })
         }).catch(error => {
             model.show_error({ error })

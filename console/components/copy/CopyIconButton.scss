@@ -1,0 +1,12 @@
+.copy-icon-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    box-sizing: border-box;
+    
+    &:hover {
+        border: 1px solid #E2E2E2;
+    }
+}

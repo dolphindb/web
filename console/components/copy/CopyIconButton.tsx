@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react'
+import cn from 'classnames'
 
 import { Button, ButtonProps, Tooltip } from 'antd'
-import { CheckOutlined, CopyOutlined } from '@ant-design/icons'
 import copy from 'copy-to-clipboard'
+
+import SVGCopyIcon from './copy.icon.svg'
+import SVGCopiedIcon from './copied.icon.svg'
 
 import { t } from '../../../i18n/index.js'
 
+import './CopyIconButton.scss'
 
 interface CopyIconButtonProps extends Omit<ButtonProps, 'children' | 'onClick'> {
     text: string
@@ -38,9 +42,10 @@ export function CopyIconButton (props: CopyIconButtonProps) {
     return (
         <Tooltip title={copied ? copyTooltips[1] : copyTooltips[0]}>
             <Button
-                icon={copied ? <CheckOutlined /> : <CopyOutlined />}
-                onClick={onCopy}
                 {...button_props}
+                className={cn('copy-icon-button', button_props.className)}
+                icon={copied ? <SVGCopiedIcon /> : <SVGCopyIcon />}
+                onClick={onCopy}
             />
         </Tooltip>
     )

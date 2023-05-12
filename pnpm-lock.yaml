@@ -33,6 +33,9 @@ dependencies:
   antd:
     specifier: ^5.4.7
     version: 5.4.7(react-dom@18.2.0)(react@18.2.0)
+  classnames:
+    specifier: ^2.3.2
+    version: 2.3.2
   copy-to-clipboard:
     specifier: ^3.3.3
     version: 3.3.3
@@ -1954,11 +1957,11 @@ packages:
       '@dnd-kit/sortable': 7.0.2(@dnd-kit/core@6.0.8)(react@18.2.0)
       '@formily/core': 2.2.23
       '@formily/grid': 2.2.22(typescript@5.0.4)
-      '@formily/json-schema': 2.2.22(typescript@5.0.4)
+      '@formily/json-schema': 2.2.23(typescript@5.0.4)
       '@formily/react': 2.2.23(@types/react-dom@18.2.4)(@types/react@18.2.6)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.0.4)
-      '@formily/reactive': 2.2.22
-      '@formily/reactive-react': 2.2.22(@types/react-dom@18.2.4)(@types/react@18.2.6)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)
-      '@formily/shared': 2.2.22
+      '@formily/reactive': 2.2.23
+      '@formily/reactive-react': 2.2.23(@types/react-dom@18.2.4)(@types/react@18.2.6)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)
+      '@formily/shared': 2.2.23
       '@types/react': 18.2.6
       '@types/react-dom': 18.2.4
       antd: 5.4.7(react-dom@18.2.0)(react@18.2.0)
@@ -1969,15 +1972,6 @@ packages:
       react-sticky-box: 1.0.2(react@18.2.0)
     transitivePeerDependencies:
       - typescript
-    dev: false
-
-  /@formily/core@2.2.22:
-    resolution: {integrity: sha512-CNJSGotaGiDsAd4NxbeYcLe1KqIo+bKvYiO0zQ7DBWGF4g1ThRBJCUaOnEy1RdxLypGAF5O98DtuiSGMeX7Xvg==}
-    engines: {npm: '>=3.0.0'}
-    dependencies:
-      '@formily/reactive': 2.2.22
-      '@formily/shared': 2.2.22
-      '@formily/validator': 2.2.22
     dev: false
 
   /@formily/core@2.2.23:
@@ -2000,18 +1994,6 @@ packages:
       typescript: 5.0.4
     dev: false
 
-  /@formily/json-schema@2.2.22(typescript@5.0.4):
-    resolution: {integrity: sha512-RkIObTHwYkvzy1km770lLM3SoZvIS4TTnnOSZMdW+qWTwS+956dO8sjPUwzoQ51/ELiA9Zy3s0ao9mUcawdZjw==}
-    engines: {npm: '>=3.0.0'}
-    peerDependencies:
-      typescript: ^4.1.5
-    dependencies:
-      '@formily/core': 2.2.22
-      '@formily/reactive': 2.2.22
-      '@formily/shared': 2.2.22
-      typescript: 5.0.4
-    dev: false
-
   /@formily/json-schema@2.2.23(typescript@5.0.4):
     resolution: {integrity: sha512-MbFLmZJp0WA4KJcy7GEL5KkjqtIZ6W4KoYJfkpMSW06ziOW8QNxn0tkuuebuLSQwVayjrA6WN/hUybsnbPK2lQ==}
     engines: {npm: '>=3.0.0'}
@@ -2022,11 +2004,6 @@ packages:
       '@formily/reactive': 2.2.23
       '@formily/shared': 2.2.23
       typescript: 5.0.4
-    dev: false
-
-  /@formily/path@2.2.22:
-    resolution: {integrity: sha512-lu7dUqiK1+Ux9mIRleV0hkGYUNi+msGC//FLDikPsEqM86uOgbGlF0ryF1EgzQVcuTRG7RVgOY/1nutSMudMKw==}
-    engines: {npm: '>=3.0.0'}
     dev: false
 
   /@formily/path@2.2.23:
@@ -2065,30 +2042,6 @@ packages:
       - typescript
     dev: false
 
-  /@formily/reactive-react@2.2.22(@types/react-dom@18.2.4)(@types/react@18.2.6)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0):
-    resolution: {integrity: sha512-CrDa8qDK/IiNDZqKAqTAAZEJczuQHJqS8tYOvtLtJ+D1GfoJizMkeKLCHw8Uv7MMmA/7RMhKqbcIyV1hsGl1LQ==}
-    engines: {npm: '>=3.0.0'}
-    peerDependencies:
-      '@types/react': '>=16.8.0'
-      '@types/react-dom': '>=16.8.0'
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
-      react-is: '>=16.8.0'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      '@types/react-dom':
-        optional: true
-    dependencies:
-      '@formily/reactive': 2.2.22
-      '@types/react': 18.2.6
-      '@types/react-dom': 18.2.4
-      hoist-non-react-statics: 3.3.2
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      react-is: 16.13.1
-    dev: false
-
   /@formily/reactive-react@2.2.23(@types/react-dom@18.2.4)(@types/react@18.2.6)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0):
     resolution: {integrity: sha512-nkqdLwp8g23g0Jt7eQ3Km43ekSxlbO9m/ReurAlMR5Tw3+EiRr5aIWzpLrQQqGQ9jZyKkJgAScFRRyIrFx2fcA==}
     engines: {npm: '>=3.0.0'}
@@ -2123,19 +2076,6 @@ packages:
     engines: {npm: '>=3.0.0'}
     dev: false
 
-  /@formily/shared@2.2.22:
-    resolution: {integrity: sha512-ru6NdUFIMLBc9lqEjodHZ23oiZqPDE2j3iC8NJuoimyIkpj0ZglAk2T9bhDFUtgjwbUqjYFBBKbvHosyL+/zgg==}
-    engines: {npm: '>=3.0.0'}
-    dependencies:
-      '@formily/path': 2.2.22
-      camel-case: 4.1.2
-      lower-case: 2.0.2
-      no-case: 3.0.4
-      param-case: 3.0.4
-      pascal-case: 3.1.2
-      upper-case: 2.0.2
-    dev: false
-
   /@formily/shared@2.2.23:
     resolution: {integrity: sha512-pd54eUVf33F+siY2hGESXNaIv8T8DKRI1g8uwqs2Q7ph4MpAyDFoeUXtjHxpNoJ1ML9RXau0OQ/k9BSWGF38uA==}
     engines: {npm: '>=3.0.0'}
@@ -2147,13 +2087,6 @@ packages:
       param-case: 3.0.4
       pascal-case: 3.1.2
       upper-case: 2.0.2
-    dev: false
-
-  /@formily/validator@2.2.22:
-    resolution: {integrity: sha512-Dsltjv6FaZfQK+gAYmGJAEmzWoAet7ZZDQpy9JdX0bwVqnZNzZxhU6g3+Io4xnE5Gv79vnO12NbNf7SXZlth3Q==}
-    engines: {npm: '>=3.0.0'}
-    dependencies:
-      '@formily/shared': 2.2.22
     dev: false
 
   /@formily/validator@2.2.23:
