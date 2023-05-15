@@ -25,7 +25,7 @@
         "@svgr/webpack": "^8.0.1",
         "@types/koa": "^2.13.6",
         "@types/lodash": "^4.14.194",
-        "@types/node": "^20.1.1",
+        "@types/node": "^20.1.4",
         "@types/react": "^18.2.6",
         "@types/react-dom": "^18.2.4",
         "@types/sass-loader": "^8.0.4",
@@ -45,15 +45,15 @@
         "ts-loader": "^9.4.2",
         "typescript": "^5.0.4",
         "upath": "^2.0.1",
-        "webpack": "^5.82.0",
+        "webpack": "^5.82.1",
         "webpack-bundle-analyzer": "^4.8.0"
     },
     "dependencies": {
         "@ant-design/icons": "^5.0.1",
         "@ant-design/plots": "^1.2.5",
-        "@ant-design/pro-layout": "^7.13.3",
+        "@ant-design/pro-layout": "^7.13.4",
         "@ebay/nice-modal-react": "^1.2.10",
-        "@formily/antd-v5": "1.1.0-beta.1",
+        "@formily/antd-v5": "1.1.0-beta.2",
         "@formily/core": "^2.2.23",
         "@formily/react": "^2.2.23",
         "@monaco-editor/react": "^4.5.1",
@@ -81,7 +81,7 @@
     },
     "pnpm": {
         "patchedDependencies": {
-            "webpack@5.82.0": "patches/webpack@5.82.0.patch"
+            "webpack@5.82.1": "patches/webpack@5.82.1.patch"
         }
     }
 }
