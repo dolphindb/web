@@ -12,9 +12,14 @@ import {
     DdbObj,
     DdbType,
     format,
+    formati,
     DdbFunctionType,
     type DdbFunctionDefValue,
-    type InspectOptions
+    type InspectOptions,
+    type DdbVectorObj,
+    type DdbDecimal32VectorValue,
+    type DdbDecimal64VectorValue,
+    type DdbDecimal128VectorValue
 } from 'dolphindb/browser.js'
 
 
@@ -282,6 +287,25 @@ export class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 for (let i = 0; i < items.length; i++)
                                     items[i] = format(this.type, value.subarray(2 * i, 2 * (i + 1)), this.obj.le, options)
+                                
+                                return ' = ' + format_array(items, len_data > limit)
+                            }
+                            
+                            case DdbType.decimal32: 
+                            case DdbType.decimal64:
+                            case DdbType.decimal128: {
+                                const limit = 50 as const
+                                
+                                const value = this.obj.value as DdbDecimal32VectorValue | DdbDecimal64VectorValue | DdbDecimal128VectorValue
+                                
+                                const len_data = value.data.length
+                                
+                                let items = new Array(Math.min(limit, len_data))
+                                
+                                const options = { ...this.options, quote: true, nullstr: true }
+                                
+                                for (let i = 0; i < items.length; i++)
+                                    items[i] = formati(this.obj as DdbVectorObj, i, options)
                                 
                                 return ' = ' + format_array(items, len_data > limit)
                             }
