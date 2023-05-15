@@ -231,26 +231,30 @@ const DDB_COLUMN_COMPRESS_METHODS_SELECT_OPTIONS: SelectProps['options'] = [
 const COLUMNS_REACTION_FULLFILL_EXPRESSION =
     '{{ $deps.columns?.filter(col => col.name).map(column => ({ label: column.name, value: column.name })) || []  }}'
 
-const getPartitionSchemeDescription = ({ schema, typeName }: IPartition) => {
+const getPartitionSchemeDescription = ({ schema, typeName, columnType }: IPartition) => {
     let schemaType = ''
-    switch (typeName) {
-        case PartitionTypeName.LIST:
-            // 列表分区参数是 any vector，为了获取正确的数据类型（类型是唯一的），需要多取一层
-            schemaType = DdbType[schema.value[0].type].toUpperCase()
-            break
-        case PartitionTypeName.SEQ:
-            // 顺序分区没有确定的数据类型，只取数量作为描述
-            schemaType = schema.value.toString()
-            break
-        case PartitionTypeName.HASH:
-            // FIXME: HASH 分区服务器返回有误，没有返回数据类型，只返回了分区数量，无法正确展示，待服务器修复
-            schemaType = schema.value.toString()
-            break
-        default:
-            // RANGE(TYPE), VALUE(TYPE)
-            schemaType = DdbType[schema.type].toUpperCase()
-            break
-    }
+    
+    if (columnType) 
+        schemaType = DdbType[columnType].toUpperCase()
+    else 
+        switch (typeName) {
+            case PartitionTypeName.LIST:
+                // 列表分区参数是 any vector，为了获取正确的数据类型（类型是唯一的），需要多取一层
+                schemaType = DdbType[schema.value[0].type].toUpperCase()
+                break
+            case PartitionTypeName.SEQ:
+                // 顺序分区没有确定的数据类型，只取数量作为描述
+                schemaType = schema.value.toString()
+                break
+            case PartitionTypeName.HASH:
+                // FIXME: HASH 分区服务器返回有误，没有返回数据类型，只返回了分区数量，无法正确展示，待服务器修复
+                schemaType = schema.value.toString()
+                break
+            default:
+                // RANGE(TYPE), VALUE(TYPE)
+                schemaType = DdbType[schema.type].toUpperCase()
+                break
+        }
 
     return `${typeName}(${schemaType})`
 }
@@ -258,6 +262,11 @@ const getPartitionSchemeDescription = ({ schema, typeName }: IPartition) => {
 interface IPartition {
     typeName: PartitionTypeName
     schema: DdbObj
+    /** 
+     * columnType 来自 partitionColumnType 属性，仅 1.30.22, 2.00.10, 2.10.00 之后的服务器版本可以使用，
+     * 不支持的情况下需要从 partitionSchema 中推断（HASH 分区存在数据缺失，无法推断） 
+     * */
+    columnType: number
 }
 
 function CreateTableModalFillForm () {
@@ -270,11 +279,13 @@ function CreateTableModalFillForm () {
             partitions.push(...schema.partitionTypeName.value.map((typeName, index) => ({
                 typeName,
                 schema: schema.partitionSchema.value[index] as DdbObj,
+                columnType: schema.partitionColumnType?.value?.[index],
             })))
         else
             partitions.push({
                 typeName: schema.partitionTypeName.value as PartitionTypeName,
                 schema: schema.partitionSchema,
+                columnType: schema.partitionColumnType?.value as number,
             })
 
         return partitions
