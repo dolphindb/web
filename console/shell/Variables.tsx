@@ -294,7 +294,7 @@ export class DdbVar <T extends DdbObj = DdbObj> {
                             case DdbType.decimal32: 
                             case DdbType.decimal64:
                             case DdbType.decimal128: {
-                                const limit = 50 as const
+                                const limit = 20 as const
                                 
                                 const value = this.obj.value as DdbDecimal32VectorValue | DdbDecimal64VectorValue | DdbDecimal128VectorValue
                                 
