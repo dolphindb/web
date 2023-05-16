@@ -387,7 +387,6 @@ function Vector ({
         })
     
     return <div className='vector'>
-        <div style={{ display: 'flex' }}>
             <AntTable
                 dataSource={rows as any[]}
                 rowKey={x => x}
@@ -406,7 +405,6 @@ function Vector ({
                     ... cols
                 ]}
             />
-        </div>
         
         
         <div className='bottom-bar'>
