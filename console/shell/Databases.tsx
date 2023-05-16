@@ -554,7 +554,7 @@ function CreateDatabase () {
                     if (val < 1 || val > 3)
                         throw new TypeError(t('分区层数必须在1-3之间'))
                 }
-            }]} initialValue={shell.use(['create_database_partition_count']).create_database_partition_count}>
+            }]} initialValue={create_database_partition_count}>
                 <InputNumber onChange={(e: string) => {
                     const level = parseInt(e, 10)
                     if (level < 1 || level > 3)
