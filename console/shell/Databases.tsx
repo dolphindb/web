@@ -319,7 +319,7 @@ function ConfirmCommand () {
     
     return <Modal
         className='db-modal'
-        width='60vw'
+        width='960px'
         open={confirm_command_modal_visible}
         onCancel={() => { shell.set({ confirm_command_modal_visible: false }) }}
         title={t('脚本预览')}
@@ -428,7 +428,7 @@ function CreateDatabase () {
     
     return <Modal
         className='db-modal show-required'
-        width='50vw'
+        width='960px'
         open={create_database_modal_visible}
         onCancel={() => { shell.set({ create_database_modal_visible: false, create_database_partition_count: 1 }) }}
         title={t('创建数据库')}
