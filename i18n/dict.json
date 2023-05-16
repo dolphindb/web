@@ -1455,7 +1455,7 @@
         "en": "Copied successfully"
     },
     "上一步": {
-        "en": "Previous"
+        "en": "Go Back"
     },
     "建表中...": {
         "en": "Creating table..."
@@ -1587,7 +1587,7 @@
         "en": "TSDB engine. Using the classic LSMT model, the sorted column is introduced to improve the query performance in the scenario where the user queries the data of a few devices (or stocks) in a specific time period."
     },
     "写入事务原子性": {
-        "en": "Transaction atomicity"
+        "en": "transaction atomicity"
     },
     "请选择写入事务原子性": {
         "en": "Please select transaction atomicity"
