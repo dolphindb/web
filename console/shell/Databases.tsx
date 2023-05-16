@@ -111,7 +111,7 @@ export function Databases () {
                                 <SyncOutlined />
                             </Tooltip>
                         </span>
-                        <span onClick={() => { set_expanded_keys([]) }}>
+                        <span onClick={() => { set_expanded_keys([ ]) }}>
                             <Tooltip title={t('全部折叠')} color='grey'>
                                 <MinusSquareOutlined />
                             </Tooltip>
@@ -198,7 +198,7 @@ export function Databases () {
                                     // 一个 Table 有两种属性 expanded + peeked，共四种状态。以下代码完成4种状态的流转
                                     let expanded = false
                                     const  { peeked } = node
-                                    let keys_ = []
+                                    let keys_ = [ ]
                                     
                                     for (const key of expanded_keys)
                                         if (key === node.key)
@@ -423,7 +423,7 @@ function CreateDatabase () {
     //     runOnNode = datanode.name
     
     useEffect(() => {
-        form.setFieldValue('partitions', [])
+        form.setFieldValue('partitions', [ ])
     }, [ ])
     
     return <Modal
@@ -508,7 +508,7 @@ function CreateDatabase () {
                 // the parser will complain about syntax error.
                 createDBScript = `create database "dfs://${table.dbPath}"\npartitioned by `
                 
-                for (let i = 0; i < partitionCount; i++) {
+                for (let i = 0;  i < partitionCount;  i++) {
                     const { type, scheme } = table.partitions[i]
                     
                     createDBScript += `${type}(${scheme}), `
@@ -563,7 +563,7 @@ function CreateDatabase () {
                     shell.set({ create_database_partition_count: level })
                     
                     if (level < 3) 
-                        for (let i = level; i < 3; i++) 
+                        for (let i = level;  i < 3;  i++) 
                             form.resetFields([['partitions', i, 'type'], ['partitions', i, 'scheme']])
                 }} placeholder='1' type='number' />
             </Form.Item>
@@ -683,7 +683,7 @@ function CreateDatabase () {
                 </Button>
                 <Button htmlType='button' onClick={() => {
                     form.resetFields()
-                    form.setFieldValue('partitions', [])
+                    form.setFieldValue('partitions', [ ])
                     
                     shell.set({ create_database_partition_count: 1 })
                 }}>
@@ -717,7 +717,7 @@ export class DatabaseGroup implements DataNode {
     
     isLeaf = false as const
     
-    children: (Database | DatabaseGroup)[] = []
+    children: (Database | DatabaseGroup)[] = [ ]
     
     
     constructor (key: string) {

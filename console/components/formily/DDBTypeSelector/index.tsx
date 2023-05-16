@@ -13,16 +13,14 @@ interface DDBTypeSelectorSchemaFieldsProps {
     scaleField?: Partial<React.ComponentProps<(typeof SchemaField.Number)>>
 }
 
-/**
- * DDB 数据类型选择组件，包含了联动和校验逻辑，使用时需要在 SchemaField 上设置 scope
- * @example
- * ```
- * <SchemaField scope={{
- *    ...DDBTypeSelectorSchemaFields.ScopeValues
- * }}>
- * ```
- * @returns 
- */
+/** DDB 数据类型选择组件，包含了联动和校验逻辑，使用时需要在 SchemaField 上设置 scope
+    @example
+    ```
+    <SchemaField scope={{
+       ...DDBTypeSelectorSchemaFields.ScopeValues
+    }}>
+    ```
+    @returns  */
 export function DDBTypeSelectorSchemaFields (props: DDBTypeSelectorSchemaFieldsProps) {
     return <>
         <SchemaField.String
@@ -34,7 +32,7 @@ export function DDBTypeSelectorSchemaFields (props: DDBTypeSelectorSchemaFieldsP
             x-component-props={{
                 placeholder: t('选择类型'),
                 showSearch: true,
-                ...(props.typeField?.['x-component-props'] ?? {})
+                ...(props.typeField?.['x-component-props'] ?? { })
             }}
             enum={DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS}
             required

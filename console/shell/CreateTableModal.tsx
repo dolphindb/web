@@ -66,9 +66,9 @@ enum CreateTableStepsEnum {
     ExecuteResult = 'execute-result',
 }
 
-const PropsContext = React.createContext({} as Props)
+const PropsContext = React.createContext({ } as Props)
 
-const StepsContext = React.createContext({} as ReturnType<typeof useSteps>)
+const StepsContext = React.createContext({ } as ReturnType<typeof useSteps>)
 
 const escapeColumnName = (name: string) => `_${JSON.stringify(name)}`
 
@@ -161,7 +161,7 @@ function CreateTableModalExecuteResult () {
         } finally {
             set_loading(false)
         }
-    }, [])
+    }, [ ])
 
     if (loading)
         return <Result
@@ -262,10 +262,8 @@ const getPartitionSchemeDescription = ({ schema, typeName, columnType }: IPartit
 interface IPartition {
     typeName: PartitionTypeName
     schema: DdbObj
-    /** 
-     * columnType 来自 partitionColumnType 属性，仅 1.30.22, 2.00.10, 2.10.00 之后的服务器版本可以使用，
-     * 不支持的情况下需要从 partitionSchema 中推断（HASH 分区存在数据缺失，无法推断） 
-     * */
+    /** columnType 来自 partitionColumnType 属性，仅 1.30.22, 2.00.10, 2.10.00 之后的服务器版本可以使用，
+        不支持的情况下需要从 partitionSchema 中推断（HASH 分区存在数据缺失，无法推断）  */
     columnType: number
 }
 
@@ -274,7 +272,7 @@ function CreateTableModalFillForm () {
     const { database, schema } = useContext(PropsContext)
 
     const partitionList = useMemo(() => {
-        const partitions: IPartition[] = []
+        const partitions: IPartition[] = [ ]
         if (Array.isArray(schema.partitionTypeName.value))
             partitions.push(...schema.partitionTypeName.value.map((typeName, index) => ({
                 typeName,
@@ -306,12 +304,12 @@ function CreateTableModalFillForm () {
                     ...steps.context_map[CreateTableStepsEnum.FillForm],
                 },
             }),
-        []
+        [ ]
     )
 
     const onSubmit = useCallback(async (formValues: CreateTableFormValues) => {
         steps.next(formValues)
-    }, [])
+    }, [ ])
 
     return (
         <Form

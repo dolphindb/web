@@ -221,7 +221,7 @@ const removeEmptyProperties = obj => {
 
 function Clusters () {
     const { clusters, versions, namespaces } = model.use(['clusters', 'versions', 'namespaces'])
-    const [ { mode, name, namespace, cluster_type }, set_current_cluster] = useState({} as Cluster)
+    const [ { mode, name, namespace, cluster_type }, set_current_cluster] = useState({ } as Cluster)
     
     const [create_panel_visible, set_create_panel_visible] = useState(false)
     
@@ -309,7 +309,7 @@ function Clusters () {
                             autoFocus
                             value={selectedKeys[0]}
                             placeholder={t('输入关键字搜索集群名称')}
-                            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [ ])}
                             onPressEnter={() => {
                                 confirm()
                             }}
@@ -395,8 +395,8 @@ function Clusters () {
             
             onChange={(pagination, filters, sorters, extra) => {
                 let queries = { } as QueryOptions
-                let sortField: string[] = []
-                let orders: string[] = []
+                let sortField: string[] = [ ]
+                let orders: string[] = [ ]
                 
                 
                 if (Array.isArray(sorters)) {
@@ -1694,19 +1694,19 @@ function ClusterConfigs ({
     const { show_all_config } = model.use(['show_all_config'])
 
     const [config, setConfig] = useState<ClusterConfig>(cluster.mode === 'cluster' ? {
-        cluster_config: [],
-        controller_config: [],
-        agent_config: []
+        cluster_config: [ ],
+        controller_config: [ ],
+        agent_config: [ ]
     } : {
-        dolphindb_config: []
+        dolphindb_config: [ ]
     })
 
     const [editedConfig, setEditedConfig] = useState<ClusterConfig>(cluster.mode === 'cluster' ? {
-        cluster_config: [],
-        controller_config: [],
-        agent_config: []
+        cluster_config: [ ],
+        controller_config: [ ],
+        agent_config: [ ]
     } : {
-        dolphindb_config: []
+        dolphindb_config: [ ]
     })
 
     const onConfigChange = (newItem: Partial<ClusterConfigItem> & { name: string }, type: ConfigType) => {
@@ -2068,7 +2068,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
                             message: t('请输入参数值')
                         }] 
                         : 
-                        []}
+                        [ ]}
                     valuePropName={record.type === 'bool' ? 'checked' : 'value'}
                 >
                     {
@@ -2295,7 +2295,7 @@ function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, ref
             const fetched_providers = (await request_json_with_error_handling('/v1/dolphindbs/backups/providers')).providers
             set_providers(fetched_providers)
         })()
-    }, [])
+    }, [ ])
     
     useEffect(() => {
         s3_form.setFieldValue('provider', providers[0])
@@ -2473,8 +2473,8 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
     const { cluster } = model.use(['cluster'])
     const { namespace } = cluster
     // @ts-ignore
-    const [{ phase, remote_type, source_key, from, stored_path, storage_class, storage_resource, dolphindb_name, dolphindb_namespace }, setData] = useState<FlattenBackupDetail | FlattenRestoreDetail>({})
-    const [source_key_detail, set_source_key_detail] = useState<SourceKeyDetail[]>([])
+    const [{ phase, remote_type, source_key, from, stored_path, storage_class, storage_resource, dolphindb_name, dolphindb_namespace }, setData] = useState<FlattenBackupDetail | FlattenRestoreDetail>({ })
+    const [source_key_detail, set_source_key_detail] = useState<SourceKeyDetail[]>([ ])
 
     async function fetch_data () {
         if (!props.name) 
@@ -2646,11 +2646,11 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
     const [form_instance_backup] = Form.useForm()
     const [form_instance_restore] = Form.useForm()
 
-    const [source_keys, set_SourceKeys] = useState<string[]>([])
+    const [source_keys, set_SourceKeys] = useState<string[]>([ ])
 
     const [source_key_detail, set_source_key_detail] = useState<SourceKeyDetail>()
 
-    const [storage_class, set_storage_class] = useState<string[]>([])
+    const [storage_class, set_storage_class] = useState<string[]>([ ])
 
     const [refresher, set_refresher] = useState(0)
 
@@ -2666,7 +2666,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
 
     const { namespaces } = model.use(['namespaces'])
 
-    const [selectable_names, set_selectable_names] = useState<string[]>([])
+    const [selectable_names, set_selectable_names] = useState<string[]>([ ])
 
     const [init_value_of_restore_modal, set_init_value_of_restore_modal] = useState<{ dolphindb_namespace: string, dolphindb_name: string }>()
 
@@ -2725,7 +2725,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
         refresh_source_key()
         refresh_source_key_detail()
         refresh_selectable_storage_class()
-    }, [])
+    }, [ ])
 
     useEffect(() => {
         if (backup_modal_open) {
@@ -3416,7 +3416,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
             sourcekey_modaol_open={sourcekey_modal_open}
             set_sourcekey_modal_open={set_sourcekey_modal_open}
             // refresh_source_key 用于改变父组件状态，但是在此不需要，因此传一个空函数
-            refresh_source_key={ () => {} }
+            refresh_source_key={ () => { } }
         /> : <div />}
 
         {source_key_detail ?

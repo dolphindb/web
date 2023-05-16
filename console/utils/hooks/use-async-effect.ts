@@ -7,12 +7,10 @@ function isAsyncGenerator (
     return isFunction(val[Symbol.asyncIterator])
 }
 
-/**
- * 支持异步函数的 `useEffect`，文档参考：
- * https://ahooks.gitee.io/zh-CN/hooks/use-async-effect
- * @param effect 
- * @param deps 
- */
+/** 支持异步函数的 `useEffect`，文档参考：
+    https://ahooks.gitee.io/zh-CN/hooks/use-async-effect
+    @param effect 
+    @param deps  */
 export function useAsyncEffect (
     effect: () => AsyncGenerator<void, void, void> | Promise<void>,
     deps?: DependencyList

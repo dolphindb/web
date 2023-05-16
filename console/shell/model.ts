@@ -226,7 +226,7 @@ class ShellModel extends Model<ShellModel> {
                 `(${imutables.map(({ name }) => name).join(', ')}, 0)${model.ddb.python ? '.toddb()' : ''}`
             )
             
-            for (let i = 0; i < values.length - 1; i++)
+            for (let i = 0;  i < values.length - 1;  i++)
                 imutables[i].obj = values[i]
         }
         
@@ -275,7 +275,7 @@ class ShellModel extends Model<ShellModel> {
             // 可能因为用户没有数据库的权限报错，单独 catch 并返回空数组
             model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases').catch(() => {
                 console.error('load_dbs: getClusterDFSDatabases error')
-                return { value: [] }
+                return { value: [ ] }
             }),
         ])
         

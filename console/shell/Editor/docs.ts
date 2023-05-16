@@ -90,7 +90,7 @@ function find_func_start (
     
     let stack_depth = 0
     let param_search_pos = -1
-    for (let i = text.length; i >= 0; i--) {
+    for (let i = text.length;  i >= 0;  i--) {
         let char = text[i]
         // 遇到右括号，入栈，增加一层括号语境深度
         if (char === ')') {
@@ -118,7 +118,7 @@ function find_func_start (
     // 往前找函数名
     let func_name_end = -1
     let func_name_start = 0
-    for (let i = param_search_pos; i >= 0; i--) {
+    for (let i = param_search_pos;  i >= 0;  i--) {
         let char = text[i]
         
         // 空字符跳过
@@ -165,7 +165,7 @@ function find_active_param_index (
     })
     
     let index = 0
-    let stack = []
+    let stack = [ ]
     
     // 分隔符，此处为逗号
     const seperator = ','
@@ -173,7 +173,7 @@ function find_active_param_index (
     let ncommas = 0
     
     // 搜索
-    for (let i = start; i < text.length; i++) {
+    for (let i = start;  i < text.length;  i++) {
         const char = text[i]
         
         // 空字符跳过

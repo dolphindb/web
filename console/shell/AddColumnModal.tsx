@@ -29,7 +29,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
     const modal = NiceModal.useModal()
     const form = useMemo(
         () => createForm(),
-        []
+        [ ]
     )
     
     async function onSubmit (formValues: IAddColumnFormValues) {

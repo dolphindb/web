@@ -356,10 +356,8 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    /**
-     * 去登录页
-     * @param redirection 设置登录完成后的回跳页面，默认取当前 view
-     */
+    /** 去登录页
+        @param redirection 设置登录完成后的回跳页面，默认取当前 view */
     goto_login (redirection: PageViews = this.view) {
         this.set({
             view: 'login',

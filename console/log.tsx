@@ -20,7 +20,7 @@ export function Log () {
     const ref = useRef<HTMLDivElement>()
     
     const [log_length, set_log_length] = useState<bigint>(0n)
-    const [logs, set_logs] = useState<string[]>([])
+    const [logs, set_logs] = useState<string[]>([ ])
     const [index, set_index] = useState(1)
     
     const [show_login_required_info, set_show_login_required_info] = useState(false)

@@ -59,11 +59,11 @@ export class CloudModel extends Model <CloudModel> {
     
     cluster: Cluster
 
-    namespaces: Namespace[] = []
+    namespaces: Namespace[] = [ ]
 
-    storageclasses: StorageClass[] = []
+    storageclasses: StorageClass[] = [ ]
 
-    versions: string[] = []
+    versions: string[] = [ ]
     
     show_all_config = false
     

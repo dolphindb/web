@@ -48,7 +48,7 @@ export function Variables ({ shared }: { shared?: boolean }) {
     
     const vars_ = vars ? vars.filter(v => {
         return v.shared === shared
-    }) : []
+    }) : [ ]
     
     let scalar  = new TreeDataItem({ title: 'scalar', key: '0', icon: <Icon component={SvgScalar} /> })
     let vector  = new TreeDataItem({ title: 'vector', key: '1', icon: <Icon component={SvgVector} /> })
@@ -60,15 +60,15 @@ export function Variables ({ shared }: { shared?: boolean }) {
     let chart   = new TreeDataItem({ title: 'chart',  key: '7', icon: <Icon component={SvgChart} /> })
     let object  = new TreeDataItem({ title: 'object', key: '8', icon: <Icon component={SvgObject} /> })
     
-    let scalars: TreeDataItem[] = []
-    let vectors: TreeDataItem[] = []
-    let pairs: TreeDataItem[] = []
-    let matrixs: TreeDataItem[] = []
-    let sets: TreeDataItem[] = []
-    let dicts: TreeDataItem[] = []
-    let tables: TreeDataItem[] = []
-    let charts: TreeDataItem[] = []
-    let objects: TreeDataItem[] = []
+    let scalars: TreeDataItem[] = [ ]
+    let vectors: TreeDataItem[] = [ ]
+    let pairs: TreeDataItem[] = [ ]
+    let matrixs: TreeDataItem[] = [ ]
+    let sets: TreeDataItem[] = [ ]
+    let dicts: TreeDataItem[] = [ ]
+    let tables: TreeDataItem[] = [ ]
+    let charts: TreeDataItem[] = [ ]
+    let objects: TreeDataItem[] = [ ]
     
     for (const v of vars_)
         switch (v.form) {
@@ -121,7 +121,7 @@ export function Variables ({ shared }: { shared?: boolean }) {
     
     return <div className='panel'>
         <div className='type'>{shared ? t('共享变量') : t('本地变量')}
-            <span onClick={() => { set_expanded_keys([]) }}>
+            <span onClick={() => { set_expanded_keys([ ]) }}>
                 <Tooltip title={t('全部折叠')} color='grey'>
                 <MinusSquareOutlined />
                 </Tooltip>
@@ -267,7 +267,7 @@ export class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 const options = { ...this.options, quote: true, nullstr: true }
                                 
-                                for (let i = 0; i < items.length; i++)
+                                for (let i = 0;  i < items.length;  i++)
                                     items[i] = format(this.type, value.subarray(16 * i, 16 * (i + 1)), this.obj.le, options)
                                 
                                 return ' = ' + format_array(items, len_data > limit)
@@ -285,7 +285,7 @@ export class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 const options = { ...this.options, quote: true, nullstr: true }
                                 
-                                for (let i = 0; i < items.length; i++)
+                                for (let i = 0;  i < items.length;  i++)
                                     items[i] = format(this.type, value.subarray(2 * i, 2 * (i + 1)), this.obj.le, options)
                                 
                                 return ' = ' + format_array(items, len_data > limit)
@@ -304,7 +304,7 @@ export class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 const options = { ...this.options, quote: true, nullstr: true }
                                 
-                                for (let i = 0; i < items.length; i++)
+                                for (let i = 0;  i < items.length;  i++)
                                     items[i] = formati(this.obj as DdbVectorObj, i, options)
                                 
                                 return ' = ' + format_array(items, len_data > limit)
@@ -317,7 +317,7 @@ export class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 const options = { ...this.options, quote: true, nullstr: true }
                                 
-                                for (let i = 0; i < items.length; i++)
+                                for (let i = 0;  i < items.length;  i++)
                                     items[i] = format(this.type, this.obj.value[i], this.obj.le, options)
                                 
                                 return ' = ' + format_array(items, (this.obj.value as any[]).length > limit)

@@ -8,7 +8,7 @@ export function useSteps <StepsEnum extends string> (
 
     const [context_map, set_context_map] = useState<
         Partial<Record<StepsEnum, any>>
-    >({})
+    >({ })
 
     const prev = () => {
         const current_index = steps.indexOf(current)
@@ -38,7 +38,7 @@ export function useSteps <StepsEnum extends string> (
 
     const reset = () => {
         set_current(initial_step)
-        set_context_map({})
+        set_context_map({ })
     }
 
     return {
