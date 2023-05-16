@@ -428,6 +428,7 @@ function CreateDatabase () {
     
     return <Modal
         className='db-modal show-required'
+        width='50vw'
         open={create_database_modal_visible}
         onCancel={() => { shell.set({ create_database_modal_visible: false, create_database_partition_count: 1 }) }}
         title={t('创建数据库')}
@@ -553,7 +554,7 @@ function CreateDatabase () {
                     if (val < 1 || val > 3)
                         throw new TypeError(t('分区层数必须在1-3之间'))
                 }
-            }]} initialValue={1}>
+            }]} initialValue={shell.use(['create_database_partition_count']).create_database_partition_count}>
                 <InputNumber onChange={(e: string) => {
                     const level = parseInt(e, 10)
                     if (level < 1 || level > 3)
