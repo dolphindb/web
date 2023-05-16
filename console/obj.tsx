@@ -387,25 +387,24 @@ function Vector ({
         })
     
     return <div className='vector'>
-            <AntTable
-                dataSource={rows as any[]}
-                rowKey={x => x}
-                bordered
-                pagination={false}
-                columns={[
-                    {
-                        title: '',
-                        key: 'index',
-                        className: 'row-head',
-                        fixed: 'left',
-                        render (value, row, index) {
-                            return page_size * page_index + index * ncols
-                        }
-                    },
-                    ... cols
-                ]}
-            />
-        
+        <AntTable
+            dataSource={rows as any[]}
+            rowKey={x => x}
+            bordered
+            pagination={false}
+            columns={[
+                {
+                    title: '',
+                    key: 'index',
+                    className: 'row-head',
+                    fixed: 'left',
+                    render (value, row, index) {
+                        return page_size * page_index + index * ncols
+                    }
+                },
+                ... cols
+            ]}
+        />
         
         <div className='bottom-bar'>
             <div className='info'>
