@@ -40,14 +40,12 @@ export function CopyIconButton (props: CopyIconButtonProps) {
         }
     }, [copied])
 
-    return (
-        <Tooltip title={copied ? copyTooltips[1] : copyTooltips[0]}>
-            <Button
-                {...button_props}
-                className={cn('copy-icon-button', button_props.className)}
-                icon={copied ? <SVGCopiedIcon /> : <SVGCopyIcon />}
-                onClick={onCopy}
-            />
-        </Tooltip>
-    )
+    return <Tooltip title={copied ? copyTooltips[1] : copyTooltips[0]}>
+        <Button
+            {...button_props}
+            className={cn('copy-icon-button', button_props.className)}
+            icon={copied ? <SVGCopiedIcon /> : <SVGCopyIcon />}
+            onClick={onCopy}
+        />
+    </Tooltip>
 }

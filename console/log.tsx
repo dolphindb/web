@@ -94,11 +94,9 @@ export function Log () {
                             const end = line.indexOf('>', start)
                             if (start !== -1 && end !== -1)
                                 log_type = line.substring(start + 1, end)
-                            return (
-                                <div className='log-line' style={colors[log_type] ? { color: colors[log_type] } : null} key={`${index}.${i}`}>
-                                    {line}
-                                </div>
-                            )
+                            return <div className='log-line' style={colors[log_type] ? { color: colors[log_type] } : null} key={`${index}.${i}`}>
+                                {line}
+                            </div>
                         })}
                     </div>
                     <Pagination

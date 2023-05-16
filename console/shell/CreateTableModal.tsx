@@ -114,31 +114,29 @@ function CreateTableModalPreviewCode () {
         return generatedCode
     }, [steps.context_map[CreateTableStepsEnum.FillForm], database])
 
-    return (
-        <div className='create-table-preview-code'>
-            <div className='create-table-preview-code-editor'>
-                <Editor
-                    value={code}
-                    readonly
-                    options={{
-                        padding: { top: 8 },
-                        overviewRulerBorder: false
-                    }}
-                />
-                <CopyIconButton
-                    type='link'
-                    text={code}
-                    className='create-table-preview-code-copy'
-                />
-            </div>
-            <div className='create-table-preview-code-action'>
-                <Button onClick={steps.prev}>{t('上一步')}</Button>
-                <Button type='primary' onClick={() => steps.next(code)}>
-                    {t('执行')}
-                </Button>
-            </div>
+    return <div className='create-table-preview-code'>
+        <div className='create-table-preview-code-editor'>
+            <Editor
+                value={code}
+                readonly
+                options={{
+                    padding: { top: 8 },
+                    overviewRulerBorder: false
+                }}
+            />
+            <CopyIconButton
+                type='link'
+                text={code}
+                className='create-table-preview-code-copy'
+            />
         </div>
-    )
+        <div className='create-table-preview-code-action'>
+            <Button onClick={steps.prev}>{t('上一步')}</Button>
+            <Button type='primary' onClick={() => steps.next(code)}>
+                {t('执行')}
+            </Button>
+        </div>
+    </div>
 }
 
 // ================ 建表执行效果 ================
@@ -171,44 +169,40 @@ function CreateTableModalExecuteResult () {
 
 
     if (error)
-        return (
-            <Result
-                status='error'
-                title={t('创建失败')}
-                subTitle={error.message}
-                className='create-table-result__error'
-                extra={[
-                    <Button key='prev' type='primary' onClick={steps.prev}>
-                        {t('上一步')}
-                    </Button>,
-                    <Button
-                        key='cancel'
-                        onClick={modal.hide}
-                    >
-                        {t('取消')}
-                    </Button>,
-                ]}
-            />
-        )
-
-    return (
-        <Result
-            status='success'
-            title={t('创建成功')}
+        return <Result
+            status='error'
+            title={t('创建失败')}
+            subTitle={error.message}
+            className='create-table-result__error'
             extra={[
+                <Button key='prev' type='primary' onClick={steps.prev}>
+                    {t('上一步')}
+                </Button>,
                 <Button
-                    key='complete'
-                    type='primary'
-                    onClick={() => {
-                        modal.resolve()
-                        modal.hide()
-                    }}
+                    key='cancel'
+                    onClick={modal.hide}
                 >
-                    {t('完成')}
+                    {t('取消')}
                 </Button>,
             ]}
         />
-    )
+
+    return <Result
+        status='success'
+        title={t('创建成功')}
+        extra={[
+            <Button
+                key='complete'
+                type='primary'
+                onClick={() => {
+                    modal.resolve()
+                    modal.hide()
+                }}
+            >
+                {t('完成')}
+            </Button>,
+        ]}
+    />
 }
 
 // ================ 建表表单 ================
@@ -311,368 +305,366 @@ function CreateTableModalFillForm () {
         steps.next(formValues)
     }, [ ])
 
-    return (
-        <Form
-            labelWrap
-            labelCol={4}
-            form={form}
-            className='create-table-form'
-            onAutoSubmit={onSubmit}
-        >
-            <SchemaField scope={{ ...DDBTypeSelectorSchemaFields.ScopeValues }}>
-                <SchemaField.String
-                    name='dbPath'
-                    title={t('数据库路径')}
-                    x-decorator='FormItem'
-                    x-component='Input'
-                    x-component-props={{
-                        disabled: true,
-                    }}
-                />
-                <SchemaField.String
-                    required
-                    name='type'
-                    title={t('表类型')}
-                    x-decorator='FormItem'
-                    x-component='Select'
-                    default={TableTypes.PartitionedTable}
-                    enum={[
-                        {
-                            label: t('分布式表'),
-                            value: TableTypes.PartitionedTable,
-                        },
-                        {
-                            label: t('维度表'),
-                            value: TableTypes.Table,
-                        },
-                    ]}
-                />
-                <SchemaField.String
-                    required
-                    name='tableName'
-                    title={t('表名')}
-                    x-decorator='FormItem'
-                    x-component='Input'
-                    x-validator={[
-                        {
-                            triggerType: 'onBlur',
-                            validator (value: string, rule) {
-                                return database.children.find(
-                                    child => child.name === value
-                                )
-                                    ? rule.message
-                                    : null
-                            },
-                            message: t('已存在相同名称的表'),
-                        },
-                    ]}
-                />
-                <SchemaField.Array
-                    required
-                    name='columns'
-                    title={t('数据列')}
-                    x-decorator='FormItem'
-                    x-component='ArrayTable'
-                    x-component-props={{
-                        className: 'create-table-form-columns-table',
-                        pagination: {
-                            pageSize: 10,
-                        },
-                    }}
-                >
-                    <SchemaField.Object>
-                        <SchemaField.Void
-                            x-component='ArrayTable.Column'
-                            x-component-props={{ width: 50, align: 'center' }}
-                        >
-                            <SchemaField.Void
-                                x-decorator='FormItem'
-                                x-component='ArrayTable.SortHandle'
-                            />
-                        </SchemaField.Void>
-                        <SchemaField.Void
-                            x-component='ArrayTable.Column'
-                            x-component-props={{ title: t('列名'), width: 120 }}
-                        >
-                            <SchemaField.String
-                                name='name'
-                                required
-                                x-decorator='FormItem'
-                                x-component='Input'
-                                x-reactions={(field: Field) => {
-                                    const hasSameColumn =
-                                        field
-                                            .query('columns')
-                                            .value()
-                                            .filter(
-                                                column =>
-                                                    column.name === field.value
-                                            ).length >= 2
-                                    field.setState({
-                                        selfErrors:
-                                            field.value && hasSameColumn
-                                                ? [t('已存在相同名称的列')]
-                                                : null,
-                                    })
-                                }}
-                            />
-                        </SchemaField.Void>
-                        <SchemaField.Void
-                            x-component='ArrayTable.Column'
-                            x-component-props={{
-                                title: t('数据类型'),
-                                width: 100,
-                            }}
-                        >
-                            <SchemaField.String
-                                name='type'
-                                required
-                                x-decorator='FormItem'
-                                x-component='Select'
-                                x-component-props={{
-                                    showSearch: true,
-                                }}
-                                // 标准 SQL 语句还不支持 DECIMAL 类型，所以暂时不开放，支持后可以直接替换成下面的 DDBTypeSelectorSchemaFields
-                                enum={DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS.filter(item => !isDDBDecimalType(item.value as DDBTypeNames))}
-                            />
-                            {/* <DDBTypeSelectorSchemaFields 
-                                typeField={{
-                                    title: null,
-                                }}
-                                scaleField={{
-                                    ['x-decorator-props']: {
-                                        className: 'create-table-form-columns-table-scale',
-                                    },
-                                }}
-                            /> */}
-                        </SchemaField.Void>
-                        <SchemaField.Void
-                            x-component='ArrayTable.Column'
-                            x-component-props={{ title: t('备注'), width: 150 }}
-                        >
-                            <SchemaField.String
-                                name='comment'
-                                x-decorator='FormItem'
-                                x-component='Input'
-                            />
-                        </SchemaField.Void>
-                        <SchemaField.Void
-                            x-component='ArrayTable.Column'
-                            x-component-props={{
-                                title: t('压缩算法'),
-                                width: 100,
-                            }}
-                        >
-                            <SchemaField.String
-                                name='compress'
-                                x-decorator='FormItem'
-                                x-component='Select'
-                                default=''
-                                enum={
-                                    DDB_COLUMN_COMPRESS_METHODS_SELECT_OPTIONS
-                                }
-                            />
-                        </SchemaField.Void>
-                        <SchemaField.Void
-                            x-component='ArrayTable.Column'
-                            x-component-props={{
-                                title: t('操作'),
-                                dataIndex: 'operations',
-                                width: 80,
-                                fixed: 'right',
-                            }}
-                        >
-                            <SchemaField.Void x-component='FormItem'>
-                                <SchemaField.Void x-component='ArrayTable.Remove' />
-                                <SchemaField.Void x-component='ArrayTable.MoveDown' />
-                                <SchemaField.Void x-component='ArrayTable.MoveUp' />
-                            </SchemaField.Void>
-                        </SchemaField.Void>
-                    </SchemaField.Object>
-                    <SchemaField.Void
-                        x-component='ArrayTable.Addition'
-                        title={t('添加列')}
-                    />
-                </SchemaField.Array>
-                <SchemaField.Void
-                    name='partitionColumns'
-                    title={t('分区列')}
-                    description={configurablePartitions.length > 0 ? t('请根据分区方案顺序选择分区列') : undefined}
-                    x-decorator='FormItem'
-                    x-reactions={[
-                        {
-                            dependencies: {
-                                type: 'type',
-                            },
-                            fulfill: {
-                                state: {
-                                    hidden: `{{ $deps.type === "${TableTypes.Table}" }}`,
-                                },
-                            },
-                        },
-                    ]}
-                >
+    return <Form
+        labelWrap
+        labelCol={4}
+        form={form}
+        className='create-table-form'
+        onAutoSubmit={onSubmit}
+    >
+        <SchemaField scope={{ ...DDBTypeSelectorSchemaFields.ScopeValues }}>
+            <SchemaField.String
+                name='dbPath'
+                title={t('数据库路径')}
+                x-decorator='FormItem'
+                x-component='Input'
+                x-component-props={{
+                    disabled: true,
+                }}
+            />
+            <SchemaField.String
+                required
+                name='type'
+                title={t('表类型')}
+                x-decorator='FormItem'
+                x-component='Select'
+                default={TableTypes.PartitionedTable}
+                enum={[
                     {
-                        configurablePartitions.length > 0 
-                            ? configurablePartitions.map((partition, index) =>
-                                <SchemaField.String
-                                    required
-                                    name={`partitionColumns[${index}]`}
-                                    key={index}
-                                    title={getPartitionSchemeDescription(partition)}
-                                    x-decorator='FormItem'
-                                    x-decorator-props={{
-                                        labelCol: 5,
-                                        labelAlign: 'left',
-                                    }}
-                                    x-component='Select'
-                                    x-reactions={[
-                                        {
-                                            dependencies: {
-                                                columns: 'columns',
+                        label: t('分布式表'),
+                        value: TableTypes.PartitionedTable,
+                    },
+                    {
+                        label: t('维度表'),
+                        value: TableTypes.Table,
+                    },
+                ]}
+            />
+            <SchemaField.String
+                required
+                name='tableName'
+                title={t('表名')}
+                x-decorator='FormItem'
+                x-component='Input'
+                x-validator={[
+                    {
+                        triggerType: 'onBlur',
+                        validator (value: string, rule) {
+                            return database.children.find(
+                                child => child.name === value
+                            )
+                                ? rule.message
+                                : null
+                        },
+                        message: t('已存在相同名称的表'),
+                    },
+                ]}
+            />
+            <SchemaField.Array
+                required
+                name='columns'
+                title={t('数据列')}
+                x-decorator='FormItem'
+                x-component='ArrayTable'
+                x-component-props={{
+                    className: 'create-table-form-columns-table',
+                    pagination: {
+                        pageSize: 10,
+                    },
+                }}
+            >
+                <SchemaField.Object>
+                    <SchemaField.Void
+                        x-component='ArrayTable.Column'
+                        x-component-props={{ width: 50, align: 'center' }}
+                    >
+                        <SchemaField.Void
+                            x-decorator='FormItem'
+                            x-component='ArrayTable.SortHandle'
+                        />
+                    </SchemaField.Void>
+                    <SchemaField.Void
+                        x-component='ArrayTable.Column'
+                        x-component-props={{ title: t('列名'), width: 120 }}
+                    >
+                        <SchemaField.String
+                            name='name'
+                            required
+                            x-decorator='FormItem'
+                            x-component='Input'
+                            x-reactions={(field: Field) => {
+                                const hasSameColumn =
+                                    field
+                                        .query('columns')
+                                        .value()
+                                        .filter(
+                                            column =>
+                                                column.name === field.value
+                                        ).length >= 2
+                                field.setState({
+                                    selfErrors:
+                                        field.value && hasSameColumn
+                                            ? [t('已存在相同名称的列')]
+                                            : null,
+                                })
+                            }}
+                        />
+                    </SchemaField.Void>
+                    <SchemaField.Void
+                        x-component='ArrayTable.Column'
+                        x-component-props={{
+                            title: t('数据类型'),
+                            width: 100,
+                        }}
+                    >
+                        <SchemaField.String
+                            name='type'
+                            required
+                            x-decorator='FormItem'
+                            x-component='Select'
+                            x-component-props={{
+                                showSearch: true,
+                            }}
+                            // 标准 SQL 语句还不支持 DECIMAL 类型，所以暂时不开放，支持后可以直接替换成下面的 DDBTypeSelectorSchemaFields
+                            enum={DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS.filter(item => !isDDBDecimalType(item.value as DDBTypeNames))}
+                        />
+                        {/* <DDBTypeSelectorSchemaFields 
+                            typeField={{
+                                title: null,
+                            }}
+                            scaleField={{
+                                ['x-decorator-props']: {
+                                    className: 'create-table-form-columns-table-scale',
+                                },
+                            }}
+                        /> */}
+                    </SchemaField.Void>
+                    <SchemaField.Void
+                        x-component='ArrayTable.Column'
+                        x-component-props={{ title: t('备注'), width: 150 }}
+                    >
+                        <SchemaField.String
+                            name='comment'
+                            x-decorator='FormItem'
+                            x-component='Input'
+                        />
+                    </SchemaField.Void>
+                    <SchemaField.Void
+                        x-component='ArrayTable.Column'
+                        x-component-props={{
+                            title: t('压缩算法'),
+                            width: 100,
+                        }}
+                    >
+                        <SchemaField.String
+                            name='compress'
+                            x-decorator='FormItem'
+                            x-component='Select'
+                            default=''
+                            enum={
+                                DDB_COLUMN_COMPRESS_METHODS_SELECT_OPTIONS
+                            }
+                        />
+                    </SchemaField.Void>
+                    <SchemaField.Void
+                        x-component='ArrayTable.Column'
+                        x-component-props={{
+                            title: t('操作'),
+                            dataIndex: 'operations',
+                            width: 80,
+                            fixed: 'right',
+                        }}
+                    >
+                        <SchemaField.Void x-component='FormItem'>
+                            <SchemaField.Void x-component='ArrayTable.Remove' />
+                            <SchemaField.Void x-component='ArrayTable.MoveDown' />
+                            <SchemaField.Void x-component='ArrayTable.MoveUp' />
+                        </SchemaField.Void>
+                    </SchemaField.Void>
+                </SchemaField.Object>
+                <SchemaField.Void
+                    x-component='ArrayTable.Addition'
+                    title={t('添加列')}
+                />
+            </SchemaField.Array>
+            <SchemaField.Void
+                name='partitionColumns'
+                title={t('分区列')}
+                description={configurablePartitions.length > 0 ? t('请根据分区方案顺序选择分区列') : undefined}
+                x-decorator='FormItem'
+                x-reactions={[
+                    {
+                        dependencies: {
+                            type: 'type',
+                        },
+                        fulfill: {
+                            state: {
+                                hidden: `{{ $deps.type === "${TableTypes.Table}" }}`,
+                            },
+                        },
+                    },
+                ]}
+            >
+                {
+                    configurablePartitions.length > 0 
+                        ? configurablePartitions.map((partition, index) =>
+                            <SchemaField.String
+                                required
+                                name={`partitionColumns[${index}]`}
+                                key={index}
+                                title={getPartitionSchemeDescription(partition)}
+                                x-decorator='FormItem'
+                                x-decorator-props={{
+                                    labelCol: 5,
+                                    labelAlign: 'left',
+                                }}
+                                x-component='Select'
+                                x-reactions={[
+                                    {
+                                        dependencies: {
+                                            columns: 'columns',
+                                        },
+                                        fulfill: {
+                                            schema: {
+                                                enum: COLUMNS_REACTION_FULLFILL_EXPRESSION,
                                             },
-                                            fulfill: {
-                                                schema: {
-                                                    enum: COLUMNS_REACTION_FULLFILL_EXPRESSION,
-                                                },
-                                                state: {
-                                                    value: '{{ $deps.columns.some(depCol => depCol.name === $self.value) ? $self.value : null }}',
-                                                },
+                                            state: {
+                                                value: '{{ $deps.columns.some(depCol => depCol.name === $self.value) ? $self.value : null }}',
                                             },
                                         },
-                                    ]}
-                                />)
-                            : <SchemaField.Void
-                                x-component='p'
-                                x-component-props={{
-                                    className: 'no-partition-scheme',
-                                    children: t('该数据库没有需要配置的分区列'),
-                                }}
-                            />
-                    }
-                </SchemaField.Void>
+                                    },
+                                ]}
+                            />)
+                        : <SchemaField.Void
+                            x-component='p'
+                            x-component-props={{
+                                className: 'no-partition-scheme',
+                                children: t('该数据库没有需要配置的分区列'),
+                            }}
+                        />
+                }
+            </SchemaField.Void>
 
-                <SchemaField.Array
-                    name='sortColumns'
-                    title={t('排序列')}
-                    x-decorator='FormItem'
-                    x-component='Select'
-                    x-component-props={{ mode: 'multiple' }}
-                    x-reactions={[
-                        {
-                            dependencies: {
-                                columns: 'columns',
+            <SchemaField.Array
+                name='sortColumns'
+                title={t('排序列')}
+                x-decorator='FormItem'
+                x-component='Select'
+                x-component-props={{ mode: 'multiple' }}
+                x-reactions={[
+                    {
+                        dependencies: {
+                            columns: 'columns',
+                        },
+                        fulfill: {
+                            schema: {
+                                enum: COLUMNS_REACTION_FULLFILL_EXPRESSION,
                             },
-                            fulfill: {
-                                schema: {
-                                    enum: COLUMNS_REACTION_FULLFILL_EXPRESSION,
-                                },
-                                state: {
-                                    value: '{{ $self.value?.filter(col => $deps.columns.some(depCol => depCol.name === col)) || []  }}',
-                                },
+                            state: {
+                                value: '{{ $self.value?.filter(col => $deps.columns.some(depCol => depCol.name === col)) || []  }}',
                             },
                         },
-                        (field: Field) => {
-                            const columnsMap: Record<
-                                string,
-                                ICreateTableColumnFormValue
-                            > = mapKeys(
-                                field.query('columns').value(),
-                                column => column.name
-                            )
-                            const sortColumns: string[] = field.value
+                    },
+                    (field: Field) => {
+                        const columnsMap: Record<
+                            string,
+                            ICreateTableColumnFormValue
+                        > = mapKeys(
+                            field.query('columns').value(),
+                            column => column.name
+                        )
+                        const sortColumns: string[] = field.value
 
-                            const unsupportSortColumns = sortColumns.filter(
-                                column => {
-                                    const sortColumn = columnsMap[column]
-                                    return !SUPPORT_SORT_COLUMN_TYPES.includes(
-                                        sortColumn.type
-                                    )
-                                }
-                            )
+                        const unsupportSortColumns = sortColumns.filter(
+                            column => {
+                                const sortColumn = columnsMap[column]
+                                return !SUPPORT_SORT_COLUMN_TYPES.includes(
+                                    sortColumn.type
+                                )
+                            }
+                        )
 
-                            if (unsupportSortColumns.length) {
+                        if (unsupportSortColumns.length) {
+                            field.setState({
+                                selfErrors: [
+                                    t('列 {{columns}} 不支持排序', {
+                                        columns:
+                                            unsupportSortColumns.join(', '),
+                                    }),
+                                ],
+                            })
+                            return
+                        }
+
+                        if (sortColumns.length > 1) {
+                            const lastColumnName =
+                                sortColumns[sortColumns.length - 1]
+                            const lastColumn = columnsMap[lastColumnName]
+                            const indexesColumns = sortColumns.slice(0, -1)
+                            const unsupportIndexesColumns =
+                                indexesColumns.filter(column => {
+                                    return [
+                                        'TIME',
+                                        'TIMESTAMP',
+                                        'NANOTIME',
+                                        'NANOTIMESTAMP',
+                                    ].includes(columnsMap[column].type)
+                                })
+                            if (
+                                isDDBTemporalType(lastColumn.type) &&
+                                unsupportIndexesColumns.length
+                            ) {
                                 field.setState({
                                     selfErrors: [
-                                        t('列 {{columns}} 不支持排序', {
-                                            columns:
-                                                unsupportSortColumns.join(', '),
-                                        }),
+                                        t(
+                                            '索引列 {{columns}} 不能为 TIME, TIMESTAMP, NANOTIME, NANOTIMESTAMP 类型',
+                                            {
+                                                columns:
+                                                    unsupportIndexesColumns.join(
+                                                        ', '
+                                                    ),
+                                            }
+                                        ),
                                     ],
                                 })
                                 return
                             }
+                        }
 
-                            if (sortColumns.length > 1) {
-                                const lastColumnName =
-                                    sortColumns[sortColumns.length - 1]
-                                const lastColumn = columnsMap[lastColumnName]
-                                const indexesColumns = sortColumns.slice(0, -1)
-                                const unsupportIndexesColumns =
-                                    indexesColumns.filter(column => {
-                                        return [
-                                            'TIME',
-                                            'TIMESTAMP',
-                                            'NANOTIME',
-                                            'NANOTIMESTAMP',
-                                        ].includes(columnsMap[column].type)
-                                    })
-                                if (
-                                    isDDBTemporalType(lastColumn.type) &&
-                                    unsupportIndexesColumns.length
-                                ) {
-                                    field.setState({
-                                        selfErrors: [
-                                            t(
-                                                '索引列 {{columns}} 不能为 TIME, TIMESTAMP, NANOTIME, NANOTIMESTAMP 类型',
-                                                {
-                                                    columns:
-                                                        unsupportIndexesColumns.join(
-                                                            ', '
-                                                        ),
-                                                }
-                                            ),
-                                        ],
-                                    })
-                                    return
-                                }
-                            }
+                        field.setState({
+                            selfErrors: null,
+                        })
+                    },
+                ]}
+            />
+            <SchemaField.String
+                required
+                name='keepDuplicates'
+                title={t('重复值处理方式')}
+                x-decorator='FormItem'
+                x-component='Select'
+                default={KeepDuplicatesValues.ALL}
+                enum={[
+                    {
+                        label: t('保留全部'),
+                        value: KeepDuplicatesValues.ALL,
+                    },
+                    {
+                        label: t('保留最后一项'),
+                        value: KeepDuplicatesValues.LAST,
+                    },
+                    {
+                        label: t('保留第一项'),
+                        value: KeepDuplicatesValues.FIRST,
+                    },
+                ]}
+            />
+        </SchemaField>
 
-                            field.setState({
-                                selfErrors: null,
-                            })
-                        },
-                    ]}
-                />
-                <SchemaField.String
-                    required
-                    name='keepDuplicates'
-                    title={t('重复值处理方式')}
-                    x-decorator='FormItem'
-                    x-component='Select'
-                    default={KeepDuplicatesValues.ALL}
-                    enum={[
-                        {
-                            label: t('保留全部'),
-                            value: KeepDuplicatesValues.ALL,
-                        },
-                        {
-                            label: t('保留最后一项'),
-                            value: KeepDuplicatesValues.LAST,
-                        },
-                        {
-                            label: t('保留第一项'),
-                            value: KeepDuplicatesValues.FIRST,
-                        },
-                    ]}
-                />
-            </SchemaField>
-
-            <FormButtonGroup align='right'>
-                <Submit type='primary'>{t('下一步')}</Submit>
-            </FormButtonGroup>
-        </Form>
-    )
+        <FormButtonGroup align='right'>
+            <Submit type='primary'>{t('下一步')}</Submit>
+        </FormButtonGroup>
+    </Form>
 }
 
 // ================ 建表弹框 ================
@@ -696,29 +688,27 @@ export const CreateTableModal = NiceModal.create<Props>(props => {
         CreateTableSteps
     )
 
-    return (
-        <Modal
-            width={1000}
-            open={modal.visible}
-            onCancel={modal.hide}
-            maskClosable={false}
-            title={t('创建数据表')}
-            afterClose={modal.remove}
-            footer={null}
-        >
-            <PropsContext.Provider value={props}>
-                <StepsContext.Provider value={steps}>
-                    {steps.current === CreateTableStepsEnum.FillForm && (
-                        <CreateTableModalFillForm />
-                    )}
-                    {steps.current === CreateTableStepsEnum.PreviewCode && (
-                        <CreateTableModalPreviewCode />
-                    )}
-                    {steps.current === CreateTableStepsEnum.ExecuteResult && (
-                        <CreateTableModalExecuteResult />
-                    )}
-                </StepsContext.Provider>
-            </PropsContext.Provider>
-        </Modal>
-    )
+    return <Modal
+        width={1000}
+        open={modal.visible}
+        onCancel={modal.hide}
+        maskClosable={false}
+        title={t('创建数据表')}
+        afterClose={modal.remove}
+        footer={null}
+    >
+        <PropsContext.Provider value={props}>
+            <StepsContext.Provider value={steps}>
+                {steps.current === CreateTableStepsEnum.FillForm && (
+                    <CreateTableModalFillForm />
+                )}
+                {steps.current === CreateTableStepsEnum.PreviewCode && (
+                    <CreateTableModalPreviewCode />
+                )}
+                {steps.current === CreateTableStepsEnum.ExecuteResult && (
+                    <CreateTableModalExecuteResult />
+                )}
+            </StepsContext.Provider>
+        </PropsContext.Provider>
+    </Modal>
 })

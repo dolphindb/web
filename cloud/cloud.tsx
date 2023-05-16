@@ -95,29 +95,25 @@ function ClusterDetail () {
         monitor: <Monitor cluster={cluster}/>
     }
     
-    return (
-        <div className='cluster'>
-            <PageHeader
-                className='cluster-header'
-                title={
-                    <Title level={3}>{name}</Title>
-                }
-                onBack={() => {
-                    model.set({ cluster: null })
-                }}
-            />
-            <Layout>
-                <Layout.Sider theme='light' className='sidebar-menu' width={180}>
-                    {fields.map(f => (
-                        <ClusterDetailMenuItem key={f} focused={field === f} onClick={value => { set_field(value) }} value={f} />
-                    ))}
-                </Layout.Sider>
-                <Layout.Content className='content'>
-                    {Content[field]}
-                </Layout.Content>
-            </Layout>
-        </div>
-    )
+    return <div className='cluster'>
+        <PageHeader
+            className='cluster-header'
+            title={
+                <Title level={3}>{name}</Title>
+            }
+            onBack={() => {
+                model.set({ cluster: null })
+            }}
+        />
+        <Layout>
+            <Layout.Sider theme='light' className='sidebar-menu' width={180}>
+                {fields.map(f => <ClusterDetailMenuItem key={f} focused={field === f} onClick={value => { set_field(value) }} value={f} />)}
+            </Layout.Sider>
+            <Layout.Content className='content'>
+                {Content[field]}
+            </Layout.Content>
+        </Layout>
+    </div>
 }
 
 
@@ -516,9 +512,7 @@ function Clusters () {
                                     <Select>
                                         {
                                             versions.length !== 0 ?
-                                                versions.map(v => (
-                                                    <Option value={v} key={v}>{v}</Option>
-                                                ))
+                                                versions.map(v => <Option value={v} key={v}>{v}</Option>)
                                                 :
                                                 // eslint-disable-next-line
                                                 <Option value=''>{''}</Option>
@@ -813,333 +807,246 @@ function CreateClusterPanel ({
         }
     }
     
-    return (
-        <Modal 
-            className='cloud-create-panel'
-            title={t('新建集群配置')}
-            visible={visible}
-            onOk={closePanel}
-            onCancel={closePanel}   
-            width='900px'
-            footer={<>
-                    <Button type='primary' htmlType='submit' className='submit' onClick={onSubmit}>{t('提交')}</Button>
-                    <Button type='default' htmlType='reset' className='reset' onClick={onReset}>{t('重置')}</Button>
-                    <Button
-                        className='cancel'
-                        type='default'
-                        onClick={() => {
-                            closePanel()
-                        }}
-                    >{t('取消')}</Button>
-            </>}
-        >
-            <Form
-                form={form}
-                name='cluster-form'
-                className='cluster-create-form'
-                labelAlign='left'
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 16 }}
-                initialValues={{
-                    mode,
-                    cluster_type,
-                    version: versions.length !== 0 ? versions[0] : '',
-                    controller: {
-                        replicas: 3,
-                        data_size: 1,
-                        log_size: 1,
-                        port: 31210,
-                        resources: {
-                            limits: {
-                                cpu: {
-                                    value: 0.2
-                                },
-                                memory: {
-                                    value: 1
-                                }
-                            }
-                        }
-                    },
-                    datanode: {
-                        replicas: 0,
-                        data_size: 1,
-                        log_size: 1,
-                        port: 32210,
-                        resources: {
-                            limits: {
-                                cpu: {
-                                    value: 0.2
-                                },
-                                memory: {
-                                    value: 1
-                                }
-                            }
-                        }
-                    },
-                    computenode: {
-                        replicas: 0,
-                        data_size: 1,
-                        log_size: 1,
-                        port: 32210,
-                        resources: {
-                            limits: {
-                                cpu: {
-                                    value: 0.2
-                                },
-                                memory: {
-                                    value: 1
-                                }
-                            }
-                        }
-                    },
-                    namespace: namespaces.length !== 0 ? namespaces[0].name : '',
-                    storage_class: storageclasses.length !== 0 ? storageclasses[0].name : '',
-                    log_mode: 0,
-                    // 这个 resources 疑似弃用
+    return <Modal
+        className='cloud-create-panel'
+        title={t('新建集群配置')}
+        open={visible}
+        onOk={closePanel}
+        onCancel={closePanel}   
+        width='900px'
+        footer={<>
+            <Button type='primary' htmlType='submit' className='submit' onClick={onSubmit}>{t('提交')}</Button>
+            <Button type='default' htmlType='reset' className='reset' onClick={onReset}>{t('重置')}</Button>
+            <Button
+                className='cancel'
+                type='default'
+                onClick={() => {
+                    closePanel()
+                }}
+            >{t('取消')}</Button>
+        </>}
+    >
+        <Form
+            form={form}
+            name='cluster-form'
+            className='cluster-create-form'
+            labelAlign='left'
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 16 }}
+            initialValues={{
+                mode,
+                cluster_type,
+                version: versions.length !== 0 ? versions[0] : '',
+                controller: {
+                    replicas: 3,
+                    data_size: 1,
+                    log_size: 1,
+                    port: 31210,
                     resources: {
-                        cpu: 1,
-                        memory: 1,
-                    },
-                    enable_jit: false,
-                    license_server_address
-                }}
+                        limits: {
+                            cpu: {
+                                value: 0.2
+                            },
+                            memory: {
+                                value: 1
+                            }
+                        }
+                    }
+                },
+                datanode: {
+                    replicas: 0,
+                    data_size: 1,
+                    log_size: 1,
+                    port: 32210,
+                    resources: {
+                        limits: {
+                            cpu: {
+                                value: 0.2
+                            },
+                            memory: {
+                                value: 1
+                            }
+                        }
+                    }
+                },
+                computenode: {
+                    replicas: 0,
+                    data_size: 1,
+                    log_size: 1,
+                    port: 32210,
+                    resources: {
+                        limits: {
+                            cpu: {
+                                value: 0.2
+                            },
+                            memory: {
+                                value: 1
+                            }
+                        }
+                    }
+                },
+                namespace: namespaces.length !== 0 ? namespaces[0].name : '',
+                storage_class: storageclasses.length !== 0 ? storageclasses[0].name : '',
+                log_mode: 0,
+                // 这个 resources 疑似弃用
+                resources: {
+                    cpu: 1,
+                    memory: 1,
+                },
+                enable_jit: false,
+                license_server_address
+            }}
 
-                onFieldsChange={(changeds, all) => {
-                    if (!changeds[0])
-                        return
-                    const { name, value } = changeds[0]
-                    
-                    if (name[0] === 'mode') {
-                        set_mode(value)
-                        return
-                    }
-                    
-                    if (name[0] === 'cluster_type') {
-                        set_cluster_type(value)
-                        return
-                    }
-                }}
-                colon={false}
-                validateMessages={{
-                    pattern: {
-                        mismatch: '${pattern}'
-                    }
-                }}
+            onFieldsChange={(changeds, all) => {
+                if (!changeds[0])
+                    return
+                const { name, value } = changeds[0]
+                
+                if (name[0] === 'mode') {
+                    set_mode(value)
+                    return
+                }
+                
+                if (name[0] === 'cluster_type') {
+                    set_cluster_type(value)
+                    return
+                }
+            }}
+            colon={false}
+            validateMessages={{
+                pattern: {
+                    mismatch: '${pattern}'
+                }
+            }}
+        >
+            <Collapse
+                bordered={false} ghost defaultActiveKey={1}
             >
-                <Collapse
-                    bordered={false} ghost defaultActiveKey={1}
+                <Collapse.Panel
+                    key={1} header={<span className='ant-divider-inner-text'>{t('基本信息')}</span>} forceRender
                 >
-                    <Collapse.Panel
-                        key={1} header={<span className='ant-divider-inner-text'>{t('基本信息')}</span>} forceRender
-                    >
-                        <Row>
-                            <Col span={12}>
-                                <Form.Item name='namespace' label={t('命名空间')} rules={[{ required: true }]}>
-                                    <Select placeholder='Please select a namespace'>
-                                        {
-                                            namespaces.length !== 0 ?
-                                                namespaces.map(ns => (
-                                                    <Option value={ns.name} key={ns.name}>{ns.name}</Option>
-                                                ))
-                                                :
-                                                // eslint-disable-next-line
-                                                <Option value=''>{''}</Option>
-                                        }
-                                    </Select>
-                                </Form.Item>
-                                <Form.Item name='version' label={t('版本')} rules={[{ required: true }]}>
-                                    <Select>
-                                        {
-                                            versions.length !== 0 ?
-                                                versions.map(v => (
-                                                    <Option value={v} key={v}>{v}</Option>
-                                                ))
-                                                :
-                                                // eslint-disable-next-line
-                                                <Option value=''>{''}</Option>
-                                        }
-                                    </Select>
-                                </Form.Item>
-                                <Form.Item name='storage_class' label={t('存储类')}>
-                                    <Select placeholder='Please select a storage class' >
-                                        {
-                                            storageclasses.length !== 0 ?
-                                                storageclasses.map(sc => (
-                                                    <Option value={sc.name} key={sc.name}>{sc.name}</Option>
-                                                ))
-                                                :
-                                                // eslint-disable-next-line
-                                                <Option value=''>{''}</Option>
-                                        }
-                                    </Select>
-                                </Form.Item>
-                            </Col>
-                            
-                            <Col span={12}>
-                                <Form.Item
-                                    name='name'
-                                    label={t('名称')}
-                                    tooltip={t("只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")}
-                                    rules={[{
-                                        required: true,
-                                        pattern: new RegExp('^[a-z]([-a-z0-9]*[a-z0-9])*$'),
-                                    }]}
-                                    messageVariables={{
-                                        pattern: t("集群名称只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")
-                                    }}
-                                    validateTrigger='onBlur'
-                                >
-                                    <Input />
-                                </Form.Item>
-                            
-                                <Form.Item name='enable_jit' label={t('启用 JIT')} valuePropName='checked'>
-                                    <Switch />
-                                </Form.Item>
-
-                                <Form.Item name='log_mode' label={t('日志模式')} rules={[{ required: true }]}>
-                                    <Select>
-                                        <Option value={0}>{t('输出到文件')}</Option>
-                                        <Option value={1}>{t('输出到标准输出')}</Option>
-                                        <Option value={2}>{t('同时输出到文件和标准输出')}</Option>
-                                    </Select>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    
-                        <Row className='optional-columns'>
-                            <Col span={12}>
-                                <Form.Item name='mode' label={t('模式')} rules={[{ required: true }]}>
-                                    <Select>
-                                        <Option value='standalone'>{t('单机节点')}</Option>
-                                        <Option value='cluster'>{t('集群')}</Option>
-                                    </Select>
-                                </Form.Item>
-                            </Col>
-                            
-                            {mode === 'cluster' && <Col span={12}>
-                                <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
-                                    <Select>
-                                        <Option value='singlecontroller'>{t('单控制节点')}</Option>
-                                        <Option value='multicontroller'>{t('多控制节点')}</Option>
-                                    </Select>
-                                </Form.Item>
-                            </Col>}
-                            
-                            <Col span={12}>
-                                <Form.Item noStyle dependencies={[['version']]}>
-                                    {({ getFieldValue }) => {
-                                        const version: string = getFieldValue('version')
-
-                                        if (version.startsWith('v1'))
-                                            if (version.slice(1, version.length) < '1.30.21')
-                                                return
-
-                                        if (version.startsWith('v2'))
-                                            if (version.slice(1, version.length) < '2.00.9')
-                                                return
-
-                                        return <Form.Item label={t('License Server 地址')} name='license_server_address'>
-                                                <Input />
-                                            </Form.Item>
-                                    }}
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    </Collapse.Panel>
-                    
-                    {mode === 'cluster' && <Collapse.Panel
-                        key={2}
-                        header={<span className='ant-divider-inner-text'>{t('控制节点')}</span>}
-                        forceRender>
-                            <Row className='optional-columns'>
-                                {cluster_type === 'multicontroller' && <Col span={12}>
-                                    <Form.Item name={['controller', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
-                                        <InputNumber min={3} precision={0} />
-                                    </Form.Item>
-                                </Col>}
-
-                                <Col span={12}>
-                                    <Form.Item name={['controller', 'port']} label={t('端口')} rules={[{ required: true }]}>
-                                        <InputNumber min={0} />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                            
-                            <Row>
-                                <Col span={12}>
-                                    <Form.Item name={['controller', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
-                                        <InputNumber min={0} addonAfter='Gi' />
-                                    </Form.Item>
-                                    
-                                    <Form.Item label='CPU' >
-                                        <Form.Item
-                                            name={['controller', 'resources', 'limits', 'cpu', 'value']}
-                                            dependencies={[['controller', 'resources', 'requests', 'cpu']]}
-                                            label={t('上限')}
-                                            rules={[{ required: true, validator: create_validate_limit_function('controller', 'cpu', false) }]}
-                                            className='limit'
-                                        >
-                                            <InputNumber min={0} addonAfter={t('核')} />
-                                        </Form.Item>
-                                        <div className='space-filler' />
-                                        <Form.Item
-                                            name={['controller', 'resources', 'requests', 'cpu', 'value']}
-                                            dependencies={[['controller', 'resources', 'limits', 'cpu']]}
-                                            label={t('下限')}
-                                            rules={[{ validator: create_validate_limit_function('controller', 'cpu', true) }]}
-                                            className='limit'
-                                        >
-                                            <InputNumber min={0} addonAfter={t('核')} />
-                                        </Form.Item>
-                                    </Form.Item>
-                                </Col>
-                                
-                                <Col span={12}>
-                                    <Form.Item name={['controller', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
-                                        <InputNumber min={0} addonAfter='Gi' />
-                                    </Form.Item>
-                                    
-                                    <Form.Item label={t('内存')}>
-                                            <Form.Item
-                                                name={['controller', 'resources', 'limits', 'memory', 'value']}
-                                                dependencies={[['controller', 'resources', 'requests', 'memory']]}
-                                                label={t('上限')}
-                                                rules={[{ required: true, validator: create_validate_limit_function('controller', 'memory', false) }]}
-                                                className='limit'
-                                            >
-                                                <InputNumber min={0} addonAfter='Gi' />
-                                            </Form.Item>
-                                            <div className='space-filler' />
-                                            <Form.Item
-                                                name={['controller', 'resources', 'requests', 'memory', 'value']}
-                                                dependencies={[['controller', 'resources', 'limits', 'memory']]}
-                                                label={t('下限')}
-                                                rules={[{ validator: create_validate_limit_function('controller', 'memory', true) }]}
-                                                className='limit'
-                                            >
-                                                <InputNumber min={0} addonAfter='Gi' />
-                                            </Form.Item>
-                                        
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                    <Row>
+                        <Col span={12}>
+                            <Form.Item name='namespace' label={t('命名空间')} rules={[{ required: true }]}>
+                                <Select placeholder='Please select a namespace'>
+                                    {
+                                        namespaces.length !== 0 ?
+                                            namespaces.map(ns => <Option value={ns.name} key={ns.name}>{ns.name}</Option>)
+                                            :
+                                            // eslint-disable-next-line
+                                            <Option value=''>{''}</Option>
+                                    }
+                                </Select>
+                            </Form.Item>
+                            <Form.Item name='version' label={t('版本')} rules={[{ required: true }]}>
+                                <Select>
+                                    {
+                                        versions.length !== 0 ?
+                                            versions.map(v => <Option value={v} key={v}>{v}</Option>)
+                                            :
+                                            // eslint-disable-next-line
+                                            <Option value=''>{''}</Option>
+                                    }
+                                </Select>
+                            </Form.Item>
+                            <Form.Item name='storage_class' label={t('存储类')}>
+                                <Select placeholder='Please select a storage class' >
+                                    {
+                                        storageclasses.length !== 0 ?
+                                            storageclasses.map(sc => <Option value={sc.name} key={sc.name}>{sc.name}</Option>)
+                                            :
+                                            // eslint-disable-next-line
+                                            <Option value=''>{''}</Option>
+                                    }
+                                </Select>
+                            </Form.Item>
+                        </Col>
                         
-                    </Collapse.Panel> }
+                        <Col span={12}>
+                            <Form.Item
+                                name='name'
+                                label={t('名称')}
+                                tooltip={t("只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")}
+                                rules={[{
+                                    required: true,
+                                    pattern: new RegExp('^[a-z]([-a-z0-9]*[a-z0-9])*$'),
+                                }]}
+                                messageVariables={{
+                                    pattern: t("集群名称只能包含小写字母、数字以及'-'，必须以小写字母开头，以小写字母或数字结尾")
+                                }}
+                                validateTrigger='onBlur'
+                            >
+                                <Input />
+                            </Form.Item>
+                        
+                            <Form.Item name='enable_jit' label={t('启用 JIT')} valuePropName='checked'>
+                                <Switch />
+                            </Form.Item>
 
-                    <Collapse.Panel 
-                        key={3} 
-                        header={<span className='ant-divider-inner-text'>{t('数据节点')}</span>}
-                        forceRender
-                    >
+                            <Form.Item name='log_mode' label={t('日志模式')} rules={[{ required: true }]}>
+                                <Select>
+                                    <Option value={0}>{t('输出到文件')}</Option>
+                                    <Option value={1}>{t('输出到标准输出')}</Option>
+                                    <Option value={2}>{t('同时输出到文件和标准输出')}</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                
+                    <Row className='optional-columns'>
+                        <Col span={12}>
+                            <Form.Item name='mode' label={t('模式')} rules={[{ required: true }]}>
+                                <Select>
+                                    <Option value='standalone'>{t('单机节点')}</Option>
+                                    <Option value='cluster'>{t('集群')}</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        
+                        {mode === 'cluster' && <Col span={12}>
+                            <Form.Item name='cluster_type' label={t('集群类型')} rules={[{ required: true }]}>
+                                <Select>
+                                    <Option value='singlecontroller'>{t('单控制节点')}</Option>
+                                    <Option value='multicontroller'>{t('多控制节点')}</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>}
+                        
+                        <Col span={12}>
+                            <Form.Item noStyle dependencies={[['version']]}>
+                                {({ getFieldValue }) => {
+                                    const version: string = getFieldValue('version')
 
+                                    if (version.startsWith('v1'))
+                                        if (version.slice(1, version.length) < '1.30.21')
+                                            return
+
+                                    if (version.startsWith('v2'))
+                                        if (version.slice(1, version.length) < '2.00.9')
+                                            return
+
+                                    return <Form.Item label={t('License Server 地址')} name='license_server_address'>
+                                            <Input />
+                                        </Form.Item>
+                                }}
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </Collapse.Panel>
+                
+                {mode === 'cluster' && <Collapse.Panel
+                    key={2}
+                    header={<span className='ant-divider-inner-text'>{t('控制节点')}</span>}
+                    forceRender>
                         <Row className='optional-columns'>
-                            {mode === 'cluster' && <Col span={12}><Form.Item name={['datanode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
-                                    <InputNumber min={0} precision={0} />
+                            {cluster_type === 'multicontroller' && <Col span={12}>
+                                <Form.Item name={['controller', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
+                                    <InputNumber min={3} precision={0} />
                                 </Form.Item>
                             </Col>}
-                            
+
                             <Col span={12}>
-                                <Form.Item name={['datanode', 'port']} label={t('端口')} rules={[{ required: true }]}>
+                                <Form.Item name={['controller', 'port']} label={t('端口')} rules={[{ required: true }]}>
                                     <InputNumber min={0} />
                                 </Form.Item>
                             </Col>
@@ -1147,26 +1054,26 @@ function CreateClusterPanel ({
                         
                         <Row>
                             <Col span={12}>
-
-                                <Form.Item name={['datanode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
+                                <Form.Item name={['controller', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
                                     <InputNumber min={0} addonAfter='Gi' />
                                 </Form.Item>
                                 
                                 <Form.Item label='CPU' >
                                     <Form.Item
-                                        name={['datanode', 'resources', 'limits', 'cpu', 'value']}
-                                        dependencies={[['datanode', 'resources', 'requests', 'cpu']]}
+                                        name={['controller', 'resources', 'limits', 'cpu', 'value']}
+                                        dependencies={[['controller', 'resources', 'requests', 'cpu']]}
                                         label={t('上限')}
-                                        rules={[{ required: true, validator: create_validate_limit_function('datanode', 'cpu', false) }]}
-                                        className='limit'>
+                                        rules={[{ required: true, validator: create_validate_limit_function('controller', 'cpu', false) }]}
+                                        className='limit'
+                                    >
                                         <InputNumber min={0} addonAfter={t('核')} />
                                     </Form.Item>
                                     <div className='space-filler' />
                                     <Form.Item
-                                        name={['datanode', 'resources', 'requests', 'cpu', 'value']}
-                                        dependencies={[['datanode', 'resources', 'limits', 'cpu']]}
+                                        name={['controller', 'resources', 'requests', 'cpu', 'value']}
+                                        dependencies={[['controller', 'resources', 'limits', 'cpu']]}
                                         label={t('下限')}
-                                        rules={[{ validator: create_validate_limit_function('datanode', 'cpu', true) }]}
+                                        rules={[{ validator: create_validate_limit_function('controller', 'cpu', true) }]}
                                         className='limit'
                                     >
                                         <InputNumber min={0} addonAfter={t('核')} />
@@ -1175,26 +1082,178 @@ function CreateClusterPanel ({
                             </Col>
                             
                             <Col span={12}>
-                                <Form.Item name={['datanode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
+                                <Form.Item name={['controller', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
                                     <InputNumber min={0} addonAfter='Gi' />
                                 </Form.Item>
                                 
                                 <Form.Item label={t('内存')}>
+                                        <Form.Item
+                                            name={['controller', 'resources', 'limits', 'memory', 'value']}
+                                            dependencies={[['controller', 'resources', 'requests', 'memory']]}
+                                            label={t('上限')}
+                                            rules={[{ required: true, validator: create_validate_limit_function('controller', 'memory', false) }]}
+                                            className='limit'
+                                        >
+                                            <InputNumber min={0} addonAfter='Gi' />
+                                        </Form.Item>
+                                        <div className='space-filler' />
+                                        <Form.Item
+                                            name={['controller', 'resources', 'requests', 'memory', 'value']}
+                                            dependencies={[['controller', 'resources', 'limits', 'memory']]}
+                                            label={t('下限')}
+                                            rules={[{ validator: create_validate_limit_function('controller', 'memory', true) }]}
+                                            className='limit'
+                                        >
+                                            <InputNumber min={0} addonAfter='Gi' />
+                                        </Form.Item>
+                                    
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    
+                </Collapse.Panel> }
+
+                <Collapse.Panel 
+                    key={3} 
+                    header={<span className='ant-divider-inner-text'>{t('数据节点')}</span>}
+                    forceRender
+                >
+
+                    <Row className='optional-columns'>
+                        {mode === 'cluster' && <Col span={12}><Form.Item name={['datanode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
+                                <InputNumber min={0} precision={0} />
+                            </Form.Item>
+                        </Col>}
+                        
+                        <Col span={12}>
+                            <Form.Item name={['datanode', 'port']} label={t('端口')} rules={[{ required: true }]}>
+                                <InputNumber min={0} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    
+                    <Row>
+                        <Col span={12}>
+
+                            <Form.Item name={['datanode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
+                                <InputNumber min={0} addonAfter='Gi' />
+                            </Form.Item>
+                            
+                            <Form.Item label='CPU' >
+                                <Form.Item
+                                    name={['datanode', 'resources', 'limits', 'cpu', 'value']}
+                                    dependencies={[['datanode', 'resources', 'requests', 'cpu']]}
+                                    label={t('上限')}
+                                    rules={[{ required: true, validator: create_validate_limit_function('datanode', 'cpu', false) }]}
+                                    className='limit'>
+                                    <InputNumber min={0} addonAfter={t('核')} />
+                                </Form.Item>
+                                <div className='space-filler' />
+                                <Form.Item
+                                    name={['datanode', 'resources', 'requests', 'cpu', 'value']}
+                                    dependencies={[['datanode', 'resources', 'limits', 'cpu']]}
+                                    label={t('下限')}
+                                    rules={[{ validator: create_validate_limit_function('datanode', 'cpu', true) }]}
+                                    className='limit'
+                                >
+                                    <InputNumber min={0} addonAfter={t('核')} />
+                                </Form.Item>
+                            </Form.Item>
+                        </Col>
+                        
+                        <Col span={12}>
+                            <Form.Item name={['datanode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
+                                <InputNumber min={0} addonAfter='Gi' />
+                            </Form.Item>
+                            
+                            <Form.Item label={t('内存')}>
+                                <Form.Item
+                                    name={['datanode', 'resources', 'limits', 'memory', 'value']}
+                                    dependencies={[['datanode', 'resources', 'requests', 'memory']]}
+                                    label={t('上限')}
+                                    rules={[{ required: true, validator: create_validate_limit_function('datanode', 'memory', false) }]}
+                                    className='limit'
+                                >
+                                    <InputNumber min={0} addonAfter='Gi' />
+                                </Form.Item>
+                                <div className='space-filler' />
+                                <Form.Item
+                                    name={['datanode', 'resources', 'requests', 'memory', 'value']}
+                                    dependencies={[['datanode', 'resources', 'limits', 'memory']]}
+                                    label={t('下限')}
+                                    rules={[{ validator: create_validate_limit_function('datanode', 'memory', true) }]}
+                                    className='limit'
+                                >
+                                    <InputNumber min={0} addonAfter='Gi' />
+                                </Form.Item>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </Collapse.Panel>
+            
+                {mode === 'cluster' && <Collapse.Panel
+                    key={4}
+                    header={<span className='ant-divider-inner-text'>{t('计算节点')}</span>}
+                    forceRender >
+                        <Row>
+                            <Col span={12}>
+                                <Form.Item name={['computenode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
+                                    <InputNumber min={0} precision={0} />
+                                </Form.Item>
+                                
+                                <Form.Item name={['computenode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
+                                    <InputNumber min={0} addonAfter='Gi' />
+                                </Form.Item>
+                                
+                                
+                                <Form.Item label='CPU'>
                                     <Form.Item
-                                        name={['datanode', 'resources', 'limits', 'memory', 'value']}
-                                        dependencies={[['datanode', 'resources', 'requests', 'memory']]}
+                                        name={['computenode', 'resources', 'limits', 'cpu', 'value']}
+                                        dependencies={[['computenode', 'resources', 'requests', 'cpu']]}
                                         label={t('上限')}
-                                        rules={[{ required: true, validator: create_validate_limit_function('datanode', 'memory', false) }]}
+                                        rules={[{ required: true, validator: create_validate_limit_function('computenode', 'cpu', false) }]}
+                                        className='limit'
+                                    >
+                                        <InputNumber min={0} addonAfter={t('核')} />
+                                    </Form.Item>
+                                    <div className='space-filler' />
+                                    <Form.Item
+                                        name={['computenode', 'resources', 'requests', 'cpu', 'value']}
+                                        dependencies={[['computenode', 'resources', 'limits', 'cpu']]}
+                                        label={t('下限')}
+                                        rules={[{ validator: create_validate_limit_function('computenode', 'cpu', true) }]}
+                                        className='limit'
+                                    >
+                                        <InputNumber min={0} addonAfter={t('核')} />
+                                    </Form.Item>
+                                </Form.Item>
+                            </Col>
+                            
+                            <Col span={12}>
+                                <Form.Item name={['computenode', 'port']} label={t('端口')} rules={[{ required: true }]}>
+                                    <InputNumber min={0} />
+                                </Form.Item>
+                                
+                                <Form.Item name={['computenode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
+                                    <InputNumber min={0} addonAfter='Gi' />
+                                </Form.Item>
+                            
+                                <Form.Item label={t('内存')}>
+                                    <Form.Item
+                                        name={['computenode', 'resources', 'limits', 'memory', 'value']}
+                                        dependencies={[['computenode', 'resources', 'requests', 'memory']]}
+                                        label={t('上限')}
+                                        rules={[{ required: true, validator: create_validate_limit_function('computenode', 'memory', false) }]}
                                         className='limit'
                                     >
                                         <InputNumber min={0} addonAfter='Gi' />
                                     </Form.Item>
                                     <div className='space-filler' />
                                     <Form.Item
-                                        name={['datanode', 'resources', 'requests', 'memory', 'value']}
-                                        dependencies={[['datanode', 'resources', 'limits', 'memory']]}
+                                        name={['computenode', 'resources', 'requests', 'memory', 'value']}
+                                        dependencies={[['computenode', 'resources', 'limits', 'memory']]}
                                         label={t('下限')}
-                                        rules={[{ validator: create_validate_limit_function('datanode', 'memory', true) }]}
+                                        rules={[{ validator: create_validate_limit_function('computenode', 'memory', true) }]}
                                         className='limit'
                                     >
                                         <InputNumber min={0} addonAfter='Gi' />
@@ -1202,83 +1261,10 @@ function CreateClusterPanel ({
                                 </Form.Item>
                             </Col>
                         </Row>
-                    </Collapse.Panel>
-                
-                    {mode === 'cluster' && <Collapse.Panel
-                        key={4}
-                        header={<span className='ant-divider-inner-text'>{t('计算节点')}</span>}
-                        forceRender >
-                            <Row>
-                                <Col span={12}>
-                                    <Form.Item name={['computenode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
-                                        <InputNumber min={0} precision={0} />
-                                    </Form.Item>
-                                    
-                                    <Form.Item name={['computenode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
-                                        <InputNumber min={0} addonAfter='Gi' />
-                                    </Form.Item>
-                                    
-                                    
-                                    <Form.Item label='CPU'>
-                                        <Form.Item
-                                            name={['computenode', 'resources', 'limits', 'cpu', 'value']}
-                                            dependencies={[['computenode', 'resources', 'requests', 'cpu']]}
-                                            label={t('上限')}
-                                            rules={[{ required: true, validator: create_validate_limit_function('computenode', 'cpu', false) }]}
-                                            className='limit'
-                                        >
-                                            <InputNumber min={0} addonAfter={t('核')} />
-                                        </Form.Item>
-                                        <div className='space-filler' />
-                                        <Form.Item
-                                            name={['computenode', 'resources', 'requests', 'cpu', 'value']}
-                                            dependencies={[['computenode', 'resources', 'limits', 'cpu']]}
-                                            label={t('下限')}
-                                            rules={[{ validator: create_validate_limit_function('computenode', 'cpu', true) }]}
-                                            className='limit'
-                                        >
-                                            <InputNumber min={0} addonAfter={t('核')} />
-                                        </Form.Item>
-                                    </Form.Item>
-                                </Col>
-                                
-                                <Col span={12}>
-                                    <Form.Item name={['computenode', 'port']} label={t('端口')} rules={[{ required: true }]}>
-                                        <InputNumber min={0} />
-                                    </Form.Item>
-                                    
-                                    <Form.Item name={['computenode', 'log_size']} label={t('日志存储空间')} rules={[{ required: true }]} className='space'>
-                                        <InputNumber min={0} addonAfter='Gi' />
-                                    </Form.Item>
-                                
-                                    <Form.Item label={t('内存')}>
-                                        <Form.Item
-                                            name={['computenode', 'resources', 'limits', 'memory', 'value']}
-                                            dependencies={[['computenode', 'resources', 'requests', 'memory']]}
-                                            label={t('上限')}
-                                            rules={[{ required: true, validator: create_validate_limit_function('computenode', 'memory', false) }]}
-                                            className='limit'
-                                        >
-                                            <InputNumber min={0} addonAfter='Gi' />
-                                        </Form.Item>
-                                        <div className='space-filler' />
-                                        <Form.Item
-                                            name={['computenode', 'resources', 'requests', 'memory', 'value']}
-                                            dependencies={[['computenode', 'resources', 'limits', 'memory']]}
-                                            label={t('下限')}
-                                            rules={[{ validator: create_validate_limit_function('computenode', 'memory', true) }]}
-                                            className='limit'
-                                        >
-                                            <InputNumber min={0} addonAfter='Gi' />
-                                        </Form.Item>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </Collapse.Panel>}
-               </Collapse>
-            </Form>
-        </Modal>
-    )
+                    </Collapse.Panel>}
+            </Collapse>
+        </Form>
+    </Modal>
 }
 
 const node_types = {
@@ -2005,31 +1991,29 @@ function ConfigEditableList ({
         }
     })
     
-    return (
-        <Form
-            form={form}
-            component={false}
-        >
-            <Table
-                className={type === 'standalone' ? 'standalone-form' : ''}
-                rowKey={item => item.name}
-                components={{
-                    body: {
-                        cell: EditableCell,
-                    },
-                }}
-                bordered
-                dataSource={configList}
-                columns={mergedColumns}
-                rowClassName={record => {
-                    if (editedList.find(val => val.name === record.name))
-                        return 'editable-row edited-row' 
-                    return 'editable-row'
-                }}
-                pagination={false}
-            />
-        </Form>
-    )
+    return <Form
+        form={form}
+        component={false}
+    >
+        <Table
+            className={type === 'standalone' ? 'standalone-form' : ''}
+            rowKey={item => item.name}
+            components={{
+                body: {
+                    cell: EditableCell,
+                },
+            }}
+            bordered
+            dataSource={configList}
+            columns={mergedColumns}
+            rowClassName={record => {
+                if (editedList.find(val => val.name === record.name))
+                    return 'editable-row edited-row' 
+                return 'editable-row'
+            }}
+            pagination={false}
+        />
+    </Form>
 
 }
 
@@ -2054,8 +2038,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     ...restProps
   }) => {
 
-    return (
-      <td {...restProps}>
+    return <td {...restProps}>
         {editing ? 
             (
                 <Form.Item
@@ -2080,8 +2063,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             : (
           children
         )}
-      </td>
-    )
+    </td>
 }
 
 const log_modes = {
@@ -2106,125 +2088,123 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
     }, [props.modal_open])
     
     
-    return (
-        <Modal
-            open={props.modal_open}
-            onCancel={() => {
-                props.set_modal_open(false)
-            }}
-            footer={
-                <Button
-                    type='primary'
-                    onClick={() => { props.set_modal_open(false) }}
-                >{t('完成')}</Button>
-            }
-        >
-            <Space direction='vertical' style={{ width: '100%' }} size='large'>
-                <Title level={4}>{t('上传文件至 {{instance}}', { instance: props.instance })}</Title>
-                <Form form={form_instance}>
-                    <Form.Item name='to' label={t('文件上传路径')} required colon={false}>
-                        <Input placeholder={t('Pod 内路径，如: /data/ddb/server/')} />
-                    </Form.Item>
-                </Form>
-                <Upload.Dragger
-                    name='file'
-                    customRequest={async option => {
-                        set_error_(false)
-                        set_loaded_(false)
-                        set_filename((option.file as File).name)
-                        set_show_progress(false)
-                        set_show_text(false)
-                        
-                        const { namespace, name, instance } = props
-                        const { to } = await form_instance.validateFields()
-                        if (!to) {
-                            message.error(t('上传路径不能为空'))
-                            return
-                        }
-                        const form_data = new FormData()
-                        form_data.append('file', option.file)
-                        form_data.append('to', to)
-                        
-                        const xhr = new XMLHttpRequest()
-                        
-                        xhr.addEventListener('loadstart', eve => {
-                            set_show_progress(true)
-                        })
-                        
-                        xhr.upload.addEventListener('progress', eve => {
-                            set_progress({ total: eve.total, loaded: eve.loaded })
-                            // 考虑文件上传过程中突然断网，中断后progress不会停止，而会迅速将loaded增长至total。所以断网后前端的行为是进度条迅速增长至满条，随后弹出Upload Failed弹窗。此行为有待改进
-                        })
-                        
-                        xhr.addEventListener('loadend', eve => {
-                            if (xhr.status === 201) {
-                                set_loaded_(true)
-                                set_show_text(true)
-                                set_show_progress(true)
-                                message.success(t('文件上传成功'))
-                            } else 
-                                message.error(t('文件上传失败'))
-                            
-                        })
-                        
-                        xhr.addEventListener('error', eve => {
-                            set_error_(true)
+    return <Modal
+        open={props.modal_open}
+        onCancel={() => {
+            props.set_modal_open(false)
+        }}
+        footer={
+            <Button
+                type='primary'
+                onClick={() => { props.set_modal_open(false) }}
+            >{t('完成')}</Button>
+        }
+    >
+        <Space direction='vertical' style={{ width: '100%' }} size='large'>
+            <Title level={4}>{t('上传文件至 {{instance}}', { instance: props.instance })}</Title>
+            <Form form={form_instance}>
+                <Form.Item name='to' label={t('文件上传路径')} required colon={false}>
+                    <Input placeholder={t('Pod 内路径，如: /data/ddb/server/')} />
+                </Form.Item>
+            </Form>
+            <Upload.Dragger
+                name='file'
+                customRequest={async option => {
+                    set_error_(false)
+                    set_loaded_(false)
+                    set_filename((option.file as File).name)
+                    set_show_progress(false)
+                    set_show_text(false)
+                    
+                    const { namespace, name, instance } = props
+                    const { to } = await form_instance.validateFields()
+                    if (!to) {
+                        message.error(t('上传路径不能为空'))
+                        return
+                    }
+                    const form_data = new FormData()
+                    form_data.append('file', option.file)
+                    form_data.append('to', to)
+                    
+                    const xhr = new XMLHttpRequest()
+                    
+                    xhr.addEventListener('loadstart', eve => {
+                        set_show_progress(true)
+                    })
+                    
+                    xhr.upload.addEventListener('progress', eve => {
+                        set_progress({ total: eve.total, loaded: eve.loaded })
+                        // 考虑文件上传过程中突然断网，中断后progress不会停止，而会迅速将loaded增长至total。所以断网后前端的行为是进度条迅速增长至满条，随后弹出Upload Failed弹窗。此行为有待改进
+                    })
+                    
+                    xhr.addEventListener('loadend', eve => {
+                        if (xhr.status === 201) {
+                            set_loaded_(true)
                             set_show_text(true)
                             set_show_progress(true)
-                            console.log(error_)
-                        })
+                            message.success(t('文件上传成功'))
+                        } else 
+                            message.error(t('文件上传失败'))
                         
-                        xhr.open('POST', `/v1/dolphindbs/${namespace}/${name}/instances/${instance}/upload`)
-                        
-                        xhr.send(form_data)
-                    }}
-                    showUploadList={false}
-                    beforeUpload={file => {
-                        if (file.size / 1024 / 1024 > 100) 
-                            message.error(t('文件大小限制 100 MB'))
-                        
-                        return file.size / 1024 / 1024 <= 100
-                    }}
-                >
-                    <p className='ant-upload-drag-icon'>
-                        <InboxOutlined />
-                    </p>
-                    <p className='ant-upload-text'>{t('点击此处或者拖拽文件到此处')}</p>
-                    <p className='ant-upload-hint'>{t('文件大小限制 100 MB')}</p>
-                </Upload.Dragger>
+                    })
+                    
+                    xhr.addEventListener('error', eve => {
+                        set_error_(true)
+                        set_show_text(true)
+                        set_show_progress(true)
+                        console.log(error_)
+                    })
+                    
+                    xhr.open('POST', `/v1/dolphindbs/${namespace}/${name}/instances/${instance}/upload`)
+                    
+                    xhr.send(form_data)
+                }}
+                showUploadList={false}
+                beforeUpload={file => {
+                    if (file.size / 1024 / 1024 > 100) 
+                        message.error(t('文件大小限制 100 MB'))
+                    
+                    return file.size / 1024 / 1024 <= 100
+                }}
+            >
+                <p className='ant-upload-drag-icon'>
+                    <InboxOutlined />
+                </p>
+                <p className='ant-upload-text'>{t('点击此处或者拖拽文件到此处')}</p>
+                <p className='ant-upload-hint'>{t('文件大小限制 100 MB')}</p>
+            </Upload.Dragger>
+            
+            <div>
+                {show_progress && !error_ ? (
+                    <Progress
+                        strokeColor={{
+                            '0%': '#108ee9',
+                            '100%': '#87d068'
+                        }}
+                        strokeWidth={3}
+                        format={percent => percent && `${parseFloat(percent.toFixed(2))}%`}
+                        percent={(progress.loaded / progress.total) * 100}
+                    />
+                ) : undefined}
                 
-                <div>
-                    {show_progress && !error_ ? (
-                        <Progress
-                            strokeColor={{
-                                '0%': '#108ee9',
-                                '100%': '#87d068'
-                            }}
-                            strokeWidth={3}
-                            format={percent => percent && `${parseFloat(percent.toFixed(2))}%`}
-                            percent={(progress.loaded / progress.total) * 100}
-                        />
-                    ) : undefined}
-                    
-                    {error_ ? (
-                        <Progress
-                            strokeColor={{
-                                '0%': '#FF0000',
-                                '100%': '#FF0000'
-                            }}
-                            strokeWidth={3}
-                            status='exception'
-                            percent={100}
-                        />
-                    ) : undefined}
-                    
-                    {show_text && loaded_ ? <div>{t('文件 {{filename}} 上传成功', { filename })}</div> : undefined}
-                    
-                    {show_text && error_ ? <div>{t('文件 {{filename}} 上传失败', { filename })}</div> : undefined}
-                </div>
-            </Space>
-        </Modal>
-    )
+                {error_ ? (
+                    <Progress
+                        strokeColor={{
+                            '0%': '#FF0000',
+                            '100%': '#FF0000'
+                        }}
+                        strokeWidth={3}
+                        status='exception'
+                        percent={100}
+                    />
+                ) : undefined}
+                
+                {show_text && loaded_ ? <div>{t('文件 {{filename}} 上传成功', { filename })}</div> : undefined}
+                
+                {show_text && error_ ? <div>{t('文件 {{filename}} 上传失败', { filename })}</div> : undefined}
+            </div>
+        </Space>
+    </Modal>
 }
 
 
@@ -3118,9 +3098,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                     >
                         {
                             namespaces.length !== 0 ?
-                                namespaces.map(ns => (
-                                    <Option value={ns.name}>{ns.name}</Option>
-                                ))
+                                namespaces.map(ns => <Option value={ns.name}>{ns.name}</Option>)
                                 :
                                 undefined
                         }
@@ -3521,16 +3499,14 @@ class ErrorBoundary extends React.Component<any, any> {
     override render () {
         if (this.state.errorInfo) 
             // Error path
-            return (
-                <div>
-                    <h2>Something went wrong.</h2>
-                    <details style={{ whiteSpace: 'pre-wrap' }}>
-                        {this.state.error && this.state.error.toString()}
-                        <br />
-                        {this.state.errorInfo.componentStack}
-                    </details>
-                </div>
-            )
+            return <div>
+                <h2>Something went wrong.</h2>
+                <details style={{ whiteSpace: 'pre-wrap' }}>
+                    {this.state.error && this.state.error.toString()}
+                    <br />
+                    {this.state.errorInfo.componentStack}
+                </details>
+            </div>
         
         // Normally, just render children
         return this.props.children

@@ -290,107 +290,105 @@ function Perf () {
     if (!node)
         return null
 
-    return (
-        <div className='perf'>
-            <Descriptions className='table' column={2} bordered size='small' title={t('内存', { context: 'perf' })}>
-                <Descriptions.Item label={t('内存已用')}>
-                    {Number(node.memoryUsed).to_fsize_str()}
+    return <div className='perf'>
+        <Descriptions className='table' column={2} bordered size='small' title={t('内存', { context: 'perf' })}>
+            <Descriptions.Item label={t('内存已用')}>
+                {Number(node.memoryUsed).to_fsize_str()}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('内存已分配')}>
+                {Number(node.memoryAlloc).to_fsize_str()}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('节点内存空间上限')}>
+                {node.maxMemSize} GB
+            </Descriptions.Item>
+        </Descriptions >
+        <Descriptions className='table' column={2} bordered size='small' title='CPU'>
+            < Descriptions.Item label={t('CPU 占用率')} >
+                {node.cpuUsage.toFixed(1)} %
+            </Descriptions.Item >
+            <Descriptions.Item label={t('CPU 平均负载')}>
+                {node.avgLoad.toFixed(1)}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('worker 线程数')}>
+                {node.workerNum}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('executor 线程数')}>
+                {node.executorNum}
+            </Descriptions.Item>
+        </Descriptions >
+        <Descriptions className='table' column={2} bordered size='small' title={t('磁盘')}>
+            <Descriptions.Item label={t('磁盘读速率')}>
+                {Number(node.diskReadRate).to_fsize_str()}/s
+            </Descriptions.Item>
+            <Descriptions.Item label={t('磁盘写速率')}>
+                {Number(node.diskWriteRate).to_fsize_str()}/s
+            </Descriptions.Item>
+            <Descriptions.Item label={t('前一分钟读磁盘量')}>
+                {Number(node.lastMinuteWriteVolume).to_fsize_str()}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('前一分钟写磁盘量')}>
+                {Number(node.lastMinuteWriteVolume).to_fsize_str()}
+            </Descriptions.Item>
+            { node.mode !== NodeType.controller && <>
+                <Descriptions.Item label={t('磁盘剩余容量')}>
+                    {Number(node.diskFreeSpace).to_fsize_str()}
                 </Descriptions.Item>
-                <Descriptions.Item label={t('内存已分配')}>
-                    {Number(node.memoryAlloc).to_fsize_str()}
+                <Descriptions.Item label={t('磁盘总容量')}>
+                    {Number(node.diskCapacity).to_fsize_str()}
                 </Descriptions.Item>
-                <Descriptions.Item label={t('节点内存空间上限')}>
-                    {node.maxMemSize} GB
+                <Descriptions.Item label={t('磁盘可用空间占比')}>
+                    {(node.diskFreeSpaceRatio * 100).toFixed(2)}%
                 </Descriptions.Item>
-            </Descriptions >
-            <Descriptions className='table' column={2} bordered size='small' title='CPU'>
-                < Descriptions.Item label={t('CPU 占用率')} >
-                    {node.cpuUsage.toFixed(1)} %
-                </Descriptions.Item >
-                <Descriptions.Item label={t('CPU 平均负载')}>
-                    {node.avgLoad.toFixed(1)}
-                </Descriptions.Item>
-                <Descriptions.Item label={t('worker 线程数')}>
-                    {node.workerNum}
-                </Descriptions.Item>
-                <Descriptions.Item label={t('executor 线程数')}>
-                    {node.executorNum}
-                </Descriptions.Item>
-            </Descriptions >
-            <Descriptions className='table' column={2} bordered size='small' title={t('磁盘')}>
-                <Descriptions.Item label={t('磁盘读速率')}>
-                    {Number(node.diskReadRate).to_fsize_str()}/s
-                </Descriptions.Item>
-                <Descriptions.Item label={t('磁盘写速率')}>
-                    {Number(node.diskWriteRate).to_fsize_str()}/s
-                </Descriptions.Item>
-                <Descriptions.Item label={t('前一分钟读磁盘量')}>
-                    {Number(node.lastMinuteWriteVolume).to_fsize_str()}
-                </Descriptions.Item>
-                <Descriptions.Item label={t('前一分钟写磁盘量')}>
-                    {Number(node.lastMinuteWriteVolume).to_fsize_str()}
-                </Descriptions.Item>
-                { node.mode !== NodeType.controller && <>
-                    <Descriptions.Item label={t('磁盘剩余容量')}>
-                        {Number(node.diskFreeSpace).to_fsize_str()}
-                    </Descriptions.Item>
-                    <Descriptions.Item label={t('磁盘总容量')}>
-                        {Number(node.diskCapacity).to_fsize_str()}
-                    </Descriptions.Item>
-                    <Descriptions.Item label={t('磁盘可用空间占比')}>
-                        {(node.diskFreeSpaceRatio * 100).toFixed(2)}%
-                    </Descriptions.Item>
-                </> }
-            </Descriptions >
-            <Descriptions className='table' column={2} bordered size='small' title={t('网络', { context: 'perf' })}>
-                <Descriptions.Item label={t('当前连接')}>
-                    {node.connectionNum}
-                </Descriptions.Item>
-                <Descriptions.Item label={t('最大连接')}>
-                    {node.maxConnections}
-                </Descriptions.Item>
-                <Descriptions.Item label={t('网络接收速率')}>
-                    {Number(node.networkRecvRate).to_fsize_str()}/s
-                </Descriptions.Item>
-                <Descriptions.Item label={t('网络发送速率')}>
-                    {Number(node.networkSendRate).to_fsize_str()}/s
-                </Descriptions.Item>
-                <Descriptions.Item label={t('前一分钟接收字节数')}>
-                    {Number(node.lastMinuteNetworkRecv).to_fsize_str()}
-                </Descriptions.Item>
-                <Descriptions.Item label={t('前一分钟发送字节数')}>
-                    {Number(node.lastMinuteNetworkSend).to_fsize_str()}
-                </Descriptions.Item>
-            </Descriptions >
-            <Descriptions className='table' column={2} bordered size='small' title={t('任务与作业')}>
-                <Descriptions.Item label={t('排队作业')}>
-                    {node.queuedJobs}
-                </Descriptions.Item>
-                <Descriptions.Item label={t('运行作业')}>
-                    {node.runningJobs}
-                </Descriptions.Item>
-                <Descriptions.Item label={t('排队任务')}>
-                    {node.queuedTasks}
-                </Descriptions.Item>
-                <Descriptions.Item label={t('运行任务')}>
-                    {node.runningTasks}
-                </Descriptions.Item>
-                {
-                    Number(node.lastMsgLatency) >= 0 ? <Descriptions.Item label={t('前一批消息延时')}>
-                        {Number(node.lastMsgLatency).to_fsize_str()} s
-                    </Descriptions.Item> : null
-                }
-                {
-                    Number(node.cumMsgLatency) >= 0 ? <Descriptions.Item label={t('所有消息平均延时')}>
-                        {Number(node.cumMsgLatency).to_fsize_str()} s
-                    </Descriptions.Item> : null
-                }
-                <Descriptions.Item label={t('作业负载')}>
-                    {node.jobLoad}
-                </Descriptions.Item>
-            </Descriptions >
-        </div>
-    )
+            </> }
+        </Descriptions >
+        <Descriptions className='table' column={2} bordered size='small' title={t('网络', { context: 'perf' })}>
+            <Descriptions.Item label={t('当前连接')}>
+                {node.connectionNum}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('最大连接')}>
+                {node.maxConnections}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('网络接收速率')}>
+                {Number(node.networkRecvRate).to_fsize_str()}/s
+            </Descriptions.Item>
+            <Descriptions.Item label={t('网络发送速率')}>
+                {Number(node.networkSendRate).to_fsize_str()}/s
+            </Descriptions.Item>
+            <Descriptions.Item label={t('前一分钟接收字节数')}>
+                {Number(node.lastMinuteNetworkRecv).to_fsize_str()}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('前一分钟发送字节数')}>
+                {Number(node.lastMinuteNetworkSend).to_fsize_str()}
+            </Descriptions.Item>
+        </Descriptions >
+        <Descriptions className='table' column={2} bordered size='small' title={t('任务与作业')}>
+            <Descriptions.Item label={t('排队作业')}>
+                {node.queuedJobs}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('运行作业')}>
+                {node.runningJobs}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('排队任务')}>
+                {node.queuedTasks}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('运行任务')}>
+                {node.runningTasks}
+            </Descriptions.Item>
+            {
+                Number(node.lastMsgLatency) >= 0 ? <Descriptions.Item label={t('前一批消息延时')}>
+                    {Number(node.lastMsgLatency).to_fsize_str()} s
+                </Descriptions.Item> : null
+            }
+            {
+                Number(node.cumMsgLatency) >= 0 ? <Descriptions.Item label={t('所有消息平均延时')}>
+                    {Number(node.cumMsgLatency).to_fsize_str()} s
+                </Descriptions.Item> : null
+            }
+            <Descriptions.Item label={t('作业负载')}>
+                {node.jobLoad}
+            </Descriptions.Item>
+        </Descriptions >
+    </div>
 }
 
 function DdbSider () {
