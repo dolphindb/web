@@ -548,13 +548,13 @@ function CreateDatabase () {
                 <Input addonBefore='dfs://' placeholder={t('请输入数据库路径')} />
             </Form.Item>
             
-            <Form.Item label={t('分区层数')} name='partitionCount' required rules={[{
+            <Form.Item label={t('分区层数')} name='partitionCount' required initialValue={create_database_partition_count} rules={[{
                 required: true,
                 validator: async (_, val: number) => {
                     if (val < 1 || val > 3)
                         throw new TypeError(t('分区层数必须在1-3之间'))
                 }
-            }]} initialValue={create_database_partition_count}>
+            }]}>
                 <InputNumber onChange={(e: string) => {
                     const level = parseInt(e, 10)
                     if (level < 1 || level > 3)
