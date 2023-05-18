@@ -437,6 +437,10 @@ function CreateDatabase () {
         <Form
             className='db-modal-form'
             name='create-database'
+            labelWrap
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 20 }}
+            form={form}
             onFinish={async (table: CreateDatabaseFormInfo) => {
                 // database(directory, [partitionType], [partitionScheme], [locations], [engine=’OLAP’], [atomic=’TRANS’], [chunkGranularity=’TABLE’])
                 const partitionCount = Number(table.partitionCount)
@@ -530,10 +534,6 @@ function CreateDatabase () {
                     confirm_command_modal_visible: true
                 })
             }}
-            labelWrap
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 20 }}
-            form={form}
         >
             <Form.Item label={t('数据库路径')} name='dbPath' required rules={[{
                 required: true,
