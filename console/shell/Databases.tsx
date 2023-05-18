@@ -430,7 +430,7 @@ function CreateDatabase () {
         className='db-modal show-required'
         width='960px'
         open={create_database_modal_visible}
-        onCancel={() => { shell.set({ create_database_modal_visible: false, create_database_partition_count: 1 }) }}
+        onCancel={() => { shell.set({ create_database_modal_visible: false }) }}
         title={t('创建数据库')}
     >{
     shouldRunOnCurrNode &&
@@ -555,7 +555,7 @@ function CreateDatabase () {
                         throw new TypeError(t('分区层数必须在1-3之间'))
                 }
             }]}>
-                <InputNumber onChange={(e: string) => {
+                <InputNumber placeholder='1' onChange={(e: string) => {
                     const level = parseInt(e, 10)
                     if (level < 1 || level > 3)
                         return
@@ -565,7 +565,7 @@ function CreateDatabase () {
                     if (level < 3) 
                         for (let i = level;  i < 3;  i++) 
                             form.resetFields([['partitions', i, 'type'], ['partitions', i, 'scheme']])
-                }} placeholder='1' type='number' />
+                }} />
             </Form.Item>
             
             {
@@ -684,6 +684,7 @@ function CreateDatabase () {
                 <Button htmlType='button' onClick={() => {
                     form.resetFields()
                     form.setFieldValue('partitions', [ ])
+                    form.setFieldValue('partitionCount', 1)
                     
                     shell.set({ create_database_partition_count: 1 })
                 }}>
