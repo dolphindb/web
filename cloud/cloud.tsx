@@ -151,56 +151,54 @@ function InfoTab () {
     
     const { namespace, name, log_mode, version, storage_class, services, status, created_at, enable_jit } = cluster
     
-    return (
-        <>
-            <Descriptions
-                title={
-                    <Title level={4}>{t('信息')}</Title>
-                }
-                column={2}
-                bordered
-            >
-                <Descriptions.Item label={t('命名空间')}>{namespace}</Descriptions.Item>
-                <Descriptions.Item label={t('名称')}>{name}</Descriptions.Item>
-                <Descriptions.Item label={t('版本')}>{version + (enable_jit ? '-JIT' : '')}</Descriptions.Item>
-                <Descriptions.Item label={t('日志模式')}>{log_modes[log_mode]}</Descriptions.Item>
-                <Descriptions.Item label={t('模式')}>
-                    <Mode cluster={cluster} />
+    return <>
+        <Descriptions
+            title={
+                <Title level={4}>{t('信息')}</Title>
+            }
+            column={2}
+            bordered
+        >
+            <Descriptions.Item label={t('命名空间')}>{namespace}</Descriptions.Item>
+            <Descriptions.Item label={t('名称')}>{name}</Descriptions.Item>
+            <Descriptions.Item label={t('版本')}>{version + (enable_jit ? '-JIT' : '')}</Descriptions.Item>
+            <Descriptions.Item label={t('日志模式')}>{log_modes[log_mode]}</Descriptions.Item>
+            <Descriptions.Item label={t('模式')}>
+                <Mode cluster={cluster} />
+            </Descriptions.Item>
+            <Descriptions.Item label={t('存储类')}>{storage_class}</Descriptions.Item>
+            <Descriptions.Item label={t('创建时间')}>{created_at.format('YYYY.MM.DD HH:mm:ss')}</Descriptions.Item>
+            <Descriptions.Item label={t('状态')}>
+                <ClusterOrBackupStatus {...status} type='cluster'/>
+            </Descriptions.Item>
+        </Descriptions>
+        
+        <Descriptions
+            title={
+                <Title level={4}>{t('服务')}</Title>
+            }
+            column={3}
+            bordered
+        >
+            { services.Controller && <Descriptions.Item label={t('控制节点')}>
+                <ServiceNode {...services.Controller} />
+            </Descriptions.Item> }
+            { services.Datanode ? 
+                <Descriptions.Item label={t('数据节点')}>
+                    <ServiceNode {...services.Datanode} />
                 </Descriptions.Item>
-                <Descriptions.Item label={t('存储类')}>{storage_class}</Descriptions.Item>
-                <Descriptions.Item label={t('创建时间')}>{created_at.format('YYYY.MM.DD HH:mm:ss')}</Descriptions.Item>
-                <Descriptions.Item label={t('状态')}>
-                    <ClusterOrBackupStatus {...status} type='cluster'/>
+            :
+                <Descriptions.Item label={t('单机节点')}>
+                    <ServiceNode {...services.Standalone} />
                 </Descriptions.Item>
-            </Descriptions>
-            
-            <Descriptions
-                title={
-                    <Title level={4}>{t('服务')}</Title>
-                }
-                column={3}
-                bordered
-            >
-                { services.Controller && <Descriptions.Item label={t('控制节点')}>
-                    <ServiceNode {...services.Controller} />
-                </Descriptions.Item> }
-                { services.Datanode ? 
-                    <Descriptions.Item label={t('数据节点')}>
-                        <ServiceNode {...services.Datanode} />
-                    </Descriptions.Item>
-                :
-                    <Descriptions.Item label={t('单机节点')}>
-                        <ServiceNode {...services.Standalone} />
-                    </Descriptions.Item>
-                }
-                { services.Computenode && <Descriptions.Item label={t('计算节点')}>
-                    <ServiceNode {...services.Computenode} />
-                </Descriptions.Item> }
-            </Descriptions>
-            
-            <ClusterNodes cluster={cluster} />
-        </>
-    )
+            }
+            { services.Computenode && <Descriptions.Item label={t('计算节点')}>
+                <ServiceNode {...services.Computenode} />
+            </Descriptions.Item> }
+        </Descriptions>
+        
+        <ClusterNodes cluster={cluster} />
+    </>
 }
 
 // 把json里面值为 undefined, null, { }的键全部去掉
