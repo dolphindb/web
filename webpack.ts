@@ -26,8 +26,9 @@ export const fpd_node_modules = `${fpd_root}node_modules/`
 export const fpd_src_console = `${fpd_root}console/`
 export const fpd_src_cloud = `${fpd_root}cloud/`
 
-export const fpd_out_console = `${ ramdisk ? fpd_ramdisk_root : fpd_root }web/`
-export const fpd_out_cloud = `${ ramdisk ? fpd_ramdisk_root : fpd_root }web.cloud/`
+export const fpd_out = ramdisk ? fpd_ramdisk_root : fpd_root
+export const fpd_out_console = `${fpd_out}web/`
+export const fpd_out_cloud = `${fpd_out}web.cloud/`
 
 
 export let webpack = {
@@ -45,13 +46,20 @@ export let webpack = {
                 
                 devtool: 'source-map',
                 
-                entry: is_cloud ?
+                entry: production ?
+                    is_cloud ?
                         { 'index.js': './cloud/index.tsx' }
                     :
                         {
                             'index.js': './console/index.tsx',
                             'window.js': './console/window.tsx'
-                        },
+                        }
+                :
+                    {
+                        'web/index.js': './console/index.tsx',
+                        'web/window.js': './console/window.tsx',
+                        'web.cloud/index.js': './cloud/index.tsx'
+                    },
                 
                 experiments: {
                     // outputModule: true,
@@ -59,7 +67,10 @@ export let webpack = {
                 },
                 
                 output: {
-                    path: is_cloud ? fpd_out_cloud : fpd_out_console,
+                    path: production ?
+                            is_cloud ? fpd_out_cloud : fpd_out_console
+                        :
+                            fpd_out,
                     filename: '[name]',
                     publicPath: '/',
                     pathinfo: true,

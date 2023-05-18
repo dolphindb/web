@@ -12,9 +12,8 @@ import { webpack, fpd_root, fpd_node_modules, fpd_src_console, fpd_src_cloud } f
 
 let c0 = new DDB('ws://127.0.0.1:8850')
 
-// k8s 开发环境使用自签名的证书
-if (process.argv.includes('cloud'))
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+// k8s 开发环境需要使用自签名的证书
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 class DevServer extends Server {
     ddb_backend = '127.0.0.1:8848'
@@ -152,7 +151,7 @@ class DevServer extends Server {
                     ctx,
                     fp,
                     {
-                        root: webpack.config.output.path,
+                        root: `${webpack.config.output.path}${ project === 'console' ? 'web' : 'web.cloud' }/`,
                         log_404: false
                     }
                 ) ||
@@ -221,10 +220,13 @@ else {
 console.log(
     '\n' +
     '开发服务器启动成功，请使用浏览器打开:\n'.green +
+    'web:\n' +
     'http://localhost:8432/console/?view=shell&hostname=115.239.209.123&port=8892\n'.blue.underline +
     'http://localhost:8432/console/?view=shell&hostname=192.168.0.37&port=20000\n'.blue.underline +
     'http://localhost:8432/console/?view=shell&hostname=192.168.0.37&port=20023\n'.blue.underline +
     'http://localhost:8432/console/?hostname=127.0.0.1&port=8848\n'.blue.underline +
+    '\n' +
+    'cloud:\n' +
     'http://localhost:8432/cloud/\n'.blue.underline +
     '\n' +
     '终端快捷键:\n' +
