@@ -25,7 +25,7 @@
         "@svgr/webpack": "^8.0.1",
         "@types/koa": "^2.13.6",
         "@types/lodash": "^4.14.194",
-        "@types/node": "^20.1.5",
+        "@types/node": "^20.2.0",
         "@types/react": "^18.2.6",
         "@types/react-dom": "^18.2.4",
         "@types/sass-loader": "^8.0.4",
@@ -35,7 +35,7 @@
         "css-loader": "^6.7.3",
         "eslint": "^8.40.0",
         "eslint-plugin-react": "^7.32.2",
-        "eslint-plugin-xlint": "^1.0.1",
+        "eslint-plugin-xlint": "^1.0.2",
         "license-webpack-plugin": "^4.0.2",
         "rc-table": "^7.32.1",
         "react": "^18.2.0",
@@ -46,11 +46,11 @@
         "ts-loader": "^9.4.2",
         "typescript": "^5.0.4",
         "upath": "^2.0.1",
-        "webpack": "^5.82.1",
+        "webpack": "^5.83.1",
         "webpack-bundle-analyzer": "^4.8.0"
     },
     "dependencies": {
-        "@ant-design/icons": "^5.0.1",
+        "@ant-design/icons": "^5.1.0",
         "@ant-design/plots": "^1.2.5",
         "@ant-design/pro-layout": "^7.13.4",
         "@ebay/nice-modal-react": "^1.2.10",
@@ -62,7 +62,7 @@
         "classnames": "^2.3.2",
         "copy-to-clipboard": "^3.3.3",
         "dayjs": "^1.11.7",
-        "dolphindb": "^2.0.967",
+        "dolphindb": "^2.0.968",
         "echarts": "^5.4.2",
         "final-form": "^4.20.9",
         "js-cookie": "^3.0.5",
@@ -71,7 +71,7 @@
         "re-resizable": "^6.9.9",
         "react-dom": "^18.2.0",
         "react-object-model": "^1.0.3",
-        "tslib": "^2.5.0",
+        "tslib": "^2.5.1",
         "vscode-oniguruma": "^1.7.0",
         "vscode-textmate": "^9.0.0",
         "xshell": "^1.0.25",
@@ -82,7 +82,7 @@
     },
     "pnpm": {
         "patchedDependencies": {
-            "webpack@5.82.1": "patches/webpack@5.82.1.patch"
+            "webpack@5.83.1": "patches/webpack@5.83.1.patch"
         }
     }
 }
