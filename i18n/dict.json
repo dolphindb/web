@@ -1705,5 +1705,8 @@
     },
     "请先登录再调用 init": {
         "en": "Please login first before calling init"
+    },
+    "登录失败": {
+        "en": "Login Failed"
     }
 }
