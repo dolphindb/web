@@ -83,7 +83,7 @@ export class CloudModel extends Model <CloudModel> {
     
     async init() {
         if (this.authed !== 'yes') {
-            throw new Error(t('未登录'))
+            throw new Error(t('请先登录再调用 init'))
         }
 
         await Promise.all([

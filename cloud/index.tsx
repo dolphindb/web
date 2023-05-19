@@ -24,6 +24,8 @@ import {
     default as _Icon,
     DoubleLeftOutlined,
     DoubleRightOutlined,
+    LockOutlined,
+    UserOutlined,
 } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 const { Text } = Typography
@@ -50,7 +52,6 @@ const svgs: { [key in PageViews]: any } = {
     log: SvgLog,
 } as const
 
-
 function DolphinDB () {
     const { authed, inited, is_shell } = model.use(['authed', 'inited', 'is_shell'])
     
@@ -72,44 +73,41 @@ function DolphinDB () {
     if (authed === 'no')
         return <Modal
             className='db-shell-modal'
+            width='380px'
             open
-            cancelButtonProps={{ style: { display: 'none' } }}
-            title={t('登录')}
+            closable={false}
         >
+            <img className='logo' src='../console/ddb.svg' />
+
             <Form
-                labelWrap
                 name='login-form'
                 onFinish={async ({ username, password }: { username: string, password: string }) => {
                     try {
                         await model.auth(username, password)
                     } catch (error) {
-                        alert(error.message)
-                        throw error
-                    } finally {
-                        form.resetFields(['password'])
+                        Modal.error({
+                            title: t('登录失败'),
+                            content: error.message,
+                        })
+                        console.error(error)
                     }
+                    
+                    form.resetFields(['password'])
                 }}
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 20 }}
                 className='db-modal-form'
                 form={form}
             >
-                <Form.Item label={t('用户名')} name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
-                    <Input placeholder={t('请输入用户名')} />
+                <Form.Item name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
+                    <Input prefix={<UserOutlined />} placeholder={t('请输入用户名')} />
                 </Form.Item>
 
-                <Form.Item label={t('密码')} name='password' rules={[{ required: true, message: t('请输入密码') }]}>
-                    <Input.Password placeholder={t('请输入密码')} />
+                <Form.Item name='password' rules={[{ required: true, message: t('请输入密码') }]}>
+                    <Input.Password prefix={<LockOutlined />} placeholder={t('请输入密码')} />
                 </Form.Item>
 
                 <Form.Item className='db-modal-content-button-group'>
                     <Button type='primary' htmlType='submit'>
                         {t('登录')}
-                    </Button>
-                    <Button htmlType='button' onClick={() => {
-                        form.resetFields()
-                    }}>
-                        {t('清空')}
                     </Button>
                 </Form.Item>
             </Form>

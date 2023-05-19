@@ -1702,5 +1702,8 @@
     },
     "该数据库没有需要配置的分区列": {
         "en": "This database has no partition columns that need to be configured"
+    },
+    "请先登录再调用 init": {
+        "en": "Please login first before calling init"
     }
 }
