@@ -79,8 +79,8 @@ dependencies:
     specifier: ^9.0.0
     version: 9.0.0
   xshell:
-    specifier: ^1.0.27
-    version: 1.0.27(react-dom@18.2.0)
+    specifier: ^1.0.28
+    version: 1.0.28(react-dom@18.2.0)
   xterm:
     specifier: ^5.1.0
     version: 5.1.0
@@ -935,7 +935,7 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
     dependencies:
-      '@babel/types': 7.21.4
+      '@babel/types': 7.21.5
     dev: false
 
   /@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression@7.18.6(@babel/core@7.21.4):
@@ -1960,6 +1960,7 @@ packages:
       '@babel/helper-string-parser': 7.19.4
       '@babel/helper-validator-identifier': 7.19.1
       to-fast-properties: 2.0.0
+    dev: true
 
   /@babel/types@7.21.5:
     resolution: {integrity: sha512-m4AfNvVF2mVC/F7fDEdH2El3HzUg9It/XsCxZiOTTA3m3qYfcSVSbTfM6Q9xG+hYDniZssYhlXKKUMD5m8tF4Q==}
@@ -4081,7 +4082,7 @@ packages:
       dayjs: 1.11.7
       ipaddr.js: 2.0.1
       tslib: 2.5.2
-      xshell: 1.0.27(react-dom@18.2.0)
+      xshell: 1.0.28(react-dom@18.2.0)
     transitivePeerDependencies:
       - bufferutil
       - react-dom
@@ -7774,8 +7775,8 @@ packages:
         optional: true
     dev: false
 
-  /xshell@1.0.27(react-dom@18.2.0):
-    resolution: {integrity: sha512-wFfAAYf7mhbv3uagx0b855z5P98ydJY+/8ByLVsST3MUn1j7vx7UUVHUt/gtCU3wgUr2juWwevjeoulbOKyFVQ==}
+  /xshell@1.0.28(react-dom@18.2.0):
+    resolution: {integrity: sha512-cFO+PfGeBmU4gV/hpL2NcItKHIADWNeR9COKLP4elo2H4MWve16cw+Nwco7VQ1zP3D/vZoXLRY5mzb2tPlB/Og==}
     engines: {node: '>=19.9.0', vscode: '>=1.77.0'}
     hasBin: true
     dependencies:
