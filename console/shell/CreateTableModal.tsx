@@ -417,18 +417,7 @@ function CreateTableModalFillForm () {
                             width: 100,
                         }}
                     >
-                        <SchemaField.String
-                            name='type'
-                            required
-                            x-decorator='FormItem'
-                            x-component='Select'
-                            x-component-props={{
-                                showSearch: true,
-                            }}
-                            // 标准 SQL 语句还不支持 DECIMAL 类型，所以暂时不开放，支持后可以直接替换成下面的 DDBTypeSelectorSchemaFields
-                            enum={DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS.filter(item => !isDDBDecimalType(item.value as DDBTypeNames))}
-                        />
-                        {/* <DDBTypeSelectorSchemaFields 
+                        <DDBTypeSelectorSchemaFields 
                             typeField={{
                                 title: null,
                             }}
@@ -437,7 +426,7 @@ function CreateTableModalFillForm () {
                                     className: 'create-table-form-columns-table-scale',
                                 },
                             }}
-                        /> */}
+                        />
                     </SchemaField.Void>
                     <SchemaField.Void
                         x-component='ArrayTable.Column'
