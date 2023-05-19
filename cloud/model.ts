@@ -48,8 +48,15 @@ const error_codes = {
 
 export type PageViews = 'cluster' | 'log'
 
+export interface AuthResponse {
+    token: string
+    expire: string
+}
+
 export class CloudModel extends Model <CloudModel> {
     inited = false
+
+    authed: 'pending' | 'yes' | 'no' = 'pending'
     
     view: PageViews = 'cluster'
     
@@ -74,7 +81,11 @@ export class CloudModel extends Model <CloudModel> {
     
     license_server_address: string
     
-    async init () {
+    async init() {
+        if (this.authed !== 'yes') {
+            throw new Error(t('未登录'))
+        }
+
         await Promise.all([
             this.get_clusters(default_queries),
             this.get_namespaces(),
@@ -87,6 +98,53 @@ export class CloudModel extends Model <CloudModel> {
         this.set({
             inited: true,
         })
+    }
+
+    async auth(username: string, password: string) {
+        const { token, expire } = await request_json<AuthResponse>("/login", {
+            method: "POST",
+            type: "application/json",
+            body: {
+                username,
+                password,
+            },
+        }).catch((err: RequestError) => {
+            if (err.response?.status === 401) {
+                throw new Error(t('用户名或密码错误'))
+            }
+            throw err
+        })
+
+        // set cookie
+        document.cookie = `jwt=${token}; expires=${expire}; path=/v1/`
+
+        this.set({
+            authed: 'yes',
+        })
+    }
+
+    // 是否已经认证过并且拥有 Cookie。会将认证结果写入到 authed
+    async check_authed() {
+        try {
+            await request_json('/v1/dolphindbs/versions')
+        } catch (err) {
+            this.set({
+                authed: "no",
+            })
+
+            if (err.response?.status === 401) {
+                // clear cookie
+                document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/v1/'
+                return false
+            }
+            
+            throw err
+        }
+
+        this.set({
+            authed: "yes",
+        })
+        return true
     }
     
     async get_license_server_address () {

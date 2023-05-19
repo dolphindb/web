@@ -6,10 +6,14 @@ import { default as React, useEffect } from 'react'
 import { createRoot as create_root } from 'react-dom/client'
 
 import {
+    Button,
     ConfigProvider,
     
+    Form,
+    Input,
     Layout,
     Menu,
+    Modal,
     Typography,
     
     // @ts-ignore 使用了 antd-with-locales 之后 window.antd 变量中有 locales 属性
@@ -48,16 +52,70 @@ const svgs: { [key in PageViews]: any } = {
 
 
 function DolphinDB () {
-    const { inited, is_shell } = model.use(['inited', 'is_shell'])
+    const { authed, inited, is_shell } = model.use(['authed', 'inited', 'is_shell'])
     
+    const [form] = Form.useForm()
+
     useEffect(() => {
-        model.init()
+        // 判断之前是否已经登录过，如果登录过则 authed 直接变为 yes
+        model.check_authed()
     }, [ ])
-    
-    if (!inited)
+
+    useEffect(() => {
+        if (authed === 'yes')
+            model.init()
+    }, [authed])
+
+    if (authed === 'pending')
         return null
+
+    if (authed === 'no')
+        return <Modal
+            className='db-shell-modal'
+            open
+            cancelButtonProps={{ style: { display: 'none' } }}
+            title={t('登录')}
+        >
+            <Form
+                labelWrap
+                name='login-form'
+                onFinish={async ({ username, password }: { username: string, password: string }) => {
+                    try {
+                        await model.auth(username, password)
+                    } catch (error) {
+                        alert(error.message)
+                        throw error
+                    } finally {
+                        form.resetFields(['password'])
+                    }
+                }}
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 20 }}
+                className='db-modal-form'
+                form={form}
+            >
+                <Form.Item label={t('用户名')} name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
+                    <Input placeholder={t('请输入用户名')} />
+                </Form.Item>
+
+                <Form.Item label={t('密码')} name='password' rules={[{ required: true, message: t('请输入密码') }]}>
+                    <Input.Password placeholder={t('请输入密码')} />
+                </Form.Item>
+
+                <Form.Item className='db-modal-content-button-group'>
+                    <Button type='primary' htmlType='submit'>
+                        {t('登录')}
+                    </Button>
+                    <Button htmlType='button' onClick={() => {
+                        form.resetFields()
+                    }}>
+                        {t('清空')}
+                    </Button>
+                </Form.Item>
+            </Form>
+        </Modal>
     
-    return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false}>
+    return inited && <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false}>
         <Layout className='root-layout'>
             <Layout.Header className='ddb-header'>
                 <DdbHeader />

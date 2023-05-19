@@ -81,7 +81,7 @@ class DevServer extends Server {
             return true
         }
         
-        if (path.startsWith('/v1/')) {
+        if (path.startsWith('/v1/') || path === '/login') {
             try {
                 response.body = await request_json(`https://192.168.0.65:30443${path}`, {
                     method: method as any,
