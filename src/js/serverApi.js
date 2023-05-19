@@ -264,37 +264,37 @@ function DatanodeConfig () {
             ]
         },
         {
-            configCategory: 'Async Replication',
+            configCategory: 'Cluster Replication',
             configs: [
                 {
-                    name: 'asyncReplicationMode',
-                    value: ['', 'master', 'follower'],
+                    name: 'clusterReplicationMode',
+                    value: ['', 'master', 'slave'],
                     default: '',
-                    tip: 'Enable the cross-cluster asynchronous replication mode. Set asyncReplicationMode = "master" on the master cluster and asyncReplicationMode = "follower" on the slave cluster. If it is not set, asynchronous replication will not be enabled.'
+                    tip: 'Asynchronous replication mode between clusters. The optional values are master and slave, representing the master cluster and slave cluster.'
                 },
                 {
-                    name: 'asyncReplicationMapping',
+                    name: 'clusterReplicationWorkDir',
                     value: '',
                     default: '',
-                    tip: 'Map the nodes in the master cluster to the nodes in the slave cluster. The format is: "Node1 Alias>->remoteIP1:remotePort1;<Node2 Alias>->remoteIP2:remotePort2". "Node Alias" means the alias of a node in the master cluster, and "remoteIP:remotePort" means the IP address and port of a node in the slave cluster. Suppose the number of the master cluster nodes is M and that of slave cluster nodes is N. When M=N, the nodes of the master cluster and the slave cluster are mapped one to one. When M>N, some nodes in the master cluster may be mapped to multiple nodes in the slave cluster. When M<N, there will be idle nodes in the slave cluster.'
+                    tip: 'Specify the working directory for asynchronous replication to store the data of the write task. Defaults to <HomeDir>/clusterReplication of the data node.'
                 },
                 {
-                    name: 'asyncReplicationRemoteUsername',
+                    name: 'clusterReplicationSyncPersistence',
+                    value: '',
+                    default: 'false',
+                    tip: 'Boolean value, indicating whether to enable synchronous persistence of write task data, the default is false, indicating that the persistence is performed asynchronously. Note: If asynchronous persistence is enabled, data node downtime may cause data loss; if synchronous persistence is enabled, the transaction efficiency of the main cluster will be reduced.'
+                },
+                {
+                    name: 'replicationExecutionUsername',
                     value: '',
                     default: 'admin',
-                    tip: 'The username of the slave cluster. It is optional and the default value is "admin".'
+                    tip: 'The username used to perform inter-cluster asynchronous replication, defaults to admin. It must be ensured that the user has relevant permissions for transaction operations, otherwise the asynchronous replication task will fail.'
                 },
                 {
-                    name: 'asyncReplicationRemotePassword',
+                    name: 'replicationExecutionPassword',
                     value: '',
                     default: '123456',
-                    tip: 'The password of the slave cluster. It is optional and the default value is "123456".'
-                },
-                {
-                    name: 'asyncReplicationWorkDir',
-                    value: '',
-                    default: './',
-                    tip: 'The directory of asynchronous replication. It is used for saving the temporary files generated while replicating data from the master cluster to the slave cluster. It is optional and the default value is "./".'
+                    tip: 'User password for performing inter-cluster asynchronous replication, defaults to 123456.'
                 },
             ]
         },
