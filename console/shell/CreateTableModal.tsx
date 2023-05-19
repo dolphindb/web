@@ -52,7 +52,7 @@ interface ICreateTableColumnFormValue {
 
 interface CreateTableFormValues {
     readonly dbPath: string
-    tableType: TableTypes
+    type: TableTypes
     tableName: string
     columns: ICreateTableColumnFormValue[]
     partitionColumns?: string[]
@@ -94,7 +94,7 @@ function CreateTableModalPreviewCode () {
             .map(line => `    ${line}`)
             .join(',\n')
 
-        const partition = form_values.partitionColumns?.length ?
+        const partition = (form_values.type === TableTypes.PartitionedTable && form_values.partitionColumns?.length) ?
             `partitioned by ${form_values.partitionColumns.map(escapeColumnName).join(', ')}`
             : null
         const sorts = form_values.sortColumns?.length ?
@@ -522,6 +522,16 @@ function CreateTableModalFillForm () {
                                             },
                                         },
                                     },
+                                    {
+                                        dependencies: {
+                                            type: 'type',
+                                        },
+                                        fulfill: {
+                                            state: {
+                                                display: `{{ $deps.type === "${TableTypes.Table}" ? "none" : "visible" }}`,
+                                            },
+                                        },
+                                    }
                                 ]}
                             />)
                         : <SchemaField.Void
