@@ -90,9 +90,10 @@ function DolphinDB () {
                                 title: t('登录失败'),
                                 content: error.message,
                             })
-                            console.error(error)
+                            
+                            throw error
                         }
-
+                        
                         form.resetFields(['password'])
                     }}
                     className='db-modal-form'

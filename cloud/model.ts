@@ -6,10 +6,11 @@ import {
 
 import { Model } from 'react-object-model'
 
-import { request_json, type RequestError } from 'xshell/net.browser.js'
-import { language, t } from '../i18n/index.js'
-
 import Cookies from 'js-cookie'
+
+import { request_json, type RequestError } from 'xshell/net.browser.js'
+
+import { language, t } from '../i18n/index.js'
 
 
 export const default_queries = {
@@ -50,14 +51,9 @@ const error_codes = {
 
 export type PageViews = 'cluster' | 'log'
 
-export interface AuthResponse {
-    token: string
-    expire: string
-}
-
 export class CloudModel extends Model <CloudModel> {
     inited = false
-
+    
     authed: 'pending' | 'yes' | 'no' = 'pending'
     
     view: PageViews = 'cluster'
@@ -67,11 +63,11 @@ export class CloudModel extends Model <CloudModel> {
     clusters: Cluster[] = [ ]
     
     cluster: Cluster
-
+    
     namespaces: Namespace[] = [ ]
-
+    
     storageclasses: StorageClass[] = [ ]
-
+    
     versions: string[] = [ ]
     
     show_all_config = false
@@ -86,7 +82,7 @@ export class CloudModel extends Model <CloudModel> {
     async init () {
         if (this.authed !== 'yes')
             throw new Error(t('请先登录再调用 init'))
-
+        
         await Promise.all([
             this.get_clusters(default_queries),
             this.get_namespaces(),
@@ -100,57 +96,50 @@ export class CloudModel extends Model <CloudModel> {
             inited: true,
         })
     }
-
+    
+    
     async auth (username: string, password: string) {
-        const { token, expire } = await request_json<AuthResponse>('/login', {
-            method: 'POST',
-            type: 'application/json',
+        const { token, expire } = await request_json<{ token: string, expire: string }>('/login', {
             body: {
                 username,
-                password,
-            },
+                password
+            }
         }).catch((err: RequestError) => {
             if (err.response?.status === 401)
                 throw new Error(t('用户名或密码错误'))
             
             throw err
         })
-
+        
         // set cookie
         let expireDate = new Date(expire)
         if (Number.isNaN(expireDate.getTime())) {
             console.warn('invalid expire date of jwt token:', expire)
             expireDate = dayjs().add(1, 'day').toDate()
         }
-
+        
         Cookies.set('jwt', token, { expires: expireDate, path: '/v1/' })
-
-        this.set({
-            authed: 'yes',
-        })
+        
+        this.set({ authed: 'yes' })
     }
-
+    
     // 是否已经认证过并且拥有 Cookie。会将认证结果写入到 authed
     async check_authed () {
         try {
             await request_json('/v1/dolphindbs/versions')
-        } catch (err) {
-            this.set({
-                authed: 'no',
-            })
-
-            if (err.response?.status === 401) {
+        } catch (error) {
+            this.set({ authed: 'no' })
+            
+            if (error.response?.status === 401) {
                 // clear cookie
                 Cookies.remove('jwt', { path: '/v1/' })
                 return false
             }
             
-            throw err
+            throw error
         }
-
-        this.set({
-            authed: 'yes',
-        })
+        
+        this.set({ authed: 'yes' })
         return true
     }
     
@@ -180,7 +169,7 @@ export class CloudModel extends Model <CloudModel> {
             namespaces
         })
     }
-
+    
     /** 获取 storage_class 字段可选值 */
     async get_storageclasses () {
         const { items: storageclasses } = await request_json('/v1/storageclasses')
@@ -189,7 +178,7 @@ export class CloudModel extends Model <CloudModel> {
             storageclasses
         })
     }
-
+    
     /** 获取 version 字段可选值 */
     async get_versions () {
         const { items: versions } = await request_json('/v1/dolphindbs/versions')
@@ -232,7 +221,7 @@ export class CloudModel extends Model <CloudModel> {
         if (controllers)
             controllers.sort((a, b) => 
                 a.name.localeCompare(b.name))
-
+        
         if (datanodes)
             datanodes.sort((a, b) => 
                 a.name.localeCompare(b.name))
@@ -251,18 +240,18 @@ export class CloudModel extends Model <CloudModel> {
         return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${instanceName}/services`, {
             method: 'POST',
         })
-
+        
     }
-
-
+    
+    
     async delete_cluster_node_service (cluster: Cluster, instanceName: string) {
         return request_json(
             `/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${instanceName}/services`, {
             method: 'DELETE',
         })
     }
-
-
+    
+    
     async get_cluster (cluster_overview: Cluster) {
         let cluster = await request_json(`/v1/dolphindbs/${cluster_overview.namespace}/${cluster_overview.name}`)
         cluster.created_at = dayjs(cluster.creation_timestamp)
@@ -272,7 +261,7 @@ export class CloudModel extends Model <CloudModel> {
             cluster
         })
     }
-
+    
     async get_cluster_config (cluster: Cluster): Promise<ClusterConfig> {
         return request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/configs`, {
             queries: {
@@ -287,7 +276,7 @@ export class CloudModel extends Model <CloudModel> {
             body: newconfig,
         })
     }
-
+    
     
     async restart_node (node: ClusterNode) {
         await request_json(`/v1/dolphindbs/${this.cluster.namespace}/${this.cluster.name}/instances/${node.name}/restart`, {
