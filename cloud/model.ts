@@ -99,22 +99,26 @@ export class CloudModel extends Model <CloudModel> {
     
     
     async auth (username: string, password: string) {
-        const { token, expire } = await request_json<{ token: string, expire: string }>('/login', {
-            body: {
-                username,
-                password
-            }
-        }).catch((err: RequestError) => {
-            if (err.response?.status === 401)
+        let token: string
+        let expire: string
+        try {
+            ({ token, expire } = await request_json<{ token: string, expire: string }>('/login', {
+                body: {
+                    username,
+                    password,
+                },
+            }))
+        } catch (error) {
+            if (error.response?.status === 401)
                 throw new Error(t('用户名或密码错误'))
             
-            throw err
-        })
-        
+            throw error
+        }
+
         // set cookie
         let expireDate = new Date(expire)
         if (Number.isNaN(expireDate.getTime())) {
-            console.warn('invalid expire date of jwt token:', expire)
+            console.warn(t('jwt token 过期时间无法解析：'), expire)
             expireDate = dayjs().add(1, 'day').toDate()
         }
         

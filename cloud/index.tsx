@@ -58,8 +58,19 @@ function DolphinDB () {
     const [form] = Form.useForm()
 
     useEffect(() => {
-        // 判断之前是否已经登录过，如果登录过则 authed 直接变为 yes
-        model.check_authed()
+        // 最开始状态一定为 pending，此时判断之前是否已经登录过，如果登录过则 authed 直接设置为 yes
+        (async () => {
+            try {
+                await model.check_authed()
+            } catch (error) {
+                // check_authed 未认证不会抛出异常，而是 return false。只有非预期的错误才会抛出异常
+                Modal.error({
+                    title: t('出错了'),
+                    content: error.message,
+                })
+                throw error
+            }
+        })()
     }, [ ])
 
     useEffect(() => {
