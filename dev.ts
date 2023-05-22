@@ -72,6 +72,10 @@ class DevServer extends Server {
         if (request.path === '/cloud/')
             request.path = '/cloud/index.dev.html'
         
+        
+        if (request.path === '/cloud/ddb.svg')
+            request.path = '/console/ddb.svg'
+        
         const { path } = request
         
         if (dapi && method === 'POST') {

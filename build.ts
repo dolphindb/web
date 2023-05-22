@@ -18,6 +18,9 @@ if (process.argv.includes('cloud')) {
         ... ['README.md', 'README.zh.md', 'LICENSE.txt'].map(async fname => 
             fcopy(fpd_root + fname, fpd_out_cloud + fname)),
         
+        ... ['ddb.svg'].map(async fname =>
+            fcopy(fpd_src_console + fname, fpd_out_cloud + fname)),
+        
         copy_vendors(fpd_out_cloud, false),
         
         webpack.build({ production: true, is_cloud: true })

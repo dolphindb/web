@@ -90,7 +90,8 @@ function DolphinDB () {
                 open
                 closable={false}
             >
-                <img className='logo' src='../console/ddb.svg' />
+                {/* 这个图片实际上在 ../console/ddb.svg。因打包需要，使用 ./ddb.svg，并在 build.ts 和 dev.ts 中特殊处理。 */}
+                <img className='logo' src='./ddb.svg' />
 
                 <Form
                     name='login-form'

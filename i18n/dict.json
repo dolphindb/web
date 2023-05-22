@@ -1708,5 +1708,11 @@
     },
     "登录失败": {
         "en": "Login Failed"
+    },
+    "jwt token 过期时间无法解析：": {
+        "en": "invalid expire date of jwt token:"
+    },
+    "jwt token 过期时间无法解析:": {
+        "en": "invalid jwt token expire time:"
     }
 }
