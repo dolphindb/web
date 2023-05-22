@@ -1473,7 +1473,7 @@ function NodeList ({
                 {
                     title: '内存',
                     dataIndex: ['resources'],
-                    render: (resources?: ClusterNode['resources']) => {
+                    render: (resources: ClusterNode['resources']) => {
                         const max = resources?.limits.memory
                         const min = resources?.requests.memory
                         return <div className='resources'>
