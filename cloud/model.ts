@@ -118,7 +118,7 @@ export class CloudModel extends Model <CloudModel> {
         // set cookie
         let expireDate = new Date(expire)
         if (Number.isNaN(expireDate.getTime())) {
-            console.warn(t('jwt token 过期时间无法解析：'), expire)
+            console.warn(t('jwt token 过期时间无法解析:'), expire)
             expireDate = dayjs().add(1, 'day').toDate()
         }
         

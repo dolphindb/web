@@ -3,6 +3,7 @@ import 'xshell/scroll-bar.sass'
 import './index.sass'
 
 import { default as React, useEffect } from 'react'
+
 import { createRoot as create_root } from 'react-dom/client'
 
 import {
