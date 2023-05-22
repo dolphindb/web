@@ -69,67 +69,69 @@ function DolphinDB () {
 
     if (authed === 'pending')
         return null
-
-    if (authed === 'no')
-        return <Modal
-            className='db-shell-modal'
-            width='380px'
-            open
-            closable={false}
-        >
-            <img className='logo' src='../console/ddb.svg' />
-
-            <Form
-                name='login-form'
-                onFinish={async ({ username, password }: { username: string, password: string }) => {
-                    try {
-                        await model.auth(username, password)
-                    } catch (error) {
-                        Modal.error({
-                            title: t('登录失败'),
-                            content: error.message,
-                        })
-                        console.error(error)
-                    }
-                    
-                    form.resetFields(['password'])
-                }}
-                className='db-modal-form'
-                form={form}
-            >
-                <Form.Item name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
-                    <Input prefix={<UserOutlined />} placeholder={t('请输入用户名')} />
-                </Form.Item>
-
-                <Form.Item name='password' rules={[{ required: true, message: t('请输入密码') }]}>
-                    <Input.Password prefix={<LockOutlined />} placeholder={t('请输入密码')} />
-                </Form.Item>
-
-                <Form.Item className='db-modal-content-button-group'>
-                    <Button type='primary' htmlType='submit'>
-                        {t('登录')}
-                    </Button>
-                </Form.Item>
-            </Form>
-        </Modal>
     
-    return inited && <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false}>
-        <Layout className='root-layout'>
-            <Layout.Header className='ddb-header'>
-                <DdbHeader />
-            </Layout.Header>
-            {is_shell ?
-                <div className='view shell' >
-                    <Shell />
-                </div>
-            :
-                <Layout className='body' hasSider>
-                    <DdbSider />
-                    <Layout.Content className='view'>
-                        <DdbContent />
-                    </Layout.Content>
-                </Layout>}
-        </Layout>
+    return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false}>
+        {authed === 'no' ? // 未登录直接返回登录框 Modal
+            <Modal
+                className='db-shell-modal'
+                width='380px'
+                open
+                closable={false}
+            >
+                <img className='logo' src='../console/ddb.svg' />
+
+                <Form
+                    name='login-form'
+                    onFinish={async ({ username, password }: { username: string, password: string }) => {
+                        try {
+                            await model.auth(username, password)
+                        } catch (error) {
+                            Modal.error({
+                                title: t('登录失败'),
+                                content: error.message,
+                            })
+                            console.error(error)
+                        }
+
+                        form.resetFields(['password'])
+                    }}
+                    className='db-modal-form'
+                    form={form}
+                >
+                    <Form.Item name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
+                        <Input prefix={<UserOutlined />} placeholder={t('请输入用户名')} />
+                    </Form.Item>
+
+                    <Form.Item name='password' rules={[{ required: true, message: t('请输入密码') }]}>
+                        <Input.Password prefix={<LockOutlined />} placeholder={t('请输入密码')} />
+                    </Form.Item>
+
+                    <Form.Item className='db-modal-content-button-group'>
+                        <Button type='primary' htmlType='submit'>
+                            {t('登录')}
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
+        : // 已登录则根据是否完成初始化来决定要不要渲染主界面
+            inited && <Layout className='root-layout'>
+                <Layout.Header className='ddb-header'>
+                    <DdbHeader />
+                </Layout.Header>
+                {is_shell ?
+                    <div className='view shell' >
+                        <Shell />
+                    </div>
+                :
+                    <Layout className='body' hasSider>
+                        <DdbSider />
+                        <Layout.Content className='view'>
+                            <DdbContent />
+                        </Layout.Content>
+                    </Layout>
+                }
+            </Layout>
+        }
     </ConfigProvider>
 }
 

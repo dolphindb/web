@@ -9,6 +9,8 @@ import { Model } from 'react-object-model'
 import { request_json, type RequestError } from 'xshell/net.browser.js'
 import { language, t } from '../i18n/index.js'
 
+import Cookies from 'js-cookie'
+
 
 export const default_queries = {
     pageIndex: 1,
@@ -81,10 +83,9 @@ export class CloudModel extends Model <CloudModel> {
     
     license_server_address: string
     
-    async init() {
-        if (this.authed !== 'yes') {
+    async init () {
+        if (this.authed !== 'yes')
             throw new Error(t('请先登录再调用 init'))
-        }
 
         await Promise.all([
             this.get_clusters(default_queries),
@@ -100,23 +101,29 @@ export class CloudModel extends Model <CloudModel> {
         })
     }
 
-    async auth(username: string, password: string) {
-        const { token, expire } = await request_json<AuthResponse>("/login", {
-            method: "POST",
-            type: "application/json",
+    async auth (username: string, password: string) {
+        const { token, expire } = await request_json<AuthResponse>('/login', {
+            method: 'POST',
+            type: 'application/json',
             body: {
                 username,
                 password,
             },
         }).catch((err: RequestError) => {
-            if (err.response?.status === 401) {
+            if (err.response?.status === 401)
                 throw new Error(t('用户名或密码错误'))
-            }
+            
             throw err
         })
 
         // set cookie
-        document.cookie = `jwt=${token}; expires=${expire}; path=/v1/`
+        let expireDate = new Date(expire)
+        if (Number.isNaN(expireDate.getTime())) {
+            console.warn('invalid expire date of jwt token:', expire)
+            expireDate = dayjs().add(1, 'day').toDate()
+        }
+
+        Cookies.set('jwt', token, { expires: expireDate, path: '/v1/' })
 
         this.set({
             authed: 'yes',
@@ -124,17 +131,17 @@ export class CloudModel extends Model <CloudModel> {
     }
 
     // 是否已经认证过并且拥有 Cookie。会将认证结果写入到 authed
-    async check_authed() {
+    async check_authed () {
         try {
             await request_json('/v1/dolphindbs/versions')
         } catch (err) {
             this.set({
-                authed: "no",
+                authed: 'no',
             })
 
             if (err.response?.status === 401) {
                 // clear cookie
-                document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/v1/'
+                Cookies.remove('jwt', { path: '/v1/' })
                 return false
             }
             
@@ -142,7 +149,7 @@ export class CloudModel extends Model <CloudModel> {
         }
 
         this.set({
-            authed: "yes",
+            authed: 'yes',
         })
         return true
     }
