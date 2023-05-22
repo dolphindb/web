@@ -215,7 +215,7 @@ const removeEmptyProperties = obj => {
 
 function Clusters () {
     const { clusters, versions, namespaces } = model.use(['clusters', 'versions', 'namespaces'])
-    const [ { mode, name, namespace, cluster_type }, set_current_cluster] = useState({ } as Cluster)
+    const [ { mode, name, namespace, cluster_type, controller, datanode }, set_current_cluster] = useState({ } as Cluster)
     
     const [create_panel_visible, set_create_panel_visible] = useState(false)
     
@@ -537,7 +537,7 @@ function Clusters () {
                             {cluster_type === 'multicontroller' && <Row className='optional-columns'>
                                 <Col span={12}>
                                     <Form.Item name={['controller', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
-                                        <InputNumber min={3} precision={0} />
+                                        <InputNumber min={Math.max(3, controller.replicas)} precision={0} />
                                     </Form.Item>
                                 </Col>
                             </Row>}
@@ -601,7 +601,7 @@ function Clusters () {
                             <Row className='optional-columns'>
                                 <Col span={12}>
                                     <Form.Item name={['datanode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
-                                        <InputNumber min={0} precision={0} />
+                                        <InputNumber min={datanode.replicas} precision={0} />
                                     </Form.Item>
                                 </Col>
                             </Row>}
@@ -715,7 +715,8 @@ function Clusters () {
                                     </Form.Item>
                                 </Col>
                             </Row>
-                        </ Collapse.Panel>}
+                        </Collapse.Panel>
+                    }
                 </Collapse>
             </Form>
         </Modal>
