@@ -89,6 +89,9 @@ export let webpack = {
                     '@ant-design/icons': 'icons',
                     '@ant-design/plots': 'Plots',
                     echarts: 'echarts',
+                    '@formily/core': 'Formily.Core',
+                    '@formily/react': 'Formily.React',
+                    '@formily/antd-v5': 'Formily.AntdV5',
                 },
                 
                 resolve: {
@@ -96,39 +99,9 @@ export let webpack = {
                     
                     symlinks: true,
                     
-                    plugins: [{
-                        apply (resolver) {
-                            const target = resolver.ensureHook('file')
-                            
-                            for (const extension of ['.ts', '.tsx'] as const)
-                                resolver.getHook('raw-file').tapAsync('ResolveTypescriptPlugin', (request, ctx, callback) => {
-                                    if (
-                                        typeof request.path !== 'string' ||
-                                        /(^|[\\/])node_modules($|[\\/])/.test(request.path)
-                                    ) {
-                                        callback()
-                                        return
-                                    }
-                                    
-                                    if (request.path.endsWith('.js')) {
-                                        const path = request.path.slice(0, -3) + extension
-                                        
-                                        resolver.doResolve(
-                                            target,
-                                            {
-                                                ...request,
-                                                path,
-                                                relativePath: request.relativePath?.replace(/\.js$/, extension)
-                                            },
-                                            `using path: ${path}`,
-                                            ctx,
-                                            callback
-                                        )
-                                    } else
-                                        callback()
-                                })
-                        }
-                    }]
+                    extensionAlias: {
+                        '.js': ['.js', '.ts', '.tsx']
+                    },
                 },
                 
                 

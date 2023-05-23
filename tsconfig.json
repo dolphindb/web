@@ -1,12 +1,12 @@
 {
     "include": [
-        "./dev.ts",
-        "./build.ts",
         "./global.d.ts",
         
         "./console/",
         
         "./cloud/",
+        
+        "pre-bundle/entry"
     ],
     
     "compilerOptions": {
@@ -69,6 +69,11 @@
         "noUnusedLocals": false,
         "noUnusedParameters": false,
         "skipLibCheck": true,
+    },
+    "references": [{ "path": "./tsconfig.node.json"}],
+    "ts-node": {
+        "esm": true,
+        "transpileOnly": true
     }
 }
 

@@ -5,6 +5,8 @@ import process from 'process'
 import { fcopy, fdelete, fmkdir } from 'xshell'
 
 import { webpack, fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd_src_cloud, fpd_node_modules } from './webpack.js'
+import { buildPreBundleLibrary, pre_bundle_dist_path } from './webpack.pre-bundle.js'
+import path from 'node:path'
 
 
 if (process.argv.includes('cloud')) {
@@ -43,6 +45,12 @@ if (process.argv.includes('cloud')) {
         ... ['zh', 'en'].map(async language =>
             fcopy(`${fpd_node_modules}dolphindb/docs.${language}.json`, `${fpd_out_console}docs.${language}.json`)
         ),
+        
+        buildPreBundleLibrary({
+            libraryName: 'Formily',
+            entry: 'formily.ts',
+            production: true,
+        }).then(async () => copy_pre_bundle(fpd_out_console)),
         
         webpack.build({ production: true, is_cloud: false })
     ])
@@ -106,5 +114,18 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
             )
         :
             [ ]
+    ])
+}
+
+async function copy_pre_bundle (fpd_out: string) {
+    const fpd_pre_bundle = `${fpd_out}pre-bundle/`
+    
+    await Promise.all([
+        ... [
+            'Formily.umd.js',
+            'Formily.umd.js.map',
+        ].map(async fp =>
+            fcopy(path.join(pre_bundle_dist_path, fp), path.join(fpd_pre_bundle, fp))
+        )
     ])
 }
