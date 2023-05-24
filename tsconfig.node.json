@@ -3,7 +3,7 @@
     
     "include": [
         "webpack.ts",
-        "webpack.pre-bundle.ts",
+        "pre-bundle.ts",
         "dev.ts",
         "build.ts",
     ],

@@ -5,7 +5,7 @@ import process from 'process'
 import { fcopy, fdelete, fmkdir } from 'xshell'
 
 import { webpack, fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd_src_cloud, fpd_node_modules } from './webpack.js'
-import { buildPreBundleLibrary, pre_bundle_dist_path } from './webpack.pre-bundle.js'
+import { build_pre_bundle_library, pre_bundle_dist_path } from './pre-bundle.js'
 import path from 'node:path'
 
 
@@ -46,8 +46,8 @@ if (process.argv.includes('cloud')) {
             fcopy(`${fpd_node_modules}dolphindb/docs.${language}.json`, `${fpd_out_console}docs.${language}.json`)
         ),
         
-        buildPreBundleLibrary({
-            libraryName: 'Formily',
+        build_pre_bundle_library({
+            library_name: 'Formily',
             entry: 'formily.ts',
             production: true,
         }).then(async () => copy_pre_bundle(fpd_out_console)),

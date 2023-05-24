@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 
 interface IOptions {
     entry: string
-    libraryName: string
+    library_name: string
     production: boolean
 }
 
@@ -16,10 +16,10 @@ const fpd_root = `${path.dirname(fileURLToPath(import.meta.url))}/`
 export const pre_bundle_entry_path = path.join(fpd_root, 'pre-bundle/entry')
 export const pre_bundle_dist_path = path.join(fpd_root, 'pre-bundle/dist')
 
-export async function buildPreBundleLibrary ({ libraryName, production, entry }: IOptions) {
+export async function build_pre_bundle_library ({ library_name, production, entry }: IOptions) {
     return new Promise<Stats>((resolve, reject) => {
         const compiler = Webpack({
-            name: `${libraryName}-umd`,
+            name: `${library_name}-umd`,
 
             mode: production ? 'production' : 'development',
 
@@ -29,12 +29,12 @@ export async function buildPreBundleLibrary ({ libraryName, production, entry }:
 
             output: {
                 path: pre_bundle_dist_path,
-                filename: `${libraryName}.umd.js`,
+                filename: `${library_name}.umd.js`,
                 publicPath: '/',
                 globalObject: 'globalThis',
                 library: {
                     type: 'umd',
-                    name: libraryName,
+                    name: library_name,
                 }
             },
 
@@ -44,12 +44,9 @@ export async function buildPreBundleLibrary ({ libraryName, production, entry }:
                 react: 'React',
                 'react-dom': 'ReactDOM',
                 lodash: '_',
-                xterm: 'Terminal',
                 antd: 'antd',
                 dayjs: 'dayjs',
                 '@ant-design/icons': 'icons',
-                '@ant-design/plots': 'Plots',
-                echarts: 'echarts',
             },
 
             resolve: {
@@ -135,7 +132,7 @@ export async function buildPreBundleLibrary ({ libraryName, production, entry }:
             cache: {
                 type: 'filesystem',
 
-                version: `${libraryName}-umd`,
+                version: `${library_name}-umd`,
             },
 
             ignoreWarnings: [
@@ -180,9 +177,3 @@ export async function buildPreBundleLibrary ({ libraryName, production, entry }:
         })
     })
 }
-
-buildPreBundleLibrary({
-    libraryName: 'Formily',
-    entry: 'formily.ts',
-    production: true,
-})
