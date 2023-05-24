@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 import process from 'process'
+import path from 'upath'
 
 import { fcopy, fdelete, fmkdir } from 'xshell'
 
 import { webpack, fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd_src_cloud, fpd_node_modules } from './webpack.js'
 import { build_pre_bundle_library, pre_bundle_dist_path } from './pre-bundle.js'
-import path from 'node:path'
 
 
 if (process.argv.includes('cloud')) {
@@ -46,11 +46,15 @@ if (process.argv.includes('cloud')) {
             fcopy(`${fpd_node_modules}dolphindb/docs.${language}.json`, `${fpd_out_console}docs.${language}.json`)
         ),
         
-        build_pre_bundle_library({
-            library_name: 'Formily',
-            entry: 'formily.ts',
-            production: true,
-        }).then(async () => copy_pre_bundle(fpd_out_console)),
+        (async () => {
+            await build_pre_bundle_library({
+                library_name: 'Formily',
+                entry: 'formily.ts',
+                production: true,
+            })
+            
+            await copy_pre_bundle(fpd_out_console)
+        })(),
         
         webpack.build({ production: true, is_cloud: false })
     ])
@@ -116,6 +120,7 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
             [ ]
     ])
 }
+
 
 async function copy_pre_bundle (fpd_out: string) {
     const fpd_pre_bundle = `${fpd_out}pre-bundle/`
