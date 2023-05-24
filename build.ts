@@ -74,7 +74,7 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
             'xterm/lib/xterm.js.map',
             'antd/dist/antd-with-locales.min.js',
             'antd/dist/antd-with-locales.min.js.map',
-            '@ant-design/icons/dist/index.umd.min.js',
+            '@ant-design/icons/dist/umd/icons.min.js',
             '@ant-design/plots/dist/plots.min.js',
             '@ant-design/plots/dist/plots.min.js.map',
             'echarts/dist/echarts.min.js',
