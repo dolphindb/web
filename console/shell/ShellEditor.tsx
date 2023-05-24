@@ -99,13 +99,13 @@ export function ShellEditor () {
                 
                 editor.addAction({
                     id: 'dolphindb.execute',
-
+                    
                     keybindings: [
                         monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE
                     ],
-
+                    
                     label: t('DolphinDB: 执行当前行代码'),
-
+                    
                     run () {
                         shell.execute('line')
                     }

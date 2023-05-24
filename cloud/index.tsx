@@ -57,7 +57,7 @@ function DolphinDB () {
     const { authed, inited, is_shell } = model.use(['authed', 'inited', 'is_shell'])
     
     const [form] = Form.useForm()
-
+    
     useEffect(() => {
         // 最开始状态一定为 pending，此时判断之前是否已经登录过，如果登录过则 authed 直接设置为 yes
         (async () => {
@@ -73,12 +73,12 @@ function DolphinDB () {
             }
         })()
     }, [ ])
-
+    
     useEffect(() => {
         if (authed === 'yes')
             model.init()
     }, [authed])
-
+    
     if (authed === 'pending')
         return null
     
@@ -92,7 +92,7 @@ function DolphinDB () {
             >
                 {/* 这个图片实际上在 ../console/ddb.svg。因打包需要，使用 ./ddb.svg，并在 build.ts 和 dev.ts 中特殊处理。 */}
                 <img className='logo' src='./ddb.svg' />
-
+                
                 <Form
                     name='login-form'
                     onFinish={async ({ username, password }: { username: string, password: string }) => {
@@ -115,11 +115,11 @@ function DolphinDB () {
                     <Form.Item name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
                         <Input prefix={<UserOutlined />} placeholder={t('请输入用户名')} />
                     </Form.Item>
-
+                    
                     <Form.Item name='password' rules={[{ required: true, message: t('请输入密码') }]}>
                         <Input.Password prefix={<LockOutlined />} placeholder={t('请输入密码')} />
                     </Form.Item>
-
+                    
                     <Form.Item className='db-modal-content-button-group'>
                         <Button type='primary' htmlType='submit'>
                             {t('登录')}

@@ -114,7 +114,7 @@ export class CloudModel extends Model <CloudModel> {
             
             throw error
         }
-
+        
         // set cookie
         let expireDate = new Date(expire)
         if (Number.isNaN(expireDate.getTime())) {

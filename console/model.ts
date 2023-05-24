@@ -34,7 +34,7 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 通过 cdn 访问的 web */
     cdn = false
-
+    
     /** 启用详细日志，包括执行的代码和运行代码返回的变量 */
     verbose = false
     
@@ -450,7 +450,7 @@ export class DdbModel extends Model<DdbModel> {
             
             return score
         }
-
+        
         const [closest] = hosts.slice(1).reduce<readonly [string, number]>((prev, hostname) => {
             if (hostname === current_connect_host)
                 return [hostname, Infinity]

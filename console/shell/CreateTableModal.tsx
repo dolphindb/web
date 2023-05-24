@@ -77,11 +77,11 @@ const escapeColumnName = (name: string) => `_${JSON.stringify(name)}`
 function CreateTableModalPreviewCode () {
     const steps = useContext(StepsContext)
     const database = useContext(PropsContext)
-
+    
     const code = useMemo(() => {
         const form_values: CreateTableFormValues =
             steps.context_map[CreateTableStepsEnum.FillForm]
-
+            
         const columns = form_values.columns
             .map(column => {
                 const str = `${column.name} ${generateDDBDataTypeLiteral(column)}`
@@ -93,7 +93,7 @@ function CreateTableModalPreviewCode () {
             // indent and comma join
             .map(line => `    ${line}`)
             .join(',\n')
-
+            
         const partition = (form_values.type === TableTypes.PartitionedTable && form_values.partitionColumns?.length) ?
             `partitioned by ${form_values.partitionColumns.map(escapeColumnName).join(', ')}`
             : null
@@ -103,17 +103,17 @@ function CreateTableModalPreviewCode () {
         const keepDuplicates = form_values.keepDuplicates ?
             `keepDuplicates=${form_values.keepDuplicates}`
             : null
-
+            
         const generatedCode =
             `create table "${form_values.dbPath}"."${form_values.tableName}" (\n` +
             `${columns}\n` +
             ')\n' +
             `${[partition, sorts, keepDuplicates].filter(Boolean).join(',\n')}`
-
-
+            
+            
         return generatedCode
     }, [steps.context_map[CreateTableStepsEnum.FillForm], database])
-
+    
     return <div className='create-table-preview-code'>
         <div className='create-table-preview-code-editor'>
             <Editor
@@ -144,11 +144,11 @@ function CreateTableModalPreviewCode () {
 function CreateTableModalExecuteResult () {
     const steps = useContext(StepsContext)
     const modal = NiceModal.useModal()
-
+    
     const { ddb } = model.use(['ddb'])
     const [loading, set_loading] = useState(false)
     const [error, set_error] = useState(null)
-
+    
     useAsyncEffect(async () => {
         const code = steps.context_map[CreateTableStepsEnum.PreviewCode]
         set_loading(true)
@@ -160,14 +160,14 @@ function CreateTableModalExecuteResult () {
             set_loading(false)
         }
     }, [ ])
-
+    
     if (loading)
         return <Result
             icon={<Spin spinning size='large' />}
             title={t('建表中...')}
         />
-
-
+        
+        
     if (error)
         return <Result
             status='error'
@@ -186,7 +186,7 @@ function CreateTableModalExecuteResult () {
                 </Button>,
             ]}
         />
-
+        
     return <Result
         status='success'
         title={t('创建成功')}
@@ -224,7 +224,7 @@ const DDB_COLUMN_COMPRESS_METHODS_SELECT_OPTIONS: SelectProps['options'] = [
 
 const COLUMNS_REACTION_FULLFILL_EXPRESSION =
     '{{ $deps.columns?.filter(col => col.name).map(column => ({ label: column.name, value: column.name })) || []  }}'
-
+    
 const getPartitionSchemeDescription = ({ schema, typeName, columnType }: IPartition) => {
     let schemaType = ''
     
@@ -249,7 +249,7 @@ const getPartitionSchemeDescription = ({ schema, typeName, columnType }: IPartit
                 schemaType = DdbType[schema.type].toUpperCase()
                 break
         }
-
+        
     return `${typeName}(${schemaType})`
 }
 
@@ -264,7 +264,7 @@ interface IPartition {
 function CreateTableModalFillForm () {
     const steps = useContext(StepsContext)
     const { database, schema } = useContext(PropsContext)
-
+    
     const partitionList = useMemo(() => {
         const partitions: IPartition[] = [ ]
         if (Array.isArray(schema.partitionTypeName.value))
@@ -279,16 +279,16 @@ function CreateTableModalFillForm () {
                 schema: schema.partitionSchema,
                 columnType: schema.partitionColumnType?.value as number,
             })
-
+            
         return partitions
     }, [schema])
-
+    
     const configurablePartitions = useMemo(
         // SEQ 顺序分区不配置方案，需要排除
         () => partitionList.filter(({ typeName }) => typeName !== PartitionTypeName.SEQ),
         [partitionList]
     )
-
+    
     // restore form value from steps context
     const form = useMemo(
         () =>
@@ -300,11 +300,11 @@ function CreateTableModalFillForm () {
             }),
         [ ]
     )
-
+    
     const onSubmit = useCallback(async (formValues: CreateTableFormValues) => {
         steps.next(formValues)
     }, [ ])
-
+    
     return <Form
         labelWrap
         labelCol={4}
@@ -543,7 +543,7 @@ function CreateTableModalFillForm () {
                         />
                 }
             </SchemaField.Void>
-
+            
             <SchemaField.Array
                 name='sortColumns'
                 title={t('排序列')}
@@ -573,7 +573,7 @@ function CreateTableModalFillForm () {
                             column => column.name
                         )
                         const sortColumns: string[] = field.value
-
+                        
                         const unsupportSortColumns = sortColumns.filter(
                             column => {
                                 const sortColumn = columnsMap[column]
@@ -582,7 +582,7 @@ function CreateTableModalFillForm () {
                                 )
                             }
                         )
-
+                        
                         if (unsupportSortColumns.length) {
                             field.setState({
                                 selfErrors: [
@@ -594,7 +594,7 @@ function CreateTableModalFillForm () {
                             })
                             return
                         }
-
+                        
                         if (sortColumns.length > 1) {
                             const lastColumnName =
                                 sortColumns[sortColumns.length - 1]
@@ -629,7 +629,7 @@ function CreateTableModalFillForm () {
                                 return
                             }
                         }
-
+                        
                         field.setState({
                             selfErrors: null,
                         })
@@ -659,7 +659,7 @@ function CreateTableModalFillForm () {
                 ]}
             />
         </SchemaField>
-
+        
         <FormButtonGroup align='right'>
             <Submit type='primary'>{t('下一步')}</Submit>
         </FormButtonGroup>
@@ -681,12 +681,12 @@ interface Props {
 
 export const CreateTableModal = NiceModal.create<Props>(props => {
     const modal = NiceModal.useModal()
-
+    
     const steps = useSteps<CreateTableStepsEnum>(
         CreateTableStepsEnum.FillForm,
         CreateTableSteps
     )
-
+    
     return <Modal
         width={1000}
         open={modal.visible}

@@ -24,13 +24,13 @@ const COPY_TOOLTIPS = [t('复制'), t('复制成功')]
 export function CopyIconButton (props: CopyIconButtonProps) {
     const { onCopy: on_copy_props, text, copyOptions: copy_options, copyTooltips = COPY_TOOLTIPS, ...button_props } = props
     const [copied, set_copied] = useState(false)
-
+    
     const onCopy = () => {
         copy(text, copy_options)
         set_copied(true)
         on_copy_props?.()
     }
-
+    
     useEffect(() => {
         if (copied) {
             const timeout = setTimeout(() => {
@@ -39,7 +39,7 @@ export function CopyIconButton (props: CopyIconButtonProps) {
             return () => clearTimeout(timeout)
         }
     }, [copied])
-
+    
     return <Tooltip title={copied ? copyTooltips[1] : copyTooltips[0]}>
         <Button
             {...button_props}
