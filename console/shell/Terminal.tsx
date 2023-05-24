@@ -64,7 +64,7 @@ export function Terminal () {
                 convertEol: true,
                 
                 allowProposedApi: true,
-
+                
                 scrollback: 100000,
                 
                 theme: {

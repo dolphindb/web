@@ -83,11 +83,11 @@ function ClusterDetail () {
     const { cluster } = model.use(['cluster'])
     
     const { name } = cluster
-
+    
     const [field, set_field] = useState<FieldType>('info')
-
+    
     const fields: FieldType[] = ['info', 'config', 'monitor', 'backup']
-
+    
     const Content = {
         info: <InfoTab />,
         config: <ClusterConfigs cluster={cluster} />,
@@ -253,7 +253,7 @@ function Clusters () {
         }
     }, [queries])
     
-
+    
     return <div className='clusters'>
         <div className='actions'>
             <Button
@@ -518,14 +518,14 @@ function Clusters () {
                                     </Select>
                                 </Form.Item>
                             </Col>
-
+                            
                             <Col span={12}>
                                 <Form.Item name='enable_jit' label={t('启用 JIT')} valuePropName='checked' >
                                     <Switch />
                                 </Form.Item>
                             </Col>
                         </Row>
-
+                        
                     </Collapse.Panel>
                     
                     
@@ -748,17 +748,17 @@ function CreateClusterPanel ({
 }) {
 
     const [form] = Form.useForm()
-
+    
     const { namespaces, storageclasses, versions, license_server_address } = model.use(['namespaces', 'storageclasses', 'versions', 'license_server_address'])
-
+    
     const [mode, set_mode] = useState<ClusterMode>('cluster')
     
     const [cluster_type, set_cluster_type] = useState<ClusterType>('multicontroller')
-
+    
     const onSubmit = async () => {
-
+    
         let values = await form.validateFields()
-
+        
         const { mode, cluster_type } = values
         
         values.datanode.data_size = Number(values.datanode.data_size)
@@ -789,7 +789,7 @@ function CreateClusterPanel ({
         
         await model.get_clusters(queries)
     }
-
+    
     const onReset = () => {
         form.resetFields()
     }
@@ -895,7 +895,7 @@ function CreateClusterPanel ({
                 enable_jit: false,
                 license_server_address
             }}
-
+            
             onFieldsChange={(changeds, all) => {
                 if (!changeds[0])
                     return
@@ -981,7 +981,7 @@ function CreateClusterPanel ({
                             <Form.Item name='enable_jit' label={t('启用 JIT')} valuePropName='checked'>
                                 <Switch />
                             </Form.Item>
-
+                            
                             <Form.Item name='log_mode' label={t('日志模式')} rules={[{ required: true }]}>
                                 <Select>
                                     <Option value={0}>{t('输出到文件')}</Option>
@@ -1015,15 +1015,15 @@ function CreateClusterPanel ({
                             <Form.Item noStyle dependencies={[['version']]}>
                                 {({ getFieldValue }) => {
                                     const version: string = getFieldValue('version')
-
+                                    
                                     if (version.startsWith('v1'))
                                         if (version.slice(1, version.length) < '1.30.21')
                                             return
-
+                                            
                                     if (version.startsWith('v2'))
                                         if (version.slice(1, version.length) < '2.00.9')
                                             return
-
+                                            
                                     return <Form.Item label={t('License Server 地址')} name='license_server_address'>
                                             <Input />
                                         </Form.Item>
@@ -1043,7 +1043,7 @@ function CreateClusterPanel ({
                                     <InputNumber min={3} precision={0} />
                                 </Form.Item>
                             </Col>}
-
+                            
                             <Col span={12}>
                                 <Form.Item name={['controller', 'port']} label={t('端口')} rules={[{ required: true }]}>
                                     <InputNumber min={0} />
@@ -1111,13 +1111,13 @@ function CreateClusterPanel ({
                         </Row>
                     
                 </Collapse.Panel> }
-
+                
                 <Collapse.Panel 
                     key={3} 
                     header={<span className='ant-divider-inner-text'>{t('数据节点')}</span>}
                     forceRender
                 >
-
+                
                     <Row className='optional-columns'>
                         {mode === 'cluster' && <Col span={12}><Form.Item name={['datanode', 'replicas']} label={t('节点数')} rules={[{ required: true }]}>
                                 <InputNumber min={0} precision={0} />
@@ -1133,7 +1133,7 @@ function CreateClusterPanel ({
                     
                     <Row>
                         <Col span={12}>
-
+                        
                             <Form.Item name={['datanode', 'data_size']} label={t('数据存储空间')} rules={[{ required: true }]} className='space'>
                                 <InputNumber min={0} addonAfter='Gi' />
                             </Form.Item>
@@ -1677,7 +1677,7 @@ function ClusterConfigs ({
     cluster: Cluster
 }) {
     const { show_all_config } = model.use(['show_all_config'])
-
+    
     const [config, setConfig] = useState<ClusterConfig>(cluster.mode === 'cluster' ? {
         cluster_config: [ ],
         controller_config: [ ],
@@ -1685,7 +1685,7 @@ function ClusterConfigs ({
     } : {
         dolphindb_config: [ ]
     })
-
+    
     const [editedConfig, setEditedConfig] = useState<ClusterConfig>(cluster.mode === 'cluster' ? {
         cluster_config: [ ],
         controller_config: [ ],
@@ -1693,7 +1693,7 @@ function ClusterConfigs ({
     } : {
         dolphindb_config: [ ]
     })
-
+    
     const onConfigChange = (newItem: Partial<ClusterConfigItem> & { name: string }, type: ConfigType) => {
         const name_dict = {
             cluster: 'cluster_config',
@@ -1702,7 +1702,7 @@ function ClusterConfigs ({
             standalone: 'dolphindb_config'
         }
         const field = name_dict[type]
-
+        
         
         const configArr = config[field]
         const newList = [...configArr]
@@ -1721,8 +1721,8 @@ function ClusterConfigs ({
             ...config,
             ...newConfig
         })
-
-
+        
+        
         const edited_list = editedConfig[field]
         const newEditedList = [...edited_list]
         const editedIndex = newEditedList.findIndex(item => item.name === newItem.name)
@@ -1741,16 +1741,16 @@ function ClusterConfigs ({
             ...newEditedConfig
         })
     }
-
+    
     const fetchClusterConfig = async function () {
         const config = await model.get_cluster_config(cluster)
         setConfig(config)
         console.log(`cluster ${cluster.namespace}/${cluster.name} config:`, config)
     }
-
+    
     const [resetPopVisible, setResetPopVisible] = useState<boolean>(false)
     const [submitPopVisible, setSubmitPopVisible] = useState<boolean>(false)
-
+    
     const onResetConfirm = () => {
         try {
             fetchClusterConfig()
@@ -1762,10 +1762,10 @@ function ClusterConfigs ({
             setResetPopVisible(false)
         }
     }
-
+    
     const onSubmitConfirm = async () => {
         console.log(editedConfig)
-
+        
         try {
             await model.update_cluster_config(cluster, editedConfig)
             message.success(t('参数修改成功'))
@@ -1778,11 +1778,11 @@ function ClusterConfigs ({
             setSubmitPopVisible(false)
         }
     }
-
+    
     useEffect(() => {
         fetchClusterConfig()
     }, [cluster])
-
+    
     return <div className='cluster-config'>
         <Title level={4} className='cluster-config-header'>
             {t('配置')}
@@ -1847,7 +1847,7 @@ function ClusterConfigs ({
                 }</Button>
             </Popconfirm>
         </div>
-
+        
     </div>
 }
 
@@ -1865,9 +1865,9 @@ function ConfigEditableList ({
 }) {
     const [form] = Form.useForm()
     const [editingName, setEditingName] = useState('')
-
+    
     const isEditing = (record: ClusterConfigItem) => record.name === editingName
-
+    
     const edit = (record: ClusterConfigItem) => {
         if (record.type !== 'bool') 
             form.setFieldsValue({ value: record.value })
@@ -1880,7 +1880,7 @@ function ConfigEditableList ({
     const cancel = () => {
         setEditingName('')
     }
-
+    
     /** 注意：每一次save都把所有类型字段自动转换为string，如需往子组件传值需要重新转换类型 */
     const save = async (name: string) => {
         try {
@@ -1895,7 +1895,7 @@ function ConfigEditableList ({
             console.error('Form Validate Failed:', err)
         }
     }
-
+    
     const columns = [
         {
             title: t('名称'),
@@ -1969,11 +1969,11 @@ function ConfigEditableList ({
                       {t('编辑参数')}
                     </Typography.Link>
                   )
-
+                  
             }
         }
     ]
-
+    
     const mergedColumns = columns.map(col => {
         if (!col.editable) 
             return col
@@ -2013,7 +2013,7 @@ function ConfigEditableList ({
             pagination={false}
         />
     </Form>
-
+    
 }
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
@@ -2036,7 +2036,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     children,
     ...restProps
   }) => {
-
+  
     return <td {...restProps}>
         {editing ? 
             (
@@ -2219,17 +2219,17 @@ function ShowBackupRestoreSourceKey () {
                 case '1':
                     set_tag('backups')
                     break
-
+                    
                 case '2':
                     set_tag('restores')
                     break
-
+                    
                 case '3':
                     set_tag('source_key')
             }
         }}
-
-
+        
+        
         items={[
             {
                 label: t('备份'),
@@ -2250,7 +2250,7 @@ function ShowBackupRestoreSourceKey () {
             },
         ]}
     />
-
+    
 }
 
 type AddSourceKeyModalInfo = {
@@ -2260,14 +2260,14 @@ type AddSourceKeyModalInfo = {
 
 function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, refresh_source_key }) {
     // SourceKeyModal可能需要改变父组件的状态，最后一个参数refresh_source_key是一个父组件的set_state函数
-
+    
     const [source_key_modal_info, set_source_key_modal_info] = useState<AddSourceKeyModalInfo>({ type: 'nfs', open: sourcekey_modaol_open })
     const [providers, set_providers] = useState([''])
     const [selected_provider, set_selected_provider] = useState('')
-
+    
     const [nfs_form] = Form.useForm()
     const [s3_form] = Form.useForm()
-
+    
     const form_object = { nfs: nfs_form, s3: s3_form }
     useEffect(() => {
         (async () => {
@@ -2280,11 +2280,11 @@ function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, ref
         s3_form.setFieldValue('provider', providers[0])
         set_selected_provider(providers[0])
     }, [providers])
-
-
+    
+    
     
     return <Modal
-
+    
         title={t('添加云端存储配置')}
         open={source_key_modal_info.open}
         onCancel={() => { set_sourcekey_modal_open(false) }}
@@ -2422,7 +2422,7 @@ function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, ref
                             >
                                 <Input />
                             </Form.Item>
-
+                            
                             <Form.Item key='secret_access_key' name='secret_access_key' label={t('加密密钥')}
                                 rules={[{ message: t('此项必填'), required: true }]}
                             >
@@ -2454,7 +2454,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
     // @ts-ignore
     const [{ phase, remote_type, source_key, from, stored_path, storage_class, storage_resource, dolphindb_name, dolphindb_namespace }, setData] = useState<FlattenBackupDetail | FlattenRestoreDetail>({ })
     const [source_key_detail, set_source_key_detail] = useState<SourceKeyDetail[]>([ ])
-
+    
     async function fetch_data () {
         if (!props.name) 
             return
@@ -2464,7 +2464,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
         const data = { ..._data, phase: _data?.status.phase, create_timestamp: undefined }
         setData(data)
     }
-
+    
     useEffect(() => {
         fetch_data()
         ;(async () => {
@@ -2472,7 +2472,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
             set_source_key_detail(data)
         })()
     }, [props.open])
-
+    
     if (!phase)
         return undefined
     
@@ -2483,7 +2483,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                     <Title level={3}>{props.name}</Title>
                 }
             />
-
+            
             <div id='BasicInfo'>
                 <Descriptions
                     title={
@@ -2498,7 +2498,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                     <Descriptions.Item label={t('状态')}>{status_translations.backup[phase]}</Descriptions.Item>
                 </Descriptions>
             </div>
-
+            
             <div id='BackupInfo'>
                 <Descriptions
                     title={
@@ -2514,7 +2514,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                             placement='left'
                             content={
                                 source_key_detail ? <SourceKeyPanel single_sourceKey_detail={source_key_detail[source_key]}/> : undefined
-
+                                
                             }
                         >
                             <Link>{source_key}</Link>
@@ -2537,10 +2537,10 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                     bordered
                 >
                     <Descriptions.Item label={t('存储路径')}>{stored_path || ' '}</Descriptions.Item>
-
+                    
                 </Descriptions>
             </div>
-
+            
             {
                 storage_class && storage_resource ?
                     <Descriptions
@@ -2555,7 +2555,7 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                     </Descriptions>
                     : undefined
             }
-
+            
             {
                 dolphindb_name && dolphindb_namespace ?
                     <Descriptions
@@ -2569,8 +2569,8 @@ const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => voi
                         <Descriptions.Item label={t('名称', { context: 'backup' })}>{dolphindb_name || ' '}</Descriptions.Item>
                     </Descriptions>
                     : undefined}
-
-
+                    
+                    
         </div>
     </Modal>
 }
@@ -2617,79 +2617,79 @@ const status_translations = {
 
 const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_key' }) => {
     const [sourcekey_modal_open, set_sourcekey_modal_open] = useState(false) 
-
+    
     const [fetched_list_of_namesace, set_isntances_list_of_namespace] = useState<ListOfBackups>(undefined)
-
+    
     const [backup_modal_open, set_backup_modal_open] = useState(false)
-
+    
     const [form_instance_backup] = Form.useForm()
     const [form_instance_restore] = Form.useForm()
-
+    
     const [source_keys, set_SourceKeys] = useState<string[]>([ ])
-
+    
     const [source_key_detail, set_source_key_detail] = useState<SourceKeyDetail>()
-
+    
     const [storage_class, set_storage_class] = useState<string[]>([ ])
-
+    
     const [refresher, set_refresher] = useState(0)
-
+    
     const [detail_modal_open, set_detail_modal_open] = useState(false)
-
+    
     const [content_of_backup_modal, set_content_of_backup_modal] = useState<OneBakcupDetail>()
-
+    
     const [content_of_restore_modal, set_content_of_restore_modal] = useState<OneRestoreDetail>(undefined)
-
+    
     const [restore_modal_open, set_restore_modal_open] = useState(false)
-
+    
     const [name_of_current_opened_detail, set_name_of_current_opened_detail] = useState<string>()
-
+    
     const { namespaces } = model.use(['namespaces'])
-
+    
     const [selectable_names, set_selectable_names] = useState<string[]>([ ])
-
+    
     const [init_value_of_restore_modal, set_init_value_of_restore_modal] = useState<{ dolphindb_namespace: string, dolphindb_name: string }>()
-
+    
     const [selected_remote_type, set_selected_remote_type] = useState<string>()
-
+    
     const refresh_source_key = async () => {
         const data = await request_json_with_error_handling('/v1/dolphindbs/backups/config')
         const fetched_source_keys = Object.keys(data)
         set_SourceKeys(fetched_source_keys)
     }
-
+    
     const refresh_source_key_detail = async () => {
         const data = await request_json_with_error_handling('/v1/dolphindbs/backups/config')
         set_source_key_detail(data)
-
+        
     }
-
+    
     const refresh_selectable_storage_class = async () => {
         const fetched_storage_class = (await request_json_with_error_handling('/v1/storageclasses')).items.map(x => x.name)
         set_storage_class(fetched_storage_class.sort().reverse())
     }
-
+    
     const refresh_instances_list_of_namespace = async () => {
         const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`) as ListOfBackups
         set_isntances_list_of_namespace(data)
     }
-
+    
     const refresh_content_of_restore_modal = async instance_name => {
         const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${instance_name}`)
         data.from = instance_name
         set_content_of_restore_modal(data)
     }
-
+    
     const refresh_selectable_names = async namespace => {
         const data = await request_json_with_error_handling(`/v1/dolphindbs/?namespace=${namespace}`) as { items: { name, namespace }[] }
         set_selectable_names(data.items.map(x => x.name))
     }
-
+    
     useEffect(
         () => {
             refresh_instances_list_of_namespace()
         }, [refresher]
     )
-
+    
     useEffect(
         () => {
             form_instance_backup.resetFields()
@@ -2698,14 +2698,14 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
         backup_modal_open, restore_modal_open
     ]
     )
-
-
+    
+    
     useEffect(() => {
         refresh_source_key()
         refresh_source_key_detail()
         refresh_selectable_storage_class()
     }, [ ])
-
+    
     useEffect(() => {
         if (backup_modal_open) {
             refresh_source_key()
@@ -2714,16 +2714,16 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
         } else 
             set_refresher(refresher + 1)
         
-
+        
     }, [backup_modal_open])
-
+    
     useEffect(() => {
         if (source_key_detail)
             return
         refresh_source_key()
         refresh_source_key_detail()
     }, [sourcekey_modal_open])
-
+    
     useEffect(() => {
         if (!(source_keys && source_key_detail)) 
             return
@@ -2734,10 +2734,10 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
         } catch (e) {
             console.log(e)
         }
-
+        
     }, [source_keys, source_key_detail])
-
-
+    
+    
     // setInterval无法获取正确的props.tag，参考https://overreacted.io/zh-hans/making-setinterval-declarative-with-react-hooks/
     useInterval(
         () => {
@@ -2747,10 +2747,10 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
             return
         }, 5000
     )
-
-
+    
+    
     return <div>
-
+    
         <div className='actions'>
             <Button
                 type='primary'
@@ -2764,7 +2764,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                 <img className='icon-add' src={icon_add} />
                 <span>{t('备份')}</span>
             </Button>
-
+            
             <Button
                 className='refresh'
                 icon={<ReloadOutlined />}
@@ -2773,10 +2773,10 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                 }}
             >{t('刷新')}</Button>
         </div>
-
+        
         <div style={{ height: '10px' }} />
-
-
+        
+        
         {!_.isEmpty(fetched_list_of_namesace) ?
             <Table dataSource={fetched_list_of_namesace.items.map(
                 data_item => {
@@ -2786,9 +2786,9 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                             set_name_of_current_opened_detail(name)
                             set_detail_modal_open(true)
                         }}>{name}</Link>,
-
+                        
                         create_timestamp: create_timestamp,
-
+                        
                         phase: <ClusterOrBackupStatus phase={phase} message={message} type='backup' />,
                         operation:
                                 <Space>
@@ -2803,15 +2803,15 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                     >
                                         <Link href='#'>{t('删除')} </Link>
                                     </Popconfirm>
-
+                                    
                                     <Popconfirm
                                         disabled={!(phase === 'Complete' || phase === 'Failed')}
                                         title={t('确认重新触发？')}
                                         onConfirm={async () => {
                                             const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${name}`)
-
+                                            
                                             var { source_key, remote_type, prefix, storage_class, storage_resource } = data
-
+                                            
                                             await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`,
                                                 {
                                                     method: 'POST',
@@ -2826,8 +2826,8 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                                     }
                                                 }
                                             )
-
-
+                                            
+                                            
                                         }}
                                         onCancel={() => { }}
                                     >
@@ -2836,7 +2836,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                             href='#'>{t('重新触发')} 
                                         </Link>
                                     </Popconfirm>
-
+                                    
                                     <Link
                                         disabled={ phase !== 'Complete'}
                                         onClick={
@@ -2849,7 +2849,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                     >
                                         {t('还原')}
                                     </Link>
-
+                                    
                                     </Space>
                     }
                 }
@@ -2911,7 +2911,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                         }
                     )
                     set_backup_modal_open(false)
-
+                    
                 }}>
                     {t('提交')}
                 </Button>
@@ -2937,7 +2937,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                 rules={[{ required: true, message: t('此项必填') }]}
                             >
                                 <Select placeholder='source_key'
-
+                                
                                     onSelect={async value => {
                                         // danger area start
                                         try {
@@ -2965,7 +2965,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                                         mouseEnterDelay={0}
                                                         mouseLeaveDelay={0}
                                                         placement='left'
-
+                                                        
                                                         content={
                                                             source_key_detail ? <SourceKeyPanel single_sourceKey_detail={source_key_detail[x]}/> : undefined
                                                         }
@@ -2981,12 +2981,12 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                 onClick={() => {
                                     set_sourcekey_modal_open(true)
                                 }}>{t('添加云端存储配置')}</Button>
-
+                                
                         </Space>
                     </Form.Item>
-
-
-
+                    
+                    
+                    
                     <>{
                         selected_remote_type === 'nfs' ? undefined :
                             <Form.Item
@@ -2996,13 +2996,13 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                             >
                                 <Input/>
                             </Form.Item>}
-
+                            
                         <Form.Item
                             name='storage_class'
                             label={t('存储类名称')}
                             tooltip={t('存储临时备份文件的存储卷名称')}
                         >
-
+                        
                             <Select >
                                 {
                                     storage_class ?
@@ -3012,11 +3012,11 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                         <Option> asdfasdf</Option>
                                 }
                             </Select>
-
+                            
                         </Form.Item>
-
-
-
+                        
+                        
+                        
                         <Form.Item
                             name='storage_resource'
                             label={t('存储空间')}
@@ -3028,8 +3028,8 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                 </>
             </Form>
         </Modal>
-
-
+        
+        
         <Modal
             className='backup-modal'
             open={restore_modal_open}
@@ -3067,7 +3067,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                     )
                     set_restore_modal_open(false)
                     set_init_value_of_restore_modal({ dolphindb_namespace: '', dolphindb_name: '' })
-
+                    
                 }}>
                     {t('提交')}
                 </Button>
@@ -3085,8 +3085,8 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                     init_value_of_restore_modal
                 }
             >
-
-
+            
+            
                 <Form.Item name='dolphindb_namespace' label={t('命名空间')}
                     rules={[{ required: true, message: t('此项必填') }]}>
                     <Select onChange={async value => {
@@ -3103,7 +3103,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                         }
                     </Select>
                 </Form.Item>
-
+                
                 <Form.Item
                     name='dolphindb_name'
                     label={t('名称')}
@@ -3117,46 +3117,46 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                         }
                     </Select>
                 </Form.Item>
-
-
+                
+                
             </Form>
         </Modal>
-
+        
         {sourcekey_modal_open ? <SourceKeyModal
             sourcekey_modaol_open={sourcekey_modal_open}
             set_sourcekey_modal_open={set_sourcekey_modal_open}
             refresh_source_key={refresh_source_key}
         /> : <div />}
-
-
+        
+        
         <ErrorBoundary>
             <DashboardForOneName name={name_of_current_opened_detail} type='backups' open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }} />
         </ErrorBoundary>
     </div>
-
+    
 }
 
 const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_key' }) => {
 
     const [fetched_restore_list_of_namesace, set_restore_isntances_list_of_namespace] = useState<ListOfRestores>()
-
+    
     const [refresher, set_refresher] = useState(0)
-
+    
     const [detail_modal_open, set_detail_modal_open] = useState(false)
-
+    
     const [name_of_current_opened_detail, set_name_of_current_opened_detail] = useState('')
-
+    
     const refresh_restore_instances_list_of_namespace = async () => {
         const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores`) as ListOfRestores
         set_restore_isntances_list_of_namespace(data)
     }
-
+    
     useEffect(
         () => {
             refresh_restore_instances_list_of_namespace()
         }, [refresher]
     )
-
+    
     useInterval(
         () => {
             if (props.tag === 'restores') 
@@ -3165,9 +3165,9 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
             return
         }, 5000
     )
-
+    
     return <div>
-
+    
         <div className='actions'>
             <Button
                 className='refresh'
@@ -3177,9 +3177,9 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
                 }}
             >{t('刷新')}</Button>
         </div>
-
+        
         <div style={{ height: '10px' }} />
-
+        
         {!_.isEmpty(fetched_restore_list_of_namesace) ?
             <Table dataSource={fetched_restore_list_of_namesace.items.map(
                 data_item => {
@@ -3189,9 +3189,9 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
                             set_name_of_current_opened_detail(name)
                             set_detail_modal_open(true)
                         }}>{name}</Link>,
-
+                        
                         create_timestamp: create_timestamp,
-
+                        
                         phase: <ClusterOrBackupStatus phase={phase} message={message} type='restore' />,
                         
                         operation:
@@ -3235,11 +3235,11 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
             </Table> :
             <Empty/>
         }
-
+        
         <ErrorBoundary>
             <DashboardForOneName name={name_of_current_opened_detail} type='restores' open={detail_modal_open} onCancel={() => { set_detail_modal_open(false) }} />
         </ErrorBoundary>
-
+        
     </div>
 }
 
@@ -3252,7 +3252,7 @@ const SourceKeyPanel = ({ single_sourceKey_detail }: { single_sourceKey_detail: 
     return <>
         {
             type === 'nfs' ?
-
+            
                 <Descriptions bordered
                     column={1}
                 // layout='vertical'
@@ -3267,13 +3267,13 @@ const SourceKeyPanel = ({ single_sourceKey_detail }: { single_sourceKey_detail: 
                     >
                         {endpoint}
                     </Descriptions.Item>
-
+                    
                     <Descriptions.Item
                         label={t('共享目录', { context: 'backup' })}
                     >
                         {path}
                     </Descriptions.Item>
-
+                    
                 </Descriptions>
                 :
                 <Descriptions bordered
@@ -3285,13 +3285,13 @@ const SourceKeyPanel = ({ single_sourceKey_detail }: { single_sourceKey_detail: 
                     >
                         {type}
                     </Descriptions.Item>
-
+                    
                     <Descriptions.Item
                         label={t('供应商')}
                     >
                         {provider}
                     </Descriptions.Item>
-
+                    
                     {
                         !(provider === 'Ceph' || provider === 'Minio') ?
                             <Descriptions.Item
@@ -3301,20 +3301,20 @@ const SourceKeyPanel = ({ single_sourceKey_detail }: { single_sourceKey_detail: 
                             </Descriptions.Item> :
                             undefined
                     }
-
+                    
                     <Descriptions.Item
                         label={t('访问密钥')}
                     >
                         {access_key}
                     </Descriptions.Item>
-
-
+                    
+                    
                     <Descriptions.Item
                         label={t('加密密钥')}
                     >
                         {secret_access_key}
                     </Descriptions.Item>
-
+                    
                     {
                         !(provider === 'AWS') &&
                             <Descriptions.Item
@@ -3323,8 +3323,8 @@ const SourceKeyPanel = ({ single_sourceKey_detail }: { single_sourceKey_detail: 
                                 {endpoint}
                             </Descriptions.Item>
                     }
-
-
+                    
+                    
                 </Descriptions>
         }
     </>
@@ -3332,29 +3332,29 @@ const SourceKeyPanel = ({ single_sourceKey_detail }: { single_sourceKey_detail: 
 
 const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) => {
     const [source_key_detail, set_source_key_detail] = useState<SourceKeyDetail>()
-
+    
     const [refresher, set_refresher] = useState(0)
-
+    
     const [sourcekey_modal_open, set_sourcekey_modal_open] = useState(false)
-
-
+    
+    
     const [source_key_detail_modal_name, set_source_key_detail_modal_name] = useState('')
     const [source_key_detail_modal_open, set_source_key_detail_modal_open] = useState(false)
-
-
+    
+    
     const refresh_source_key_detail = async () => {
         const data = await request_json_with_error_handling('/v1/dolphindbs/backups/config')
         set_source_key_detail(data)
-
+        
     }
-
-
-
-
+    
+    
+    
+    
     useEffect(() => {
         refresh_source_key_detail()
     }, [refresher])
-
+    
     useInterval(
         () => {
             if (props.tag === 'source_key') 
@@ -3363,9 +3363,9 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
             return
         }, 5000
     )
-
+    
     return <div>
-
+    
         <div className='actions'>
             <Button
                 type='primary'
@@ -3377,7 +3377,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
                 <img className='icon-add' src={icon_add} />
                 <span>{t('添加云端存储配置')}</span>
             </Button>
-
+            
             <Button
                 className='refresh'
                 icon={<ReloadOutlined />}
@@ -3386,16 +3386,16 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
                 }}
             >{t('刷新')}</Button>
         </div>
-
+        
         <div style={{ height: '10px' }} />
-
+        
         {sourcekey_modal_open ? <SourceKeyModal
             sourcekey_modaol_open={sourcekey_modal_open}
             set_sourcekey_modal_open={set_sourcekey_modal_open}
             // refresh_source_key 用于改变父组件状态，但是在此不需要，因此传一个空函数
             refresh_source_key={ () => { } }
         /> : <div />}
-
+        
         {source_key_detail ?
             <Table dataSource={Object.keys(source_key_detail).map(
                 data_item => {
@@ -3440,8 +3440,8 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
                 />
             </Table>
             : undefined}
-
-
+            
+            
         <Modal
             title={source_key_detail_modal_name}
             open={source_key_detail_modal_open} onCancel={() => {
@@ -3449,7 +3449,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
             }} footer={false}
         >
             {source_key_detail ? <SourceKeyPanel single_sourceKey_detail={source_key_detail[source_key_detail_modal_name]}/> : undefined}
-
+            
         </Modal>
     </div>
 }
@@ -3465,7 +3465,7 @@ const request_json_with_error_handling = async (url: string, options?: RequestOp
 
 function useInterval (callback, delay) {
     const savedCallback = useRef()
-
+    
     useEffect(() => {
         savedCallback.current = callback
     })
@@ -3474,7 +3474,7 @@ function useInterval (callback, delay) {
             // @ts-ignore
             savedCallback.current()
         }
-
+        
         let id = setInterval(tick, delay)
         return () => clearInterval(id)
     }, [delay])
@@ -3485,7 +3485,7 @@ class ErrorBoundary extends React.Component<any, any> {
         super(props)
         this.state = { error: null, errorInfo: null }
     }
-
+    
     override componentDidCatch (error, errorInfo) {
         // Catch errors in any components below and re-render with error message
         this.setState({
@@ -3494,7 +3494,7 @@ class ErrorBoundary extends React.Component<any, any> {
         })
         // You can also log error messages to an error reporting service here
     }
-
+    
     override render () {
         if (this.state.errorInfo) 
             // Error path

@@ -59,7 +59,7 @@ export function Databases () {
     const previous_clicked_node = useRef<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
     
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
-
+    
     if (!dbs)
         return
     
@@ -416,7 +416,7 @@ function CreateDatabase () {
     // We just assume this is always turned on in dolphindb.cfg
     const enableChunkGranularityConfig = true
     const shouldRunOnCurrNode = node_type === NodeType.data || node_type === NodeType.single
-
+    
     let runOnNode = node.name
     // @TODO: not supported until we have support for running SQL statements inside anonymous function
     // if (!shouldRunOnCurrNode)

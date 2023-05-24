@@ -286,10 +286,10 @@ function Status () {
 
 function Perf () {
     const { node } = model.use(['node'])
-
+    
     if (!node)
         return null
-
+        
     return <div className='perf'>
         <Descriptions className='table' column={2} bordered size='small' title={t('内存', { context: 'perf' })}>
             <Descriptions.Item label={t('内存已用')}>

@@ -63,9 +63,9 @@ class ShellModel extends Model<ShellModel> {
     load_schema_defined = false
     
     peek_table_defined = false
-
+    
     add_column_defined = false
-
+    
     set_column_comment_defined = false
     
     
@@ -458,8 +458,8 @@ class ShellModel extends Model<ShellModel> {
         
         shell.set({ peek_table_defined: true })
     }
-
-
+    
+    
     async define_add_column () {
         if (this.add_column_defined)
             return
@@ -475,8 +475,8 @@ class ShellModel extends Model<ShellModel> {
         
         shell.set({ add_column_defined: true })
     }
-
-
+    
+    
     async define_set_column_comment () {
         if (this.set_column_comment_defined)
             return

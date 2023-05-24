@@ -54,7 +54,7 @@ export function Shell () {
             convertEol: true,
             
             allowProposedApi: true,
-
+            
             scrollback: 100000,
             
             theme: {
