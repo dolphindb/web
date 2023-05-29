@@ -53,15 +53,13 @@ export async function build_bundle ({ entry, library_name, production }: IOption
         cache: {
             type: 'filesystem',
             
-            version: entry,
-            
             ... ramdisk ? {
                 cacheDirectory: `${fpd_ramdisk_root}webpack/`,
                 compression: false
             } : {
                 compression: 'brotli',
             }
-        },
+        }
     })
     
     await new Promise<Stats>((resolve, reject) => {
