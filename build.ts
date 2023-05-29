@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import process from 'process'
-import path from 'upath'
 
 import { fcopy, fdelete, fmkdir } from 'xshell'
 
@@ -123,14 +122,5 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
 
 
 async function copy_pre_bundle (fpd_out: string) {
-    const fpd_pre_bundle = `${fpd_out}pre-bundle/`
-    
-    await Promise.all([
-        ... [
-            'Formily.umd.js',
-            'Formily.umd.js.map',
-        ].map(async fp =>
-            fcopy(path.join(fpd_pre_bundle_dist, fp), path.join(fpd_pre_bundle, fp))
-        )
-    ])
+    await fcopy(fpd_pre_bundle_dist, `${fpd_out}pre-bundle/`)
 }

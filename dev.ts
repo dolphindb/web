@@ -118,13 +118,17 @@ class DevServer extends Server {
         
         for (const prefix of ['/console/pre-bundle/', '/cloud/pre-bundle/'] as const)
             if (path.startsWith(prefix)) {
-                await this.try_send(ctx, path.slice(prefix.length), {
-                    root: fpd_pre_bundle_dist,
-                    log_404: true
-                })
+                await this.try_send(
+                    ctx,
+                    path.slice(prefix.length),
+                    {
+                        root: fpd_pre_bundle_dist,
+                        log_404: true
+                    }
+                )
                 return true
             }
-            
+        
         for (const prefix of ['/console/vendors/', '/cloud/vendors/'] as const)
             if (path.startsWith(prefix)) {
                 await this.try_send(
