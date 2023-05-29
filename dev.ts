@@ -8,7 +8,7 @@ import { Server } from 'xshell/server.js'
 import { DDB, DdbVectorString } from 'dolphindb'
 
 import { webpack, fpd_root, fpd_node_modules, fpd_src_console, fpd_src_cloud } from './webpack.js'
-import { build_pre_bundle_library, pre_bundle_dist_path } from './pre-bundle.js'
+import { build_bundle, fpd_pre_bundle_dist } from './pre-bundle/index.js'
 
 let c0 = new DDB('ws://127.0.0.1:8850')
 
@@ -119,7 +119,7 @@ class DevServer extends Server {
         for (const prefix of ['/console/pre-bundle/', '/cloud/pre-bundle/'] as const)
             if (path.startsWith(prefix)) {
                 await this.try_send(ctx, path.slice(prefix.length), {
-                    root: pre_bundle_dist_path,
+                    root: fpd_pre_bundle_dist,
                     log_404: true
                 })
                 return true
@@ -191,9 +191,9 @@ let server = new DevServer()
 
 await Promise.all([
     server.start(),
-    build_pre_bundle_library({
+    build_bundle({
+        entry: 'formily',
         library_name: 'Formily',
-        entry: 'formily.ts',
         production: false,
     }),
     webpack.build({ production: false })

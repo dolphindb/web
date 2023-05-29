@@ -1,12 +1,15 @@
 {
     "include": [
+        "./dev.ts",
+        "./build.ts",
+        "./pre-bundle/index.ts",
+        "./pre-bundle/entries/",
+        
         "./global.d.ts",
         
         "./console/",
         
         "./cloud/",
-        
-        "pre-bundle/entry"
     ],
     
     "compilerOptions": {

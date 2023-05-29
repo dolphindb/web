@@ -6,7 +6,7 @@ import path from 'upath'
 import { fcopy, fdelete, fmkdir } from 'xshell'
 
 import { webpack, fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd_src_cloud, fpd_node_modules } from './webpack.js'
-import { build_pre_bundle_library, pre_bundle_dist_path } from './pre-bundle.js'
+import { build_bundle, fpd_pre_bundle_dist } from './pre-bundle/index.js'
 
 
 if (process.argv.includes('cloud')) {
@@ -47,9 +47,9 @@ if (process.argv.includes('cloud')) {
         ),
         
         (async () => {
-            await build_pre_bundle_library({
+            await build_bundle({
+                entry: 'formily',
                 library_name: 'Formily',
-                entry: 'formily.ts',
                 production: true,
             })
             
@@ -130,7 +130,7 @@ async function copy_pre_bundle (fpd_out: string) {
             'Formily.umd.js',
             'Formily.umd.js.map',
         ].map(async fp =>
-            fcopy(path.join(pre_bundle_dist_path, fp), path.join(fpd_pre_bundle, fp))
+            fcopy(path.join(fpd_pre_bundle_dist, fp), path.join(fpd_pre_bundle, fp))
         )
     ])
 }

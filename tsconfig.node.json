@@ -2,16 +2,13 @@
     "extends": "./tsconfig.json",
     
     "include": [
-        "webpack.ts",
-        "pre-bundle.ts",
-        "dev.ts",
-        "build.ts",
+        "./pre-bundle.ts",
+        "./dev.ts",
+        "./build.ts",
     ],
     
     "compilerOptions": {
-        "composite": true,
         "incremental": true,
-        "declaration": true,
         "module": "NodeNext",
         "tsBuildInfoFile": "./node_modules/.tsbuildinfo.node.json"
     },
