@@ -204,9 +204,9 @@ export let webpack = {
                     '@ant-design/icons': 'icons',
                     '@ant-design/plots': 'Plots',
                     echarts: 'echarts',
-                    '@formily/core': 'formily.Core',
-                    '@formily/react': 'formily.React',
-                    '@formily/antd-v5': 'formily.AntdV5',
+                    '@formily/core': 'Formily.Core',
+                    '@formily/react': 'Formily.React',
+                    '@formily/antd-v5': 'Formily.AntdV5',
                 },
                 
                 resolve: {
