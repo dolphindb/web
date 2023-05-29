@@ -2,6 +2,8 @@
     "include": [
         "./dev.ts",
         "./build.ts",
+        "./pre-bundle/entries/",
+        
         "./global.d.ts",
         
         "./console/",
@@ -69,6 +71,11 @@
         "noUnusedLocals": false,
         "noUnusedParameters": false,
         "skipLibCheck": true,
+    },
+    
+    "ts-node": {
+        "esm": true,
+        "transpileOnly": true
     }
 }
 
