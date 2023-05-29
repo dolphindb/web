@@ -2,9 +2,12 @@
     "extends": "./tsconfig.json",
     
     "include": [
-        "./pre-bundle.ts",
         "./dev.ts",
-        "./build.ts",
+        "./build.ts"
+    ],
+    
+    "exclude": [
+        "**/node_modules/",
     ],
     
     "compilerOptions": {

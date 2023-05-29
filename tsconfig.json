@@ -2,7 +2,6 @@
     "include": [
         "./dev.ts",
         "./build.ts",
-        "./pre-bundle/index.ts",
         "./pre-bundle/entries/",
         
         "./global.d.ts",
@@ -73,7 +72,7 @@
         "noUnusedParameters": false,
         "skipLibCheck": true,
     },
-    "references": [{ "path": "./tsconfig.node.json"}],
+    
     "ts-node": {
         "esm": true,
         "transpileOnly": true
