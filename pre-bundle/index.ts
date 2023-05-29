@@ -67,7 +67,7 @@ export async function build_bundle ({ entry, library_name, production }: IOption
             if (stats)
                 console.log(
                     stats.toString(base_config.stats)
-                        .replace(new RegExp(`\\n\\s*.*${entry}.* compiled .*successfully.* in (.*)`), `\n${entry}预打包成功，用时 $1`.green)
+                        .replace(new RegExp(`\\n\\s*.*${entry}.* compiled .*successfully.* in (.*)`), `\n${entry} 预打包成功，用时 $1`.green)
                 )
             
             if (error)

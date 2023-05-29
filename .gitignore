@@ -7,6 +7,7 @@ node_modules/
 /web.cloud.zip
 
 /pre-bundle/dist/
+/pre-bundle/index.js
 
 /*.js
 *.map
