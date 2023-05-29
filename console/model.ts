@@ -318,6 +318,16 @@ export class DdbModel extends Model<DdbModel> {
     async get_license_info () {
         const license = await this.get_license_self_info()
         
+        this.check_license_expire()
+        
+        if (license.licenseType === LicenseTypes.LicenseServerVerify)
+            await this.get_license_server_info()
+    }
+    
+    
+    check_license_expire () {
+        const license = this.license
+        
         // license.expiration 是以 date 为单位的数字
         const expiration_date = dayjs(license.expiration * 86400000)
         const now = dayjs()
@@ -337,10 +347,6 @@ export class DdbModel extends Model<DdbModel> {
                 content: t('DolphinDB License 将在两周内过期，请提醒管理人员及时更新，避免数据库过期后自动关闭'),
                 width: 700,
             })
-        
-        
-        if (license.licenseType === LicenseTypes.LicenseServerVerify)
-            await this.get_license_server_info()
     }
     
     
