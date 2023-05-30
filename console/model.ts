@@ -1,7 +1,8 @@
+import dayjs from 'dayjs'
+
 import { Model } from 'react-object-model'
 
 import { Modal } from 'antd'
-import dayjs from 'dayjs'
 import type { BaseType } from 'antd/es/typography/Base/index.js'
 
 import { DDB, DdbFunctionType, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError, DdbStringObj, type DdbDictObj, type DdbVectorStringObj } from 'dolphindb/browser.js'
@@ -318,14 +319,14 @@ export class DdbModel extends Model<DdbModel> {
     async get_license_info () {
         const license = await this.get_license_self_info()
         
-        this.check_license_expire()
+        this.check_license_expiration()
         
         if (license.licenseType === LicenseTypes.LicenseServerVerify)
             await this.get_license_server_info()
     }
     
     
-    check_license_expire () {
+    check_license_expiration () {
         const license = this.license
         
         // license.expiration 是以 date 为单位的数字
@@ -334,8 +335,8 @@ export class DdbModel extends Model<DdbModel> {
         const after_two_week = now.add(2, 'week')
         const is_license_expired = now.isAfter(expiration_date, 'day')
         const is_license_expire_soon = after_two_week.isAfter(expiration_date, 'day')
-            
-        if (is_license_expired) 
+        
+        if (is_license_expired)
             Modal.error({
                 title: t('License 过期提醒'),
                 content: t('DolphinDB License 已过期，请联系管理人员立即更新，避免数据库关闭'),
