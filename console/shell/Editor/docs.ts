@@ -1,4 +1,6 @@
 // ------------ 函数补全、文档
+// 参考: ext/docs.ts
+
 import { request_json } from 'xshell/net.browser.js'
 
 import { keywords, constants } from 'dolphindb/language.js'
@@ -150,8 +152,7 @@ function find_func_start (
 }
 
 
-
-/** 根据函数参数开始位置分析参数语义，提取出当前参数索引  */
+/** 根据函数参数开始位置分析参数语义，提取出当前参数索引 */
 function find_active_param_index (
     document: monacoapi.editor.ITextModel,
     position: monacoapi.Position,
@@ -213,7 +214,7 @@ function find_active_param_index (
 }
 
 
-/** 根据函数名提取出相应的文件对象，提取出函数signature和参数 */
+/** 根据函数名提取出相应的文件对象，提取出函数 signature 和参数 */
 function get_signature_and_params (func_name: string): {
     signature: string
     params: string[]
@@ -320,20 +321,13 @@ export function register_docs (languages: typeof monacoapi.languages) {
         },
         
         resolveCompletionItem (item, canceller) {
-            if (canceller.isCancellationRequested)
-                return
-            
             item.documentation = get_func_md(item.label as string)
-            
             return item
         }
     })
     
     languages.registerHoverProvider('dolphindb', {
         provideHover (doc, pos, canceller) {
-            if (canceller.isCancellationRequested)
-                return
-            
             const word = doc.getWordAtPosition(pos)
             
             if (!word)

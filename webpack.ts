@@ -18,8 +18,8 @@ import { fexists, Lock } from 'xshell'
 
 export const fpd_root = `${path.dirname(fileURLToPath(import.meta.url))}/`
 
-const ramdisk = fexists('t:/TEMP/', { print: false })
-const fpd_ramdisk_root = 't:/2/ddb/web/'
+export const ramdisk = fexists('t:/TEMP/', { print: false })
+export const fpd_ramdisk_root = 't:/2/ddb/web/'
 
 export const fpd_node_modules = `${fpd_root}node_modules/`
 
@@ -31,6 +31,126 @@ export const fpd_out_console = `${fpd_out}web/`
 export const fpd_out_cloud = `${fpd_out}web.cloud/`
 
 
+export const base_config: Webpack.Configuration = {
+    devtool: 'source-map',
+    
+    experiments: {
+        // outputModule: true,
+        topLevelAwait: true,
+    },
+    
+    target: ['web', 'es2022'],
+    
+    module: {
+        rules: [
+            {
+                test: /\.js$/,
+                enforce: 'pre',
+                use: ['source-map-loader'],
+            },
+            {
+                test: /\.tsx?$/,
+                exclude: /node_modules/,
+                loader: 'ts-loader',
+                // https://github.com/TypeStrong/ts-loader
+                options: {
+                    configFile: `${fpd_root}tsconfig.json`,
+                    onlyCompileBundledFiles: true,
+                    transpileOnly: true,
+                } as Partial<TSLoaderOptions>
+            },
+            {
+                test: /\.s[ac]ss$/,
+                use: [
+                    'style-loader',
+                    {
+                        // https://github.com/webpack-contrib/css-loader
+                        loader: 'css-loader',
+                        options: {
+                            url: false,
+                        }
+                    },
+                    {
+                        // https://webpack.js.org/loaders/sass-loader
+                        loader: 'sass-loader',
+                        options: {
+                            implementation: sass,
+                            // 解决 url(search.png) 打包出错的问题
+                            webpackImporter: false,
+                            sassOptions: {
+                                indentWidth: 4,
+                            },
+                        } as SassOptions,
+                    }
+                ]
+            },
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
+            },
+            {
+                oneOf: [
+                    {
+                        test: /\.icon\.svg$/,
+                        issuer: /\.[jt]sx?$/,
+                        loader: '@svgr/webpack',
+                        options: { icon: true }
+                    },
+                    {
+                        test: /\.(svg|ico|png|jpe?g|gif|woff2?|ttf|eot|otf|mp4|webm|ogg|mp3|wav|flac|aac)$/,
+                        type: 'asset/inline',
+                    },
+                ]
+            },
+            {
+                test: /\.txt$/,
+                type: 'asset/source',
+            }
+        ],
+    },
+    
+    optimization: {
+        minimize: false,
+    },
+    
+    performance: {
+        hints: false,
+    },
+    
+    ignoreWarnings: [
+        /Failed to parse source map/
+    ],
+    
+    stats: {
+        colors: true,
+        
+        context: fpd_root,
+        
+        entrypoints: false,
+        
+        errors: true,
+        errorDetails: true,
+        
+        hash: false,
+        
+        version: false,
+        
+        timings: true,
+        
+        children: false,
+        
+        assets: true,
+        assetsSpace: 20,
+        
+        modules: false,
+        modulesSpace: 20,
+        
+        cachedAssets: false,
+        cachedModules: false,
+    },
+}
+
+
 export let webpack = {
     config: null as Configuration,
     
@@ -40,11 +160,11 @@ export let webpack = {
     async build ({ production, is_cloud }: { production: boolean, is_cloud?: boolean }) {
         await this.lcompiler.request(async () => {
             this.lcompiler.resource = Webpack(this.config = {
+                ...base_config,
+                
                 name: 'web',
                 
                 mode: production ? 'production' : 'development',
-                
-                devtool: 'source-map',
                 
                 entry: production ?
                     is_cloud ?
@@ -61,10 +181,6 @@ export let webpack = {
                         'web.cloud/index.js': './cloud/index.tsx'
                     },
                 
-                experiments: {
-                    // outputModule: true,
-                    topLevelAwait: true,
-                },
                 
                 output: {
                     path: production ?
@@ -77,7 +193,6 @@ export let webpack = {
                     globalObject: 'globalThis',
                 },
                 
-                target: ['web', 'es2022'],
                 
                 externals: {
                     react: 'React',
@@ -89,6 +204,9 @@ export let webpack = {
                     '@ant-design/icons': 'icons',
                     '@ant-design/plots': 'Plots',
                     echarts: 'echarts',
+                    '@formily/core': 'Formily.Core',
+                    '@formily/react': 'Formily.React',
+                    '@formily/antd-v5': 'Formily.AntdV5',
                 },
                 
                 resolve: {
@@ -96,110 +214,10 @@ export let webpack = {
                     
                     symlinks: true,
                     
-                    plugins: [{
-                        apply (resolver) {
-                            const target = resolver.ensureHook('file')
-                            
-                            for (const extension of ['.ts', '.tsx'] as const)
-                                resolver.getHook('raw-file').tapAsync('ResolveTypescriptPlugin', (request, ctx, callback) => {
-                                    if (
-                                        typeof request.path !== 'string' ||
-                                        /(^|[\\/])node_modules($|[\\/])/.test(request.path)
-                                    ) {
-                                        callback()
-                                        return
-                                    }
-                                    
-                                    if (request.path.endsWith('.js')) {
-                                        const path = request.path.slice(0, -3) + extension
-                                        
-                                        resolver.doResolve(
-                                            target,
-                                            {
-                                                ...request,
-                                                path,
-                                                relativePath: request.relativePath?.replace(/\.js$/, extension)
-                                            },
-                                            `using path: ${path}`,
-                                            ctx,
-                                            callback
-                                        )
-                                    } else
-                                        callback()
-                                })
-                        }
-                    }]
+                    extensionAlias: {
+                        '.js': ['.js', '.ts', '.tsx']
+                    },
                 },
-                
-                
-                module: {
-                    rules: [
-                        {
-                            test: /\.js$/,
-                            enforce: 'pre',
-                            use: ['source-map-loader'],
-                        },
-                        {
-                            test: /\.tsx?$/,
-                            exclude: /node_modules/,
-                            loader: 'ts-loader',
-                            // https://github.com/TypeStrong/ts-loader
-                            options: {
-                                configFile: `${fpd_root}tsconfig.json`,
-                                onlyCompileBundledFiles: true,
-                                transpileOnly: true,
-                            } as Partial<TSLoaderOptions>
-                        },
-                        {
-                            test: /\.s[ac]ss$/,
-                            use: [
-                                'style-loader',
-                                {
-                                    // https://github.com/webpack-contrib/css-loader
-                                    loader: 'css-loader',
-                                    options: {
-                                        url: false,
-                                    }
-                                },
-                                {
-                                    // https://webpack.js.org/loaders/sass-loader
-                                    loader: 'sass-loader',
-                                    options: {
-                                        implementation: sass,
-                                        // 解决 url(search.png) 打包出错的问题
-                                        webpackImporter: false,
-                                        sassOptions: {
-                                            indentWidth: 4,
-                                        },
-                                    } as SassOptions,
-                                }
-                            ]
-                        },
-                        {
-                            test: /\.css$/,
-                            use: ['style-loader', 'css-loader']
-                        },
-                        {
-                            oneOf: [
-                                {
-                                    test: /\.icon\.svg$/,
-                                    issuer: /\.[jt]sx?$/,
-                                    loader: '@svgr/webpack',
-                                    options: { icon: true }
-                                },
-                                {
-                                    test: /\.(svg|ico|png|jpe?g|gif|woff2?|ttf|eot|otf|mp4|webm|ogg|mp3|wav|flac|aac)$/,
-                                    type: 'asset/inline',
-                                },
-                            ]
-                        },
-                        {
-                            test: /\.txt$/,
-                            type: 'asset/source',
-                        }
-                    ],
-                },
-                
                 
                 plugins: [
                     new Webpack.DefinePlugin({
@@ -225,15 +243,6 @@ export let webpack = {
                     // new BundleAnalyzerPlugin({ analyzerPort: 8880, openAnalyzer: false }),
                 ],
                 
-                
-                optimization: {
-                    minimize: false,
-                },
-                
-                performance: {
-                    hints: false,
-                },
-                
                 cache: {
                     type: 'filesystem',
                     
@@ -245,39 +254,7 @@ export let webpack = {
                     } : {
                         compression: 'brotli',
                     }
-                },
-                
-                ignoreWarnings: [
-                    /Failed to parse source map/
-                ],
-                
-                stats: {
-                    colors: true,
-                    
-                    context: fpd_root,
-                    
-                    entrypoints: false,
-                    
-                    errors: true,
-                    errorDetails: true,
-                    
-                    hash: false,
-                    
-                    version: false,
-                    
-                    timings: true,
-                    
-                    children: false,
-                    
-                    assets: true,
-                    assetsSpace: 20,
-                    
-                    modules: false,
-                    modulesSpace: 20,
-                    
-                    cachedAssets: false,
-                    cachedModules: false,
-                },
+                }
             })
         })
         

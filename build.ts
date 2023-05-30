@@ -5,6 +5,7 @@ import process from 'process'
 import { fcopy, fdelete, fmkdir } from 'xshell'
 
 import { webpack, fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd_src_cloud, fpd_node_modules } from './webpack.js'
+import { build_bundle, fpd_pre_bundle_dist } from './pre-bundle/index.js'
 
 
 if (process.argv.includes('cloud')) {
@@ -44,6 +45,16 @@ if (process.argv.includes('cloud')) {
             fcopy(`${fpd_node_modules}dolphindb/docs.${language}.json`, `${fpd_out_console}docs.${language}.json`)
         ),
         
+        (async () => {
+            await build_bundle({
+                entry: 'formily',
+                library_name: 'Formily',
+                production: true,
+            })
+            
+            await copy_pre_bundle(fpd_out_console)
+        })(),
+        
         webpack.build({ production: true, is_cloud: false })
     ])
 }
@@ -74,7 +85,7 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
             'xterm/lib/xterm.js.map',
             'antd/dist/antd-with-locales.min.js',
             'antd/dist/antd-with-locales.min.js.map',
-            '@ant-design/icons/dist/index.umd.min.js',
+            '@ant-design/icons/dist/umd/icons.min.js',
             '@ant-design/plots/dist/plots.min.js',
             '@ant-design/plots/dist/plots.min.js.map',
             'echarts/dist/echarts.min.js',
@@ -107,4 +118,11 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
         :
             [ ]
     ])
+}
+
+
+async function copy_pre_bundle (fpd_out: string) {
+    const fpd_pre_bundle_out = `${fpd_out}pre-bundle/`
+    if (fpd_pre_bundle_out !== fpd_pre_bundle_dist)
+        await fcopy(fpd_pre_bundle_dist, fpd_pre_bundle_out)
 }
