@@ -1711,5 +1711,14 @@
     },
     "jwt token 过期时间无法解析:": {
         "en": "invalid jwt token expire time:"
+    },
+    "License 过期提醒": {
+        "en": "License expiration reminder"
+    },
+    "DolphinDB License 已过期，请联系管理人员立即更新，避免数据库关闭": {
+        "en": "DolphinDB License has expired, please contact the administrator to update immediately to avoid database shutdown"
+    },
+    "DolphinDB License 将在两周内过期，请提醒管理人员及时更新，避免数据库过期后自动关闭": {
+        "en": "The DolphinDB License will expire within two weeks, please remind the administrators to update it in time to avoid automatic shutdown of the database after expiration"
     }
 }

@@ -85,7 +85,7 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
             'xterm/lib/xterm.js.map',
             'antd/dist/antd-with-locales.min.js',
             'antd/dist/antd-with-locales.min.js.map',
-            '@ant-design/icons/dist/umd/icons.min.js',
+            '@ant-design/icons/dist/index.umd.min.js',
             '@ant-design/plots/dist/plots.min.js',
             '@ant-design/plots/dist/plots.min.js.map',
             'echarts/dist/echarts.min.js',
@@ -122,5 +122,7 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
 
 
 async function copy_pre_bundle (fpd_out: string) {
-    await fcopy(fpd_pre_bundle_dist, `${fpd_out}pre-bundle/`)
+    const fpd_pre_bundle_out = `${fpd_out}pre-bundle/`
+    if (fpd_pre_bundle_out !== fpd_pre_bundle_dist)
+        await fcopy(fpd_pre_bundle_dist, fpd_pre_bundle_out)
 }
