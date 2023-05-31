@@ -348,7 +348,7 @@ function Vector ({
                     name
                 :
                     `${name}[${offset}..${Math.min(offset + page_size, rows) - 1}]`
-            
+                
                 console.log(`${DdbForm[form]}.fetch:`, script)
             
                 objref.obj = ddb ?
