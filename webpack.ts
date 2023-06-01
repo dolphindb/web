@@ -227,7 +227,7 @@ export let webpack = {
                     ... await (async () => {
                         if (production) {
                             const { LicenseWebpackPlugin } = await import('license-webpack-plugin')
-                            const ignoreds = new Set(['xshell', 'react-object-model', '@ant-design/icons-svg', '@ant-design/pro-layout', '@ant-design/pro-provider'])
+                            const ignoreds = new Set(['xshell', 'react-object-model', '@ant-design/icons-svg', '@ant-design/pro-layout', '@ant-design/pro-provider', 'toggle-selection'])
                             return [
                                 new LicenseWebpackPlugin({
                                     perChunkOutput: false,
