@@ -76,7 +76,10 @@ const escapeColumnName = (name: string) => `_${JSON.stringify(name)}`
 
 function CreateTableModalPreviewCode () {
     const steps = useContext(StepsContext)
-    const database = useContext(PropsContext)
+    const { schema } = useContext(PropsContext)
+    
+    const engineType = schema.engineType.value as string
+    const isTSDB = engineType === 'TSDB'
     
     const code = useMemo(() => {
         const form_values: CreateTableFormValues =
@@ -97,10 +100,10 @@ function CreateTableModalPreviewCode () {
         const partition = (form_values.type === TableTypes.PartitionedTable && form_values.partitionColumns?.length) ?
             `partitioned by ${form_values.partitionColumns.map(escapeColumnName).join(', ')}`
             : null
-        const sorts = form_values.sortColumns?.length ?
+        const sorts = isTSDB && form_values.sortColumns?.length ?
             `sortColumns=[${form_values.sortColumns.map(column => `"${column}"`).join(', ')}]`
             : null
-        const keepDuplicates = form_values.keepDuplicates ?
+        const keepDuplicates = isTSDB && form_values.keepDuplicates ?
             `keepDuplicates=${form_values.keepDuplicates}`
             : null
             
@@ -112,7 +115,7 @@ function CreateTableModalPreviewCode () {
             
             
         return generatedCode
-    }, [steps.context_map[CreateTableStepsEnum.FillForm], database])
+    }, [steps.context_map[CreateTableStepsEnum.FillForm], isTSDB])
     
     return <div className='create-table-preview-code'>
         <div className='create-table-preview-code-editor'>
@@ -289,6 +292,9 @@ function CreateTableModalFillForm () {
         [partitionList]
     )
     
+    const engineType = schema.engineType.value as string
+    const isTSDB = engineType === 'TSDB'
+    
     // restore form value from steps context
     const form = useMemo(
         () =>
@@ -302,6 +308,7 @@ function CreateTableModalFillForm () {
     )
     
     const onSubmit = useCallback(async (formValues: CreateTableFormValues) => {
+        console.log(formValues)
         steps.next(formValues)
     }, [ ])
     
@@ -312,7 +319,7 @@ function CreateTableModalFillForm () {
         className='create-table-form'
         onAutoSubmit={onSubmit}
     >
-        <SchemaField scope={{ ...DDBTypeSelectorSchemaFields.ScopeValues }}>
+        <SchemaField scope={{ ...DDBTypeSelectorSchemaFields.ScopeValues, engineType }}>
             <SchemaField.String
                 name='dbPath'
                 title={t('数据库路径')}
@@ -374,15 +381,6 @@ function CreateTableModalFillForm () {
                 }}
             >
                 <SchemaField.Object>
-                    <SchemaField.Void
-                        x-component='ArrayTable.Column'
-                        x-component-props={{ width: 50, align: 'center' }}
-                    >
-                        <SchemaField.Void
-                            x-decorator='FormItem'
-                            x-component='ArrayTable.SortHandle'
-                        />
-                    </SchemaField.Void>
                     <SchemaField.Void
                         x-component='ArrayTable.Column'
                         x-component-props={{ title: t('列名'), width: 120 }}
@@ -481,6 +479,9 @@ function CreateTableModalFillForm () {
                 title={t('分区列')}
                 description={configurablePartitions.length > 0 ? t('请根据分区方案顺序选择分区列') : undefined}
                 x-decorator='FormItem'
+                x-decorator-props={{
+                    asterisk: true,
+                }}
                 x-reactions={[
                     {
                         dependencies: {
@@ -504,6 +505,7 @@ function CreateTableModalFillForm () {
                                 title={getPartitionSchemeDescription(partition)}
                                 x-decorator='FormItem'
                                 x-decorator-props={{
+                                    asterisk: false,
                                     labelCol: 5,
                                     labelAlign: 'left',
                                 }}
@@ -550,6 +552,7 @@ function CreateTableModalFillForm () {
                 x-decorator='FormItem'
                 x-component='Select'
                 x-component-props={{ mode: 'multiple' }}
+                x-display={isTSDB ? 'visible' : 'none'}
                 x-reactions={[
                     {
                         dependencies: {
@@ -572,7 +575,10 @@ function CreateTableModalFillForm () {
                             field.query('columns').value(),
                             column => column.name
                         )
-                        const sortColumns: string[] = field.value
+                        const sortColumns: string[] | undefined = field.value
+                        
+                        if (!sortColumns) 
+                            return
                         
                         const unsupportSortColumns = sortColumns.filter(
                             column => {
@@ -642,6 +648,7 @@ function CreateTableModalFillForm () {
                 title={t('重复值处理方式')}
                 x-decorator='FormItem'
                 x-component='Select'
+                x-display={isTSDB ? 'visible' : 'none'}
                 default={KeepDuplicatesValues.ALL}
                 enum={[
                     {

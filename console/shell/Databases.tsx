@@ -3,9 +3,9 @@ import { default as React, useEffect, useRef, useState } from 'react'
 import NiceModal from '@ebay/nice-modal-react'
 
 import { Resizable } from 're-resizable'
+import cn from 'classnames'
 
 import { message, Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber } from 'antd'
-const { Option } = Select
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
@@ -36,6 +36,7 @@ import { CreateTableModal } from './CreateTableModal.js'
 import { AddColumnModal } from './AddColumnModal.js'
 
 import SvgDatabase from './icons/database.icon.svg'
+import SvgCreateDatabase from './icons/create-database.icon.svg'
 import SvgDatabaseGroup from './icons/database-group.icon.svg'
 import SvgColumn from './icons/column.icon.svg'
 import SvgAddColumn from './icons/add-column.icon.svg'
@@ -96,9 +97,12 @@ export function Databases () {
                                 shell.set({ create_database_modal_visible: true })
                         }}>
                             <Tooltip title={enable_create_db ? t('创建数据库') : t('仅支持单机节点和数据节点创建数据库')} color='grey'>
-                                <PlusSquareOutlined
+                                <Icon 
+                                    className={cn('create-database-icon', {
+                                        disabled: !enable_create_db
+                                    })}
                                     disabled={!enable_create_db}
-                                    className={enable_create_db ? '' : 'disabled'}
+                                    component={SvgCreateDatabase}
                                 />
                             </Tooltip>
                         </span>
@@ -446,7 +450,7 @@ function CreateDatabase () {
                 const partitionCount = Number(table.partitionCount)
                 
                 if (Number.isNaN(partitionCount) || partitionCount < 1 || partitionCount > 3) {
-                    message.error(t('分区层数必须在1-3之间'))
+                    message.error(t('分区级别必须在1-3之间'))
                     return
                 }
                 
@@ -548,11 +552,11 @@ function CreateDatabase () {
                 <Input addonBefore='dfs://' placeholder={t('请输入数据库路径')} />
             </Form.Item>
             
-            <Form.Item label={t('分区层数')} name='partitionCount' required initialValue={create_database_partition_count} rules={[{
+            <Form.Item label={t('分区级别')} name='partitionCount' required initialValue={create_database_partition_count} rules={[{
                 required: true,
                 validator: async (_, val: number) => {
                     if (val < 1 || val > 3)
-                        throw new TypeError(t('分区层数必须在1-3之间'))
+                        throw new TypeError(t('分区级别必须在1-3之间'))
                 }
             }]}>
                 <InputNumber placeholder='1' onChange={(e: string) => {
