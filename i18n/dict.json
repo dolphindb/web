@@ -1529,10 +1529,10 @@
     "请输入数据库路径": {
         "en": "Please enter db path"
     },
-    "分区级别": {
+    "分区层级": {
         "en": "partition layer count"
     },
-    "分区级别必须在1-3之间": {
+    "分区层级必须在1-3之间": {
         "en": "Partition layer count must be between 1 and 3"
     },
     "分区类型不能为空": {

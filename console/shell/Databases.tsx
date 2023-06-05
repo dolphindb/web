@@ -98,9 +98,7 @@ export function Databases () {
                         }}>
                             <Tooltip title={enable_create_db ? t('创建数据库') : t('仅支持单机节点和数据节点创建数据库')} color='grey'>
                                 <Icon 
-                                    className={cn('create-database-icon', {
-                                        disabled: !enable_create_db
-                                    })}
+                                    className={cn('create-database-icon', { disabled: !enable_create_db })}
                                     disabled={!enable_create_db}
                                     component={SvgCreateDatabase}
                                 />
@@ -450,7 +448,7 @@ function CreateDatabase () {
                 const partitionCount = Number(table.partitionCount)
                 
                 if (Number.isNaN(partitionCount) || partitionCount < 1 || partitionCount > 3) {
-                    message.error(t('分区级别必须在1-3之间'))
+                    message.error(t('分区层级必须在1-3之间'))
                     return
                 }
                 
@@ -552,11 +550,11 @@ function CreateDatabase () {
                 <Input addonBefore='dfs://' placeholder={t('请输入数据库路径')} />
             </Form.Item>
             
-            <Form.Item label={t('分区级别')} name='partitionCount' required initialValue={create_database_partition_count} rules={[{
+            <Form.Item label={t('分区层级')} name='partitionCount' required initialValue={create_database_partition_count} rules={[{
                 required: true,
                 validator: async (_, val: number) => {
                     if (val < 1 || val > 3)
-                        throw new TypeError(t('分区级别必须在1-3之间'))
+                        throw new TypeError(t('分区层级必须在1-3之间'))
                 }
             }]}>
                 <InputNumber placeholder='1' onChange={(e: string) => {

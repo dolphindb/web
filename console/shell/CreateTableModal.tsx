@@ -383,6 +383,15 @@ function CreateTableModalFillForm () {
                 <SchemaField.Object>
                     <SchemaField.Void
                         x-component='ArrayTable.Column'
+                        x-component-props={{ width: 50, align: 'center' }}
+                    >
+                        <SchemaField.Void
+                            x-decorator='FormItem'
+                            x-component='ArrayTable.SortHandle'
+                        />
+                    </SchemaField.Void>
+                    <SchemaField.Void
+                        x-component='ArrayTable.Column'
                         x-component-props={{ title: t('列名'), width: 120 }}
                     >
                         <SchemaField.String
@@ -479,9 +488,7 @@ function CreateTableModalFillForm () {
                 title={t('分区列')}
                 description={configurablePartitions.length > 0 ? t('请根据分区方案顺序选择分区列') : undefined}
                 x-decorator='FormItem'
-                x-decorator-props={{
-                    asterisk: true,
-                }}
+                x-decorator-props={{ asterisk: true }}
                 x-reactions={[
                     {
                         dependencies: {
