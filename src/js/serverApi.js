@@ -76,7 +76,7 @@ function DatanodeConfig () {
                 },
                 {
                     name: 'regularArrayMemoryLimit',
-                    value: [256, 512],
+                    value: [256, 512, 2048],
                     default: 512,
                     tip: 'The limit on the memory size (MB) of a regular array. This number must be a power of 2. The default value is 512.'
                 },

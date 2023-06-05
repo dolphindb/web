@@ -1,9 +1,9 @@
 {
     "name": "dolphindb-web",
+    "type": "module",
     "engines": {
         "node": ">=19.7.0"
     },
-    "type": "module",
     "scripts": {
         "install.ci": "pnpm ci --include=dev",
         "dev": "tsc --project ./tsconfig.node.json && node ./dev.js",
