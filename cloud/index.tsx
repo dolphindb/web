@@ -15,13 +15,12 @@ import {
     Menu,
     Modal,
     Typography,
-    // @ts-ignore 使用了 antd-with-locales 之后 window.antd 变量中有 locales 属性
-    locales,
     Avatar,
-    Dropdown
+    Dropdown,
+    
+    // @ts-ignore 使用了 antd-with-locales 之后 window.antd 变量中有 locales 属性
+    locales
 } from 'antd'
-
-import type { MenuProps } from 'antd'
 
 import {
     default as _Icon,
@@ -46,12 +45,14 @@ import { Shell } from './shell.js'
 import SvgCluster from './cluster.icon.svg'
 import SvgLog from './log.icon.svg'
 
+
 const locale_names = {
     zh: 'zh_CN',
     en: 'en_US',
     ja: 'ja_JP',
     ko: 'ko_KR'
 } as const
+
 
 const svgs: { [key in PageViews]: any } = {
     cluster: SvgCluster,
@@ -65,8 +66,8 @@ function DolphinDB () {
     
     const [isModalOpen, setIsModalOpen] = useState(false)
     
-    const showModal = () =>  setIsModalOpen(true)
     
+<<<<<<< HEAD
     const handleOk = () => setIsModalOpen(false)
     
     const handleCancel = () => setIsModalOpen(false)
@@ -87,6 +88,8 @@ function DolphinDB () {
          
       ]
       
+=======
+>>>>>>> 511f9c5954bf45822f717789c110cea225e98647
     useEffect(() => {
         // 最开始状态一定为 pending，此时判断之前是否已经登录过，如果登录过则 authed 直接设置为 yes
         (async () => {
@@ -108,10 +111,9 @@ function DolphinDB () {
             model.init()
     }, [authed])
     
-    
     if (authed === 'pending')
         return null
-        
+    
     return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false}>
         {authed === 'no' ? // 未登录直接返回登录框 Modal
             <Modal
@@ -158,12 +160,32 @@ function DolphinDB () {
                     </Form.Item>
                 </Form>
             </Modal>
-            : // 已登录则根据是否完成初始化来决定要不要渲染主界面
+        : // 已登录则根据是否完成初始化来决定要不要渲染主界面
             inited && <Layout className='root-layout'>
                 <Layout.Header className='ddb-header'>
                     <DdbHeader />
                     <div className='user'>
-                        <Dropdown menu={{ items }} className='dbd-user-popover'>
+                        <Dropdown
+                            className='dbd-user-popover'
+                            menu={{
+                                items: [
+                                    {
+                                        key: 'reset',        
+                                        icon: <EditOutlined />,
+                                        label: <a className='reset' onClick={() => { setIsModalOpen(true) }}>{t('修改密码')}</a>
+                                    },
+                                    {
+                                        key: 'login',
+                                        icon: <LoginOutlined />,
+                                        label: <a className='login' onClick={() => { 
+                                                Cookies.remove('jwt', { path: '/v1/' })
+                                                localStorage.removeItem('username'), 
+                                                model.set({ authed: 'no' }) }}
+                                            >{t('登出')}</a>,
+                                    }
+                                ]
+                            }}
+                        >
                             <a className='username'>
                                 <Avatar className='avatar' icon={<UserOutlined /> } size='small' />{username} <DownOutlined />
                             </a>
@@ -174,7 +196,7 @@ function DolphinDB () {
                     <div className='view shell' >
                         <Shell />
                     </div>
-                    :
+                :
                     <Layout className='body' hasSider>
                         <DdbSider />
                         <Layout.Content className='view'>
@@ -182,12 +204,12 @@ function DolphinDB () {
                         </Layout.Content>
                     </Layout>
                 }
-                {
-                    <Modal
+                <Modal
                     className='db-shell-modal'
                     width='380px'
                     open={isModalOpen}
                     closable={false}
+<<<<<<< HEAD
                     >
                     {/* 这个图片实际上在 ../console/ddb.svg。因打包需要，使用 ./ddb.svg，并在 build.ts 和 dev.ts 中特殊处理。 */}
                     <img className='logo' src='./ddb.svg' />
@@ -212,37 +234,62 @@ function DolphinDB () {
                                         Cookies.remove('jwt', { path: '/v1/' })
                                     }
                                 } catch (error) {
+=======
+                >
+                {/* 这个图片实际上在 ../console/ddb.svg。因打包需要，使用 ./ddb.svg，并在 build.ts 和 dev.ts 中特殊处理。 */}
+                <img className='logo' src='./ddb.svg' />
+                    <Form
+                        name='reset-form'
+                        onFinish={async ({ new_password, repeat_password }: { new_password: string, repeat_password: string }) => {
+                            try {
+                                if (new_password !== repeat_password)
+>>>>>>> 511f9c5954bf45822f717789c110cea225e98647
                                     Modal.error({
                                         title: t('修改失败'),
-                                        content: error.message,
+                                        content: t('两次输入密码不一致'),
                                     })
-                                    throw error
+                                else {
+                                    let username = localStorage.getItem('username')
+                                    try {
+                                        await model.reset_password(username, new_password)
+                                    } catch (error) {      
+                                        model.show_json_error(error)
+                                        throw error
+                                    }
+                                    model.set({ authed: 'no' })
+                                    Cookies.remove('jwt', { path: '/v1/' })
                                 }
-                                
-                                form.resetFields(['password'])
-                            }}
-                            className='db-modal-form'
-                            form={form}
-                        >
-                            <Form.Item name='new_password' rules={[{ required: true, message: t('请输入新密码') }]}>
-                                <Input.Password prefix={<LockOutlined />} placeholder={t('请输入新密码')} />
-                            </Form.Item>
+                            } catch (error) {
+                                Modal.error({
+                                    title: t('修改失败'),
+                                    content: error.message,
+                                })
+                                throw error
+                            }
                             
-                            <Form.Item name='repeat_password' rules={[{ required: true, message: t('请重新输入新密码') }]}>
-                                <Input.Password prefix={<LockOutlined />} placeholder={t('请重新输入新密码')} />
-                            </Form.Item>
-                            
-                            <Form.Item className='db-modal-content-button-group'>
-                                <Button type='primary' htmlType='submit' onClick={() => { handleOk() }}>
-                                    {t('确认')}
-                                </Button>
-                                <Button type='primary' htmlType='submit' onClick={handleCancel}>
-                                    {t('取消')}
-                                </Button>
-                            </Form.Item>
-                        </Form>
-                    </Modal>
-                }
+                            form.resetFields(['password'])
+                        }}
+                        className='db-modal-form'
+                        form={form}
+                    >
+                        <Form.Item name='new_password' rules={[{ required: true, message: t('请输入新密码') }]}>
+                            <Input.Password prefix={<LockOutlined />} placeholder={t('请输入新密码')} />
+                        </Form.Item>
+                        
+                        <Form.Item name='repeat_password' rules={[{ required: true, message: t('请重新输入新密码') }]}>
+                            <Input.Password prefix={<LockOutlined />} placeholder={t('请重新输入新密码')} />
+                        </Form.Item>
+                        
+                        <Form.Item className='db-modal-content-button-group'>
+                            <Button type='primary' htmlType='submit' onClick={() => { setIsModalOpen(false) }}>
+                                {t('确认')}
+                            </Button>
+                            <Button type='primary' htmlType='submit' onClick={() => { setIsModalOpen(false) }}>
+                                {t('取消')}
+                            </Button>
+                        </Form.Item>
+                    </Form>
+                </Modal>
             </Layout>
         }
     </ConfigProvider>
@@ -276,7 +323,7 @@ function DdbContent () {
     
     if (!View)
         return null
-        
+    
     return <div className={view}>
         <View />
     </div>
@@ -285,6 +332,7 @@ function DdbContent () {
 function MenuIcon ({ view }: { view: CloudModel['view'] }) {
     return <Icon className='icon-menu' component={svgs[view]} />
 }
+
 
 function DdbSider () {
     const { view, collapsed } = model.use(['view', 'collapsed'])
