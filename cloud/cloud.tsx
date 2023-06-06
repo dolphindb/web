@@ -270,8 +270,13 @@ function Clusters () {
             <Button
                 className='refresh'
                 icon={<ReloadOutlined/>}
-                onClick={() => {
-                    model.get_clusters(queries)
+                onClick={async () => {
+                    try {
+                        model.get_clusters(queries)
+                    } catch (error) {
+                        model.show_json_error(error)
+                        throw error
+                    }
                 }}
             >{t('刷新')}</Button>
         </div>
@@ -311,7 +316,12 @@ function Clusters () {
                     render: (name, cluster: Cluster) =>
                         <Link
                             onClick={async () => {
-                                await model.get_cluster(cluster)
+                                try {
+                                    await model.get_cluster(cluster)
+                                } catch (error) {
+                                    model.show_json_error(error)
+                                    throw error
+                                }
                             }}>{name}</Link>
                 },
                 {
@@ -519,11 +529,7 @@ function Clusters () {
                                 </Form.Item>
                             </Col>
                             
-                            <Col span={12}>
-                                <Form.Item name='enable_jit' label={t('启用 JIT')} valuePropName='checked' >
-                                    <Switch />
-                                </Form.Item>
-                            </Col>
+                            <Col span={12}/>
                         </Row>
                         
                     </Collapse.Panel>
@@ -2796,7 +2802,12 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                         disabled={ phase === 'Cleaning'}
                                         title={t('确认删除？')}
                                         onConfirm={async () => {
-                                            await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${name}`, { method: 'DELETE' })
+                                            try {
+                                                await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${name}`, { method: 'DELETE' })
+                                            } catch (error) {
+                                                model.show_json_error(error)
+                                                throw error
+                                            }
                                             set_refresher(refresher + 1)
                                         }}
                                         onCancel={() => { }}
@@ -3199,7 +3210,13 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
                                 <Popconfirm
                                     title={t('确认删除？')}
                                     onConfirm={async () => {
-                                        await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores/${name}`, { method: 'DELETE' })
+                                        try {
+                                            await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores/${name}`, { method: 'DELETE' })
+
+                                        } catch (error) {
+                                                model.show_json_error(error)
+                                                throw error
+                                        }
                                         set_refresher(refresher + 1)
                                     }}
                                     onCancel={() => { }}

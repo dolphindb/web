@@ -45,6 +45,8 @@ const error_codes = {
     E000019: '备份不存在',
     E000020: '还原不存在',
     E000021: '备份云端存储配置已存在',
+    E000022: 'Secret不存在',
+    E000023: '当前登录失效，请刷新页面重新登陆'
 } as const
 
 
@@ -146,7 +148,22 @@ export class CloudModel extends Model <CloudModel> {
         this.set({ authed: 'yes' })
         return true
     }
-    
+    // 修改密码
+    async reset_password (username: string, password: string) {
+        try {
+            await request_json('/v1/auth/user', {
+                method: 'PUT',
+                body: {
+                    username,
+                    password,
+                },
+            })
+        } catch (error) {
+            
+            throw error
+        }
+    }
+ 
     async get_license_server_address () {
         const { address } = await request_json('/v1/licenseserver')
         
@@ -156,13 +173,17 @@ export class CloudModel extends Model <CloudModel> {
     }
     
     async get_clusters (queries: QueryOptions) {
-        const { items: clusters } = await request_json('/v1/dolphindbs', { queries })
+        try {
+            const { items: clusters } = await request_json('/v1/dolphindbs', { queries })
+            console.log('clusters:', clusters)
+            this.set({
+                clusters
+            })
+        } catch (error) {
+            model.show_json_error(error)
+            throw error
+        }
         
-        console.log('clusters:', clusters)
-        
-        this.set({
-            clusters
-        })
     }
     
     /** 获取 namespace 字段可选值 */
