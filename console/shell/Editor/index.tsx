@@ -111,6 +111,8 @@ export function Editor ({
     
     return monaco_inited ?
         <MonacoEditor
+            wrapperProps={{ className: 'monaco-editor-container' }}
+            
             defaultLanguage='dolphindb'
             
             language='dolphindb'

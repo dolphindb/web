@@ -89,7 +89,7 @@ export function ShellEditor () {
             }</div>
         </div>
         
-        <Editor 
+        <Editor
             minimap={minimap}
             
             enter_completion={enter_completion}
