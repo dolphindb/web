@@ -59,7 +59,7 @@ const svgs: { [key in PageViews]: any } = {
 } as const
 
 function DolphinDB () {
-    const { authed, inited, is_shell } = model.use(['authed', 'inited', 'is_shell'])
+    const { authed, inited, is_shell, username } = model.use(['authed', 'inited', 'is_shell', 'username'])
     
     const [form] = Form.useForm()
     
@@ -82,8 +82,7 @@ function DolphinDB () {
             icon: <LoginOutlined />,
             label: <a className='login' onClick={() => { 
                 Cookies.remove('jwt', { path: '/v1/' })
-                localStorage.removeItem('username'), 
-                model.set({ authed: 'no' }) }}>{t('登出')}</a>,
+                model.set({ authed: 'no', username: '' }) }}>{t('登出')}</a>
         }
          
       ]
@@ -129,7 +128,7 @@ function DolphinDB () {
                     onFinish={async ({ username, password }: { username: string, password: string }) => {
                         try {
                             await model.auth(username, password)
-                            localStorage.setItem('username', username)
+                            model.set({ username: username })
                         } catch (error) {
                             Modal.error({
                                 title: t('登录失败'),
@@ -166,7 +165,7 @@ function DolphinDB () {
                     <div className='user'>
                         <Dropdown menu={{ items }} className='dbd-user-popover'>
                             <a className='username'>
-                                <Avatar className='avatar' icon={<UserOutlined /> } size='small' />{localStorage.getItem('username')} <DownOutlined />
+                                <Avatar className='avatar' icon={<UserOutlined /> } size='small' />{username} <DownOutlined />
                             </a>
                         </Dropdown>
                     </div>
@@ -203,7 +202,6 @@ function DolphinDB () {
                                             content: t('两次输入密码不一致'),
                                         })
                                     else {
-                                        let username = localStorage.getItem('username')
                                         try {
                                             await model.reset_password(username, new_password)
                                         } catch (error) {      

@@ -1720,5 +1720,26 @@
     },
     "DolphinDB License 将在两周内过期，请提醒管理人员及时更新，避免数据库过期后自动关闭": {
         "en": "The DolphinDB License will expire within two weeks, please remind the administrators to update it in time to avoid automatic shutdown of the database after expiration"
+    },
+    "修改密码": {
+        "en": "Reset password"
+    },
+    "登出": {
+        "en": "Logout"
+    },
+    "修改失败": {
+        "en": "Fail to reset"
+    },
+    "两次输入密码不一致": {
+        "en": "The passwords entered twice are inconsistent"
+    },
+    "请输入新密码": {
+        "en": "Please enter a new password"
+    },
+    "请重新输入新密码": {
+        "en": "Please re-enter the new password"
+    },
+    "确认": {
+        "en": "Confirm"
     }
 }
