@@ -192,7 +192,7 @@ function DolphinDB () {
                         name='reset-form'
                         onFinish={async ({ new_password, repeat_password }: { new_password: string, repeat_password: string }) => {
                             try {
-                                if (new_password === repeat_password)
+                                if (new_password === repeat_password) {
                                     try {
                                         await model.change_password(username, new_password)
                                     } catch (error) {      
@@ -202,6 +202,7 @@ function DolphinDB () {
                                     setIsModalOpen(false)
                                     model.set({ authed: 'no' })
                                     Cookies.remove('jwt', { path: '/v1/' })
+                                }
                             } catch (error) {
                                 Modal.error({
                                     title: t('修改失败'),
@@ -221,8 +222,9 @@ function DolphinDB () {
                         
                         <Form.Item name='repeat_password' rules={[{ required: true, message: t('请重新输入新密码') }, ({ getFieldValue }) => ({ async validator ( rule, value ) {
                                     if (!value || getFieldValue('new_password') === value) 
-                                        return Promise.resolve()
-                                    return Promise.reject('两次密码输入不一致')
+                                        return
+                                    else
+                                        throw new Error('两次密码输入不一致')
                                 }
                             })]}>
                             <Input.Password prefix={<LockOutlined />} placeholder={t('请重新输入新密码')} />
