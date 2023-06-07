@@ -7,7 +7,6 @@ import { default as React, useEffect, useState } from 'react'
 import { createRoot as create_root } from 'react-dom/client'
 
 import {
-    Alert,
     Button,
     ConfigProvider,
     Form,
@@ -61,7 +60,7 @@ const svgs: { [key in PageViews]: any } = {
 } as const
 
 function DolphinDB () {
-    const { authed, inited, is_shell, username, password } = model.use(['authed', 'inited', 'is_shell', 'username', 'password'])
+    const { authed, inited, is_shell, username } = model.use(['authed', 'inited', 'is_shell', 'username'])
     
     const [form] = Form.useForm()
     
@@ -108,7 +107,7 @@ function DolphinDB () {
                     onFinish={async ({ username, password }: { username: string, password: string }) => {
                         try {
                             await model.auth(username, password)
-                            model.set({ username, password })
+                            model.set({ username })
                         } catch (error) {
                             Modal.error({
                                 title: t('登录失败'),
@@ -157,7 +156,7 @@ function DolphinDB () {
                                         icon: <LoginOutlined />,
                                         label: <a className='login' onClick={() => { 
                                                 Cookies.remove('jwt', { path: '/v1/' })
-                                                model.set({ authed: 'no', username: '', password: '' }) }}
+                                                model.set({ authed: 'no', username: '' }) }}
                                             >{t('登出')}</a>,
                                     }
                                 ]
@@ -195,7 +194,7 @@ function DolphinDB () {
                      
                         onFinish={async ({ new_password, repeat_password }: { new_password: string, repeat_password: string }) => {
                             try {
-                                if (new_password === repeat_password)             
+                                if (new_password === repeat_password) {
                                     setIsModalOpen(false)
                                     try {
                                         await model.change_password(username, new_password)
@@ -205,8 +204,8 @@ function DolphinDB () {
                                     }
                                     model.set({ authed: 'no' })
                                     Cookies.remove('jwt', { path: '/v1/' })
-                                    form.resetFields(['new_password'])
-                                    form.resetFields(['repeat_password'])
+                                    form.resetFields(['new_password', 'repeat_password'])
+                                }
                             } catch (error) {
                                 Modal.error({
                                     title: t('修改失败'),
@@ -214,14 +213,11 @@ function DolphinDB () {
                                 })
                                 throw error
                             }
-                            
-                            
-                            
                         }}
                         className='db-modal-form'
                         form={form}
                     >
-                        <Form.Item name='new_password' validateTrigger={['onBlur']} rules={[{ required: true, message: t('请输入新密码') }]}>
+                        <Form.Item name='new_password' rules={[{ required: true, message: t('请输入新密码') }]}>
                             <Input.Password autoComplete='false' prefix={<LockOutlined />} placeholder={t('请输入新密码')} />
                         </Form.Item>
                         
