@@ -7,6 +7,7 @@ import { default as React, useEffect, useState } from 'react'
 import { createRoot as create_root } from 'react-dom/client'
 
 import {
+    Alert,
     Button,
     ConfigProvider,
     Form,
@@ -60,7 +61,7 @@ const svgs: { [key in PageViews]: any } = {
 } as const
 
 function DolphinDB () {
-    const { authed, inited, is_shell, username } = model.use(['authed', 'inited', 'is_shell', 'username'])
+    const { authed, inited, is_shell, username, password } = model.use(['authed', 'inited', 'is_shell', 'username', 'password'])
     
     const [form] = Form.useForm()
     
@@ -107,7 +108,7 @@ function DolphinDB () {
                     onFinish={async ({ username, password }: { username: string, password: string }) => {
                         try {
                             await model.auth(username, password)
-                            model.set({ username })
+                            model.set({ username, password })
                         } catch (error) {
                             Modal.error({
                                 title: t('登录失败'),
@@ -156,7 +157,7 @@ function DolphinDB () {
                                         icon: <LoginOutlined />,
                                         label: <a className='login' onClick={() => { 
                                                 Cookies.remove('jwt', { path: '/v1/' })
-                                                model.set({ authed: 'no', username: '' }) }}
+                                                model.set({ authed: 'no', username: '', password: '' }) }}
                                             >{t('登出')}</a>,
                                     }
                                 ]
@@ -185,24 +186,27 @@ function DolphinDB () {
                     width='380px'
                     open={isModalOpen}
                     closable={false}
+                    afterClose={() => form.resetFields()}
                 >
                 {/* 这个图片实际上在 ../console/ddb.svg。因打包需要，使用 ./ddb.svg，并在 build.ts 和 dev.ts 中特殊处理。 */}
                 <img className='logo' src='./ddb.svg' />
                     <Form
                         name='reset-form'
+                     
                         onFinish={async ({ new_password, repeat_password }: { new_password: string, repeat_password: string }) => {
                             try {
-                                if (new_password === repeat_password) {
+                                if (new_password === repeat_password)             
+                                    setIsModalOpen(false)
                                     try {
                                         await model.change_password(username, new_password)
                                     } catch (error) {      
                                         model.show_json_error(error)
                                         throw error
                                     }
-                                    setIsModalOpen(false)
                                     model.set({ authed: 'no' })
                                     Cookies.remove('jwt', { path: '/v1/' })
-                                }
+                                    form.resetFields(['new_password'])
+                                    form.resetFields(['repeat_password'])
                             } catch (error) {
                                 Modal.error({
                                     title: t('修改失败'),
@@ -211,30 +215,31 @@ function DolphinDB () {
                                 throw error
                             }
                             
-                            form.resetFields(['password'])
+                            
+                            
                         }}
                         className='db-modal-form'
                         form={form}
                     >
-                        <Form.Item name='new_password' rules={[{ required: true, message: t('请输入新密码') }]}>
-                            <Input.Password prefix={<LockOutlined />} placeholder={t('请输入新密码')} />
+                        <Form.Item name='new_password' validateTrigger={['onBlur']} rules={[{ required: true, message: t('请输入新密码') }]}>
+                            <Input.Password autoComplete='false' prefix={<LockOutlined />} placeholder={t('请输入新密码')} />
                         </Form.Item>
                         
-                        <Form.Item name='repeat_password' rules={[{ required: true, message: t('请重新输入新密码') }, ({ getFieldValue }) => ({ async validator ( rule, value ) {
+                        <Form.Item name='repeat_password' dependencies={['new_password']} rules={[{ required: true, message: t('请重新输入新密码') }, ({ getFieldValue }) => ({ async validator ( rule, value ) {
                                     if (!value || getFieldValue('new_password') === value) 
                                         return
                                     else
                                         throw new Error('两次密码输入不一致')
                                 }
                             })]}>
-                            <Input.Password prefix={<LockOutlined />} placeholder={t('请重新输入新密码')} />
+                            <Input.Password autoComplete='false' prefix={<LockOutlined />} placeholder={t('请重新输入新密码')} />
                         </Form.Item>
                         
                         <Form.Item className='db-modal-content-button-group'>
                             <Button type='primary' htmlType='submit' >
                                 {t('确认')}
                             </Button>
-                            <Button type='primary' htmlType='submit' onClick={() => { setIsModalOpen(false) }}>
+                            <Button type='primary' onClick={() => { setIsModalOpen(false) }}>
                                 {t('取消')}
                             </Button>
                         </Form.Item>

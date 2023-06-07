@@ -334,6 +334,7 @@ function Clusters () {
                     title: t('版本'),
                     dataIndex: 'version',
                     sorter: { multiple: 3 },
+                    render: (value, cluster) => cluster.version + (cluster.enable_jit ? '-JIT' : ''),
                     filters: versions.map(version => {
                         return {
                             text: version,
