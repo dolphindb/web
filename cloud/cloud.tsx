@@ -3212,7 +3212,7 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
                                     onConfirm={async () => {
                                         try {
                                             await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores/${name}`, { method: 'DELETE' })
-
+                                            
                                         } catch (error) {
                                                 model.show_json_error(error)
                                                 throw error

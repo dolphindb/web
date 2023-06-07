@@ -67,29 +67,6 @@ function DolphinDB () {
     const [isModalOpen, setIsModalOpen] = useState(false)
     
     
-<<<<<<< HEAD
-    const handleOk = () => setIsModalOpen(false)
-    
-    const handleCancel = () => setIsModalOpen(false)
- 
-    const items: MenuProps['items'] = [
-        {
-          key: 'reset',        
-          icon: <EditOutlined />,
-          label: <a className='reset' onClick={showModal}>{t('修改密码')}</a>
-        },
-        {
-            key: 'login',
-            icon: <LoginOutlined />,
-            label: <a className='login' onClick={() => { 
-                Cookies.remove('jwt', { path: '/v1/' })
-                model.set({ authed: 'no', username: '' }) }}>{t('登出')}</a>
-        }
-         
-      ]
-      
-=======
->>>>>>> 511f9c5954bf45822f717789c110cea225e98647
     useEffect(() => {
         // 最开始状态一定为 pending，此时判断之前是否已经登录过，如果登录过则 authed 直接设置为 yes
         (async () => {
@@ -179,8 +156,8 @@ function DolphinDB () {
                                         icon: <LoginOutlined />,
                                         label: <a className='login' onClick={() => { 
                                                 Cookies.remove('jwt', { path: '/v1/' })
-                                                localStorage.removeItem('username'), 
-                                                model.set({ authed: 'no' }) }}
+                                            
+                                                model.set({ authed: 'no', username: '' }) }}
                                             >{t('登出')}</a>,
                                     }
                                 ]
@@ -209,32 +186,6 @@ function DolphinDB () {
                     width='380px'
                     open={isModalOpen}
                     closable={false}
-<<<<<<< HEAD
-                    >
-                    {/* 这个图片实际上在 ../console/ddb.svg。因打包需要，使用 ./ddb.svg，并在 build.ts 和 dev.ts 中特殊处理。 */}
-                    <img className='logo' src='./ddb.svg' />
-                    
-                        <Form
-                            name='reset-form'
-                            onFinish={async ({ new_password, repeat_password }: { new_password: string, repeat_password: string }) => {
-                                try {
-                                    if (new_password !== repeat_password)
-                                        Modal.error({
-                                            title: t('修改失败'),
-                                            content: t('两次输入密码不一致'),
-                                        })
-                                    else {
-                                        try {
-                                            await model.reset_password(username, new_password)
-                                        } catch (error) {      
-                                            model.show_json_error(error)
-                                            throw error
-                                        }
-                                        model.set({ authed: 'no' })
-                                        Cookies.remove('jwt', { path: '/v1/' })
-                                    }
-                                } catch (error) {
-=======
                 >
                 {/* 这个图片实际上在 ../console/ddb.svg。因打包需要，使用 ./ddb.svg，并在 build.ts 和 dev.ts 中特殊处理。 */}
                 <img className='logo' src='./ddb.svg' />
@@ -243,13 +194,11 @@ function DolphinDB () {
                         onFinish={async ({ new_password, repeat_password }: { new_password: string, repeat_password: string }) => {
                             try {
                                 if (new_password !== repeat_password)
->>>>>>> 511f9c5954bf45822f717789c110cea225e98647
                                     Modal.error({
                                         title: t('修改失败'),
                                         content: t('两次输入密码不一致'),
                                     })
                                 else {
-                                    let username = localStorage.getItem('username')
                                     try {
                                         await model.reset_password(username, new_password)
                                     } catch (error) {      
