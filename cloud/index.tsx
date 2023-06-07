@@ -192,21 +192,16 @@ function DolphinDB () {
                         name='reset-form'
                         onFinish={async ({ new_password, repeat_password }: { new_password: string, repeat_password: string }) => {
                             try {
-                                if (new_password !== repeat_password)
-                                    Modal.error({
-                                        title: t('修改失败'),
-                                        content: t('两次输入密码不一致'),
-                                    })
-                                else {
+                                if (new_password === repeat_password)
                                     try {
                                         await model.change_password(username, new_password)
                                     } catch (error) {      
                                         model.show_json_error(error)
                                         throw error
                                     }
+                                    setIsModalOpen(false)
                                     model.set({ authed: 'no' })
                                     Cookies.remove('jwt', { path: '/v1/' })
-                                }
                             } catch (error) {
                                 Modal.error({
                                     title: t('修改失败'),
@@ -224,12 +219,17 @@ function DolphinDB () {
                             <Input.Password prefix={<LockOutlined />} placeholder={t('请输入新密码')} />
                         </Form.Item>
                         
-                        <Form.Item name='repeat_password' rules={[{ required: true, message: t('请重新输入新密码') }]}>
+                        <Form.Item name='repeat_password' rules={[{ required: true, message: t('请重新输入新密码') }, ({ getFieldValue }) => ({ async validator ( rule, value ) {
+                                    if (!value || getFieldValue('new_password') === value) 
+                                        return Promise.resolve()
+                                    return Promise.reject('两次密码输入不一致')
+                                }
+                            })]}>
                             <Input.Password prefix={<LockOutlined />} placeholder={t('请重新输入新密码')} />
                         </Form.Item>
                         
                         <Form.Item className='db-modal-content-button-group'>
-                            <Button type='primary' htmlType='submit' onClick={() => { setIsModalOpen(false) }}>
+                            <Button type='primary' htmlType='submit' >
                                 {t('确认')}
                             </Button>
                             <Button type='primary' htmlType='submit' onClick={() => { setIsModalOpen(false) }}>
