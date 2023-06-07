@@ -107,7 +107,7 @@ function DolphinDB () {
                     onFinish={async ({ username, password }: { username: string, password: string }) => {
                         try {
                             await model.auth(username, password)
-                            model.set({ username: username })
+                            model.set({ username })
                         } catch (error) {
                             Modal.error({
                                 title: t('登录失败'),
@@ -156,7 +156,6 @@ function DolphinDB () {
                                         icon: <LoginOutlined />,
                                         label: <a className='login' onClick={() => { 
                                                 Cookies.remove('jwt', { path: '/v1/' })
-                                            
                                                 model.set({ authed: 'no', username: '' }) }}
                                             >{t('登出')}</a>,
                                     }
@@ -200,7 +199,7 @@ function DolphinDB () {
                                     })
                                 else {
                                     try {
-                                        await model.reset_password(username, new_password)
+                                        await model.change_password(username, new_password)
                                     } catch (error) {      
                                         model.show_json_error(error)
                                         throw error

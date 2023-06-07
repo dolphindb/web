@@ -272,7 +272,7 @@ function Clusters () {
                 icon={<ReloadOutlined/>}
                 onClick={async () => {
                     try {
-                        model.get_clusters(queries)
+                        await model.get_clusters(queries)
                     } catch (error) {
                         model.show_json_error(error)
                         throw error

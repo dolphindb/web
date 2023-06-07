@@ -1722,13 +1722,13 @@
         "en": "The DolphinDB License will expire within two weeks, please remind the administrators to update it in time to avoid automatic shutdown of the database after expiration"
     },
     "修改密码": {
-        "en": "Reset password"
+        "en": "Change password"
     },
     "登出": {
-        "en": "Logout"
+        "en": "Log out"
     },
     "修改失败": {
-        "en": "Fail to reset"
+        "en": "Fail to change password"
     },
     "两次输入密码不一致": {
         "en": "The passwords entered twice are inconsistent"

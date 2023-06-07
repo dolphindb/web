@@ -60,7 +60,7 @@ export class CloudModel extends Model <CloudModel> {
     
     view: PageViews = 'cluster'
     
-    username: string = ''
+    username = ''
     
     is_shell = new URLSearchParams(location.search).get('view') === 'shell'
     
@@ -131,7 +131,7 @@ export class CloudModel extends Model <CloudModel> {
         this.set({ authed: 'yes' })
     }
     
-    // 是否已经认证过并且拥有 Cookie。会将认证结果写入到 authed
+    /** 是否已经认证过并且拥有 Cookie。会将认证结果写入到 authed */
     async check_authed () {
         try {
             await request_json('/v1/dolphindbs/versions')
@@ -151,8 +151,8 @@ export class CloudModel extends Model <CloudModel> {
         return true
     }
     
-    // 修改密码
-    async reset_password (username: string, password: string) {
+    /** 修改密码 */
+    async change_password (username: string, password: string) {
         try {
             await request_json('/v1/auth/user', {
                 method: 'PUT',
