@@ -424,9 +424,12 @@ function CreateDatabase () {
     // if (!shouldRunOnCurrNode)
     //     runOnNode = datanode.name
     
+    // fix forget to pass form prop warning
+    // https://github.com/ant-design/ant-design/issues/21543#issuecomment-1183205379
     useEffect(() => {
-        form.setFieldValue('partitions', [ ])
-    }, [ ])
+        if (create_database_modal_visible)
+            form.setFieldValue('partitions', [ ])
+    }, [create_database_modal_visible])
     
     return <Modal
         className='db-modal show-required'

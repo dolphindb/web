@@ -1,3 +1,21 @@
+function authenticate () {
+    const wa_url = GetFullUrl(window.location.host);
+    
+    const ticket = localStorage.getItem('ddb.ticket')
+    
+    if (ticket)
+        CallWebApiSync(wa_url, {
+            "sessionID": localStorage.getItem('ddb.session_id') || '0',
+            "functionName": "authenticateByTicket",
+            "params": [{
+                "name": "ticket",
+                "form": "scalar",
+                "type": "string",
+                "value": ticket
+            }]
+        })
+}
+
 function DatanodeConfig () {
     var ruleNumber = 0
     var controller = GetFullUrl(window.location.host)
@@ -349,6 +367,8 @@ function DatanodeConfig () {
     
     const UNKNOWN_INDEX = configs.length
     
+    authenticate()
+    
     function checkRuleExists (rule) {
         for (var j = 0; j < configs.length; j++) {
             var configCategory = configs[j].configs
@@ -692,6 +712,7 @@ function ControllerConfig () {
     for (var item of configs) 
         configsName.push(item.name)
     
+    authenticate()
     
     function loadRules () {
         ruleNumber = 0
@@ -898,6 +919,9 @@ function NodesSetup () {
     var existingControllers = []
     // new Computenodes
     var existingComputenodes = []
+    
+    authenticate()
+    
     function loadDatanodes () {
         scriptExecutor.run('getClusterNodesCfg()', function (res) {
             existingAgents = []

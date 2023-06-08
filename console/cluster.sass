@@ -1,11 +1,19 @@
 .cluster
     flex: 1
     
-    padding: 0px 0px 0px 10px !important
+    .actions
+        .configs
+            display: flex
+            gap: 10px
     
+.nodes-modal, .controller-modal, .datanode-modal
     iframe
         border: none
         
-        height: 98%
+        height: 80vh
+        
+        width: 100%
     
+    .ant-modal-footer
+        display: none
     
