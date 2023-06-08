@@ -2,7 +2,8 @@ import './cluster.sass'
 
 import { default as React, useState } from 'react'
 
-import { Button, Modal } from 'antd'
+import { Button, Modal, Tooltip } from 'antd'
+import { CaretRightOutlined, ReloadOutlined, SettingOutlined, StopOutlined } from '@ant-design/icons'
 
 import { t } from '../i18n/index.js'
 
@@ -13,6 +14,20 @@ export function Cluster () {
     
     return <>
         <div className='actions'>
+            <div className='operations'>
+                <Tooltip title={t('刷新信息')}>
+                    <Button icon={<ReloadOutlined />} />
+                </Tooltip>
+                
+                <Tooltip title={t('启动节点')}>
+                    <Button icon={<CaretRightOutlined />} />
+                </Tooltip>
+                
+                <Tooltip title={t('停止节点')}>
+                    <Button icon={<StopOutlined />} />
+                </Tooltip>
+            </div>
+            
             { node_type === NodeType.controller &&  <div className='configs'>
                 <ButtonIframeModal 
                     className='nodes-modal'
@@ -49,7 +64,7 @@ function ButtonIframeModal ({
     const [visible, set_visible] = useState(false)
     
     return <>
-        <Button onClick={() => { set_visible(true) }}>{button_text}</Button>
+        <Button icon={<SettingOutlined />} onClick={() => { set_visible(true) }}>{button_text}</Button>
         
         <Modal
             className={className}
@@ -60,4 +75,9 @@ function ButtonIframeModal ({
             <iframe className='iframe' src={iframe_src} />
         </Modal>
     </>
+}
+
+
+function NodeCard () {
+    
 }
