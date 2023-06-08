@@ -171,9 +171,7 @@ export class CloudModel extends Model <CloudModel> {
     /** 获取用户名 */
     async get_username () {
         const { username } = await request_json<{ username: string }>('/v1/auth/user')
-        this.set({
-            username
-        })
+        this.set({ username })
     }
     
     async get_license_server_address () {

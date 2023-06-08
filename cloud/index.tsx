@@ -66,6 +66,7 @@ function DolphinDB () {
     
     const [isModalOpen, setIsModalOpen] = useState(false)
     
+    
     useEffect(() => {
         // 最开始状态一定为 pending，此时判断之前是否已经登录过，如果登录过则 authed 直接设置为 yes
         (async () => {
