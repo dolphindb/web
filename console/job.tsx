@@ -261,7 +261,7 @@ const column_names = {
     startDate: t('开始日期'),
     endDate: t('结束日期'),
     frequency: t('执行频率'),
-    scheduleTime: t('执行定时任务的时间'),
+    scheduledTime: t('执行定时任务的时间'),
     days: t('执行定时任务的日期'),
     actions: t('操作', { context: 'job' }),
     firstTaskStartTime: t('首个任务开始时间'),
