@@ -5,9 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
-  webpack@5.85.1:
+  webpack@5.86.0:
     hash: oyfbpynob4llk6lrrm2cafduym
-    path: patches/webpack@5.85.1.patch
+    path: patches/webpack@5.86.0.patch
 
 dependencies:
   '@ant-design/icons':
@@ -18,25 +18,25 @@ dependencies:
     version: 1.2.5(react-dom@18.2.0)(react@18.2.0)
   '@ant-design/pro-layout':
     specifier: ^7.14.3
-    version: 7.14.3(antd@5.6.0)(react-dom@18.2.0)(react@18.2.0)
+    version: 7.14.3(antd@5.6.1)(react-dom@18.2.0)(react@18.2.0)
   '@ebay/nice-modal-react':
     specifier: ^1.2.10
     version: 1.2.10(react-dom@18.2.0)(react@18.2.0)
   '@formily/antd-v5':
     specifier: 1.1.0-beta.3
-    version: 1.1.0-beta.3(@types/react-dom@18.2.4)(@types/react@18.2.8)(antd@5.6.0)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3)
+    version: 1.1.0-beta.3(@types/react-dom@18.2.4)(@types/react@18.2.9)(antd@5.6.1)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3)
   '@formily/core':
     specifier: ^2.2.24
     version: 2.2.24
   '@formily/react':
     specifier: ^2.2.24
-    version: 2.2.24(@types/react-dom@18.2.4)(@types/react@18.2.8)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3)
+    version: 2.2.24(@types/react-dom@18.2.4)(@types/react@18.2.9)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3)
   '@monaco-editor/react':
     specifier: ^4.5.1
     version: 4.5.1(monaco-editor@0.39.0)(react-dom@18.2.0)(react@18.2.0)
   antd:
-    specifier: ^5.6.0
-    version: 5.6.0(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^5.6.1
+    version: 5.6.1(react-dom@18.2.0)(react@18.2.0)
   classnames:
     specifier: ^2.3.2
     version: 2.3.2
@@ -115,8 +115,8 @@ devDependencies:
     specifier: ^20.2.5
     version: 20.2.5
   '@types/react':
-    specifier: ^18.2.8
-    version: 18.2.8
+    specifier: ^18.2.9
+    version: 18.2.9
   '@types/react-dom':
     specifier: ^18.2.4
     version: 18.2.4
@@ -134,7 +134,7 @@ devDependencies:
     version: 5.59.9(eslint@8.42.0)(typescript@5.1.3)
   css-loader:
     specifier: ^6.8.1
-    version: 6.8.1(webpack@5.85.1)
+    version: 6.8.1(webpack@5.86.0)
   eslint:
     specifier: ^8.42.0
     version: 8.42.0
@@ -146,7 +146,7 @@ devDependencies:
     version: 1.0.6(eslint@8.42.0)(typescript@5.1.3)
   license-webpack-plugin:
     specifier: ^4.0.2
-    version: 4.0.2(webpack@5.85.1)
+    version: 4.0.2(webpack@5.86.0)
   rc-table:
     specifier: ^7.32.1
     version: 7.32.1(react-dom@18.2.0)(react@18.2.0)
@@ -154,20 +154,20 @@ devDependencies:
     specifier: ^18.2.0
     version: 18.2.0
   sass:
-    specifier: ^1.62.1
-    version: 1.62.1
+    specifier: ^1.63.1
+    version: 1.63.1
   sass-loader:
     specifier: ^13.3.1
-    version: 13.3.1(sass@1.62.1)(webpack@5.85.1)
+    version: 13.3.1(sass@1.63.1)(webpack@5.86.0)
   source-map-loader:
     specifier: ^4.0.1
-    version: 4.0.1(webpack@5.85.1)
+    version: 4.0.1(webpack@5.86.0)
   style-loader:
     specifier: ^3.3.3
-    version: 3.3.3(webpack@5.85.1)
+    version: 3.3.3(webpack@5.86.0)
   ts-loader:
     specifier: ^9.4.3
-    version: 9.4.3(typescript@5.1.3)(webpack@5.85.1)
+    version: 9.4.3(typescript@5.1.3)(webpack@5.86.0)
   typescript:
     specifier: ^5.1.3
     version: 5.1.3
@@ -175,8 +175,8 @@ devDependencies:
     specifier: ^2.0.1
     version: 2.0.1
   webpack:
-    specifier: ^5.85.1
-    version: 5.85.1(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+    specifier: ^5.86.0
+    version: 5.86.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
   webpack-bundle-analyzer:
     specifier: ^4.9.0
     version: 4.9.0
@@ -263,7 +263,7 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@ant-design/pro-layout@7.14.3(antd@5.6.0)(react-dom@18.2.0)(react@18.2.0):
+  /@ant-design/pro-layout@7.14.3(antd@5.6.1)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-FcKj23f/laod2hfSSYfBbkjb9r74lZLgan8dylI+tngQnZKQc1o1a1f9If7CggkrhEdgDyIkIyFl9Ii/tfDa+A==}
     peerDependencies:
       antd: '>=4.23.0'
@@ -271,12 +271,12 @@ packages:
       react-dom: '>=17.0.0'
     dependencies:
       '@ant-design/icons': 5.1.4(react-dom@18.2.0)(react@18.2.0)
-      '@ant-design/pro-provider': 2.10.2(antd@5.6.0)(react-dom@18.2.0)(react@18.2.0)
-      '@ant-design/pro-utils': 2.11.3(antd@5.6.0)(react-dom@18.2.0)(react@18.2.0)
+      '@ant-design/pro-provider': 2.10.2(antd@5.6.1)(react-dom@18.2.0)(react@18.2.0)
+      '@ant-design/pro-utils': 2.11.3(antd@5.6.1)(react-dom@18.2.0)(react@18.2.0)
       '@babel/runtime': 7.21.5
       '@umijs/route-utils': 4.0.1
       '@umijs/use-params': 1.0.9(react@18.2.0)
-      antd: 5.6.0(react-dom@18.2.0)(react@18.2.0)
+      antd: 5.6.1(react-dom@18.2.0)(react@18.2.0)
       classnames: 2.3.2
       lodash.merge: 4.6.2
       omit.js: 2.0.2
@@ -291,7 +291,7 @@ packages:
       warning: 4.0.3
     dev: false
 
-  /@ant-design/pro-provider@2.10.2(antd@5.6.0)(react-dom@18.2.0)(react@18.2.0):
+  /@ant-design/pro-provider@2.10.2(antd@5.6.1)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-I0wfnP/fJUgGrl/9P5haMtITg8oHe2NOm83QKFVjqQWGYnA2V4O5rVqD+vdWveuaJ6rtCW8mEoeelfHF6nOnxw==}
     peerDependencies:
       antd: '>=4.23.0'
@@ -301,14 +301,14 @@ packages:
       '@ant-design/cssinjs': 1.9.1(react-dom@18.2.0)(react@18.2.0)
       '@babel/runtime': 7.21.5
       '@ctrl/tinycolor': 3.6.0
-      antd: 5.6.0(react-dom@18.2.0)(react@18.2.0)
+      antd: 5.6.1(react-dom@18.2.0)(react@18.2.0)
       rc-util: 5.32.3(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       swr: 2.0.3(react@18.2.0)
     dev: false
 
-  /@ant-design/pro-utils@2.11.3(antd@5.6.0)(react-dom@18.2.0)(react@18.2.0):
+  /@ant-design/pro-utils@2.11.3(antd@5.6.1)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-Sd2oHzhQlSJ0svaD3Ih3v2VeXPnYWwJ05ul+ek8i9GWAGnFWD0yDTawGj7pDZwCQwJYaLpAzPHhfNvq3Led0/w==}
     peerDependencies:
       antd: '>=4.23.0'
@@ -316,9 +316,9 @@ packages:
       react-dom: '>=17.0.0'
     dependencies:
       '@ant-design/icons': 5.1.4(react-dom@18.2.0)(react@18.2.0)
-      '@ant-design/pro-provider': 2.10.2(antd@5.6.0)(react-dom@18.2.0)(react@18.2.0)
+      '@ant-design/pro-provider': 2.10.2(antd@5.6.1)(react-dom@18.2.0)(react@18.2.0)
       '@babel/runtime': 7.21.5
-      antd: 5.6.0(react-dom@18.2.0)(react@18.2.0)
+      antd: 5.6.1(react-dom@18.2.0)(react@18.2.0)
       classnames: 2.3.2
       dayjs: 1.11.8
       rc-util: 5.32.3(react-dom@18.2.0)(react@18.2.0)
@@ -2128,7 +2128,7 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /@formily/antd-v5@1.1.0-beta.3(@types/react-dom@18.2.4)(@types/react@18.2.8)(antd@5.6.0)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3):
+  /@formily/antd-v5@1.1.0-beta.3(@types/react-dom@18.2.4)(@types/react@18.2.9)(antd@5.6.1)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3):
     resolution: {integrity: sha512-6NLV9Ac2guG4euU5En2Igy2uyYToN/I7kIcxVhraChSVJI3WInIFa1d4XOB4O+2RTxRC/A4RT4l+nL6Lkgw9Ng==}
     engines: {npm: '>=3.0.0'}
     peerDependencies:
@@ -2146,13 +2146,13 @@ packages:
       '@formily/core': 2.2.24
       '@formily/grid': 2.2.22(typescript@5.1.3)
       '@formily/json-schema': 2.2.23(typescript@5.1.3)
-      '@formily/react': 2.2.24(@types/react-dom@18.2.4)(@types/react@18.2.8)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3)
+      '@formily/react': 2.2.24(@types/react-dom@18.2.4)(@types/react@18.2.9)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3)
       '@formily/reactive': 2.2.23
-      '@formily/reactive-react': 2.2.23(@types/react-dom@18.2.4)(@types/react@18.2.8)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)
+      '@formily/reactive-react': 2.2.23(@types/react-dom@18.2.4)(@types/react@18.2.9)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)
       '@formily/shared': 2.2.23
-      '@types/react': 18.2.8
+      '@types/react': 18.2.9
       '@types/react-dom': 18.2.4
-      antd: 5.6.0(react-dom@18.2.0)(react@18.2.0)
+      antd: 5.6.1(react-dom@18.2.0)(react@18.2.0)
       classnames: 2.3.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -2225,7 +2225,7 @@ packages:
     engines: {npm: '>=3.0.0'}
     dev: false
 
-  /@formily/react@2.2.24(@types/react-dom@18.2.4)(@types/react@18.2.8)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3):
+  /@formily/react@2.2.24(@types/react-dom@18.2.4)(@types/react@18.2.9)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3):
     resolution: {integrity: sha512-Bq5LQzK9u0E8BBwHqWY1jXtbdVAJV/gMkZAssAHVXu01YvDUVugHXcbxuzKZKY5MrZFIyM7Jod0TbhjEPr2bhA==}
     engines: {npm: '>=3.0.0'}
     peerDependencies:
@@ -2243,10 +2243,10 @@ packages:
       '@formily/core': 2.2.24
       '@formily/json-schema': 2.2.24(typescript@5.1.3)
       '@formily/reactive': 2.2.24
-      '@formily/reactive-react': 2.2.24(@types/react-dom@18.2.4)(@types/react@18.2.8)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)
+      '@formily/reactive-react': 2.2.24(@types/react-dom@18.2.4)(@types/react@18.2.9)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)
       '@formily/shared': 2.2.24
       '@formily/validator': 2.2.24
-      '@types/react': 18.2.8
+      '@types/react': 18.2.9
       '@types/react-dom': 18.2.4
       hoist-non-react-statics: 3.3.2
       react: 18.2.0
@@ -2256,7 +2256,7 @@ packages:
       - typescript
     dev: false
 
-  /@formily/reactive-react@2.2.23(@types/react-dom@18.2.4)(@types/react@18.2.8)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0):
+  /@formily/reactive-react@2.2.23(@types/react-dom@18.2.4)(@types/react@18.2.9)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0):
     resolution: {integrity: sha512-nkqdLwp8g23g0Jt7eQ3Km43ekSxlbO9m/ReurAlMR5Tw3+EiRr5aIWzpLrQQqGQ9jZyKkJgAScFRRyIrFx2fcA==}
     engines: {npm: '>=3.0.0'}
     peerDependencies:
@@ -2272,7 +2272,7 @@ packages:
         optional: true
     dependencies:
       '@formily/reactive': 2.2.23
-      '@types/react': 18.2.8
+      '@types/react': 18.2.9
       '@types/react-dom': 18.2.4
       hoist-non-react-statics: 3.3.2
       react: 18.2.0
@@ -2280,7 +2280,7 @@ packages:
       react-is: 16.13.1
     dev: false
 
-  /@formily/reactive-react@2.2.24(@types/react-dom@18.2.4)(@types/react@18.2.8)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0):
+  /@formily/reactive-react@2.2.24(@types/react-dom@18.2.4)(@types/react@18.2.9)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0):
     resolution: {integrity: sha512-MSS2ug+19+GzVJFhWjwOp6QWe/Bc3xC9YXYB7lfriJBQCC5lGlX0xaOZNkOH4yFz9OvSR59wwManOpOh329/EQ==}
     engines: {npm: '>=3.0.0'}
     peerDependencies:
@@ -2296,7 +2296,7 @@ packages:
         optional: true
     dependencies:
       '@formily/reactive': 2.2.24
-      '@types/react': 18.2.8
+      '@types/react': 18.2.9
       '@types/react-dom': 18.2.4
       hoist-non-react-statics: 3.3.2
       react: 18.2.0
@@ -2522,20 +2522,6 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@rc-component/portal@1.1.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-tbXM9SB1r5FOuZjRCljERFByFiEUcMmCWMXLog/NmgCzlAzreXyf23Vei3ZpSMxSMavzPnhCovfZjZdmxS3d1w==}
-    engines: {node: '>=8.x'}
-    peerDependencies:
-      react: '>=16.9.0'
-      react-dom: '>=16.9.0'
-    dependencies:
-      '@babel/runtime': 7.21.5
-      classnames: 2.3.2
-      rc-util: 5.32.3(react-dom@18.2.0)(react@18.2.0)
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    dev: false
-
   /@rc-component/portal@1.1.1(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-m8w3dFXX0H6UkJ4wtfrSwhe2/6M08uz24HHrF8pWfAXPwA9hwCuTE5per/C86KwNLouRpwFGcr7LfpHaa1F38g==}
     engines: {node: '>=8.x'}
@@ -2558,7 +2544,7 @@ packages:
       react-dom: '>=16.9.0'
     dependencies:
       '@babel/runtime': 7.21.5
-      '@rc-component/portal': 1.1.0(react-dom@18.2.0)(react@18.2.0)
+      '@rc-component/portal': 1.1.1(react-dom@18.2.0)(react@18.2.0)
       '@rc-component/trigger': 1.13.2(react-dom@18.2.0)(react@18.2.0)
       classnames: 2.3.2
       rc-util: 5.32.3(react-dom@18.2.0)(react@18.2.0)
@@ -2574,7 +2560,7 @@ packages:
       react-dom: '>=16.9.0'
     dependencies:
       '@babel/runtime': 7.21.5
-      '@rc-component/portal': 1.1.0(react-dom@18.2.0)(react@18.2.0)
+      '@rc-component/portal': 1.1.1(react-dom@18.2.0)(react@18.2.0)
       classnames: 2.3.2
       rc-align: 4.0.15(react-dom@18.2.0)(react@18.2.0)
       rc-motion: 2.7.3(react-dom@18.2.0)(react@18.2.0)
@@ -2883,10 +2869,10 @@ packages:
   /@types/react-dom@18.2.4:
     resolution: {integrity: sha512-G2mHoTMTL4yoydITgOGwWdWMVd8sNgyEP85xVmMKAPUBwQWm9wBPQUmvbeF4V3WBY1P7mmL4BkjQ0SqUpf1snw==}
     dependencies:
-      '@types/react': 18.2.8
+      '@types/react': 18.2.9
 
-  /@types/react@18.2.8:
-    resolution: {integrity: sha512-lTyWUNrd8ntVkqycEEplasWy2OxNlShj3zqS0LuB1ENUGis5HodmhM7DtCoUGbxj3VW/WsGA0DUhpG6XrM7gPA==}
+  /@types/react@18.2.9:
+    resolution: {integrity: sha512-pL3JAesUkF7PEQGxh5XOwdXGV907te6m1/Qe1ERJLgomojS6Ne790QiA7GUl434JEkFA2aAaB6qJ5z4e1zJn/w==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
@@ -2898,7 +2884,7 @@ packages:
       '@types/node': 20.2.5
       '@types/node-sass': 4.11.3
       '@types/webpack': 4.41.33
-      sass: 1.62.1
+      sass: 1.63.1
     dev: true
 
   /@types/scheduler@0.16.2:
@@ -2934,7 +2920,7 @@ packages:
     dependencies:
       '@types/node': 20.2.5
       tapable: 2.2.1
-      webpack: 5.85.1(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      webpack: 5.86.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
@@ -3448,8 +3434,8 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /antd@5.6.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-VW8c3pOsSxjIdpn/fyicaXHNjG0lYKb2xzi4pLwmYuChUl6P92S5MfrhB00XQY4TWgsfBucdgX8XSoiLCTRTCg==}
+  /antd@5.6.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-ZuY6MATmONRCrHL53BwM3t/GruwhNcPJsKtRQLyo6TWJFkdPBd4gASfHsgKWRlXnN767IG8ioxDS5hlV6GsGHg==}
     peerDependencies:
       react: '>=16.9.0'
       react-dom: '>=16.9.0'
@@ -4000,7 +3986,7 @@ packages:
       which: 2.0.2
     dev: true
 
-  /css-loader@6.8.1(webpack@5.85.1):
+  /css-loader@6.8.1(webpack@5.86.0):
     resolution: {integrity: sha512-xDAXtEVGlD0gJ07iclwWVkLoZOpEvAWaSyf6W18S2pOC//K8+qUDIx8IIT3D+HjnmkJPQeesOPv5aiUaJsCM2g==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
@@ -4014,7 +4000,7 @@ packages:
       postcss-modules-values: 4.0.0(postcss@8.4.21)
       postcss-value-parser: 4.2.0
       semver: 7.3.8
-      webpack: 5.85.1(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      webpack: 5.86.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     dev: true
 
   /css-select@5.1.0:
@@ -5484,7 +5470,7 @@ packages:
       type-check: 0.4.0
     dev: true
 
-  /license-webpack-plugin@4.0.2(webpack@5.85.1):
+  /license-webpack-plugin@4.0.2(webpack@5.86.0):
     resolution: {integrity: sha512-771TFWFD70G1wLTC4oU2Cw4qvtmNrIw+wRvBtn+okgHl7slJVi7zfNcdmqDL72BojM30VNJ2UHylr1o77U37Jw==}
     peerDependencies:
       webpack: '*'
@@ -5494,7 +5480,7 @@ packages:
       webpack-sources:
         optional: true
     dependencies:
-      webpack: 5.85.1(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      webpack: 5.86.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
       webpack-sources: 3.2.3
     dev: true
 
@@ -6115,7 +6101,7 @@ packages:
       react-dom: '>=16.9.0'
     dependencies:
       '@babel/runtime': 7.21.5
-      '@rc-component/portal': 1.1.0(react-dom@18.2.0)(react@18.2.0)
+      '@rc-component/portal': 1.1.1(react-dom@18.2.0)(react@18.2.0)
       classnames: 2.3.2
       rc-motion: 2.7.3(react-dom@18.2.0)(react@18.2.0)
       rc-util: 5.32.3(react-dom@18.2.0)(react@18.2.0)
@@ -6173,7 +6159,7 @@ packages:
       react-dom: '>=16.9.0'
     dependencies:
       '@babel/runtime': 7.21.5
-      '@rc-component/portal': 1.1.0(react-dom@18.2.0)(react@18.2.0)
+      '@rc-component/portal': 1.1.1(react-dom@18.2.0)(react@18.2.0)
       classnames: 2.3.2
       rc-dialog: 9.1.0(react-dom@18.2.0)(react@18.2.0)
       rc-motion: 2.7.3(react-dom@18.2.0)(react@18.2.0)
@@ -6899,7 +6885,7 @@ packages:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
     dev: true
 
-  /sass-loader@13.3.1(sass@1.62.1)(webpack@5.85.1):
+  /sass-loader@13.3.1(sass@1.63.1)(webpack@5.86.0):
     resolution: {integrity: sha512-cBTxmgyVA1nXPvIK4brjJMXOMJ2v2YrQEuHqLw3LylGb3gsR6jAvdjHMcy/+JGTmmIF9SauTrLLR7bsWDMWqgg==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
@@ -6920,12 +6906,12 @@ packages:
     dependencies:
       klona: 2.0.6
       neo-async: 2.6.2
-      sass: 1.62.1
-      webpack: 5.85.1(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      sass: 1.63.1
+      webpack: 5.86.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     dev: true
 
-  /sass@1.62.1:
-    resolution: {integrity: sha512-NHpxIzN29MXvWiuswfc1W3I0N8SXBd8UR26WntmDlRYf0bSADnwnOjsyMZ3lMezSlArD33Vs3YFhp7dWvL770A==}
+  /sass@1.63.1:
+    resolution: {integrity: sha512-brMIFnxuJmqbABUWHoKjKPjbKH4kOru9+tiplOOFjojolGTQAw8OZYs+EiLdpXeArYTcfd1/crVzScgRPvKm1A==}
     engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
@@ -7063,7 +7049,7 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /source-map-loader@4.0.1(webpack@5.85.1):
+  /source-map-loader@4.0.1(webpack@5.86.0):
     resolution: {integrity: sha512-oqXpzDIByKONVY8g1NUPOTQhe0UTU5bWUl32GSkqK2LjJj0HmwTMVKxcUip0RgAYhY1mqgOxjbQM48a0mmeNfA==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
@@ -7072,7 +7058,7 @@ packages:
       abab: 2.0.6
       iconv-lite: 0.6.3
       source-map-js: 1.0.2
-      webpack: 5.85.1(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      webpack: 5.86.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     dev: true
 
   /source-map-support@0.3.3:
@@ -7237,13 +7223,13 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /style-loader@3.3.3(webpack@5.85.1):
+  /style-loader@3.3.3(webpack@5.86.0):
     resolution: {integrity: sha512-53BiGLXAcll9maCYtZi2RCQZKa8NQQai5C4horqKyRmHj9H7QmcUyucrH+4KW/gBQbXM2AsB0axoEcFZPlfPcw==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
     dependencies:
-      webpack: 5.85.1(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      webpack: 5.86.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     dev: true
 
   /stylis@4.1.3:
@@ -7337,7 +7323,7 @@ packages:
       streamx: 2.13.2
     dev: false
 
-  /terser-webpack-plugin@5.3.7(webpack@5.85.1):
+  /terser-webpack-plugin@5.3.7(webpack@5.86.0):
     resolution: {integrity: sha512-AfKwIktyP7Cu50xNjXF/6Qb5lBNzYaWpU6YfoX3uZicTx0zTy0stDDCsvjDapKsSDvOeWo5MEq4TmdBy2cNoHw==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -7358,7 +7344,7 @@ packages:
       schema-utils: 3.1.2
       serialize-javascript: 6.0.1
       terser: 5.16.9
-      webpack: 5.85.1(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      webpack: 5.86.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     dev: true
 
   /terser@5.16.9:
@@ -7455,7 +7441,7 @@ packages:
       url-parse: 1.5.10
     dev: false
 
-  /ts-loader@9.4.3(typescript@5.1.3)(webpack@5.85.1):
+  /ts-loader@9.4.3(typescript@5.1.3)(webpack@5.86.0):
     resolution: {integrity: sha512-n3hBnm6ozJYzwiwt5YRiJZkzktftRpMiBApHaJPoWLA+qetQBAXkHqCLM6nwSdRDimqVtA5ocIkcTRLMTt7yzA==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -7467,7 +7453,7 @@ packages:
       micromatch: 4.0.5
       semver: 7.3.8
       typescript: 5.1.3
-      webpack: 5.85.1(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      webpack: 5.86.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     dev: true
 
   /tslib@1.14.1:
@@ -7791,8 +7777,8 @@ packages:
     engines: {node: '>=10.13.0'}
     dev: true
 
-  /webpack@5.85.1(patch_hash=oyfbpynob4llk6lrrm2cafduym):
-    resolution: {integrity: sha512-xTb7MRf4LY8Z5rzn7aIx4TDrwYJrjcHnIfU1TqtyZOoObyuGSpAUwIvVuqq5wPnv7WEgQr8UvO1q/dgoGG4HjA==}
+  /webpack@5.86.0(patch_hash=oyfbpynob4llk6lrrm2cafduym):
+    resolution: {integrity: sha512-3BOvworZ8SO/D4GVP+GoRC3fVeg5MO4vzmq8TJJEkdmopxyazGDxN8ClqN12uzrZW9Tv8EED8v5VSb6Sqyi0pg==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     peerDependencies:
@@ -7822,7 +7808,7 @@ packages:
       neo-async: 2.6.2
       schema-utils: 3.1.2
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.7(webpack@5.85.1)
+      terser-webpack-plugin: 5.3.7(webpack@5.86.0)
       watchpack: 2.4.0
       webpack-sources: 3.2.3
     transitivePeerDependencies:
