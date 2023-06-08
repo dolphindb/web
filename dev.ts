@@ -258,7 +258,6 @@ const info =
 console.log(
     '\n' +
     '开发服务器启动成功，请使用浏览器打开:\n'.green +
-    'web:\n' +
     info +
     '终端快捷键:\n' +
     'r: 重新编译\n' +
