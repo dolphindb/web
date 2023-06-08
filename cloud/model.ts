@@ -60,6 +60,8 @@ export class CloudModel extends Model <CloudModel> {
     
     view: PageViews = 'cluster'
     
+    username = ''
+    
     is_shell = new URLSearchParams(location.search).get('view') === 'shell'
     
     clusters: Cluster[] = [ ]
@@ -90,6 +92,7 @@ export class CloudModel extends Model <CloudModel> {
             this.get_namespaces(),
             this.get_storageclasses(),
             this.get_versions(),
+            this.get_username()
         ])
         
         this.get_license_server_address()
@@ -163,6 +166,14 @@ export class CloudModel extends Model <CloudModel> {
             this.show_json_error(error)
             throw error
         }
+    }
+    
+    /** 获取用户名 */
+    async get_username () {
+        const { username } = await request_json<{ username: string }>('/v1/auth/user')
+        this.set({
+            username
+        })
     }
     
     async get_license_server_address () {
