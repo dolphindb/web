@@ -60,8 +60,6 @@ export class CloudModel extends Model <CloudModel> {
     
     view: PageViews = 'cluster'
     
-    username = ''
-    
     is_shell = new URLSearchParams(location.search).get('view') === 'shell'
     
     clusters: Cluster[] = [ ]

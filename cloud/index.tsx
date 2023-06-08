@@ -60,12 +60,11 @@ const svgs: { [key in PageViews]: any } = {
 } as const
 
 function DolphinDB () {
-    const { authed, inited, is_shell, username } = model.use(['authed', 'inited', 'is_shell', 'username'])
+    const { authed, inited, is_shell } = model.use(['authed', 'inited', 'is_shell'])
     
     const [form] = Form.useForm()
     
     const [isModalOpen, setIsModalOpen] = useState(false)
-    
     
     useEffect(() => {
         // 最开始状态一定为 pending，此时判断之前是否已经登录过，如果登录过则 authed 直接设置为 yes
@@ -107,7 +106,7 @@ function DolphinDB () {
                     onFinish={async ({ username, password }: { username: string, password: string }) => {
                         try {
                             await model.auth(username, password)
-                            model.set({ username })
+                            localStorage.setItem('username', username)
                         } catch (error) {
                             Modal.error({
                                 title: t('登录失败'),
@@ -156,14 +155,16 @@ function DolphinDB () {
                                         icon: <LoginOutlined />,
                                         label: <a className='login' onClick={() => { 
                                                 Cookies.remove('jwt', { path: '/v1/' })
-                                                model.set({ authed: 'no', username: '' }) }}
+                                                model.set({ authed: 'no' })
+                                                localStorage.removeItem('username')
+                                            }}
                                             >{t('登出')}</a>,
                                     }
                                 ]
                             }}
                         >
                             <a className='username'>
-                                <Avatar className='avatar' icon={<UserOutlined /> } size='small' />{username} <DownOutlined />
+                                <Avatar className='avatar' icon={<UserOutlined /> } size='small' />{localStorage.getItem('username')} <DownOutlined />
                             </a>
                         </Dropdown>
                     </div>
@@ -197,12 +198,13 @@ function DolphinDB () {
                                 if (new_password === repeat_password) {
                                     setIsModalOpen(false)
                                     try {
-                                        await model.change_password(username, new_password)
+                                        await model.change_password(localStorage.getItem('username'), new_password)
                                     } catch (error) {      
                                         model.show_json_error(error)
                                         throw error
                                     }
                                     model.set({ authed: 'no' })
+                                    localStorage.removeItem('username')
                                     Cookies.remove('jwt', { path: '/v1/' })
                                     form.resetFields(['new_password', 'repeat_password'])
                                 }
