@@ -1,6 +1,7 @@
 import './index.sass'
 
-import { default as React, useEffect, useState } from 'react'
+import { default as React, useMemo } from 'react'
+import { MonacoDolphinDBEditor } from 'monaco-dolphindb/react'
 
 import { Editor as MonacoEditor, loader, type OnChange, type OnMount } from '@monaco-editor/react'
 
@@ -12,13 +13,7 @@ import { loadWASM } from 'vscode-oniguruma'
 
 
 import { t, language } from '../../../i18n/index.js'
-
 import { model } from '../../model.js'
-
-import { register_tokenizer, inject_css } from './tokenizer.js'
-import { load_docs, register_docs, set_details_visible } from './docs.js'
-import { settings } from './settings.js'
-
 
 // 在 React DevTool 中显示的组件名字
 MonacoEditor.displayName = 'MonacoEditor'
@@ -39,17 +34,19 @@ loader.config({
     } : { },
 })
 
+async function beforeMonacoEditorInit () {
+    return loadWASM(await fetch('./vendors/vscode-oniguruma/release/onig.wasm'))
+}
 
-let monaco: Monaco
-
-let monaco_initing = false
-
+async function onMonacoInitFailed (error: Error) {
+    model.show_error({ error })
+}
 
 export function Editor ({
     readonly,
     default_value,
     value,
-    minimap,
+    minimap = false,
     enter_completion,
     on_mount,
     on_change,
@@ -64,92 +61,45 @@ export function Editor ({
     on_change?: OnChange
     options?: monacoapi.editor.IStandaloneEditorConstructionOptions
 }) {
-    const [monaco_inited, set_monaco_inited] = useState(Boolean(monaco))
     
-    useEffect(() => {
-        (async () => {
-            if (!monaco && !monaco_initing) {
-                monaco_initing = true
-                
-                try {
-                    let _monaco = await loader.init() as typeof monacoapi
-                    
-                    const pdocs = load_docs()
-                    
-                    // Using the response directly only works if the server sets the MIME type 'application/wasm'.
-                    // Otherwise, a TypeError is thrown when using the streaming compiler.
-                    // We therefore use the non-streaming compiler :(.
-                    await loadWASM(await fetch('./vendors/vscode-oniguruma/release/onig.wasm'))
-                    
-                    let { languages } = _monaco
-                    
-                    languages.register({ id: 'dolphindb' })
-                    
-                    await register_tokenizer(languages)
-                    
-                    register_docs(languages)
-                    
-                    await document.fonts.ready
-                    
-                    await pdocs
-                    
-                    monaco = _monaco
-                    
-                    set_monaco_inited(true)
-                    
-                    console.log('monaco 已初始化')
-                } catch (error) {
-                    model.show_error(error)
-                    throw error
-                } finally {
-                    monaco_initing = false
-                }
-            }
-        })()
-    }, [ ])
+    const finalOptions = useMemo<monacoapi.editor.IStandaloneEditorConstructionOptions>(() => {
+        return {
+            fontSize: 16,
+            
+            minimap: { enabled: minimap },
+            
+            acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
+            
+            ... readonly ? {
+                readOnly: true,
+                domReadOnly: true,
+            } : { },
+            
+            ...options,
+        }
+    }, [ minimap, enter_completion, readonly, options ])
     
-    
-    return monaco_inited ?
-        <MonacoEditor
+    return <MonacoDolphinDBEditor
+            dolphinDBLanguageOptions={{
+                docs: `docs.${ language === 'zh' ? 'zh' : 'en' }.json`
+            }}
             wrapperProps={{ className: 'monaco-editor-container' }}
-            
-            defaultLanguage='dolphindb'
-            
-            language='dolphindb'
             
             value={value}
             
             defaultValue={default_value}
             
-            options={{
-                ...settings,
-                
-                minimap: {
-                    ... settings.minimap,
-                    ... minimap === undefined ? { } : { enabled: minimap }
-                },
-                
-                acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
-                
-                ... readonly ? {
-                    readOnly: true,
-                    domReadOnly: true,
-                } : { },
-                
-                ...options,
-            }}
+            loading={<div className='editor-loading'>{t('正在加载代码编辑器...')}</div>}
+        
+            beforeMonacoInit={beforeMonacoEditorInit}
             
-            onMount={(editor, monaco) => {
-                set_details_visible(editor)
-                
-                inject_css()
-                
-                on_mount?.(editor, monaco)
-            }}
+            onMonacoInitFailed={onMonacoInitFailed}
+            
+            options={finalOptions}
+            
+            onMount={on_mount}
             
             onChange={on_change}
         />
-    :
-        <div className='editor-loading'>{t('正在加载代码编辑器...')}</div>
 }
 
