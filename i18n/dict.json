@@ -1421,8 +1421,8 @@
     "运行中_backup": {
         "en": "Running"
     },
-    "运行完成": {
-        "en": "Complete"
+    "运行成功": {
+        "en": "Succeeded"
     },
     "运行失败_backup": {
         "en": "Failed"

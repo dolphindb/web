@@ -72,7 +72,7 @@ export class CloudModel extends Model <CloudModel> {
     
     storageclasses: StorageClass[] = [ ]
     
-    versions: string[] = [ ]
+    versions = [ ]
     
     show_all_config = false
     
