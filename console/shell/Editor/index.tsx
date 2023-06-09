@@ -1,7 +1,6 @@
 import './index.sass'
 
 import { default as React, useMemo } from 'react'
-import { MonacoDolphinDBEditor } from 'monaco-dolphindb/react'
 
 import { Editor as MonacoEditor, loader, type OnChange, type OnMount } from '@monaco-editor/react'
 
@@ -9,10 +8,13 @@ import type monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 export type Monaco = typeof monacoapi
 export type { monacoapi }
 
+import { MonacoDolphinDBEditor } from 'monaco-dolphindb/react'
+
 import { loadWASM } from 'vscode-oniguruma'
 
 
 import { t, language } from '../../../i18n/index.js'
+
 import { model } from '../../model.js'
 
 // 在 React DevTool 中显示的组件名字
@@ -34,13 +36,6 @@ loader.config({
     } : { },
 })
 
-async function beforeMonacoEditorInit () {
-    return loadWASM(await fetch('./vendors/vscode-oniguruma/release/onig.wasm'))
-}
-
-async function onMonacoInitFailed (error: Error) {
-    model.show_error({ error })
-}
 
 export function Editor ({
     readonly,
@@ -62,8 +57,7 @@ export function Editor ({
     options?: monacoapi.editor.IStandaloneEditorConstructionOptions
 }) {
     
-    const finalOptions = useMemo<monacoapi.editor.IStandaloneEditorConstructionOptions>(() => {
-        return {
+    const finalOptions = useMemo<monacoapi.editor.IStandaloneEditorConstructionOptions>(() => ({
             fontSize: 16,
             
             minimap: { enabled: minimap },
@@ -76,13 +70,15 @@ export function Editor ({
             } : { },
             
             ...options,
-        }
-    }, [ minimap, enter_completion, readonly, options ])
+        }),
+        [minimap, enter_completion, readonly, options]
+    )
     
     return <MonacoDolphinDBEditor
             dolphinDBLanguageOptions={{
                 docs: `docs.${ language === 'zh' ? 'zh' : 'en' }.json`
             }}
+            
             wrapperProps={{ className: 'monaco-editor-container' }}
             
             value={value}
@@ -90,10 +86,10 @@ export function Editor ({
             defaultValue={default_value}
             
             loading={<div className='editor-loading'>{t('正在加载代码编辑器...')}</div>}
-        
-            beforeMonacoInit={beforeMonacoEditorInit}
             
-            onMonacoInitFailed={onMonacoInitFailed}
+            beforeMonacoInit={async () => loadWASM(await fetch('./vendors/vscode-oniguruma/release/onig.wasm')) }
+            
+            onMonacoInitFailed={error => { model.show_error({ error }) }}
             
             options={finalOptions}
             
