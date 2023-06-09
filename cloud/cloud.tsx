@@ -335,10 +335,10 @@ function Clusters () {
                     dataIndex: 'version',
                     sorter: { multiple: 3 },
                     render: (value, cluster) => cluster.version + (cluster.enable_jit ? '-JIT' : ''),
-                    filters: versions.map(version => {
+                    filters: versions.map(v => {
                         return {
-                            text: version,
-                            value: version
+                            text: v.version,
+                            value: v.version
                         }
                     })
                 },
@@ -521,7 +521,7 @@ function Clusters () {
                                     <Select>
                                         {
                                             versions.length !== 0 ?
-                                                versions.map(v => <Option value={v} key={v}>{v}</Option>)
+                                                versions.map(v => <Option value={v.version} key={v.version}>{v.version}</Option>)
                                                 :
                                                 // eslint-disable-next-line
                                                 <Option value=''>{''}</Option>
@@ -762,11 +762,25 @@ function CreateClusterPanel ({
     
     const [cluster_type, set_cluster_type] = useState<ClusterType>('multicontroller')
     
+    const versions_with_licencese_server = new Set()
+    
+    const versions_with_jit = new Set()
+    
+    const versions_name = [ ]
+    
+    for (const { version, is_support_license_server, is_support_jit } of versions) {
+        versions_name.push(version)
+        if (is_support_license_server)
+            versions_with_licencese_server.add(version)
+        if (is_support_jit)
+            versions_with_jit.add(version)
+    }
+  
     const onSubmit = async () => {
     
         let values = await form.validateFields()
         
-        const { mode, cluster_type } = values
+        const { mode, cluster_type, license_server_address } = values
         
         values.datanode.data_size = Number(values.datanode.data_size)
         
@@ -776,6 +790,8 @@ function CreateClusterPanel ({
         if (mode === 'standalone')
             delete values.controller
         
+        if (license_server_address === '')
+            values.license_server_address = 'None'    
         
         ;(['controller', 'datanode', 'computenode'] as const).forEach(node_type => {
             if (values[node_type]?.resources.limits.memory.value !== undefined)
@@ -842,7 +858,7 @@ function CreateClusterPanel ({
             initialValues={{
                 mode,
                 cluster_type,
-                version: versions.length !== 0 ? versions[0] : '',
+                version: versions.length !== 0 ? versions[0].version : '',
                 controller: {
                     replicas: 3,
                     data_size: 1,
@@ -947,8 +963,8 @@ function CreateClusterPanel ({
                             <Form.Item name='version' label={t('版本')} rules={[{ required: true }]}>
                                 <Select>
                                     {
-                                        versions.length !== 0 ?
-                                            versions.map(v => <Option value={v} key={v}>{v}</Option>)
+                                        versions_name.length  ?
+                                            versions_name.map(v => <Option value={v} key={v}>{v}</Option>)
                                             :
                                             // eslint-disable-next-line
                                             <Option value=''>{''}</Option>
@@ -984,10 +1000,18 @@ function CreateClusterPanel ({
                             >
                                 <Input />
                             </Form.Item>
-                        
-                            <Form.Item name='enable_jit' label={t('启用 JIT')} valuePropName='checked'>
-                                <Switch />
+                            
+                            <Form.Item noStyle dependencies={[['version']]}>
+                                {({ getFieldValue }) => {
+                                    const version = getFieldValue('version')     
+                                    if (!versions_with_jit.has(version) ) 
+                                        return <Form.Item/>
+                                    return  <Form.Item name='enable_jit' label={t('启用 JIT')} valuePropName='checked'>
+                                                <Switch />
+                                            </Form.Item>
+                                }}
                             </Form.Item>
+                           
                             
                             <Form.Item name='log_mode' label={t('日志模式')} rules={[{ required: true }]}>
                                 <Select>
@@ -1021,16 +1045,10 @@ function CreateClusterPanel ({
                         <Col span={12}>
                             <Form.Item noStyle dependencies={[['version']]}>
                                 {({ getFieldValue }) => {
-                                    const version: string = getFieldValue('version')
-                                    
-                                    if (version.startsWith('v1'))
-                                        if (version.slice(1, version.length) < '1.30.21')
-                                            return
-                                            
-                                    if (version.startsWith('v2'))
-                                        if (version.slice(1, version.length) < '2.00.9')
-                                            return
-                                            
+                                    const version = getFieldValue('version')     
+   
+                                    if (!versions_with_licencese_server.has(version) ) 
+                                        return
                                     return <Form.Item label={t('License Server 地址')} name='license_server_address'>
                                             <Input />
                                         </Form.Item>
@@ -2600,7 +2618,7 @@ const node_status_translations = {
 
 const backup_status_translations = {
     Running: t('运行中', { context: 'backup' }),
-    Complete: t('运行完成'),
+    Complete: t('运行成功'),
     Scheduling: t('调度中', { context: 'backup' }),
     Failed: t('运行失败', { context: 'backup' }),
     
@@ -2948,8 +2966,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                 name='source_key'
                                 rules={[{ required: true, message: t('此项必填') }]}
                             >
-                                <Select placeholder='source_key'
-                                
+                                <Select placeholder=''
                                     onSelect={async value => {
                                         // danger area start
                                         try {
