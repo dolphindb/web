@@ -2,7 +2,7 @@
     "name": "dolphindb-web",
     "type": "module",
     "engines": {
-        "node": ">=19.7.0"
+        "node": ">=20.3.0"
     },
     "scripts": {
         "install.ci": "pnpm ci --include=dev",
@@ -77,10 +77,10 @@
         "vscode-oniguruma": "^1.7.0",
         "vscode-textmate": "^9.0.0",
         "xshell": "^1.0.30",
-        "xterm": "^5.1.0",
+        "xterm": "^5.2.0",
         "xterm-addon-fit": "^0.7.0",
         "xterm-addon-web-links": "^0.8.0",
-        "xterm-addon-webgl": "^0.14.0"
+        "xterm-addon-webgl": "^0.15.0"
     },
     "pnpm": {
         "patchedDependencies": {
