@@ -1741,5 +1741,17 @@
     },
     "确认": {
         "en": "Confirm"
+    },
+    "刷新信息": {
+        "en": "Refresh"
+    },
+    "启动节点": {
+        "en": "Start node"
+    },
+    "停止节点": {
+        "en": "Stop node"
+    },
+    "集群节点配置": {
+        "en": "Cluster node configuration"
     }
 }
