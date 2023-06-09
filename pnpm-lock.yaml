@@ -61,6 +61,9 @@ dependencies:
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
+  monaco-dolphindb:
+    specifier: 0.0.2
+    version: 0.0.2(dolphindb@2.0.974)(monaco-editor@0.39.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0)
   monaco-editor:
     specifier: ^0.39.0
     version: 0.39.0
@@ -86,17 +89,17 @@ dependencies:
     specifier: ^1.0.30
     version: 1.0.30(react-dom@18.2.0)
   xterm:
-    specifier: ^5.1.0
-    version: 5.1.0
+    specifier: ^5.2.0
+    version: 5.2.0
   xterm-addon-fit:
     specifier: ^0.7.0
-    version: 0.7.0(xterm@5.1.0)
+    version: 0.7.0(xterm@5.2.0)
   xterm-addon-web-links:
     specifier: ^0.8.0
-    version: 0.8.0(xterm@5.1.0)
+    version: 0.8.0(xterm@5.2.0)
   xterm-addon-webgl:
-    specifier: ^0.14.0
-    version: 0.14.0(xterm@5.1.0)
+    specifier: ^0.15.0
+    version: 0.15.0(xterm@5.2.0)
 
 devDependencies:
   '@svgr/webpack':
@@ -5608,6 +5611,25 @@ packages:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
     dev: false
 
+  /monaco-dolphindb@0.0.2(dolphindb@2.0.974)(monaco-editor@0.39.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0):
+    resolution: {integrity: sha512-P9NJfHNndTpUAIM4XCIYpLz1+SxXUapcwanEhWmSgUGBdv7BGorb4NX6JuKsd81CRikeTrE+PpvPMNgHcFX3Gw==}
+    peerDependencies:
+      dolphindb: ^2.0.974
+      monaco-editor: ^0.39.0
+      vscode-oniguruma: ^1.7.0
+      vscode-textmate: ^9.0.0
+    dependencies:
+      dolphindb: 2.0.974(react-dom@18.2.0)
+      monaco-editor: 0.39.0
+      vscode-oniguruma: 1.7.0
+      vscode-textmate: 9.0.0
+    optionalDependencies:
+      '@monaco-editor/react': 4.5.1(monaco-editor@0.39.0)(react-dom@18.2.0)(react@18.2.0)
+    transitivePeerDependencies:
+      - react
+      - react-dom
+    dev: false
+
   /monaco-editor@0.39.0:
     resolution: {integrity: sha512-zhbZ2Nx93tLR8aJmL2zI1mhJpsl87HMebNBM6R8z4pLfs8pj604pIVIVwyF1TivcfNtIPpMXL+nb3DsBmE/x6Q==}
     dev: false
@@ -7958,32 +7980,32 @@ packages:
     engines: {node: '>=0.4'}
     dev: false
 
-  /xterm-addon-fit@0.7.0(xterm@5.1.0):
+  /xterm-addon-fit@0.7.0(xterm@5.2.0):
     resolution: {integrity: sha512-tQgHGoHqRTgeROPnvmtEJywLKoC/V9eNs4bLLz7iyJr1aW/QFzRwfd3MGiJ6odJd9xEfxcW36/xRU47JkD5NKQ==}
     peerDependencies:
       xterm: ^5.0.0
     dependencies:
-      xterm: 5.1.0
+      xterm: 5.2.0
     dev: false
 
-  /xterm-addon-web-links@0.8.0(xterm@5.1.0):
+  /xterm-addon-web-links@0.8.0(xterm@5.2.0):
     resolution: {integrity: sha512-J4tKngmIu20ytX9SEJjAP3UGksah7iALqBtfTwT9ZnmFHVplCumYQsUJfKuS+JwMhjsjH61YXfndenLNvjRrEw==}
     peerDependencies:
       xterm: ^5.0.0
     dependencies:
-      xterm: 5.1.0
+      xterm: 5.2.0
     dev: false
 
-  /xterm-addon-webgl@0.14.0(xterm@5.1.0):
-    resolution: {integrity: sha512-zcxL4RVVjeS7NNFeKe5HHQI8OUEx3wZpE4EqLoTVipa2UrTR+qLsigo16UEp/yVcYBMhK7tsJ/AJokoEe/f0mw==}
+  /xterm-addon-webgl@0.15.0(xterm@5.2.0):
+    resolution: {integrity: sha512-ZLcqogMFHr4g/YRhcCh3xE8tTklnyut/M+O/XhVsFBRB/YCvYhPdLQ5/AQk54V0wjWAQpa8CF3W8DVR9OqyMCg==}
     peerDependencies:
       xterm: ^5.0.0
     dependencies:
-      xterm: 5.1.0
+      xterm: 5.2.0
     dev: false
 
-  /xterm@5.1.0:
-    resolution: {integrity: sha512-LovENH4WDzpwynj+OTkLyZgJPeDom9Gra4DMlGAgz6pZhIDCQ+YuO7yfwanY+gVbn/mmZIStNOnVRU/ikQuAEQ==}
+  /xterm@5.2.0:
+    resolution: {integrity: sha512-C1NXTZYfXPTXzF7uw7Ao6/IFGrtAkHv4e/PCQRpgYHyMobvaRs3nJNGK32hX/skdMUQJ6yhSnyzfmWCQwG9qvg==}
     dev: false
 
   /yallist@3.1.1:
