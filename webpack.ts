@@ -10,7 +10,7 @@ import { default as Webpack, type Compiler, type Configuration, type Stats } fro
 
 import type { Options as TSLoaderOptions } from 'ts-loader'
 
-import sass from 'sass'
+import * as sass from 'sass'
 import type { Options as SassOptions } from 'sass-loader'
 
 import { fexists, Lock } from 'xshell'
