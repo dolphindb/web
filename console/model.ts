@@ -76,6 +76,8 @@ export class DdbModel extends Model<DdbModel> {
     datanode: DdbNode
     // --- 
     
+    /** 保存节点的选中状态 */
+    nodeChecked: Object
     
     version: string
     
