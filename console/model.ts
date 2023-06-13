@@ -737,7 +737,7 @@ export enum NodeType {
 }
 
 
-interface DdbNode {
+export interface DdbNode {
     name: string
     state: DdbNodeState
     mode: NodeType
@@ -885,7 +885,7 @@ export interface DdbJob {
 }
 
 
-enum DdbNodeState {
+export enum DdbNodeState {
     online = 1,
     offline = 0,
 }

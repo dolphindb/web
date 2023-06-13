@@ -10,7 +10,149 @@
             display: flex
             
             gap: 10px
+
+        .icon-refresh, .icon-start, .icon-stop
+            font-size: 13px
+           
+            display: flex
+            align-items: center
+            justify-content: center
+            // height: 100%
     
+    .content
+        .nodes-header
+            display: flex
+            align-items: center
+            margin: 21px 0
+            font-weight: 600
+            color: #666666
+            .nodes-selectAll
+                zoom: 120%
+                margin: 0px 10px 0 16px
+            .text-selectAll
+                font-weight: 400
+        .node
+            box-shadow: 0px 2px 10px rgba(51, 51, 51, 0.08)
+            border-radius: 10px
+            margin-bottom: 20px
+            
+
+        .data-color
+            background: linear-gradient(270deg, rgba(189, 217, 254, 0) 0%, rgba(189, 217, 254, 0) 34.9%, #BDD9FE 100%)
+
+        .agent-color
+            background: linear-gradient(270deg, rgba(255, 206, 79, 0) 0%, rgba(255, 206, 79, 0) 34.9%, #979797 100%)
+
+        .controller-color
+            background: linear-gradient(270deg, rgba(229, 223, 254, 0) 0%, rgba(229, 223, 254, 0) 34.9%, #E5DFFE 100%)
+
+        .computing-color
+            background: linear-gradient(270deg, rgba(255, 206, 79, 0) 0%, rgba(255, 206, 79, 0) 34.9%, #FFCE4F 100%)
+
+        .node-header
+            display: flex
+            align-items: center
+            justify-content: end
+            height: 60px
+            position: relative
+            border-radius: 10px 10px 0px 0px
+
+            .node-chosen
+                width: 16px
+                height: 16px
+                border-radius: 2px
+                margin: 0 18px 0 16px
+
+            .node-title
+                display: flex
+                align-items: center
+                font-size: 22px
+                color: #412A9F
+                font-weight: 600
+                flex: 1
+                
+            .leader-tag
+                width: 49px
+                color:#412A9F
+                margin-left: 9px
+
+            .node-site
+                margin-right: 30px
+                color: #333
+
+            .node-status
+                font-size: 14px
+                color: #999999
+                margin-right: 10px
+                position: absolute
+                right: 1%
+
+            .offline
+                width: 151px
+                height: 60px
+                background-size: 100%
+                background-image: url(./offline.png)
+                background-repeat: no-repeat
+
+            .online
+                width: 151px
+                height: 60px
+                background-size: 100%
+                background-image: url(./online.png)
+                background-repeat: no-repeat
+        
+        .node-body
+            display: flex
+            justify-content: start
+            margin: 21px 0 0 30px
+            height: 277px
+                
+            .info-card
+                display: flex
+                flex-direction: column
+                padding: 0 15px 0 15px
+                height: 200px
+                border-right: 1px solid #ECECEC
+                
+                .info-title
+                    height: 22px
+                    display: flex
+                    align-items: stretch
+            
+                    .title-text
+                        font-weight: 600
+                        font-size: 16px
+                        color: #6A7B97
+                        margin-left: 18px
+
+                .info-body
+                    display: flex
+                    justify-content: center
+                    .info-table
+                        min-height: 60px
+                        display: grid  
+                        grid-auto-flow: column
+                        grid-column-gap: 10px
+                        grid-template-rows: 100px 60px
+                        justify-content: start
+                        .item-content
+                            margin: 22px 21px 34px 0
+                            min-width: 60px
+                            max-width: 150px
+                            .item-title
+                                color:#6A7B97
+                                margin-bottom: 9px
+                            .item-body
+                                .info-text
+                                    font-size: 20px
+                                    color: #000
+                                    padding: 9px 0 10px 0
+                                    white-space: nowrap
+        
+        .node-body-fold
+            display: none
+            
+
 .nodes-modal, .controller-modal, .datanode-modal
     iframe
         border: none
