@@ -69,7 +69,7 @@ import SvgShell from './shell/index.icon.svg'
 import SvgDashboard from './dashboard.icon.svg'
 import SvgJob from './job.icon.svg'
 import SvgLog from './log.icon.svg'
-import SvgArrowDown from './arrow.down.icon.svg'
+import SvgArrowDown from './icons/arrow.down.icon.svg'
 
 
 const { Text } = Typography
