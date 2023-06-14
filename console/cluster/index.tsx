@@ -1,4 +1,4 @@
-import './cluster.sass'
+import './index.sass'
 
 import { default as React, ReactNode, useState } from 'react'
 
@@ -6,20 +6,20 @@ import { Button, Modal, Tooltip, Progress, Tag, Checkbox } from 'antd'
 import { default as _Icon,  SettingOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
-import SvgRefresh from './refresh.icon.svg'
-import SvgStart from './start.icon.svg'
-import SvgStop from './stop.icon.svg'
-import SvgCPU from './cpu.icon.svg'
-import SvgMemory from './memory.icon.svg'
-import SvgDisk from './disk.icon.svg'
-import SvgNetwork from './network.icon.svg'
-import SvgTask from './task.icon.svg'
-import SvgExport from './export.icon.svg'
+import SvgRefresh from './icons/refresh.icon.svg'
+import SvgStart from './icons/start.icon.svg'
+import SvgStop from './icons/stop.icon.svg'
+import SvgCPU from './icons/cpu.icon.svg'
+import SvgMemory from './icons/memory.icon.svg'
+import SvgDisk from './icons/disk.icon.svg'
+import SvgNetwork from './icons/network.icon.svg'
+import SvgTask from './icons/task.icon.svg'
+import SvgExport from './icons/export.icon.svg'
 
 
-import { t } from '../i18n/index.js'
+import { t } from '../../i18n/index.js'
 
-import { NodeType, DdbNode, DdbNodeState, model } from './model.js'
+import { NodeType, DdbNode, DdbNodeState, model } from '../model.js'
 
 export function Cluster () {
     const { node_type, cdn } = model.use(['node_type', 'cdn'])

@@ -223,7 +223,6 @@ function Clusters () {
     
     const [update_modal_open, set_update_modal_open] = useState(false)
     const [update_form] = Form.useForm()
-  
     
     // 3种node_type X [cpu, memory] X [上限(limist)，下限(requests)] 共12种组合，每个组合代表一个Form.Item，需要一个校验函数，所以一共需要构造12个校验函数
     function create_validate_limit_function (node_type: 'controller' | 'datanode' | 'computenode', limitField: 'cpu' | 'memory', is_lowerLimit: boolean) {
@@ -519,8 +518,7 @@ function Clusters () {
                         <Row className='row-left-margin'>
                             <Col span={12}>
                                 <Form.Item name='version' label={t('版本')} rules={[{ required: true }]} >
-                                    <Select
-                                    >    
+                                    <Select>
                                         {
                                             versions.length !== 0 ?
                                                 versions.map(v => <Option value={v.version} key={v.version}>{v.version}</Option>)
