@@ -21,9 +21,11 @@ import { t } from '../../i18n/index.js'
 
 import { NodeType, DdbNode, DdbNodeState, model } from '../model.js'
 
+
 export function Overview () {
     const { node_type, cdn } = model.use(['node_type', 'cdn'])
     const { nodes } = model.use(['nodes'])
+    
     const controllerNodes: DdbNode[] = [ ]
     const dataNodes: DdbNode[] = [ ]
     const agentNodes: DdbNode[] = [ ]
@@ -64,6 +66,7 @@ export function Overview () {
     dataNodes.map(node => { isChecked[t('数据节点')].oneChosen.set(node.name, false), isFolded[t('数据节点')].set(node.name, true) })
     agentNodes.map(node => { isChecked[t('代理节点')].oneChosen.set(node.name, false), isFolded[t('代理节点')].set(node.name, true) })
     computingNodes.map(node => { isChecked[t('计算节点')].oneChosen.set(node.name, false), isFolded[t('计算节点')].set(node.name, true) })
+    
     model.set({ nodeChecked: isChecked, nodeFolded: isFolded })
     
     return <>
@@ -102,6 +105,7 @@ export function Overview () {
                 />
             </div> }
         </div>
+        
         <NodeCard/>
     </>
 }
