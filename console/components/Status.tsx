@@ -1,6 +1,7 @@
 import { default as React } from 'react'
 
 import { Tag, Popover, Descriptions, Card, Tooltip } from 'antd'
+import { SyncOutlined } from '@ant-design/icons'
 
 import { t } from '../../i18n/index.js'
 
