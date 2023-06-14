@@ -47,17 +47,24 @@ export function Cluster () {
         }
         
     const isChecked = {
-        控制节点: { allChosen: false, halfChosen: false, oneChosen: new Map() },
-        数据节点: { allChosen: false, halfChosen: false, oneChosen: new Map() },
-        计算节点: { allChosen: false, halfChosen: false, oneChosen: new Map() },
-        代理节点: { allChosen: false, halfChosen: false, oneChosen: new Map() }
+        [t('控制节点')]: { allChosen: false, halfChosen: false, oneChosen: new Map() },
+        [t('数据节点')]: { allChosen: false, halfChosen: false, oneChosen: new Map() },
+        [t('计算节点')]: { allChosen: false, halfChosen: false, oneChosen: new Map() },
+        [t('代理节点')]: { allChosen: false, halfChosen: false, oneChosen: new Map() }
     }
     
-    controllerNodes.map(node => isChecked['控制节点'].oneChosen.set(node.name, false))
-    dataNodes.map(node => isChecked['数据节点'].oneChosen.set(node.name, false))
-    agentNodes.map(node => isChecked['代理节点'].oneChosen.set(node.name, false))
-    computingNodes.map(node => isChecked['计算节点'].oneChosen.set(node.name, false))
-    model.set({ nodeChecked: isChecked })
+    const isFolded = {
+        [t('控制节点')]:  new Map(),
+        [t('数据节点')]:  new Map(),
+        [t('计算节点')]:  new Map(),
+        [t('代理节点')]:  new Map() 
+    }
+    
+    controllerNodes.map(node => { isChecked[t('控制节点')].oneChosen.set(node.name, false), isFolded[t('控制节点')].set(node.name, node.isLeader ? true : false) })
+    dataNodes.map(node => { isChecked[t('数据节点')].oneChosen.set(node.name, false), isFolded[t('数据节点')].set(node.name, true) })
+    agentNodes.map(node => { isChecked[t('代理节点')].oneChosen.set(node.name, false), isFolded[t('代理节点')].set(node.name, true) })
+    computingNodes.map(node => { isChecked[t('计算节点')].oneChosen.set(node.name, false), isFolded[t('计算节点')].set(node.name, true) })
+    model.set({ nodeChecked: isChecked, nodeFolded: isFolded })
     
     return <>
         <div className='actions'>
@@ -134,7 +141,7 @@ function Node ({
 }) {
     const nodeColor = ['data-color', 'agent-color', 'controller-color', '', 'computing-color']
     const nodeStatus = [ 'offline', 'online']
-    const { nodeChecked } = model.use(['nodeChecked'])
+    const { nodeChecked, nodeFolded } = model.use(['nodeChecked', 'nodeFolded'])
     const { name,
         state,
         mode,
@@ -180,11 +187,11 @@ function Node ({
     const publicDomain = Array.isArray(publicName) ? publicName.map(val => val + ':' + port) : publicName + ':' + port 
     
     
-    const cpuInfo = { 占用: <div><div className='info-text'>{Math.round(cpuUsage) + '%'}</div><Progress percent={cpuUsage} showInfo={false} strokeColor='#FF7373' size={[100, 7]}/></div>,  
-                        work线程总数: <div className='info-text'>{workerNum}</div>, 
-                        平均负载: <div><div className='info-text'>{Math.round(avgLoad) + '%'}</div><Progress percent={avgLoad } showInfo={false} strokeColor='#A8EB7F' size={[100, 7]}/></div>,  
-                        executor线程总数: <div className='info-text'>{executorNum}</div> }
-    const memoryInfo = { 用量: Number(memoryUsed) / (1024 * 1024) < 1024 ? <div>
+    const cpuInfo = { [t('占用')]: <div><div className='info-text'>{Math.round(cpuUsage) + '%'}</div><Progress percent={cpuUsage} showInfo={false} strokeColor='#FF7373' size={[100, 7]}/></div>,  
+                        [t('work线程总数')]: <div className='info-text'>{workerNum}</div>, 
+                        [t('平均负载')]: <div><div className='info-text'>{Math.round(avgLoad) + '%'}</div><Progress percent={avgLoad } showInfo={false} strokeColor='#A8EB7F' size={[100, 7]}/></div>,  
+                        [t('executor线程总数')]: <div className='info-text'>{executorNum}</div> }
+    const memoryInfo = { [t('用量')]: Number(memoryUsed) / (1024 * 1024) < 1024 ? <div>
                                 <div className='info-text'>{(Number(memoryUsed) / (1024 * 1024)).toFixed(1) + ' MB / ' + maxMemSize + ' GB' }</div>
                                 <Progress percent={(Number(memoryUsed) / (maxMemSize * 1024 * 1024 * 1024)) * 100} showInfo={false} strokeColor='#FF7373' size={[100, 7]}/>
                                 </div> : <div>
@@ -192,41 +199,46 @@ function Node ({
                                 <Progress percent={(Number(memoryUsed) / (maxMemSize * 1024 * 1024 * 1024)) * 100} showInfo={false} strokeColor='#FF7373' size={[100, 7]}/>
                                 </div> 
                                 , 
-                            已分配: <div className='info-text'>{(Number(memoryAlloc) / (1024 * 1024)).toFixed(1) + ' MB'}</div> }
-    const diskInfo = { 读取: <div className='info-text'>{(Number(diskReadRate) / 1024 ).toFixed(2) + ' KB/s'}</div>, 
-                        前一分钟读取: <div className='info-text'>{(Number(lastMinuteReadVolume) / 1024 ).toFixed(2) + ' KB'}</div>,
-                        写入:  <div className='info-text'>{(Number(diskWriteRate) / 1024 ).toFixed(2) + ' KB/s'}</div>,  
-                        前一分钟写入: <div className='info-text'>{(Number(lastMinuteWriteVolume) / 1024 ).toFixed(2) + ' KB'}</div>, 
-                        用量: Number(diskCapacity - diskFreeSpace) / (1024 * 1024) < 1024 ? <div>
+                            [t('已分配')]: <div className='info-text'>{(Number(memoryAlloc) / (1024 * 1024)).toFixed(1) + ' MB'}</div> }
+    const diskInfo = {  [t('读取')]: <div className='info-text'>{(Number(diskReadRate) / 1024 ).toFixed(2) + ' KB/s'}</div>, 
+                        [t('前一分钟读取')]: <div className='info-text'>{(Number(lastMinuteReadVolume) / 1024 ).toFixed(2) + ' KB'}</div>,
+                        [t('写入')]:  <div className='info-text'>{(Number(diskWriteRate) / 1024 ).toFixed(2) + ' KB/s'}</div>,  
+                        [t('前一分钟写入')]: <div className='info-text'>{(Number(lastMinuteWriteVolume) / 1024 ).toFixed(2) + ' KB'}</div>, 
+                        [t('用量')]: Number(diskCapacity - diskFreeSpace) / (1024 * 1024) < 1024 ? <div>
                                 <div className='info-text'>{(Number(diskCapacity - diskFreeSpace) / (1024 * 1024)).toFixed(1) + ' MB / ' + Math.round((Number(diskCapacity) / (1024 * 1024 * 1024))) + ' GB' }</div>
                                 <Progress percent={(Number(diskCapacity - diskFreeSpace) / (Number(diskCapacity) * 1024 * 1024 * 1024)) * 100} showInfo={false} strokeColor='#FF7373' size={[100, 7]}/>
                             </div> : <div>
                                 <div className='info-text'>{(Number(diskCapacity - diskFreeSpace) / (1024 * 1024 * 1024)).toFixed(1) + ' GB / ' + Math.round((Number(diskCapacity) / (1024 * 1024 * 1024))) + ' GB' }</div>
                                 <Progress percent={(Number(diskCapacity - diskFreeSpace) / (Number(diskCapacity) * 1024 * 1024 * 1024)) * 100} showInfo={false} strokeColor='#FF7373' size={[100, 7]}/>
                             </div> }
-    const newworkInfo = { 当前连接: <div className='info-text'>{connectionNum}</div>, 
-                            最大连接: <div className='info-text'>{maxConnections}</div>, 
-                            接收: <div className='info-text'>{(Number(networkRecvRate) / 1024 ).toFixed(2) + ' KB'}</div>, 
-                            前一分钟接收: <div className='info-text'>{(Number(lastMinuteNetworkRecv) / 1024 ).toFixed(2) + ' KB'}</div>, 
-                            发送: <div className='info-text'>{(Number(networkSendRate) / 1024 ).toFixed(2) + ' KB'}</div>, 
-                            前一分钟发送: <div className='info-text'>{(Number(lastMinuteNetworkSend) / 1024 ).toFixed(2) + ' KB'}</div> } 
-    const taskInfo = { 运行作业: <div className='info-text'>{runningJobs}</div>,
-                        运行任务: <div className='info-text'>{runningTasks}</div>,  
-                        排队作业: <div className='info-text'>{queuedJobs}</div>, 
-                        排队任务: <div className='info-text'>{queuedTasks}</div>, 
-                        前一批消息延时: <div className='info-text'>{Number(lastMsgLatency) < Number.MIN_VALUE ? 0  + ' s' : Number(lastMsgLatency) + ' s'}</div>,  
-                        所有消息平均延时: <div className='info-text'>{Number(cumMsgLatency) < Number.MIN_VALUE ? 0  + ' s' : Number(cumMsgLatency) + ' s'}</div> }
+    const newworkInfo = { [t('当前连接')]: <div className='info-text'>{connectionNum}</div>, 
+                          [t('最大连接')]: <div className='info-text'>{maxConnections}</div>, 
+                          [t('接收')]: <div className='info-text'>{(Number(networkRecvRate) / 1024 ).toFixed(2) + ' KB'}</div>, 
+                          [t('前一分钟接收')]: <div className='info-text'>{(Number(lastMinuteNetworkRecv) / 1024 ).toFixed(2) + ' KB'}</div>, 
+                          [t('发送')]: <div className='info-text'>{(Number(networkSendRate) / 1024 ).toFixed(2) + ' KB'}</div>, 
+                          [t('前一分钟发送')]: <div className='info-text'>{(Number(lastMinuteNetworkSend) / 1024 ).toFixed(2) + ' KB'}</div> } 
+    const taskInfo = { [t('运行作业')]: <div className='info-text'>{runningJobs}</div>,
+                       [t('运行任务')]: <div className='info-text'>{runningTasks}</div>,  
+                       [t('排队作业')]: <div className='info-text'>{queuedJobs}</div>, 
+                       [t('排队任务')]: <div className='info-text'>{queuedTasks}</div>, 
+                       [t('前一批消息延时')]: <div className='info-text'>{Number(lastMsgLatency) < Number.MIN_VALUE ? 0  + ' s' : Number(lastMsgLatency) + ' s'}</div>,  
+                       [t('所有消息平均延时')]: <div className='info-text'>{Number(cumMsgLatency) < Number.MIN_VALUE ? 0  + ' s' : Number(cumMsgLatency) + ' s'}</div> }
                         
     function switchFold (event) {
         if (event.target.tagName === 'INPUT' || event.target.tagName === 'A')
             return
-        let parentNode = event.currentTarget.parentNode
-        let brotherNode = parentNode.children[1]
-        console.log(brotherNode.classList)
-        if (brotherNode.className === 'node-body')
-            event.currentTarget.parentNode.children[1].className = 'node-body-fold'
-        else 
-            event.currentTarget.parentNode.children[1].className = 'node-body'
+        console.log(event.currentTarget.children[1].innerHTML)
+        let currentNode = event.currentTarget.children[1].innerHTML
+        let isFolded = model.nodeFolded
+        isFolded[type].set(currentNode, !isFolded[type].get(currentNode))
+        model.set({ nodeFolded: { ...isFolded } })
+        // let parentNode = event.currentTarget.parentNode
+        // let brotherNode = parentNode.children[1]
+        // console.log(parentNode.children[1], parentNode.children[1].lastChild)
+        // if (brotherNode.className === 'node-body')
+        //     event.currentTarget.parentNode.children[1].className = 'node-body-fold'
+        // else 
+        //     event.currentTarget.parentNode.children[1].className = 'node-body'
     }
     
     function handeChange () {
@@ -240,7 +252,6 @@ function Node ({
         isChecked[type].halfChosen = !isHalfChecked
         isChecked[type].allChosen = isAllChoosen
         model.set({ nodeChecked: { ...isChecked } })
-        console.log(model.nodeChecked[type].oneChosen.get(name))
     }
     
     return <>
@@ -254,7 +265,7 @@ function Node ({
                     <a className='node-site' href={publicDomain} target='_blank'>{publicDomain}&nbsp;&nbsp;<Icon component={SvgExport} /></a>}
                 <div className={nodeStatus[state]}> </div>
             </div>
-            <div className={isLeader ? 'node-body' : 'node-body-fold'}>
+            <div className={nodeFolded[type].get(name) ? 'node-body' : 'node-body-fold'}>
                 <NodeInfo title='CPU' icon={ SvgCPU } info={ cpuInfo }/>
                 <NodeInfo title='内存' icon={ SvgMemory } info={ memoryInfo }/>
                 <NodeInfo title='磁盘' icon={ SvgDisk } info={ diskInfo }/>
@@ -311,6 +322,7 @@ function NodeCard () {
     const dataNodes: DdbNode[] = [ ]
     const agentNodes: DdbNode[] = [ ]
     const computingNodes: DdbNode[] = [ ]
+        
     for (let node of nodes)
         switch (node.mode) {
             case (NodeType.controller):
@@ -329,6 +341,16 @@ function NodeCard () {
                 break
         }
         
+    let leaderNode = null
+    for (let node of controllerNodes)
+        if (node.isLeader) {
+            leaderNode = node
+            break
+        }
+    const { host, port, publicName } = leaderNode
+        
+    const privateDomain = host + ':' + port
+    const publicDomain = Array.isArray(publicName) ? publicName.map(val => val + ':' + port) : publicName + ':' + port 
     
     const { nodeChecked } = model.use(['nodeChecked'])
     function handleAllChosen (type) {
@@ -347,7 +369,12 @@ function NodeCard () {
     return <>
         <div className='content'>
             <div >{controllerNodes.length ? <div>
-                    <div className='nodes-header'>{'控制节点' + ' (' + controllerNodes.length + ')'}</div>
+                    <div className='nodes-header'>{'控制节点' + ' (' + controllerNodes.length + ')'}
+                    <a className='node-site' href={privateDomain} target='_blank'>{privateDomain}&nbsp;&nbsp;<Icon component={SvgExport} /></a>
+                    { Array.isArray(publicDomain) ? 
+                    publicDomain.map(val => <a className='node-site' href={val} target='_blank'>{val}&nbsp;&nbsp;<Icon component={SvgExport} /></a>) :  
+                    <a className='node-site' href={publicDomain} target='_blank'>{publicDomain}&nbsp;&nbsp;<Icon component={SvgExport} /></a>}
+                    </div>
                     {controllerNodes.map(node => <Node node={node} type='控制节点' key={node.name}/>)}
                 </div> : null
                 }
@@ -366,7 +393,7 @@ function NodeCard () {
             </div>
             <div >{agentNodes.length ? <div>
                     <div className='nodes-header'>{'代理节点' + ' (' + agentNodes.length + ')'}<div className='nodes-selectAll'><Checkbox checked={model.nodeChecked['代理节点'].allChosen} indeterminate={model.nodeChecked['代理节点'].halfChosen} onChange={() => handleAllChosen('代理节点')}/></div><div className='text-selectAll'>全选</div></div>
-                    {agentNodes.map(node => <Node node={node} type='控制节点' key={node.name}/>)}
+                    {agentNodes.map(node => <Node node={node} type='代理节点' key={node.name}/>)}
                 </div> : null
                 }
             </div>

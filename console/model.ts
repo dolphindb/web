@@ -79,6 +79,9 @@ export class DdbModel extends Model<DdbModel> {
     /** 保存节点的选中状态 */
     nodeChecked: Object
     
+    /** 保存节点的展开状态 */
+    nodeFolded: Object
+    
     version: string
     
     license: DdbLicense

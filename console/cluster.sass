@@ -76,10 +76,6 @@
                 color:#412A9F
                 margin-left: 9px
 
-            .node-site
-                margin-right: 30px
-                color: #333
-
             .node-status
                 font-size: 14px
                 color: #999999
@@ -106,13 +102,15 @@
             justify-content: start
             margin: 21px 0 0 30px
             height: 277px
-                
+    
             .info-card
                 display: flex
                 flex-direction: column
                 padding: 0 15px 0 15px
                 height: 200px
                 border-right: 1px solid #ECECEC
+                &:last-child
+                    border: none 
                 
                 .info-title
                     height: 22px
@@ -151,7 +149,11 @@
         
         .node-body-fold
             display: none
-            
+    
+    .node-site
+        margin: 0 30px
+        font-weight: 500
+        color: #515151      
 
 .nodes-modal, .controller-modal, .datanode-modal
     iframe
