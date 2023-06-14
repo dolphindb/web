@@ -762,7 +762,7 @@ function CreateClusterPanel ({
     
     const [mode, set_mode] = useState<ClusterMode>('cluster')
     
-    const [cluster_type, set_cluster_type] = useState<ClusterType>('multicontroller')    
+    const [cluster_type, set_cluster_type] = useState<ClusterType>('multicontroller')
     
     const versions_with_licencese_server = new Set()
     
@@ -770,8 +770,7 @@ function CreateClusterPanel ({
     
     const versions_name = [ ]
     
-    for (let v of versions) {
-        const { version, is_support_license_server, is_support_jit } = v
+    for (const { version, is_support_license_server, is_support_jit } of versions) {
         versions_name.push(version)
         if (is_support_license_server)
             versions_with_licencese_server.add(version)
@@ -782,7 +781,7 @@ function CreateClusterPanel ({
     const onSubmit = async () => {
     
         let values = await form.validateFields()
-         
+        
         const { mode, cluster_type, license_server_address } = values
         
         values.datanode.data_size = Number(values.datanode.data_size)
@@ -792,7 +791,7 @@ function CreateClusterPanel ({
         
         if (mode === 'standalone')
             delete values.controller
-            
+        
         if (license_server_address === '')
             values.license_server_address = 'None'    
         
@@ -1003,12 +1002,13 @@ function CreateClusterPanel ({
                             >
                                 <Input />
                             </Form.Item>
+                            
                             <Form.Item noStyle dependencies={[['version']]}>
                                 {({ getFieldValue }) => {
                                     const version = getFieldValue('version')     
                                     if (!versions_with_jit.has(version) ) 
                                         return <Form.Item/>
-                                    return  <Form.Item name='enable_jit'  label={t('启用 JIT')} valuePropName='checked'>
+                                    return  <Form.Item name='enable_jit' label={t('启用 JIT')} valuePropName='checked'>
                                                 <Switch />
                                             </Form.Item>
                                 }}
@@ -2969,7 +2969,6 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                 rules={[{ required: true, message: t('此项必填') }]}
                             >
                                 <Select placeholder=''
-                                
                                     onSelect={async value => {
                                         // danger area start
                                         try {
