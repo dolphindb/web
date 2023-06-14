@@ -35,7 +35,6 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 
 export function DdbSider () {
     const { view, node_type, collapsed, logined, login_required } = model.use(['view', 'node_type', 'collapsed', 'logined', 'login_required'])
-    const { cdn, dev } = model
     
     return <Layout.Sider
         width={120}
@@ -80,7 +79,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='shell' />,
                     label: t('交互编程'),
                 },
-                ... dev ? [{
+                ... model.dev ? [{
                        key: 'dashboard',
                        icon: <MenuIcon view='dashboard' />,
                        label: t('数据看板')
