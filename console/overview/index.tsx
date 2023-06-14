@@ -21,7 +21,7 @@ import { t } from '../../i18n/index.js'
 
 import { NodeType, DdbNode, DdbNodeState, model } from '../model.js'
 
-export function Cluster () {
+export function Overview () {
     const { node_type, cdn } = model.use(['node_type', 'cdn'])
     const { nodes } = model.use(['nodes'])
     const controllerNodes: DdbNode[] = [ ]

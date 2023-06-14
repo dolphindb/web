@@ -58,13 +58,13 @@ import { language, t } from '../i18n/index.js'
 import { model, DdbModel, NodeType, storage_keys, DdbLicense, LicenseTypes } from './model.js'
 
 import { Login } from './login.js'
-import { Cluster } from './cluster/index.js'
+import { Overview } from './overview/index.js'
 import { Shell } from './shell/index.js'
 import { DashBoard } from './dashboard.js'
 import { Job } from './job.js'
 import { Log } from './log.js'
 
-import SvgCluster from './cluster/icons/cluster.icon.svg'
+import SvgOverview from './overview/icons/overview.icon.svg'
 import SvgShell from './shell/index.icon.svg'
 import SvgDashboard from './dashboard.icon.svg'
 import SvgJob from './job.icon.svg'
@@ -434,8 +434,8 @@ function DdbSider () {
                 //     label: t('总览'),
                 // },
                 ... (!cdn && (node_type === NodeType.controller || dev)) ? [{
-                    key: 'cluster',
-                    icon: <MenuIcon view='cluster' />,
+                    key: 'overview',
+                    icon: <MenuIcon view='overview' />,
                     label: t('集群总览'),
                 }] : [ ],
                 {
@@ -569,7 +569,7 @@ function Settings () {
 
 const views = {
     login: Login,
-    cluster: Cluster,
+    overview: Overview,
     shell: Shell,
     dashboard: DashBoard,
     job: Job,
@@ -591,7 +591,7 @@ function DdbContent () {
 
 
 const svgs = {
-    cluster: SvgCluster,
+    overview: SvgOverview,
     shell: SvgShell,
     dashboard: SvgDashboard,
     job: SvgJob,

@@ -23,7 +23,7 @@ export const storage_keys = {
 
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'cluster' | 'login' | 'dfs' | 'log'
+export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'overview' | 'login' | 'dfs' | 'log'
 
 export class DdbModel extends Model<DdbModel> {
     inited = false
@@ -410,7 +410,7 @@ export class DdbModel extends Model<DdbModel> {
     goto_default_view () {
         this.set({
             view: new URLSearchParams(location.search).get('view') as DdbModel['view'] || 
-                (this.node_type === NodeType.controller ? 'cluster' : 'shell')
+                (this.node_type === NodeType.controller ? 'overview' : 'shell')
         })
     }
     
