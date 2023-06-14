@@ -778,6 +778,7 @@ export class Database implements DataNode {
     
     schema: DdbDictObj<DdbVectorStringObj>
     
+    
     constructor (path: string) {
         this.self = this
         assert(path.startsWith('dfs://'), t('数据库路径应该以 dfs:// 开头'))
@@ -818,6 +819,8 @@ export class Database implements DataNode {
             </div>
         </div>
     }
+    
+    
     async get_schema () {
         if (!this.schema) {
             await shell.define_load_database_schema()
@@ -831,6 +834,8 @@ export class Database implements DataNode {
         
         return this.schema
     }
+    
+    
     async inspect () {
         shell.set(
             {
