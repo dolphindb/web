@@ -60,9 +60,9 @@ class ShellModel extends Model<ShellModel> {
     
     unload_registered = false
     
-    load_schema_defined = false
+    load_table_schema_defined = false
     
-    load_schema_database_defined = false
+    load_database_schema_defined = false
     
     peek_table_defined = false
     
@@ -434,30 +434,30 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
-    async define_load_schema () {
-        if (this.load_schema_defined)
+    async define_load_table_schema () {
+        if (this.load_table_schema_defined)
             return
         
         await model.ddb.eval(
-            'def load_schema (db_path, tb_name) {\n' +
+            'def load_table_schema (db_path, tb_name) {\n' +
             '    return schema(loadTable(db_path, tb_name))\n' +
             '}\n'
         )
         
-        shell.set({ load_schema_defined: true })
+        shell.set({ load_table_schema_defined: true })
     }
     
     async define_load_database_schema () {
-        if (this.load_schema_database_defined)
+        if (this.load_database_schema_defined)
             return
         
         await model.ddb.eval(
-            'def load_schema (db_path) {\n' +
+            'def load_database_schema (db_path) {\n' +
             '    return schema(database(db_path))\n' +
             '}\n'
         )
         
-        shell.set({ load_schema_database_defined: true })
+        shell.set({ load_database_schema_defined: true })
     }
     
     async define_peek_table () {

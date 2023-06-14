@@ -825,7 +825,7 @@ export class Database implements DataNode {
         if (!this.schema) {
             await shell.define_load_database_schema()
             this.schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
-                'load_schema',
+                'load_database_schema',
                 // 调用该函数时，数据库路径不能以 / 结尾
                 [this.path.slice(0, -1)],
                 model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
@@ -904,10 +904,10 @@ export class Table implements DataNode {
     
     async get_schema () {
         if (!this.schema) {
-            await shell.define_load_schema()
+            await shell.define_load_table_schema()
             this.schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                 // 这个函数在 define_load_schema 中已定义
-                'load_schema',
+                'load_table_schema',
                 // 调用该函数时，数据库路径不能以 / 结尾
                 [this.db.path.slice(0, -1), this.name],
                 model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
