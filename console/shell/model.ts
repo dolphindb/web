@@ -62,6 +62,8 @@ class ShellModel extends Model<ShellModel> {
     
     load_schema_defined = false
     
+    load_schema_database_defined = false
+    
     peek_table_defined = false
     
     add_column_defined = false
@@ -445,6 +447,18 @@ class ShellModel extends Model<ShellModel> {
         shell.set({ load_schema_defined: true })
     }
     
+    async define_load_database_schema () {
+        if (this.load_schema_database_defined)
+            return
+        
+        await model.ddb.eval(
+            'def load_schema (db_path) {\n' +
+            '    return schema(database(db_path))\n' +
+            '}\n'
+        )
+        
+        shell.set({ load_schema_database_defined: true })
+    }
     
     async define_peek_table () {
         if (this.peek_table_defined)
