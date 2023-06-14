@@ -22,7 +22,7 @@ import { t } from '../i18n/index.js'
 import { NodeType, DdbNode, DdbNodeState, model } from './model.js'
 
 export function Cluster () {
-    const { node_type } = model.use(['node_type'])
+    const { node_type, cdn } = model.use(['node_type', 'cdn'])
     const { nodes } = model.use(['nodes'])
     const controllerNodes: DdbNode[] = [ ]
     const dataNodes: DdbNode[] = [ ]
@@ -82,21 +82,21 @@ export function Cluster () {
                 </Tooltip>
             </div>
             
-            { node_type === NodeType.controller &&  <div className='configs'>
+            { !cdn && node_type === NodeType.controller &&  <div className='configs'>
                 <ButtonIframeModal 
-                    className='nodes-modal'
+                    class_name='nodes-modal'
                     button_text={t('集群节点配置')}
                     iframe_src='./dialogs/nodesSetup.html'
                 />
                 
                 <ButtonIframeModal 
-                    className='controller-modal'
+                    class_name='controller-modal'
                     button_text={t('控制节点配置')}
                     iframe_src='./dialogs/controllerConfig.html'
                 />
                 
                 <ButtonIframeModal 
-                    className='datanode-modal'
+                    class_name='datanode-modal'
                     button_text={t('数据节点配置')}
                     iframe_src='./dialogs/datanodeConfig.html'
                 />
@@ -109,25 +109,26 @@ export function Cluster () {
 
 function ButtonIframeModal ({
     button_text,
-    className,
+    class_name,
     iframe_src
 }: {
     button_text: string
-    className: string
+    class_name: string
     iframe_src: string
 }) {
-    const [visible, set_visible] = useState(false)
+    const { visible, open, close } = use_modal()
     
     return <>
-        <Button icon={<SettingOutlined />} onClick={() => { set_visible(true) }}>{button_text}</Button>
+        <Button icon={<SettingOutlined />} onClick={open}>{button_text}</Button>
         
         <Modal
-            className={className}
+            className={class_name}
             open={visible}
-            onCancel={() => { set_visible(false) }}
+            onCancel={close}
             width='80%'
+            footer={null}
         >
-            <iframe className='iframe' src={iframe_src} />
+            <iframe src={iframe_src} />
         </Modal>
     </>
 }
@@ -401,3 +402,21 @@ function NodeCard () {
         </div>    
     </>
 }
+
+
+function use_modal () {
+    const [visible, set_visible] = useState(false)
+    
+    return {
+        visible,
+        
+        open () {
+            set_visible(true)
+        },
+        
+        close () {
+            set_visible(false)
+        }
+    }
+}
+
