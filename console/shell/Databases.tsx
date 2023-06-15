@@ -165,7 +165,6 @@ export function Databases () {
                             
                             switch (type) {
                                 case 'database-group': 
-                                case 'database': 
                                 case 'partition-root': 
                                 case 'column-root': 
                                 case 'partition-directory': {
@@ -181,6 +180,33 @@ export function Databases () {
                                     
                                     if (!found)
                                         keys_.push(node.key)
+                                    
+                                    set_expanded_keys(keys_)
+                                    break
+                                }
+                                
+                                case 'database': {
+                                    // 切换展开状态
+                                    let found = false
+                                    let keys_ = [ ]
+                                    
+                                    for (const key of expanded_keys)
+                                        if (key === node.key)
+                                            found = true
+                                        else
+                                            keys_.push(key)
+                                    
+                                    if (!found) {
+                                        keys_.push(node.key)
+                                        
+                                        // 显示 schema
+                                        try {
+                                            await node.inspect()
+                                        } catch (error) {
+                                            model.show_error({ error })
+                                            throw error
+                                        }  
+                                    }
                                     
                                     set_expanded_keys(keys_)
                                     break
@@ -755,6 +781,8 @@ export class Database implements DataNode {
     /** tables */
     children: Table[] = [ ]
     
+    schema: DdbDictObj<DdbVectorStringObj>
+    
     
     constructor (path: string) {
         this.self = this
@@ -795,6 +823,33 @@ export class Database implements DataNode {
                 </Tooltip>
             </div>
         </div>
+    }
+    
+    
+    async get_schema () {
+        if (!this.schema) {
+            await shell.define_load_database_schema()
+            this.schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
+                'load_database_schema',
+                // 调用该函数时，数据库路径不能以 / 结尾
+                [this.path.slice(0, -1)],
+                model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
+            )
+        }
+        
+        return this.schema
+    }
+    
+    
+    async inspect () {
+        shell.set(
+            {
+                result: {
+                    type: 'object',
+                    data: await this.get_schema()
+                }
+            }
+        )
     }
 }
 
@@ -854,10 +909,10 @@ export class Table implements DataNode {
     
     async get_schema () {
         if (!this.schema) {
-            await shell.define_load_schema()
+            await shell.define_load_table_schema()
             this.schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                 // 这个函数在 define_load_schema 中已定义
-                'load_schema',
+                'load_table_schema',
                 // 调用该函数时，数据库路径不能以 / 结尾
                 [this.db.path.slice(0, -1), this.name],
                 model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }

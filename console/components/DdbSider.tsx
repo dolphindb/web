@@ -35,7 +35,6 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 
 export function DdbSider () {
     const { view, node_type, collapsed, logined, login_required } = model.use(['view', 'node_type', 'collapsed', 'logined', 'login_required'])
-    const { cdn, dev } = model
     
     return <Layout.Sider
         width={120}
@@ -70,40 +69,21 @@ export function DdbSider () {
             }}
             inlineIndent={10}
             items={[
-                // {
-                //     key: 'overview',
-                //     icon: <AppstoreOutlined />,
-                //     label: t('总览'),
-                // },
-                ... (!cdn && (node_type === NodeType.controller || dev)) ? [{
+                {
                     key: 'overview',
                     icon: <MenuIcon view='overview' />,
-                    label: t('集群总览'),
-                }] : [ ],
+                    label: node_type === NodeType.single ? t('单机总览') : t('集群总览'),
+                },
                 {
                     key: 'shell',
                     icon: <MenuIcon view='shell' />,
                     label: t('交互编程'),
                 },
-                
-                ... dev ? [{
+                ... model.dev ? [{
                        key: 'dashboard',
                        icon: <MenuIcon view='dashboard' />,
                        label: t('数据看板')
                 }] : [ ],
-                
-                // {
-                //     key: 'data',
-                //     label: t('数据'),
-                //     icon: <DatabaseOutlined />,
-                //     children: [
-                //         {
-                //             key: 'table',
-                //             icon: <TableOutlined />,
-                //             label: t('数据表'),
-                //         },
-                //     ]
-                // },
                 {
                     key: 'job',
                     icon: <MenuIcon view='job' />,
