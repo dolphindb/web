@@ -196,17 +196,19 @@ export function Databases () {
                                         else
                                             keys_.push(key)
                                     
-                                    if (!found)
+                                    if (!found) {
                                         keys_.push(node.key)
-                                    
+                                        
+                                        // 显示schema
+                                        try {
+                                            await node.inspect()
+                                        } catch (error) {
+                                            model.show_error({ error })
+                                            throw error
+                                        }  
+                                    }
                                     set_expanded_keys(keys_)
                                     
-                                    try {
-                                        await node.inspect()
-                                    } catch (error) {
-                                        model.show_error({ error })
-                                        throw error
-                                    }
                                     break
                                 }
                                 
