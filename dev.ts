@@ -234,7 +234,6 @@ else {
                 
             case 'x':
                 process.exit()
-                break
                 
             case 'i':
                 console.log(info)

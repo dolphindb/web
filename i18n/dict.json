@@ -1753,5 +1753,44 @@
     },
     "集群节点配置": {
         "en": "Cluster node configuration"
+    },
+    "已启动": {
+        "en": "activated"
+    },
+    "未启动": {
+        "en": "unactivated"
+    },
+    "work 线程数": {
+        "en": "number of worker threads"
+    },
+    "读速率": {
+        "en": "read rate"
+    },
+    "前一分钟读入": {
+        "en": "last minute read"
+    },
+    "写速率": {
+        "en": "write rate"
+    },
+    "前一分钟写入": {
+        "en": "last minute written"
+    },
+    "用量": {
+        "en": "used"
+    },
+    "接收速率": {
+        "en": "receive rate"
+    },
+    "前一分钟接收": {
+        "en": "last minute received bytes"
+    },
+    "发送速率": {
+        "en": "send rate"
+    },
+    "前一分钟发送": {
+        "en": "last minute sent bytes"
+    },
+    "代理节点": {
+        "en": "agent node"
     }
 }

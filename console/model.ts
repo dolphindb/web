@@ -5,7 +5,7 @@ import { Model } from 'react-object-model'
 import { Modal } from 'antd'
 import type { BaseType } from 'antd/es/typography/Base/index.js'
 
-import { DDB, DdbFunctionType, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError, DdbStringObj, type DdbDictObj, type DdbVectorStringObj } from 'dolphindb/browser.js'
+import { DDB, DdbFunctionType, DdbVectorString, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError, DdbStringObj, type DdbDictObj, type DdbVectorStringObj } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
 
@@ -23,7 +23,7 @@ export const storage_keys = {
 
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'overview' | 'login' | 'dfs' | 'log'
+export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'cluster' | 'login' | 'dfs' | 'log'
 
 export class DdbModel extends Model<DdbModel> {
     inited = false
@@ -77,10 +77,13 @@ export class DdbModel extends Model<DdbModel> {
     // --- 
     
     /** 保存节点的选中状态 */
-    nodeChecked: Object
+    nodeChecked
     
     /** 保存节点的展开状态 */
-    nodeFolded: Object
+    nodeFolded
+    
+    /** 保存各种类型的节点 */
+    nodeWithType
     
     version: string
     
@@ -180,7 +183,10 @@ export class DdbModel extends Model<DdbModel> {
         this.set({ inited: true })
         
         this.get_version()
+        
+        this.init_node_status()
     }
+    
     
     
     async login_by_password (username: string, password: string) {
@@ -276,6 +282,26 @@ export class DdbModel extends Model<DdbModel> {
         this.goto_login()
     }
     
+    async startNode () {
+        const checked = [ ]
+        Object.keys(this.nodeChecked).map(type =>
+            this.nodeChecked[type].forEach(node => checked.push(node))
+        )
+        console.log(checked)
+        await this.ddb.call('startDataNode', [new DdbVectorString(checked)])
+        return [ ]
+    }
+    
+    
+    async stopNode () {
+        const checked = [ ]
+        Object.keys(this.nodeChecked).map(type =>
+            this.nodeChecked[type].forEach(node => checked.push(node))
+        )
+        console.log(checked)
+        await this.ddb.call('stopDataNode', [new DdbVectorString(checked)])
+        return [ ]
+    }
     
     async get_node_type () {
         const { value: node_type } = await this.ddb.call<DdbObj<NodeType>>('getNodeType', [ ], { urgent: true })
@@ -410,7 +436,7 @@ export class DdbModel extends Model<DdbModel> {
     goto_default_view () {
         this.set({
             view: new URLSearchParams(location.search).get('view') as DdbModel['view'] || 
-                (this.node_type === NodeType.controller ? 'overview' : 'shell')
+                (this.node_type === NodeType.controller ? 'cluster' : 'shell')
         })
     }
     
@@ -434,7 +460,7 @@ export class DdbModel extends Model<DdbModel> {
             })
         ).to_rows<DdbNode>()
         
-        console.log(t('集群节点:'), nodes)
+        // console.log(t('集群节点:'), nodes)
         
         let node: DdbNode, controller: DdbNode, datanode: DdbNode
         
@@ -452,13 +478,66 @@ export class DdbModel extends Model<DdbModel> {
                 datanode ??= _node
         }
         
-        console.log(t('当前节点:'), node)
-        if (node.mode !== NodeType.single)
-            console.log(t('控制节点:'), controller, t('数据节点:'), datanode)
+        // console.log(t('当前节点:'), node)
+        // if (node.mode !== NodeType.single)
+        //     console.log(t('控制节点:'), controller, t('数据节点:'), datanode)
         
         this.set({ nodes, node, controller, datanode })
     }
     
+    init_node_status () {
+        const nodes = this.nodes        
+        const controllerNode = [ ]
+        const dataNode  = [ ]
+        const agentNode = [ ]
+        const computingNode = [ ]
+        const nodeChecked = {
+            controllerNode: new Set(),
+            dataNode: new Set(),
+            computingNode: new Set(),
+            agentNode: new Set()
+        }
+        
+        const nodeFolded = {
+            controllerNode: new Set(),
+            dataNode: new Set(),
+            computingNode: new Set(),
+            agentNode: new Set()
+        }
+        
+        for (let node of nodes)
+            switch (node.mode) {
+                case (NodeType.controller):
+                    controllerNode.push(node.name)
+                    if (!node.isLeader)
+                        nodeFolded.controllerNode.add(node.name)
+                    break
+                case (NodeType.data):
+                    dataNode.push(node.name)
+                    break
+                case (NodeType.agent):
+                    agentNode.push(node.name)
+                    break        
+                case (NodeType.computing):
+                    computingNode.push(node.name)
+                    break
+                default:
+                    break
+            }
+            
+        const nodeWithType = {
+            controllerNode,
+            dataNode,
+            computingNode,
+            agentNode
+        }
+        
+        
+        dataNode.map(node => {  nodeFolded.dataNode.add(node) })
+        agentNode.map(node => { nodeFolded.agentNode.add(node) })
+        computingNode.map(node => { nodeFolded.computingNode.add(node) })
+        model.set({ nodeChecked, nodeFolded, nodeWithType })
+    }
     
     find_closest_node_host (node: DdbNode) {
         const ip_pattern = /\d+\.\d+\.\d+\.\d+/
