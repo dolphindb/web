@@ -21,6 +21,7 @@ import { t } from '../../i18n/index.js'
 
 import { NodeType, DdbNode, DdbNodeState, model } from '../model.js'
 
+
 export function Overview () {
     const { node_type, cdn } = model.use(['node_type', 'cdn'])
     setInterval(async () => model.get_cluster_perf(), 1000)
@@ -61,6 +62,7 @@ export function Overview () {
                 />
             </div> }
         </div>
+        
         <NodeCard/>
     </>
 }
