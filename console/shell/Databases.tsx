@@ -199,7 +199,7 @@ export function Databases () {
                                     if (!found) {
                                         keys_.push(node.key)
                                         
-                                        // 显示schema
+                                        // 显示 schema
                                         try {
                                             await node.inspect()
                                         } catch (error) {
@@ -207,8 +207,8 @@ export function Databases () {
                                             throw error
                                         }  
                                     }
-                                    set_expanded_keys(keys_)
                                     
+                                    set_expanded_keys(keys_)
                                     break
                                 }
                                 

@@ -447,6 +447,7 @@ class ShellModel extends Model<ShellModel> {
         shell.set({ load_table_schema_defined: true })
     }
     
+    
     async define_load_database_schema () {
         if (this.load_database_schema_defined)
             return
@@ -459,6 +460,7 @@ class ShellModel extends Model<ShellModel> {
         
         shell.set({ load_database_schema_defined: true })
     }
+    
     
     async define_peek_table () {
         if (this.peek_table_defined)
