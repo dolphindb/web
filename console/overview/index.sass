@@ -40,8 +40,9 @@
             color: #666666
             .nodes-selectAll
                 zoom: 100%
-                margin: 0px 10px 0 16px
+                margin: 0px 10px 0 30px
                 .text-selectAll
+                    line-height: 16px
                     font-size: 14px
                     font-weight: 400
             .controller-site
@@ -75,7 +76,16 @@
             justify-content: end
             height: 60px
             border-radius: 10px 10px 0px 0px
-
+            
+            .data-title-color
+                color: #003D8D             
+            .agent-title-color
+                color: #515151
+            .controller-title-color
+                color: #412A9F
+            .computing-title-color
+                color: #602F02
+                    
             .node-chosen
                 width: 16px
                 height: 16px
@@ -86,8 +96,7 @@
             .node-title
                 display: flex
                 align-items: center
-                font-size: 22px
-                color: #412A9F
+                font-size: 22px  
                 font-weight: 600
                 flex: 1
                 
@@ -117,7 +126,7 @@
                 background-image: url(./overview/online.png)
                 background-repeat: no-repeat
                 font-size: 14px
-                color: #999999
+                color: #3EB456
                 line-height: 60px
                 span
                     padding-left: 75px
@@ -208,6 +217,8 @@
         font-weight: 500
         color: #515151
         font-size: 14px
+        .site-text
+            margin-right: 10px 
         a      
             color: #515151
 

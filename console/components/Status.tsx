@@ -87,10 +87,10 @@ function Performance () {
             <Descriptions.Item label={t('CPU 平均负载')}>
                 {node.avgLoad.toFixed(1)}
             </Descriptions.Item>
-            <Descriptions.Item label={t('worker 线程数')}>
+            <Descriptions.Item label={t('worker 线程总数')}>
                 {node.workerNum}
             </Descriptions.Item>
-            <Descriptions.Item label={t('executor 线程数')}>
+            <Descriptions.Item label={t('executor 线程总数')}>
                 {node.executorNum}
             </Descriptions.Item>
         </Descriptions >

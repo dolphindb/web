@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { Children, default as React, ReactNode, useState } from 'react'
+import { Children, default as React, ReactNode, useState, useEffect, useRef } from 'react'
 
 import { Button, Modal, Tooltip, Progress, Tag, Checkbox } from 'antd'
 import { default as _Icon,  SettingOutlined } from '@ant-design/icons'
@@ -20,11 +20,38 @@ import SvgExport from './icons/export.icon.svg'
 import { t } from '../../i18n/index.js'
 
 import { NodeType, DdbNode, DdbNodeState, model } from '../model.js'
+import { delay } from 'xshell/utils.browser.js'
 
 
 export function Overview () {
-    const { node_type, cdn } = model.use(['node_type', 'cdn'])
-    setInterval(async () => model.get_cluster_perf(), 1000)
+    const { nodes, node_type, cdn } = model.use(['nodes', 'node_type', 'cdn'])
+    useEffect(() => {
+        let flag = true
+        ;(async () => {
+            while (true) {
+                await delay(10000)
+                if (!flag)
+                    break
+                await model.get_cluster_perf()
+            }
+        })()
+        return () => {
+            flag = false
+        }
+    })
+    const [selectedNodes, setSelectedNodes] = useState([ ])
+    const initExpandedNodes = [ ]
+   
+    for (let node of nodes) 
+        if ((node.mode === NodeType.controller && !node.isLeader) || node.mode !== NodeType.controller)
+            initExpandedNodes.push(node)
+    
+    const numOfNodes = [nodes.filter(node => node.mode === NodeType.data).length, 
+                        nodes.filter(node => node.mode === NodeType.agent).length, 
+                        nodes.filter(node => node.mode === NodeType.controller).length, 
+                        0, 
+                        nodes.filter(node => node.mode === NodeType.computing).length]
+    const [expandedNodes, setExpandedNodes] = useState(initExpandedNodes)
     
     return <>
         <div className='actions'>
@@ -34,11 +61,11 @@ export function Overview () {
                 </Tooltip>
                 
                 <Tooltip title={t('启动节点')}>
-                    <Button icon={<Icon className='icon-start' component={SvgStart} onClick={() => { model.startNode() }}/>}/>
+                    <Button icon={<Icon className='icon-start' component={SvgStart} onClick={() => { model.start_nodes(selectedNodes) }}/>}/>
                 </Tooltip>
                 
                 <Tooltip title={t('停止节点')}>
-                    <Button icon={<Icon className='icon-stop' component={SvgStop} onClick={() => { model.stopNode() }}/>}/>
+                    <Button icon={<Icon className='icon-stop' component={SvgStop} onClick={() => { model.stop_nodes(selectedNodes) }}/>}/>
                 </Tooltip>
             </div>
             
@@ -63,7 +90,7 @@ export function Overview () {
             </div> }
         </div>
         
-        <NodeCard/>
+        <NodeCard numOfNodes={numOfNodes}selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes} expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
     </>
 }
 
@@ -96,14 +123,26 @@ function ButtonIframeModal ({
 
 function Node ({
     node,
-    type
+    type,
+    numOfNodes,
+    selectedNodes,
+    setSelectedNodes,
+    expandedNodes,
+    setExpandedNodes
+    
 }: {
     node: DdbNode
-    type: string
+    type: NodeType
+    numOfNodes: number[]
+    selectedNodes: DdbNode[]
+    setSelectedNodes: Function
+    expandedNodes: DdbNode[]
+    setExpandedNodes: Function
 }) {
     const nodeColor = ['data-color', 'agent-color', 'controller-color', '', 'computing-color']
+    const titleColor = ['data-title-color', 'agent-title-color', 'controller-title-color', '', 'computing-title-color']
     const nodeStatus = [ 'offline', 'online']
-    const { nodeChecked, nodeFolded } = model.use(['nodeChecked', 'nodeFolded'])
+    
     const { name,
         state,
         mode,
@@ -148,79 +187,86 @@ function Node ({
     const privateDomain = host + ':' + port
     const publicDomain = publicName.split(',').map(val => val + ':' + port) 
      
+    
     function switchFold (event) {
         if (event.target.tagName === 'INPUT' || event.target.className === 'node-site' || event.target.className === 'node-name'  )
             return
-        
-        let isFolded  = nodeFolded
-        if (isFolded[type].has(name))
-            isFolded[type].delete(name)
-        else
-            isFolded[type].add(name)
-        model.set({ nodeFolded: { ...isFolded } })
+        let newExpandedNodes = [ ]
+        if (expandedNodes.every(node =>  node.name !== name)) 
+            newExpandedNodes = [...expandedNodes, node]
+         
+        else 
+            newExpandedNodes = expandedNodes.filter(node => node.mode !== type || node.name !== name)
+        setExpandedNodes(newExpandedNodes)  
         
     }
     
     function handeChange () {
-        let isChecked = nodeChecked
-        if (isChecked[type].has(name))
-            isChecked[type].delete(name)
-        else
-            isChecked[type].add(name)
-        model.set({ nodeChecked: { ...isChecked } })
+        let newSelectedNodes = [ ]
+        if (selectedNodes.every(node => node.name !== name)) 
+            newSelectedNodes = [...selectedNodes, node]
+        else 
+            newSelectedNodes = selectedNodes.filter(node => node.mode !== type || node.name !== name)
+        setSelectedNodes(newSelectedNodes)
     }
     
     return <>
         <div className='node'>
-            <div className={'node-header' + ' ' + nodeColor[mode] + (nodeFolded[type].has(name) ? ' node-header-fold' : '')} onClick={e => switchFold(e)}>
-                <div className='node-chosen'><Checkbox  checked={nodeChecked[type].has(name)} onChange={() => handeChange()}/></div>
-                <div className='node-title'><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFCA2F' >leader</Tag> : null}</div>
-                <div className='node-site' >{privateDomain}&nbsp;&nbsp;<a href={privateDomain} target='_blank'><Icon component={SvgExport} /></a></div>
-                { publicDomain.map(val => <div className='node-site' key={val}>{val}&nbsp;&nbsp;<a href={val} target='_blank'><Icon component={SvgExport} /></a></div>) }
+            <div className={'node-header' + ' ' + nodeColor[mode] + (expandedNodes.some(node => node.mode === type && node.name === name) ? ' node-header-fold' : '')} onClick={e => switchFold(e)}>
+                <div className='node-chosen'><Checkbox disabled={node.mode === NodeType.controller || node.mode === NodeType.agent} 
+                                                       checked={selectedNodes.some(node => node.mode === type && node.name === name)} 
+                                                       onChange={() => handeChange()}/>
+                </div>
+                <div className={'node-title' + ' ' + titleColor[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFCA2F' >leader</Tag> : null}</div>
+                <div className='node-site' ><span className='site-text'>{privateDomain}</span><a href={privateDomain} target='_blank'><Icon component={SvgExport} /></a></div>
+                { publicDomain.map(val => <div className='node-site' key={val}><span className='site-text'>{val}</span><a href={val} target='_blank'><Icon component={SvgExport} /></a></div>) }
                 <div className={nodeStatus[state]}><span>{state ? t('已启动') : t('未启动')}</span></div>
             </div>
-            <div className={nodeFolded[type].has(name) ? 'node-body-fold' : 'node-body'}>
-                <NodeInfo title='CPU' icon={ SvgCPU } className='cpu-info'  >
-                    <InfoItem title={t('CPU 占用率')} content={<div><InfoText >{Math.round(cpuUsage) + '%'}</InfoText><Progress percent={cpuUsage} showInfo={false} strokeColor='#FF7373' size={[100, 7]}/></div>}/>
-                    <InfoItem title={t('work 线程数')} content={<InfoText>{workerNum}</InfoText>}/>
-                    <InfoItem title={t('CPU 平均负载')} content={<div><InfoText>{Math.round(avgLoad) + '%'}</InfoText><Progress percent={avgLoad } showInfo={false} strokeColor='#A8EB7F' size={[100, 7]}/></div>}/>
-                    <InfoItem title={t('executor 线程数')} content={<InfoText>{executorNum}</InfoText>}/>
+            <div className={expandedNodes.some(node => node.mode === type && node.name === name)  ? 'node-body-fold' : 'node-body'}>
+                <NodeInfo title='CPU' icon={SvgCPU} className='cpu-info'  >
+                    {/* <InfoItem title={t('占用率')} Progress={() => Progress(cpuUsage, cpuUsage)}>{Math.round(cpuUsage) + '%'}</InfoItem> */}
+                    <InfoItem title={t('占用率')} Progress={<Progress percent={cpuUsage} showInfo={false} 
+                                                            strokeColor={cpuUsage > 67 ? '#FF8660' : (cpuUsage > 33 ? '#FFCE4F' : '#A8EB7F')} 
+                                                            size={[100, 7]}/>}>{Math.round(cpuUsage) + '%'}</InfoItem>
+                    <InfoItem title={t('worker 线程总数') }>{workerNum}</InfoItem> 
+                    <InfoItem title={t('平均负载')} Progress={<Progress percent={avgLoad } showInfo={false} 
+                                                   strokeColor={avgLoad > 67 ? '#FF8660' : (avgLoad > 33 ? '#FFCE4F' : '#A8EB7F')} 
+                                                   size={[100, 7]}/>}>{Math.round(avgLoad) + '%'}</InfoItem> 
+                    <InfoItem title={t('executor 线程总数')}>{executorNum}</InfoItem> 
                 </NodeInfo>
-                <NodeInfo title='内存' icon={ SvgMemory } className='memory-info' >
-                    <InfoItem title={t('内存已用')} content={ <div><InfoText>{(Number(memoryUsed)).to_fsize_str() + ' / ' + maxMemSize + ' GB' }</InfoText>
-                                                          <Progress percent={(Number(memoryUsed) / (maxMemSize * 1024 * 1024 * 1024)) * 100} showInfo={false} strokeColor='#FF7373' size={[100, 7]}/>
-                                                         </div>
-                                                        }/>
-                    <InfoItem title={t('内存已分配')} content={ <InfoText>{(Number(memoryAlloc)).to_fsize_str()}</InfoText>}/>
+                <NodeInfo title='内存' icon={SvgMemory} className='memory-info' >
+                    <InfoItem title={t('用量')} Progress={<Progress percent={(Number(memoryUsed) / (maxMemSize * 1024 * 1024 * 1024)) * 100} 
+                                                                    showInfo={false} 
+                                                                    strokeColor={(Number(memoryUsed) / (maxMemSize * 1024 * 1024 * 1024)) * 100 > 67 ? '#FF8660' : ((Number(memoryUsed) / (maxMemSize * 1024 * 1024 * 1024)) * 100 > 33 ? '#FFCE4F' : '#A8EB7F')} size={[100, 7]} />}>{(Number(memoryUsed)).to_fsize_str() + ' / ' + maxMemSize + ' GB' }</InfoItem> 
+                    <InfoItem title={t('已分配')}>{(Number(memoryAlloc)).to_fsize_str()}</InfoItem>  
                 </NodeInfo>
-                <NodeInfo title='磁盘' icon={ SvgDisk } className='disk-info'>
-                    <InfoItem title={t('读速率')} content={<InfoText>{(Number(diskReadRate)).to_fsize_str() }</InfoText>}/>
-                    <InfoItem title={t('前一分钟读入')} content={<InfoText>{(Number(lastMinuteReadVolume)).to_fsize_str()}</InfoText>}/>
-                    <InfoItem title={t('写速率')} content={<InfoText>{(Number(diskWriteRate)).to_fsize_str()}</InfoText>}/>
-                    <InfoItem title={t('前一分钟写入')} content={<InfoText>{(Number(lastMinuteWriteVolume)).to_fsize_str()}</InfoText>}/>
-                    <InfoItem title={t('用量')} content={<div>
-                                <InfoText>{(Number(diskCapacity - diskFreeSpace) ).to_fsize_str() + ' / ' + ((Number(diskCapacity))).to_fsize_str() }</InfoText>
-                                <Progress percent={(Number(diskCapacity - diskFreeSpace) / (Number(diskCapacity) )) * 100} showInfo={false} strokeColor='#FF7373' size={[100, 7]}/>
-                            </div> }/>
+                <NodeInfo title={t('磁盘')} icon={SvgDisk} className='disk-info'>
+                    <InfoItem title={t('读速率')}>{(Number(diskReadRate)).to_fsize_str() + '/s' }</InfoItem> 
+                    <InfoItem title={t('前一分钟读入')}>{(Number(lastMinuteReadVolume)).to_fsize_str()}</InfoItem>
+                    <InfoItem title={t('写速率')}>{(Number(diskWriteRate)).to_fsize_str() + '/s' }</InfoItem> 
+                    <InfoItem title={t('前一分钟写入')}>{(Number(lastMinuteWriteVolume)).to_fsize_str()}</InfoItem>
+                    <InfoItem title={t('用量')} Progress={<Progress percent={(Number(diskCapacity - diskFreeSpace) / (Number(diskCapacity) )) * 100} showInfo={false} strokeColor={(Number(diskCapacity - diskFreeSpace) / (Number(diskCapacity) )) * 100 > 67 ? '#FF8660' : ((Number(diskCapacity - diskFreeSpace) / (Number(diskCapacity) )) * 100 > 33 ? '#FFCE4F' : '#A8EB7F')} size={[100, 7]}/>}>
+                        {(Number(diskCapacity - diskFreeSpace) ).to_fsize_str() + ' / ' + ((Number(diskCapacity))).to_fsize_str() }           
+                    </InfoItem>
                 </NodeInfo>
-                <NodeInfo title='网络' icon={ SvgNetwork } className='network-info' >
-                    <InfoItem title={t('当前连接')} content={<InfoText>{connectionNum}</InfoText>}/>
-                    <InfoItem title={t('最大连接')} content={<InfoText>{maxConnections}</InfoText>}/>
-                    <InfoItem title={t('接收速率')} content={<InfoText>{(Number(networkRecvRate)).to_fsize_str()}</InfoText>}/>
-                    <InfoItem title={t('前一分钟接收')} content={<InfoText>{(Number(lastMinuteNetworkRecv)).to_fsize_str()}</InfoText>}/>
-                    <InfoItem title={t('发送速率')} content={<InfoText>{(Number(networkSendRate)).to_fsize_str()}</InfoText>}/>
-                    <InfoItem title={t('前一分钟发送')} content={<InfoText>{(Number(lastMinuteNetworkSend)).to_fsize_str()}</InfoText>}/>
+                <NodeInfo title='网络' icon={SvgNetwork} className='network-info' >
+                    <InfoItem title={t('当前连接')}>{connectionNum}</InfoItem> 
+                    <InfoItem title={t('最大连接')}>{maxConnections}</InfoItem>
+                    <InfoItem title={t('接收速率')}>{(Number(networkRecvRate)).to_fsize_str() + '/s' }</InfoItem>
+                    <InfoItem title={t('前一分钟接收')}>{(Number(lastMinuteNetworkRecv)).to_fsize_str()}</InfoItem>
+                    <InfoItem title={t('发送速率')}>{(Number(networkSendRate)).to_fsize_str() + '/s' }</InfoItem>
+                    <InfoItem title={t('前一分钟发送')}>{(Number(lastMinuteNetworkSend)).to_fsize_str()}</InfoItem>
                 </NodeInfo>        
-                <NodeInfo title='任务与作业' icon={ SvgTask } className='task-info' >
-                    <InfoItem title={t('运行作业')} content={<InfoText>{runningJobs}</InfoText>}/>
-                    <InfoItem title={t('运行任务')} content={<InfoText>{runningJobs}</InfoText>}/>
-                    <InfoItem title={t('排队作业')} content={<InfoText>{queuedJobs}</InfoText>}/>
-                    <InfoItem title={t('排队任务')} content={<InfoText>{queuedTasks}</InfoText>}/>
-                    <InfoItem title={t('前一批消息延时')} content={<InfoText>{Number(lastMsgLatency) < Number.MIN_VALUE ? 0  + ' s' : Number(lastMsgLatency) + ' s'}</InfoText>}/>
-                    <InfoItem title={t('所有消息平均延时')} content={<InfoText>{Number(cumMsgLatency) < Number.MIN_VALUE ? 0  + ' s' : Number(cumMsgLatency) + ' s'}</InfoText>}/>     
+                <NodeInfo title='任务与作业' icon={SvgTask} className='task-info' >
+                    <InfoItem title={t('运行作业')}>{runningJobs}</InfoItem>
+                    <InfoItem title={t('运行任务')}>{runningJobs}</InfoItem>
+                    <InfoItem title={t('排队作业')}>{queuedJobs}</InfoItem>
+                    <InfoItem title={t('排队任务')}>{queuedTasks}</InfoItem>
+                    <InfoItem title={t('前一批消息延时')}>{Number(lastMsgLatency) < Number.MIN_VALUE ? 0  + ' s' : Number(lastMsgLatency) + ' s'}</InfoItem>
+                    <InfoItem title={t('所有消息平均延时')}>{Number(cumMsgLatency) < Number.MIN_VALUE ? 0  + ' s' : Number(cumMsgLatency) + ' s'}</InfoItem>     
                 </NodeInfo>
             </div>
-            <div className={nodeFolded[type].has(name) ? 'node-footer-fold' : 'node-footer'}>
+            <div className={expandedNodes.some(node => node.mode === type && node.name === name)  ? 'node-footer-fold' : 'node-footer'}>
                 <span>代理节点:a1</span> 
                 <span className='node-version'>试用版 v2.00.9.7</span>
             </div>
@@ -256,94 +302,83 @@ function NodeInfo ({
     
 }
 
-function InfoText ({
-    children
-}: {
-   children: ReactNode 
-}) {
-    return <>
-        <div className='info-text'>{children}</div>
-    </>
-}
 
 function InfoItem ({
     title,
-    content
+    children,
+    Progress
+    
 }: {
     title: string
-    content: string | number | ReactNode 
+    children: ReactNode
+    Progress?: React.JSX.Element
 }) {
-    return <>
-        <div className='item-content'>
+    return <div className='item-content'>
             <div className='item-title'>{title}</div>
-            <div className='item-body'>{content}</div>
+            <div className='item-body'>
+                <div className='info-text'>{children}</div>
+                {Progress}
+            </div>
         </div>
-    </>
+    
 }
 
-function NodeCard () {
-    const { nodes, nodeChecked, nodeWithType } = model.use(['nodes', 'nodeChecked', 'nodeWithType'])
-    const controllerNodes: DdbNode[] = [ ]
-    const dataNodes: DdbNode[] = [ ]
-    const agentNodes: DdbNode[] = [ ]
-    const computingNodes: DdbNode[] = [ ]
-    for (let node of nodes)
-        switch (node.mode) {
-            case (NodeType.controller):
-                controllerNodes.push(node)
-                break
-            case (NodeType.data):
-                dataNodes.push(node)
-                break
-            case (NodeType.agent):
-                agentNodes.push(node)
-                break        
-            case (NodeType.computing):
-                computingNodes.push(node)
-                break
-            default:
-                break
-        }
-        
-    let leaderNode = null
-    for (let node of controllerNodes)
-        if (node.isLeader) {
-            leaderNode = node
-            break
-        }
-    const { host, port, publicName } = leaderNode
-        
-    const privateDomain = host + ':' + port
-    const publicDomain =  publicName.split(',').map(val => val + ':' + port)
+function NodeCard ({  
+    numOfNodes,
+    selectedNodes,
+    setSelectedNodes,
+    expandedNodes,
+    setExpandedNodes
     
-    function handleAllChosen (type) {
-        let isChecked = nodeChecked
-        if (isChecked[type].size < nodeWithType[type].length)
-            for (let node of nodeWithType[type])
-                isChecked[type].add(node)
-        else if (isChecked[type].size === nodeWithType[type].length)
-            isChecked[type].clear()
-        model.set({ nodeChecked: { ...isChecked } })
-    }
+}: {
+    numOfNodes: number[]
+    selectedNodes: DdbNode[]
+    setSelectedNodes: Function
+    expandedNodes: DdbNode[]
+    setExpandedNodes: Function
+}) {
+    const { nodes } = model.use(['nodes'])
+    const controllerNodes: DdbNode[] = nodes.filter(node => node.mode === NodeType.controller)
+    const dataNodes: DdbNode[] = nodes.filter(node => node.mode === NodeType.data)
+    const agentNodes: DdbNode[] = nodes.filter(node => node.mode === NodeType.agent)
+    const computingNodes: DdbNode[] = nodes.filter(node => node.mode === NodeType.computing)
     
     return <>
         <div className='content'>
-            <NodeContainer type='controllerNode' nodes={controllerNodes}/>
-            <NodeContainer type='dataNode' nodes={dataNodes}/>
-            <NodeContainer type='computingNode' nodes={computingNodes}/>
-            <NodeContainer type='agentNode' nodes={agentNodes}/>
+            <NodeContainer type={NodeType.controller} nodes={controllerNodes} numOfNodes={numOfNodes}
+                            selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
+                            expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes} />
+            <NodeContainer type={NodeType.data} nodes={dataNodes} numOfNodes={numOfNodes}
+                            selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
+                            expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
+            <NodeContainer type={NodeType.computing} nodes={computingNodes} numOfNodes={numOfNodes}
+                            selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
+                            expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
+            <NodeContainer type={NodeType.agent} nodes={agentNodes} numOfNodes={numOfNodes}
+                            selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
+                            expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
         </div>    
     </>
 }
 
 function NodeContainer ({
     type,
-    nodes
+    nodes,
+    numOfNodes,
+    selectedNodes,
+    setSelectedNodes,
+    expandedNodes,
+    setExpandedNodes
+    
 }: {
-    type: string
+    type: NodeType
     nodes: DdbNode[]
+    numOfNodes: number[]
+    selectedNodes: DdbNode[]
+    setSelectedNodes: Function
+    expandedNodes: DdbNode[]
+    setExpandedNodes: Function
 }) {
-    const { nodeChecked, nodeWithType } = model.use(['nodeChecked', 'nodeWithType'])
     let leaderNode = null
     let privateDomain = ''
     let publicDomain = [ ]
@@ -357,34 +392,37 @@ function NodeContainer ({
             break
         }
    
-    function handleAllChosen (type) {
-        let isChecked = nodeChecked
-        if (isChecked[type].size < nodeWithType[type].length)
-            for (let node of nodeWithType[type])
-                isChecked[type].add(node)
-        else if (isChecked[type].size === nodeWithType[type].length)
-            isChecked[type].clear()
-        model.set({ nodeChecked: { ...isChecked } })
+    function handleAllChosen () {
+        let newSlectedNodes = [ ]
+        if (selectedNodes.filter(node => node.mode === type).length < numOfNodes[type]) 
+            newSlectedNodes = nodes.filter(node => node.mode === type && !selectedNodes.includes(node)).concat(selectedNodes)
+        else
+            newSlectedNodes = selectedNodes.filter(node => node.mode !== type)        
+        console.log(newSlectedNodes)
+        setSelectedNodes(newSlectedNodes)
+        
     }
         
    
     
-    const nodeType = { controllerNode: t('控制节点'), dataNode: t('数据节点'), computingNode: t('计算节点'), agentNode: t('代理节点') }
+    const nodeType = [t('数据节点'), t('代理节点'), t('控制节点'),,  t('计算节点'), ]
     return <>
         {nodes.length ? 
         <div>
             <div className='nodes-header'>{nodeType[type] + ' (' + nodes.length + ')'}
-                {type === 'controllerNode' ? <div className='controller-site'>
+                {type === NodeType.controller ? <div className='controller-site'>
                                                 <div className='node-site' >{privateDomain}&nbsp;&nbsp;<a href={privateDomain} target='_blank'><Icon component={SvgExport} /></a></div>
                                                 { publicDomain.map(val => <div className='node-site' key={val} >{val}&nbsp;&nbsp;<a href={val} target='_blank'><Icon component={SvgExport} /></a></div>) }
                                             </div> 
-                                        : <div className='nodes-selectAll'>
-                                                <Checkbox checked={nodeChecked[type].size === nodeWithType[type].length } indeterminate={nodeChecked[type].size && nodeChecked[type].size !== nodeWithType[type].length} onChange={() => handleAllChosen(type)} >
+                                        : (type !== NodeType.agent ? <div className='nodes-selectAll'>
+                                                <Checkbox checked={selectedNodes.filter(node => node.mode === type).length === numOfNodes[type] } indeterminate={selectedNodes.filter(node => node.mode === type).length && selectedNodes.filter(node => node.mode === type).length !== numOfNodes[type]} onChange={() => handleAllChosen()} >
                                                     <div className='text-selectAll'>全选</div>
                                                 </Checkbox>
-                                            </div>}
+                                            </div> : null)}
             </div>
-            {nodes.map(node => <Node node={node} type={type} key={node.name}/>)}
+            {nodes.map(node => <Node node={node} type={type} key={node.name} numOfNodes={numOfNodes}
+                                        selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
+                                        expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes} />)}
             
         </div> : null}
     </>
