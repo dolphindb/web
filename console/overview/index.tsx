@@ -208,7 +208,7 @@ function Node ({
         publicDomain = publicName.split(',').map(val =>  val + ':' + port) 
     
     function switchFold (event) {
-        if (event.target.tagName === 'INPUT' || event.target.className === 'node-site' || event.target.className === 'node-name'  )
+        if (event.target.tagName === 'INPUT' || event.target.className === 'node-site' || event.target.className === 'node-name' || node.mode === NodeType.agent )
             return
         let newExpandedNodes = [ ]
         if (expandedNodes.every(node =>  node.name !== name)) 
