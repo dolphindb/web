@@ -41,6 +41,9 @@ export function Overview () {
         }
     })
     const [selectedNodes, setSelectedNodes] = useState([ ])
+    const [isStartModalOpen, setIsStartModalOpen] = useState(false)
+    const [isStopModalOpen, setIsStopModalOpen] = useState(false)
+    
     const initExpandedNodes = [ ]
    
     for (let node of nodes) 
@@ -62,11 +65,11 @@ export function Overview () {
                 </Tooltip>
                 
                 <Tooltip title={t('启动节点')}>
-                    <Button icon={<Icon className='icon-start' component={SvgStart} onClick={() => { model.start_nodes(selectedNodes) }}/>}/>
+                    <Button icon={<Icon className='icon-start' component={SvgStart} onClick={() => setIsStartModalOpen(true)}/>}/>
                 </Tooltip>
                 
                 <Tooltip title={t('停止节点')}>
-                    <Button icon={<Icon className='icon-stop' component={SvgStop} onClick={() => { model.stop_nodes(selectedNodes) }}/>}/>
+                    <Button icon={<Icon className='icon-stop' component={SvgStop} onClick={() => setIsStopModalOpen(true)}/>}/>
                 </Tooltip>
             </div>
             
@@ -89,12 +92,17 @@ export function Overview () {
                     iframe_src='./dialogs/datanodeConfig.html'
                 />
             </div> }
+            <Modal title='确定启动以下节点' className='start-nodes-modal' open={isStartModalOpen} onOk={() => { model.start_nodes(selectedNodes), setIsStartModalOpen(false) }} onCancel={() => setIsStartModalOpen(false)}>
+                {selectedNodes.map(node => <p className='model-node' key={node.name}>{node.name}</p>)}
+            </Modal>
+            <Modal title='确定停止以下节点' className='stop-nodes-modal' open={isStopModalOpen} onOk={() => { model.stop_nodes(selectedNodes), setIsStopModalOpen(false) }} onCancel={() => setIsStopModalOpen(false)}>
+                {selectedNodes.map(node => <p className='model-node' key={node.name}>{node.name}</p>)}
+            </Modal>
         </div>
         
         <NodeCard numOfNodes={numOfNodes}selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes} expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
     </>
 }
-
 
 function ButtonIframeModal ({
     button_text,
@@ -404,8 +412,6 @@ function NodeContainer ({
         
     }
         
-   
-    
     const nodeType = [t('数据节点'), t('代理节点'), t('控制节点'),,  t('计算节点'), ]
     return <>
         {nodes.length ? 
@@ -413,7 +419,7 @@ function NodeContainer ({
             <div className='nodes-header'>{nodeType[type] + ' (' + nodes.length + ')'}
                 {type === NodeType.controller ? <div className='controller-site'>
                                                 <div className='node-site' >{privateDomain}&nbsp;&nbsp;<a href={privateDomain} target='_blank'><Icon component={SvgExport} /></a></div>
-                                                { publicDomain.map(val => <div className='node-site' key={val} >{val}&nbsp;&nbsp;<a href={val} target='_blank'><Icon component={SvgExport} /></a></div>) }
+                                                { publicDomain.map(val => <div className='node-site' key={val} ><span className='site-text'>{val}</span><a href={val} target='_blank'><Icon component={SvgExport} /></a></div>) }
                                             </div> 
                                         : (type !== NodeType.agent ? <div className='nodes-selectAll'>
                                                 <Checkbox checked={selectedNodes.filter(node => node.mode === type).length === numOfNodes[type] } indeterminate={selectedNodes.filter(node => node.mode === type).length && selectedNodes.filter(node => node.mode === type).length !== numOfNodes[type]} onChange={() => handleAllChosen()} >
