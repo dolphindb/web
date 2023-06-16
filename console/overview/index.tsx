@@ -59,6 +59,7 @@ export function Overview () {
     
     return <>
         <div className='actions'>
+            {node_type === NodeType.single ? null :
             <div className='operations'>
                 <Tooltip title={t('刷新信息')}>
                     <Button icon={<Icon className='icon-refresh' component={SvgRefresh}  onClick={() => { model.get_cluster_perf() }}/>}/> 
@@ -72,7 +73,7 @@ export function Overview () {
                     <Button icon={<Icon className='icon-stop' component={SvgStop} onClick={() => setIsStopModalOpen(true)}/>}/>
                 </Tooltip>
             </div>
-            
+            }
             { !cdn && node_type === NodeType.controller &&  <div className='configs'>
                 <ButtonIframeModal 
                     class_name='nodes-modal'
@@ -100,7 +101,7 @@ export function Overview () {
             </Modal>
         </div>
         
-        <NodeCard numOfNodes={numOfNodes}selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes} expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
+        <NodeCard isSingleNode={node_type === NodeType.single} numOfNodes={numOfNodes}selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes} expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
     </>
 }
 
@@ -148,8 +149,8 @@ function Node ({
     expandedNodes: DdbNode[]
     setExpandedNodes: Function
 }) {
-    const nodeColor = ['data-color', 'agent-color', 'controller-color', '', 'computing-color']
-    const titleColor = ['data-title-color', 'agent-title-color', 'controller-title-color', '', 'computing-title-color']
+    const nodeColor = ['data-color', 'agent-color', 'controller-color', 'single-color', 'computing-color']
+    const titleColor = ['data-title-color', 'agent-title-color', 'controller-title-color', 'single-title-color', 'computing-title-color']
     const nodeStatus = [ 'offline', 'online']
     
     const { name,
@@ -194,8 +195,11 @@ function Node ({
         cumMsgLatency } = node
         
     const privateDomain = host + ':' + port
-    const publicDomain = publicName.split(',').map(val => val + ':' + port) 
-     
+    let publicDomain = [ ]
+    if (type === NodeType.single)
+        publicDomain = publicName.split(';').map(val => val + ':' + port) 
+    else
+        publicDomain = publicName.split(',').map(val => val + ':' + port) 
     
     function switchFold (event) {
         if (event.target.tagName === 'INPUT' || event.target.className === 'node-site' || event.target.className === 'node-name'  )
@@ -220,20 +224,32 @@ function Node ({
     }
     
     return <>
-        <div className='node'>
+        <div className='node'>{
+            type === NodeType.single ? 
+            <div className={'node-header' + ' ' + nodeColor[mode] }>
+                <div className={'node-title' + ' ' + titleColor[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFCA2F' >leader</Tag> : null}</div>
+                <div className='node-site' ><span className='site-text'>{privateDomain}</span><a href={privateDomain} target='_blank'><Icon component={SvgExport} /></a></div>
+                { publicDomain.map(val => <div className='node-site' key={val}><span className='site-text'>{val}</span><a href={val} target='_blank'><Icon component={SvgExport} /></a></div>) }
+                <div className={nodeStatus[state]}><span>{state ? t('已启动') : t('未启动')}</span></div>
+            </div>
+            :
             <div className={'node-header' + ' ' + nodeColor[mode] + (expandedNodes.some(node => node.mode === type && node.name === name) ? ' node-header-fold' : '')} onClick={e => switchFold(e)}>
-                <div className='node-chosen'><Checkbox disabled={node.mode === NodeType.controller || node.mode === NodeType.agent} 
+                <div className='node-chosen'>{node.mode === NodeType.controller || node.mode === NodeType.agent ? <Tooltip title={(node.mode === NodeType.controller ? '控制' : '代理') + '节点不可停止'}><Checkbox disabled={node.mode === NodeType.controller || node.mode === NodeType.agent} 
+                                                       checked={selectedNodes.some(node => node.mode === type && node.name === name)} 
+                                                       onChange={() => handeChange()}/></Tooltip> :
+                                                       <Checkbox  
                                                        checked={selectedNodes.some(node => node.mode === type && node.name === name)} 
                                                        onChange={() => handeChange()}/>
+                                                       }
                 </div>
                 <div className={'node-title' + ' ' + titleColor[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFCA2F' >leader</Tag> : null}</div>
                 <div className='node-site' ><span className='site-text'>{privateDomain}</span><a href={privateDomain} target='_blank'><Icon component={SvgExport} /></a></div>
                 { publicDomain.map(val => <div className='node-site' key={val}><span className='site-text'>{val}</span><a href={val} target='_blank'><Icon component={SvgExport} /></a></div>) }
                 <div className={nodeStatus[state]}><span>{state ? t('已启动') : t('未启动')}</span></div>
             </div>
-            <div className={expandedNodes.some(node => node.mode === type && node.name === name)  ? 'node-body-fold' : 'node-body'}>
+            }
+            <div className={type !== NodeType.single && expandedNodes.some(node => node.mode === type && node.name === name)  ? 'node-body-fold' : 'node-body'}>
                 <NodeInfo title='CPU' icon={SvgCPU} className='cpu-info'  >
-                    {/* <InfoItem title={t('占用率')} Progress={() => Progress(cpuUsage, cpuUsage)}>{Math.round(cpuUsage) + '%'}</InfoItem> */}
                     <InfoItem title={t('占用率')} Progress={<Progress percent={cpuUsage} showInfo={false} 
                                                             strokeColor={cpuUsage > 67 ? '#FF8660' : (cpuUsage > 33 ? '#FFCE4F' : '#A8EB7F')} 
                                                             size={[100, 7]}/>}>{Math.round(cpuUsage) + '%'}</InfoItem>
@@ -332,7 +348,8 @@ function InfoItem ({
     
 }
 
-function NodeCard ({  
+function NodeCard ({
+    isSingleNode, 
     numOfNodes,
     selectedNodes,
     setSelectedNodes,
@@ -340,6 +357,7 @@ function NodeCard ({
     setExpandedNodes
     
 }: {
+    isSingleNode: boolean
     numOfNodes: number[]
     selectedNodes: DdbNode[]
     setSelectedNodes: Function
@@ -352,7 +370,12 @@ function NodeCard ({
     const agentNodes: DdbNode[] = nodes.filter(node => node.mode === NodeType.agent)
     const computingNodes: DdbNode[] = nodes.filter(node => node.mode === NodeType.computing)
     
-    return <>
+    return <>{isSingleNode ?
+        <div className='content'>
+            <NodeContainer type={NodeType.single} nodes={[ ]} numOfNodes={[ ]}
+                            selectedNodes={[ ]} setSelectedNodes={() => { }}
+                            expandedNodes={[ ]} setExpandedNodes={() => { }} />
+        </div> :
         <div className='content'>
             <NodeContainer type={NodeType.controller} nodes={controllerNodes} numOfNodes={numOfNodes}
                             selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
@@ -366,7 +389,8 @@ function NodeCard ({
             <NodeContainer type={NodeType.agent} nodes={agentNodes} numOfNodes={numOfNodes}
                             selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
                             expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
-        </div>    
+        </div>   
+    } 
     </>
 }
 
@@ -391,6 +415,7 @@ function NodeContainer ({
     let leaderNode = null
     let privateDomain = ''
     let publicDomain = [ ]
+    const { node } = model.use(['node'])
     
     for (let node of nodes)
         if (node.isLeader) {
@@ -414,7 +439,11 @@ function NodeContainer ({
         
     const nodeType = [t('数据节点'), t('代理节点'), t('控制节点'),,  t('计算节点'), ]
     return <>
-        {nodes.length ? 
+        {type === NodeType.single ? 
+            <Node node={node} type={type} key={node.name} numOfNodes={[ ]}
+            selectedNodes={[ ]} setSelectedNodes={() => { }}
+            expandedNodes={[ ]} setExpandedNodes={() => { }}  />
+        : (nodes.length ? 
         <div>
             <div className='nodes-header'>{nodeType[type] + ' (' + nodes.length + ')'}
                 {type === NodeType.controller ? <div className='controller-site'>
@@ -431,7 +460,7 @@ function NodeContainer ({
                                         selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
                                         expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes} />)}
             
-        </div> : null}
+        </div> : null)}
     </>
 }
 
