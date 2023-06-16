@@ -59,18 +59,24 @@ export function Overview () {
     
     return <>
         <div className='actions'>
-            {node_type === NodeType.single ? null :
+            {node_type === NodeType.single ? 
+            <div className='operations'>
+            <Tooltip title={t('刷新信息')}>
+                <div className='icon-area'><Button type='text' icon={<Icon className='icon-refresh' component={SvgRefresh}  onClick={() => { model.get_cluster_perf() }}/>}><span>{t('刷新')}</span></Button></div>
+            </Tooltip>
+            </div>
+            :
             <div className='operations'>
                 <Tooltip title={t('刷新信息')}>
-                    <Button icon={<Icon className='icon-refresh' component={SvgRefresh}  onClick={() => { model.get_cluster_perf() }}/>}/> 
+                    <div className='icon-area'><Button type='text' icon={<Icon className='icon-refresh' component={SvgRefresh}  onClick={() => { model.get_cluster_perf() }}/>}><span>{t('刷新')}</span></Button></div>
                 </Tooltip>
                 
                 <Tooltip title={t('启动节点')}>
-                    <Button icon={<Icon className='icon-start' component={SvgStart} onClick={() => setIsStartModalOpen(true)}/>}/>
+                    <div className='icon-area'><Button type='text' icon={<Icon className='icon-start' component={SvgStart} onClick={() => setIsStartModalOpen(true)}/>}><span>{t('启动')}</span></Button></div>
                 </Tooltip>
                 
                 <Tooltip title={t('停止节点')}>
-                    <Button icon={<Icon className='icon-stop' component={SvgStop} onClick={() => setIsStopModalOpen(true)}/>}/>
+                    <div className='icon-area'><Button type='text' icon={<Icon className='icon-stop' component={SvgStop} onClick={() => setIsStopModalOpen(true)}/>}><span>{t('停止')}</span></Button></div>
                 </Tooltip>
             </div>
             }
@@ -197,9 +203,9 @@ function Node ({
     const privateDomain = host + ':' + port
     let publicDomain = [ ]
     if (type === NodeType.single)
-        publicDomain = publicName.split(';').map(val => val + ':' + port) 
+        publicDomain = publicName.split(';').map(val => '//:' + val +  ':' + port) 
     else
-        publicDomain = publicName.split(',').map(val => val + ':' + port) 
+        publicDomain = publicName.split(',').map(val =>  val + ':' + port) 
     
     function switchFold (event) {
         if (event.target.tagName === 'INPUT' || event.target.className === 'node-site' || event.target.className === 'node-name'  )
