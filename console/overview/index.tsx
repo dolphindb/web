@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { Children, default as React, ReactNode, useState, useEffect, useRef } from 'react'
+import { Children, default as React, ReactNode, useState, useEffect } from 'react'
 
 import { Button, Modal, Tooltip, Progress, Tag, Checkbox } from 'antd'
 import { default as _Icon,  SettingOutlined } from '@ant-design/icons'
@@ -21,10 +21,6 @@ import SvgNetwork from './icons/network.icon.svg'
 import SvgTask from './icons/task.icon.svg'
 import SvgExport from './icons/export.icon.svg'
 
-
-import { t } from '../../i18n/index.js'
-
-import { NodeType, DdbNode, DdbNodeState, model } from '../model.js'
 import { delay } from 'xshell/utils.browser.js'
 
 
