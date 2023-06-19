@@ -49,6 +49,13 @@ import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 
 
+enum TableKind {
+    /** 维度表 */
+    Table,
+    PartitionedTable
+}
+
+
 export function Databases () {
     const { dbs } = shell.use(['dbs'])
     const { logined, node_type } = model.use(['logined', 'node_type'])
@@ -140,6 +147,7 @@ export function Databases () {
                                     case 'column-root':
                                     case 'partition-root':
                                     case 'partition-directory':
+                                    case 'table':
                                         await node.self.load_children()
                                         
                                         shell.set({ dbs: [...dbs] })
@@ -857,6 +865,8 @@ export class Database implements DataNode {
 export class Table implements DataNode {
     type = 'table' as const
     
+    kind: TableKind
+    
     self: Table
     
     /** 以 / 结尾 */
@@ -879,7 +889,7 @@ export class Table implements DataNode {
     
     db: Database
     
-    children: [Schema, ColumnRoot, PartitionRoot]
+    children: [Schema, ColumnRoot, PartitionRoot?]
     
     obj: DdbTableObj
     
@@ -891,7 +901,6 @@ export class Table implements DataNode {
         this.db = db
         this.key = this.path = path
         this.title = this.name = path.slice(db.path.length, -1)
-        this.children = [new Schema(this), new ColumnRoot(this), new PartitionRoot(this)]
     }
     
     
@@ -920,6 +929,21 @@ export class Table implements DataNode {
         }
         
         return this.schema
+    }
+    
+    
+    async load_children () {
+        if (!this.children && !this.kind) {
+            this.kind = Number((await this.get_schema()).to_dict().partitionColumnIndex.value) < 0 ? 
+                    TableKind.Table
+                :
+                    TableKind.PartitionedTable
+            
+            this.children = this.kind === TableKind.Table ?
+                    [new Schema(this), new ColumnRoot(this)]
+                :
+                    [new Schema(this), new ColumnRoot(this), new PartitionRoot(this)]
+        }
     }
 }
 
