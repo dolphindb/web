@@ -6,6 +6,8 @@ import { Button, Modal, Tooltip, Progress, Tag, Checkbox } from 'antd'
 import { default as _Icon,  SettingOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
+import { use_modal } from 'react-object-model/modal.js'
+
 import { t } from '../../i18n/index.js'
 
 import { NodeType, DdbNodeState, DdbNode, model } from '../model.js'
@@ -499,21 +501,5 @@ function NodeContainer ({
             
         </div> : null)}
     </>
-}
-
-function use_modal () {
-    const [visible, set_visible] = useState(false)
-    
-    return {
-        visible,
-        
-        open () {
-            set_visible(true)
-        },
-        
-        close () {
-            set_visible(false)
-        }
-    }
 }
 
