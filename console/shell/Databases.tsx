@@ -931,30 +931,15 @@ export class Table implements DataNode {
     }
     
     
-    async get_schema_partitionSchema () {
-        if (!this.kind) {
-            await shell.define_load_table_schema_partition()
-            const partition = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
-                'load_table_schema_partition',
-                [this.db.path.slice(0, -1), this.name],
-                model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
-            )
-            if (partition.value === null) 
+    async load_children () {
+        if (!this.children && !this.kind) {
+            const partitionColumnIndex = (await this.get_schema()).to_dict().partitionColumnIndex.value
+            if (partitionColumnIndex === -1) 
                 this.kind = TableKind.Table
             else
                 this.kind = TableKind.PartitionedTable
-        }
-        return this.kind
-    }
-    
-    
-    async load_children () {
-        if (!this.children && !this.kind) {
-            await this.get_schema_partitionSchema()
-            
-            this.schema.to_dict().partitionSchema
-            
-            // console.log('tabletype:' + this.tableType)
+                
+            // console.log('tabletype:' + this.kind)
             if (this.kind === TableKind.Table)// 维度表
                 this.children = [new Schema(this), new ColumnRoot(this)]
             else
