@@ -50,6 +50,7 @@ import SvgTable from './icons/table.icon.svg'
 
 
 enum TableKind {
+    /** 维度表 */
     Table,
     PartitionedTable
 }
@@ -933,20 +934,17 @@ export class Table implements DataNode {
     
     async load_children () {
         if (!this.children && !this.kind) {
-            const partitionColumnIndex = (await this.get_schema()).to_dict().partitionColumnIndex.value
-            if (partitionColumnIndex === -1) 
-                this.kind = TableKind.Table
-            else
-                this.kind = TableKind.PartitionedTable
-                
-            // console.log('tabletype:' + this.kind)
-            if (this.kind === TableKind.Table)// 维度表
-                this.children = [new Schema(this), new ColumnRoot(this)]
-            else
-                this.children = [new Schema(this), new ColumnRoot(this), new PartitionRoot(this)]
+            this.kind = Number((await this.get_schema()).to_dict().partitionColumnIndex.value) < 0 ? 
+                    TableKind.Table
+                :
+                    TableKind.PartitionedTable
+            
+            this.children = this.kind === TableKind.Table ?
+                    [new Schema(this), new ColumnRoot(this)]
+                :
+                    [new Schema(this), new ColumnRoot(this), new PartitionRoot(this)]
         }
     }
-    
 }
 
 
