@@ -48,6 +48,10 @@ import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 
+enum TableTypes {
+    Table = 'Table',
+    PartitionedTable = 'PartitionedTable',
+}
 
 export function Databases () {
     const { dbs } = shell.use(['dbs'])
@@ -140,6 +144,8 @@ export function Databases () {
                                     case 'column-root':
                                     case 'partition-root':
                                     case 'partition-directory':
+                                    case 'table':
+                                        
                                         await node.self.load_children()
                                         
                                         shell.set({ dbs: [...dbs] })
@@ -857,6 +863,8 @@ export class Database implements DataNode {
 export class Table implements DataNode {
     type = 'table' as const
     
+    tableType: TableTypes
+    
     self: Table
     
     /** 以 / 结尾 */
@@ -879,7 +887,7 @@ export class Table implements DataNode {
     
     db: Database
     
-    children: [Schema, ColumnRoot, PartitionRoot]
+    children: [Schema, ColumnRoot, PartitionRoot?]
     
     obj: DdbTableObj
     
@@ -891,7 +899,6 @@ export class Table implements DataNode {
         this.db = db
         this.key = this.path = path
         this.title = this.name = path.slice(db.path.length, -1)
-        this.children = [new Schema(this), new ColumnRoot(this), new PartitionRoot(this)]
     }
     
     
@@ -902,7 +909,7 @@ export class Table implements DataNode {
             [this.db.path.slice(0, -1), this.name],
             model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
         )
-        obj.name = `${this.name} (${t('前 100 行')})`
+        obj.name = `${this.name} (${t('前 100 行')})`   
         shell.set({ result: { type: 'object', data: obj } })
     }
     
@@ -921,6 +928,36 @@ export class Table implements DataNode {
         
         return this.schema
     }
+    
+    
+    async get_schema_partitionSchema () {
+        if (!this.tableType) {
+            await shell.define_load_table_schema_partition()
+            const partition = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
+                'load_table_schema_partition',
+                [this.db.path.slice(0, -1), this.name],
+                model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
+            )
+            if (partition.value === null) 
+                this.tableType = TableTypes.Table
+            else
+                this.tableType = TableTypes.PartitionedTable
+        }
+        return this.tableType
+    }
+    
+    
+    async load_children () {
+        if (!this.children && !this.tableType) {
+            await this.get_schema_partitionSchema()
+            // console.log('tabletype:' + this.tableType)
+            if (this.tableType === TableTypes.Table)// 维度表
+                this.children = [new Schema(this), new ColumnRoot(this)]
+            else
+                this.children = [new Schema(this), new ColumnRoot(this), new PartitionRoot(this)]
+        }
+    }
+    
 }
 
 
