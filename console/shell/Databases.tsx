@@ -48,10 +48,12 @@ import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 
-enum TableTypes {
-    Table = 'Table',
-    PartitionedTable = 'PartitionedTable',
+
+enum TableKind {
+    Table,
+    PartitionedTable
 }
+
 
 export function Databases () {
     const { dbs } = shell.use(['dbs'])
@@ -145,7 +147,6 @@ export function Databases () {
                                     case 'partition-root':
                                     case 'partition-directory':
                                     case 'table':
-                                        
                                         await node.self.load_children()
                                         
                                         shell.set({ dbs: [...dbs] })
@@ -863,7 +864,7 @@ export class Database implements DataNode {
 export class Table implements DataNode {
     type = 'table' as const
     
-    tableType: TableTypes
+    kind: TableKind
     
     self: Table
     
@@ -909,7 +910,7 @@ export class Table implements DataNode {
             [this.db.path.slice(0, -1), this.name],
             model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
         )
-        obj.name = `${this.name} (${t('前 100 行')})`   
+        obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
     }
     
@@ -931,7 +932,7 @@ export class Table implements DataNode {
     
     
     async get_schema_partitionSchema () {
-        if (!this.tableType) {
+        if (!this.kind) {
             await shell.define_load_table_schema_partition()
             const partition = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                 'load_table_schema_partition',
@@ -939,19 +940,22 @@ export class Table implements DataNode {
                 model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
             )
             if (partition.value === null) 
-                this.tableType = TableTypes.Table
+                this.kind = TableKind.Table
             else
-                this.tableType = TableTypes.PartitionedTable
+                this.kind = TableKind.PartitionedTable
         }
-        return this.tableType
+        return this.kind
     }
     
     
     async load_children () {
-        if (!this.children && !this.tableType) {
+        if (!this.children && !this.kind) {
             await this.get_schema_partitionSchema()
+            
+            this.schema.to_dict().partitionSchema
+            
             // console.log('tabletype:' + this.tableType)
-            if (this.tableType === TableTypes.Table)// 维度表
+            if (this.kind === TableKind.Table)// 维度表
                 this.children = [new Schema(this), new ColumnRoot(this)]
             else
                 this.children = [new Schema(this), new ColumnRoot(this), new PartitionRoot(this)]
