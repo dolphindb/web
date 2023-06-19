@@ -225,6 +225,7 @@ function Node ({
         commercial: t('商业版'),
         test: t('测试版'),
     }
+    
     const privateDomain = host + ':' + port
     let auth = ''
     if (license)
@@ -237,6 +238,7 @@ function Node ({
         publicDomain = publicName.split(',').map(val =>   val + ':' + port) 
     if (node.agentSite)
         agentNode = agentSite.split(':')[2]
+        
     function switchFold () {
         if (node.mode === NodeType.agent )
             return
@@ -259,17 +261,16 @@ function Node ({
         setSelectedNodes(newSelectedNodes)
     }
     
-    return <>
-        <div className='node'>{
+    return <div className={'node' + (node.name === model.node.name ? ' current-node' : '')}>{
             type === NodeType.single ? 
             <div className={'node-header' + ' ' + nodeColor[mode]}>
-                <div className={'node-title' + ' ' + titleColor[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFCA2F' >leader</Tag> : null}</div>
+                <div className={'node-title' + ' ' + titleColor[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
                 <div className='node-site' ><span className='site-text'>{privateDomain}</span><a href={'//' + privateDomain} target='_blank'><Icon component={SvgExport} /></a></div>
                 { publicDomain.map(val => <div className='node-site' key={val}><span className='site-text'>{val}</span><a href={'//' + val} target='_blank'><Icon component={SvgExport} /></a></div>) }
                 <div className={nodeStatus[state]}><span>{state ? t('已启动') : t('未启动')}</span></div>
             </div>
             :
-            <div className={'node-header' + ' ' + nodeColor[mode] + (expandedNodes.some(node => node.mode === type && node.name === name) ? ' node-header-fold' : '') + (node.name === model.node.name ? ' current-node' : '')}>
+            <div className={'node-header' + ' ' + nodeColor[mode] + (expandedNodes.some(node => node.mode === type && node.name === name) ? ' node-header-fold' : '') }>
                 <div className='node-chosen'>{node.mode === NodeType.controller || node.mode === NodeType.agent ? <Tooltip title={(node.mode === NodeType.controller ? '控制' : '代理') + '节点不可停止'}><Checkbox disabled={node.mode === NodeType.controller || node.mode === NodeType.agent} 
                                                        checked={selectedNodes.some(node => node.mode === type && node.name === name)} 
                                                        onChange={() => handeChange()}/></Tooltip> :
@@ -278,7 +279,7 @@ function Node ({
                                                        onChange={() => handeChange()}/>
                                                        }
                 </div>
-                <div className={'node-title' + ' ' + titleColor[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFCA2F' >leader</Tag> : null}</div>
+                <div className={'node-title' + ' ' + titleColor[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
                 <div className='node-click'  onClick={() => switchFold()}/>
                 <div className='node-site' ><span className='site-text'>{privateDomain}</span><a href={'//' + privateDomain} target='_blank'><Icon component={SvgExport} /></a></div>
                 { publicDomain.map(val => <div className='node-site' key={val}><span className='site-text'>{val}</span><a href={'//' + val} target='_blank'><Icon component={SvgExport} /></a></div>) }
@@ -333,7 +334,6 @@ function Node ({
                 {license && <span className='node-version'>{auth + ' ' + license.version}</span>}
             </div>
         </div>
-    </>
 }
 
 
@@ -348,8 +348,7 @@ function NodeInfo ({
     className: string
     children: ReactNode
 }) {
-    return <>
-        <div className={'info-card' + ' ' + className}>
+    return <div className={'info-card' + ' ' + className}>
             <div className='info-title'>
                 <Icon component={icon} />
                 <div className='title-text'>{title}</div>
@@ -359,9 +358,7 @@ function NodeInfo ({
                     {children}
                 </div>
             </div>
-        </div>
-    </>
-    
+        </div> 
 }
 
 
@@ -449,32 +446,45 @@ function NodeContainer ({
     expandedNodes: DdbNode[]
     setExpandedNodes: Function
 }) {
+    const { node, dev } = model.use(['node', 'dev'])
+    
     let leaderNode = null
     let privateDomain = ''
     let publicDomain = [ ]
-    const { node } = model.use(['node'])
+    
+   
+    
     
     for (let node of nodes)
         if (node.isLeader) {
             leaderNode = node
             const { host, port, publicName } = leaderNode
             privateDomain = host + ':' + port
-            publicDomain =  publicName.split(',').map(val => val + ':' + port)
+            publicDomain =  publicName.split(',').map((val: string) => val + ':' + port)
             break
         }
    
+    if (!dev) {
+        const url = window.location
+        const urlArr = url.search.split('&')
+        urlArr[1] =  publicDomain[0].split(':')[0]
+        urlArr[2] = publicDomain[0].split(':')[1]
+        const newUrl = url.origin + url.pathname + urlArr.join('&')
+        history.pushState(',', newUrl)
+    }
+    
+        
     function handleAllChosen () {
         let newSlectedNodes = [ ]
         if (selectedNodes.filter(node => node.mode === type).length < numOfNodes[type]) 
             newSlectedNodes = nodes.filter(node => node.mode === type && !selectedNodes.includes(node)).concat(selectedNodes)
         else
             newSlectedNodes = selectedNodes.filter(node => node.mode !== type)        
-        console.log(newSlectedNodes)
         setSelectedNodes(newSlectedNodes)
         
     }
         
-    const nodeType = [t('数据节点'), t('代理节点'), t('控制节点'),,  t('计算节点'), ]
+    const nodeType = [t('数据节点'), t('代理节点'), t('控制节点'),,  t('计算节点') ]
     return <>
         {type === NodeType.single ? 
             <Node node={node} type={type} key={node.name} numOfNodes={[ ]}
@@ -489,7 +499,7 @@ function NodeContainer ({
                                             </div> 
                                         : (type !== NodeType.agent ? <div className='nodes-selectAll'>
                                                 <Checkbox checked={selectedNodes.filter(node => node.mode === type).length === numOfNodes[type] } indeterminate={selectedNodes.filter(node => node.mode === type).length && selectedNodes.filter(node => node.mode === type).length !== numOfNodes[type]} onChange={() => handleAllChosen()} >
-                                                    <div className='text-selectAll'>全选</div>
+                                                    <div className='text-selectAll'>{t('全选')}</div>
                                                 </Checkbox>
                                             </div> : null)}
             </div>

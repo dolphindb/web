@@ -711,7 +711,7 @@ export class DdbModel extends Model<DdbModel> {
         
         const current_params = new URLSearchParams(location.search)
         const is_query_params_mode = current_params.get('hostname') || current_params.get('port')
-        
+        console.log('is_query_params_mode', is_query_params_mode)
         const new_params = new URLSearchParams(extra_query)
         
         if (keep_current_query) 
