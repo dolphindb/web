@@ -42,15 +42,15 @@ export function Overview () {
             flag = false
         }
     })
+    
     const [selectedNodes, setSelectedNodes] = useState([ ])
     const [isStartModalOpen, setIsStartModalOpen] = useState(false)
     const [isStopModalOpen, setIsStopModalOpen] = useState(false)
     
     const initExpandedNodes = [ ]
    
-    for (let node of nodes) 
-        if ((node.mode === NodeType.controller && !node.isLeader) || node.mode !== NodeType.controller)
-            initExpandedNodes.push(node)
+    nodes.forEach(node => { if ((node.mode === NodeType.controller && !node.isLeader) || node.mode !== NodeType.controller)
+        initExpandedNodes.push(node) })
     
     const numOfNodes = [nodes.filter(node => node.mode === NodeType.data).length, 
                         nodes.filter(node => node.mode === NodeType.agent).length, 
@@ -72,29 +72,29 @@ export function Overview () {
             {node_type === NodeType.single ? 
             <div className='operations'>
             <Tooltip title={t('刷新信息')}>
-                <div className='icon-area'><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  onClick={() => { model.get_cluster_perf() }}/>}>{t('刷新')}</Button></div>
+                <div className='icon-area' onClick={() => { model.get_cluster_perf() }}><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
             </Tooltip>
             </div>
             :
             <div className='operations'>
                 <Tooltip title={t('刷新信息')}>
-                    <div className='icon-area'><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  onClick={() => { model.get_cluster_perf() }}/>}>{t('刷新')}</Button></div>
+                    <div className='icon-area' onClick={() => { model.get_cluster_perf() }}><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
                 </Tooltip>
                 
                 <Tooltip title={t('启动节点')}>
-                    <div className='icon-area'><Button type='text' block icon={<Icon className='icon-start' component={SvgStart} onClick={() => setIsStartModalOpen(true)}/>}>{t('启动')}</Button></div>
+                    <div className='icon-area'  onClick={() => setIsStartModalOpen(true)}><Button type='text' block icon={<Icon className='icon-start' component={SvgStart}/>}>{t('启动')}</Button></div>
                 </Tooltip>
                 
                 <Tooltip title={t('停止节点')}>
-                    <div className='icon-area'><Button type='text' block icon={<Icon className='icon-stop' component={SvgStop} onClick={() => setIsStopModalOpen(true)}/>}>{t('停止')}</Button></div>
+                    <div className='icon-area' onClick={() => setIsStopModalOpen(true)}><Button type='text' block icon={<Icon className='icon-stop' component={SvgStop} />}>{t('停止')}</Button></div>
                 </Tooltip>
                 
                 <Tooltip title={t('全部展开')}>
-                    <div className='icon-expand-area'><Button type='text' block icon={<Icon className='icon-expand' component={SvgExpand} onClick={() => expandAll()}/>}>{t('全部展开')}</Button></div>
+                    <div className='icon-expand-area' onClick={() => expandAll()}><Button type='text' block icon={<Icon className='icon-expand' component={SvgExpand} />}>{t('全部展开')}</Button></div>
                 </Tooltip>
                 
                 <Tooltip title={t('全部折叠')}>
-                    <div className='icon-collapse-area'><Button type='text' block icon={<Icon className='icon-collapse' component={SvgCollapse} onClick={() => collapseAll()}/>}>{t('全部折叠')}</Button></div>
+                    <div className='icon-collapse-area' onClick={() => collapseAll()}><Button type='text' block icon={<Icon className='icon-collapse' component={SvgCollapse} />}>{t('全部折叠')}</Button></div>
                 </Tooltip>
             </div>
             }
@@ -173,6 +173,7 @@ function Node ({
     expandedNodes: DdbNode[]
     setExpandedNodes: Function
 }) {
+    const { license } = model.use(['license'])
     const nodeColor = ['data-color', 'agent-color', 'controller-color', 'single-color', 'computing-color']
     const titleColor = ['data-title-color', 'agent-title-color', 'controller-title-color', 'single-title-color', 'computing-title-color']
     const nodeStatus = [ 'offline', 'online']
@@ -218,7 +219,16 @@ function Node ({
         lastMsgLatency,
         cumMsgLatency } = node
         
+    const authorizations = {
+        trial: t('试用版'),
+        community: t('社区版'),
+        commercial: t('商业版'),
+        test: t('测试版'),
+    }
     const privateDomain = host + ':' + port
+    let auth = ''
+    if (license)
+        auth = authorizations[license.authorization] || license.authorization
     let publicDomain = [ ]
     let agentNode = ''
     if (type === NodeType.single)
@@ -320,7 +330,7 @@ function Node ({
             </div>
             <div className={expandedNodes.some(node => node.mode === type && node.name === name)  ? 'node-footer-fold' : 'node-footer'}>
                 {agentNode && <span>{t('代理节点: ') + agentNode}</span> }
-                <span className='node-version'>试用版 v2.00.9.7</span>
+                {license && <span className='node-version'>{auth + ' ' + license.version}</span>}
             </div>
         </div>
     </>

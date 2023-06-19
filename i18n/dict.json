@@ -1792,5 +1792,53 @@
     },
     "代理节点": {
         "en": "agent node"
+    },
+    "单机总览": {
+        "en": "single node overview"
+    },
+    "worker 线程总数": {
+        "en": "total number of worker threads"
+    },
+    "executor 线程总数": {
+        "en": "total number of executor threads"
+    },
+    "全部展开": {
+        "en": "expand all"
+    },
+    "占用率": {
+        "en": "occupancy rate"
+    },
+    "平均负载": {
+        "en": "average load"
+    },
+    "已分配": {
+        "en": "allocated"
+    },
+    "读": {
+        "en": "read"
+    },
+    "前一分钟读": {
+        "en": "read in last minute"
+    },
+    "写": {
+        "en": "write"
+    },
+    "前一分钟写": {
+        "en": "written in last minute"
+    },
+    "收": {
+        "en": "reveive"
+    },
+    "前一分钟收": {
+        "en": "received in last minute"
+    },
+    "发": {
+        "en": "send"
+    },
+    "前一分钟发": {
+        "en": "sent in last minute"
+    },
+    "代理节点: ": {
+        "en": "agent node"
     }
 }
