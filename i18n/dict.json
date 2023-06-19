@@ -1843,5 +1843,14 @@
     },
     "全选": {
         "en": "select all"
+    },
+    "控制": {
+        "en": "controller"
+    },
+    "代理": {
+        "en": "agent"
+    },
+    "节点不可停止": {
+        "en": "node is not stoppable"
     }
 }

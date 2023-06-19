@@ -47,16 +47,8 @@ export function Overview () {
     const [isStartModalOpen, setIsStartModalOpen] = useState(false)
     const [isStopModalOpen, setIsStopModalOpen] = useState(false)
     
-    const initExpandedNodes = [ ]
-   
-    nodes.forEach(node => { if ((node.mode === NodeType.controller && !node.isLeader) || node.mode !== NodeType.controller)
-        initExpandedNodes.push(node) })
+    const initExpandedNodes = nodes.filter(node => (node.mode === NodeType.controller && !node.isLeader) || node.mode !== NodeType.controller)
     
-    const numOfNodes = [nodes.filter(node => node.mode === NodeType.data).length, 
-                        nodes.filter(node => node.mode === NodeType.agent).length, 
-                        nodes.filter(node => node.mode === NodeType.controller).length, 
-                        0, 
-                        nodes.filter(node => node.mode === NodeType.computing).length]
     const [expandedNodes, setExpandedNodes] = useState(initExpandedNodes)
     
     function expandAll () {
@@ -125,7 +117,7 @@ export function Overview () {
             </Modal>
         </div>
         
-        <NodeCard isSingleNode={node_type === NodeType.single} numOfNodes={numOfNodes}selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes} expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
+        <NodeCard isSingleNode={node_type === NodeType.single} selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes} expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
     </>
 }
 
@@ -158,20 +150,17 @@ function ButtonIframeModal ({
 function Node ({
     node,
     type,
-    numOfNodes,
     selectedNodes,
     setSelectedNodes,
-    expandedNodes,
-    setExpandedNodes
-    
+    expanded,
+    switchFold
 }: {
     node: DdbNode
     type: NodeType
-    numOfNodes: number[]
     selectedNodes: DdbNode[]
     setSelectedNodes: Function
-    expandedNodes: DdbNode[]
-    setExpandedNodes: Function
+    expanded: boolean
+    switchFold: Function
 }) {
     const { license } = model.use(['license'])
     const nodeColor = ['data-color', 'agent-color', 'controller-color', 'single-color', 'computing-color']
@@ -238,19 +227,6 @@ function Node ({
         publicDomain = publicName.split(',').map(val =>   val + ':' + port) 
     if (node.agentSite)
         agentNode = agentSite.split(':')[2]
-        
-    function switchFold () {
-        if (node.mode === NodeType.agent )
-            return
-        let newExpandedNodes = [ ]
-        if (expandedNodes.every(node =>  node.name !== name)) 
-            newExpandedNodes = [...expandedNodes, node]
-         
-        else 
-            newExpandedNodes = expandedNodes.filter(node => node.mode !== type || node.name !== name)
-        setExpandedNodes(newExpandedNodes)  
-        
-    }
     
     function handeChange () {
         let newSelectedNodes = [ ]
@@ -270,8 +246,8 @@ function Node ({
                 <div className={nodeStatus[state]}><span>{state ? t('已启动') : t('未启动')}</span></div>
             </div>
             :
-            <div className={'node-header' + ' ' + nodeColor[mode] + (expandedNodes.some(node => node.mode === type && node.name === name) ? ' node-header-fold' : '') }>
-                <div className='node-chosen'>{node.mode === NodeType.controller || node.mode === NodeType.agent ? <Tooltip title={(node.mode === NodeType.controller ? '控制' : '代理') + '节点不可停止'}><Checkbox disabled={node.mode === NodeType.controller || node.mode === NodeType.agent} 
+            <div className={'node-header' + ' ' + nodeColor[mode] + (expanded ? ' node-header-fold' : '') }>
+                <div className='node-chosen'>{node.mode === NodeType.controller || node.mode === NodeType.agent ? <Tooltip title={(node.mode === NodeType.controller ? t('控制') : t('代理')) + t('节点不可停止')}><Checkbox disabled={node.mode === NodeType.controller || node.mode === NodeType.agent} 
                                                        checked={selectedNodes.some(node => node.mode === type && node.name === name)} 
                                                        onChange={() => handeChange()}/></Tooltip> :
                                                        <Checkbox  
@@ -280,13 +256,13 @@ function Node ({
                                                        }
                 </div>
                 <div className={'node-title' + ' ' + titleColor[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
-                <div className='node-click'  onClick={() => switchFold()}/>
+                <div className='node-click'  onClick={() => switchFold(node)}/>
                 <div className='node-site' ><span className='site-text'>{privateDomain}</span><a href={'//' + privateDomain} target='_blank'><Icon component={SvgExport} /></a></div>
                 { publicDomain.map(val => <div className='node-site' key={val}><span className='site-text'>{val}</span><a href={'//' + val} target='_blank'><Icon component={SvgExport} /></a></div>) }
                 <div className={nodeStatus[state]}><span>{state ? t('已启动') : t('未启动')}</span></div>
             </div>
             }
-            <div className={(type !== NodeType.single && expandedNodes.some(node => node.mode === type && node.name === name)  ? 'node-body-fold' : 'node-body')  + (node.mode === NodeType.data ? ' data-node-background' : '')}>
+            <div className={(type !== NodeType.single && expanded  ? 'node-body-fold' : 'node-body')  + (node.mode === NodeType.data ? ' data-node-background' : '')}>
                 <NodeInfo title='CPU' icon={SvgCPU} className='cpu-info'  >
                     <InfoItem title={t('占用率')} Progress={<Progress percent={cpuUsage} showInfo={false} 
                                                             strokeColor={cpuUsage > 67 ? '#FF8660' : (cpuUsage > 33 ? '#FFCE4F' : '#A8EB7F')} 
@@ -330,7 +306,7 @@ function Node ({
                     <InfoItem title={t('所有消息平均延时')}>{Number(cumMsgLatency) < Number.MIN_VALUE ? 0  + ' s' : Number(cumMsgLatency) + ' s'}</InfoItem>     
                 </NodeInfo>
             </div>
-            <div className={expandedNodes.some(node => node.mode === type && node.name === name)  ? 'node-footer-fold' : 'node-footer'}>
+            <div className={expanded  ? 'node-footer-fold' : 'node-footer'}>
                 {agentNode && <span>{t('代理节点: ') + agentNode}</span> }
                 {license && <span className='node-version'>{auth + ' ' + license.version}</span>}
             </div>
@@ -342,7 +318,7 @@ function NodeInfo ({
     title,
     icon,
     className,
-    children,
+    children
 }: {
     title: string
     icon: any
@@ -385,15 +361,12 @@ function InfoItem ({
 
 function NodeCard ({
     isSingleNode, 
-    numOfNodes,
     selectedNodes,
     setSelectedNodes,
     expandedNodes,
     setExpandedNodes
-    
 }: {
     isSingleNode: boolean
-    numOfNodes: number[]
     selectedNodes: DdbNode[]
     setSelectedNodes: Function
     expandedNodes: DdbNode[]
@@ -407,21 +380,21 @@ function NodeCard ({
     
     return <>{isSingleNode ?
         <div className='content single-node-content'>
-            <NodeContainer type={NodeType.single} nodes={[ ]} numOfNodes={[ ]}
+            <NodeContainer type={NodeType.single} nodes={[ ]}
                             selectedNodes={[ ]} setSelectedNodes={() => { }}
                             expandedNodes={[ ]} setExpandedNodes={() => { }} />
         </div> :
         <div className='content'>
-            <NodeContainer type={NodeType.controller} nodes={controllerNodes} numOfNodes={numOfNodes}
+            <NodeContainer type={NodeType.controller} nodes={controllerNodes}
                             selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
                             expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes} />
-            <NodeContainer type={NodeType.data} nodes={dataNodes} numOfNodes={numOfNodes}
+            <NodeContainer type={NodeType.data} nodes={dataNodes} 
                             selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
                             expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
-            <NodeContainer type={NodeType.computing} nodes={computingNodes} numOfNodes={numOfNodes}
+            <NodeContainer type={NodeType.computing} nodes={computingNodes} 
                             selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
                             expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
-            <NodeContainer type={NodeType.agent} nodes={agentNodes} numOfNodes={numOfNodes}
+            <NodeContainer type={NodeType.agent} nodes={agentNodes} 
                             selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
                             expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
         </div>   
@@ -432,7 +405,6 @@ function NodeCard ({
 function NodeContainer ({
     type,
     nodes,
-    numOfNodes,
     selectedNodes,
     setSelectedNodes,
     expandedNodes,
@@ -441,20 +413,17 @@ function NodeContainer ({
 }: {
     type: NodeType
     nodes: DdbNode[]
-    numOfNodes: number[]
     selectedNodes: DdbNode[]
     setSelectedNodes: Function
     expandedNodes: DdbNode[]
     setExpandedNodes: Function
 }) {
-    const { node, dev } = model.use(['node', 'dev'])
+    const { node,  dev } = model.use(['node',  'dev'])
     
     let leaderNode = null
     let privateDomain = ''
     let publicDomain = [ ]
-    
-   
-    
+    const numOfNodes = nodes.filter(node => node.mode === type).length
     
     for (let node of nodes)
         if (node.isLeader) {
@@ -474,10 +443,22 @@ function NodeContainer ({
         const newUrl = url.origin + url.pathname + urlArr.join('&')
         history.pushState(',', newUrl)
     }
-     
+          
+    function switchFold (node: DdbNode) {
+        if (node.mode === NodeType.agent )
+            return
+        let newExpandedNodes = [ ]
+        if (expandedNodes.every(item =>  item.name !== node.name)) 
+            newExpandedNodes = [...expandedNodes, node]
+         
+        else 
+            newExpandedNodes = expandedNodes.filter(item => item.mode !== node.mode || item.name !== node.name)
+        setExpandedNodes(newExpandedNodes)    
+    }
+    
     function handleAllChosen () {
         let newSlectedNodes = [ ]
-        if (selectedNodes.filter(node => node.mode === type).length < numOfNodes[type]) 
+        if (selectedNodes.filter(node => node.mode === type).length < numOfNodes) 
             newSlectedNodes = nodes.filter(node => node.mode === type && !selectedNodes.includes(node)).concat(selectedNodes)
         else
             newSlectedNodes = selectedNodes.filter(node => node.mode !== type)        
@@ -488,9 +469,9 @@ function NodeContainer ({
     const nodeType = [t('数据节点'), t('代理节点'), t('控制节点'),,  t('计算节点') ]
     return <>
         {type === NodeType.single ? 
-            <Node node={node} type={type} key={node.name} numOfNodes={[ ]}
+            <Node node={node} type={type} key={node.name} 
             selectedNodes={[ ]} setSelectedNodes={() => { }}
-            expandedNodes={[ ]} setExpandedNodes={() => { }}  />
+            expanded switchFold={node => switchFold(node)}  />
         : (nodes.length ? 
         <div>
             <div className='nodes-header'>{nodeType[type] + ' (' + nodes.length + ')'}
@@ -499,14 +480,14 @@ function NodeContainer ({
                                                 { publicDomain.map(val => <div className='node-site' key={val} ><span className='site-text'>{val}</span><a href={'//' + val} target='_blank'><Icon component={SvgExport} /></a></div>) }
                                             </div> 
                                         : (type !== NodeType.agent ? <div className='nodes-selectAll'>
-                                                <Checkbox checked={selectedNodes.filter(node => node.mode === type).length === numOfNodes[type] } indeterminate={selectedNodes.filter(node => node.mode === type).length && selectedNodes.filter(node => node.mode === type).length !== numOfNodes[type]} onChange={() => handleAllChosen()} >
+                                                <Checkbox checked={selectedNodes.filter(node => node.mode === type).length === numOfNodes } indeterminate={selectedNodes.filter(node => node.mode === type).length && selectedNodes.filter(node => node.mode === type).length !== numOfNodes} onChange={() => handleAllChosen()} >
                                                     <div className='text-selectAll'>{t('全选')}</div>
                                                 </Checkbox>
                                             </div> : null)}
             </div>
-            {nodes.map(node => <Node node={node} type={type} key={node.name} numOfNodes={numOfNodes}
+            {nodes.map(node => <Node node={node} type={type} key={node.name} 
                                         selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
-                                        expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes} />)}
+                                        expanded={expandedNodes.some(item => item.name === node.name)} switchFold={node => switchFold(node)} />)}
             
         </div> : null)}
     </>
