@@ -313,12 +313,13 @@ function Node ({
                     </InfoItem>
                 </NodeInfo>
                 <NodeInfo title='网络' icon={SvgNetwork} className='network-info' >
-                    <InfoItem title={t('当前连接')}>{connectionNum}</InfoItem> 
-                    <InfoItem title={t('最大连接')}>{maxConnections}</InfoItem>
                     <InfoItem title={t('收')}>{(Number(networkRecvRate)).to_fsize_str() + '/s' }</InfoItem>
                     <InfoItem title={t('前一分钟收')}>{(Number(lastMinuteNetworkRecv)).to_fsize_str()}</InfoItem>
                     <InfoItem title={t('发')}>{(Number(networkSendRate)).to_fsize_str() + '/s' }</InfoItem>
                     <InfoItem title={t('前一分钟发')}>{(Number(lastMinuteNetworkSend)).to_fsize_str()}</InfoItem>
+                    <InfoItem title={t('当前连接')}>{connectionNum}</InfoItem> 
+                    <InfoItem title={t('最大连接')}>{maxConnections}</InfoItem>
+                    
                 </NodeInfo>        
                 <NodeInfo title='任务与作业' icon={SvgTask} className='task-info' >
                     <InfoItem title={t('运行作业')}>{runningJobs}</InfoItem>
@@ -465,15 +466,15 @@ function NodeContainer ({
         }
    
     if (!dev) {
+        const { host, port, publicName } = node
         const url = window.location
         const urlArr = url.search.split('&')
-        urlArr[1] =  publicDomain[0].split(':')[0]
-        urlArr[2] = publicDomain[0].split(':')[1]
+        urlArr[1] =  'hostname=' + publicName.split(',')[0]
+        urlArr[2] = 'port=' + port
         const newUrl = url.origin + url.pathname + urlArr.join('&')
         history.pushState(',', newUrl)
     }
-    
-        
+     
     function handleAllChosen () {
         let newSlectedNodes = [ ]
         if (selectedNodes.filter(node => node.mode === type).length < numOfNodes[type]) 
