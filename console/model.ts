@@ -439,7 +439,7 @@ export class DdbModel extends Model<DdbModel> {
             })
         ).to_rows<DdbNode>()
         
-        // console.log(t('集群节点:'), nodes)
+        console.log(t('集群节点:'), nodes)
         
         let node: DdbNode, controller: DdbNode, datanode: DdbNode
         
@@ -457,9 +457,9 @@ export class DdbModel extends Model<DdbModel> {
                 datanode ??= _node
         }
         
-        // console.log(t('当前节点:'), node)
-        // if (node.mode !== NodeType.single)
-        //     console.log(t('控制节点:'), controller, t('数据节点:'), datanode)
+        console.log(t('当前节点:'), node)
+        if (node.mode !== NodeType.single)
+            console.log(t('控制节点:'), controller, t('数据节点:'), datanode)
         
         this.set({ nodes, node, controller, datanode })
     }
