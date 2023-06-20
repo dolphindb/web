@@ -366,7 +366,7 @@ class ShellModel extends Model<ShellModel> {
     
     
     /** - path: 类似 dfs://Crypto_TSDB_14/, dfs://Crypto_TSDB_14/20100101_20110101/ 的路径 */
-    async load_partitions (root: PartitionRoot, node: PartitionDirectory | PartitionRoot) {
+    async load_partitions (root: PartitionRoot, node: PartitionDirectory | PartitionRoot, name: Set<String>) {
         const {
             rows,
             value: [{ value: filenames }, { value: filetypes }, /* sizes */, { value: chunks_column }, { value: sites }]
@@ -381,8 +381,9 @@ class ShellModel extends Model<ShellModel> {
         
         let directories: PartitionDirectory[] = [ ]
         let file: PartitionFile
-        
-        for (let i = 0;  i < rows;  i++)
+        for (let i = 0;  i < rows;  i++) 
+            // if (name.has(filenames[i]))
+            //     continue
             switch (filetypes[i]) {
                 case DfsFileType.directory:
                     directories.push(

@@ -460,10 +460,11 @@ function CreateDatabase () {
     
     // fix forget to pass form prop warning
     // https://github.com/ant-design/ant-design/issues/21543#issuecomment-1183205379
-    useEffect(() => {
-        if (create_database_modal_visible)
-            form.setFieldValue('partitions', [ ])
-    }, [create_database_modal_visible])
+    // 不进行清空操作，则返回上一步时保存填写内容
+    // useEffect(() => {
+    //     if (create_database_modal_visible)
+    //         form.setFieldValue('partitions', [ ])
+    // }, [create_database_modal_visible])
     
     return <Modal
         className='db-modal show-required'
@@ -1092,7 +1093,7 @@ export class PartitionDirectory implements DataNode {
     
     async load_children () {
         if (!this.children)
-            this.children = await shell.load_partitions(this.root, this)
+            this.children = await shell.load_partitions(this.root, this, new Set<String>())
     }
 }
 
@@ -1252,8 +1253,14 @@ export class PartitionRoot implements DataNode {
     
     
     async load_children () {
+        let dbchildren = await this.table.db.children
+        let length = dbchildren.length
+        let name = new Set<String>()
+        for (let i = 0;  i < length;  i++)
+            name.add('__' + dbchildren[i].name)
+        
         if (!this.children)
-            this.children = (await shell.load_partitions(this, this)) as PartitionDirectory[]
+            this.children = (await shell.load_partitions(this, this, name)) as PartitionDirectory[]
     }
 }
 
