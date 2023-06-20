@@ -273,13 +273,16 @@ export class DdbModel extends Model<DdbModel> {
     
     async start_nodes (nodes) {
         const checked = nodes.map(node => node.name)
-        await this.ddb.call('startDataNode', [new DdbVectorString(checked)])
+        await this.ddb.call('startDataNode', [new DdbVectorString(checked)], {  urgent: true,
+                                                                                node: this.controller_alias, 
+                                                                                func_type: DdbFunctionType.OperatorFunc })
     }
-    
     
     async stop_nodes (nodes) {
         const checked = nodes.map(node => node.name)
-        await this.ddb.call('stopDataNode', [new DdbVectorString(checked)])
+        await this.ddb.call('stopDataNode', [new DdbVectorString(checked)], {  urgent: true,
+                                                                               node: this.controller_alias, 
+                                                                               func_type: DdbFunctionType.OperatorFunc })
     }
     
     async get_node_type () {
@@ -711,7 +714,6 @@ export class DdbModel extends Model<DdbModel> {
         
         const current_params = new URLSearchParams(location.search)
         const is_query_params_mode = current_params.get('hostname') || current_params.get('port')
-        console.log('is_query_params_mode', is_query_params_mode)
         const new_params = new URLSearchParams(extra_query)
         
         if (keep_current_query) 

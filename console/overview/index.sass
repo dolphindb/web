@@ -1,10 +1,12 @@
 .overview
-    flex: 1
+    display: flex
+    flex-direction: column
     
     .actions
         display: flex
-        
         justify-content: space-between
+        position: 'sticky'
+        top: 0
         
         .operations, .configs
             display: flex
@@ -20,9 +22,15 @@
                 display: flex
                 align-items: center
                 justify-content: center
+                button
+                    width: 80px
+                    height: 40px
                 
             .icon-expand-area,.icon-collapse-area
                 width: 100px
+                button
+                    width: 100px
+                    height: 40px
             
             .icon-expand-area
                 margin-left: 25px
@@ -43,9 +51,7 @@
             .icon-stop
                 width: 10px
                 height: 10px
-                color: #234883
-        
- 
+                color: #234883        
 
     .content
     
@@ -75,8 +81,11 @@
             min-width: 1000px
             overflow: auto
             
-        .current-node
+        .data-current-node
             border: 3px solid #0069CA
+            
+        .controller-current-node
+            border: 3px solid#412A9F
 
         .data-color
             background: linear-gradient(270deg, rgba(189, 217, 254, 0) 0%, rgba(189, 217, 254, 0) 34.9%, #BDD9FE 100%)
@@ -107,7 +116,7 @@
             .controller-title-color
                 color: #412A9F
             .computing-title-color
-                color: #602F02
+                color: #853f00
             .single-title-color
                 padding-left:30px
                 color: #003D8D             
@@ -124,20 +133,21 @@
                 align-items: center
                 font-size: 22px  
                 font-weight: 600
-                flex: 1
+                min-width: 200px
                 
             .leader-tag
                 width: 49px
                 color:#412A9F
-                font-weight: 600
-                margin-left: 9px
+                margin-left: 20px
+                min-width: 20px
 
-            .node-click
-                width: 1100px
+            .node-click,.node-click-single
+                flex: 1
                 height: 60px
+                
+            .node-click
                 &:hover
                     cursor: pointer
-                
             .offline 
                 width: 151px
                 height: 60px
@@ -173,7 +183,6 @@
             justify-content: start
             margin-top: 21px
             height: 247px
-            background-image: url('./overview/icons/background.svg')
             background-position: 98% 58%
             background-repeat: no-repeat
 
@@ -214,7 +223,7 @@
                         justify-content: start
                         .item-content
                             margin: 22px 21px 34px 0
-                            min-width: 60px
+                            min-width: 80px
                             max-width: 150px
                             .item-title
                                 color:#6A7B97
@@ -223,8 +232,8 @@
                             .item-body
                                 .info-text
                                     font-size: 20px
-                                    color: #000
-                                    padding: 9px 0 10px 0
+                                    color: #444
+                                    padding-top: 9px
                                     white-space: nowrap
             .cpu-info
                 min-width: 280px
@@ -239,17 +248,23 @@
         .node-body-fold
             display: none
         
+        .controller-node-background
+            background-image: url('./overview/icons/controllerBackground.svg')
+                
         .data-node-background
             background-image: url('./overview/icons/dataBackground.svg')
-            background-position: 98% 58%
+            
+        .computing-node-background
+            background-image: url('./overview/icons/computingBackground.svg')
+            
         
         .node-footer
-            float: right
+            display: flex
+            justify-content: end
             padding: 0 19px 13px 0
-            font-size: 14px
-            line-height: 116.5%
             color:#999
             .node-version
+                flex-shrink: 0
                 margin-left: 30px 
         .node-footer-fold
             display: none    
@@ -261,11 +276,21 @@
         font-weight: 500
         color: #515151
         font-size: 14px
+        display: flex
+        justify-content: center
         .site-text
             margin-right: 10px 
         a      
             color: #515151
-
+            &:hover
+                text-decoration: underline
+        .control-disable
+            cursor: not-allowed
+            .disable-link
+                pointer-events: none
+                
+            
+            
 .nodes-modal, .controller-modal, .datanode-modal
     iframe
         border: none
@@ -274,4 +299,6 @@
         
         width: 100%
     
-
+.ant-layout,.ant-layout-header
+    background-color: #fff
+    padding: 0
