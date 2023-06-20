@@ -30,8 +30,7 @@ import { delay } from 'xshell/utils.browser.js'
 const { Header, Content } = Layout
 
 export function Overview () {
-    const { nodes, node_type, cdn, logined } = model.use(['nodes', 'node_type', 'cdn', 'logined'])
-    
+    const { nodes, node_type, cdn, logined } = model.use(['nodes', 'node_type', 'cdn', 'logined'])   
     const error = () => {
         message.error({
           type: 'error',
@@ -45,7 +44,7 @@ export function Overview () {
                 await delay(10000)
                 if (!flag)
                     break
-                await model.get_cluster_perf()
+                await model.get_cluster_perf(false)
             }
         })()
         return () => {
@@ -84,7 +83,7 @@ export function Overview () {
         await delay(5000)
         setIsStartLoading(false)
         setIsStartModalOpen(false) 
-        await model.get_cluster_perf()
+        await model.get_cluster_perf(false)
     }
     
     async function handStopNode () {
@@ -98,7 +97,7 @@ export function Overview () {
         await delay(5000)
         setIsStopLoading(false)
         setIsStopModalOpen(false) 
-        await model.get_cluster_perf()        
+        await model.get_cluster_perf(false)        
     }
     
     
@@ -115,15 +114,29 @@ export function Overview () {
         <div className='actions'>
             {node_type === NodeType.single ? 
             <div className='operations'>
-                <div className='icon-area' onClick={() => { model.get_cluster_perf() }}><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
+                <div className='icon-area' onClick={() => { model.get_cluster_perf(true) }}><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
             </div>
             :
             <div className='operations'>
-                    <div className='icon-area' onClick={() => { model.get_cluster_perf() }}><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
+                    <div className='icon-area' onClick={() => { model.get_cluster_perf(true) }}><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
                 
-                    <div className='icon-area'  onClick={() => setIsStartModalOpen(true)}><Button type='text' block icon={<Icon className='icon-start' component={SvgStart}/>}>{t('启动')}</Button></div>
+                    <div className='icon-area'  onClick={() => setIsStartModalOpen(true)}>
+                        {
+                        selectedNodes.length ? 
+                        <Button type='text' block icon={<Icon className='icon-start' component={SvgStart}/>}>{t('启动')}</Button>
+                        :
+                        <Button type='text' disabled block icon={<Icon className='icon-start' component={SvgStart} color='#515151' />}>{t('启动')}</Button>
+                        }
+                    </div>
                     
-                    <div className='icon-area' onClick={() => setIsStopModalOpen(true)}><Button type='text' block icon={<Icon className='icon-stop' component={SvgStop} />}>{t('停止')}</Button></div>
+                    <div className='icon-area' onClick={() => setIsStopModalOpen(true)}>
+                        {
+                        selectedNodes.length ?
+                        <Button type='text' block icon={<Icon className='icon-stop' component={SvgStop} />}>{t('停止')}</Button>
+                        :
+                        <Button type='text' disabled block icon={<Icon className='icon-stop' component={SvgStop} color='#515151' />}>{t('停止')}</Button>
+                        }
+                    </div>
  
                     <div className='icon-expand-area' onClick={() => expandAll()}><Button type='text' block icon={<Icon className='icon-expand' component={SvgExpand} />}>{t('全部展开')}</Button></div>
                     
@@ -149,18 +162,16 @@ export function Overview () {
                     iframe_src='./dialogs/datanodeConfig.html'
                 />
             </div> }
-            <Modal title='确定启动以下节点' className='start-nodes-modal' open={isStartModalOpen} confirmLoading={isStartLoading} onOk={ async () => handStartNode()} onCancel={() => setIsStartModalOpen(false)}>
+            <Modal title={t('确认启动以下节点')} className='start-nodes-modal' open={isStartModalOpen} confirmLoading={isStartLoading} onOk={ async () => handStartNode()} onCancel={() => setIsStartModalOpen(false)}>
                 {selectedNodes.filter(node => node.state === DdbNodeState.offline).map(node => <p className='model-node' key={node.name}>{node.name}</p>)}
             </Modal>
-            <Modal title='确定停止以下节点' className='stop-nodes-modal' open={isStopModalOpen} confirmLoading={isStopLoading} onOk={async () => handStopNode()} onCancel={() => setIsStopModalOpen(false)}>
+            <Modal title={t('确认停止以下节点')} className='stop-nodes-modal' open={isStopModalOpen} confirmLoading={isStopLoading} onOk={async () => handStopNode()} onCancel={() => setIsStopModalOpen(false)}>
                 {selectedNodes.filter(node => node.state === DdbNodeState.online).map(node => <p className='model-node' key={node.name}>{node.name}</p>)}
             </Modal>
             
         </div>
         </Header>
-        <Content>
         <NodeCard isSingleNode={node_type === NodeType.single} selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes} expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
-        </Content>
     </Layout>
     
     </>

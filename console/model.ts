@@ -158,7 +158,7 @@ export class DdbModel extends Model<DdbModel> {
                 
             }
         
-        await this.get_cluster_perf()
+        await this.get_cluster_perf(true)
         
         await this.check_leader_and_redirect()
         
@@ -427,7 +427,7 @@ export class DdbModel extends Model<DdbModel> {
         https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/g/getClusterPerf.html  
         Only master or single mode supports function getClusterPerf.
     */
-    async get_cluster_perf () {
+    async get_cluster_perf (print: boolean) {
         const nodes = (
             await this.ddb.call<DdbObj<DdbObj[]>>('getClusterPerf', [true], {
                 urgent: true,
@@ -442,7 +442,8 @@ export class DdbModel extends Model<DdbModel> {
             })
         ).to_rows<DdbNode>()
         
-        console.log(t('集群节点:'), nodes)
+        if (print)
+            console.log(t('集群节点:'), nodes)
         
         let node: DdbNode, controller: DdbNode, datanode: DdbNode
         
@@ -459,10 +460,12 @@ export class DdbModel extends Model<DdbModel> {
             if (_node.mode === NodeType.data)
                 datanode ??= _node
         }
-        
-        console.log(t('当前节点:'), node)
-        if (node.mode !== NodeType.single)
-            console.log(t('控制节点:'), controller, t('数据节点:'), datanode)
+        if (print) {
+            console.log(t('当前节点:'), node)
+            if (node.mode !== NodeType.single)
+                console.log(t('控制节点:'), controller, t('数据节点:'), datanode)
+            
+        }
         
         this.set({ nodes, node, controller, datanode })
     }
