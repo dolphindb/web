@@ -120,22 +120,12 @@ export function Overview () {
             <div className='operations'>
                     <div className='icon-area' onClick={() => { model.get_cluster_perf(true) }}><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
                 
-                    <div className='icon-area'  onClick={() => setIsStartModalOpen(true)}>
-                        {
-                        selectedNodes.length ? 
-                        <Button type='text' block icon={<Icon className='icon-start' component={SvgStart}/>}>{t('启动')}</Button>
-                        :
-                        <Button type='text' disabled block icon={<Icon className='icon-start' component={SvgStart} color='#515151' />}>{t('启动')}</Button>
-                        }
+                    <div className='icon-area'  onClick={() => setIsStartModalOpen(true)}>                      
+                        <Button type='text' disabled={selectedNodes.length === 0} block icon={<Icon className='icon-start' component={SvgStart}  {...selectedNodes.length === 0 ? { color: '#515151' } : { }}/>}>{t('启动')}</Button>                
                     </div>
                     
                     <div className='icon-area' onClick={() => setIsStopModalOpen(true)}>
-                        {
-                        selectedNodes.length ?
-                        <Button type='text' block icon={<Icon className='icon-stop' component={SvgStop} />}>{t('停止')}</Button>
-                        :
-                        <Button type='text' disabled block icon={<Icon className='icon-stop' component={SvgStop} color='#515151' />}>{t('停止')}</Button>
-                        }
+                        <Button type='text' disabled={selectedNodes.length === 0} block icon={<Icon className='icon-stop' component={SvgStop}  {...selectedNodes.length === 0 ? { color: '#515151' } : { }} />}>{t('停止')}</Button>   
                     </div>
  
                     <div className='icon-expand-area' onClick={() => expandAll()}><Button type='text' block icon={<Icon className='icon-expand' component={SvgExpand} />}>{t('全部展开')}</Button></div>
