@@ -3,11 +3,14 @@ import './index.sass'
 import {  default as React, ReactNode, useState, useEffect } from 'react'
 
 import { Layout, Button, Modal, Tooltip, Progress, Tag, Checkbox, message } from 'antd'
+const { Header } = Layout
 
 import { default as _Icon,  SettingOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import { use_modal } from 'react-object-model/modal.js'
+
+import { delay } from 'xshell/utils.browser.js'
 
 import { t } from '../../i18n/index.js'
 
@@ -25,18 +28,16 @@ import SvgDisk from './icons/disk.icon.svg'
 import SvgNetwork from './icons/network.icon.svg'
 import SvgTask from './icons/task.icon.svg'
 
-import { delay } from 'xshell/utils.browser.js'
-
-const { Header, Content } = Layout
 
 export function Overview () {
     const { nodes, node_type, cdn, logined } = model.use(['nodes', 'node_type', 'cdn', 'logined'])   
     const error = () => {
         message.error({
-          type: 'error',
-          content: '只有管理员有权启停节点',
+            type: 'error',
+            content: '只有管理员有权启停节点',
         })
-      }
+    }
+    
     useEffect(() => {
         let flag = true
         ;(async () => {
@@ -52,7 +53,9 @@ export function Overview () {
         }
     })
     
-    const [selectedNodes, setSelectedNodes] = useState([ ])
+    const [selectedNodes, setSelectedNodes] = useState<DdbNode[]>([ ])
+    
+    // let start_modal = use_modal()
     const [isStartModalOpen, setIsStartModalOpen] = useState(false)
     const [isStopModalOpen, setIsStopModalOpen] = useState(false)
     
@@ -60,10 +63,9 @@ export function Overview () {
     const [isStopLoading, setIsStopLoading] = useState(false)
     
     
-    const initExpandedNodes = nodes.filter(item => (item.name !== model.node.name))
+    const [expandedNodes, setExpandedNodes] = useState(nodes.filter(item => (item.name !== model.node.name)))
     
-    const [expandedNodes, setExpandedNodes] = useState(initExpandedNodes)
-    
+    // 写里面
     function expandAll () {
         setExpandedNodes(nodes.filter(node => node.mode === NodeType.agent))
     }
@@ -72,9 +74,11 @@ export function Overview () {
         setExpandedNodes(nodes)
     }
     
+    // 写里面
     async function handStartNode () {
         if (!logined) {
             error()
+            // start_modal.close()
             setIsStartModalOpen(false) 
             return
         }
@@ -86,6 +90,7 @@ export function Overview () {
         await model.get_cluster_perf(false)
     }
     
+    // 写里面
     async function handStopNode () {
         if (!logined) {
             error()
@@ -101,71 +106,88 @@ export function Overview () {
     }
     
     
-    return <>
-    <Layout>
+    return <Layout>
+        {/* todo: 样式写外面 */}
         <Header style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 1,
-          width: '100%',
-          paddingTop: '10px',
-        }}
-      >
-        <div className='actions'>
-            {node_type === NodeType.single ? 
-            <div className='operations'>
-                <div className='icon-area' onClick={() => { model.get_cluster_perf(true) }}><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
-            </div>
-            :
-            <div className='operations'>
+            position: 'sticky',
+            top: 0,
+            zIndex: 1,
+            width: '100%',
+            paddingTop: '10px',
+        }}>
+            <div className='actions'>
+                <div className='operations'>
                     <div className='icon-area' onClick={() => { model.get_cluster_perf(true) }}><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
+                    
+                    { node_type !== NodeType.single && <>
+                        <div className='icon-area'  onClick={() => setIsStartModalOpen(true)}>
+                            {/* todo */}
+                            <Button type='text' disabled={!selectedNodes.length} block icon={<Icon className='icon-start' component={SvgStart}  {...!selectedNodes.length ? { color: '#515151' } : { color: '#234883' }}/>}>{t('启动')}</Button>                
+                        </div>
+                        
+                        <div className='icon-area' onClick={() => setIsStopModalOpen(true)}>
+                            <Button type='text' disabled={!selectedNodes.length} block icon={<Icon className='icon-stop' component={SvgStop}  {...!selectedNodes.length ? { color: '#515151' } : { color: '#234883' }} />}>{t('停止')}</Button>   
+                        </div>
+                        
+                        <div className='icon-expand-area' onClick={() => expandAll()}>
+                            <Button type='text' block icon={<Icon className='icon-expand' component={SvgExpand} />}>{t('全部展开')}</Button>
+                        </div>
+                        
+                        <div className='icon-collapse-area' onClick={() => collapseAll()}>
+                            <Button type='text' block icon={<Icon className='icon-collapse' component={SvgCollapse} />}>{t('全部折叠')}</Button>
+                        </div>
+                    </> }
+                </div>
                 
-                    <div className='icon-area'  onClick={() => setIsStartModalOpen(true)}>                      
-                        <Button type='text' disabled={!selectedNodes.length} block icon={<Icon className='icon-start' component={SvgStart}  {...!selectedNodes.length ? { color: '#515151' } : { color: '#234883' }}/>}>{t('启动')}</Button>                
-                    </div>
+                { !cdn && node_type === NodeType.controller &&  <div className='configs'>
+                    <ButtonIframeModal 
+                        class_name='nodes-modal'
+                        button_text={t('集群节点配置')}
+                        iframe_src='./dialogs/nodesSetup.html'
+                    />
                     
-                    <div className='icon-area' onClick={() => setIsStopModalOpen(true)}>
-                        <Button type='text' disabled={!selectedNodes.length} block icon={<Icon className='icon-stop' component={SvgStop}  {...!selectedNodes.length ? { color: '#515151' } : { color: '#234883' }} />}>{t('停止')}</Button>   
-                    </div>
- 
-                    <div className='icon-expand-area' onClick={() => expandAll()}><Button type='text' block icon={<Icon className='icon-expand' component={SvgExpand} />}>{t('全部展开')}</Button></div>
+                    <ButtonIframeModal 
+                        class_name='controller-modal'
+                        button_text={t('控制节点配置')}
+                        iframe_src='./dialogs/controllerConfig.html'
+                    />
                     
-                    <div className='icon-collapse-area' onClick={() => collapseAll()}><Button type='text' block icon={<Icon className='icon-collapse' component={SvgCollapse} />}>{t('全部折叠')}</Button></div>
+                    <ButtonIframeModal 
+                        class_name='datanode-modal'
+                        button_text={t('数据节点配置')}
+                        iframe_src='./dialogs/datanodeConfig.html'
+                    />
+                </div> }
+                
+                <Modal title={t('确认启动以下节点')} className='start-nodes-modal' open={isStartModalOpen} confirmLoading={isStartLoading} onOk={ async () => handStartNode()} onCancel={() => setIsStartModalOpen(false)}>
+                    {selectedNodes.filter(node => node.state === DdbNodeState.offline).map(node => <p className='model-node' key={node.name}>{node.name}</p>)}
+                </Modal>
+                
+                <Modal title={t('确认停止以下节点')} className='stop-nodes-modal' open={isStopModalOpen} confirmLoading={isStopLoading} onOk={async () => handStopNode()} onCancel={() => setIsStopModalOpen(false)}>
+                    {selectedNodes.filter(node => node.state === DdbNodeState.online).map(node => <p className='model-node' key={node.name}>{node.name}</p>)}
+                </Modal>
             </div>
-            }
-            { !cdn && node_type === NodeType.controller &&  <div className='configs'>
-                <ButtonIframeModal 
-                    class_name='nodes-modal'
-                    button_text={t('集群节点配置')}
-                    iframe_src='./dialogs/nodesSetup.html'
-                />
-                
-                <ButtonIframeModal 
-                    class_name='controller-modal'
-                    button_text={t('控制节点配置')}
-                    iframe_src='./dialogs/controllerConfig.html'
-                />
-                
-                <ButtonIframeModal 
-                    class_name='datanode-modal'
-                    button_text={t('数据节点配置')}
-                    iframe_src='./dialogs/datanodeConfig.html'
-                />
-            </div> }
-            <Modal title={t('确认启动以下节点')} className='start-nodes-modal' open={isStartModalOpen} confirmLoading={isStartLoading} onOk={ async () => handStartNode()} onCancel={() => setIsStartModalOpen(false)}>
-                {selectedNodes.filter(node => node.state === DdbNodeState.offline).map(node => <p className='model-node' key={node.name}>{node.name}</p>)}
-            </Modal>
-            <Modal title={t('确认停止以下节点')} className='stop-nodes-modal' open={isStopModalOpen} confirmLoading={isStopLoading} onOk={async () => handStopNode()} onCancel={() => setIsStopModalOpen(false)}>
-                {selectedNodes.filter(node => node.state === DdbNodeState.online).map(node => <p className='model-node' key={node.name}>{node.name}</p>)}
-            </Modal>
-            
-        </div>
         </Header>
-        <NodeCard isSingleNode={node_type === NodeType.single} selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes} expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
+        
+        
+        <div className={`content${ node_type === NodeType.single ? ' single-node-content' : '' }`}>{
+            node_type === NodeType.single ?
+                <Nodes
+                    key={NodeType.single} type={NodeType.single} nodes={[ ]}
+                    selectedNodes={[ ]} setSelectedNodes={() => { }}
+                    expandedNodes={[ ]} setExpandedNodes={() => { }}
+                />
+            :
+                [NodeType.controller, NodeType.data, NodeType.computing, NodeType.agent].map(type => 
+                    <Nodes
+                        key={type} type={type} nodes={nodes.filter(node => node.mode === type)}
+                        selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
+                        expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}
+                    />)
+        }</div>
     </Layout>
-    
-    </>
 }
+
 
 function ButtonIframeModal ({
     button_text,
@@ -193,6 +215,85 @@ function ButtonIframeModal ({
     </>
 }
 
+
+function Nodes ({
+    type,
+    nodes,
+    selectedNodes,
+    setSelectedNodes,
+    expandedNodes,
+    setExpandedNodes
+    
+}: {
+    type: NodeType
+    nodes: DdbNode[]
+    selectedNodes: DdbNode[]
+    setSelectedNodes: Function
+    expandedNodes: DdbNode[]
+    setExpandedNodes: Function
+}) {
+    const { node } = model.use(['node',  'dev'])
+    
+    const numOfNodes = nodes.filter(node => node.mode === type).length
+    
+          
+    function switchFold (node: DdbNode) {
+        if (node.mode === NodeType.agent )
+            return
+        let newExpandedNodes = [ ]
+        if (expandedNodes.every(item =>  item.name !== node.name)) 
+            newExpandedNodes = [...expandedNodes, node]
+         
+        else 
+            newExpandedNodes = expandedNodes.filter(item => item.mode !== node.mode || item.name !== node.name)
+        setExpandedNodes(newExpandedNodes)    
+    }
+    
+    function handleAllChosen () {
+        let newSlectedNodes = [ ]
+        if (selectedNodes.filter(node => node.mode === type).length < numOfNodes) 
+            newSlectedNodes = nodes.filter(node => node.mode === type && !selectedNodes.includes(node)).concat(selectedNodes)
+        else
+            newSlectedNodes = selectedNodes.filter(node => node.mode !== type)        
+        setSelectedNodes(newSlectedNodes)
+        
+    }
+        
+    const nodeType = [t('数据节点'), t('代理节点'), t('控制节点'),,  t('计算节点') ]
+    return <>
+        {type === NodeType.single ? 
+            <Node node={node} type={type} key={node.name} 
+            selectedNodes={[ ]} setSelectedNodes={() => { }}
+            expanded switchFold={node => switchFold(node)}  />
+        : (nodes.length ? 
+        <div>
+            <div className='nodes-header'>{nodeType[type] + ' (' + nodes.length + ')'}
+                {type === NodeType.controller ? <div className='controller-site'>
+                                                    <NodeSite node={node}/>
+                                                </div> 
+                                        : (type !== NodeType.agent ? <div className='nodes-selectAll'>
+                                                <Checkbox checked={selectedNodes.filter(node => node.mode === type).length === numOfNodes } indeterminate={selectedNodes.filter(node => node.mode === type).length && selectedNodes.filter(node => node.mode === type).length !== numOfNodes} onChange={() => handleAllChosen()} >
+                                                    <div className='text-selectAll'>{t('全选')}</div>
+                                                </Checkbox>
+                                            </div> : null)}
+            </div>
+            {nodes.map(node => <Node node={node} type={type} key={node.name} 
+                                        selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
+                                        expanded={expandedNodes.some(item => item.name === node.name)} switchFold={node => switchFold(node)} />)}
+            
+        </div> : null)}
+    </>
+}
+
+
+
+const node_colors = ['data-color', 'agent-color', 'controller-color', 'single-color', 'computing-color']
+const title_colors = ['data-title-color', 'agent-title-color', 'controller-title-color', 'single-title-color', 'computing-title-color']
+const node_statuses = ['offline', 'online']
+const node_backgrounds = [' data-node-background', '', ' controller-node-background', '', ' computing-node-background']
+const current_node_borders = [' data-current-node', '', ' controller-current-node', '', '', '']
+
+
 function Node ({
     node,
     type,
@@ -208,17 +309,10 @@ function Node ({
     expanded: boolean
     switchFold: Function
 }) {
-    const nodeColor = ['data-color', 'agent-color', 'controller-color', 'single-color', 'computing-color']
-    const titleColor = ['data-title-color', 'agent-title-color', 'controller-title-color', 'single-title-color', 'computing-title-color']
-    const nodeStatus = [ 'offline', 'online']
-    
-    const { name,
+    const {
+        name,
         state,
         mode,
-        host,
-        port,
-        site,
-        publicName,
         agentSite,
         maxConnections,
         maxMemSize,
@@ -245,16 +339,12 @@ function Node ({
         queuedJobs,
         queuedTasks,
         runningJobs, 
-        runningTasks, 
-        jobLoad,
-    
         isLeader, 
     
         lastMsgLatency,
-        cumMsgLatency } = node
+        cumMsgLatency
+    } = node
     
-    const nodeBackground = [' data-node-background', '', ' controller-node-background', '', ' computing-node-background']
-    const currentNodeBorder = [' data-current-node', '', ' controller-current-node', '', '', '']
     let agentNode = ''
     if (node.agentSite)
         agentNode = agentSite.split(':')[2]
@@ -268,16 +358,16 @@ function Node ({
         setSelectedNodes(newSelectedNodes)
     }
     
-    return <div className={'node' + (type !== NodeType.single && node.name === model.node.name ? currentNodeBorder[node.mode] : '')}>{
+    return <div className={'node' + (type !== NodeType.single && node.name === model.node.name ? current_node_borders[node.mode] : '')}>{
             type === NodeType.single ? 
-            <div className={'node-header' + ' ' + nodeColor[mode]}>
-                <div className={'node-title' + ' ' + titleColor[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
+            <div className={'node-header' + ' ' + node_colors[mode]}>
+                <div className={'node-title' + ' ' + title_colors[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
                 <div className='node-click-single' />
                 <NodeSite node={node}/>
-                <div className={nodeStatus[state]}><span>{state ? t('运行中') : t('未启动')}</span></div>
+                <div className={node_statuses[state]}><span>{state ? t('运行中') : t('未启动')}</span></div>
             </div>
             :
-            <div className={'node-header' + ' ' + nodeColor[mode] + (expanded ? ' node-header-fold' : '') }>
+            <div className={'node-header' + ' ' + node_colors[mode] + (expanded ? ' node-header-fold' : '') }>
                 <div className='node-chosen'>{node.mode === NodeType.controller || node.mode === NodeType.agent ? <Tooltip title={(node.mode === NodeType.controller ? t('控制') : t('代理')) + t('节点不可停止')}><Checkbox disabled={node.mode === NodeType.controller || node.mode === NodeType.agent} 
                                                        checked={selectedNodes.some(node => node.mode === type && node.name === name)} 
                                                        onChange={() => handeChange()}/></Tooltip> :
@@ -286,14 +376,14 @@ function Node ({
                                                        onChange={() => handeChange()}/>
                                                        }
                 </div>
-                <div className={'node-title' + ' ' + titleColor[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
+                <div className={'node-title' + ' ' + title_colors[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
                 <div className='node-click'  onClick={() => switchFold(node)}/>
                 <NodeSite node={node}/>
-                <div className={nodeStatus[state]}><span>{state ? t('运行中') : t('未启动')}</span></div>
+                <div className={node_statuses[state]}><span>{state ? t('运行中') : t('未启动')}</span></div>
             </div>
             }
-            <div className={(type !== NodeType.single && expanded  ? 'node-body-fold' : 'node-body')  + nodeBackground[node.mode]}>
-                <NodeInfo title='CPU' icon={SvgCPU} className='cpu-info'  >
+            <div className={(type !== NodeType.single && expanded  ? 'node-body-fold' : 'node-body')  + node_backgrounds[node.mode]}>
+                <NodeInfo title='CPU' icon={SvgCPU} className='cpu-info'>
                     <InfoItem title={t('占用率')} Progress={<Progress percent={cpuUsage} showInfo={false} 
                                                             strokeColor={cpuUsage > 67 ? '#FF8660' : (cpuUsage > 33 ? '#FFCE4F' : '#A8EB7F')} 
                                                             size={[100, 7]}/>}>{Math.round(cpuUsage) + '%'}</InfoItem>
@@ -388,48 +478,6 @@ function InfoItem ({
     
 }
 
-function NodeCard ({
-    isSingleNode, 
-    selectedNodes,
-    setSelectedNodes,
-    expandedNodes,
-    setExpandedNodes
-}: {
-    isSingleNode: boolean
-    selectedNodes: DdbNode[]
-    setSelectedNodes: Function
-    expandedNodes: DdbNode[]
-    setExpandedNodes: Function
-}) {
-    const { nodes } = model.use(['nodes'])
-    const controllerNodes: DdbNode[] = nodes.filter(node => node.mode === NodeType.controller)
-    const dataNodes: DdbNode[] = nodes.filter(node => node.mode === NodeType.data)
-    const agentNodes: DdbNode[] = nodes.filter(node => node.mode === NodeType.agent)
-    const computingNodes: DdbNode[] = nodes.filter(node => node.mode === NodeType.computing)
-    
-    return <>{isSingleNode ?
-        <div className='content single-node-content'>
-            <NodeContainer type={NodeType.single} nodes={[ ]}
-                            selectedNodes={[ ]} setSelectedNodes={() => { }}
-                            expandedNodes={[ ]} setExpandedNodes={() => { }} />
-        </div> :
-        <div className='content'>
-            <NodeContainer type={NodeType.controller} nodes={controllerNodes}
-                            selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
-                            expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes} />
-            <NodeContainer type={NodeType.data} nodes={dataNodes} 
-                            selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
-                            expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
-            <NodeContainer type={NodeType.computing} nodes={computingNodes} 
-                            selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
-                            expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
-            <NodeContainer type={NodeType.agent} nodes={agentNodes} 
-                            selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
-                            expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}/>
-        </div>   
-    } 
-    </>
-}
 
 function NodeSite ({
     node
@@ -470,75 +518,6 @@ function NodeSite ({
                                                                                                             <a className='disable-link' href={publicLink[idx]} target='_blank'>{val}</a></div>
                                                                                                         </Tooltip> : 
                                                                                                             <a href={publicLink[idx]} target='_blank'>{val}</a>}</div>) }
-    </>
-}
-
-function NodeContainer ({
-    type,
-    nodes,
-    selectedNodes,
-    setSelectedNodes,
-    expandedNodes,
-    setExpandedNodes
-    
-}: {
-    type: NodeType
-    nodes: DdbNode[]
-    selectedNodes: DdbNode[]
-    setSelectedNodes: Function
-    expandedNodes: DdbNode[]
-    setExpandedNodes: Function
-}) {
-    const { node,  dev } = model.use(['node',  'dev'])
-    
-    const numOfNodes = nodes.filter(node => node.mode === type).length
-    
-          
-    function switchFold (node: DdbNode) {
-        if (node.mode === NodeType.agent )
-            return
-        let newExpandedNodes = [ ]
-        if (expandedNodes.every(item =>  item.name !== node.name)) 
-            newExpandedNodes = [...expandedNodes, node]
-         
-        else 
-            newExpandedNodes = expandedNodes.filter(item => item.mode !== node.mode || item.name !== node.name)
-        setExpandedNodes(newExpandedNodes)    
-    }
-    
-    function handleAllChosen () {
-        let newSlectedNodes = [ ]
-        if (selectedNodes.filter(node => node.mode === type).length < numOfNodes) 
-            newSlectedNodes = nodes.filter(node => node.mode === type && !selectedNodes.includes(node)).concat(selectedNodes)
-        else
-            newSlectedNodes = selectedNodes.filter(node => node.mode !== type)        
-        setSelectedNodes(newSlectedNodes)
-        
-    }
-        
-    const nodeType = [t('数据节点'), t('代理节点'), t('控制节点'),,  t('计算节点') ]
-    return <>
-        {type === NodeType.single ? 
-            <Node node={node} type={type} key={node.name} 
-            selectedNodes={[ ]} setSelectedNodes={() => { }}
-            expanded switchFold={node => switchFold(node)}  />
-        : (nodes.length ? 
-        <div>
-            <div className='nodes-header'>{nodeType[type] + ' (' + nodes.length + ')'}
-                {type === NodeType.controller ? <div className='controller-site'>
-                                                    <NodeSite node={node}/>
-                                                </div> 
-                                        : (type !== NodeType.agent ? <div className='nodes-selectAll'>
-                                                <Checkbox checked={selectedNodes.filter(node => node.mode === type).length === numOfNodes } indeterminate={selectedNodes.filter(node => node.mode === type).length && selectedNodes.filter(node => node.mode === type).length !== numOfNodes} onChange={() => handleAllChosen()} >
-                                                    <div className='text-selectAll'>{t('全选')}</div>
-                                                </Checkbox>
-                                            </div> : null)}
-            </div>
-            {nodes.map(node => <Node node={node} type={type} key={node.name} 
-                                        selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
-                                        expanded={expandedNodes.some(item => item.name === node.name)} switchFold={node => switchFold(node)} />)}
-            
-        </div> : null)}
     </>
 }
 

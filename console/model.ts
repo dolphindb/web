@@ -76,6 +76,7 @@ export class DdbModel extends Model<DdbModel> {
     datanode: DdbNode
     // --- 
     
+    
     version: string
     
     license: DdbLicense
@@ -177,7 +178,6 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    
     async login_by_password (username: string, password: string) {
         this.ddb.username = username
         this.ddb.password = password
@@ -271,19 +271,22 @@ export class DdbModel extends Model<DdbModel> {
         this.goto_login()
     }
     
-    async start_nodes (nodes) {
-        const checked = nodes.map(node => node.name)
-        await this.ddb.call('startDataNode', [new DdbVectorString(checked)], {  urgent: true,
-                                                                                node: this.controller_alias, 
-                                                                                func_type: DdbFunctionType.OperatorFunc })
+    
+    async start_nodes (nodes: DdbNode[]) {
+        await this.ddb.call('startDataNode', [new DdbVectorString(nodes.map(node => node.name))], {
+            node: this.controller_alias, 
+            func_type: DdbFunctionType.SystemProc
+        })
     }
     
-    async stop_nodes (nodes) {
-        const checked = nodes.map(node => node.name)
-        await this.ddb.call('stopDataNode', [new DdbVectorString(checked)], {  urgent: true,
-                                                                               node: this.controller_alias, 
-                                                                               func_type: DdbFunctionType.OperatorFunc })
+    
+    async stop_nodes (nodes: DdbNode[]) {
+        await this.ddb.call('stopDataNode', [new DdbVectorString(nodes.map(node => node.name))], {
+            node: this.controller_alias, 
+            func_type: DdbFunctionType.SystemProc
+        })
     }
+    
     
     async get_node_type () {
         const { value: node_type } = await this.ddb.call<DdbObj<NodeType>>('getNodeType', [ ], { urgent: true })
@@ -464,12 +467,12 @@ export class DdbModel extends Model<DdbModel> {
             console.log(t('当前节点:'), node)
             if (node.mode !== NodeType.single)
                 console.log(t('控制节点:'), controller, t('数据节点:'), datanode)
-            
         }
         
         this.set({ nodes, node, controller, datanode })
     }
-      
+    
+    
     find_closest_node_host (node: DdbNode) {
         const ip_pattern = /\d+\.\d+\.\d+\.\d+/
         
@@ -717,6 +720,7 @@ export class DdbModel extends Model<DdbModel> {
         
         const current_params = new URLSearchParams(location.search)
         const is_query_params_mode = current_params.get('hostname') || current_params.get('port')
+        
         const new_params = new URLSearchParams(extra_query)
         
         if (keep_current_query) 
