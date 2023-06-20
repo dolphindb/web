@@ -24,7 +24,6 @@ import SvgMemory from './icons/memory.icon.svg'
 import SvgDisk from './icons/disk.icon.svg'
 import SvgNetwork from './icons/network.icon.svg'
 import SvgTask from './icons/task.icon.svg'
-import SvgExport from './icons/export.icon.svg'
 
 import { delay } from 'xshell/utils.browser.js'
 
@@ -83,9 +82,9 @@ export function Overview () {
         setIsStartLoading(true)
         model.start_nodes(selectedNodes)
         await delay(5000)
-        await model.get_cluster_perf()
         setIsStartLoading(false)
         setIsStartModalOpen(false) 
+        await model.get_cluster_perf()
     }
     
     async function handStopNode () {
@@ -97,9 +96,9 @@ export function Overview () {
         setIsStopLoading(true)
         model.stop_nodes(selectedNodes)
         await delay(5000)
-        await model.get_cluster_perf()
         setIsStopLoading(false)
         setIsStopModalOpen(false) 
+        await model.get_cluster_perf()        
     }
     
     
