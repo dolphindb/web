@@ -484,7 +484,7 @@ function NodeSite ({
     return <>
         <div className='node-site' >
             {mode === NodeType.agent ? 
-                <Tooltip title='代理节点不可跳转'>
+                <Tooltip title={t('代理节点不可跳转')}>
                     <div className='control-disable' >
                         <a  className='disable-link'  href={privateLink} target='_blank'>{privateDomain}</a>
                     </div>
@@ -493,7 +493,7 @@ function NodeSite ({
         </div>
         { publicDomain.map((val, idx) => <div className='node-site' key={val}>
                                             {mode === NodeType.agent ? 
-                                                <Tooltip title='代理节点不可跳转'>
+                                                <Tooltip title={t('代理节点不可跳转')}>
                                                     <div className='control-disable'>
                                                         <a className='disable-link' href={publicLink[idx]} target='_blank'>{val}</a>
                                                     </div>
