@@ -468,7 +468,7 @@ function NodeSite ({
         publicLink = publicName.split(`${mode === NodeType.single ? ';' : ','}`).map(val => getLink(val, port))
     }
     
-    function getLink (hostname, port) {
+    function getLink (hostname: string, port: number) {
         let search = location.search.split('&')
         search[1] = 'hostname=' + hostname
         search[2] = 'port=' + port
