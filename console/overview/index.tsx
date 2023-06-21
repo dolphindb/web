@@ -353,53 +353,104 @@ function Node ({
                         <div className='node-name'>{name}</div>
                         {isLeader && <Tag className='leader-tag' color='#FFF' >leader</Tag> }
                     </div>
-                    <div className='node-click'  onClick={() => switchFold(node)}/>
+                    <div className='node-click' onClick={() => switchFold(node)} />
                     <NodeSite node={node}/>
                     <div className={node_statuses[state]}><span>{state ? t('运行中') : t('未启动')}</span></div>
                 </div>
             }
-            <div className={(type !== NodeType.single && expanded  ? 'node-body-fold' : 'node-body')  + ' ' + node_backgrounds[node.mode]}>
+            <div className={(type !== NodeType.single && expanded ? 'node-body-fold' : 'node-body') + ' ' + node_backgrounds[node.mode]}>
                 <NodeInfo title='CPU' icon={SvgCPU} className='cpu-info'>
-                    <InfoItem title={t('占用率')} Progress={<Progress percent={cpuUsage} showInfo={false} 
-                                                            strokeColor={cpuUsage > 67 ? '#FF8660' : (cpuUsage > 33 ? '#FFCE4F' : '#A8EB7F')} 
-                                                            size={[100, 7]}/>}>{Math.round(cpuUsage) + '%'}</InfoItem>
-                    <InfoItem title={t('worker 线程总数') }>{workerNum}</InfoItem> 
-                    <InfoItem title={t('平均负载')} Progress={<Progress percent={avgLoad } showInfo={false} 
-                                                   strokeColor={avgLoad > 67 ? '#FF8660' : (avgLoad > 33 ? '#FFCE4F' : '#A8EB7F')} 
-                                                   size={[100, 7]}/>}>{Math.round(avgLoad) + '%'}</InfoItem> 
-                    <InfoItem title={t('executor 线程总数')}>{executorNum}</InfoItem> 
+                    <InfoItem
+                        title={t('占用率')}
+                        Progress={
+                            <Progress
+                                percent={cpuUsage}
+                                showInfo={false}
+                                strokeColor={cpuUsage > 67 ? '#FF8660' : cpuUsage > 33 ? '#FFCE4F' : '#A8EB7F'}
+                                size={[100, 7]}
+                            />
+                        }
+                    >
+                        {Math.round(cpuUsage) + '%'}
+                    </InfoItem>
+                    <InfoItem title={t('worker 线程总数')}>{workerNum}</InfoItem>
+                    <InfoItem
+                        title={t('平均负载')}
+                        Progress={
+                            <Progress
+                                percent={avgLoad}
+                                showInfo={false}
+                                strokeColor={avgLoad > 67 ? '#FF8660' : avgLoad > 33 ? '#FFCE4F' : '#A8EB7F'}
+                                size={[100, 7]}
+                            />
+                        }
+                    >
+                        {Math.round(avgLoad) + '%'}
+                    </InfoItem>
+                    <InfoItem title={t('executor 线程总数')}>{executorNum}</InfoItem>
                 </NodeInfo>
-                <NodeInfo title={t('内存')} icon={SvgMemory} className='memory-info' >
-                    <InfoItem title={t('用量')} Progress={<Progress percent={(Number(memoryUsed) / (maxMemSize * 1024 * 1024 * 1024)) * 100} 
-                                                                    showInfo={false} 
-                                                                    strokeColor={(Number(memoryUsed) / (maxMemSize * 1024 * 1024 * 1024)) * 100 > 67 ? '#FF8660' : ((Number(memoryUsed) / (maxMemSize * 1024 * 1024 * 1024)) * 100 > 33 ? '#FFCE4F' : '#A8EB7F')} size={[150, 7]} />}>{(Number(memoryUsed)).to_fsize_str() + ' / ' + maxMemSize + ' GB' }</InfoItem> 
-                    <InfoItem title={t('已分配')}>{(Number(memoryAlloc)).to_fsize_str()}</InfoItem>  
+                <NodeInfo title={t('内存')} icon={SvgMemory} className='memory-info'>
+                    <InfoItem
+                        title={t('用量')}
+                        Progress={
+                            <Progress
+                                percent={(Number(memoryUsed) / (maxMemSize * 1024 * 1024 * 1024)) * 100}
+                                showInfo={false}
+                                strokeColor={
+                                    (Number(memoryUsed) / (maxMemSize * 1024 * 1024 * 1024)) * 100 > 67
+                                        ? '#FF8660'
+                                        : (Number(memoryUsed) / (maxMemSize * 1024 * 1024 * 1024)) * 100 > 33
+                                        ? '#FFCE4F'
+                                        : '#A8EB7F'
+                                }
+                                size={[150, 7]}
+                            />
+                        }
+                    >
+                        {Number(memoryUsed).to_fsize_str() + ' / ' + maxMemSize + ' GB'}
+                    </InfoItem>
+                    <InfoItem title={t('已分配')}>{Number(memoryAlloc).to_fsize_str()}</InfoItem>
                 </NodeInfo>
                 <NodeInfo title={t('磁盘')} icon={SvgDisk} className='disk-info'>
-                    <InfoItem title={t('读')}>{(Number(diskReadRate)).to_fsize_str() + '/s' }</InfoItem> 
-                    <InfoItem title={t('前一分钟读')}>{(Number(lastMinuteReadVolume)).to_fsize_str()}</InfoItem>
-                    <InfoItem title={t('写')}>{(Number(diskWriteRate)).to_fsize_str() + '/s' }</InfoItem> 
-                    <InfoItem title={t('前一分钟写')}>{(Number(lastMinuteWriteVolume)).to_fsize_str()}</InfoItem>
-                    <InfoItem title={t('用量')} Progress={<Progress percent={(Number(diskCapacity - diskFreeSpace) / (Number(diskCapacity) )) * 100} showInfo={false} strokeColor={(Number(diskCapacity - diskFreeSpace) / (Number(diskCapacity) )) * 100 > 67 ? '#FF8660' : ((Number(diskCapacity - diskFreeSpace) / (Number(diskCapacity) )) * 100 > 33 ? '#FFCE4F' : '#A8EB7F')} size={[200, 7]}/>}>
-                        {(Number(diskCapacity - diskFreeSpace) ).to_fsize_str() + ' / ' + ((Number(diskCapacity))).to_fsize_str() }           
+                    <InfoItem title={t('读')}>{Number(diskReadRate).to_fsize_str() + '/s'}</InfoItem>
+                    <InfoItem title={t('前一分钟读')}>{Number(lastMinuteReadVolume).to_fsize_str()}</InfoItem>
+                    <InfoItem title={t('写')}>{Number(diskWriteRate).to_fsize_str() + '/s'}</InfoItem>
+                    <InfoItem title={t('前一分钟写')}>{Number(lastMinuteWriteVolume).to_fsize_str()}</InfoItem>
+                    <InfoItem
+                        title={t('用量')}
+                        Progress={
+                            <Progress
+                                percent={(Number(diskCapacity - diskFreeSpace) / Number(diskCapacity)) * 100}
+                                showInfo={false}
+                                strokeColor={
+                                    (Number(diskCapacity - diskFreeSpace) / Number(diskCapacity)) * 100 > 67
+                                        ? '#FF8660'
+                                        : (Number(diskCapacity - diskFreeSpace) / Number(diskCapacity)) * 100 > 33
+                                        ? '#FFCE4F'
+                                        : '#A8EB7F'
+                                }
+                                size={[200, 7]}
+                            />
+                        }
+                    >
+                        {`${Number(diskCapacity - diskFreeSpace).to_fsize_str()} / ${Number(diskCapacity).to_fsize_str()}`}
                     </InfoItem>
                 </NodeInfo>
-                <NodeInfo title={t('网络')} icon={SvgNetwork} className='network-info' >
-                    <InfoItem title={t('收')}>{(Number(networkRecvRate)).to_fsize_str() + '/s' }</InfoItem>
-                    <InfoItem title={t('前一分钟收')}>{(Number(lastMinuteNetworkRecv)).to_fsize_str()}</InfoItem>
-                    <InfoItem title={t('发')}>{(Number(networkSendRate)).to_fsize_str() + '/s' }</InfoItem>
-                    <InfoItem title={t('前一分钟发')}>{(Number(lastMinuteNetworkSend)).to_fsize_str()}</InfoItem>
-                    <InfoItem title={t('当前连接数')}>{connectionNum}</InfoItem> 
+                <NodeInfo title={t('网络')} icon={SvgNetwork} className='network-info'>
+                    <InfoItem title={t('收')}>{Number(networkRecvRate).to_fsize_str() + '/s'}</InfoItem>
+                    <InfoItem title={t('前一分钟收')}>{Number(lastMinuteNetworkRecv).to_fsize_str()}</InfoItem>
+                    <InfoItem title={t('发')}>{Number(networkSendRate).to_fsize_str() + '/s'}</InfoItem>
+                    <InfoItem title={t('前一分钟发')}>{Number(lastMinuteNetworkSend).to_fsize_str()}</InfoItem>
+                    <InfoItem title={t('当前连接数')}>{connectionNum}</InfoItem>
                     <InfoItem title={t('最大连接数')}>{maxConnections}</InfoItem>
-                    
-                </NodeInfo>        
-                <NodeInfo title={t('任务与作业')} icon={SvgTask} className='task-info' >
+                </NodeInfo>
+                <NodeInfo title={t('任务与作业')} icon={SvgTask} className='task-info'>
                     <InfoItem title={t('运行作业')}>{runningJobs}</InfoItem>
                     <InfoItem title={t('运行任务')}>{runningJobs}</InfoItem>
                     <InfoItem title={t('排队作业')}>{queuedJobs}</InfoItem>
                     <InfoItem title={t('排队任务')}>{queuedTasks}</InfoItem>
-                    <InfoItem title={t('前一批消息时延')}>{Number(lastMsgLatency) < Number.MIN_VALUE ? 0  + ' s' : Number(lastMsgLatency) + ' s'}</InfoItem>
-                    <InfoItem title={t('所有消息平均时延')}>{Number(cumMsgLatency) < Number.MIN_VALUE ? 0  + ' s' : Number(cumMsgLatency) + ' s'}</InfoItem>     
+                    <InfoItem title={t('前一批消息时延')}>{Number(lastMsgLatency) < Number.MIN_VALUE ? 0 + ' s' : Number(lastMsgLatency) + ' s'}</InfoItem>
+                    <InfoItem title={t('所有消息平均时延')}>{Number(cumMsgLatency) < Number.MIN_VALUE ? 0 + ' s' : Number(cumMsgLatency) + ' s'}</InfoItem>
                 </NodeInfo>
             </div>
             <div className={expanded  ? 'node-footer-fold' : 'node-footer'}>
@@ -438,28 +489,22 @@ function InfoItem ({
     title,
     children,
     Progress
-    
 }: {
     title: string
     children: ReactNode
     Progress?: React.JSX.Element
 }) {
     return <div className='item-content'>
-            <div className='item-title'>{title}</div>
-            <div className='item-body'>
-                <div className='info-text'>{children}</div>
-                {Progress}
-            </div>
+        <div className='item-title'>{title}</div>
+        <div className='item-body'>
+            <div className='info-text'>{children}</div>
+            {Progress}
         </div>
-    
+    </div>
 }
 
 
-function NodeSite ({
-    node
-}: {
-    node: DdbNode
-}) {
+function NodeSite ({ node }: { node: DdbNode }) {
     const { host, port, mode, publicName } = node
     const { dev } = model.use(['dev'])
     const privateDomain = host + ':' + port
@@ -480,24 +525,38 @@ function NodeSite ({
     }
     
     return <>
-        <div className='node-site' >
-            {mode === NodeType.agent ? 
+        <div className='node-site'>
+            {mode === NodeType.agent ? (
                 <Tooltip title={t('代理节点不可跳转')}>
-                    <div className='control-disable' >
-                        <a  className='disable-link'  href={privateLink} target='_blank'>{privateDomain}</a>
+                    <div className='control-disable'>
+                        <a className='disable-link' href={privateLink} target='_blank'>
+                            {privateDomain}
+                        </a>
                     </div>
-                </Tooltip> : 
-                <a href={dev ? privateLink : publicLink[0]} target='_blank'>{privateDomain}</a>}
+                </Tooltip>
+            ) : (
+                <a href={dev ? privateLink : publicLink[0]} target='_blank'>
+                    {privateDomain}
+                </a>
+            )}
         </div>
-        { publicDomain.map((val, idx) => <div className='node-site' key={val}>
-                                            {mode === NodeType.agent ? 
-                                                <Tooltip title={t('代理节点不可跳转')}>
-                                                    <div className='control-disable'>
-                                                        <a className='disable-link' href={publicLink[idx]} target='_blank'>{val}</a>
-                                                    </div>
-                                                </Tooltip> : 
-                                                publicLink.length && <a href={publicLink[idx]} target='_blank'>{val}</a>}
-                                         </div>) }
+        {publicDomain.map((val, idx) => <div className='node-site' key={val}>
+            {mode === NodeType.agent ? (
+                <Tooltip title={t('代理节点不可跳转')}>
+                    <div className='control-disable'>
+                        <a className='disable-link' href={publicLink[idx]} target='_blank'>
+                            {val}
+                        </a>
+                    </div>
+                </Tooltip>
+            ) : (
+                publicLink.length && (
+                    <a href={publicLink[idx]} target='_blank'>
+                        {val}
+                    </a>
+                )
+            )}
+        </div>)}
     </>
 }
 
