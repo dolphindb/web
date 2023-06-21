@@ -379,16 +379,14 @@ class ShellModel extends Model<ShellModel> {
             model.node.mode !== NodeType.controller ? { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc } : { }
         )
         
-        
         let directories: PartitionDirectory[] = [ ]
         let file: PartitionFile
-        for (let i = 0;  i < rows;  i++) {
-            const filename = filenames[i]
-            
+        
+        for (let i = 0;  i < rows;  i++)
             switch (filetypes[i]) {
                 case DfsFileType.directory:
                     directories.push(
-                        new PartitionDirectory(root, node, `${node.path}${filename}/`)
+                        new PartitionDirectory(root, node, `${node.path}${filenames[i]}/`)
                     )
                     break
                 
@@ -416,7 +414,7 @@ class ShellModel extends Model<ShellModel> {
                     
                     if (tables[0] === node.root.table.name) {
                         assert(!file, t('应该只有一个满足条件的 PartitionFile 在 PartitionDirectory 下面'))
-                        file = new PartitionFile(root, node, `${node.path}${filename}`, chunk, site_node)
+                        file = new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk, site_node)
                         
                         i = rows // break
                     }
@@ -424,7 +422,7 @@ class ShellModel extends Model<ShellModel> {
                     break
                 }
             }
-        }
+        
         // directories 和 files 中应该只有一个有值，另一个为空
         if (directories.length) {
             assert(!file, t('directories 和 file 应该只有一个有值，另一个为空'))

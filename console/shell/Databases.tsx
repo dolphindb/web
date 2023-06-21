@@ -1253,13 +1253,16 @@ export class PartitionRoot implements DataNode {
     
     
     async load_children () {
-        const table_names_set = new Set(this.table.db.children.map(({ name }) => name))
-        let dbchildren: PartitionDirectory[]
-        if (!this.children)
-            dbchildren = (await shell.load_partitions(this, this)) as PartitionDirectory[]
-        this.children = dbchildren.filter(directory => {
-            return !(directory.name.startsWith('__') && table_names_set.has(directory.name.slice(2)))
-        })
+        if (!this.children) {
+            const table_names_set = new Set(this.table.db.children.map(({ name }) => name))
+            
+            this.children = (
+                    (await shell.load_partitions(this, this)) as PartitionDirectory[]
+                ).filter(({ name }) =>
+                    // 可能会误伤 __表名 这样的分区，原因是不知道表是不是维度表，只能排除所有表
+                    !(name.startsWith('__') && table_names_set.has(name.slice(2)))
+                )
+        }
     }
 }
 
