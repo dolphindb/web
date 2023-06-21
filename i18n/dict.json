@@ -1852,5 +1852,26 @@
     },
     "节点不可停止": {
         "en": "node is not stoppable"
+    },
+    "确认启动以下节点": {
+        "en": "Confirm the following nodes are to be started"
+    },
+    "确认停止以下节点": {
+        "en": "Confirm that the following nodes are to be stopped"
+    },
+    "运行中": {
+        "en": "running"
+    },
+    "当前连接数": {
+        "en": "current connections"
+    },
+    "最大连接数": {
+        "en": "maximum number of connections"
+    },
+    "前一批消息时延": {
+        "en": "delay of the previous batch of messages"
+    },
+    "所有消息平均时延": {
+        "en": "average latency of all messages"
     }
 }
