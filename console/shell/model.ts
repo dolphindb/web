@@ -366,7 +366,8 @@ class ShellModel extends Model<ShellModel> {
     
     
     /** - path: 类似 dfs://Crypto_TSDB_14/, dfs://Crypto_TSDB_14/20100101_20110101/ 的路径 */
-    async load_partitions (root: PartitionRoot, node: PartitionDirectory | PartitionRoot, name: Set<String>) {
+    // tablenNames用于筛选过滤维度表的分区，'__'+tableName格式命名分区被隐藏
+    async load_partitions (root: PartitionRoot, node: PartitionDirectory | PartitionRoot, tablenNames: Set<string>) {
         const {
             rows,
             value: [{ value: filenames }, { value: filetypes }, /* sizes */, { value: chunks_column }, { value: sites }]
@@ -381,13 +382,15 @@ class ShellModel extends Model<ShellModel> {
         
         let directories: PartitionDirectory[] = [ ]
         let file: PartitionFile
-        for (let i = 0;  i < rows;  i++) 
-            // if (name.has(filenames[i]))
-            //     continue
+        let filename: string
+        for (let i = 0;  i < rows;  i++) {
+            filename = filenames[i]
+            if (filename.startsWith('__') && tablenNames.has(filename.slice(2))) 
+                continue 
             switch (filetypes[i]) {
                 case DfsFileType.directory:
                     directories.push(
-                        new PartitionDirectory(root, node, `${node.path}${filenames[i]}/`)
+                        new PartitionDirectory(root, node, `${node.path}${filename}/`)
                     )
                     break
                 
@@ -415,7 +418,7 @@ class ShellModel extends Model<ShellModel> {
                     
                     if (tables[0] === node.root.table.name) {
                         assert(!file, t('应该只有一个满足条件的 PartitionFile 在 PartitionDirectory 下面'))
-                        file = new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk, site_node)
+                        file = new PartitionFile(root, node, `${node.path}${filename}`, chunk, site_node)
                         
                         i = rows // break
                     }
@@ -423,7 +426,7 @@ class ShellModel extends Model<ShellModel> {
                     break
                 }
             }
-        
+        }
         // directories 和 files 中应该只有一个有值，另一个为空
         if (directories.length) {
             assert(!file, t('directories 和 file 应该只有一个有值，另一个为空'))
