@@ -38,7 +38,7 @@ export function Status () {
                     extra={
                         <div
                             className='refresh'
-                            onClick={() => { model.get_cluster_perf() }}
+                            onClick={() => { model.get_cluster_perf(true) }}
                         >
                             <Tooltip title={t('刷新')} color='grey'>
                                 <SyncOutlined className='icon' />
@@ -56,7 +56,7 @@ export function Status () {
         <Tag
             className='node-info'
             color='#f2f2f2'
-            onMouseOver={() => { model.get_cluster_perf() }}
+            onMouseOver={() => { model.get_cluster_perf(true) }}
         >{lowercase_node_types[node_type]} {node_alias}</Tag>
     </Popover>
 }

@@ -15,14 +15,10 @@ import { DdbType, DdbObj } from 'dolphindb/browser.js'
 
 import { t } from '../../i18n/index.js'
 import { type Database } from './Databases.js'
-import {
-    DDBTypeNames,
-    DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS,
-    SUPPORT_SORT_COLUMN_TYPES,
-} from '../constants/column-data-types.js'
+import { DDBTypeNames, SUPPORT_SORT_COLUMN_TYPES } from '../constants/column-data-types.js'
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 import { model } from '../model.js'
-import { generateDDBDataTypeLiteral, isDDBDecimalType, isDDBTemporalType } from '../utils/ddb-data-types.js'
+import { generateDDBDataTypeLiteral, isDDBTemporalType } from '../utils/ddb-data-types.js'
 import { useSteps } from '../utils/hooks/use-steps.js'
 import { useAsyncEffect } from '../utils/hooks/use-async-effect.js'
 import { Editor } from './Editor/index.js'

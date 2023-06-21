@@ -23,7 +23,7 @@ export const storage_keys = {
 
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'cluster' | 'login' | 'dfs' | 'log'
+export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log'
 
 export class DdbModel extends Model<DdbModel> {
     inited = false
@@ -75,6 +75,7 @@ export class DdbModel extends Model<DdbModel> {
     /** 通过 getClusterPerf 取集群中的某个数据节点，方便后续 rpc 到数据节点执行操作 */
     datanode: DdbNode
     // --- 
+    
     
     version: string
     
@@ -158,7 +159,7 @@ export class DdbModel extends Model<DdbModel> {
                 
             }
         
-        await this.get_cluster_perf()
+        await this.get_cluster_perf(true)
         
         await this.check_leader_and_redirect()
         
@@ -175,7 +176,6 @@ export class DdbModel extends Model<DdbModel> {
         
         this.get_version()
     }
-    
     
     
     async login_by_password (username: string, password: string) {
@@ -271,16 +271,22 @@ export class DdbModel extends Model<DdbModel> {
         this.goto_login()
     }
     
-    async start_nodes (nodes) {
-        const checked = nodes.map(node => node.name)
-        await this.ddb.call('startDataNode', [new DdbVectorString(checked)])
+    
+    async start_nodes (nodes: DdbNode[]) {
+        await this.ddb.call('startDataNode', [new DdbVectorString(nodes.map(node => node.name))], {
+            node: this.controller_alias, 
+            func_type: DdbFunctionType.SystemProc
+        })
     }
     
     
-    async stop_nodes (nodes) {
-        const checked = nodes.map(node => node.name)
-        await this.ddb.call('stopDataNode', [new DdbVectorString(checked)])
+    async stop_nodes (nodes: DdbNode[]) {
+        await this.ddb.call('stopDataNode', [new DdbVectorString(nodes.map(node => node.name))], {
+            node: this.controller_alias, 
+            func_type: DdbFunctionType.SystemProc
+        })
     }
+    
     
     async get_node_type () {
         const { value: node_type } = await this.ddb.call<DdbObj<NodeType>>('getNodeType', [ ], { urgent: true })
@@ -415,7 +421,7 @@ export class DdbModel extends Model<DdbModel> {
     goto_default_view () {
         this.set({
             view: new URLSearchParams(location.search).get('view') as DdbModel['view'] || 
-                (this.node_type === NodeType.controller ? 'cluster' : 'shell')
+                (this.node_type === NodeType.controller ? 'overview' : 'shell')
         })
     }
     
@@ -424,7 +430,7 @@ export class DdbModel extends Model<DdbModel> {
         https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/g/getClusterPerf.html  
         Only master or single mode supports function getClusterPerf.
     */
-    async get_cluster_perf () {
+    async get_cluster_perf (print: boolean) {
         const nodes = (
             await this.ddb.call<DdbObj<DdbObj[]>>('getClusterPerf', [true], {
                 urgent: true,
@@ -439,7 +445,8 @@ export class DdbModel extends Model<DdbModel> {
             })
         ).to_rows<DdbNode>()
         
-        console.log(t('集群节点:'), nodes)
+        if (print)
+            console.log(t('集群节点:'), nodes)
         
         let node: DdbNode, controller: DdbNode, datanode: DdbNode
         
@@ -456,14 +463,16 @@ export class DdbModel extends Model<DdbModel> {
             if (_node.mode === NodeType.data)
                 datanode ??= _node
         }
-        
-        console.log(t('当前节点:'), node)
-        if (node.mode !== NodeType.single)
-            console.log(t('控制节点:'), controller, t('数据节点:'), datanode)
+        if (print) {
+            console.log(t('当前节点:'), node)
+            if (node.mode !== NodeType.single)
+                console.log(t('控制节点:'), controller, t('数据节点:'), datanode)
+        }
         
         this.set({ nodes, node, controller, datanode })
     }
-      
+    
+    
     find_closest_node_host (node: DdbNode) {
         const ip_pattern = /\d+\.\d+\.\d+\.\d+/
         
@@ -711,7 +720,7 @@ export class DdbModel extends Model<DdbModel> {
         
         const current_params = new URLSearchParams(location.search)
         const is_query_params_mode = current_params.get('hostname') || current_params.get('port')
-        console.log('is_query_params_mode', is_query_params_mode)
+        
         const new_params = new URLSearchParams(extra_query)
         
         if (keep_current_query) 
