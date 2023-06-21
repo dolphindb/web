@@ -365,7 +365,7 @@ function Node ({
                                                    size={[100, 7]}/>}>{Math.round(avgLoad) + '%'}</InfoItem> 
                     <InfoItem title={t('executor 线程总数')}>{executorNum}</InfoItem> 
                 </NodeInfo>
-                <NodeInfo title='内存' icon={SvgMemory} className='memory-info' >
+                <NodeInfo title={t('内存')} icon={SvgMemory} className='memory-info' >
                     <InfoItem title={t('用量')} Progress={<Progress percent={(Number(memoryUsed) / (maxMemSize * 1024 * 1024 * 1024)) * 100} 
                                                                     showInfo={false} 
                                                                     strokeColor={(Number(memoryUsed) / (maxMemSize * 1024 * 1024 * 1024)) * 100 > 67 ? '#FF8660' : ((Number(memoryUsed) / (maxMemSize * 1024 * 1024 * 1024)) * 100 > 33 ? '#FFCE4F' : '#A8EB7F')} size={[150, 7]} />}>{(Number(memoryUsed)).to_fsize_str() + ' / ' + maxMemSize + ' GB' }</InfoItem> 
@@ -380,7 +380,7 @@ function Node ({
                         {(Number(diskCapacity - diskFreeSpace) ).to_fsize_str() + ' / ' + ((Number(diskCapacity))).to_fsize_str() }           
                     </InfoItem>
                 </NodeInfo>
-                <NodeInfo title='网络' icon={SvgNetwork} className='network-info' >
+                <NodeInfo title={t('网络')} icon={SvgNetwork} className='network-info' >
                     <InfoItem title={t('收')}>{(Number(networkRecvRate)).to_fsize_str() + '/s' }</InfoItem>
                     <InfoItem title={t('前一分钟收')}>{(Number(lastMinuteNetworkRecv)).to_fsize_str()}</InfoItem>
                     <InfoItem title={t('发')}>{(Number(networkSendRate)).to_fsize_str() + '/s' }</InfoItem>
@@ -389,7 +389,7 @@ function Node ({
                     <InfoItem title={t('最大连接数')}>{maxConnections}</InfoItem>
                     
                 </NodeInfo>        
-                <NodeInfo title='任务与作业' icon={SvgTask} className='task-info' >
+                <NodeInfo title={t('任务与作业')} icon={SvgTask} className='task-info' >
                     <InfoItem title={t('运行作业')}>{runningJobs}</InfoItem>
                     <InfoItem title={t('运行任务')}>{runningJobs}</InfoItem>
                     <InfoItem title={t('排队作业')}>{queuedJobs}</InfoItem>
@@ -463,16 +463,9 @@ function NodeSite ({
     let publicDomain = [ ]
     let publicLink = [ ]
     
-    if (mode === NodeType.single) {
-        let search_ = location.search.split('&')
-        search_[1] = 'hostname=' + host
-        search_[2] = 'port=' + port
-        publicDomain = publicName.split(';').map(val =>   val +  ':' + port) 
-        publicLink = publicName.split(';').map(val => getLink(val, port))
-    }
-    else {
-        publicDomain = publicName.split(',').map(val =>   val + ':' + port) 
-        publicLink = publicName.split(';').map(val => getLink(val, port))
+    if (publicName) {
+        publicDomain = publicName.split(`${mode === NodeType.single ? ';' : ','}`).map(val =>   val + ':' + port) 
+        publicLink = publicName.split(`${mode === NodeType.single ? ';' : ','}`).map(val => getLink(val, port))
     }
     
     function getLink (hostname, port) {
@@ -498,7 +491,7 @@ function NodeSite ({
                                                         <a className='disable-link' href={publicLink[idx]} target='_blank'>{val}</a>
                                                     </div>
                                                 </Tooltip> : 
-                                                <a href={publicLink[idx]} target='_blank'>{val}</a>}
+                                                publicLink.length && <a href={publicLink[idx]} target='_blank'>{val}</a>}
                                          </div>) }
     </>
 }
