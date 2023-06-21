@@ -5,6 +5,8 @@ import { Model } from 'react-object-model'
 import { Modal } from 'antd'
 import type { BaseType } from 'antd/es/typography/Base/index.js'
 
+import { strcmp } from 'xshell/utils.browser.js'
+
 import { DDB, DdbFunctionType, DdbVectorString, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError, DdbStringObj, type DdbDictObj, type DdbVectorStringObj } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
@@ -444,6 +446,7 @@ export class DdbModel extends Model<DdbModel> {
                     },
             })
         ).to_rows<DdbNode>()
+        .sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
             console.log(t('集群节点:'), nodes)

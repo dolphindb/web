@@ -224,7 +224,7 @@ function Nodes ({
         selectedNodes={[ ]} setSelectedNodes={() => { }}
         expanded switchFold={() => { }}  />
     :
-        nodes.length && <div>
+        Boolean(nodes.length) && <div>
             <div className='nodes-header'>{node_type[type] + ' (' + nodes.length + ')'}
                 { type === NodeType.controller ?
                     <div className='controller-site'>
