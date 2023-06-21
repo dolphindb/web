@@ -1093,7 +1093,7 @@ export class PartitionDirectory implements DataNode {
     
     async load_children () {
         if (!this.children)
-            this.children = await shell.load_partitions(this.root, this, new Set<string>())
+            this.children = await shell.load_partitions(this.root, this, [ ])
     }
 }
 
@@ -1253,17 +1253,12 @@ export class PartitionRoot implements DataNode {
     
     
     async load_children () {
-        let dbchildren = this.table.db.children
-        let tablenNames = new Set<string>()
-        for (let dbchild of dbchildren) 
-            tablenNames.add(dbchild.name)
-        
-        
-        if (!this.children) 
-            this.children = (await shell.load_partitions(this, this, tablenNames)) as PartitionDirectory[]
-        
-            
-        
+        if (!this.children)
+            this.children = (await shell.load_partitions(
+                this,
+                this,
+                this.table.db.children.map(({ name }) => name)
+            )) as PartitionDirectory[]
     }
 }
 
