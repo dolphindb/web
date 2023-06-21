@@ -65,11 +65,15 @@ export function Overview () {
                     
                     { node_type !== NodeType.single && <>
                         <div className='icon-area'  onClick={() => start_modal.open()}>
-                            <Button type='text' disabled={!selectedNodes.length || !logined} block icon={<Icon className={'icon-start' + (!selectedNodes.length ? ' grey-icon' : ' blue-icon')} component={SvgStart} />}>{t('启动')}</Button>                
+                            <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
+                                <Button type='text' disabled={!selectedNodes.length || !logined} block icon={<Icon className={'icon-start' + (!selectedNodes.length ? ' grey-icon' : ' blue-icon')} component={SvgStart} />}>{t('启动')}</Button>                
+                            </Tooltip>
                         </div>
                         
                         <div className='icon-area' onClick={() => stop_modal.open()}>
-                            <Button type='text' disabled={!selectedNodes.length || !logined} block icon={<Icon className={'icon-stop' + (!selectedNodes.length ? ' grey-icon' : ' blue-icon') } component={SvgStop} />}>{t('停止')}</Button>   
+                            <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
+                                <Button type='text' disabled={!selectedNodes.length || !logined} block icon={<Icon className={'icon-stop' + (!selectedNodes.length ? ' grey-icon' : ' blue-icon') } component={SvgStop} />}>{t('停止')}</Button>   
+                            </Tooltip>
                         </div>
                         
                         <div className='icon-expand-area' onClick={() =>  setExpandedNodes(nodes.filter(node => node.mode === NodeType.agent))}>
@@ -337,18 +341,13 @@ function Node ({
                 </div>
             :
                 <div className={'node-header' + ' ' + node_colors[mode] + (expanded ? ' node-header-fold' : '') }>
-                    <div className='node-chosen'>{
-                        node.mode === NodeType.controller || node.mode === NodeType.agent ? 
-                            <Tooltip title={(node.mode === NodeType.controller ? t('控制节点不可停止，停止控制节点会导致当前连接断开，无法重启节点。') : t('代理节点不可停止，停止代理节点会导致控制节点发出的命令无法执行。'))}>
+                    <div className='node-chosen'> 
+                            <Tooltip title={(node.mode === NodeType.controller || node.mode === NodeType.agent) ? ((node.mode === NodeType.controller ? t('控制节点不可停止，停止控制节点会导致当前连接断开，无法重启节点。') : t('代理节点不可停止，停止代理节点会导致控制节点发出的命令无法执行。'))) : ''}>
                                 <Checkbox disabled={node.mode === NodeType.controller || node.mode === NodeType.agent} 
                                     checked={selectedNodes.some(node => node.mode === type && node.name === name)} 
                                     onChange={() => handeChange()}/>
                             </Tooltip>
-                        :
-                            <Checkbox
-                                checked={selectedNodes.some(node => node.mode === type && node.name === name)} 
-                                onChange={() => handeChange()}/>
-                    }</div>
+                    </div>
                     <div className={'node-title' + ' ' + title_colors[mode]}>
                         <div className='node-name'>{name}</div>
                         {isLeader && <Tag className='leader-tag' color='#FFF' >leader</Tag> }
@@ -513,16 +512,17 @@ function NodeSite ({ node }: { node: DdbNode }) {
     let publicLink = [ ]
     
     if (publicName) {
-        publicDomain = publicName.split(`${mode === NodeType.single ? ';' : ','}`).map(val =>   val + ':' + port) 
-        publicLink = publicName.split(`${mode === NodeType.single ? ';' : ','}`).map(val => getLink(val, port))
+        publicDomain = publicName.split(/,|;/).map(val =>   val + ':' + port) 
+        publicLink = publicName.split(/,|;/).map(val => getLink(val, port))
     }
     
     function getLink (hostname: string, port: number) {
-        let search = location.search.split('&')
-        search[1] = 'hostname=' + hostname
-        search[2] = 'port=' + port
-        return location.origin + location.pathname + search.join('&')
+        const current_params = new URLSearchParams(location.search)
+        current_params.set('hostname', hostname)
+        current_params.set('port', String(port))
+        return `${location.protocol}//${location.hostname}:${location.port}${location.pathname}?${current_params.toString()}`
     }
+    
     
     return <>
         <div className='node-site'>
