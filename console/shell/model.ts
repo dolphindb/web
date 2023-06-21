@@ -365,9 +365,8 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
-    /** - path: 类似 dfs://Crypto_TSDB_14/, dfs://Crypto_TSDB_14/20100101_20110101/ 的路径 
-        - table_names 是数据库的表名，用于筛选过滤维度表的分区，'__' + table_names 格式命名分区被隐藏 */
-    async load_partitions (root: PartitionRoot, node: PartitionDirectory | PartitionRoot, table_names: string[]) {
+    /** - path: 类似 dfs://Crypto_TSDB_14/, dfs://Crypto_TSDB_14/20100101_20110101/ 的路径 */
+    async load_partitions (root: PartitionRoot, node: PartitionDirectory | PartitionRoot) {
         const {
             rows,
             value: [{ value: filenames }, { value: filetypes }, /* sizes */, { value: chunks_column }, { value: sites }]
@@ -380,16 +379,11 @@ class ShellModel extends Model<ShellModel> {
             model.node.mode !== NodeType.controller ? { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc } : { }
         )
         
-        const table_names_set = new Set(table_names)
         
         let directories: PartitionDirectory[] = [ ]
         let file: PartitionFile
         for (let i = 0;  i < rows;  i++) {
             const filename = filenames[i]
-            
-            // 可能会误伤 __表名 这样的分区，原因是不知道表是不是维度表，只能排除所有表
-            if (filename.startsWith('__') && table_names_set.has(filename.slice(2))) 
-                continue
             
             switch (filetypes[i]) {
                 case DfsFileType.directory:
