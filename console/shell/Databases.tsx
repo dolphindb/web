@@ -1255,8 +1255,8 @@ export class PartitionRoot implements DataNode {
     async load_children () {
         let dbchildren = this.table.db.children
         let tablenNames = new Set<string>()
-        for (let i = 0;  i < dbchildren.length;  i++) 
-            tablenNames.add(dbchildren[i].name)
+        for (let dbchild of dbchildren) 
+            tablenNames.add(dbchild.name)
         
         
         if (!this.children) 
