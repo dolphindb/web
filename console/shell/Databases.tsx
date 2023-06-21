@@ -1093,7 +1093,7 @@ export class PartitionDirectory implements DataNode {
     
     async load_children () {
         if (!this.children)
-            this.children = await shell.load_partitions(this.root, this, new Set<String>())
+            this.children = await shell.load_partitions(this.root, this, new Set<string>())
     }
 }
 
