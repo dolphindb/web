@@ -165,7 +165,6 @@ function ButtonIframeModal ({
     class_name: string
     iframe_src: string
 }) {
-    
     const { visible, open, close } = use_modal()
     
     return <>
@@ -219,39 +218,40 @@ function Nodes ({
     }
     
     
-    function handleAllChosen () {
-        let newSlectedNodes = [ ]
-        if (selectedNodes.filter(node => node.mode === type).length < numOfNodes) 
-            newSlectedNodes = nodes.filter(node => node.mode === type && !selectedNodes.includes(node)).concat(selectedNodes)
-        else
-            newSlectedNodes = selectedNodes.filter(node => node.mode !== type)        
-        setSelectedNodes(newSlectedNodes)
-        
-    }
-        
     
-    return <>
-        {type === NodeType.single ? 
-            <Node node={node} type={type} key={node.name} 
-            selectedNodes={[ ]} setSelectedNodes={() => { }}
-            expanded switchFold={() => { }}  />
-        : (nodes.length ? 
-        <div>
+    return type === NodeType.single ? 
+        <Node node={node} type={type} key={node.name} 
+        selectedNodes={[ ]} setSelectedNodes={() => { }}
+        expanded switchFold={() => { }}  />
+    :
+        nodes.length && <div>
             <div className='nodes-header'>{node_type[type] + ' (' + nodes.length + ')'}
-                {type === NodeType.controller ? <div className='controller-site'>
-                                                    <NodeSite node={node}/>
-                                                </div> 
-                                            : (type !== NodeType.agent ? <div className='nodes-selectAll'>
-                                                <Checkbox checked={selectedNodes.filter(node => node.mode === type).length === numOfNodes } indeterminate={selectedNodes.filter(node => node.mode === type).length && selectedNodes.filter(node => node.mode === type).length !== numOfNodes} onChange={() => handleAllChosen()} >
-                                                    <div className='text-selectAll'>{t('全选')}</div>
-                                                </Checkbox>
-                                            </div> : null)}
+                { type === NodeType.controller ?
+                    <div className='controller-site'>
+                        <NodeSite node={node}/>
+                    </div>
+                :
+                    type !== NodeType.agent && <div className='nodes-selectAll'>
+                        <Checkbox
+                            checked={selectedNodes.filter(node => node.mode === type).length === numOfNodes }
+                            indeterminate={selectedNodes.filter(node => node.mode === type).length && selectedNodes.filter(node => node.mode === type).length !== numOfNodes}
+                            onChange={() => {
+                                let newSlectedNodes = [ ]
+                                if (selectedNodes.filter(node => node.mode === type).length < numOfNodes) 
+                                    newSlectedNodes = nodes.filter(node => node.mode === type && !selectedNodes.includes(node)).concat(selectedNodes)
+                                else
+                                    newSlectedNodes = selectedNodes.filter(node => node.mode !== type)        
+                                setSelectedNodes(newSlectedNodes)
+                            }}
+                        >
+                            <div className='text-selectAll'>{t('全选')}</div>
+                        </Checkbox>
+                    </div> }
             </div>
             {nodes.map(node => <Node node={node} type={type} key={node.name} 
                                         selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
                                         expanded={expandedNodes.some(item => item.name === node.name)} switchFold={(node: DdbNode) => switchFold(node)} />)}
-        </div> : null)}
-    </>
+        </div>
 }
 
 
@@ -314,7 +314,7 @@ function Node ({
     } = node
     
     const agentNode = agentSite ? agentSite.split(':')[2] : ''
-        
+    
     function handeChange () {
         let newSelectedNodes = [ ]
         if (selectedNodes.every(node => node.name !== name)) 
@@ -327,32 +327,36 @@ function Node ({
     
     return <div className={'node' + ' ' + (type !== NodeType.single && node.name === model.node.name ? current_node_borders[node.mode] : '')}>{
             type === NodeType.single ? 
-            <div className={'node-header' + ' ' + node_colors[mode]}>
-                <div className={'node-title' + ' ' + title_colors[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
-                <div className='node-click-single' />
-                <NodeSite node={node}/>
-                <div className={node_statuses[state]}><span>{state ? t('运行中') : t('未启动')}</span></div>
-            </div>
-            :
-            <div className={'node-header' + ' ' + node_colors[mode] + (expanded ? ' node-header-fold' : '') }>
-                <div className='node-chosen'>{node.mode === NodeType.controller || node.mode === NodeType.agent ? 
-                                                                                <Tooltip title={(node.mode === NodeType.controller ? 
-                                                                                t('控制节点不可停止，停止控制节点会导致当前连接断开，无法重启节点。') : 
-                                                                                t('代理节点不可停止，停止代理节点会导致控制节点发出的命令无法执行。'))}>
-                                                                                    <Checkbox disabled={node.mode === NodeType.controller || node.mode === NodeType.agent} 
-                                                                                            checked={selectedNodes.some(node => node.mode === type && node.name === name)} 
-                                                                                            onChange={() => handeChange()}/>
-                                                                                </Tooltip> :
-                                                       <Checkbox  
-                                                       checked={selectedNodes.some(node => node.mode === type && node.name === name)} 
-                                                       onChange={() => handeChange()}/>
-                                                       }
+                <div className={'node-header' + ' ' + node_colors[mode]}>
+                    <div className={'node-title' + ' ' + title_colors[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
+                    <div className='node-click-single' />
+                    <NodeSite node={node}/>
+                    <div className={node_statuses[state]}>
+                        <span>{state ? t('运行中') : t('未启动')}</span>
+                    </div>
                 </div>
-                <div className={'node-title' + ' ' + title_colors[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
-                <div className='node-click'  onClick={() => switchFold(node)}/>
-                <NodeSite node={node}/>
-                <div className={node_statuses[state]}><span>{state ? t('运行中') : t('未启动')}</span></div>
-            </div>
+            :
+                <div className={'node-header' + ' ' + node_colors[mode] + (expanded ? ' node-header-fold' : '') }>
+                    <div className='node-chosen'>{
+                        node.mode === NodeType.controller || node.mode === NodeType.agent ? 
+                            <Tooltip title={(node.mode === NodeType.controller ? t('控制节点不可停止，停止控制节点会导致当前连接断开，无法重启节点。') : t('代理节点不可停止，停止代理节点会导致控制节点发出的命令无法执行。'))}>
+                                <Checkbox disabled={node.mode === NodeType.controller || node.mode === NodeType.agent} 
+                                    checked={selectedNodes.some(node => node.mode === type && node.name === name)} 
+                                    onChange={() => handeChange()}/>
+                            </Tooltip>
+                        :
+                            <Checkbox
+                                checked={selectedNodes.some(node => node.mode === type && node.name === name)} 
+                                onChange={() => handeChange()}/>
+                    }</div>
+                    <div className={'node-title' + ' ' + title_colors[mode]}>
+                        <div className='node-name'>{name}</div>
+                        {isLeader && <Tag className='leader-tag' color='#FFF' >leader</Tag> }
+                    </div>
+                    <div className='node-click'  onClick={() => switchFold(node)}/>
+                    <NodeSite node={node}/>
+                    <div className={node_statuses[state]}><span>{state ? t('运行中') : t('未启动')}</span></div>
+                </div>
             }
             <div className={(type !== NodeType.single && expanded  ? 'node-body-fold' : 'node-body')  + ' ' + node_backgrounds[node.mode]}>
                 <NodeInfo title='CPU' icon={SvgCPU} className='cpu-info'>
@@ -474,6 +478,7 @@ function NodeSite ({
         search[2] = 'port=' + port
         return location.origin + location.pathname + search.join('&')
     }
+    
     return <>
         <div className='node-site' >
             {mode === NodeType.agent ? 
