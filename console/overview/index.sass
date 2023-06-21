@@ -1,9 +1,14 @@
 .overview
     padding: 0
-    
     display: flex
     flex-direction: column
-    
+    .header-bar
+        position: sticky
+        top: 0
+        z-index: 1
+        width: 100%
+        padding-top: 10px
+        
     .actions
         display: flex
         justify-content: space-between
@@ -53,6 +58,10 @@
                 width: 10px
                 height: 10px
                 
+            .grey-icon
+                color: #515151
+            .blue-icon
+                color: #234883    
 
     .content
         padding: 0 20px 20px 20px
@@ -224,7 +233,7 @@
                         justify-content: start
                         .item-content
                             margin: 22px 21px 34px 0
-                            min-width: 80px
+                            min-width: 82px
                             max-width: 150px
                             .item-title
                                 color:#6A7B97
@@ -243,7 +252,7 @@
             .disk-info
                 min-width: 480px
             .network-info
-                min-width: 430px
+                min-width: 380px
             .task-info
                 min-width: auto
         .node-body-fold
