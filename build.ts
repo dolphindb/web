@@ -33,7 +33,7 @@ if (process.argv.includes('cloud')) {
     await Promise.all([
         fcopy(`${fpd_root}src/`, fpd_out_console),
         
-        ... ['index.html', 'window.html', 'ddb.svg'].map(async fname => 
+        ... ['index.html', 'window.html', 'ddb.svg', 'overview/online.png', 'overview/offline.png'].map(async fname => 
             fcopy(fpd_src_console + fname, fpd_out_console + fname)),
         
         ... ['README.md', 'README.zh.md', 'LICENSE.txt'].map(async fname => 
