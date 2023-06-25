@@ -64,15 +64,23 @@ export function Overview () {
                     <div className='icon-area' onClick={() => { model.get_cluster_perf(true) }}><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
                     
                     { node_type !== NodeType.single && <>
-                        <div className='icon-area'  onClick={() => start_modal.open()}>
+                        <div className='icon-area' onClick={() => start_modal.open()}>
                             <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
-                                <Button type='text' disabled={!selectedNodes.length || !logined} block icon={<Icon className={'icon-start' + (!selectedNodes.length ? ' grey-icon' : ' blue-icon')} component={SvgStart} />}>{t('启动')}</Button>                
+                                <Button type='text' 
+                                        disabled={!selectedNodes.length || !logined} 
+                                        block 
+                                        icon={<Icon className={'icon-start' + (!selectedNodes.length ? ' grey-icon' : ' blue-icon')} 
+                                        component={SvgStart}/>}>{t('启动')}</Button>                
                             </Tooltip>
                         </div>
                         
-                        <div className='icon-area' onClick={() => stop_modal.open()}>
+                        <div className='icon-area' onClick={() => stop_modal.open()} >
                             <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
-                                <Button type='text' disabled={!selectedNodes.length || !logined} block icon={<Icon className={'icon-stop' + (!selectedNodes.length ? ' grey-icon' : ' blue-icon') } component={SvgStop} />}>{t('停止')}</Button>   
+                                <Button type='text' 
+                                        disabled={!selectedNodes.length || !logined} 
+                                        block 
+                                        icon={<Icon className={'icon-stop' + (!selectedNodes.length ? ' grey-icon' : ' blue-icon') } 
+                                        component={SvgStop}/>}>{t('停止')}</Button>   
                             </Tooltip>
                         </div>
                         
@@ -505,24 +513,30 @@ function InfoItem ({
 
 function NodeSite ({ node }: { node: DdbNode }) {
     const { host, port, mode, publicName } = node
-    const { dev } = model.use(['dev'])
     const privateDomain = host + ':' + port
-    let privateLink = getLink(host, port)
+    let privateLink = getUrl(host, port)
     let publicDomain = [ ]
     let publicLink = [ ]
     
     if (publicName) {
         publicDomain = publicName.split(/,|;/).map(val =>   val + ':' + port) 
-        publicLink = publicName.split(/,|;/).map(val => getLink(val, port))
+        publicLink = publicName.split(/,|;/).map(val =>  getUrl(val, port))
     }
     
-    function getLink (hostname: string, port: number) {
+    function getUrl ( hostname: string, port: string | number) {
         const current_params = new URLSearchParams(location.search)
-        current_params.set('hostname', hostname)
-        current_params.set('port', String(port))
-        return `${location.protocol}//${location.hostname}:${location.port}${location.pathname}?${current_params.toString()}`
+        const is_query_params_mode = current_params.get('hostname') || current_params.get('port')
+        
+        if (is_query_params_mode) {
+            current_params.set('hostname', hostname)
+            current_params.set('port', port.toString())
+        }
+        
+        return is_query_params_mode ? 
+                                `${location.protocol}//${location.hostname}:${location.port}${location.pathname}?${current_params.toString()}`
+                            :
+                                `${location.protocol}//${hostname}:${port}`     
     }
-    
     
     return <>
         <div className='node-site'>
@@ -535,7 +549,7 @@ function NodeSite ({ node }: { node: DdbNode }) {
                     </div>
                 </Tooltip>
             ) : (
-                <a href={dev ? privateLink : publicLink[0]} target='_blank'>
+                <a href={privateLink} target='_blank'>
                     {privateDomain}
                 </a>
             )}
