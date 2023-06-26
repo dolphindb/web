@@ -66,10 +66,6 @@ export function Overview () {
                     { node_type !== NodeType.single && <>
                         <div
                             className='icon-area'
-                            onClick={() => {
-                                if (selectedNodes.length && logined)
-                                    start_modal.open()
-                            }}
                         >
                             <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                                 <Button
@@ -77,6 +73,7 @@ export function Overview () {
                                     disabled={!selectedNodes.length || !logined}
                                     block
                                     icon={<Icon className={'icon-start' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStart} />}
+                                    onClick={() => { start_modal.open() }}
                                 >
                                     {t('启动')}
                                 </Button>
@@ -85,10 +82,6 @@ export function Overview () {
                         
                         <div
                             className='icon-area'
-                            onClick={() => {
-                                if (selectedNodes.length && logined)
-                                    stop_modal.open()
-                            }}
                         >
                             <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                                 <Button
@@ -96,6 +89,7 @@ export function Overview () {
                                     disabled={!selectedNodes.length || !logined}
                                     block
                                     icon={<Icon className={'icon-stop' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStop} />}
+                                    onClick={() => { stop_modal.open() }}
                                 >
                                     {t('停止')}
                                 </Button>
