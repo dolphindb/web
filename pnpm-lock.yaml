@@ -5,9 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
-  webpack@5.87.0:
+  webpack@5.88.0:
     hash: oyfbpynob4llk6lrrm2cafduym
-    path: patches/webpack@5.87.0.patch
+    path: patches/webpack@5.88.0.patch
 
 dependencies:
   '@ant-design/icons':
@@ -24,13 +24,13 @@ dependencies:
     version: 1.2.10(react-dom@18.2.0)(react@18.2.0)
   '@formily/antd-v5':
     specifier: 1.1.0-beta.3
-    version: 1.1.0-beta.3(@types/react-dom@18.2.6)(@types/react@18.2.13)(antd@5.6.2)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3)
+    version: 1.1.0-beta.3(@types/react-dom@18.2.6)(@types/react@18.2.14)(antd@5.6.2)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3)
   '@formily/core':
-    specifier: ^2.2.25
-    version: 2.2.25
+    specifier: ^2.2.26
+    version: 2.2.26
   '@formily/react':
-    specifier: ^2.2.25
-    version: 2.2.25(@types/react-dom@18.2.6)(@types/react@18.2.13)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3)
+    specifier: ^2.2.26
+    version: 2.2.26(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3)
   '@monaco-editor/react':
     specifier: ^4.5.1
     version: 4.5.1(monaco-editor@0.39.0)(react-dom@18.2.0)(react@18.2.0)
@@ -118,8 +118,8 @@ devDependencies:
     specifier: ^20.3.1
     version: 20.3.1
   '@types/react':
-    specifier: ^18.2.13
-    version: 18.2.13
+    specifier: ^18.2.14
+    version: 18.2.14
   '@types/react-dom':
     specifier: ^18.2.6
     version: 18.2.6
@@ -137,7 +137,7 @@ devDependencies:
     version: 5.60.0(eslint@8.43.0)(typescript@5.1.3)
   css-loader:
     specifier: ^6.8.1
-    version: 6.8.1(webpack@5.87.0)
+    version: 6.8.1(webpack@5.88.0)
   eslint:
     specifier: ^8.43.0
     version: 8.43.0
@@ -149,7 +149,7 @@ devDependencies:
     version: 1.0.6(eslint@8.43.0)(typescript@5.1.3)
   license-webpack-plugin:
     specifier: ^4.0.2
-    version: 4.0.2(webpack@5.87.0)
+    version: 4.0.2(webpack@5.88.0)
   rc-table:
     specifier: ^7.32.1
     version: 7.32.1(react-dom@18.2.0)(react@18.2.0)
@@ -157,20 +157,20 @@ devDependencies:
     specifier: ^18.2.0
     version: 18.2.0
   sass:
-    specifier: ^1.63.4
-    version: 1.63.4
+    specifier: ^1.63.6
+    version: 1.63.6
   sass-loader:
     specifier: ^13.3.2
-    version: 13.3.2(sass@1.63.4)(webpack@5.87.0)
+    version: 13.3.2(sass@1.63.6)(webpack@5.88.0)
   source-map-loader:
     specifier: ^4.0.1
-    version: 4.0.1(webpack@5.87.0)
+    version: 4.0.1(webpack@5.88.0)
   style-loader:
     specifier: ^3.3.3
-    version: 3.3.3(webpack@5.87.0)
+    version: 3.3.3(webpack@5.88.0)
   ts-loader:
     specifier: ^9.4.3
-    version: 9.4.3(typescript@5.1.3)(webpack@5.87.0)
+    version: 9.4.3(typescript@5.1.3)(webpack@5.88.0)
   typescript:
     specifier: ^5.1.3
     version: 5.1.3
@@ -178,8 +178,8 @@ devDependencies:
     specifier: ^2.0.1
     version: 2.0.1
   webpack:
-    specifier: ^5.87.0
-    version: 5.87.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+    specifier: ^5.88.0
+    version: 5.88.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
   webpack-bundle-analyzer:
     specifier: ^4.9.0
     version: 4.9.0
@@ -2131,7 +2131,7 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /@formily/antd-v5@1.1.0-beta.3(@types/react-dom@18.2.6)(@types/react@18.2.13)(antd@5.6.2)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3):
+  /@formily/antd-v5@1.1.0-beta.3(@types/react-dom@18.2.6)(@types/react@18.2.14)(antd@5.6.2)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3):
     resolution: {integrity: sha512-6NLV9Ac2guG4euU5En2Igy2uyYToN/I7kIcxVhraChSVJI3WInIFa1d4XOB4O+2RTxRC/A4RT4l+nL6Lkgw9Ng==}
     engines: {npm: '>=3.0.0'}
     peerDependencies:
@@ -2146,14 +2146,14 @@ packages:
       '@ant-design/icons': 5.1.4(react-dom@18.2.0)(react@18.2.0)
       '@dnd-kit/core': 6.0.8(react-dom@18.2.0)(react@18.2.0)
       '@dnd-kit/sortable': 7.0.2(@dnd-kit/core@6.0.8)(react@18.2.0)
-      '@formily/core': 2.2.25
+      '@formily/core': 2.2.26
       '@formily/grid': 2.2.22(typescript@5.1.3)
       '@formily/json-schema': 2.2.23(typescript@5.1.3)
-      '@formily/react': 2.2.25(@types/react-dom@18.2.6)(@types/react@18.2.13)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3)
+      '@formily/react': 2.2.26(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3)
       '@formily/reactive': 2.2.23
-      '@formily/reactive-react': 2.2.23(@types/react-dom@18.2.6)(@types/react@18.2.13)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)
+      '@formily/reactive-react': 2.2.23(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)
       '@formily/shared': 2.2.23
-      '@types/react': 18.2.13
+      '@types/react': 18.2.14
       '@types/react-dom': 18.2.6
       antd: 5.6.2(react-dom@18.2.0)(react@18.2.0)
       classnames: 2.3.2
@@ -2174,13 +2174,13 @@ packages:
       '@formily/validator': 2.2.23
     dev: false
 
-  /@formily/core@2.2.25:
-    resolution: {integrity: sha512-nNnRbVviw/lPdz6k7oZC/bnDr6+PDfYXmCRKnC2FWLQF3szXxqD/mR3QQpjFaGWQJFFBwwPqj9KvpvhB9mL4cQ==}
+  /@formily/core@2.2.26:
+    resolution: {integrity: sha512-K0hQtb1xyLVnIZIHq0X8wMxv4V7f+8ON3Rlz9wQlx2raVVyFzS+9Y92O5VncnFMAK3W77Zvz1bXz95oo1u0Q0A==}
     engines: {npm: '>=3.0.0'}
     dependencies:
-      '@formily/reactive': 2.2.25
-      '@formily/shared': 2.2.25
-      '@formily/validator': 2.2.25
+      '@formily/reactive': 2.2.26
+      '@formily/shared': 2.2.26
+      '@formily/validator': 2.2.26
     dev: false
 
   /@formily/grid@2.2.22(typescript@5.1.3):
@@ -2206,15 +2206,15 @@ packages:
       typescript: 5.1.3
     dev: false
 
-  /@formily/json-schema@2.2.25(typescript@5.1.3):
-    resolution: {integrity: sha512-0UfcnwoKWTmtcod6W1IHTrxPd0UKFYY3XRyHoqmqYLB+T61g0/MlPrAt9zuhw6ZkI59JCfQ5d+flGdFoE2j3Qg==}
+  /@formily/json-schema@2.2.26(typescript@5.1.3):
+    resolution: {integrity: sha512-SGcrL1bCgQmOCRG8zDSau/SSuaylRifnUMOoeQ2Ctb9OLYkkrJb2KVz8Sb+pRyE1SD/rLmCCmEN5AMWsMDtjlw==}
     engines: {npm: '>=3.0.0'}
     peerDependencies:
       typescript: '>4.1.5'
     dependencies:
-      '@formily/core': 2.2.25
-      '@formily/reactive': 2.2.25
-      '@formily/shared': 2.2.25
+      '@formily/core': 2.2.26
+      '@formily/reactive': 2.2.26
+      '@formily/shared': 2.2.26
       typescript: 5.1.3
     dev: false
 
@@ -2223,13 +2223,13 @@ packages:
     engines: {npm: '>=3.0.0'}
     dev: false
 
-  /@formily/path@2.2.25:
-    resolution: {integrity: sha512-GHgUKMXmvadQ9PliQcG6vfbDQrzIAT9Gt1cN3yksXqjUsQDWaniKX5Sk2e1TUuem1sNyQBM4SvIY3ciW/24w0Q==}
+  /@formily/path@2.2.26:
+    resolution: {integrity: sha512-Bwc492hlbzmAyOllgMP/ZHPw+y3LqQumriOqup27TJwPBGMO4Ri9A5djftVmeDnX69NmB4BO/X0lVUnRuK/8jw==}
     engines: {npm: '>=3.0.0'}
     dev: false
 
-  /@formily/react@2.2.25(@types/react-dom@18.2.6)(@types/react@18.2.13)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3):
-    resolution: {integrity: sha512-rGdtT2BVfXEnZAXMWOPSeKKtAGgDQcuSBrRKN/rcBiPPzu2sh3KYvNKmICQAJ8E6Kxdet+4qR+at9NXpNet2UQ==}
+  /@formily/react@2.2.26(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.1.3):
+    resolution: {integrity: sha512-fBlzoFt0fL9p58isJeg/Ir9TqtwaqhSlmrKdwvFkOQJXGTp6sMPlrQHBZiVpfsmzUuApe4CKYfPfT6PpdtHQXw==}
     engines: {npm: '>=3.0.0'}
     peerDependencies:
       '@types/react': '>=16.8.0'
@@ -2243,13 +2243,13 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@formily/core': 2.2.25
-      '@formily/json-schema': 2.2.25(typescript@5.1.3)
-      '@formily/reactive': 2.2.25
-      '@formily/reactive-react': 2.2.25(@types/react-dom@18.2.6)(@types/react@18.2.13)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)
-      '@formily/shared': 2.2.25
-      '@formily/validator': 2.2.25
-      '@types/react': 18.2.13
+      '@formily/core': 2.2.26
+      '@formily/json-schema': 2.2.26(typescript@5.1.3)
+      '@formily/reactive': 2.2.26
+      '@formily/reactive-react': 2.2.26(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)
+      '@formily/shared': 2.2.26
+      '@formily/validator': 2.2.26
+      '@types/react': 18.2.14
       '@types/react-dom': 18.2.6
       hoist-non-react-statics: 3.3.2
       react: 18.2.0
@@ -2259,7 +2259,7 @@ packages:
       - typescript
     dev: false
 
-  /@formily/reactive-react@2.2.23(@types/react-dom@18.2.6)(@types/react@18.2.13)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0):
+  /@formily/reactive-react@2.2.23(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0):
     resolution: {integrity: sha512-nkqdLwp8g23g0Jt7eQ3Km43ekSxlbO9m/ReurAlMR5Tw3+EiRr5aIWzpLrQQqGQ9jZyKkJgAScFRRyIrFx2fcA==}
     engines: {npm: '>=3.0.0'}
     peerDependencies:
@@ -2275,7 +2275,7 @@ packages:
         optional: true
     dependencies:
       '@formily/reactive': 2.2.23
-      '@types/react': 18.2.13
+      '@types/react': 18.2.14
       '@types/react-dom': 18.2.6
       hoist-non-react-statics: 3.3.2
       react: 18.2.0
@@ -2283,8 +2283,8 @@ packages:
       react-is: 16.13.1
     dev: false
 
-  /@formily/reactive-react@2.2.25(@types/react-dom@18.2.6)(@types/react@18.2.13)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0):
-    resolution: {integrity: sha512-pcs02z4be9ecY3PG9nDODokuY3vcwZRNkxtzVeaFf7mTQvtI5mRYmAGJmUtJqxSUSqgfz+UqtpTHejKYPjPxlQ==}
+  /@formily/reactive-react@2.2.26(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0):
+    resolution: {integrity: sha512-VnoRtwvVZU0kZyu54n17F3VuqpULNG4rto61seJTiR1+nZVW71i66+meXj37XjbgD9qbVmIvdt1QoVcODVbYHw==}
     engines: {npm: '>=3.0.0'}
     peerDependencies:
       '@types/react': '>=16.8.0'
@@ -2298,8 +2298,8 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@formily/reactive': 2.2.25
-      '@types/react': 18.2.13
+      '@formily/reactive': 2.2.26
+      '@types/react': 18.2.14
       '@types/react-dom': 18.2.6
       hoist-non-react-statics: 3.3.2
       react: 18.2.0
@@ -2317,8 +2317,8 @@ packages:
     engines: {npm: '>=3.0.0'}
     dev: false
 
-  /@formily/reactive@2.2.25:
-    resolution: {integrity: sha512-+IF16oDeWFSJTsEaMIFJVf1rEHL5wbp86mAJwBC2XvAgVAvJjlbjolBQu8kuD2MUkliUln/FY61iHk+lxttyzw==}
+  /@formily/reactive@2.2.26:
+    resolution: {integrity: sha512-eKCrFIFTm02CGGu99GCK4lBTte+hQecwjMKKmReeQ53QWZJZhSidnDgn4uoDme3m7CEsRJEMhhAhQnU5rENhtA==}
     engines: {npm: '>=3.0.0'}
     dev: false
 
@@ -2335,11 +2335,11 @@ packages:
       upper-case: 2.0.2
     dev: false
 
-  /@formily/shared@2.2.25:
-    resolution: {integrity: sha512-0mD74oB1GwoIsV6cDkyTXrmFbT9PN/6uN06X8U5F4W+c6C9kmUwC6yIp0lL5TBpGwmx6WLztayKudcyROO6U1w==}
+  /@formily/shared@2.2.26:
+    resolution: {integrity: sha512-PvAX3FvNu4PvZ4vXJKoDsVgGzhXEMD4+yPvekTHT8+wkJCFuU2P8/PDEhP+kJrmJ/rE2q51eNGOshjdcDdOOmQ==}
     engines: {npm: '>=3.0.0'}
     dependencies:
-      '@formily/path': 2.2.25
+      '@formily/path': 2.2.26
       camel-case: 4.1.2
       lower-case: 2.0.2
       no-case: 3.0.4
@@ -2355,11 +2355,11 @@ packages:
       '@formily/shared': 2.2.23
     dev: false
 
-  /@formily/validator@2.2.25:
-    resolution: {integrity: sha512-W7Xqqztz0XrWppbGDahRMa86bRWpaMVrkXs7v3I//VUVU0zS5AlrWYUOPE+xTTAdyQW/dyjEv1uMYS8b34+I+Q==}
+  /@formily/validator@2.2.26:
+    resolution: {integrity: sha512-b6Z7/VHQtPV6HrVGL+6yZv32Or99+UIxKpXEP48zSE+Nfie/thxsflieo/cFPpZphxKHfqLx1VY0HnRH+/M+WA==}
     engines: {npm: '>=3.0.0'}
     dependencies:
-      '@formily/shared': 2.2.25
+      '@formily/shared': 2.2.26
     dev: false
 
   /@humanwhocodes/config-array@0.11.10:
@@ -2872,10 +2872,10 @@ packages:
   /@types/react-dom@18.2.6:
     resolution: {integrity: sha512-2et4PDvg6PVCyS7fuTc4gPoksV58bW0RwSxWKcPRcHZf0PRUGq03TKcD/rUHe3azfV6/5/biUBJw+HhCQjaP0A==}
     dependencies:
-      '@types/react': 18.2.13
+      '@types/react': 18.2.14
 
-  /@types/react@18.2.13:
-    resolution: {integrity: sha512-vJ+zElvi/Zn9cVXB5slX2xL8PZodPCwPRDpittQdw43JR2AJ5k3vKdgJJyneV/cYgIbLQUwXa9JVDvUZXGba+Q==}
+  /@types/react@18.2.14:
+    resolution: {integrity: sha512-A0zjq+QN/O0Kpe30hA1GidzyFjatVvrpIvWLxD+xv67Vt91TWWgco9IvrJBkeyHm1trGaFS/FSGqPlhyeZRm0g==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
@@ -2887,7 +2887,7 @@ packages:
       '@types/node': 20.3.1
       '@types/node-sass': 4.11.3
       '@types/webpack': 4.41.33
-      sass: 1.63.4
+      sass: 1.63.6
     dev: true
 
   /@types/scheduler@0.16.2:
@@ -2923,7 +2923,7 @@ packages:
     dependencies:
       '@types/node': 20.3.1
       tapable: 2.2.1
-      webpack: 5.87.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      webpack: 5.88.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
@@ -3989,7 +3989,7 @@ packages:
       which: 2.0.2
     dev: true
 
-  /css-loader@6.8.1(webpack@5.87.0):
+  /css-loader@6.8.1(webpack@5.88.0):
     resolution: {integrity: sha512-xDAXtEVGlD0gJ07iclwWVkLoZOpEvAWaSyf6W18S2pOC//K8+qUDIx8IIT3D+HjnmkJPQeesOPv5aiUaJsCM2g==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
@@ -4003,7 +4003,7 @@ packages:
       postcss-modules-values: 4.0.0(postcss@8.4.21)
       postcss-value-parser: 4.2.0
       semver: 7.3.8
-      webpack: 5.87.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      webpack: 5.88.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     dev: true
 
   /css-select@5.1.0:
@@ -5468,7 +5468,7 @@ packages:
       type-check: 0.4.0
     dev: true
 
-  /license-webpack-plugin@4.0.2(webpack@5.87.0):
+  /license-webpack-plugin@4.0.2(webpack@5.88.0):
     resolution: {integrity: sha512-771TFWFD70G1wLTC4oU2Cw4qvtmNrIw+wRvBtn+okgHl7slJVi7zfNcdmqDL72BojM30VNJ2UHylr1o77U37Jw==}
     peerDependencies:
       webpack: '*'
@@ -5478,7 +5478,7 @@ packages:
       webpack-sources:
         optional: true
     dependencies:
-      webpack: 5.87.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      webpack: 5.88.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
       webpack-sources: 3.2.3
     dev: true
 
@@ -6901,7 +6901,7 @@ packages:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
     dev: true
 
-  /sass-loader@13.3.2(sass@1.63.4)(webpack@5.87.0):
+  /sass-loader@13.3.2(sass@1.63.6)(webpack@5.88.0):
     resolution: {integrity: sha512-CQbKl57kdEv+KDLquhC+gE3pXt74LEAzm+tzywcA0/aHZuub8wTErbjAoNI57rPUWRYRNC5WUnNl8eGJNbDdwg==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
@@ -6921,12 +6921,12 @@ packages:
         optional: true
     dependencies:
       neo-async: 2.6.2
-      sass: 1.63.4
-      webpack: 5.87.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      sass: 1.63.6
+      webpack: 5.88.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     dev: true
 
-  /sass@1.63.4:
-    resolution: {integrity: sha512-Sx/+weUmK+oiIlI+9sdD0wZHsqpbgQg8wSwSnGBjwb5GwqFhYNwwnI+UWZtLjKvKyFlKkatRK235qQ3mokyPoQ==}
+  /sass@1.63.6:
+    resolution: {integrity: sha512-MJuxGMHzaOW7ipp+1KdELtqKbfAWbH7OLIdoSMnVe3EXPMTmxTmlaZDCTsgIpPCs3w99lLo9/zDKkOrJuT5byw==}
     engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
@@ -7064,7 +7064,7 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /source-map-loader@4.0.1(webpack@5.87.0):
+  /source-map-loader@4.0.1(webpack@5.88.0):
     resolution: {integrity: sha512-oqXpzDIByKONVY8g1NUPOTQhe0UTU5bWUl32GSkqK2LjJj0HmwTMVKxcUip0RgAYhY1mqgOxjbQM48a0mmeNfA==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
@@ -7073,7 +7073,7 @@ packages:
       abab: 2.0.6
       iconv-lite: 0.6.3
       source-map-js: 1.0.2
-      webpack: 5.87.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      webpack: 5.88.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     dev: true
 
   /source-map-support@0.3.3:
@@ -7238,13 +7238,13 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /style-loader@3.3.3(webpack@5.87.0):
+  /style-loader@3.3.3(webpack@5.88.0):
     resolution: {integrity: sha512-53BiGLXAcll9maCYtZi2RCQZKa8NQQai5C4horqKyRmHj9H7QmcUyucrH+4KW/gBQbXM2AsB0axoEcFZPlfPcw==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
     dependencies:
-      webpack: 5.87.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      webpack: 5.88.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     dev: true
 
   /stylis@4.1.3:
@@ -7338,7 +7338,7 @@ packages:
       streamx: 2.13.2
     dev: false
 
-  /terser-webpack-plugin@5.3.7(webpack@5.87.0):
+  /terser-webpack-plugin@5.3.7(webpack@5.88.0):
     resolution: {integrity: sha512-AfKwIktyP7Cu50xNjXF/6Qb5lBNzYaWpU6YfoX3uZicTx0zTy0stDDCsvjDapKsSDvOeWo5MEq4TmdBy2cNoHw==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -7359,7 +7359,7 @@ packages:
       schema-utils: 3.3.0
       serialize-javascript: 6.0.1
       terser: 5.16.9
-      webpack: 5.87.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      webpack: 5.88.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     dev: true
 
   /terser@5.16.9:
@@ -7456,7 +7456,7 @@ packages:
       url-parse: 1.5.10
     dev: false
 
-  /ts-loader@9.4.3(typescript@5.1.3)(webpack@5.87.0):
+  /ts-loader@9.4.3(typescript@5.1.3)(webpack@5.88.0):
     resolution: {integrity: sha512-n3hBnm6ozJYzwiwt5YRiJZkzktftRpMiBApHaJPoWLA+qetQBAXkHqCLM6nwSdRDimqVtA5ocIkcTRLMTt7yzA==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -7468,7 +7468,7 @@ packages:
       micromatch: 4.0.5
       semver: 7.3.8
       typescript: 5.1.3
-      webpack: 5.87.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
+      webpack: 5.88.0(patch_hash=oyfbpynob4llk6lrrm2cafduym)
     dev: true
 
   /tslib@1.14.1:
@@ -7792,8 +7792,8 @@ packages:
     engines: {node: '>=10.13.0'}
     dev: true
 
-  /webpack@5.87.0(patch_hash=oyfbpynob4llk6lrrm2cafduym):
-    resolution: {integrity: sha512-GOu1tNbQ7p1bDEoFRs2YPcfyGs8xq52yyPBZ3m2VGnXGtV9MxjrkABHm4V9Ia280OefsSLzvbVoXcfLxjKY/Iw==}
+  /webpack@5.88.0(patch_hash=oyfbpynob4llk6lrrm2cafduym):
+    resolution: {integrity: sha512-O3jDhG5e44qIBSi/P6KpcCcH7HD+nYIHVBhdWFxcLOcIGN8zGo5nqF3BjyNCxIh4p1vFdNnreZv2h2KkoAw3lw==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     peerDependencies:
@@ -7823,7 +7823,7 @@ packages:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.7(webpack@5.87.0)
+      terser-webpack-plugin: 5.3.7(webpack@5.88.0)
       watchpack: 2.4.0
       webpack-sources: 3.2.3
     transitivePeerDependencies:
