@@ -430,7 +430,8 @@ class ShellModel extends Model<ShellModel> {
         } else if (file) {
             assert(!directories.length, t('directories 和 file 应该只有一个有值，另一个为空'))
             return [file]
-        }
+        } else
+            return [ ]
     }
     
     
