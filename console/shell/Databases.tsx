@@ -9,7 +9,7 @@ import { message, Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, PlusSquareOutlined, EditOutlined } from '@ant-design/icons'
+import { default as _Icon, SyncOutlined, MinusSquareOutlined, EditOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import { assert } from 'xshell/utils.browser.js'

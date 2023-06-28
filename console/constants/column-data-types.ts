@@ -32,6 +32,7 @@ export const DDB_COLUMN_DATA_TYPES: DDBTypeNames[] = [
     
     'DECIMAL32',
     'DECIMAL64',
+    'DECIMAL128',
 ]
 
 /** 支持排序的列类型 */
@@ -54,6 +55,7 @@ export const SUPPORT_SORT_COLUMN_TYPES: DDBTypeNames[] = [
     
     'DECIMAL32',
     'DECIMAL64',
+    'DECIMAL128',
 ]
 
 export const DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS: SelectProps['options'] =
