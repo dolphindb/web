@@ -1761,7 +1761,7 @@
         "en": "unactivated"
     },
     "work 线程数": {
-        "en": "number of worker threads"
+        "en": "num of worker"
     },
     "读速率": {
         "en": "read rate"
@@ -1797,16 +1797,16 @@
         "en": "single node overview"
     },
     "worker 线程总数": {
-        "en": "total number of worker threads"
+        "en": "num of worker"
     },
     "executor 线程总数": {
-        "en": "total number of executor threads"
+        "en": "num of executor"
     },
     "全部展开": {
         "en": "expand all"
     },
     "占用率": {
-        "en": "occupancy rate"
+        "en": "occupancy"
     },
     "平均负载": {
         "en": "average load"
@@ -1818,25 +1818,25 @@
         "en": "read"
     },
     "前一分钟读": {
-        "en": "read in last minute"
+        "en": "read in last min"
     },
     "写": {
         "en": "write"
     },
     "前一分钟写": {
-        "en": "written in last minute"
+        "en": "written in last min"
     },
     "收": {
-        "en": "reveive"
+        "en": "receive"
     },
     "前一分钟收": {
-        "en": "received in last minute"
+        "en": "received in last min"
     },
     "发": {
         "en": "send"
     },
     "前一分钟发": {
-        "en": "sent in last minute"
+        "en": "sent in last min"
     },
     "代理节点: ": {
         "en": "agent node"
@@ -1863,16 +1863,16 @@
         "en": "running"
     },
     "当前连接数": {
-        "en": "current connections"
+        "en": "connections"
     },
     "最大连接数": {
-        "en": "maximum number of connections"
+        "en": "max number of connections"
     },
     "前一批消息时延": {
-        "en": "delay of the previous batch of messages"
+        "en": "pre batch msgs delay"
     },
     "所有消息平均时延": {
-        "en": "average latency of all messages"
+        "en": "all msgs avg latency"
     },
     "控制节点不可停止，停止控制节点会导致当前连接断开，无法重启节点。": {
         "en": "The controller node cannot be stopped. Stopping the controller node will cause the current connection to be disconnected and the node cannot be restarted."

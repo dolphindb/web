@@ -12,7 +12,7 @@ import { use_modal } from 'react-object-model/modal.js'
 
 import { delay } from 'xshell/utils.browser.js'
 
-import { t } from '../../i18n/index.js'
+import { t, language } from '../../i18n/index.js'
 
 import { NodeType, DdbNodeState, DdbNode, model } from '../model.js'
 
@@ -31,7 +31,6 @@ import SvgTask from './icons/task.icon.svg'
 
 export function Overview () {
     const { nodes, node_type, cdn, logined } = model.use(['nodes', 'node_type', 'cdn', 'logined'])   
-    
     useEffect(() => {
         let flag = true
         ;(async () => {
@@ -56,16 +55,17 @@ export function Overview () {
     
     const [selectedNodes, setSelectedNodes] = useState<DdbNode[]>([ ])
     const [expandedNodes, setExpandedNodes] = useState(nodes.filter(item => (item.name !== model.node.name)))
+    const iconClassname = language === 'zh' ? 'icon-area' : 'icon-area-en'
     
     return <Layout>
         <Header className='header-bar'>
             <div className='actions'>
                 <div className='operations'>
-                    <div className='icon-area' onClick={() => { model.get_cluster_perf(true) }}><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
+                    <div className={iconClassname} onClick={() => { model.get_cluster_perf(true) }}><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
                     
                     { node_type !== NodeType.single && <>
                         <div
-                            className='icon-area'
+                            className={iconClassname}
                         >
                             <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                                 <Button
@@ -81,7 +81,7 @@ export function Overview () {
                         </div>
                         
                         <div
-                            className='icon-area'
+                            className={iconClassname}
                         >
                             <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                                 <Button
@@ -96,11 +96,11 @@ export function Overview () {
                             </Tooltip>
                         </div>
                         
-                        <div className='icon-expand-area' onClick={() =>  setExpandedNodes(nodes.filter(node => node.mode === NodeType.agent))}>
+                        <div className={language === 'zh' ? 'icon-expand-area' : 'icon-expand-area-en'} onClick={() =>  setExpandedNodes(nodes.filter(node => node.mode === NodeType.agent))}>
                             <Button type='text' block icon={<Icon className='icon-expand' component={SvgExpand} />}>{t('全部展开')}</Button>
                         </div>
                         
-                        <div className='icon-collapse-area' onClick={() => setExpandedNodes(nodes)}>
+                        <div className={language === 'zh' ? 'icon-collapse-area' : 'icon-collapse-area-en'} onClick={() => setExpandedNodes(nodes)}>
                             <Button type='text' block icon={<Icon className='icon-collapse' component={SvgCollapse} />}>{t('全部折叠')}</Button>
                         </div>
                     </> }
@@ -458,7 +458,7 @@ function Node ({
                                         ? '#FFCE4F'
                                         : '#A8EB7F'
                                 }
-                                size={[200, 7]}
+                                size={language === 'zh' ? [200, 7] : [160, 7]}
                             />
                         }
                     >
@@ -524,7 +524,7 @@ function InfoItem ({
     Progress?: React.JSX.Element
 }) {
     return <div className='item-content'>
-        <div className='item-title'>{title}</div>
+        <div className={language === 'zh' ? 'item-title' : 'item-title-en'}>{title}</div>
         <div className='item-body'>
             <div className='info-text'>{children}</div>
             {Progress}
