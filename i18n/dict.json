@@ -1882,5 +1882,8 @@
     },
     "代理节点不可跳转": {
         "en": "agent nodes cannot navigate"
+    },
+    "当前用户未登录，请登陆后再进行启停操作。": {
+        "en": "The current user is not logged in, please log in and then start and stop the operation."
     }
 }

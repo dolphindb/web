@@ -139,7 +139,9 @@ export function Overview () {
                             setIsStartLoading(false)
                             start_modal.close() 
                             await model.get_cluster_perf(false) }
-                            } onCancel={() => start_modal.close()}>
+                            } onCancel={() => start_modal.close()}
+                            okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0 }}
+                            >
                     {selectedNodes.filter(node => node.state === DdbNodeState.offline).map(node => <p className='model-node' key={node.name}>{node.name}</p>)}
                 </Modal>
                 
@@ -156,7 +158,9 @@ export function Overview () {
                             setIsStopLoading(false)
                             stop_modal.close()
                             await model.get_cluster_perf(false) }
-                        } onCancel={() => stop_modal.close()}>
+                        } onCancel={() => stop_modal.close()}
+                        okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0 }}
+                        >
                     {selectedNodes.filter(node => node.state === DdbNodeState.online).map(node => <p className='model-node' key={node.name}>{node.name}</p>)}
                 </Modal>
             </div>
@@ -483,7 +487,7 @@ function Node ({
                 </NodeInfo>
             </div>
             <div className={expanded  ? 'node-footer-fold' : 'node-footer'}>
-                {agentNode && <span>{t('代理节点: ') + agentNode}</span> }
+                {agentNode && <span>{t('代理节点') + ': ' + agentNode}</span> }
             </div>
         </div>
 }
