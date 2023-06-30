@@ -1806,7 +1806,7 @@
         "en": "expand all"
     },
     "占用率": {
-        "en": "occupancy"
+        "en": "usage"
     },
     "平均负载": {
         "en": "average load"
@@ -1818,22 +1818,22 @@
         "en": "read"
     },
     "前一分钟读": {
-        "en": "read in last min"
+        "en": "read in (1 min)"
     },
     "写": {
         "en": "write"
     },
     "前一分钟写": {
-        "en": "written in last min"
+        "en": "written in (1 min)"
     },
     "收": {
-        "en": "receive"
+        "en": "received"
     },
     "前一分钟收": {
         "en": "received in last min"
     },
     "发": {
-        "en": "send"
+        "en": "sent"
     },
     "前一分钟发": {
         "en": "sent in last min"
