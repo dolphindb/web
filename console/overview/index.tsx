@@ -31,6 +31,7 @@ import SvgTask from './icons/task.icon.svg'
 
 export function Overview () {
     const { nodes, node_type, cdn, logined } = model.use(['nodes', 'node_type', 'cdn', 'logined'])   
+    
     useEffect(() => {
         let flag = true
         ;(async () => {
