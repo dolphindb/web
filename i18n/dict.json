@@ -1818,25 +1818,25 @@
         "en": "read"
     },
     "前一分钟读": {
-        "en": "read in (1 min)"
+        "en": "read(1 min)"
     },
     "写": {
         "en": "write"
     },
     "前一分钟写": {
-        "en": "written in (1 min)"
+        "en": "written(1 min)"
     },
     "收": {
-        "en": "received"
+        "en": "receive"
     },
     "前一分钟收": {
-        "en": "received in last min"
+        "en": "received(1 min)"
     },
     "发": {
-        "en": "sent"
+        "en": "send"
     },
     "前一分钟发": {
-        "en": "sent in last min"
+        "en": "sent(1 min)"
     },
     "代理节点: ": {
         "en": "agent node"
