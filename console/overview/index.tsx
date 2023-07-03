@@ -127,45 +127,64 @@ export function Overview () {
                     />
                 </div> }
                 
-                <Modal title={t('确认启动以下节点')} className='start-nodes-modal' open={start_modal.visible} confirmLoading={isStartLoading} 
-                        onOk={ async () => {
-                            const startNodes = selectedNodes.filter(node => node.state === DdbNodeState.offline)
-                            if (!startNodes.length) {
-                                start_modal.close()
-                                return            
-                            }
-                            setIsStartLoading(true)
-                            model.start_nodes(selectedNodes)
-                            await delay(5000)
-                            setIsStartLoading(false)
-                            start_modal.close() 
-                            await model.get_cluster_perf(false) }
-                            } onCancel={() => start_modal.close()}
-                            okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0 }}
-                            >
-                    {selectedNodes.filter(node => node.state === DdbNodeState.offline).map(node => <p className='model-node' key={node.name}>{node.name}</p>)}
+                <Modal
+                    title={t('确认启动以下节点')}
+                    className='start-nodes-modal'
+                    open={start_modal.visible}
+                    confirmLoading={isStartLoading}
+                    onOk={async () => {
+                        const startNodes = selectedNodes.filter(node => node.state === DdbNodeState.offline)
+                        if (!startNodes.length) {
+                            start_modal.close()
+                            return
+                        }
+                        setIsStartLoading(true)
+                        model.start_nodes(selectedNodes)
+                        await delay(5000)
+                        setIsStartLoading(false)
+                        start_modal.close()
+                        await model.get_cluster_perf(false)
+                    }}
+                    onCancel={() => start_modal.close()}
+                    okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0 }}
+                >
+                    {selectedNodes
+                        .filter(node => node.state === DdbNodeState.offline)
+                        .map(node => <p className='model-node' key={node.name}>
+                                {node.name}
+                            </p>)}
                 </Modal>
                 
-                <Modal title={t('确认停止以下节点')} className='stop-nodes-modal' open={stop_modal.visible} confirmLoading={isStopLoading} 
-                        onOk={async () => {   
-                            const stopNodes = selectedNodes.filter(node => node.state === DdbNodeState.online)
-                            if (!stopNodes.length) {
-                                stop_modal.close()
-                                return
-                            }
-                            setIsStopLoading(true)
-                            model.stop_nodes(selectedNodes)
-                            await delay(5000)
-                            setIsStopLoading(false)
+                <Modal
+                    title={t('确认停止以下节点')}
+                    className='stop-nodes-modal'
+                    open={stop_modal.visible}
+                    confirmLoading={isStopLoading}
+                    onOk={async () => {
+                        const stopNodes = selectedNodes.filter(node => node.state === DdbNodeState.online)
+                        if (!stopNodes.length) {
                             stop_modal.close()
-                            await model.get_cluster_perf(false) }
-                        } onCancel={() => stop_modal.close()}
-                        okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0 }}
-                        >
-                    {selectedNodes.filter(node => node.state === DdbNodeState.online).map(node => <p className='model-node' key={node.name}>{node.name}</p>)}
+                            return
+                        }
+                        setIsStopLoading(true)
+                        model.stop_nodes(selectedNodes)
+                        await delay(5000)
+                        setIsStopLoading(false)
+                        stop_modal.close()
+                        await model.get_cluster_perf(false)
+                    }}
+                    onCancel={() => stop_modal.close()}
+                    okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0 }}
+                >
+                    {selectedNodes
+                        .filter(node => node.state === DdbNodeState.online)
+                        .map(node => <p className='model-node' key={node.name}>
+                                {node.name}
+                            </p>)}
                 </Modal>
             </div>
         </Header>
+        
         <div className={`content${ node_type === NodeType.single ? ' single-node-content' : '' }`}>{
             node_type === NodeType.single ?
                 <Nodes
