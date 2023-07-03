@@ -390,7 +390,7 @@ function Node ({
                             title={
                                 node.mode === NodeType.controller || node.mode === NodeType.agent
                                     ? node.mode === NodeType.controller
-                                        ? t('控制节点不可停止，停止控制节点会导致当前连接断开，无法重启节点。')
+                                        ? t('控制节点不可停止，停止控制节点将无法对集群节点进行启停操作。')
                                         : t('代理节点不可停止，停止代理节点会导致控制节点发出的命令无法执行。')
                                     : ''
                             }

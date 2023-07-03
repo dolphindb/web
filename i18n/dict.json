@@ -1874,8 +1874,8 @@
     "所有消息平均时延": {
         "en": "all msgs avg latency"
     },
-    "控制节点不可停止，停止控制节点会导致当前连接断开，无法重启节点。": {
-        "en": "The controller node cannot be stopped. Stopping the controller node will cause the current connection to be disconnected and the node cannot be restarted."
+    "控制节点不可停止，停止控制节点将无法对集群节点进行启停操作。": {
+        "en": "The control node cannot be stopped.Stopping the control node will not be able to start and stop the cluster nodes."
     },
     "代理节点不可停止，停止代理节点会导致控制节点发出的命令无法执行。": {
         "en": "The agent node cannot be stopped. Stopping the agent node will cause the commands issued by the controller node to be unable to be executed."
