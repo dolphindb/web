@@ -261,6 +261,7 @@ export let webpack = {
         await this.run()
     },
     
+    
     watch () {
         this.lcompiler.resource.watch({ }, (error, stats) => {
             if (error)  {
@@ -275,6 +276,7 @@ export let webpack = {
                 )
         })
     },
+    
     
     async run () {
         return this.lcompiler.request(async compiler =>
