@@ -18,7 +18,7 @@ export function isDDBDecimalType (type: DDBTypeNames) {
     return [
         'DECIMAL32',
         'DECIMAL64',
-        // 'DECIMAL128',
+        'DECIMAL128',
     ].includes(type)
 }
 
