@@ -1028,7 +1028,7 @@ export class Column implements DataNode {
         
         this.title = <div className='column-title'>
             <div>
-                <span className='column-name'>{name}</span>: {DdbType[typeInt]} {comment} 
+                <span className='column-name'>{name}</span>: {typeString.toLowerCase()} {comment} 
             </div>
             <div className='edit-comment-button' onClick={ event => {
                 shell.set({ current_node: this, set_column_comment_modal_visible: true })
