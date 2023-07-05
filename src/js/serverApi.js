@@ -1,18 +1,20 @@
 function authenticate () {
-    const wa_url = GetFullUrl(window.location.host);
+    const wa_url = GetFullUrl(window.location.host)
     
     const ticket = localStorage.getItem('ddb.ticket')
     
     if (ticket)
         CallWebApiSync(wa_url, {
-            "sessionID": localStorage.getItem('ddb.session_id') || '0',
-            "functionName": "authenticateByTicket",
-            "params": [{
-                "name": "ticket",
-                "form": "scalar",
-                "type": "string",
-                "value": ticket
-            }]
+            sessionID: localStorage.getItem('ddb.session_id') || '0',
+            functionName: 'authenticateByTicket',
+            params: [
+                {
+                    name: 'ticket',
+                    form: 'scalar',
+                    type: 'string',
+                    value: ticket
+                }
+            ]
         })
 }
 
@@ -20,7 +22,7 @@ function DatanodeConfig () {
     var ruleNumber = 0
     var controller = GetFullUrl(window.location.host)
     var scriptExecutor = new CodeExecutor(controller)
-    var ruleData = []
+    var ruleData = [ ]
     
     var configs = [
         {
@@ -34,7 +36,12 @@ function DatanodeConfig () {
                 },
                 { name: 'logFile', value: '', default: 'DolphinDBlog', tip: 'The path and name of the log file' },
                 { name: 'logLevel', value: ['DEBUG', 'INFO', 'WARNING', 'ERROR'], default: '= INFO', tip: 'The retention hierarchy of log files.' },
-                { name: 'logRetentionTime', value: '', default: '30', tip: 'Set the retention time of syslog. Logs older than the specified retention time will be deleted. The default value is 30, the unit is "day", and the type is floating point, such as: 0.5 means 12 hours. If set to 0, it means no cleanup.' },
+                {
+                    name: 'logRetentionTime',
+                    value: '',
+                    default: '30',
+                    tip: 'Set the retention time of syslog. Logs older than the specified retention time will be deleted. The default value is 30, the unit is "day", and the type is floating point, such as: 0.5 means 12 hours. If set to 0, it means no cleanup.'
+                },
                 { name: 'redoLogPurgeInterval', value: 'int', default: '30', tip: ' The time interval (s) for deleting redo logs.' },
                 { name: 'redoLogPurgeLimit', value: 'int', default: '4000', tip: 'The maximum amount of disk space (MB) used by redo logs.' },
                 {
@@ -115,7 +122,10 @@ function DatanodeConfig () {
                 { name: 'maxPartitionNumPerQuery', value: 'int', default: '= 65536', tip: '' },
                 { name: 'newValuePartitionPolicy', value: ['add', 'skip', 'fail'], default: '= skip', tip: '' },
                 {
-                    name: 'enableConcurrentDimensionalTableWrite', value: [0, 1], default: 0, tip: 'Whether to allow concurrent writing, modification, and deletion of dimensional tables. The default value is false.'
+                    name: 'enableConcurrentDimensionalTableWrite',
+                    value: [0, 1],
+                    default: 0,
+                    tip: 'Whether to allow concurrent writing, modification, and deletion of dimensional tables. The default value is false.'
                 },
                 { name: 'chunkCacheEngineMemSize', value: 'int', default: '0', tip: 'The volume (GB) of cache engine.' },
                 {
@@ -313,7 +323,7 @@ function DatanodeConfig () {
                     value: '',
                     default: '123456',
                     tip: 'User password for performing inter-cluster asynchronous replication, defaults to 123456.'
-                },
+                }
             ]
         },
         {
@@ -341,7 +351,7 @@ function DatanodeConfig () {
                     name: 'TSDBLevelFileIndexCacheSize',
                     value: '',
                     default: '',
-                    tip: 'Set the TSDB storage engine levelfile metadata memory footprint. The unit is GB and the type is Floating . The default is  5% of the DolphinDB system\'s available memory (set by maxMemSize), with a minimum of 0.1 GB.'
+                    tip: "Set the TSDB storage engine levelfile metadata memory footprint. The unit is GB and the type is Floating . The default is  5% of the DolphinDB system's available memory (set by maxMemSize), with a minimum of 0.1 GB."
                 },
                 {
                     name: 'TSDBMaxBlockSize',
@@ -360,7 +370,7 @@ function DatanodeConfig () {
                     value: 'int',
                     default: 1,
                     tip: 'A non-negative integer indicating the number of threads for asynchronous sorting in the TSDB cache engine. The default value is 1.'
-                },
+                }
             ]
         }
     ]
@@ -370,27 +380,27 @@ function DatanodeConfig () {
     authenticate()
     
     function checkRuleExists (rule) {
-        for (var j = 0; j < configs.length; j++) {
+        for (var j = 0;  j < configs.length;  j++) {
             var configCategory = configs[j].configs
-            for (var k = 0; k < configCategory.length; k++) 
-                if (configCategory[k].name == rule) 
+            for (var k = 0;  k < configCategory.length;  k++)
+                if (configCategory[k].name == rule)
                     return
-                
-            
         }
-        if (configs[UNKNOWN_INDEX] === undefined) configs.push({ configCategory: 'Unknown', configs: [] })
+        if (configs[UNKNOWN_INDEX] === undefined)
+            configs.push({ configCategory: 'Unknown', configs: [ ] })
         configs[UNKNOWN_INDEX].configs.push({ name: rule, value: '', default: '', tip: '' })
     }
     
     function loadRules () {
         ruleNumber = 0
-        for (var i = 0, len = ruleData.length; i < len; i++) ruleData[i].elem.remove()
-        ruleData = []
+        for (var i = 0, len = ruleData.length;  i < len;  i++)
+            ruleData[i].elem.remove()
+        ruleData = [ ]
         
         scriptExecutor.run('loadClusterNodesConfigs()', function (res) {
             if (res.resultCode === '0') {
                 var confs = res.object[0].value
-                for (var i = 0, len = confs.length; i < len; i++) {
+                for (var i = 0, len = confs.length;  i < len;  i++) {
                     var config = confs[i].split('=')
                     if (config.length !== 2) {
                         console.log('Unknown datanode config: ' + confs[i])
@@ -410,14 +420,13 @@ function DatanodeConfig () {
                     
                     checkRuleExists(ruleTypeText)
                     
-                    for (var j = 0, jlen = configs.length; j < jlen; j++) {
+                    for (var j = 0, jlen = configs.length;  j < jlen;  j++) {
                         var configCategory = configs[j].configs
-                        for (var k = 0, klen = configCategory.length; k < klen; k++) 
+                        for (var k = 0, klen = configCategory.length;  k < klen;  k++)
                             if (configCategory[k].name == ruleTypeText) {
                                 addRule(datanode, j + ',' + k, config[1])
                                 break
                             }
-                        
                     }
                 }
             }
@@ -441,7 +450,8 @@ function DatanodeConfig () {
             name: 'datanode-config-datanode-' + ruleId,
             placeholder: 'e.g. dn1 or dn% or empty'
         })
-        if (datanode) datanodeInput.val(datanode)
+        if (datanode)
+            datanodeInput.val(datanode)
         datanodeInput.keyup(function () {
             $('#text-cnt-config-rule-saved').attr('style', 'display: none')
             $('#btn-save-dn-config-rule').attr('disabled', false)
@@ -456,20 +466,21 @@ function DatanodeConfig () {
         var ruleTypeWrap = $('<div />', { class: 'col-xs-3' })
         var ruleTypeSelect = $('<select />', { class: 'form-control config-type' })
         $('<option value selected disabled>Configuration parameter</option>').appendTo(ruleTypeSelect)
-        for (var i = 0, len = configs.length; i < len; i++) {
+        for (var i = 0, len = configs.length;  i < len;  i++) {
             var optGroup = $('<optgroup />', { label: configs[i].configCategory })
             var configsInCatagory = configs[i].configs
             
-            for (var j = 0, jlen = configsInCatagory.length; j < jlen; j++) 
+            for (var j = 0, jlen = configsInCatagory.length;  j < jlen;  j++)
                 $('<option />', {
                     value: i + ',' + j,
                     text: configsInCatagory[j].name,
                     title: configsInCatagory[j].tip
                 }).appendTo(optGroup)
-            
+                
             optGroup.appendTo(ruleTypeSelect)
         }
-        if (typeof ruleType !== 'undefined') ruleTypeSelect.val(ruleType)
+        if (typeof ruleType !== 'undefined')
+            ruleTypeSelect.val(ruleType)
         ruleTypeSelect.appendTo(ruleTypeWrap)
         ruleTypeWrap.appendTo(newRule)
         
@@ -487,15 +498,15 @@ function DatanodeConfig () {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId
                 })
-                for (var i = 0, len = value.length; i < len; i++) 
+                for (var i = 0, len = value.length;  i < len;  i++)
                     $('<option />', {
                         value: value[i],
                         text: value[i],
                         title: selectedConfig.tip
                     }).appendTo(ruleValueContent)
-                
+                    
                 ruleValueContent.val(selectedConfig.default)
-            } else if (value === 'int') 
+            } else if (value === 'int')
                 ruleValueContent = $('<input />', {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
@@ -504,7 +515,7 @@ function DatanodeConfig () {
                     placeholder: selectedConfig.default,
                     title: selectedConfig.tip
                 })
-             else if (value === 'password') 
+            else if (value === 'password')
                 ruleValueContent = $('<input />', {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
@@ -512,7 +523,7 @@ function DatanodeConfig () {
                     placeholder: selectedConfig.default,
                     title: selectedConfig.tip
                 })
-             else if (value === '') 
+            else if (value === '')
                 ruleValueContent = $('<input />', {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
@@ -520,8 +531,8 @@ function DatanodeConfig () {
                     placeholder: selectedConfig.default,
                     title: selectedConfig.tip
                 })
-            
-            if (ruleValue) 
+                
+            if (ruleValue)
                 ruleValueContent.val(ruleValue)
             
             ruleValueContent.change(function () {
@@ -538,7 +549,8 @@ function DatanodeConfig () {
         ruleTypeSelect.change(function () {
             setRuleValue.bind(this)()
         })
-        if (typeof ruleType !== 'undefined') setRuleValue(ruleType, ruleValue)
+        if (typeof ruleType !== 'undefined')
+            setRuleValue(ruleType, ruleValue)
         
         var btnRemove = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-minus"></span></button>').appendTo(newRule)
         btnRemove.click(function () {
@@ -554,10 +566,11 @@ function DatanodeConfig () {
     
     function saveRules () {
         var script = 'saveClusterNodesConfigs(['
-        var ruleLines = []
-        for (var i = 0, len = ruleData.length; i < len; i++) {
+        var ruleLines = [ ]
+        for (var i = 0, len = ruleData.length;  i < len;  i++) {
             var rule = ruleData[i]
-            if (rule.deleted) continue
+            if (rule.deleted)
+                continue
             var ruleElem = rule.elem
             var datanodePattern = ruleElem.find('.datanode-pattern').val()
             var configIndex = ruleElem.find('.config-type').val()
@@ -565,9 +578,12 @@ function DatanodeConfig () {
             configIndex = configIndex.split(',')
             var selectedConfig = configs[configIndex[0]].configs[configIndex[1]]
             var ruleLine = '"'
-            if (datanodePattern !== '') ruleLine += datanodePattern + '.'
-            if (configIndex !== null && configValue !== '') ruleLine += selectedConfig.name + '=' + configValue + '"'
-            else continue
+            if (datanodePattern !== '')
+                ruleLine += datanodePattern + '.'
+            if (configIndex !== null && configValue !== '')
+                ruleLine += selectedConfig.name + '=' + configValue + '"'
+            else
+                continue
             ruleLines.push(ruleLine)
         }
         script += ruleLines.join(',')
@@ -579,9 +595,8 @@ function DatanodeConfig () {
                 applyRules()
                 $('#text-dn-config-rule-saved').attr('style', '')
                 $('#btn-save-dn-config-rule').attr('disabled', true)
-            } else 
+            } else
                 alert(res.msg)
-            
         })
     }
     
@@ -590,9 +605,8 @@ function DatanodeConfig () {
         scriptExecutor.run(script, function (res) {
             if (res.resultCode === '0') {
                 // alert("Restart all datanodes to apply the new configration!");
-            } else 
+            } else
                 alert(res.msg)
-            
         })
     }
     
@@ -617,8 +631,8 @@ function ControllerConfig () {
     var ruleNumber = 0
     var controller = GetFullUrl(window.location.host)
     var scriptExecutor = new CodeExecutor(controller)
-    var ruleData = []
-    var configsName = []
+    var ruleData = [ ]
+    var configsName = [ ]
     var configs = [
         {
             name: 'mode',
@@ -709,22 +723,23 @@ function ControllerConfig () {
         { name: 'datanodeRestartInterval', value: 'int', default: '', tip: '' },
         { name: 'dfsHAMode', value: '', default: '=Raft', tip: 'Whether multiple control nodes form a Raft group.' }
     ]
-    for (var item of configs) 
+    for (var item of configs)
         configsName.push(item.name)
     
     authenticate()
     
     function loadRules () {
         ruleNumber = 0
-        for (var i = 0, len = ruleData.length; i < len; i++) ruleData[i].elem.remove()
-        ruleData = []
+        for (var i = 0, len = ruleData.length;  i < len;  i++)
+            ruleData[i].elem.remove()
+        ruleData = [ ]
         
         scriptExecutor.run('loadControllerConfigs()', function (res) {
             console.log(res)
             if (res.resultCode === '0') {
                 var confs = res.object[0].value
-                for (var i = 0, len = configs.length; i < len; i++) {
-                    for (var j = 0, jlen = confs.length; j < jlen; j++) {
+                for (var i = 0, len = configs.length;  i < len;  i++) {
+                    for (var j = 0, jlen = confs.length;  j < jlen;  j++) {
                         var config = confs[j].split('=')
                         if (config.length !== 2) {
                             console.log('Unknown datanode config: ' + confs[i])
@@ -736,7 +751,8 @@ function ControllerConfig () {
                             break
                         }
                     }
-                    if (j === jlen) addRule(i, '')
+                    if (j === jlen)
+                        addRule(i, '')
                 }
             }
         })
@@ -782,15 +798,15 @@ function ControllerConfig () {
                     disabled: configs[selected].disabled ? true : false,
                     id: 'rule-value-content-' + ruleId
                 })
-                for (var i = 0, len = value.length; i < len; i++) 
+                for (var i = 0, len = value.length;  i < len;  i++)
                     $('<option />', {
                         value: value[i],
                         text: typeof text === 'undefined' ? value[i] : text[i],
                         title: configs[selected].tip
                     }).appendTo(ruleValueContent)
-                
+                    
                 ruleValueContent.val(configs[selected].default)
-            } else if (value === 'int') 
+            } else if (value === 'int')
                 ruleValueContent = $('<input />', {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
@@ -800,7 +816,7 @@ function ControllerConfig () {
                     placeholder: configs[selected].default,
                     title: configs[selected].tip
                 })
-             else if (value === 'password') 
+            else if (value === 'password')
                 ruleValueContent = $('<input />', {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
@@ -809,7 +825,7 @@ function ControllerConfig () {
                     placeholder: configs[selected].default,
                     title: configs[selected].tip
                 })
-             else if (value === '') 
+            else if (value === '')
                 ruleValueContent = $('<input />', {
                     class: 'form-control rule-value-content',
                     id: 'rule-value-content-' + ruleId,
@@ -818,8 +834,9 @@ function ControllerConfig () {
                     placeholder: configs[selected].default,
                     title: configs[selected].tip
                 })
-            
-            if (ruleValue) ruleValueContent.val(ruleValue)
+                
+            if (ruleValue)
+                ruleValueContent.val(ruleValue)
             ruleValueContent.keyup(function () {
                 $('#text-cnt-config-rule-saved').attr('style', 'display: none')
                 $('#btn-save-cnt-config-rule').attr('disabled', false)
@@ -832,7 +849,8 @@ function ControllerConfig () {
             ruleValueWrap.appendTo(newRule)
         }
         // ruleTypeSelect.change(function() { setRuleValue.bind(this)(); });
-        if (typeof ruleType !== 'undefined') setRuleValue(ruleType, ruleValue)
+        if (typeof ruleType !== 'undefined')
+            setRuleValue(ruleType, ruleValue)
         
         // var btnRemove = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-minus"></span></button>').appendTo(newRule);
         // btnRemove.click(function() {
@@ -847,14 +865,14 @@ function ControllerConfig () {
     
     function saveRules () {
         var script = 'saveControllerConfigs(['
-        var ruleLines = []
+        var ruleLines = [ ]
         var origin = scriptExecutor.runSync('loadControllerConfigs()')
         var originConfig = origin.object[0].value
-        var originConfigName = []
-        for (var item of originConfig) 
+        var originConfigName = [ ]
+        for (var item of originConfig)
             originConfigName.push(item.split('=')[0])
         
-        for (var i = 0, len = ruleData.length; i < len; i++) {
+        for (var i = 0, len = ruleData.length;  i < len;  i++) {
             var rule = ruleData[i]
             // if (rule.deleted)
             //     continue;
@@ -865,19 +883,19 @@ function ControllerConfig () {
                 alert('Configuration "' + configs[i].name + '" is required.')
                 return
             }
-            if (configValue !== '') ruleLine += configs[i].name + '=' + configValue + '"'
-            else continue
+            if (configValue !== '')
+                ruleLine += configs[i].name + '=' + configValue + '"'
+            else
+                continue
             ruleLines.push(ruleLine)
         }
         // ADD ORINGIN CONFIG WHICH WEB HAS NOT UPDATE
         console.log(configsName)
         console.log(originConfigName)
-        for (var k = 0, lenk = originConfigName.length; k < lenk; k++) 
-            if (configsName.indexOf(originConfigName[k]) === -1) 
+        for (var k = 0, lenk = originConfigName.length;  k < lenk;  k++)
+            if (configsName.indexOf(originConfigName[k]) === -1)
                 ruleLines.push(`"${originConfig[k]}"`)
             
-        
-        
         console.log(ruleLines)
         script += ruleLines.join(',')
         script += '])'
@@ -887,9 +905,8 @@ function ControllerConfig () {
             if (res.resultCode === '0') {
                 $('#text-cnt-config-rule-saved').attr('style', '')
                 $('#btn-save-cnt-config-rule').attr('disabled', true)
-            } else 
+            } else
                 alert(res.msg)
-            
         })
     }
     
@@ -913,57 +930,63 @@ function NodesSetup () {
     var datanodeNum = 0
     var controller = GetFullUrl(window.location.host)
     var scriptExecutor = new CodeExecutor(controller)
-    var datanodes = []
-    var existingAgents = []
-    var existingDatanodes = []
-    var existingControllers = []
+    var datanodes = [ ]
+    var existingAgents = [ ]
+    var existingDatanodes = [ ]
+    var existingControllers = [ ]
     // new Computenodes
-    var existingComputenodes = []
+    var existingComputenodes = [ ]
     
     authenticate()
     
     function loadDatanodes () {
         scriptExecutor.run('getClusterNodesCfg()', function (res) {
-            existingAgents = []
-            existingDatanodes = []
-            existingControllers = []
-            existingComputenodes = []
+            existingAgents = [ ]
+            existingDatanodes = [ ]
+            existingControllers = [ ]
+            existingComputenodes = [ ]
             if (res.resultCode === '0') {
                 var nodes = res.object[0].value
-                for (var i = 0, len = nodes.length; i < len; i++) {
+                for (var i = 0, len = nodes.length;  i < len;  i++) {
                     var site = nodes[i].split(',')[0]
                     var mode = nodes[i].split(',')[1]
                     
-                    if (mode.toLowerCase() === 'agent') existingAgents.push(site)
-                    else if (mode.toLowerCase() === 'datanode') existingDatanodes.push(site)
-                    else if (mode.toLowerCase() === 'controller') existingControllers.push(site)
-                    else if (mode.toLowerCase() === 'computenode') existingComputenodes.push(site)
+                    if (mode.toLowerCase() === 'agent')
+                        existingAgents.push(site)
+                    else if (mode.toLowerCase() === 'datanode')
+                        existingDatanodes.push(site)
+                    else if (mode.toLowerCase() === 'controller')
+                        existingControllers.push(site)
+                    else if (mode.toLowerCase() === 'computenode')
+                        existingComputenodes.push(site)
                 }
                 genNodeTable()
-                if (existingAgents.length > 0) useExistingAgent()
+                if (existingAgents.length > 0)
+                    useExistingAgent()
                 // default 'new agent' not checked
                 else {
                     var newAgentInput = $('#batch-add-new-agent')
                     newAgentInput.attr('checked', 'checked')
                     useNewAgent()
                 }
-            } else 
+            } else
                 alert(res.msg)
-            
         })
         datanodeNum = 0
-        for (var i = 0, len = datanodes.length; i < len; i++) datanodes[i].elem.remove()
-        datanodes = []
+        for (var i = 0, len = datanodes.length;  i < len;  i++)
+            datanodes[i].elem.remove()
+        datanodes = [ ]
         
         $('#btn-save-datanodes').attr('disabled', false)
         $('#text-datanodes-saved').attr('style', 'display: none')
     }
     
     function genNodeTable () {
-        var nodes = []
-        for (var i = 0, len = existingControllers.length; i < len; i++) {
+        var nodes = [ ]
+        for (var i = 0, len = existingControllers.length;  i < len;  i++) {
             var datanodeDetails = existingControllers[i].split(':')
-            if (datanodeDetails.length !== 3) continue
+            if (datanodeDetails.length !== 3)
+                continue
             nodes.push({
                 Host: datanodeDetails[0],
                 Port: datanodeDetails[1],
@@ -971,9 +994,10 @@ function NodesSetup () {
                 Mode: 'controller'
             })
         }
-        for (var i = 0, len = existingAgents.length; i < len; i++) {
+        for (var i = 0, len = existingAgents.length;  i < len;  i++) {
             var datanodeDetails = existingAgents[i].split(':')
-            if (datanodeDetails.length !== 3) continue
+            if (datanodeDetails.length !== 3)
+                continue
             nodes.push({
                 Host: datanodeDetails[0],
                 Port: datanodeDetails[1],
@@ -981,9 +1005,10 @@ function NodesSetup () {
                 Mode: 'agent'
             })
         }
-        for (var i = 0, len = existingDatanodes.length; i < len; i++) {
+        for (var i = 0, len = existingDatanodes.length;  i < len;  i++) {
             var datanodeDetails = existingDatanodes[i].split(':')
-            if (datanodeDetails.length !== 3) continue
+            if (datanodeDetails.length !== 3)
+                continue
             nodes.push({
                 Host: datanodeDetails[0],
                 Port: datanodeDetails[1],
@@ -992,9 +1017,10 @@ function NodesSetup () {
             })
         }
         // new computenode
-        for (var i = 0, len = existingComputenodes.length; i < len; i++) {
+        for (var i = 0, len = existingComputenodes.length;  i < len;  i++) {
             var datanodeDetails = existingComputenodes[i].split(':')
-            if (datanodeDetails.length !== 3) continue
+            if (datanodeDetails.length !== 3)
+                continue
             nodes.push({
                 Host: datanodeDetails[0],
                 Port: datanodeDetails[1],
@@ -1035,7 +1061,7 @@ function NodesSetup () {
                 {
                     type: 'control',
                     itemTemplate: function (value, item) {
-                        var $result = $([])
+                        var $result = $([ ])
                         
                         if (item.Mode == 'datanode' || item.Mode == 'computenode') {
                             $result = $result.add(this._createEditButton(item))
@@ -1078,16 +1104,15 @@ function NodesSetup () {
         var agentPort = parseInt(agentHostPortAlias[1], 10)
         var agentAlias = agentHostPortAlias[2]
         
-        if ($('#batch-add-new-agent').is(':checked')) 
-            for (var i = 0, len = existingAgents.length; i < len; i++) {
+        if ($('#batch-add-new-agent').is(':checked'))
+            for (var i = 0, len = existingAgents.length;  i < len;  i++) {
                 var host = existingAgents[i].split(':')[0]
                 if (agentHost === host) {
                     alert('Agent host already existed')
                     return
                 }
             }
-        
-        
+            
         if (isNaN(agentPort) || agentPort < 0) {
             alert('Invalid agent port')
             return
@@ -1105,7 +1130,8 @@ function NodesSetup () {
         }
         
         prefixStartNumber = parseInt(prefixStartNumber, 10)
-        if (isNaN(prefixStartNumber)) prefixStartNumber = 1
+        if (isNaN(prefixStartNumber))
+            prefixStartNumber = 1
         
         startingPort = parseInt(startingPort, 10)
         if (isNaN(startingPort) || startingPort === null) {
@@ -1119,7 +1145,7 @@ function NodesSetup () {
             existingAgents.push(agentSite)
             nodeList.push(agentLine)
         }
-        for (var i = 0; i < numOfNodes; i++) {
+        for (var i = 0;  i < numOfNodes;  i++) {
             var datanodeLine = { Host: agentHost, Port: startingPort + i, Alias: datanodePrefix + (i + prefixStartNumber), Mode: 'datanode' }
             var datanodeSite = datanodeLine.Host + ':' + datanodeLine.Port + ':' + datanodeLine.Alias
             existingDatanodes.push(datanodeSite)
@@ -1135,29 +1161,25 @@ function NodesSetup () {
     function saveDatanodes () {
         var script = 'saveClusterNodes(['
         
-        var nodeLines = []
+        var nodeLines = [ ]
         var nodeList = $('#node-list').jsGrid('option', 'data')
         console.log(nodeList)
         var ctlServer = new ControllerServer(controller)
         var currentNodes = new DolphinEntity(ctlServer.getClusterPerf()).toScalar()[11].value
         console.log(currentNodes)
-        for (var i = 0, len = nodeList.length; i < len; i++) {
+        for (var i = 0, len = nodeList.length;  i < len;  i++) {
             var node = nodeList[i]
             var host = node.Host
             var port = node.Port
             var alias = node.Alias
             var mode = node.Mode
-            if (mode == 'datanode') 
-                if (currentNodes.indexOf(node.Alias) < 0) 
+            if (mode == 'datanode')
+                if (currentNodes.indexOf(node.Alias) < 0)
                     ctlServer.addNode(host, port, alias)
-                
             
-            
-            if (mode == 'computenode') 
-                if (currentNodes.indexOf(node.Alias) < 0) 
+            if (mode == 'computenode')
+                if (currentNodes.indexOf(node.Alias) < 0)
                     ctlServer.addComputeNode(host, port, alias)
-                
-            
             
             if (host && port && alias && mode) {
                 var nodeLine = '"' + host + ':' + port + ':' + alias + ',' + mode + '"'
@@ -1174,9 +1196,8 @@ function NodesSetup () {
             if (res.resultCode === '0') {
                 $('#text-datanodes-saved').attr('style', '')
                 $('#btn-save-datanodes').attr('disabled', true)
-            } else 
+            } else
                 alert(res.msg)
-            
         })
     }
     
@@ -1201,18 +1222,20 @@ function NodesSetup () {
             id: 'batch-add-agent-site'
         })
         $('<option value selected disabled>Choose an agent site</option>').appendTo(agentContent)
-        for (var i = 0, len = existingAgents.length; i < len; i++) 
+        for (var i = 0, len = existingAgents.length;  i < len;  i++)
             $('<option />', {
                 value: existingAgents[i],
                 text: existingAgents[i]
             }).appendTo(agentContent)
-        
+            
         agentContent.appendTo(agentWrap)
     }
     
     $('#batch-add-new-agent').change(function () {
-        if (this.checked) useNewAgent()
-        else useExistingAgent()
+        if (this.checked)
+            useNewAgent()
+        else
+            useExistingAgent()
     })
     
     $('#batch-add-datanodes').change(function () {
@@ -1220,7 +1243,8 @@ function NodesSetup () {
     })
     $('#btn-batch-add-datanodes').click(batchAddDatanodes)
     $('#btn-save-datanodes').click(function () {
-        if (confirm('This operation will rewrite your cluster.nodes file. Continue saving?')) saveDatanodes()
+        if (confirm('This operation will rewrite your cluster.nodes file. Continue saving?'))
+            saveDatanodes()
     })
     
     $('#btn-close-datanodes').click(function () {
