@@ -26,7 +26,7 @@ function DatanodeConfig () {
     
     var configs = [
         {
-            configCategory: 'Log',
+            configCategory: 'All',
             configs: [
                 {
                     name: 'jobLogFile',
@@ -46,16 +46,11 @@ function DatanodeConfig () {
                 { name: 'redoLogPurgeLimit', value: 'int', default: '4000', tip: 'The maximum amount of disk space (MB) used by redo logs.' },
                 {
                     name: 'maxLogSize',
-                    value: [100, 1024],
+                    value: '',
                     default: '1024',
                     tip: 'When the log file reaches a specified level (MB), the log file will be archived.'
                 },
-                { name: 'redoLogDir', value: '', default: '', tip: 'The directory of redo logs.' }
-            ]
-        },
-        {
-            configCategory: 'System',
-            configs: [
+                { name: 'redoLogDir', value: '', default: '', tip: 'The directory of redo logs.' },
                 {
                     name: 'localExecutors',
                     value: 'int',
@@ -101,7 +96,7 @@ function DatanodeConfig () {
                 },
                 {
                     name: 'regularArrayMemoryLimit',
-                    value: [256, 512, 2048],
+                    value: '',
                     default: 512,
                     tip: 'The limit on the memory size (MB) of a regular array. This number must be a power of 2. The default value is 512.'
                 },
@@ -171,12 +166,7 @@ function DatanodeConfig () {
                 { name: 'tzdb', value: '', default: 'C:DolphinDBservertzdb', tip: 'The directory of time zone database.' },
                 { name: 'webRoot', value: '', default: 'C:DolphinDBserverweb', tip: 'The directory of the web server.' },
                 { name: 'webLoginRequired', value: [0, 1], default: 0, tip: 'Whether you must sign in before you can use the Web Cluster Manager.' },
-                { name: 'useHardLink', value: [0, 1], default: 1, tip: 'Whether to use the function of file system hardlink.' }
-            ]
-        },
-        {
-            configCategory: 'Storage',
-            configs: [
+                { name: 'useHardLink', value: [0, 1], default: 1, tip: 'Whether to use the function of file system hardlink.' },
                 {
                     name: 'allowVolumeCreation',
                     value: [0, 1],
@@ -202,12 +192,7 @@ function DatanodeConfig () {
                     value: [0, 1],
                     default: '0',
                     tip: 'Indicates whether a data-forced brushing policy is adopted. The default value is 0, which means that it is up to the operating system to decide when to swipe the disk.'
-                }
-            ]
-        },
-        {
-            configCategory: 'Streaming',
-            configs: [
+                },
                 {
                     name: 'streamingRaftGroups',
                     value: '',
@@ -288,12 +273,7 @@ function DatanodeConfig () {
                     value: '',
                     default: '',
                     tip: 'The save path that persists the consumer data offset at the subscription end.'
-                }
-            ]
-        },
-        {
-            configCategory: 'Cluster Replication',
-            configs: [
+                },
                 {
                     name: 'clusterReplicationMode',
                     value: ['', 'master', 'slave'],
@@ -323,12 +303,7 @@ function DatanodeConfig () {
                     value: '',
                     default: '123456',
                     tip: 'User password for performing inter-cluster asynchronous replication, defaults to 123456.'
-                }
-            ]
-        },
-        {
-            configCategory: 'TSDB Storage Engine',
-            configs: [
+                },
                 {
                     name: 'TSDBCacheEngineCompression',
                     value: [0, 1],
@@ -372,7 +347,7 @@ function DatanodeConfig () {
                     tip: 'A non-negative integer indicating the number of threads for asynchronous sorting in the TSDB cache engine. The default value is 1.'
                 }
             ]
-        }
+        },
     ]
     
     const UNKNOWN_INDEX = configs.length
