@@ -69,11 +69,16 @@ export function DdbSider () {
             }}
             inlineIndent={10}
             items={[
-                {
+                ... model.dev || model.cdn ? [{
                     key: 'overview',
                     icon: <MenuIcon view='overview' />,
                     label: node_type === NodeType.single ? t('单机总览') : t('集群总览'),
-                },
+                }] : [ ],
+                ... !model.cdn && node_type === NodeType.controller ? [{
+                    key: 'overview-old',
+                    icon: <MenuIcon view='overview' />,
+                    label: t('集群总览'),
+                }] : [ ],
                 {
                     key: 'shell',
                     icon: <MenuIcon view='shell' />,
