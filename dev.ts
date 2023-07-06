@@ -34,7 +34,7 @@ class DevServer extends Server {
     
     
     constructor () {
-        super(8432)
+        super({ port: 8432 })
     }
     
     
