@@ -25,7 +25,7 @@ export const storage_keys = {
 
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log'
+export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log'
 
 export class DdbModel extends Model<DdbModel> {
     inited = false
@@ -103,7 +103,7 @@ export class DdbModel extends Model<DdbModel> {
         
         const params = new URLSearchParams(location.search)
         
-        this.dev = location.pathname.endsWith('/console/') || params.get('dev') === '1'
+        this.dev = params.get('dev') !== '0' && location.pathname.endsWith('/console/') || params.get('dev') === '1'
         this.autologin = params.get('autologin') !== '0'
         this.cdn = location.hostname === 'cdn.dolphindb.cn' || params.get('cdn') === '1'
         this.verbose = params.get('verbose') === '1'
@@ -423,7 +423,10 @@ export class DdbModel extends Model<DdbModel> {
     goto_default_view () {
         this.set({
             view: new URLSearchParams(location.search).get('view') as DdbModel['view'] || 
-                (this.node_type === NodeType.controller ? 'overview' : 'shell')
+                (this.node_type === NodeType.controller ? 
+                    (this.dev || this.cdn ? 'overview' : 'overview-old')
+                :
+                    'shell')
         })
     }
     

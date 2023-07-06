@@ -21,6 +21,7 @@ import { DdbSider } from './components/DdbSider.js'
 
 import { Login } from './login.js'
 import { Overview } from './overview/index.js'
+import { OverviewOld } from './overview/old.js'
 import { Shell } from './shell/index.js'
 import { DashBoard } from './dashboard.js'
 import { Job } from './job.js'
@@ -32,6 +33,7 @@ const locale_names = { zh: 'zh_CN', en: 'en_US', ja: 'ja_JP', ko: 'ko_KR' } as c
 const views = {
     login: Login,
     overview: Overview,
+    'overview-old': OverviewOld,
     shell: Shell,
     dashboard: DashBoard,
     job: Job,
