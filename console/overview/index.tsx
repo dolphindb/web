@@ -30,7 +30,7 @@ import SvgTask from './icons/task.icon.svg'
 
 
 export function Overview () {
-    const { nodes, node_type, cdn, logined } = model.use(['nodes', 'node_type', 'cdn', 'logined'])   
+    const { nodes, node_type, logined } = model.use(['nodes', 'node_type', 'logined'])   
     
     useEffect(() => {
         let flag = true
@@ -143,7 +143,7 @@ export function Overview () {
                     </> }
                 </div>
                 
-                { !cdn && node_type === NodeType.controller &&  <div className='configs'>
+                { node_type === NodeType.controller &&  <div className='configs'>
                     <ButtonIframeModal 
                         class_name='nodes-modal'
                         button_text={t('集群节点配置')}
@@ -193,10 +193,14 @@ function ButtonIframeModal ({
     class_name: string
     iframe_src: string
 }) {
+    const { cdn } = model
+    
     const { visible, open, close } = use_modal()
     
     return <>
-        <Button icon={<SettingOutlined />} onClick={open}>{button_text}</Button>
+        <Tooltip title={ cdn ? t('CDN 部署时无法使用配置管理') : '' }>
+            <Button icon={<SettingOutlined />} onClick={open} disabled={cdn}>{button_text}</Button>
+        </Tooltip>
         
         <Modal
             className={class_name}

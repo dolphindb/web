@@ -6,8 +6,8 @@ export function getDecimalScaleRange (decimalType: DDBTypeNames) {
             return [0, 9]
         case 'DECIMAL64':
             return [0, 18]
-        // case 'DECIMAL128':
-        //     return [0, 38]
+        case 'DECIMAL128':
+            return [0, 38]
         default:
             return null
     }
