@@ -2,7 +2,7 @@ import './index.sass'
 
 import {  default as React, ReactNode, useState, useEffect } from 'react'
 
-import { Layout, Button, Modal, Tooltip, Progress, Tag, Checkbox } from 'antd'
+import { Layout, Button, Modal, Tooltip, Progress, Tag, Checkbox, Popconfirm } from 'antd'
 const { Header } = Layout
 
 import { default as _Icon,  SettingOutlined } from '@ant-design/icons'
@@ -47,10 +47,6 @@ export function Overview () {
         }
     })
     
-    
-    let start_modal = use_modal()
-    let stop_modal = use_modal()
-    
     const [isStartLoading, setIsStartLoading] = useState(false)
     const [isStopLoading, setIsStopLoading] = useState(false)
     
@@ -69,15 +65,34 @@ export function Overview () {
                             className={iconClassname}
                         >
                             <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
-                                <Button
-                                    type='text'
+                                <Popconfirm 
+                                    title={t('确认启动以下节点')}
                                     disabled={!selectedNodes.length || !logined}
-                                    block
-                                    icon={<Icon className={'icon-start' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStart} />}
-                                    onClick={() => { start_modal.open() }}
+                                    description={() => selectedNodes
+                                        .map(node => node.state === DdbNodeState.offline && <p className='model-node' key={node.name}>
+                                                {node.name}
+                                            </p>) }
+                                    onConfirm={async () => {
+                                        setIsStartLoading(true)
+                                        model.start_nodes(selectedNodes.filter(node => node.state === DdbNodeState.offline))
+                                        await delay(5000)
+                                        setIsStartLoading(false)
+                                        await model.get_cluster_perf(false) }}
+                                    okText={t('确认')}
+                                    cancelText={t('取消')}
+                                    okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0,
+                                                     loading: isStartLoading    
+                                    }}
                                 >
-                                    {t('启动')}
-                                </Button>
+                                    <Button
+                                        type='text'
+                                        block
+                                        disabled={!selectedNodes.length || !logined}
+                                        icon={<Icon className={'icon-start' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStart} />}
+                                    >
+                                        {t('启动')}
+                                    </Button>
+                                </Popconfirm>
                             </Tooltip>
                         </div>
                         
@@ -85,15 +100,36 @@ export function Overview () {
                             className={iconClassname}
                         >
                             <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
-                                <Button
-                                    type='text'
+                                <Popconfirm 
+                                    title={t('确认停止以下节点')}
                                     disabled={!selectedNodes.length || !logined}
-                                    block
-                                    icon={<Icon className={'icon-stop' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStop} />}
-                                    onClick={() => { stop_modal.open() }}
+                                    description={() => selectedNodes
+                                        .map(node => node.state === DdbNodeState.online && <p className='model-node' key={node.name}>
+                                                {node.name}
+                                            </p>) }
+                                    onConfirm={async () => {
+                                        setIsStopLoading(true)
+                                        model.stop_nodes(selectedNodes.filter(node => node.state === DdbNodeState.online))
+                                        await delay(5000)
+                                        setIsStopLoading(false)
+                                        await model.get_cluster_perf(false)
+                                    }}
+                                    okText={t('确认')}
+                                    cancelText={t('取消')}
+                                    okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0, 
+                                                     loading: isStopLoading
+                                    }}
+                                    
                                 >
-                                    {t('停止')}
-                                </Button>
+                                    <Button
+                                        type='text'
+                                        block
+                                        disabled={!selectedNodes.length || !logined}
+                                        icon={<Icon className={'icon-stop' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStop} />}
+                                    >
+                                        {t('停止')}
+                                    </Button>
+                                </Popconfirm>
                             </Tooltip>
                         </div>
                         
@@ -126,62 +162,6 @@ export function Overview () {
                         iframe_src='./dialogs/datanodeConfig.html'
                     />
                 </div> }
-                
-                <Modal
-                    title={t('确认启动以下节点')}
-                    className='start-nodes-modal'
-                    open={start_modal.visible}
-                    confirmLoading={isStartLoading}
-                    onOk={async () => {
-                        const startNodes = selectedNodes.filter(node => node.state === DdbNodeState.offline)
-                        if (!startNodes.length) {
-                            start_modal.close()
-                            return
-                        }
-                        setIsStartLoading(true)
-                        model.start_nodes(selectedNodes)
-                        await delay(5000)
-                        setIsStartLoading(false)
-                        start_modal.close()
-                        await model.get_cluster_perf(false)
-                    }}
-                    onCancel={() => start_modal.close()}
-                    okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0 }}
-                >
-                    {selectedNodes
-                        .filter(node => node.state === DdbNodeState.offline)
-                        .map(node => <p className='model-node' key={node.name}>
-                                {node.name}
-                            </p>)}
-                </Modal>
-                
-                <Modal
-                    title={t('确认停止以下节点')}
-                    className='stop-nodes-modal'
-                    open={stop_modal.visible}
-                    confirmLoading={isStopLoading}
-                    onOk={async () => {
-                        const stopNodes = selectedNodes.filter(node => node.state === DdbNodeState.online)
-                        if (!stopNodes.length) {
-                            stop_modal.close()
-                            return
-                        }
-                        setIsStopLoading(true)
-                        model.stop_nodes(selectedNodes)
-                        await delay(5000)
-                        setIsStopLoading(false)
-                        stop_modal.close()
-                        await model.get_cluster_perf(false)
-                    }}
-                    onCancel={() => stop_modal.close()}
-                    okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0 }}
-                >
-                    {selectedNodes
-                        .filter(node => node.state === DdbNodeState.online)
-                        .map(node => <p className='model-node' key={node.name}>
-                                {node.name}
-                            </p>)}
-                </Modal>
             </div>
         </Header>
         
