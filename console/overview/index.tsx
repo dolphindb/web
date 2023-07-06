@@ -55,12 +55,8 @@ export function Overview () {
     const iconClassname = language === 'zh' ? 'icon-area' : 'icon-area-en'
     
     function updateSelectdNodesState () {
-        let selectedNodes_ = selectedNodes
-        selectedNodes_.forEach(node_ => {
-            let node = model.nodes.find(node => node.name === node_.name)
-            node_.state = node.state    
-        })
-        setSelectedNodes(selectedNodes_)
+        let selectedNames = new Set(selectedNodes.map(node => node.name))
+        setSelectedNodes(model.nodes.filter(node => selectedNames.has(node.name)))
     }
     
     return <Layout>
