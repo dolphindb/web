@@ -345,7 +345,149 @@ function DatanodeConfig () {
                     value: 'int',
                     default: 1,
                     tip: 'A non-negative integer indicating the number of threads for asynchronous sorting in the TSDB cache engine. The default value is 1.'
-                }
+                },
+                {
+                    name: 'enableChunkGranularityConfig',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  { name: 'TSDBCacheFlushWorkNum', value: '', default: '', tip: '' },
+                  { name: 'dfsMetaDir', value: '', default: '', tip: '' },
+                  { name: 'subThrottle', value: '', default: '', tip: '' },
+                  {
+                    name: 'singleThreadWriteCacheForTSDB',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  {
+                    name: 'cleanOutdateLogFilesInterval',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  { name: 'enableTSDBDelFlag', value: '', default: '', tip: '' },
+                  { name: 'dfsRedologSkip', value: '', default: '', tip: '' },
+                  {
+                    name: 'chunkCacheEngineNGCWorker',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  {
+                    name: 'clusterReplicationSlaveNum',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  { name: 'postStart', value: '', default: '', tip: '' },
+                  { name: 'dfsRecoveryConcurrency', value: '', default: '', tip: '' },
+                  {
+                    name: 'dfsSyncRecoveryChunkRowSize',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  { name: 'dfsRecoveryWaitTime', value: '', default: '', tip: '' },
+                  {
+                    name: 'dfsChunkNodeHeartBeatTimeout',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  { name: 'dfsPlacementPolicy', value: '', default: '', tip: '' },
+                  {
+                    name: 'dfsMetaCheckpointThreshold',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  { name: 'mvccCheckpointThreshold', value: '', default: '', tip: '' },
+                  { name: 'enableDFS', value: '', default: '', tip: '' },
+                  { name: 'jobNumInCache', value: '', default: '', tip: '' },
+                  { name: 'localSubscriberNum', value: '', default: '', tip: '' },
+                  {
+                    name: 'memLimitOfTaskGroupResult',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  { name: 'maxIteration', value: '', default: '', tip: '' },
+                  { name: 'maxCachedBatchJobNum', value: '', default: '', tip: '' },
+                  { name: 'reservedMemSize', value: '', default: '', tip: '' },
+                  { name: 'ENABLE_NEW_ZONEMAP', value: '', default: '', tip: '' },
+                  { name: 'persistenceOffsetDir', value: '', default: '', tip: '' },
+                  {
+                    name: 'oldChunkVersionRetentionTime',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  { name: 'dfsRebalanceConcurrency', value: '', default: '', tip: '' },
+                  { name: 'maxPersistenceLogSize', value: '', default: '', tip: '' },
+                  { name: 'enableTSDBSnapRead', value: '', default: '', tip: '' },
+                  { name: 'stdoutLog', value: '', default: '', tip: '' },
+                  { name: 'broadcastPort', value: '', default: '', tip: '' },
+                  {
+                    name: 'removeSpecialCharInColumnName',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  { name: 'memLimitOfQueryResult', value: '', default: '', tip: '' },
+                  {
+                    name: 'oldPartitionsPurgeInterval',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  { name: 'remotePort', value: '', default: '', tip: '' },
+                  { name: 'openblasThreads', value: '', default: '', tip: '' },
+                  {
+                    name: 'maxBlockSizeForReservedMemory',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  { name: 'enableMultiThreadMerge', value: '', default: '', tip: '' },
+                  { name: 'marketHolidayDir', value: '', default: '', tip: '' },
+                  {
+                    name: 'enableDropPartitionSchema',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  { name: 'remoteExecutors', value: '', default: '', tip: '' },
+                  { name: 'oneWorkerPerVolume', value: '', default: '', tip: '' },
+                  { name: 'maxDynamicLocalExecutor', value: '', default: '', tip: '' },
+                  {
+                    name: 'nullAsMinValueForComparison',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  { name: 'CheckDeletedDBs', value: '', default: '', tip: '' },
+                  { name: 'keyPath', value: '', default: '', tip: '' },
+                  { name: 'enableTSDBCid', value: '', default: '', tip: '' },
+                  {
+                    name: 'TSDBLevelFileIndexCacheInvalidPercent',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  },
+                  { name: 'logicOrIgnoreNull', value: '', default: '', tip: '' },
+                  { name: 'recoverLogDir', value: '', default: '', tip: '' },
+                  { name: 'script', value: '', default: '', tip: '' },
+                  { name: 'enableDfsRecoverRedo', value: '', default: '', tip: '' },
+                  { name: 'urgentWorkerNum', value: '', default: '', tip: '' },
+                  { name: 'dfsHAMode', value: '', default: '', tip: '' },
+                  {
+                    name: 'dfsReplicaReliabilityLevel',
+                    value: '',
+                    default: '',
+                    tip: ''
+                  }
             ]
         },
     ]
