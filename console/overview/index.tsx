@@ -54,6 +54,15 @@ export function Overview () {
     const [expandedNodes, setExpandedNodes] = useState(nodes.filter(item => (item.name !== model.node.name)))
     const iconClassname = language === 'zh' ? 'icon-area' : 'icon-area-en'
     
+    function updateSelectdNodesState () {
+        let selectedNodes_ = selectedNodes
+        selectedNodes_.forEach(node_ => {
+            let node = model.nodes.find(node => node.name === node_.name)
+            node_.state = node.state    
+        })
+        setSelectedNodes(selectedNodes_)
+    }
+    
     return <Layout>
         <Header className='header-bar'>
             <div className='actions'>
@@ -67,7 +76,7 @@ export function Overview () {
                             <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                                 <Popconfirm 
                                     title={t('确认启动以下节点')}
-                                    disabled={!selectedNodes.length || !logined}
+                                    disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
                                     description={() => selectedNodes
                                         .map(node => node.state === DdbNodeState.offline && <p className='model-node' key={node.name}>
                                                 {node.name}
@@ -77,7 +86,9 @@ export function Overview () {
                                         model.start_nodes(selectedNodes.filter(node => node.state === DdbNodeState.offline))
                                         await delay(5000)
                                         setIsStartLoading(false)
-                                        await model.get_cluster_perf(false) }}
+                                        await model.get_cluster_perf(false)
+                                        updateSelectdNodesState()
+                                    }}
                                     okText={t('确认')}
                                     cancelText={t('取消')}
                                     okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0,
@@ -87,7 +98,7 @@ export function Overview () {
                                     <Button
                                         type='text'
                                         block
-                                        disabled={!selectedNodes.length || !logined}
+                                        disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
                                         icon={<Icon className={'icon-start' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStart} />}
                                     >
                                         {t('启动')}
@@ -102,7 +113,7 @@ export function Overview () {
                             <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                                 <Popconfirm 
                                     title={t('确认停止以下节点')}
-                                    disabled={!selectedNodes.length || !logined}
+                                    disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
                                     description={() => selectedNodes
                                         .map(node => node.state === DdbNodeState.online && <p className='model-node' key={node.name}>
                                                 {node.name}
@@ -113,6 +124,7 @@ export function Overview () {
                                         await delay(5000)
                                         setIsStopLoading(false)
                                         await model.get_cluster_perf(false)
+                                        updateSelectdNodesState()
                                     }}
                                     okText={t('确认')}
                                     cancelText={t('取消')}
@@ -124,7 +136,7 @@ export function Overview () {
                                     <Button
                                         type='text'
                                         block
-                                        disabled={!selectedNodes.length || !logined}
+                                        disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}                            
                                         icon={<Icon className={'icon-stop' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStop} />}
                                     >
                                         {t('停止')}
