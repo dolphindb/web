@@ -487,7 +487,27 @@ function DatanodeConfig () {
                     value: '',
                     default: '',
                     tip: ''
-                }
+                },
+                { name: 'sites', value: '', default: '', tip: '' },
+                { name: 'controllerSite', value: '', default: '', tip: '' },
+                { name: 'dfsReplicationFactor', value: '', default: '', tip: '' },
+                { name: 'recoveryWorkers', value: '', default: '', tip: '' },
+                { name: 'infraWorkerNum', value: '', default: '', tip: '' },
+                { name: 'raftElectionTick', value: '', default: '', tip: '' },
+                { name: 'streamingHADiskLimit', value: '', default: '', tip: '' },
+                { name: 'streamingHASync', value: '', default: '', tip: '' },
+                { name: 'streamingHAPreVote', value: '', default: '', tip: '' },
+                { name: 'recoverPurgeInterval', value: '', default: '', tip: '' },
+                { name: 'datanodeRestartInterval', value: '', default: '', tip: '' },
+                { name: 'allowMissingPartitions', value: '', default: '', tip: '' },
+                { name: 'enableCoreDump', value: '', default: '', tip: '' },
+                {
+                    name: 'disableCoredumpOnShutdown',
+                    value: '',
+                    default: '',
+                    tip: ''
+                },
+                { name: 'volumeUsageThreshold', value: '', default: '', tip: '' }
             ]
         }
     ]
