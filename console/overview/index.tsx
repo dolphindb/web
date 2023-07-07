@@ -56,15 +56,11 @@ export function Overview () {
     const iconClassname = language === 'zh' ? 'icon-area' : 'icon-area-en'
  
     return <Layout>
-        <Header className='header-bar'>
+        { node_type !== NodeType.single && <Header className='header-bar'>
             <div className='actions'>
                 <div className='operations'>
                     <div className={iconClassname} onClick={() => { model.get_cluster_perf(true) }}><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
-                    
-                    { node_type !== NodeType.single && <>
-                        <div
-                            className={iconClassname}
-                        >
+                        <div className={iconClassname}>
                             <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                                 <Popconfirm 
                                     title={t('确认启动以下节点')}
@@ -98,51 +94,50 @@ export function Overview () {
                             </Tooltip>
                         </div>
                         
-                        <div
-                            className={iconClassname}
-                        >
-                            <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
-                                <Popconfirm 
-                                    title={t('确认停止以下节点')}
-                                    disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
-                                    description={() => selectedNodes
-                                        .map(node => node.state === DdbNodeState.online && <p className='model-node' key={node.name}>
-                                                {node.name}
-                                            </p>) }
-                                    onConfirm={async () => {
-                                        setIsStopLoading(true)
-                                        model.stop_nodes(selectedNodes.filter(node => node.state === DdbNodeState.online))
-                                        await delay(5000)
-                                        setIsStopLoading(false)
-                                        await model.get_cluster_perf(false)
-                                    }}
-                                    okText={t('确认')}
-                                    cancelText={t('取消')}
-                                    okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0, 
-                                                     loading: isStopLoading
-                                    }}
-                                    
+                    <div
+                        className={iconClassname}
+                    >
+                        <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
+                            <Popconfirm 
+                                title={t('确认停止以下节点')}
+                                disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
+                                description={() => selectedNodes
+                                    .map(node => node.state === DdbNodeState.online && <p className='model-node' key={node.name}>
+                                            {node.name}
+                                        </p>) }
+                                onConfirm={async () => {
+                                    setIsStopLoading(true)
+                                    model.stop_nodes(selectedNodes.filter(node => node.state === DdbNodeState.online))
+                                    await delay(5000)
+                                    setIsStopLoading(false)
+                                    await model.get_cluster_perf(false)
+                                }}
+                                okText={t('确认')}
+                                cancelText={t('取消')}
+                                okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0, 
+                                                    loading: isStopLoading
+                                }}
+                                
+                            >
+                                <Button
+                                    type='text'
+                                    block
+                                    disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}                            
+                                    icon={<Icon className={'icon-stop' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStop} />}
                                 >
-                                    <Button
-                                        type='text'
-                                        block
-                                        disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}                            
-                                        icon={<Icon className={'icon-stop' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStop} />}
-                                    >
-                                        {t('停止')}
-                                    </Button>
-                                </Popconfirm>
-                            </Tooltip>
-                        </div>
-                        
-                        <div className={language === 'zh' ? 'icon-expand-area' : 'icon-expand-area-en'} onClick={() =>  setExpandedNodes(nodes.filter(node => node.mode === NodeType.agent))}>
-                            <Button type='text' block icon={<Icon className='icon-expand' component={SvgExpand} />}>{t('全部展开')}</Button>
-                        </div>
-                        
-                        <div className={language === 'zh' ? 'icon-collapse-area' : 'icon-collapse-area-en'} onClick={() => setExpandedNodes(nodes)}>
-                            <Button type='text' block icon={<Icon className='icon-collapse' component={SvgCollapse} />}>{t('全部折叠')}</Button>
-                        </div>
-                    </> }
+                                    {t('停止')}
+                                </Button>
+                            </Popconfirm>
+                        </Tooltip>
+                    </div>
+                    
+                    <div className={language === 'zh' ? 'icon-expand-area' : 'icon-expand-area-en'} onClick={() =>  setExpandedNodes(nodes.filter(node => node.mode === NodeType.agent))}>
+                        <Button type='text' block icon={<Icon className='icon-expand' component={SvgExpand} />}>{t('全部展开')}</Button>
+                    </div>
+                    
+                    <div className={language === 'zh' ? 'icon-collapse-area' : 'icon-collapse-area-en'} onClick={() => setExpandedNodes(nodes)}>
+                        <Button type='text' block icon={<Icon className='icon-collapse' component={SvgCollapse} />}>{t('全部折叠')}</Button>
+                    </div>
                 </div>
                 
                 { node_type === NodeType.controller &&  <div className='configs'>
@@ -166,7 +161,7 @@ export function Overview () {
                 </div> }
             </div>
         </Header>
-        
+    }
         <div className={`content${ node_type === NodeType.single ? ' single-node-content' : '' }`}>{
             node_type === NodeType.single ?
                 <Nodes
@@ -363,7 +358,9 @@ function Node ({
             type === NodeType.single ? 
                 <div className={'node-header' + ' ' + node_colors[mode]}>
                     <div className={'node-title' + ' ' + title_colors[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
-                    <div className='node-click-single' />
+                    <div className='node-click-single' >
+                        <div className='single-refresh-container' onClick={() => { model.get_cluster_perf(true) }}><Button ghost type='primary' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
+                    </div>
                     <NodeSite node={node}/>
                     <div className={node_statuses[state]}>
                         <span>{state ? t('运行中') : t('未启动')}</span>
