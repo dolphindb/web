@@ -29,11 +29,6 @@ import SvgNetwork from './icons/network.icon.svg'
 import SvgTask from './icons/task.icon.svg'
 
 
-type SetSelectedNodes = (names: DdbNode[]) => void
-type SetExpandedNodes = (nodes: DdbNode[]) => void
-type SwicthFold = (node: DdbNode) => void
-
-
 export function Overview () {
     const { nodes, node_type, logined } = model.use(['nodes', 'node_type', 'logined'])   
     
@@ -176,22 +171,31 @@ export function Overview () {
             </div>
         </Header>
     }
-        <div className={`content${ node_type === NodeType.single ? ' single-node-content' : '' }`}>{
-            node_type === NodeType.single ?
+        <div className={`content${node_type === NodeType.single ? ' single-node-content' : ''}`}>
+            {node_type === NodeType.single ?
                 <Nodes
-                    key={NodeType.single} type={NodeType.single} nodes={[ ]}
-                    selectedNodes={[ ]} setSelectedNodes={() => { }}
-                    expandedNodes={[ ]} setExpandedNodes={() => { }}
+                    key={NodeType.single}
+                    type={NodeType.single}
+                    nodes={[ ]}
+                    selectedNodes={[ ]}
+                    setSelectedNodes={() => { }}
+                    expandedNodes={[ ]}
+                    setExpandedNodes={() => { }}
                 />
             :
-                [NodeType.controller, NodeType.data, NodeType.computing, NodeType.agent].map(type => 
+                [NodeType.controller, NodeType.data, NodeType.computing, NodeType.agent].map(type =>
                     <Nodes
-                        key={type} type={type} nodes={nodes.filter(node => node.mode === type)}
-                        selectedNodes={selectedNodes} setSelectedNodes={(nodes: DdbNode[]) => {
+                        key={type}
+                        type={type}
+                        nodes={nodes.filter(node => node.mode === type)}
+                        selectedNodes={selectedNodes}
+                        setSelectedNodes={(nodes: DdbNode[]) => {
                             setSelectedNodeNames(nodes.map(node => node.name))
                         }}
-                        expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}
-                />)}
+                        expandedNodes={expandedNodes}
+                        setExpandedNodes={setExpandedNodes}
+                    />)
+            }
         </div>
     </Layout>
 }
@@ -243,9 +247,9 @@ function Nodes ({
     type: NodeType
     nodes: DdbNode[]
     selectedNodes: DdbNode[]
-    setSelectedNodes: SetSelectedNodes
+    setSelectedNodes: (names: DdbNode[]) => void
     expandedNodes: DdbNode[]
-    setExpandedNodes: SetExpandedNodes
+    setExpandedNodes: (nodes: DdbNode[]) => void
 }) {
     const { node } = model.use(['node'])
     const numOfNodes = nodes.filter(node => node.mode === type).length
@@ -325,9 +329,9 @@ function Node ({
     node: DdbNode
     type: NodeType
     selectedNodes: DdbNode[]
-    setSelectedNodes: SetSelectedNodes
+    setSelectedNodes: (names: DdbNode[]) => void
     expanded: boolean
-    switchFold: SwicthFold
+    switchFold: (node: DdbNode) => void
 }) {
     const {
         name,
