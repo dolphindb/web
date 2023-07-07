@@ -49,16 +49,12 @@ export function Overview () {
     
     const [isStartLoading, setIsStartLoading] = useState(false)
     const [isStopLoading, setIsStopLoading] = useState(false)
+    const [selectedNodeNames, setSelectedNodeNames] = useState<string[]>([ ])
+    const selectedNodes = nodes.filter(node => new Set(selectedNodeNames).has(node.name))
     
-    const [selectedNodes, setSelectedNodes] = useState<DdbNode[]>([ ])
     const [expandedNodes, setExpandedNodes] = useState(nodes.filter(item => (item.name !== model.node.name)))
     const iconClassname = language === 'zh' ? 'icon-area' : 'icon-area-en'
-    
-    function updateSelectdNodesState () {
-        let selectedNames = new Set(selectedNodes.map(node => node.name))
-        setSelectedNodes(model.nodes.filter(node => selectedNames.has(node.name)))
-    }
-    
+ 
     return <Layout>
         <Header className='header-bar'>
             <div className='actions'>
@@ -83,7 +79,6 @@ export function Overview () {
                                         await delay(5000)
                                         setIsStartLoading(false)
                                         await model.get_cluster_perf(false)
-                                        updateSelectdNodesState()
                                     }}
                                     okText={t('确认')}
                                     cancelText={t('取消')}
@@ -120,7 +115,6 @@ export function Overview () {
                                         await delay(5000)
                                         setIsStopLoading(false)
                                         await model.get_cluster_perf(false)
-                                        updateSelectdNodesState()
                                     }}
                                     okText={t('确认')}
                                     cancelText={t('取消')}
@@ -177,14 +171,14 @@ export function Overview () {
             node_type === NodeType.single ?
                 <Nodes
                     key={NodeType.single} type={NodeType.single} nodes={[ ]}
-                    selectedNodes={[ ]} setSelectedNodes={() => { }}
+                    selectedNodes={[ ]} setSelectedNodeNames={() => { }}
                     expandedNodes={[ ]} setExpandedNodes={() => { }}
                 />
             :
                 [NodeType.controller, NodeType.data, NodeType.computing, NodeType.agent].map(type => 
                     <Nodes
                         key={type} type={type} nodes={nodes.filter(node => node.mode === type)}
-                        selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
+                        selectedNodes={selectedNodes} setSelectedNodeNames={setSelectedNodeNames}
                         expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}
                 />)}
         </div>
@@ -230,7 +224,7 @@ function Nodes ({
     type,
     nodes,
     selectedNodes,
-    setSelectedNodes,
+    setSelectedNodeNames,
     expandedNodes,
     setExpandedNodes
     
@@ -238,7 +232,7 @@ function Nodes ({
     type: NodeType
     nodes: DdbNode[]
     selectedNodes: DdbNode[]
-    setSelectedNodes: Function
+    setSelectedNodeNames: Function
     expandedNodes: DdbNode[]
     setExpandedNodes: Function
 }) {
@@ -261,7 +255,7 @@ function Nodes ({
     
     return type === NodeType.single ? 
         <Node node={node} type={type} key={node.name} 
-        selectedNodes={[ ]} setSelectedNodes={() => { }}
+        selectedNodes={[ ]} setSelectedNodeNames={() => { }}
         expanded switchFold={() => { }}  />
     :
         Boolean(nodes.length) && <div>
@@ -276,12 +270,12 @@ function Nodes ({
                             checked={selectedNodes.filter(node => node.mode === type).length === numOfNodes }
                             indeterminate={selectedNodes.filter(node => node.mode === type).length && selectedNodes.filter(node => node.mode === type).length !== numOfNodes}
                             onChange={() => {
-                                let newSlectedNodes = [ ]
+                                let newSlectedNodes: DdbNode[] = [ ]
                                 if (selectedNodes.filter(node => node.mode === type).length < numOfNodes) 
                                     newSlectedNodes = nodes.filter(node => node.mode === type && !selectedNodes.includes(node)).concat(selectedNodes)
                                 else
                                     newSlectedNodes = selectedNodes.filter(node => node.mode !== type)        
-                                setSelectedNodes(newSlectedNodes)
+                                setSelectedNodeNames(newSlectedNodes.map(node => node.name))
                             }}
                         >
                             <div className='text-selectAll'>{t('全选')}</div>
@@ -289,7 +283,7 @@ function Nodes ({
                     </div> }
             </div>
             {nodes.map(node => <Node node={node} type={type} key={node.name} 
-                                        selectedNodes={selectedNodes} setSelectedNodes={setSelectedNodes}
+                                        selectedNodes={selectedNodes} setSelectedNodeNames={setSelectedNodeNames}
                                         expanded={expandedNodes.some(item => item.name === node.name)} switchFold={(node: DdbNode) => switchFold(node)} />)}
         </div>
 }
@@ -306,14 +300,14 @@ function Node ({
     node,
     type,
     selectedNodes,
-    setSelectedNodes,
+    setSelectedNodeNames,
     expanded,
     switchFold
 }: {
     node: DdbNode
     type: NodeType
     selectedNodes: DdbNode[]
-    setSelectedNodes: Function
+    setSelectedNodeNames: Function
     expanded: boolean
     switchFold: Function
 }) {
@@ -361,7 +355,7 @@ function Node ({
             newSelectedNodes = [...selectedNodes, node]
         else 
             newSelectedNodes = selectedNodes.filter(node => node.mode !== type || node.name !== name)
-        setSelectedNodes(newSelectedNodes)
+        setSelectedNodeNames(newSelectedNodes.map(node => node.name))
     }
     
     
