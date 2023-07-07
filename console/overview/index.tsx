@@ -29,8 +29,9 @@ import SvgNetwork from './icons/network.icon.svg'
 import SvgTask from './icons/task.icon.svg'
 
 
-type SetSelectedNodeNames = (names: string[]) => void
+type SetSelectedNodes = (names: DdbNode[]) => void
 type SetExpandedNodes = (nodes: DdbNode[]) => void
+type SwicthFold = (node: DdbNode) => void
 
 
 export function Overview () {
@@ -179,7 +180,7 @@ export function Overview () {
             node_type === NodeType.single ?
                 <Nodes
                     key={NodeType.single} type={NodeType.single} nodes={[ ]}
-                    selectedNodes={[ ]} setSelectedNodeNames={() => { }}
+                    selectedNodes={[ ]} setSelectedNodes={() => { }}
                     expandedNodes={[ ]} setExpandedNodes={() => { }}
                 />
             :
@@ -234,7 +235,7 @@ function Nodes ({
     type,
     nodes,
     selectedNodes,
-    setSelectedNodeNames,
+    setSelectedNodes,
     expandedNodes,
     setExpandedNodes
     
@@ -242,7 +243,7 @@ function Nodes ({
     type: NodeType
     nodes: DdbNode[]
     selectedNodes: DdbNode[]
-    setSelectedNodeNames: SetSelectedNodeNames
+    setSelectedNodes: SetSelectedNodes
     expandedNodes: DdbNode[]
     setExpandedNodes: SetExpandedNodes
 }) {
@@ -264,7 +265,7 @@ function Nodes ({
     
     return type === NodeType.single ? 
         <Node node={node} type={type} key={node.name} 
-        selectedNodes={[ ]} setSelectedNodeNames={() => { }}
+        selectedNodes={[ ]} setSelectedNodes={() => { }}
         expanded switchFold={() => { }}  />
     :
         Boolean(nodes.length) && <div>
@@ -284,8 +285,7 @@ function Nodes ({
                                     newSlectedNodes = nodes.filter(node => node.mode === type && !selectedNodes.includes(node)).concat(selectedNodes)
                                 else
                                     newSlectedNodes = selectedNodes.filter(node => node.mode !== type)        
-                                setSelectedNodeNames(newSlectedNodes.map(node => node.name))
-                                setSelectedNodes(nodes)
+                                setSelectedNodes(newSlectedNodes)
                             }}
                         >
                             <div className='text-selectAll'>{t('全选')}</div>
@@ -298,7 +298,7 @@ function Nodes ({
                         type={type}
                         key={node.name}
                         selectedNodes={selectedNodes}
-                        setSelectedNodeNames={setSelectedNodeNames}
+                        setSelectedNodes={setSelectedNodes}
                         expanded={expandedNodes.some(item => item.name === node.name)}
                         switchFold={(node: DdbNode) => switchFold(node)}
                     />)
@@ -318,16 +318,16 @@ function Node ({
     node,
     type,
     selectedNodes,
-    setSelectedNodeNames,
+    setSelectedNodes,
     expanded,
     switchFold
 }: {
     node: DdbNode
     type: NodeType
     selectedNodes: DdbNode[]
-    setSelectedNodeNames: Function
+    setSelectedNodes: SetSelectedNodes
     expanded: boolean
-    switchFold: Function
+    switchFold: SwicthFold
 }) {
     const {
         name,
@@ -373,7 +373,7 @@ function Node ({
             newSelectedNodes = [...selectedNodes, node]
         else 
             newSelectedNodes = selectedNodes.filter(node => node.mode !== type || node.name !== name)
-        setSelectedNodeNames(newSelectedNodes.map(node => node.name))
+        setSelectedNodes(newSelectedNodes)
     }
     
     
