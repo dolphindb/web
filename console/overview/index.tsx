@@ -61,48 +61,56 @@ export function Overview () {
         { node_type !== NodeType.single && <Header className='header-bar'>
             <div className='actions'>
                 <div className='operations'>
-                    <div className={iconClassname} onClick={() => { model.get_cluster_perf(true) }}><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
-                        <div className={iconClassname}>
-                            <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
-                                <Popconfirm
-                                    title={t('确认启动以下节点')}
-                                    disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
-                                    description={() =>
-                                        selectedNodes.map(
-                                            node =>
-                                                node.state === DdbNodeState.offline && (
-                                                    <p className='model-node' key={node.name}>
-                                                        {node.name}
-                                                    </p>
-                                                )
-                                        )
-                                    }
-                                    onConfirm={async () => {
-                                        setIsStartLoading(true)
-                                        model.start_nodes(selectedNodes.filter(node => node.state === DdbNodeState.offline))
-                                        await delay(5000)
-                                        setIsStartLoading(false)
-                                        await model.get_cluster_perf(false)
-                                    }}
-                                    okText={t('确认')}
-                                    cancelText={t('取消')}
-                                    okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0, loading: isStartLoading }}
-                                >
-                                    <Button
-                                        type='text'
-                                        block
-                                        disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
-                                        icon={<Icon className={'icon-start' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStart} />}
-                                    >
-                                        {t('启动')}
-                                    </Button>
-                                </Popconfirm>
-                            </Tooltip>
-                        </div>
-                        
                     <div
                         className={iconClassname}
+                        onClick={() => {
+                            model.get_cluster_perf(true)
+                        }}
                     >
+                        <Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh} />}>
+                            {t('刷新')}
+                        </Button>
+                    </div>
+                    
+                    <div className={iconClassname}>
+                        <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
+                            <Popconfirm
+                                title={t('确认启动以下节点')}
+                                disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
+                                description={() =>
+                                    selectedNodes.map(
+                                        node =>
+                                            node.state === DdbNodeState.offline && (
+                                                <p className='model-node' key={node.name}>
+                                                    {node.name}
+                                                </p>
+                                            )
+                                    )
+                                }
+                                onConfirm={async () => {
+                                    setIsStartLoading(true)
+                                    model.start_nodes(selectedNodes.filter(node => node.state === DdbNodeState.offline))
+                                    await delay(5000)
+                                    setIsStartLoading(false)
+                                    await model.get_cluster_perf(false)
+                                }}
+                                okText={t('确认')}
+                                cancelText={t('取消')}
+                                okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0, loading: isStartLoading }}
+                            >
+                                <Button
+                                    type='text'
+                                    block
+                                    disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
+                                    icon={<Icon className={'icon-start' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStart} />}
+                                >
+                                    {t('启动')}
+                                </Button>
+                            </Popconfirm>
+                        </Tooltip>
+                    </div>
+                    
+                    <div className={iconClassname}>
                         <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                             <Popconfirm
                                 title={t('确认停止以下节点')}
@@ -392,7 +400,7 @@ function Node ({
                                 model.get_cluster_perf(true)
                             }}
                         >
-                            <Button ghost type='primary' block icon={<Icon className='icon-refresh' component={SvgRefresh} />}>
+                            <Button ghost type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh} />}>
                                 {t('刷新')}
                             </Button>
                         </div>
