@@ -359,7 +359,7 @@ function Node ({
                 <div className={'node-header' + ' ' + node_colors[mode]}>
                     <div className={'node-title' + ' ' + title_colors[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
                     <div className='node-click-single' >
-                        <div className='single-refresh-container' onClick={() => { model.get_cluster_perf(true) }}><Button ghost type='primary' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
+                        <div className={'single-refresh-container' + (language === 'en' ? ' en-width' : '')} onClick={() => { model.get_cluster_perf(true) }}><Button ghost type='primary' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
                     </div>
                     <NodeSite node={node}/>
                     <div className={node_statuses[state]}>
