@@ -29,6 +29,10 @@ import SvgNetwork from './icons/network.icon.svg'
 import SvgTask from './icons/task.icon.svg'
 
 
+type SetSelectedNodeNames = (names: string[]) => void
+type SetExpandedNodes = (nodes: DdbNode[]) => void
+
+
 export function Overview () {
     const { nodes, node_type, logined } = model.use(['nodes', 'node_type', 'logined'])   
     
@@ -49,8 +53,10 @@ export function Overview () {
     
     const [isStartLoading, setIsStartLoading] = useState(false)
     const [isStopLoading, setIsStopLoading] = useState(false)
+    
     const [selectedNodeNames, setSelectedNodeNames] = useState<string[]>([ ])
-    const selectedNodes = nodes.filter(node => new Set(selectedNodeNames).has(node.name))
+    const selecteNodeNamesSet = new Set(selectedNodeNames)
+    const selectedNodes = nodes.filter(node => selecteNodeNamesSet.has(node.name))
     
     const [expandedNodes, setExpandedNodes] = useState(nodes.filter(item => (item.name !== model.node.name)))
     const iconClassname = language === 'zh' ? 'icon-area' : 'icon-area-en'
@@ -62,13 +68,19 @@ export function Overview () {
                     <div className={iconClassname} onClick={() => { model.get_cluster_perf(true) }}><Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
                         <div className={iconClassname}>
                             <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
-                                <Popconfirm 
+                                <Popconfirm
                                     title={t('确认启动以下节点')}
                                     disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
-                                    description={() => selectedNodes
-                                        .map(node => node.state === DdbNodeState.offline && <p className='model-node' key={node.name}>
-                                                {node.name}
-                                            </p>) }
+                                    description={() =>
+                                        selectedNodes.map(
+                                            node =>
+                                                node.state === DdbNodeState.offline && (
+                                                    <p className='model-node' key={node.name}>
+                                                        {node.name}
+                                                    </p>
+                                                )
+                                        )
+                                    }
                                     onConfirm={async () => {
                                         setIsStartLoading(true)
                                         model.start_nodes(selectedNodes.filter(node => node.state === DdbNodeState.offline))
@@ -78,9 +90,7 @@ export function Overview () {
                                     }}
                                     okText={t('确认')}
                                     cancelText={t('取消')}
-                                    okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0,
-                                                     loading: isStartLoading    
-                                    }}
+                                    okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0, loading: isStartLoading }}
                                 >
                                     <Button
                                         type='text'
@@ -98,13 +108,19 @@ export function Overview () {
                         className={iconClassname}
                     >
                         <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
-                            <Popconfirm 
+                            <Popconfirm
                                 title={t('确认停止以下节点')}
                                 disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
-                                description={() => selectedNodes
-                                    .map(node => node.state === DdbNodeState.online && <p className='model-node' key={node.name}>
-                                            {node.name}
-                                        </p>) }
+                                description={() =>
+                                    selectedNodes.map(
+                                        node =>
+                                            node.state === DdbNodeState.online && (
+                                                <p className='model-node' key={node.name}>
+                                                    {node.name}
+                                                </p>
+                                            )
+                                    )
+                                }
                                 onConfirm={async () => {
                                     setIsStopLoading(true)
                                     model.stop_nodes(selectedNodes.filter(node => node.state === DdbNodeState.online))
@@ -114,15 +130,12 @@ export function Overview () {
                                 }}
                                 okText={t('确认')}
                                 cancelText={t('取消')}
-                                okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0, 
-                                                    loading: isStopLoading
-                                }}
-                                
+                                okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0, loading: isStopLoading }}
                             >
                                 <Button
                                     type='text'
                                     block
-                                    disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}                            
+                                    disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
                                     icon={<Icon className={'icon-stop' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStop} />}
                                 >
                                     {t('停止')}
@@ -173,7 +186,9 @@ export function Overview () {
                 [NodeType.controller, NodeType.data, NodeType.computing, NodeType.agent].map(type => 
                     <Nodes
                         key={type} type={type} nodes={nodes.filter(node => node.mode === type)}
-                        selectedNodes={selectedNodes} setSelectedNodeNames={setSelectedNodeNames}
+                        selectedNodes={selectedNodes} setSelectedNodes={(nodes: DdbNode[]) => {
+                            setSelectedNodeNames(nodes.map(node => node.name))
+                        }}
                         expandedNodes={expandedNodes} setExpandedNodes={setExpandedNodes}
                 />)}
         </div>
@@ -227,11 +242,10 @@ function Nodes ({
     type: NodeType
     nodes: DdbNode[]
     selectedNodes: DdbNode[]
-    setSelectedNodeNames: Function
+    setSelectedNodeNames: SetSelectedNodeNames
     expandedNodes: DdbNode[]
-    setExpandedNodes: Function
+    setExpandedNodes: SetExpandedNodes
 }) {
-    
     const { node } = model.use(['node'])
     const numOfNodes = nodes.filter(node => node.mode === type).length
     
@@ -271,15 +285,24 @@ function Nodes ({
                                 else
                                     newSlectedNodes = selectedNodes.filter(node => node.mode !== type)        
                                 setSelectedNodeNames(newSlectedNodes.map(node => node.name))
+                                setSelectedNodes(nodes)
                             }}
                         >
                             <div className='text-selectAll'>{t('全选')}</div>
                         </Checkbox>
                     </div> }
             </div>
-            {nodes.map(node => <Node node={node} type={type} key={node.name} 
-                                        selectedNodes={selectedNodes} setSelectedNodeNames={setSelectedNodeNames}
-                                        expanded={expandedNodes.some(item => item.name === node.name)} switchFold={(node: DdbNode) => switchFold(node)} />)}
+            {
+                nodes.map(node => <Node
+                        node={node}
+                        type={type}
+                        key={node.name}
+                        selectedNodes={selectedNodes}
+                        setSelectedNodeNames={setSelectedNodeNames}
+                        expanded={expandedNodes.some(item => item.name === node.name)}
+                        switchFold={(node: DdbNode) => switchFold(node)}
+                    />)
+            }
         </div>
 }
 
@@ -358,8 +381,17 @@ function Node ({
             type === NodeType.single ? 
                 <div className={'node-header' + ' ' + node_colors[mode]}>
                     <div className={'node-title' + ' ' + title_colors[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
-                    <div className='node-click-single' >
-                        <div className={'single-refresh-container' + (language === 'en' ? ' en-width' : '')} onClick={() => { model.get_cluster_perf(true) }}><Button ghost type='primary' block icon={<Icon className='icon-refresh' component={SvgRefresh}  />}>{t('刷新')}</Button></div>
+                    <div className='node-click-single'>
+                        <div
+                            className={`single-refresh-container${language === 'en' ? ' en-width' : ''}`}
+                            onClick={() => {
+                                model.get_cluster_perf(true)
+                            }}
+                        >
+                            <Button ghost type='primary' block icon={<Icon className='icon-refresh' component={SvgRefresh} />}>
+                                {t('刷新')}
+                            </Button>
+                        </div>
                     </div>
                     <NodeSite node={node}/>
                     <div className={node_statuses[state]}>
