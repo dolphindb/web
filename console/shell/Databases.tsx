@@ -15,7 +15,6 @@ const Icon: typeof _Icon.default = _Icon as any
 import { assert } from 'xshell/utils.browser.js'
 
 import {
-    DdbType,
     DdbFunctionType,
     DdbInt,
     type DdbVectorStringObj,
