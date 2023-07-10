@@ -711,12 +711,11 @@ function DatanodeConfig () {
             var ruleElem = rule.elem
             var datanodePattern = ruleElem.find('.datanode-pattern').val()
             var configIndex = ruleElem.find('.config-type').val()
-            /** configValue 配置对象数据 类型为string*/
-            var configValue = ruleElem.find('.rule-value-content').val() 
-            // 当config的值为空时，去掉这个配置项
-            if (configValue == ""){
+            /** configValue 配置对象数据 类型为 string */
+            var configValue = ruleElem.find('.rule-value-content').val()
+            // 当 config 的值为空时，去掉这个配置项
+            if (configValue === undefined || configValue === null || configValue === '') 
                 continue
-            }
             configIndex = configIndex.split(',')
             var selectedConfig = configs[configIndex[0]].configs[configIndex[1]]
             var ruleLine = '"'
