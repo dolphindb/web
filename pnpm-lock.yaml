@@ -81,8 +81,8 @@ dependencies:
     specifier: ^9.0.0
     version: 9.0.0
   xshell:
-    specifier: ^1.0.36
-    version: 1.0.36(react-dom@18.2.0)
+    specifier: ^1.0.37
+    version: 1.0.37(react-dom@18.2.0)
   xterm:
     specifier: ^5.2.1
     version: 5.2.1
@@ -591,19 +591,19 @@ packages:
       - supports-color
     dev: true
 
-  /@babel/core@7.22.6:
-    resolution: {integrity: sha512-HPIyDa6n+HKw5dEuway3vVAhBboYCtREBMp+IWeseZy6TFtzn6MHkCH2KKYUOC/vKKwgSMHQW4htBOrmuRPXfw==}
+  /@babel/core@7.22.8:
+    resolution: {integrity: sha512-75+KxFB4CZqYRXjx4NlR4J7yGvKumBuZTmV4NV6v09dVXXkuYVYLT68N6HCzLvfJ+fWCxQsntNzKwwIXL4bHnw==}
     engines: {node: '>=6.9.0'}
     dependencies:
       '@ampproject/remapping': 2.2.0
       '@babel/code-frame': 7.22.5
-      '@babel/generator': 7.22.5
-      '@babel/helper-compilation-targets': 7.22.6(@babel/core@7.22.6)
+      '@babel/generator': 7.22.7
+      '@babel/helper-compilation-targets': 7.22.6(@babel/core@7.22.8)
       '@babel/helper-module-transforms': 7.22.5
       '@babel/helpers': 7.22.6
-      '@babel/parser': 7.22.6
+      '@babel/parser': 7.22.7
       '@babel/template': 7.22.5
-      '@babel/traverse': 7.22.6
+      '@babel/traverse': 7.22.8
       '@babel/types': 7.22.5
       '@nicolo-ribaudo/semver-v6': 6.3.3
       convert-source-map: 1.9.0
@@ -634,8 +634,8 @@ packages:
       jsesc: 2.5.2
     dev: true
 
-  /@babel/generator@7.22.5:
-    resolution: {integrity: sha512-+lcUbnTRhd0jOewtFSedLyiPsD5tswKkbgcezOqqWFUVNEwoUTlpPOBmvhG7OXWLR4jMdv0czPGH5XbflnD1EA==}
+  /@babel/generator@7.22.7:
+    resolution: {integrity: sha512-p+jPjMG+SI8yvIaxGgeW24u7q9+5+TGpZh8/CuB7RhBKd7RCy8FayNEFNNKrNK/eUcY/4ExQqLmyrvBXKsIcwQ==}
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/types': 7.22.5
@@ -673,14 +673,14 @@ packages:
       semver: 6.3.0
     dev: true
 
-  /@babel/helper-compilation-targets@7.22.6(@babel/core@7.22.6):
+  /@babel/helper-compilation-targets@7.22.6(@babel/core@7.22.8):
     resolution: {integrity: sha512-534sYEqWD9VfUm3IPn2SLcH4Q3P86XL+QvqdC7ZsFrzyyPF3T4XGiVghF6PTYNdWg6pXuoqXxNQAhbYeEInTzA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0
     dependencies:
       '@babel/compat-data': 7.22.6
-      '@babel/core': 7.22.6
+      '@babel/core': 7.22.8
       '@babel/helper-validator-option': 7.22.5
       '@nicolo-ribaudo/semver-v6': 6.3.3
       browserslist: 4.21.9
@@ -827,7 +827,7 @@ packages:
       '@babel/helper-split-export-declaration': 7.22.6
       '@babel/helper-validator-identifier': 7.22.5
       '@babel/template': 7.22.5
-      '@babel/traverse': 7.22.6
+      '@babel/traverse': 7.22.8
       '@babel/types': 7.22.5
     transitivePeerDependencies:
       - supports-color
@@ -967,7 +967,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/template': 7.22.5
-      '@babel/traverse': 7.22.6
+      '@babel/traverse': 7.22.8
       '@babel/types': 7.22.5
     transitivePeerDependencies:
       - supports-color
@@ -1015,8 +1015,8 @@ packages:
       '@babel/types': 7.21.4
     dev: true
 
-  /@babel/parser@7.22.6:
-    resolution: {integrity: sha512-EIQu22vNkceq3LbjAq7knDf/UmtI2qbcNI8GRBlijez6TpQLvSodJPYfydQmNA5buwkxxxa/PVI44jjYZ+/cLw==}
+  /@babel/parser@7.22.7:
+    resolution: {integrity: sha512-7NF8pOkHP5o2vpmGgNGcfAeCvOYhGLyA3Z4eBQkT1RJlWu47n63bCs93QfJ2hIAFCil7L5P2IWhs1oToVgrL0Q==}
     engines: {node: '>=6.0.0'}
     hasBin: true
     dependencies:
@@ -1981,7 +1981,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/code-frame': 7.22.5
-      '@babel/parser': 7.22.6
+      '@babel/parser': 7.22.7
       '@babel/types': 7.22.5
     dev: false
 
@@ -2021,17 +2021,17 @@ packages:
       - supports-color
     dev: true
 
-  /@babel/traverse@7.22.6:
-    resolution: {integrity: sha512-53CijMvKlLIDlOTrdWiHileRddlIiwUIyCKqYa7lYnnPldXCG5dUSN38uT0cA6i7rHWNKJLH0VU/Kxdr1GzB3w==}
+  /@babel/traverse@7.22.8:
+    resolution: {integrity: sha512-y6LPR+wpM2I3qJrsheCTwhIinzkETbplIgPBbwvqPKc+uljeA5gP+3nP8irdYt1mjQaDnlIcG+dw8OjAco4GXw==}
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/code-frame': 7.22.5
-      '@babel/generator': 7.22.5
+      '@babel/generator': 7.22.7
       '@babel/helper-environment-visitor': 7.22.5
       '@babel/helper-function-name': 7.22.5
       '@babel/helper-hoist-variables': 7.22.5
       '@babel/helper-split-export-declaration': 7.22.6
-      '@babel/parser': 7.22.6
+      '@babel/parser': 7.22.7
       '@babel/types': 7.22.5
       debug: 4.3.4
       globals: 11.12.0
@@ -4214,7 +4214,7 @@ packages:
       dayjs: 1.11.9
       ipaddr.js: 2.1.0
       tslib: 2.6.0
-      xshell: 1.0.36(react-dom@18.2.0)
+      xshell: 1.0.37(react-dom@18.2.0)
     transitivePeerDependencies:
       - bufferutil
       - react-dom
@@ -5010,7 +5010,7 @@ packages:
       eol: 0.9.1
       esprima-next: 5.8.4
       gulp-sort: 2.0.0
-      i18next: 23.2.7
+      i18next: 23.2.8
       lodash: 4.17.21
       parse5: 6.0.1
       sortobject: 4.16.0
@@ -5019,8 +5019,8 @@ packages:
       vinyl-fs: 3.0.3
     dev: false
 
-  /i18next@23.2.7:
-    resolution: {integrity: sha512-EsbHHvF6b+p+B6Cht5fYWY7VE/WYOrqB1+DNwa1UpLTw6mG5g4tc8KCEjUUOSMUA2yqCsdYQP+PqVq5nBMtOtQ==}
+  /i18next@23.2.8:
+    resolution: {integrity: sha512-wU0pMlJ91ZbB89i77G3YQ11/pBQrzgWpxJYl7HFyA9aU9v3aHMI/oBKQmAJNURr0A8cLG4EHjgSMK8IqQTp4PQ==}
     dependencies:
       '@babel/runtime': 7.22.6
     dev: false
@@ -6689,7 +6689,7 @@ packages:
       react: 18.2.0
       scheduler: 0.23.0
 
-  /react-i18next@13.0.1(i18next@23.2.7)(react-dom@18.2.0)(react@18.2.0):
+  /react-i18next@13.0.1(i18next@23.2.8)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-gMO6N2GfSfuH7xlHSsZ/mZf+Py9bLm/+EDKIn5fNTuDTjcCcwmMU5UEuGCDk5mdfivbo7ySyYXBN7B9tbGUxiA==}
     peerDependencies:
       i18next: '>= 23.2.3'
@@ -6704,7 +6704,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.22.6
       html-parse-stringify: 3.0.1
-      i18next: 23.2.7
+      i18next: 23.2.8
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
@@ -8040,14 +8040,14 @@ packages:
         optional: true
     dev: false
 
-  /xshell@1.0.36(react-dom@18.2.0):
-    resolution: {integrity: sha512-+vM11F4dJh/wLuoKuO3rDOpIHyK3yia8I/D68cM9emyaL2K19ILmP7oHSFOkq9xzH6ayPtAaLAsIcHgfOjewrg==}
+  /xshell@1.0.37(react-dom@18.2.0):
+    resolution: {integrity: sha512-D0ATaSv5uRMrpfveaRtsMeuyM/pxCvD+uO62WqKJ0rxRoBeLvENSyHmnnn6qRNWCzDoq+IjVeoVF/xNpvBkQjg==}
     engines: {node: '>=20.3.0', vscode: '>=1.79.0'}
     hasBin: true
     dependencies:
-      '@babel/core': 7.22.6
-      '@babel/parser': 7.22.6
-      '@babel/traverse': 7.22.6
+      '@babel/core': 7.22.8
+      '@babel/parser': 7.22.7
+      '@babel/traverse': 7.22.8
       '@koa/cors': 4.0.0
       '@types/ws': 8.5.5
       byte-size: 8.1.1
@@ -8062,7 +8062,7 @@ packages:
       fs-extra: 11.1.1
       gulp-sort: 2.0.0
       hash-string: 1.0.0
-      i18next: 23.2.7
+      i18next: 23.2.8
       i18next-scanner: 4.2.0
       js-cookie: 3.0.5
       koa: 2.14.2
@@ -8073,7 +8073,7 @@ packages:
       ora: 6.3.1
       qs: 6.11.2
       react: 18.2.0
-      react-i18next: 13.0.1(i18next@23.2.7)(react-dom@18.2.0)(react@18.2.0)
+      react-i18next: 13.0.1(i18next@23.2.8)(react-dom@18.2.0)(react@18.2.0)
       resolve-path: 1.4.0
       strip-ansi: 7.1.0
       through2: 4.0.2

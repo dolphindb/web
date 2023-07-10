@@ -76,7 +76,7 @@
         "tslib": "^2.6.0",
         "vscode-oniguruma": "^1.7.0",
         "vscode-textmate": "^9.0.0",
-        "xshell": "^1.0.36",
+        "xshell": "^1.0.37",
         "xterm": "^5.2.1",
         "xterm-addon-fit": "^0.7.0",
         "xterm-addon-web-links": "^0.8.0",
