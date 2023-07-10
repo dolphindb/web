@@ -18,8 +18,8 @@ import { fexists, Lock } from 'xshell'
 
 export const fpd_root = `${path.dirname(fileURLToPath(import.meta.url))}/`
 
-export const ramdisk = fexists('t:/TEMP/', { print: false })
-export const fpd_ramdisk_root = 't:/2/ddb/web/'
+export const ramdisk = fexists('T:/TEMP/', { print: false })
+export const fpd_ramdisk_root = 'T:/2/ddb/web/'
 
 export const fpd_node_modules = `${fpd_root}node_modules/`
 

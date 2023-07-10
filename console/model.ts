@@ -108,12 +108,12 @@ export class DdbModel extends Model<DdbModel> {
         this.cdn = location.hostname === 'cdn.dolphindb.cn' || params.get('cdn') === '1'
         this.verbose = params.get('verbose') === '1'
         
-        const port = params.get('port') || (this.dev ? '8848' : location.port)
+        const port = params.get('port') || location.port
         
         this.ddb = new DDB(
             (this.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
                 '://' +
-                (params.get('hostname') || (this.dev ? '127.0.0.1' : location.hostname)) +
+                (params.get('hostname') || location.hostname) +
                 
                 // 一般 location.port 可能是空字符串
                 (port ? `:${port}` : '') +
