@@ -400,7 +400,7 @@ function Node ({
                                 model.get_cluster_perf(true)
                             }}
                         >
-                            <Button ghost type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh} />}>
+                            <Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh} />}>
                                 {t('刷新')}
                             </Button>
                         </div>
