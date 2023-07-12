@@ -507,7 +507,16 @@ function DatanodeConfig () {
                     default: '',
                     tip: ''
                 },
-                { name: 'volumeUsageThreshold', value: '', default: '', tip: '' }
+                { name: 'volumeUsageThreshold', value: '', default: '', tip: '' },
+                { name: 'bindCores', value: '', default: '', tip: '' },
+                { name: 'licenseServerSite', value: '', default: '', tip: '' },
+                { name: 'coldVolumes', value: '', default: '', tip: '' },
+                { name: 'logDir', value: '', default: '', tip: '' },
+                { name: 's3AccessKeyId', value: '', default: '', tip: '' },
+                { name: 's3Region', value: '', default: '', tip: '' },
+                { name: 's3SecretAccessKey', value: '', default: '', tip: '' },
+                { name: 'thirdPartyAuthenticator', value: '', default: '', tip: '' },
+                { name: 'traceLogDir', value: '', default: '', tip: '' }
             ]
         }
     ]
