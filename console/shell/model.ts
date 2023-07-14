@@ -38,7 +38,6 @@ import { DdbVar } from './Variables.js'
 type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef }
 
 
-
 class ShellModel extends Model<ShellModel> {
     term: import('xterm').Terminal
     
@@ -88,8 +87,8 @@ class ShellModel extends Model<ShellModel> {
     
     confirm_command_modal_visible = false
     
-    truncate_text (line: string) {
-        const lines = line.split('\n')
+    
+    truncate_text (lines: string[]) {
         let i_first_non_empty = null
         let i_non_empty_end = null
         for (let i = 0;  i < lines.length;  i++) 
@@ -111,8 +110,9 @@ class ShellModel extends Model<ShellModel> {
         if (too_much)
             lines_.push('...')
         
-        return lines_.join('\n')
+        return lines_
     }
+    
     
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
@@ -120,7 +120,7 @@ class ShellModel extends Model<ShellModel> {
             '\n' +
             time_start.format('YYYY.MM.DD HH:mm:ss.SSS') + 
             '\n' +
-            this.truncate_text(code)
+            this.truncate_text(code.split_lines()).join_lines()
         )
         
         this.set({ executing: true })
