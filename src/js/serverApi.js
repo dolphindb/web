@@ -504,7 +504,9 @@ function DatanodeConfig () {
                 { name: 's3Region', value: '', default: '', tip: '' },
                 { name: 's3SecretAccessKey', value: '', default: '', tip: '' },
                 { name: 'thirdPartyAuthenticator', value: '', default: '', tip: '' },
-                { name: 'traceLogDir', value: '', default: '', tip: '' }
+                { name: 'traceLogDir', value: '', default: '', tip: '' },
+                { name: 'metricsToken', value: '', default: '', tip: '' },
+                { name: 'strictPermissionMode', value: '', default: '', tip: '' },
             ]
         }
     ]
@@ -878,6 +880,8 @@ function ControllerConfig () {
             default: '',
             tip: ''
         },
+        { name: 'metricsToken', value: '', default: '', tip: '' },
+        { name: 'strictPermissionMode', value: '', default: '', tip: '' },
     ]
     for (var item of configs)
         configsName.push(item.name)
