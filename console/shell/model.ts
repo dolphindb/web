@@ -37,31 +37,6 @@ import { DdbVar } from './Variables.js'
 
 type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef }
 
-function truncate_text (line: string) {
-    const lines = line.split('\n')
-    let i_first_non_empty = null
-    let i_non_empty_end = null
-    for (let i = 0;  i < lines.length;  i++) 
-        if (lines[i].trim()) {
-            if (i_first_non_empty === null)
-                i_first_non_empty = i
-            i_non_empty_end = i + 1
-        }
-    
-    // 未找到非空行
-    if (i_first_non_empty === null) {
-        i_first_non_empty = 0
-        i_non_empty_end = 0
-    }
-    
-    const too_much = i_non_empty_end - i_first_non_empty > 3
-    
-    let lines_ = lines.slice(i_first_non_empty, too_much ? i_first_non_empty + 2 : i_non_empty_end)
-    if (too_much)
-        lines_.push('...')
-    
-    return lines_.join('\n')
-}
 
 
 class ShellModel extends Model<ShellModel> {
@@ -113,6 +88,31 @@ class ShellModel extends Model<ShellModel> {
     
     confirm_command_modal_visible = false
     
+    truncate_text (line: string) {
+        const lines = line.split('\n')
+        let i_first_non_empty = null
+        let i_non_empty_end = null
+        for (let i = 0;  i < lines.length;  i++) 
+            if (lines[i].trim()) {
+                if (i_first_non_empty === null)
+                    i_first_non_empty = i
+                i_non_empty_end = i + 1
+            }
+        
+        // 未找到非空行
+        if (i_first_non_empty === null) {
+            i_first_non_empty = 0
+            i_non_empty_end = 0
+        }
+        
+        const too_much = i_non_empty_end - i_first_non_empty > 3
+        
+        let lines_ = lines.slice(i_first_non_empty, too_much ? i_first_non_empty + 2 : i_non_empty_end)
+        if (too_much)
+            lines_.push('...')
+        
+        return lines_.join('\n')
+    }
     
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
@@ -120,7 +120,7 @@ class ShellModel extends Model<ShellModel> {
             '\n' +
             time_start.format('YYYY.MM.DD HH:mm:ss.SSS') + 
             '\n' +
-            truncate_text(code)
+            this.truncate_text(code)
         )
         
         this.set({ executing: true })
