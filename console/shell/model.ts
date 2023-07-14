@@ -119,8 +119,10 @@ class ShellModel extends Model<ShellModel> {
         this.term.writeln(
             '\n' +
             time_start.format('YYYY.MM.DD HH:mm:ss.SSS') + 
-            '\n' +
+            '\n' + 
+            (code ?
             this.truncate_text(code.split_lines()).join_lines()
+            : '')
         )
         
         this.set({ executing: true })
