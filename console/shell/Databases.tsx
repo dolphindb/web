@@ -120,7 +120,7 @@ export function Databases () {
                                 set_loaded_keys([ ])
                                 await promise
                             } catch (error) {
-                                message.error(error.message)
+                                model.show_error({ error })
                                 throw error
                             } finally {
                                 set_refresh_spin(false)
