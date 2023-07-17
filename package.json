@@ -63,7 +63,7 @@
         "classnames": "^2.3.2",
         "copy-to-clipboard": "^3.3.3",
         "dayjs": "^1.11.9",
-        "dolphindb": "^2.0.1000",
+        "dolphindb": "^2.0.1001",
         "echarts": "^5.4.2",
         "final-form": "^4.20.9",
         "js-cookie": "^3.0.5",
