@@ -302,8 +302,13 @@ export let webpack = {
     
     async close () {
         await this.lcompiler.request(async compiler =>
-            new Promise(resolve => {
-                compiler.close(resolve)
+            new Promise<void>((resolve, reject) => {
+                compiler.close(error => {
+                    if (error)
+                        reject(error)
+                    else
+                        resolve()
+                })
             })
         )
     }
