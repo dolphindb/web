@@ -1088,9 +1088,9 @@ a.ui-button:active,
 .ui-state-error-text .ui-icon {
 	background-image: url("images/ui-icons_cc0000_256x240.png");
 }
-.ui-button .ui-icon {
+/* .ui-button .ui-icon {
 	background-image: url("images/ui-icons_777777_256x240.png");
-}
+} */
 
 /* positioning */
 .ui-icon-blank { background-position: 16px 16px; }
