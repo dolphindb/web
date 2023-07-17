@@ -91,7 +91,7 @@ function DolphinDB () {
     if (authed === 'pending')
         return null
     
-    return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false}>
+    return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false} theme={{ hashed: false }}>
         {authed === 'no' ? // 未登录直接返回登录框 Modal
             <Modal
                 className='db-shell-modal'

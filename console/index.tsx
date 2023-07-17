@@ -70,7 +70,7 @@ function DolphinDB () {
     if (!inited)
         return null
     
-    return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false}>
+    return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false} theme={{ hashed: false }}>
         <NiceModal.Provider>
             <Layout className='root-layout'>
                 { header && <Layout.Header className='ddb-header'>
