@@ -42,8 +42,8 @@ dependencies:
     specifier: ^1.11.9
     version: 1.11.9
   dolphindb:
-    specifier: ^2.0.1000
-    version: 2.0.1000(react-dom@18.2.0)
+    specifier: ^2.0.1001
+    version: 2.0.1001(react-dom@18.2.0)
   echarts:
     specifier: ^5.4.2
     version: 5.4.2
@@ -58,7 +58,7 @@ dependencies:
     version: 4.17.21
   monaco-dolphindb:
     specifier: 0.0.3
-    version: 0.0.3(dolphindb@2.0.1000)(monaco-editor@0.40.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0)
+    version: 0.0.3(dolphindb@2.0.1001)(monaco-editor@0.40.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0)
   monaco-editor:
     specifier: ^0.40.0
     version: 0.40.0
@@ -4261,8 +4261,8 @@ packages:
       esutils: 2.0.3
     dev: true
 
-  /dolphindb@2.0.1000(react-dom@18.2.0):
-    resolution: {integrity: sha512-mcEHdW05td8jhGS3J7b6ujmncr/8HzKM4GtDXUxgEWB44gYP4y+NaLY4ibGCKCZ1+C3UBfs3PJ003Mge5Y3kVA==}
+  /dolphindb@2.0.1001(react-dom@18.2.0):
+    resolution: {integrity: sha512-uRXKkoEtOuxwoAuadErOYiIYwq8QJm3+/cjvevgJoDnty7Q6P3ETwVPt0LqJeJoF+d6Nte3Rts+K+q/6rrSXvQ==}
     engines: {node: '>=19.8.1'}
     dependencies:
       dayjs: 1.11.9
@@ -5597,7 +5597,7 @@ packages:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
     dev: false
 
-  /monaco-dolphindb@0.0.3(dolphindb@2.0.1000)(monaco-editor@0.40.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0):
+  /monaco-dolphindb@0.0.3(dolphindb@2.0.1001)(monaco-editor@0.40.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0):
     resolution: {integrity: sha512-7f3W5RdhidZMA4VlwDqzJ7QDRqhPQ3k+kbYbbgzQ0GG3qlPLAX1MRKwtHnQzWj/2VdF+/t9OFQGr/e+JnYgueg==}
     peerDependencies:
       dolphindb: ^2.0.974
@@ -5605,7 +5605,7 @@ packages:
       vscode-oniguruma: ^1.7.0
       vscode-textmate: ^9.0.0
     dependencies:
-      dolphindb: 2.0.1000(react-dom@18.2.0)
+      dolphindb: 2.0.1001(react-dom@18.2.0)
       monaco-editor: 0.40.0
       vscode-oniguruma: 1.7.0
       vscode-textmate: 9.0.0
