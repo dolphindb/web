@@ -116,7 +116,7 @@ class ShellModel extends Model<ShellModel> {
     
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
-        this.term.writeln(
+        this.term.write(
             '\n' +
             time_start.format('YYYY.MM.DD HH:mm:ss.SSS') + 
             '\n' + 
