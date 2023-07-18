@@ -110,8 +110,6 @@ export class DdbModel extends Model<DdbModel> {
         
         const port = params.get('port') || location.port
         
-        console.log(localStorage.getItem('sql'));
-        
         this.ddb = new DDB(
             (this.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
                 '://' +
