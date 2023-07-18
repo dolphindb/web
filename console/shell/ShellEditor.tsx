@@ -2,13 +2,14 @@ import { default as React, useEffect, useState } from 'react'
 
 import { Popconfirm, Switch } from 'antd'
 
-import { CaretRightOutlined } from '@ant-design/icons'
+import { CaretRightOutlined, LoadingOutlined } from '@ant-design/icons'
 
 
 import { t } from '../../i18n/index.js'
 
 import { model, storage_keys } from '../model.js'
 import { shell } from './model.js'
+import { red } from 'xshell/chalk.browser.js'
 
 import { Editor, type monacoapi } from './Editor/index.js'
 
@@ -42,10 +43,11 @@ export function ShellEditor () {
     return <div className='shell-editor'>
         <div className='toolbar'>
             <div className='actions'>
-                <span className='action execute' title={t('执行选中代码或全部代码')} onClick={() => { shell.execute('all') }}>
-                    <CaretRightOutlined />
+                
+                <span className='action execute' title={t('执行选中代码或全部代码')} onClick={() => { shell.executing ? shell.term.writeln(red(t('当前连接正在执行作业，请等待'))) : shell.execute('all') }} >
+                    {shell.executing ? <LoadingOutlined/> : <CaretRightOutlined />}
                     <span className='text'>{t('执行')}</span>
-                </span>
+                </span> 
             </div>
             
             <div className='settings'>

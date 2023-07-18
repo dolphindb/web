@@ -992,6 +992,9 @@
     "执行": {
         "en": "Execute"
     },
+    "当前连接正在执行作业，请等待": {
+        "en": "The current connection is executing a job, please wait"  
+    },
     "按 Tab 补全函数\n": {
         "en": "Press Tab to complete functions\n"
     },
