@@ -21,6 +21,7 @@ export const storage_keys = {
     session: 'ddb.session',
     minimap: 'ddb.editor.minimap',
     enter_completion: 'ddb.editor.enter_completion',
+    sql: 'ddb.sql',
 } as const
 
 const username_guest = 'guest' as const
@@ -123,7 +124,7 @@ export class DdbModel extends Model<DdbModel> {
             {
                 autologin: false,
                 verbose: this.verbose,
-                sql: SqlStandard[localStorage.getItem('sql')] || SqlStandard.DolphinDB
+                sql: SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
             }
         )
         

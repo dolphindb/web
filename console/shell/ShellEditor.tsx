@@ -23,9 +23,9 @@ export function ShellEditor () {
         localStorage.getItem(storage_keys.enter_completion) === '1'
     )
     
-    const [sql_standrd, set_sql_standrd] = useState(() => localStorage.getItem("sql") || "DolphinDB")
+    const [sql_standrd, set_sql_standrd] = useState(() => localStorage.getItem(storage_keys.sql) || 'DolphinDB')
     
-    const [is_modal_open, set_is_modal_open] = useState(false);
+    const [is_modal_open, set_is_modal_open] = useState(false)
     const [temp_data, set_temp_data] = useState('') 
     
     // 标签页关闭前自动保存代码
@@ -45,17 +45,17 @@ export function ShellEditor () {
     
     return <div className='shell-editor'>
         <Modal 
-            title="提示" 
+            title='提示' 
             open={is_modal_open} 
             onOk={() => {
                 set_sql_standrd(temp_data)
-                localStorage.setItem("sql",temp_data)
+                localStorage.setItem(storage_keys.sql, temp_data)
                 set_is_modal_open(false)
                 location.reload()
             }} 
-            onCancel={() => {set_is_modal_open(false)}}>
+            onCancel={() => { set_is_modal_open(false) }}>
                 
-            <p>切换SQL Standard后，当前页面将会刷新，且内存变量会清空</p>
+            <p>切换 SQL Standard 后，当前页面将会刷新，且内存变量会清空</p>
         </Modal>
         <div className='toolbar'>
             <div className='actions'>
@@ -63,24 +63,6 @@ export function ShellEditor () {
                     <CaretRightOutlined />
                     <span className='text'>{t('执行')}</span>
                 </span>
-            </div>
-            
-            <div className="sqlOption">
-                <Space wrap>
-                    <Select
-                        value={ sql_standrd }
-                        style={{ width: 110 }}
-                        onSelect={ value => {
-                            set_temp_data(value) 
-                            set_is_modal_open(true)
-                        }}
-                        options={[
-                            { value: 'DolphinDB' },
-                            { value: 'Oracle' },
-                            { value: 'MySQL' },
-                        ]}
-                        />
-                </Space>
             </div>
             
             <div className='settings'>
@@ -104,6 +86,24 @@ export function ShellEditor () {
                             set_enter_completion(checked)
                             localStorage.setItem(storage_keys.enter_completion, checked ? '1' : '0')
                         }} />
+                </span>
+                
+                <span className='setting' title={t('设置当前代码执行的 SQL 标准。')}>
+                    <span className='text'>{t('SQL 标准')}</span>
+                    <Select
+                        value={ sql_standrd }
+                        size='small'
+                        style={{ width: 110, height: 19 }}
+                        onSelect={ value => {
+                            set_temp_data(value) 
+                            set_is_modal_open(true)
+                        }}
+                        options={[
+                            { value: 'DolphinDB' },
+                            { value: 'Oracle' },
+                            { value: 'MySQL' },
+                        ]}
+                    />
                 </span>
             </div>
             
