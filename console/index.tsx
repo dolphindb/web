@@ -4,7 +4,7 @@ import './formily-patch.scss'
 import './index.sass'
 
 
-import { default as React, useEffect } from 'react'
+import { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import NiceModal from '@ebay/nice-modal-react'
 
@@ -70,7 +70,7 @@ function DolphinDB () {
     if (!inited)
         return null
     
-    return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false}>
+    return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false} theme={{ hashed: false }}>
         <NiceModal.Provider>
             <Layout className='root-layout'>
                 { header && <Layout.Header className='ddb-header'>

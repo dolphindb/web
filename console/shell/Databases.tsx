@@ -12,7 +12,7 @@ import type { DataNode, EventDataNode } from 'antd/es/tree'
 import { default as _Icon, SyncOutlined, MinusSquareOutlined, EditOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
-import { assert } from 'xshell/utils.browser.js'
+import { assert, delay } from 'xshell/utils.browser.js'
 
 import {
     DdbFunctionType,
@@ -66,6 +66,7 @@ export function Databases () {
     const previous_clicked_node = useRef<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
     
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
+    const [refresh_spin, set_refresh_spin] = useState(false)
     
     if (!dbs)
         return
@@ -111,12 +112,22 @@ export function Databases () {
                             </Tooltip>
                         </span>
                         <span onClick={async () => {
-                            await shell.load_dbs()
-                            set_expanded_keys([ ])
-                            set_loaded_keys([ ])
+                            try {
+                                set_refresh_spin(true)
+                                const promise = delay(1000)
+                                await shell.load_dbs()
+                                set_expanded_keys([ ])
+                                set_loaded_keys([ ])
+                                await promise
+                            } catch (error) {
+                                model.show_error({ error })
+                                throw error
+                            } finally {
+                                set_refresh_spin(false)
+                            }
                         }}>
                             <Tooltip title={t('刷新')} color='grey'>
-                                <SyncOutlined />
+                                <SyncOutlined spin={refresh_spin}/>
                             </Tooltip>
                         </span>
                         <span onClick={() => { set_expanded_keys([ ]) }}>

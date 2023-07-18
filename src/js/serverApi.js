@@ -375,12 +375,6 @@ function DatanodeConfig () {
                     default: '',
                     tip: ''
                 },
-                {
-                    name: 'clusterReplicationSlaveNum',
-                    value: '',
-                    default: '',
-                    tip: ''
-                },
                 { name: 'postStart', value: '', default: '', tip: '' },
                 { name: 'dfsRecoveryConcurrency', value: '', default: '', tip: '' },
                 {
@@ -390,12 +384,6 @@ function DatanodeConfig () {
                     tip: ''
                 },
                 { name: 'dfsRecoveryWaitTime', value: '', default: '', tip: '' },
-                {
-                    name: 'dfsChunkNodeHeartBeatTimeout',
-                    value: '',
-                    default: '',
-                    tip: ''
-                },
                 { name: 'dfsPlacementPolicy', value: '', default: '', tip: '' },
                 {
                     name: 'dfsMetaCheckpointThreshold',
@@ -507,7 +495,18 @@ function DatanodeConfig () {
                     default: '',
                     tip: ''
                 },
-                { name: 'volumeUsageThreshold', value: '', default: '', tip: '' }
+                { name: 'volumeUsageThreshold', value: '', default: '', tip: '' },
+                { name: 'bindCores', value: '', default: '', tip: '' },
+                { name: 'licenseServerSite', value: '', default: '', tip: '' },
+                { name: 'coldVolumes', value: '', default: '', tip: '' },
+                { name: 'logDir', value: '', default: '', tip: '' },
+                { name: 's3AccessKeyId', value: '', default: '', tip: '' },
+                { name: 's3Region', value: '', default: '', tip: '' },
+                { name: 's3SecretAccessKey', value: '', default: '', tip: '' },
+                { name: 'thirdPartyAuthenticator', value: '', default: '', tip: '' },
+                { name: 'traceLogDir', value: '', default: '', tip: '' },
+                { name: 'metricsToken', value: '', default: '', tip: '' },
+                { name: 'strictPermissionMode', value: '', default: '', tip: '' },
             ]
         }
     ]
@@ -862,7 +861,27 @@ function ControllerConfig () {
         },
         { name: 'PublicName', value: '', default: '', tip: 'Control node extranet IP or domain name.' },
         { name: 'datanodeRestartInterval', value: 'int', default: '', tip: '' },
-        { name: 'dfsHAMode', value: '', default: '=Raft', tip: 'Whether multiple control nodes form a Raft group.' }
+        { name: 'dfsHAMode', value: '', default: '=Raft', tip: 'Whether multiple control nodes form a Raft group.' },
+        {
+            name: 'clusterReplicationSlaveNum',
+            value: '',
+            default: '',
+            tip: ''
+        },
+        {
+            name: 'dfsChunkNodeHeartBeatTimeout',
+            value: '',
+            default: '',
+            tip: ''
+        },
+        {
+            name: 'clusterReplicationMasterCtl',
+            value: '',
+            default: '',
+            tip: ''
+        },
+        { name: 'metricsToken', value: '', default: '', tip: '' },
+        { name: 'strictPermissionMode', value: '', default: '', tip: '' },
     ]
     for (var item of configs)
         configsName.push(item.name)
