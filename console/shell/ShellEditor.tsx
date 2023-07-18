@@ -1,6 +1,6 @@
 import { default as React, useEffect, useState } from 'react'
 
-import { Popconfirm, Switch } from 'antd'
+import { Modal, Popconfirm, Select, Space, Switch } from 'antd'
 
 import { CaretRightOutlined } from '@ant-design/icons'
 
@@ -23,6 +23,10 @@ export function ShellEditor () {
         localStorage.getItem(storage_keys.enter_completion) === '1'
     )
     
+    const [sql_standrd, set_sql_standrd] = useState(() => localStorage.getItem("sql") || "DolphinDB")
+    
+    const [is_modal_open, set_is_modal_open] = useState(false);
+    const [temp_data, set_temp_data] = useState('') 
     
     // 标签页关闭前自动保存代码
     useEffect(() => {
@@ -40,12 +44,43 @@ export function ShellEditor () {
     
     
     return <div className='shell-editor'>
+        <Modal 
+            title="提示" 
+            open={is_modal_open} 
+            onOk={() => {
+                set_sql_standrd(temp_data)
+                localStorage.setItem("sql",temp_data)
+                set_is_modal_open(false)
+                location.reload()
+            }} 
+            onCancel={() => {set_is_modal_open(false)}}>
+                
+            <p>切换SQL Standard后，当前页面将会刷新，且内存变量会清空</p>
+        </Modal>
         <div className='toolbar'>
             <div className='actions'>
                 <span className='action execute' title={t('执行选中代码或全部代码')} onClick={() => { shell.execute('all') }}>
                     <CaretRightOutlined />
                     <span className='text'>{t('执行')}</span>
                 </span>
+            </div>
+            
+            <div className="sqlOption">
+                <Space wrap>
+                    <Select
+                        value={ sql_standrd }
+                        style={{ width: 110 }}
+                        onSelect={ value => {
+                            set_temp_data(value) 
+                            set_is_modal_open(true)
+                        }}
+                        options={[
+                            { value: 'DolphinDB' },
+                            { value: 'Oracle' },
+                            { value: 'MySQL' },
+                        ]}
+                        />
+                </Space>
             </div>
             
             <div className='settings'>

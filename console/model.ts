@@ -7,7 +7,7 @@ import type { BaseType } from 'antd/es/typography/Base/index.js'
 
 import { strcmp } from 'xshell/utils.browser.js'
 
-import { DDB, DdbFunctionType, DdbVectorString, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError, DdbStringObj, type DdbDictObj, type DdbVectorStringObj } from 'dolphindb/browser.js'
+import { DDB, SqlStandard, DdbFunctionType, DdbVectorString, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError, DdbStringObj, type DdbDictObj, type DdbVectorStringObj } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
 
@@ -110,6 +110,8 @@ export class DdbModel extends Model<DdbModel> {
         
         const port = params.get('port') || location.port
         
+        console.log(localStorage.getItem('sql'));
+        
         this.ddb = new DDB(
             (this.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
                 '://' +
@@ -122,7 +124,8 @@ export class DdbModel extends Model<DdbModel> {
                 (location.pathname === '/dolphindb/' ? '/dolphindb/' : ''),
             {
                 autologin: false,
-                verbose: this.verbose
+                verbose: this.verbose,
+                sql: SqlStandard[localStorage.getItem('sql')] || SqlStandard.DolphinDB
             }
         )
         

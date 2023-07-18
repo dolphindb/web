@@ -42,8 +42,8 @@ dependencies:
     specifier: ^1.11.9
     version: 1.11.9
   dolphindb:
-    specifier: ^2.0.978
-    version: 2.0.978(react-dom@18.2.0)
+    specifier: ^2.0.1001
+    version: 2.0.1001(react-dom@18.2.0)
   echarts:
     specifier: ^5.4.2
     version: 5.4.2
@@ -58,7 +58,7 @@ dependencies:
     version: 4.17.21
   monaco-dolphindb:
     specifier: 0.0.3
-    version: 0.0.3(dolphindb@2.0.978)(monaco-editor@0.40.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0)
+    version: 0.0.3(dolphindb@2.0.1001)(monaco-editor@0.40.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0)
   monaco-editor:
     specifier: ^0.40.0
     version: 0.40.0
@@ -4207,14 +4207,14 @@ packages:
       esutils: 2.0.3
     dev: true
 
-  /dolphindb@2.0.978(react-dom@18.2.0):
-    resolution: {integrity: sha512-YluvqxGx1jc/kfMFGa2d+fkqCMHgH2vLRKWaMUkjz5upuES1kvFBPExgeCaut82rh3AXYD4giYZ1vOV//NMRuw==}
+  /dolphindb@2.0.1001(react-dom@18.2.0):
+    resolution: {integrity: sha512-uRXKkoEtOuxwoAuadErOYiIYwq8QJm3+/cjvevgJoDnty7Q6P3ETwVPt0LqJeJoF+d6Nte3Rts+K+q/6rrSXvQ==}
     engines: {node: '>=19.8.1'}
     dependencies:
       dayjs: 1.11.9
       ipaddr.js: 2.1.0
       tslib: 2.6.0
-      xshell: 1.0.37(react-dom@18.2.0)
+      xshell: 1.0.38(react-dom@18.2.0)
     transitivePeerDependencies:
       - bufferutil
       - react-dom
@@ -5019,6 +5019,39 @@ packages:
       vinyl-fs: 3.0.3
     dev: false
 
+  /i18next-scanner@4.3.0:
+    resolution: {integrity: sha512-pLMq5vf4wFl8VgSnTcG/8BQZRnc/dVaOPudcYWPb/Pbbk9E4vcOIfZ/NHfK/9Jrzkzkxw9pqLQfHwDfb8VzkwA==}
+    engines: {node: '>=12'}
+    hasBin: true
+    dependencies:
+      acorn: 8.9.0
+      acorn-dynamic-import: 4.0.0(acorn@8.9.0)
+      acorn-jsx: 5.3.2(acorn@8.9.0)
+      acorn-stage3: 4.0.0(acorn@8.9.0)
+      acorn-walk: 8.2.0
+      chalk: 4.1.2
+      clone-deep: 4.0.1
+      commander: 9.5.0
+      deepmerge: 4.3.1
+      ensure-type: 1.5.1
+      eol: 0.9.1
+      esprima-next: 5.8.4
+      gulp-sort: 2.0.0
+      i18next: 23.2.11
+      lodash: 4.17.21
+      parse5: 6.0.1
+      sortobject: 4.16.0
+      through2: 4.0.2
+      vinyl: 3.0.0
+      vinyl-fs: 4.0.0
+    dev: false
+
+  /i18next@23.2.11:
+    resolution: {integrity: sha512-MA4FsxOjyCaOZtRDB4yuwjCvqYEioD4G4LlXOn7SO3rnQUlxTufyLsOqfL9MKakeLRBkefe8bqcs0D6Z/xFk1w==}
+    dependencies:
+      '@babel/runtime': 7.22.6
+    dev: false
+
   /i18next@23.2.8:
     resolution: {integrity: sha512-wU0pMlJ91ZbB89i77G3YQ11/pBQrzgWpxJYl7HFyA9aU9v3aHMI/oBKQmAJNURr0A8cLG4EHjgSMK8IqQTp4PQ==}
     dependencies:
@@ -5649,7 +5682,7 @@ packages:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
     dev: false
 
-  /monaco-dolphindb@0.0.3(dolphindb@2.0.978)(monaco-editor@0.40.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0):
+  /monaco-dolphindb@0.0.3(dolphindb@2.0.1001)(monaco-editor@0.40.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0):
     resolution: {integrity: sha512-7f3W5RdhidZMA4VlwDqzJ7QDRqhPQ3k+kbYbbgzQ0GG3qlPLAX1MRKwtHnQzWj/2VdF+/t9OFQGr/e+JnYgueg==}
     peerDependencies:
       dolphindb: ^2.0.974
@@ -5657,7 +5690,7 @@ packages:
       vscode-oniguruma: ^1.7.0
       vscode-textmate: ^9.0.0
     dependencies:
-      dolphindb: 2.0.978(react-dom@18.2.0)
+      dolphindb: 2.0.1001(react-dom@18.2.0)
       monaco-editor: 0.40.0
       vscode-oniguruma: 1.7.0
       vscode-textmate: 9.0.0
@@ -6705,6 +6738,26 @@ packages:
       '@babel/runtime': 7.22.6
       html-parse-stringify: 3.0.1
       i18next: 23.2.8
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /react-i18next@13.0.2(i18next@23.2.11)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-NEVxC32v0oR4egwYM0QM0WE93AiJG5r0NTXTL8mhQfAhsMfDS2fSO6jpluyfsfypP988KzUQrAXncspcJ7+GHA==}
+    peerDependencies:
+      i18next: '>= 23.2.3'
+      react: '>= 16.8.0'
+      react-dom: '*'
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.22.6
+      html-parse-stringify: 3.0.1
+      i18next: 23.2.11
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
@@ -8074,6 +8127,59 @@ packages:
       qs: 6.11.2
       react: 18.2.0
       react-i18next: 13.0.1(i18next@23.2.8)(react-dom@18.2.0)(react@18.2.0)
+      resolve-path: 1.4.0
+      strip-ansi: 7.1.0
+      through2: 4.0.2
+      tough-cookie: 4.1.3
+      tslib: 2.6.0
+      typescript: 5.1.6
+      undici: 5.22.1
+      upath: 2.0.1
+      vinyl: 3.0.0
+      vinyl-fs: 4.0.0
+      ws: 8.13.0
+    transitivePeerDependencies:
+      - bufferutil
+      - react-dom
+      - react-native
+      - supports-color
+      - utf-8-validate
+    dev: false
+
+  /xshell@1.0.38(react-dom@18.2.0):
+    resolution: {integrity: sha512-TU2mbT1nPZbrxooaDyjklRVKkloPlXaMf7IvR7ERj3gBGgKvWgt1Uk7U73B8t2rcud6+xjEmbDZ+IUcUznV0/A==}
+    engines: {node: '>=20.3.0', vscode: '>=1.79.0'}
+    hasBin: true
+    dependencies:
+      '@babel/core': 7.22.8
+      '@babel/parser': 7.22.7
+      '@babel/traverse': 7.22.8
+      '@koa/cors': 4.0.0
+      '@types/ws': 8.5.5
+      byte-size: 8.1.1
+      chalk: 5.3.0
+      chardet: 1.6.0
+      cli-table3: 0.6.3
+      cli-truncate: 3.1.0
+      colors: 1.4.0
+      commander: 11.0.0
+      emoji-regex: 10.2.1
+      fetch-cookie: 2.1.0
+      fs-extra: 11.1.1
+      gulp-sort: 2.0.0
+      hash-string: 1.0.0
+      i18next: 23.2.11
+      i18next-scanner: 4.3.0
+      js-cookie: 3.0.5
+      koa: 2.14.2
+      koa-compress: 5.1.1
+      koa-useragent: 4.1.0
+      lodash: 4.17.21
+      map-stream: 0.0.7
+      ora: 6.3.1
+      qs: 6.11.2
+      react: 18.2.0
+      react-i18next: 13.0.2(i18next@23.2.11)(react-dom@18.2.0)(react@18.2.0)
       resolve-path: 1.4.0
       strip-ansi: 7.1.0
       through2: 4.0.2
