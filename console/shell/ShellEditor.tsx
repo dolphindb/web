@@ -43,11 +43,24 @@ export function ShellEditor () {
     return <div className='shell-editor'>
         <div className='toolbar'>
             <div className='actions'>
-                
-                <span className='action execute' title={t('执行选中代码或全部代码')} onClick={() => { shell.executing ? shell.term.writeln(red(t('当前连接正在执行作业，请等待'))) : shell.execute('all') }} >
-                    {shell.executing ? <LoadingOutlined/> : <CaretRightOutlined />}
+                {shell.executing ?
+                <Popconfirm
+                    title={t('是否取消执行中的作业？')}
+                    okText={t('取消作业')}
+                    cancelText={t('不要取消')}
+                    onConfirm={async () => { await model.ddb.cancel() }}
+                >
+                    <span className='action execute'>
+                        <LoadingOutlined />
+                        <span className='text'>{t('执行中')}</span>
+                    </span>
+                </Popconfirm>
+                :
+                <span className='action execute' title={t('执行选中代码或全部代码')} onClick={() => { shell.execute('all') }} >
+                    <CaretRightOutlined />
                     <span className='text'>{t('执行')}</span>
                 </span> 
+                }
             </div>
             
             <div className='settings'>
@@ -76,19 +89,6 @@ export function ShellEditor () {
             
             <div className='padding' />
             
-            <div className='statuses'>{
-                executing ?
-                    <Popconfirm
-                        title={t('是否取消执行中的作业？')}
-                        okText={t('取消作业')}
-                        cancelText={t('不要取消')}
-                        onConfirm={async () => { await model.ddb.cancel() }}
-                    >
-                        <span className='status executing'>{t('执行中')}</span>
-                    </Popconfirm>
-                :
-                    <span className='status idle'>{t('空闲中')}</span>
-            }</div>
         </div>
         
         <Editor
