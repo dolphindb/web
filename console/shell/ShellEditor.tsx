@@ -1,6 +1,6 @@
 import { default as React, useEffect, useState } from 'react'
 
-import { Popconfirm, Switch } from 'antd'
+import { Popconfirm, Switch, message } from 'antd'
 
 import { CaretRightOutlined, LoadingOutlined } from '@ant-design/icons'
 
@@ -9,12 +9,10 @@ import { t } from '../../i18n/index.js'
 
 import { model, storage_keys } from '../model.js'
 import { shell } from './model.js'
-import { red } from 'xshell/chalk.browser.js'
 
 import { Editor, type monacoapi } from './Editor/index.js'
 
 export function ShellEditor () {
-    const { executing } = shell.use(['executing'])
     
     const [minimap, set_minimap] = useState(() => 
         localStorage.getItem(storage_keys.minimap) === '1'
@@ -109,6 +107,9 @@ export function ShellEditor () {
                     label: t('DolphinDB: 执行当前行代码'),
                     
                     run () {
+                        shell.executing ?
+                        message.warning(t('当前连接正在执行作业，请等待'))
+                        :
                         shell.execute('line')
                     }
                 })
@@ -123,6 +124,9 @@ export function ShellEditor () {
                     label: t('DolphinDB: 执行代码'),
                     
                     run () {
+                        shell.executing ?
+                        message.warning(t('当前连接正在执行作业，请等待'))
+                        :
                         shell.execute('all')
                     }
                 })
