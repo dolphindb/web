@@ -2,8 +2,8 @@ import { default as React, useEffect, useState } from 'react'
 
 import { Modal, Popconfirm, Select, Space, Switch } from 'antd'
 
-import { CaretRightOutlined } from '@ant-design/icons'
-
+import { default as _Icon, CaretRightOutlined } from '@ant-design/icons'
+const Icon: typeof _Icon.default = _Icon as any
 
 import { t } from '../../i18n/index.js'
 
@@ -11,6 +11,8 @@ import { model, storage_keys } from '../model.js'
 import { shell } from './model.js'
 
 import { Editor, type monacoapi } from './Editor/index.js'
+
+import SvgArrowDown from '../components/icons/arrow.down.icon.svg'
 
 export function ShellEditor () {
     const { executing } = shell.use(['executing'])
@@ -67,7 +69,7 @@ export function ShellEditor () {
             
             <div className='settings'>
                 <span className='setting' title={t('控制是否显示缩略图')}>
-                    <span className='text'>{t('代码地图')}</span>
+                    <span className='text'>{t('代码地图:')}</span>
                     <Switch
                         checked={minimap}
                         size='small'
@@ -78,7 +80,7 @@ export function ShellEditor () {
                 </span>
                 
                 <span className='setting' title={t('控制除了 Tab 键以外，Enter 键是否同样可以接受建议。这能减少“插入新行”和“接受建议”命令之间的歧义。')}>
-                    <span className='text'>{t('回车补全')}</span>
+                    <span className='text'>{t('回车补全:')}</span>
                     <Switch
                         checked={enter_completion}
                         size='small'
@@ -89,11 +91,12 @@ export function ShellEditor () {
                 </span>
                 
                 <span className='setting' title={t('设置当前代码执行的 SQL 标准。')}>
-                    <span className='text'>{t('SQL 标准')}</span>
+                    <span className='text'>{t('SQL 标准:')}</span>
                     <Select
                         value={ sql_standrd }
                         size='small'
-                        style={{ width: 110, height: 19 }}
+                        style={{ height: 19 }}
+                        suffixIcon={<Icon className='arrow-down' component={SvgArrowDown} />}
                         onSelect={ value => {
                             set_temp_data(value) 
                             set_is_modal_open(true)
