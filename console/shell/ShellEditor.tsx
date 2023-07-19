@@ -5,6 +5,7 @@ import { Popconfirm, Switch } from 'antd'
 import { CaretRightOutlined, LoadingOutlined } from '@ant-design/icons'
 
 import { delay } from 'xshell/utils.browser.js'
+
 import { t } from '../../i18n/index.js'
 
 import { model, storage_keys } from '../model.js'
@@ -38,47 +39,47 @@ export function ShellEditor () {
         }
     }, [ ])
     
-    const [showExecuting, setShowExecuting] = useState(false)
+    const [show_executing, set_show_executing] = useState(false)
     
-    // 延迟切换执行中状态
-    // useEffect(() => {
-    //     if (shell.executing) {
-    //         delay(500)
-    //         setShowExecuting(true)
-    //     }
-    //     else
-    //         setShowExecuting(false)
-    // }, [shell.executing])
-      
     return <div className='shell-editor'>
         <div className='toolbar'>
             <div className='actions'>
-                {shell.executing && showExecuting ? 
-                <Popconfirm
-                    title={t('是否取消执行中的作业？')}
-                    okText={t('取消作业')}
-                    cancelText={t('不要取消')}
-                    onConfirm={async () => { await model.ddb.cancel() }}
-                >
-                    <span className='action execute'>
-                        <LoadingOutlined />
-                        <span className='text'>{t('执行中')}</span>
-                    </span>
-                </Popconfirm>
+                {/* todo: 整合一下 */}
+                { executing ? 
+                    <Popconfirm
+                        title={t('是否取消执行中的作业？')}
+                        okText={t('取消作业')}
+                        cancelText={t('不要取消')}
+                        onConfirm={async () => { await model.ddb.cancel() }}
+                    >
+                        <span className='action execute'>
+                            <LoadingOutlined />
+                            <span className='text'>{show_executing ? t('执行中') : t('执行')}</span>
+                        </span>
+                    </Popconfirm>
                 :
-                <span className='action execute' title={t('执行选中代码或全部代码')} 
-                    onClick={async () => { 
-                        if (!shell.executing) {
-                            let executeFlag = false
-                            shell.execute('all').then(() => { setShowExecuting(false); executeFlag = true })
-                            await delay(500)
-                            if ( !executeFlag )
-                                setShowExecuting(true)
-                        } }} 
-                >
-                    <CaretRightOutlined />
-                    <span className='text'>{t('执行')}</span>
-                </span> 
+                    <span className='action execute' title={t('执行选中代码或全部代码')} 
+                        onClick={async () => { 
+                            if (!shell.executing) {
+                                let done = false
+                                
+                                const pdelay = delay(500)
+                                
+                                await shell.execute('all')
+                                
+                                done = true
+                                set_show_executing(false)
+                                
+                                ;(async () => {
+                                    await pdelay
+                                    if (!done)
+                                        set_show_executing(true)
+                                })()
+                            } }} 
+                    >
+                        <CaretRightOutlined />
+                        <span className='text'>{t('执行')}</span>
+                    </span>
                 }
             </div>
             
@@ -133,10 +134,10 @@ export function ShellEditor () {
                         :
                             (async () => { 
                                 let executeFlag = false
-                                shell.execute('line').then(() => { setShowExecuting(false); executeFlag = true })
+                                shell.execute('line').then(() => { set_show_executing(false); executeFlag = true })
                                 await delay(500)
                                 if ( !executeFlag )
-                                    setShowExecuting(true)
+                                    set_show_executing(true)
                             })()
                         
                     }
@@ -157,10 +158,10 @@ export function ShellEditor () {
                         :
                             (async () => { 
                                 let executeFlag = false
-                                shell.execute('line').then(() => { setShowExecuting(false); executeFlag = true })
+                                shell.execute('line').then(() => { set_show_executing(false); executeFlag = true })
                                 await delay(500)
                                 if ( !executeFlag )
-                                    setShowExecuting(true)
+                                    set_show_executing(true)
                             })()
                     }
                 })
