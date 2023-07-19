@@ -14,5 +14,6 @@
     },
     "gitlens.integrations.enabled": true,
     "gitlens.remotes": [{ "domain": "dolphindb.net", "type": "GitLab" }],
+    "git.pruneOnFetch": true,
     "git-graph.dialog.fetchRemote.prune": true
 }
