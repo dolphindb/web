@@ -446,8 +446,8 @@
     "左侧编辑器使用指南:\n": {
         "en": "Editor usage guide on the left\n"
     },
-    "按 Ctrl + E 执行选中代码或光标所在行代码\n": {
-        "en": "Press Ctrl + E to execute selected code or the line of code where the cursor is placed\n"
+    "按 Ctrl + E 执行选中代码或光标所在行代码，点击 执行中 可选择取消作业\n": {
+        "en": "Press Ctrl + E to execute selected code or the line of code where the cursor is placed. Click Executing to choose whether to cancel the job\n"
     },
     "按 Ctrl + Shift + E 执行选中代码或全部代码\n": {
         "en": "Press Ctrl + Shift + E to execute selected code or all code\n"

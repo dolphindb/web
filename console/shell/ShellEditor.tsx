@@ -41,46 +41,43 @@ export function ShellEditor () {
     
     const [show_executing, set_show_executing] = useState(false)
     
+    const execute = async  option => {
+        let done = false
+        const pdelay = delay(500)
+        ;(async () => {
+            await pdelay
+            if (!done)
+                set_show_executing(true)
+        })()
+        
+        try {
+            await shell.execute(option)
+            done = true
+            set_show_executing(false)
+        } catch (error) {
+            done = true
+            set_show_executing(false)
+            throw (error)
+        }
+        
+    }
+    
     return <div className='shell-editor'>
         <div className='toolbar'>
             <div className='actions'>
-                {/* todo: 整合一下 */}
-                { executing ? 
                     <Popconfirm
                         title={t('是否取消执行中的作业？')}
                         okText={t('取消作业')}
                         cancelText={t('不要取消')}
                         onConfirm={async () => { await model.ddb.cancel() }}
+                        disabled={executing ? false : true }
                     >
-                        <span className='action execute'>
-                            <LoadingOutlined />
-                            <span className='text'>{show_executing ? t('执行中') : t('执行')}</span>
+                        <span className='action execute' title={executing ? null : t('执行选中代码或全部代码')} onClick={async () => execute('all')}>
+                            {executing && show_executing ? <LoadingOutlined /> : <CaretRightOutlined />}
+                            <span className='text'>{executing && show_executing ? t('执行中') : t('执行')}</span>
                         </span>
                     </Popconfirm>
-                :
-                    <span className='action execute' title={t('执行选中代码或全部代码')} 
-                        onClick={async () => { 
-                            if (!shell.executing) {
-                                let done = false
-                                
-                                const pdelay = delay(500)
-                                
-                                await shell.execute('all')
-                                
-                                done = true
-                                set_show_executing(false)
-                                
-                                ;(async () => {
-                                    await pdelay
-                                    if (!done)
-                                        set_show_executing(true)
-                                })()
-                            } }} 
-                    >
-                        <CaretRightOutlined />
-                        <span className='text'>{t('执行')}</span>
-                    </span>
-                }
+                    
             </div>
             
             <div className='settings'>
@@ -132,14 +129,7 @@ export function ShellEditor () {
                         shell.executing ?
                             model.message.warning(t('当前连接正在执行作业，请等待'))
                         :
-                            (async () => { 
-                                let executeFlag = false
-                                shell.execute('line').then(() => { set_show_executing(false); executeFlag = true })
-                                await delay(500)
-                                if ( !executeFlag )
-                                    set_show_executing(true)
-                            })()
-                        
+                            execute('line')
                     }
                 })
                 
@@ -156,13 +146,7 @@ export function ShellEditor () {
                         shell.executing ?
                             model.message.warning(t('当前连接正在执行作业，请等待'))
                         :
-                            (async () => { 
-                                let executeFlag = false
-                                shell.execute('line').then(() => { set_show_executing(false); executeFlag = true })
-                                await delay(500)
-                                if ( !executeFlag )
-                                    set_show_executing(true)
-                            })()
+                            execute('all')
                     }
                 })
                 
