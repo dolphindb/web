@@ -5,7 +5,7 @@ import NiceModal from '@ebay/nice-modal-react'
 import { Resizable } from 're-resizable'
 import cn from 'classnames'
 
-import { message, Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber } from 'antd'
+import { Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber } from 'antd'
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 

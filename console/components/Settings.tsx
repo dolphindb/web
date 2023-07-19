@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Popover, Card, Tooltip, Button, InputNumber, message } from 'antd'
+import { Popover, Card, Tooltip, Button, InputNumber } from 'antd'
 
 import { SettingFilled, CaretUpOutlined, CaretDownOutlined } from '@ant-design/icons'
 

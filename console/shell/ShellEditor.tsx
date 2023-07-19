@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Popconfirm, Switch, message } from 'antd'
+import { Popconfirm, Switch } from 'antd'
 
 import { CaretRightOutlined, LoadingOutlined } from '@ant-design/icons'
 
@@ -41,16 +41,14 @@ export function ShellEditor () {
     const [showExecuting, setShowExecuting] = useState(false)
     
     // 延迟切换执行中状态
-    useEffect(() => {
-        let timer
-        if (shell.executing)
-            timer = setTimeout(() => {
-            setShowExecuting(true)
-          }, 500)
-        else
-            setShowExecuting(false)
-        return () => clearTimeout(timer)
-    }, [shell.executing])
+    // useEffect(() => {
+    //     if (shell.executing) {
+    //         delay(500)
+    //         setShowExecuting(true)
+    //     }
+    //     else
+    //         setShowExecuting(false)
+    // }, [shell.executing])
       
     return <div className='shell-editor'>
         <div className='toolbar'>
@@ -68,7 +66,15 @@ export function ShellEditor () {
                     </span>
                 </Popconfirm>
                 :
-                <span className='action execute' title={t('执行选中代码或全部代码')} onClick={() => { !shell.executing && shell.execute('all') }} >
+                <span className='action execute' title={t('执行选中代码或全部代码')} 
+                    onClick={async () => { 
+                        if (!shell.executing) {
+                            let executeFlag = false
+                            shell.execute('all').then(() => { setShowExecuting(false); executeFlag = true })
+                            await delay(500)
+                            setShowExecuting(true)
+                        } }} 
+                >
                     <CaretRightOutlined />
                     <span className='text'>{t('执行')}</span>
                 </span> 
@@ -122,9 +128,16 @@ export function ShellEditor () {
                     
                     run () {
                         shell.executing ?
-                        model.message.warning(t('当前连接正在执行作业，请等待'))
+                            model.message.warning(t('当前连接正在执行作业，请等待'))
                         :
-                        shell.execute('line')
+                            (async () => { 
+                                let executeFlag = false
+                                shell.execute('line').then(() => { setShowExecuting(false); executeFlag = true })
+                                await delay(500)
+                                if ( !executeFlag )
+                                    setShowExecuting(true)
+                            })()
+                        
                     }
                 })
                 
@@ -139,9 +152,15 @@ export function ShellEditor () {
                     
                     run () {
                         shell.executing ?
-                        model.message.warning(t('当前连接正在执行作业，请等待'))
+                            model.message.warning(t('当前连接正在执行作业，请等待'))
                         :
-                        shell.execute('all')
+                            (async () => { 
+                                let executeFlag = false
+                                shell.execute('line').then(() => { setShowExecuting(false); executeFlag = true })
+                                await delay(500)
+                                if ( !executeFlag )
+                                    setShowExecuting(true)
+                            })()
                     }
                 })
                 

@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { Button, Modal, message } from 'antd'
+import { Button, Modal } from 'antd'
 
 import { createForm } from '@formily/core'
 import { Form, FormButtonGroup, Submit } from '@formily/antd-v5'
