@@ -72,7 +72,8 @@ export function ShellEditor () {
                             let executeFlag = false
                             shell.execute('all').then(() => { setShowExecuting(false); executeFlag = true })
                             await delay(500)
-                            setShowExecuting(true)
+                            if ( !executeFlag )
+                                setShowExecuting(true)
                         } }} 
                 >
                     <CaretRightOutlined />
