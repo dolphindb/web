@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { default as React, useEffect } from 'react'
+import { useEffect } from 'react'
 
 import { Resizable } from 're-resizable'
 

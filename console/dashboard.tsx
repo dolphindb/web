@@ -1,6 +1,6 @@
 import './dashboard.sass'
 
-import { default as React, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 
 import * as echarts from 'echarts'
 

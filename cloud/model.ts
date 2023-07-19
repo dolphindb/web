@@ -1,8 +1,9 @@
 import { Modal } from 'antd'
-import {
-    default as dayjs,
-    type Dayjs,
-} from 'dayjs'
+import type { MessageInstance } from 'antd/es/message/interface.js'
+import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
+import type { NotificationInstance } from 'antd/es/notification/interface.js'
+
+import { default as dayjs, type Dayjs } from 'dayjs'
 
 import { Model } from 'react-object-model'
 
@@ -82,6 +83,14 @@ export class CloudModel extends Model <CloudModel> {
     collapsed = localStorage.getItem('ddb-cloud.collapsed') === 'true'
     
     license_server_address: string
+    
+    
+    message: MessageInstance
+    
+    modal: Omit<ModalStaticFunctions, 'warn'>
+    
+    notification: NotificationInstance
+    
     
     async init () {
         if (this.authed !== 'yes')

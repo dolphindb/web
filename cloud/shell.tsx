@@ -3,7 +3,7 @@ import 'xterm/css/xterm.css'
 import './shell.sass'
 
 
-import { default as React, useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState } from 'react'
 
 import { Typography } from 'antd'
 const { Title } = Typography

@@ -1,6 +1,6 @@
 import './index.sass'
 
-import {  default as React, ReactNode, useState, useEffect } from 'react'
+import { ReactNode, useState, useEffect, type JSX } from 'react'
 
 import { Layout, Button, Modal, Tooltip, Progress, Tag, Checkbox, Popconfirm } from 'antd'
 const { Header } = Layout
@@ -572,7 +572,7 @@ function InfoItem ({
 }: {
     title: string
     children: ReactNode
-    Progress?: React.JSX.Element
+    Progress?: JSX.Element
 }) {
     return <div className='item-content'>
         <div className={language === 'zh' ? 'item-title' : 'item-title-en'}>{title}</div>

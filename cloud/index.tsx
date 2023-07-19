@@ -2,25 +2,16 @@ import 'xshell/scroll-bar.sass'
 
 import './index.sass'
 
-import { default as React, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { createRoot as create_root } from 'react-dom/client'
 
-import {
-    Button,
-    ConfigProvider,
-    Form,
-    Input,
-    Layout,
-    Menu,
-    Modal,
-    Typography,
-    Avatar,
-    Dropdown,
-    
-    // @ts-ignore 使用了 antd-with-locales 之后 window.antd 变量中有 locales 属性
-    locales
-} from 'antd'
+import { Button, ConfigProvider, Form, Input, Layout, Menu, Modal, Typography, Avatar, Dropdown, App } from 'antd'
+import zh from 'antd/es/locale/zh_CN.js'
+import en from 'antd/locale/en_US.js'
+import ja from 'antd/locale/ja_JP.js'
+import ko from 'antd/locale/ko_KR.js'
+
 
 import {
     default as _Icon,
@@ -46,12 +37,7 @@ import SvgCluster from './cluster.icon.svg'
 import SvgLog from './log.icon.svg'
 
 
-const locale_names = {
-    zh: 'zh_CN',
-    en: 'en_US',
-    ja: 'ja_JP',
-    ko: 'ko_KR'
-} as const
+const locales = { zh, en, ja, ko }
 
 
 const svgs: { [key in PageViews]: any } = {
@@ -59,8 +45,25 @@ const svgs: { [key in PageViews]: any } = {
     log: SvgLog,
 } as const
 
+
+create_root(
+    document.querySelector('.root')
+).render(<Root />)
+
+
+function Root () {
+    return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false} theme={{ hashed: false }}>
+        <App className='app'>
+            <DolphinDB />
+        </App>
+    </ConfigProvider>
+}
+
+
 function DolphinDB () {
     const { authed, inited, is_shell, username } = model.use(['authed', 'inited', 'is_shell', 'username'])
+    
+    Object.assign(model, App.useApp())
     
     const [form] = Form.useForm()
     
@@ -91,159 +94,156 @@ function DolphinDB () {
     if (authed === 'pending')
         return null
     
-    return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false} theme={{ hashed: false }}>
-        {authed === 'no' ? // 未登录直接返回登录框 Modal
+    return authed === 'no' ? // 未登录直接返回登录框 Modal
+        <Modal
+            className='db-shell-modal'
+            width='380px'
+            open
+            closable={false}
+        >
+            {/* 这个图片实际上在 ../console/ddb.svg。因打包需要，使用 ./ddb.svg，并在 build.ts 和 dev.ts 中特殊处理。 */}
+            <img className='logo' src='./ddb.svg' />
+            
+            <Form
+                name='login-form'
+                onFinish={async ({ username, password }: { username: string, password: string }) => {
+                    try {
+                        await model.auth(username, password)
+                    } catch (error) {
+                        Modal.error({
+                            title: t('登录失败'),
+                            content: error.message,
+                        })
+                        
+                        throw error
+                    }
+                    
+                    form.resetFields(['password'])
+                }}
+                className='db-modal-form'
+                form={form}
+            >
+                <Form.Item name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
+                    <Input prefix={<UserOutlined />} placeholder={t('请输入用户名')} />
+                </Form.Item>
+                
+                <Form.Item name='password' rules={[{ required: true, message: t('请输入密码') }]}>
+                    <Input.Password prefix={<LockOutlined />} placeholder={t('请输入密码')} />
+                </Form.Item>
+                
+                <Form.Item className='db-modal-content-button-group'>
+                    <Button type='primary' htmlType='submit'>
+                        {t('登录')}
+                    </Button>
+                </Form.Item>
+            </Form>
+        </Modal>
+    :  // 已登录则根据是否完成初始化来决定要不要渲染主界面
+        inited && <Layout className='root-layout'>
+            <Layout.Header className='ddb-header'>
+                <DdbHeader />
+                <div className='user'>
+                    <Dropdown
+                        className='dbd-user-popover'
+                        menu={{
+                            items: [
+                                {
+                                    key: 'reset',        
+                                    icon: <EditOutlined />,
+                                    label: <a className='reset' onClick={() => { setIsModalOpen(true) }}>{t('修改密码')}</a>
+                                },
+                                {
+                                    key: 'login',
+                                    icon: <LoginOutlined />,
+                                    label: <a className='login' onClick={() => { 
+                                            Cookies.remove('jwt', { path: '/v1/' })
+                                            model.set({ authed: 'no' })
+                                        }}
+                                        >{t('登出')}</a>,
+                                }
+                            ]
+                        }}
+                    >
+                        <a className='username'>
+                            <Avatar className='avatar' icon={<UserOutlined /> } size='small' />{username} <DownOutlined />
+                        </a>
+                    </Dropdown>
+                </div>
+            </Layout.Header>
+            {is_shell ?
+                <div className='view shell' >
+                    <Shell />
+                </div>
+            :
+                <Layout className='body' hasSider>
+                    <DdbSider />
+                    <Layout.Content className='view'>
+                        <DdbContent />
+                    </Layout.Content>
+                </Layout>
+            }
             <Modal
                 className='db-shell-modal'
                 width='380px'
-                open
+                open={isModalOpen}
                 closable={false}
+                afterClose={() => form.resetFields()}
             >
-                {/* 这个图片实际上在 ../console/ddb.svg。因打包需要，使用 ./ddb.svg，并在 build.ts 和 dev.ts 中特殊处理。 */}
-                <img className='logo' src='./ddb.svg' />
-                
+            {/* 这个图片实际上在 ../console/ddb.svg。因打包需要，使用 ./ddb.svg，并在 build.ts 和 dev.ts 中特殊处理。 */}
+            <img className='logo' src='./ddb.svg' />
                 <Form
-                    name='login-form'
-                    onFinish={async ({ username, password }: { username: string, password: string }) => {
+                    name='reset-form'
+                 
+                    onFinish={async ({ new_password, repeat_password }: { new_password: string, repeat_password: string }) => {
                         try {
-                            await model.auth(username, password)
+                            if (new_password === repeat_password) {
+                                setIsModalOpen(false)
+                                try {
+                                    await model.change_password(username, new_password)
+                                } catch (error) {      
+                                    model.show_json_error(error)
+                                    throw error
+                                }
+                                model.set({ authed: 'no' })
+                                Cookies.remove('jwt', { path: '/v1/' })
+                                form.resetFields(['new_password', 'repeat_password'])
+                            }
                         } catch (error) {
                             Modal.error({
-                                title: t('登录失败'),
+                                title: t('修改失败'),
                                 content: error.message,
                             })
-                            
                             throw error
                         }
-                        
-                        form.resetFields(['password'])
                     }}
                     className='db-modal-form'
                     form={form}
                 >
-                    <Form.Item name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
-                        <Input prefix={<UserOutlined />} placeholder={t('请输入用户名')} />
+                    <Form.Item name='new_password' rules={[{ required: true, message: t('请输入新密码') }]}>
+                        <Input.Password autoComplete='false' prefix={<LockOutlined />} placeholder={t('请输入新密码')} />
                     </Form.Item>
                     
-                    <Form.Item name='password' rules={[{ required: true, message: t('请输入密码') }]}>
-                        <Input.Password prefix={<LockOutlined />} placeholder={t('请输入密码')} />
+                    <Form.Item name='repeat_password' dependencies={['new_password']} rules={[{ required: true, message: t('请重新输入新密码') }, ({ getFieldValue }) => ({ async validator ( rule, value ) {
+                                if (!value || getFieldValue('new_password') === value) 
+                                    return
+                                else
+                                    throw new Error('两次密码输入不一致')
+                            }
+                        })]}>
+                        <Input.Password autoComplete='false' prefix={<LockOutlined />} placeholder={t('请重新输入新密码')} />
                     </Form.Item>
                     
                     <Form.Item className='db-modal-content-button-group'>
-                        <Button type='primary' htmlType='submit'>
-                            {t('登录')}
+                        <Button type='primary' htmlType='submit' >
+                            {t('确认')}
+                        </Button>
+                        <Button type='primary' onClick={() => { setIsModalOpen(false) }}>
+                            {t('取消')}
                         </Button>
                     </Form.Item>
                 </Form>
             </Modal>
-        : // 已登录则根据是否完成初始化来决定要不要渲染主界面
-            inited && <Layout className='root-layout'>
-                <Layout.Header className='ddb-header'>
-                    <DdbHeader />
-                    <div className='user'>
-                        <Dropdown
-                            className='dbd-user-popover'
-                            menu={{
-                                items: [
-                                    {
-                                        key: 'reset',        
-                                        icon: <EditOutlined />,
-                                        label: <a className='reset' onClick={() => { setIsModalOpen(true) }}>{t('修改密码')}</a>
-                                    },
-                                    {
-                                        key: 'login',
-                                        icon: <LoginOutlined />,
-                                        label: <a className='login' onClick={() => { 
-                                                Cookies.remove('jwt', { path: '/v1/' })
-                                                model.set({ authed: 'no' })
-                                            }}
-                                            >{t('登出')}</a>,
-                                    }
-                                ]
-                            }}
-                        >
-                            <a className='username'>
-                                <Avatar className='avatar' icon={<UserOutlined /> } size='small' />{username} <DownOutlined />
-                            </a>
-                        </Dropdown>
-                    </div>
-                </Layout.Header>
-                {is_shell ?
-                    <div className='view shell' >
-                        <Shell />
-                    </div>
-                :
-                    <Layout className='body' hasSider>
-                        <DdbSider />
-                        <Layout.Content className='view'>
-                            <DdbContent />
-                        </Layout.Content>
-                    </Layout>
-                }
-                <Modal
-                    className='db-shell-modal'
-                    width='380px'
-                    open={isModalOpen}
-                    closable={false}
-                    afterClose={() => form.resetFields()}
-                >
-                {/* 这个图片实际上在 ../console/ddb.svg。因打包需要，使用 ./ddb.svg，并在 build.ts 和 dev.ts 中特殊处理。 */}
-                <img className='logo' src='./ddb.svg' />
-                    <Form
-                        name='reset-form'
-                     
-                        onFinish={async ({ new_password, repeat_password }: { new_password: string, repeat_password: string }) => {
-                            try {
-                                if (new_password === repeat_password) {
-                                    setIsModalOpen(false)
-                                    try {
-                                        await model.change_password(username, new_password)
-                                    } catch (error) {      
-                                        model.show_json_error(error)
-                                        throw error
-                                    }
-                                    model.set({ authed: 'no' })
-                                    Cookies.remove('jwt', { path: '/v1/' })
-                                    form.resetFields(['new_password', 'repeat_password'])
-                                }
-                            } catch (error) {
-                                Modal.error({
-                                    title: t('修改失败'),
-                                    content: error.message,
-                                })
-                                throw error
-                            }
-                        }}
-                        className='db-modal-form'
-                        form={form}
-                    >
-                        <Form.Item name='new_password' rules={[{ required: true, message: t('请输入新密码') }]}>
-                            <Input.Password autoComplete='false' prefix={<LockOutlined />} placeholder={t('请输入新密码')} />
-                        </Form.Item>
-                        
-                        <Form.Item name='repeat_password' dependencies={['new_password']} rules={[{ required: true, message: t('请重新输入新密码') }, ({ getFieldValue }) => ({ async validator ( rule, value ) {
-                                    if (!value || getFieldValue('new_password') === value) 
-                                        return
-                                    else
-                                        throw new Error('两次密码输入不一致')
-                                }
-                            })]}>
-                            <Input.Password autoComplete='false' prefix={<LockOutlined />} placeholder={t('请重新输入新密码')} />
-                        </Form.Item>
-                        
-                        <Form.Item className='db-modal-content-button-group'>
-                            <Button type='primary' htmlType='submit' >
-                                {t('确认')}
-                            </Button>
-                            <Button type='primary' onClick={() => { setIsModalOpen(false) }}>
-                                {t('取消')}
-                            </Button>
-                        </Form.Item>
-                    </Form>
-                </Modal>
-            </Layout>
-        }
-    </ConfigProvider>
+        </Layout>
 }
 
 
@@ -331,7 +331,3 @@ function DdbSider () {
         />
     </Layout.Sider>
 }
-
-create_root(
-    document.querySelector('.root')
-).render(<DolphinDB />)

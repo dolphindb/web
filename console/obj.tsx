@@ -1,6 +1,6 @@
 import './obj.sass'
 
-import { default as React, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type default as React, type FC } from 'react'
 
 import {
     Pagination,
@@ -68,7 +68,7 @@ const views = {
     [DdbForm.dict]: Dict,
 }
 
-const UpSelect: React.FC<SelectProps> & { Option: typeof Select.Option } = Object.assign(
+const UpSelect: FC<SelectProps> & { Option: typeof Select.Option } = Object.assign(
     props => <Select {...props} size='small' placement='topLeft' listHeight={128} />,
     { Option: Select.Option }
 )
