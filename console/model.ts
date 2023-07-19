@@ -4,6 +4,9 @@ import { Model } from 'react-object-model'
 
 import { Modal } from 'antd'
 import type { BaseType } from 'antd/es/typography/Base/index.js'
+import type { MessageInstance } from 'antd/es/message/interface.js'
+import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
+import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
 import { strcmp } from 'xshell/utils.browser.js'
 
@@ -96,6 +99,14 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 是否在代码为空时设置代码模板 */
     code_template: boolean
+    
+    
+    message: MessageInstance
+    
+    modal: Omit<ModalStaticFunctions, 'warn'>
+    
+    notification: NotificationInstance
+    
     
     
     constructor () {

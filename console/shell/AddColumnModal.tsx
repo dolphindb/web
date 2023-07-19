@@ -1,4 +1,4 @@
-import { default as React, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { Button, Modal, message } from 'antd'
 

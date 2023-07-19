@@ -1,6 +1,4 @@
-import { default as React } from 'react'
-
-import { Layout, Menu, Typography, message } from 'antd'
+import { Layout, Menu, Typography } from 'antd'
 
 import { default as _Icon, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
@@ -62,7 +60,7 @@ export function DdbSider () {
             selectedKeys={[view]}
             onSelect={({ key }) => {
                 if (login_required && !logined) {
-                    message.error(t('请登录'))
+                    model.message.error(t('请登录'))
                     return
                 }
                 model.set({ view: key as DdbModel['view'] })
