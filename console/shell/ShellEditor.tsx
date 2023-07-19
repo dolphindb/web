@@ -13,6 +13,7 @@ import { shell } from './model.js'
 import { Editor, type monacoapi } from './Editor/index.js'
 
 export function ShellEditor () {
+    const { executing } = shell.use(['executing'])
     
     const [minimap, set_minimap] = useState(() => 
         localStorage.getItem(storage_keys.minimap) === '1'
