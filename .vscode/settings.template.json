@@ -13,5 +13,6 @@
         "editor.defaultFormatter": "vscode.typescript-language-features"
     },
     "gitlens.integrations.enabled": true,
-    "gitlens.remotes": [{ "domain": "dolphindb.net", "type": "GitLab" }]
+    "gitlens.remotes": [{ "domain": "dolphindb.net", "type": "GitLab" }],
+    "git-graph.dialog.fetchRemote.prune": true
 }
