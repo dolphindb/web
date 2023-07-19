@@ -52,14 +52,12 @@ export function ShellEditor () {
         
         try {
             await shell.execute(option)
-            done = true
-            set_show_executing(false)
         } catch (error) {
+            throw (error)
+        } finally {
             done = true
             set_show_executing(false)
-            throw (error)
         }
-        
     }
     
     return <div className='shell-editor'>
