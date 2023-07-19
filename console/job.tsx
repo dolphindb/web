@@ -324,7 +324,7 @@ function append_action_col (
                     onConfirm={async () => {
                         try {
                             await action(job)
-                            message.success(
+                            model.message.success(
                                 type === 'stop' ? t('停止作业指令发送成功') : t('删除作业成功')
                             )
                         } catch (error) {

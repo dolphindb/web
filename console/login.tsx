@@ -27,13 +27,13 @@ export function Login () {
                         await model.login_by_password(values.username, values.password)
                     } catch (error) {
                         if (error.message.endsWith('The user name or password is incorrect.'))
-                            message.error(t('用户名或密码错误'))
+                            model.message.error(t('用户名或密码错误'))
                         else
                             model.show_error({ error })
                         throw error
                     }
                     
-                    message.success(t('登录成功'))
+                    model.message.success(t('登录成功'))
                     model.goto_redirection()
                 }}
             >

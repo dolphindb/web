@@ -122,7 +122,7 @@ export function ShellEditor () {
                     
                     run () {
                         shell.executing ?
-                        message.warning(t('当前连接正在执行作业，请等待'))
+                        model.message.warning(t('当前连接正在执行作业，请等待'))
                         :
                         shell.execute('line')
                     }
@@ -139,7 +139,7 @@ export function ShellEditor () {
                     
                     run () {
                         shell.executing ?
-                        message.warning(t('当前连接正在执行作业，请等待'))
+                        model.message.warning(t('当前连接正在执行作业，请等待'))
                         :
                         shell.execute('all')
                     }

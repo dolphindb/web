@@ -44,7 +44,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
                 formValues.column,
                 generateDDBDataTypeLiteral(formValues)
             ])
-            message.success(t('添加成功'))
+            model.message.success(t('添加成功'))
             node.children = null
             table.schema = null
             await node.load_children()

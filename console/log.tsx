@@ -68,7 +68,7 @@ export function Log () {
                         icon={<ReloadOutlined/>}
                         onClick={async () => {
                             await init()
-                            message.success(t('日志刷新成功'))
+                            model.message.success(t('日志刷新成功'))
                     }}>{t('刷新')}</Button>
                 </div>
             )}
