@@ -1,4 +1,4 @@
-import { default as React, useState } from 'react'
+import { useState } from 'react'
 
 import { Popover, Card, Tooltip, Button, InputNumber, message } from 'antd'
 
