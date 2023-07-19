@@ -10,7 +10,10 @@ import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
 import { strcmp } from 'xshell/utils.browser.js'
 
-import { DDB, SqlStandard, DdbFunctionType, DdbVectorString, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError, DdbStringObj, type DdbDictObj, type DdbVectorStringObj } from 'dolphindb/browser.js'
+import {
+    DDB, SqlStandard, DdbFunctionType, DdbVectorString, DdbObj, DdbInt, DdbLong, type InspectOptions,
+    DdbDatabaseError, DdbStringObj, type DdbDictObj, type DdbVectorStringObj
+} from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
 
@@ -50,7 +53,7 @@ export class DdbModel extends Model<DdbModel> {
     
     collapsed = localStorage.getItem(storage_keys.collapsed) === 'true'
     
-    sql = SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
+    sql: SqlStandard = SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
     
     view = '' as PageViews
     

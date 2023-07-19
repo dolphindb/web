@@ -265,7 +265,7 @@
                         background-color: #f0f0f0
                         box-shadow: inset -1px -2px 0 #e5e5e5
                         
-                        padding: 3px 10px
+                        padding: 4px 10px
                         
                         color: #444444
                         
@@ -283,13 +283,15 @@
                                     margin-left: 2px
                         
                         .settings
+                            gap: 24px
+                            
+                            display: flex
+                            
                             margin-left: 24px
                             
                             .setting
-                                margin-right: 16px
-                                
                                 .text
-                                    margin-right: 6px
+                                    margin-right: 10px
                                 
                                 .select-sql
                                     height: 19px
@@ -298,10 +300,12 @@
                                     background-color: #f0f0f0
                                     border: 0
                                     padding-right: 5px
+                                    padding-left: 0px
                                     height: 100%
                                 
                                 .arrow-down
                                     color: #444444
+                                    margin-top: 3px
                         
                         .padding
                             flex: 1
@@ -376,6 +380,12 @@
 .db-context-menu
     background-color: #FFFFFF
 
-.modal-warning-icon
-    color: rgb(243,173,43)
-    font-size: large 
+.select-sql-modal
+    .title
+        display: flex
+        align-items: center
+    
+        .modal-warning-icon
+            color: rgb(243,173,43)
+            font-size: large
+            margin-right: 8px

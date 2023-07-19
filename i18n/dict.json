@@ -1166,10 +1166,10 @@
     "没有 mandate_code 参数，将会跳转到登录页": {
         "en": "Without the mandatory_code parameter, it will jump to the login page"
     },
-    "代码地图": {
+    "代码地图:": {
         "en": "Code Map"
     },
-    "回车补全": {
+    "回车补全:": {
         "en": "Enter Completion"
     },
     "是否取消执行中的作业？": {
@@ -1887,18 +1887,21 @@
         "en": "Please log in before this operation."
     },
     "CDN 部署时无法使用配置管理": {
-        "en": "Configuration management cannot be used during CDN deployment"
+        "en": "Configuration management is not available for CDN deployments"
     },
-    "代码地图:": {
-        "en": "Code map:"
-    },
-    "回车补全:": {
-        "en": "Enter the replacement"
-    },
-    "设置当前代码执行的 SQL 标准。": {
-        "en": "Set the SQL standard performed by the current code."
+    "设置当前代码执行的 SQL 标准": {
+        "en": "Sets the SQL standard for the current code execution"
     },
     "SQL 标准:": {
-        "en": "SQL standard"
+        "en": "SQL Standard:"
+    },
+    "确认切换 SQL 标准？": {
+        "en": "Confirm to switch SQL standard?"
+    },
+    "切换 SQL Standard 后，当前页面将会刷新，且内存变量会清空": {
+        "en": "After switching to SQL Standard, the current page will be refreshed and the memory variables will be cleared"
+    },
+    "SQL 标准": {
+        "en": "SQL Standard"
     }
 }

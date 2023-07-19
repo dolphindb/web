@@ -1,20 +1,18 @@
 import { useEffect, useState } from 'react'
 
-import { Modal, Popconfirm, Select, Space, Switch } from 'antd'
+import { Popconfirm, Switch } from 'antd'
 
-import { default as _Icon, CaretRightOutlined, WarningFilled  } from '@ant-design/icons'
-const Icon: typeof _Icon.default = _Icon as any
+import { CaretRightOutlined } from '@ant-design/icons'
+
 
 import { t } from '../../i18n/index.js'
-
-import { use_modal } from 'react-object-model/modal.js'
 
 import { model, storage_keys } from '../model.js'
 import { shell } from './model.js'
 
 import { Editor, type monacoapi } from './Editor/index.js'
+import { SelectSqlModal } from './SelectSqlModal.js'
 
-import SvgArrowDown from '../components/icons/arrow.down.icon.svg'
 
 export function ShellEditor () {
     const { executing } = shell.use(['executing'])
@@ -26,6 +24,7 @@ export function ShellEditor () {
     const [enter_completion, set_enter_completion] = useState(() => 
         localStorage.getItem(storage_keys.enter_completion) === '1'
     )
+    
     
     // 标签页关闭前自动保存代码
     useEffect(() => {
@@ -74,7 +73,7 @@ export function ShellEditor () {
                         }} />
                 </span>
                 
-                <SelectSqlStandardModal/>
+                <SelectSqlModal/>
             </div>
             
             <div className='padding' />
@@ -181,43 +180,4 @@ export function ShellEditor () {
             }}
         />
     </div>
-}
-
-
-function SelectSqlStandardModal () {
-    const [selected_sql, set_selected_sql] = useState('')
-    const { visible, open, close } = use_modal()
-    
-    return <>
-        <Modal 
-            title={[<div><WarningFilled className='modal-warning-icon'/><span> 确认切换 SQL 标准</span></div>]}
-            open={visible} 
-            onOk={() => {
-                localStorage.setItem(storage_keys.sql, selected_sql)
-                close()
-                location.reload()
-            }} 
-            onCancel={ close }>
-                
-            <p>切换 SQL Standard 后，当前页面将会刷新，且内存变量会清空</p>
-        </Modal>
-        <span className='setting' title={t('设置当前代码执行的 SQL 标准。')}>
-            <span className='text'>{t('SQL 标准:')}</span>
-            <Select
-                value={ localStorage.getItem(storage_keys.sql) || 'DolphinDB' }
-                size='small'
-                className='select-sql'
-                suffixIcon={<Icon className='arrow-down' component={SvgArrowDown} />}
-                onSelect={ value => {
-                    set_selected_sql(value) 
-                    open()
-                }}
-                options={[
-                    { value: 'DolphinDB' },
-                    { value: 'Oracle' },
-                    { value: 'MySQL' },
-                ]}
-            />
-        </span>
-    </>
 }
