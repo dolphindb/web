@@ -47,6 +47,8 @@ export class DdbModel extends Model<DdbModel> {
     
     collapsed = localStorage.getItem(storage_keys.collapsed) === 'true'
     
+    sql = SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
+    
     view = '' as PageViews
     
     /** 重定向 view */
@@ -124,7 +126,7 @@ export class DdbModel extends Model<DdbModel> {
             {
                 autologin: false,
                 verbose: this.verbose,
-                sql: SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
+                sql: this.sql
             }
         )
         

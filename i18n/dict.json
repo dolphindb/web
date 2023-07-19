@@ -1885,5 +1885,20 @@
     },
     "当前用户未登录，请登陆后再进行启停操作。": {
         "en": "Please log in before this operation."
+    },
+    "CDN 部署时无法使用配置管理": {
+        "en": "Configuration management cannot be used during CDN deployment"
+    },
+    "代码地图:": {
+        "en": "Code map:"
+    },
+    "回车补全:": {
+        "en": "Enter the replacement"
+    },
+    "设置当前代码执行的 SQL 标准。": {
+        "en": "Set the SQL standard performed by the current code."
+    },
+    "SQL 标准:": {
+        "en": "SQL standard"
     }
 }
