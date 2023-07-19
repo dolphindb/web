@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 
 import { Modal, Popconfirm, Select, Space, Switch } from 'antd'
 
-import { default as _Icon, CaretRightOutlined } from '@ant-design/icons'
+import { default as _Icon, CaretRightOutlined, WarningFilled  } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
 import { t } from '../../i18n/index.js'
+
+import { use_modal } from 'react-object-model/modal.js'
 
 import { model, storage_keys } from '../model.js'
 import { shell } from './model.js'
@@ -25,11 +27,6 @@ export function ShellEditor () {
         localStorage.getItem(storage_keys.enter_completion) === '1'
     )
     
-    const [sql_standrd, set_sql_standrd] = useState(() => localStorage.getItem(storage_keys.sql) || 'DolphinDB')
-    
-    const [is_modal_open, set_is_modal_open] = useState(false)
-    const [temp_data, set_temp_data] = useState('') 
-    
     // 标签页关闭前自动保存代码
     useEffect(() => {
         function beforeunload (event: BeforeUnloadEvent) {
@@ -46,19 +43,6 @@ export function ShellEditor () {
     
     
     return <div className='shell-editor'>
-        <Modal 
-            title='提示' 
-            open={is_modal_open} 
-            onOk={() => {
-                set_sql_standrd(temp_data)
-                localStorage.setItem(storage_keys.sql, temp_data)
-                set_is_modal_open(false)
-                location.reload()
-            }} 
-            onCancel={() => { set_is_modal_open(false) }}>
-                
-            <p>切换 SQL Standard 后，当前页面将会刷新，且内存变量会清空</p>
-        </Modal>
         <div className='toolbar'>
             <div className='actions'>
                 <span className='action execute' title={t('执行选中代码或全部代码')} onClick={() => { shell.execute('all') }}>
@@ -90,24 +74,7 @@ export function ShellEditor () {
                         }} />
                 </span>
                 
-                <span className='setting' title={t('设置当前代码执行的 SQL 标准。')}>
-                    <span className='text'>{t('SQL 标准:')}</span>
-                    <Select
-                        value={ sql_standrd }
-                        size='small'
-                        style={{ height: 19 }}
-                        suffixIcon={<Icon className='arrow-down' component={SvgArrowDown} />}
-                        onSelect={ value => {
-                            set_temp_data(value) 
-                            set_is_modal_open(true)
-                        }}
-                        options={[
-                            { value: 'DolphinDB' },
-                            { value: 'Oracle' },
-                            { value: 'MySQL' },
-                        ]}
-                    />
-                </span>
+                <SelectSqlStandardModal/>
             </div>
             
             <div className='padding' />
@@ -214,4 +181,43 @@ export function ShellEditor () {
             }}
         />
     </div>
+}
+
+
+function SelectSqlStandardModal () {
+    const [selected_sql, set_selected_sql] = useState('')
+    const { visible, open, close } = use_modal()
+    
+    return <>
+        <Modal 
+            title={[<div><WarningFilled className='modal-warning-icon'/><span> 确认切换 SQL 标准</span></div>]}
+            open={visible} 
+            onOk={() => {
+                localStorage.setItem(storage_keys.sql, selected_sql)
+                close()
+                location.reload()
+            }} 
+            onCancel={ close }>
+                
+            <p>切换 SQL Standard 后，当前页面将会刷新，且内存变量会清空</p>
+        </Modal>
+        <span className='setting' title={t('设置当前代码执行的 SQL 标准。')}>
+            <span className='text'>{t('SQL 标准:')}</span>
+            <Select
+                value={ localStorage.getItem(storage_keys.sql) || 'DolphinDB' }
+                size='small'
+                className='select-sql'
+                suffixIcon={<Icon className='arrow-down' component={SvgArrowDown} />}
+                onSelect={ value => {
+                    set_selected_sql(value) 
+                    open()
+                }}
+                options={[
+                    { value: 'DolphinDB' },
+                    { value: 'Oracle' },
+                    { value: 'MySQL' },
+                ]}
+            />
+        </span>
+    </>
 }
