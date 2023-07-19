@@ -3,15 +3,14 @@ import 'xshell/scroll-bar.sass'
 import './window.sass'
 
 
-import { default as React, useEffect } from 'react'
+import { useEffect } from 'react'
 import { createRoot as create_root } from 'react-dom/client'
 
-import {
-    ConfigProvider,
-    
-    // @ts-ignore 使用了 antd-with-locales 之后 window.antd 变量中有 locales 属性
-    locales
-} from 'antd'
+import { App, ConfigProvider } from 'antd'
+import zh from 'antd/es/locale/zh_CN.js'
+import en from 'antd/locale/en_US.js'
+import ja from 'antd/locale/ja_JP.js'
+import ko from 'antd/locale/ko_KR.js'
 
 
 import { Model } from 'react-object-model'
@@ -32,12 +31,7 @@ import {
 } from './obj.js'
 
 
-const locale_names = {
-    zh: 'zh_CN',
-    en: 'en_US',
-    ja: 'ja_JP',
-    ko: 'ko_KR'
-} as const
+const locales = { zh, en, ja, ko }
 
 
 export class WindowModel extends Model<WindowModel> {
@@ -54,8 +48,24 @@ export class WindowModel extends Model<WindowModel> {
 let model = window.model = new WindowModel()
 
 
+create_root(
+    document.querySelector('.root')
+).render(<Root />)
+
+
+function Root () {
+    return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false} theme={{ hashed: false }}>
+        <App className='app'>
+            <DdbObjWindow />
+        </App>
+    </ConfigProvider>
+}
+
+
 function DdbObjWindow () {
     const { obj, objref, remote, ddb, options } = model.use(['obj', 'objref', 'remote', 'ddb', 'options'])
+    
+    Object.assign(model, App.useApp())
     
     useEffect(() => {
         (async () => {
@@ -96,14 +106,8 @@ function DdbObjWindow () {
     if (!obj && !objref)
         return <div>DolphinDB Window</div>
     
-    return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false} theme={{ hashed: false }}>
-        <div className='result window'>
-            <Obj obj={obj} objref={objref} ctx='window' remote={remote} ddb={ddb} options={options} />
-        </div>
-    </ConfigProvider>
+    return <div className='result window'>
+        <Obj obj={obj} objref={objref} ctx='window' remote={remote} ddb={ddb} options={options} />
+    </div>
 }
-
-create_root(
-    document.querySelector('.root')
-).render(<DdbObjWindow/>)
 

@@ -8,8 +8,11 @@ import { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import NiceModal from '@ebay/nice-modal-react'
 
-// @ts-ignore 使用了 antd-with-locales 之后 window.antd 变量中有 locales 属性
-import { Layout, ConfigProvider, locales } from 'antd'
+import { Layout, ConfigProvider, App } from 'antd'
+import zh from 'antd/es/locale/zh_CN.js'
+import en from 'antd/locale/en_US.js'
+import ja from 'antd/locale/ja_JP.js'
+import ko from 'antd/locale/ko_KR.js'
 
 
 import { language } from '../i18n/index.js'
@@ -28,34 +31,29 @@ import { Job } from './job.js'
 import { Log } from './log.js'
 
 
-const locale_names = { zh: 'zh_CN', en: 'en_US', ja: 'ja_JP', ko: 'ko_KR' } as const
+createRoot(
+    document.querySelector('.root')
+).render(<DolphinDB />)
 
-const views = {
-    login: Login,
-    overview: Overview,
-    'overview-old': OverviewOld,
-    shell: Shell,
-    dashboard: DashBoard,
-    job: Job,
-    log: Log,
-}
 
-function DdbContent () {
-    const { view } = model.use(['view'])
-    
-    const View = views[view]
-    
-    if (!View)
-        return null
-    
-    return <div className={`view-card ${view}`}>
-        <View />
-    </div>
-}
-
+const locales = { zh, en, ja, ko }
 
 function DolphinDB () {
-    const { inited, header } = model.use(['inited', 'header'])
+    return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false} theme={{ hashed: false }}>
+        <NiceModal.Provider>
+            <App className='app'>
+                <MainLayout />
+            </App>
+        </NiceModal.Provider>
+    </ConfigProvider>
+}
+
+
+function MainLayout () {
+    const { header, inited } = model.use(['header', 'inited'])
+    
+    // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
+    Object.assign(model, App.useApp())
     
     useEffect(() => {
         (async () => {
@@ -70,24 +68,40 @@ function DolphinDB () {
     if (!inited)
         return null
     
-    return <ConfigProvider locale={locales[locale_names[language]]} autoInsertSpaceInButton={false} theme={{ hashed: false }}>
-        <NiceModal.Provider>
-            <Layout className='root-layout'>
-                { header && <Layout.Header className='ddb-header'>
-                    <DdbHeader />
-                </Layout.Header> }
-                <Layout className='body' hasSider>
-                    <DdbSider />
-                    <Layout.Content className='view'>
-                        <DdbContent />
-                    </Layout.Content>
-                </Layout>
-            </Layout>
-        </NiceModal.Provider>
-    </ConfigProvider>
+    return <Layout className='root-layout'>
+        { header && <Layout.Header className='ddb-header'>
+            <DdbHeader />
+        </Layout.Header> }
+        <Layout className='body' hasSider>
+            <DdbSider />
+            <Layout.Content className='view'>
+                <DdbContent />
+            </Layout.Content>
+        </Layout>
+    </Layout>
 }
 
 
-createRoot(
-    document.querySelector('.root')
-).render(<DolphinDB />)
+const views = {
+    login: Login,
+    overview: Overview,
+    'overview-old': OverviewOld,
+    shell: Shell,
+    dashboard: DashBoard,
+    job: Job,
+    log: Log,
+}
+
+
+function DdbContent () {
+    const { view } = model.use(['view'])
+    
+    const View = views[view]
+    
+    if (!View)
+        return null
+    
+    return <div className={`view-card ${view}`}>
+        <View />
+    </div>
+}

@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { default as React, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { Editor as MonacoEditor, loader, type OnChange, type OnMount } from '@monaco-editor/react'
 

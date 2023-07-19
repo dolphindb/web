@@ -1,4 +1,4 @@
-import { default as React, useEffect } from 'react'
+import { useEffect } from 'react'
 
 import { Dropdown, Avatar } from 'antd'
 

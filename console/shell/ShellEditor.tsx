@@ -1,4 +1,4 @@
-import { default as React, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Modal, Popconfirm, Select, Space, Switch } from 'antd'
 

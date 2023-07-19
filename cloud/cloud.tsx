@@ -1,6 +1,6 @@
 import './cloud.sass'
 
-import { default as React, useEffect, useRef, useState, type FC } from 'react'
+import { useEffect, useRef, useState, Component, type FC } from 'react'
 
 import { default as dayjs } from 'dayjs'
 
@@ -3515,7 +3515,7 @@ function useInterval (callback, delay) {
     }, [delay])
 }
 
-class ErrorBoundary extends React.Component<any, any> {
+class ErrorBoundary extends Component<any, any> {
     constructor (props) {
         super(props)
         this.state = { error: null, errorInfo: null }
