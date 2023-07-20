@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Resizable } from 're-resizable'
 
@@ -17,10 +17,21 @@ import { DataView } from './DataView.js'
 import { Databases } from './Databases.js'
 import { Variables } from './Variables.js'
 
+import { t } from '../../i18n/index.js'
+
 
 export function Shell () {
     const { options } = model.use(['options'])
-    
+
+    const [collapsed, setCollapsed] = useState(false)
+
+    const [editorState, setEditorState] = useState({
+        width: '75%',
+        height: '100%',
+        maxWidth: '90%',
+        enableRight: true
+    })
+
     useEffect(() => {
         shell.options = options
         shell.update_vars()
@@ -91,11 +102,17 @@ export function Shell () {
             >
                 <Resizable
                     className='editor-resizable'
-                    enable={{ top: false, right: true, bottom: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
-                    defaultSize={{ height: '100%', width: '75%' }}
+                    enable={{ top: false, right: editorState.enableRight, bottom: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
+                    size={{ height: editorState.height, width: editorState.width }}
+                    maxWidth={editorState.maxWidth}
                     handleStyles={{ bottom: { height: 6, bottom: -3 } }}
                     handleClasses={{ bottom: 'resizable-handle' }}
-                    onResizeStop={async () => {
+                    onResizeStop={async (e, direction, ref, d) => {
+                        setEditorState(preval => ({
+                            ...preval,
+                            width: preval.width + d.width,
+                            height: preval.height + d.height
+                        }))
                         await delay(200)
                         shell.fit_addon?.fit()
                     }}
@@ -105,6 +122,22 @@ export function Shell () {
                 </Resizable>
                 
                 <Terminal />
+                <div className='collapse-btn' onClick={() => {
+                    (async () => {
+                        const preCollapsed = collapsed
+                        setCollapsed(!preCollapsed)
+                        setEditorState({
+                            maxWidth: !preCollapsed ? '100%' : '92%', 
+                            width: !preCollapsed ? '100%' : '75%',
+                            height: '100%',
+                            enableRight: preCollapsed
+                        })
+                        await delay(200)
+                        shell.fit_addon?.fit()
+                    })()
+                }}>
+                    {collapsed ? `<< ${t('Expand Terminal')}` : `${t('Expand Terminal')} >>`}
+                </div>
             </Resizable>
             
             <DataView />

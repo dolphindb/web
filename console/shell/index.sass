@@ -242,6 +242,8 @@
             display: flex
             
             overflow: hidden
+
+            position: relative
             
             .editor-resizable
                 border-right: 1px solid #e5e5e5
@@ -307,10 +309,17 @@
                 min-width: 0px
                 
                 .terminal
-                    padding: 10px 10px 0px 10px
+                    padding: 10px 10px 20px 10px
             
             .term-loading
                 padding: 10px
+
+            .collapse-btn
+                position: absolute
+                bottom: 2%
+                right: 1.5%
+                color: #888
+                cursor: pointer
         
         .dataview
             flex: 1
