@@ -119,7 +119,7 @@ class ShellModel extends Model<ShellModel> {
         const time_start = dayjs()
         this.term.write(
             '\n' +
-            time_start.format('YYYY.MM.DD HH:mm:ss.SSS') + '\n' + 
+            time_start.format('HH:mm:ss.SSS') + '\n' + 
             (code.trim() ?
                 this.truncate_text(code.split_lines()).join_lines()
             : '')
