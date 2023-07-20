@@ -36,7 +36,7 @@ export function ShellEditor () {
             window.removeEventListener('beforeunload', beforeunload)
         }
     }, [ ])
-  
+    
     
     return <div className='shell-editor'>
         <div className='toolbar'>
@@ -71,7 +71,6 @@ export function ShellEditor () {
             </div>
             
             <div className='padding' />
-            
         </div>
         
         <Editor
@@ -92,9 +91,9 @@ export function ShellEditor () {
                     label: t('DolphinDB: 执行当前行代码'),
                     
                     run () {
-                        shell.executing ?
+                        if (shell.executing)
                             model.message.warning(t('当前连接正在执行作业，请等待'))
-                        :
+                        else
                             shell.execute_('line')
                     }
                 })
@@ -109,9 +108,9 @@ export function ShellEditor () {
                     label: t('DolphinDB: 执行代码'),
                     
                     run () {
-                        shell.executing ?
+                        if (shell.executing)
                             model.message.warning(t('当前连接正在执行作业，请等待'))
-                        :
+                        else
                             shell.execute_('all')
                     }
                 })

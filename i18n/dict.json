@@ -993,7 +993,7 @@
         "en": "Execute"
     },
     "当前连接正在执行作业，请等待": {
-        "en": "The current connection is executing a job, please wait"  
+        "en": "The current connection is executing a job, please wait"
     },
     "按 Tab 补全函数\n": {
         "en": "Press Tab to complete functions\n"
@@ -1906,5 +1906,11 @@
     },
     "SQL 标准": {
         "en": "SQL Standard"
+    },
+    "取消作业指令发送成功": {
+        "en": "Cancel job command sent successfully"
+    },
+    "点击可以取消当前执行中的作业": {
+        "en": "Click to cancel the currently executing job"
     }
 }
