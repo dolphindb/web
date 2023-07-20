@@ -446,8 +446,8 @@
     "左侧编辑器使用指南:\n": {
         "en": "Editor usage guide on the left\n"
     },
-    "按 Ctrl + E 执行选中代码或光标所在行代码\n": {
-        "en": "Press Ctrl + E to execute selected code or the line of code where the cursor is placed\n"
+    "按 Ctrl + E 执行选中代码或光标所在行代码，点击 执行中 可取消作业\n": {
+        "en": "Press Ctrl + E to execute selected code or the line of code where the cursor is placed. Click Executing to cancel the job\n"
     },
     "按 Ctrl + Shift + E 执行选中代码或全部代码\n": {
         "en": "Press Ctrl + Shift + E to execute selected code or all code\n"
@@ -998,6 +998,9 @@
     "执行": {
         "en": "Execute"
     },
+    "当前连接正在执行作业，请等待": {
+        "en": "The current connection is executing a job, please wait"
+    },
     "按 Tab 补全函数\n": {
         "en": "Press Tab to complete functions\n"
     },
@@ -1172,10 +1175,10 @@
     "没有 mandate_code 参数，将会跳转到登录页": {
         "en": "Without the mandatory_code parameter, it will jump to the login page"
     },
-    "代码地图": {
+    "代码地图:": {
         "en": "Code Map"
     },
-    "回车补全": {
+    "回车补全:": {
         "en": "Enter Completion"
     },
     "是否取消执行中的作业？": {
@@ -1891,5 +1894,29 @@
     },
     "当前用户未登录，请登陆后再进行启停操作。": {
         "en": "Please log in before this operation."
+    },
+    "CDN 部署时无法使用配置管理": {
+        "en": "Configuration management is not available for CDN deployments"
+    },
+    "设置当前代码执行的 SQL 标准": {
+        "en": "Sets the SQL standard for the current code execution"
+    },
+    "SQL 标准:": {
+        "en": "SQL Standard:"
+    },
+    "确认切换 SQL 标准？": {
+        "en": "Confirm to switch SQL standard?"
+    },
+    "切换 SQL Standard 后，当前页面将会刷新，且内存变量会清空": {
+        "en": "After switching to SQL Standard, the current page will be refreshed and the memory variables will be cleared"
+    },
+    "SQL 标准": {
+        "en": "SQL Standard"
+    },
+    "取消作业指令发送成功": {
+        "en": "Cancel job command sent successfully"
+    },
+    "点击可以取消当前执行中的作业": {
+        "en": "Click to cancel the currently executing job"
     }
 }

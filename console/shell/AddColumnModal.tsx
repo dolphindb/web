@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { Button, Modal, message } from 'antd'
+import { Button, Modal } from 'antd'
 
 import { createForm } from '@formily/core'
 import { Form, FormButtonGroup, Submit } from '@formily/antd-v5'
@@ -44,7 +44,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
                 formValues.column,
                 generateDDBDataTypeLiteral(formValues)
             ])
-            message.success(t('添加成功'))
+            model.message.success(t('添加成功'))
             node.children = null
             table.schema = null
             await node.load_children()

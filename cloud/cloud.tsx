@@ -15,7 +15,6 @@ import {
     Table, 
     Typography, 
     InputNumber, 
-    message, 
     Tooltip, 
     Popconfirm, 
     Descriptions,
@@ -372,7 +371,7 @@ function Clusters () {
                                 onConfirm={async () => {
                                     try {
                                         await model.delete(cluster)
-                                        message.success(t('集群删除成功'))
+                                        model.message.success(t('集群删除成功'))
                                         await model.get_clusters(queries)
                                     } catch (error) {
                                         model.show_json_error(error)
@@ -487,7 +486,7 @@ function Clusters () {
                                     method: 'PUT',
                                     body: values
                                 })
-                                message.success(t('升级成功'))
+                                model.message.success(t('升级成功'))
                             } catch (error) {
                                 model.show_json_error(error)
                                 throw error
@@ -803,7 +802,7 @@ function CreateClusterPanel ({
         removeEmptyProperties(values)
         try {
             await model.create(values)
-            message.success(t('集群创建成功'))
+            model.message.success(t('集群创建成功'))
             closePanel()
         } catch (error) {
             model.show_json_error(error)
@@ -1456,7 +1455,7 @@ function NodeList ({
                                     onConfirm={async () => {
                                         try {
                                             await model.delete_cluster_node_service(cluster, node.name)
-                                            message.success(t('服务删除成功'))
+                                            model.message.success(t('服务删除成功'))
                                             await get_nodes()
                                         } catch (error) {
                                             model.show_json_error(error)
@@ -1473,7 +1472,7 @@ function NodeList ({
                                 onConfirm={async () => {
                                     try {
                                         await model.creat_cluster_node_service(cluster, node.name)
-                                        message.success(t('服务创建成功'))
+                                        model.message.success(t('服务创建成功'))
                                         await get_nodes()
                                     } catch (error) {
                                         model.show_json_error(error)
@@ -1559,7 +1558,7 @@ function NodeList ({
                                                 await request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${node.name}/start`, {
                                                     method: 'PUT'
                                                 })
-                                                message.success(t('启动成功'))
+                                                model.message.success(t('启动成功'))
                                             } catch (error) {
                                                 model.show_json_error(error)
                                                 throw error
@@ -1576,7 +1575,7 @@ function NodeList ({
                                                 await request_json(`/v1/dolphindbs/${cluster.namespace}/${cluster.name}/instances/${node.name}/pause`, {
                                                     method: 'PUT'
                                                 })
-                                                message.success(t('暂停成功'))
+                                                model.message.success(t('暂停成功'))
                                             } catch (error) {
                                                 model.show_json_error(error)
                                                 throw error
@@ -1594,7 +1593,7 @@ function NodeList ({
                                 onConfirm={async () => {
                                     try {
                                         await model.restart_node(node)
-                                        message.success(t('正在重启节点'))
+                                        model.message.success(t('正在重启节点'))
                                     } catch (error) {
                                         model.show_json_error(error)
                                         throw error
@@ -1779,10 +1778,10 @@ function ClusterConfigs ({
     const onResetConfirm = () => {
         try {
             fetchClusterConfig()
-            message.success(t('参数重置成功'))
+            model.message.success(t('参数重置成功'))
         } catch (error) {
             console.error(error)
-            message.error(t('参数重置失败'))
+            model.message.error(t('参数重置失败'))
         } finally {
             setResetPopVisible(false)
         }
@@ -1793,7 +1792,7 @@ function ClusterConfigs ({
         
         try {
             await model.update_cluster_config(cluster, editedConfig)
-            message.success(t('参数修改成功'))
+            model.message.success(t('参数修改成功'))
             fetchClusterConfig()
         } catch (error) {
             console.error(error)
@@ -2143,7 +2142,7 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
                     const { namespace, name, instance } = props
                     const { to } = await form_instance.validateFields()
                     if (!to) {
-                        message.error(t('上传路径不能为空'))
+                        model.message.error(t('上传路径不能为空'))
                         return
                     }
                     const form_data = new FormData()
@@ -2166,9 +2165,9 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
                             set_loaded_(true)
                             set_show_text(true)
                             set_show_progress(true)
-                            message.success(t('文件上传成功'))
+                            model.message.success(t('文件上传成功'))
                         } else 
-                            message.error(t('文件上传失败'))
+                            model.message.error(t('文件上传失败'))
                         
                     })
                     
@@ -2186,7 +2185,7 @@ function CloudUpload (props: { namespace, name, instance, modal_open, set_modal_
                 showUploadList={false}
                 beforeUpload={file => {
                     if (file.size / 1024 / 1024 > 100) 
-                        message.error(t('文件大小限制 100 MB'))
+                        model.message.error(t('文件大小限制 100 MB'))
                     
                     return file.size / 1024 / 1024 <= 100
                 }}
@@ -2923,7 +2922,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                     var { source_key, prefix, storage_class, storage_resource } = await form_instance_backup.validateFields()
                     if (!source_key_detail) {
                         // source_key_detail在打开Modal的时候会被set，所以其必有值
-                        message.error('SourceKey detail is none. Coder assertion failed')
+                        model.message.error('SourceKey detail is none. Coder assertion failed')
                         return
                     }
                     const remote_type = source_key_detail[source_key].type
@@ -2979,7 +2978,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                                         // danger area end
                                         // danger area是某些历史代码，原先是为了防止切换form select的时候由于重渲染会丢失其他formItem中已经填入的值。但是现在已经将form.resetValue去掉，原则上danger area部分可以直接移除，但目前还没试验过
                                         if (!source_key_detail) {
-                                            message.error('Sourcekey empty. Coder assertion failed.')
+                                            model.message.error('Sourcekey empty. Coder assertion failed.')
                                             return
                                         }
                                         set_selected_remote_type(source_key_detail[value].type)
@@ -3074,7 +3073,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
                 <Button key='submit' type='primary' onClick={async () => {
                     const { dolphindb_namespace, dolphindb_name } = await form_instance_restore.validateFields()
                     if (!content_of_restore_modal) {
-                        message.error('The backup info corresponding to this restore is empty. Coder assertion failed.')
+                        model.message.error('The backup info corresponding to this restore is empty. Coder assertion failed.')
                         return
                     }
                     await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores`,

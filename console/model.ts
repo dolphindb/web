@@ -10,7 +10,10 @@ import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
 import { strcmp } from 'xshell/utils.browser.js'
 
-import { DDB, DdbFunctionType, DdbVectorString, DdbObj, DdbInt, DdbLong, type InspectOptions, DdbDatabaseError, DdbStringObj, type DdbDictObj, type DdbVectorStringObj } from 'dolphindb/browser.js'
+import {
+    DDB, SqlStandard, DdbFunctionType, DdbVectorString, DdbObj, DdbInt, DdbLong, type InspectOptions,
+    DdbDatabaseError, DdbStringObj, type DdbDictObj, type DdbVectorStringObj
+} from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
 
@@ -24,6 +27,7 @@ export const storage_keys = {
     session: 'ddb.session',
     minimap: 'ddb.editor.minimap',
     enter_completion: 'ddb.editor.enter_completion',
+    sql: 'ddb.sql',
 } as const
 
 const username_guest = 'guest' as const
@@ -48,6 +52,8 @@ export class DdbModel extends Model<DdbModel> {
     ddb: DDB
     
     collapsed = localStorage.getItem(storage_keys.collapsed) === 'true'
+    
+    sql: SqlStandard = SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
     
     view = '' as PageViews
     
@@ -133,7 +139,8 @@ export class DdbModel extends Model<DdbModel> {
                 (location.pathname === '/dolphindb/' ? '/dolphindb/' : ''),
             {
                 autologin: false,
-                verbose: this.verbose
+                verbose: this.verbose,
+                sql: this.sql
             }
         )
         

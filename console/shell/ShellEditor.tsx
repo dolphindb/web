@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Popconfirm, Switch } from 'antd'
-
-import { CaretRightOutlined } from '@ant-design/icons'
-
+import { Switch } from 'antd'
 
 import { t } from '../../i18n/index.js'
 
@@ -11,9 +8,11 @@ import { model, storage_keys } from '../model.js'
 import { shell } from './model.js'
 
 import { Editor, type monacoapi } from './Editor/index.js'
+import { SelectSqlModal } from './SelectSqlModal.js'
+import { ExecuteAction } from './ExecuteAction.js'
+
 
 export function ShellEditor () {
-    const { executing } = shell.use(['executing'])
     
     const [minimap, set_minimap] = useState(() => 
         localStorage.getItem(storage_keys.minimap) === '1'
@@ -42,15 +41,12 @@ export function ShellEditor () {
     return <div className='shell-editor'>
         <div className='toolbar'>
             <div className='actions'>
-                <span className='action execute' title={t('执行选中代码或全部代码')} onClick={() => { shell.execute('all') }}>
-                    <CaretRightOutlined />
-                    <span className='text'>{t('执行')}</span>
-                </span>
+                <ExecuteAction />
             </div>
             
             <div className='settings'>
                 <span className='setting' title={t('控制是否显示缩略图')}>
-                    <span className='text'>{t('代码地图')}</span>
+                    <span className='text'>{t('代码地图:')}</span>
                     <Switch
                         checked={minimap}
                         size='small'
@@ -61,7 +57,7 @@ export function ShellEditor () {
                 </span>
                 
                 <span className='setting' title={t('控制除了 Tab 键以外，Enter 键是否同样可以接受建议。这能减少“插入新行”和“接受建议”命令之间的歧义。')}>
-                    <span className='text'>{t('回车补全')}</span>
+                    <span className='text'>{t('回车补全:')}</span>
                     <Switch
                         checked={enter_completion}
                         size='small'
@@ -70,23 +66,11 @@ export function ShellEditor () {
                             localStorage.setItem(storage_keys.enter_completion, checked ? '1' : '0')
                         }} />
                 </span>
+                
+                <SelectSqlModal/>
             </div>
             
             <div className='padding' />
-            
-            <div className='statuses'>{
-                executing ?
-                    <Popconfirm
-                        title={t('是否取消执行中的作业？')}
-                        okText={t('取消作业')}
-                        cancelText={t('不要取消')}
-                        onConfirm={async () => { await model.ddb.cancel() }}
-                    >
-                        <span className='status executing'>{t('执行中')}</span>
-                    </Popconfirm>
-                :
-                    <span className='status idle'>{t('空闲中')}</span>
-            }</div>
         </div>
         
         <Editor
@@ -107,7 +91,10 @@ export function ShellEditor () {
                     label: t('DolphinDB: 执行当前行代码'),
                     
                     run () {
-                        shell.execute('line')
+                        if (shell.executing)
+                            model.message.warning(t('当前连接正在执行作业，请等待'))
+                        else
+                            shell.execute_('line')
                     }
                 })
                 
@@ -121,7 +108,10 @@ export function ShellEditor () {
                     label: t('DolphinDB: 执行代码'),
                     
                     run () {
-                        shell.execute('all')
+                        if (shell.executing)
+                            model.message.warning(t('当前连接正在执行作业，请等待'))
+                        else
+                            shell.execute_('all')
                     }
                 })
                 

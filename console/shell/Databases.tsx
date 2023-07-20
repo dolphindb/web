@@ -5,7 +5,7 @@ import NiceModal from '@ebay/nice-modal-react'
 import { Resizable } from 're-resizable'
 import cn from 'classnames'
 
-import { message, Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber } from 'antd'
+import { Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber } from 'antd'
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
@@ -323,7 +323,7 @@ function SetColumnComment () {
                         name,
                         comment
                     ])
-                    message.success(t('设置注释成功'))
+                    model.message.success(t('设置注释成功'))
                     root.children = null
                     root.table.schema = null
                     await root.load_children()
@@ -378,7 +378,7 @@ function ConfirmCommand () {
                     console.log(t('创建数据库的脚本:'))
                     console.log(generated_command)
                     await model.ddb.eval(generated_command)
-                    message.success(t('创建数据库成功'))
+                    model.message.success(t('创建数据库成功'))
                     await shell.load_dbs()
                     shell.set({ dbs: [...shell.dbs] })
                 } catch (error) {
@@ -496,7 +496,7 @@ function CreateDatabase () {
                 const partitionCount = Number(table.partitionCount)
                 
                 if (Number.isNaN(partitionCount) || partitionCount < 1 || partitionCount > 3) {
-                    message.error(t('分区层级必须在1-3之间'))
+                    model.message.error(t('分区层级必须在1-3之间'))
                     return
                 }
                 

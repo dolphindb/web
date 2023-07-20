@@ -1,7 +1,7 @@
 import './log.sass'
 
 import { useEffect, useRef, useState } from 'react'
-import { Pagination, Button, message, Result } from 'antd'
+import { Pagination, Button, Result } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 
 import { t } from '../i18n/index.js'
@@ -68,7 +68,7 @@ export function Log () {
                         icon={<ReloadOutlined/>}
                         onClick={async () => {
                             await init()
-                            message.success(t('日志刷新成功'))
+                            model.message.success(t('日志刷新成功'))
                     }}>{t('刷新')}</Button>
                 </div>
             )}

@@ -272,37 +272,52 @@
                         color: #444444
                         
                         .actions
+                            display: flex
+                            
                             .action
                                 cursor: pointer
                                 
-                                margin-right: 12px
+                                .text
+                                    margin-left: 6px
+                            
+                            .action.execute
+                                display: flex
                                 
                                 .text
                                     margin-left: 6px
-                        
-                            .action.execute
-                                .text
-                                    margin-left: 2px
+                                    width: 48px
                         
                         .settings
+                            gap: 24px
+                            
+                            display: flex
+                            
                             margin-left: 24px
                             
                             .setting
-                                margin-right: 16px
+                                display: flex
+                                
+                                align-items: center
                                 
                                 .text
-                                    margin-right: 6px
+                                    margin-right: 10px
+                                
+                                .select-sql
+                                    width: 100px
+                                    
+                                .ant-select-selector
+                                    background-color: #f0f0f0
+                                    border: 0
+                                    padding: 0 5px
+                                    height: 100%
+                                
+                                .arrow-down
+                                    color: #444444
+                                    margin-top: 3px
                         
                         .padding
                             flex: 1
                         
-                        .statuses
-                            user-select: none
-                            
-                            .status.executing
-                                color: #c72e0f
-                                cursor: pointer
-                    
             
             .term
                 flex: 1
@@ -372,3 +387,13 @@
     
 .db-context-menu
     background-color: #FFFFFF
+
+.select-sql-modal
+    .title
+        display: flex
+        align-items: center
+    
+        .modal-warning-icon
+            color: rgb(243,173,43)
+            font-size: large
+            margin-right: 8px
