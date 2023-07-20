@@ -12,6 +12,8 @@ import { model, storage_keys } from '../model.js'
 import { shell } from './model.js'
 
 import { Editor, type monacoapi } from './Editor/index.js'
+import { SelectSqlModal } from './SelectSqlModal.js'
+
 
 export function ShellEditor () {
     const { executing } = shell.use(['executing'])
@@ -80,7 +82,7 @@ export function ShellEditor () {
             
             <div className='settings'>
                 <span className='setting' title={t('控制是否显示缩略图')}>
-                    <span className='text'>{t('代码地图')}</span>
+                    <span className='text'>{t('代码地图:')}</span>
                     <Switch
                         checked={minimap}
                         size='small'
@@ -91,7 +93,7 @@ export function ShellEditor () {
                 </span>
                 
                 <span className='setting' title={t('控制除了 Tab 键以外，Enter 键是否同样可以接受建议。这能减少“插入新行”和“接受建议”命令之间的歧义。')}>
-                    <span className='text'>{t('回车补全')}</span>
+                    <span className='text'>{t('回车补全:')}</span>
                     <Switch
                         checked={enter_completion}
                         size='small'
@@ -100,6 +102,8 @@ export function ShellEditor () {
                             localStorage.setItem(storage_keys.enter_completion, checked ? '1' : '0')
                         }} />
                 </span>
+                
+                <SelectSqlModal/>
             </div>
             
             <div className='padding' />
