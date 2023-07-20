@@ -17,6 +17,7 @@ import { SelectSqlModal } from './SelectSqlModal.js'
 
 export function ShellEditor () {
     const { executing } = shell.use(['executing'])
+    const { show_executing } = shell.use(['show_executing'])
     
     const [minimap, set_minimap] = useState(() => 
         localStorage.getItem(storage_keys.minimap) === '1'
@@ -40,27 +41,7 @@ export function ShellEditor () {
             window.removeEventListener('beforeunload', beforeunload)
         }
     }, [ ])
-    
-    const [show_executing, set_show_executing] = useState(false)
-    
-    const execute = async option => {
-        let done = false
-        const pdelay = delay(500)
-        ;(async () => {
-            await pdelay
-            if (!done)
-                set_show_executing(true)
-        })()
-        
-        try {
-            await shell.execute(option)
-        } finally {
-            done = true
-            set_show_executing(false)
-        }
-    }
-    
-    
+  
     return <div className='shell-editor'>
         <div className='toolbar'>
             <div className='actions'>
@@ -69,15 +50,19 @@ export function ShellEditor () {
                     okText={t('取消作业')}
                     cancelText={t('不要取消')}
                     onConfirm={async () => {
-                        // todo: try catch
-                        await model.ddb.cancel()
+                        try {
+                            await model.ddb.cancel() }
+                        catch (error) {
+                            model.show_error({ error })
+                            throw error
+                        }
                     }}
                     disabled={!executing}
                 >
                     <span
                         className='action execute'
                         title={executing ? t('点击可以取消当前执行中的作业') : t('执行选中代码或全部代码')}
-                        onClick={async () => execute('all')}
+                        onClick={async () => !executing && shell.execute_('all')}
                     >
                         {executing && show_executing ? <LoadingOutlined /> : <CaretRightOutlined />}
                         <span className='text'>{executing && show_executing ? t('执行中') : t('执行')}</span>
@@ -136,7 +121,7 @@ export function ShellEditor () {
                         shell.executing ?
                             model.message.warning(t('当前连接正在执行作业，请等待'))
                         :
-                            execute('line')
+                            shell.execute_('line')
                     }
                 })
                 
@@ -153,7 +138,7 @@ export function ShellEditor () {
                         shell.executing ?
                             model.message.warning(t('当前连接正在执行作业，请等待'))
                         :
-                            execute('all')
+                            shell.execute_('all')
                     }
                 })
                 

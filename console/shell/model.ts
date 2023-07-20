@@ -8,7 +8,7 @@ import type { FitAddon } from 'xterm-addon-fit'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { delta2str, assert } from 'xshell/utils.browser.js'
+import { delta2str, assert, delay } from 'xshell/utils.browser.js'
 import { red, blue, underline } from 'xshell/chalk.browser.js'
 
 import {
@@ -58,6 +58,7 @@ class ShellModel extends Model<ShellModel> {
     
     executing = false
     
+    show_executing = false
     
     unload_registered = false
     
@@ -297,8 +298,21 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
-    async execute_ () {
+    async execute_ (default_selection: 'all' | 'line') {
+        let done = false
+        const show_delay = delay(500)
+        ;(async () => {
+            await show_delay
+            if (!done)
+                this.set({ show_executing: true })
+        })()
         
+        try {
+            await shell.execute(default_selection)
+        } finally {
+            done = true
+            this.set({ show_executing: false })
+        }
     }
     
     
