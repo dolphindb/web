@@ -121,8 +121,7 @@ export function Shell () {
                 </Resizable>
                 
                 <Terminal />
-                <div className='collapse-btn' onClick={() => {
-                    (async () => {
+                <div className='collapse-btn' onClick={async () => {
                         const preCollapsed = collapsed
                         setCollapsed(!preCollapsed)
                         setEditorState({
@@ -133,8 +132,8 @@ export function Shell () {
                         })
                         await delay(200)
                         shell.fit_addon?.fit()
-                    })()
-                }}>
+                    }
+                }>
                     {collapsed ? `<< ${t('展示终端')}` : `${t('隐藏终端')} >>`}
                 </div>
             </Resizable>
