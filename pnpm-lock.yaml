@@ -12,8 +12,8 @@ dependencies:
     specifier: ^1.2.5
     version: 1.2.5(react-dom@18.2.0)(react@18.2.0)
   '@ant-design/pro-layout':
-    specifier: ^7.16.2
-    version: 7.16.2(antd@5.7.1)(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^7.16.3
+    version: 7.16.3(antd@5.7.1)(react-dom@18.2.0)(react@18.2.0)
   '@ebay/nice-modal-react':
     specifier: ^1.2.10
     version: 1.2.10(react-dom@18.2.0)(react@18.2.0)
@@ -152,11 +152,11 @@ devDependencies:
     specifier: ^18.2.0
     version: 18.2.0
   sass:
-    specifier: ^1.63.6
-    version: 1.63.6
+    specifier: ^1.64.0
+    version: 1.64.0
   sass-loader:
     specifier: ^13.3.2
-    version: 13.3.2(sass@1.63.6)(webpack@5.88.2)
+    version: 13.3.2(sass@1.64.0)(webpack@5.88.2)
   source-map-loader:
     specifier: ^4.0.1
     version: 4.0.1(webpack@5.88.2)
@@ -266,8 +266,8 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@ant-design/pro-layout@7.16.2(antd@5.7.1)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-+qmjjJgUAGeZ2u+36OgIXxSAA1AhUqAcxFMzPqTaItg0bKcGp8p3YvvHRjuyyo2FUqrOkOs3N1nmljBvaUS9BQ==}
+  /@ant-design/pro-layout@7.16.3(antd@5.7.1)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-4iTA52/U0JlOKBsNkAHRVxnLUQbP0yhhIAY7TIOKg9R+64VidEtRlKUikigrNZEO3VUNo3zJ00BiywpHmD92Ug==}
     peerDependencies:
       antd: '>=4.23.0 || >=5.0.0'
       react: '>=17.0.0'
@@ -2967,7 +2967,7 @@ packages:
       '@types/node': 20.4.2
       '@types/node-sass': 4.11.3
       '@types/webpack': 4.41.33
-      sass: 1.63.6
+      sass: 1.64.0
     dev: true
 
   /@types/scheduler@0.16.2:
@@ -6854,7 +6854,7 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /sass-loader@13.3.2(sass@1.63.6)(webpack@5.88.2):
+  /sass-loader@13.3.2(sass@1.64.0)(webpack@5.88.2):
     resolution: {integrity: sha512-CQbKl57kdEv+KDLquhC+gE3pXt74LEAzm+tzywcA0/aHZuub8wTErbjAoNI57rPUWRYRNC5WUnNl8eGJNbDdwg==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
@@ -6874,12 +6874,12 @@ packages:
         optional: true
     dependencies:
       neo-async: 2.6.2
-      sass: 1.63.6
+      sass: 1.64.0
       webpack: 5.88.2
     dev: true
 
-  /sass@1.63.6:
-    resolution: {integrity: sha512-MJuxGMHzaOW7ipp+1KdELtqKbfAWbH7OLIdoSMnVe3EXPMTmxTmlaZDCTsgIpPCs3w99lLo9/zDKkOrJuT5byw==}
+  /sass@1.64.0:
+    resolution: {integrity: sha512-m7YtAGmQta9uANIUJwXesAJMSncqH+3INc8kdVXs6eV6GUC8Qu2IYKQSN8PRLgiQfpca697G94klm2leYMxSHw==}
     engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
