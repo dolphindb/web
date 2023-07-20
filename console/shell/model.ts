@@ -297,6 +297,11 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
+    async execute_ () {
+        
+    }
+    
+    
     async load_dbs () {
         // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能直接使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库

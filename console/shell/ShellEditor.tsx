@@ -43,7 +43,7 @@ export function ShellEditor () {
     
     const [show_executing, set_show_executing] = useState(false)
     
-    const execute = async  option => {
+    const execute = async option => {
         let done = false
         const pdelay = delay(500)
         ;(async () => {
@@ -54,30 +54,35 @@ export function ShellEditor () {
         
         try {
             await shell.execute(option)
-        } catch (error) {
-            throw (error)
         } finally {
             done = true
             set_show_executing(false)
         }
     }
     
+    
     return <div className='shell-editor'>
         <div className='toolbar'>
             <div className='actions'>
-                    <Popconfirm
-                        title={t('是否取消执行中的作业？')}
-                        okText={t('取消作业')}
-                        cancelText={t('不要取消')}
-                        onConfirm={async () => { await model.ddb.cancel() }}
-                        disabled={executing ? false : true }
+                <Popconfirm
+                    title={t('是否取消执行中的作业？')}
+                    okText={t('取消作业')}
+                    cancelText={t('不要取消')}
+                    onConfirm={async () => {
+                        // todo: try catch
+                        await model.ddb.cancel()
+                    }}
+                    disabled={!executing}
+                >
+                    <span
+                        className='action execute'
+                        title={executing ? t('点击可以取消当前执行中的作业') : t('执行选中代码或全部代码')}
+                        onClick={async () => execute('all')}
                     >
-                        <span className='action execute' title={executing ? null : t('执行选中代码或全部代码')} onClick={async () => execute('all')}>
-                            {executing && show_executing ? <LoadingOutlined /> : <CaretRightOutlined />}
-                            <span className='text'>{executing && show_executing ? t('执行中') : t('执行')}</span>
-                        </span>
-                    </Popconfirm>
-                    
+                        {executing && show_executing ? <LoadingOutlined /> : <CaretRightOutlined />}
+                        <span className='text'>{executing && show_executing ? t('执行中') : t('执行')}</span>
+                    </span>
+                </Popconfirm>
             </div>
             
             <div className='settings'>

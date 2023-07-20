@@ -115,7 +115,7 @@ export function Terminal () {
             term.writeln(
                 t('左侧编辑器使用指南:\n') +
                 t('按 Tab 或 Enter 补全函数\n') +
-                t('按 Ctrl + E 执行选中代码或光标所在行代码，点击 执行中 可选择取消作业\n') +
+                t('按 Ctrl + E 执行选中代码或光标所在行代码，点击 执行中 可取消作业\n') +
                 t('按 Ctrl + Shift + E 执行选中代码或全部代码\n') +
                 t('按 Ctrl + D 向下复制行\n') +
                 t('按 Ctrl + Y 删除行\n') +
