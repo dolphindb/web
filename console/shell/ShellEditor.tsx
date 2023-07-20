@@ -37,6 +37,7 @@ export function ShellEditor () {
         }
     }, [ ])
   
+    
     return <div className='shell-editor'>
         <div className='toolbar'>
             <div className='actions'>
