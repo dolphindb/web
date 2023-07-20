@@ -19,7 +19,6 @@ import { Variables } from './Variables.js'
 
 import { t } from '../../i18n/index.js'
 
-
 export function Shell () {
     const { options } = model.use(['options'])
 
@@ -136,7 +135,7 @@ export function Shell () {
                         shell.fit_addon?.fit()
                     })()
                 }}>
-                    {collapsed ? `<< ${t('Expand Terminal')}` : `${t('Expand Terminal')} >>`}
+                    {collapsed ? `<< ${t('展示终端')}` : `${t('隐藏终端')} >>`}
                 </div>
             </Resizable>
             
