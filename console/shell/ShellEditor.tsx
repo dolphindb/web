@@ -11,8 +11,10 @@ import { Editor, type monacoapi } from './Editor/index.js'
 import { SelectSqlModal } from './SelectSqlModal.js'
 import { ExecuteAction } from './ExecuteAction.js'
 
+import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
 
-export function ShellEditor () {
+
+export function ShellEditor ({ collpaseHandler }) {
     
     const [minimap, set_minimap] = useState(() => 
         localStorage.getItem(storage_keys.minimap) === '1'
@@ -21,6 +23,8 @@ export function ShellEditor () {
     const [enter_completion, set_enter_completion] = useState(() => 
         localStorage.getItem(storage_keys.enter_completion) === '1'
     )
+    
+    const [collapsed, setCollapsed] = useState(false)
     
     
     // 标签页关闭前自动保存代码
@@ -68,9 +72,18 @@ export function ShellEditor () {
                 </span>
                 
                 <SelectSqlModal/>
+                
             </div>
             
             <div className='padding' />
+            
+            <div className='collapse-btn' onClick={() => {
+                    setCollapsed(!collapsed)
+                    collpaseHandler(collapsed)
+                }
+            }>
+                {collapsed ? <DoubleLeftOutlined /> : <span style={{ verticalAlign: 'text-top' }}>{t('隐藏终端') + ' '}<DoubleRightOutlined /></span>}
+            </div>
         </div>
         
         <Editor

@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { Resizable } from 're-resizable'
 
@@ -17,20 +17,28 @@ import { DataView } from './DataView.js'
 import { Databases } from './Databases.js'
 import { Variables } from './Variables.js'
 
-import { t } from '../../i18n/index.js'
-
 export function Shell () {
     const { options } = model.use(['options'])
-
-    const [collapsed, setCollapsed] = useState(false)
-
+    
     const [editorState, setEditorState] = useState({
         width: '75%',
         height: '100%',
         maxWidth: '90%',
         enableRight: true
     })
-
+    
+    const collpaseHandler = useCallback(async (preCollapsed: boolean) => {
+        
+        setEditorState({
+            maxWidth: !preCollapsed ? '100%' : '92%', 
+            width: !preCollapsed ? '100%' : '75%',
+            height: '100%',
+            enableRight: preCollapsed
+        })
+        await delay(200)
+        shell.fit_addon?.fit()
+    }, [ ])
+    
     useEffect(() => {
         shell.options = options
         shell.update_vars()
@@ -116,26 +124,11 @@ export function Shell () {
                         shell.fit_addon?.fit()
                     }}
                 >
-                    <ShellEditor />
+                    <ShellEditor collpaseHandler={collpaseHandler}/>
                     {/* <Editor readonly default_value='objs(true)'/> */}
                 </Resizable>
                 
                 <Terminal />
-                <div className='collapse-btn' onClick={async () => {
-                        const preCollapsed = collapsed
-                        setCollapsed(!preCollapsed)
-                        setEditorState({
-                            maxWidth: !preCollapsed ? '100%' : '92%', 
-                            width: !preCollapsed ? '100%' : '75%',
-                            height: '100%',
-                            enableRight: preCollapsed
-                        })
-                        await delay(200)
-                        shell.fit_addon?.fit()
-                    }
-                }>
-                    {collapsed ? `<< ${t('展示终端')}` : `${t('隐藏终端')} >>`}
-                </div>
             </Resizable>
             
             <DataView />

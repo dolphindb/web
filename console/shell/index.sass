@@ -242,8 +242,6 @@
             display: flex
             
             overflow: hidden
-
-            position: relative
             
             .editor-resizable
                 border-right: 1px solid #e5e5e5
@@ -317,6 +315,11 @@
                         
                         .padding
                             flex: 1
+                            
+                        .collapse-btn
+                            align-self: flex-end
+                            color: #888
+                            cursor: pointer
                         
             
             .term
@@ -328,13 +331,6 @@
             
             .term-loading
                 padding: 10px
-
-            .collapse-btn
-                position: absolute
-                bottom: 2%
-                right: 1.5%
-                color: #888
-                cursor: pointer
         
         .dataview
             flex: 1
