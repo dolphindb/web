@@ -17,22 +17,23 @@ import { DataView } from './DataView.js'
 import { Databases } from './Databases.js'
 import { Variables } from './Variables.js'
 
+
 export function Shell () {
     const { options } = model.use(['options'])
     
-    const [editorState, setEditorState] = useState({
+    const [editor_state, set_editor_state] = useState({
         width: '75%',
         height: '100%',
         maxWidth: '90%',
-        enableRight: true
+        right: true
     })
     
-    const collpaseHandler = useCallback(async (preCollapsed: boolean) => {
-        setEditorState({
-            maxWidth: !preCollapsed ? '100%' : '92%', 
-            width: !preCollapsed ? '100%' : '75%',
+    const collapser = useCallback(async (collapsed: boolean) => {
+        set_editor_state({
+            maxWidth: !collapsed ? '100%' : '92%', 
+            width: !collapsed ? '100%' : '75%',
             height: '100%',
-            enableRight: preCollapsed
+            right: collapsed
         })
         await delay(200)
         shell.fit_addon?.fit()
@@ -108,13 +109,13 @@ export function Shell () {
             >
                 <Resizable
                     className='editor-resizable'
-                    enable={{ top: false, right: editorState.enableRight, bottom: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
-                    size={{ height: editorState.height, width: editorState.width }}
-                    maxWidth={editorState.maxWidth}
+                    enable={{ top: false, right: editor_state.right, bottom: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
+                    size={{ height: editor_state.height, width: editor_state.width }}
+                    maxWidth={editor_state.maxWidth}
                     handleStyles={{ bottom: { height: 6, bottom: -3 } }}
                     handleClasses={{ bottom: 'resizable-handle' }}
                     onResizeStop={async (e, direction, ref, d) => {
-                        setEditorState(preval => ({
+                        set_editor_state(preval => ({
                             ...preval,
                             width: preval.width + d.width,
                             height: preval.height + d.height
@@ -123,7 +124,7 @@ export function Shell () {
                         shell.fit_addon?.fit()
                     }}
                 >
-                    <ShellEditor collpaseHandler={collpaseHandler}/>
+                    <ShellEditor collapser={collapser}/>
                     {/* <Editor readonly default_value='objs(true)'/> */}
                 </Resizable>
                 

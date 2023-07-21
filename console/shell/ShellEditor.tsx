@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { Switch } from 'antd'
+import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
 
 import { t } from '../../i18n/index.js'
 
@@ -11,9 +12,8 @@ import { Editor, type monacoapi } from './Editor/index.js'
 import { SelectSqlModal } from './SelectSqlModal.js'
 import { ExecuteAction } from './ExecuteAction.js'
 
-import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
 
-export function ShellEditor ({ collpaseHandler }) {
+export function ShellEditor ({ collapser }) {
     
     const [minimap, set_minimap] = useState(() => 
         localStorage.getItem(storage_keys.minimap) === '1'
@@ -23,7 +23,8 @@ export function ShellEditor ({ collpaseHandler }) {
         localStorage.getItem(storage_keys.enter_completion) === '1'
     )
     
-    const [collapsed, setCollapsed] = useState(false)
+    const [collapsed, set_collapsed] = useState(false)
+    
     
     // 标签页关闭前自动保存代码
     useEffect(() => {
@@ -74,12 +75,22 @@ export function ShellEditor ({ collpaseHandler }) {
             
             <div className='padding' />
             
-            <div className='collapse-btn' onClick={() => {
-                    setCollapsed(!collapsed)
-                    collpaseHandler(collapsed)
+            <div
+                className='collapse-btn'
+                onClick={() => {
+                    set_collapsed(!collapsed)
+                    collapser(collapsed)
+                }}
+            >
+                {
+                    collapsed ?
+                        <DoubleLeftOutlined />
+                    :
+                        <span>
+                            {t('隐藏终端') + ' '}
+                            <DoubleRightOutlined />
+                        </span>
                 }
-            }>
-                {collapsed ? <DoubleLeftOutlined /> : <span>{t('隐藏终端') + ' '}<DoubleRightOutlined /></span>}
             </div>
         </div>
         
