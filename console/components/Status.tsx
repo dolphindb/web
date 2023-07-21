@@ -1,5 +1,3 @@
-import { default as React } from 'react'
-
 import { Tag, Popover, Descriptions, Card, Tooltip } from 'antd'
 import { SyncOutlined } from '@ant-design/icons'
 
@@ -21,6 +19,7 @@ const lowercase_node_types = {
     [NodeType.single]: t('单机节点', { context: 'node_type' }),
     [NodeType.computing]: t('计算节点', { context: 'node_type' }),
 }
+
 
 export function Status () {
     const { node_type, node_alias } = model.use(['node_type', 'node_alias'])
@@ -107,7 +106,7 @@ function Performance () {
             <Descriptions.Item label={t('前一分钟写磁盘量')}>
                 {Number(node.lastMinuteWriteVolume).to_fsize_str()}
             </Descriptions.Item>
-            { node.mode !== NodeType.controller && <>
+            { (node.mode !== NodeType.controller && node.mode !== NodeType.computing) && <>
                 <Descriptions.Item label={t('磁盘剩余容量')}>
                     {Number(node.diskFreeSpace).to_fsize_str()}
                 </Descriptions.Item>
