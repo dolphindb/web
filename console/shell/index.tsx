@@ -28,7 +28,6 @@ export function Shell () {
     })
     
     const collpaseHandler = useCallback(async (preCollapsed: boolean) => {
-        
         setEditorState({
             maxWidth: !preCollapsed ? '100%' : '92%', 
             width: !preCollapsed ? '100%' : '75%',

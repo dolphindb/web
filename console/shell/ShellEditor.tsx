@@ -13,7 +13,6 @@ import { ExecuteAction } from './ExecuteAction.js'
 
 import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
 
-
 export function ShellEditor ({ collpaseHandler }) {
     
     const [minimap, set_minimap] = useState(() => 
@@ -25,7 +24,6 @@ export function ShellEditor ({ collpaseHandler }) {
     )
     
     const [collapsed, setCollapsed] = useState(false)
-    
     
     // 标签页关闭前自动保存代码
     useEffect(() => {
@@ -72,7 +70,6 @@ export function ShellEditor ({ collpaseHandler }) {
                 </span>
                 
                 <SelectSqlModal/>
-                
             </div>
             
             <div className='padding' />
