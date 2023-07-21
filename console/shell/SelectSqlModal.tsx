@@ -38,7 +38,7 @@ export function SelectSqlModal () {
             <p>{t('切换 SQL Standard 后，当前页面将会刷新，且内存变量会清空')}</p>
         </Modal>
         
-        <span className='setting' title={t('设置当前代码执行的 SQL 标准')}>
+        <span className='setting sql' title={t('设置当前代码执行的 SQL 标准')}>
             <span className='text' title={t('SQL 标准')}>SQL:</span>
             <Select
                 value={SqlStandard[model.sql]}
