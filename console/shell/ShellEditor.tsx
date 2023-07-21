@@ -79,7 +79,7 @@ export function ShellEditor ({ collpaseHandler }) {
                     collpaseHandler(collapsed)
                 }
             }>
-                {collapsed ? <DoubleLeftOutlined /> : <span style={{ verticalAlign: 'text-top' }}>{t('隐藏终端') + ' '}<DoubleRightOutlined /></span>}
+                {collapsed ? <DoubleLeftOutlined /> : <span>{t('隐藏终端') + ' '}<DoubleRightOutlined /></span>}
             </div>
         </div>
         
