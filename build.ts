@@ -52,11 +52,7 @@ if (process.argv.includes('cloud')) {
         ),
         
         (async () => {
-            await build_bundle({
-                entry: 'formily',
-                library_name: 'Formily',
-                production: true,
-            })
+            await build_bundle({ entry: 'formily', production: true })
             
             await copy_pre_bundle(fpd_out_console)
         })(),

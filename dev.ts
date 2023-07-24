@@ -195,11 +195,7 @@ let server = new DevServer()
 
 await Promise.all([
     server.start(),
-    build_bundle({
-        entry: 'formily',
-        library_name: 'Formily',
-        production: false,
-    }),
+    build_bundle({ entry: 'formily', production: false }),
     webpack.build({ production: false })
 ])
 

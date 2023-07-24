@@ -10,13 +10,12 @@ export const fpd_pre_bundle_dist = ramdisk ? `${fpd_out_console}pre-bundle/` : `
 
 interface IOptions {
     entry: string
-    library_name: string
     production: boolean
 }
 
 
-/** 将 pre-bundle/entries/{entry}.ts 打包到 pre-bundle/dist/{entry}.umd.js，导出 {library_name} 全局变量 */
-export async function build_bundle ({ entry, library_name, production }: IOptions) {
+/** 将 pre-bundle/entries/{entry}.ts 打包到 pre-bundle/dist/{entry}.js */
+export async function build_bundle ({ entry, production }: IOptions) {
     const compiler = Webpack({
         ... base_config,
         
@@ -28,7 +27,7 @@ export async function build_bundle ({ entry, library_name, production }: IOption
         
         output: {
             path: fpd_pre_bundle_dist,
-            filename: `${entry}.umd.js`,
+            filename: `${entry}.js`,
             publicPath: '/',
             globalObject: 'globalThis',
             module: true,
