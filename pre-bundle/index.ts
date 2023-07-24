@@ -31,11 +31,13 @@ export async function build_bundle ({ entry, library_name, production }: IOption
             filename: `${entry}.umd.js`,
             publicPath: '/',
             globalObject: 'globalThis',
+            module: true,
             library: {
-                type: 'umd',
-                name: library_name,
+                type: 'module'
             }
         },
+        
+        externalsType: 'global',
         
         externals: {
             react: 'React',

@@ -35,8 +35,7 @@ export const base_config: Webpack.Configuration = {
     devtool: 'source-map',
     
     experiments: {
-        // outputModule: true,
-        topLevelAwait: true,
+        outputModule: true,
     },
     
     target: ['web', 'es2022'],
@@ -191,8 +190,13 @@ export let webpack = {
                     publicPath: '/',
                     pathinfo: true,
                     globalObject: 'globalThis',
+                    module: true,
+                    library: {
+                        type: 'module',
+                    }
                 },
                 
+                externalsType: 'global',
                 
                 externals: {
                     react: 'React',
@@ -204,9 +208,9 @@ export let webpack = {
                     '@ant-design/icons': 'icons',
                     '@ant-design/plots': 'Plots',
                     echarts: 'echarts',
-                    '@formily/core': 'Formily.Core',
-                    '@formily/react': 'Formily.React',
-                    '@formily/antd-v5': 'Formily.AntdV5',
+                    '@formily/core': ['module ./pre-bundle/formily.umd.js', 'Core'],
+                    '@formily/react': ['module ./pre-bundle/formily.umd.js', 'React'],
+                    '@formily/antd-v5': ['module ./pre-bundle/formily.umd.js', 'AntdV5'],
                 },
                 
                 resolve: {
