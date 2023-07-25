@@ -207,9 +207,9 @@ export let webpack = {
                     '@ant-design/icons': 'icons',
                     '@ant-design/plots': 'Plots',
                     echarts: 'echarts',
-                    '@formily/core': ['module ./pre-bundle/formily.umd.js', 'Core'],
-                    '@formily/react': ['module ./pre-bundle/formily.umd.js', 'React'],
-                    '@formily/antd-v5': ['module ./pre-bundle/formily.umd.js', 'AntdV5'],
+                    '@formily/core': ['module ./pre-bundle/formily.js', 'Core'],
+                    '@formily/react': ['module ./pre-bundle/formily.js', 'React'],
+                    '@formily/antd-v5': ['module ./pre-bundle/formily.js', 'AntdV5'],
                 },
                 
                 resolve: {
