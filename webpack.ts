@@ -1,5 +1,4 @@
 import { fileURLToPath } from 'url'
-import path from 'upath'
 
 import dayjs from 'dayjs'
 
@@ -16,7 +15,7 @@ import type { Options as SassOptions } from 'sass-loader'
 import { fexists, Lock } from 'xshell'
 
 
-export const fpd_root = `${path.dirname(fileURLToPath(import.meta.url))}/`
+export const fpd_root = fileURLToPath(import.meta.url).fpd
 
 export const ramdisk = fexists('T:/TEMP/', { print: false })
 export const fpd_ramdisk_root = 'T:/2/ddb/web/'
