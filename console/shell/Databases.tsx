@@ -279,7 +279,7 @@ export function Databases () {
                 :
                     <div className='login-to-view'>
                         <span>{t('登录后查看')}</span>
-                        <a onClick={() => model.goto_login()}>{t('去登陆')}</a>
+                        <a onClick={() => model.goto_login()}>{t('去登录')}</a>
                     </div>
                 }
                 <SetColumnComment />
