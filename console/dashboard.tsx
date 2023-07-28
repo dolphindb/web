@@ -4,10 +4,10 @@ import { useRef, useEffect } from 'react'
 
 import * as echarts from 'echarts'
 
-import { model } from './model.js'
+// import { model } from './model.js'
 
-import { StreamingTable } from './obj.js'
-import { StreamingTest } from './streaming/StreamingTest.js'
+// import { StreamingTable } from './obj.js'
+// import { StreamingTest } from './streaming/StreamingTest.js'
 
 
 export function DashBoard () {
