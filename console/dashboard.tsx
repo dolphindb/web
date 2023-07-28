@@ -4,7 +4,10 @@ import { useRef, useEffect } from 'react'
 
 import * as echarts from 'echarts'
 
+import { model } from './model.js'
+
 import { StreamingTable } from './obj.js'
+import { StreamingTest } from './streaming/StreamingTest.js'
 
 
 export function DashBoard () {
@@ -37,7 +40,8 @@ export function DashBoard () {
     }, [ ])
     
     return <div className='result page'>
-        <StreamingTable table='prices' ctx='page' />
+        {/* <StreamingTable url={model.ddb.url} table='prices' ctx='page' /> */}
+        {/* <StreamingTest /> */}
         <div ref={rdiv} style={{ height: 400 }} />
     </div>
 }
