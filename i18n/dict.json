@@ -1915,5 +1915,8 @@
     },
     "点击可以取消当前执行中的作业": {
         "en": "Click to cancel the currently executing job"
+    },
+    "...共 {{total_lines}} 行": {
+        "en": "... {{total_lines}} lines in total"
     }
 }
