@@ -1918,5 +1918,8 @@
     },
     "··· 共 {{total_lines}} 行 ···": {
         "en": "··· {{total_lines}} lines in total ···"
+    },
+    "没有正在运行的数据节点": {
+        "en": "No datanodes are running"
     }
 }
