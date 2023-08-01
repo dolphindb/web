@@ -28,7 +28,7 @@ import { t } from '../../i18n/index.js'
 
 import { DdbObjRef } from '../obj.js'
 
-import { DdbNode, model, NodeType, storage_keys } from '../model.js'
+import { model, NodeType, storage_keys } from '../model.js'
 
 import type { Monaco } from './Editor/index.js'
 import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, Table } from './Databases.js'
