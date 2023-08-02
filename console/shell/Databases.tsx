@@ -57,7 +57,9 @@ enum TableKind {
 
 export function Databases () {
     const { dbs } = shell.use(['dbs'])
-    const { logined, node_type } = model.use(['logined', 'node_type'])
+    const { nodes, logined, node_type } = model.use(['nodes', 'logined', 'node_type'])
+    
+    const [has_datanode_alive, set_has_datanode_alive] = useState(false)
     
     const [db_height, set_db_height] = useState(256)
     
@@ -67,6 +69,16 @@ export function Databases () {
     
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
     const [refresh_spin, set_refresh_spin] = useState(false)
+    
+    useEffect(() => {
+        for (let i = 0;  i < nodes.length;  i++)
+            // 当存在数据节点运行中
+            if (nodes[i].mode === NodeType.data && nodes[i].state === 1) {
+                set_has_datanode_alive(true)
+                break
+            }
+        
+    }, [ ])
     
     if (!dbs)
         return

@@ -319,20 +319,20 @@ class ShellModel extends Model<ShellModel> {
     
     async load_dbs () {
         // 获取当前集群的所有节点
-        const nodes = model.nodes
-        let hasDataNodeAlive = false
+        // const nodes = model.nodes
+        // let hasDataNodeAlive = false
         
-        for (let i = 0;  i < nodes.length;  i++) 
-            // 当存在数据节点运行中
-            if (nodes[i].mode === 0 && nodes[i].state === 1) {
-                hasDataNodeAlive = true
-                break
-            }
+        // for (let i = 0;  i < nodes.length;  i++) 
+        //     // 当存在数据节点运行中
+        //     if (nodes[i].mode === 0 && nodes[i].state === 1) {
+        //         hasDataNodeAlive = true
+        //         break
+        //     }
         
-        if (!hasDataNodeAlive) {
-            message.error(t('没有正在运行的数据节点'))
-            return
-        }
+        // if (!hasDataNodeAlive) {
+        //     message.error(t('没有正在运行的数据节点'))
+        //     return
+        // }
             
         // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能直接使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
