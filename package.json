@@ -50,7 +50,7 @@
         "webpack-bundle-analyzer": "^4.9.0"
     },
     "dependencies": {
-        "@ant-design/icons": "^5.2.1",
+        "@ant-design/icons": "^5.2.2",
         "@ant-design/plots": "^1.2.5",
         "@ant-design/pro-layout": "^7.16.6",
         "@ebay/nice-modal-react": "^1.2.10",
