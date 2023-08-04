@@ -505,21 +505,22 @@ export class DdbModel extends Model<DdbModel> {
         
         // 匹配当前域名/IP 和 hosts 中域名/IP 的相似度，动态规划最长公共子串
         const calc_host_score = (hostname: string) => {
-            let maxLength = 0 // 最长公共子串的长度
+            let maxlen = 0 // 最长公共子串的长度
             // 初始化 dp 数组
-            let dp: number[][] = Array(hostname.length + 1).fill([ ]) 
-            for (let i = 0;  i < current_connect_host.length + 1;  i++) 
-                dp[i] = Array(current_connect_host.length + 1).fill(0)
-              
+            let dp: number[][] = new Array(hostname.length + 1)
+            for (let i = 0;  i < hostname.length + 1;  i++) 
+                dp[i] = new Array(current_connect_host.length + 1).fill(0)
+            
             for (let i = 1;  i <= hostname.length;  i++) 
                 for (let j = 1;  j <= current_connect_host.length;  j++)
                     if (hostname[i - 1] === current_connect_host[j - 1]) {
                         dp[i][j] = dp[i - 1][j - 1] + 1 // 如果字符相同，则在前一个基础上加1
-                    if (dp[i][j] > maxLength)
-                        maxLength = dp[i][j] // 更新最长公共子串的长度
+                        if (dp[i][j] > maxlen)
+                            maxlen = dp[i][j] // 更新最长公共子串的长度
                     } else
                         dp[i][j] = 0 // 如果字符不相同，则重置为0
-            return maxLength
+            
+            return maxlen
         }
         
         const [closest] = hosts.slice(1).reduce<readonly [string, number]>((prev, hostname) => {
