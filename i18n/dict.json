@@ -1921,5 +1921,14 @@
     },
     "没有正在运行的数据节点": {
         "en": "No datanodes are running"
+    },
+    "当前无数据节点和计算节点运行": {
+        "en": "Currently no data nodes and compute nodes are running"
+    },
+    "去启动节点": {
+        "en": "To start the node"
+    },
+    "没有正在运行的数据节点和计算节点": {
+        "en": "No running data nodes and compute nodes"
     }
 }
