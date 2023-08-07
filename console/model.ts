@@ -496,6 +496,15 @@ export class DdbModel extends Model<DdbModel> {
         this.set({ nodes, node, controller, datanode })
     }
     
+    /** 判断当前集群是否有数据节点或计算节点正在运行 */
+    has_data_and_computing_nodes_alive () {
+        return Boolean(
+            this.nodes.find(node =>
+                (node.mode === NodeType.data || node.mode === NodeType.computing) && 
+                node.state === DdbNodeState.online)
+        )
+    }
+    
     
     find_closest_node_host (node: DdbNode) {
         const params = new URLSearchParams(location.search)
