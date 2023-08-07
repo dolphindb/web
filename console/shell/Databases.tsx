@@ -59,8 +59,6 @@ export function Databases () {
     const { dbs } = shell.use(['dbs'])
     const { nodes, logined, node_type } = model.use(['nodes', 'logined', 'node_type'])
     
-    const [has_datanode_alive, set_has_datanode_alive] = useState(false)
-    
     const [db_height, set_db_height] = useState(256)
     
     const [expanded_keys, set_expanded_keys] = useState([ ])
@@ -70,18 +68,14 @@ export function Databases () {
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
     const [refresh_spin, set_refresh_spin] = useState(false)
     
-    useEffect(() => {
+    const has_datanode_alive = useRef(() => {
         for (let i = 0;  i < nodes.length;  i++)
-            // 当存在数据节点运行中
-            if (nodes[i].mode === NodeType.data && nodes[i].state === 1) {
-                set_has_datanode_alive(true)
-                break
-            }
-        
-    }, [ ])
+            // 当存在数据节点或计算节点运行中
+            if ((nodes[i].mode === NodeType.data || nodes[i].mode === NodeType.computing) && nodes[i].state === 1) 
+                return true
+        return false
+    })
     
-    if (!dbs)
-        return
     
     return <Resizable
         className='treeview-resizable-split1'
@@ -150,144 +144,150 @@ export function Databases () {
                     </span>
                 </div>
                 { (logined || dbs.length) ?
-                    <Tree
-                        className='database-tree'
-                        showIcon
-                        focusable={false}
-                        blockNode
-                        showLine
-                        
-                        // 启用虚拟滚动
-                        height={db_height}
-                        
-                        treeData={dbs}
-                        
-                        loadedKeys={loaded_keys}
-                        loadData={async (node: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
-                            try {
-                                switch (node.type) {
-                                    case 'column-root':
-                                    case 'partition-root':
-                                    case 'partition-directory':
-                                    case 'table':
-                                        await node.self.load_children()
-                                        
-                                        shell.set({ dbs: [...dbs] })
-                                        
-                                        break
-                                }
-                            } catch (error) {
-                                model.show_error({ error })
-                                
-                                // 这里不往上扔错误，避免 rc-tree 自动重试造成多个错误弹窗
-                                // throw error
-                            }
-                        }}
-                        onLoad={ keys => { set_loaded_keys(keys) }}
-                        
-                        expandedKeys={expanded_keys}
-                        onExpand={ keys => { set_expanded_keys(keys) }}
-                        
-                        onClick={async (event, { self: node, type }: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>) => {
-                            const previous = previous_clicked_node.current
-                            if (previous && previous.key !== node.key && previous.type === 'table')
-                                previous.peeked = false
+                    (has_datanode_alive || nodes[0].mode === NodeType.single) ?
+                        <Tree
+                            className='database-tree'
+                            showIcon
+                            focusable={false}
+                            blockNode
+                            showLine
                             
-                            switch (type) {
-                                case 'database-group': 
-                                case 'partition-root': 
-                                case 'column-root': 
-                                case 'partition-directory': {
-                                    // 切换展开状态
-                                    let found = false
-                                    let keys_ = [ ]
+                            // 启用虚拟滚动
+                            height={db_height}
+                            
+                            treeData={dbs}
+                            
+                            loadedKeys={loaded_keys}
+                            loadData={async (node: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
+                                try {
+                                    switch (node.type) {
+                                        case 'column-root':
+                                        case 'partition-root':
+                                        case 'partition-directory':
+                                        case 'table':
+                                            await node.self.load_children()
+                                            
+                                            shell.set({ dbs: [...dbs] })
+                                            
+                                            break
+                                    }
+                                } catch (error) {
+                                    model.show_error({ error })
                                     
-                                    for (const key of expanded_keys)
-                                        if (key === node.key)
-                                            found = true
-                                        else
-                                            keys_.push(key)
-                                    
-                                    if (!found)
-                                        keys_.push(node.key)
-                                    
-                                    set_expanded_keys(keys_)
-                                    break
+                                    // 这里不往上扔错误，避免 rc-tree 自动重试造成多个错误弹窗
+                                    // throw error
                                 }
+                            }}
+                            onLoad={ keys => { set_loaded_keys(keys) }}
+                            
+                            expandedKeys={expanded_keys}
+                            onExpand={ keys => { set_expanded_keys(keys) }}
+                            
+                            onClick={async (event, { self: node, type }: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>) => {
+                                const previous = previous_clicked_node.current
+                                if (previous && previous.key !== node.key && previous.type === 'table')
+                                    previous.peeked = false
                                 
-                                case 'database': {
-                                    // 切换展开状态
-                                    let found = false
-                                    let keys_ = [ ]
-                                    
-                                    for (const key of expanded_keys)
-                                        if (key === node.key)
-                                            found = true
-                                        else
-                                            keys_.push(key)
-                                    
-                                    if (!found) {
-                                        keys_.push(node.key)
+                                switch (type) {
+                                    case 'database-group': 
+                                    case 'partition-root': 
+                                    case 'column-root': 
+                                    case 'partition-directory': {
+                                        // 切换展开状态
+                                        let found = false
+                                        let keys_ = [ ]
                                         
-                                        // 显示 schema
+                                        for (const key of expanded_keys)
+                                            if (key === node.key)
+                                                found = true
+                                            else
+                                                keys_.push(key)
+                                        
+                                        if (!found)
+                                            keys_.push(node.key)
+                                        
+                                        set_expanded_keys(keys_)
+                                        break
+                                    }
+                                    
+                                    case 'database': {
+                                        // 切换展开状态
+                                        let found = false
+                                        let keys_ = [ ]
+                                        
+                                        for (const key of expanded_keys)
+                                            if (key === node.key)
+                                                found = true
+                                            else
+                                                keys_.push(key)
+                                        
+                                        if (!found) {
+                                            keys_.push(node.key)
+                                            
+                                            // 显示 schema
+                                            try {
+                                                await node.inspect()
+                                            } catch (error) {
+                                                model.show_error({ error })
+                                                throw error
+                                            }  
+                                        }
+                                        
+                                        set_expanded_keys(keys_)
+                                        break
+                                    }
+                                    
+                                    case 'partition-file':
+                                    case 'schema':
                                         try {
                                             await node.inspect()
                                         } catch (error) {
                                             model.show_error({ error })
                                             throw error
-                                        }  
-                                    }
+                                        }
+                                        break
                                     
-                                    set_expanded_keys(keys_)
-                                    break
+                                    case 'table': {
+                                        // 一个 Table 有两种属性 expanded + peeked，共四种状态。以下代码完成4种状态的流转
+                                        let expanded = false
+                                        const  { peeked } = node
+                                        let keys_ = [ ]
+                                        
+                                        for (const key of expanded_keys)
+                                            if (key === node.key)
+                                                expanded = true
+                                            else
+                                                keys_.push(key)
+                                        
+                                        if (expanded !== peeked)
+                                            keys_.push(node.key)
+                                        
+                                        set_expanded_keys(keys_)
+                                        
+                                        try {
+                                            await node.inspect()
+                                        } catch (error) {
+                                            model.show_error({ error })
+                                            throw error
+                                        }
+                                        
+                                        node.peeked = true
+                                        
+                                        break
+                                    }
                                 }
                                 
-                                case 'partition-file':
-                                case 'schema':
-                                    try {
-                                        await node.inspect()
-                                    } catch (error) {
-                                        model.show_error({ error })
-                                        throw error
-                                    }
-                                    break
-                                
-                                case 'table': {
-                                    // 一个 Table 有两种属性 expanded + peeked，共四种状态。以下代码完成4种状态的流转
-                                    let expanded = false
-                                    const  { peeked } = node
-                                    let keys_ = [ ]
-                                    
-                                    for (const key of expanded_keys)
-                                        if (key === node.key)
-                                            expanded = true
-                                        else
-                                            keys_.push(key)
-                                    
-                                    if (expanded !== peeked)
-                                        keys_.push(node.key)
-                                    
-                                    set_expanded_keys(keys_)
-                                    
-                                    try {
-                                        await node.inspect()
-                                    } catch (error) {
-                                        model.show_error({ error })
-                                        throw error
-                                    }
-                                    
-                                    node.peeked = true
-                                    
-                                    break
-                                }
-                            }
+                                previous_clicked_node.current = node
+                            }}
                             
-                            previous_clicked_node.current = node
-                        }}
-                        
-                        
-                        // onContextMenu={event => { event.preventDefault() }}
-                    />
+                            
+                            // onContextMenu={event => { event.preventDefault() }}
+                        />
+                    :
+                        <div className='login-to-view'>
+                            <span>{t('当前无数据节点和计算节点运行')}</span>
+                            <a onClick={async () => model.goto_default_view()}>{t('去启动节点')}</a>
+                        </div>
                 :
                     <div className='login-to-view'>
                         <span>{t('登录后查看')}</span>
