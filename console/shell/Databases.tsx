@@ -285,7 +285,7 @@ export function Databases () {
                         />
                     :
                         <div className='login-to-view'>
-                            <span>{t('当前无数据节点和计算节点运行')}</span>
+                            <span>{t('没有正在运行的数据节点和计算节点')}</span>
                             <a onClick={async () => model.goto_default_view()}>{t('去启动节点')}</a>
                         </div>
                 :
