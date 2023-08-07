@@ -69,9 +69,9 @@ export function Databases () {
     const [refresh_spin, set_refresh_spin] = useState(false)
     
     const has_datanode_alive = useRef(() => {
-        for (let i = 0;  i < nodes.length;  i++)
+        for ( let node of nodes )
             // 当存在数据节点或计算节点运行中
-            if ((nodes[i].mode === NodeType.data || nodes[i].mode === NodeType.computing) && nodes[i].state === 1) 
+            if ((node.mode === NodeType.data || node.mode === NodeType.computing) && node.state === 1) 
                 return true
         return false
     })

@@ -322,9 +322,9 @@ class ShellModel extends Model<ShellModel> {
         const nodes = model.nodes
         let hasDataNodeAlive = false
         
-        for (let i = 0;  i < nodes.length;  i++) 
+        for (let node of nodes) 
             // 当存在数据节点运行中
-            if ((nodes[i].mode === NodeType.data || nodes[i].mode === NodeType.computing) && nodes[i].state === 1) {
+            if ((node.mode === NodeType.data || node.mode === NodeType.computing) && node.state === 1) {
                 hasDataNodeAlive = true
                 break
             }
