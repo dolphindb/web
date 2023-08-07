@@ -27,7 +27,7 @@ import { t } from '../../i18n/index.js'
 
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 
-import { model, NodeType } from '../model.js'
+import { DdbNodeState, model, NodeType } from '../model.js'
 import { shell } from './model.js'
 
 import { Editor } from './Editor/index.js'
@@ -57,7 +57,7 @@ enum TableKind {
 
 export function Databases () {
     const { dbs } = shell.use(['dbs'])
-    const { nodes, logined, node_type } = model.use(['nodes', 'logined', 'node_type'])
+    const { nodes, node, logined, node_type } = model.use(['nodes', 'node', 'logined', 'node_type'])
     
     const [db_height, set_db_height] = useState(256)
     
@@ -68,13 +68,7 @@ export function Databases () {
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
     const [refresh_spin, set_refresh_spin] = useState(false)
     
-    const has_datanode_alive = useRef(() => {
-        for ( let node of nodes )
-            // 当存在数据节点或计算节点运行中
-            if ((node.mode === NodeType.data || node.mode === NodeType.computing) && node.state === 1) 
-                return true
-        return false
-    })
+    const has_datanode_alive = nodes.every(node => (node.mode === NodeType.data || node.mode === NodeType.computing) && node.state === DdbNodeState.online)
     
     
     return <Resizable
@@ -144,7 +138,7 @@ export function Databases () {
                     </span>
                 </div>
                 { (logined || dbs.length) ?
-                    (has_datanode_alive || nodes[0].mode === NodeType.single) ?
+                    (has_datanode_alive || node.mode === NodeType.single) ?
                         <Tree
                             className='database-tree'
                             showIcon
@@ -286,7 +280,7 @@ export function Databases () {
                     :
                         <div className='login-to-view'>
                             <span>{t('没有正在运行的数据节点和计算节点')}</span>
-                            <a onClick={async () => model.goto_default_view()}>{t('去启动节点')}</a>
+                            <a onClick={ () => model.set({ view: 'overview' }) }>{t('去启动节点')}</a>
                         </div>
                 :
                     <div className='login-to-view'>
