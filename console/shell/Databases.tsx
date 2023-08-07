@@ -68,7 +68,11 @@ export function Databases () {
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
     const [refresh_spin, set_refresh_spin] = useState(false)
     
-    const has_datanode_alive = Boolean(nodes.find(node => (node.mode === NodeType.data || node.mode === NodeType.computing) && node.state === DdbNodeState.online))
+    const has_datanode_alive = Boolean(
+        nodes.find(node =>
+            (node.mode === NodeType.data || node.mode === NodeType.computing) && 
+            node.state === DdbNodeState.online)
+    )
     
     
     return <Resizable
@@ -137,7 +141,7 @@ export function Databases () {
                         </span>
                     </span>
                 </div>
-                { (logined || dbs.length) ?
+                {(logined || dbs.length) ?
                     (has_datanode_alive || node.mode === NodeType.single) ?
                         <Tree
                             className='database-tree'
@@ -278,9 +282,9 @@ export function Databases () {
                             // onContextMenu={event => { event.preventDefault() }}
                         />
                     :
-                        <div className='login-to-view'>
+                        <div className='start-node-to-view'>
                             <span>{t('没有正在运行的数据节点和计算节点')}</span>
-                            <a onClick={ () => model.set({ view: 'overview' }) }>{t('去启动节点')}</a>
+                            <a onClick={() => model.set({ view: 'overview' }) }>{t('去启动节点')}</a>
                         </div>
                 :
                     <div className='login-to-view'>
