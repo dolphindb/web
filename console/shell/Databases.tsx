@@ -68,7 +68,7 @@ export function Databases () {
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
     const [refresh_spin, set_refresh_spin] = useState(false)
     
-    const has_datanode_alive = nodes.every(node => (node.mode === NodeType.data || node.mode === NodeType.computing) && node.state === DdbNodeState.online)
+    const has_datanode_alive = Boolean(nodes.find(node => (node.mode === NodeType.data || node.mode === NodeType.computing) && node.state === DdbNodeState.online))
     
     
     return <Resizable

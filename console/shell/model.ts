@@ -319,7 +319,7 @@ class ShellModel extends Model<ShellModel> {
     async load_dbs () {
         // 获取当前集群的所有节点
         const nodes = model.nodes
-        let hasDataNodeAlive = nodes.every(node => (node.mode === NodeType.data || node.mode === NodeType.computing) && node.state === DdbNodeState.online)
+        let hasDataNodeAlive = Boolean(nodes.find(node => (node.mode === NodeType.data || node.mode === NodeType.computing) && node.state === DdbNodeState.online))
         // 当前无数据节点和计算节点存活，且当前节点不为单机节点，则不进行数据库表获取
         if (!hasDataNodeAlive && model.node.mode !== NodeType.single) 
             return
