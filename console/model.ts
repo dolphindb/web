@@ -498,28 +498,29 @@ export class DdbModel extends Model<DdbModel> {
     
     
     find_closest_node_host (node: DdbNode) {
-        const ip_pattern = /\d+\.\d+\.\d+\.\d+/
-        
         const params = new URLSearchParams(location.search)
         const current_connect_host = params.get('hostname') || location.hostname
-        const current_connect_host_parts = ip_pattern.test(current_connect_host) 
-            ? current_connect_host.split('.') 
-            : current_connect_host.split('.').reverse()
         
         const hosts = [...node.publicName.split(';').map(name => name.trim()), node.host]
         
+        // 匹配当前域名/IP 和 hosts 中域名/IP 的相似度，动态规划最长公共子串
         const calc_host_score = (hostname: string) => {
-            const compare_host_parts = ip_pattern.test(hostname) 
-                ? hostname.split('.') 
-                : hostname.split('.').reverse()
-            const score = compare_host_parts.reduce((total_score, part, i) => {
-                const part_score = part === current_connect_host_parts[i] 
-                    ? 2 << (compare_host_parts.length - i) 
-                    : 0
-                return total_score + part_score
-            }, 0)
+            let maxlen = 0 // 最长公共子串的长度
+            // 初始化 dp 数组
+            let dp: number[][] = new Array(hostname.length + 1)
+            for (let i = 0;  i < hostname.length + 1;  i++) 
+                dp[i] = new Array(current_connect_host.length + 1).fill(0)
             
-            return score
+            for (let i = 1;  i <= hostname.length;  i++) 
+                for (let j = 1;  j <= current_connect_host.length;  j++)
+                    if (hostname[i - 1] === current_connect_host[j - 1]) {
+                        dp[i][j] = dp[i - 1][j - 1] + 1 // 如果字符相同，则在前一个基础上加1
+                        if (dp[i][j] > maxlen)
+                            maxlen = dp[i][j] // 更新最长公共子串的长度
+                    } else
+                        dp[i][j] = 0 // 如果字符不相同，则重置为0
+            
+            return maxlen
         }
         
         const [closest] = hosts.slice(1).reduce<readonly [string, number]>((prev, hostname) => {
