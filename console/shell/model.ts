@@ -28,7 +28,7 @@ import { t } from '../../i18n/index.js'
 
 import { DdbObjRef } from '../obj.js'
 
-import { DdbNodeState, model, NodeType, storage_keys } from '../model.js'
+import { model, NodeType, storage_keys } from '../model.js'
 
 import type { Monaco } from './Editor/index.js'
 import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, Table } from './Databases.js'
@@ -318,9 +318,9 @@ class ShellModel extends Model<ShellModel> {
     
     async load_dbs () {
         // 当前无数据节点和计算节点存活，且当前节点不为单机节点，则不进行数据库表获取
-        if (!model.has_data_and_computing_nodes_alive() && model.node.mode !== NodeType.single) 
+        if (model.node.mode !== NodeType.single && !model.has_data_and_computing_nodes_alive()) 
             return
-            
+        
         // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能直接使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
         // 但对于无数据表的数据库，仍然需要通过 getClusterDFSDatabases 来获取。因此要组合使用

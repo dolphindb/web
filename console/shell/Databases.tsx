@@ -27,7 +27,7 @@ import { t } from '../../i18n/index.js'
 
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 
-import { DdbNodeState, model, NodeType } from '../model.js'
+import { model, NodeType } from '../model.js'
 import { shell } from './model.js'
 
 import { Editor } from './Editor/index.js'
@@ -57,7 +57,7 @@ enum TableKind {
 
 export function Databases () {
     const { dbs } = shell.use(['dbs'])
-    const { nodes, node, logined, node_type } = model.use(['nodes', 'node', 'logined', 'node_type'])
+    const { node, logined, node_type } = model.use(['node', 'logined', 'node_type'])
     
     const [db_height, set_db_height] = useState(256)
     
@@ -67,8 +67,6 @@ export function Databases () {
     
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
     const [refresh_spin, set_refresh_spin] = useState(false)
-    
-    const has_datanode_alive = model.has_data_and_computing_nodes_alive()
     
     
     return <Resizable
@@ -138,7 +136,7 @@ export function Databases () {
                     </span>
                 </div>
                 {(logined || dbs.length) ?
-                    (has_datanode_alive || node.mode === NodeType.single) ?
+                    (model.has_data_and_computing_nodes_alive() || node.mode === NodeType.single) ?
                         <Tree
                             className='database-tree'
                             showIcon
