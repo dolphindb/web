@@ -23,7 +23,6 @@ import { Settings } from './Settings.js'
 
 import SvgArrowDown from './icons/arrow.down.icon.svg'
 
-import './DdbHeader.sass'
 
 export function DdbHeader () {
     const { logined, username, node_alias } = model.use(['logined', 'username', 'node_alias'])
@@ -38,8 +37,10 @@ export function DdbHeader () {
         <img className='logo' src='./ddb.svg' />
         
         { model.dev && 
-            <Button className='refreshBtn' size='small' icon={<ReloadOutlined /> } 
-                onClick={async () => model.recompile_and_refresh() }>{t('编译并刷新')}</Button> }
+            <Button
+                className='refresh-button' size='small' icon={<ReloadOutlined /> } 
+                onClick={async () => { await model.recompile_and_refresh() } }
+            >{t('编译并刷新')}</Button> }
         
         <div className='padding' />
         
