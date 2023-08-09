@@ -1,12 +1,13 @@
 import { useEffect } from 'react'
 
-import { Dropdown, Avatar } from 'antd'
+import { Dropdown, Avatar, Button } from 'antd'
 
 import {
     default as _Icon,
     LoginOutlined,
     LogoutOutlined, 
     UserOutlined,
+    ReloadOutlined,
 } from '@ant-design/icons'
 const Icon: typeof _Icon.default = _Icon as any
 
@@ -22,6 +23,7 @@ import { Settings } from './Settings.js'
 
 import SvgArrowDown from './icons/arrow.down.icon.svg'
 
+import './DdbHeader.sass'
 
 export function DdbHeader () {
     const { logined, username, node_alias } = model.use(['logined', 'username', 'node_alias'])
@@ -34,6 +36,10 @@ export function DdbHeader () {
     
     return <>
         <img className='logo' src='./ddb.svg' />
+        
+        { model.dev && 
+            <Button className='refreshBtn' size='small' icon={<ReloadOutlined /> } 
+                onClick={async () => model.recompile_and_refresh() }>{t('编译并刷新')}</Button> }
         
         <div className='padding' />
         

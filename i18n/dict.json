@@ -26,6 +26,9 @@
     "刷新": {
         "en": "Refresh"
     },
+    "编译并刷新": {
+        "en": "Compile and refresh"
+    },
     "输入关键字后按回车可搜索作业": {
         "en": "Type keywords then press enter to search jobs"
     },

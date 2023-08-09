@@ -39,7 +39,7 @@ createRoot(
 const locales = { zh, en, ja, ko }
 
 function DolphinDB () {
-    return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false} theme={{ hashed: false }}>
+    return <ConfigProvider locale={locales[language] as any} autoInsertSpaceInButton={false} theme={{ hashed: false, token: { borderRadius: 0 } }}>
         <NiceModal.Provider>
             <App className='app'>
                 <MainLayout />
