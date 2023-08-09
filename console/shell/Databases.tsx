@@ -135,7 +135,7 @@ export function Databases () {
                         </span>
                     </span>
                 </div>
-                {logined ?
+                {(logined || dbs?.length ) ?
                     (model.has_data_and_computing_nodes_alive() || node.mode === NodeType.single) ?
                         <Tree
                             className='database-tree'
