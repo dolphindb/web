@@ -12,8 +12,8 @@ dependencies:
     specifier: ^1.2.5
     version: 1.2.5(react-dom@18.2.0)(react@18.2.0)
   '@ant-design/pro-layout':
-    specifier: ^7.16.7
-    version: 7.16.7(antd@5.8.2)(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^7.16.8
+    version: 7.16.8(antd@5.8.2)(react-dom@18.2.0)(react@18.2.0)
   '@ebay/nice-modal-react':
     specifier: ^1.2.10
     version: 1.2.10(react-dom@18.2.0)(react@18.2.0)
@@ -42,8 +42,8 @@ dependencies:
     specifier: ^1.11.9
     version: 1.11.9
   dolphindb:
-    specifier: ^2.0.1007
-    version: 2.0.1007(react-dom@18.2.0)
+    specifier: ^2.0.1009
+    version: 2.0.1009(react-dom@18.2.0)
   echarts:
     specifier: ^5.4.3
     version: 5.4.3
@@ -58,13 +58,13 @@ dependencies:
     version: 4.17.21
   monaco-dolphindb:
     specifier: 0.0.5
-    version: 0.0.5(dolphindb@2.0.1007)(monaco-editor@0.41.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0)
+    version: 0.0.5(dolphindb@2.0.1009)(monaco-editor@0.41.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0)
   monaco-editor:
     specifier: ^0.41.0
     version: 0.41.0
   re-resizable:
-    specifier: ^6.9.9
-    version: 6.9.9(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^6.9.11
+    version: 6.9.11(react-dom@18.2.0)(react@18.2.0)
   react-dom:
     specifier: ^18.2.0
     version: 18.2.0(react@18.2.0)
@@ -81,8 +81,8 @@ dependencies:
     specifier: ^9.0.0
     version: 9.0.0
   xshell:
-    specifier: ^1.0.46
-    version: 1.0.46(react-dom@18.2.0)
+    specifier: ^1.0.48
+    version: 1.0.48(react-dom@18.2.0)
   xterm:
     specifier: ^5.2.1
     version: 5.2.1
@@ -264,8 +264,8 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@ant-design/pro-layout@7.16.7(antd@5.8.2)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-JTiw3wn0eAJmVJ3ndkHWQMIiaxgPbo7vNtCcJEdc9S1tOHluiQ0VdbvvtJ6a0ImomyEbBz7RAl29Mjl+ubo0jg==}
+  /@ant-design/pro-layout@7.16.8(antd@5.8.2)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-TEBEq9pUmbjNLu1HCd+EpTslwPcK1oTZ0r5wKooYg8iG78L+qn6hpLOvjFqU51Ttr0RNdOnQPD6M0+riyDciKw==}
     peerDependencies:
       antd: '>=4.23.0 || >=5.0.0'
       react: '>=17.0.0'
@@ -273,7 +273,7 @@ packages:
     dependencies:
       '@ant-design/icons': 5.2.5(react-dom@18.2.0)(react@18.2.0)
       '@ant-design/pro-provider': 2.12.1(antd@5.8.2)(react-dom@18.2.0)(react@18.2.0)
-      '@ant-design/pro-utils': 2.12.9(antd@5.8.2)(react-dom@18.2.0)(react@18.2.0)
+      '@ant-design/pro-utils': 2.13.0(antd@5.8.2)(react-dom@18.2.0)(react@18.2.0)
       '@babel/runtime': 7.22.6
       '@umijs/route-utils': 4.0.1
       '@umijs/use-params': 1.0.9(react@18.2.0)
@@ -308,8 +308,8 @@ packages:
       swr: 2.0.3(react@18.2.0)
     dev: false
 
-  /@ant-design/pro-utils@2.12.9(antd@5.8.2)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-TN/JvhkPSZJ4GzklgbhbClTdGPgy8r66+yIxtph0nTkV9ptVnZpB55/lm6AXSk6fJARVHEzqmMLcqUMJdP8JuQ==}
+  /@ant-design/pro-utils@2.13.0(antd@5.8.2)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-K+NwZIuZ1cEWCwJnjyH/OXBUvsqz7XT/7SaU9778Itoh4IVbX7/Xgmq00uKn+ofTXSkfaioV2iVkHleUAcRGQg==}
     peerDependencies:
       antd: '>=4.23.0 || >=5.0.0'
       react: '>=17.0.0'
@@ -321,6 +321,7 @@ packages:
       antd: 5.8.2(react-dom@18.2.0)(react@18.2.0)
       classnames: 2.3.2
       dayjs: 1.11.9
+      lodash.merge: 4.6.2
       rc-util: 5.35.0(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -1013,7 +1014,7 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
     dependencies:
-      '@babel/types': 7.22.5
+      '@babel/types': 7.22.10
     dev: false
 
   /@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression@7.18.6(@babel/core@7.21.4):
@@ -2061,15 +2062,6 @@ packages:
 
   /@babel/types@7.22.10:
     resolution: {integrity: sha512-obaoigiLrlDZ7TUQln/8m4mSqIW2QFeOrCQc9r+xsaHGNoplVNYlRVpsfE8Vj35GEm2ZH4ZhrNYogs/3fj85kg==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      '@babel/helper-string-parser': 7.22.5
-      '@babel/helper-validator-identifier': 7.22.5
-      to-fast-properties: 2.0.0
-    dev: false
-
-  /@babel/types@7.22.5:
-    resolution: {integrity: sha512-zo3MIHGOkPOfoRXitsgHLjEXmlDaD/5KU1Uzuc9GNiZPhSqVxVRtxuPaSBZDsYZ9qV88AjtMtWW7ww98loJ9KA==}
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/helper-string-parser': 7.22.5
@@ -4247,14 +4239,14 @@ packages:
       esutils: 2.0.3
     dev: true
 
-  /dolphindb@2.0.1007(react-dom@18.2.0):
-    resolution: {integrity: sha512-C//3XdHNKDy4toZXq9T9NItC5uCAz3tFSG1YiPFRV6DsHqP0v6mud3RwDqXO8NnyxLT7np9cyYpNyRgzEYRdxA==}
+  /dolphindb@2.0.1009(react-dom@18.2.0):
+    resolution: {integrity: sha512-Fd/RQXyVjR63mrDMTVfuzaXEwSIKvRnF9iR628sJ8ihFdevjv2V2jTh4NxMip2yrODqPqVkUSBQ66ZlTHV9fsg==}
     engines: {node: '>=19.8.1'}
     dependencies:
       dayjs: 1.11.9
       ipaddr.js: 2.1.0
       tslib: 2.6.1
-      xshell: 1.0.46(react-dom@18.2.0)
+      xshell: 1.0.48(react-dom@18.2.0)
     transitivePeerDependencies:
       - bufferutil
       - react-dom
@@ -4994,7 +4986,7 @@ packages:
       eol: 0.9.1
       esprima-next: 5.8.4
       gulp-sort: 2.0.0
-      i18next: 23.4.2
+      i18next: 23.4.4
       lodash: 4.17.21
       parse5: 6.0.1
       sortobject: 4.16.0
@@ -5003,8 +4995,8 @@ packages:
       vinyl-fs: 4.0.0
     dev: false
 
-  /i18next@23.4.2:
-    resolution: {integrity: sha512-hkVPHKFLtn9iewdqHDiU+MGVIBk+bVFn5usw7CIeCn/SBcVKGTItGdjNPm2B8Lnz42CeHUlnSOTgsr5vbITjhA==}
+  /i18next@23.4.4:
+    resolution: {integrity: sha512-+c9B0txp/x1m5zn+QlwHaCS9vyFtmIAEXbVSFzwCX7vupm5V7va8F9cJGNJZ46X9ZtoGzhIiRC7eTIIh93TxPA==}
     dependencies:
       '@babel/runtime': 7.22.6
     dev: false
@@ -5586,7 +5578,7 @@ packages:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
     dev: false
 
-  /monaco-dolphindb@0.0.5(dolphindb@2.0.1007)(monaco-editor@0.41.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0):
+  /monaco-dolphindb@0.0.5(dolphindb@2.0.1009)(monaco-editor@0.41.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0):
     resolution: {integrity: sha512-Y1X+47PYaHMDb9FGeQc8e00bONpkfxj+1ehiP+8jUQY4oF7ud+fRwZTwL8gSfRaAHMueYbRfz2G3mSzHhfUJMQ==}
     peerDependencies:
       dolphindb: ^2.0.976
@@ -5594,7 +5586,7 @@ packages:
       vscode-oniguruma: ^1.7.0
       vscode-textmate: ^9.0.0
     dependencies:
-      dolphindb: 2.0.1007(react-dom@18.2.0)
+      dolphindb: 2.0.1009(react-dom@18.2.0)
       monaco-editor: 0.41.0
       vscode-oniguruma: 1.7.0
       vscode-textmate: 9.0.0
@@ -5976,13 +5968,6 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
       react: 18.2.0
-    dev: false
-
-  /qs@6.11.2:
-    resolution: {integrity: sha512-tDNIz22aBzCDxLtVH++VnTfzxlfeK5CbqohpSqpJgj1Wg/cQbStNAz3NuqCs5vV+pjBsK4x4pN9HlVh7rcYRiA==}
-    engines: {node: '>=0.6'}
-    dependencies:
-      side-channel: 1.0.4
     dev: false
 
   /querystringify@2.2.0:
@@ -6547,8 +6532,8 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /re-resizable@6.9.9(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-l+MBlKZffv/SicxDySKEEh42hR6m5bAHfNu3Tvxks2c4Ah+ldnWjfnVRwxo/nxF27SsUsxDS0raAzFuJNKABXA==}
+  /re-resizable@6.9.11(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-a3hiLWck/NkmyLvGWUuvkAmN1VhwAz4yOhS6FdMTaxCUVN9joIWkT11wsO68coG/iEYuwn+p/7qAmfQzRhiPLQ==}
     peerDependencies:
       react: ^16.13.1 || ^17.0.0 || ^18.0.0
       react-dom: ^16.13.1 || ^17.0.0 || ^18.0.0
@@ -6575,8 +6560,8 @@ packages:
       react: 18.2.0
       scheduler: 0.23.0
 
-  /react-i18next@13.0.3(i18next@23.4.2)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-/t4kt4Y2o+21hbvx+o9zpVnmoiud7KLDncyZFGN0U6TGAWYaXdTsp/ytAHFcKKSAODg4noIMaOO3X7bMgCqLHw==}
+  /react-i18next@13.1.1(i18next@23.4.4)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-V81cspLxZd37/ltd8Md5Lz99cfeqIn7vJCAUsCXuaTi1vRPKVr0dWq1DhVFUJBHpAi3PJsmFAR3/YstpP+CDYg==}
     peerDependencies:
       i18next: '>= 23.2.3'
       react: '>= 16.8.0'
@@ -6590,7 +6575,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.22.6
       html-parse-stringify: 3.0.1
-      i18next: 23.4.2
+      i18next: 23.4.4
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
@@ -7817,8 +7802,8 @@ packages:
         optional: true
     dev: false
 
-  /xshell@1.0.46(react-dom@18.2.0):
-    resolution: {integrity: sha512-JDZQLc4Hmg9xyWVGVYjvLsTGfx/i2eMd0krDJTEhxlcPT9I5Ik2nb0yIdHfAO+lVLXZ9+zmciwo8fc9ZnqfYtA==}
+  /xshell@1.0.48(react-dom@18.2.0):
+    resolution: {integrity: sha512-ZlS0VAslc1Wz/+X9VQ81i02Isi5Xyas30IDw2eSS+sDVbYubUvnz4CBxBEpbx+gKC/0NkqiE+IUB7tqb4VwWSw==}
     engines: {node: '>=20.5.0', vscode: '>=1.79.0'}
     hasBin: true
     dependencies:
@@ -7839,7 +7824,7 @@ packages:
       fs-extra: 11.1.1
       gulp-sort: 2.0.0
       hash-string: 1.0.0
-      i18next: 23.4.2
+      i18next: 23.4.4
       i18next-scanner: 4.3.0
       js-cookie: 3.0.5
       koa: 2.14.2
@@ -7849,9 +7834,8 @@ packages:
       map-stream: 0.0.7
       mime-types: 2.1.35
       ora: 7.0.1
-      qs: 6.11.2
       react: 18.2.0
-      react-i18next: 13.0.3(i18next@23.4.2)(react-dom@18.2.0)(react@18.2.0)
+      react-i18next: 13.1.1(i18next@23.4.4)(react-dom@18.2.0)(react@18.2.0)
       resolve-path: 1.4.0
       strip-ansi: 7.1.0
       through2: 4.0.2
