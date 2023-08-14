@@ -457,8 +457,7 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 获取 nodes 和 node 信息
         https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/g/getClusterPerf.html  
-        Only master or single mode supports function getClusterPerf.
-    */
+        Only master or single mode supports function getClusterPerf. */
     async get_cluster_perf (print: boolean) {
         const nodes = (
             await this.ddb.call<DdbObj<DdbObj[]>>('getClusterPerf', [true], {
