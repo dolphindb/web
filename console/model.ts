@@ -2,7 +2,6 @@ import dayjs from 'dayjs'
 
 import { Model } from 'react-object-model'
 
-import { Modal } from 'antd'
 import type { BaseType } from 'antd/es/typography/Base/index.js'
 import type { MessageInstance } from 'antd/es/message/interface.js'
 import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
@@ -379,13 +378,13 @@ export class DdbModel extends Model<DdbModel> {
         const is_license_expire_soon = after_two_week.isAfter(expiration_date, 'day')
         
         if (is_license_expired)
-            Modal.error({
+            this.modal.error({
                 title: t('License 过期提醒'),
                 content: t('DolphinDB License 已过期，请联系管理人员立即更新，避免数据库关闭'),
                 width: 600,
             })
          else if (is_license_expire_soon)
-             Modal.warning({
+             this.modal.warning({
                 title: t('License 过期提醒'),
                 content: t('DolphinDB License 将在两周内过期，请提醒管理人员及时更新，避免数据库过期后自动关闭'),
                 width: 700,
@@ -701,7 +700,7 @@ export class DdbModel extends Model<DdbModel> {
     show_error ({ error, title, content }: { error?: Error, title?: string, content?: string }) {
         console.log(error)
         
-        Modal.error({
+        this.modal.error({
             className: 'modal-error',
             title: title || error?.message,
             content: (() => {
