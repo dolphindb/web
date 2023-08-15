@@ -340,7 +340,7 @@ export class CloudModel extends Model <CloudModel> {
             s = t('转译错误信息出错，待解析文本 {{ text }}', { text: error.response.text })
         }
         
-        Modal.error({
+        this.modal.error({
             content: s,
             footer: false,
             closable: true,

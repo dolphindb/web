@@ -81,7 +81,7 @@ function DolphinDB () {
                 await model.check_authed()
             } catch (error) {
                 // check_authed 未认证不会抛出异常，而是 return false。只有非预期的错误才会抛出异常
-                Modal.error({
+                model.modal.error({
                     title: t('出错了'),
                     content: error.message,
                 })
@@ -114,7 +114,7 @@ function DolphinDB () {
                     try {
                         await model.auth(username, password)
                     } catch (error) {
-                        Modal.error({
+                        model.modal.error({
                             title: t('登录失败'),
                             content: error.message,
                         })
@@ -213,7 +213,7 @@ function DolphinDB () {
                                 form.resetFields(['new_password', 'repeat_password'])
                             }
                         } catch (error) {
-                            Modal.error({
+                            model.modal.error({
                                 title: t('修改失败'),
                                 content: error.message,
                             })

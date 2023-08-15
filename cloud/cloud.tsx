@@ -2327,7 +2327,7 @@ function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, ref
                 }
                 catch (err) {
                     const resp = await err.response.json()
-                    Modal.error(
+                    model.modal.error(
                         {
                             title: 'Error',
                             content: resp.errorMessage
