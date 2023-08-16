@@ -1,16 +1,9 @@
-import './dashboard.sass'
+import * as echarts from 'echarts'
 
 import { useRef, useEffect } from 'react'
 
-import * as echarts from 'echarts'
 
-// import { model } from './model.js'
-
-// import { StreamingTable } from './obj.js'
-// import { StreamingTest } from './streaming/StreamingTest.js'
-
-
-export function DashBoard () {
+export function ECharts () {
     const rdiv = useRef<HTMLDivElement>()
     
     useEffect(() => {
@@ -39,9 +32,5 @@ export function DashBoard () {
         }
     }, [ ])
     
-    return <div className='result page'>
-        {/* <StreamingTable url={model.ddb.url} table='prices' ctx='page' /> */}
-        {/* <StreamingTest /> */}
-        <div ref={rdiv} style={{ height: 400 }} />
-    </div>
+    return <div ref={rdiv} style={{ height: 400 }} />
 }

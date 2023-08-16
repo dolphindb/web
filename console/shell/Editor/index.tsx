@@ -56,7 +56,6 @@ export function Editor ({
     on_change?: OnChange
     options?: monacoapi.editor.IStandaloneEditorConstructionOptions
 }) {
-    
     const finalOptions = useMemo<monacoapi.editor.IStandaloneEditorConstructionOptions>(() => ({
             fontSize: 16,
             

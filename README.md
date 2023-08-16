@@ -65,7 +65,7 @@ git clone https://github.com/dolphindb/web.git
 
 cd web
 
-# install project dependencies
+# Install project dependencies
 pnpm install
 
 # Copy .vscode/settings.template.json to .vscode/settings.json
@@ -76,12 +76,15 @@ cp .vscode/settings.template.json .vscode/settings.json
 # development
 pnpm run dev
 
-# lint
-pnpm run lint
-
 # scan entries
 pnpm run scan
 # Manually complete untranslated entries
 # Run the scan again to update the dictionary file dict.json
 pnpm run scan
+
+#lint
+pnpm run lint
+
+#lint fix
+pnpm run fix
 ```
