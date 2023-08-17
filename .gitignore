@@ -9,6 +9,9 @@ node_modules/
 /pre-bundle/dist/
 /pre-bundle/index.js
 
+# misc
+.DS_Store
+
 /*.js
 *.map
 *.d.ts

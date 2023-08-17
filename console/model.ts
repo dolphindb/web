@@ -33,7 +33,8 @@ export const storage_keys = {
 
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log'
+export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'computing'
+
 
 export class DdbModel extends Model<DdbModel> {
     inited = false
@@ -696,6 +697,21 @@ export class DdbModel extends Model<DdbModel> {
         console.log('get_server_log', offset, length, logs.length)
         
         return logs
+    }
+    
+    
+    async get_streaming_stat () {
+        return this.ddb.call<DdbObj<DdbObj[]>>('getStreamingStat', [ ], { urgent: true })
+    }
+    
+    
+    async get_streaming_engine_state () {
+        return this.ddb.call<DdbObj<DdbObj[]>>('getStreamEngineStat', [ ], { urgent: true })
+    }
+    
+    
+    async unsubscribe_table (table_name: string) {
+        this.ddb.call('unsubscribeTable', [table_name], { urgent: true })
     }
     
     

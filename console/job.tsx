@@ -44,6 +44,7 @@ export function Job () {
         get_cjobs()
         get_rjobs()
         get_sjobs()
+        console.log('cjobs', cjobs)
     }, [refresher])
     
     
@@ -78,11 +79,11 @@ export function Job () {
     const cjob_cols: ColumnType<Record<string, any>>[] = cjobs.to_cols()
     
     const gjobs = group_cjob_rows_by_rootid(cjob_rows)
-    
     // finishedTasks 大的排在前面
     const gjob_rows = Object.values(gjobs)
         .sort((l, r) => 
             -(l.finishedTasks - r.finishedTasks))
+    console.log('gjob_rows:', gjob_rows)
     
     const rjob_rows = filter_job_rows(
         rjobs.to_rows().map(compute_status_info),
