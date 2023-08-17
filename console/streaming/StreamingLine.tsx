@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { ErrorType, LineConfigType, LineNodeType } from './types.js'
-import { DDB, formati, type StreamingData } from 'dolphindb/browser.js'
+import { DDB, formati, type StreamingMessage } from 'dolphindb/browser.js'
 import { use_streaming } from './hooks/use-streaming.js'
 import { EChartsType } from 'echarts'
 import * as echarts from 'echarts'
@@ -163,7 +163,7 @@ export default function StreamingLine ({
         
     }, [options])
     // 用于处理数据格式
-    function handleMessage2Data (message: StreamingData): any {
+    function handleMessage2Data (message: StreamingMessage): any {
         let keys = message.colnames
         // 查看表格所在编号
         let time_variable_index = keys.indexOf(time_variable)
@@ -196,7 +196,7 @@ export default function StreamingLine ({
         })
     }
     // 存储数据
-    function onReceivedStreamingData (message: StreamingData) {
+    function onReceivedStreamingData (message: StreamingMessage) {
         // 格式化message
         let data_items = handleMessage2Data(message)
         if (!data_items)

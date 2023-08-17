@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { ErrorType, KLineConfigType, KLineNodeType } from './types.js'
-import { type StreamingData } from 'dolphindb/browser.js'
+import { type StreamingMessage } from 'dolphindb/browser.js'
 import { use_streaming } from './hooks/use-streaming.js'
 import { EChartsType } from 'echarts'
 import * as echarts from 'echarts'
@@ -172,7 +172,7 @@ export default function StreamingKLine ({
         
     }, [options])
     // 用于处理数据格式
-    function handleMessage2Data (message: StreamingData): any {
+    function handleMessage2Data (message: StreamingMessage): any {
         let keys = message.colnames
         // 查看表格所在编号
         const variable_indexs = {
@@ -227,7 +227,7 @@ export default function StreamingKLine ({
         })
     }
     // 存储数据
-    function onReceivedStreamingData (message: StreamingData) {
+    function onReceivedStreamingData (message: StreamingMessage) {
         // 格式化message
         let data_items = handleMessage2Data(message)
         if (!data_items)

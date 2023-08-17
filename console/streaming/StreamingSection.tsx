@@ -1,5 +1,5 @@
 import { Descriptions } from 'antd'
-import { DDB, formati, StreamingData } from 'dolphindb/browser.js'
+import { DDB, formati, StreamingMessage } from 'dolphindb/browser.js'
 import React from 'react'
 import { useRef, useState } from 'react'
 import { use_streaming } from './hooks/use-streaming.js'
@@ -27,7 +27,7 @@ export default function StreamingSection ({
     const properties_set = new Set(properties)
     
     // 用于处理数据格式
-    function handleMessage2Data (message: StreamingData): any {
+    function handleMessage2Data (message: StreamingMessage): any {
         let keys = message.colnames
         let data = { }
         message.data.value.forEach((item, index) => {
@@ -37,7 +37,7 @@ export default function StreamingSection ({
         return data
     }
     
-    function onReceivedStreamingData (message: StreamingData) {
+    function onReceivedStreamingData (message: StreamingMessage) {
         let now_data = handleMessage2Data(message)
         setData({ ...now_data })
     }

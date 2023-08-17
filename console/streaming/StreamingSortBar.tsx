@@ -1,5 +1,5 @@
 import { Switch } from 'antd'
-import { StreamingData, formati } from 'dolphindb/browser.js'
+import { StreamingMessage, formati } from 'dolphindb/browser.js'
 import * as echarts from 'echarts'
 import { EChartsType } from 'echarts'
 import React, { useMemo } from 'react'
@@ -134,7 +134,7 @@ export default function StreamingSortBar ({
         
     }, [options])
     // 用于处理数据格式
-    function handleMessage2Data (message: StreamingData): any {
+    function handleMessage2Data (message: StreamingMessage): any {
         let keys = message.colnames
         let data = { }
         message.data.value.forEach((item, index) => {
@@ -143,7 +143,7 @@ export default function StreamingSortBar ({
         })
         return data
     }
-    function onReceivedStreamingData (message: StreamingData) {
+    function onReceivedStreamingData (message: StreamingMessage) {
         let now_data = handleMessage2Data(message)
         switch (sort) {
             case 'ASC':

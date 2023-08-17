@@ -1,5 +1,5 @@
 import { Card, Col, Row, Statistic } from 'antd'
-import { formati, StreamingData } from 'dolphindb/browser.js'
+import { formati, StreamingMessage } from 'dolphindb/browser.js'
 import React, { useMemo } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { use_streaming } from './hooks/use-streaming.js'
@@ -92,7 +92,7 @@ export default function StreamingHeatMap ({
     }
     
     // 用于处理数据格式
-    function handleMessage2Data (message: StreamingData): any {
+    function handleMessage2Data (message: StreamingMessage): any {
         const properties_set = new Set(properties)
         const keys = message.colnames
         const data = { }
@@ -103,7 +103,7 @@ export default function StreamingHeatMap ({
         console.log(data)
         return data
     }
-    function onReceivedStreamingData (message: StreamingData) {
+    function onReceivedStreamingData (message: StreamingMessage) {
         let now_data = handleMessage2Data(message)
         switch (sort) {
             case 'ASC':
