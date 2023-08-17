@@ -83,12 +83,15 @@ cp .vscode/settings.template.json .vscode/settings.json
 # 开发
 pnpm run dev
 
-# lint
-pnpm run lint
-
 # 扫描词条
 pnpm run scan
 # 手动补全未翻译词条
 # 再次运行扫描以更新词典文件 dict.json
 pnpm run scan
+
+# lint
+pnpm run lint
+
+# lint fix
+pnpm run fix
 ```

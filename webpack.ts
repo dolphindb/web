@@ -37,7 +37,7 @@ export const base_config: Webpack.Configuration = {
         outputModule: true,
     },
     
-    target: ['web', 'es2022'],
+    target: ['web', 'es2023'],
     
     module: {
         rules: [

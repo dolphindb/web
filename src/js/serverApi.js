@@ -293,13 +293,13 @@ function DatanodeConfig () {
                     tip: 'Boolean value, indicating whether to enable synchronous persistence of write task data, the default is false, indicating that the persistence is performed asynchronously. Note: If asynchronous persistence is enabled, data node downtime may cause data loss; if synchronous persistence is enabled, the transaction efficiency of the main cluster will be reduced.'
                 },
                 {
-                    name: 'replicationExecutionUsername',
+                    name: 'clusterReplicationExecutionUsername',
                     value: '',
                     default: 'admin',
                     tip: 'The username used to perform inter-cluster asynchronous replication, defaults to admin. It must be ensured that the user has relevant permissions for transaction operations, otherwise the asynchronous replication task will fail.'
                 },
                 {
-                    name: 'replicationExecutionPassword',
+                    name: 'clusterReplicationExecutionPassword',
                     value: '',
                     default: '123456',
                     tip: 'User password for performing inter-cluster asynchronous replication, defaults to 123456.'

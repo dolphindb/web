@@ -11,7 +11,7 @@ import { model, DdbModel, NodeType, storage_keys } from '../model.js'
 
 import SvgOverview from '../overview/icons/overview.icon.svg'
 import SvgShell from '../shell/index.icon.svg'
-import SvgDashboard from '../dashboard.icon.svg'
+import SvgDashboard from '../dashboard/icons/dashboard.icon.svg'
 import SvgJob from '../job.icon.svg'
 import SvgLog from '../log.icon.svg'
 import SvgComputing from '../computing.icon.svg'

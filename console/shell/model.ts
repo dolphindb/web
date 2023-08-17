@@ -317,6 +317,8 @@ class ShellModel extends Model<ShellModel> {
     
     
     async load_dbs () {
+        await model.get_cluster_perf(false)
+        
         // 当前无数据节点和计算节点存活，且当前节点不为单机节点，则不进行数据库表获取
         if (model.node.mode !== NodeType.single && !model.has_data_and_computing_nodes_alive()) 
             return
