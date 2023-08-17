@@ -949,14 +949,14 @@ export function StreamingTable ({
         
         <div className='bottom-bar'>
             <div className='info'>
-                <span className='desc'>{rreceived.current} {t('行')} {cols.length} {t('列')} ({t('窗口')}: {winsize} {t('行')} {t('偏移')}: {message.window.offset})</span>{' '}
+                <span className='desc'>{rreceived.current} {t('行')} {cols.length} {t('列')}{ message.window.offset > 0 ? ` ${message.window.offset} ${t('偏移')}` : '' }</span>{' '}
                 <span className='type'>{t('的流表')}</span>
                 <span className='name'>{table}</span>
             </div>
             
             <Pagination
                 className='pagination'
-                total={winsize}
+                total={rreceived.current}
                 current={page_index + 1}
                 pageSize={page_size}
                 pageSizeOptions={page_sizes}
