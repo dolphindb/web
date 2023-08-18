@@ -764,6 +764,9 @@ export function StreamingTable ({
             // 开始订阅
             await ddb.connect()
             
+            // 插入一条数据以获取 message，才能显示出下面的表格
+            await append_data(1)
+            
             rerender({ })
         })()
         
