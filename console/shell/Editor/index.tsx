@@ -75,7 +75,8 @@ export function Editor ({
     
     return <MonacoDolphinDBEditor
             dolphinDBLanguageOptions={{
-                docs: `docs.${ language === 'zh' ? 'zh' : 'en' }.json`
+                docs: `docs.${ language === 'zh' ? 'zh' : 'en' }.json`,
+                language: language === 'zh' ? 'zh' : 'en'
             }}
             
             wrapperProps={{ className: 'monaco-editor-container' }}
