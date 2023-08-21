@@ -64,6 +64,12 @@ class DevServer extends Server {
         
         const { path } = request
         
+        if (path === '/api/recompile') {
+            response.status = 200
+            await webpack.run()
+            return true
+        }
+        
         if (dapi && method === 'POST') {
             const data = await request_json(`http://${this.ddb_backend}${path}`, { body })
             console.log(`${body.functionName}(${inspect(body.params, { compact: true })})`)
@@ -96,7 +102,7 @@ class DevServer extends Server {
         
         for (const prefix of ['/console/vs/', '/min-maps/vs/'] as const)
             if (path.startsWith(prefix)) {
-                await this.try_send(ctx, path.slice(prefix.length), `${fpd_node_modules}monaco-editor/dev/vs/`, true)
+                await this.try_send(ctx, `${fpd_node_modules}monaco-editor/dev/vs/`, path.slice(prefix.length), true)
                 return true
             }
         
