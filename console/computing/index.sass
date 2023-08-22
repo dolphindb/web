@@ -1,23 +1,36 @@
 .computing
     .action
-        margin-bottom:20px
+        margin-bottom: 30px
     
     .streaming-stat
         display: flex
         flex-direction: column
-        row-gap: 10px
+        row-gap: 30px
     .streaming-engine-stat
         display: flex
         flex-direction: column
-        row-gap: 10px
-    
+        row-gap: 30px
+    .persistent-table-stat
+        display: flex
+        flex-direction: column
+        row-gap: 30px
+    .share-streaming-table-stat
+        display: flex
+        flex-direction: column
+        row-gap: 30px
+
 .ant-typography
     margin-top: 0px
     
 .ant-table-title
         display: flex
-        justify-content: space-between
+        position: relative
+        height: 50px
+        justify-content: start
         align-items: center
+        .title-button
+            position: absolute
+            left: 0
         .table-name
             font-weight: 600
             flex:1

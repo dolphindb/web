@@ -707,9 +707,68 @@ export class DdbModel extends Model<DdbModel> {
         return this.ddb.call<DdbObj<DdbObj[]>>('getStreamEngineStat', [ ], { urgent: true })
     }
     
+    async get_persistence_stat () {
+        
+        return this.ddb.eval(
+            'def getPersistenceTableNames(){\n' +
+            '    if(getConfigure("persistenceDir") == NULL){\n' +
+            '        return NULL\n' +
+            '    }else{\n' +
+            '        tableNames = exec filename from files(getConfigure("persistenceDir")+"/") where filename != "persistOffset"\n' +
+            '        shareNames = exec name from objs(true) where type="REALTIME" and shared=true\n' +
+            '        return tableNames[tableNames in shareNames]\n' +
+            '    }\n' +
+            '}\n' + 
+            'def getPersistenceStat(){\n' +
+            '    tableNames = getPersistenceTableNames()\n' +
+            '    resultColNames = ["tablename","lastLogSeqNum","sizeInMemory","asynWrite","totalSize","raftGroup","compress","memoryOffset","sizeOnDisk","retentionMinutes","persistenceDir","hashValue","diskOffset"]\n' +
+            '    resultColTypes = ["STRING", "LONG","LONG","BOOL","LONG","INT","BOOL","LONG","LONG","LONG","STRING","INT","LONG"]\n' +
+            '    result = table(1:0, resultColNames, resultColTypes)\n' +
+            '    for(tbname in tableNames){\n' +
+            '       tbStat = getPersistenceMeta(objByName(tbname))\n' +
+            '       tbStat["tablename"] = tbname\n' +
+            '       result.tableInsert(tbStat)\n' +
+            '    }\n' +
+            '    return result\n' +
+            '}\n' +
+            'getPersistenceStat()\n', { urgent: true })
+    }
     
-    async unsubscribe_table (table_name: string) {
-        this.ddb.call('unsubscribeTable', [table_name], { urgent: true })
+    
+    
+    async get_shared_table_stat () {
+        return this.ddb.eval(
+            'def getPersistenceTableNames(){\n' +
+            '    if(getConfigure("persistenceDir") == NULL){\n' +
+            '        return NULL\n' +
+            '    }else{\n' +
+            '        tableNames = exec filename from files(getConfigure("persistenceDir")+"/") where filename != "persistOffset"\n' +
+            '        shareNames = exec name from objs(true) where type="REALTIME" and shared=true\n' +
+            '        return tableNames[tableNames in shareNames]\n' +
+            '    }\n' +
+            '}\n' + 
+            'def getSharedTableStat(){\n' +
+            '    tableNames = getPersistenceTableNames()\n' +
+            '    shareNames = exec name from objs(true) where type="REALTIME" and shared=true and name not in tableNames\n' +
+            '    return select name as TableName,  rows, columns, bytes from objs(true) where name in shareNames\n' +
+            '}\n' +
+            'getSharedTableStat()\n', { urgent: true })
+    }
+    
+    
+    async unsubscribe_table (table_name: string, action: string) {
+        this.ddb.eval(`unsubscribeTable(,'${table_name}','${action}')`, { urgent: true })
+        // this.ddb.call('unsubscribeTable', [,`'${table_name}'`, `'${action}'`], { urgent: true })
+    }
+    
+    
+    async drop_streaming_engine (engine_name: string) {
+        this.ddb.call('dropStreamEngine', [engine_name], { urgent: true })
+    }
+    
+    
+    async drop_streaming_table (table_name: string) {
+        this.ddb.call('dropStreamTable', [table_name], { urgent: true })
     }
     
     
