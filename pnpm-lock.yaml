@@ -42,8 +42,8 @@ dependencies:
     specifier: ^1.11.9
     version: 1.11.9
   dolphindb:
-    specifier: ^2.0.1019
-    version: 2.0.1019(react-dom@18.2.0)
+    specifier: ^2.0.1020
+    version: 2.0.1020(react-dom@18.2.0)
   echarts:
     specifier: ^5.4.3
     version: 5.4.3
@@ -57,8 +57,8 @@ dependencies:
     specifier: ^4.17.21
     version: 4.17.21
   monaco-dolphindb:
-    specifier: 0.0.7
-    version: 0.0.7(dolphindb@2.0.1019)(monaco-editor@0.41.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0)
+    specifier: 0.0.8
+    version: 0.0.8(dolphindb@2.0.1020)(monaco-editor@0.41.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0)
   monaco-editor:
     specifier: ^0.41.0
     version: 0.41.0
@@ -81,8 +81,8 @@ dependencies:
     specifier: ^9.0.0
     version: 9.0.0
   xshell:
-    specifier: ^1.0.54
-    version: 1.0.54(react-dom@18.2.0)
+    specifier: ^1.0.55
+    version: 1.0.55(react-dom@18.2.0)
   xterm:
     specifier: ^5.2.1
     version: 5.2.1
@@ -3869,14 +3869,14 @@ packages:
       esutils: 2.0.3
     dev: true
 
-  /dolphindb@2.0.1019(react-dom@18.2.0):
-    resolution: {integrity: sha512-R8BxQlsKtpmPwrB/WRfdLCzHvfdd6FRlIBO/BRrK/C2OoJez45tkYu22sx/8bq6Gyh9H8eAJPhDGU0zv1I1lsA==}
+  /dolphindb@2.0.1020(react-dom@18.2.0):
+    resolution: {integrity: sha512-r5pq9yaTtMoUYKiYvlO1x88Z944mCNf36xMf9lU5txhkEBa719ip8WH592IvnwIoOI5b1GelzVAwIUr88euWRA==}
     engines: {node: '>=19.8.1'}
     dependencies:
       dayjs: 1.11.9
       ipaddr.js: 2.1.0
       tslib: 2.6.2
-      xshell: 1.0.54(react-dom@18.2.0)
+      xshell: 1.0.55(react-dom@18.2.0)
     transitivePeerDependencies:
       - bufferutil
       - react-dom
@@ -5303,15 +5303,15 @@ packages:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
     dev: false
 
-  /monaco-dolphindb@0.0.7(dolphindb@2.0.1019)(monaco-editor@0.41.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0):
-    resolution: {integrity: sha512-/weTgPVUrPZ+SzQGji9lf38hw9zQ8gEQQS2IbJDqPJkWgVpbjjmEwpO0KjLzHMbAF22TSnILBvZ7l5Xy+USi8Q==}
+  /monaco-dolphindb@0.0.8(dolphindb@2.0.1020)(monaco-editor@0.41.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0):
+    resolution: {integrity: sha512-7K9JXN7C7LZyVmHVNgNfdRHWMgIbKS//BXbZP4FyHqbQL1/VobwrNDAT5eZa3rT9Yxnx4odxLvrkSdkB6KlvgQ==}
     peerDependencies:
       dolphindb: ^2.0.976
       monaco-editor: ^0.39.0
       vscode-oniguruma: ^1.7.0
       vscode-textmate: ^9.0.0
     dependencies:
-      dolphindb: 2.0.1019(react-dom@18.2.0)
+      dolphindb: 2.0.1020(react-dom@18.2.0)
       monaco-editor: 0.41.0
       vscode-oniguruma: 1.7.0
       vscode-textmate: 9.0.0
@@ -7579,8 +7579,8 @@ packages:
         optional: true
     dev: false
 
-  /xshell@1.0.54(react-dom@18.2.0):
-    resolution: {integrity: sha512-Y8mrGU3ApQPZNb4nXS9aKv/PXGUdftTeRXzQUQ3sgK+G+lPQCFTedUTPhqErons59Z34NHt8hkgbOOMsVZ0hkg==}
+  /xshell@1.0.55(react-dom@18.2.0):
+    resolution: {integrity: sha512-zJGAjzrBGmgTKQOixwQzjLeLzubq8yZWL2XLB4I3R3xuoQ+eE0+C7HEa4uX1hNaxJCPeLtWQfX4EkOLkXYEr+A==}
     engines: {node: '>=20.5.1', vscode: '>=1.79.0'}
     hasBin: true
     dependencies:
