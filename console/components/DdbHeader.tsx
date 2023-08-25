@@ -40,7 +40,7 @@ export function DdbHeader () {
             <Button
                 className='refresh-button' size='small' icon={<ReloadOutlined /> } 
                 onClick={async () => { await model.recompile_and_refresh() } }
-            >{t('编译并刷新')}</Button> }
+            >{t('编译并刷新 (r)')}</Button> }
         
         <div className='padding' />
         

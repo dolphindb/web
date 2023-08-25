@@ -107,7 +107,7 @@ export function Variables ({ shared }: { shared?: boolean }) {
                 break
                 
             case DdbForm.table:
-                tables.push(new TreeDataItem({ title: v.label, key: v.name, suffix: getSuffix(v.name) }))
+                tables.push(new TreeDataItem({ title: v.label, key: v.name, suffix: <SuffixIcon name={v.name} /> }))
                 table.children = tables
                 break
                 
@@ -402,8 +402,8 @@ class TreeDataItem implements DataNode {
     }
 }
 
-function getSuffix (name: string) {
-    return <Tooltip title={t('结构')} color='grey' className='tooltip'>
+function SuffixIcon ({ name }: { name: string }) {
+    return <Tooltip title={t('显示表结构')} color='grey' className='tooltip'>
     <Icon
         component={SvgSchema}
         className='schema-icon'

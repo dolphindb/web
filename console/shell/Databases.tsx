@@ -974,7 +974,7 @@ class Schema implements DataNode {
     
     className = 'schema'
     
-    icon = <Icon component={SvgSchema} />
+    icon = <Icon component={SvgSchema} style={{ color: '#3760F0' }}/>
     
     isLeaf = true as const
     
