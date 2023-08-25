@@ -121,13 +121,13 @@ export function Variables ({ shared }: { shared?: boolean }) {
                 object.children = objects
                 break
         }
-        
-        
+    
+    
     return <div className='panel'>
         <div className='type'>{shared ? t('共享变量') : t('本地变量')}
             <span onClick={() => { set_expanded_keys([ ]) }}>
                 <Tooltip title={t('全部折叠')} color='grey'>
-                    <MinusSquareOutlined />
+                <MinusSquareOutlined />
                 </Tooltip>
             </span>
         </div>
@@ -148,12 +148,12 @@ export function Variables ({ shared }: { shared?: boolean }) {
                 onClick={(event, { key }: EventDataNode<TreeDataItem>) => {
                     if (!key)
                         return
-                        
+                    
                     const v = vars.find(node => node.name === key)
                     
                     if (!v)
                         return
-                        
+                    
                     if (
                         v.form === DdbForm.chart ||
                         v.form === DdbForm.dict ||
@@ -273,7 +273,7 @@ export class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 for (let i = 0;  i < items.length;  i++)
                                     items[i] = format(this.type, value.subarray(16 * i, 16 * (i + 1)), this.obj.le, options)
-                                    
+                                
                                 return ' = ' + format_array(items, len_data > limit)
                             }
                             
@@ -291,11 +291,11 @@ export class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 for (let i = 0;  i < items.length;  i++)
                                     items[i] = format(this.type, value.subarray(2 * i, 2 * (i + 1)), this.obj.le, options)
-                                    
+                                
                                 return ' = ' + format_array(items, len_data > limit)
                             }
                             
-                            case DdbType.decimal32:
+                            case DdbType.decimal32: 
                             case DdbType.decimal64:
                             case DdbType.decimal128: {
                                 const limit = 20 as const
@@ -310,7 +310,7 @@ export class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 for (let i = 0;  i < items.length;  i++)
                                     items[i] = formati(this.obj as DdbVectorObj, i, options)
-                                    
+                                
                                 return ' = ' + format_array(items, len_data > limit)
                             }
                             
@@ -323,7 +323,7 @@ export class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 for (let i = 0;  i < items.length;  i++)
                                     items[i] = format(this.type, this.obj.value[i], this.obj.le, options)
-                                    
+                                
                                 return ' = ' + format_array(items, (this.obj.value as any[]).length > limit)
                             }
                         }
@@ -402,41 +402,39 @@ class TreeDataItem implements DataNode {
     }
 }
 
+
 function SuffixIcon ({ name }: { name: string }) {
-    return <Tooltip title={t('显示表结构')} color='grey' className='tooltip'>
-    <Icon
-        component={SvgSchema}
-        className='schema-icon'
-        onClick={async e => {
-            e.stopPropagation()
-            onclick_display_schema(name)
-        }}
-    /></Tooltip>
-}
-
-async function get_schema (key: string) {
-    await shell.define_load_table_variable_schema()
-    const schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
-        'load_table_variable_schema',
-        [key],
-        model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
-    )
-    
-    return schema
-}
-
-async function onclick_display_schema (key: string) {
-    try {
-        shell.set(
-            {
-                result: {
-                    type: 'object',
-                    data: await get_schema(key)
+    return <Tooltip className='tooltip' title={t('查看表结构')} color='grey'>
+        <Icon
+            className='schema-icon'
+            component={SvgSchema}
+            onClick={async event => {
+                event.stopPropagation()
+                
+                try {
+                    await shell.define_load_table_variable_schema()
+                    
+                    shell.set(
+                        {
+                            result: {
+                                type: 'object',
+                                data: await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
+                                    'load_table_variable_schema',
+                                    [name],
+                                    model.node_type === NodeType.controller ? 
+                                            { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc }
+                                        :
+                                            { }
+                                )
+                            }
+                        }
+                    )
+                } catch (error) {
+                    model.show_error({ error })
+                    throw error
                 }
-            }
-        )
-    } catch (error) {
-        model.show_error({ error })
-        throw error
-    }
+            }}
+        />
+    </Tooltip>
 }
+
