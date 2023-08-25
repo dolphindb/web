@@ -1,6 +1,6 @@
 import { default as React, useState } from 'react'
 
-import { Button, Tooltip, Tree } from 'antd'
+import { Tooltip, Tree } from 'antd'
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
@@ -20,8 +20,8 @@ import {
     type DdbDecimal32VectorValue,
     type DdbDecimal64VectorValue,
     type DdbDecimal128VectorValue,
-    DdbDictObj,
-    DdbVectorStringObj
+    type DdbDictObj,
+    type DdbVectorStringObj
 } from 'dolphindb/browser.js'
 
 
@@ -29,6 +29,7 @@ import { t } from '../../i18n/index.js'
 
 import { DdbObjRef } from '../obj.js'
 
+import { model, NodeType } from '../model.js'
 import { shell } from './model.js'
 
 import SvgVar from './icons/variable.icon.svg'
@@ -42,7 +43,7 @@ import SvgTable from './icons/table.icon.svg'
 import SvgChart from './icons/chart.icon.svg'
 import SvgObject from './icons/object.icon.svg'
 import SvgSchema from './icons/schema.icon.svg'
-import { model, NodeType } from '../model.js'
+
 
 export function Variables ({ shared }: { shared?: boolean }) {
     const { vars } = shell.use(['vars'])
@@ -423,7 +424,7 @@ async function get_schema (key: string) {
 
 async function onclick_display_schema (key: string) {
     try {
-        await shell.set(
+        shell.set(
             {
                 result: {
                     type: 'object',

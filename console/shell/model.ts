@@ -504,6 +504,7 @@ class ShellModel extends Model<ShellModel> {
         shell.set({ load_table_schema_defined: true })
     }
     
+    
     async define_load_table_variable_schema () {
         if (this.load_table_variable_schema_defined)
             return
@@ -516,6 +517,7 @@ class ShellModel extends Model<ShellModel> {
         
         shell.set({ load_table_variable_schema_defined: true })
     }
+    
     
     async define_load_database_schema () {
         if (this.load_database_schema_defined)
