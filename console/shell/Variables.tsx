@@ -1,6 +1,6 @@
 import { default as React, useState } from 'react'
 
-import { Tooltip, Tree } from 'antd'
+import { Button, Tooltip, Tree } from 'antd'
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
@@ -19,7 +19,9 @@ import {
     type DdbVectorObj,
     type DdbDecimal32VectorValue,
     type DdbDecimal64VectorValue,
-    type DdbDecimal128VectorValue
+    type DdbDecimal128VectorValue,
+    DdbDictObj,
+    DdbVectorStringObj
 } from 'dolphindb/browser.js'
 
 
@@ -39,7 +41,8 @@ import SvgDict from './icons/dict.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 import SvgChart from './icons/chart.icon.svg'
 import SvgObject from './icons/object.icon.svg'
-
+import SvgSchema from './icons/schema.icon.svg'
+import { model, NodeType } from '../model.js'
 
 export function Variables ({ shared }: { shared?: boolean }) {
     const { vars } = shell.use(['vars'])
@@ -103,7 +106,7 @@ export function Variables ({ shared }: { shared?: boolean }) {
                 break
                 
             case DdbForm.table:
-                tables.push(new TreeDataItem({ title: v.label, key: v.name }))
+                tables.push(new TreeDataItem({ title: v.label, key: v.name, form: v.form }))
                 table.children = tables
                 break
                 
@@ -117,13 +120,13 @@ export function Variables ({ shared }: { shared?: boolean }) {
                 object.children = objects
                 break
         }
-    
-    
+        
+        
     return <div className='panel'>
         <div className='type'>{shared ? t('共享变量') : t('本地变量')}
             <span onClick={() => { set_expanded_keys([ ]) }}>
                 <Tooltip title={t('全部折叠')} color='grey'>
-                <MinusSquareOutlined />
+                    <MinusSquareOutlined />
                 </Tooltip>
             </span>
         </div>
@@ -144,12 +147,12 @@ export function Variables ({ shared }: { shared?: boolean }) {
                 onClick={(event, { key }: EventDataNode<TreeDataItem>) => {
                     if (!key)
                         return
-                    
+                        
                     const v = vars.find(node => node.name === key)
                     
                     if (!v)
                         return
-                    
+                        
                     if (
                         v.form === DdbForm.chart ||
                         v.form === DdbForm.dict ||
@@ -269,7 +272,7 @@ export class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 for (let i = 0;  i < items.length;  i++)
                                     items[i] = format(this.type, value.subarray(16 * i, 16 * (i + 1)), this.obj.le, options)
-                                
+                                    
                                 return ' = ' + format_array(items, len_data > limit)
                             }
                             
@@ -287,11 +290,11 @@ export class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 for (let i = 0;  i < items.length;  i++)
                                     items[i] = format(this.type, value.subarray(2 * i, 2 * (i + 1)), this.obj.le, options)
-                                
+                                    
                                 return ' = ' + format_array(items, len_data > limit)
                             }
                             
-                            case DdbType.decimal32: 
+                            case DdbType.decimal32:
                             case DdbType.decimal64:
                             case DdbType.decimal128: {
                                 const limit = 20 as const
@@ -306,7 +309,7 @@ export class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 for (let i = 0;  i < items.length;  i++)
                                     items[i] = formati(this.obj as DdbVectorObj, i, options)
-                                
+                                    
                                 return ' = ' + format_array(items, len_data > limit)
                             }
                             
@@ -319,7 +322,7 @@ export class DdbVar <T extends DdbObj = DdbObj> {
                                 
                                 for (let i = 0;  i < items.length;  i++)
                                     items[i] = format(this.type, this.obj.value[i], this.obj.le, options)
-                                
+                                    
                                 return ' = ' + format_array(items, (this.obj.value as any[]).length > limit)
                             }
                         }
@@ -365,7 +368,8 @@ class TreeDataItem implements DataNode {
         icon,
         tooltip,
         isLeaf,
-        needLoad
+        needLoad,
+        form,
     }: {
         key: string
         className?: string
@@ -375,15 +379,26 @@ class TreeDataItem implements DataNode {
         tooltip?: string
         isLeaf?: boolean
         needLoad?: boolean
+        form?: DdbForm
     }) {
         const name = typeof title === 'string' ? (/^(\w+)/.exec(title)?.[1] || title) : ''
-        
+      
         this.title = <>{typeof title === 'string' ? (
-                <>
-                    <span className='name'>{name}</span>
-                    {title.slice(name.length)}
-                </>
-            ) : title}</>
+            <>
+                <span className='name'>{name}</span>
+                {title.slice(name.length)}
+                {form === DdbForm.table && <Tooltip title={t('结构')} color='grey' className='tooltip'>
+                    <Icon
+                        component={SvgSchema}
+                        className='schema-icon'
+                        onClick={async e => {
+                            e.stopPropagation()
+                            onclick_display_schema(key)
+                        }}
+                    /></Tooltip>
+                }
+            </>
+        ) : title}</>
         
         this.key = key
         this.children = children
@@ -395,3 +410,29 @@ class TreeDataItem implements DataNode {
     }
 }
 
+async function get_schema (key: string) {
+    await shell.define_load_table_variable_schema()
+    const schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
+        'load_table_variable_schema',
+        [key],
+        model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
+    )
+    
+    return schema
+}
+
+async function onclick_display_schema (key: string) {
+    try {
+        await shell.set(
+            {
+                result: {
+                    type: 'object',
+                    data: await get_schema(key)
+                }
+            }
+        )
+    } catch (error) {
+        model.show_error({ error })
+        throw error
+    }
+}
