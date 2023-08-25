@@ -2,26 +2,29 @@
     .action
         margin-bottom: 30px
     
-    .streaming-stat
+    .streaming_pub_sub_stat
+        display: flex
+        .sub-workers
+            width: 68%
+            margin-right: 20px
+        .other-tables
+            display: flex
+            width: 31%
+            
+            flex-direction: column
+    .streaming-engine-stat,.persistent-table-stat,.share-streaming-table-stat
         display: flex
         flex-direction: column
-        row-gap: 30px
-    .streaming-engine-stat
-        display: flex
-        flex-direction: column
-        row-gap: 30px
-    .persistent-table-stat
-        display: flex
-        flex-direction: column
-        row-gap: 30px
-    .share-streaming-table-stat
-        display: flex
-        flex-direction: column
-        row-gap: 30px
+        // row-gap: 10px
 
-.ant-typography
-    margin-top: 0px
+.tab-header
+    margin: 0px
+    font-size: 18px
     
+.ant-table-thead
+    .ant-table-cell
+        vertical-align: top    
+
 .ant-table-title
         display: flex
         position: relative

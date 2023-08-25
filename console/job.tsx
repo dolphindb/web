@@ -83,7 +83,6 @@ export function Job () {
     const gjob_rows = Object.values(gjobs)
         .sort((l, r) => 
             -(l.finishedTasks - r.finishedTasks))
-    console.log('gjob_rows:', gjob_rows)
     
     const rjob_rows = filter_job_rows(
         rjobs.to_rows().map(compute_status_info),

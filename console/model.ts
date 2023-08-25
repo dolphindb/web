@@ -758,7 +758,6 @@ export class DdbModel extends Model<DdbModel> {
     
     async unsubscribe_table (table_name: string, action: string) {
         this.ddb.eval(`unsubscribeTable(,'${table_name}','${action}')`, { urgent: true })
-        // this.ddb.call('unsubscribeTable', [,`'${table_name}'`, `'${action}'`], { urgent: true })
     }
     
     
