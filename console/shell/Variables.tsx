@@ -107,7 +107,7 @@ export function Variables ({ shared }: { shared?: boolean }) {
                 break
                 
             case DdbForm.table:
-                tables.push(new TreeDataItem({ title: v.label, key: v.name, form: v.form }))
+                tables.push(new TreeDataItem({ title: v.label, key: v.name, suffix: getSuffix(v.name) }))
                 table.children = tables
                 break
                 
@@ -370,7 +370,7 @@ class TreeDataItem implements DataNode {
         tooltip,
         isLeaf,
         needLoad,
-        form,
+        suffix,
     }: {
         key: string
         className?: string
@@ -380,7 +380,7 @@ class TreeDataItem implements DataNode {
         tooltip?: string
         isLeaf?: boolean
         needLoad?: boolean
-        form?: DdbForm
+        suffix?: React.ReactElement
     }) {
         const name = typeof title === 'string' ? (/^(\w+)/.exec(title)?.[1] || title) : ''
       
@@ -388,16 +388,7 @@ class TreeDataItem implements DataNode {
             <>
                 <span className='name'>{name}</span>
                 {title.slice(name.length)}
-                {form === DdbForm.table && <Tooltip title={t('结构')} color='grey' className='tooltip'>
-                    <Icon
-                        component={SvgSchema}
-                        className='schema-icon'
-                        onClick={async e => {
-                            e.stopPropagation()
-                            onclick_display_schema(key)
-                        }}
-                    /></Tooltip>
-                }
+                {suffix}
             </>
         ) : title}</>
         
@@ -409,6 +400,18 @@ class TreeDataItem implements DataNode {
         this.needLoad = needLoad || false
         this.className = className
     }
+}
+
+function getSuffix (name: string) {
+    return <Tooltip title={t('结构')} color='grey' className='tooltip'>
+    <Icon
+        component={SvgSchema}
+        className='schema-icon'
+        onClick={async e => {
+            e.stopPropagation()
+            onclick_display_schema(name)
+        }}
+    /></Tooltip>
 }
 
 async function get_schema (key: string) {
