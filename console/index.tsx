@@ -39,28 +39,6 @@ createRoot(
 const locales = { zh, en, ja, ko }
 
 function DolphinDB () {
-    useEffect(() => {
-        async function on_keydown (event: KeyboardEvent) {
-            const { key, target, ctrlKey: ctrl, altKey: alt } = event
-            
-            if (
-                key === 'r' && 
-                (target as HTMLElement).tagName !== 'INPUT' && 
-                (target as HTMLElement).tagName !== 'TEXTAREA' && 
-                !ctrl && 
-                !alt
-            ) {
-                event.preventDefault()
-                
-                model.recompile_and_refresh()
-            }
-        }
-        
-        window.addEventListener('keydown', on_keydown)
-        
-        return () => { window.removeEventListener('keydown', on_keydown) }
-    }, [ ])
-    
     return <ConfigProvider
         locale={locales[language] as any}
         autoInsertSpaceInButton={false}
@@ -89,6 +67,29 @@ function MainLayout () {
                 model.show_error({ error })
             }
         })()
+        
+        async function on_keydown (event: KeyboardEvent) {
+            const { key, target, ctrlKey: ctrl, altKey: alt } = event
+            
+            if (
+                key === 'r' && 
+                (target as HTMLElement).tagName !== 'INPUT' && 
+                (target as HTMLElement).tagName !== 'TEXTAREA' && 
+                !ctrl && 
+                !alt
+            ) {
+                event.preventDefault()
+                try {
+                model.recompile_and_refresh()
+                } catch (error) {
+                    model.show_error({ error })
+                }
+            }
+        }
+        if (process.env.NODE_ENV === 'development')
+            window.addEventListener('keydown', on_keydown)
+        
+        return () => { window.removeEventListener('keydown', on_keydown) }
     }, [ ])
     
     if (!inited)
