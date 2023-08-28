@@ -13,12 +13,7 @@ import {
     type TableColumnType,
 } from 'antd'
 
-import {
-    default as _Icon,
-    CaretRightOutlined,
-    PauseOutlined,
-} from '@ant-design/icons'
-const Icon: typeof _Icon.default = _Icon as any
+import { default as Icon, CaretRightOutlined, PauseOutlined } from '@ant-design/icons'
 
 import { Line, Pie, Bar, Column, Scatter, Area, DualAxes, Histogram, Stock } from '@ant-design/plots'
 

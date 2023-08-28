@@ -4,8 +4,7 @@ import { Tooltip, Tree } from 'antd'
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as _Icon, MinusSquareOutlined } from '@ant-design/icons'
-const Icon: typeof _Icon.default = _Icon as any
+import { default as Icon, MinusSquareOutlined } from '@ant-design/icons'
 
 import {
     DdbForm,

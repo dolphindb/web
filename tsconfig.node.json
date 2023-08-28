@@ -13,6 +13,7 @@
     "compilerOptions": {
         "incremental": true,
         "module": "NodeNext",
+        "moduleResolution": "NodeNext",
         "tsBuildInfoFile": "./node_modules/.tsbuildinfo.node.json"
     },
 }

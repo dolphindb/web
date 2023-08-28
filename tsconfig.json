@@ -23,7 +23,7 @@
         
         // --- module
         "module": "ESNext", // none, CommonJS, amd, system, umd, es6, es2015, ESNext
-        "moduleResolution": "NodeNext",
+        "moduleResolution": "Bundler",
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": false,
         "resolveJsonModule": true,
