@@ -1,11 +1,11 @@
 import './index.sass'
 
 import { useEffect, useState } from 'react'
-import {  Button, Tabs, Table, Empty, Tooltip, Popconfirm, type TabsProps, type TablePaginationConfig } from 'antd'
+import {  Button, Tabs, Table, Tooltip, Popconfirm, type TabsProps, type TablePaginationConfig } from 'antd'
 import { ReloadOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import type { ColumnType } from 'antd/lib/table/index.js'
 import { model } from '../model.js'
-import { DdbObj, DdbValue } from 'dolphindb/browser.js'
+import { DdbObj } from 'dolphindb/browser.js'
 
 import { t } from '../../i18n/index.js'
 import { ExpandableConfig, SortOrder } from 'antd/es/table/interface.js'
@@ -46,42 +46,26 @@ export function Computing () {
         get_streaming_pub_sub_stat()
         get_streaming_engine_stat()
         get_streaming_table_stat()
-        if (streaming_stat)
-            console.log('streaming_stat:', streaming_stat)
-        if (origin_streaming_engine_stat) 
-            console.log('streaming_engine_stat:', origin_streaming_engine_stat)
-        if (persistent_table_stat) 
-            console.log('persistent_table_stat:', persistent_table_stat)
-        if (shared_table_stat)
-            console.log('shared_table_stat', shared_table_stat)
     }, [ ])
     
     
     
     async function get_streaming_pub_sub_stat () {
-        const get_streaming_stat_result = (await model.get_streaming_stat()).to_dict()
-        console.log('🚀 ~ file: index.tsx:61 ~ get_streaming_pub_sub_stat ~ get_streaming_stat_result:', get_streaming_stat_result)
-        set_streaming_stat(get_streaming_stat_result)
+        set_streaming_stat((await model.get_streaming_stat()).to_dict())
     }
     
     
     async function get_streaming_engine_stat () {
-        const get_streaming_engine_stat_result = (await model.get_streaming_engine_state()).to_dict()
-        console.log('🚀 ~ file: index.tsx:68 ~ get_streaming_engine_stat ~ get_streaming_engine_stat_result:', get_streaming_engine_stat_result)
-        set_origin_streaming_engine_stat(get_streaming_engine_stat_result)
+        set_origin_streaming_engine_stat((await model.get_streaming_engine_state()).to_dict())
     }
     
     
     async function get_streaming_table_stat () {
-        const get_persistence_stat_result = await model.get_persistence_stat()
-        console.log('🚀 ~ file: index.tsx:75 ~ get_streaming_table_stat ~ get_persistence_stat_result:', get_persistence_stat_result)
-        const get_shared_table_stat_result = await model.get_shared_table_stat()
-        console.log('🚀 ~ file: index.tsx:77 ~ get_streaming_table_stat ~ get_shared_table_stat_result:', get_shared_table_stat_result)
-        set_persistent_table_stat(get_persistence_stat_result)
-        set_shared_table_stat(get_shared_table_stat_result)
+        set_persistent_table_stat( await model.get_persistence_stat())
+        set_shared_table_stat(await model.get_shared_table_stat())
     }
     
-    /** 处理流计算引擎状态，给每一个引擎添加 type 字段，合并所有类型的引擎 */
+    /** 处理流计算引擎状态，给每一个引擎添加 engineType 字段，合并所有类型的引擎 */
     useEffect(() => {
         if (!origin_streaming_engine_stat)
             return
@@ -108,24 +92,18 @@ export function Computing () {
         for (let engineType of Object.keys(origin_streaming_engine_stat))  
             for (let row of origin_streaming_engine_stat[engineType].to_rows()) {
                 let new_row = { }
+                let expand_new_row = { }
                 for (let key of Object.keys(leading_cols.engine))  
                     new_row = Object.assign(new_row, { [key]: (row.hasOwnProperty(key) ? row[key] : '') })
-                
+                for (let key of Object.keys(expanded_cols.engine))  
+                    expand_new_row = Object.assign(expand_new_row, { [key]: (row.hasOwnProperty(key) ? row[key] : '') })
                 new_row = Object.assign(new_row, { engineType })
+                expand_new_row = Object.assign(expand_new_row, { name: row.name })
                 streaming_engine_rows.push(new_row)
+                expand_streaming_engine_rows.push(expand_new_row)
             }
-        for (let engineType of Object.keys(origin_streaming_engine_stat))
-            for (let row of origin_streaming_engine_stat[engineType].to_rows()) {
-            let new_row = { }
-            for (let key of Object.keys(expanded_cols.engine))  
-                new_row = Object.assign(new_row, { [key]: (row.hasOwnProperty(key) ? row[key] : '') })
-            
-            new_row = Object.assign(new_row, { name: row.name })
-            expand_streaming_engine_rows.push(new_row)
-        }
         set_streaming_engine_stat({ cols: streaming_engine_cols, rows: streaming_engine_rows })
         set_expand_streaming_engine_stat({ cols: expand_streaming_engine_cols, rows: expand_streaming_engine_rows })
-        console.log('1', streaming_engine_stat, expand_streaming_engine_stat)
     }, [origin_streaming_engine_stat])
       
     if (!streaming_stat || !origin_streaming_engine_stat || !persistent_table_stat || !shared_table_stat)
@@ -141,12 +119,15 @@ export function Computing () {
                     <StateTable type='subWorkers'
                                 cols={ render_title(
                                             translate_order_col(
-                                                    sort_col(streaming_stat.subWorkers.to_cols().filter(
-                                                        col => Object.keys(leading_cols.subWorkers).includes(col.title)), 
-                                                        'subWorkers')), 
+                                                    set_col_width(
+                                                        set_col_color(
+                                                            sort_col(streaming_stat.subWorkers.to_cols().filter(
+                                                                col => Object.keys(leading_cols.subWorkers).includes(col.title)), 
+                                                            'subWorkers'), 'queueDepth'), 'subWorkers')), 
                                                     true, 'subWorkers')}
                                 rows={translate_sorter_row(
-                                    add_key(streaming_stat.subWorkers.to_rows(), 1))}
+                                        add_key(streaming_stat.subWorkers.to_rows(), 1))}
+                                default_page_size={10}
                                 refresher={get_streaming_pub_sub_stat}
                                 expandable_config={ {   
                                     expandedRowRender: stat => 
@@ -170,6 +151,7 @@ export function Computing () {
                 <div className='other-tables'>
                     {['pubTables', 'subConns', 'pubConns'].map(
                     type => <StateTable type={type}
+                                        key={type}
                                         cols={render_title(streaming_stat[type].to_cols(), true, type)} 
                                         rows={add_key(streaming_stat[type].to_rows())}    
                                         />
@@ -183,8 +165,10 @@ export function Computing () {
             children: 
             <div className='streaming-engine-stat'>
                 <StateTable type='engine'
-                            cols={streaming_engine_stat.cols}
-                            rows={add_key(streaming_engine_stat.rows, 0)}
+                            cols={set_col_ellipsis(
+                                    set_col_width(streaming_engine_stat.cols, 'engine'), 'metrics')}
+                            rows={add_key(streaming_engine_stat.rows)}
+                            default_page_size={20}
                             refresher={get_streaming_engine_stat}
                             expandable_config={ {   
                                 expandedRowRender: stat => {
@@ -229,8 +213,14 @@ export function Computing () {
               <Button
                 icon={<ReloadOutlined/>}
                 onClick={async () => {
-                    tab_content[tab_key].refresher()
-                    model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
+                    try {
+                        tab_content[tab_key].refresher()
+                        model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
+                    } catch (error) {
+                        model.show_error(error)
+                        throw error
+                    }
+                    
                 }}>{t('刷新')}
               </Button>
            }/>     
@@ -240,6 +230,19 @@ interface ButtonProps {
     type: string
     selected: string[]
     refresher: () => void
+}
+
+const cols_width = {
+    subWorkers: {
+        topic: 150,
+        lastErrMsg: 200
+    },
+    engine: {
+        engineType: 170,
+        lastErrMsg: 200,
+        metrics: 120
+    }
+    
 }
 
 const header_text = {
@@ -359,7 +362,7 @@ const leading_cols = {
     engine: {
         name: t('引擎名'),
         engineType: t('引擎类型'),
-        lastErrMsg: t('最后一条错误信息'),
+        lastErrMsg: t('最近错误信息'),
         numGroups: t('分组数'),
         numRows: t('行数（单表）'),
         leftTableNumRows: t('行数（左表）'),
@@ -422,7 +425,7 @@ const pagination: TablePaginationConfig = {
 }
 
 
-/** 缩短 topic */
+/** 缩短 subWorkers 表的 topic 字段 */
 function translate_sorter_row (rows: Record<string, any>) {
     return rows.map(row => {
         row.topic = row.topic.slice(row.topic.indexOf('/') + 1)
@@ -431,7 +434,7 @@ function translate_sorter_row (rows: Record<string, any>) {
 }
 
 
-/** 对主要列进行排序 */
+/** 按照主要列（leading_cols）的顺序进行排序 */
 function sort_col (cols: ColumnType<Record<string, any>>[], type: string) {
     let sorted_cols: ColumnType<Record<string, any>>[] =  [ ]
     for (let col_name of Object.keys(leading_cols[type])) 
@@ -440,7 +443,7 @@ function sort_col (cols: ColumnType<Record<string, any>>[], type: string) {
 }
 
 
-/** 按照 QueueDepth 和 LastErrMsg 排序 */
+/** 将 subworker 表按照 QueueDepth 和 LastErrMsg 排序 */
 function translate_order_col (cols: ColumnType<Record<string, any>>[]) {
 
     const i_queue_depth_col = cols.findIndex(col => col.title === 'queueDepth')
@@ -466,24 +469,57 @@ function add_key (table: Record<string, any>, key_index = 0) {
 }
 
 
+/** 翻译表头，添加 tooltip */
 function render_title (cols: ColumnType<Record<string, any>>[], is_leading: boolean, type: string) {
     for (let col of cols) { 
-        let title = col.title.toString()
-        if (type === 'engine')
-            console.log(leading_cols[type][title])
+        let title = col.title as string
         col.title = <Tooltip title={title} placement='bottom'>
                         <span className='col-title'>
                             {is_leading ? leading_cols[type][title] : expanded_cols[type][title]}
                         </span>
-                    </Tooltip>       
+                    </Tooltip>     
     }
-    if (type === 'engine')
-        console.log(cols)
-    return cols
-    
+    return cols  
 }
 
 
+/** 给 subWorkers 的 queueDepth 字段添加警告颜色 */
+function set_col_color (cols: ColumnType<Record<string, any>>[], col_name: string) {
+    let col = cols.find(({ dataIndex }) => dataIndex === col_name)
+    col.render = value => {
+        let color = 'green'
+        if (value >= 1n && value < 10000n)
+            color = 'orange'
+        else if (value >= 10000n)
+            color = 'red'
+        return <Tooltip title={t('0为绿色，1-10000 为橙色，10000 以上为红色。')}>
+                    <span className={color}>{Number(value)}</span>
+                </Tooltip>
+    }
+    return cols
+}
+
+
+/** 设置列宽 */
+function set_col_width (cols: ColumnType<Record<string, any>>[], type: string) {
+    for (let width_key of Object.keys(cols_width[type])) {
+        let col = cols.find(col => col.dataIndex === width_key)
+        col.width = cols_width[type][width_key]
+    }
+    return cols
+}
+
+
+/** 设置单元格自动省略 */
+function set_col_ellipsis (cols: ColumnType<Record<string, any>>[], col_name: string) {
+    let col = cols.find(({ dataIndex }) => dataIndex === col_name)
+    col.ellipsis = { showTitle: true }
+    col.render = value => <Tooltip placement='topLeft' title={value}>{value}</Tooltip>
+    return cols
+}
+
+
+/** 取消订阅 */
 async function unsubscribe_tables (pub_tables: string[]) {
     const topics =  pub_tables.map(pub_table => { const pub_table_arr = pub_table.split('/') 
                                                   return { table_name: pub_table_arr[1], action_name: pub_table_arr[2] }
@@ -497,6 +533,7 @@ async function unsubscribe_tables (pub_tables: string[]) {
 }
 
 
+/** 删除引擎 */
 async function drop_engines (engine_names: string[]) {
     try {
         await Promise.allSettled(engine_names.map(async engine_name => model.drop_streaming_engine(engine_name)))
@@ -506,7 +543,8 @@ async function drop_engines (engine_names: string[]) {
     }
 }   
 
-    
+
+/** 删除共享数据流表 */
 async function drop_stream_tables (streaming_table_names: string[]) {
     console.log('🚀 ~ file: index.tsx:410 ~ drop_stream_tables ~ streaming_table_names:', streaming_table_names)
     try {
@@ -518,6 +556,7 @@ async function drop_stream_tables (streaming_table_names: string[]) {
 }    
 
 
+/** 统一处理删除 */
 async function handle_delete (type: string, selected: string[], refresher: () => void) {
     switch (type) {
         case ('SubWorkers'):
@@ -527,29 +566,32 @@ async function handle_delete (type: string, selected: string[], refresher: () =>
         case ('SharedStreamingTableStat'):
             await drop_stream_tables(selected)
             break
-        default:
+        case ('engine'):
             await drop_engines(selected)         
     }
     refresher()   
 }
-    
+
 
 function StateTable ({
     type,
     cols,
     rows,
+    default_page_size = 5,
     refresher,
-    expandable_config
+    expandable_config,
 }: {
     type: string
     cols: ColumnType<Record<string, any>>[]
     rows: Record<string, any>[]
+    default_page_size?: number
     refresher?: () => void
     expandable_config?: ExpandableConfig<Record<string, any>>
 }) {
     const [selected, set_selected] = useState<string[]>([ ]) 
     
-    return  <Table rowSelection={ refresher ? 
+    return  <Table  tableLayout='fixed'
+                    rowSelection={ refresher ? 
                                         { 
                                           type: 'checkbox', 
                                           onChange: (selected_keys: React.Key[]) => set_selected(selected_keys as string[]) 
@@ -570,7 +612,7 @@ function StateTable ({
                                         } 
                                           : null
                                 )} 
-                    pagination={{ ...pagination, defaultPageSize: 10 }}
+                    pagination={{ ...pagination, defaultPageSize: default_page_size }}
                 />
     
 }
