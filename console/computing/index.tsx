@@ -154,7 +154,7 @@ export function Computing () {
                                             pagination={false}
                                             
                                         />
-                                    }}/>
+                    }}/>
                     </div>
                 <div className='other-tables'>
                     {['pubTables', 'subConns', 'pubConns'].map(
@@ -190,8 +190,7 @@ export function Computing () {
                                         rowKey={row => row.name}
                                         pagination={false}
                                     /> }
-                                }}/>
-                         
+                }}/>             
             </div>
         },
         {
