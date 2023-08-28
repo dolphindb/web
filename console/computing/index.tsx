@@ -48,25 +48,8 @@ export function Computing () {
         get_streaming_table_stat()
     }, [ ])
     
-    
-    
-    async function get_streaming_pub_sub_stat () {
-        set_streaming_stat((await model.get_streaming_stat()).to_dict())
-    }
-    
-    
-    async function get_streaming_engine_stat () {
-        set_origin_streaming_engine_stat((await model.get_streaming_engine_state()).to_dict())
-    }
-    
-    
-    async function get_streaming_table_stat () {
-        set_persistent_table_stat( await model.get_persistence_stat())
-        set_shared_table_stat(await model.get_shared_table_stat())
-    }
-    
-    /** 处理流计算引擎状态，给每一个引擎添加 engineType 字段，合并所有类型的引擎 */
-    useEffect(() => {
+     /** 处理流计算引擎状态，给每一个引擎添加 engineType 字段，合并所有类型的引擎 */
+     useEffect(() => {
         if (!origin_streaming_engine_stat)
             return
         const streaming_engine_cols: ColumnType<Record<string, any>>[] = Object.keys(leading_cols.engine).map(col_name => ({
@@ -113,6 +96,22 @@ export function Computing () {
         set_streaming_engine_stat({ cols: streaming_engine_cols, rows: streaming_engine_rows })
         set_expand_streaming_engine_stat({ cols: expand_streaming_engine_cols, rows: expand_streaming_engine_rows })
     }, [origin_streaming_engine_stat])
+    
+    async function get_streaming_pub_sub_stat () {
+        set_streaming_stat((await model.get_streaming_stat()).to_dict())
+    }
+    
+    
+    async function get_streaming_engine_stat () {
+        set_origin_streaming_engine_stat((await model.get_streaming_engine_state()).to_dict())
+    }
+    
+    
+    async function get_streaming_table_stat () {
+        set_persistent_table_stat( await model.get_persistence_stat())
+        set_shared_table_stat(await model.get_shared_table_stat())
+    }
+    
       
     if (!streaming_stat || !origin_streaming_engine_stat || !persistent_table_stat || !shared_table_stat)
         return null
@@ -420,8 +419,8 @@ const pagination: TablePaginationConfig = {
 }
 
  /** 渲染表头 */
- function render_table_header (talbe_name: string, button_props?: ButtonProps) {
-    const {  type, selected, refresher: refresher } = button_props || { }
+function render_table_header (talbe_name: string, button_props?: ButtonProps) {
+    const {  type, selected, refresher } = button_props || { }
     return <>
         {type && <Popconfirm title={button_text[type].confirm_text} disabled={!selected.length} onConfirm={async () => handle_delete(type, selected, refresher)}>
                     <Button className='title-button' danger disabled={!selected.length}>{button_text[type].button_text}</Button>
