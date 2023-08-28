@@ -44,7 +44,6 @@ export function Job () {
         get_cjobs()
         get_rjobs()
         get_sjobs()
-        console.log('cjobs', cjobs)
     }, [refresher])
     
     
