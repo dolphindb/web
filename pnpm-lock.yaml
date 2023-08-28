@@ -57,8 +57,8 @@ dependencies:
     specifier: ^4.17.21
     version: 4.17.21
   monaco-dolphindb:
-    specifier: 0.0.8
-    version: 0.0.8(dolphindb@2.0.1021)(monaco-editor@0.41.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0)
+    specifier: 0.0.9
+    version: 0.0.9(dolphindb@2.0.1021)(monaco-editor@0.41.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0)
   monaco-editor:
     specifier: ^0.41.0
     version: 0.41.0
@@ -146,8 +146,8 @@ devDependencies:
     specifier: ^4.0.2
     version: 4.0.2(webpack@5.88.2)
   rc-table:
-    specifier: ^7.33.0
-    version: 7.33.0(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^7.33.1
+    version: 7.33.1(react-dom@18.2.0)(react@18.2.0)
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -5332,8 +5332,8 @@ packages:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
     dev: false
 
-  /monaco-dolphindb@0.0.8(dolphindb@2.0.1021)(monaco-editor@0.41.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0):
-    resolution: {integrity: sha512-7K9JXN7C7LZyVmHVNgNfdRHWMgIbKS//BXbZP4FyHqbQL1/VobwrNDAT5eZa3rT9Yxnx4odxLvrkSdkB6KlvgQ==}
+  /monaco-dolphindb@0.0.9(dolphindb@2.0.1021)(monaco-editor@0.41.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@1.7.0)(vscode-textmate@9.0.0):
+    resolution: {integrity: sha512-cSstTUmsaTANd+0rSRVVzDjJnQibB4WRHRkNL0TZsqdxnu4kziGqePwPBvIKrp5FybtV07+2Q0MSjLNk/vBQMQ==}
     peerDependencies:
       dolphindb: ^2.0.976
       monaco-editor: ^0.39.0
@@ -6140,8 +6140,8 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /rc-table@7.33.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-g7gPjRoR+Ep4oVaHVcl9lq3c+2qRhe75TeAGgySTEs639TSvryXTO6yj+RwdaP6xIVCYdxonr0Js+y3Q6aekew==}
+  /rc-table@7.33.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-Tb7ygQ6V4x9JGvlvxCQoLwFrseIlFwGBdwoNOyC0DMfUF56qSKxkcibl1nFLl+Z5lbEWtZlRUqjuddZJyXwMfw==}
     engines: {node: '>=8.x'}
     peerDependencies:
       react: '>=16.9.0'
