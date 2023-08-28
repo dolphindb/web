@@ -1,7 +1,6 @@
 import { Layout, Menu, Typography } from 'antd'
 
-import { default as _Icon, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
-const Icon: typeof _Icon.default = _Icon as any
+import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
 
 
 import { t } from '../../i18n/index.js'

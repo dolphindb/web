@@ -4,8 +4,7 @@ import { Tooltip, Tree } from 'antd'
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as _Icon, MinusSquareOutlined } from '@ant-design/icons'
-const Icon: typeof _Icon.default = _Icon as any
+import { default as Icon, MinusSquareOutlined } from '@ant-design/icons'
 
 import {
     DdbForm,
@@ -19,7 +18,9 @@ import {
     type DdbVectorObj,
     type DdbDecimal32VectorValue,
     type DdbDecimal64VectorValue,
-    type DdbDecimal128VectorValue
+    type DdbDecimal128VectorValue,
+    type DdbDictObj,
+    type DdbVectorStringObj
 } from 'dolphindb/browser.js'
 
 
@@ -27,6 +28,7 @@ import { t } from '../../i18n/index.js'
 
 import { DdbObjRef } from '../obj.js'
 
+import { model, NodeType } from '../model.js'
 import { shell } from './model.js'
 
 import SvgVar from './icons/variable.icon.svg'
@@ -39,6 +41,7 @@ import SvgDict from './icons/dict.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 import SvgChart from './icons/chart.icon.svg'
 import SvgObject from './icons/object.icon.svg'
+import SvgSchema from './icons/schema.icon.svg'
 
 
 export function Variables ({ shared }: { shared?: boolean }) {
@@ -103,7 +106,7 @@ export function Variables ({ shared }: { shared?: boolean }) {
                 break
                 
             case DdbForm.table:
-                tables.push(new TreeDataItem({ title: v.label, key: v.name }))
+                tables.push(new TreeDataItem({ title: v.label, key: v.name, suffix: <SuffixIcon name={v.name} /> }))
                 table.children = tables
                 break
                 
@@ -365,7 +368,8 @@ class TreeDataItem implements DataNode {
         icon,
         tooltip,
         isLeaf,
-        needLoad
+        needLoad,
+        suffix,
     }: {
         key: string
         className?: string
@@ -375,15 +379,17 @@ class TreeDataItem implements DataNode {
         tooltip?: string
         isLeaf?: boolean
         needLoad?: boolean
+        suffix?: React.ReactElement
     }) {
         const name = typeof title === 'string' ? (/^(\w+)/.exec(title)?.[1] || title) : ''
-        
+      
         this.title = <>{typeof title === 'string' ? (
-                <>
-                    <span className='name'>{name}</span>
-                    {title.slice(name.length)}
-                </>
-            ) : title}</>
+            <>
+                <span className='name'>{name}</span>
+                {title.slice(name.length)}
+                {suffix}
+            </>
+        ) : title}</>
         
         this.key = key
         this.children = children
@@ -393,5 +399,41 @@ class TreeDataItem implements DataNode {
         this.needLoad = needLoad || false
         this.className = className
     }
+}
+
+
+function SuffixIcon ({ name }: { name: string }) {
+    return <Tooltip className='tooltip' title={t('查看表结构')} color='grey'>
+        <Icon
+            className='schema-icon'
+            component={SvgSchema}
+            onClick={async event => {
+                event.stopPropagation()
+                
+                try {
+                    await shell.define_load_table_variable_schema()
+                    
+                    shell.set(
+                        {
+                            result: {
+                                type: 'object',
+                                data: await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
+                                    'load_table_variable_schema',
+                                    [name],
+                                    model.node_type === NodeType.controller ? 
+                                            { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc }
+                                        :
+                                            { }
+                                )
+                            }
+                        }
+                    )
+                } catch (error) {
+                    model.show_error({ error })
+                    throw error
+                }
+            }}
+        />
+    </Tooltip>
 }
 

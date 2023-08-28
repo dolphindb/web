@@ -70,6 +70,33 @@ function MainLayout () {
         })()
     }, [ ])
     
+    useEffect(() => {
+        if (model.dev) {
+            async function on_keydown (event: KeyboardEvent) {
+                const { key, target, ctrlKey: ctrl, altKey: alt } = event
+                
+                if (
+                    key === 'r' && 
+                    (target as HTMLElement).tagName !== 'INPUT' && 
+                    (target as HTMLElement).tagName !== 'TEXTAREA' && 
+                    !ctrl && 
+                    !alt
+                ) {
+                    event.preventDefault()
+                    try {
+                        model.recompile_and_refresh()
+                    } catch (error) {
+                        model.show_error({ error })
+                    }
+                }
+            }
+            
+            window.addEventListener('keydown', on_keydown)
+            
+            return () => { window.removeEventListener('keydown', on_keydown) }
+        }
+    }, [ ])
+    
     if (!inited)
         return null
     

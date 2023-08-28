@@ -2,35 +2,22 @@
 
 import type { Context } from 'koa'
 
-import { request_json, inspect, Remote, set_inspect_options, type RequestError } from 'xshell'
+import {
+    request_json, inspect, Remote, set_inspect_options,
+    type RequestError, type RemoteReconnectingOptions
+} from 'xshell'
 import { Server } from 'xshell/server.js'
 
-import { DDB, DdbVectorString } from 'dolphindb'
-
-import { webpack, fpd_root, fpd_node_modules, fpd_src_console, fpd_src_cloud } from './webpack.js'
+import { webpack, fpd_root, fpd_node_modules, fpd_src_console, fpd_src_cloud, ramdisk } from './webpack.js'
 import { build_bundle, fpd_pre_bundle_dist } from './pre-bundle/index.js'
 
-let c0 = new DDB('ws://127.0.0.1:8850')
 
 // k8s 开发环境需要使用自签名的证书
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 
 class DevServer extends Server {
     ddb_backend = '127.0.0.1:8848'
-    
-    override remote = new Remote({
-        funcs: {
-            async recompile () {
-                await webpack.run()
-                return [ ]
-            },
-            
-            async start_data_node () {
-                await c0.call('startDataNode', [new DdbVectorString(['d0', 'd1'])])
-                return [ ]
-            }
-        }
-    })
     
     
     constructor () {
@@ -77,6 +64,12 @@ class DevServer extends Server {
         
         const { path } = request
         
+        if (path === '/api/recompile') {
+            response.status = 200
+            await webpack.run()
+            return true
+        }
+        
         if (dapi && method === 'POST') {
             const data = await request_json(`http://${this.ddb_backend}${path}`, { body })
             console.log(`${body.functionName}(${inspect(body.params, { compact: true })})`)
@@ -109,36 +102,19 @@ class DevServer extends Server {
         
         for (const prefix of ['/console/vs/', '/min-maps/vs/'] as const)
             if (path.startsWith(prefix)) {
-                await this.try_send(ctx, path.slice(prefix.length), {
-                    root: `${fpd_node_modules}monaco-editor/dev/vs/`,
-                    log_404: true
-                })
+                await this.try_send(ctx, `${fpd_node_modules}monaco-editor/dev/vs/`, path.slice(prefix.length), true)
                 return true
             }
         
         for (const prefix of ['/console/pre-bundle/', '/cloud/pre-bundle/'] as const)
             if (path.startsWith(prefix)) {
-                await this.try_send(
-                    ctx,
-                    path.slice(prefix.length),
-                    {
-                        root: fpd_pre_bundle_dist,
-                        log_404: true
-                    }
-                )
+                await this.try_send(ctx, fpd_pre_bundle_dist, path.slice(prefix.length), true)
                 return true
             }
         
         for (const prefix of ['/console/vendors/', '/cloud/vendors/'] as const)
             if (path.startsWith(prefix)) {
-                await this.try_send(
-                    ctx,
-                    path.slice(prefix.length),
-                    {
-                        root: fpd_node_modules,
-                        log_404: true
-                    }
-                )
+                await this.try_send(ctx, fpd_node_modules, path.slice(prefix.length), true)
                 return true
             }
         
@@ -153,33 +129,22 @@ class DevServer extends Server {
             const fp = path.slice(project.length + 2)
             
             return (
-                (project === 'console' && await this.try_send(
-                    ctx,
-                    fp,
-                    {
-                        root: `${fpd_root}src/`,
-                        log_404: false
-                    }
-                )) ||
+                (project === 'console' && await this.try_send(ctx, `${fpd_root}src/`, fp, false)) ||
                 
                 // index.js
                 await this.try_send(
                     ctx,
+                    `${webpack.config.output.path}${ project === 'console' ? 'web' : 'web.cloud' }/`,
                     fp,
-                    {
-                        root: `${webpack.config.output.path}${ project === 'console' ? 'web' : 'web.cloud' }/`,
-                        log_404: false
-                    }
+                    false
                 ) ||
                 
                 // index.html
                 this.try_send(
                     ctx,
+                    project === 'console' ? fpd_src_console : fpd_src_cloud,
                     fp,
-                    {
-                        root: project === 'console' ? fpd_src_console : fpd_src_cloud,
-                        log_404: true
-                    }
+                    true
                 )
             )
         }
@@ -198,6 +163,9 @@ await Promise.all([
     build_bundle({ entry: 'formily', production: false }),
     webpack.build({ production: false })
 ])
+
+
+let remote: Remote
 
 
 if (process.argv.includes('--watch')) 
@@ -229,6 +197,7 @@ else {
                 break
                 
             case 'x':
+                remote?.disconnect()
                 process.exit()
                 
             case 'i':
@@ -236,6 +205,41 @@ else {
                 break
         }
     })
+}
+
+
+if (ramdisk) {
+    const reconnecting_options: RemoteReconnectingOptions = {
+        func: 'register',
+        args: ['ddb.web'],
+        on_error (error: Error) {
+            console.log(error.message)
+        }
+    }
+    
+    remote = new Remote({
+        url: 'ws://localhost',
+        
+        funcs: {
+            async recompile () {
+                await webpack.run()
+                return [ ]
+            },
+            
+            async exit () {
+                remote.disconnect()
+                await webpack.close()
+                process.exit()
+            }
+        },
+        
+        on_error (error) {
+            console.log(error.message)
+            remote.start_reconnecting({ ...reconnecting_options, first_delay: 1000 })
+        }
+    })
+    
+    remote.start_reconnecting(reconnecting_options)
 }
 
 
@@ -250,7 +254,6 @@ const info =
     'cloud:\n' +
     'http://localhost:8432/cloud/\n'.blue.underline +
     '\n'
-    
 
 
 console.log(

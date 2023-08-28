@@ -5,8 +5,7 @@ import { ReactNode, useState, useEffect, type JSX } from 'react'
 import { Layout, Button, Modal, Tooltip, Progress, Tag, Checkbox, Popconfirm } from 'antd'
 const { Header } = Layout
 
-import { default as _Icon,  SettingOutlined } from '@ant-design/icons'
-const Icon: typeof _Icon.default = _Icon as any
+import { default as Icon,  SettingOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
 

@@ -8,7 +8,7 @@ import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
 import { strcmp } from 'xshell/utils.browser.js'
-import { Remote } from 'xshell/net.browser.js'
+import { Remote, request } from 'xshell/net.browser.js'
 
 import {
     DDB, SqlStandard, DdbFunctionType, DdbVectorString, DdbObj, DdbInt, DdbLong, type InspectOptions,
@@ -859,7 +859,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async recompile_and_refresh () {
-        await this.devserver.call('recompile')
+        await request('http://localhost:8432/api/recompile')
         location.reload()
     }
 }

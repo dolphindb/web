@@ -9,8 +9,7 @@ import { Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber } from '
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as _Icon, SyncOutlined, MinusSquareOutlined, EditOutlined } from '@ant-design/icons'
-const Icon: typeof _Icon.default = _Icon as any
+import { default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined } from '@ant-design/icons'
 
 import { assert, delay } from 'xshell/utils.browser.js'
 
@@ -974,7 +973,7 @@ class Schema implements DataNode {
     
     className = 'schema'
     
-    icon = <Icon component={SvgSchema} />
+    icon = <Icon className='schema-icon-color' component={SvgSchema}/>
     
     isLeaf = true as const
     

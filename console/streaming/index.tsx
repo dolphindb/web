@@ -9,7 +9,7 @@ import dayjs from 'dayjs'
 // 引入图表
 import * as echarts from 'echarts'
 
-import { DDB, formati, type StreamingData } from 'dolphindb/browser.js'
+import { DDB, formati, type StreamingMessage } from 'dolphindb/browser.js'
 
 import { EChartsType } from 'echarts'
 export type Context = 'page' | 'webview' | 'window' | 'embed'
@@ -106,7 +106,7 @@ function useConnectDDB (
             streaming: {
                 table: table,
                 // 订阅流表
-                handler (message: StreamingData) {
+                handler (message: StreamingMessage) {
                     // 收集数据(新数据放到后面)
                     if (message.error) {
                         console.error(message.error)
@@ -301,7 +301,7 @@ export function StreamingLine ({
         }
     }, [pres_data])
     // 用于处理数据格式
-    function handleMessage2Data (message: StreamingData): any {
+    function handleMessage2Data (message: StreamingMessage): any {
         let keys = message.colnames
         // 查看表格所在编号
         let time_variable_index = keys.indexOf(time_variable)
@@ -334,7 +334,7 @@ export function StreamingLine ({
         })
     }
     // 存储数据
-    function saveData (message: StreamingData) {
+    function saveData (message: StreamingMessage) {
         // 格式化message
         let data_items = handleMessage2Data(message)
         if (!data_items)
@@ -383,7 +383,7 @@ export function StreamingSection ({
     const properties_set = new Set(properties)
     
     // 用于处理数据格式
-    function handleMessage2Data (message: StreamingData): any {
+    function handleMessage2Data (message: StreamingMessage): any {
         let keys = message.colnames
         let data = { }
         message.data.value.forEach((item, index) => {
@@ -393,7 +393,7 @@ export function StreamingSection ({
         return data
     }
     
-    function saveData (message: StreamingData) {
+    function saveData (message: StreamingMessage) {
         let now_data = handleMessage2Data(message)
         setData({ ...now_data })
     }
@@ -481,7 +481,7 @@ export function StreamingHeatMap ({
         }
     }, [data])
     // 用于处理数据格式
-    function handleMessage2Data (message: StreamingData): any {
+    function handleMessage2Data (message: StreamingMessage): any {
         let keys = message.colnames
         let data = { }
         message.data.value.forEach((item, index) => {
@@ -490,7 +490,7 @@ export function StreamingHeatMap ({
         })
         return data
     }
-    function saveData (message: StreamingData) {
+    function saveData (message: StreamingMessage) {
         let now_data = handleMessage2Data(message)
         switch (sort) {
             case 'ASC':
@@ -681,7 +681,7 @@ export function StreamingSortBar ({
         
     }, [data])
     // 用于处理数据格式
-    function handleMessage2Data (message: StreamingData): any {
+    function handleMessage2Data (message: StreamingMessage): any {
         let keys = message.colnames
         let data = { }
         message.data.value.forEach((item, index) => {
@@ -690,7 +690,7 @@ export function StreamingSortBar ({
         })
         return data
     }
-    function saveData (message: StreamingData) {
+    function saveData (message: StreamingMessage) {
         let now_data = handleMessage2Data(message)
         switch (sort) {
             case 'ASC':
@@ -865,7 +865,7 @@ export function StreamingKLine ({
         }
     }, [pres_data])
     // 用于处理数据格式
-    function handleMessage2Data (message: StreamingData): any {
+    function handleMessage2Data (message: StreamingMessage): any {
         let keys = message.colnames
         // 查看表格所在编号
         const variable_indexs = {
@@ -919,7 +919,7 @@ export function StreamingKLine ({
         })
     }
     // 存储数据
-    function saveData (message: StreamingData) {
+    function saveData (message: StreamingMessage) {
         // 格式化message
         let data_items = handleMessage2Data(message)
         if (!data_items)
@@ -1112,7 +1112,7 @@ export function StreamingScatter ({
         }
     }, [pres_data])
     // 用于处理数据格式
-    function handleMessage2Data (message: StreamingData): any {
+    function handleMessage2Data (message: StreamingMessage): any {
         let keys = message.colnames
         // 查看表格所在编号
         const variable_indexs = {
@@ -1147,7 +1147,7 @@ export function StreamingScatter ({
     }
     
     // 存储数据
-    function saveData (message: StreamingData) {
+    function saveData (message: StreamingMessage) {
         // 格式化message
         let data_items = handleMessage2Data(message)
         if (!data_items.length)

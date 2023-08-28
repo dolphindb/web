@@ -377,7 +377,7 @@ function add_progress_col (cols: ColumnType<DdbJob>[]) {
         title: 'progress',
         key: 'progress',
         render: (value, job) => 
-            <Text type='warning'>{(job.finishedTasks / job.totalTasks).toFixed(1)} %</Text>
+            <Text type='warning'>{(job.finishedTasks * 100 / job.totalTasks).toFixed(1)} %</Text>
     }
     
     cols.splice(i_priority, 0, col_progress)

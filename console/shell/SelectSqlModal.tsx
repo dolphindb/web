@@ -2,8 +2,7 @@ import { useRef } from 'react'
 
 import { Modal, Select } from 'antd'
 
-import { default as _Icon, WarningFilled  } from '@ant-design/icons'
-const Icon: typeof _Icon.default = _Icon as any
+import { default as Icon, WarningFilled  } from '@ant-design/icons'
 
 import { SqlStandard } from 'dolphindb/browser.js'
 

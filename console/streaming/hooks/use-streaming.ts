@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { DDB, type StreamingData } from 'dolphindb/browser.js'
+import { DDB, type StreamingMessage } from 'dolphindb/browser.js'
 
 export function use_streaming (
     {
@@ -24,7 +24,7 @@ export function use_streaming (
             streaming: {
                 table: table,
                 // 订阅流表
-                handler (message: StreamingData) {
+                handler (message: StreamingMessage) {
                     // 收集数据(新数据放到后面)
                     if (message.error) {
                         console.error(message.error)

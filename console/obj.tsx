@@ -13,12 +13,7 @@ import {
     type TableColumnType,
 } from 'antd'
 
-import {
-    default as _Icon,
-    CaretRightOutlined,
-    PauseOutlined,
-} from '@ant-design/icons'
-const Icon: typeof _Icon.default = _Icon as any
+import { default as Icon, CaretRightOutlined, PauseOutlined } from '@ant-design/icons'
 
 import { Line, Pie, Bar, Column, Scatter, Area, DualAxes, Histogram, Stock } from '@ant-design/plots'
 
@@ -763,6 +758,9 @@ export function StreamingTable ({
             
             // 开始订阅
             await ddb.connect()
+            
+            // 插入一条数据以获取 message，才能显示出下面的表格
+            await append_data(1)
             
             rerender({ })
         })()

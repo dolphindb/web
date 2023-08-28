@@ -2,14 +2,7 @@ import { useEffect } from 'react'
 
 import { Dropdown, Avatar, Button } from 'antd'
 
-import {
-    default as _Icon,
-    LoginOutlined,
-    LogoutOutlined, 
-    UserOutlined,
-    ReloadOutlined,
-} from '@ant-design/icons'
-const Icon: typeof _Icon.default = _Icon as any
+import { default as Icon, LoginOutlined, LogoutOutlined, UserOutlined, ReloadOutlined } from '@ant-design/icons'
 
 
 import { t } from '../../i18n/index.js'
@@ -40,7 +33,7 @@ export function DdbHeader () {
             <Button
                 className='refresh-button' size='small' icon={<ReloadOutlined /> } 
                 onClick={async () => { await model.recompile_and_refresh() } }
-            >{t('编译并刷新')}</Button> }
+            >{t('编译并刷新 (r)')}</Button> }
         
         <div className='padding' />
         
