@@ -78,6 +78,7 @@ export function Computing () {
             dataIndex: col_name,
             render: value => <span>{value}</span>
         }))
+        
         const expand_streaming_engine_cols: ColumnType<Record<string, any>>[] = Object.keys(expanded_cols.engine).map(col_name => ({
             title: <Tooltip title={col_name} placement='bottom'>
                         <span className='col-title'>
@@ -87,18 +88,25 @@ export function Computing () {
             dataIndex: col_name,
             render: value => <span>{value}</span>
         }))
+        
         let streaming_engine_rows = [ ]
         let expand_streaming_engine_rows = [ ]
-        for (let engineType of Object.keys(origin_streaming_engine_stat))  
+        
+        for (let engineType of Object.keys(origin_streaming_engine_stat))
+          
             for (let row of origin_streaming_engine_stat[engineType].to_rows()) {
                 let new_row = { }
                 let expand_new_row = { }
+                
                 for (let key of Object.keys(leading_cols.engine))  
                     new_row = Object.assign(new_row, { [key]: (row.hasOwnProperty(key) ? row[key] : '') })
+                
                 for (let key of Object.keys(expanded_cols.engine))  
                     expand_new_row = Object.assign(expand_new_row, { [key]: (row.hasOwnProperty(key) ? row[key] : '') })
+                
                 new_row = Object.assign(new_row, { engineType })
                 expand_new_row = Object.assign(expand_new_row, { name: row.name })
+                
                 streaming_engine_rows.push(new_row)
                 expand_streaming_engine_rows.push(expand_new_row)
             }
@@ -195,9 +203,9 @@ export function Computing () {
                             cols={render_title(persistent_table_stat.to_cols(), true, 'persistenceMeta')}
                             rows={add_key(persistent_table_stat.to_rows())} 
                             refresher={get_streaming_table_stat}/>
-                <StateTable type='persistWorkers' 
+                {streaming_stat.persistWorkers && <StateTable type='persistWorkers' 
                             cols={render_title(streaming_stat.persistWorkers.to_cols(), true, 'persistWorkers')}
-                            rows={add_key(streaming_stat.persistWorkers.to_rows())}/>
+                            rows={add_key(streaming_stat.persistWorkers.to_rows())}/>}
                 <StateTable type='sharedStreamingTableStat' 
                             cols={render_title(shared_table_stat.to_cols(), true, 'sharedStreamingTableStat')}
                             rows={add_key(shared_table_stat.to_rows())} 
@@ -463,6 +471,7 @@ function translate_order_col (cols: ColumnType<Record<string, any>>[]) {
 
 /** 增加 key */
 function add_key (table: Record<string, any>, key_index = 0) {
+    console.log('add_key', table, typeof table)
     const { title = '' } = table
     return table.map((row, idx) => { 
         return { ...row, key: title.includes('Conns') ? idx : Object.values(row)[key_index] } })
@@ -492,7 +501,7 @@ function set_col_color (cols: ColumnType<Record<string, any>>[], col_name: strin
             color = 'orange'
         else if (value >= 10000n)
             color = 'red'
-        return <Tooltip title={t('0为绿色，1-10000 为橙色，10000 以上为红色。')}>
+        return <Tooltip title={t('0 为绿色，1-10000 为橙色，10000 以上为红色。')}>
                     <span className={color}>{Number(value)}</span>
                 </Tooltip>
     }
@@ -604,13 +613,13 @@ function StateTable ({
                     expandable={ expandable_config ? expandable_config : null } 
                     size='small'
                     title={() => render_table_header( type, 
-                                refresher ? 
-                                        {
-                                            type: type,
-                                            selected,
-                                            refresher: () => refresher()
-                                        } 
-                                          : null
+                                                      refresher ? 
+                                                            {
+                                                                type: type,
+                                                                selected,
+                                                                refresher
+                                                            } 
+                                                                : null
                                 )} 
                     pagination={{ ...pagination, defaultPageSize: default_page_size }}
                 />
