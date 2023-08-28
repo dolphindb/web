@@ -2197,5 +2197,11 @@
     },
     "流数据表状态": {
         "en": "Stream data table status"
+    },
+    "最近消息延迟": {
+        "en": "last message latency"
+    },
+    "最近消息接收时刻": {
+        "en": "last message received time"
     }
 }

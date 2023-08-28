@@ -335,8 +335,8 @@ const leading_cols = {
         publisher: t('发布节点'),
         cumMsgCount: t('接收消息总量'),
         cumMsgLatency: t('接收消息平均延迟'),
-        LastMsgLatency: t('最近消息的延迟'),
-        lastUpdate: t('最近消息的接收时刻')
+        lastMsgLatency: t('最近消息延迟'),
+        lastUpdate: t('最近消息接收时刻')
     },
     persistenceMeta: {
         tablename: t('表名'),
