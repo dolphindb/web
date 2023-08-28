@@ -26,8 +26,8 @@
     "刷新": {
         "en": "Refresh"
     },
-    "编译并刷新": {
-        "en": "Compile and refresh"
+    "编译并刷新 (r)": {
+        "en": "Compile and refresh (r)"
     },
     "输入关键字后按回车可搜索作业": {
         "en": "Type keywords then press enter to search jobs"
@@ -923,7 +923,7 @@
     "按 Ctrl + Y 删除行\n": {
         "en": "Press Ctrl + Y to delete lines\n"
     },
-    "显示数据表结构": {
+    "查看表结构": {
         "en": "Show table schema"
     },
     "字体已全部加载": {

@@ -14,7 +14,7 @@ import ko from 'antd/locale/ko_KR.js'
 
 
 import {
-    default as _Icon,
+    default as Icon,
     DoubleLeftOutlined,
     DoubleRightOutlined,
     LockOutlined,
@@ -23,7 +23,6 @@ import {
     EditOutlined,
     LoginOutlined
 } from '@ant-design/icons'
-const Icon: typeof _Icon.default = _Icon as any
 const { Text } = Typography
 
 import { language, t } from '../i18n/index.js'

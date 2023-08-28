@@ -64,6 +64,8 @@ class ShellModel extends Model<ShellModel> {
     
     load_table_schema_defined = false
     
+    load_table_variable_schema_defined = false
+    
     load_database_schema_defined = false
     
     peek_table_defined = false
@@ -500,6 +502,20 @@ class ShellModel extends Model<ShellModel> {
         )
         
         shell.set({ load_table_schema_defined: true })
+    }
+    
+    
+    async define_load_table_variable_schema () {
+        if (this.load_table_variable_schema_defined)
+            return
+        
+        await model.ddb.eval(
+            'def load_table_variable_schema (tb_name) {\n' +
+            '    return schema(objByName(tb_name))\n' +
+            '}\n'
+        )
+        
+        shell.set({ load_table_variable_schema_defined: true })
     }
     
     
