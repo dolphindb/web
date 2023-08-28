@@ -473,7 +473,7 @@ function translate_order_col (cols: ColumnType<Record<string, any>>[]) {
 function add_key (table: Record<string, any>, key_index = 0) {
     console.log('add_key', table, typeof table)
     const { title = '' } = table
-    return table.map((row, idx) => { 
+    return table.map((row: object, idx: number) => { 
         return { ...row, key: title.includes('Conns') ? idx : Object.values(row)[key_index] } })
 }
 
