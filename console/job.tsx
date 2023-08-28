@@ -78,6 +78,7 @@ export function Job () {
     const cjob_cols: ColumnType<Record<string, any>>[] = cjobs.to_cols()
     
     const gjobs = group_cjob_rows_by_rootid(cjob_rows)
+    
     // finishedTasks 大的排在前面
     const gjob_rows = Object.values(gjobs)
         .sort((l, r) => 
