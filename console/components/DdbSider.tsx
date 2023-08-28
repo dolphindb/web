@@ -97,6 +97,11 @@ export function DdbSider () {
                     icon: <MenuIcon view='log' />,
                     label: t('日志查看'),
                 },
+                {
+                    key: 'gridstack',
+                    icon: <MenuIcon view='dashboard' />,
+                    label: t('DashBoard'),
+                },
             ]}
         />
     </Layout.Sider>

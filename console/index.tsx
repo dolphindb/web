@@ -29,6 +29,7 @@ import { Shell } from './shell/index.js'
 import { DashBoard } from './dashboard/index.js'
 import { Job } from './job.js'
 import { Log } from './log.js'
+import { GridDashBoard } from './gridstack/index.js'
 
 
 createRoot(
@@ -94,6 +95,7 @@ const views = {
     dashboard: DashBoard,
     job: Job,
     log: Log,
+    gridstack: GridDashBoard
 }
 
 
