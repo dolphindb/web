@@ -6,6 +6,7 @@ import './index.sass'
 import { SelectSider } from './SelectSider/SelectSider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 
+import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 
 
 export function GridDashBoard () {
@@ -65,5 +66,6 @@ export function GridDashBoard () {
                 })}
             </div>
         </div>
+        <SettingsPanel />
     </div>
 }
