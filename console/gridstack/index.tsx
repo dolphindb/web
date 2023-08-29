@@ -1,6 +1,6 @@
 import { GridStack, GridStackNode } from 'gridstack'
 import 'gridstack/dist/gridstack.min.css'
-import { useEffect, useRef, useState } from 'react'
+import { createRef, useEffect, useRef, useState } from 'react'
 
 import './index.sass'
 import { SelectSider } from './SelectSider/SelectSider.js'
@@ -16,7 +16,7 @@ export function GridDashBoard () {
     const lock = useRef(false)
     if (Object.keys(refs.current).length !== items.length)
         items.forEach(({ id }) => {
-            refs.current[id] = refs.current[id] || useRef()
+            refs.current[id] = refs.current[id] || createRef()
         })
     useEffect(() => {
         gridRefs.current = gridRefs.current || GridStack.init({
