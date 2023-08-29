@@ -4,6 +4,7 @@ import { createRef, useEffect, useRef, useState } from 'react'
 
 import './index.sass'
 import { SelectSider } from './SelectSider/SelectSider.js'
+import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 
 const Item = ({ id }) => <div>{id}</div>
 
@@ -68,5 +69,6 @@ export function GridDashBoard () {
                 })}
             </div>
         </div>
+        <SettingsPanel />
     </div>
 }
