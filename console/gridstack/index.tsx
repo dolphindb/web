@@ -58,7 +58,7 @@ export function GridDashBoard () {
     
     
     return <div className='dashboard-main'>
-        <SelectSider graph_items={graph_items}/>
+        <SelectSider graph_items={graph_items.current}/>
         <div className='dashboard-canvas'>
             <div className='grid-stack controlled'>
                 {items.map((item, i) => {
