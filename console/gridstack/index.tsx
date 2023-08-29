@@ -5,6 +5,7 @@ import {  createRef, useEffect, useRef, useState } from 'react'
 import './index.sass'
 import { SelectSider } from './SelectSider/SelectSider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
+import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 
 const tmpcol = 10, tmprow = 12
 export function GridDashBoard () {
@@ -67,5 +68,6 @@ export function GridDashBoard () {
                 })}
             </div>
         </div>
+        <SettingsPanel />
     </div>
 }
