@@ -7,6 +7,7 @@ import './index.sass'
 import { SelectSider } from './SelectSider/SelectSider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
+import { Navigation } from './Navigation/Navigation.js'
 
 // gridstack仅支持12列以下的，大于12列需要手动添加css代码，详见gridstack的readme.md
 // 目前本项目仅支持仅支持tmpcol<=12
@@ -60,17 +61,22 @@ export function GridDashBoard () {
     }, [ ])
     
     
-    return <div className='dashboard-main'>
-        <SelectSider/>
-        <div className='dashboard-canvas' ref={dashboardCanvasRef}>
-            <div className='grid-stack' style={{ backgroundSize: `${100 / tmpcol}% ${100 / tmprow}%` }}>
-                {items.map((item, i) => {
-                    return <div ref={refs.current[item.id]} key={item.id} className='grid-stack-item' gs-id={item.id} gs-w={item.w} gs-h={item.h} gs-x={item.x} gs-y={item.y}>
-                        <GraphItem item={item}/>
-                    </div>
-                })}
-            </div>
+    return <div className='dashboard'>
+        <div className='dashboard-header'>
+            <Navigation />
         </div>
-        <SettingsPanel />
+        <div className='dashboard-main'>
+            <SelectSider/>
+            <div className='dashboard-canvas' ref={dashboardCanvasRef}>
+                <div className='grid-stack' style={{ backgroundSize: `${100 / tmpcol}% ${100 / tmprow}%` }}>
+                    {items.map((item, i) => {
+                        return <div ref={refs.current[item.id]} key={item.id} className='grid-stack-item' gs-id={item.id} gs-w={item.w} gs-h={item.h} gs-x={item.x} gs-y={item.y}>
+                            <GraphItem item={item}/>
+                        </div>
+                    })}
+                </div>
+            </div>
+            <SettingsPanel />
+        </div>
     </div>
 }
