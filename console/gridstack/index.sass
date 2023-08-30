@@ -12,6 +12,25 @@
         .grid-stack
             background-image: radial-gradient(circle at top left, #000 1px, transparent 1px),radial-gradient(circle at top right, #000 1px, transparent 1px),radial-gradient(circle at bottom left, #000 1px, transparent 1px),radial-gradient(circle at bottom right, #000 1px, transparent 1px)
             background-size: 8.3% 8.3% /* 控制点阵大小和间隔 */
+            .grid-stack-item-content
+                background-color: rgba(0,0,0, 0.2)
+                .delete-graph
+                    position: absolute
+                    right: 0
+                    top: 0
+                .graph-content
+                    width: 100%
+                    height: 100%
+                    display: flex
+                    justify-content: center
+                    align-items: center
+                    .graph-hint
+                        width: 80%
+                        height: 40%
+                        text-align: center
+                        border: 1px black solid
+            .grid-stack-item-active
+                border: 1px aqua solid
 
     .dashboard-select-sider
         width: 160px

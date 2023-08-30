@@ -12,6 +12,9 @@ import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 export function GridDashBoard () {
     const [items, setItems] = useState([ ])
     const refs = useRef({ })
+    /** 画布上所有的 widgets */
+    const [all_widgets, set_all_widgets] = useState([ ])
+    
     const gridRefs = useRef<GridStack>()
     const lock = useRef(false)
     if (Object.keys(refs.current).length !== items.length)
@@ -46,8 +49,10 @@ export function GridDashBoard () {
         GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
         let res = gridRefs.current.on('added', function (event: Event, news: GridStackNode[]) {
             // 加锁，防止因更新 state 导致的无限循环
-            if (lock.current)
+            if (lock.current) {
+                set_all_widgets(() => { return [...news] })
                 return
+            }
             // 去除移入的新 widget
             gridRefs.current.removeWidget(news[0].el)
             setItems( item => {  return [...item, { id: `${new Date()}`, type: news[0].el.dataset.type, x: news[0].x, y: news[0].y, h: news[0].h, w: news[0].w }] })
@@ -61,7 +66,7 @@ export function GridDashBoard () {
             <div className='grid-stack controlled'>
                 {items.map((item, i) => {
                     return <div ref={refs.current[item.id]} key={item.id} className='grid-stack-item' gs-id={item.id} gs-w={item.w} gs-h={item.h} gs-x={item.x} gs-y={item.y}>
-                        <GraphItem item={item}/>
+                        <GraphItem item={item} el={all_widgets[i]} grid={gridRefs.current}/>
                     </div>
                 })}
             </div>
