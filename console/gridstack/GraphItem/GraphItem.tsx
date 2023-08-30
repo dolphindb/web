@@ -10,5 +10,6 @@ export function GraphItem  ({ item, el, grid }) {
         <div className='graph-content'>
             <div className='graph-hint'>点击填充数据源</div>
         </div>
+        <div className='drag-icon' />
      </div>
 }
