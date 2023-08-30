@@ -1,7 +1,7 @@
 import { GridStack, GridStackNode } from 'gridstack'
 import 'gridstack/dist/gridstack.min.css'
 import 'gridstack/dist/gridstack-extra.min.css'
-import {  createRef, useEffect, useRef, useState } from 'react'
+import {  createRef, useCallback, useEffect, useRef, useState } from 'react'
 
 import './index.sass'
 import { SelectSider } from './SelectSider/SelectSider.js'
@@ -14,10 +14,13 @@ import { Navigation } from './Navigation/Navigation.js'
 const tmpcol = 10, tmprow = 10
 export function GridDashBoard () {
     const [items, setItems] = useState([ ])
+    const [all_widgets, set_all_widgets] = useState([ ])
+    const [active_widgets_id, set_active_widgets_id] = useState('')
     const refs = useRef({ })
     const dashboardCanvasRef = useRef(null)
-    /** 画布上所有的 widgets */
-    const [all_widgets, set_all_widgets] = useState([ ])
+    const change_active_widgets = useCallback(function (widgets_id: string) { 
+        set_active_widgets_id(widgets_id)
+    }, [ ])
     
     const gridRefs = useRef<GridStack>()
     const lock = useRef(false)
@@ -53,12 +56,12 @@ export function GridDashBoard () {
         gridRefs.current.on('added', function (event: Event, news: GridStackNode[]) {
             // 加锁，防止因更新 state 导致的无限循环
             if (lock.current) {
-                set_all_widgets(() => { return [...news] })
+                set_all_widgets(() => [...news] )
                 return
             }
             // 去除移入的新 widget
             gridRefs.current.removeWidget(news[0].el)
-            setItems( item => {  return [...item, { id: `${new Date()}`, type: news[0].el.dataset.type, x: news[0].x, y: news[0].y, h: news[0].h, w: news[0].w }] })
+            setItems( item => [...item, { id: `${new Date()}`, type: news[0].el.dataset.type, x: news[0].x, y: news[0].y, h: news[0].h, w: news[0].w }])
         })
         window.addEventListener('resize', function () {
             gridRefs.current.cellHeight(Math.floor(dashboardCanvasRef.current.clientHeight / tmprow))
@@ -72,11 +75,11 @@ export function GridDashBoard () {
         </div>
         <div className='dashboard-main'>
             <SelectSider/>
-            <div className='dashboard-canvas' ref={dashboardCanvasRef}>
+            <div className='dashboard-canvas' ref={dashboardCanvasRef} onClick={() => { change_active_widgets('') }}>
                 <div className='grid-stack' style={{ backgroundSize: `${100 / tmpcol}% ${100 / tmprow}%` }}>
                     {items.map((item, i) => {
                         return <div ref={refs.current[item.id]} key={item.id} className='grid-stack-item' gs-id={item.id} gs-w={item.w} gs-h={item.h} gs-x={item.x} gs-y={item.y}>
-                            <GraphItem item={item} el={all_widgets[i]} grid={gridRefs.current}/>
+                            <GraphItem item={item} el={all_widgets[i]} grid={gridRefs.current} actived={active_widgets_id === item.id} click_handler={change_active_widgets}/>
                         </div>
                     })}
                 </div>
