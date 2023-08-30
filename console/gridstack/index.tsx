@@ -1,5 +1,6 @@
 import { GridStack, GridStackNode } from 'gridstack'
 import 'gridstack/dist/gridstack.min.css'
+import 'gridstack/dist/gridstack-extra.min.css'
 import {  createRef, useEffect, useRef, useState } from 'react'
 
 import './index.sass'
@@ -7,7 +8,9 @@ import { SelectSider } from './SelectSider/SelectSider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 
-const tmpcol = 10, tmprow = 12
+// gridstack仅支持12列以下的，大于12列需要手动添加css代码，详见gridstack的readme.md
+// 目前本项目仅支持仅支持tmpcol<=12
+const tmpcol = 10, tmprow = 10
 export function GridDashBoard () {
     const [items, setItems] = useState([ ])
     const refs = useRef({ })
@@ -49,7 +52,7 @@ export function GridDashBoard () {
                 return
             // 去除移入的新 widget
             gridRefs.current.removeWidget(news[0].el)
-            setItems( item => {  return [...item, { id: `${new Date()}`, type: news[0].el.dataset.type, x: news[0].x, y: news[0].y, h: news[0].h, w: 3 }] })
+            setItems( item => {  return [...item, { id: `${new Date()}`, type: news[0].el.dataset.type, x: news[0].x, y: news[0].y, h: news[0].h, w: news[0].w }] })
         })
         window.addEventListener('resize', function () {
             gridRefs.current.cellHeight(Math.floor(dashboardCanvasRef.current.clientHeight / tmprow))
