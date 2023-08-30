@@ -750,24 +750,24 @@ export class DdbModel extends Model<DdbModel> {
             'def getSharedTableStat(){\n' +
             '    tableNames = getPersistenceTableNames()\n' +
             '    shareNames = exec name from objs(true) where type="REALTIME" and shared=true and name not in tableNames\n' +
-            '    return select name as TableName,  rows, columns, bytes from objs(true) where name in shareNames\n' +
+            '    return select name as tableName,  rows, columns, bytes from objs(true) where name in shareNames\n' +
             '}\n' +
             'getSharedTableStat()\n', { urgent: true })
     }
     
     
     async unsubscribe_table (table_name: string, action: string) {
-        this.ddb.eval(`unsubscribeTable(,'${table_name}','${action}')`, { urgent: true })
+        return this.ddb.eval(`unsubscribeTable(,'${table_name}','${action}')`, { urgent: true })
     }
     
     
-    async drop_streaming_engine (engine_name: string) {
-        this.ddb.call('dropStreamEngine', [engine_name], { urgent: true })
+    async drop_streaming_engine (engine_name: string) { 
+        return this.ddb.call('dropStreamEngine', [engine_name], { urgent: true })    
     }
     
     
-    async drop_streaming_table (table_name: string) {
-        this.ddb.call('dropStreamTable', [table_name], { urgent: true })
+    async drop_streaming_table (table_name: string) {   
+        return this.ddb.call('dropStreamTable', [table_name], { urgent: true })  
     }
     
     
