@@ -16,17 +16,20 @@ export function GridDashBoard () {
     const [items, setItems] = useState([ ])
     const [all_widgets, set_all_widgets] = useState([ ])
     const [active_widgets_id, set_active_widgets_id] = useState('')
+    
     const refs = useRef({ })
+    const gridRefs = useRef<GridStack>()
+    const lock = useRef(false)
+    
     const change_active_widgets = useCallback(function (widgets_id: string) { 
         set_active_widgets_id(widgets_id)
     }, [ ])
     
-    const gridRefs = useRef<GridStack>()
-    const lock = useRef(false)
     if (Object.keys(refs.current).length !== items.length)
         items.forEach(({ id }) => {
             refs.current[id] = refs.current[id] || createRef()
         })
+        
     useEffect(() => {
         gridRefs.current = gridRefs.current || GridStack.init({
             acceptWidgets: true,
@@ -37,20 +40,21 @@ export function GridDashBoard () {
             draggable: { scroll: false },
             resizable: { handles: 'n,e,se,s,w' },
         })
+        
         lock.current = true
-        const grid = gridRefs.current
-        grid.batchUpdate()
-        grid.removeAll(false)
         
-        items.forEach(({ id }) => grid.makeWidget(refs.current[id].current))
+        gridRefs.current.batchUpdate()
+        gridRefs.current.removeAll(false)
+        items.forEach(({ id }) => gridRefs.current.makeWidget(refs.current[id].current))
+        gridRefs.current.batchUpdate(false)
         
-        grid.batchUpdate(false)
         lock.current = false
         
     }, [ items ])
     
     useEffect(() => {
         GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
+        
         gridRefs.current.on('added', function (event: Event, news: GridStackNode[]) {
             // 加锁，防止因更新 state 导致的无限循环
             if (lock.current) {
@@ -61,6 +65,7 @@ export function GridDashBoard () {
             gridRefs.current.removeWidget(news[0].el)
             setItems( item => [...item, { id: `${new Date()}`, type: news[0].el.dataset.type, x: news[0].x, y: news[0].y, h: news[0].h, w: news[0].w }])
         })
+        
         window.addEventListener('resize', function () {
             gridRefs.current.cellHeight(Math.floor(gridRefs.current.el.clientHeight / tmprow))
         })
