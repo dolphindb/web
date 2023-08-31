@@ -1,7 +1,7 @@
 import './index.sass'
 
 import { useEffect, useState } from 'react'
-import {  Button, Tabs, Table, Tooltip, Popconfirm, Typography, type TabsProps, type TablePaginationConfig } from 'antd'
+import { Button, Tabs, Table, Tooltip, Popconfirm, Typography, type TabsProps, type TablePaginationConfig } from 'antd'
 import { ReloadOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import type { ColumnType } from 'antd/lib/table/index.js'
 import { model } from '../model.js'
@@ -12,19 +12,19 @@ import { ExpandableConfig, SortOrder } from 'antd/es/table/interface.js'
 
 const { Paragraph } = Typography
 
-       
-export function Computing () {    
-    const [streaming_stat, set_streaming_stat] = useState <Record<string, DdbObj>>()
+
+export function Computing () {
+    const [streaming_stat, set_streaming_stat] = useState<Record<string, DdbObj>>()
     
-    const [origin_streaming_engine_stat, set_origin_streaming_engine_stat] = useState <Record<string, DdbObj>>()
+    const [origin_streaming_engine_stat, set_origin_streaming_engine_stat] = useState<Record<string, DdbObj>>()
     
-    const [streaming_engine_stat, set_streaming_engine_stat] = useState <Record<string, any>>()
+    const [streaming_engine_stat, set_streaming_engine_stat] = useState<Record<string, any>>()
     
-    const [expand_streaming_engine_stat, set_expand_streaming_engine_stat] = useState <Record<string, any>>()
+    const [expand_streaming_engine_stat, set_expand_streaming_engine_stat] = useState<Record<string, any>>()
     
-    const [persistent_table_stat, set_persistent_table_stat] = useState <DdbObj>()
+    const [persistent_table_stat, set_persistent_table_stat] = useState<DdbObj>()
     
-    const [shared_table_stat, set_shared_table_stat] = useState <DdbObj>()
+    const [shared_table_stat, set_shared_table_stat] = useState<DdbObj>()
     
     const [tab_key, set_tab_key] = useState<string>('streaming_pub_sub_stat')
     
@@ -54,42 +54,41 @@ export function Computing () {
         if (!origin_streaming_engine_stat)
             return
         const streaming_engine_cols: ColumnType<Record<string, any>>[] = Object.keys(leading_cols.engine).map(col_name => ({
-            title: <Tooltip className='col-title' title={col_name} placement='bottom'>
-                        <span className='col-title'>
-                            {leading_cols.engine[col_name]}
-                        </span>
-                    </Tooltip>,
+            title: (
+                <Tooltip className='col-title' title={col_name} placement='bottom'>
+                    <span className='col-title'>{leading_cols.engine[col_name]}</span>
+                </Tooltip>
+            ),
             dataIndex: col_name,
             render: value => <span>{value}</span>
         }))
         
         let expand_streaming_engine_cols: Record<string, ColumnType<Record<string, any>>[]> = { }
-        for (let engineType of  Object.keys(origin_streaming_engine_stat))  
+        for (let engineType of Object.keys(origin_streaming_engine_stat))
             expand_streaming_engine_cols[engineType] = Object.keys(expanded_cols.engine[engineType]).map(col_name => ({
-                title: <Tooltip className='col-title' title={col_name} placement='bottom'>
-                            <span className='col-title'>
-                                {expanded_cols.engine[engineType][col_name]}
-                            </span>
-                        </Tooltip>,
+                title: (
+                    <Tooltip className='col-title' title={col_name} placement='bottom'>
+                        <span className='col-title'>{expanded_cols.engine[engineType][col_name]}</span>
+                    </Tooltip>
+                ),
                 dataIndex: col_name,
                 render: value => <span>{value}</span>
             }))
-        
+            
         let streaming_engine_rows = [ ]
         let expand_streaming_engine_rows = [ ]
         
         for (let engineType of Object.keys(origin_streaming_engine_stat))
-          
             for (let row of origin_streaming_engine_stat[engineType].to_rows()) {
                 let new_row = { }
                 let expand_new_row = { }
                 
-                for (let key of Object.keys(leading_cols.engine))  
-                    new_row = Object.assign(new_row, { [key]: (row.hasOwnProperty(key) ? row[key] : '') })
+                for (let key of Object.keys(leading_cols.engine))
+                    new_row = Object.assign(new_row, { [key]: row.hasOwnProperty(key) ? row[key] : '' })
                 
-                for (let key of Object.keys(expanded_cols.engine[engineType]))  
-                    expand_new_row = Object.assign(expand_new_row, { [key]: (row.hasOwnProperty(key) ? row[key] : '') })
-                
+                for (let key of Object.keys(expanded_cols.engine[engineType]))
+                    expand_new_row = Object.assign(expand_new_row, { [key]: row.hasOwnProperty(key) ? row[key] : '' })
+                    
                 new_row = Object.assign(new_row, { engineType })
                 expand_new_row = Object.assign(expand_new_row, { name: row.name })
                 
@@ -104,141 +103,151 @@ export function Computing () {
         set_streaming_stat((await model.get_streaming_stat()).to_dict())
     }
     
-    
     async function get_streaming_engine_stat () {
         set_origin_streaming_engine_stat((await model.get_streaming_engine_state()).to_dict())
     }
     
-    
     async function get_streaming_table_stat () {
-        set_persistent_table_stat( await model.get_persistence_stat())
+        set_persistent_table_stat(await model.get_persistence_stat())
         set_shared_table_stat(await model.get_shared_table_stat())
     }
     
-      
     if (!streaming_stat || !origin_streaming_engine_stat || !persistent_table_stat || !shared_table_stat)
         return null
-         
+    
     const tabs: TabsProps['items'] = [
         {
             key: 'streaming_pub_sub_stat',
             label: <label className='tab-header'>{tab_content.streaming_pub_sub_stat.title}</label>,
-            children:   
-            <div className='streaming_pub_sub_stat'>
-                <div className='sub-workers'>
-                    <StateTable type='subWorkers'
-                                cols={ render_col_title(
-                                            translate_order_col(
-                                                    set_col_width(
-                                                        set_col_color(
-                                                            sort_col(streaming_stat.subWorkers.to_cols().filter(
-                                                                col => Object.keys(leading_cols.subWorkers).includes(col.title)), 
-                                                            'subWorkers'), 'queueDepth'), 'subWorkers')), 
-                                                    true, 'subWorkers')}
-                                rows={translate_sorter_row(
-                                        handle_ellipsis_col(
-                                            add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'))}
-                                default_page_size={10}
-                                refresher={get_streaming_pub_sub_stat}
-                                expandable_config={{   
-                                    expandedRowRender: stat => 
-                                        <Table
-                                            columns={
-                                                render_col_title(
-                                                        streaming_stat.subWorkers.to_cols().filter(col => 
-                                                            Object.keys(expanded_cols.subWorkers).includes(col.title)),
-                                                        false, 'subWorkers')
-                                            }
-                                            dataSource={
-                                                streaming_stat.subWorkers.to_rows().filter(row => 
-                                                    row.topic.slice(row.topic.indexOf('/') + 1) === stat.topic)
-                                            }
-                                            rowKey={row => row.topic}
-                                            pagination={false}
-                                        />
-                                    }}/>
+            children: (
+                <div className='streaming_pub_sub_stat'>
+                    <div className='sub-workers'>
+                        <StateTable
+                            type='subWorkers'
+                            cols={render_col_title(
+                                translate_order_col(
+                                    set_col_width(
+                                        set_col_color(
+                                            sort_col(
+                                                streaming_stat.subWorkers
+                                                    .to_cols()
+                                                    .filter(col => Object.keys(leading_cols.subWorkers).includes(col.title)),
+                                                'subWorkers'
+                                            ),
+                                            'queueDepth'
+                                        ),
+                                        'subWorkers'
+                                    )
+                                ),
+                                true,
+                                'subWorkers'
+                            )}
+                            rows={translate_sorter_row(handle_ellipsis_col(add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'))}
+                            default_page_size={10}
+                            refresher={get_streaming_pub_sub_stat}
+                            expandable_config={{
+                                expandedRowRender: stat => <Table
+                                        columns={render_col_title(
+                                            streaming_stat.subWorkers
+                                                .to_cols()
+                                                .filter(col => Object.keys(expanded_cols.subWorkers).includes(col.title)),
+                                            false,
+                                            'subWorkers'
+                                        )}
+                                        dataSource={streaming_stat.subWorkers
+                                            .to_rows()
+                                            .filter(row => row.topic.slice(row.topic.indexOf('/') + 1) === stat.topic)}
+                                        rowKey={row => row.topic}
+                                        pagination={false}
+                                    />
+                            }}
+                        />
+                    </div>
+                    <div className='other-tables'>
+                        <StateTable
+                            type='pubConns'
+                            key='pubConns'
+                            cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), true, 'pubConns'), 'queueDepth')}
+                            rows={handle_ellipsis_col(add_key(streaming_stat.pubConns.to_rows()), 'tables')}
+                        />
+                        <StateTable
+                            type='subConns'
+                            key='subConns'
+                            cols={render_col_title(streaming_stat.subConns.to_cols(), true, 'subConns')}
+                            rows={add_key(streaming_stat.subConns.to_rows())}
+                        />
+                        <StateTable
+                            type='pubTables'
+                            key='pubTables'
+                            cols={render_col_title(streaming_stat.pubTables.to_cols(), true, 'pubTables')}
+                            rows={add_key(split_actions(streaming_stat.pubTables.to_rows()))}
+                        />
+                    </div>
                 </div>
-                <div className='other-tables'>
-                    <StateTable type='pubConns'
-                                key='pubConns'
-                                cols={
-                                    set_col_color(
-                                        render_col_title(streaming_stat.pubConns.to_cols(), true, 'pubConns'), 'queueDepth')
-                                }
-                                rows={handle_ellipsis_col(
-                                        add_key(streaming_stat.pubConns.to_rows()), 'tables')}    
-                                />
-                    <StateTable type='subConns'
-                                key='subConns'
-                                cols={render_col_title(streaming_stat.subConns.to_cols(), true, 'subConns')} 
-                                rows={add_key(streaming_stat.subConns.to_rows())}
-                                />
-                    <StateTable type='pubTables'
-                                key='pubTables'
-                                cols={render_col_title(streaming_stat.pubTables.to_cols(), true, 'pubTables')} 
-                                rows={add_key(
-                                        split_actions(streaming_stat.pubTables.to_rows()))}  
-                                />
-                    
-                   
-                </div>
-            </div>
+            )
         },
         {
             key: 'streaming_engine_stat',
             label: <label className='tab-header'>{tab_content.streaming_engine_stat.title}</label>,
-            children: 
-            <div className='streaming-engine-stat'>
-                <StateTable type='engine'
-                            cols={set_col_ellipsis(
-                                    set_col_width(streaming_engine_stat.cols, 'engine'), 'metrics')}
-                            rows={add_key(streaming_engine_stat.rows)}
-                            default_page_size={20}
-                            refresher={get_streaming_engine_stat}
-                            expandable_config={  {   
-                                expandedRowRender: ({ name, engineType }) => {
-                                    return  <Table
-                                                columns={
-                                                    expand_streaming_engine_stat.cols[engineType]
-                                                }
-                                                dataSource={
-                                                    expand_streaming_engine_stat.rows.filter(row => row.name === name)
-                                                }
-                                                rowKey={row => row.name}
-                                                pagination={false}/> 
-                                            }
-                }}/>             
-            </div>
+            children: (
+                <div className='streaming-engine-stat'>
+                    <StateTable
+                        type='engine'
+                        cols={set_col_ellipsis(set_col_width(streaming_engine_stat.cols, 'engine'), 'metrics')}
+                        rows={add_key(streaming_engine_stat.rows)}
+                        default_page_size={20}
+                        refresher={get_streaming_engine_stat}
+                        expandable_config={{
+                            expandedRowRender: ({ name, engineType }) => {
+                                return <Table
+                                        columns={expand_streaming_engine_stat.cols[engineType]}
+                                        dataSource={expand_streaming_engine_stat.rows.filter(row => row.name === name)}
+                                        rowKey={row => row.name}
+                                        pagination={false}
+                                    />
+                            }
+                        }}
+                    />
+                </div>
+            )
         },
         {
             key: 'streaming_table_stat',
             label: <label className='tab-header'>{tab_content.streaming_table_stat.title}</label>,
-            children: 
-            <div className='persistent-table-stat'>
-                <StateTable type='persistenceMeta' 
-                            cols={render_col_title(persistent_table_stat.to_cols(), true, 'persistenceMeta')}
-                            rows={add_key(persistent_table_stat.to_rows())} 
-                            refresher={get_streaming_table_stat}/>
-                {streaming_stat.persistWorkers && <StateTable type='persistWorkers' 
-                            cols={render_col_title(
-                                    set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), true, 'persistWorkers')}
-                            rows={add_key(streaming_stat.persistWorkers.to_rows())}/>}
-                <StateTable type='sharedStreamingTableStat' 
-                            cols={render_col_title(shared_table_stat.to_cols(), true, 'sharedStreamingTableStat')}
-                            rows={add_key(shared_table_stat.to_rows())} 
-                            refresher={get_streaming_table_stat}/>
-            </div>
-        },
-        ]
-              
-    return <Tabs 
-              activeKey={tab_key}
-              type='card'
-              onChange={set_tab_key} 
-              items={tabs} 
-              tabBarExtraContent={
+            children: (
+                <div className='persistent-table-stat'>
+                    <StateTable
+                        type='persistenceMeta'
+                        cols={render_col_title(persistent_table_stat.to_cols(), true, 'persistenceMeta')}
+                        rows={add_key(persistent_table_stat.to_rows())}
+                        refresher={get_streaming_table_stat}
+                    />
+                    {streaming_stat.persistWorkers && (
+                        <StateTable
+                            type='persistWorkers'
+                            cols={render_col_title(set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), true, 'persistWorkers')}
+                            rows={add_key(streaming_stat.persistWorkers.to_rows())}
+                        />
+                    )}
+                    <StateTable
+                        type='sharedStreamingTableStat'
+                        cols={render_col_title(shared_table_stat.to_cols(), true, 'sharedStreamingTableStat')}
+                        rows={add_key(shared_table_stat.to_rows())}
+                        refresher={get_streaming_table_stat}
+                    />
+                </div>
+            )
+        }
+    ]
+    
+    return <Tabs
+            activeKey={tab_key}
+            type='card'
+            onChange={set_tab_key}
+            items={tabs}
+            tabBarExtraContent={
                 <Button
-                    icon={<ReloadOutlined/>}
+                    icon={<ReloadOutlined />}
                     onClick={async () => {
                         try {
                             tab_content[tab_key].refresher()
@@ -247,9 +256,12 @@ export function Computing () {
                             model.show_error(error)
                             throw error
                         }
-                    }}>{t('刷新')}
+                    }}
+                >
+                    {t('刷新')}
                 </Button>
-           }/>     
+            }
+        />
 }
 
 interface ButtonProps {
@@ -270,42 +282,41 @@ const cols_width = {
         lastErrMsg: 200,
         metrics: 120
     }
-    
 }
 
 const header_text = {
     subWorkers: {
         title: t('订阅线程状态'),
-        tip: t('表 SubWorkers 监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。'),
+        tip: t('表 SubWorkers 监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。')
     },
-    pubTables:  {
+    pubTables: {
         title: t('流数据表状态'),
         tip: t('表 PubTables 监控流数据表状态。每一行表示一个流数据表的信息。')
     },
     subConns: {
-        title: t('订阅状态'), 
-        tip: t('表 SubConns 监控本地订阅节点和订阅节点之间的连接状态。') 
+        title: t('订阅状态'),
+        tip: t('表 SubConns 监控本地订阅节点和订阅节点之间的连接状态。')
     },
-    pubConns: { 
-        title: t('发布状态'), 
-        tip: t('表 PubConns 监控本地发布节点和它的所有订阅节点之间的连接状态。') 
+    pubConns: {
+        title: t('发布状态'),
+        tip: t('表 PubConns 监控本地发布节点和它的所有订阅节点之间的连接状态。')
     },
     persistWorkers: {
-        title: t('持久化线程状态'), 
-        tip: t('表 PersistWorkers 监控负责持久化流数据表的工作线程的状态。'),
+        title: t('持久化线程状态'),
+        tip: t('表 PersistWorkers 监控负责持久化流数据表的工作线程的状态。')
     },
     persistenceMeta: {
-        title: t('持久化共享流表状态'), 
-        tip: t('表 PersistenceMeta 返回启用了持久化的共享流数据表的元数据。'),
+        title: t('持久化共享流表状态'),
+        tip: t('表 PersistenceMeta 返回启用了持久化的共享流数据表的元数据。')
     },
     sharedStreamingTableStat: {
-        title: t('非持久化共享流表状态'), 
-        tip: t('表 sharedStreamingTableStat 返回未启用持久化的共享流数据表的元数据。'),
+        title: t('非持久化共享流表状态'),
+        tip: t('表 sharedStreamingTableStat 返回未启用持久化的共享流数据表的元数据。')
     },
     engine: {
         title: t('流引擎状态'),
-        tip: t('表 EngineStat 返回流计算引擎的状态。'),
-    },
+        tip: t('表 EngineStat 返回流计算引擎的状态。')
+    }
 }
 
 const button_text = {
@@ -384,8 +395,7 @@ const leading_cols = {
         tableName: t('表名'),
         rows: t('行数'),
         columns: t('列数'),
-        bytes: t('字节数'),
-        
+        bytes: t('字节数')
     },
     engine: {
         name: t('引擎名'),
@@ -428,7 +438,7 @@ const expanded_cols = {
         },
         CrossSectionalEngine: {
             triggeringPattern: t('触发方式'),
-            triggeringInterval: t('触发间隔'),
+            triggeringInterval: t('触发间隔')
         },
         AnomalyDetectionEngine: {
             snapshotDir: t('快照目录'),
@@ -467,7 +477,6 @@ const expanded_cols = {
             filters: t('过滤条件')
         }
     }
-    
 }
 
 const pagination: TablePaginationConfig = {
@@ -475,34 +484,43 @@ const pagination: TablePaginationConfig = {
     pageSizeOptions: ['5', '10', '20', '50', '100'],
     size: 'small',
     showSizeChanger: true,
-    showQuickJumper: true,
+    showQuickJumper: true
 }
 
-
- /** 渲染表头 */
+/** 渲染表头 */
 function render_table_header (talbe_name: string, button_props?: ButtonProps) {
-    const {  type, selected, refresher } = button_props || { }
+    const { type, selected, refresher } = button_props || { }
     return <>
-        {type && <Popconfirm title={button_text[type].confirm_text} disabled={!selected.length} onConfirm={async () => handle_delete(type, selected, refresher)}>
-                    <Button className='title-button' disabled={!selected.length}>{button_text[type].button_text}</Button>
-                </Popconfirm>}
-        <Tooltip className='table-name' title={header_text[talbe_name].tip}>{header_text[talbe_name].title}</Tooltip>
-        <Tooltip title={header_text[talbe_name].tip}><QuestionCircleOutlined/></Tooltip>
-    </>
+            {type && (
+                <Popconfirm
+                    title={button_text[type].confirm_text}
+                    disabled={!selected.length}
+                    onConfirm={async () => handle_delete(type, selected, refresher)}
+                >
+                    <Button className='title-button' disabled={!selected.length}>
+                        {button_text[type].button_text}
+                    </Button>
+                </Popconfirm>
+            )}
+            <Tooltip className='table-name' title={header_text[talbe_name].tip}>
+                {header_text[talbe_name].title}
+            </Tooltip>
+            <Tooltip title={header_text[talbe_name].tip}>
+                <QuestionCircleOutlined />
+            </Tooltip>
+        </>
 }
-
 
 /** 单独处理错误列，省略文本内容，提供`查看详细`按钮，点开后弹出 modal 显示详细信息 */
 function handle_ellipsis_col (rows: Record<string, any>, col_name: string) {
-    const is_error_col = (col_name === 'lastErrMsg')
+    const is_error_col = col_name === 'lastErrMsg'
     return rows.map(row => {
         if (is_error_col)
             row.order = row[col_name]
-        row[col_name] = <ErrorMsg text={row[col_name] as string} type={is_error_col ? 'error' : 'info'}/>
+        row[col_name] = <ErrorMsg text={row[col_name] as string} type={is_error_col ? 'error' : 'info'} />
         return row
     })
 }
-
 
 /** 缩短 subWorkers 表的 topic 字段 */
 function translate_sorter_row (rows: Record<string, any>) {
@@ -512,41 +530,41 @@ function translate_sorter_row (rows: Record<string, any>) {
     })
 }
 
-
 /** 按照主要列（leading_cols）的顺序进行排序 */
 function sort_col (cols: ColumnType<Record<string, any>>[], type: string) {
-    let sorted_cols: ColumnType<Record<string, any>>[] =  [ ]
-    for (let col_name of Object.keys(leading_cols[type])) 
+    let sorted_cols: ColumnType<Record<string, any>>[] = [ ]
+    for (let col_name of Object.keys(leading_cols[type]))
         sorted_cols.push(cols.find(({ title }) => title === col_name))
     return sorted_cols
 }
 
-
 /** 将 subworker 表按照 QueueDepth 和 LastErrMsg 排序 */
 function translate_order_col (cols: ColumnType<Record<string, any>>[]) {
-
     const i_queue_depth_col = cols.findIndex(col => col.title === 'queueDepth')
     const i_last_err_msg_col = cols.findIndex(col => col.title === 'lastErrMsg')
-    const msg_order_function = (a: Record<string, any>, b: Record<string, any>) => {  
-                                            if (a.order && !b.order)
-                                                return 1
-                                            else if (b.order && !a.order)
-                                                return -1 
-                                            return 0
-                                            }           
-    cols[i_queue_depth_col] = { ...cols[i_queue_depth_col], sorter: (a: Record<string, any>, b: Record<string, any>) => Number(a.queueDepth) - Number(b.queueDepth), sortDirections: ['descend' as SortOrder] }
+    const msg_order_function = (a: Record<string, any>, b: Record<string, any>) => {
+        if (a.order && !b.order)
+            return 1
+        else if (b.order && !a.order)
+            return -1
+        return 0
+    }
+    cols[i_queue_depth_col] = {
+        ...cols[i_queue_depth_col],
+        sorter: (a: Record<string, any>, b: Record<string, any>) => Number(a.queueDepth) - Number(b.queueDepth),
+        sortDirections: ['descend' as SortOrder]
+    }
     cols[i_last_err_msg_col] = { ...cols[i_last_err_msg_col], sorter: msg_order_function, sortDirections: ['descend' as SortOrder] }
-    return cols  
+    return cols
 }
-
 
 /** 增加 key */
 function add_key (table: Record<string, any>, key_index = 0) {
     const { title = '' } = table
-    return table.map((row: object, idx: number) => { 
-        return { ...row, key: title.includes('Conns') ? idx : Object.values(row)[key_index] } })
+    return table.map((row: object, idx: number) => {
+        return { ...row, key: title.includes('Conns') ? idx : Object.values(row)[key_index] }
+    })
 }
-
 
 /** 将 PubTables 的 actions 进行拆分 */
 function split_actions (rows: Record<string, any>) {
@@ -554,27 +572,26 @@ function split_actions (rows: Record<string, any>) {
     rows.forEach(row => {
         if (row.actions.startsWith('[')) {
             const acts = row.actions.slice(1, row.actions.length - 1).split(',')
-            for (let act of acts) 
-                newRows.push({ ...row, actions: act } )   
-        } 
-        else
+            for (let act of acts)
+                newRows.push({ ...row, actions: act })
+        } else
             newRows.push(row)
     })
     return newRows
 }
 
-
 /** 翻译列名，添加 tooltip */
 function render_col_title (cols: ColumnType<Record<string, any>>[], is_leading: boolean, type: string) {
-    for (let col of cols) { 
+    for (let col of cols) {
         let title = col.title as string
-        col.title = <Tooltip className='col-title' title={title.charAt(0).toUpperCase() + title.slice(1)} placement='bottom'>
-                        {is_leading ? leading_cols[type][title] : expanded_cols[type][title]}           
-                    </Tooltip>     
+        col.title = (
+            <Tooltip className='col-title' title={title.charAt(0).toUpperCase() + title.slice(1)} placement='bottom'>
+                {is_leading ? leading_cols[type][title] : expanded_cols[type][title]}
+            </Tooltip>
+        )
     }
-    return cols  
+    return cols
 }
-
 
 /** 给 subWorkers 的 queueDepth 字段添加警告颜色 */
 function set_col_color (cols: ColumnType<Record<string, any>>[], col_name: string) {
@@ -586,12 +603,11 @@ function set_col_color (cols: ColumnType<Record<string, any>>[], col_name: strin
         else if (value >= 10000n)
             color = 'red'
         return <Tooltip title={t('0 为绿色，1-10000 为橙色，10000 以上为红色。')}>
-                    <span className={color}>{Number(value)}</span>
-                </Tooltip>
+                <span className={color}>{Number(value)}</span>
+            </Tooltip>
     }
     return cols
 }
-
 
 /** 设置列宽 */
 function set_col_width (cols: ColumnType<Record<string, any>>[], type: string) {
@@ -602,24 +618,25 @@ function set_col_width (cols: ColumnType<Record<string, any>>[], type: string) {
     return cols
 }
 
-
 /** 设置单元格自动省略 */
 function set_col_ellipsis (cols: ColumnType<Record<string, any>>[], col_name: string) {
     let col = cols.find(({ dataIndex }) => dataIndex === col_name)
     col.ellipsis = { showTitle: true }
-    col.render = value => <Tooltip placement='topLeft' title={value}>{value}</Tooltip>
+    col.render = value => <Tooltip placement='topLeft' title={value}>
+            {value}
+        </Tooltip>
     return cols
 }
 
 
 /** 取消订阅 */
 async function unsubscribe_tables (pub_tables: string[]) {
-    const topics =  pub_tables.map(pub_table => { const pub_table_arr = pub_table.split('/')
-                                                  return pub_table_arr.length === 2 ? 
-                                                                                { table_name: pub_table_arr[0], action_name: pub_table_arr[1] }
-                                                                                    :
-                                                                                { table_name: pub_table_arr[1], action_name: pub_table_arr[2] }
-                                                })                                       
+    const topics = pub_tables.map(pub_table => {
+        const pub_table_arr = pub_table.split('/')
+        return pub_table_arr.length === 2
+            ? { table_name: pub_table_arr[0], action_name: pub_table_arr[1] }
+            : { table_name: pub_table_arr[1], action_name: pub_table_arr[2] }
+    })
     try {
         await Promise.all(topics.map(async topic => model.unsubscribe_table(topic.table_name, topic.action_name)))
         model.message.success(t('取消订阅成功'))
@@ -637,7 +654,7 @@ async function drop_engines (engine_names: string[]) {
     } catch (error) {
         model.show_error({ error })
     }
-}   
+}
 
 
 /** 删除共享数据流表 */
@@ -648,23 +665,23 @@ async function drop_stream_tables (streaming_table_names: string[]) {
     } catch (error) {
         model.show_error({ error })
     }
-}    
+}
 
 
 /** 统一处理删除 */
 async function handle_delete (type: string, selected: string[], refresher: () => void) {
     switch (type) {
-        case ('subWorkers'):
+        case 'subWorkers':
             await unsubscribe_tables(selected)
             break
-        case ('persistenceMeta'):
-        case ('sharedStreamingTableStat'):
+        case 'persistenceMeta':
+        case 'sharedStreamingTableStat':
             await drop_stream_tables(selected)
             break
-        case ('engine'):
-            await drop_engines(selected)         
+        case 'engine':
+            await drop_engines(selected)
     }
-    refresher()   
+    refresher()
 }
 
 
@@ -673,18 +690,29 @@ function ErrorMsg ({ text, type }: { text: string, type: string }) {
         return
     const error = () => {
         model.modal[type]({
-          title: type === 'error' ?  t('错误详细信息') : t('共享流数据表'),
-          content:  text,
-          width: '80%'
+            title: type === 'error' ? t('错误详细信息') : t('共享流数据表'),
+            content: text,
+            width: '80%'
         })
-      }
-    return  <Paragraph ellipsis={{  rows: 2, 
-                                    expandable: true, 
-                                    symbol:  <span onClick={event => { event.stopPropagation();error() }}>
-                                                {t('详细')}
-                                            </span> }}>
-                                {text}
-            </Paragraph>
+    }
+    return <Paragraph
+            ellipsis={{
+                rows: 2,
+                expandable: true,
+                symbol: (
+                    <span
+                        onClick={event => {
+                            event.stopPropagation()
+                            error()
+                        }}
+                    >
+                        {t('详细')}
+                    </span>
+                )
+            }}
+        >
+            {text}
+        </Paragraph>
 }
 
 
@@ -694,7 +722,7 @@ function StateTable ({
     rows,
     default_page_size = 5,
     refresher,
-    expandable_config,
+    expandable_config
 }: {
     type: string
     cols: ColumnType<Record<string, any>>[]
@@ -703,31 +731,35 @@ function StateTable ({
     refresher?: () => void
     expandable_config?: ExpandableConfig<Record<string, any>>
 }) {
-    const [selected, set_selected] = useState<string[]>([ ]) 
+    const [selected, set_selected] = useState<string[]>([ ])
     
-    return  <Table  tableLayout='fixed'
-                    rowSelection={ refresher ? 
-                                        { 
-                                          type: 'checkbox', 
-                                          onChange: (selected_keys: React.Key[]) => set_selected(selected_keys as string[]) 
-                                        }
-                                            : null
-                                }   
-                    columns={cols}
-                    dataSource={rows} 
-                    rowKey={row => type === 'pubTables' ? `${row.tableName}/${row.actions}` : row.key}       
-                    expandable={ expandable_config ? expandable_config : null } 
-                    size='small'
-                    title={() => render_table_header( type, 
-                                                      refresher ? 
-                                                            {
-                                                                type: type,
-                                                                selected,
-                                                                refresher
-                                                            } 
-                                                                : null
-                                )} 
-                    pagination={{ ...pagination, defaultPageSize: default_page_size, total: rows.length ? rows.length : 1 }}
-                />
-    
+    return <Table
+            tableLayout='fixed'
+            rowSelection={
+                refresher
+                    ? {
+                          type: 'checkbox',
+                          onChange: (selected_keys: React.Key[]) => set_selected(selected_keys as string[])
+                      }
+                    : null
+            }
+            columns={cols}
+            dataSource={rows}
+            rowKey={row => (type === 'pubTables' ? `${row.tableName}/${row.actions}` : row.key)}
+            expandable={expandable_config ? expandable_config : null}
+            size='small'
+            title={() =>
+                render_table_header(
+                    type,
+                    refresher
+                        ? {
+                              type: type,
+                              selected,
+                              refresher
+                          }
+                        : null
+                )
+            }
+            pagination={{ ...pagination, defaultPageSize: default_page_size, total: rows.length ? rows.length : 1 }}
+        />
 }

@@ -103,7 +103,6 @@ export function DdbSider () {
                     icon: <MenuIcon view='computing' />,
                     label: t('实时计算'),
                 },
-                
             ]}
         />
     </Layout.Sider>
