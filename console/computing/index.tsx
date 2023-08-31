@@ -10,6 +10,10 @@ import { DdbObj } from 'dolphindb/browser.js'
 import { t } from '../../i18n/index.js'
 import { ExpandableConfig, SortOrder } from 'antd/es/table/interface.js'
 
+import SvgPublish from './icons/publish.icon.svg'
+import SvgEngine from './icons/engine.icon.svg'
+import SvgTable from './icons/table.icon.svg'
+
 const { Paragraph } = Typography
 
 
@@ -158,7 +162,9 @@ export function Computing () {
     const tabs: TabsProps['items'] = [
         {
             key: 'streaming_pub_sub_stat',
-            label: <label className='tab-header'>{tab_content.streaming_pub_sub_stat.title}</label>,
+            label:  <label className='tab-header'>
+                        <div className='tab-icon sm-font'><SvgPublish/></div>{tab_content.streaming_pub_sub_stat.title}
+                    </label>,
             children: (
                 <div className='streaming_pub_sub_stat'>
                     <div className='sub-workers'>
@@ -227,7 +233,9 @@ export function Computing () {
         },
         {
             key: 'streaming_engine_stat',
-            label: <label className='tab-header'>{tab_content.streaming_engine_stat.title}</label>,
+            label:  <label className='tab-header'>
+                        <div className='tab-icon'><SvgEngine/></div>{tab_content.streaming_engine_stat.title}
+                    </label>,
             children: (
                 <div className='streaming-engine-stat'>
                     <StateTable
@@ -252,7 +260,9 @@ export function Computing () {
         },
         {
             key: 'streaming_table_stat',
-            label: <label className='tab-header'>{tab_content.streaming_table_stat.title}</label>,
+            label:  <label className='tab-header'>
+                        <div className='tab-icon sm-font'><SvgTable/></div>{tab_content.streaming_table_stat.title}
+                    </label>,
             children: (
                 <div className='persistent-table-stat'>
                     <StateTable
