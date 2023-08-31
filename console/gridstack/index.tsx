@@ -25,6 +25,7 @@ export function GridDashBoard () {
         set_active_widget_id(widgets_id)
     }, [ ])
     
+    // 给每个表项生成对应的 ref
     if (Object.keys(widget_refs.current).length !== widget_options.length)
         widget_options.forEach(({ id }) => {
             widget_refs.current[id] = widget_refs.current[id] || createRef()
@@ -63,6 +64,7 @@ export function GridDashBoard () {
                 set_all_widgets(() => [...news] )
                 return
             }
+            // 当用户从外部移入新 dom 时，执行下列代码
             // 去除移入的新 widget
             grid_refs.current.removeWidget(news[0].el)
             set_widget_options( item => [...item, { id: `${new Date()}`, type: news[0].el.dataset.type, x: news[0].x, y: news[0].y, h: news[0].h, w: news[0].w }])
