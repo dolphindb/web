@@ -69,6 +69,7 @@ function Root () {
 function DdbObjWindow () {
     const { obj, objref, remote, ddb, options } = model.use(['obj', 'objref', 'remote', 'ddb', 'options'])
     
+    // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
     Object.assign(model, App.useApp())
     
     useEffect(() => {
