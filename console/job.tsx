@@ -139,7 +139,9 @@ export function Job () {
                 }
                 dataSource={gjob_rows}
                 rowKey='rootJobId'
-                pagination={{ ...pagination, showSizeChanger: gjob_rows.length > pagination.defaultPageSize }}
+                pagination={{ ...pagination, 
+                              className: gjob_rows.length <= pagination.defaultPageSize ? 'pagination-margin-right' : '', 
+                              showSizeChanger: gjob_rows.length > pagination.defaultPageSize }}
                 expandable={{
                     expandedRowRender: gjob => 
                         <Table
@@ -183,7 +185,10 @@ export function Job () {
                 }
                 dataSource={rjob_rows}
                 rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
-                pagination={{ ...pagination, showSizeChanger: rjob_rows.length > pagination.defaultPageSize }}
+                pagination={{ ...pagination, 
+                              className: rjob_rows.length <= pagination.defaultPageSize ? 'pagination-margin-right' : '', 
+                              showSizeChanger: 
+                              rjob_rows.length > pagination.defaultPageSize }}
             />
         </div>
         
@@ -208,7 +213,9 @@ export function Job () {
                 }
                 dataSource={sjob_rows}
                 rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
-                pagination={{ ...pagination, showSizeChanger: sjob_rows.length > pagination.defaultPageSize }}
+                pagination={{ ...pagination, 
+                                 className: sjob_rows.length <= pagination.defaultPageSize ? 'pagination-margin-right' : '', 
+                                 showSizeChanger: sjob_rows.length > pagination.defaultPageSize }}
             />
         </div>
     </>
