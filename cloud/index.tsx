@@ -54,7 +54,7 @@ function Root () {
     return <ConfigProvider
         locale={locales[language] as any}
         autoInsertSpaceInButton={false}
-        theme={{ hashed: false, token: { borderRadius: 0 } }}
+        theme={{ hashed: false, token: { borderRadius: 0, motion: false } }}
     >
         <App className='app'>
             <DolphinDB />
