@@ -1,7 +1,7 @@
 import { CloseOutlined } from '@ant-design/icons'
 
 export function GraphItem  ({ item, el, grid, actived, click_handler }) {
-    // grid-stack-item-content 类名不能删除，gridstack 库是通过
+    // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动
     return <div 
                 className={`grid-stack-item-content ${actived ? 'grid-stack-item-active' : ''}`} 
                 onClick={e => {
