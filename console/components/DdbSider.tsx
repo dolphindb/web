@@ -13,7 +13,7 @@ import SvgShell from '../shell/index.icon.svg'
 import SvgDashboard from '../dashboard/icons/dashboard.icon.svg'
 import SvgJob from '../job.icon.svg'
 import SvgLog from '../log.icon.svg'
-import SvgComputing from '../computing.icon.svg'
+import SvgComputing from '../computing/icons/computing.icon.svg'
 
 
 const { Text } = Typography
@@ -94,15 +94,16 @@ export function DdbSider () {
                     label: t('作业管理'),
                 },
                 {
-                    key: 'log',
-                    icon: <MenuIcon view='log' />,
-                    label: t('日志查看'),
-                },
-                {
                     key: 'computing',
                     icon: <MenuIcon view='computing' />,
                     label: t('实时计算'),
                 },
+                {
+                    key: 'log',
+                    icon: <MenuIcon view='log' />,
+                    label: t('日志查看'),
+                },
+                
             ]}
         />
     </Layout.Sider>

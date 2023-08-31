@@ -1,7 +1,7 @@
 import './index.sass'
 
 import { useEffect, useState } from 'react'
-import { Button, Tabs, Table, Tooltip, Popconfirm, Typography, type TabsProps, type TablePaginationConfig } from 'antd'
+import { Button, Tabs, Table, Tooltip, Popconfirm, Typography, type TabsProps } from 'antd'
 import { ReloadOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import type { ColumnType } from 'antd/lib/table/index.js'
 import { model } from '../model.js'
@@ -9,6 +9,10 @@ import { DdbObj } from 'dolphindb/browser.js'
 
 import { t } from '../../i18n/index.js'
 import { ExpandableConfig, SortOrder } from 'antd/es/table/interface.js'
+
+import SvgPublish from './icons/publish.icon.svg'
+import SvgEngine from './icons/engine.icon.svg'
+import SvgTable from './icons/table.icon.svg'
 
 const { Paragraph } = Typography
 
@@ -27,6 +31,9 @@ export function Computing () {
     const [shared_table_stat, set_shared_table_stat] = useState<DdbObj>()
     
     const [tab_key, set_tab_key] = useState<string>('streaming_pub_sub_stat')
+    
+    const { ddb } = model.use(['ddb'])
+    
     
     const tab_content = {
         streaming_pub_sub_stat: {
@@ -100,16 +107,53 @@ export function Computing () {
     }, [origin_streaming_engine_stat])
     
     async function get_streaming_pub_sub_stat () {
-        set_streaming_stat((await model.get_streaming_stat()).to_dict())
+        set_streaming_stat((await ddb.call<DdbObj<DdbObj[]>>('getStreamingStat', [ ], { urgent: true })).to_dict())
     }
     
     async function get_streaming_engine_stat () {
-        set_origin_streaming_engine_stat((await model.get_streaming_engine_state()).to_dict())
+        set_origin_streaming_engine_stat((await ddb.call<DdbObj<DdbObj[]>>('getStreamEngineStat', [ ], { urgent: true })).to_dict())
     }
     
     async function get_streaming_table_stat () {
-        set_persistent_table_stat(await model.get_persistence_stat())
-        set_shared_table_stat(await model.get_shared_table_stat())
+        set_persistent_table_stat(await ddb.eval(
+            'def getPersistenceTableNames(){\n' +
+            '    if(getConfigure("persistenceDir") == NULL){\n' +
+            '        return NULL\n' +
+            '    }else{\n' +
+            '        tableNames = exec filename from files(getConfigure("persistenceDir")+"/") where filename != "persistOffset"\n' +
+            '        shareNames = exec name from objs(true) where type="REALTIME" and shared=true\n' +
+            '        return tableNames[tableNames in shareNames]\n' +
+            '    }\n' +
+            '}\n' + 
+            'def getPersistenceStat(){\n' +
+            '    tableNames = getPersistenceTableNames()\n' +
+            '    resultColNames = ["tablename","lastLogSeqNum","sizeInMemory","asynWrite","totalSize","raftGroup","compress","memoryOffset","sizeOnDisk","retentionMinutes","persistenceDir","hashValue","diskOffset"]\n' +
+            '    resultColTypes = ["STRING", "LONG","LONG","BOOL","LONG","INT","BOOL","LONG","LONG","LONG","STRING","INT","LONG"]\n' +
+            '    result = table(1:0, resultColNames, resultColTypes)\n' +
+            '    for(tbname in tableNames){\n' +
+            '       tbStat = getPersistenceMeta(objByName(tbname))\n' +
+            '       tbStat["tablename"] = tbname\n' +
+            '       result.tableInsert(tbStat)\n' +
+            '    }\n' +
+            '    return result\n' +
+            '}\n' +
+            'getPersistenceStat()\n', { urgent: true }))
+        set_shared_table_stat(await ddb.eval(
+            'def getPersistenceTableNames(){\n' +
+            '    if(getConfigure("persistenceDir") == NULL){\n' +
+            '        return NULL\n' +
+            '    }else{\n' +
+            '        tableNames = exec filename from files(getConfigure("persistenceDir")+"/") where filename != "persistOffset"\n' +
+            '        shareNames = exec name from objs(true) where type="REALTIME" and shared=true\n' +
+            '        return tableNames[tableNames in shareNames]\n' +
+            '    }\n' +
+            '}\n' + 
+            'def getSharedTableStat(){\n' +
+            '    tableNames = getPersistenceTableNames()\n' +
+            '    shareNames = exec name from objs(true) where type="REALTIME" and shared=true and name not in tableNames\n' +
+            '    return select name as tableName,  rows, columns, bytes from objs(true) where name in shareNames\n' +
+            '}\n' +
+            'getSharedTableStat()\n', { urgent: true }))
     }
     
     if (!streaming_stat || !origin_streaming_engine_stat || !persistent_table_stat || !shared_table_stat)
@@ -118,30 +162,31 @@ export function Computing () {
     const tabs: TabsProps['items'] = [
         {
             key: 'streaming_pub_sub_stat',
-            label: <label className='tab-header'>{tab_content.streaming_pub_sub_stat.title}</label>,
+            label:  <label className='tab-header'>
+                        <div className='tab-icon sm-font'><SvgPublish/></div>{tab_content.streaming_pub_sub_stat.title}
+                    </label>,
             children: (
                 <div className='streaming_pub_sub_stat'>
                     <div className='sub-workers'>
                         <StateTable
                             type='subWorkers'
                             cols={render_col_title(
-                                translate_order_col(
-                                    set_col_width(
-                                        set_col_color(
-                                            sort_col(
-                                                streaming_stat.subWorkers
-                                                    .to_cols()
-                                                    .filter(col => Object.keys(leading_cols.subWorkers).includes(col.title)),
-                                                'subWorkers'
+                                    translate_order_col(
+                                        set_col_width(
+                                            set_col_color(
+                                                sort_col(
+                                                    streaming_stat.subWorkers
+                                                        .to_cols()
+                                                        .filter(col => Object.keys(leading_cols.subWorkers).includes(col.title)),
+                                                    'subWorkers'
+                                                ),
+                                                'queueDepth'
                                             ),
-                                            'queueDepth'
-                                        ),
-                                        'subWorkers'
-                                    )
-                                ),
-                                true,
-                                'subWorkers'
-                            )}
+                                            'subWorkers'
+                                        )
+                                    ),
+                                    true, 'subWorkers')
+                                }
                             rows={translate_sorter_row(handle_ellipsis_col(add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'))}
                             default_page_size={10}
                             refresher={get_streaming_pub_sub_stat}
@@ -188,7 +233,9 @@ export function Computing () {
         },
         {
             key: 'streaming_engine_stat',
-            label: <label className='tab-header'>{tab_content.streaming_engine_stat.title}</label>,
+            label:  <label className='tab-header'>
+                        <div className='tab-icon'><SvgEngine/></div>{tab_content.streaming_engine_stat.title}
+                    </label>,
             children: (
                 <div className='streaming-engine-stat'>
                     <StateTable
@@ -213,12 +260,14 @@ export function Computing () {
         },
         {
             key: 'streaming_table_stat',
-            label: <label className='tab-header'>{tab_content.streaming_table_stat.title}</label>,
+            label:  <label className='tab-header'>
+                        <div className='tab-icon sm-font'><SvgTable/></div>{tab_content.streaming_table_stat.title}
+                    </label>,
             children: (
                 <div className='persistent-table-stat'>
                     <StateTable
                         type='persistenceMeta'
-                        cols={render_col_title(persistent_table_stat.to_cols(), true, 'persistenceMeta')}
+                        cols={render_col_title(set_col_width(persistent_table_stat.to_cols(), 'persistenceMeta'), true, 'persistenceMeta')}
                         rows={add_key(persistent_table_stat.to_rows())}
                         refresher={get_streaming_table_stat}
                     />
@@ -275,12 +324,21 @@ const cols_width = {
         workerId: 70,
         topic: 150,
         queueDepth: 90,
-        lastErrMsg: 190
+        queueDepthLimit: 100,
+        lastErrMsg: 180,
+        failedMsgCount: 100,
+        processedMsgCount: 100,
+        lastMsgId: 90
     },
     engine: {
+        name: 180,
         engineType: 170,
         lastErrMsg: 200,
-        metrics: 120
+        metrics: 120,
+        status: 50
+    },
+    persistenceMeta: {
+        persistenceDir: 350
     }
 }
 
@@ -479,39 +537,8 @@ const expanded_cols = {
     }
 }
 
-const pagination: TablePaginationConfig = {
-    defaultPageSize: 5,
-    pageSizeOptions: ['5', '10', '20', '50', '100'],
-    size: 'small',
-    showSizeChanger: true,
-    showQuickJumper: true
-}
 
-/** 渲染表头 */
-function render_table_header (talbe_name: string, button_props?: ButtonProps) {
-    const { type, selected, refresher } = button_props || { }
-    return <>
-            {type && (
-                <Popconfirm
-                    title={button_text[type].confirm_text}
-                    disabled={!selected.length}
-                    onConfirm={async () => handle_delete(type, selected, refresher)}
-                >
-                    <Button className='title-button' disabled={!selected.length}>
-                        {button_text[type].button_text}
-                    </Button>
-                </Popconfirm>
-            )}
-            <Tooltip className='table-name' title={header_text[talbe_name].tip}>
-                {header_text[talbe_name].title}
-            </Tooltip>
-            <Tooltip title={header_text[talbe_name].tip}>
-                <QuestionCircleOutlined />
-            </Tooltip>
-        </>
-}
-
-/** 单独处理错误列，省略文本内容，提供`查看详细`按钮，点开后弹出 modal 显示详细信息 */
+/** 省略文本内容，提供`详细`按钮，点开后弹出 modal 显示详细信息 */
 function handle_ellipsis_col (rows: Record<string, any>, col_name: string) {
     const is_error_col = col_name === 'lastErrMsg'
     return rows.map(row => {
@@ -629,90 +656,34 @@ function set_col_ellipsis (cols: ColumnType<Record<string, any>>[], col_name: st
 }
 
 
-/** 取消订阅 */
-async function unsubscribe_tables (pub_tables: string[]) {
-    const topics = pub_tables.map(pub_table => {
-        const pub_table_arr = pub_table.split('/')
-        return pub_table_arr.length === 2
-            ? { table_name: pub_table_arr[0], action_name: pub_table_arr[1] }
-            : { table_name: pub_table_arr[1], action_name: pub_table_arr[2] }
-    })
-    try {
-        await Promise.all(topics.map(async topic => model.unsubscribe_table(topic.table_name, topic.action_name)))
-        model.message.success(t('取消订阅成功'))
-    } catch (error) {
-        model.show_error({ error })
-    }
-}
-
-
-/** 删除引擎 */
-async function drop_engines (engine_names: string[]) {
-    try {
-        await Promise.all(engine_names.map(async engine_name => model.drop_streaming_engine(engine_name)))
-        model.message.success(t('引擎删除成功'))
-    } catch (error) {
-        model.show_error({ error })
-    }
-}
-
-
-/** 删除共享数据流表 */
-async function drop_stream_tables (streaming_table_names: string[]) {
-    try {
-        await Promise.all(streaming_table_names.map(async streaming_table_name => model.drop_streaming_table(streaming_table_name)))
-        model.message.success(t('流数据表删除成功'))
-    } catch (error) {
-        model.show_error({ error })
-    }
-}
-
-
-/** 统一处理删除 */
-async function handle_delete (type: string, selected: string[], refresher: () => void) {
-    switch (type) {
-        case 'subWorkers':
-            await unsubscribe_tables(selected)
-            break
-        case 'persistenceMeta':
-        case 'sharedStreamingTableStat':
-            await drop_stream_tables(selected)
-            break
-        case 'engine':
-            await drop_engines(selected)
-    }
-    refresher()
-}
-
-
 function ErrorMsg ({ text, type }: { text: string, type: string }) {
     if (!text)
         return
     const error = () => {
-        model.modal[type]({
+        model.modal.info({
             title: type === 'error' ? t('错误详细信息') : t('共享流数据表'),
             content: text,
             width: '80%'
         })
     }
     return <Paragraph
-            ellipsis={{
-                rows: 2,
-                expandable: true,
-                symbol: (
-                    <span
-                        onClick={event => {
-                            event.stopPropagation()
-                            error()
-                        }}
-                    >
-                        {t('详细')}
-                    </span>
-                )
-            }}
-        >
-            {text}
-        </Paragraph>
+                ellipsis={{
+                    rows: 2,
+                    expandable: true,
+                    symbol: (
+                        <span
+                            onClick={event => {
+                                event.stopPropagation()
+                                error()
+                            }}
+                        >
+                            {t('详细')}
+                        </span>
+                    )
+                }}
+            >
+                {text}
+            </Paragraph>
 }
 
 
@@ -733,33 +704,101 @@ function StateTable ({
 }) {
     const [selected, set_selected] = useState<string[]>([ ])
     
+    const { ddb } = model.use(['ddb'])
+    
+    /** 渲染表头 */
+    function render_table_header (talbe_name: string, button_props: ButtonProps) {
+        const { type, selected, refresher } = button_props || { }
+        return <>
+                {type && (
+                    <Popconfirm
+                        title={button_text[type].confirm_text}
+                        disabled={!selected.length}
+                        onConfirm={async () => handle_delete(type, selected, refresher)}
+                    >
+                        <Button className='title-button' disabled={!selected.length}>
+                            {button_text[type].button_text}
+                        </Button>
+                    </Popconfirm>
+                )}
+                <Tooltip className='table-name' title={header_text[talbe_name].tip}>
+                    {header_text[talbe_name].title}
+                </Tooltip>
+                <Tooltip title={header_text[talbe_name].tip}>
+                    <QuestionCircleOutlined />
+                </Tooltip>
+            </>
+    }
+    
+    
+    /** 统一处理删除 */
+    async function handle_delete (type: string, selected: string[], refresher: () => void) {
+        switch (type) {
+            case 'subWorkers':
+                try {
+                    await Promise.all(selected.map(async pub_table => { 
+                        const pub_table_arr = pub_table.split('/')
+                        ddb.eval(`unsubscribeTable(,'${pub_table_arr[1]}','${pub_table_arr[2]}')`, { urgent: true }) }))
+                    model.message.success(t('取消订阅成功'))
+                } catch (error) {
+                    model.show_error({ error })
+                } 
+                break
+            case 'persistenceMeta':
+            case 'sharedStreamingTableStat':
+                try {
+                    await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name], { urgent: true })  ))
+                    model.message.success(t('流数据表删除成功'))
+                } catch (error) {
+                    model.show_error({ error })
+                }
+                break
+            case 'engine':
+                try {
+                    await Promise.all(selected.map(async engine_name => ddb.call('dropStreamEngine', [engine_name], { urgent: true })))
+                    model.message.success(t('引擎删除成功'))
+                } catch (error) {
+                    model.show_error({ error })
+                }
+        }
+        refresher()
+    }
+    
+    
     return <Table
-            tableLayout='fixed'
-            rowSelection={
-                refresher
-                    ? {
-                          type: 'checkbox',
-                          onChange: (selected_keys: React.Key[]) => set_selected(selected_keys as string[])
-                      }
-                    : null
-            }
-            columns={cols}
-            dataSource={rows}
-            rowKey={row => (type === 'pubTables' ? `${row.tableName}/${row.actions}` : row.key)}
-            expandable={expandable_config ? expandable_config : null}
-            size='small'
-            title={() =>
-                render_table_header(
-                    type,
+                tableLayout='fixed'
+                rowSelection={
                     refresher
                         ? {
-                              type: type,
-                              selected,
-                              refresher
-                          }
+                            type: 'checkbox',
+                            onChange: (selected_keys: React.Key[]) => set_selected(selected_keys as string[])
+                        }
                         : null
-                )
-            }
-            pagination={{ ...pagination, defaultPageSize: default_page_size, total: rows.length ? rows.length : 1 }}
+                }
+                columns={cols}
+                dataSource={rows}
+                rowKey={row => (type === 'pubTables' ? `${row.tableName}/${row.actions}` : row.key)}
+                expandable={expandable_config ? expandable_config : null}
+                size='small'
+                title={() =>
+                    render_table_header(
+                        type,
+                        refresher
+                            ? {
+                                type: type,
+                                selected,
+                                refresher
+                            }
+                            : null
+                    )
+                }
+                pagination={{
+                    className: rows.length <= default_page_size  ? 'pagination-margin-right' : '',
+                    defaultPageSize: default_page_size,
+                    pageSizeOptions: ['5', '10', '20', '50', '100'],
+                    size: 'small',
+                    total: rows.length || 1,
+                    showSizeChanger: rows.length > default_page_size,
+                }}
         />
 }
