@@ -17,7 +17,6 @@ export function GridDashBoard () {
     const [all_widgets, set_all_widgets] = useState([ ])
     const [active_widgets_id, set_active_widgets_id] = useState('')
     const refs = useRef({ })
-    const dashboardCanvasRef = useRef(null)
     const change_active_widgets = useCallback(function (widgets_id: string) { 
         set_active_widgets_id(widgets_id)
     }, [ ])
@@ -32,7 +31,6 @@ export function GridDashBoard () {
         gridRefs.current = gridRefs.current || GridStack.init({
             acceptWidgets: true,
             float: true,
-            cellHeight: `${Math.floor(dashboardCanvasRef.current.clientHeight / tmprow)}`,
             column: tmpcol,
             row: tmprow,
             margin: 0,
@@ -64,10 +62,9 @@ export function GridDashBoard () {
             setItems( item => [...item, { id: `${new Date()}`, type: news[0].el.dataset.type, x: news[0].x, y: news[0].y, h: news[0].h, w: news[0].w }])
         })
         window.addEventListener('resize', function () {
-            gridRefs.current.cellHeight(Math.floor(dashboardCanvasRef.current.clientHeight / tmprow))
+            gridRefs.current.cellHeight(Math.floor(gridRefs.current.el.clientHeight / tmprow))
         })
     }, [ ])
-    
     
     return <div className='dashboard'>
         <div className='dashboard-header'>
@@ -75,8 +72,8 @@ export function GridDashBoard () {
         </div>
         <div className='dashboard-main'>
             <SelectSider/>
-            <div className='dashboard-canvas' ref={dashboardCanvasRef} onClick={() => { change_active_widgets('') }}>
-                <div className='grid-stack' style={{ backgroundSize: `${100 / tmpcol}% ${100 / tmprow}%` }}>
+            <div className='dashboard-canvas' onClick={() => { change_active_widgets('') }}>
+                <div className='grid-stack' style={{ backgroundSize: `${100 / tmpcol}% ${100 / tmprow}%` }} >
                     {items.map((item, i) => {
                         return <div ref={refs.current[item.id]} key={item.id} className='grid-stack-item' gs-id={item.id} gs-w={item.w} gs-h={item.h} gs-x={item.x} gs-y={item.y}>
                             <GraphItem item={item} el={all_widgets[i]} grid={gridRefs.current} actived={active_widgets_id === item.id} click_handler={change_active_widgets}/>
