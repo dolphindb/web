@@ -165,23 +165,22 @@ export function Computing () {
                         <StateTable
                             type='subWorkers'
                             cols={render_col_title(
-                                translate_order_col(
-                                    set_col_width(
-                                        set_col_color(
-                                            sort_col(
-                                                streaming_stat.subWorkers
-                                                    .to_cols()
-                                                    .filter(col => Object.keys(leading_cols.subWorkers).includes(col.title)),
-                                                'subWorkers'
+                                    translate_order_col(
+                                        set_col_width(
+                                            set_col_color(
+                                                sort_col(
+                                                    streaming_stat.subWorkers
+                                                        .to_cols()
+                                                        .filter(col => Object.keys(leading_cols.subWorkers).includes(col.title)),
+                                                    'subWorkers'
+                                                ),
+                                                'queueDepth'
                                             ),
-                                            'queueDepth'
-                                        ),
-                                        'subWorkers'
-                                    )
-                                ),
-                                true,
-                                'subWorkers'
-                            )}
+                                            'subWorkers'
+                                        )
+                                    ),
+                                    true, 'subWorkers')
+                                }
                             rows={translate_sorter_row(handle_ellipsis_col(add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'))}
                             default_page_size={10}
                             refresher={get_streaming_pub_sub_stat}
@@ -258,7 +257,7 @@ export function Computing () {
                 <div className='persistent-table-stat'>
                     <StateTable
                         type='persistenceMeta'
-                        cols={render_col_title(persistent_table_stat.to_cols(), true, 'persistenceMeta')}
+                        cols={render_col_title(set_col_width(persistent_table_stat.to_cols(), 'persistenceMeta'), true, 'persistenceMeta')}
                         rows={add_key(persistent_table_stat.to_rows())}
                         refresher={get_streaming_table_stat}
                     />
@@ -327,6 +326,9 @@ const cols_width = {
         lastErrMsg: 200,
         metrics: 120,
         status: 50
+    },
+    persistenceMeta: {
+        persistenceDir: 350
     }
 }
 
@@ -526,7 +528,7 @@ const expanded_cols = {
 }
 
 
-/** 单独处理错误列，省略文本内容，提供`查看详细`按钮，点开后弹出 modal 显示详细信息 */
+/** 省略文本内容，提供`详细`按钮，点开后弹出 modal 显示详细信息 */
 function handle_ellipsis_col (rows: Record<string, any>, col_name: string) {
     const is_error_col = col_name === 'lastErrMsg'
     return rows.map(row => {
@@ -648,30 +650,30 @@ function ErrorMsg ({ text, type }: { text: string, type: string }) {
     if (!text)
         return
     const error = () => {
-        model.modal[type]({
+        model.modal.info({
             title: type === 'error' ? t('错误详细信息') : t('共享流数据表'),
             content: text,
             width: '80%'
         })
     }
     return <Paragraph
-            ellipsis={{
-                rows: 2,
-                expandable: true,
-                symbol: (
-                    <span
-                        onClick={event => {
-                            event.stopPropagation()
-                            error()
-                        }}
-                    >
-                        {t('详细')}
-                    </span>
-                )
-            }}
-        >
-            {text}
-        </Paragraph>
+                ellipsis={{
+                    rows: 2,
+                    expandable: true,
+                    symbol: (
+                        <span
+                            onClick={event => {
+                                event.stopPropagation()
+                                error()
+                            }}
+                        >
+                            {t('详细')}
+                        </span>
+                    )
+                }}
+            >
+                {text}
+            </Paragraph>
 }
 
 
@@ -695,7 +697,7 @@ function StateTable ({
     const { ddb } = model.use(['ddb'])
     
     /** 渲染表头 */
-    function render_table_header (talbe_name: string, button_props?: ButtonProps) {
+    function render_table_header (talbe_name: string, button_props: ButtonProps) {
         const { type, selected, refresher } = button_props || { }
         return <>
                 {type && (
