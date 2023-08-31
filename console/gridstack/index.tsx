@@ -32,7 +32,7 @@ export function GridDashBoard () {
         gridRefs.current = gridRefs.current || GridStack.init({
             acceptWidgets: true,
             float: true,
-            cellHeight: `${Math.floor(dashboardCanvasRef.current.clientHeight / tmprow)}`,
+            cellHeight: '10px',
             column: tmpcol,
             row: tmprow,
             margin: 0,
@@ -52,6 +52,7 @@ export function GridDashBoard () {
     }, [ items ])
     
     useEffect(() => {
+        gridRefs.current.cellHeight(Math.floor(dashboardCanvasRef.current.clientHeight / tmprow))
         GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
         gridRefs.current.on('added', function (event: Event, news: GridStackNode[]) {
             // 加锁，防止因更新 state 导致的无限循环
@@ -78,8 +79,21 @@ export function GridDashBoard () {
             <div className='dashboard-canvas' ref={dashboardCanvasRef} onClick={() => { change_active_widgets('') }}>
                 <div className='grid-stack' style={{ backgroundSize: `${100 / tmpcol}% ${100 / tmprow}%` }}>
                     {items.map((item, i) => {
-                        return <div ref={refs.current[item.id]} key={item.id} className='grid-stack-item' gs-id={item.id} gs-w={item.w} gs-h={item.h} gs-x={item.x} gs-y={item.y}>
-                            <GraphItem item={item} el={all_widgets[i]} grid={gridRefs.current} actived={active_widgets_id === item.id} click_handler={change_active_widgets}/>
+                        return <div 
+                                    ref={refs.current[item.id]} 
+                                    key={item.id} 
+                                    className='grid-stack-item' 
+                                    gs-id={item.id} 
+                                    gs-w={item.w} 
+                                    gs-h={item.h} 
+                                    gs-x={item.x} 
+                                    gs-y={item.y} 
+                                    onClick={e => {
+                                        e.stopPropagation()
+                                        change_active_widgets(item.id)
+                                    }}
+                                >
+                            <GraphItem item={item} el={all_widgets[i]} grid={gridRefs.current} actived={active_widgets_id === item.id}/>
                         </div>
                     })}
                 </div>
