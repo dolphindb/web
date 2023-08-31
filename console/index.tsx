@@ -42,7 +42,7 @@ function DolphinDB () {
     return <ConfigProvider
         locale={locales[language] as any}
         autoInsertSpaceInButton={false}
-        theme={{ hashed: false, token: { borderRadius: 0 } }}
+        theme={{ hashed: false, token: { borderRadius: 0, motion: false } }}
     >
         <NiceModal.Provider>
             <App className='app'>
