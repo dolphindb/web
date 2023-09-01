@@ -3,15 +3,8 @@ import './job.sass'
 import { useEffect, useState } from 'react'
 
 import {
-    Button,
-    Input,
-    Popconfirm, 
-    Table,
-    Typography,
-    Tooltip,
-    Spin,
-    type TablePaginationConfig,
-    type TableColumnType
+    Button, Input, Popconfirm, Table, Typography, Tooltip, Spin,
+    type TablePaginationConfig, type TableColumnType
 } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 
@@ -70,7 +63,9 @@ export function Job () {
     }
     
     if (!cjobs || !rjobs || !sjobs)
-        return <div className='spin-container'><Spin size='large'/></div>
+        return <div className='spin-container'>
+            <Spin size='large'/>
+        </div>
     
     const cjob_rows = filter_job_rows(cjobs.to_rows(), query)
         .sort((l, r) => 
@@ -140,7 +135,7 @@ export function Job () {
                 }
                 dataSource={gjob_rows}
                 rowKey='rootJobId'
-                pagination={gjob_rows.length > pagination.defaultPageSize ? pagination : false}
+                pagination={gjob_rows.length > pagination.defaultPageSize && pagination }
                 expandable={{
                     expandedRowRender: gjob => 
                         <Table
@@ -159,7 +154,7 @@ export function Job () {
                         />
                 }}
             />
-            {gjob_rows.length <= pagination.defaultPageSize && <div className='separater'/>}
+            {gjob_rows.length <= pagination.defaultPageSize && <div className='separater'/> }
         </div>
         
         <div className={`rjobs ${ !rjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || rjob_rows.length) ? 'block' : 'none' }}>
@@ -185,7 +180,7 @@ export function Job () {
                 }
                 dataSource={rjob_rows}
                 rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
-                pagination={rjob_rows.length > pagination.defaultPageSize ? pagination : false}
+                pagination={rjob_rows.length > pagination.defaultPageSize && pagination }
             />
             {rjob_rows.length <= pagination.defaultPageSize && <div className='separater'/>}
         </div>
@@ -211,7 +206,7 @@ export function Job () {
                 }
                 dataSource={sjob_rows}
                 rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
-                pagination={sjob_rows.length > pagination.defaultCurrent ? pagination : false}
+                pagination={ sjob_rows.length > pagination.defaultCurrent && pagination }
             />
         </div>
     </>
