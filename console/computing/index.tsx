@@ -3,7 +3,6 @@ import './index.sass'
 import { useEffect, useState } from 'react'
 import { Button, Tabs, Table, Tooltip, Popconfirm, Typography, Spin, type TableColumnType } from 'antd'
 import { ReloadOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import type { ColumnType } from 'antd/lib/table/index.js'
 import type { ExpandableConfig, SortOrder } from 'antd/es/table/interface.js'
 
 import { DdbObj } from 'dolphindb/browser.js'
@@ -108,9 +107,9 @@ export function Computing () {
     }
     
     if (!streaming_stat || !origin_streaming_engine_stat || !persistent_table_stat || !shared_table_stat)
-        return <Spin size='large'/>
+        return <div className='spin-container'><Spin size='large'/></div>
         
-    const streaming_engine_cols: ColumnType<Record<string, any>>[] = Object.keys(leading_cols.engine).map(col_name => ({
+    const streaming_engine_cols: TableColumnType<Record<string, any>>[] = Object.keys(leading_cols.engine).map(col_name => ({
         title: (
             <Tooltip className='col-title' title={col_name} placement='bottom'>
                 <span className='col-title'>{leading_cols.engine[col_name]}</span>
@@ -120,7 +119,7 @@ export function Computing () {
         render: value => <span>{value}</span>
     }))
     
-    let expand_streaming_engine_cols: Record<string, ColumnType<Record<string, any>>[]> = { }
+    let expand_streaming_engine_cols: Record<string, TableColumnType<Record<string, any>>[]> = { }
     for (let engineType of Object.keys(origin_streaming_engine_stat))
         expand_streaming_engine_cols[engineType] = Object.keys(expanded_cols.engine[engineType]).map(col_name => ({
             title: (
@@ -555,15 +554,15 @@ function translate_sorter_row (rows: Record<string, any>) {
 }
 
 /** 按照主要列（leading_cols）的顺序进行排序 */
-function sort_col (cols: ColumnType<Record<string, any>>[], type: string) {
-    let sorted_cols: ColumnType<Record<string, any>>[] = [ ]
+function sort_col (cols: TableColumnType<Record<string, any>>[], type: string) {
+    let sorted_cols: TableColumnType<Record<string, any>>[] = [ ]
     for (let col_name of Object.keys(leading_cols[type]))
         sorted_cols.push(cols.find(({ title }) => title === col_name))
     return sorted_cols
 }
 
 /** 将 subworker 表按照 QueueDepth 和 LastErrMsg 排序 */
-function translate_order_col (cols: ColumnType<Record<string, any>>[]) {
+function translate_order_col (cols: TableColumnType<Record<string, any>>[]) {
     const i_queue_depth_col = cols.findIndex(col => col.title === 'queueDepth')
     const i_last_err_msg_col = cols.findIndex(col => col.title === 'lastErrMsg')
     const msg_order_function = (a: Record<string, any>, b: Record<string, any>) => {
@@ -605,7 +604,7 @@ function split_actions (rows: Record<string, any>) {
 }
 
 /** 翻译列名，添加 tooltip */
-function render_col_title (cols: ColumnType<Record<string, any>>[], is_leading: boolean, type: string) {
+function render_col_title (cols: TableColumnType<Record<string, any>>[], is_leading: boolean, type: string) {
     for (let col of cols) {
         let title = col.title as string
         col.title = (
@@ -618,7 +617,7 @@ function render_col_title (cols: ColumnType<Record<string, any>>[], is_leading: 
 }
 
 /** 给 subWorkers 的 queueDepth 字段添加警告颜色 */
-function set_col_color (cols: ColumnType<Record<string, any>>[], col_name: string) {
+function set_col_color (cols: TableColumnType<Record<string, any>>[], col_name: string) {
     let col = cols.find(({ dataIndex }) => dataIndex === col_name)
     col.render = value => {
         let color = 'green'
@@ -634,7 +633,7 @@ function set_col_color (cols: ColumnType<Record<string, any>>[], col_name: strin
 }
 
 /** 设置列宽 */
-function set_col_width (cols: ColumnType<Record<string, any>>[], type: string) {
+function set_col_width (cols: TableColumnType<Record<string, any>>[], type: string) {
     for (let width_key of Object.keys(cols_width[type])) {
         let col = cols.find(col => col.dataIndex === width_key)
         col.width = cols_width[type][width_key]
@@ -643,7 +642,7 @@ function set_col_width (cols: ColumnType<Record<string, any>>[], type: string) {
 }
 
 /** 设置单元格自动省略 */
-function set_col_ellipsis (cols: ColumnType<Record<string, any>>[], col_name: string) {
+function set_col_ellipsis (cols: TableColumnType<Record<string, any>>[], col_name: string) {
     let col = cols.find(({ dataIndex }) => dataIndex === col_name)
     col.ellipsis = { showTitle: true }
     col.render = value => <Tooltip placement='topLeft' title={value}>
@@ -694,7 +693,7 @@ function StateTable ({
     expandable_config
 }: {
     type: string
-    cols: ColumnType<Record<string, any>>[]
+    cols: TableColumnType<Record<string, any>>[]
     rows: Record<string, any>[]
     separated?: boolean
     default_page_size?: number

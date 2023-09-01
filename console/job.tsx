@@ -9,9 +9,10 @@ import {
     Table,
     Typography,
     Tooltip,
+    Spin,
     type TablePaginationConfig,
+    type TableColumnType
 } from 'antd'
-import type { ColumnType } from 'antd/lib/table/index.js'
 import { ReloadOutlined } from '@ant-design/icons'
 
 import { DdbObj, nulls, format, DdbType } from 'dolphindb/browser.js'
@@ -69,13 +70,13 @@ export function Job () {
     }
     
     if (!cjobs || !rjobs || !sjobs)
-        return null
+        return <div className='spin-container'><Spin size='large'/></div>
     
     const cjob_rows = filter_job_rows(cjobs.to_rows(), query)
         .sort((l, r) => 
             -Number(l.receiveTime - r.receiveTime))
     
-    const cjob_cols: ColumnType<Record<string, any>>[] = cjobs.to_cols()
+    const cjob_cols: TableColumnType<Record<string, any>>[] = cjobs.to_cols()
     
     const gjobs = group_cjob_rows_by_rootid(cjob_rows)
     
@@ -172,7 +173,7 @@ export function Job () {
                     translate_columns(
                         add_status_col(
                             append_action_col(
-                                rjobs.to_cols() as ColumnType<Record<string, any>>[],
+                                rjobs.to_cols() as TableColumnType<Record<string, any>>[],
                                 'stop',
                                 async job => {
                                     await model.cancel_job(job)
@@ -270,7 +271,7 @@ const column_names = {
     queue: t('队列')
 }
 
-function translate_columns (cols: ColumnType<DdbJob>[]): ColumnType<DdbJob>[] {
+function translate_columns (cols: TableColumnType<DdbJob>[]): TableColumnType<DdbJob>[] {
     return cols.map(item => 
         ({ ...item, title: column_names[item.title as string] || item.title }))
 }
@@ -299,7 +300,7 @@ function group_cjob_rows_by_rootid (cjobs: DdbJob[]) {
 
 
 function fix_scols (sjobs: DdbObj<DdbObj[]>) {
-    const cols: ColumnType<Record<string, any>>[] = sjobs.to_cols()
+    const cols: TableColumnType<Record<string, any>>[] = sjobs.to_cols()
     
     const index = cols.findIndex(col => col.title === 'node')
     
@@ -310,7 +311,7 @@ function fix_scols (sjobs: DdbObj<DdbObj[]>) {
 }
 
 function append_action_col (
-    cols: ColumnType<DdbJob>[],
+    cols: TableColumnType<DdbJob>[],
     type: 'stop' | 'delete',
     action: (record: DdbJob) => any
 ) {
@@ -353,11 +354,11 @@ function append_action_col (
     - 有 startTime 无 endTime -> 执行中 (running)  黄色 warning
     - 有 errorMsg -> 出错了 (error)  红色 danger
  */
-function add_status_col (cols: ColumnType<DdbJob>[]) {
+function add_status_col (cols: TableColumnType<DdbJob>[]) {
     const i_priority = cols.findIndex(col => 
         col.title === 'priority')
     
-    const col_status: ColumnType<DdbJob> = {
+    const col_status: TableColumnType<DdbJob> = {
         title: 'status',
         key: 'status',
         width: language === 'zh' ? '80px' : '100px',
@@ -371,11 +372,11 @@ function add_status_col (cols: ColumnType<DdbJob>[]) {
 }
 
 
-function add_progress_col (cols: ColumnType<DdbJob>[]) {
+function add_progress_col (cols: TableColumnType<DdbJob>[]) {
     const i_priority = cols.findIndex(col => 
         col.title === 'priority')
     
-    const col_progress: ColumnType<DdbJob> = {
+    const col_progress: TableColumnType<DdbJob> = {
         title: 'progress',
         key: 'progress',
         render: (value, job) => 
