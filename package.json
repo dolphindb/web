@@ -67,7 +67,7 @@
         "final-form": "^4.20.10",
         "js-cookie": "^3.0.5",
         "lodash": "^4.17.21",
-        "monaco-dolphindb": "0.0.9",
+        "monaco-dolphindb": "0.0.10",
         "monaco-editor": "^0.41.0",
         "re-resizable": "^6.9.11",
         "react-dom": "^18.2.0",
