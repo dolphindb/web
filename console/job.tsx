@@ -266,7 +266,7 @@ const column_names = {
     queue: t('队列')
 }
 
-function translate_columns (cols: TableColumnType<DdbJob>[]): TableColumnType<DdbJob>[] {
+function translate_columns (cols: DdbJobColumn[]): DdbJobColumn[] {
     return cols.map(item => 
         ({ ...item, title: column_names[item.title as string] || item.title }))
 }
@@ -305,8 +305,9 @@ function fix_scols (sjobs: DdbObj<DdbObj[]>) {
     return [cols[index], ...cols.slice(0, index), ...cols.slice(index + 1, cols.length)]
 }
 
+
 function append_action_col (
-    cols: TableColumnType<DdbJob>[],
+    cols: DdbJobColumn[],
     type: 'stop' | 'delete',
     action: (record: DdbJob) => any
 ) {
@@ -342,18 +343,16 @@ function append_action_col (
 }
 
 
-/**
-    异步作业更清晰的展示作业状态（根据 receivedTime, startTime, endTime 展示），增加 status 列，放到 jobDesc 后面
+/** 异步作业更清晰的展示作业状态（根据 receivedTime, startTime, endTime 展示），增加 status 列，放到 jobDesc 后面
     - 如果无 startTime 说明还未开始 -> 排队中 (queuing) 黑色
     - 如果有 endTime 说明已完成 -> 已完成 (completed)  绿色 success
     - 有 startTime 无 endTime -> 执行中 (running)  黄色 warning
-    - 有 errorMsg -> 出错了 (error)  红色 danger
- */
-function add_status_col (cols: TableColumnType<DdbJob>[]) {
+    - 有 errorMsg -> 出错了 (error)  红色 danger */
+function add_status_col (cols: DdbJobColumn[]) {
     const i_priority = cols.findIndex(col => 
         col.title === 'priority')
     
-    const col_status: TableColumnType<DdbJob> = {
+    const col_status: DdbJobColumn = {
         title: 'status',
         key: 'status',
         width: language === 'zh' ? '80px' : '100px',
@@ -367,11 +366,11 @@ function add_status_col (cols: TableColumnType<DdbJob>[]) {
 }
 
 
-function add_progress_col (cols: TableColumnType<DdbJob>[]) {
+function add_progress_col (cols: DdbJobColumn[]) {
     const i_priority = cols.findIndex(col => 
         col.title === 'priority')
     
-    const col_progress: TableColumnType<DdbJob> = {
+    const col_progress: DdbJobColumn = {
         title: 'progress',
         key: 'progress',
         render: (value, job) => 
@@ -422,4 +421,7 @@ function compute_status_info (job: DdbJob) {
     
     return job
 }
+
+
+type DdbJobColumn = TableColumnType<DdbJob>
 
