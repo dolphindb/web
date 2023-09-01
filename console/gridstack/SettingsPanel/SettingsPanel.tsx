@@ -1,6 +1,7 @@
 import { MailOutlined, AppstoreOutlined } from '@ant-design/icons'
-import { Collapse, CollapseProps, Menu, MenuProps } from 'antd'
+import { Menu, MenuProps } from 'antd'
 import { useState } from 'react'
+import { CanvasSetting } from './CanvasSetting.js'
 
 const items: MenuProps['items'] = [
     {
@@ -12,23 +13,6 @@ const items: MenuProps['items'] = [
       label: '图表',
       key: 'graph',
       icon: <AppstoreOutlined />,
-    },
-]
-const text = `
-  A dog is a type of domesticated animal.
-  Known for its loyalty and faithfulness,
-  it can be found as a welcome guest in many households across the world.
-`
-const canvas_collapsse: CollapseProps['items'] = [
-    {
-      key: '1',
-      label: '基础',
-      children: <p>{text}</p>,
-    },
-    {
-      key: '2',
-      label: '画布样式',
-      children: <p>{text}</p>,
     },
 ]
 
@@ -48,9 +32,7 @@ return <>
             <div className='setting-options'>
                 {
                     current_page === 'canvas' ?
-                    <>
-                        <Collapse defaultActiveKey={['1']} ghost expandIconPosition='end' items={canvas_collapsse} />
-                    </>
+                        <CanvasSetting/>
                     :
                     <>
                         <div>图标</div>
