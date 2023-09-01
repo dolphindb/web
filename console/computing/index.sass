@@ -1,10 +1,12 @@
 @import '../index'
+
 .computing
-    padding: 0 20px !important
-    
+    padding: 10px 20px !important
+    display: flex
+    justify-content: center
     .action
         margin-bottom: 30px
-    
+          
     .streaming_pub_sub_stat
         display: flex
         .sub-workers
@@ -36,16 +38,16 @@
             font-size: 18px
         &:hover
             cursor: pointer
+    
+    .separater
+        height: 56px
             
-        
     .ant-table-thead
         .ant-table-cell
             vertical-align: top    
             
 
-    .ant-tabs-top .ant-tabs-nav
-        margin: 10px 0 0 0
-        .ant-tabs-tab-active .ant-tabs-tab-btn
+    .ant-tabs-top .ant-tabs-nav .ant-tabs-tab-active .ant-tabs-tab-btn
             color: $color
         
     .ant-tabs .ant-tabs-tab

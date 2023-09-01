@@ -9,7 +9,6 @@ import {
     Table,
     Typography,
     Tooltip,
-    Spin,
     type TablePaginationConfig,
 } from 'antd'
 import type { ColumnType } from 'antd/lib/table/index.js'
@@ -70,7 +69,7 @@ export function Job () {
     }
     
     if (!cjobs || !rjobs || !sjobs)
-        return <Spin/>
+        return null
     
     const cjob_rows = filter_job_rows(cjobs.to_rows(), query)
         .sort((l, r) => 
@@ -140,9 +139,7 @@ export function Job () {
                 }
                 dataSource={gjob_rows}
                 rowKey='rootJobId'
-                pagination={{ ...pagination, 
-                              className: gjob_rows.length <= pagination.defaultPageSize ? 'pagination-margin-right' : '', 
-                              showSizeChanger: gjob_rows.length > pagination.defaultPageSize }}
+                pagination={gjob_rows.length > pagination.defaultPageSize ? pagination : false}
                 expandable={{
                     expandedRowRender: gjob => 
                         <Table
@@ -161,6 +158,7 @@ export function Job () {
                         />
                 }}
             />
+            {gjob_rows.length <= pagination.defaultPageSize && <div className='separater'/>}
         </div>
         
         <div className={`rjobs ${ !rjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || rjob_rows.length) ? 'block' : 'none' }}>
@@ -186,11 +184,9 @@ export function Job () {
                 }
                 dataSource={rjob_rows}
                 rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
-                pagination={{ ...pagination, 
-                              className: rjob_rows.length <= pagination.defaultPageSize ? 'pagination-margin-right' : '', 
-                              showSizeChanger: 
-                              rjob_rows.length > pagination.defaultPageSize }}
+                pagination={rjob_rows.length > pagination.defaultPageSize ? pagination : false}
             />
+            {rjob_rows.length <= pagination.defaultPageSize && <div className='separater'/>}
         </div>
         
         <div className={`sjobs ${ !sjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || sjob_rows.length) ? 'block' : 'none' }}>
@@ -214,9 +210,7 @@ export function Job () {
                 }
                 dataSource={sjob_rows}
                 rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
-                pagination={{ ...pagination, 
-                                 className: sjob_rows.length <= pagination.defaultPageSize ? 'pagination-margin-right' : '', 
-                                 showSizeChanger: sjob_rows.length > pagination.defaultPageSize }}
+                pagination={sjob_rows.length > pagination.defaultCurrent ? pagination : false}
             />
         </div>
     </>
