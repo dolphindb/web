@@ -13,6 +13,8 @@ node_modules/
 *.map
 *.d.ts
 
+.DS_Store
+
 /.eslintrc.schema.json
 
 /i18n/untranslateds.json

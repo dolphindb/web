@@ -71,18 +71,26 @@
                         .tooltip
                             visibility: visible
                     
-                    .name
-                        font-weight: bold
+                    .ant-tree-node-content-wrapper
+                        display: flex
+                        
+                        .ant-tree-title
+                            display: flex
+                            justify-content: space-between
+                            width: 100%
+                        
+                            .info
+                                display: inline-block
+                                
+                                .name
+                                    font-weight: bold
                     
-                    .schema-icon
-                        padding-left: 10px
-                        padding-right: 10px
-                    
+                            .schema-icon
+                                padding-left: 10px
+                                padding-right: 10px
+                        
                     .tooltip
                         visibility: hidden
-                        position: absolute
-                        right: 0px
-                        top: 2px
                     
                     .ant-tree-switcher
                         width: auto
