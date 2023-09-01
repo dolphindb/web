@@ -8,6 +8,7 @@ import type { ExpandableConfig, SortOrder } from 'antd/es/table/interface.js'
 import { DdbObj } from 'dolphindb/browser.js'
 
 import { model } from '../model.js'
+import { computing } from './model.js'
 
 import { t } from '../../i18n/index.js'
 
@@ -51,6 +52,8 @@ export function Computing () {
     useEffect(() => {
         (async () => {
             try {
+                if (!computing.inited)
+                    await computing.init()
                 await get_streaming_pub_sub_stat()
                 await get_streaming_engine_stat()
                 await get_streaming_table_stat()
@@ -71,45 +74,8 @@ export function Computing () {
     }
     
     async function get_streaming_table_stat () {
-        set_persistent_table_stat(await ddb.eval(
-            'def getPersistenceTableNames(){\n' +
-            '    if(getConfigure("persistenceDir") == NULL){\n' +
-            '        return NULL\n' +
-            '    }else{\n' +
-            '        tableNames = exec filename from files(getConfigure("persistenceDir")+"/") where filename != "persistOffset"\n' +
-            '        shareNames = exec name from objs(true) where type="REALTIME" and shared=true\n' +
-            '        return tableNames[tableNames in shareNames]\n' +
-            '    }\n' +
-            '}\n' + 
-            'def getPersistenceStat(){\n' +
-            '    tableNames = getPersistenceTableNames()\n' +
-            '    resultColNames = ["tablename","lastLogSeqNum","sizeInMemory","asynWrite","totalSize","raftGroup","compress","memoryOffset","sizeOnDisk","retentionMinutes","persistenceDir","hashValue","diskOffset"]\n' +
-            '    resultColTypes = ["STRING", "LONG","LONG","BOOL","LONG","INT","BOOL","LONG","LONG","LONG","STRING","INT","LONG"]\n' +
-            '    result = table(1:0, resultColNames, resultColTypes)\n' +
-            '    for(tbname in tableNames){\n' +
-            '       tbStat = getPersistenceMeta(objByName(tbname))\n' +
-            '       tbStat["tablename"] = tbname\n' +
-            '       result.tableInsert(tbStat)\n' +
-            '    }\n' +
-            '    return result\n' +
-            '}\n' +
-            'getPersistenceStat()\n', { urgent: true }))
-        set_shared_table_stat(await ddb.eval(
-            'def getPersistenceTableNames(){\n' +
-            '    if(getConfigure("persistenceDir") == NULL){\n' +
-            '        return NULL\n' +
-            '    }else{\n' +
-            '        tableNames = exec filename from files(getConfigure("persistenceDir")+"/") where filename != "persistOffset"\n' +
-            '        shareNames = exec name from objs(true) where type="REALTIME" and shared=true\n' +
-            '        return tableNames[tableNames in shareNames]\n' +
-            '    }\n' +
-            '}\n' + 
-            'def getSharedTableStat(){\n' +
-            '    tableNames = getPersistenceTableNames()\n' +
-            '    shareNames = exec name from objs(true) where type="REALTIME" and shared=true and name not in tableNames\n' +
-            '    return select name as tableName,  rows, columns, bytes from objs(true) where name in shareNames\n' +
-            '}\n' +
-            'getSharedTableStat()\n', { urgent: true }))
+        set_persistent_table_stat(await ddb.call<DdbObj<DdbObj[]>>('get_persistence_stat', [ ], { urgent: true }))
+        set_shared_table_stat(await ddb.call<DdbObj<DdbObj[]>>('get_shared_table_stat', [ ], { urgent: true }))
     }
     
     if (!streaming_stat || !origin_streaming_engine_stat || !persistent_table_stat || !shared_table_stat)
