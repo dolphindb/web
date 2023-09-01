@@ -51,9 +51,9 @@ export function Computing () {
     useEffect(() => {
         (async () => {
             try {
-                get_streaming_pub_sub_stat()
-                get_streaming_engine_stat()
-                get_streaming_table_stat()
+                await get_streaming_pub_sub_stat()
+                await get_streaming_engine_stat()
+                await get_streaming_table_stat()
             } catch (error) {
                 model.show_error(error)
             }
@@ -118,11 +118,11 @@ export function Computing () {
         </div>
         
     const streaming_engine_cols: TableColumnType<Record<string, any>>[] = Object.keys(leading_cols.engine).map(col_name => ({
-        title: (
-            <Tooltip className='col-title' title={col_name} placement='bottom'>
-                <span className='col-title'>{leading_cols.engine[col_name]}</span>
-            </Tooltip>
-        ),
+        title: <Tooltip title={col_name}>
+                    <span className='col-title'>
+                        {leading_cols.engine[col_name]}
+                    </span>
+                </Tooltip>,
         dataIndex: col_name,
         render: value => <span>{value}</span>
     }))
@@ -130,11 +130,11 @@ export function Computing () {
     let expand_streaming_engine_cols: Record<string, TableColumnType<Record<string, any>>[]> = { }
     for (let engineType of Object.keys(origin_streaming_engine_stat))
         expand_streaming_engine_cols[engineType] = Object.keys(expanded_cols.engine[engineType]).map(col_name => ({
-            title: (
-                <Tooltip className='col-title' title={col_name} placement='bottom'>
-                    <span className='col-title'>{expanded_cols.engine[engineType][col_name]}</span>
-                </Tooltip>
-            ),
+            title: <Tooltip title={col_name}>
+                        <span className='col-title'>
+                            {expanded_cols.engine[engineType][col_name]}
+                        </span>
+                    </Tooltip>,
             dataIndex: col_name,
             render: value => <span>{value}</span>
         }))
@@ -727,9 +727,9 @@ function StateTable ({
                         </Button>
                     </Popconfirm>
                 )}
-                <Tooltip className='table-name' title={header_text[talbe_name].tip}>
+                <span className='table-name'>
                     {header_text[talbe_name].title}
-                </Tooltip>
+                </span>
                 <Tooltip title={header_text[talbe_name].tip}>
                     <QuestionCircleOutlined />
                 </Tooltip>
