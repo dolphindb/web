@@ -134,10 +134,19 @@
             border-right: 1px solid #e5e5e5
             display: flex
             flex-direction: column
+            justify-content: space-between
             cursor: default
+            // 过渡，但会导致打开时，文字突然出现时溢出
+            transition: all 0.5s ease-in-out
             
             .dashboard-graph-item
                 padding: 10px 15px
+                
+            .select-folder
+                padding: 10px
+                
+        .dashboard-select-sider-folding
+            width: 40px
                 
         .dashboard-settings-panel
             width: 280px
