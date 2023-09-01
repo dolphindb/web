@@ -222,12 +222,6 @@ export function Computing () {
                                         rows={handle_ellipsis_col(add_key(streaming_stat.pubConns.to_rows()), 'tables')}
                                     />
                                     <StateTable
-                                        type='subConns'
-                                        key='subConns'
-                                        cols={render_col_title(streaming_stat.subConns.to_cols(), true, 'subConns')}
-                                        rows={add_key(streaming_stat.subConns.to_rows())}
-                                    />
-                                    <StateTable
                                         type='pubTables'
                                         key='pubTables'
                                         cols={render_col_title(streaming_stat.pubTables.to_cols(), true, 'pubTables')}
