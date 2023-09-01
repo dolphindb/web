@@ -2,10 +2,11 @@ import { DatabaseOutlined, DeleteOutlined, FileOutlined, FolderAddOutlined, Paus
 import { Select } from 'antd'
 
 
-const handleChange = (value: string) => {
-    console.log(`selected ${value}`)
-}
-export function Navigation () {
+export function Navigation ({ editing, change_editing }) {
+    
+    const handleChange = (value: string) => {
+        console.log(`selected ${value}`)
+    }
     return <div className='dashboard-navigation'>
         <div className='dashboard-navigation-left'>
             <Select
@@ -29,8 +30,8 @@ export function Navigation () {
                 <PauseOutlined />
             </div>
             <div className='dashboard-navigation-right-editor'>
-                <span style={{ marginRight: '10px' }}>编辑</span>
-                <span className='dashboard-navigation-right-editor-unselected'>预览</span>
+                <span className={editing ? '' : 'dashboard-navigation-right-editor-unselected'} style={{ marginRight: '10px' }} onClick={() => { change_editing(true) }}>编辑</span>
+                <span className={editing ? 'dashboard-navigation-right-editor-unselected' : ''} onClick={() => { change_editing(false) }}>预览</span>
             </div>
             <div className='dashboard-navigation-right-configuration'>
                 <div className='dashboard-navigation-right-configuration-datasource'>

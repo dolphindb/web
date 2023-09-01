@@ -20,6 +20,14 @@ export function GridDashBoard () {
     const widget_refs = useRef({ })
     const grid_refs = useRef<GridStack>()
     const lock = useRef(false)
+    /** 编辑、预览状态切换 */
+    const [editing, set_editing] = useState(true)
+    
+    const change_editing = (is_eiting: boolean) => {
+        set_editing(is_eiting)
+        grid_refs.current.enableMove(is_eiting)
+        grid_refs.current.enableResize(is_eiting)
+    }
     
     const change_active_widgets = useCallback(function (widgets_id: string) { 
         set_active_widget_id(widgets_id)
@@ -77,7 +85,7 @@ export function GridDashBoard () {
     
     return <div className='dashboard'>
         <div className='dashboard-header'>
-            <Navigation />
+            <Navigation editing={editing} change_editing={change_editing}/>
         </div>
         <div className='dashboard-main'>
             <SelectSider/>
