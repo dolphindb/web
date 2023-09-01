@@ -64,7 +64,7 @@ export function Job () {
     
     if (!cjobs || !rjobs || !sjobs)
         return <div className='spin-container'>
-            <Spin size='large'/>
+            <Spin size='large' delay={300}/>
         </div>
     
     const cjob_rows = filter_job_rows(cjobs.to_rows(), query)

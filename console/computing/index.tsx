@@ -49,9 +49,15 @@ export function Computing () {
     }
     
     useEffect(() => {
-        get_streaming_pub_sub_stat()
-        get_streaming_engine_stat()
-        get_streaming_table_stat()
+        (async () => {
+            try {
+                get_streaming_pub_sub_stat()
+                get_streaming_engine_stat()
+                get_streaming_table_stat()
+            } catch (error) {
+                model.show_error(error)
+            }
+        })()
     }, [ ])
     
     
@@ -107,7 +113,9 @@ export function Computing () {
     }
     
     if (!streaming_stat || !origin_streaming_engine_stat || !persistent_table_stat || !shared_table_stat)
-        return <div className='spin-container'><Spin size='large'/></div>
+        return <div className='spin-container'>
+            <Spin size='large' delay={300}/>
+        </div>
         
     const streaming_engine_cols: TableColumnType<Record<string, any>>[] = Object.keys(leading_cols.engine).map(col_name => ({
         title: (
