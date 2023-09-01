@@ -118,7 +118,7 @@ export function Computing () {
         </div>
         
     const streaming_engine_cols: TableColumnType<Record<string, any>>[] = Object.keys(leading_cols.engine).map(col_name => ({
-        title: <Tooltip title={col_name}>
+        title: <Tooltip title={col_name.charAt(0).toUpperCase() + col_name.slice(1)}>
                     <span className='col-title'>
                         {leading_cols.engine[col_name]}
                     </span>
@@ -130,7 +130,7 @@ export function Computing () {
     let expand_streaming_engine_cols: Record<string, TableColumnType<Record<string, any>>[]> = { }
     for (let engineType of Object.keys(origin_streaming_engine_stat))
         expand_streaming_engine_cols[engineType] = Object.keys(expanded_cols.engine[engineType]).map(col_name => ({
-            title: <Tooltip title={col_name}>
+            title: <Tooltip title={col_name.charAt(0).toUpperCase() + col_name.slice(1)}>
                         <span className='col-title'>
                             {expanded_cols.engine[engineType][col_name]}
                         </span>
