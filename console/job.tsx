@@ -9,6 +9,7 @@ import {
     Table,
     Typography,
     Tooltip,
+    Spin,
     type TablePaginationConfig,
 } from 'antd'
 import type { ColumnType } from 'antd/lib/table/index.js'
@@ -69,7 +70,7 @@ export function Job () {
     }
     
     if (!cjobs || !rjobs || !sjobs)
-        return null
+        return <Spin/>
     
     const cjob_rows = filter_job_rows(cjobs.to_rows(), query)
         .sort((l, r) => 

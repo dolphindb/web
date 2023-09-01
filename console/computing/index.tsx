@@ -1,7 +1,7 @@
 import './index.sass'
 
 import { useEffect, useState } from 'react'
-import { Button, Tabs, Table, Tooltip, Popconfirm, Typography, type TabsProps } from 'antd'
+import { Button, Tabs, Table, Tooltip, Popconfirm, Typography, Spin, type TabsProps } from 'antd'
 import { ReloadOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import type { ColumnType } from 'antd/lib/table/index.js'
 import { model } from '../model.js'
@@ -57,55 +57,6 @@ export function Computing () {
     }, [ ])
     
     /** 处理流计算引擎状态，给每一个引擎添加 engineType 字段，合并所有类型的引擎 */
-    useEffect(() => {
-        if (!origin_streaming_engine_stat)
-            return
-        const streaming_engine_cols: ColumnType<Record<string, any>>[] = Object.keys(leading_cols.engine).map(col_name => ({
-            title: (
-                <Tooltip className='col-title' title={col_name} placement='bottom'>
-                    <span className='col-title'>{leading_cols.engine[col_name]}</span>
-                </Tooltip>
-            ),
-            dataIndex: col_name,
-            render: value => <span>{value}</span>
-        }))
-        
-        let expand_streaming_engine_cols: Record<string, ColumnType<Record<string, any>>[]> = { }
-        for (let engineType of Object.keys(origin_streaming_engine_stat))
-            expand_streaming_engine_cols[engineType] = Object.keys(expanded_cols.engine[engineType]).map(col_name => ({
-                title: (
-                    <Tooltip className='col-title' title={col_name} placement='bottom'>
-                        <span className='col-title'>{expanded_cols.engine[engineType][col_name]}</span>
-                    </Tooltip>
-                ),
-                dataIndex: col_name,
-                render: value => <span>{value}</span>
-            }))
-            
-        let streaming_engine_rows = [ ]
-        let expand_streaming_engine_rows = [ ]
-        
-        for (let engineType of Object.keys(origin_streaming_engine_stat))
-            for (let row of origin_streaming_engine_stat[engineType].to_rows()) {
-                let new_row = { }
-                let expand_new_row = { }
-                
-                for (let key of Object.keys(leading_cols.engine))
-                    new_row = Object.assign(new_row, { [key]: row.hasOwnProperty(key) ? row[key] : '' })
-                
-                for (let key of Object.keys(expanded_cols.engine[engineType]))
-                    expand_new_row = Object.assign(expand_new_row, { [key]: row.hasOwnProperty(key) ? row[key] : '' })
-                    
-                new_row = Object.assign(new_row, { engineType })
-                expand_new_row = Object.assign(expand_new_row, { name: row.name })
-                
-                streaming_engine_rows.push(new_row)
-                expand_streaming_engine_rows.push(expand_new_row)
-            }
-        set_streaming_engine_stat({ cols: streaming_engine_cols, rows: streaming_engine_rows })
-        set_expand_streaming_engine_stat({ cols: expand_streaming_engine_cols, rows: expand_streaming_engine_rows })
-    }, [origin_streaming_engine_stat])
-    
     async function get_streaming_pub_sub_stat () {
         set_streaming_stat((await ddb.call<DdbObj<DdbObj[]>>('getStreamingStat', [ ], { urgent: true })).to_dict())
     }
@@ -157,7 +108,52 @@ export function Computing () {
     }
     
     if (!streaming_stat || !origin_streaming_engine_stat || !persistent_table_stat || !shared_table_stat)
-        return null
+        return <Spin/>
+        
+    const streaming_engine_cols: ColumnType<Record<string, any>>[] = Object.keys(leading_cols.engine).map(col_name => ({
+        title: (
+            <Tooltip className='col-title' title={col_name} placement='bottom'>
+                <span className='col-title'>{leading_cols.engine[col_name]}</span>
+            </Tooltip>
+        ),
+        dataIndex: col_name,
+        render: value => <span>{value}</span>
+    }))
+    
+    let expand_streaming_engine_cols: Record<string, ColumnType<Record<string, any>>[]> = { }
+    for (let engineType of Object.keys(origin_streaming_engine_stat))
+        expand_streaming_engine_cols[engineType] = Object.keys(expanded_cols.engine[engineType]).map(col_name => ({
+            title: (
+                <Tooltip className='col-title' title={col_name} placement='bottom'>
+                    <span className='col-title'>{expanded_cols.engine[engineType][col_name]}</span>
+                </Tooltip>
+            ),
+            dataIndex: col_name,
+            render: value => <span>{value}</span>
+        }))
+        
+    let streaming_engine_rows = [ ]
+    let expand_streaming_engine_rows = [ ]
+    
+    for (let engineType of Object.keys(origin_streaming_engine_stat))
+        for (let row of origin_streaming_engine_stat[engineType].to_rows()) {
+            let new_row = { }
+            let expand_new_row = { }
+            
+            for (let key of Object.keys(leading_cols.engine))
+                new_row = Object.assign(new_row, { [key]: row.hasOwnProperty(key) ? row[key] : '' })
+            
+            for (let key of Object.keys(expanded_cols.engine[engineType]))
+                expand_new_row = Object.assign(expand_new_row, { [key]: row.hasOwnProperty(key) ? row[key] : '' })
+                
+            new_row = Object.assign(new_row, { engineType })
+            expand_new_row = Object.assign(expand_new_row, { name: row.name })
+            
+            streaming_engine_rows.push(new_row)
+            expand_streaming_engine_rows.push(expand_new_row)
+        }
+    set_streaming_engine_stat({ cols: streaming_engine_cols, rows: streaming_engine_rows })
+    set_expand_streaming_engine_stat({ cols: expand_streaming_engine_cols, rows: expand_streaming_engine_rows })
     
     const tabs: TabsProps['items'] = [
         {
@@ -177,7 +173,7 @@ export function Computing () {
                                                 sort_col(
                                                     streaming_stat.subWorkers
                                                         .to_cols()
-                                                        .filter(col => Object.keys(leading_cols.subWorkers).includes(col.title)),
+                                                        .filter(col => col.title in leading_cols.subWorkers),
                                                     'subWorkers'
                                                 ),
                                                 'queueDepth'
@@ -195,7 +191,7 @@ export function Computing () {
                                         columns={render_col_title(
                                             streaming_stat.subWorkers
                                                 .to_cols()
-                                                .filter(col => Object.keys(expanded_cols.subWorkers).includes(col.title)),
+                                                .filter(col => col.title in expanded_cols.subWorkers),
                                             false,
                                             'subWorkers'
                                         )}
