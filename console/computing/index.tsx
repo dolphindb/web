@@ -316,6 +316,9 @@ const cols_width = {
         status: 50
     },
     persistenceMeta: {
+        totalSize: 70,
+        raftGroup: 70,
+        compress: 70,
         persistenceDir: 350
     }
 }
