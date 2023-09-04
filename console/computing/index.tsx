@@ -126,10 +126,10 @@ export function Computing () {
             let expand_new_row = { }
             
             for (let key of Object.keys(leading_cols.engine))
-                new_row = Object.assign(new_row, { [key]: row.hasOwnProperty(key) ? row[key] : '' })
+                new_row[key] = row.hasOwnProperty(key) ? row[key] : ''
             
             for (let key of Object.keys(expanded_cols.engine[engineType]))
-                expand_new_row = Object.assign(expand_new_row, { [key]: row.hasOwnProperty(key) ? row[key] : '' })
+                expand_new_row[key] = row.hasOwnProperty(key) ? row[key] : '' 
                 
             new_row = Object.assign(new_row, { engineType })
             expand_new_row = Object.assign(expand_new_row, { name: row.name })
