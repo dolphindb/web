@@ -36,7 +36,7 @@ export function Computing () {
     if (!logined)
         return <Result
                 status='warning'
-                className='log-login-interceptor'
+                className='login-interceptor'
                 title={t('登录后可查看当前节点流计算状态')}
                 extra={
                     <Button type='primary' onClick={() => model.goto_login()}>
