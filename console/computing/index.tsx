@@ -1,7 +1,7 @@
 import './index.sass'
 
 import { useEffect, useState } from 'react'
-import { Button, Tabs, Table, Tooltip, Popconfirm, Typography, Spin, type TableColumnType } from 'antd'
+import { Button, Tabs, Table, Tooltip, Popconfirm, Typography, Spin, Result, type TableColumnType } from 'antd'
 import { ReloadOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import type { ExpandableConfig, SortOrder } from 'antd/es/table/interface.js'
 
@@ -31,8 +31,19 @@ export function Computing () {
     
     const [tab_key, set_tab_key] = useState<string>('streaming_pub_sub_stat')
     
-    const { ddb } = model.use(['ddb'])
+    const { ddb, logined } = model.use(['ddb', 'logined'])
     
+    if (!logined)
+        return <Result
+                status='warning'
+                className='log-login-interceptor'
+                title={t('登录后可查看当前节点流计算状态')}
+                extra={
+                    <Button type='primary' onClick={() => model.goto_login()}>
+                        {t('去登录')}
+                    </Button>
+                }
+            />
     
     const tab_content = {
         streaming_pub_sub_stat: {
@@ -250,14 +261,14 @@ export function Computing () {
                                         type='persistWorkers'
                                         cols={render_col_title(set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), true, 'persistWorkers')}
                                         rows={add_key(streaming_stat.persistWorkers.to_rows())}
-                                        min_width={1560}
+                                        min_width={500}
                                     />
                                 )}
                                 <StateTable
                                     type='sharedStreamingTableStat'
                                     cols={render_col_title(shared_table_stat.to_cols(), true, 'sharedStreamingTableStat')}
                                     rows={add_key(shared_table_stat.to_rows())}
-                                    min_width={1560}
+                                    min_width={500}
                                     separated={false}
                                     refresher={get_streaming_table_stat}
                                 />

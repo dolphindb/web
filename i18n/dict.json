@@ -2203,5 +2203,35 @@
     },
     "最近消息接收时刻": {
         "en": "last message received time"
+    },
+    "登录后可查看当前节点流计算状态": {
+        "en": "After logging in, you can view the current node stream computing status"
+    },
+    "队列深度": {
+        "en": "queue depth"
+    },
+    "队列深度上限": {
+        "en": "queue depth limit"
+    },
+    "最近错误时刻": {
+        "en": "latest error timestamp"
+    },
+    "失败消息总数": {
+        "en": "total number of failed messages"
+    },
+    "最近错误消息 ID": {
+        "en": "latest error message ID"
+    },
+    "最近接收时刻": {
+        "en": "receive average latency"
+    },
+    "错误详细信息": {
+        "en": "error details"
+    },
+    "详细": {
+        "en": "details"
+    },
+    "接收平均延迟": {
+        "en": "receive average latency"
     }
 }
