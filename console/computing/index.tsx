@@ -35,15 +35,15 @@ export function Computing () {
     
     if (!logined)
         return <Result
-                status='warning'
-                className='login-interceptor'
-                title={t('登录后可查看当前节点流计算状态')}
-                extra={
-                    <Button type='primary' onClick={() => model.goto_login()}>
-                        {t('去登录')}
-                    </Button>
-                }
-            />
+            status='warning'
+            className='login-interceptor'
+            title={t('登录后可查看当前节点流计算状态')}
+            extra={
+                <Button type='primary' onClick={() => model.goto_login()}>
+                    {t('去登录')}
+                </Button>
+            }
+        />
     
     const tab_content = {
         streaming_pub_sub_stat: {
