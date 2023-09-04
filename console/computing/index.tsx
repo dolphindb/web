@@ -197,15 +197,13 @@ export function Computing () {
                                         type='pubConns'
                                         key='pubConns'
                                         cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), true, 'pubConns'), 'queueDepth')}
-                                        rows={handle_ellipsis_col(add_key(streaming_stat.pubConns.to_rows()), 'tables')}
-                                        min_width={500}
+                                        rows={handle_ellipsis_col(add_key(streaming_stat.pubConns.to_rows()), 'tables')}         
                                     />
                                     <StateTable
                                         type='pubTables'
                                         key='pubTables'
                                         cols={render_col_title(streaming_stat.pubTables.to_cols(), true, 'pubTables')}
                                         rows={add_key(split_actions(streaming_stat.pubTables.to_rows()))}
-                                        min_width={500}
                                         separated={false}
                                     />
                                 </div>
@@ -682,7 +680,7 @@ function StateTable ({
     type: string
     cols: TableColumnType<Record<string, any>>[]
     rows: Record<string, any>[]
-    min_width: number
+    min_width?: number
     separated?: boolean
     default_page_size?: number
     refresher?: () => Promise<void>
