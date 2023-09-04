@@ -160,7 +160,7 @@ export function Computing () {
                                                             sort_col(
                                                                 streaming_stat.subWorkers
                                                                     .to_cols()
-                                                                    .filter(col => Object.keys(leading_cols.subWorkers).includes(col.title)),
+                                                                    .filter(col => col.title in leading_cols.subWorkers),
                                                                 'subWorkers'
                                                             ),
                                                             'queueDepth'
@@ -180,7 +180,7 @@ export function Computing () {
                                                     columns={render_col_title(
                                                         streaming_stat.subWorkers
                                                             .to_cols()
-                                                            .filter(col => Object.keys(expanded_cols.subWorkers).includes(col.title)),
+                                                            .filter(col => col.title in expanded_cols.subWorkers),
                                                         false,
                                                         'subWorkers'
                                                     )}
