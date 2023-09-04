@@ -93,13 +93,11 @@ export function Computing () {
         return <div className='spin-container'>
             <Spin size='large' delay={300}/>
         </div>
-        
+    
     const streaming_engine_cols: TableColumnType<Record<string, any>>[] = Object.keys(leading_cols.engine).map(col_name => ({
         title: <Tooltip title={col_name.charAt(0).toUpperCase() + col_name.slice(1)}>
-                    <span className='col-title'>
-                        {leading_cols.engine[col_name]}
-                    </span>
-                </Tooltip>,
+                <span className='col-title'>{leading_cols.engine[col_name]}</span>
+            </Tooltip>,
         dataIndex: col_name,
         render: value => <span>{value}</span>
     }))
@@ -108,14 +106,14 @@ export function Computing () {
     for (let engineType of Object.keys(origin_streaming_engine_stat))
         expand_streaming_engine_cols[engineType] = Object.keys(expanded_cols.engine[engineType]).map(col_name => ({
             title: <Tooltip title={col_name.charAt(0).toUpperCase() + col_name.slice(1)}>
-                        <span className='col-title'>
-                            {expanded_cols.engine[engineType][col_name]}
-                        </span>
-                    </Tooltip>,
+                    <span className='col-title'>
+                        {expanded_cols.engine[engineType][col_name]}
+                    </span>
+                </Tooltip>,
             dataIndex: col_name,
             render: value => <span>{value}</span>
         }))
-        
+    
     let streaming_engine_rows = [ ]
     let expand_streaming_engine_rows = [ ]
     
@@ -137,158 +135,158 @@ export function Computing () {
             expand_streaming_engine_rows.push(expand_new_row)
         }
     
-    return  <Tabs
-                activeKey={tab_key}
-                type='card'
-                onChange={set_tab_key}
-                items={[
-                    {
-                        key: 'streaming_pub_sub_stat',
-                        label:  <label className='tab-header'>
-                                    <div className='tab-icon sm-font'><SvgPublish/></div>{tab_content.streaming_pub_sub_stat.title}
-                                </label>,
-                        children: (
-                            <div className='streaming_pub_sub_stat'>
-                                <div className='sub-workers'>
-                                    <StateTable
-                                        type='subWorkers'
-                                        cols={render_col_title(
-                                                translate_order_col(
-                                                    set_col_width(
-                                                        set_col_color(
-                                                            sort_col(
-                                                                streaming_stat.subWorkers
-                                                                    .to_cols()
-                                                                    .filter(col => Object.keys(leading_cols.subWorkers).includes(col.title)),
-                                                                'subWorkers'
-                                                            ),
-                                                            'queueDepth'
-                                                        ),
-                                                        'subWorkers'
-                                                    )
-                                                ),
-                                                true, 'subWorkers')
-                                            }
-                                        rows={translate_sorter_row(handle_ellipsis_col(add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'))}
-                                        min_width={1200}
-                                        separated={false}
-                                        default_page_size={10}
-                                        refresher={get_streaming_pub_sub_stat}
-                                        expandable_config={{
-                                            expandedRowRender: stat => <Table
-                                                    columns={render_col_title(
+    return <Tabs
+        type='card'
+        activeKey={tab_key}
+        onChange={set_tab_key}
+        items={[
+            {
+                key: 'streaming_pub_sub_stat',
+                label:  <label className='tab-header'>
+                        <div className='tab-icon sm-font'><SvgPublish/></div>{tab_content.streaming_pub_sub_stat.title}
+                    </label>,
+                children: (
+                    <div className='streaming_pub_sub_stat'>
+                        <div className='sub-workers'>
+                            <StateTable
+                                type='subWorkers'
+                                cols={render_col_title(
+                                        translate_order_col(
+                                            set_col_width(
+                                                set_col_color(
+                                                    sort_col(
                                                         streaming_stat.subWorkers
                                                             .to_cols()
-                                                            .filter(col => Object.keys(expanded_cols.subWorkers).includes(col.title)),
-                                                        false,
+                                                            .filter(col => Object.keys(leading_cols.subWorkers).includes(col.title)),
                                                         'subWorkers'
-                                                    )}
-                                                    dataSource={streaming_stat.subWorkers
-                                                        .to_rows()
-                                                        .filter(row => row.topic.slice(row.topic.indexOf('/') + 1) === stat.topic)}
-                                                    rowKey={row => row.topic}
-                                                    pagination={false}
-                                                />
-                                        }}
-                                    />
-                                </div>
-                                <div className='other-tables'>
-                                    <StateTable
-                                        type='pubConns'
-                                        key='pubConns'
-                                        cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), true, 'pubConns'), 'queueDepth')}
-                                        rows={handle_ellipsis_col(add_key(streaming_stat.pubConns.to_rows()), 'tables')}         
-                                    />
-                                    <StateTable
-                                        type='pubTables'
-                                        key='pubTables'
-                                        cols={render_col_title(streaming_stat.pubTables.to_cols(), true, 'pubTables')}
-                                        rows={add_key(split_actions(streaming_stat.pubTables.to_rows()))}
-                                        separated={false}
-                                    />
-                                </div>
-                            </div>
-                        )
-                    },
-                    {
-                        key: 'streaming_engine_stat',
-                        label:  <label className='tab-header'>
-                                    <div className='tab-icon'><SvgEngine/></div>{tab_content.streaming_engine_stat.title}
-                                </label>,
-                        children: (
-                            <div className='streaming-engine-stat'>
-                                <StateTable
-                                    type='engine'
-                                    cols={set_col_ellipsis(
-                                            set_col_width(streaming_engine_cols, 'engine'), 'metrics')}
-                                    rows={add_key(streaming_engine_rows)}
-                                    min_width={1560}
-                                    separated={false}
-                                    default_page_size={20}
-                                    refresher={get_streaming_engine_stat}
-                                    expandable_config={{
-                                        expandedRowRender: ({ name, engineType }) => {
-                                            return <Table
-                                                    columns={expand_streaming_engine_cols[engineType]}
-                                                    dataSource={expand_streaming_engine_rows.filter(row => row.name === name)}
-                                                    rowKey={row => row.name}
-                                                    pagination={false}
-                                                />
-                                        }
-                                    }}
-                                />
-                            </div>
-                        )
-                    },
-                    {
-                        key: 'streaming_table_stat',
-                        label:  <label className='tab-header'>
-                                    <div className='tab-icon sm-font'><SvgTable/></div>{tab_content.streaming_table_stat.title}
-                                </label>,
-                        children: (
-                            <div className='persistent-table-stat'>
-                                <StateTable
-                                    type='persistenceMeta'
-                                    cols={render_col_title(set_col_width(persistent_table_stat.to_cols(), 'persistenceMeta'), true, 'persistenceMeta')}
-                                    rows={add_key(persistent_table_stat.to_rows())}
-                                    min_width={1560}
-                                    refresher={get_streaming_table_stat}
-                                />
-                                {streaming_stat.persistWorkers && (
-                                    <StateTable
-                                        type='persistWorkers'
-                                        cols={render_col_title(set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), true, 'persistWorkers')}
-                                        rows={add_key(streaming_stat.persistWorkers.to_rows())}   
-                                    />
-                                )}
-                                <StateTable
-                                    type='sharedStreamingTableStat'
-                                    cols={render_col_title(shared_table_stat.to_cols(), true, 'sharedStreamingTableStat')}
-                                    rows={add_key(shared_table_stat.to_rows())}
-                                    separated={false}
-                                    refresher={get_streaming_table_stat}
-                                />
-                            </div>
-                        )
+                                                    ),
+                                                    'queueDepth'
+                                                ),
+                                                'subWorkers'
+                                            )
+                                        ),
+                                        true, 'subWorkers')
+                                    }
+                                rows={translate_sorter_row(handle_ellipsis_col(add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'))}
+                                min_width={1200}
+                                separated={false}
+                                default_page_size={10}
+                                refresher={get_streaming_pub_sub_stat}
+                                expandable_config={{
+                                    expandedRowRender: stat => <Table
+                                            columns={render_col_title(
+                                                streaming_stat.subWorkers
+                                                    .to_cols()
+                                                    .filter(col => Object.keys(expanded_cols.subWorkers).includes(col.title)),
+                                                false,
+                                                'subWorkers'
+                                            )}
+                                            dataSource={streaming_stat.subWorkers
+                                                .to_rows()
+                                                .filter(row => row.topic.slice(row.topic.indexOf('/') + 1) === stat.topic)}
+                                            rowKey={row => row.topic}
+                                            pagination={false}
+                                        />
+                                }}
+                            />
+                        </div>
+                        <div className='other-tables'>
+                            <StateTable
+                                type='pubConns'
+                                key='pubConns'
+                                cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), true, 'pubConns'), 'queueDepth')}
+                                rows={handle_ellipsis_col(add_key(streaming_stat.pubConns.to_rows()), 'tables')}         
+                            />
+                            <StateTable
+                                type='pubTables'
+                                key='pubTables'
+                                cols={render_col_title(streaming_stat.pubTables.to_cols(), true, 'pubTables')}
+                                rows={add_key(split_actions(streaming_stat.pubTables.to_rows()))}
+                                separated={false}
+                            />
+                        </div>
+                    </div>
+                )
+            },
+            {
+                key: 'streaming_engine_stat',
+                label:  <label className='tab-header'>
+                            <div className='tab-icon'><SvgEngine/></div>{tab_content.streaming_engine_stat.title}
+                        </label>,
+                children: (
+                    <div className='streaming-engine-stat'>
+                        <StateTable
+                            type='engine'
+                            cols={set_col_ellipsis(
+                                    set_col_width(streaming_engine_cols, 'engine'), 'metrics')}
+                            rows={add_key(streaming_engine_rows)}
+                            min_width={1560}
+                            separated={false}
+                            default_page_size={20}
+                            refresher={get_streaming_engine_stat}
+                            expandable_config={{
+                                expandedRowRender: ({ name, engineType }) => {
+                                    return <Table
+                                            columns={expand_streaming_engine_cols[engineType]}
+                                            dataSource={expand_streaming_engine_rows.filter(row => row.name === name)}
+                                            rowKey={row => row.name}
+                                            pagination={false}
+                                        />
+                                }
+                            }}
+                        />
+                    </div>
+                )
+            },
+            {
+                key: 'streaming_table_stat',
+                label:  <label className='tab-header'>
+                            <div className='tab-icon sm-font'><SvgTable/></div>{tab_content.streaming_table_stat.title}
+                        </label>,
+                children: (
+                    <div className='persistent-table-stat'>
+                        <StateTable
+                            type='persistenceMeta'
+                            cols={render_col_title(set_col_width(persistent_table_stat.to_cols(), 'persistenceMeta'), true, 'persistenceMeta')}
+                            rows={add_key(persistent_table_stat.to_rows())}
+                            min_width={1560}
+                            refresher={get_streaming_table_stat}
+                        />
+                        {streaming_stat.persistWorkers && (
+                            <StateTable
+                                type='persistWorkers'
+                                cols={render_col_title(set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), true, 'persistWorkers')}
+                                rows={add_key(streaming_stat.persistWorkers.to_rows())}   
+                            />
+                        )}
+                        <StateTable
+                            type='sharedStreamingTableStat'
+                            cols={render_col_title(shared_table_stat.to_cols(), true, 'sharedStreamingTableStat')}
+                            rows={add_key(shared_table_stat.to_rows())}
+                            separated={false}
+                            refresher={get_streaming_table_stat}
+                        />
+                    </div>
+                )
+            }
+        ]}
+        tabBarExtraContent={
+            <Button
+                icon={<ReloadOutlined />}
+                onClick={async () => {
+                    try {
+                        await tab_content[tab_key].refresher()
+                        model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
+                    } catch (error) {
+                        model.show_error(error)
+                        throw error
                     }
-                ]}
-                tabBarExtraContent={
-                    <Button
-                        icon={<ReloadOutlined />}
-                        onClick={async () => {
-                            try {
-                                await tab_content[tab_key].refresher()
-                                model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
-                            } catch (error) {
-                                model.show_error(error)
-                                throw error
-                            }
-                        }}
-                    >
-                        {t('刷新')}
-                    </Button>
-                }
-            />
+                }}
+            >
+                {t('刷新')}
+            </Button>
+        }
+    />
 }
 
 interface ButtonProps {
@@ -751,44 +749,44 @@ function StateTable ({
     
     
     return <>
-            <Table
-                tableLayout='fixed'
-                rowSelection={
+        <Table
+            tableLayout='fixed'
+            rowSelection={
+                refresher
+                    ? {
+                        type: 'checkbox',
+                        onChange: (selected_keys: React.Key[]) => set_selected(selected_keys as string[])
+                    }
+                    : null
+            }
+            columns={cols}
+            dataSource={rows}
+            rowKey={row => (type === 'pubTables' ? `${row.tableName}/${row.actions}` : row.key)}
+            expandable={expandable_config ? expandable_config : null}
+            size='small'
+            title={() =>
+                render_table_header(
+                    type,
                     refresher
                         ? {
-                            type: 'checkbox',
-                            onChange: (selected_keys: React.Key[]) => set_selected(selected_keys as string[])
+                            type: type,
+                            selected,
+                            refresher
                         }
                         : null
-                }
-                columns={cols}
-                dataSource={rows}
-                rowKey={row => (type === 'pubTables' ? `${row.tableName}/${row.actions}` : row.key)}
-                expandable={expandable_config ? expandable_config : null}
-                size='small'
-                title={() =>
-                    render_table_header(
-                        type,
-                        refresher
-                            ? {
-                                type: type,
-                                selected,
-                                refresher
-                            }
-                            : null
-                    )
-                }
-                pagination={ rows.length > default_page_size ? 
-                                                        {
-                                                            defaultPageSize: default_page_size,
-                                                            pageSizeOptions: ['5', '10', '20', '50', '100'],
-                                                            size: 'small',
-                                                            showSizeChanger: true,
-                                                            showQuickJumper: true
-                                                        } 
-                                                            : false}
-                scroll={{ x: min_width }}                                        
-            />
-            {(rows.length <= default_page_size && separated) && <div className='separater'/>}
-        </>
+                )
+            }
+            pagination={ rows.length > default_page_size ? 
+                {
+                    defaultPageSize: default_page_size,
+                    pageSizeOptions: ['5', '10', '20', '50', '100'],
+                    size: 'small',
+                    showSizeChanger: true,
+                    showQuickJumper: true
+                } 
+                    : false}
+            scroll={{ x: min_width }}                                        
+        />
+        {(rows.length <= default_page_size && separated) && <div className='separater'/>}
+    </>
 }
