@@ -50,6 +50,9 @@ dependencies:
   final-form:
     specifier: ^4.20.10
     version: 4.20.10
+  gridstack:
+    specifier: ^9.0.2
+    version: 9.0.2
   js-cookie:
     specifier: ^3.0.5
     version: 3.0.5
@@ -4615,6 +4618,10 @@ packages:
   /graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
     dev: true
+
+  /gridstack@9.0.2:
+    resolution: {integrity: sha512-sCnk5VTSc/FAkrcJWGJ9GSLhCmpeGbS/pK/XBGrpzHug8JZv9fyYYzQ7KZeorb9H9gavCrytfdHJ1KNgCIMSBQ==}
+    dev: false
 
   /gulp-sort@2.0.0:
     resolution: {integrity: sha512-MyTel3FXOdh1qhw1yKhpimQrAmur9q1X0ZigLmCOxouQD+BD3za9/89O+HfbgBQvvh4igEbp0/PUWO+VqGYG1g==}
