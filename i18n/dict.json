@@ -1935,19 +1935,19 @@
         "en": "Computing"
     },
     "流计算发布订阅状态": {
-        "en": "Stream computing publish and subscribe status"
+        "en": "Stream Computing Publish And Subscribe Status"
     },
     "流引擎状态": {
-        "en": "Stream engines status"
+        "en": "Streaming Engines Status"
     },
     "流表状态": {
-        "en": "Stream tables status"
+        "en": "Stream Tables Status"
     },
     "刷新成功": {
         "en": "refresh successfully"
     },
     "订阅线程状态": {
-        "en": "Subscriber thread state"
+        "en": "Subscriber Thread State"
     },
     "表 SubWorkers 监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。": {
         "en": "The table SubWorkers monitors the state of worker threads of subscribing nodes. Worker thread status information will be displayed by topic."
@@ -1962,25 +1962,25 @@
         "en": "The table SubConns monitors the connection status between the local subscribing node and subscribing nodes."
     },
     "发布状态": {
-        "en": "publisher status"
+        "en": "Publisher Status"
     },
     "表 PubConns 监控本地发布节点和它的所有订阅节点之间的连接状态。": {
         "en": "The table PubConns monitors the connection status between the local publishing node and all its subscribing nodes."
     },
     "持久化线程状态": {
-        "en": "persistent thread state"
+        "en": "Persistent Thread State"
     },
     "表 PersistWorkers 监控负责持久化流数据表的工作线程的状态。": {
         "en": "Table PersistWorkers monitors the status of worker threads responsible for persisting streaming data tables."
     },
     "持久化共享流表状态": {
-        "en": "Persistent shared stream table state"
+        "en": "Persistent Shared Stream Table State"
     },
     "表 PersistenceMeta 返回启用了持久化的共享流数据表的元数据。": {
         "en": "Table PersistenceMeta returns the metadata of a shared stream data table with persistence enabled."
     },
     "非持久化共享流表状态": {
-        "en": "Non-persistent shared stream table state"
+        "en": "Non-persistent Shared Stream Table State"
     },
     "表 sharedStreamingTableStat 返回未启用持久化的共享流数据表的元数据。": {
         "en": "The table sharedStreamingTableStat returns the metadata of the shared streaming table that does not enable persistence."
@@ -2007,181 +2007,181 @@
         "en": "Are you sure to delete the selected shared stream data table?"
     },
     "线程 ID": {
-        "en": "worker Id"
+        "en": "Worker ID"
     },
     "订阅主题": {
-        "en": "topic"
+        "en": "Topic"
     },
     "订阅队列深度": {
-        "en": "queue depth"
+        "en": "Queue Depth"
     },
     "订阅队列深度上限": {
-        "en": "queue depth limit"
+        "en": "Queue Depth Limit"
     },
     "最近处理失败的错误信息": {
-        "en": "last error message"
+        "en": "Last Error Message"
     },
     "最近处理失败的时刻": {
-        "en": "last failed timestamp"
+        "en": "Last Failed Timestamp"
     },
     "处理失败的消息总数": {
-        "en": "failed message count"
+        "en": "Failed Message Count"
     },
     "已处理消息数": {
-        "en": "processed message count"
+        "en": "Processed Message Count"
     },
     "最近消息 ID": {
-        "en": "last message Id"
+        "en": "Last Message ID"
     },
     "最近处理失败的消息 ID": {
-        "en": "last failed message Id"
+        "en": "Last Failed Message ID"
     },
     "共享流数据表": {
-        "en": "table name"
+        "en": "Table Name"
     },
     "订阅节点": {
-        "en": "subscriber"
+        "en": "Subscriber"
     },
     "最近消息的偏移量": {
-        "en": "message offset"
+        "en": "Message Offset"
     },
     "订阅任务": {
-        "en": "actions"
+        "en": "Actions"
     },
     "发布队列深度上限": {
-        "en": "queue depth limit"
+        "en": "Queue Depth Limit"
     },
     "发布队列深度": {
-        "en": "queue depth"
+        "en": "Queue Depth"
     },
     "发布节点": {
-        "en": "publisher"
+        "en": "Publisher"
     },
     "接收消息总量": {
-        "en": "cumulative message count"
+        "en": "Cumulative Message Count"
     },
     "接收消息平均延迟": {
-        "en": "average message latency"
+        "en": "Average Message Latency"
     },
     "最近消息的延迟": {
-        "en": "last message latency"
+        "en": "Last Message Latency"
     },
     "最近消息的接收时刻": {
-        "en": "last update"
+        "en": "Last Update"
     },
     "总行数": {
-        "en": "total rows"
+        "en": "Total Rows"
     },
     "内存中行数": {
-        "en": "number of rows in memory"
+        "en": "Number of Rows in Memory"
     },
     "内存中偏移量": {
-        "en": "offset in memory"
+        "en": "Offset in Memory"
     },
     "磁盘中行数": {
-        "en": "number of rows on disk"
+        "en": "Number of Rows on Disk"
     },
     "磁盘中偏移量": {
-        "en": "offset on disk"
+        "en": "Offset on Disk"
     },
     "是否异步持久化": {
-        "en": "whether to persist asynchronously"
+        "en": "Whether to Persist Asynchronously"
     },
     "保留时间": {
-        "en": "retention minutes"
+        "en": "Retention Minutes"
     },
     "是否压缩": {
-        "en": "compress"
+        "en": "Compress"
     },
     "持久化路径": {
-        "en": "persistence dir"
+        "en": "Persistence Dir"
     },
     "持久化线程": {
-        "en": "persistence worker"
+        "en": "Persistence Worker"
     },
     "Raft 组": {
-        "en": "raft group"
+        "en": "Raft Group"
     },
     "Raft 日志序号": {
-        "en": "last log seq"
+        "en": "Last Log Seq"
     },
     "行数": {
-        "en": "number of rows"
+        "en": "Number of Rows"
     },
     "列数": {
-        "en": "number of columns"
+        "en": "Number of Columns"
     },
     "字节数": {
-        "en": "bytes"
+        "en": "Bytes"
     },
     "引擎名": {
-        "en": "engine name"
+        "en": "Engine Name"
     },
     "引擎类型": {
-        "en": "engine type"
+        "en": "Engine Type"
     },
     "最近错误信息": {
-        "en": "last error message"
+        "en": "Last Error Message"
     },
     "分组数": {
-        "en": "number of groups"
+        "en": "Number of Groups"
     },
     "行数（单表）": {
-        "en": "number of rows (single table)"
+        "en": "Number of Rows (Single Table)"
     },
     "行数（左表）": {
-        "en": "number of rows (left table)"
+        "en": "Number of Rows (Left Table)"
     },
     "行数（右表）": {
-        "en": "Number of rows (right table)"
+        "en": "Number of Rows (Right Table)"
     },
     "内存清理阈值": {
-        "en": "memory cleanup threshold"
+        "en": "Memory Cleanup Threshold"
     },
     "指标数量": {
-        "en": "number of indicators"
+        "en": "Number of Indicators"
     },
     "指标源码": {
-        "en": "indicator source code"
+        "en": "Indicator Source Code"
     },
     "用户": {
-        "en": "user"
+        "en": "User"
     },
     "窗口长度": {
-        "en": "window length"
+        "en": "Window Length"
     },
     "步长": {
-        "en": "step size"
+        "en": "Step Size"
     },
     "是否使用系统时间": {
-        "en": "whether to use system time"
+        "en": "Whether to Use System Time"
     },
     "快照目录": {
-        "en": "snapshot directory"
+        "en": "Snapshot Directory"
     },
     "快照间隔": {
-        "en": "snapshot interval"
+        "en": "Snapshot Interval"
     },
     "快照 ID": {
-        "en": "snapshot ID"
+        "en": "Snapshot ID"
     },
     "快照时间戳": {
-        "en": "snapshot timestamp"
+        "en": "Snapshot Timestamp"
     },
     "触发方式": {
-        "en": "trigger"
+        "en": "Trigger"
     },
     "触发间隔": {
-        "en": "trigger interval"
+        "en": "Trigger Interval"
     },
     "时间间隔": {
-        "en": "time interval"
+        "en": "Time Interval"
     },
     "等待时间间隔": {
-        "en": "waitting time interval"
+        "en": "Waitting Time Interval"
     },
     "过滤条件": {
-        "en": "filter condition"
+        "en": "Filter Condition"
     },
     "0 为绿色，1-10000 为橙色，10000 以上为红色。": {
         "en": "0 is green, 1-10000 is orange, and above 10000 is red."
@@ -2196,7 +2196,7 @@
         "en": "Stream data table deleted successfully"
     },
     "流数据表状态": {
-        "en": "Stream data table status"
+        "en": "Streaming tables status"
     },
     "最近消息延迟": {
         "en": "last message latency"
@@ -2208,22 +2208,22 @@
         "en": "After logging in, you can view the current node stream computing status"
     },
     "队列深度": {
-        "en": "queue depth"
+        "en": "Queue Depth"
     },
     "队列深度上限": {
-        "en": "queue depth limit"
+        "en": "Queue Depth Limit"
     },
     "最近错误时刻": {
-        "en": "latest error timestamp"
+        "en": "Latest Error Timestamp"
     },
     "失败消息总数": {
-        "en": "total number of failed messages"
+        "en": "Number of Failed Messages"
     },
     "最近错误消息 ID": {
-        "en": "latest error message ID"
+        "en": "Latest Error Message ID"
     },
     "最近接收时刻": {
-        "en": "receive average latency"
+        "en": "Receive Average Latency"
     },
     "错误详细信息": {
         "en": "error details"
