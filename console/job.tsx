@@ -154,7 +154,6 @@ export function Job () {
                         />
                 }}
             />
-            {gjob_rows.length <= pagination.defaultPageSize && <div className='separater'/> }
         </div>
         
         <div className={`rjobs ${ !rjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || rjob_rows.length) ? 'block' : 'none' }}>
@@ -182,7 +181,6 @@ export function Job () {
                 rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
                 pagination={rjob_rows.length > pagination.defaultPageSize && pagination }
             />
-            {rjob_rows.length <= pagination.defaultPageSize && <div className='separater'/>}
         </div>
         
         <div className={`sjobs ${ !sjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || sjob_rows.length) ? 'block' : 'none' }}>
