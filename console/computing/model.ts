@@ -2,8 +2,8 @@ import { Model } from 'react-object-model'
 import { model } from '../model.js'
 
 class ComputingModel extends Model<ComputingModel> {
-    
     inited = false
+    
     
     async init () {
         await Promise.all([
@@ -11,13 +11,14 @@ class ComputingModel extends Model<ComputingModel> {
             this.def_get_persistence_stat(),
             this.def_get_shared_table_stat()
         ])
+        
         this.set({ inited: true })
     }
     
     
     async def_get_persistence_table_names () {
         await model.ddb.eval(
-            'def get_persistence_table_names(){\n' +
+            'def get_persistence_table_names () {\n' +
             '    if(getConfigure("persistenceDir") == NULL){\n' +
             '        return NULL\n' +
             '    }else{\n' +
@@ -31,7 +32,7 @@ class ComputingModel extends Model<ComputingModel> {
     
     async def_get_persistence_stat () {
         await model.ddb.eval(
-            'def get_persistence_stat(){\n' +
+            'def get_persistence_stat () {\n' +
             '    tableNames = get_persistence_table_names()\n' +
             '    resultColNames = ["tablename","lastLogSeqNum","sizeInMemory","asynWrite","totalSize","raftGroup","compress","memoryOffset","sizeOnDisk","retentionMinutes","persistenceDir","hashValue","diskOffset"]\n' +
             '    resultColTypes = ["STRING", "LONG","LONG","BOOL","LONG","INT","BOOL","LONG","LONG","LONG","STRING","INT","LONG"]\n' +
@@ -49,7 +50,7 @@ class ComputingModel extends Model<ComputingModel> {
     
     async def_get_shared_table_stat () {
         await model.ddb.eval(
-            'def get_shared_table_stat(){\n' +
+            'def get_shared_table_stat () {\n' +
             '    tableNames = get_persistence_table_names()\n' +
             '    shareNames = exec name from objs(true) where type="REALTIME" and shared=true and name not in tableNames\n' +
             '    return select name as tableName,  rows, columns, bytes from objs(true) where name in shareNames\n' +
@@ -59,4 +60,5 @@ class ComputingModel extends Model<ComputingModel> {
     
 }
 
-export let computing = new ComputingModel
+
+export let computing = new ComputingModel()
