@@ -385,8 +385,10 @@ class TreeDataItem implements DataNode {
       
         this.title = <>{typeof title === 'string' ? (
             <>
-                <span className='name'>{name}</span>
-                {title.slice(name.length)}
+                <div className='info'>
+                    <span className='name'>{name}</span>
+                    {title.slice(name.length)}
+                </div>
                 {suffix}
             </>
         ) : title}</>
