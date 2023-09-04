@@ -33,6 +33,22 @@ export function Computing () {
     
     const { ddb, logined } = model.use(['ddb', 'logined'])
     
+    useEffect(() => {
+        if (!logined)
+            return
+        ;(async () => {
+            try {
+                if (!computing.inited)
+                    await computing.init()
+                await get_streaming_pub_sub_stat()
+                await get_streaming_engine_stat()
+                await get_streaming_table_stat()
+            } catch (error) {
+                model.show_error(error)
+            }
+        })()
+    }, [ ])
+    
     if (!logined)
         return <Result
             status='warning'
@@ -59,21 +75,6 @@ export function Computing () {
             refresher: get_streaming_table_stat
         }
     }
-    
-    useEffect(() => {
-        (async () => {
-            try {
-                if (!computing.inited)
-                    await computing.init()
-                await get_streaming_pub_sub_stat()
-                await get_streaming_engine_stat()
-                await get_streaming_table_stat()
-            } catch (error) {
-                model.show_error(error)
-            }
-        })()
-    }, [ ])
-    
     
     /** 处理流计算引擎状态，给每一个引擎添加 engineType 字段，合并所有类型的引擎 */
     async function get_streaming_pub_sub_stat () {
