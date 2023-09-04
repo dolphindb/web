@@ -1,5 +1,5 @@
 import { DatabaseOutlined, DeleteOutlined, FileOutlined, FolderAddOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
-import { Select } from 'antd'
+import { Select, Tooltip } from 'antd'
 
 
 export function Navigation ({ editing, change_editing }) {
@@ -23,11 +23,21 @@ export function Navigation ({ editing, change_editing }) {
         </div>
         <div className='dashboard-navigation-right'>
             <div className='dashboard-navigation-right-icons'>
-                <FileOutlined />
-                <FolderAddOutlined />
-                <DeleteOutlined />
-                <SyncOutlined />
-                <PauseOutlined />
+                <Tooltip title='保存'>
+                    <FileOutlined />
+                </Tooltip>
+                <Tooltip title='新增'>
+                    <FolderAddOutlined />
+                </Tooltip>
+                <Tooltip title='删除'>
+                    <DeleteOutlined />
+                </Tooltip>
+                <Tooltip title='刷新'>
+                    <SyncOutlined />
+                </Tooltip>
+                <Tooltip title='暂停流数据接收'>
+                    <PauseOutlined />
+                </Tooltip>
             </div>
             <div className='dashboard-navigation-right-editor'>
                 <span className={editing ? '' : 'dashboard-navigation-right-editor-unselected'} style={{ marginRight: '10px' }} onClick={() => { change_editing(true) }}>编辑</span>
