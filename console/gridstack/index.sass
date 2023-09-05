@@ -56,7 +56,7 @@
                     .dashboard-navigation-right-editor-unselected
                         color: #ccc
                         
-                .dashboard-navigation-right-configuration
+                .dashboard-navigation-right-config
                     width: 100px
                     display: flex
                     align-items: center
@@ -154,3 +154,129 @@
             
             .setting-options
                 padding: 12px
+
+.data-source-config-trigger    
+    cursor: pointer
+
+.data-source-config-main
+    width: 100%
+    height: 500px
+    border: 2px solid #e5e5e5
+    display: flex
+
+    .data-source-config-nodetable
+        width: 200px
+        border-right: 2px solid #e5e5e5
+        display: flex
+        flex-direction: column
+        
+        .data-source-config-nodetable-top
+            height: 7%
+            border-bottom: 2px solid #e5e5e5
+            display: flex
+            align-items: center
+            justify-content: space-evenly
+            
+            .data-source-config-nodetable-top-item
+                cursor: pointer
+            
+        .data-source-config-nodetable-bottom
+            height: 90%
+        
+    .data-source-config-right
+        flex: 1
+        display: flex
+        flex-direction: column
+        
+        .data-source-config-right-top
+            height: 10%
+            
+            .ant-menu-horizontal
+                border: none !important
+            
+        .data-source-config-sqleditor
+            flex: 1
+            padding: 3px 16px 0 16px
+            
+            .data-source-config-sqleditor-main
+                border: 2px solid #e5e5e5
+                
+        .data-source-config-streameditor
+            flex: 1
+            padding: 3px 16px 0 16px
+            
+            .data-source-config-streameditor-main
+                display: flex
+                height: 100%
+                border: 2px solid #e5e5e5
+                
+                .data-source-config-streameditor-main-left
+                    width: 20%
+                    border-right: 2px solid #e5e5e5
+                
+                .data-source-config-streameditor-main-right
+                    width: 80%
+                    padding: 3px 15px 15px 15px
+                    
+                    .data-source-config-streameditor-main-right-filter
+                        display: flex
+                        flex-direction: column
+                        height: 100%
+                        
+                        .data-source-config-streameditor-main-right-filter-top
+                            display: flex
+                            justify-content: space-between
+                            padding: 3px 0 
+                        
+                        .data-source-config-streameditor-main-right-filter-main
+                            flex: 1
+                            border: 2px solid #e5e5e5
+                        
+        .data-source-config-preview
+                display: flex
+                flex-direction: column
+                height: 60%
+                    
+                .data-source-config-preview-config
+                    display: flex
+                    justify-content: space-between
+                    padding: 3px 0
+                    
+                    .data-source-config-preview-config-close
+                        cursor: pointer
+                    
+                .data-source-config-preview-main
+                    flex: 1
+                    border: 2px solid #e5e5e5
+    
+        .data-source-config-sqlconfig
+            height: 7%
+            padding: 0 16px
+            display: flex
+            justify-content: space-between
+            align-items: center
+            
+            .data-source-config-sqlconfig-left
+                display: flex
+                
+        .data-source-config-streamconfig
+            height: 7%
+            padding: 0 16px
+            display: flex
+            justify-content: space-between
+            align-items: center
+            
+            .data-source-config-streamconfig-left
+                display: flex
+                
+                .data-source-config-streamconfig-left-ip
+                    display: flex
+                    
+                    .data-source-config-streamconfig-left-ip-input
+                    display: flex
+                    align-items: center
+                
+            .data-source-config-streamconfig-right
+                display: flex
+                
+            

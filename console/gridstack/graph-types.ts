@@ -1,6 +1,6 @@
 export enum GraphTypeName {
-    BAR = '柱状图', // 柱状图
-    LINE = '折线图', // 折线图
+    BAR = '柱状图',
+    LINE = '折线图',
     PIE = '饼图',
     POINT = '散点图',
     TABLE = '表格',

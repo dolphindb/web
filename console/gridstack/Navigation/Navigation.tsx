@@ -1,5 +1,6 @@
-import { DatabaseOutlined, DeleteOutlined, FileOutlined, FolderAddOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
+import { DeleteOutlined, FileOutlined, FolderAddOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
 import { Select } from 'antd'
+import { DateSource } from '../DataSource/DataSource.js'
 
 
 export function Navigation ({ editing, change_editing }) {
@@ -33,11 +34,8 @@ export function Navigation ({ editing, change_editing }) {
                 <span className={editing ? '' : 'dashboard-navigation-right-editor-unselected'} style={{ marginRight: '10px' }} onClick={() => { change_editing(true) }}>编辑</span>
                 <span className={editing ? 'dashboard-navigation-right-editor-unselected' : ''} onClick={() => { change_editing(false) }}>预览</span>
             </div>
-            <div className='dashboard-navigation-right-configuration'>
-                <div className='dashboard-navigation-right-configuration-datasource'>
-                    <DatabaseOutlined style={{ marginRight: '5px' }}/>
-                    数据源
-                </div>
+            <div className='dashboard-navigation-right-config'>
+                <DateSource />
             </div>
         </div>
     </div>
