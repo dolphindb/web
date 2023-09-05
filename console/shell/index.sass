@@ -61,11 +61,17 @@
             
             .ant-tree
                 margin-left: 10px
-                padding: 2px 0px
                 transition: unset !important
                 
                 .ant-tree-treenode
                     font-size: 12px
+                    
+                .ant-tree-list
+                    .ant-tree-list-holder-inner
+                        padding-top: 2px
+                        .ant-tree-treenode:last-child
+                            box-sizing: content-box
+                            padding-bottom: 4px
                     
                     &:hover
                         .tooltip
