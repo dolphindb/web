@@ -156,7 +156,7 @@ set_inspect_options()
 
 console.log('项目根目录:', fpd_root)
 
-assert(ramdisk || fexists(`${fpd_root}.vscode/settings.json`))
+assert(ramdisk || fexists(`${fpd_root}.vscode/settings.json`), '需要将 .vscode/settings.template.json 复制为 .vscode/settings.json')
 
 let server = new DevServer()
 
