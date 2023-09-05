@@ -4,7 +4,7 @@ import type { Context } from 'koa'
 
 import {
     request_json, inspect, Remote, set_inspect_options,
-    type RequestError, type RemoteReconnectingOptions
+    type RequestError, type RemoteReconnectingOptions, fexists, assert
 } from 'xshell'
 import { Server } from 'xshell/server.js'
 
@@ -155,6 +155,8 @@ class DevServer extends Server {
 set_inspect_options()
 
 console.log('项目根目录:', fpd_root)
+
+assert(ramdisk || fexists(`${fpd_root}.vscode/settings.json`))
 
 let server = new DevServer()
 
