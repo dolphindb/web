@@ -1,5 +1,7 @@
 import { CloseOutlined } from '@ant-design/icons'
+
 import { GraphTypeName } from '../graph-types.js'
+import { DataSource } from '../DataSource/DataSource.js'
 
 type PropsType = {
     
@@ -10,10 +12,12 @@ export function GraphItem  ({ item, el, grid, actived }) {
     return <div 
                 className={`grid-stack-item-content ${actived ? 'grid-stack-item-active' : ''}`} 
             >
-        <div className='delete-graph' onClick={() => { grid.removeWidget(el.el) }}><CloseOutlined /></div>
+        <div className='delete-graph' onClick={() => { grid.removeWidget(el.el) }}>
+            <CloseOutlined className='delete-graph-icon'/>
+        </div>
         <div className='graph-content'>
             <div className='title'>{GraphTypeName[item.type]}</div>
-            <div className='graph-hint'>点击填充数据源</div>
+            <DataSource trigger_index='graph'/>
         </div>
         <div className='drag-icon' />
      </div>

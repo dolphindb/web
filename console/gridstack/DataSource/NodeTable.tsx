@@ -22,15 +22,15 @@ export function NodeTable () {
         <div className='data-source-config-nodetable'>
             <div className='data-source-config-nodetable-top'>
                 <div className='data-source-config-nodetable-top-item'>
-                    <FileOutlined style={{ marginRight: '2px' }}/>
+                    <FileOutlined className='data-source-config-nodetable-top-item-icon'/>
                     新建
                 </div>
                 <div className='data-source-config-nodetable-top-item'>
-                    <EditOutlined style={{ marginRight: '2px' }}/>
+                    <EditOutlined className='data-source-config-nodetable-top-item-icon'/>
                     重命名
                 </div>
                 <div className='data-source-config-nodetable-top-item'>
-                    <DeleteOutlined style={{ marginRight: '2px' }}/>
+                    <DeleteOutlined className='data-source-config-nodetable-top-item-icon'/>
                     删除
                 </div>
             </div>
@@ -38,7 +38,7 @@ export function NodeTable () {
                 <Menu
                     mode='inline'
                     defaultSelectedKeys={['1']}
-                    style={{ height: '100%', borderRight: 0 }}
+                    className='data-source-config-nodetable-bottom-menu'
                     items={node_items}
                 />
             </div>

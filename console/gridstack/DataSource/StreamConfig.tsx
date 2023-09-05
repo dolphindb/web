@@ -24,7 +24,7 @@ export function StreamConfig () {
                     节点：
                     <Select
                         defaultValue='node1'
-                        style={{ width: 80, marginRight: '15px' }}
+                        className='data-source-config-streamconfig-left-node-select'
                         size='small'
                         onChange={on_node_select_change_handler}
                         options={[
@@ -38,7 +38,7 @@ export function StreamConfig () {
                     {ip_select
                         ? <Select
                             defaultValue='127.0.0.1'
-                            style={{ width: 120 }}
+                            className='data-source-config-streamconfig-left-ip-select'
                             size='small'
                             onChange={on_ip_select_change_handler}
                             options={[
@@ -46,9 +46,9 @@ export function StreamConfig () {
                                 { value: 'customize', label: '自定义' }
                             ]}
                         />
-                        : <div  className='data-source-config-streamconfig-left-ip-input'>
-                            <Input size='small' style={{ width: 120, marginRight: '7px' }}/>
-                            <CloseOutlined style={{ color: '#d9d9d9', cursor: 'pointer' }} onClick={() => { set_ip_select(true) }}/>
+                        : <div  className='data-source-config-streamconfig-left-ip-manualinput'>
+                            <Input size='small' className='data-source-config-streamconfig-left-ip-manualinput-input'/>
+                            <CloseOutlined className='data-source-config-streamconfig-left-ip-manualinput-icon' onClick={() => { set_ip_select(true) }}/>
                         </div>
                     }
                 </div>
@@ -56,7 +56,7 @@ export function StreamConfig () {
             <div className='data-source-config-streamconfig-right'>
                 <div>
                     最大行数：
-                    <Input size='small' style={{ width: 50 }}/>
+                    <Input size='small' className='data-source-config-streamconfig-right-input'/>
                 </div>
             </div>
         </div>
