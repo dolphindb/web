@@ -16,7 +16,7 @@ const items: MenuProps['items'] = [
     },
 ]
 
-export function SettingsPanel ({ hidden }) {
+export function SettingsPanel ({ hidden }: { hidden: boolean }) {
     const [current_page, set_current_page] = useState('canvas')
     
     const pageChange: MenuProps['onClick'] = e => {

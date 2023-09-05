@@ -1,7 +1,7 @@
 import { CloseOutlined } from '@ant-design/icons'
 import { Editor } from '../../shell/Editor/index.js'
 
-export function SqlEditor ({ show_preview, close_preview }) {
+export function SqlEditor ({ show_preview, close_preview }: { show_preview: boolean, close_preview: () => void }) {
     return <>
         <div className='data-source-config-sqleditor'>
             <div className='data-source-config-sqleditor-main' style={{  height: (show_preview ? '40%' : '100%') }}>

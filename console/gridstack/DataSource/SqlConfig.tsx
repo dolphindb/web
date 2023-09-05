@@ -12,14 +12,14 @@ export function SqlConfig () {
     return <>
         <div className='data-source-config-sqlconfig'>
             <div className='data-source-config-sqlconfig-left'>
-                <div style={{ marginRight: '20px' }}>
+                <div className='data-source-config-sqlconfig-left-refresh'>
                     自动刷新：
                     <Switch size='small' onChange={auto_refresh_change_handler} />
                 </div>
                 {is_auto_refresh 
                     ? <div>
                         间隔时间：
-                        <Input size='small' style={{ width: 50, marginRight: '5px' }}/>
+                        <Input size='small' className='data-source-config-sqlconfig-left-intervals-input'/>
                         s
                     </div> 
                     : <></>
@@ -28,7 +28,7 @@ export function SqlConfig () {
             <div className='data-source-config-sqlconfig-right'>
                 <div>
                     最大行数：
-                    <Input size='small' style={{ width: 50 }}/>
+                    <Input size='small' className='data-source-config-sqlconfig-right-maxline-input'/>
                 </div>
             </div>
         </div>

@@ -33,7 +33,7 @@ const content = (
     </div>
   )
 
-export function StreamEditor ({ show_preview, close_preview }) {
+export function StreamEditor ({ show_preview, close_preview }: { show_preview: boolean, close_preview: () => void }) {
     const [filter_mode, set_filter_mode] = useState('value')
     
     const on_filter_mode_change_handler = (value: string) => {
@@ -47,13 +47,13 @@ export function StreamEditor ({ show_preview, close_preview }) {
                     <Menu
                         mode='inline'
                         defaultSelectedKeys={['1']}
-                        style={{ height: '100%', borderRight: 0 }}
+                        className='data-source-config-streameditor-main-left-menu'
                         items={node_items}
                     />
                 </div>
                 <div className='data-source-config-streameditor-main-right'>
                 {show_preview
-                    ? <div className='data-source-config-preview' style={{ height: '100%' }}>
+                    ? <div className='data-source-config-preview data-source-config-streameditor-main-right-preview'>
                         <div className='data-source-config-preview-config'>
                             <div className='data-source-config-preview-config-tag'>
                                 数据预览
@@ -73,7 +73,7 @@ export function StreamEditor ({ show_preview, close_preview }) {
                                 过滤方式：
                                 <Select
                                     defaultValue='value'
-                                    style={{ width: 100 }}
+                                    className='data-source-config-streameditor-main-right-filter-top-mode-select'
                                     size='small'
                                     onChange={on_filter_mode_change_handler}
                                     options={[
@@ -83,7 +83,7 @@ export function StreamEditor ({ show_preview, close_preview }) {
                                     ]}
                                 />
                                 <Popover content={content} title='过滤方式'>
-                                    <QuestionCircleOutlined style={{ color: '#666', marginLeft: '10px', cursor: 'pointer' }}/>
+                                    <QuestionCircleOutlined className='data-source-config-streameditor-main-right-filter-top-mode-icon'/>
                                 </Popover>
                             </div>
                             <div className='data-source-config-streameditor-main-right-filter-top-col'>

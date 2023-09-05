@@ -23,7 +23,7 @@ const data_mode_items: MenuProps['items'] = [
     }
 ]
 
-export function DateSource () {
+export function DataSource ({ trigger_index }: { trigger_index: string }) {
     const { visible, open, close } = use_modal()
     
     const [data_mode, set_data_mode] = useState('sql')
@@ -46,11 +46,20 @@ export function DateSource () {
         set_show_preview(false)
     }
     
+    const trigger = {
+        navigation: (
+            <div className='data-source-config-trigger-navigation' onClick={open}>
+                <DatabaseOutlined className='data-source-config-trigger-navigation-icon'/>
+                数据源
+            </div>
+        ),
+        graph: (
+            <div className='graph-hint' onClick={open}>点击填充数据源</div>
+        )
+    }
+    
     return <>
-        <div className='data-source-config-trigger' onClick={open}>
-            <DatabaseOutlined style={{ marginRight: '5px' }}/>
-            数据源
-        </div>
+        {trigger[trigger_index]}
         <Modal 
             title='配置数据源'
             width={1000} 
@@ -64,7 +73,7 @@ export function DateSource () {
                         预览
                     </Button>,
                     <Button key='save' onClick={handle_save}>
-                        保存
+                        {trigger_index === 'navigation' ? '保存' : '应用'}
                     </Button>,
                     <Button key='close' type='primary' onClick={handle_close}>
                         关闭
