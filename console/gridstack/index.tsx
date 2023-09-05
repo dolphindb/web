@@ -88,7 +88,7 @@ export function GridDashBoard () {
             <Navigation editing={editing} change_editing={change_editing}/>
         </div>
         <div className='dashboard-main'>
-            <SelectSider/>
+            <SelectSider hidden={editing}/>
             <div className='dashboard-canvas' onClick={() => { change_active_widgets('') }}>
                 <div className='grid-stack' style={{ backgroundSize: `${100 / tmpcol}% ${100 / tmprow}%` }} >
                     {widget_options.map((item, i) => {
@@ -111,7 +111,7 @@ export function GridDashBoard () {
                     })}
                 </div>
             </div>
-            <SettingsPanel />
+            <SettingsPanel hidden={editing}/>
         </div>
     </div>
 }

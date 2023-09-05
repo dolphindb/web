@@ -16,7 +16,7 @@ const items: MenuProps['items'] = [
     },
 ]
 
-export function SettingsPanel () {
+export function SettingsPanel ({ hidden }) {
     const [current_page, set_current_page] = useState('canvas')
     
     const pageChange: MenuProps['onClick'] = e => {
@@ -24,7 +24,7 @@ export function SettingsPanel () {
         set_current_page(e.key)
     }
 return <>
-        <div className='dashboard-settings-panel'>
+        <div className={`dashboard-settings-panel  ${hidden ? '' : 'hidden'}`}>
             <div className='settings-change'>
                 <Menu onClick={pageChange} selectedKeys={[current_page]} mode='horizontal' items={items} />
             </div>

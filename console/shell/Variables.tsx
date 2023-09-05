@@ -381,12 +381,14 @@ class TreeDataItem implements DataNode {
         needLoad?: boolean
         suffix?: React.ReactElement
     }) {
-        const name = typeof title === 'string' ? (/^(\w+)/.exec(title)?.[1] || title) : ''
-      
+        const name = typeof title === 'string' ? (/^([\w\u4e00-\u9fa5]+)/.exec(title)?.[1] || title) : ''
+        
         this.title = <>{typeof title === 'string' ? (
             <>
-                <span className='name'>{name}</span>
-                {title.slice(name.length)}
+                <div className='info'>
+                    <span className='name'>{name}</span>
+                    {title.slice(name.length)}
+                </div>
                 {suffix}
             </>
         ) : title}</>
