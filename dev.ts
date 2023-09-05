@@ -227,8 +227,8 @@ if (ramdisk) {
             },
             
             async exit () {
-                remote.disconnect()
                 await webpack.close()
+                remote.disconnect()
                 process.exit()
             }
         },
