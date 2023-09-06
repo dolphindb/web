@@ -1,11 +1,22 @@
 import { CloseOutlined } from '@ant-design/icons'
+
 import { Editor } from '../../shell/Editor/index.js'
+import { DataView } from '../../shell/DataView.js'
+
+import { shell } from '../../shell/model.js'
 
 export function SqlEditor ({ show_preview, close_preview }: { show_preview: boolean, close_preview: () => void }) {
+    shell.term = shell.term || new window.Terminal()
     return <>
         <div className='data-source-config-sqleditor'>
             <div className='data-source-config-sqleditor-main' style={{  height: (show_preview ? '40%' : '100%') }}>
-                <Editor />
+                <Editor 
+                    enter_completion
+            
+                    on_mount={(editor, monaco) => {
+                        shell.set({ editor, monaco })
+                    }}
+                />
             </div>
             {show_preview
                 ? <div className='data-source-config-preview'>
@@ -19,7 +30,7 @@ export function SqlEditor ({ show_preview, close_preview }: { show_preview: bool
                         </div>
                     </div>
                     <div className='data-source-config-preview-main'>
-                        sqlpreview
+                        <DataView type='dashboard'/>
                     </div>
                 </div>
                 : <></>

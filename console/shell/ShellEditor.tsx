@@ -111,11 +111,16 @@ export function ShellEditor ({ collapser }) {
                     
                     label: t('DolphinDB: 执行当前行代码'),
                     
-                    run () {
+                    async run () {
                         if (shell.executing)
                             model.message.warning(t('当前连接正在执行作业，请等待'))
-                        else
-                            shell.execute_('line')
+                        else {
+                            await shell.execute_('line')
+                            shell.set({
+                                shell_result: shell.result,
+                            })
+                        }
+                            
                     }
                 })
                 
@@ -128,11 +133,16 @@ export function ShellEditor ({ collapser }) {
                     
                     label: t('DolphinDB: 执行代码'),
                     
-                    run () {
+                    async run () {
                         if (shell.executing)
                             model.message.warning(t('当前连接正在执行作业，请等待'))
-                        else
-                            shell.execute_('all')
+                        else {
+                            await shell.execute_('all')
+                            shell.set({
+                                shell_result: shell.result,
+                            })
+                        }
+                            
                     }
                 })
                 
