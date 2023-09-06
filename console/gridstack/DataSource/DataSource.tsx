@@ -32,6 +32,7 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
     
     const [data_mode, set_data_mode] = useState('sql')
     const [show_preview, set_show_preview] = useState(false)
+    const [error_message, set_error_message] = useState('')
     
     const data_mode_click_handler: MenuProps['onClick'] = e => {
         set_data_mode(e.key)
@@ -43,18 +44,28 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
             model.message.warning(t('当前连接正在执行作业，请等待'))
         
         else {
-            await shell.execute_('all')
-            shell.set({
-                dashboard_result: shell.result,
-            })
+            try {
+                await shell.execute_('all')
+                shell.set({
+                    dashboard_result: shell.result,
+                })
+                set_error_message('')
+            } catch (error) {
+                set_error_message(error.message)
+            }
             set_show_preview(true)
         }
     }
     const handle_save = async () => {
-        await shell.execute_('all')
+        try {
+            await shell.execute_('all')
             shell.set({
                 dashboard_result: shell.result,
             })
+            set_error_message('')
+        } catch (error) {
+            set_error_message(error.message)
+        }
         close()
         set_show_preview(false)
     }
@@ -105,7 +116,11 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
                         <Menu onClick={data_mode_click_handler} selectedKeys={[data_mode]} mode='horizontal' items={data_mode_items} />
                     </div>
                     {data_mode === 'sql'
-                        ? <SqlEditor show_preview={show_preview} close_preview={() => { set_show_preview(false) }}/>
+                        ? <SqlEditor 
+                            show_preview={show_preview} 
+                            close_preview={() => { set_show_preview(false) }} 
+                            error_message={error_message}
+                        />
                         : <StreamEditor show_preview={show_preview} close_preview={() => { set_show_preview(false) }}/>
                     }
                     {data_mode === 'sql'

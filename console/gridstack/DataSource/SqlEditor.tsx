@@ -5,7 +5,8 @@ import { DataView } from '../../shell/DataView.js'
 
 import { shell } from '../../shell/model.js'
 
-export function SqlEditor ({ show_preview, close_preview }: { show_preview: boolean, close_preview: () => void }) {
+type PropsType = { show_preview: boolean, close_preview: () => void, error_message: string }
+export function SqlEditor ({ show_preview, close_preview, error_message }: PropsType) {
     shell.term = shell.term || new window.Terminal()
     return <>
         <div className='data-source-config-sqleditor'>
@@ -30,7 +31,10 @@ export function SqlEditor ({ show_preview, close_preview }: { show_preview: bool
                         </div>
                     </div>
                     <div className='data-source-config-preview-main'>
-                        <DataView type='dashboard'/>
+                        {error_message 
+                            ? <div className='data-source-config-preview-main-error'>{error_message}</div> 
+                            : <DataView type='dashboard'/>
+                        }
                     </div>
                 </div>
                 : <></>
