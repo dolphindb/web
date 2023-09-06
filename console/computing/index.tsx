@@ -95,7 +95,7 @@ export function Computing () {
         return <div className='spin-container'>
             <Spin size='large' delay={300}/>
         </div>
-        
+    
     const streaming_engine_cols: TableColumnType<Record<string, any>>[] = Object.keys(leading_cols.engine).map(col_name => ({
         title: <Tooltip title={col_name.charAt(0).toUpperCase() + col_name.slice(1)}>
                     <span className='col-title'>{leading_cols.engine[col_name]}</span>
