@@ -6,6 +6,10 @@ import type { MenuProps } from 'antd'
 
 import { use_modal } from 'react-object-model/modal.js'
 
+import { model } from '../../model.js'
+import { shell } from '../../shell/model.js'
+import { t } from '../../../i18n/index.js'
+
 import { NodeTable } from './NodeTable.js'
 import { SqlConfig } from './SqlConfig.js'
 import { StreamConfig } from './StreamConfig.js'
@@ -34,10 +38,23 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
         set_show_preview(false)
     }
   
-    const handle_preview = () => {
-        set_show_preview(true)
+    const handle_preview = async () => {
+        if (shell.executing) 
+            model.message.warning(t('当前连接正在执行作业，请等待'))
+        
+        else {
+            await shell.execute_('all')
+            shell.set({
+                dashboard_result: shell.result,
+            })
+            set_show_preview(true)
+        }
     }
-    const handle_save = () => {
+    const handle_save = async () => {
+        await shell.execute_('all')
+            shell.set({
+                dashboard_result: shell.result,
+            })
         close()
         set_show_preview(false)
     }

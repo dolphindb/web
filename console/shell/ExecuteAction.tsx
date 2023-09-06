@@ -30,8 +30,14 @@ export function ExecuteAction () {
             className='action execute'
             title={executing ? t('点击可以取消当前执行中的作业') : t('执行选中代码或全部代码')}
             onClick={async () => {
-                if (!executing)
+                if (!executing)  {
                     await shell.execute_('all')
+                    shell.set({
+                        shell_result: shell.result,
+                    })
+                }
+                    
+                
             }}
         >
             {executing && show_executing ? <LoadingOutlined /> : <CaretRightOutlined />}
