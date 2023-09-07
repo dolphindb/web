@@ -1,25 +1,39 @@
-import { useState } from 'react'
+import { Switch, InputNumber } from 'antd'
 
-import { Switch, Input } from 'antd'
+import { type dataSourceNodeType, type dataSourceNodePropertyType } from '../storage/date-source-node.js'
 
-export function SqlConfig () {
-    const [is_auto_refresh, set_is_auto_refresh] = useState(false)
-    
-    const auto_refresh_change_handler = (checked: boolean) => {
-        set_is_auto_refresh(checked)
-    }
-    
+type Propstype = {
+    current_data_source_node: dataSourceNodeType
+    change_current_data_source_node_property: (key: string, value: dataSourceNodePropertyType) => void
+}
+
+export function SqlConfig ({ current_data_source_node, change_current_data_source_node_property }: Propstype) {    
     return <>
         <div className='data-source-config-sqlconfig'>
             <div className='data-source-config-sqlconfig-left'>
                 <div className='data-source-config-sqlconfig-left-refresh'>
                     自动刷新：
-                    <Switch size='small' onChange={auto_refresh_change_handler} />
+                    <Switch 
+                        size='small' 
+                        checked={current_data_source_node.auto_refresh }
+                        onChange={(checked: boolean) => {
+                            change_current_data_source_node_property('auto_refresh', checked)
+                        }} 
+                    />
                 </div>
-                {is_auto_refresh 
+                {current_data_source_node.auto_refresh 
                     ? <div>
                         间隔时间：
-                        <Input size='small' className='data-source-config-sqlconfig-left-intervals-input'/>
+                        <InputNumber 
+                            size='small' 
+                            min={0.001}
+                            className='data-source-config-sqlconfig-left-intervals-input'
+                            value={current_data_source_node.interval}
+                            onChange={value => {
+                                if (value !== null)
+                                    change_current_data_source_node_property('interval', value) 
+                            }}
+                        />
                         s
                     </div> 
                     : <></>
@@ -28,7 +42,17 @@ export function SqlConfig () {
             <div className='data-source-config-sqlconfig-right'>
                 <div>
                     最大行数：
-                    <Input size='small' className='data-source-config-sqlconfig-right-maxline-input'/>
+                    <InputNumber 
+                        size='small' 
+                        min={0}
+                        max={1000}
+                        className='data-source-config-sqlconfig-right-maxline-input' 
+                        value={current_data_source_node.max_line}
+                        onChange={value => { 
+                            if (value !== null)
+                                change_current_data_source_node_property('max_line', value) 
+                        }}
+                    />
                 </div>
             </div>
         </div>

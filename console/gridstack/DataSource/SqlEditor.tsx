@@ -5,8 +5,22 @@ import { DataView } from '../../shell/DataView.js'
 
 import { shell } from '../../shell/model.js'
 
-type PropsType = { show_preview: boolean, close_preview: () => void, error_message: string }
-export function SqlEditor ({ show_preview, close_preview, error_message }: PropsType) {
+import { type dataSourceNodeType, type dataSourceNodePropertyType } from '../storage/date-source-node.js'
+
+type PropsType = { 
+    show_preview: boolean
+    close_preview: () => void
+    error_message: string 
+    current_data_source_node: dataSourceNodeType
+    change_current_data_source_node_property: (key: string, value: dataSourceNodePropertyType) => void
+}
+export function SqlEditor ({ 
+        current_data_source_node, 
+        change_current_data_source_node_property, 
+        show_preview, close_preview,
+        error_message 
+    }: PropsType) 
+{
     shell.term = shell.term || new window.Terminal()
     return <>
         <div className='data-source-config-sqleditor'>
@@ -15,6 +29,7 @@ export function SqlEditor ({ show_preview, close_preview, error_message }: Props
                     enter_completion
             
                     on_mount={(editor, monaco) => {
+                        editor.setValue(current_data_source_node.code || '')
                         shell.set({ editor, monaco })
                     }}
                 />
