@@ -189,7 +189,7 @@ export function Computing () {
                                             translate_byte_row(
                                                 handle_ellipsis_col(add_key(streaming_engine_rows), 'lastErrMsg')
                                                 , 'memoryUsed'))}
-                                    min_width={1650}
+                                    min_width={1530}
                                     separated={false}
                                     default_page_size={20}
                                     refresher={get_streaming_engine_stat}
@@ -268,9 +268,9 @@ const cols_width = {
         lastErrMsg: 200,
     },
     engine: {
-        name: 180,
-        engineType: 170,
-        lastErrMsg: 200,
+        name: 100,
+        engineType: 160,
+        lastErrMsg: 180,
         numGroups: 80,
         metrics: 120,
         status: 100
