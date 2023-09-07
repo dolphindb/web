@@ -70,6 +70,17 @@
     .ant-table-thead tr td,.ant-table-thead tr th
         background-color: #f8f8f8
         
+    .ant-table-wrapper .ant-table-tbody tr 
+        td
+            border-right: 1px solid #f0f0f0
+            &:last-child
+                border-right: none
+        .ant-table-selection-column
+            border-right: none
+       
+    
+
+    
     .ant-table-title
             display: flex
             position: relative
@@ -95,7 +106,7 @@
                 
     .col-title, .ant-table-cell
         font-size: 13px
-                
+      
     .green
         color: #6ED86C
             
@@ -108,8 +119,16 @@
     .show-more
         color: #1677ff
         cursor: pointer
-        
-.anticon-exclamation-circle
-    color:#ff4d4f
-    margin-right: 20px
-    font-size: 20px
+
+.ant-modal-content
+    .delete-warning-title
+        display: flex
+        align-items: center
+        .anticon-warning
+            color:#ff4d4f
+            margin-right: 20px
+            font-size: 24px
+            
+    .ant-modal-body .ant-input
+        width: 82%
+        margin-left: 42px

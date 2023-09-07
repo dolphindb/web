@@ -1,8 +1,8 @@
 import './index.sass'
 
-import { useEffect, useRef, useState } from 'react'
-import { Button, Tabs, Table, Tooltip, Popconfirm, Typography, Spin, Result, type TableColumnType, Input, Modal } from 'antd'
-import { ReloadOutlined, QuestionCircleOutlined, ExclamationCircleFilled, ExclamationCircleOutlined } from '@ant-design/icons'
+import { useEffect, useState } from 'react'
+import { Button, Tabs, Table, Tooltip, Typography, Spin, Result, type TableColumnType, Input, Modal, List } from 'antd'
+import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined } from '@ant-design/icons'
 import type { ExpandableConfig, SortOrder } from 'antd/es/table/interface.js'
 
 import { DdbObj } from 'dolphindb/browser.js'
@@ -68,7 +68,7 @@ export function Computing () {
             refresher: get_streaming_pub_sub_stat
         },
         streaming_engine_stat: {
-            title: t('流引擎状态'),
+            title: t('流计算引擎状态'),
             refresher: get_streaming_engine_stat
         },
         streaming_table_stat: {
@@ -150,14 +150,15 @@ export function Computing () {
                                                             'queueDepth'
                                                         ),
                                                         'subWorkers'
-                                                    )
+                                                    ),
+                                                    'subWorkers'
                                                 ),
                                             true, 'subWorkers'))
                                         }
                                     rows={add_details_row(
                                             translate_sorter_row(
                                                 handle_ellipsis_col(
-                                                    add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg')), 'subWorkers')}
+                                                    add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg')))}
                                     min_width={1200}
                                     default_page_size={10}
                                     refresher={get_streaming_pub_sub_stat}
@@ -181,10 +182,11 @@ export function Computing () {
                                 <StateTable
                                     type='engine'
                                     cols={add_details_col(
-                                            set_col_ellipsis(
-                                                set_col_width(streaming_engine_cols, 'engine'), 'metrics'))}
+                                            translate_order_col(
+                                                set_col_ellipsis(
+                                                    set_col_width(streaming_engine_cols, 'engine'), 'metrics'), 'engine'))}
                                     rows={add_details_row(
-                                            add_key(streaming_engine_rows), 'engine')}
+                                            add_key(streaming_engine_rows))}
                                     min_width={1560}
                                     separated={false}
                                     default_page_size={20}
@@ -202,8 +204,10 @@ export function Computing () {
                             <div className='persistent-table-stat'>
                                 <StateTable
                                     type='sharedStreamingTableStat'
-                                    cols={render_col_title(shared_table_stat.to_cols(), true, 'sharedStreamingTableStat')}
-                                    rows={add_key(shared_table_stat.to_rows())}
+                                    cols={render_col_title(
+                                            translate_byte_col(shared_table_stat.to_cols()), true, 'sharedStreamingTableStat')}
+                                    rows={translate_byte(
+                                            add_key(shared_table_stat.to_rows()))}
                                     refresher={get_streaming_table_stat}
                                 />
                                 <StateTable
@@ -289,35 +293,27 @@ const cols_width = {
 const header_text = {
     subWorkers: {
         title: t('订阅线程状态'),
-        tip: t('表 SubWorkers 监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。')
-    },
-    pubTables: {
-        title: t('流数据表状态'),
-        tip: t('表 PubTables 监控流数据表状态。每一行表示一个流数据表的信息。')
-    },
-    subConns: {
-        title: t('订阅状态'),
-        tip: t('表 SubConns 监控本地订阅节点和订阅节点之间的连接状态。')
+        tip: t('监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。')
     },
     pubConns: {
         title: t('发布状态'),
-        tip: t('表 PubConns 监控本地发布节点和它的所有订阅节点之间的连接状态。')
+        tip: t('监控本地发布节点和它的所有订阅节点之间的连接状态。')
     },
     persistWorkers: {
         title: t('持久化线程状态'),
-        tip: t('表 PersistWorkers 监控负责持久化流数据表的工作线程的状态。')
+        tip: t('监控负责持久化流数据表的工作线程的状态。')
     },
     persistenceMeta: {
         title: t('持久化共享流表状态'),
-        tip: t('表 PersistenceMeta 返回启用了持久化的共享流数据表的元数据。')
+        tip: t('监控启用了持久化的共享流数据表的元数据。')
     },
     sharedStreamingTableStat: {
         title: t('非持久化共享流表状态'),
-        tip: t('表 sharedStreamingTableStat 返回未启用持久化的共享流数据表的元数据。')
+        tip: t('监控未启用持久化的共享流数据表的元数据。')
     },
     engine: {
         title: t('流引擎状态'),
-        tip: t('表 EngineStat 返回流计算引擎的状态。')
+        tip: t('监控流计算引擎的状态。')
     }
 }
 
@@ -394,11 +390,11 @@ const leading_cols = {
         name: t('引擎名'),
         engineType: t('引擎类型'),
         lastErrMsg: t('最近错误信息'),
+        memoryUsed: t('内存'),
         numGroups: t('分组数'),
         numRows: t('行数（单表）'),
         leftTableNumRows: t('行数（左表）'),
         rightTableNumRows: t('行数（右表）'),
-        memoryUsed: t('内存'),
         garbageSize: t('内存清理阈值'),
         numMetrics: t('指标数量'),
         metrics: t('指标源码'),
@@ -501,9 +497,9 @@ function sort_col (cols: TableColumnType<Record<string, any>>[], type: string) {
 }
 
 /** 将 subworker 表按照 QueueDepth 和 LastErrMsg 排序 */
-function translate_order_col (cols: TableColumnType<Record<string, any>>[]) {
-    const i_queue_depth_col = cols.findIndex(col => col.title === 'queueDepth')
-    const i_last_err_msg_col = cols.findIndex(col => col.title === 'lastErrMsg')
+function translate_order_col (cols: TableColumnType<Record<string, any>>[], type: string) {
+    const i_depth_col = cols.findIndex(({ dataIndex }) => dataIndex === (type === 'subWorkers' ? 'queueDepth' : 'memoryUsed'))
+    const i_last_err_msg_col = cols.findIndex(({ dataIndex }) => dataIndex === 'lastErrMsg')
     const msg_order_function = (a: Record<string, any>, b: Record<string, any>) => {
         if (a.order && !b.order)
             return 1
@@ -511,8 +507,8 @@ function translate_order_col (cols: TableColumnType<Record<string, any>>[]) {
             return -1
         return 0
     }
-    cols[i_queue_depth_col] = {
-        ...cols[i_queue_depth_col],
+    cols[i_depth_col] = {
+        ...cols[i_depth_col],
         sorter: (a: Record<string, any>, b: Record<string, any>) => Number(a.queueDepth) - Number(b.queueDepth),
         sortDirections: ['descend' as SortOrder]
     }
@@ -528,6 +524,15 @@ function add_key (table: Record<string, any>, key_index = 0) {
     })
 }
 
+/** 这里需要改掉 render，原有的 render 会对数据做 format，导致抛出 NaN  */
+function translate_byte_col (cols) {
+    return cols.map(col => ({ ...col, render: value => value }))
+}
+
+/** 处理 byte */
+function translate_byte (table: Record<string, any>) {
+    return table.map(row => ({ ...row, bytes: Number(row.bytes).to_fsize_str() }))
+}
 
 /** 翻译列名，添加 tooltip */
 function render_col_title (cols: TableColumnType<Record<string, any>>[], is_leading: boolean, type: string) {
@@ -577,6 +582,7 @@ function set_col_ellipsis (cols: TableColumnType<Record<string, any>>[], col_nam
     return cols
 }
 
+/** 增加额外信息列 */
 function add_details_col (cols: TableColumnType<Record<string, any>>[]) {
     return  [...cols, {
             title: <span className='col-title'>{t('更多信息')}</span>,
@@ -587,20 +593,17 @@ function add_details_col (cols: TableColumnType<Record<string, any>>[]) {
 }
 
 /** 增加额外信息行，hover 展示更多信息 */
-function add_details_row (table: Record<string, any>, type) {
+function add_details_row (table: Record<string, any>) {
     return table.map(row => {
         const { engineType } = row
         const detailed_keys = Object.keys(!engineType ? expanded_cols.subWorkers : expanded_cols.engine[engineType])
         const dict = !engineType ? expanded_cols.subWorkers : expanded_cols.engine[engineType]
-        return { ...row, details: <Tooltip 
-                                    title={<ul >
-                                            {detailed_keys.map(key => 
-                                                            <li key={key}>
-                                                                {`${dict[key]}: ${row[key]}`}
-                                                            </li>)}
-                                          </ul>}>
-                                        ...
-                                </Tooltip> }
+        const info = () => model.modal.info({
+            title: !engineType ? row.topic : row.name,
+            content: <List dataSource={detailed_keys.map(key => `${dict[key]}: ${row[key]}` )} 
+                           renderItem={item => <List.Item>{item}</List.Item>}/>
+        })
+        return { ...row, details: <a onClick={info}>{t('点击查看')}</a> }
     })
 }
 
@@ -644,7 +647,6 @@ function StateTable ({
     separated = true,
     default_page_size = 5,
     refresher,
-    expandable_config
 }: {
     type: string
     cols: TableColumnType<Record<string, any>>[]
@@ -653,7 +655,6 @@ function StateTable ({
     separated?: boolean
     default_page_size?: number
     refresher?: () => Promise<void>
-    expandable_config?: ExpandableConfig<Record<string, any>>
 }) {
     const [selected, set_selected] = useState<string[]>([ ])
     const [input_value, set_input_value] = useState<string>('')
@@ -663,25 +664,26 @@ function StateTable ({
     /** 渲染表头 */
     function render_table_header (table_name: string, button_props?: ButtonProps) {    
         return <>
-                {button_props && (<><Modal title={<><ExclamationCircleOutlined />
-                                            <span>{button_text[table_name].confirm_text}</span>
-                                                            </>}
-                                                    open={visible}
-                                                    onCancel={close}
-                                                    okButtonProps={{ disabled: input_value !== 'OK' }}
-                                                    onOk={async () => { handle_delete(table_name, selected, refresher)
-                                                                        set_input_value('')
-                                                                        set_selected([ ])
-                                                                        close() }}>
-                                                        <Input placeholder={t('请输入 \'OK\' 以确认该操作')}
-                                                            value={input_value} 
-                                                            onChange={({ target: { value } }) => set_input_value(value)}
-                                                            />
-                                     </Modal>
-                                    <Button className='title-button' disabled={!selected.length} onClick={open}>
-                                        {button_text[table_name].button_text}
-                                    </Button>
-                                </>)}
+                {button_props && (<>
+                <Modal  title={<div className='delete-warning-title'><WarningOutlined />
+                            <span>{button_text[table_name].confirm_text}</span>
+                        </div>}
+                        open={visible}
+                        onCancel={close}
+                        okButtonProps={{ disabled: input_value !== 'OK' }}
+                        onOk={async () => { handle_delete(table_name, selected, refresher)
+                                            set_input_value('')
+                                            set_selected([ ])
+                                            close() }}>
+                            <Input placeholder={t('请输入 \'OK\' 以确认该操作')}
+                                value={input_value} 
+                                onChange={({ target: { value } }) => set_input_value(value)}
+                                />
+                </Modal>
+                <Button className='title-button' disabled={!selected.length} onClick={open}>
+                    {button_text[table_name].button_text}
+                </Button>
+                </>)}
                 <span className='table-name'>
                     {header_text[table_name].title}
                 </span>
@@ -725,43 +727,42 @@ function StateTable ({
     }
     
     return <>
-            <Table
-                tableLayout='fixed'
-                rowSelection={
+        <Table
+            tableLayout='fixed'
+            rowSelection={
+                refresher
+                    ? {
+                        type: 'checkbox',
+                        onChange: (selected_keys: React.Key[]) => set_selected(selected_keys as string[])
+                    }
+                    : null
+            }
+            columns={cols}
+            dataSource={rows}
+            rowKey={row => row.key}
+            size='small'
+            title={() =>
+                render_table_header(
+                    type,
                     refresher
                         ? {
-                            type: 'checkbox',
-                            onChange: (selected_keys: React.Key[]) => set_selected(selected_keys as string[])
+                            selected,
+                            refresher
                         }
                         : null
-                }
-                columns={cols}
-                dataSource={rows}
-                rowKey={row => (type === 'pubTables' ? `${row.tableName}/${row.actions}` : row.key)}
-                expandable={expandable_config ? expandable_config : null}
-                size='small'
-                title={() =>
-                    render_table_header(
-                        type,
-                        refresher
-                            ? {
-                                selected,
-                                refresher
-                            }
-                            : null
-                    )
-                }
-                pagination={ rows.length > default_page_size ? 
-                                                        {
-                                                            defaultPageSize: default_page_size,
-                                                            pageSizeOptions: ['5', '10', '20', '50', '100'],
-                                                            size: 'small',
-                                                            showSizeChanger: true,
-                                                            showQuickJumper: true
-                                                        } 
-                                                            : false}
-                scroll={{ x: min_width }}                                        
-            />
-            {(rows.length <= default_page_size && separated) && <div className='separater'/>}
-        </>
+                )
+            }
+            pagination={ rows.length > default_page_size ? 
+                                                    {
+                                                        defaultPageSize: default_page_size,
+                                                        pageSizeOptions: ['5', '10', '20', '50', '100'],
+                                                        size: 'small',
+                                                        showSizeChanger: true,
+                                                        showQuickJumper: true
+                                                    } 
+                                                        : false}
+            scroll={{ x: min_width }}                                        
+        />
+        {(rows.length <= default_page_size && separated) && <div className='separater'/>}
+    </>
 }
