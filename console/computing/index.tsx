@@ -3,7 +3,7 @@ import './index.sass'
 import { useEffect, useState } from 'react'
 import { Button, Tabs, Table, Tooltip, Typography, Spin, Result, type TableColumnType, Input, Modal, List } from 'antd'
 import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined } from '@ant-design/icons'
-import type { ExpandableConfig, SortOrder } from 'antd/es/table/interface.js'
+import type {  SortOrder } from 'antd/es/table/interface.js'
 
 import { DdbObj } from 'dolphindb/browser.js'
 
@@ -156,10 +156,9 @@ export function Computing () {
                                             true, 'subWorkers'))
                                         }
                                     rows={add_details_row(
-                                            translate_sorter_row(
                                                 handle_ellipsis_col(
-                                                    add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg')))}
-                                    min_width={1200}
+                                                    add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'))}
+                                    min_width={1400}
                                     default_page_size={10}
                                     refresher={get_streaming_pub_sub_stat}
                                 />
@@ -187,7 +186,7 @@ export function Computing () {
                                                     set_col_width(streaming_engine_cols, 'engine'), 'metrics'), 'engine'))}
                                     rows={add_details_row(
                                             add_key(streaming_engine_rows))}
-                                    min_width={1560}
+                                    min_width={1590}
                                     separated={false}
                                     default_page_size={20}
                                     refresher={get_streaming_engine_stat}
@@ -216,7 +215,7 @@ export function Computing () {
                                             sort_col(
                                                 set_col_width(persistent_table_stat.to_cols(), 'persistenceMeta'), 'persistenceMeta'), true, 'persistenceMeta')}
                                     rows={add_key(persistent_table_stat.to_rows())}
-                                    min_width={1560}
+                                    min_width={1500}
                                     refresher={get_streaming_table_stat}
                                 />
                                 {streaming_stat.persistWorkers && (
@@ -259,22 +258,21 @@ interface ButtonProps {
 const cols_width = {
     subWorkers: {
         workerId: 70,
+        topic: 240,
         queueDepth: 90,
         queueDepthLimit: 100,
-        lastFailedTimestamp: 200,
-        failedMsgCount: 100,
-        processedMsgCount: 100,
-        lastMsgId: 90
+        lastErrMsg: 200,
     },
     engine: {
         name: 180,
         engineType: 170,
         lastErrMsg: 200,
-        numGroups: 60,
+        numGroups: 80,
         metrics: 120,
         status: 50
     },
     persistenceMeta: {
+        tablename: 150,
         lastLogSeqNum: 100,
         sizeInMemory: 120,
         asynWrite: 110,
@@ -284,7 +282,6 @@ const cols_width = {
         sizeOnDisk: 120,
         retentionMinutes: 120,
         memoryOffset: 100,
-        persistenceDir: 350,
         hashValue: 90,
         diskOffset: 100
     }
@@ -480,19 +477,12 @@ function handle_ellipsis_col (table: Record<string, any>, col_name: string) {
     })
 }
 
-/** 缩短 subWorkers 表的 topic 字段 */
-function translate_sorter_row (table: Record<string, any>) {
-    return table.map(row => {
-        row.topic = row.topic.slice(row.topic.indexOf('/') + 1)
-        return row
-    })
-}
 
 /** 按照主要列（leading_cols）的顺序进行排序 */
 function sort_col (cols: TableColumnType<Record<string, any>>[], type: string) {
     let sorted_cols: TableColumnType<Record<string, any>>[] = [ ]
     for (let col_name of Object.keys(leading_cols[type]))
-        sorted_cols.push(cols.find(({ title }) => title === col_name))
+        sorted_cols.push(cols.find(({ dataIndex }) => dataIndex === col_name))
     return sorted_cols
 }
 
@@ -671,7 +661,7 @@ function StateTable ({
                         open={visible}
                         onCancel={close}
                         okButtonProps={{ disabled: input_value !== 'OK' }}
-                        onOk={async () => { handle_delete(table_name, selected, refresher)
+                        onOk={async () => { await handle_delete(table_name, selected, refresher)
                                             set_input_value('')
                                             set_selected([ ])
                                             close() }}>
