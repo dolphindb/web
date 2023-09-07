@@ -187,8 +187,9 @@ export function Computing () {
                                                         translate_byte_col(streaming_engine_cols, 'memoryUsed'), 'engine'), 'metrics'), 'engine'))}
                                     rows={add_details_row(
                                             translate_byte_row(
-                                                add_key(streaming_engine_rows), 'memoryUsed'))}
-                                    min_width={1590}
+                                                handle_ellipsis_col(add_key(streaming_engine_rows), 'lastErrMsg')
+                                                , 'memoryUsed'))}
+                                    min_width={1650}
                                     separated={false}
                                     default_page_size={20}
                                     refresher={get_streaming_engine_stat}
