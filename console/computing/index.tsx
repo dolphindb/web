@@ -164,10 +164,10 @@ export function Computing () {
                                 />
                                 
                                 <StateTable
-                                        type='pubConns'
-                                        cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), true, 'pubConns'), 'queueDepth')}
-                                        rows={handle_ellipsis_col(add_key(streaming_stat.pubConns.to_rows()), 'tables')}         
-                                    />
+                                    type='pubConns'
+                                    cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), true, 'pubConns'), 'queueDepth')}
+                                    rows={handle_ellipsis_col(add_key(streaming_stat.pubConns.to_rows()), 'tables')}         
+                                />
                             </div>
                         )
                     },
@@ -221,7 +221,8 @@ export function Computing () {
                                 {streaming_stat.persistWorkers && (
                                     <StateTable
                                         type='persistWorkers'
-                                        cols={render_col_title(set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), true, 'persistWorkers')}
+                                        cols={render_col_title(
+                                                set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), true, 'persistWorkers')}
                                         rows={add_key(streaming_stat.persistWorkers.to_rows())} 
                                         separated={false}  
                                     />
@@ -269,7 +270,7 @@ const cols_width = {
         lastErrMsg: 200,
         numGroups: 80,
         metrics: 120,
-        status: 50
+        status: 100
     },
     persistenceMeta: {
         tablename: 150,
