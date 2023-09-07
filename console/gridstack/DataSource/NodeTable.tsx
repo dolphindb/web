@@ -2,22 +2,15 @@ import { createElement } from 'react'
 
 import { Menu } from 'antd'
 import { DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
-import type { MenuProps } from 'antd'
 
-const node_items: MenuProps['items'] = [
-    {
-        key: '1',
-        icon: createElement(DatabaseOutlined),
-        label: '节点1'
-    },
-    {
-        key: '2',
-        icon: createElement(DatabaseOutlined),
-        label: '节点2'
-    }
-]
+import { type dataSourceNodeType } from '../storage/date-source-node.js'
 
-export function NodeTable () {
+type PropsType = { 
+    data_source_nodes: dataSourceNodeType[]
+    change_current_data_source_node: (key: string) => void
+}
+
+export function NodeTable ({ data_source_nodes, change_current_data_source_node }: PropsType ) {    
     return <>
         <div className='data-source-config-nodetable'>
             <div className='data-source-config-nodetable-top'>
@@ -37,9 +30,18 @@ export function NodeTable () {
             <div className='data-source-config-nodetable-bottom'>
                 <Menu
                     mode='inline'
-                    defaultSelectedKeys={['1']}
+                    defaultSelectedKeys={[String(data_source_nodes[0].id)]}
                     className='data-source-config-nodetable-bottom-menu'
-                    items={node_items}
+                    onClick={({ key }) => { change_current_data_source_node(key) }}
+                    items={data_source_nodes.map(
+                        (data_source_node: dataSourceNodeType) => { 
+                            return {
+                                key: data_source_node.id,
+                                icon: createElement(DatabaseOutlined),
+                                label: data_source_node.name
+                            } 
+                        })
+                    }
                 />
             </div>
         </div>
