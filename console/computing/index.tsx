@@ -183,9 +183,11 @@ export function Computing () {
                                     cols={add_details_col(
                                             translate_order_col(
                                                 set_col_ellipsis(
-                                                    set_col_width(streaming_engine_cols, 'engine'), 'metrics'), 'engine'))}
+                                                    set_col_width(
+                                                        translate_byte_col(streaming_engine_cols, 'memoryUsed'), 'engine'), 'metrics'), 'engine'))}
                                     rows={add_details_row(
-                                            add_key(streaming_engine_rows))}
+                                            translate_byte_row(
+                                                add_key(streaming_engine_rows), 'memoryUsed'))}
                                     min_width={1590}
                                     separated={false}
                                     default_page_size={20}
@@ -204,9 +206,9 @@ export function Computing () {
                                 <StateTable
                                     type='sharedStreamingTableStat'
                                     cols={render_col_title(
-                                            translate_byte_col(shared_table_stat.to_cols()), true, 'sharedStreamingTableStat')}
-                                    rows={translate_byte(
-                                            add_key(shared_table_stat.to_rows()))}
+                                            translate_byte_col(shared_table_stat.to_cols(), 'bytes'), true, 'sharedStreamingTableStat')}
+                                    rows={translate_byte_row(
+                                            add_key(shared_table_stat.to_rows()), 'bytes')}
                                     refresher={get_streaming_table_stat}
                                 />
                                 <StateTable
@@ -516,13 +518,16 @@ function add_key (table: Record<string, any>, key_index = 0) {
 }
 
 /** 这里需要改掉 render，原有的 render 会对数据做 format，导致抛出 NaN  */
-function translate_byte_col (cols) {
-    return cols.map(col => ({ ...col, render: value => value }))
+function translate_byte_col (cols: TableColumnType<Record<string, any>>[], col_name: string) {
+    return cols.map(col => { 
+                    if (col.dataIndex === col_name)
+                        col.render = value => value
+                    return col })
 }
 
 /** 处理 byte */
-function translate_byte (table: Record<string, any>) {
-    return table.map(row => ({ ...row, bytes: Number(row.bytes).to_fsize_str() }))
+function translate_byte_row (table: Record<string, any>, col_name: string) {
+    return table.map(row => ({ ...row, [col_name]: Number(row[col_name]).to_fsize_str() }))
 }
 
 /** 翻译列名，添加 tooltip */
