@@ -52,7 +52,7 @@
     "dependencies": {
         "@ant-design/icons": "^5.2.6",
         "@ant-design/plots": "^1.2.5",
-        "@ant-design/pro-layout": "^7.16.11",
+        "@ant-design/pro-layout": "^7.16.12",
         "@ebay/nice-modal-react": "^1.2.10",
         "@formily/antd-v5": "1.1.1",
         "@formily/core": "^2.2.29",
