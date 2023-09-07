@@ -8,7 +8,7 @@ import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
 import { strcmp } from 'xshell/utils.browser.js'
-import { Remote, request } from 'xshell/net.browser.js'
+import { request } from 'xshell/net.browser.js'
 
 import {
     DDB, SqlStandard, DdbFunctionType, DdbVectorString, DdbObj, DdbInt, DdbLong, type InspectOptions,
@@ -51,8 +51,6 @@ export class DdbModel extends Model<DdbModel> {
     verbose = false
     
     ddb: DDB
-    
-    devserver: Remote
     
     collapsed = localStorage.getItem(storage_keys.collapsed) === 'true'
     
@@ -150,9 +148,6 @@ export class DdbModel extends Model<DdbModel> {
         this.header = params.get('header') !== '0'
         this.code_template = params.get('code-template') === '1'
         this.redirection = params.get('redirection') as PageViews
-        
-        if (this.dev)
-            this.devserver = new Remote({ url: 'ws://localhost:8432' })
     }
     
     
