@@ -484,10 +484,7 @@ function handle_ellipsis_col (table: Record<string, any>, col_name: string) {
 
 /** 按照主要列（leading_cols）的顺序进行排序 */
 function sort_col (cols: TableColumnType<Record<string, any>>[], type: string) {
-    let sorted_cols: TableColumnType<Record<string, any>>[] = [ ]
-    for (let col_name of Object.keys(leading_cols[type]))
-        sorted_cols.push(cols.find(({ dataIndex }) => dataIndex === col_name))
-    return sorted_cols
+    return Object.keys(leading_cols[type]).map(col_name => cols.find(({ dataIndex }) => dataIndex === col_name))
 }
 
 /** 将 subworker 表按照 QueueDepth 和 LastErrMsg 排序 */
