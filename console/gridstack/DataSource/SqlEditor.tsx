@@ -1,4 +1,5 @@
 import { CloseOutlined } from '@ant-design/icons'
+import { InputNumber, Switch } from 'antd'
 
 import { Editor } from '../../shell/Editor/index.js'
 import { DataView } from '../../shell/DataView.js'
@@ -9,16 +10,15 @@ import { type dataSourceNodeType, type dataSourceNodePropertyType } from '../sto
 
 type PropsType = { 
     show_preview: boolean
-    close_preview: () => void
-    error_message: string 
+    close_preview: () => void 
     current_data_source_node: dataSourceNodeType
     change_current_data_source_node_property: (key: string, value: dataSourceNodePropertyType) => void
 }
 export function SqlEditor ({ 
         current_data_source_node, 
         change_current_data_source_node_property, 
-        show_preview, close_preview,
-        error_message 
+        show_preview, 
+        close_preview,
     }: PropsType) 
 {
     shell.term = shell.term || new window.Terminal()
@@ -27,7 +27,6 @@ export function SqlEditor ({
             <div className='data-source-config-sqleditor-main' style={{  height: (show_preview ? '40%' : '100%') }}>
                 <Editor 
                     enter_completion
-            
                     on_mount={(editor, monaco) => {
                         editor.setValue(current_data_source_node.code || '')
                         shell.set({ editor, monaco })
@@ -46,14 +45,61 @@ export function SqlEditor ({
                         </div>
                     </div>
                     <div className='data-source-config-preview-main'>
-                        {error_message 
-                            ? <div className='data-source-config-preview-main-error'>{error_message}</div> 
+                        {current_data_source_node.error_message 
+                            ? <div className='data-source-config-preview-main-error'>{current_data_source_node.error_message }</div> 
                             : <DataView type='dashboard'/>
                         }
                     </div>
                 </div>
                 : <></>
             }
+        </div>
+        <div className='data-source-config-sqlconfig'>
+            <div className='data-source-config-sqlconfig-left'>
+                <div className='data-source-config-sqlconfig-left-refresh'>
+                    自动刷新：
+                    <Switch 
+                        size='small' 
+                        checked={current_data_source_node.auto_refresh }
+                        onChange={(checked: boolean) => {
+                            change_current_data_source_node_property('auto_refresh', checked)
+                        }} 
+                    />
+                </div>
+                {current_data_source_node.auto_refresh 
+                    ? <div>
+                        间隔时间：
+                        <InputNumber 
+                            size='small' 
+                            min={0.001}
+                            className='data-source-config-sqlconfig-left-intervals-input'
+                            value={current_data_source_node.interval}
+                            onChange={value => {
+                                if (value !== null)
+                                    change_current_data_source_node_property('interval', value) 
+                            }}
+                        />
+                        s
+                    </div> 
+                    : <></>
+                }
+            </div>
+            <div className='data-source-config-sqlconfig-right'>
+                <div>
+                    最大行数：
+                    <InputNumber 
+                        size='small' 
+                        min={0}
+                        max={1000}
+                        className='data-source-config-sqlconfig-right-maxline-input' 
+                        value={current_data_source_node.max_line}
+                        onChange={value => { 
+                            if (value !== null)
+                                change_current_data_source_node_property('max_line', value) 
+                        }}
+                    />
+                </div>
+            </div>
         </div>
     </>
 }

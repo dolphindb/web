@@ -201,7 +201,7 @@
         flex-direction: column
         
         .data-source-config-nodetable-top
-            height: 7%
+            height: 45px
             border-bottom: 2px solid #e5e5e5
             display: flex
             align-items: center
@@ -214,11 +214,20 @@
                     margin-right: 2px
             
         .data-source-config-nodetable-bottom
-            height: 90%
+            flex: 1
+            padding: 3px 3px
             
             .data-source-config-nodetable-bottom-menu
                 height: 100%
-                border-right: 0 
+                
+                .ant-tree-switcher-noop
+                    display: none
+                    
+                .ant-tree-node-content-wrapper
+                    height: 40px
+                    padding-left: 35px
+                    display: flex
+                    align-items: center
         
     .data-source-config-right
         flex: 1
@@ -253,7 +262,16 @@
                     
                     .data-source-config-streameditor-main-left-menu
                         height: 100%
-                        border-right: 0
+                        padding: 3px
+
+                        .ant-tree-switcher-noop
+                            display: none
+                            
+                        .ant-tree-node-content-wrapper
+                            height: 40px
+                            padding-left: 25px
+                            display: flex
+                            align-items: center
                 
                 .data-source-config-streameditor-main-right
                     width: 80%
