@@ -1,6 +1,6 @@
 import { createElement, useState } from 'react'
 
-import { Menu, Popover, Select } from 'antd'
+import { Input, Popover, Select, Tree } from 'antd'
 import type { MenuProps } from 'antd'
 import { CloseOutlined, QuestionCircleOutlined, TableOutlined } from '@ant-design/icons'
 
@@ -10,12 +10,12 @@ const node_items: MenuProps['items'] = [
     {
         key: '1',
         icon: createElement(TableOutlined),
-        label: '表格1'
+        title: '表格1'
     },
     {
         key: '2',
         icon: createElement(TableOutlined),
-        label: '表格2'
+        title: '表格2'
     }
 ]
 
@@ -40,15 +40,30 @@ export function StreamEditor ({ show_preview, close_preview }: { show_preview: b
         set_filter_mode(value)
     }
     
+    const [ip_select, set_ip_select] = useState(true)
+    
+    const on_node_select_change_handler = (value: string) => {
+        console.log(`selected ${value}`)
+    }
+    
+    const on_ip_select_change_handler = (value: string) => {
+        if (value === 'customize') {
+            set_ip_select(false)
+            return
+        }
+    }
+    
     return <>
         <div className='data-source-config-streameditor'>
             <div className='data-source-config-streameditor-main'>
                 <div className='data-source-config-streameditor-main-left'>
-                    <Menu
-                        mode='inline'
+                    <Tree
+                        showIcon
+                        height={405}
+                        blockNode
                         defaultSelectedKeys={['1']}
                         className='data-source-config-streameditor-main-left-menu'
-                        items={node_items}
+                        treeData={node_items}
                     />
                 </div>
                 <div className='data-source-config-streameditor-main-right'>
@@ -95,6 +110,48 @@ export function StreamEditor ({ show_preview, close_preview }: { show_preview: b
                         </div>
                     </div>
                 }
+                </div>
+            </div>
+        </div>
+        <div className='data-source-config-streamconfig'>
+            <div className='data-source-config-streamconfig-left'>
+                <div>
+                    节点：
+                    <Select
+                        defaultValue='node1'
+                        className='data-source-config-streamconfig-left-node-select'
+                        size='small'
+                        onChange={on_node_select_change_handler}
+                        options={[
+                            { value: 'node1', label: '节点1' },
+                            { value: 'node2', label: '节点2' }
+                        ]}
+                    />
+                </div>
+                <div className='data-source-config-streamconfig-left-ip'>
+                    IP：
+                    {ip_select
+                        ? <Select
+                            defaultValue='127.0.0.1'
+                            className='data-source-config-streamconfig-left-ip-select'
+                            size='small'
+                            onChange={on_ip_select_change_handler}
+                            options={[
+                                { value: '127.0.0.1', label: '127.0.0.1' },
+                                { value: 'customize', label: '自定义' }
+                            ]}
+                        />
+                        : <div  className='data-source-config-streamconfig-left-ip-manualinput'>
+                            <Input size='small' className='data-source-config-streamconfig-left-ip-manualinput-input'/>
+                            <CloseOutlined className='data-source-config-streamconfig-left-ip-manualinput-icon' onClick={() => { set_ip_select(true) }}/>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div className='data-source-config-streamconfig-right'>
+                <div>
+                    最大行数：
+                    <Input size='small' className='data-source-config-streamconfig-right-input'/>
                 </div>
             </div>
         </div>
