@@ -136,10 +136,10 @@ export function Computing () {
                                 
                                 <StateTable
                                     type='subWorkers'
-                                    cols={add_details_col(
-                                            render_col_title(
-                                                translate_order_col(
-                                                    set_col_width(
+                                    cols={set_col_width(
+                                            add_details_col(
+                                                render_col_title(
+                                                    translate_order_col(
                                                         set_col_color(
                                                             sort_col(
                                                                 streaming_stat.subWorkers
@@ -149,11 +149,10 @@ export function Computing () {
                                                             ),
                                                             'queueDepth'
                                                         ),
-                                                        'subWorkers'
-                                                    ),
+                                                        
                                                     'subWorkers'
                                                 ),
-                                            true, 'subWorkers'))
+                                            true, 'subWorkers')), 'subWorkers')
                                         }
                                     rows={add_details_row(
                                                 handle_ellipsis_col(
@@ -180,11 +179,11 @@ export function Computing () {
                             <div className='streaming-engine-stat'>
                                 <StateTable
                                     type='engine'
-                                    cols={add_details_col(
-                                            translate_order_col(
-                                                set_col_ellipsis(
-                                                    set_col_width(
-                                                        translate_byte_col(streaming_engine_cols, 'memoryUsed'), 'engine'), 'metrics'), 'engine'))}
+                                    cols={set_col_width(
+                                            add_details_col(
+                                                translate_order_col(
+                                                    set_col_ellipsis(
+                                                        translate_byte_col(streaming_engine_cols, 'memoryUsed'), 'metrics'), 'engine')), 'engine')}
                                     rows={add_details_row(
                                             translate_byte_row(
                                                 handle_ellipsis_col(add_key(streaming_engine_rows), 'lastErrMsg')
@@ -266,6 +265,7 @@ const cols_width = {
         queueDepth: 90,
         queueDepthLimit: 100,
         lastErrMsg: 200,
+        details: 80
     },
     engine: {
         name: 100,
@@ -273,7 +273,8 @@ const cols_width = {
         lastErrMsg: 180,
         numGroups: 80,
         metrics: 120,
-        status: 100
+        status: 100,
+        details: 80
     },
     persistenceMeta: {
         tablename: 150,
@@ -594,6 +595,7 @@ function add_details_row (table: Record<string, any>) {
         const dict = !engineType ? expanded_cols.subWorkers : expanded_cols.engine[engineType]
         const info = () => model.modal.info({
             title: !engineType ? row.topic : row.name,
+            className: 'show-more-modal',
             content: <List dataSource={detailed_keys.map(key => `${dict[key]}: ${row[key]}` )} 
                            renderItem={item => <List.Item>{item}</List.Item>}
                            split={false}/>
