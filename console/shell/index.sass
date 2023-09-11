@@ -60,16 +60,22 @@
                 
             
             .ant-tree
-                margin-left: 10px
+                margin-left: 4px
 
                 transition: unset !important
                 
                 .ant-tree-treenode
                     font-size: 12px
                     
-                    &:hover
-                        .tooltip
-                            visibility: visible
+                    .column-root-title, .column-title
+                        width: 100%
+                    
+                .ant-tree-list
+                    .ant-tree-list-holder-inner
+                        padding-top: 2px
+                        .ant-tree-treenode:last-child
+                            box-sizing: content-box
+                            padding-bottom: 4px
                     
                     .ant-tree-node-content-wrapper
                         display: flex
@@ -85,9 +91,13 @@
                             .schema-icon
                                 padding-left: 10px
                                 padding-right: 10px
-                        
-                    .tooltip
-                        visibility: hidden
+                                
+                            .tooltip
+                                visibility: hidden
+                            
+                            &:hover
+                                .tooltip
+                                    visibility: visible
                     
                     .ant-tree-switcher
                         width: auto

@@ -24,16 +24,7 @@
     .streaming_pub_sub_stat
         display: flex
         justify-content: space-between
-        .sub-workers
-            width: 70%
-            margin-right: 20px
-            overflow: hidden
-            
-        .other-tables
-            display: flex
-            width: 520px
-            flex-direction: column
-            flex-shrink: 0
+        flex-direction: column
             
     .streaming-engine-stat,.persistent-table-stat,.share-streaming-table-stat
         display: flex
@@ -78,7 +69,7 @@
     
     .ant-table-thead tr td,.ant-table-thead tr th
         background-color: #f8f8f8
-        
+    
     .ant-table-title
             display: flex
             position: relative
@@ -104,7 +95,7 @@
                 
     .col-title, .ant-table-cell
         font-size: 13px
-                
+      
     .green
         color: #6ED86C
             
@@ -117,3 +108,16 @@
     .show-more
         color: #1677ff
         cursor: pointer
+
+.ant-modal-content
+    .delete-warning-title
+        display: flex
+        align-items: center
+        .anticon-warning
+            color:#ff4d4f
+            margin-right: 20px
+            font-size: 24px
+            
+    .ant-modal-body .ant-input
+        width: 82%
+        margin-left: 42px

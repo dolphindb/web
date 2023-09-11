@@ -96,7 +96,7 @@ export function DdbSider () {
                 {
                     key: 'computing',
                     icon: <MenuIcon view='computing' />,
-                    label: t('实时计算'),
+                    label: t('流计算监控'),
                 },
                 {
                     key: 'log',
