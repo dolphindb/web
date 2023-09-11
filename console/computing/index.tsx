@@ -484,7 +484,8 @@ function handle_ellipsis_col (table: Record<string, any>, col_name: string) {
 
 /** 按照主要列（leading_cols）的顺序进行排序 */
 function sort_col (cols: TableColumnType<Record<string, any>>[], type: string) {
-    return Object.keys(leading_cols[type]).map(col_name => cols.find(({ dataIndex }) => dataIndex === col_name))
+    return Object.keys(leading_cols[type]).map(col_name => 
+                                            cols.find(({ dataIndex }) => dataIndex === col_name))
 }
 
 /** 将 subworker 表按照 QueueDepth 和 LastErrMsg 排序 */
@@ -595,7 +596,8 @@ function add_details_row (table: Record<string, any>) {
         const info = () => model.modal.info({
             title: !engineType ? row.topic : row.name,
             content: <List dataSource={detailed_keys.map(key => `${dict[key]}: ${row[key]}` )} 
-                           renderItem={item => <List.Item>{item}</List.Item>}/>
+                           renderItem={item => <List.Item>{item}</List.Item>}
+                           split={false}/>
         })
         return { ...row, details: <a onClick={info}>{t('点击查看')}</a> }
     })
