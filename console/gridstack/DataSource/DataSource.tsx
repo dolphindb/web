@@ -1,6 +1,6 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 
-import { Button, Modal, Menu, Collapse } from 'antd'
+import { Button, Modal, Menu } from 'antd'
 import { DatabaseOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
@@ -13,7 +13,12 @@ import { NodeTable } from './NodeTable.js'
 import { SqlEditor } from './SqlEditor.js'
 import { StreamEditor } from './StreamEditor.js'
 
-import { data_source_nodes, type dataSourceNodePropertyType, find_data_source_node_index, save_data_source_node, type dataSourceNodeType } from '../storage/date-source-node.js'
+import { data_source_nodes,
+         find_data_source_node_index, 
+         save_data_source_node, 
+         type dataSourceNodePropertyType, 
+         type dataSourceNodeType 
+    } from '../storage/date-source-node.js'
 import { formatter } from '../utils.js'
 
 export function DataSource ({ trigger_index }: { trigger_index: string }) {
@@ -22,8 +27,8 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
     const [show_preview, set_show_preview] = useState(false) 
     const [current_data_source_node, set_current_data_source_node] = useState(data_source_nodes[0] || null)
     
-    const change_current_data_source_node = useCallback((key: string | number) => {
-        if (key === -1) {
+    const change_current_data_source_node = useCallback((key: string) => {
+        if (key === '') {
             set_current_data_source_node(null)
             return
         }
@@ -40,6 +45,11 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
         })
     }, [ ])
     
+    const handle_close = useCallback(() => {
+        close()
+        set_show_preview(false)
+    }, [ ])
+    
     const execute_code = async () => {
         if (shell.executing)
             model.message.warning(t('当前连接正在执行作业，请等待'))
@@ -54,26 +64,6 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
             } catch (error) {
                 change_current_data_source_node_property('error_message', error.message)
             }
-        
-    }
-    
-    const handle_preview = async () => {
-        await execute_code()
-        set_show_preview(true)
-    }
-    
-    const handle_save = async () => {
-        await execute_code()
-        if (shell.dashboard_result && 'value' in shell.dashboard_result.data)
-            for (let i = 0;  i < shell.dashboard_result.data.cols;  i++)
-                current_data_source_node.data.push(formatter(shell.dashboard_result.data.value[i]))
-        current_data_source_node.code = shell.editor.getValue()
-        save_data_source_node(current_data_source_node)
-    }
-    
-    const handle_close = () => {
-        close()
-        set_show_preview(false)
     }
     
     const trigger = {
@@ -103,10 +93,29 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
             }}
             footer={
                 [
-                    <Button key='preview' onClick={handle_preview}>
+                    <Button 
+                        key='preview' 
+                        onClick={
+                            async () => {
+                                await execute_code()
+                                set_show_preview(true)
+                            }
+                        }>
                         预览
                     </Button>,
-                    <Button key='save' onClick={handle_save}>
+                    <Button 
+                        key='save' 
+                        onClick={
+                            async () => {
+                                await execute_code()
+                                if (shell.dashboard_result && 'value' in shell.dashboard_result.data)
+                                    for (let i = 0;  i < shell.dashboard_result.data.cols;  i++)
+                                        current_data_source_node.data.push(formatter(shell.dashboard_result.data.value[i]))
+                                current_data_source_node.code = shell.editor.getValue()
+                                save_data_source_node(current_data_source_node)
+                            }
+                        }
+                    >
                         {trigger_index === 'navigation' ? '保存' : '应用'}
                     </Button>,
                     <Button key='close' type='primary' onClick={handle_close}>
@@ -118,8 +127,9 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
             <div className='data-source-config-main'>
                 <NodeTable 
                     data_source_nodes={data_source_nodes} 
-                    change_current_data_source_node={change_current_data_source_node}
                     current_data_source_node={current_data_source_node}
+                    change_current_data_source_node={change_current_data_source_node}
+                    change_current_data_source_node_property={change_current_data_source_node_property}
                 />
                 {data_source_nodes.length
                     ? <div className='data-source-config-right'>
@@ -147,8 +157,8 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
                         {current_data_source_node.mode === 'sql'
                             ? <SqlEditor 
                                 show_preview={show_preview} 
-                                close_preview={() => { set_show_preview(false) }} 
                                 current_data_source_node={current_data_source_node}
+                                close_preview={() => { set_show_preview(false) }} 
                                 change_current_data_source_node_property={change_current_data_source_node_property}
                             />
                             : <StreamEditor show_preview={show_preview} close_preview={() => { set_show_preview(false) }}/>
