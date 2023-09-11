@@ -8,12 +8,13 @@ import { SelectSider } from './SelectSider/SelectSider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 import { Navigation } from './Navigation/Navigation.js'
+import { WidgetOption, widget_nodes } from './storage/widget_node.js'
 
 // gridstack 仅支持 12 列以下的，大于 12 列需要手动添加 css 代码，详见 gridstack 的 readme.md
 // 目前本项目仅支持仅支持 tmpcol<=12
 const tmpcol = 5, tmprow = 5
 export function GridDashBoard () {
-    const [widget_options, set_widget_options] = useState([ ])
+    const [widget_options, set_widget_options] = useState([ ...widget_nodes ])
     const [all_widgets, set_all_widgets] = useState([ ])
     const [active_widget_id, set_active_widget_id] = useState('')
     
@@ -81,8 +82,22 @@ export function GridDashBoard () {
         window.addEventListener('resize', function () {
             grid_refs.current.cellHeight(Math.floor(grid_refs.current.el.clientHeight / tmprow))
         })
+        
+        // 当有节点
+        grid_refs.current.on('change', (event: Event, items: GridStackNode[]) => {
+            
+            for (let node of items) 
+                set_widget_options( arr => {
+                    let type = ''
+                    let widget_arr = arr.filter(item => {
+                        if (node.id === item.id) 
+                            type = item.type
+                        return node.id !== item.id
+                    })
+                    return [...widget_arr, { id: node.id, type, x: node.x, y: node.y, h: node.h, w: node.w }]
+                })
+        })
     }, [ ])
-    
     return <div className='dashboard'>
         <div className='dashboard-header'>
             <Navigation editing={editing} change_editing={change_editing}/>
