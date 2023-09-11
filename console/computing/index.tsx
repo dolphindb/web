@@ -277,7 +277,7 @@ const cols_width = {
     },
     persistenceMeta: {
         tablename: 150,
-        lastLogSeqNum: 100,
+        lastLogSeqNum: 120,
         sizeInMemory: 120,
         asynWrite: 110,
         totalSize: 120,
@@ -497,7 +497,10 @@ function translate_order_col (cols: TableColumnType<Record<string, any>>[], type
     }
     cols[i_depth_col] = {
         ...cols[i_depth_col],
-        sorter: (a: Record<string, any>, b: Record<string, any>) => Number(a.queueDepth) - Number(b.queueDepth),
+        sorter: type === 'subWorkers' ? 
+                                    (a: Record<string, any>, b: Record<string, any>) => Number(a.queueDepth) - Number(b.queueDepth)
+                                      :
+                                    (a: Record<string, any>, b: Record<string, any>) => Number(a.origin_bytes) - Number(b.origin_bytes),
         sortDirections: ['descend' as SortOrder]
     }
     cols[i_last_err_msg_col] = { ...cols[i_last_err_msg_col], sorter: msg_order_function, sortDirections: ['descend' as SortOrder] }
@@ -522,7 +525,7 @@ function translate_byte_col (cols: TableColumnType<Record<string, any>>[], col_n
 
 /** 处理 byte */
 function translate_byte_row (table: Record<string, any>, col_name: string) {
-    return table.map(row => ({ ...row, [col_name]: Number(row[col_name]).to_fsize_str() }))
+    return table.map(row => ({ ...row, origin_bytes: row[col_name], [col_name]: Number(row[col_name]).to_fsize_str() }))
 }
 
 /** 翻译列名，添加 tooltip */

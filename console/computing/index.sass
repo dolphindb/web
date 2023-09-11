@@ -111,6 +111,10 @@
    
 .delete-modal
     width: 450px !important
+    
+    .ant-modal-content
+        padding: 24px
+        
     .delete-warning-title
         display: flex
         align-items: center
@@ -123,9 +127,9 @@
             cursor: pointer
             
     .ant-input
-        border-radius: 5px
         border-color: #d63e49
         height: 35px
+        margin-top: 10px
         &:focus
             border-color:#3181ff
 
@@ -134,18 +138,17 @@
     
     .disable-button
         width: 100%
-        border-radius: 5px
         border-color: #e8a0a2
         color: #e8a0a2
         height: 35px
         
     .normal-button
         width: 100%
-        border-radius: 5px
         border-color:#e0e0e2
-        background-color: #f3f2f4
-        color: #d63e49
+        background-color: #d63e49
+        color: #fff
         height: 35px
+        box-shadow: none
      
     .ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover
         background-color: #d63e49
