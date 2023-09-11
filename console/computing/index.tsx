@@ -1,11 +1,11 @@
 import './index.sass'
 
-import { useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { Button, Tabs, Table, Tooltip, Typography, Spin, Result, type TableColumnType, Input, Modal, List } from 'antd'
 import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined } from '@ant-design/icons'
 import type {  SortOrder } from 'antd/es/table/interface.js'
 
-import { DdbObj } from 'dolphindb/browser.js'
+import { DDB, DdbObj } from 'dolphindb/browser.js'
 
 import { model } from '../model.js'
 import { computing } from './model.js'
@@ -600,6 +600,40 @@ function add_details_row (table: Record<string, any>) {
 }
 
 
+/** 统一处理删除 */
+async function handle_delete (type: string, selected: string[], ddb: DDB, refresher: () => Promise<void>) {
+    switch (type) {
+        case 'subWorkers':
+            try {
+                await Promise.all(selected.map(async pub_table => { 
+                    const pub_table_arr = pub_table.split('/')
+                    ddb.eval(`unsubscribeTable(,'${pub_table_arr[1]}','${pub_table_arr[2]}')`, { urgent: true }) }))
+                model.message.success(t('取消订阅成功'))
+            } catch (error) {
+                model.show_error({ error })
+            } 
+            break
+        case 'persistenceMeta':
+        case 'sharedStreamingTableStat':
+            try {
+                await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name], { urgent: true })  ))
+                model.message.success(t('流数据表删除成功'))
+            } catch (error) {
+                model.show_error({ error })
+            }
+            break
+        case 'engine':
+            try {
+                await Promise.all(selected.map(async engine_name => ddb.call('dropStreamEngine', [engine_name], { urgent: true })))
+                model.message.success(t('引擎删除成功'))
+            } catch (error) {
+                model.show_error({ error })
+            }
+    }
+    await refresher()
+}
+
+
 function ErrorMsg ({ text, type }: { text: string, type: string }) {
     if (!text)
         return
@@ -631,6 +665,51 @@ function ErrorMsg ({ text, type }: { text: string, type: string }) {
 }
 
 
+function DeleteModal ({ 
+    table_name,
+    selected, 
+    set_selected, 
+    refresher,
+}: { 
+    table_name: string
+    selected: string[]
+    set_selected: Dispatch<SetStateAction<string[]>>
+    refresher: () => Promise<void>
+}) {
+    const [input_value, set_input_value] = useState<string>('')
+    const { visible, open, close } = use_modal()
+    const { ddb } = model.use(['ddb'])
+    return <>
+        <Modal  className='delete-modal'
+                title={<div className='delete-warning-title'><WarningOutlined />
+                    <span>{`确认${button_text[table_name].action}选中的 `}
+                                <Tooltip title={selected.map(name => <p key={name}>{name}</p>)}>
+                                    <span className='selected-number'>{selected.length}</span>
+                                </Tooltip>
+                            {` 个${button_text[table_name].title}吗？`}</span>
+                </div>}
+                open={visible}
+                onCancel={() => { set_input_value('')
+                                  close() }}
+                cancelButtonProps={{ className: 'hidden' }}
+                okText={button_text[table_name].action}
+                okButtonProps={{ disabled: input_value !== 'YES', className: input_value !== 'YES' ? 'disable-button' : 'normal-button' }}
+                onOk={async () => { await handle_delete(table_name, selected, ddb, refresher)
+                                    set_input_value('')
+                                    set_selected([ ])
+                                    close() }}>
+                    <Input placeholder={t('请输入 \'YES\' 以确认该操作')}
+                        value={input_value} 
+                        onChange={({ target: { value } }) => set_input_value(value)}
+                        />
+        </Modal>
+        <Button className='title-button' disabled={!selected.length} onClick={open}>
+            {`批量${button_text[table_name].action}`}
+        </Button>
+        </>
+}
+
+
 function StateTable ({
     type,
     cols,
@@ -649,41 +728,14 @@ function StateTable ({
     refresher?: () => Promise<void>
 }) {
     const [selected, set_selected] = useState<string[]>([ ])
-    const [input_value, set_input_value] = useState<string>('')
-    const { visible, open, close } = use_modal()
-    const { ddb } = model.use(['ddb'])
     
     /** 渲染表头 */
     function render_table_header (table_name: string, button_props?: ButtonProps) {    
         return <>
-                {button_props && (<>
-                <Modal  className='delete-modal'
-                        title={<div className='delete-warning-title'><WarningOutlined />
-                            <span>{`确认${button_text[table_name].action}选中的 `}
-                                        <Tooltip title={selected.map(name => <p key={name}>{name}</p>)}>
-                                            <span className='selected-number'>{selected.length}</span>
-                                        </Tooltip>
-                                    {` 个${button_text[table_name].title}吗？`}</span>
-                        </div>}
-                        open={visible}
-                        onCancel={() => { set_input_value('')
-                                          close() }}
-                        cancelButtonProps={{ className: 'hidden' }}
-                        okText={button_text[table_name].action}
-                        okButtonProps={{ disabled: input_value !== 'YES', className: input_value !== 'YES' ? 'disable-button' : 'normal-button' }}
-                        onOk={async () => { await handle_delete(table_name, selected, refresher)
-                                            set_input_value('')
-                                            set_selected([ ])
-                                            close() }}>
-                            <Input placeholder={t('请输入 \'YES\' 以确认该操作')}
-                                value={input_value} 
-                                onChange={({ target: { value } }) => set_input_value(value)}
-                                />
-                </Modal>
-                <Button className='title-button' disabled={!selected.length} onClick={open}>
-                    {`批量${button_text[table_name].action}`}
-                </Button>
-                </>)}
+                {button_props && <DeleteModal table_name={table_name}
+                                              selected={selected}
+                                              set_selected={set_selected}
+                                              refresher={refresher}/>}
                 <span className='table-name'>
                     {header_text[table_name].title}
                 </span>
@@ -693,38 +745,6 @@ function StateTable ({
             </>
     }
     
-    /** 统一处理删除 */
-    async function handle_delete (type: string, selected: string[], refresher: () => Promise<void>) {
-        switch (type) {
-            case 'subWorkers':
-                try {
-                    await Promise.all(selected.map(async pub_table => { 
-                        const pub_table_arr = pub_table.split('/')
-                        ddb.eval(`unsubscribeTable(,'${pub_table_arr[1]}','${pub_table_arr[2]}')`, { urgent: true }) }))
-                    model.message.success(t('取消订阅成功'))
-                } catch (error) {
-                    model.show_error({ error })
-                } 
-                break
-            case 'persistenceMeta':
-            case 'sharedStreamingTableStat':
-                try {
-                    await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name], { urgent: true })  ))
-                    model.message.success(t('流数据表删除成功'))
-                } catch (error) {
-                    model.show_error({ error })
-                }
-                break
-            case 'engine':
-                try {
-                    await Promise.all(selected.map(async engine_name => ddb.call('dropStreamEngine', [engine_name], { urgent: true })))
-                    model.message.success(t('引擎删除成功'))
-                } catch (error) {
-                    model.show_error({ error })
-                }
-        }
-        await refresher()
-    }
     
     return <>
         <Table
