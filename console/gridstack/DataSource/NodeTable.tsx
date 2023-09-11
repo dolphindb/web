@@ -1,69 +1,124 @@
-import { createElement, useState } from 'react'
+import { ReactNode, createElement, useState } from 'react'
 
-import { Tree } from 'antd'
+import { Input, Tree, App } from 'antd'
 import { DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 
-import { create_data_source_node, delete_data_source_node, type dataSourceNodeType, find_data_source_node_index } from '../storage/date-source-node.js'
+import { create_data_source_node,
+         delete_data_source_node, 
+         rename_data_source_node, 
+         type dataSourceNodeType, 
+         dataSourceNodePropertyType, 
+         name_is_exist
+    } from '../storage/date-source-node.js'
 
 type PropsType = { 
     data_source_nodes: dataSourceNodeType[]
-    change_current_data_source_node: (key: string | number) => void
     current_data_source_node: dataSourceNodeType
+    change_current_data_source_node: (key: string) => void
+    change_current_data_source_node_property: (key: string, value: dataSourceNodePropertyType) => void
 }
 
-export function NodeTable ({ data_source_nodes, change_current_data_source_node, current_data_source_node }: PropsType ) {
-    const [current_select, set_current_select] = useState(String(current_data_source_node?.id) || '')
+type MenuItemType = {
+    key: string
+    icon: ReactNode
+    title: ReactNode
+}
+
+export function NodeTable ({ 
+    data_source_nodes,
+    current_data_source_node,
+    change_current_data_source_node,
+    change_current_data_source_node_property
+}: PropsType ) {
+    const { message } = App.useApp()
+    
+    const [current_select, set_current_select] = useState(current_data_source_node?.id || '')
     const [menu_items, set_menu_items] = useState(data_source_nodes.map(
-        (data_source_node: dataSourceNodeType) => {
+        (data_source_node: dataSourceNodeType): MenuItemType => {
             return {
                 key: String(data_source_node.id),
                 icon: createElement(DatabaseOutlined),
-                title: data_source_node.name
-            } 
-        
-    }))
-    
-    const create_data_source_node_handler = () => {
-        create_data_source_node()
-        set_menu_items([
-            {
-                key: String(data_source_nodes[0].id),
-                icon: createElement(DatabaseOutlined),
-                title: data_source_nodes[0].name
-            },
-            ...menu_items
-        ])
-        change_current_data_source_node(String(data_source_nodes[0].id))
-        set_current_select(String(data_source_nodes[0].id))
-    }
-    
-    const delete_data_source_node_handler = () => {
-        const delete_index = delete_data_source_node(current_data_source_node.id)
-        menu_items.splice(delete_index, 1)
-        set_menu_items([...menu_items])
-        if (!data_source_nodes.length) 
-            change_current_data_source_node(-1)
-         else if (delete_index === 0) {
-            change_current_data_source_node(data_source_nodes[0].id)
-            set_current_select(String(data_source_nodes[0].id))
-        } else {
-            change_current_data_source_node(data_source_nodes[delete_index - 1].id)
-            set_current_select(String(data_source_nodes[delete_index - 1].id))
+                title: data_source_node.name,
+            }   
         }
+    ))
+    
+    const rename_data_source_node_handler = (menu_items: MenuItemType[], select_key: string, old_name: string) => {
+        if (!menu_items.length)
+            return 
+        const tmp_menu_item = menu_items.find(menu_item => menu_item.key === select_key)
+        tmp_menu_item.title = <Input
+            size='small' 
+            autoFocus
+            className='data-source-config-nodetable-bottom-menu-rename-input'
+            defaultValue={old_name}
+            onBlur={e => {
+                let new_name = e.target.value
+                if (name_is_exist(new_name)) {
+                    message.error('该节点名已存在')
+                    new_name = old_name
+                }
+                tmp_menu_item.title = new_name
+                set_menu_items([...menu_items])
+                change_current_data_source_node_property('name', new_name)
+                rename_data_source_node(select_key, new_name)
+            }}
+        />
+        set_menu_items([...menu_items])
     }
     
     return <>
         <div className='data-source-config-nodetable'>
             <div className='data-source-config-nodetable-top'>
-                <div className='data-source-config-nodetable-top-item' onClick={create_data_source_node_handler}>
+                <div 
+                    className='data-source-config-nodetable-top-item' 
+                    onClick={
+                        () => {
+                            const { id, name } = create_data_source_node()
+                            const new_menu_items = [
+                                {
+                                    key: id,
+                                    icon: createElement(DatabaseOutlined),
+                                    title: name
+                                },
+                                 ...menu_items
+                            ]
+                            set_menu_items(new_menu_items)
+                            set_current_select(id)
+                            change_current_data_source_node(id)
+                            rename_data_source_node_handler(new_menu_items, id, name)
+                        }
+                    }
+                >
                     <FileOutlined className='data-source-config-nodetable-top-item-icon'/>
                     新建
                 </div>
-                <div className='data-source-config-nodetable-top-item'>
+                <div 
+                    className='data-source-config-nodetable-top-item' 
+                    onClick={
+                        () => { rename_data_source_node_handler(menu_items, current_select, current_data_source_node.name) }
+                    }
+                >
                     <EditOutlined className='data-source-config-nodetable-top-item-icon'/>
                     重命名
                 </div>
-                <div className='data-source-config-nodetable-top-item' onClick={delete_data_source_node_handler}>
+                <div 
+                    className='data-source-config-nodetable-top-item' 
+                    onClick={
+                        () => {
+                            const delete_index = delete_data_source_node(current_data_source_node.id)
+                            menu_items.splice(delete_index, 1)
+                            set_menu_items([...menu_items])
+                            if (!data_source_nodes.length) 
+                                change_current_data_source_node('')
+                            else {
+                                const index = delete_index === 0 ? 0 : delete_index - 1
+                                change_current_data_source_node(data_source_nodes[index].id)
+                                set_current_select(data_source_nodes[index].id)
+                            }
+                        }
+                    }
+                >
                     <DeleteOutlined className='data-source-config-nodetable-top-item-icon'/>
                     删除
                 </div>
@@ -77,8 +132,10 @@ export function NodeTable ({ data_source_nodes, change_current_data_source_node,
                         selectedKeys={[current_select]}
                         className='data-source-config-nodetable-bottom-menu'
                         onSelect={key => { 
-                            change_current_data_source_node(String(key[0])) 
-                            set_current_select(String(key[0]))
+                            if (key.length) {
+                                change_current_data_source_node(String(key[0])) 
+                                set_current_select(String(key[0]))
+                            }
                         }}
                         treeData={menu_items}
                     />
