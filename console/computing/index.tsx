@@ -321,23 +321,19 @@ const header_text = {
 const button_text = {
     subWorkers: {
         title: t('流数据表'),
-        button_text: t('批量取消订阅'),
-        confirm_text: t('确认取消订阅选中的流数据表吗？')
+        action: t('取消订阅'),
     },
     engine: {
         title: t('引擎'),
-        button_text: t('批量删除'),
-        confirm_text: t('确认删除选中的引擎吗？')
+        action: t('删除'),
     },
     persistenceMeta: {
         title: t('持久化共享数据流表'),
-        button_text: t('批量删除'),
-        confirm_text: t('确认删除选中的持久化共享数据流表吗？')
+        action: t('删除'),
     },
     sharedStreamingTableStat: {
         title: t('共享数据流表'),
-        button_text: t('批量删除'),
-        confirm_text: t('确认删除选中的共享流数据表吗？')
+        action: t('删除'),
     }
 }
 
@@ -661,23 +657,31 @@ function StateTable ({
     function render_table_header (table_name: string, button_props?: ButtonProps) {    
         return <>
                 {button_props && (<>
-                <Modal  title={<div className='delete-warning-title'><WarningOutlined />
-                            <span>{button_text[table_name].confirm_text}</span>
+                <Modal  className='delete-modal'
+                        title={<div className='delete-warning-title'><WarningOutlined />
+                            <span>{`确认${button_text[table_name].action}选中的 `}
+                                        <Tooltip title={selected.map(name => <p key={name}>{name}</p>)}>
+                                            <span className='selected-number'>{selected.length}</span>
+                                        </Tooltip>
+                                    {` 个${button_text[table_name].title}吗？`}</span>
                         </div>}
                         open={visible}
-                        onCancel={close}
-                        okButtonProps={{ disabled: input_value !== 'OK' }}
+                        onCancel={() => { set_input_value('')
+                                          close() }}
+                        cancelButtonProps={{ className: 'hidden' }}
+                        okText={button_text[table_name].action}
+                        okButtonProps={{ disabled: input_value !== 'YES', className: input_value !== 'YES' ? 'disable-button' : 'normal-button' }}
                         onOk={async () => { await handle_delete(table_name, selected, refresher)
                                             set_input_value('')
                                             set_selected([ ])
                                             close() }}>
-                            <Input placeholder={t('请输入 \'OK\' 以确认该操作')}
+                            <Input placeholder={t('请输入 \'YES\' 以确认该操作')}
                                 value={input_value} 
                                 onChange={({ target: { value } }) => set_input_value(value)}
                                 />
                 </Modal>
                 <Button className='title-button' disabled={!selected.length} onClick={open}>
-                    {button_text[table_name].button_text}
+                    {`批量${button_text[table_name].action}`}
                 </Button>
                 </>)}
                 <span className='table-name'>

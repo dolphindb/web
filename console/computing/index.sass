@@ -115,9 +115,42 @@
         align-items: center
         .anticon-warning
             color:#ff4d4f
-            margin-right: 20px
+            margin-right: 10px
             font-size: 24px
+        .selected-number
+            color:#3181ff
+            cursor: pointer
             
-    .ant-modal-body .ant-input
-        width: 82%
-        margin-left: 42px
+    .ant-input
+        border-radius: 5px
+        border-color: #d63e49
+        height: 35px
+        &:focus
+            border-color:#3181ff
+
+    .hidden
+        display: none
+    
+    .disable-button
+        width: 100%
+        border-radius: 5px
+        border-color: #e8a0a2
+        color: #e8a0a2
+        height: 35px
+        
+    .normal-button
+        width: 100%
+        border-radius: 5px
+        border-color:#e0e0e2
+        background-color: #f3f2f4
+        color: #d63e49
+        height: 35px
+        
+    .ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover
+        background-color: #d63e49
+    
+    .ant-modal-footer .ant-btn+.ant-btn:not(.ant-dropdown-trigger)
+        margin-inline-start: 0
+        
+.delete-modal
+    width: 450px !important
