@@ -32,7 +32,7 @@ export const storage_keys = {
 
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log'
+export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor'
 
 export class DdbModel extends Model<DdbModel> {
     inited = false
@@ -196,7 +196,7 @@ export class DdbModel extends Model<DdbModel> {
         
         this.set({ inited: true })
         
-        this.set({ is_factor_platform_enabled: this.get_factor_platform_enabled() })
+        this.get_factor_platform_enabled()
         
         this.get_version()
     }
@@ -296,9 +296,12 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    /** */
+    /** 获取是否启用因子平台，待 server 实现 */
     get_factor_platform_enabled () {
-        return true
+        this.set({ is_factor_platform_enabled: true })
+        // const { value } = await this.ddb.call('is_factor_platform_enabled', [ ], { urgent: true })
+        // const is_factor_platform_enabled = value === '1' || value === 'true'
+        // this.set({ is_factor_platform_enabled })
     }
     
     

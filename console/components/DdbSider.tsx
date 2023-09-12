@@ -13,6 +13,7 @@ import SvgShell from '../shell/index.icon.svg'
 import SvgDashboard from '../dashboard/icons/dashboard.icon.svg'
 import SvgJob from '../job.icon.svg'
 import SvgLog from '../log.icon.svg'
+import SvgFactor from '../factor.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -24,6 +25,7 @@ const svgs = {
     dashboard: SvgDashboard,
     job: SvgJob,
     log: SvgLog,
+    factor: SvgFactor
 }
 
 function MenuIcon ({ view }: { view: DdbModel['view'] }) {
@@ -98,7 +100,7 @@ export function DdbSider () {
                 },
                 ... model.is_factor_platform_enabled ? [{
                     key: 'factor-platform',
-                    icon: <MenuIcon view='log' />,
+                    icon: <MenuIcon view='factor' />,
                     label: <Link href={`factor-platform/index.html?logined=${model.logined}&token=${localStorage.getItem(storage_keys.ticket)}`}>
                                 {t('因子平台')}
                         </Link>
