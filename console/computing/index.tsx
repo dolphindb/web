@@ -1,11 +1,11 @@
 import './index.sass'
 
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react'
 import { Button, Tabs, Table, Tooltip, Typography, Spin, Result, type TableColumnType, Input, Modal, List } from 'antd'
 import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined } from '@ant-design/icons'
 import type {  SortOrder } from 'antd/es/table/interface.js'
 
-import { DDB, DdbObj } from 'dolphindb/browser.js'
+import { DDB, DdbObj, nulls } from 'dolphindb/browser.js'
 
 import { model } from '../model.js'
 import { computing } from './model.js'
@@ -133,7 +133,6 @@ export function Computing () {
                                 </label>,
                         children: (
                             <div className='streaming_pub_sub_stat'>
-                                
                                 <StateTable
                                     type='subWorkers'
                                     cols={set_col_width(
@@ -149,22 +148,22 @@ export function Computing () {
                                                             ),
                                                             'queueDepth'
                                                         ),
-                                                        
-                                                    'subWorkers'
+                                                    true
                                                 ),
-                                            true, 'subWorkers')), 'subWorkers')
+                                             'subWorkers')), 'subWorkers')
                                         }
-                                    rows={add_details_row(
-                                                handle_ellipsis_col(
-                                                    add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'))}
-                                    min_width={1400}
+                                    rows={  add_details_row(
+                                                add_unit(
+                                                    handle_ellipsis_col(
+                                                        add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'), 'subWorkers'))}
+                                    min_width={1420}
                                     default_page_size={10}
                                     refresher={get_streaming_pub_sub_stat}
                                 />
                                 
                                 <StateTable
                                     type='pubConns'
-                                    cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), true, 'pubConns'), 'queueDepth')}
+                                    cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), 'pubConns'), 'queueDepth')}
                                     rows={handle_ellipsis_col(add_key(streaming_stat.pubConns.to_rows()), 'tables')}         
                                 />
                             </div>
@@ -183,11 +182,12 @@ export function Computing () {
                                             add_details_col(
                                                 translate_order_col(
                                                     set_col_ellipsis(
-                                                        translate_byte_col(streaming_engine_cols, 'memoryUsed'), 'metrics'), 'engine')), 'engine')}
+                                                        translate_format_col(streaming_engine_cols, 'memoryUsed'), 'metrics'), false)), 'engine')}
                                     rows={add_details_row(
-                                            translate_byte_row(
-                                                handle_ellipsis_col(add_key(streaming_engine_rows), 'lastErrMsg')
-                                                , 'memoryUsed'))}
+                                            add_unit(
+                                                translate_byte_row(
+                                                    handle_ellipsis_col(
+                                                        add_key(streaming_engine_rows), 'lastErrMsg'), 'memoryUsed'), 'engine'))}
                                     min_width={1530}
                                     separated={false}
                                     default_page_size={20}
@@ -206,7 +206,7 @@ export function Computing () {
                                 <StateTable
                                     type='sharedStreamingTableStat'
                                     cols={render_col_title(
-                                            translate_byte_col(shared_table_stat.to_cols(), 'bytes'), true, 'sharedStreamingTableStat')}
+                                            translate_format_col(shared_table_stat.to_cols(), 'bytes'), 'sharedStreamingTableStat')}
                                     rows={translate_byte_row(
                                             add_key(shared_table_stat.to_rows()), 'bytes')}
                                     refresher={get_streaming_table_stat}
@@ -215,7 +215,7 @@ export function Computing () {
                                     type='persistenceMeta'
                                     cols={render_col_title(
                                             sort_col(
-                                                set_col_width(persistent_table_stat.to_cols(), 'persistenceMeta'), 'persistenceMeta'), true, 'persistenceMeta')}
+                                                set_col_width(persistent_table_stat.to_cols(), 'persistenceMeta'), 'persistenceMeta'), 'persistenceMeta')}
                                     rows={add_key(persistent_table_stat.to_rows())}
                                     min_width={1500}
                                     refresher={get_streaming_table_stat}
@@ -224,7 +224,7 @@ export function Computing () {
                                     <StateTable
                                         type='persistWorkers'
                                         cols={render_col_title(
-                                                set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), true, 'persistWorkers')}
+                                                set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), 'persistWorkers')}
                                         rows={add_key(streaming_stat.persistWorkers.to_rows())} 
                                         separated={false}  
                                     />
@@ -264,7 +264,7 @@ const cols_width = {
         topic: 240,
         queueDepth: 90,
         queueDepthLimit: 100,
-        lastErrMsg: 200,
+        lastErrMsg: 240,
         details: 80
     },
     engine: {
@@ -348,7 +348,7 @@ const leading_cols = {
         lastFailedTimestamp: t('最近错误时刻'),
         failedMsgCount: t('失败消息总数'),
         processedMsgCount: t('已处理消息数'),
-        lastMsgId: t('最近消息 ID'),
+        lastMsgId: t('最近处理消息 ID'),
         lastFailedMsgId: t('最近错误消息 ID')
     },
     pubConns: {
@@ -466,58 +466,76 @@ const expanded_cols = {
     }
 }
 
+const units = {
+    subWorkers: {
+        batchSize: t('条'),
+        throttle: t('毫秒')
+    },
+    engine: {
+        triggeringInterval: t('毫秒')
+    },
+}
+
 
 /** 省略文本内容，提供`详细`按钮，点开后弹出 modal 显示详细信息 */
-function handle_ellipsis_col (table: Record<string, any>, col_name: string) {
+function handle_ellipsis_col (table: Record<string, any>[], col_name: string) {
     const is_error_col = col_name === 'lastErrMsg'
     return table.map(row => {
         if (is_error_col)
             row.order = row[col_name]
-        row[col_name] = <ErrorMsg text={row[col_name] as string} type={is_error_col ? 'error' : 'info'} />
+        row[col_name] = <DetailInfo text={row[col_name] as string} type={is_error_col ? 'error' : 'info'} />
+        return row
+    })
+}
+
+/** 增加单位 */
+function add_unit (table: Record<string, any>[], table_name: string) {
+    return table.map(row => {
+        for (let key of Object.keys(units[table_name])) 
+            row[key] = `${row[key]} ${units[table_name][key]}`
         return row
     })
 }
 
 
-/** 按照主要列（leading_cols）的顺序进行排序 */
+/** 按照主要列（leading_cols）的顺序对表格进行排序 */
 function sort_col (cols: TableColumnType<Record<string, any>>[], type: string) {
     return Object.keys(leading_cols[type]).map(col_name => 
                                             cols.find(({ dataIndex }) => dataIndex === col_name))
 }
 
-/** 将 subworker 表按照 QueueDepth 和 LastErrMsg 排序 */
-function translate_order_col (cols: TableColumnType<Record<string, any>>[], type: string) {
-    const i_depth_col = cols.findIndex(({ dataIndex }) => dataIndex === (type === 'subWorkers' ? 'queueDepth' : 'memoryUsed'))
+/** 增加排序列，subWorker 的 lastErrMsg 和 queueDepth，engine 的 lastErrMsg 和 memoryUsed  */
+function translate_order_col (cols: TableColumnType<Record<string, any>>[], is_sub_workers: boolean) {
+    const i_depth_col = cols.findIndex(({ dataIndex }) => dataIndex === (is_sub_workers ? 'queueDepth' : 'memoryUsed'))
     const i_last_err_msg_col = cols.findIndex(({ dataIndex }) => dataIndex === 'lastErrMsg')
     const msg_order_function = (a: Record<string, any>, b: Record<string, any>) => {
-        if (a.order && !b.order)
-            return 1
-        else if (b.order && !a.order)
-            return -1
-        return 0
+        return a.order && !b.order ? 1 : b.order && !a.order ? -1 : 0
     }
     cols[i_depth_col] = {
         ...cols[i_depth_col],
-        sorter: type === 'subWorkers' ? 
-                                    (a: Record<string, any>, b: Record<string, any>) => Number(a.queueDepth) - Number(b.queueDepth)
-                                      :
-                                    (a: Record<string, any>, b: Record<string, any>) => Number(a.origin_bytes) - Number(b.origin_bytes),
+        sorter: is_sub_workers ? 
+                            (a: Record<string, any>, b: Record<string, any>) => Number(a.queueDepth) - Number(b.queueDepth)
+                               :
+                            (a: Record<string, any>, b: Record<string, any>) => Number(a.origin_bytes) - Number(b.origin_bytes),
         sortDirections: ['descend' as SortOrder]
     }
     cols[i_last_err_msg_col] = { ...cols[i_last_err_msg_col], sorter: msg_order_function, sortDirections: ['descend' as SortOrder] }
     return cols
 }
 
-/** 增加 key */
+/** 为每一张表增加 key */
 function add_key (table: Record<string, any>, key_index = 0) {
     const { title = '' } = table
-    return table.map((row: object, idx: number) => {
-        return { ...row, key: title.includes('Conns') ? idx : Object.values(row)[key_index] }
+    return table.map(row => {
+        return { ...row, key: title === 'pubConns' ? 
+                                                row.client + row.tables
+                                                   : 
+                                                Object.values(row)[key_index] }
     })
 }
 
 /** 这里需要改掉 render，原有的 render 会对数据做 format，导致抛出 NaN  */
-function translate_byte_col (cols: TableColumnType<Record<string, any>>[], col_name: string) {
+function translate_format_col (cols: TableColumnType<Record<string, any>>[], col_name: string) {
     return cols.map(col => { 
                     if (col.dataIndex === col_name)
                         col.render = value => value
@@ -525,17 +543,17 @@ function translate_byte_col (cols: TableColumnType<Record<string, any>>[], col_n
 }
 
 /** 处理 byte */
-function translate_byte_row (table: Record<string, any>, col_name: string) {
+function translate_byte_row (table: Record<string, any>[], col_name: string) {
     return table.map(row => ({ ...row, origin_bytes: row[col_name], [col_name]: Number(row[col_name]).to_fsize_str() }))
 }
 
 /** 翻译列名，添加 tooltip */
-function render_col_title (cols: TableColumnType<Record<string, any>>[], is_leading: boolean, type: string) {
+function render_col_title (cols: TableColumnType<Record<string, any>>[], table_name: string) {
     for (let col of cols) {
         let title = col.title as string
         col.title = (
             <Tooltip className='col-title' title={title.charAt(0).toUpperCase() + title.slice(1)} placement='bottom'>
-                {is_leading ? leading_cols[type][title] : expanded_cols[type][title]}
+                {leading_cols[table_name][title]}
             </Tooltip>
         )
     }
@@ -580,15 +598,15 @@ function set_col_ellipsis (cols: TableColumnType<Record<string, any>>[], col_nam
 /** 增加额外信息列 */
 function add_details_col (cols: TableColumnType<Record<string, any>>[]) {
     return  [...cols, {
-            title: <span className='col-title'>{t('更多信息')}</span>,
-            dataIndex: 'details',
-            render: value => <span>{value}</span>
-        }
+                        title: <span className='col-title'>{t('更多信息')}</span>,
+                        dataIndex: 'details',
+                        render: (value: ReactNode) => value 
+                      }
     ]
 }
 
-/** 增加额外信息行，hover 展示更多信息 */
-function add_details_row (table: Record<string, any>) {
+/** 增加额外信息行，点击展示更多信息 */
+function add_details_row (table: Record<string, any>[]) {
     return table.map(row => {
         const { engineType } = row
         const detailed_keys = Object.keys(!engineType ? expanded_cols.subWorkers : expanded_cols.engine[engineType])
@@ -596,14 +614,14 @@ function add_details_row (table: Record<string, any>) {
         const info = () => model.modal.info({
             title: !engineType ? row.topic : row.name,
             className: 'show-more-modal',
-            content: <List dataSource={detailed_keys.map(key => `${dict[key]}: ${row[key]}` )} 
+            content: <List dataSource={detailed_keys.map(key => 
+                                                `${dict[key]}: ${Object.values(nulls).includes(row[key]) ? null : row[key]}` )} 
                            renderItem={item => <List.Item>{item}</List.Item>}
                            split={false}/>
         })
         return { ...row, details: <a onClick={info}>{t('点击查看')}</a> }
     })
 }
-
 
 /** 统一处理删除 */
 async function handle_delete (type: string, selected: string[], ddb: DDB, refresher: () => Promise<void>) {
@@ -639,7 +657,7 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
 }
 
 
-function ErrorMsg ({ text, type }: { text: string, type: string }) {
+function DetailInfo ({ text, type }: { text: string, type: string }) {
     if (!text)
         return
     const error = () => {
@@ -663,8 +681,7 @@ function ErrorMsg ({ text, type }: { text: string, type: string }) {
                             {t('详细')}
                         </span>
                     )
-                }}
-            >
+                }}>
                 {text}
             </Paragraph>
 }
@@ -700,16 +717,16 @@ function DeleteModal ({
                 okText={button_text[table_name].action}
                 okButtonProps={{ disabled: input_value !== 'YES', className: input_value !== 'YES' ? 'disable-button' : 'normal-button' }}
                 onOk={async () => { await handle_delete(table_name, selected, ddb, refresher)
-                                    set_input_value('')
-                                    set_selected([ ])
-                                    close() }}>
+                                          set_input_value('')
+                                          set_selected([ ])
+                                          close() }}>
                     <Input placeholder={t('请输入 \'YES\' 以确认该操作')}
-                        value={input_value} 
-                        onChange={({ target: { value } }) => set_input_value(value)}
+                           value={input_value} 
+                           onChange={({ target: { value } }) => set_input_value(value)}
                         />
         </Modal>
         <Button className='title-button' disabled={!selected.length} onClick={open}>
-            {`批量${button_text[table_name].action}`}
+            {t('批量') + button_text[table_name].action}
         </Button>
         </>
 }

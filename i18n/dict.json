@@ -2233,5 +2233,62 @@
     },
     "接收平均延迟": {
         "en": "receive average latency"
+    },
+    "流计算监控": {
+        "en": "Stream Computing Monitoring"
+    },
+    "流计算引擎状态": {
+        "en": "Stream Computing Engine Status"
+    },
+    "监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。": {
+        "en": "Monitor the status of the worker threads of subscribing nodes. Worker thread status information will be displayed according to topic."
+    },
+    "监控本地发布节点和它的所有订阅节点之间的连接状态。": {
+        "en": "Monitors the connection status between the local publishing node and all its subscribing nodes."
+    },
+    "监控负责持久化流数据表的工作线程的状态。": {
+        "en": "Monitor the status of the worker thread responsible for persisting the streaming data table."
+    },
+    "监控启用了持久化的共享流数据表的元数据。": {
+        "en": "Monitor metadata for shared streaming data tables with persistence enabled."
+    },
+    "监控未启用持久化的共享流数据表的元数据。": {
+        "en": "Monitor metadata for shared streaming data tables that do not have persistence enabled."
+    },
+    "监控流计算引擎的状态。": {
+        "en": "Monitor the status of the stream computing engine."
+    },
+    "流数据表": {
+        "en": "Streaming table"
+    },
+    "取消订阅": {
+        "en": " unsubscribe"
+    },
+    "引擎": {
+        "en": "engine"
+    },
+    "持久化共享数据流表": {
+        "en": "Persistent Shared Streaming Table"
+    },
+    "共享数据流表": {
+        "en": "Shared Streaming Table"
+    },
+    "最近处理消息 ID": {
+        "en": "Recently processed message ID"
+    },
+    "条": {
+        "en": "piece"
+    },
+    "毫秒": {
+        "en": "millisecond"
+    },
+    "更多信息": {
+        "en": "More info"
+    },
+    "点击查看": {
+        "en": "click to view"
+    },
+    "请输入 'YES' 以确认该操作": {
+        "en": "Please enter 'YES' to confirm this action"
     }
 }
