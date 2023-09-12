@@ -15,7 +15,7 @@ import SvgJob from '../job.icon.svg'
 import SvgLog from '../log.icon.svg'
 
 
-const { Text } = Typography
+const { Text, Link } = Typography
 
 
 const svgs = {
@@ -96,6 +96,14 @@ export function DdbSider () {
                     icon: <MenuIcon view='log' />,
                     label: t('日志查看'),
                 },
+                ... model.is_factor_platform_enabled ? [{
+                    key: 'factor-platform',
+                    icon: <MenuIcon view='log' />,
+                    label: <Link href={`factor-platform/index.html?logined=${model.logined}&token=${localStorage.getItem(storage_keys.ticket)}`}>
+                                {t('因子平台')}
+                        </Link>
+                    
+                }] : [ ]
             ]}
         />
     </Layout.Sider>

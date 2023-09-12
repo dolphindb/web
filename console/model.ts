@@ -49,6 +49,8 @@ export class DdbModel extends Model<DdbModel> {
     /** 启用详细日志，包括执行的代码和运行代码返回的变量 */
     verbose = false
     
+    is_factor_platform_enabled = false
+    
     ddb: DDB
     
     collapsed = localStorage.getItem(storage_keys.collapsed) === 'true'
@@ -194,6 +196,8 @@ export class DdbModel extends Model<DdbModel> {
         
         this.set({ inited: true })
         
+        this.set({ is_factor_platform_enabled: this.get_factor_platform_enabled() })
+        
         this.get_version()
     }
     
@@ -289,6 +293,12 @@ export class DdbModel extends Model<DdbModel> {
             username: username_guest,
         })
         this.goto_login()
+    }
+    
+    
+    /** */
+    get_factor_platform_enabled () {
+        return true
     }
     
     
