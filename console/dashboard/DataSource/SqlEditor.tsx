@@ -7,21 +7,30 @@ import { DataView } from '../../shell/DataView.js'
 import { shell } from '../../shell/model.js'
 
 import { type dataSourceNodeType, type dataSourceNodePropertyType } from '../storage/date-source-node.js'
+import { useEffect } from 'react'
 
 type PropsType = { 
     show_preview: boolean
-    close_preview: () => void 
     current_data_source_node: dataSourceNodeType
+    close_preview: () => void 
+    change_no_save_flag: (value: boolean) => void
     change_current_data_source_node_property: (key: string, value: dataSourceNodePropertyType) => void
 }
 export function SqlEditor ({ 
         current_data_source_node, 
-        change_current_data_source_node_property, 
-        show_preview, 
+        show_preview,
+        change_current_data_source_node_property,
+        change_no_save_flag,  
         close_preview,
     }: PropsType) 
 {
     shell.term = shell.term || new window.Terminal()
+    
+    useEffect(() => {
+        shell.editor?.setValue(current_data_source_node.code || '')
+        change_no_save_flag(false)
+    }, [ current_data_source_node.id ])
+    
     return <>
         <div className='data-source-config-sqleditor'>
             <div className='data-source-config-sqleditor-main' style={{  height: (show_preview ? '40%' : '100%') }}>
@@ -31,6 +40,7 @@ export function SqlEditor ({
                         editor.setValue(current_data_source_node.code || '')
                         shell.set({ editor, monaco })
                     }}
+                    on_change={() => change_no_save_flag(true)}
                 />
             </div>
             {show_preview

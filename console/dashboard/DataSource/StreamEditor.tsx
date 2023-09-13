@@ -1,10 +1,11 @@
-import { createElement, useState } from 'react'
+import { createElement, useEffect, useState } from 'react'
 
 import { Input, Popover, Select, Tree } from 'antd'
 import type { MenuProps } from 'antd'
 import { CloseOutlined, QuestionCircleOutlined, TableOutlined } from '@ant-design/icons'
 
 import { Editor } from '../../shell/Editor/index.js'
+import { dataSourceNodeType } from '../storage/date-source-node.js'
 
 const node_items: MenuProps['items'] = [
     {
@@ -33,7 +34,20 @@ const content = (
     </div>
   )
 
-export function StreamEditor ({ show_preview, close_preview }: { show_preview: boolean, close_preview: () => void }) {
+type PropsType = { 
+    show_preview: boolean
+    current_data_source_node: dataSourceNodeType
+    change_no_save_flag: (value: boolean) => void
+    close_preview: () => void 
+}
+  
+export function StreamEditor ({ 
+    show_preview, 
+    current_data_source_node,
+    change_no_save_flag,
+    close_preview
+ }: PropsType) {
+    
     const [filter_mode, set_filter_mode] = useState('value')
     
     const on_filter_mode_change_handler = (value: string) => {
@@ -52,6 +66,10 @@ export function StreamEditor ({ show_preview, close_preview }: { show_preview: b
             return
         }
     }
+    
+    useEffect(() => {
+        change_no_save_flag(false)
+    }, [ current_data_source_node.id ])
     
     return <>
         <div className='data-source-config-streameditor'>
