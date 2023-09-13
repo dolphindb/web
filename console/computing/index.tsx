@@ -152,10 +152,10 @@ export function Computing () {
                                                 ),
                                              'subWorkers')), 'subWorkers')
                                         }
-                                    rows={  add_details_row(
+                                    rows={check_null(add_details_row(
                                                 add_unit(
                                                     handle_ellipsis_col(
-                                                        add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'), 'subWorkers'))}
+                                                        add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'), 'subWorkers')))}
                                     min_width={1420}
                                     default_page_size={10}
                                     refresher={get_streaming_pub_sub_stat}
@@ -495,6 +495,19 @@ function add_unit (table: Record<string, any>[], table_name: string) {
             row[key] = `${row[key]} ${units[table_name][key]}`
         return row
     })
+}
+
+
+/** 检查是否为 null */
+function check_null (table: Record<string, any>[]) {
+    const value =  table.map(row => {
+        for (let [key, val] of Object.entries(row)) 
+            if (Object.values(nulls).includes(val))
+                row[key] = null
+        return row
+    })
+    console.log('check null:', value)
+    return value
 }
 
 
