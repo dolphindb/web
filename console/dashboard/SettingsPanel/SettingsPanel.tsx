@@ -2,6 +2,7 @@ import { MailOutlined, AppstoreOutlined } from '@ant-design/icons'
 import { Menu, MenuProps } from 'antd'
 import { useState } from 'react'
 import { CanvasSetting } from './CanvasSetting.js'
+import { GraphSetting, PropsType, SettingOption } from './GraphSetting.js'
 
 const items: MenuProps['items'] = [
     {
@@ -23,6 +24,8 @@ export function SettingsPanel ({ hidden }: { hidden: boolean }) {
         console.log('click ', e)
         set_current_page(e.key)
     }
+    
+    
 return <>
         <div className={`dashboard-settings-panel  ${hidden ? '' : 'hidden'}`}>
             <div className='settings-change'>
@@ -34,14 +37,62 @@ return <>
                     current_page === 'canvas' ?
                         <CanvasSetting/>
                     :
-                    <>
-                        <div>图标</div>
-                        <div>页面大小</div>
-                    </>
+                        <GraphSetting setting_option={setting_option}/>
                 }
             </div>
         </div>
     </>
 }
 
+const setting_option: SettingOption[] = [
+    {
+        key: '基础',
+        label: '基础',
+        children: [
+            {
+                type: 'Input',
+                title: '标题',
+                value: '',
+                name: 'title'
+            }
+        ]
+    },
+    {
+        key: '样式',
+        label: '样式',
+        children: [
+            {
+                type: 'Input',
+                title: '标题',
+                value: '',
+                name: 'style'
+            }
+        ]
+    },
+    {
+        key: 'X轴',
+        label: 'X轴',
+        children: [
+            {
+                type: 'Input',
+                title: '标题',
+                value: '',
+                name: 'x'
+            }
+        ]
+    },
+    {
+        key: 'Y轴',
+        label: 'Y轴',
+        children: [
+            {
+                type: 'Input',
+                title: '标题',
+                value: '',
+                name: 'y'
+            }
+        ]
+    },
+    
+]
 

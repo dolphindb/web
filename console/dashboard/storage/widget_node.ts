@@ -10,6 +10,8 @@ export type WidgetOption = {
     w: number
     /** 高度 */
     h: number
+    /** 更新图表方法 */
+    updateGraph?: () => void
 }
 
 

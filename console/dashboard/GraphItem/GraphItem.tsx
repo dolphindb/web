@@ -19,7 +19,7 @@ export function GraphItem  ({ item, el, grid, actived }) {
         if (Object.keys(data).length) {
             let chart = echarts.init(graph.current)
             // 指定图表的配置项和数据
-            var option = {
+            const option = {
                 title: {
                     text: 'ECharts 入门示例'
                 },
