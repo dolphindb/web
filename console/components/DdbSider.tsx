@@ -101,7 +101,7 @@ export function DdbSider () {
                 ... model.is_factor_platform_enabled ? [{
                     key: 'factor-platform',
                     icon: <MenuIcon view='factor' />,
-                    label: <Link href={`factor-platform/index.html?logined=${model.logined}&token=${localStorage.getItem(storage_keys.ticket)}`}>
+                    label: <Link target='_blank' href={`factor-platform/index.html?logined=${model.logined}&token=${localStorage.getItem(storage_keys.ticket)}`}>
                                 {t('因子平台')}
                         </Link>
                     

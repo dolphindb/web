@@ -163,7 +163,8 @@ export class DdbModel extends Model<DdbModel> {
             this.get_node_type(),
             this.get_node_alias(),
             this.get_controller_alias(),
-            this.get_login_required()
+            this.get_login_required(),
+            this.get_factor_platform_enabled()
         ])
         
         if (this.autologin)
@@ -192,11 +193,9 @@ export class DdbModel extends Model<DdbModel> {
         this.goto_default_view()
         
         if (this.login_required && !this.logined)
-            this.goto_login()
-        
+            this.goto_login()   
+            
         this.set({ inited: true })
-        
-        this.get_factor_platform_enabled()
         
         this.get_version()
     }
@@ -297,11 +296,13 @@ export class DdbModel extends Model<DdbModel> {
     
     
     /** 获取是否启用因子平台，待 server 实现 */
-    get_factor_platform_enabled () {
-        this.set({ is_factor_platform_enabled: true })
-        // const { value } = await this.ddb.call('is_factor_platform_enabled', [ ], { urgent: true })
-        // const is_factor_platform_enabled = value === '1' || value === 'true'
-        // this.set({ is_factor_platform_enabled })
+    async get_factor_platform_enabled () {
+        try {
+            const { value } = await this.ddb.call<DdbObj<boolean>>('is_factor_platform_enabled', [ ], { urgent: true })
+            this.set({ is_factor_platform_enabled: value })
+        } catch (error) {
+            this.set({ is_factor_platform_enabled: false })
+        }
     }
     
     
