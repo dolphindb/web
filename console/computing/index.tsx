@@ -152,10 +152,11 @@ export function Computing () {
                                                 ),
                                              'subWorkers')), 'subWorkers')
                                         }
-                                    rows={  add_details_row(
+                                    rows={add_details_row(
+                                            check_null(
                                                 add_unit(
                                                     handle_ellipsis_col(
-                                                        add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'), 'subWorkers'))}
+                                                        add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'), 'subWorkers')))}
                                     min_width={1420}
                                     default_page_size={10}
                                     refresher={get_streaming_pub_sub_stat}
@@ -163,8 +164,12 @@ export function Computing () {
                                 
                                 <StateTable
                                     type='pubConns'
-                                    cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), 'pubConns'), 'queueDepth')}
-                                    rows={handle_ellipsis_col(add_key(streaming_stat.pubConns.to_rows()), 'tables')}         
+                                    cols={set_col_color(
+                                            render_col_title(streaming_stat.pubConns.to_cols(), 'pubConns'), 'queueDepth')}
+                                    rows={handle_ellipsis_col(
+                                            check_null(
+                                                add_key(streaming_stat.pubConns.to_rows())), 'tables')}
+                                    separated={false}         
                                 />
                             </div>
                         )
@@ -184,10 +189,11 @@ export function Computing () {
                                                     set_col_ellipsis(
                                                         translate_format_col(streaming_engine_cols, 'memoryUsed'), 'metrics'), false)), 'engine')}
                                     rows={add_details_row(
-                                            add_unit(
-                                                translate_byte_row(
-                                                    handle_ellipsis_col(
-                                                        add_key(streaming_engine_rows), 'lastErrMsg'), 'memoryUsed'), 'engine'))}
+                                            check_null(
+                                                add_unit(
+                                                    translate_byte_row(
+                                                        handle_ellipsis_col(
+                                                            add_key(streaming_engine_rows), 'lastErrMsg'), 'memoryUsed'), 'engine')))}
                                     min_width={1530}
                                     separated={false}
                                     default_page_size={20}
@@ -208,7 +214,8 @@ export function Computing () {
                                     cols={render_col_title(
                                             translate_format_col(shared_table_stat.to_cols(), 'bytes'), 'sharedStreamingTableStat')}
                                     rows={translate_byte_row(
-                                            add_key(shared_table_stat.to_rows()), 'bytes')}
+                                            check_null(
+                                                add_key(shared_table_stat.to_rows())), 'bytes')}
                                     refresher={get_streaming_table_stat}
                                 />
                                 <StateTable
@@ -216,7 +223,8 @@ export function Computing () {
                                     cols={render_col_title(
                                             sort_col(
                                                 set_col_width(persistent_table_stat.to_cols(), 'persistenceMeta'), 'persistenceMeta'), 'persistenceMeta')}
-                                    rows={add_key(persistent_table_stat.to_rows())}
+                                    rows={check_null(
+                                            add_key(persistent_table_stat.to_rows()))}
                                     min_width={1500}
                                     refresher={get_streaming_table_stat}
                                 />
@@ -225,7 +233,8 @@ export function Computing () {
                                         type='persistWorkers'
                                         cols={render_col_title(
                                                 set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), 'persistWorkers')}
-                                        rows={add_key(streaming_stat.persistWorkers.to_rows())} 
+                                        rows={check_null(
+                                                add_key(streaming_stat.persistWorkers.to_rows()))} 
                                         separated={false}  
                                     />
                                 )}
@@ -498,6 +507,17 @@ function add_unit (table: Record<string, any>[], table_name: string) {
 }
 
 
+/** 检查是否为 null */
+function check_null (table: Record<string, any>[]) {
+    return table.map(row => {
+        for (let [key, val] of Object.entries(row)) 
+            if (Object.values(nulls).includes(val))
+                row[key] = null
+        return row
+    })
+}
+
+
 /** 按照主要列（leading_cols）的顺序对表格进行排序 */
 function sort_col (cols: TableColumnType<Record<string, any>>[], type: string) {
     return Object.keys(leading_cols[type]).map(col_name => 
@@ -614,8 +634,7 @@ function add_details_row (table: Record<string, any>[]) {
         const info = () => model.modal.info({
             title: !engineType ? row.topic : row.name,
             className: 'show-more-modal',
-            content: <List dataSource={detailed_keys.map(key => 
-                                                `${dict[key]}: ${Object.values(nulls).includes(row[key]) ? null : row[key]}` )} 
+            content: <List dataSource={detailed_keys.map(key => `${dict[key]}: ${row[key] || ''}`)} 
                            renderItem={item => <List.Item>{item}</List.Item>}
                            split={false}/>
         })
