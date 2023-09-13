@@ -34,6 +34,7 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 
 export function DdbSider () {
     const { view, node_type, collapsed, logined, login_required } = model.use(['view', 'node_type', 'collapsed', 'logined', 'login_required'])
+    const ticket = localStorage.getItem(storage_keys.ticket)
     
     return <Layout.Sider
         width={120}
@@ -102,7 +103,7 @@ export function DdbSider () {
                     key: 'factor-platform',
                     icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' 
-                                 href={`factor-platform/index.html?logined=${model.logined}&token=${localStorage.getItem(storage_keys.ticket)}`}>
+                                 href={`factor-platform/index.html?logined=${model.logined}${ticket ? '&token=' + ticket : ''}`}>
                                 {t('因子平台')}
                         </Link>
                     
