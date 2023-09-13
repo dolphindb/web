@@ -26,10 +26,10 @@ import { Login } from './login.js'
 import { Overview } from './overview/index.js'
 import { OverviewOld } from './overview/old.js'
 import { Shell } from './shell/index.js'
-import { DashBoard } from './dashboard/index.js'
+import { DashBoard } from './test/index.js'
 import { Job } from './job.js'
 import { Log } from './log.js'
-import { GridDashBoard } from './gridstack/index.js'
+import { GridDashBoard } from './dashboard/index.js'
 
 
 createRoot(

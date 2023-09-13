@@ -1,4 +1,4 @@
-import { ReactNode, createElement, useState } from 'react'
+import { MutableRefObject, ReactNode, createElement, useState } from 'react'
 
 import { Input, Tree, App } from 'antd'
 import { DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
@@ -8,12 +8,19 @@ import { create_data_source_node,
          rename_data_source_node, 
          type dataSourceNodeType, 
          dataSourceNodePropertyType, 
-         name_is_exist
     } from '../storage/date-source-node.js'
 
 type PropsType = { 
     data_source_nodes: dataSourceNodeType[]
     current_data_source_node: dataSourceNodeType
+    no_save_flag: MutableRefObject<boolean>
+    save_confirm: () => {
+            destroy: () => void
+            update: (configUpdate: any) => void
+        } & {
+            then<T>(resolve: (confirmed: boolean) => T, reject: VoidFunction): Promise<T>
+    }
+    handle_save: () => Promise<void>
     change_current_data_source_node: (key: string) => void
     change_current_data_source_node_property: (key: string, value: dataSourceNodePropertyType) => void
 }
@@ -27,6 +34,9 @@ type MenuItemType = {
 export function NodeTable ({ 
     data_source_nodes,
     current_data_source_node,
+    no_save_flag,
+    save_confirm,
+    handle_save,
     change_current_data_source_node,
     change_current_data_source_node_property
 }: PropsType ) {
@@ -54,14 +64,17 @@ export function NodeTable ({
             defaultValue={old_name}
             onBlur={e => {
                 let new_name = e.target.value
-                if (name_is_exist(new_name)) {
-                    message.error('该节点名已存在')
+                try {
+                    rename_data_source_node(select_key, new_name)
+                } catch (error) {
+                    message.error(error.message)
                     new_name = old_name
+                } finally {
+                    tmp_menu_item.title = new_name
+                    set_menu_items([...menu_items])
+                    change_current_data_source_node_property('name', new_name)
                 }
-                tmp_menu_item.title = new_name
-                set_menu_items([...menu_items])
-                change_current_data_source_node_property('name', new_name)
-                rename_data_source_node(select_key, new_name)
+                
             }}
         />
         set_menu_items([...menu_items])
@@ -131,9 +144,12 @@ export function NodeTable ({
                         blockNode
                         selectedKeys={[current_select]}
                         className='data-source-config-nodetable-bottom-menu'
-                        onSelect={key => { 
+                        onSelect={async key => { 
                             if (key.length) {
-                                change_current_data_source_node(String(key[0])) 
+                                if (no_save_flag.current && await save_confirm()) 
+                                    handle_save()
+                                no_save_flag.current = false
+                                change_current_data_source_node(String(key[0]))
                                 set_current_select(String(key[0]))
                             }
                         }}
