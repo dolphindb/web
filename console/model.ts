@@ -300,7 +300,9 @@ export class DdbModel extends Model<DdbModel> {
         try {
             const { value } = await this.ddb.call<DdbObj<boolean>>('is_factor_platform_enabled', [ ], { urgent: true })
             this.set({ is_factor_platform_enabled: value })
-        } catch { }
+        } catch (error) {
+            this.set({ is_factor_platform_enabled: true })
+         }
     }
     
     
