@@ -1,9 +1,12 @@
 import './index.sass'
 
 import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react'
+
 import { Button, Tabs, Table, Tooltip, Typography, Spin, Result, type TableColumnType, Input, Modal, List } from 'antd'
+
 import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined } from '@ant-design/icons'
-import type {  SortOrder } from 'antd/es/table/interface.js'
+
+import type { SortOrder } from 'antd/es/table/interface.js'
 
 import { DDB, DdbObj } from 'dolphindb/browser.js'
 
@@ -16,9 +19,6 @@ import SvgPublish from './icons/publish.icon.svg'
 import SvgEngine from './icons/engine.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 import { use_modal } from 'react-object-model/modal'
-
-
-const { Paragraph } = Typography
 
 
 export function Computing () {
@@ -676,7 +676,7 @@ function DetailInfo ({ text, type }: { text: string, type: string }) {
             width: '80%'
         })
     }
-    return <Paragraph
+    return <Typography.Paragraph
                 ellipsis={{
                     rows: 2,
                     expandable: true,
@@ -692,7 +692,7 @@ function DetailInfo ({ text, type }: { text: string, type: string }) {
                     )
                 }}>
                 {text}
-            </Paragraph>
+            </Typography.Paragraph>
 }
 
 
