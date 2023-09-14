@@ -64,7 +64,7 @@ export function GraphItem  ({ item, el, grid, actived }) {
             <>
                 <div className='graph-content'>
                     <div className='title'>{GraphTypeName[item.type]}</div>
-                    <DataSource trigger_index='graph'/>
+                    <DataSource widget_option={item}/>
                 </div>
             </>
         }

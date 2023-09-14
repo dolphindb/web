@@ -27,7 +27,6 @@ export function SqlEditor ({
     const { result } = shell.use(['result'])
     
     useEffect(() => {
-        shell.editor?.setValue(current_data_source_node.code || '')
         if (current_data_source_node.mode === data_source_nodes[find_data_source_node_index(current_data_source_node.id)].mode)
             change_no_save_flag(false)
     }, [ current_data_source_node.id ])
@@ -38,7 +37,7 @@ export function SqlEditor ({
                 <Editor 
                     enter_completion
                     on_mount={(editor, monaco) => {
-                        editor.setValue(current_data_source_node.code || '')
+                        editor?.setValue(data_source_nodes[find_data_source_node_index(current_data_source_node.id)].code || '')
                         shell.set({ editor, monaco })
                     }}
                     on_change={() => change_no_save_flag(true)}

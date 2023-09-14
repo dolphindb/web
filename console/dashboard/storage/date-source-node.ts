@@ -1,5 +1,7 @@
 import { genid } from 'xshell/utils.browser.js'
 
+import { type WidgetOption } from '../storage/widget_node.js'
+
 type ExtractTypes<T> = T extends { [key: string]: infer U } ? U : never
 
 export type dataSourceNodeType = {
@@ -22,6 +24,12 @@ export const find_data_source_node_index = (key: string) =>
 
 export const save_data_source_node = ( new_data_source_node: dataSourceNodeType) => {
     data_source_nodes[find_data_source_node_index(new_data_source_node.id)] = { ...new_data_source_node }
+    const dep = deps.get(new_data_source_node.id)
+    if (dep && dep.length)
+        dep.forEach((widget_option: WidgetOption) => {
+            // widget_option.updateGraph()
+            console.log(widget_option.id, 'render', data_source_nodes[find_data_source_node_index(new_data_source_node.id)].data)
+        })
 }
 
 export const delete_data_source_node = (key: string) => {
@@ -61,6 +69,19 @@ export const rename_data_source_node = (key: string, new_name: string) => {
 
 export const name_is_exist = (new_name: string): boolean => 
     data_source_nodes.findIndex(data_source_node => data_source_node.name === new_name) !== -1
+    
+export const save_deps = (widget_option: WidgetOption, source_id: string) => {
+    if (widget_option.source_id) 
+        deps.set(widget_option.source_id, deps.get(widget_option.source_id).filter((dep: WidgetOption) => dep.id !== widget_option.id ))  
+    if (deps.has(source_id)) 
+        deps.get(source_id).push(widget_option)
+     else 
+        deps.set(source_id, [widget_option])
+    
+    // widget_option.updateGraph()
+    console.log(widget_option.id, 'render', data_source_nodes[find_data_source_node_index(source_id)].data)
+        
+}
 
 export const data_source_nodes: dataSourceNodeType[] = [
     {
@@ -89,3 +110,5 @@ export const data_source_nodes: dataSourceNodeType[] = [
         mode: 'stream'
     },
  ]
+ 
+export const deps = new Map<string, WidgetOption[]>()

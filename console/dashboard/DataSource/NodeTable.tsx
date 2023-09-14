@@ -88,7 +88,7 @@ export function NodeTable ({
                     onClick={
                         async () => {
                             if (no_save_flag.current && await save_confirm()) 
-                                handle_save()
+                                await handle_save()
                             no_save_flag.current = false
                             const { id, name } = create_data_source_node()
                             const new_menu_items = [
@@ -150,7 +150,7 @@ export function NodeTable ({
                         onSelect={async key => { 
                             if (key.length) {
                                 if (no_save_flag.current && await save_confirm()) 
-                                    handle_save()
+                                    await handle_save()
                                 no_save_flag.current = false
                                 change_current_data_source_node(String(key[0]))
                                 set_current_select(String(key[0]))
