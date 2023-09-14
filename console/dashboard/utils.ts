@@ -1,12 +1,12 @@
 import { DdbObj, formati, DdbVectorValue } from 'dolphindb'
 
-export function formatter (obj: DdbObj<DdbVectorValue>): { name: string, data: Array<string> } {
+export function formatter (obj: DdbObj<DdbVectorValue>, max_line: number): { name: string, data: Array<string> } {
     let length = obj.rows
     let result = {
         name: obj.name,
         data: [ ]
     }
-    for (let i = 0;  i < length;  i++) 
-        result.data.push(formati(obj, i))
+    for (let i = 1;  i <= max_line && i <= length;  i++) 
+        result.data.unshift(formati(obj, length - i))
     return result
 }
