@@ -114,8 +114,8 @@ export function ShellEditor ({ collapser }) {
                     run () {
                         if (shell.executing)
                             model.message.warning(t('当前连接正在执行作业，请等待'))
-                        else 
-                            shell.execute_('line')        
+                        else
+                            shell.execute_('line')
                     }
                 })
                 
@@ -131,8 +131,8 @@ export function ShellEditor ({ collapser }) {
                     run () {
                         if (shell.executing)
                             model.message.warning(t('当前连接正在执行作业，请等待'))
-                        else 
-                            shell.execute_('all')     
+                        else
+                            shell.execute_('all')
                     }
                 })
                 
