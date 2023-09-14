@@ -7,7 +7,7 @@ import type {  SortOrder } from 'antd/es/table/interface.js'
 
 import { DDB, DdbObj } from 'dolphindb/browser.js'
 
-import { model } from '../model.js'
+import { model, NodeType } from '../model.js'
 import { computing } from './model.js'
 
 import { t } from '../../i18n/index.js'
@@ -32,10 +32,10 @@ export function Computing () {
     
     const [tab_key, set_tab_key] = useState<string>('streaming_pub_sub_stat')
     
-    const { ddb, logined } = model.use(['ddb', 'logined'])
+    const { ddb, logined, node_type } = model.use(['ddb', 'logined', 'node_type'])
     
     useEffect(() => {
-        if (!logined)
+        if (!logined || node_type === NodeType.controller)
             return
         ;(async () => {
             try {
@@ -50,10 +50,17 @@ export function Computing () {
         })()
     }, [ ])
     
+    if (node_type === NodeType.controller)
+        return <Result
+            status='warning'
+            className='interceptor'
+            title={t('控制节点不支持流数据的发布订阅，请跳转到数据节点或计算节点查看流数据状态。')}
+        />
+    
     if (!logined)
         return <Result
             status='warning'
-            className='login-interceptor'
+            className='interceptor'
             title={t('登录后可查看当前节点流计算状态')}
             extra={
                 <Button type='primary' onClick={() => model.goto_login()}>
