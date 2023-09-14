@@ -69,7 +69,7 @@ export function DdbSider () {
                     model.message.error(t('请登录'))
                     return
                 }
-                if (key === 'factor-platform')
+                if (key === 'factor')
                     return
                 model.set({ view: key as DdbModel['view'] })
             }}
@@ -106,8 +106,8 @@ export function DdbSider () {
                     label: t('日志查看'),
                 },
                 ... model.is_factor_platform_enabled ? [{
-                    key: 'factor-platform',
-                    icon: <Icon className='icon-menu' component={SvgFactor} />,
+                    key: 'factor',
+                    icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' 
                                  href={`factor-platform/index.html?${search_params}}`}>
                                 {t('因子平台')}
