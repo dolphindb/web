@@ -298,10 +298,12 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    /** 获取是否启用因子平台，待 server 实现 */
     async get_factor_platform_enabled () {
         try {
-            const { value } = await this.ddb.call<DdbObj<boolean>>('is_factor_platform_enabled', [ ], { urgent: true })
+            const { value } = await this.ddb.eval<DdbObj<boolean>>(
+                'use factorPlatform::facplf;\n' +
+                'factorPlatform::facplf::is_factor_platform_enabled()\n'
+                , { urgent: true })
             this.set({ is_factor_platform_enabled: value })
             return value
         } catch { }
