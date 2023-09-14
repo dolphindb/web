@@ -110,7 +110,7 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
             open={visible}
             onCancel={handle_close} 
             maskClosable={false}
-            maskStyle={{ backgroundColor: 'rgba(0,0,0,.2)' }}
+            maskStyle={{ backgroundColor: 'rgba(84,84,84,0.5)' }}
             afterOpenChange={() => {
                 set_current_data_source_node({ ...data_source_nodes[0] } )
             }}
