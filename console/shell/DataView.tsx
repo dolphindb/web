@@ -6,11 +6,11 @@ import { Obj } from '../obj.js'
 
 import { model } from '../model.js'
 import { shell } from './model.js'
+import { shell as dashboard_shell } from '../dashboard/model.js'
 
 
 export function DataView ({ type }: { type: string }) {
-    const result_type = type === 'dashboard' ? 'dashboard_result' : 'shell_result'
-    const result = shell.use([result_type])[result_type]
+    const { result } = type === 'dashboard' ?  dashboard_shell : shell.use(['result'])
     const { options } = model.use(['options'])
     
     return <div className='dataview result embed'>{

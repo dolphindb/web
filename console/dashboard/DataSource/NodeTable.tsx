@@ -9,9 +9,10 @@ import { create_data_source_node,
          type dataSourceNodeType, 
          dataSourceNodePropertyType, 
     } from '../storage/date-source-node.js'
+    
+import { data_source_nodes } from '../storage/date-source-node.js'
 
 type PropsType = { 
-    data_source_nodes: dataSourceNodeType[]
     current_data_source_node: dataSourceNodeType
     no_save_flag: MutableRefObject<boolean>
     save_confirm: () => {
@@ -32,7 +33,6 @@ type MenuItemType = {
 }
 
 export function NodeTable ({ 
-    data_source_nodes,
     current_data_source_node,
     no_save_flag,
     save_confirm,

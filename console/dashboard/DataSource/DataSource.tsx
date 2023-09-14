@@ -12,18 +12,15 @@ import { StreamEditor } from './StreamEditor.js'
 import { data_source_nodes,
          find_data_source_node_index, 
          save_data_source_node, 
-         execute_code,
          type dataSourceNodePropertyType, 
          type dataSourceNodeType 
     } from '../storage/date-source-node.js'
 import { formatter } from '../utils.js'
-import { shell } from '../../shell/model.js'
-import { DdbObj } from 'dolphindb'
+import { shell } from '../model.js'
 
 const save_confirm_config = {
     cancelText: '不保存',
     okText: '保存',
-    maskClosable: true,
     style: { top: '250px' },
     maskStyle: { backgroundColor: 'rgba(0,0,0,.2)' },
     content: (
@@ -55,8 +52,8 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
             pre[key] = value
             return { ...pre }
         })
-        if (key !== 'name')
-            no_save_flag.current = true
+        if (key !== 'name') 
+            no_save_flag.current = true   
     }, [ ])
     
     const handle_close = useCallback(async () => {
@@ -71,22 +68,16 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
     const handle_save = useCallback(async () => {
         current_data_source_node.code = shell.editor.getValue()
         
-        const { type, result } = await execute_code()
+        const { type, result } = await shell.execute()
         change_current_data_source_node_property('error_message', type === 'success' ? '' : result as string)
         current_data_source_node.data.length = 0
-        console.log(result)
-        if (typeof result === 'object') {
-            for (let i = 0;  i < result.cols;  i++)
-                current_data_source_node.data.push(formatter(result.value[i]))  
-            console.log(current_data_source_node.data)
-        }
-               
-            
+        if (typeof result === 'object' && result.data) 
+            for (let i = 0;  i < result.data.cols;  i++) 
+                current_data_source_node.data.push(formatter(result.data.value[i]))
+                
         save_data_source_node(current_data_source_node)
         
         no_save_flag.current = false
-        console.log(current_data_source_node)
-        console.log(data_source_nodes)
     }, [current_data_source_node])
     
     const trigger = {
@@ -120,9 +111,8 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
                         key='preview' 
                         onClick={
                             async () => {
-                                const { type, result } = await execute_code()
-                                if (type === 'error')
-                                    change_current_data_source_node_property('error_message', result as string)
+                                const { type, result } = await shell.execute()
+                                change_current_data_source_node_property('error_message', type === 'success' ? '' : result as string)
                                 set_show_preview(true)
                             }
                         }>
@@ -141,7 +131,6 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
             {contextHolder}
             <div className='data-source-config-main'>
                 <NodeTable 
-                    data_source_nodes={data_source_nodes} 
                     current_data_source_node={current_data_source_node}
                     no_save_flag={no_save_flag}
                     save_confirm={() => modal.confirm(save_confirm_config) }
