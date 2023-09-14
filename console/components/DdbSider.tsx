@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Layout, Menu, Typography } from 'antd'
 
 import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
@@ -35,10 +36,10 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 export function DdbSider () {
     const { view, node_type, collapsed, logined, login_required } = model.use(['view', 'node_type', 'collapsed', 'logined', 'login_required'])
     
-    const search_params = new URLSearchParams({
-        logined: Number(model.logined).toString(),
+    const factor_href = useMemo(() => 'factor-platform/index.html?' + new URLSearchParams({
+        logined: Number(logined).toString(),
         ...localStorage.getItem(storage_keys.ticket) ? { token: localStorage.getItem(storage_keys.ticket) } : { }
-    }).toString()
+    }).toString(), [logined])
     
     return <Layout.Sider
         width={120}
@@ -109,7 +110,7 @@ export function DdbSider () {
                     key: 'factor',
                     icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' 
-                                 href={`factor-platform/index.html?${search_params}}`}>
+                                 href={factor_href}>
                                 {t('因子平台')}
                         </Link>
                     
