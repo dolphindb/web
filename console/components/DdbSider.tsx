@@ -35,7 +35,10 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 export function DdbSider () {
     const { view, node_type, collapsed, logined, login_required } = model.use(['view', 'node_type', 'collapsed', 'logined', 'login_required'])
     
-    const ticket = localStorage.getItem(storage_keys.ticket)
+    const search_params = new URLSearchParams({
+        logined: Number(model.logined).toString(),
+        ...localStorage.getItem(storage_keys.ticket) ? { token: localStorage.getItem(storage_keys.ticket) } : { }
+    }).toString()
     
     return <Layout.Sider
         width={120}
@@ -106,7 +109,7 @@ export function DdbSider () {
                     key: 'factor-platform',
                     icon: <Icon className='icon-menu' component={SvgFactor} />,
                     label: <Link target='_blank' 
-                                 href={`factor-platform/index.html?logined=${model.logined}${ticket ? '&token=' + ticket : ''}`}>
+                                 href={`factor-platform/index.html?${search_params}}`}>
                                 {t('因子平台')}
                         </Link>
                     
