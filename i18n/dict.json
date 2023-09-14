@@ -2290,5 +2290,11 @@
     },
     "请输入 'YES' 以确认该操作": {
         "en": "Please enter 'YES' to confirm this action"
+    },
+    "控制节点不支持流数据的发布订阅，请跳转到数据节点或计算节点查看流数据状态。": {
+        "en": "The control node does not support publishing and subscription of streaming data. Please jump to the data node or computing node to view the streaming data status."
+    },
+    "批量": {
+        "en": "batch"
     }
 }
