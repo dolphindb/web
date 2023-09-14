@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { Layout, Menu, Typography } from 'antd'
 
 import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
@@ -13,10 +15,11 @@ import SvgShell from '../shell/index.icon.svg'
 import SvgDashboard from '../dashboard/icons/dashboard.icon.svg'
 import SvgJob from '../job.icon.svg'
 import SvgLog from '../log.icon.svg'
+import SvgFactor from '../factor.icon.svg'
 import SvgComputing from '../computing/icons/computing.icon.svg'
 
 
-const { Text } = Typography
+const { Text, Link } = Typography
 
 
 const svgs = {
@@ -25,6 +28,7 @@ const svgs = {
     dashboard: SvgDashboard,
     job: SvgJob,
     log: SvgLog,
+    factor: SvgFactor,
     computing: SvgComputing,
 }
 
@@ -34,6 +38,15 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 
 export function DdbSider () {
     const { view, node_type, collapsed, logined, login_required } = model.use(['view', 'node_type', 'collapsed', 'logined', 'login_required'])
+    
+    const factor_href = useMemo(() =>
+        'factor-platform/index.html?' + new URLSearchParams({
+            logined: Number(logined).toString(),
+            ...(localStorage.getItem(storage_keys.ticket) ? { token: localStorage.getItem(storage_keys.ticket) } : { })
+        }).toString(),
+        
+        [logined]
+    )
     
     return <Layout.Sider
         width={120}
@@ -64,6 +77,10 @@ export function DdbSider () {
                     model.message.error(t('请登录'))
                     return
                 }
+                
+                if (key === 'factor')
+                    return
+                
                 model.set({ view: key as DdbModel['view'] })
             }}
             inlineIndent={10}
@@ -103,6 +120,11 @@ export function DdbSider () {
                     icon: <MenuIcon view='log' />,
                     label: t('日志查看'),
                 },
+                ... model.is_factor_platform_enabled ? [{
+                    key: 'factor',
+                    icon: <MenuIcon view='factor' />,
+                    label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
+                }] : [ ]
             ]}
         />
     </Layout.Sider>
