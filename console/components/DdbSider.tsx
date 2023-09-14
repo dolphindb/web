@@ -34,6 +34,7 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 
 export function DdbSider () {
     const { view, node_type, collapsed, logined, login_required } = model.use(['view', 'node_type', 'collapsed', 'logined', 'login_required'])
+    
     const ticket = localStorage.getItem(storage_keys.ticket)
     
     return <Layout.Sider
