@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+
 import { Layout, Menu, Typography } from 'antd'
 
 import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
@@ -36,10 +37,14 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 export function DdbSider () {
     const { view, node_type, collapsed, logined, login_required } = model.use(['view', 'node_type', 'collapsed', 'logined', 'login_required'])
     
-    const factor_href = useMemo(() => 'factor-platform/index.html?' + new URLSearchParams({
-        logined: Number(logined).toString(),
-        ...localStorage.getItem(storage_keys.ticket) ? { token: localStorage.getItem(storage_keys.ticket) } : { }
-    }).toString(), [logined])
+    const factor_href = useMemo(() =>
+        'factor-platform/index.html?' + new URLSearchParams({
+            logined: Number(logined).toString(),
+            ...(localStorage.getItem(storage_keys.ticket) ? { token: localStorage.getItem(storage_keys.ticket) } : { })
+        }).toString(),
+        
+        [logined]
+    )
     
     return <Layout.Sider
         width={120}
@@ -70,8 +75,10 @@ export function DdbSider () {
                     model.message.error(t('请登录'))
                     return
                 }
+                
                 if (key === 'factor')
                     return
+                
                 model.set({ view: key as DdbModel['view'] })
             }}
             inlineIndent={10}
@@ -109,11 +116,7 @@ export function DdbSider () {
                 ... model.is_factor_platform_enabled ? [{
                     key: 'factor',
                     icon: <MenuIcon view='factor' />,
-                    label: <Link target='_blank' 
-                                 href={factor_href}>
-                                {t('因子平台')}
-                        </Link>
-                    
+                    label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
                 }] : [ ]
             ]}
         />
