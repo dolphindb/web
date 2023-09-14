@@ -10,10 +10,11 @@ import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 import { Navigation } from './Navigation/Navigation.js'
 import { WidgetOption, widget_nodes } from './storage/widget_node.js'
+import { ConfigProvider, theme } from 'antd'
 
 // gridstack 仅支持 12 列以下的，大于 12 列需要手动添加 css 代码，详见 gridstack 的 readme.md
 // 目前本项目仅支持仅支持 tmpcol<=12
-const tmpcol = 5, tmprow = 5
+const tmpcol = 12, tmprow = 12
 export function GridDashBoard () {
     const [widget_options, set_widget_options] = useState([ ...widget_nodes ])
     const [all_widgets, set_all_widgets] = useState([ ])
@@ -99,35 +100,40 @@ export function GridDashBoard () {
                 })
         })
     }, [ ])
-    return <div className='dashboard'>
-        <div className='dashboard-header'>
-            <Navigation editing={editing} change_editing={change_editing}/>
-        </div>
-        <div className='dashboard-main'>
-            <SelectSider hidden={editing}/>
-            <div className='dashboard-canvas' onClick={() => { change_active_widgets('') }}>
-                <div className='grid-stack' style={{ backgroundSize: `${100 / tmpcol}% ${100 / tmprow}%` }} >
-                    {widget_options.map((item, i) => {
-                        return <div 
-                                    ref={widget_refs.current[item.id]} 
-                                    key={item.id} 
-                                    className='grid-stack-item' 
-                                    gs-id={item.id} 
-                                    gs-w={item.w} 
-                                    gs-h={item.h} 
-                                    gs-x={item.x} 
-                                    gs-y={item.y} 
-                                    onClick={e => {
-                                        e.stopPropagation()
-                                        change_active_widgets(item.id)
-                                    }}
-                                >
-                            <GraphItem item={item} el={all_widgets[i]} grid={grid_refs.current} actived={active_widget_id === item.id}/>
-                        </div>
-                    })}
-                </div>
+    
+    return <ConfigProvider
+        theme={{ hashed: false, token: { borderRadius: 0, motion: false }, algorithm: theme.darkAlgorithm }}
+    >
+        <div className='dashboard'>
+            <div className='dashboard-header'>
+                <Navigation editing={editing} change_editing={change_editing}/>
             </div>
-            <SettingsPanel hidden={editing}/>
+            <div className='dashboard-main'>
+                <SelectSider hidden={editing}/>
+                <div className='dashboard-canvas' onClick={() => { change_active_widgets('') }}>
+                    <div className='grid-stack' style={{ backgroundSize: `${100 / tmpcol}% ${100 / tmprow}%` }} >
+                        {widget_options.map((item, i) => {
+                            return <div 
+                                        ref={widget_refs.current[item.id]} 
+                                        key={item.id} 
+                                        className='grid-stack-item' 
+                                        gs-id={item.id} 
+                                        gs-w={item.w} 
+                                        gs-h={item.h} 
+                                        gs-x={item.x} 
+                                        gs-y={item.y} 
+                                        onClick={e => {
+                                            e.stopPropagation()
+                                            change_active_widgets(item.id)
+                                        }}
+                                    >
+                                <GraphItem item={item} el={all_widgets[i]} grid={grid_refs.current} actived={active_widget_id === item.id}/>
+                            </div>
+                        })}
+                    </div>
+                </div>
+                <SettingsPanel hidden={editing}/>
+            </div>
         </div>
-    </div>
+    </ConfigProvider>
 }

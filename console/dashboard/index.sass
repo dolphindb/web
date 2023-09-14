@@ -1,3 +1,8 @@
+$canvasBackColor: rgb(40, 40, 40)
+$fontColor: rgb(215, 215, 215)
+$blue: rgb(64, 147, 211)
+    
+    
 .view-card.gridstack
     height: 100%
     padding: 0px !important
@@ -9,29 +14,28 @@
     
     .dashboard-header
         height: 5%
+        border-bottom: 1px black solid
         
         .dashboard-navigation
             height: 100%
             display: flex
             flex-direction: row
-            border-bottom: 1px solid #e5e5e5
+            background-color: rgb(44, 42, 41)
+            color: $fontColor
+            
                 
             .dashboard-navigation-left   
                 width: 160px
-                border-right: 1px solid #e5e5e5 
                 
                 .dashboard-navigation-left-select
                     width: 100%
                     height: 100%
                     
-                    .ant-select-selection-placeholder
+                    .ant-select-selection-placeholder, .ant-select-selection-item
                         display: flex
                         align-items: center
-                    
-                    .ant-select-selection-item
-                        display: flex
-                        align-items: center
-                    
+                        color: $fontColor
+                        
                     .ant-select-selector
                         height: 100%
                         
@@ -40,7 +44,6 @@
                 display: flex
                 justify-content: space-between
                 font-size: 16px
-                color:#555
                 cursor: default
                 
                 .dashboard-navigation-right-icons
@@ -62,7 +65,7 @@
                         cursor: pointer
                     
                     .dashboard-navigation-right-editormode-unselected
-                        color: #ccc
+                        color: $blue
                         
                 .dashboard-navigation-right-config
                     width: 100px
@@ -81,16 +84,17 @@
             height: 100%
             padding-top: 1px
             flex-grow: 1
+            background-color: $canvasBackColor
             // 没有 overflow: hidden 会导致在 hover 最下面一行的 widget 时画布变大 1px （原因未知）从而导致出现滚动条
             overflow: hidden
             
             .grid-stack
                 height: 100%
                 min-height: 0 !important
-                background-image: radial-gradient(circle at top left, #000 1px, transparent 1px),radial-gradient(circle at top right, #000 1px, transparent 1px),radial-gradient(circle at bottom left, #000 1px, transparent 1px),radial-gradient(circle at bottom right, #000 1px, transparent 1px)
+                background-image: radial-gradient(circle at top left, rgb(148, 148, 148) 2px, transparent 2px),radial-gradient(circle at top right, rgb(148, 148, 148) 2px, transparent 2px),radial-gradient(circle at bottom left, rgb(148, 148, 148) 2px, transparent 2px),radial-gradient(circle at bottom right, rgb(148, 148, 148) 2px, transparent 2px)
                 
                 .grid-stack-item-content
-                    background-color: rgba(230, 230, 230, 0.5)
+                    background-color: rgba(0, 0, 0, 0.5)
                     
                     .delete-graph
                         display: none
@@ -110,7 +114,9 @@
                             width: 90%
                             height: 50px
                             text-align: center
-                            border: 2px rgba(0,0,0,0.1) solid
+                            color: $fontColor
+                            border: 2px $blue solid
+                            background-color: rgba(255, 255, 255, 0.2)
                             border-radius: 5px
                             cursor: pointer
                             
@@ -121,22 +127,24 @@
                         position: absolute
                         right: 3px
                         top: 0
+                        color: $fontColor
                         
                     .drag-icon
                         width: 10px
                         height: 10px
-                        border-bottom: 3px solid grey
-                        border-right: 3px solid grey
+                        border-bottom: 3px solid $fontColor
+                        border-right: 3px solid $fontColor
                         position: absolute
                         right: 5px
                         bottom: 5px
                         
                     .drag-icon:hover
-                        border-bottom: 3px solid rgba(76,182,253)
-                        border-right: 3px solid rgba(76,182,253)
+                        border-bottom: 3px solid $blue
+                        border-right: 3px solid $blue
                         
                 .grid-stack-item-active
-                    border: 3px rgba(0,0,0,0.2) solid
+                    border: 2px $blue solid
+                    background-color: black
                     
                 // 去除原来的拖拽图标
                 .grid-stack-item>.ui-resizable-ne, .grid-stack-item>.ui-resizable-nw, .grid-stack-item>.ui-resizable-se, .grid-stack-item>.ui-resizable-sw
@@ -146,22 +154,24 @@
             width: 160px
             padding-top: 1px
             text-align: center
-            background-color: #f1f1f1
-            border-right: 1px solid #e5e5e5
+            background-color: rgb(52, 52, 52)
+            color: $fontColor
             display: flex
             flex-direction: column
             justify-content: space-between
             cursor: default
             
             .dashboard-graph-item
-                padding: 10px 15px
                 cursor: pointer
+                box-sizing: border-box
+                height: 50px
+                line-height: 50px
                 
                 .dashboard-graph-item-icon
                     margin-right: 5px
                 
             .dashboard-graph-item:hover
-                background-color: #e6e6e6
+                border: 1px $blue solid
                 
             .select-folder
                 display: flex
@@ -177,9 +187,10 @@
                 
         .dashboard-settings-panel
             width: 280px
-            border: 1px #f1f1f1 solid
             
             .setting-options
+                height: calc( 100% - 46px )
+                background-color: rgb(48, 48, 48)
                 padding: 12px
 
 .data-source-config-trigger-navigation   
