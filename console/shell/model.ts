@@ -49,10 +49,6 @@ class ShellModel extends Model<ShellModel> {
     
     result: Result
     
-    shell_result: Result
-    
-    dashboard_result: Result
-    
     vars: DdbVar[]
     
     dbs: (Database | DatabaseGroup)[]

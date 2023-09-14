@@ -5,7 +5,7 @@ import type { MenuProps } from 'antd'
 import { CloseOutlined, QuestionCircleOutlined, TableOutlined } from '@ant-design/icons'
 
 import { Editor } from '../../shell/Editor/index.js'
-import { dataSourceNodeType } from '../storage/date-source-node.js'
+import { dataSourceNodeType, data_source_nodes, find_data_source_node_index } from '../storage/date-source-node.js'
 
 const node_items: MenuProps['items'] = [
     {
@@ -68,7 +68,8 @@ export function StreamEditor ({
     }
     
     useEffect(() => {
-        change_no_save_flag(false)
+        if (current_data_source_node.mode === data_source_nodes[find_data_source_node_index(current_data_source_node.id)].mode)
+            change_no_save_flag(false)
     }, [ current_data_source_node.id ])
     
     return <>

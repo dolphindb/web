@@ -1,13 +1,13 @@
+import { useEffect } from 'react'
+
 import { CloseOutlined } from '@ant-design/icons'
 import { InputNumber, Switch } from 'antd'
 
 import { Editor } from '../../shell/Editor/index.js'
 import { DataView } from '../../shell/DataView.js'
 
-import { shell } from '../../shell/model.js'
-
-import { type dataSourceNodeType, type dataSourceNodePropertyType } from '../storage/date-source-node.js'
-import { useEffect } from 'react'
+import { shell } from '../model.js'
+import { type dataSourceNodeType, type dataSourceNodePropertyType, data_source_nodes, find_data_source_node_index } from '../storage/date-source-node.js'
 
 type PropsType = { 
     show_preview: boolean
@@ -23,12 +23,13 @@ export function SqlEditor ({
         change_no_save_flag,  
         close_preview,
     }: PropsType) 
-{
-    shell.term = shell.term || new window.Terminal()
+{ 
+    const { result } = shell.use(['result'])
     
     useEffect(() => {
         shell.editor?.setValue(current_data_source_node.code || '')
-        change_no_save_flag(false)
+        if (current_data_source_node.mode === data_source_nodes[find_data_source_node_index(current_data_source_node.id)].mode)
+            change_no_save_flag(false)
     }, [ current_data_source_node.id ])
     
     return <>
@@ -55,9 +56,9 @@ export function SqlEditor ({
                         </div>
                     </div>
                     <div className='data-source-config-preview-main'>
-                        {current_data_source_node.error_message 
-                            ? <div className='data-source-config-preview-main-error'>{current_data_source_node.error_message }</div> 
-                            : <DataView type='dashboard'/>
+                        {result?.data
+                            ? <DataView type='dashboard'/>
+                            : <div className='data-source-config-preview-main-error'>{current_data_source_node.error_message }</div> 
                         }
                     </div>
                 </div>

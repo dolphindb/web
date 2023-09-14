@@ -1,10 +1,5 @@
 import { genid } from 'xshell/utils.browser.js'
 
-import { model } from '../../model.js'
-import { shell } from '../../shell/model.js'
-import { t } from '../../../i18n/index.js'
-import { DdbObj } from 'dolphindb'
-
 type ExtractTypes<T> = T extends { [key: string]: infer U } ? U : never
 
 export type dataSourceNodeType = {
@@ -49,29 +44,6 @@ export const create_data_source_node = () => {
         data: [ ]
     })
     return { id, name }
-}
-
-export const execute_code = async (): Promise<{ type: string, result: DdbObj | string | undefined }> => {
-    console.log(shell.editor.getValue())
-    if (shell.executing)
-        model.message.warning(t('当前连接正在执行作业，请等待'))
-    else 
-        try {
-            await shell.execute_('all')
-            shell.set({
-                dashboard_result: shell.result,
-            })
-            console.log(shell.result)
-            return {
-                type: 'success',
-                result: shell.dashboard_result ? (shell.dashboard_result.data as unknown) as DdbObj : undefined
-            }
-        } catch (error) {
-            return {
-                type: 'error',
-                result: error.message
-            }
-        }
 }
 
 export const rename_data_source_node = (key: string, new_name: string) => {
