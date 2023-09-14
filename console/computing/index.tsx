@@ -5,7 +5,7 @@ import { Button, Tabs, Table, Tooltip, Typography, Spin, Result, type TableColum
 import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined } from '@ant-design/icons'
 import type {  SortOrder } from 'antd/es/table/interface.js'
 
-import { DDB, DdbObj, nulls } from 'dolphindb/browser.js'
+import { DDB, DdbObj } from 'dolphindb/browser.js'
 
 import { model } from '../model.js'
 import { computing } from './model.js'
@@ -493,8 +493,9 @@ function handle_ellipsis_col (table: Record<string, any>[], col_name: string) {
 
 /** 增加单位 */
 function add_unit (table: Record<string, any>[], table_name: string) {
+    const unit_keys = Object.keys(units[table_name])
     return table.map(row => {
-        for (let key of Object.keys(units[table_name])) 
+        for (let key of unit_keys) 
             row[key] = `${row[key]} ${units[table_name][key]}`
         return row
     })
