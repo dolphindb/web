@@ -47,7 +47,6 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
             return
         }    
         set_current_data_source_node({ ...data_source_nodes[find_data_source_node_index(key)] })
-        shell.editor.setValue(current_data_source_node?.code || '')
         set_show_preview(false)
     }, [ ])
     
@@ -56,7 +55,8 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
             pre[key] = value
             return { ...pre }
         })
-        no_save_flag.current = true
+        if (key !== 'name')
+            no_save_flag.current = true
     }, [ ])
     
     const handle_close = useCallback(async () => {

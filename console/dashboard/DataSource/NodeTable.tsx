@@ -86,7 +86,10 @@ export function NodeTable ({
                 <div 
                     className='data-source-config-nodetable-top-item' 
                     onClick={
-                        () => {
+                        async () => {
+                            if (no_save_flag.current && await save_confirm()) 
+                                handle_save()
+                            no_save_flag.current = false
                             const { id, name } = create_data_source_node()
                             const new_menu_items = [
                                 {
