@@ -1,5 +1,6 @@
-$canvasColor: rgb(40, 40, 40)
+$canvasBackColor: rgb(40, 40, 40)
 $fontColor: rgb(215, 215, 215)
+$blue: rgb(64, 147, 211)
     
     
 .view-card.gridstack
@@ -13,6 +14,7 @@ $fontColor: rgb(215, 215, 215)
     
     .dashboard-header
         height: 5%
+        border-bottom: 1px black solid
         
         .dashboard-navigation
             height: 100%
@@ -20,6 +22,7 @@ $fontColor: rgb(215, 215, 215)
             flex-direction: row
             background-color: rgb(44, 42, 41)
             color: $fontColor
+            
                 
             .dashboard-navigation-left   
                 width: 160px
@@ -28,12 +31,11 @@ $fontColor: rgb(215, 215, 215)
                     width: 100%
                     height: 100%
                     
-                    .ant-select-selection-placeholder
-                    .ant-select-selection-item
+                    .ant-select-selection-placeholder, .ant-select-selection-item
                         display: flex
                         align-items: center
                         color: $fontColor
-                    
+                        
                     .ant-select-selector
                         height: 100%
                         
@@ -63,7 +65,7 @@ $fontColor: rgb(215, 215, 215)
                         cursor: pointer
                     
                     .dashboard-navigation-right-editormode-unselected
-                        color: rgb(64, 147, 211)
+                        color: $blue
                         
                 .dashboard-navigation-right-config
                     width: 100px
@@ -82,7 +84,7 @@ $fontColor: rgb(215, 215, 215)
             height: 100%
             padding-top: 1px
             flex-grow: 1
-            background-color: $canvasColor
+            background-color: $canvasBackColor
             // 没有 overflow: hidden 会导致在 hover 最下面一行的 widget 时画布变大 1px （原因未知）从而导致出现滚动条
             overflow: hidden
             
@@ -92,7 +94,7 @@ $fontColor: rgb(215, 215, 215)
                 background-image: radial-gradient(circle at top left, rgb(148, 148, 148) 2px, transparent 2px),radial-gradient(circle at top right, rgb(148, 148, 148) 2px, transparent 2px),radial-gradient(circle at bottom left, rgb(148, 148, 148) 2px, transparent 2px),radial-gradient(circle at bottom right, rgb(148, 148, 148) 2px, transparent 2px)
                 
                 .grid-stack-item-content
-                    background-color: rgba(230, 230, 230, 0.5)
+                    background-color: rgba(0, 0, 0, 0.5)
                     
                     .delete-graph
                         display: none
@@ -112,7 +114,9 @@ $fontColor: rgb(215, 215, 215)
                             width: 90%
                             height: 50px
                             text-align: center
-                            border: 2px rgba(0,0,0,0.1) solid
+                            color: $fontColor
+                            border: 2px $blue solid
+                            background-color: rgba(255, 255, 255, 0.2)
                             border-radius: 5px
                             cursor: pointer
                             
@@ -123,22 +127,24 @@ $fontColor: rgb(215, 215, 215)
                         position: absolute
                         right: 3px
                         top: 0
+                        color: $fontColor
                         
                     .drag-icon
                         width: 10px
                         height: 10px
-                        border-bottom: 3px solid grey
-                        border-right: 3px solid grey
+                        border-bottom: 3px solid $fontColor
+                        border-right: 3px solid $fontColor
                         position: absolute
                         right: 5px
                         bottom: 5px
                         
                     .drag-icon:hover
-                        border-bottom: 3px solid rgba(76,182,253)
-                        border-right: 3px solid rgba(76,182,253)
+                        border-bottom: 3px solid $blue
+                        border-right: 3px solid $blue
                         
                 .grid-stack-item-active
-                    border: 3px rgba(0,0,0,0.2) solid
+                    border: 2px $blue solid
+                    background-color: black
                     
                 // 去除原来的拖拽图标
                 .grid-stack-item>.ui-resizable-ne, .grid-stack-item>.ui-resizable-nw, .grid-stack-item>.ui-resizable-se, .grid-stack-item>.ui-resizable-sw
@@ -156,15 +162,16 @@ $fontColor: rgb(215, 215, 215)
             cursor: default
             
             .dashboard-graph-item
-                padding: 10px 15px
                 cursor: pointer
                 box-sizing: border-box
+                height: 50px
+                line-height: 50px
                 
                 .dashboard-graph-item-icon
                     margin-right: 5px
                 
             .dashboard-graph-item:hover
-                border: 1px rgb(67, 172, 253) solid
+                border: 1px $blue solid
                 
             .select-folder
                 display: flex
