@@ -20,7 +20,7 @@ import { widget_nodes } from './storage/widget_node.js'
 
 
 export function DashBoard () {
-    const [widget_options, set_widget_options] = useState([...widget_nodes])
+    const [widget_options, set_widget_options] = useState(widget_nodes)
     
     const [all_widgets, set_all_widgets] = useState([ ])
     
@@ -80,7 +80,7 @@ export function DashBoard () {
         GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
         
         // 响应用户从外部添加新 widget 到 GridStack 的事件
-        grid.on('added', function (event: Event, news: GridStackNode[]) {
+        grid.on('added', (event: Event, news: GridStackNode[]) => {
             // 加锁，防止因更新 state 导致的无限循环
             if (rlock.current) {
                 set_all_widgets(() => [...news])
@@ -90,7 +90,7 @@ export function DashBoard () {
             // 当用户从外部移入新 dom 时，执行下列代码
             // 去除移入的新 widget
             grid.removeWidget(news[0].el)
-            set_widget_options( item => [...item, { id: String(genid()), type: news[0].el.dataset.type, x: news[0].x, y: news[0].y, h: news[0].h, w: news[0].w }])
+            set_widget_options(item => [...item, { id: String(genid()), type: news[0].el.dataset.type, x: news[0].x, y: news[0].y, h: news[0].h, w: news[0].w }])
         })
         
         window.addEventListener('resize', function () {
@@ -131,22 +131,22 @@ export function DashBoard () {
                 {/* 画布区域 (dashboard-canvas) 包含实际的 GridStack 网格和 widgets。每个 widget 都有一个 GraphItem 组件表示，并且每次点击都会更改 active_widget_id */}
                 <div className='dashboard-canvas' onClick={() => { set_active_widget_id('') }}>
                     <div className='grid-stack' ref={rdiv} style={{ backgroundSize: `${100 / maxcols}% ${100 / maxrows}%` }} >
-                        {widget_options.map((item, i) =>
+                        {widget_options.map((options, i) =>
                             <div 
                                 className='grid-stack-item'
-                                ref={widgets.get(item.id) as any}
-                                key={item.id} 
-                                gs-id={item.id} 
-                                gs-w={item.w} 
-                                gs-h={item.h} 
-                                gs-x={item.x} 
-                                gs-y={item.y} 
+                                ref={widgets.get(options.id) as any}
+                                key={options.id} 
+                                gs-id={options.id} 
+                                gs-w={options.w} 
+                                gs-h={options.h} 
+                                gs-x={options.x} 
+                                gs-y={options.y} 
                                 onClick={event => {
                                     event.stopPropagation()
-                                    set_active_widget_id(item.id)
+                                    set_active_widget_id(options.id)
                                 }}
                             >
-                                <GraphItem item={item} el={all_widgets[i]} grid={rgrid.current} actived={active_widget_id === item.id}/>
+                                <GraphItem options={options} el={all_widgets[i]} grid={rgrid.current} actived={active_widget_id === options.id}/>
                             </div>
                         )}
                     </div>

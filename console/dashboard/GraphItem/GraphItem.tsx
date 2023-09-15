@@ -1,4 +1,7 @@
 import { CloseOutlined } from '@ant-design/icons'
+
+import type { GridStack } from 'gridstack'
+
 import { GraphTypeName } from '../graph-types.js'
 import { DataSource } from '../DataSource/DataSource.js'
 import { useEffect, useRef, useState } from 'react'
@@ -10,7 +13,7 @@ type PropsType = {
     item: WidgetOption[]
 }
 
-export function GraphItem  ({ item, el, grid, actived }) {
+export function GraphItem  ({ options, el, grid, actived }: { options: WidgetOption, el, grid: GridStack, actived: boolean }) {
     // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动
     
     const graph = useRef()
@@ -35,7 +38,7 @@ export function GraphItem  ({ item, el, grid, actived }) {
                 series: [
                     {
                         name: data[0].name,
-                        type: item.type,
+                        type: options.type,
                         data: data[0].data
                     }
                 ]
@@ -56,8 +59,8 @@ export function GraphItem  ({ item, el, grid, actived }) {
         <div className='delete-graph' onClick={() => { 
             grid.removeWidget(el.el)
             // 取消订阅数据源 
-            if (item.source_id)
-                unsub_source(item)
+            if (options.source_id)
+                unsub_source(options)
         }}>
             <CloseOutlined className='delete-graph-icon'/>
         </div>
@@ -66,8 +69,8 @@ export function GraphItem  ({ item, el, grid, actived }) {
                 <div ref={graph} />
             :
                 <div className='graph-content'>
-                    <div className='title'>{GraphTypeName[item.type]}</div>
-                    <DataSource widget_option={item}/>
+                    <div className='title'>{GraphTypeName[options.type]}</div>
+                    <DataSource widget_option={options}/>
                 </div>
         }
         <div className='drag-icon' />

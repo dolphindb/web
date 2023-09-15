@@ -4,12 +4,12 @@ import { type WidgetOption } from '../storage/widget_node.js'
 
 type ExtractTypes<T> = T extends { [key: string]: infer U } ? U : never
 
-export type dataType = { name: string, data: Array<string> }[]
+export type DataType = { name: string, data: Array<string> }[]
 
-export type dataSourceNodeType = {
+export type DataSourceNodeType = {
     auto_refresh?: boolean
     code?: string
-    data?: dataType
+    data?: DataType
     error_message?: string
     id: string
     interval?: number
@@ -18,13 +18,13 @@ export type dataSourceNodeType = {
     name: string
 }
 
-export type dataSourceNodePropertyType = ExtractTypes<dataSourceNodeType>
+export type DataSourceNodePropertyType = ExtractTypes<DataSourceNodeType>
 
 export const find_data_source_node_index = (key: string) =>
     data_source_nodes.findIndex(data_source_node => data_source_node.id === key) 
 
 
-export const save_data_source_node = ( new_data_source_node: dataSourceNodeType) => {
+export const save_data_source_node = ( new_data_source_node: DataSourceNodeType) => {
     data_source_nodes[find_data_source_node_index(new_data_source_node.id)] = { ...new_data_source_node }
     const dep = deps.get(new_data_source_node.id)
     if (dep && dep.length)
@@ -89,7 +89,7 @@ export const unsub_source = (widget_option: WidgetOption, source_id?: string) =>
         deps.set(widget_option.source_id, deps.get(widget_option.source_id).filter((dep: WidgetOption) => dep.id !== widget_option.id )) 
 }
 
-export const data_source_nodes: dataSourceNodeType[] = [
+export const data_source_nodes: DataSourceNodeType[] = [
     {
         id: '1',
         name: '节点1',

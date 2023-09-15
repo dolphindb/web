@@ -1,4 +1,4 @@
-import { dataType } from './date-source-node'
+import { DataType } from './date-source-node'
 
 export type WidgetOption = {
     id: string
@@ -15,7 +15,7 @@ export type WidgetOption = {
     /** 数据源 id */
     source_id?: string
     /** 更新图表方法 */
-    update_graph?: (data: dataType) => void
+    update_graph?: (data: DataType) => void
 }
 
 

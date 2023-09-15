@@ -7,14 +7,14 @@ import { Editor } from '../../shell/Editor/index.js'
 import { DataView } from '../../shell/DataView.js'
 
 import { shell } from '../model.js'
-import { type dataSourceNodeType, type dataSourceNodePropertyType, data_source_nodes, find_data_source_node_index } from '../storage/date-source-node.js'
+import { type DataSourceNodeType, type DataSourceNodePropertyType, data_source_nodes, find_data_source_node_index } from '../storage/date-source-node.js'
 
 type PropsType = { 
     show_preview: boolean
-    current_data_source_node: dataSourceNodeType
+    current_data_source_node: DataSourceNodeType
     close_preview: () => void 
     change_no_save_flag: (value: boolean) => void
-    change_current_data_source_node_property: (key: string, value: dataSourceNodePropertyType, save_confirm?: boolean) => void
+    change_current_data_source_node_property: (key: string, value: DataSourceNodePropertyType, save_confirm?: boolean) => void
 }
 export function SqlEditor ({ 
         current_data_source_node, 

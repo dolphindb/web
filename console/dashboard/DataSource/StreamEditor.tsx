@@ -5,7 +5,7 @@ import type { MenuProps } from 'antd'
 import { CloseOutlined, QuestionCircleOutlined, TableOutlined } from '@ant-design/icons'
 
 import { Editor } from '../../shell/Editor/index.js'
-import { dataSourceNodeType, data_source_nodes, find_data_source_node_index } from '../storage/date-source-node.js'
+import { DataSourceNodeType, data_source_nodes, find_data_source_node_index } from '../storage/date-source-node.js'
 
 const node_items: MenuProps['items'] = [
     {
@@ -36,7 +36,7 @@ const content = (
 
 type PropsType = { 
     show_preview: boolean
-    current_data_source_node: dataSourceNodeType
+    current_data_source_node: DataSourceNodeType
     change_no_save_flag: (value: boolean) => void
     close_preview: () => void 
 }

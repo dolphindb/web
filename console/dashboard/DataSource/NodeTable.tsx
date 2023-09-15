@@ -6,14 +6,14 @@ import { DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@a
 import { create_data_source_node,
          delete_data_source_node, 
          rename_data_source_node, 
-         type dataSourceNodeType, 
-         dataSourceNodePropertyType, 
+         type DataSourceNodeType, 
+         DataSourceNodePropertyType, 
     } from '../storage/date-source-node.js'
     
 import { data_source_nodes } from '../storage/date-source-node.js'
 
 type PropsType = { 
-    current_data_source_node: dataSourceNodeType
+    current_data_source_node: DataSourceNodeType
     no_save_flag: MutableRefObject<boolean>
     save_confirm: () => {
             destroy: () => void
@@ -23,7 +23,7 @@ type PropsType = {
     }
     handle_save: () => Promise<void>
     change_current_data_source_node: (key: string) => void
-    change_current_data_source_node_property: (key: string, value: dataSourceNodePropertyType, save_confirm?: boolean) => void
+    change_current_data_source_node_property: (key: string, value: DataSourceNodePropertyType, save_confirm?: boolean) => void
 }
 
 type MenuItemType = {
@@ -44,7 +44,7 @@ export function NodeTable ({
     
     const [current_select, set_current_select] = useState(current_data_source_node?.id || '')
     const [menu_items, set_menu_items] = useState(data_source_nodes.map(
-        (data_source_node: dataSourceNodeType): MenuItemType => {
+        (data_source_node: DataSourceNodeType): MenuItemType => {
             return {
                 key: String(data_source_node.id),
                 icon: createElement(DatabaseOutlined),

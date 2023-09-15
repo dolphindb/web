@@ -16,8 +16,8 @@ import { data_source_nodes,
     find_data_source_node_index, 
     save_data_source_node, 
     sub_source,
-    type dataSourceNodePropertyType, 
-    type dataSourceNodeType 
+    type DataSourceNodePropertyType, 
+    type DataSourceNodeType 
 } from '../storage/date-source-node.js'
 
 const save_confirm_config = {
@@ -50,8 +50,8 @@ export function DataSource ({ widget_option }: { widget_option?: WidgetOption })
     }, [ ])
     
     const change_current_data_source_node_property = useCallback(
-        (key: string, value: dataSourceNodePropertyType, save_confirm = true) => {
-            set_current_data_source_node((pre: dataSourceNodeType) => {
+        (key: string, value: DataSourceNodePropertyType, save_confirm = true) => {
+            set_current_data_source_node((pre: DataSourceNodeType) => {
                 pre[key] = value
                 return { ...pre }
             })
