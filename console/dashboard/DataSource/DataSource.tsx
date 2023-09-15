@@ -9,14 +9,16 @@ import { NodeTable } from './NodeTable.js'
 import { SqlEditor } from './SqlEditor.js'
 import { StreamEditor } from './StreamEditor.js'
 
-import { data_source_nodes,
-         find_data_source_node_index, 
-         save_data_source_node, 
-         type dataSourceNodePropertyType, 
-         type dataSourceNodeType 
-    } from '../storage/date-source-node.js'
 import { formatter } from '../utils.js'
 import { shell } from '../model.js'
+import { type WidgetOption } from '../storage/widget_node.js'
+import { data_source_nodes,
+    find_data_source_node_index, 
+    save_data_source_node, 
+    sub_source,
+    type dataSourceNodePropertyType, 
+    type dataSourceNodeType 
+} from '../storage/date-source-node.js'
 
 const save_confirm_config = {
     cancelText: '不保存',
@@ -28,7 +30,7 @@ const save_confirm_config = {
     ),   
 }
 
-export function DataSource ({ trigger_index }: { trigger_index: string }) {
+export function DataSource ({ widget_option }: { widget_option?: WidgetOption }) {
     const { visible, open, close } = use_modal()
     
     const [modal, contextHolder] = Modal.useModal()
@@ -58,7 +60,7 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
     
     const handle_close = useCallback(async () => {
         if (no_save_flag.current && await modal.confirm(save_confirm_config) ) {
-            handle_save()
+            await handle_save()
             no_save_flag.current = false
         }    
         close()
@@ -73,27 +75,21 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
         current_data_source_node.data.length = 0
         if (typeof result === 'object' && result.data) 
             for (let i = 0;  i < result.data.cols;  i++) 
-                current_data_source_node.data.push(formatter(result.data.value[i]))
+                current_data_source_node.data.push(formatter(result.data.value[i], current_data_source_node.max_line))
                 
         save_data_source_node(current_data_source_node)
         
         no_save_flag.current = false
     }, [current_data_source_node])
-    
-    const trigger = {
-        navigation: (
-            <div className='data-source-config-trigger-navigation' onClick={open}>
+    return <>
+        {
+            widget_option
+            ? <div className='graph-hint' onClick={open}>点击填充数据源</div>
+            : <div className='data-source-config-trigger-navigation' onClick={open}>
                 <DatabaseOutlined className='data-source-config-trigger-navigation-icon'/>
                 数据源
             </div>
-        ),
-        graph: (
-            <div className='graph-hint' onClick={open}>点击填充数据源</div>
-        )
-    }
-    
-    return <>
-        {trigger[trigger_index]}
+        }
         <Modal 
             title='配置数据源'
             width={1000} 
@@ -101,7 +97,7 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
             open={visible}
             onCancel={handle_close} 
             maskClosable={false}
-            maskStyle={{ backgroundColor: 'rgba(0,0,0,.2)' }}
+            maskStyle={{ backgroundColor: 'rgba(84,84,84,0.5)' }}
             afterOpenChange={() => {
                 set_current_data_source_node({ ...data_source_nodes[0] } )
             }}
@@ -118,8 +114,17 @@ export function DataSource ({ trigger_index }: { trigger_index: string }) {
                         }>
                         预览
                     </Button>,
-                    <Button key='save' onClick={handle_save}>
-                        {trigger_index === 'navigation' ? '保存' : '应用'}
+                    <Button key='save' onClick={async () => {
+                        if (no_save_flag.current)
+                            await handle_save()
+                        if (widget_option) {
+                            sub_source(widget_option, current_data_source_node.id)
+                            widget_option.source_id = current_data_source_node.id
+                            close()
+                            set_show_preview(false)
+                        }    
+                    }}>
+                        {widget_option ? '应用' : '保存'}
                     </Button>,
                     <Button key='close' type='primary' onClick={handle_close}>
                         关闭

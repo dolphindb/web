@@ -26,10 +26,10 @@ import { Login } from './login.js'
 import { Overview } from './overview/index.js'
 import { OverviewOld } from './overview/old.js'
 import { Shell } from './shell/index.js'
-import { DashBoard } from './test/index.js'
+import { Test } from './test/index.js'
 import { Job } from './job.js'
 import { Log } from './log.js'
-import { GridDashBoard } from './dashboard/index.js'
+import { DashBoard } from './dashboard/index.js'
 
 
 createRoot(
@@ -55,7 +55,7 @@ function DolphinDB () {
 
 
 function MainLayout () {
-    const { header, inited } = model.use(['header', 'inited'])
+    const { header, inited, sider } = model.use(['header', 'inited', 'sider'])
     
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
     Object.assign(model, App.useApp())
@@ -105,7 +105,7 @@ function MainLayout () {
             <DdbHeader />
         </Layout.Header> }
         <Layout className='body' hasSider>
-            <DdbSider />
+            { sider && <DdbSider />}
             <Layout.Content className='view'>
                 <DdbContent />
             </Layout.Content>
@@ -119,10 +119,10 @@ const views = {
     overview: Overview,
     'overview-old': OverviewOld,
     shell: Shell,
-    dashboard: DashBoard,
+    test: Test,
     job: Job,
     log: Log,
-    gridstack: GridDashBoard
+    dashboard: DashBoard
 }
 
 
