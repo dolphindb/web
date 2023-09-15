@@ -17,6 +17,3 @@ export type WidgetOption = {
     /** 更新图表方法 */
     update_graph?: (data: DataType) => void
 }
-
-
-export const widget_nodes: WidgetOption[] = [ ]

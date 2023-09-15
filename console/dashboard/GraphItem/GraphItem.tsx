@@ -1,11 +1,11 @@
 import { CloseOutlined } from '@ant-design/icons'
 
-import type { GridStack } from 'gridstack'
+import type { GridStack, GridStackNode } from 'gridstack'
 
 import { GraphTypeName } from '../graph-types.js'
 import { DataSource } from '../DataSource/DataSource.js'
 import { useEffect, useRef, useState } from 'react'
-import { WidgetOption } from '../storage/widget_node.js'
+import { WidgetOption } from '../storage/widget.js'
 import echarts from 'echarts'
 import { unsub_source } from '../storage/date-source-node.js'
 
@@ -13,7 +13,7 @@ type PropsType = {
     item: WidgetOption[]
 }
 
-export function GraphItem  ({ options, el, grid, actived }: { options: WidgetOption, el, grid: GridStack, actived: boolean }) {
+export function GraphItem  ({ options, el, grid, actived }: { options: WidgetOption, el: GridStackNode, grid: GridStack, actived: boolean }) {
     // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动
     
     const graph = useRef()

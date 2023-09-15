@@ -1,6 +1,6 @@
 import { genid } from 'xshell/utils.browser.js'
 
-import { type WidgetOption } from '../storage/widget_node.js'
+import { type WidgetOption } from './widget.js'
 
 type ExtractTypes<T> = T extends { [key: string]: infer U } ? U : never
 

@@ -11,7 +11,7 @@ import { StreamEditor } from './StreamEditor.js'
 
 import { formatter } from '../utils.js'
 import { shell } from '../model.js'
-import { type WidgetOption } from '../storage/widget_node.js'
+import { type WidgetOption } from '../storage/widget.js'
 import { data_source_nodes,
     find_data_source_node_index, 
     save_data_source_node, 
