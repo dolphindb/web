@@ -16,7 +16,7 @@ import { SelectSider } from './SelectSider/SelectSider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 import { Navigation } from './Navigation/Navigation.js'
-import { widget_nodes } from './storage/widget_node.js'
+import { WidgetOption, widget_nodes } from './storage/widget_node.js'
 
 
 // gridstack 仅支持 12 列以下的，大于 12 列需要手动添加 css 代码，详见 gridstack 的 readme.md
@@ -26,7 +26,8 @@ const tmpcol = 12, tmprow = 12
 export function DashBoard () {
     const [widget_options, set_widget_options] = useState([ ...widget_nodes ])
     const [all_widgets, set_all_widgets] = useState([ ])
-    const [active_widget_id, set_active_widget_id] = useState('')
+    const [active_widget, set_active_widget] = useState<WidgetOption>()
+    
     
     const rwidgets = useRef({ })
     const rgrid = useRef<GridStack>()
@@ -41,8 +42,8 @@ export function DashBoard () {
         rgrid.current.enableResize(editing)
     }
     
-    const change_active_widgets = useCallback((widgets_id: string) => {
-        set_active_widget_id(widgets_id)
+    const change_active_widget = useCallback(function (widget: WidgetOption) { 
+        set_active_widget(widget)
     }, [ ])
     
     // 给每个表项生成对应的 ref
@@ -121,7 +122,7 @@ export function DashBoard () {
                 <SelectSider hidden={editing}/>
                 
                 {/* 画布区域 (dashboard-canvas) 包含实际的 GridStack 网格和 widgets。每个 widget 都有一个 GraphItem 组件表示，并且每次点击都会更改 active_widget_id */}
-                <div className='dashboard-canvas' onClick={() => { change_active_widgets('') }}>
+                <div className='dashboard-canvas' onClick={() => { change_active_widget(null) }}>
                     <div className='grid-stack' style={{ backgroundSize: `${100 / tmpcol}% ${100 / tmprow}%` }} >
                         {widget_options.map((item, i) =>
                             <div 
@@ -135,15 +136,15 @@ export function DashBoard () {
                                 gs-y={item.y} 
                                 onClick={e => {
                                     e.stopPropagation()
-                                    change_active_widgets(item.id)
+                                    change_active_widget(item)
                                 }}
                             >
-                                <GraphItem item={item} el={all_widgets[i]} grid={rgrid.current} actived={active_widget_id === item.id}/>
+                                <GraphItem item={item} el={all_widgets[i]} grid={rgrid.current} actived={active_widget?.id === item.id}/>
                             </div>
                         )}
                     </div>
                 </div>
-                <SettingsPanel hidden={editing}/>
+                <SettingsPanel hidden={editing} type={active_widget?.type} id={active_widget?.id} />
             </div>
         </div>
     </ConfigProvider>

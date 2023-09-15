@@ -1933,5 +1933,14 @@
     },
     "因子平台": {
         "en": "Factor Platform"
+    },
+    "标题": {
+        "en": "Title"
+    },
+    "数据源": {
+        "en": "DataSource"
+    },
+    "基本属性": {
+        "en": "Basic properties"
     }
 }

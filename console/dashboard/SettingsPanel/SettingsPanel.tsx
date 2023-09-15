@@ -1,8 +1,11 @@
 import { MailOutlined, AppstoreOutlined } from '@ant-design/icons'
-import { Menu, MenuProps } from 'antd'
-import { useState } from 'react'
+import { Form, Menu, MenuProps } from 'antd'
+import { useMemo, useState } from 'react'
 import { CanvasSetting } from './CanvasSetting.js'
 import { GraphSetting, PropsType, SettingOption } from './GraphSetting.js'
+import { graph_config } from '../graph-config.js'
+import { GraphType } from '../graph-types.js'
+
 
 const items: MenuProps['items'] = [
     {
@@ -17,13 +20,28 @@ const items: MenuProps['items'] = [
     },
 ]
 
-export function SettingsPanel ({ hidden }: { hidden: boolean }) {
+interface IProps {
+    hidden: boolean
+    type: string
+    id: string
+}
+
+export function SettingsPanel (props: IProps) {
+    const { hidden, type = GraphType.TABLE, id } = props
     const [current_page, set_current_page] = useState('canvas')
     
     const pageChange: MenuProps['onClick'] = e => {
         console.log('click ', e)
         set_current_page(e.key)
     }
+    
+    
+    const GraphSetting = useMemo(() => { 
+        if (type in GraphType)
+            return graph_config[type]?.config_form_fields ?? <></>
+        else
+            return null
+    }, [ type ])
     
     
 return <>
@@ -37,7 +55,9 @@ return <>
                     current_page === 'canvas' ?
                         <CanvasSetting/>
                     :
-                        <GraphSetting setting_option={setting_option}/>
+                    <Form>
+                         <GraphSetting />
+                   </Form>
                 }
             </div>
         </div>

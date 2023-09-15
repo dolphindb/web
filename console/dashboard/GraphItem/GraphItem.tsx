@@ -1,20 +1,39 @@
 import { CloseOutlined } from '@ant-design/icons'
 import { GraphTypeName } from '../graph-types.js'
 import { DataSource } from '../DataSource/DataSource.js'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { WidgetOption } from '../storage/widget_node.js'
+import { GraphType } from '../graph-types.js'
 import echarts from 'echarts'
 import { unsub_source } from '../storage/date-source-node.js'
 
-type PropsType = {
-    item: WidgetOption[]
+import { GridStack, GridStackNode } from 'gridstack'
+import { graph_config } from '../graph-config.js'
+import DBTable from '../Charts/Table.js'
+
+
+
+const GraphMap = {
+    [GraphType.TABLE]: DBTable
 }
 
-export function GraphItem  ({ item, el, grid, actived }) {
+interface IProps { 
+    actived: boolean
+    item: WidgetOption
+    el: GridStackNode
+    grid: GridStack
+}
+
+export function GraphItem  (props: IProps) {
     // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动
+    const { item, el, grid, actived } = props
+    const GraphComponent = useMemo(() => graph_config[item.type].component, [ item.type ])
+    
     
     const graph = useRef()
     const [data, set_data] = useState({ })
+    
+    console.log(data, 'data')
     
     useEffect(() => {
         if (Object.keys(data).length) {
@@ -69,6 +88,7 @@ export function GraphItem  ({ item, el, grid, actived }) {
             :
             <>
                 <div className='graph-content'>
+                    <GraphComponent />
                     <div className='title'>{GraphTypeName[item.type]}</div>
                     <DataSource widget_option={item}/>
                 </div>

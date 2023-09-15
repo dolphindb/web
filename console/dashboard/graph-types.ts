@@ -11,3 +11,18 @@ export enum GraphTypeName {
     STRIP = '带图',
     HEAT = '热力图'
 }
+
+
+export enum GraphType { 
+    BAR = 'BAR',
+    LINE = 'LINE',
+    PIE = 'PIE',
+    POINT = 'POINT',
+    TABLE = 'TABLE',
+    OHLC = 'OHLC',
+    CANDLE = 'CANDLE',
+    ORDER = 'ORDER',
+    NEEDLE = 'NEEDLE',
+    STRIP = 'STRIP',
+    HEAT = 'HEAT'
+}

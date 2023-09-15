@@ -1,4 +1,5 @@
 import { dataType } from './date-source-node'
+import { GraphType } from '../graph-types'
 
 export type WidgetOption = {
     id: string
