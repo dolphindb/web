@@ -82,7 +82,7 @@ export function DdbSider () {
                     label: t('交互编程'),
                 },
                 ... model.dev ? [{
-                       key: 'dashboard',
+                       key: 'test',
                        icon: <MenuIcon view='dashboard' />,
                        label: t('数据看板')
                 }] : [ ],
@@ -97,7 +97,7 @@ export function DdbSider () {
                     label: t('日志查看'),
                 },
                 {
-                    key: 'gridstack',
+                    key: 'dashboard',
                     icon: <MenuIcon view='dashboard' />,
                     label: t('DashBoard'),
                 },

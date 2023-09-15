@@ -4,6 +4,7 @@ import { DataSource } from '../DataSource/DataSource.js'
 import { useEffect, useRef, useState } from 'react'
 import { WidgetOption } from '../storage/widget_node.js'
 import echarts from 'echarts'
+import { unsub_source } from '../storage/date-source-node.js'
 
 type PropsType = {
     item: WidgetOption[]
@@ -54,7 +55,11 @@ export function GraphItem  ({ item, el, grid, actived }) {
     return <div 
                 className={`grid-stack-item-content ${actived ? 'grid-stack-item-active' : ''}`} 
             >
-        <div className='delete-graph' onClick={() => { grid.removeWidget(el.el) }}>
+        <div className='delete-graph' onClick={() => { 
+            grid.removeWidget(el.el)
+            // 取消订阅数据源 
+            unsub_source(item)
+        }}>
             <CloseOutlined className='delete-graph-icon'/>
         </div>
         {

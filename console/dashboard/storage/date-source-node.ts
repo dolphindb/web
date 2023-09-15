@@ -4,10 +4,12 @@ import { type WidgetOption } from '../storage/widget_node.js'
 
 type ExtractTypes<T> = T extends { [key: string]: infer U } ? U : never
 
+export type dataType = { name: string, data: Array<string> }[]
+
 export type dataSourceNodeType = {
     auto_refresh?: boolean
     code?: string
-    data?: { name: string, data: Array<string> }[]
+    data?: dataType
     error_message?: string
     id: string
     interval?: number
@@ -27,7 +29,7 @@ export const save_data_source_node = ( new_data_source_node: dataSourceNodeType)
     const dep = deps.get(new_data_source_node.id)
     if (dep && dep.length)
         dep.forEach((widget_option: WidgetOption) => {
-            // widget_option.updateGraph()
+            // widget_option.update_graph(data_source_nodes[find_data_source_node_index(new_data_source_node.id)].data)
             console.log(widget_option.id, 'render', data_source_nodes[find_data_source_node_index(new_data_source_node.id)].data)
         })
 }
@@ -70,17 +72,21 @@ export const rename_data_source_node = (key: string, new_name: string) => {
 export const name_is_exist = (new_name: string): boolean => 
     data_source_nodes.findIndex(data_source_node => data_source_node.name === new_name) !== -1
     
-export const save_deps = (widget_option: WidgetOption, source_id: string) => {
-    if (widget_option.source_id) 
-        deps.set(widget_option.source_id, deps.get(widget_option.source_id).filter((dep: WidgetOption) => dep.id !== widget_option.id ))  
+export const sub_source = (widget_option: WidgetOption, source_id: string) => {
+    if (widget_option.source_id)
+        unsub_source(widget_option, source_id)  
     if (deps.has(source_id)) 
         deps.get(source_id).push(widget_option)
      else 
         deps.set(source_id, [widget_option])
     
-    // widget_option.updateGraph()
-    console.log(widget_option.id, 'render', data_source_nodes[find_data_source_node_index(source_id)].data)
-        
+    // widget_option.update_graph(data_source_nodes[find_data_source_node_index(source_id)].data)
+    console.log(widget_option.id, 'render', data_source_nodes[find_data_source_node_index(source_id)].data)    
+}
+
+export const unsub_source = (widget_option: WidgetOption, source_id?: string) => {
+    if (!source_id || widget_option.source_id !== source_id ) 
+        deps.set(widget_option.source_id, deps.get(widget_option.source_id).filter((dep: WidgetOption) => dep.id !== widget_option.id )) 
 }
 
 export const data_source_nodes: dataSourceNodeType[] = [

@@ -15,7 +15,7 @@ import { ConfigProvider, theme } from 'antd'
 // gridstack 仅支持 12 列以下的，大于 12 列需要手动添加 css 代码，详见 gridstack 的 readme.md
 // 目前本项目仅支持仅支持 tmpcol<=12
 const tmpcol = 12, tmprow = 12
-export function GridDashBoard () {
+export function DashBoard () {
     const [widget_options, set_widget_options] = useState([ ...widget_nodes ])
     const [all_widgets, set_all_widgets] = useState([ ])
     const [active_widget_id, set_active_widget_id] = useState('')

@@ -15,7 +15,7 @@ import { type WidgetOption } from '../storage/widget_node.js'
 import { data_source_nodes,
     find_data_source_node_index, 
     save_data_source_node, 
-    save_deps,
+    sub_source,
     type dataSourceNodePropertyType, 
     type dataSourceNodeType 
 } from '../storage/date-source-node.js'
@@ -118,7 +118,7 @@ export function DataSource ({ widget_option }: { widget_option?: WidgetOption })
                         if (no_save_flag.current)
                             await handle_save()
                         if (widget_option) {
-                            save_deps(widget_option, current_data_source_node.id)
+                            sub_source(widget_option, current_data_source_node.id)
                             widget_option.source_id = current_data_source_node.id
                             close()
                             set_show_preview(false)
