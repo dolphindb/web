@@ -70,7 +70,7 @@ const UpSelect: FC<SelectProps> & { Option: typeof Select.Option } = Object.assi
 )
 
 
-export type Context = 'page' | 'webview' | 'window' | 'embed'
+export type Context = 'page' | 'webview' | 'window' | 'embed' | 'dashboard'
 
 export interface Remote {
     /** 调用 remote 中的 func, 只适用于最简单的一元 rpc (请求, 响应) */
@@ -422,7 +422,7 @@ function Vector ({
             />
             
             <div className='actions'>
-                {(ctx === 'page' || ctx === 'embed') && <Icon
+                {(ctx === 'page' || ctx === 'embed' || ctx === 'dashboard') && <Icon
                     className='icon-link'
                     title={t('在新窗口中打开')}
                     component={SvgLink}
@@ -542,7 +542,7 @@ function Table ({
     const ncols = info.cols
     
     const [page_size, set_page_size] = useState(
-        (ctx === 'page' || ctx === 'window') ? 20 : 10
+        (ctx === 'page' || ctx === 'window') ? 20 : (ctx === 'dashboard' ? 5 : 10)
     )
     
     const nrows = Math.min(page_size, info.rows)
@@ -637,7 +637,7 @@ function Table ({
             />
             
             <div className='actions'>
-                {(ctx === 'page' || ctx === 'embed') && <Icon
+                {(ctx === 'page' || ctx === 'embed' || ctx === 'dashboard') && <Icon
                     className='icon-link'
                     title={t('在新窗口中打开')}
                     component={SvgLink}
@@ -693,7 +693,7 @@ export function StreamingTable ({
     let [, rerender] = useState({ })
     
     const [page_size, set_page_size] = useState(
-        (ctx === 'page' || ctx === 'window') ? 20 : 10
+        (ctx === 'page' || ctx === 'window') ? 20 : (ctx === 'dashboard' ? 5 : 10)
     )
     
     const [page_index, set_page_index] = useState(0)
@@ -971,7 +971,7 @@ export function StreamingTable ({
             />
             
             <div className='actions'>
-                {(ctx === 'page' || ctx === 'embed') && <Icon
+                {(ctx === 'page' || ctx === 'embed' || ctx === 'dashboard') && <Icon
                     className='icon-link'
                     title={t('在新窗口中打开')}
                     component={SvgLink}
@@ -1150,7 +1150,7 @@ function Matrix ({
     const ncols = info.cols
     
     const [page_size, set_page_size] = useState(
-        (ctx === 'page' || ctx === 'window') ? 20 : 10
+        (ctx === 'page' || ctx === 'window') ? 20 : (ctx === 'dashboard' ? 5 : 10)
     )
     
     const nrows = Math.min(page_size, info.rows)
@@ -1257,7 +1257,7 @@ function Matrix ({
             />
             
             <div className='actions'>
-                {(ctx === 'page' || ctx === 'embed') && <Icon
+                {(ctx === 'page' || ctx === 'embed' || ctx === 'dashboard') && <Icon
                     className='icon-link'
                     title={t('在新窗口中打开')}
                     component={SvgLink}
@@ -1831,7 +1831,7 @@ function Chart ({
         
         <div className='bottom-bar'>
             <div className='actions'>
-                {(ctx === 'page' || ctx === 'embed') && <Icon
+                {(ctx === 'page' || ctx === 'embed' || ctx === 'dashboard') && <Icon
                     className='icon-link'
                     title={t('在新窗口中打开')}
                     component={SvgLink}
