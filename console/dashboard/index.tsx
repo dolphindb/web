@@ -3,9 +3,9 @@ import 'gridstack/dist/gridstack-extra.css'
 import './index.sass'
 
 
-import { createRef, useCallback, useEffect, useRef, useState } from 'react'
+import { createRef, useEffect, useRef, useState } from 'react'
 
-import { GridStack, GridStackNode } from 'gridstack'
+import { GridStack, type GridStackNode, type GridStackElement, type GridStackWidget } from 'gridstack'
 
 import { ConfigProvider, theme } from 'antd'
 
@@ -20,17 +20,27 @@ import { widget_nodes } from './storage/widget_node.js'
 
 
 export function DashBoard () {
-    const [widget_options, set_widget_options] = useState([ ...widget_nodes ])
+    const [widget_options, set_widget_options] = useState([...widget_nodes])
+    
     const [all_widgets, set_all_widgets] = useState([ ])
+    
     const [active_widget_id, set_active_widget_id] = useState('')
     
-    /** 创建 GridStack 时绑定的 div element */
+    /** div ref, 创建 GridStack 时绑定的 div element */
     let rdiv = useRef<HTMLDivElement>()
     
-    /** 保存 GridStack.init 创建的 gridstack 实例 */
+    /** grid ref, 保存 GridStack.init 创建的 gridstack 实例 */
     let rgrid = useRef<GridStack>()
     
-    const rwidgets = useRef({ })
+    
+    /** widgets ref，是一个 Map<widget id, widget ref>， 存放 id -> widget react ref 的映射，这个 ref 用于指向在 DOM 中表示该 widget 的元素 */
+    let { current: widgets } = useRef(new Map<string, React.MutableRefObject<GridStackElement>>())
+    
+    // 给每个 widget_option 创建对应的 ref
+    if (widgets.size !== widget_options.length)
+        for (const { id } of widget_options)
+            if (!widgets.has(id))
+                widgets.set(id, createRef())
     
     
     const rlock = useRef(false)
@@ -38,16 +48,6 @@ export function DashBoard () {
     // 编辑、预览状态切换
     const [editing, set_editing] = useState(true)
     
-        
-    const change_active_widgets = useCallback((widgets_id: string) => {
-        set_active_widget_id(widgets_id)
-    }, [ ])
-    
-    // 给每个表项生成对应的 ref
-    if (Object.keys(rwidgets.current).length !== widget_options.length)
-        widget_options.forEach(({ id }) => {
-            rwidgets.current[id] = rwidgets.current[id] || createRef()
-        })
     
     useEffect(() => {
         let grid = rgrid.current ??= GridStack.init({
@@ -64,7 +64,8 @@ export function DashBoard () {
         
         grid.batchUpdate()
         grid.removeAll(false)
-        widget_options.forEach(({ id }) => grid.makeWidget(rwidgets.current[id].current))
+        for (const { id } of widget_options)
+            grid.makeWidget(widgets.get(id).current)
         grid.batchUpdate(false)
         
         rlock.current = false
@@ -128,21 +129,21 @@ export function DashBoard () {
                 <SelectSider hidden={editing}/>
                 
                 {/* 画布区域 (dashboard-canvas) 包含实际的 GridStack 网格和 widgets。每个 widget 都有一个 GraphItem 组件表示，并且每次点击都会更改 active_widget_id */}
-                <div className='dashboard-canvas' onClick={() => { change_active_widgets('') }}>
+                <div className='dashboard-canvas' onClick={() => { set_active_widget_id('') }}>
                     <div className='grid-stack' ref={rdiv} style={{ backgroundSize: `${100 / maxcols}% ${100 / maxrows}%` }} >
                         {widget_options.map((item, i) =>
                             <div 
-                                ref={rwidgets.current[item.id]} 
+                                className='grid-stack-item'
+                                ref={widgets.get(item.id) as any}
                                 key={item.id} 
-                                className='grid-stack-item' 
                                 gs-id={item.id} 
                                 gs-w={item.w} 
                                 gs-h={item.h} 
                                 gs-x={item.x} 
                                 gs-y={item.y} 
-                                onClick={e => {
-                                    e.stopPropagation()
-                                    change_active_widgets(item.id)
+                                onClick={event => {
+                                    event.stopPropagation()
+                                    set_active_widget_id(item.id)
                                 }}
                             >
                                 <GraphItem item={item} el={all_widgets[i]} grid={rgrid.current} actived={active_widget_id === item.id}/>

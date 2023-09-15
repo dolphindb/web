@@ -52,9 +52,7 @@ export function GraphItem  ({ item, el, grid, actived }) {
     }
     
     
-    return <div 
-                className={`grid-stack-item-content ${actived ? 'grid-stack-item-active' : ''}`} 
-            >
+    return <div className={`grid-stack-item-content ${actived ? 'grid-stack-item-active' : ''}`}>
         <div className='delete-graph' onClick={() => { 
             grid.removeWidget(el.el)
             // 取消订阅数据源 
@@ -65,14 +63,12 @@ export function GraphItem  ({ item, el, grid, actived }) {
         </div>
         {
             Object.keys(data).length ? 
-            <div ref={graph} />
+                <div ref={graph} />
             :
-            <>
                 <div className='graph-content'>
                     <div className='title'>{GraphTypeName[item.type]}</div>
                     <DataSource widget_option={item}/>
                 </div>
-            </>
         }
         <div className='drag-icon' />
      </div>
