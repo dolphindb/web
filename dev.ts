@@ -247,11 +247,11 @@ if (ramdisk) {
 
 const info = 
     'web:\n' +
-    'http://localhost:8432/console/?hostname=192.168.0.200&port=20023\n'.blue.underline +
-    'http://localhost:8432/console/?hostname=192.168.0.200&port=20000\n'.blue.underline +
-    'http://localhost:8432/console/?hostname=115.239.209.123&port=8892\n'.blue.underline +
-    'http://localhost:8432/console/?hostname=115.239.209.123&port=8810\n'.blue.underline +
-    'http://localhost:8432/console/?hostname=127.0.0.1&port=8848\n'.blue.underline +
+    'http://localhost:8432/console/?view=dashboard&hostname=192.168.0.200&port=20023\n'.blue.underline +
+    'http://localhost:8432/console/?view=dashboard&hostname=192.168.0.200&port=20000\n'.blue.underline +
+    'http://localhost:8432/console/?view=dashboard&hostname=115.239.209.123&port=8892\n'.blue.underline +
+    'http://localhost:8432/console/?view=dashboard&hostname=115.239.209.123&port=8810\n'.blue.underline +
+    'http://localhost:8432/console/?view=dashboard&hostname=127.0.0.1&port=8848\n'.blue.underline +
     '\n' +
     'cloud:\n' +
     'http://localhost:8432/cloud/\n'.blue.underline +
