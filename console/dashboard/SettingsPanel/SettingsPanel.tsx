@@ -55,7 +55,7 @@ return <>
                     current_page === 'canvas' ?
                         <CanvasSetting/>
                     :
-                    <Form>
+                    <Form labelCol={{ span: 6 }} labelAlign='left' colon={false}>
                          <GraphSetting />
                    </Form>
                 }

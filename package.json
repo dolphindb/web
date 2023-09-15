@@ -58,6 +58,7 @@
         "@formily/core": "^2.2.29",
         "@formily/react": "^2.2.29",
         "@monaco-editor/react": "^4.5.2",
+        "ahooks": "^3.7.8",
         "antd": "^5.9.0",
         "classnames": "^2.3.2",
         "copy-to-clipboard": "^3.3.3",
