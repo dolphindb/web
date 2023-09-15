@@ -10,7 +10,7 @@ import echarts from 'echarts'
 import { unsub_source } from '../storage/date-source-node.js'
 
 
-export function GraphItem  ({ options, el, grid, actived }: { options: Widget, el: GridStackNode, grid: GridStack, actived: boolean }) {
+export function GraphItem  ({ widget, el, grid, actived }: { widget: Widget, el: GridStackNode, grid: GridStack, actived: boolean }) {
     // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动
     
     const graph = useRef()
@@ -35,7 +35,7 @@ export function GraphItem  ({ options, el, grid, actived }: { options: Widget, e
                 series: [
                     {
                         name: data[0].name,
-                        type: options.type,
+                        type: widget.type,
                         data: data[0].data
                     }
                 ]
@@ -56,8 +56,8 @@ export function GraphItem  ({ options, el, grid, actived }: { options: Widget, e
         <div className='delete-graph' onClick={() => { 
             grid.removeWidget(el.el)
             // 取消订阅数据源 
-            if (options.source_id)
-                unsub_source(options)
+            if (widget.source_id)
+                unsub_source(widget)
         }}>
             <CloseOutlined className='delete-graph-icon'/>
         </div>
@@ -66,8 +66,8 @@ export function GraphItem  ({ options, el, grid, actived }: { options: Widget, e
                 <div ref={graph} />
             :
                 <div className='graph-content'>
-                    <div className='title'>{GraphTypeName[options.type]}</div>
-                    <DataSource widget_option={options}/>
+                    <div className='title'>{GraphTypeName[widget.type]}</div>
+                    <DataSource widget_option={widget}/>
                 </div>
         }
         <div className='drag-icon' />

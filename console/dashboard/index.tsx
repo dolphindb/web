@@ -109,8 +109,8 @@ export function DashBoard () {
             // 去除移入的新 widget
             grid.removeWidget(news[0].el)
             
-            set_widgets(options => [
-                ...options, 
+            set_widgets(widgets => [
+                ...widgets, 
                 { id: String(genid()), type: news[0].el.dataset.type, x: news[0].x, y: news[0].y, h: news[0].h, w: news[0].w }
             ])
         })
@@ -153,20 +153,20 @@ export function DashBoard () {
                 {/* 画布区域 (dashboard-canvas) 包含实际的 GridStack 网格和 widgets。每个 widget 都有一个 GraphItem 组件表示，并且每次点击都会更改 active_widget_id */}
                 <div className='dashboard-canvas' onClick={() => { set_active_widget_id('') }}>
                     <div className='grid-stack' ref={rdiv} style={{ backgroundSize: `${100 / maxcols}% ${100 / maxrows}%` }} >
-                        {widgets.map((options, i) =>
+                        {widgets.map((widget, i) =>
                             <div 
                                 className='grid-stack-item'
-                                key={options.id}
+                                key={widget.id}
                                 
                                 // 保存 dom 节点，在 widgets 更新时将 ref 给传给 react `<div>` 获取 dom
-                                ref={map.get(options.id)}
+                                ref={map.get(widget.id)}
                                 
                                 onClick={ event => {
                                     event.stopPropagation()
-                                    set_active_widget_id(options.id)
+                                    set_active_widget_id(widget.id)
                                 }}
                             >
-                                <GraphItem options={options} el={all_widgets[i]} grid={rgrid.current} actived={active_widget_id === options.id}/>
+                                <GraphItem widget={widget} el={all_widgets[i]} grid={rgrid.current} actived={active_widget_id === widget.id}/>
                             </div>
                         )}
                     </div>
