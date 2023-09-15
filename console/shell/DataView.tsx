@@ -4,11 +4,11 @@ import { Obj } from '../obj.js'
 
 import { model } from '../model.js'
 import { shell } from './model.js'
-import { shell as dashboard_shell } from '../dashboard/model.js'
+import { dashboard as dashboard_model } from '../dashboard/model.js'
 
 
 export function DataView ({ dashboard = false }) {
-    const { result } = dashboard ?  dashboard_shell : shell.use(['result'])
+    const { result } = dashboard ?  dashboard_model : shell.use(['result'])
     const { options } = model.use(['options'])
     
     return <div className='dataview result embed'>{

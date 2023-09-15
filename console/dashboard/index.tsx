@@ -16,11 +16,21 @@ import { SelectSider } from './SelectSider/SelectSider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 import { Navigation } from './Navigation/Navigation.js'
-import { widget_nodes } from './storage/widget_node.js'
+import type { Widget } from './model.js'
 
 
+/** 基于 GridStack.js 开发的拖拽图表可视化面板  
+    https://gridstackjs.com/
+    https://github.com/gridstack/gridstack.js/tree/master/doc
+    
+    GridStack.init 创建实例保存到 rgrid  
+    所有的 widgets 配置保存在 widgets state 中
+    通过 map 保存 dom 节点，在 widgets 配置更新时将 ref 给传给 react `<div>` 获取 dom
+    通过 GridStack.makeWidget 将画布中已有的 dom 节点交给 GridStack 管理
+    通过 GridStack.on('added', ...) 监听用户从外部添加新 widget 到 GridStack 的事件
+    通过 GridStack.on('change', ...) 响应 GridStack 中 widget 的位置或尺寸变化的事件 */
 export function DashBoard () {
-    const [widget_options, set_widget_options] = useState(widget_nodes)
+    const [widgets, set_widgets] = useState<Widget[]>([ ])
     
     const [all_widgets, set_all_widgets] = useState([ ])
     
@@ -33,14 +43,15 @@ export function DashBoard () {
     let rgrid = useRef<GridStack>()
     
     
-    /** widgets ref，是一个 Map<widget id, widget ref>， 存放 id -> widget react ref 的映射，这个 ref 用于指向在 DOM 中表示该 widget 的元素 */
-    let { current: widgets } = useRef(new Map<string, React.MutableRefObject<GridStackElement>>())
+    /** widgets ref，是一个 Map<widget.id, ref GridStackElement>， 存放 id -> widget ref (GridStackElement) 的映射，
+        这个 ref 用于指向在 DOM 中表示该 widget 的元素 */
+    let { current: map } = useRef(new Map<string, React.MutableRefObject<HTMLDivElement>>())
     
-    // 给每个 widget_option 创建对应的 ref
-    if (widgets.size !== widget_options.length)
-        for (const { id } of widget_options)
-            if (!widgets.has(id))
-                widgets.set(id, createRef())
+    // 给每个 widget 创建对应的 ref
+    if (map.size !== widgets.length)
+        for (const { id } of widgets)
+            if (!map.has(id))
+                map.set(id, createRef())
     
     
     const rlock = useRef(false)
@@ -63,13 +74,20 @@ export function DashBoard () {
         rlock.current = true
         
         grid.batchUpdate()
+        
         grid.removeAll(false)
-        for (const { id } of widget_options)
-            grid.makeWidget(widgets.get(id).current)
+        
+        for (const option of widgets)
+            // 返回 GridItemHTMLElement 类型 (就是在 dom 节点上加了 gridstackNode: GridStackNode 属性)，好像也没什么用
+            grid.makeWidget(
+                map.get(option.id).current,
+                option
+            )
+        
         grid.batchUpdate(false)
         
         rlock.current = false
-    }, [widget_options])
+    }, [widgets])
     
     
     useEffect(() => {
@@ -90,17 +108,21 @@ export function DashBoard () {
             // 当用户从外部移入新 dom 时，执行下列代码
             // 去除移入的新 widget
             grid.removeWidget(news[0].el)
-            set_widget_options(item => [...item, { id: String(genid()), type: news[0].el.dataset.type, x: news[0].x, y: news[0].y, h: news[0].h, w: news[0].w }])
+            
+            set_widgets(options => [
+                ...options, 
+                { id: String(genid()), type: news[0].el.dataset.type, x: news[0].x, y: news[0].y, h: news[0].h, w: news[0].w }
+            ])
         })
         
-        window.addEventListener('resize', function () {
+        window.addEventListener('resize', () => {
             grid.cellHeight(Math.floor(grid.el.clientHeight / maxrows))
         })
         
         // 响应 GridStack 中 widget 的位置或尺寸变化的事件
         grid.on('change', (event: Event, items: GridStackNode[]) => {
             for (let node of items) 
-                set_widget_options(arr => {
+                set_widgets(arr => {
                     let type = ''
                     let widget_arr = arr.filter(item => {
                         if (node.id === item.id) 
@@ -131,17 +153,15 @@ export function DashBoard () {
                 {/* 画布区域 (dashboard-canvas) 包含实际的 GridStack 网格和 widgets。每个 widget 都有一个 GraphItem 组件表示，并且每次点击都会更改 active_widget_id */}
                 <div className='dashboard-canvas' onClick={() => { set_active_widget_id('') }}>
                     <div className='grid-stack' ref={rdiv} style={{ backgroundSize: `${100 / maxcols}% ${100 / maxrows}%` }} >
-                        {widget_options.map((options, i) =>
+                        {widgets.map((options, i) =>
                             <div 
                                 className='grid-stack-item'
-                                ref={widgets.get(options.id) as any}
-                                key={options.id} 
-                                gs-id={options.id} 
-                                gs-w={options.w} 
-                                gs-h={options.h} 
-                                gs-x={options.x} 
-                                gs-y={options.y} 
-                                onClick={event => {
+                                key={options.id}
+                                
+                                // 保存 dom 节点，在 widgets 更新时将 ref 给传给 react `<div>` 获取 dom
+                                ref={map.get(options.id)}
+                                
+                                onClick={ event => {
                                     event.stopPropagation()
                                     set_active_widget_id(options.id)
                                 }}

@@ -6,7 +6,7 @@ import { InputNumber, Switch } from 'antd'
 import { Editor } from '../../shell/Editor/index.js'
 import { DataView } from '../../shell/DataView.js'
 
-import { shell } from '../model.js'
+import { dashboard } from '../model.js'
 import { type DataSourceNodeType, type DataSourceNodePropertyType, data_source_nodes, find_data_source_node_index } from '../storage/date-source-node.js'
 
 type PropsType = { 
@@ -24,7 +24,7 @@ export function SqlEditor ({
         close_preview,
     }: PropsType) 
 { 
-    const { result } = shell.use(['result'])
+    const { result } = dashboard.use(['result'])
     
     useEffect(() => {
         if (current_data_source_node.mode === data_source_nodes[find_data_source_node_index(current_data_source_node.id)].mode)
@@ -38,7 +38,7 @@ export function SqlEditor ({
                     enter_completion
                     on_mount={(editor, monaco) => {
                         editor?.setValue(data_source_nodes[find_data_source_node_index(current_data_source_node.id)].code || '')
-                        shell.set({ editor, monaco })
+                        dashboard.set({ editor, monaco })
                     }}
                     on_change={() => change_no_save_flag(true)}
                 />

@@ -10,8 +10,8 @@ import { SqlEditor } from './SqlEditor.js'
 import { StreamEditor } from './StreamEditor.js'
 
 import { formatter } from '../utils.js'
-import { shell } from '../model.js'
-import { type WidgetOption } from '../storage/widget.js'
+import { dashboard } from '../model.js'
+import { type Widget } from '../model.js'
 import { data_source_nodes,
     find_data_source_node_index, 
     save_data_source_node, 
@@ -30,7 +30,7 @@ const save_confirm_config = {
     ),   
 }
 
-export function DataSource ({ widget_option }: { widget_option?: WidgetOption }) {
+export function DataSource ({ widget_option }: { widget_option?: Widget }) {
     const { visible, open, close } = use_modal()
     
     const [modal, contextHolder] = Modal.useModal()
@@ -70,9 +70,9 @@ export function DataSource ({ widget_option }: { widget_option?: WidgetOption })
     }, [no_save_flag.current])
     
     const handle_save = useCallback(async () => {
-        current_data_source_node.code = shell.editor.getValue()
+        current_data_source_node.code = dashboard.editor.getValue()
         
-        const { type, result } = await shell.execute()
+        const { type, result } = await dashboard.execute()
         change_current_data_source_node_property('error_message', type === 'success' ? '' : result as string)
         current_data_source_node.data.length = 0
         if (typeof result === 'object' && result.data) 
@@ -111,7 +111,7 @@ export function DataSource ({ widget_option }: { widget_option?: WidgetOption })
                         key='preview' 
                         onClick={
                             async () => {
-                                const { type, result } = await shell.execute()
+                                const { type, result } = await dashboard.execute()
                                 change_current_data_source_node_property('error_message', type === 'success' ? '' : result as string, false)
                                 set_show_preview(true)
                             }
