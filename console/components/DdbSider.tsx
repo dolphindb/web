@@ -4,6 +4,8 @@ import { Layout, Menu, Typography } from 'antd'
 
 import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
 
+import { isNil, omitBy } from 'lodash'
+
 
 import { t } from '../../i18n/index.js'
 
@@ -37,12 +39,17 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 export function DdbSider () {
     const { view, node_type, collapsed, logined, login_required } = model.use(['view', 'node_type', 'collapsed', 'logined', 'login_required'])
     
-    const factor_href = useMemo(() =>
-        'factor-platform/index.html?' + new URLSearchParams({
-            logined: Number(logined).toString(),
-            ...(localStorage.getItem(storage_keys.ticket) ? { token: localStorage.getItem(storage_keys.ticket) } : { })
-        }).toString(),
+    
+    const factor_href = useMemo(() => {
+        const search_params = new URLSearchParams(location.search)
         
+        return 'factor-platform/index.html?' + new URLSearchParams(omitBy({
+            ddb_hostname: search_params.get('hostname'),
+            ddb_port: search_params.get('port'),
+            logined: Number(logined).toString(),
+            token: localStorage.getItem(storage_keys.ticket)
+        }, isNil)).toString()
+    },
         [logined]
     )
     
