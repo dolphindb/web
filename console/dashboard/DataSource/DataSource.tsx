@@ -118,8 +118,10 @@ export function DataSource ({ widget_option }: { widget_option?: WidgetOption })
                         if (no_save_flag.current)
                             await handle_save()
                         if (widget_option) {
-                            sub_source(widget_option, current_data_source_node.id)
-                            widget_option.source_id = current_data_source_node.id
+                            if (!widget_option.source_id || widget_option.source_id !== current_data_source_node.id) {
+                                sub_source(widget_option, current_data_source_node.id)
+                                widget_option.source_id = current_data_source_node.id
+                            }
                             close()
                             set_show_preview(false)
                         }    
