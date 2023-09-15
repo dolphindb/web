@@ -6,7 +6,7 @@ import { StreamingTable } from '../obj.js'
 // import { StreamingTest } from '../streaming/StreamingTest.js'
 
 
-export function DashBoard () {
+export function Test () {
     const { ddb: { url, username, password } } = model
     
     return <div className='result page'>
