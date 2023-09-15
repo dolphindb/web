@@ -55,7 +55,7 @@ function DolphinDB () {
 
 
 function MainLayout () {
-    const { header, inited } = model.use(['header', 'inited'])
+    const { header, inited, sider } = model.use(['header', 'inited', 'sider'])
     
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
     Object.assign(model, App.useApp())
@@ -105,7 +105,7 @@ function MainLayout () {
             <DdbHeader />
         </Layout.Header> }
         <Layout className='body' hasSider>
-            <DdbSider />
+            { sider && <DdbSider />}
             <Layout.Content className='view'>
                 <DdbContent />
             </Layout.Content>
