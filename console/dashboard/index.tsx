@@ -19,28 +19,26 @@ import { Navigation } from './Navigation/Navigation.js'
 import { widget_nodes } from './storage/widget_node.js'
 
 
-// gridstack 仅支持 12 列以下的，大于 12 列需要手动添加 css 代码，详见 gridstack 的 readme.md
-// 目前本项目仅支持仅支持 tmpcol <= 12
-const tmpcol = 12, tmprow = 12
-
 export function DashBoard () {
     const [widget_options, set_widget_options] = useState([ ...widget_nodes ])
     const [all_widgets, set_all_widgets] = useState([ ])
     const [active_widget_id, set_active_widget_id] = useState('')
     
+    /** 创建 GridStack 时绑定的 div element */
+    let rdiv = useRef<HTMLDivElement>()
+    
+    /** 保存 GridStack.init 创建的 gridstack 实例 */
+    let rgrid = useRef<GridStack>()
+    
     const rwidgets = useRef({ })
-    const rgrid = useRef<GridStack>()
+    
+    
     const rlock = useRef(false)
     
     // 编辑、预览状态切换
     const [editing, set_editing] = useState(true)
     
-    const change_editing = (editing: boolean) => {
-        set_editing(editing)
-        rgrid.current.enableMove(editing)
-        rgrid.current.enableResize(editing)
-    }
-    
+        
     const change_active_widgets = useCallback((widgets_id: string) => {
         set_active_widget_id(widgets_id)
     }, [ ])
@@ -52,11 +50,11 @@ export function DashBoard () {
         })
     
     useEffect(() => {
-        rgrid.current = rgrid.current || GridStack.init({
+        let grid = rgrid.current ??= GridStack.init({
             acceptWidgets: true,
             float: true,
-            column: tmpcol,
-            row: tmprow,
+            column: maxcols,
+            row: maxrows,
             margin: 0,
             draggable: { scroll: false },
             resizable: { handles: 'n,e,se,s,w' },
@@ -64,40 +62,42 @@ export function DashBoard () {
         
         rlock.current = true
         
-        rgrid.current.batchUpdate()
-        rgrid.current.removeAll(false)
-        widget_options.forEach(({ id }) => rgrid.current.makeWidget(rwidgets.current[id].current))
-        rgrid.current.batchUpdate(false)
+        grid.batchUpdate()
+        grid.removeAll(false)
+        widget_options.forEach(({ id }) => grid.makeWidget(rwidgets.current[id].current))
+        grid.batchUpdate(false)
         
         rlock.current = false
-        
-    }, [ widget_options ])
+    }, [widget_options])
     
     
     useEffect(() => {
-        rgrid.current.cellHeight(Math.floor(rgrid.current.el.clientHeight / tmprow))
+        let { current: grid } = rgrid
+        
+        grid.cellHeight(Math.floor(grid.el.clientHeight / maxrows))
         
         GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
         
         // 响应用户从外部添加新 widget 到 GridStack 的事件
-        rgrid.current.on('added', function (event: Event, news: GridStackNode[]) {
+        grid.on('added', function (event: Event, news: GridStackNode[]) {
             // 加锁，防止因更新 state 导致的无限循环
             if (rlock.current) {
                 set_all_widgets(() => [...news])
                 return
             }
+            
             // 当用户从外部移入新 dom 时，执行下列代码
             // 去除移入的新 widget
-            rgrid.current.removeWidget(news[0].el)
+            grid.removeWidget(news[0].el)
             set_widget_options( item => [...item, { id: String(genid()), type: news[0].el.dataset.type, x: news[0].x, y: news[0].y, h: news[0].h, w: news[0].w }])
         })
         
         window.addEventListener('resize', function () {
-            rgrid.current.cellHeight(Math.floor(rgrid.current.el.clientHeight / tmprow))
+            grid.cellHeight(Math.floor(grid.el.clientHeight / maxrows))
         })
         
         // 响应 GridStack 中 widget 的位置或尺寸变化的事件
-        rgrid.current.on('change', (event: Event, items: GridStackNode[]) => {
+        grid.on('change', (event: Event, items: GridStackNode[]) => {
             for (let node of items) 
                 set_widget_options(arr => {
                     let type = ''
@@ -115,14 +115,21 @@ export function DashBoard () {
     return <ConfigProvider theme={{ hashed: false, token: { borderRadius: 0, motion: false }, algorithm: theme.darkAlgorithm }}>
         <div className='dashboard'>
             <div className='dashboard-header'>
-                <Navigation editing={editing} change_editing={change_editing}/>
+                <Navigation
+                    editing={editing}
+                    change_editing={(editing: boolean) => {
+                        let { current: grid } = rgrid
+                        set_editing(editing)
+                        grid.enableMove(editing)
+                        grid.enableResize(editing)
+                    }}/>
             </div>
             <div className='dashboard-main'>
                 <SelectSider hidden={editing}/>
                 
                 {/* 画布区域 (dashboard-canvas) 包含实际的 GridStack 网格和 widgets。每个 widget 都有一个 GraphItem 组件表示，并且每次点击都会更改 active_widget_id */}
                 <div className='dashboard-canvas' onClick={() => { change_active_widgets('') }}>
-                    <div className='grid-stack' style={{ backgroundSize: `${100 / tmpcol}% ${100 / tmprow}%` }} >
+                    <div className='grid-stack' ref={rdiv} style={{ backgroundSize: `${100 / maxcols}% ${100 / maxrows}%` }} >
                         {widget_options.map((item, i) =>
                             <div 
                                 ref={rwidgets.current[item.id]} 
@@ -143,8 +150,15 @@ export function DashBoard () {
                         )}
                     </div>
                 </div>
+                
                 <SettingsPanel hidden={editing}/>
             </div>
         </div>
     </ConfigProvider>
 }
+
+
+// gridstack 仅支持 12 列以下的，大于 12 列需要手动添加 css 代码，详见 gridstack 的 readme.md
+// 目前本项目仅支持仅支持 <= 12
+const maxcols = 12
+const maxrows = 12
