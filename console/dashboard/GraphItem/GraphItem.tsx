@@ -10,7 +10,7 @@ import echarts from 'echarts'
 import { unsub_source } from '../storage/date-source-node.js'
 
 
-export function GraphItem  ({ widget, el, grid, actived }: { widget: Widget, el: GridStackNode, grid: GridStack, actived: boolean }) {
+export function GraphItem  ({ widget, node, grid, actived }: { widget: Widget, node: GridStackNode, grid: GridStack, actived: boolean }) {
     // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动
     
     const graph = useRef()
@@ -54,7 +54,7 @@ export function GraphItem  ({ widget, el, grid, actived }: { widget: Widget, el:
     
     return <div className={`grid-stack-item-content ${actived ? 'grid-stack-item-active' : ''}`}>
         <div className='delete-graph' onClick={() => { 
-            grid.removeWidget(el.el)
+            grid.removeWidget(node.el)
             // 取消订阅数据源 
             if (widget.source_id)
                 unsub_source(widget)

@@ -32,8 +32,6 @@ import type { Widget } from './model.js'
 export function DashBoard () {
     const [widgets, set_widgets] = useState<Widget[]>([ ])
     
-    const [all_widgets, set_all_widgets] = useState([ ])
-    
     const [active_widget_id, set_active_widget_id] = useState('')
     
     /** div ref, 创建 GridStack 时绑定的 div element */
@@ -54,8 +52,6 @@ export function DashBoard () {
                 map.set(id, createRef())
     
     
-    const rlock = useRef(false)
-    
     // 编辑、预览状态切换
     const [editing, set_editing] = useState(true)
     
@@ -71,22 +67,18 @@ export function DashBoard () {
             resizable: { handles: 'n,e,se,s,w' },
         })
         
-        rlock.current = true
-        
         grid.batchUpdate()
         
         grid.removeAll(false)
         
-        for (const option of widgets)
+        for (const widget of widgets)
             // 返回 GridItemHTMLElement 类型 (就是在 dom 节点上加了 gridstackNode: GridStackNode 属性)，好像也没什么用
             grid.makeWidget(
-                map.get(option.id).current,
-                option
+                map.get(widget.id).current,
+                widget
             )
         
         grid.batchUpdate(false)
-        
-        rlock.current = false
     }, [widgets])
     
     
@@ -98,21 +90,14 @@ export function DashBoard () {
         GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
         
         // 响应用户从外部添加新 widget 到 GridStack 的事件
-        grid.on('added', (event: Event, news: GridStackNode[]) => {
-            // 加锁，防止因更新 state 导致的无限循环
-            if (rlock.current) {
-                set_all_widgets(() => [...news])
-                return
-            }
+        grid.on('dropped', (event: Event, old_node: GridStackNode, new_node: GridStackNode) => {
+            // todo: 更新状态
+            console.log('dropped', event, old_node, new_node)
             
-            // 当用户从外部移入新 dom 时，执行下列代码
-            // 去除移入的新 widget
-            grid.removeWidget(news[0].el)
-            
-            set_widgets(widgets => [
-                ...widgets, 
-                { id: String(genid()), type: news[0].el.dataset.type, x: news[0].x, y: news[0].y, h: news[0].h, w: news[0].w }
-            ])
+            // set_widgets(widgets => [
+            //     ...widgets, 
+            //     { ... new_node, id: String(genid()), type: old_node.el.dataset.type,  }
+            // ])
         })
         
         window.addEventListener('resize', () => {
@@ -166,7 +151,12 @@ export function DashBoard () {
                                     set_active_widget_id(widget.id)
                                 }}
                             >
-                                <GraphItem widget={widget} el={all_widgets[i]} grid={rgrid.current} actived={active_widget_id === widget.id}/>
+                                <GraphItem
+                                    widget={widget}
+                                    node={map.get(widget.id).current}
+                                    grid={rgrid.current}
+                                    actived={active_widget_id === widget.id}
+                                />
                             </div>
                         )}
                     </div>
