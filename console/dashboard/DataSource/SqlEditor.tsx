@@ -14,7 +14,7 @@ type PropsType = {
     current_data_source_node: dataSourceNodeType
     close_preview: () => void 
     change_no_save_flag: (value: boolean) => void
-    change_current_data_source_node_property: (key: string, value: dataSourceNodePropertyType) => void
+    change_current_data_source_node_property: (key: string, value: dataSourceNodePropertyType, save_confirm?: boolean) => void
 }
 export function SqlEditor ({ 
         current_data_source_node, 
@@ -56,7 +56,7 @@ export function SqlEditor ({
                     </div>
                     <div className='data-source-config-preview-main'>
                         {result?.data
-                            ? <DataView type='dashboard'/>
+                            ? <DataView dashboard/>
                             : <div className='data-source-config-preview-main-error'>{current_data_source_node.error_message }</div> 
                         }
                     </div>
@@ -81,12 +81,13 @@ export function SqlEditor ({
                         间隔时间：
                         <InputNumber 
                             size='small' 
-                            min={0.001}
+                            min={1}
+                            max={1000}
                             className='data-source-config-sqlconfig-left-intervals-input'
                             value={current_data_source_node.interval}
                             onChange={value => {
                                 if (value !== null)
-                                    change_current_data_source_node_property('interval', value) 
+                                    change_current_data_source_node_property('interval', Math.ceil(value)) 
                             }}
                         />
                         s
@@ -99,13 +100,13 @@ export function SqlEditor ({
                     最大行数：
                     <InputNumber 
                         size='small' 
-                        min={0}
+                        min={1}
                         max={1000}
                         className='data-source-config-sqlconfig-right-maxline-input' 
                         value={current_data_source_node.max_line}
                         onChange={value => { 
                             if (value !== null)
-                                change_current_data_source_node_property('max_line', value) 
+                                change_current_data_source_node_property('max_line', Math.ceil(value)) 
                         }}
                     />
                 </div>
