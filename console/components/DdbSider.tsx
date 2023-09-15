@@ -117,7 +117,7 @@ export function DdbSider () {
                     key: 'factor',
                     icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
-                }] : [ ]
+                }] : [ ],
                 {
                     key: 'gridstack',
                     icon: <MenuIcon view='dashboard' />,
