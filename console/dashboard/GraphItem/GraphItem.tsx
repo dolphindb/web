@@ -58,7 +58,8 @@ export function GraphItem  ({ item, el, grid, actived }) {
         <div className='delete-graph' onClick={() => { 
             grid.removeWidget(el.el)
             // 取消订阅数据源 
-            unsub_source(item)
+            if (item.source_id)
+                unsub_source(item)
         }}>
             <CloseOutlined className='delete-graph-icon'/>
         </div>
