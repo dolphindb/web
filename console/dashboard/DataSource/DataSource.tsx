@@ -49,14 +49,16 @@ export function DataSource ({ widget_option }: { widget_option?: WidgetOption })
         set_show_preview(false)
     }, [ ])
     
-    const change_current_data_source_node_property = useCallback((key: string, value: dataSourceNodePropertyType) => {
-        set_current_data_source_node((pre: dataSourceNodeType) => {
-            pre[key] = value
-            return { ...pre }
-        })
-        if (key !== 'name') 
-            no_save_flag.current = true   
-    }, [ ])
+    const change_current_data_source_node_property = useCallback(
+        (key: string, value: dataSourceNodePropertyType, save_confirm = true) => {
+            set_current_data_source_node((pre: dataSourceNodeType) => {
+                pre[key] = value
+                return { ...pre }
+            })
+            if (save_confirm) 
+                no_save_flag.current = true   
+        }
+    , [ ])
     
     const handle_close = useCallback(async () => {
         if (no_save_flag.current && await modal.confirm(save_confirm_config) ) {
@@ -99,7 +101,9 @@ export function DataSource ({ widget_option }: { widget_option?: WidgetOption })
             maskClosable={false}
             maskStyle={{ backgroundColor: 'rgba(84,84,84,0.5)' }}
             afterOpenChange={() => {
-                set_current_data_source_node({ ...data_source_nodes[0] } )
+                set_current_data_source_node(
+                    { ...data_source_nodes[widget_option?.source_id ? find_data_source_node_index(widget_option.source_id) : 0] } 
+                )
             }}
             footer={
                 [
@@ -108,7 +112,7 @@ export function DataSource ({ widget_option }: { widget_option?: WidgetOption })
                         onClick={
                             async () => {
                                 const { type, result } = await shell.execute()
-                                change_current_data_source_node_property('error_message', type === 'success' ? '' : result as string)
+                                change_current_data_source_node_property('error_message', type === 'success' ? '' : result as string, false)
                                 set_show_preview(true)
                             }
                         }>

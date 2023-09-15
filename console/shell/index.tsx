@@ -131,7 +131,7 @@ export function Shell () {
                 <Terminal />
             </Resizable>
             
-            <DataView type='shell'/>
+            <DataView/>
         </div>
     </>
 }
