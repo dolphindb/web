@@ -4,6 +4,8 @@ import { Layout, Menu, Typography } from 'antd'
 
 import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
 
+import { isNil, omitBy } from 'lodash'
+
 
 import { t } from '../../i18n/index.js'
 
@@ -16,7 +18,6 @@ import SvgDashboard from '../dashboard/icons/dashboard.icon.svg'
 import SvgJob from '../job.icon.svg'
 import SvgLog from '../log.icon.svg'
 import SvgFactor from '../factor.icon.svg'
-import { isNil, omitBy } from 'lodash'
 
 
 const { Text, Link } = Typography
