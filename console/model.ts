@@ -103,6 +103,9 @@ export class DdbModel extends Model<DdbModel> {
     /** 是否显示顶部导航栏，传 header=0 时隐藏，便于嵌入 web 页面 */
     header: boolean
     
+    /** 是否显示侧边栏, 传 sider=0 时隐藏 */
+    sider: boolean
+    
     /** 是否在代码为空时设置代码模板 */
     code_template: boolean
     
@@ -145,6 +148,7 @@ export class DdbModel extends Model<DdbModel> {
         )
         
         this.header = params.get('header') !== '0'
+        this.sider = params.get('sider') !== '0'
         this.code_template = params.get('code-template') === '1'
         this.redirection = params.get('redirection') as PageViews
     }

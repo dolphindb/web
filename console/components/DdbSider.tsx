@@ -62,6 +62,8 @@ export function DdbSider () {
                     model.message.error(t('请登录'))
                     return
                 }
+                if (key === 'gridstack')
+                    model.set({ header: false, sider: false })
                 model.set({ view: key as DdbModel['view'] })
             }}
             inlineIndent={10}
