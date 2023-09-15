@@ -59,7 +59,7 @@ export function Navigation ({ editing, change_editing }: { editing: boolean, cha
                 </span>
             </div>
             <div className='dashboard-navigation-right-config'>
-                <DataSource trigger_index='navigation'/>
+                <DataSource/>
             </div>
         </div>
     </div>

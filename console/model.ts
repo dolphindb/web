@@ -32,7 +32,7 @@ export const storage_keys = {
 
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log'
+export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' 
 
 export class DdbModel extends Model<DdbModel> {
     inited = false
@@ -48,6 +48,9 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 启用详细日志，包括执行的代码和运行代码返回的变量 */
     verbose = false
+    
+    /** 是否启用了因子平台功能 */
+    is_factor_platform_enabled = false
     
     ddb: DDB
     
@@ -185,7 +188,10 @@ export class DdbModel extends Model<DdbModel> {
         
         await this.get_cluster_perf(true)
         
-        await this.check_leader_and_redirect()
+        await Promise.all([
+            this.check_leader_and_redirect(),
+            this.get_factor_platform_enabled(),
+        ])
         
         console.log(t('web 初始化成功'))
         
@@ -293,6 +299,19 @@ export class DdbModel extends Model<DdbModel> {
             username: username_guest,
         })
         this.goto_login()
+    }
+    
+    
+    /** 获取是否启用因子平台，待 server 实现 */
+    async get_factor_platform_enabled () {
+        try {
+            const { value } = await this.ddb.eval<DdbObj<boolean>>(
+                'use factorPlatform::facplf\n' +
+                'factorPlatform::facplf::is_factor_platform_enabled()\n'
+                , { urgent: true })
+            this.set({ is_factor_platform_enabled: value })
+            return value
+        } catch { }
     }
     
     
