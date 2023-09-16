@@ -1,16 +1,17 @@
+import echarts from 'echarts'
+
 import { CloseOutlined } from '@ant-design/icons'
 
-import type { GridStack, GridStackNode } from 'gridstack'
 
-import { WidgetType } from '../model.js'
+import { WidgetType, dashboard } from '../model.js'
 import { DataSource } from '../DataSource/DataSource.js'
 import { useEffect, useRef, useState } from 'react'
 import { type Widget } from '../model.js'
-import echarts from 'echarts'
-import { unsub_source } from '../storage/date-source-node.js'
 
 
-export function GraphItem  ({ widget, actived, set_widgets }: { widget: Widget, actived: boolean, set_widgets: Function }) {
+export function GraphItem  ({ widget }: { widget: Widget }) {
+    const { widget: current } = dashboard.use(['widget'])
+    
     // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动
     
     const graph = useRef()
@@ -52,14 +53,8 @@ export function GraphItem  ({ widget, actived, set_widgets }: { widget: Widget, 
     }
     
     
-    return <div className={`grid-stack-item-content ${actived ? 'grid-stack-item-active' : ''}`}>
-        <div className='delete-graph' onClick={() => {
-            set_widgets(widgets => widgets.filter(({ id }) => id !== widget.id))
-            
-            // 取消订阅数据源 
-            if (widget.source_id)
-                unsub_source(widget)
-        }}>
+    return <div className={`grid-stack-item-content ${widget === current ? 'grid-stack-item-active' : ''}`}>
+        <div className='delete-graph' onClick={() => { dashboard.delete_widget(widget) }}>
             <CloseOutlined className='delete-graph-icon'/>
         </div>
         {
