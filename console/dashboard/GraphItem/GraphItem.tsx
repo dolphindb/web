@@ -2,7 +2,7 @@ import { CloseOutlined } from '@ant-design/icons'
 
 import type { GridStack, GridStackNode } from 'gridstack'
 
-import { GraphTypeName } from '../graph-types.js'
+import { WidgetType } from '../model.js'
 import { DataSource } from '../DataSource/DataSource.js'
 import { useEffect, useRef, useState } from 'react'
 import { type Widget } from '../model.js'
@@ -55,6 +55,7 @@ export function GraphItem  ({ widget, node, grid, actived }: { widget: Widget, n
     return <div className={`grid-stack-item-content ${actived ? 'grid-stack-item-active' : ''}`}>
         <div className='delete-graph' onClick={() => { 
             grid.removeWidget(node.el)
+            
             // 取消订阅数据源 
             if (widget.source_id)
                 unsub_source(widget)
@@ -66,8 +67,8 @@ export function GraphItem  ({ widget, node, grid, actived }: { widget: Widget, n
                 <div ref={graph} />
             :
                 <div className='graph-content'>
-                    <div className='title'>{GraphTypeName[widget.type]}</div>
-                    <DataSource widget_option={widget}/>
+                    <div className='title'>{WidgetType[widget.type]}</div>
+                    <DataSource widget={widget}/>
                 </div>
         }
         <div className='drag-icon' />

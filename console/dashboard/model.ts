@@ -14,7 +14,7 @@ import type { DataType } from './storage/date-source-node.js'
 /** dashboard 中我们自己定义的 Widget，继承了官方的 GridStackWidget，加上额外的业务属性 */
 export interface Widget extends GridStackWidget {
     /** 图表类型 */
-    type: string
+    type: keyof typeof WidgetType
     
     /** 数据源 id */
     source_id?: string
@@ -24,9 +24,24 @@ export interface Widget extends GridStackWidget {
 }
 
 
+export enum WidgetType {
+    BAR = '柱状图',
+    LINE = '折线图',
+    PIE = '饼图',
+    POINT = '散点图',
+    TABLE = '表格',
+    OHLC = 'OHLC',
+    CANDLE = '蜡烛图',
+    ORDER = '订单图',
+    NEEDLE = '数值针型图',
+    STRIP = '带图',
+    HEAT = '热力图'
+}
+
+
 type Result = { type: 'object', data: DdbObj<DdbValue> } | null
 
-class ShellModel extends Model<ShellModel> {
+class DashBoardModel extends Model<DashBoardModel> {
     monaco: Monaco
     
     editor: monacoapi.editor.IStandaloneCodeEditor
@@ -93,4 +108,4 @@ class ShellModel extends Model<ShellModel> {
     }
 }
 
-export let dashboard = window.dashboard = new ShellModel()
+export let dashboard = window.dashboard = new DashBoardModel()

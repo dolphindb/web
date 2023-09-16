@@ -30,7 +30,7 @@ const save_confirm_config = {
     ),   
 }
 
-export function DataSource ({ widget_option }: { widget_option?: Widget }) {
+export function DataSource ({ widget }: { widget?: Widget }) {
     const { visible, open, close } = use_modal()
     
     const [modal, contextHolder] = Modal.useModal()
@@ -85,7 +85,7 @@ export function DataSource ({ widget_option }: { widget_option?: Widget }) {
     }, [current_data_source_node])
     return <>
         {
-            widget_option
+            widget
             ? <div className='graph-hint' onClick={open}>点击填充数据源</div>
             : <div className='data-source-config-trigger-navigation' onClick={open}>
                 <DatabaseOutlined className='data-source-config-trigger-navigation-icon'/>
@@ -102,7 +102,7 @@ export function DataSource ({ widget_option }: { widget_option?: Widget }) {
             maskStyle={{ backgroundColor: 'rgba(84,84,84,0.5)' }}
             afterOpenChange={() => {
                 set_current_data_source_node(
-                    { ...data_source_nodes[widget_option?.source_id ? find_data_source_node_index(widget_option.source_id) : 0] } 
+                    { ...data_source_nodes[widget?.source_id ? find_data_source_node_index(widget.source_id) : 0] } 
                 )
             }}
             footer={
@@ -121,16 +121,16 @@ export function DataSource ({ widget_option }: { widget_option?: Widget }) {
                     <Button key='save' onClick={async () => {
                         if (no_save_flag.current)
                             await handle_save()
-                        if (widget_option) {
-                            if (!widget_option.source_id || widget_option.source_id !== current_data_source_node.id) {
-                                sub_source(widget_option, current_data_source_node.id)
-                                widget_option.source_id = current_data_source_node.id
+                        if (widget) {
+                            if (!widget.source_id || widget.source_id !== current_data_source_node.id) {
+                                sub_source(widget, current_data_source_node.id)
+                                widget.source_id = current_data_source_node.id
                             }
                             close()
                             set_show_preview(false)
                         }    
                     }}>
-                        {widget_option ? '应用' : '保存'}
+                        {widget ? '应用' : '保存'}
                     </Button>,
                     <Button key='close' type='primary' onClick={handle_close}>
                         关闭
