@@ -6,7 +6,7 @@ import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 import { DdbForm, DdbObj, DdbValue } from 'dolphindb/browser.js'
 
-import { GridStack, type GridStackNode } from 'gridstack'
+import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
 import { assert, genid } from 'xshell/utils.browser.js'
 
@@ -20,7 +20,7 @@ import { unsub_source, type DataType } from './storage/date-source-node.js'
 /** dashboard 中我们自己定义的 Widget，继承了官方的 GridStackWidget，加上额外的业务属性 */
 export interface Widget extends GridStackNode {
     /** 保存 dom 节点，在 widgets 配置更新时将 ref 给传给 react `<div>` 获取 dom */
-    ref: React.MutableRefObject<HTMLDivElement>
+    ref: React.MutableRefObject<GridItemHTMLElement>
     
     /** 图表类型 */
     type: keyof typeof WidgetType
@@ -97,7 +97,7 @@ class DashBoardModel extends Model<DashBoardModel> {
                 ...node,
                 ref: createRef(),
                 id: String(genid()),
-                type: node.el.dataset.type as keyof typeof WidgetType
+                type: node.el.dataset.type as keyof typeof WidgetType,
             }
             
             console.log('拖拽释放，添加 widget:', widget)
@@ -111,16 +111,11 @@ class DashBoardModel extends Model<DashBoardModel> {
         grid.on('change', (event: Event, widgets: GridStackNode[]) => {
             console.log('修改 widget 大小或位置:', widgets)
             
-            // for (let node of items) 
-            //     set_widgets(widgets => {
-            //         let type: keyof typeof WidgetType = 'LINE'
-            //         let widget_arr = widgets.filter(item => {
-            //             if (node.id === item.id) 
-            //                 type = item.type
-            //             return node.id !== item.id
-            //         })
-            //         return [...widget_arr, { id: node.id, type, x: node.x, y: node.y, h: node.h, w: node.w }]
-            //     })
+            for (const widget of widgets)
+                Object.assign(
+                    this.widgets.find(({ id }) => id === widget.id), 
+                    widget
+                )
         })
         
         // grid.on('resize', () => {
@@ -158,9 +153,12 @@ class DashBoardModel extends Model<DashBoardModel> {
         
         for (let widget of widgets) {
             let $element = widget.ref.current
-            assert($element)
-            // 返回 GridItemHTMLElement 类型 (就是在 dom 节点上加了 gridstackNode: GridStackNode 属性)，好像也没什么用
-            grid.makeWidget($element)
+            
+            // 返回值为 GridItemHTMLElement 类型 (就是在 $element 这个 dom 节点上加了 gridstackNode: GridStackNode 属性)
+            Object.assign(
+                widget,
+                grid.makeWidget($element).gridstackNode
+            )
         }
         
         grid.batchUpdate(false)
@@ -185,11 +183,6 @@ class DashBoardModel extends Model<DashBoardModel> {
             widget: widgets[0],
             widgets
         })
-    }
-    
-    
-    update_widget (widget: Widget) {
-        
     }
     
     

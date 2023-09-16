@@ -63,13 +63,13 @@ export function DashBoard () {
                                 key={widget.id}
                                 
                                 // 保存 dom 节点，在 widgets 更新时将 ref 给传给 react `<div>` 获取 dom
-                                ref={widget.ref}
+                                ref={widget.ref as any}
                                 
-                                gs-id={widget.id} 
-                                gs-w={widget.w} 
-                                gs-h={widget.h} 
-                                gs-x={widget.x} 
-                                gs-y={widget.y} 
+                                gs-id={widget.id}
+                                gs-w={widget.w}
+                                gs-h={widget.h}
+                                gs-x={widget.x}
+                                gs-y={widget.y}
                                 
                                 onClick={ event => {
                                     event.stopPropagation()
