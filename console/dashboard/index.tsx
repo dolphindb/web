@@ -9,14 +9,14 @@ import { GridStack, type GridStackNode, type GridStackElement, type GridStackWid
 
 import { ConfigProvider, theme } from 'antd'
 
-import { assert, genid } from 'xshell/utils.browser.js'
+import { genid } from 'xshell/utils.browser.js'
 
 
 import { SelectSider } from './SelectSider/SelectSider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 import { Navigation } from './Navigation/Navigation.js'
-import type { Widget } from './model.js'
+import { Widget, WidgetType } from './model.js'
 
 
 /** 基于 GridStack.js 开发的拖拽图表可视化面板  
@@ -32,8 +32,6 @@ import type { Widget } from './model.js'
 export function DashBoard () {
     const [widgets, set_widgets] = useState<Widget[]>([ ])
     
-    const [all_widgets, set_all_widgets] = useState([ ])
-    
     const [active_widget_id, set_active_widget_id] = useState('')
     
     /** div ref, 创建 GridStack 时绑定的 div element */
@@ -48,19 +46,21 @@ export function DashBoard () {
     let { current: map } = useRef(new Map<string, React.MutableRefObject<HTMLDivElement>>())
     
     // 给每个 widget 创建对应的 ref
-    if (map.size !== widgets.length)
+    if (map.size !== widgets.length) {
+        map.clear()
         for (const { id } of widgets)
-            if (!map.has(id))
-                map.set(id, createRef())
-    
-    const rlock = useRef(false)
+            map.set(id, createRef())
+    }
     
     // 编辑、预览状态切换
     const [editing, set_editing] = useState(true)
     
+    const [, rerender] = useState({ })
     
+    
+    // 初始化 GridStack 并配置事件监听器
     useEffect(() => {
-        let grid = rgrid.current ??= GridStack.init({
+        let grid = rgrid.current = GridStack.init({
             acceptWidgets: true,
             float: true,
             column: maxcols,
@@ -70,75 +70,28 @@ export function DashBoard () {
             resizable: { handles: 'n,e,se,s,w' },
         })
         
-        rlock.current = true
-        
-        grid.batchUpdate()
-        
-        grid.removeAll(false)
-        
-        for (const widget of widgets) {
-            const $div = map.get(widget.id).current
-            
-            assert($div)
-            
-            // 返回 GridItemHTMLElement 类型 (就是在 dom 节点上加了 gridstackNode: GridStackNode 属性)，好像也没什么用
-            grid.makeWidget($div)
-        }
-        
-        grid.batchUpdate(false)
-        
-        rlock.current = false
-    }, [widgets])
-    
-    
-    useEffect(() => {
-        let { current: grid } = rgrid
-        
         grid.cellHeight(Math.floor(grid.el.clientHeight / maxrows))
         
-        GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
-        
         // 响应用户从外部添加新 widget 到 GridStack 的事件
-        grid.on('added', (event: Event, news: GridStackNode[]) => {
-            // 加锁，防止因更新 state 导致的无限循环
-            if (rlock.current) {
-                set_all_widgets(() => [...news])
-                return
-            }
+        grid.on('dropped', (event: Event, old_widget: GridStackNode, widget: GridStackNode) => {
+            // old_widget 为 undefined
             
-            // 当用户从外部移入新 dom 时，执行下列代码
-            // 去除移入的新 widget
-            grid.removeWidget(news[0].el)
-            set_widgets(item => [...item, { id: String(genid()), type: news[0].el.dataset.type as any, x: news[0].x, y: news[0].y, h: news[0].h, w: news[0].w }])
-        })
-        
-        // 响应用户从外部添加新 widget 到 GridStack 的事件
-        // grid.on('dropped', (event: Event, old_widget: GridStackNode, new_widget: GridStackNode) => {
-        //     // old_widget 为 undefined
+            console.log('dropped', event, widget)
             
-        //     console.log('dropped', event, new_widget)
+            set_widgets(widgets => [
+                ...widgets, 
+                { ...widget, id: String(genid()), type: widget.el.dataset.type as keyof typeof WidgetType }
+            ])
             
-        //     // console.log({ ...new_widget, id: String(genid()), type: 'BAR' })
-            
-            
-        //     set_widgets(widgets => [
-        //         ...widgets, 
-        //         { ...new_widget, id: String(genid()), type: 'BAR', x: new_widget.x + 1, y: new_widget.y + 1 }
-        //     ])
-            
-        //     grid.removeWidget(new_widget.el)
-        // })
-        
-        window.addEventListener('resize', () => {
-            grid.cellHeight(Math.floor(grid.el.clientHeight / maxrows))
+            grid.removeWidget(widget.el)
         })
         
         // 响应 GridStack 中 widget 的位置或尺寸变化的事件
         grid.on('change', (event: Event, items: GridStackNode[]) => {
             for (let node of items) 
-                set_widgets(arr => {
-                    let type = ''
-                    let widget_arr = arr.filter(item => {
+                set_widgets(widgets => {
+                    let type: keyof typeof WidgetType = 'LINE'
+                    let widget_arr = widgets.filter(item => {
                         if (node.id === item.id) 
                             type = item.type
                         return node.id !== item.id
@@ -147,12 +100,41 @@ export function DashBoard () {
                 })
         })
         
-        // return () => {
-        //     console.log('destroy')
-        //     grid.destroy()
-        //     rgrid.current = null
-        // }
+        // todo: throttle?
+        window.addEventListener('resize', () => {
+            grid.cellHeight(Math.floor(grid.el.clientHeight / maxrows))
+        })
+        
+        GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
+        
+        return () => {
+            console.log('destroy')
+            grid.destroy()
+            rgrid.current = null
+        }
     }, [ ])
+    
+    
+    // widget 变化时通过 GridStack.makeWidget 将画布中已有的 dom 节点交给 GridStack 管理 
+    useEffect(() => {
+        if (widgets.length !== map.size) {
+            console.log('widgets.length !== map.size')
+            rerender({ })
+            return
+        }
+        
+        let { current: grid } = rgrid
+        
+        grid.batchUpdate(true)
+        
+        grid.removeAll(false)
+        
+        for (const widget of widgets)
+            // 返回 GridItemHTMLElement 类型 (就是在 dom 节点上加了 gridstackNode: GridStackNode 属性)，好像也没什么用
+            grid.makeWidget(map.get(widget.id).current)
+        
+        grid.batchUpdate(false)
+    }, [widgets])
     
     
     return <ConfigProvider theme={{ hashed: false, token: { borderRadius: 0, motion: false }, algorithm: theme.darkAlgorithm }}>
@@ -194,11 +176,9 @@ export function DashBoard () {
                             >
                                 <GraphItem
                                     widget={widget}
-                                    el={all_widgets[i]}
-                                    grid={rgrid.current}
                                     actived={active_widget_id === widget.id}
+                                    set_widgets={set_widgets}
                                 />
-                                {/* <div>{widget.id} {widget.type}</div> */}
                             </div>
                         )}
                     </div>
