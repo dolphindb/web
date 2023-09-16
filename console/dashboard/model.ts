@@ -8,7 +8,7 @@ import { DdbForm, DdbObj, DdbValue } from 'dolphindb/browser.js'
 
 import { GridStack, type GridStackNode } from 'gridstack'
 
-import { genid } from 'xshell/utils.browser.js'
+import { assert, genid } from 'xshell/utils.browser.js'
 
 
 import { t } from '../../i18n/index.js'
@@ -48,15 +48,15 @@ export enum WidgetType {
 }
 
 
-type Result = { type: 'object', data: DdbObj<DdbValue> } | null
-
 class DashBoardModel extends Model<DashBoardModel> {
     /** GridStack.init 创建的 gridstack 实例 */
     grid: GridStack
     
+    /** 画布中所有的图表控件 */
     widgets: Widget[] = [ ]
     
-    widget: Widget
+    /** 当前选中的图表控件，焦点在画布时可能为 null (是否合理？不合理可以再加一个 focused 属性) */
+    widget: Widget | null
     
     /** 编辑、预览状态切换 */
     editing = true
@@ -65,7 +65,6 @@ class DashBoardModel extends Model<DashBoardModel> {
     // 目前本项目仅支持仅支持 <= 12
     maxcols = 12
     maxrows = 12
-    
     
     monaco: Monaco
     
@@ -77,7 +76,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     
     /** 初始化 GridStack 并配置事件监听器 */
-    init () {
+    init ($div: HTMLDivElement) {
         let grid = GridStack.init({
             acceptWidgets: true,
             float: true,
@@ -86,7 +85,7 @@ class DashBoardModel extends Model<DashBoardModel> {
             margin: 0,
             draggable: { scroll: false },
             resizable: { handles: 'n,e,se,s,w' },
-        })
+        }, $div)
         
         grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
         
@@ -110,7 +109,7 @@ class DashBoardModel extends Model<DashBoardModel> {
         
         // 响应 GridStack 中 widget 的位置或尺寸变化的事件
         grid.on('change', (event: Event, widgets: GridStackNode[]) => {
-            console.log(event, widgets)
+            console.log('修改 widget 大小或位置:', widgets)
             
             // for (let node of items) 
             //     set_widgets(widgets => {
@@ -123,6 +122,14 @@ class DashBoardModel extends Model<DashBoardModel> {
             //         return [...widget_arr, { id: node.id, type, x: node.x, y: node.y, h: node.h, w: node.w }]
             //     })
         })
+        
+        // grid.on('resize', () => {
+        //     console.log('resize')
+        // })
+        
+        // grid.on('dragstop', () => {
+        //     console.log('dragstop')
+        // })
         
         // todo: throttle?
         window.addEventListener('resize', () => {
@@ -149,9 +156,12 @@ class DashBoardModel extends Model<DashBoardModel> {
         
         grid.removeAll(false)
         
-        for (let widget of widgets)
+        for (let widget of widgets) {
+            let $element = widget.ref.current
+            assert($element)
             // 返回 GridItemHTMLElement 类型 (就是在 dom 节点上加了 gridstackNode: GridStackNode 属性)，好像也没什么用
-            grid.makeWidget(widget.ref.current)
+            grid.makeWidget($element)
+        }
         
         grid.batchUpdate(false)
     }
@@ -175,6 +185,11 @@ class DashBoardModel extends Model<DashBoardModel> {
             widget: widgets[0],
             widgets
         })
+    }
+    
+    
+    update_widget (widget: Widget) {
+        
     }
     
     
@@ -244,4 +259,8 @@ class DashBoardModel extends Model<DashBoardModel> {
     }
 }
 
+
 export let dashboard = window.dashboard = new DashBoardModel()
+
+
+type Result = { type: 'object', data: DdbObj<DdbValue> } | null
