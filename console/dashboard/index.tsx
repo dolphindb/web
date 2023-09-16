@@ -72,7 +72,7 @@ export function DashBoard () {
         
         rlock.current = true
         
-        grid.batchUpdate(true)
+        grid.batchUpdate()
         
         grid.removeAll(false)
         
@@ -82,7 +82,6 @@ export function DashBoard () {
             assert($div)
             
             // 返回 GridItemHTMLElement 类型 (就是在 dom 节点上加了 gridstackNode: GridStackNode 属性)，好像也没什么用
-            console.log(widget)
             grid.makeWidget($div, widget)
         }
         
@@ -148,11 +147,11 @@ export function DashBoard () {
                 })
         })
         
-        return () => {
-            console.log('destroy')
-            grid.destroy()
-            rgrid.current = null
-        }
+        // return () => {
+        //     console.log('destroy')
+        //     grid.destroy()
+        //     rgrid.current = null
+        // }
     }, [ ])
     
     
@@ -195,7 +194,7 @@ export function DashBoard () {
                             >
                                 <GraphItem
                                     widget={widget}
-                                    node={all_widgets[i]}
+                                    el={all_widgets[i]}
                                     grid={rgrid.current}
                                     actived={active_widget_id === widget.id}
                                 />
