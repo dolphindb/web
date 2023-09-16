@@ -110,8 +110,8 @@ export function DdbSider () {
                 },
                 ... model.dev ? [{
                        key: 'test',
-                       icon: <MenuIcon view='dashboard' />,
-                       label: t('数据看板')
+                       icon: <MenuIcon view='test' />,
+                       label: 'test'
                 }] : [ ],
                 {
                     key: 'job',
