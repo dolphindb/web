@@ -82,7 +82,7 @@ export function DashBoard () {
             assert($div)
             
             // 返回 GridItemHTMLElement 类型 (就是在 dom 节点上加了 gridstackNode: GridStackNode 属性)，好像也没什么用
-            grid.makeWidget($div, widget)
+            grid.makeWidget($div)
         }
         
         grid.batchUpdate(false)
