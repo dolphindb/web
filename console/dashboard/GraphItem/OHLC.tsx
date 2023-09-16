@@ -1,6 +1,7 @@
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { useMemo } from 'react'
+import './OHLC.sass'
 
 type OhlcData = {
     // 日期 2004-01-29
@@ -42,11 +43,11 @@ function generateRandomStockData (baseStockData) {
     const randomStocks = [...baseStockData.map(subArray => [...subArray])]
     // 遍历每个日期的数据点
     for (let i = 0;  i < numDataPoints;  i++) 
-        for (let j = 1;  j <= 4;  j++) {
+        for (let j = 1;  j <= 5;  j++) {
             const basePrice = baseStockData[i][j]
             // 随机生成价格变动，控制在指定范围内
             let priceChange = Math.random() * (maxPriceChange - minPriceChange) + minPriceChange
-            if (i === 4)
+            if (i === 5)
                 priceChange = Math.random() * (maxPriceChange_ - minPriceChange_) + minPriceChange_
             const newPrice = basePrice + priceChange
             // 将生成的价格添加到随机股票的数据中
@@ -122,7 +123,7 @@ function splitData (rawData: (number | string)[][]) {
 }
 
 function getTrades (rawData: (number | string)[][]): number[] {
-    return row_data.map(row => row[3] as number)
+    return row_data.map(row => row[5] as number)
 }
 
 
@@ -136,6 +137,10 @@ export function OHLC ({ config, data }: { config: Object, data: (number | string
     const trades_2 = useMemo(() => getTrades(row_data_2), [row_data_2])
     const trades_3 = useMemo(() => getTrades(row_data_3), [row_data_3])
     
+    // 
+    echarts.registerTheme('my_theme', {
+        backgroundColor: '#040404'
+      })
     
     const option: echarts.EChartsOption = {
         animation: false, 
@@ -146,33 +151,42 @@ export function OHLC ({ config, data }: { config: Object, data: (number | string
         },
         tooltip: {
             trigger: 'axis',
+            confine: true,
+            textStyle: {
+              fontSize: 12  
+            },
             axisPointer: {
                 type: 'cross'
+                
             },
+            
             position: function (pos, params, el, elRect, size) {
                 let obj: Record<string, number> = { top: 10 }
                 obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30
                 return obj
             }
         },
-        axisPointer: {
-            link: [{ xAxisIndex: 'all' }]
-        },
-        toolbox: {
-            feature: {
-                dataZoom: {
-                    yAxisIndex: false
-                },
-                brush: {
-                    type: ['lineX', 'clear']
-                }
-            }
-        },
+        // axisPointer: {
+        //     link: [{ xAxisIndex: 'all' }]
+        // },
+        // toolbox: {
+        //     feature: {
+        //         dataZoom: {
+        //             yAxisIndex: false
+        //         },
+        //         brush: {
+        //             type: ['lineX', 'clear']
+        //         }
+        //     }
+        // },
         grid: [
             {
-                left: '10%',
-                right: '10%',
-                bottom: 120
+                top: '12%',
+                left: '2%',
+                containLabel: true,
+                right: '2%',
+                bottom: 120,
+                
             }
         ],
         xAxis: [
@@ -225,7 +239,7 @@ export function OHLC ({ config, data }: { config: Object, data: (number | string
                     y: [1, 2, 3, 4],
                     tooltip: [1, 2, 3, 4]
                 },
-                data: data_1.values.slice(1, data_1.values.length - 1)
+                data: data_1.values
             },
             {
                 name: 'Mem',
@@ -238,7 +252,7 @@ export function OHLC ({ config, data }: { config: Object, data: (number | string
                     y: [1, 2, 3, 4],
                     tooltip: [1, 2, 3, 4]
                 },
-                data: data_2.values.slice(1, data_2.values.length - 1)
+                data: data_2.values
             },
             {
                 name: 'Func',
@@ -251,7 +265,7 @@ export function OHLC ({ config, data }: { config: Object, data: (number | string
                     y: [1, 2, 3, 4],
                     tooltip: [1, 2, 3, 4]
                 },
-                data: data_3.values.slice(1, data_3.values.length - 1)
+                data: data_3.values
             },
             {
                 name: 'Dow',
@@ -297,6 +311,6 @@ export function OHLC ({ config, data }: { config: Object, data: (number | string
         option={option}
         notMerge
         lazyUpdate
-        theme='theme_name'
+        theme='my_theme'
     />
 }
