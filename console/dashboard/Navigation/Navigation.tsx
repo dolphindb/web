@@ -49,7 +49,7 @@ export function Navigation () {
             <div className='dashboard-navigation-right-editormode'>
                 <span
                     className={
-                        `dashboard-navigation-right-editormode-editor${editing ? '' : ' dashboard-navigation-right-editormode-unselected'}`
+                        `dashboard-navigation-right-editormode-editor${editing ? ' editormode-selected' : ''}`
                     }
                     onClick={() => { dashboard.set_editing(true) }}
                 >
@@ -57,7 +57,7 @@ export function Navigation () {
                 </span>
                 <span
                     className={
-                        `dashboard-navigation-right-editormode-preview${editing ? ' dashboard-navigation-right-editormode-unselected' : ''} `
+                        `dashboard-navigation-right-editormode-preview${editing ? '' : ' editormode-selected'} `
                     }
                     onClick={() => { dashboard.set_editing(false) }}
                 >
