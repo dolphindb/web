@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 import { type Widget } from '../model.js'
 import echarts from 'echarts'
 import { unsub_source } from '../storage/date-source-node.js'
+import { OHLC } from './OHLC.js'
 
 
 export function GraphItem  ({ widget, node, grid, actived }: { widget: Widget, node: GridStackNode, grid: GridStack, actived: boolean }) {
@@ -62,8 +63,8 @@ export function GraphItem  ({ widget, node, grid, actived }: { widget: Widget, n
             <CloseOutlined className='delete-graph-icon'/>
         </div>
         {
-            Object.keys(data).length ? 
-                <div ref={graph} />
+            true ? 
+                <OHLC data={[[ ]]} config={{ }}/>
             :
                 <div className='graph-content'>
                     <div className='title'>{GraphTypeName[widget.type]}</div>

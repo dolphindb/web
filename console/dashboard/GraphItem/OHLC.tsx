@@ -35,15 +35,19 @@ function generateRandomStockData (baseStockData) {
     const numDataPoints = baseStockData.length
     const minPriceChange = -500 // 最小价格变动范围
     const maxPriceChange = 500 // 最大价格变动范围
+    const minPriceChange_ = -5000000 // 最小价格变动范围
+    const maxPriceChange_ = 50000000 // 最大价格变动范围
     
     // 创建三只随机股票的空数组
     const randomStocks = [...baseStockData.map(subArray => [...subArray])]
     // 遍历每个日期的数据点
     for (let i = 0;  i < numDataPoints;  i++) 
-        for (let j = 1;  j <= 3;  j++) {
+        for (let j = 1;  j <= 4;  j++) {
             const basePrice = baseStockData[i][j]
             // 随机生成价格变动，控制在指定范围内
-            const priceChange = Math.random() * (maxPriceChange - minPriceChange) + minPriceChange
+            let priceChange = Math.random() * (maxPriceChange - minPriceChange) + minPriceChange
+            if (i === 4)
+                priceChange = Math.random() * (maxPriceChange_ - minPriceChange_) + minPriceChange_
             const newPrice = basePrice + priceChange
             // 将生成的价格添加到随机股票的数据中
             randomStocks[i][j] = newPrice
@@ -118,20 +122,21 @@ function splitData (rawData: (number | string)[][]) {
 }
 
 function getTrades (rawData: (number | string)[][]): number[] {
-    return row_data.map(row => row[5] as number)
+    return row_data.map(row => row[3] as number)
 }
 
 
 export function OHLC ({ config, data }: { config: Object, data: (number | string)[][] }) {
-
+    const row_data_2 = useMemo(() => generateRandomStockData(row_data), [row_data])
+    const row_data_3 = useMemo(() => generateRandomStockData(row_data), [row_data])
     const data_1 = useMemo(() => splitData(row_data), [row_data]) 
-    const data_2 = useMemo(() => splitData(generateRandomStockData(row_data)), [row_data])
-    const data_3 = useMemo(() => splitData(generateRandomStockData(row_data)), [row_data])
+    const data_2 = useMemo(() => splitData(row_data_2), [row_data_2])
+    const data_3 = useMemo(() => splitData(row_data_3), [row_data_3])
     const trades_1 = useMemo(() => getTrades(row_data), [row_data])
-    const max_trades = Math.max(...trades_1)
-    const min_trades = Math.min(...trades_1)
-    console.log(max_trades, min_trades, 'hsh')
-    console.log(data_1.values)
+    const trades_2 = useMemo(() => getTrades(row_data_2), [row_data_2])
+    const trades_3 = useMemo(() => getTrades(row_data_3), [row_data_3])
+    
+    
     const option: echarts.EChartsOption = {
         animation: false, 
         legend: {
@@ -182,18 +187,13 @@ export function OHLC ({ config, data }: { config: Object, data: (number | string
                 type: 'value',
                 scale: true,
                 position: 'left',
-                min: 9500,
-                max: 11000
             },
             {
                 type: 'value',
                 name: 'trades',
                 scale: true,
                 alignTicks: true,
-                
                 position: 'right',
-                min: min_trades,
-                max: max_trades
             },
            
         ],
@@ -264,6 +264,30 @@ export function OHLC ({ config, data }: { config: Object, data: (number | string
                     tooltip: 1
                 },
                 data: trades_1
+            },
+            {
+                name: 'Mem',
+                type: 'line',
+                yAxisIndex: 1,
+                dimensions: ['-', 'trades'],
+                encode: {
+                    x: 0,
+                    y: 1,
+                    tooltip: 1
+                },
+                data: trades_2
+            },
+            {
+                name: 'Func',
+                type: 'line',
+                yAxisIndex: 1,
+                dimensions: ['-', 'trades'],
+                encode: {
+                    x: 0,
+                    y: 1,
+                    tooltip: 1
+                },
+                data: trades_3
             }
         ]
     }
