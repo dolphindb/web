@@ -74,6 +74,7 @@
         "re-resizable": "^6.9.11",
         "react-dom": "^18.2.0",
         "react-object-model": "^1.0.7",
+        "react-quill": "^2.0.0",
         "tslib": "^2.6.2",
         "vscode-oniguruma": "^2.0.0",
         "vscode-textmate": "^9.0.0",
