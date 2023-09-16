@@ -35,6 +35,7 @@ export function SqlEditor ({
         <div className='data-source-config-sqleditor'>
             <div className='data-source-config-sqleditor-main' style={{  height: (show_preview ? '40%' : '100%') }}>
                 <Editor 
+                    theme='dark'
                     enter_completion
                     on_mount={(editor, monaco) => {
                         editor?.setValue(data_source_nodes[find_data_source_node_index(current_data_source_node.id)].code || '')
