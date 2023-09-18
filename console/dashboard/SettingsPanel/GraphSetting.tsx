@@ -1,32 +1,31 @@
 // import { Button, Collapse, Form, Input, Select, Switch } from 'antd'
 
 import { Form } from 'antd'
-import { IChartConfig, WidgetOption } from '../storage/widget_node'
 import { useCallback, useEffect, useMemo } from 'react'
 import { graph_config } from '../graph-config.js'
+import { dashboard } from '../model.js'
+import { IChartConfig } from '../type.js'
 
-interface IProps { 
-    widget: WidgetOption
-    update_widget_config: (id: string, config: any) => void
-}
-
-export function GraphSetting (props: IProps) { 
-    const { widget, update_widget_config } = props
+export function GraphSetting () { 
+    const { widget } = dashboard.use(['widget'])
     const [form] = Form.useForm<IChartConfig>()
+    window.form = form
     
     useEffect(() => {
+        console.log('update')
+        console.log(widget, 'widget')
         if (!widget.id)
             return
         else if (widget.config)
             form.setFieldsValue(widget.config)
         else
-            update_widget_config(widget.id, form.getFieldsValue())
-    }, [widget.id])
+            dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
+    }, [ widget.id ])
     
     
     const on_form_change = useCallback((_, values) => { 
         if (widget.id)
-            update_widget_config(widget.id, values)
+            dashboard.update_widget({ ...widget, config: values })
     }, [widget.id])
     
     

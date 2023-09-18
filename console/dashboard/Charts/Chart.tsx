@@ -1,18 +1,20 @@
-import { WidgetOption } from '../storage/widget_node'
 import { BasicFormFields } from '../ChartFormFields/BasicFormFields.js'
 import { AxisFormFields } from '../ChartFormFields/BasicChartFields.js'
 import ReactECharts from 'echarts-for-react'
 
 import './index.scss'
+import { Widget } from '../model.js'
 
 
 interface IProps { 
     options: any
-    widget: WidgetOption
+    widget: Widget
 }
 
 const Chart = (props: IProps) => { 
     const { options } = props
+    
+    console.log(options, 'options')
     
     return <ReactECharts notMerge option={options} className='line-chart' theme='dark'/>
 }

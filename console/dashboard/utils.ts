@@ -1,7 +1,6 @@
 import { NamePath } from 'antd/es/form/interface'
 import { DdbObj, formati, DdbVectorValue } from 'dolphindb'
 import { isNil } from 'lodash'
-import { WidgetOption } from './storage/widget_node'
 
 export function formatter (obj: DdbObj<DdbVectorValue>, max_line: number): { name: string, data: Array<string> } {
     let length = obj.rows

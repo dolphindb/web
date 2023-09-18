@@ -1993,6 +1993,9 @@
     },
     "左侧": {
         "en": "Left"
+    },
+    "关联Y轴": {
+        "en": "Associated Y axis"
     }
     
 }

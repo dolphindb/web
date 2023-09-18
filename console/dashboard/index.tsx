@@ -82,7 +82,7 @@ export function DashBoard () {
                     </div>
                 </div>
                 
-                <SettingsPanel widget={widget} hidden={editing}/>
+                <SettingsPanel hidden={!editing}/>
             </div>
         </div>
     </ConfigProvider>
