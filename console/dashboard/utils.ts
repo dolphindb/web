@@ -71,7 +71,8 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     const convert_series = (series: ISeriesConfig ) => ({
         type: type.toLocaleLowerCase(),
         name: series.name,
-        yAxisIndex: series.yAxisIndex,
+        // 防止删除yAxis导致渲染失败
+        yAxisIndex: yAxis[series.yAxisIndex] ?  series.yAxisIndex : 0,
         data: data_source.map(item => item?.[series.col_name]) 
     })
     

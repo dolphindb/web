@@ -13,8 +13,10 @@ export function GraphSetting () {
     useEffect(() => {
         if (!widget.id)
             return
+        // 存在config
         else if (widget.config)
             form.setFieldsValue(widget.config)
+        // 未设置config的时候需要重置表单，将表单的初始值作为图的config
         else { 
             form.resetFields()
             dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
@@ -23,9 +25,9 @@ export function GraphSetting () {
     
     
     const on_form_change = useCallback((_, values) => { 
-        if (widget.id)
+        if (widget)
             dashboard.update_widget({ ...widget, config: values })
-    }, [widget.id])
+    }, [widget])
     
     const ConfigFormFields = useMemo(() => graph_config[widget.type].config, [widget.type])
    
