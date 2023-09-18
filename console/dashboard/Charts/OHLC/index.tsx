@@ -3,6 +3,8 @@ import * as echarts from 'echarts'
 import { useMemo } from 'react'
 import { type Widget } from '../../model.js'
 import { AxisConfig, ISeriesConfig } from '../../type.js'
+import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
+import {  OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 
 import './index.sass'
 
@@ -194,7 +196,7 @@ function getTrades (rawData: (number | string)[][]): number[] {
 }
 
 
-export function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
+export default function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     console.log(widget)
     const row_data_2 = useMemo(() => generateRandomStockData(row_data), [row_data])
     const row_data_3 = useMemo(() => generateRandomStockData(row_data), [row_data])
@@ -381,4 +383,14 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
         lazyUpdate
         theme='my_theme'
     />
+}
+
+
+export const  OhlcConfigForm = (props: { col_names: string[] }) => { 
+    const { col_names = [ ] } = props
+    
+    return <>
+        <BasicFormFields />
+        <OhlcFormFields col_names={col_names} />
+    </>
 }
