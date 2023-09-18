@@ -15,6 +15,7 @@ import { t } from '../../i18n/index.js'
 import { Monaco } from '../shell/Editor/index.js'
 import { model } from '../model.js'
 import { unsub_source, type DataType } from './storage/date-source-node.js'
+import { IChartConfig } from './type.js'
 
 
 /** dashboard 中我们自己定义的 Widget，继承了官方的 GridStackWidget，加上额外的业务属性 */
@@ -30,6 +31,9 @@ export interface Widget extends GridStackNode {
     
     /** 更新图表方法 */
     update_graph?: (data: DataType) => void
+    
+    /** 图表配置 */
+    config?: IChartConfig
 }
 
 
@@ -45,6 +49,20 @@ export enum WidgetType {
     NEEDLE = '数值针型图',
     STRIP = '带图',
     HEAT = '热力图'
+}
+
+export enum WidgetChartType { 
+    BAR = 'BAR',
+    LINE = 'LINE',
+    // PIE = 'PIE',
+    // POINT = 'POINT',
+    TABLE = 'TABLE',
+    OHLC = 'OHLC',
+    // CANDLE = 'CANDLE',
+    // ORDER = 'ORDER',
+    // NEEDLE = 'NEEDLE',
+    // STRIP = 'STRIP',
+    // HEAT = 'HEAT'
 }
 
 
@@ -185,6 +203,19 @@ class DashBoardModel extends Model<DashBoardModel> {
         })
     }
     
+    update_widget (widget: Widget) { 
+        const new_widgets = this.widgets.map(item => { 
+            if (item.id === widget.id)
+                return { ...item, ...widget }
+            else
+                return item
+            })
+        this.set({
+            widget,
+            widgets: new_widgets
+        })
+    }
+    
     
     set_editing (editing: boolean) {
         this.grid.enableMove(!editing)
@@ -230,7 +261,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async execute (): Promise<{
+    async execute (code?: string): Promise<{
         type: 'success' | 'error'
         result: string | Result
     }> {
@@ -238,7 +269,7 @@ class DashBoardModel extends Model<DashBoardModel> {
             model.message.warning(t('当前连接正在执行作业，请等待'))
         else 
             try {
-                await this.eval()
+                await this.eval(code)
                 return {
                     type: 'success',
                     result: this.result
@@ -253,6 +284,7 @@ class DashBoardModel extends Model<DashBoardModel> {
 }
 
 
+// @ts-ignore
 export let dashboard = window.dashboard = new DashBoardModel()
 
 
