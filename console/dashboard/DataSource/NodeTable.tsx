@@ -1,16 +1,16 @@
 import { MutableRefObject, ReactNode, createElement, useEffect, useRef, useState } from 'react'
 
-import { Input, Tree, App } from 'antd'
+import { Input, Tree } from 'antd'
 import { DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 
+import { model } from '../../model.js'
 import { create_data_source_node,
+         data_source_nodes,
          delete_data_source_node, 
          rename_data_source_node, 
          type DataSourceNodeType, 
          DataSourceNodePropertyType, 
     } from '../storage/date-source-node.js'
-    
-import { data_source_nodes } from '../storage/date-source-node.js'
 
 type PropsType = { 
     current_data_source_node: DataSourceNodeType
@@ -40,8 +40,6 @@ export function NodeTable ({
     change_current_data_source_node,
     change_current_data_source_node_property
 }: PropsType ) {
-    const { message } = App.useApp()
-    
     const [current_select, set_current_select] = useState(current_data_source_node?.id || '')
     const [menu_items, set_menu_items] = useState(data_source_nodes.map(
         (data_source_node: DataSourceNodeType): MenuItemType => {
@@ -56,7 +54,7 @@ export function NodeTable ({
     const tree_ref = useRef(null)
     
     useEffect(() => {
-        tree_ref.current.scrollTo({ key: current_data_source_node.id }) 
+        tree_ref.current?.scrollTo({ key: current_data_source_node.id }) 
     }, [ ])
     
     const rename_data_source_node_handler = (menu_items: MenuItemType[], select_key: string, old_name: string) => {
@@ -73,7 +71,7 @@ export function NodeTable ({
                 try {
                     rename_data_source_node(select_key, new_name)
                 } catch (error) {
-                    message.error(error.message)
+                    model.message.error(error.message)
                     new_name = old_name
                 } finally {
                     tmp_menu_item.title = new_name
