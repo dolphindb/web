@@ -1,5 +1,4 @@
 import { Table, TableProps } from 'antd'
-import { useMemo } from 'react'
 import {  BasicFormFields }  from '../ChartFormFields/BasicFormFields.js'
 import { AxisFormFields } from '../ChartFormFields/BasicChartFields.js'
 
@@ -15,10 +14,12 @@ const DBTable = (props: IProps) => {
     return <Table {...otherProps}  />
 }
 
-export const DBTableConfigForm = () => { 
+export const DBTableConfigForm = (props: { col_names: string[] }) => { 
+    const { col_names = [ ] } = props
+    
     return <>
         <BasicFormFields />
-        <AxisFormFields col_names={[ 'col_name' ]} />
+        <AxisFormFields col_names={col_names} />
     </>
 }
 

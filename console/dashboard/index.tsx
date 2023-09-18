@@ -17,16 +17,28 @@ import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 import { Navigation } from './Navigation/Navigation.js'
 import { WidgetOption, widget_nodes } from './storage/widget_node.js'
+import { useMemoizedFn } from 'ahooks'
 
 
 // gridstack 仅支持 12 列以下的，大于 12 列需要手动添加 css 代码，详见 gridstack 的 readme.md
 // 目前本项目仅支持仅支持 tmpcol <= 12
 const tmpcol = 12, tmprow = 12
 
+
 export function DashBoard () {
-    const [widget_options, set_widget_options] = useState([ ...widget_nodes ])
-    const [all_widgets, set_all_widgets] = useState([ ])
+    const [widget_options, set_widget_options] = useState([...widget_nodes])
+    const [all_widgets, set_all_widgets] = useState<WidgetOption[]>([ ])
     const [active_widget, set_active_widget] = useState<WidgetOption>()
+    
+    const update_widget_config = useMemoizedFn((id: string, config: any) => { 
+        const updated_widgets = widget_options.map(widget => {
+            if (widget.id === id)
+                return { ...widget, config }
+            else
+                return widget
+        })
+        set_widget_options(updated_widgets)
+    })
     
     
     const rwidgets = useRef({ })
@@ -107,7 +119,8 @@ export function DashBoard () {
                             type = item.type
                         return node.id !== item.id
                     })
-                    return [...widget_arr, { id: node.id, type, x: node.x, y: node.y, h: node.h, w: node.w }]
+                    const resized_node = arr.find(item => item.id === node.id)
+                    return [...widget_arr, { ...resized_node, id: node.id, type, x: node.x, y: node.y, h: node.h, w: node.w }]
                 })
         })
     }, [ ])
@@ -144,7 +157,7 @@ export function DashBoard () {
                         )}
                     </div>
                 </div>
-                <SettingsPanel hidden={editing} type={active_widget?.type} id={active_widget?.id} />
+                <SettingsPanel hidden={!editing} widget={active_widget} update_widget_config={update_widget_config} />
             </div>
         </div>
     </ConfigProvider>

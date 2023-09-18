@@ -1,4 +1,4 @@
-import { Form, Select, Input, Collapse, Button, Space, Divider } from 'antd'
+import { Form, Select, Input, Collapse, Button, Space, Divider, InputNumber } from 'antd'
 import { NamePath } from 'antd/es/form/interface.js'
 import { useMemo } from 'react'
 import { t } from '../../../i18n/index.js'
@@ -67,7 +67,7 @@ const Series = (props: { col_names: string[] }) => {
                         <Space>
                             <div className='wrapper'>
                                 <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
-                                    <Select options={col_names.map(item => ({ label: item, name: item })) } />
+                                    <Select options={col_names.map(item => ({ label: item, value: item })) } />
                                 </Form.Item>
                                 <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={t('名称')}> 
                                     <Input />
@@ -89,15 +89,24 @@ const Series = (props: { col_names: string[] }) => {
 const YAxis = (props: { col_names: string[] }) => { 
     const { col_names } = props
     
-    return <Form.List name='yAxis' initialValue={[{ col_name: col_names?.[0], name: t('名称') }]}>
+    return <Form.List name='yAxis' initialValue={[{ }]}>
         {(fields, { add, remove }) =>      
             <>
                 {
-                    fields.map((field, index) => { 
+                    fields.map((field, index) => {
+                        console.log(fields, 'fields')
                         return <>
                             <div className='wrapper'>
                                 <Space size='small'>
-                                    <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis'/>
+                                    <div>
+                                        <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis' />
+                                        <Form.Item name='position' label={t('位置')} initialValue='left'>
+                                            <Select options={[{ value: 'left', label: t('左侧') }, { value: 'right', label: t('右侧') }]} />
+                                        </Form.Item>
+                                        <Form.Item name='offset' label={t('偏移量')} initialValue={0}>
+                                            <InputNumber />
+                                        </Form.Item>
+                                    </div>
                                     { fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => remove(field.name)} /> }
                                 </Space>
                             </div>
@@ -111,7 +120,7 @@ const YAxis = (props: { col_names: string[] }) => {
 }
 
 export const AxisFormFields = (props: IProps) => { 
-    const { col_names = [ 'col_name' ] } = props
+    const { col_names = [ ] } = props
     
     
     return <Collapse className='' items={[{
@@ -123,8 +132,8 @@ export const AxisFormFields = (props: IProps) => {
     {
         key: 'y_axis',
         label: t('Y轴属性'),
-        // children: <YAxis col_names={col_names} />,
-        children: <AxisItem name_path='yAxis' col_names={col_names}/>,
+        // children: <AxisItem name_path='yAxis' col_names={col_names}/>,
+        children: <YAxis col_names={ col_names } />,
         forceRender: true,
     },
     {

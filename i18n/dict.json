@@ -1957,5 +1957,42 @@
     },
     "坐标列": {
         "en": "Axis column"
+    },
+    "是否展示X缩略轴": {
+        "en": "Display the X thumbnail axis"
+    },
+    "是否展示Y缩略轴": {
+        "en": "Display the Y thumbnail axis"
+    },
+    "保存并应用": {
+        "en": "Save and Apply"
+    },
+    "请先选中您需要更改配置的图表": {
+        "en": "Please select the chart you want to change the configuration first"
+    },
+    "画布": {
+        "en": "Canvas"
+    },
+    "图表": {
+        "en": "Charts"
+    },
+    "图例": {
+        "en": "Legend"
+    },
+    "提示": {
+        "en": "Hint"
+    },
+    "X轴缩略轴": {
+        "en": "X-axis abbreviated axis"
+    },
+    "Y轴缩略轴": {
+        "en": "Y-axis abbreviated axis"
+    },
+    "位置": {
+        "en": "Position"
+    },
+    "左侧": {
+        "en": "Left"
     }
+    
 }
