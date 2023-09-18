@@ -1,94 +1,38 @@
-import { Button, Collapse, Form, Input, Select, Switch } from 'antd'
+// import { Button, Collapse, Form, Input, Select, Switch } from 'antd'
 
-export type PropsType = {
-    setting_option: SettingOption[]
-}
-export type SettingOption = {
-    key: string | number
-    label: string
-    children: OptionItem[]
-}
-type OptionItem = (InputOption | SelectOption | SwitchOption) & { type: string }
+import { Form } from 'antd'
+import { useCallback, useEffect, useMemo } from 'react'
+import { graph_config } from '../graph-config.js'
+import { dashboard } from '../model.js'
+import { IChartConfig } from '../type.js'
 
-type InputOption = {
-    title: string
-    value: string | number
-    name: string
-}
-
-type SelectOption = {
-    title: string
-    options: {
-        lable: string
-        value: string | number | boolean
-    }[]
-    value: string | number | boolean
-    name: string
-}
-
-type SwitchOption = {
-    title: string
-    value: boolean
-    name: string
-}
-
-const componetMap = {
-    Input: InputComp,
-    Select: SelectComp,
-    Switch: SwitchComp
-}
-
-function InputComp ({ title, value, name }: InputOption) {
-    return <Form.Item label={title} name={name}><Input /></Form.Item>
-}
-
-function SelectComp ({ title, value, options }: SelectOption) {
-    return <Form.Item label={title}>
-        <Select options={options} />
-    </Form.Item>
-}
-
-function SwitchComp ({ title, value, name }: SwitchOption) {
-    return <Form.Item label={title} name={name}>
-        <Switch />
-    </Form.Item>
-}
-
-function ComponentItem ({ type, ...config }: OptionItem) {
-    const Component = componetMap[type]
-    return <Component {...config} />
-}
-
-
-export function GraphSetting ({ setting_option }: PropsType) {
-    const setting_collapsse = setting_option.map(item => {
-        return {
-            ...item,
-            children: item.children.map(option => {
-                return <ComponentItem {...option} key={option.name}/>
-            })
-        }
-    })
+export function GraphSetting () { 
+    const { widget } = dashboard.use(['widget'])
+    const [form] = Form.useForm<IChartConfig>()
+    window.form = form
     
-    const onFinish = (values: any) => {
-        console.log(values)
-    }
-    return <Form
-        name='basic'
-        labelCol={{ span: 5 }}
-        wrapperCol={{ span: 16 }}
-        initialValues={{ remember: true }}
-        autoComplete='off'
-        size='small'
-        onFinish={onFinish}
-    >
-        <Collapse ghost expandIconPosition='end' items={setting_collapsse} />
-        
-        <Form.Item>
-            <Button type='primary' htmlType='submit'>
-            Submit
-            </Button>
-            
-        </Form.Item>
-    </Form>
+    useEffect(() => {
+        console.log('update')
+        console.log(widget, 'widget')
+        if (!widget.id)
+            return
+        else if (widget.config)
+            form.setFieldsValue(widget.config)
+        else
+            dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
+    }, [ widget.id ])
+    
+    
+    const on_form_change = useCallback((_, values) => { 
+        if (widget.id)
+            dashboard.update_widget({ ...widget, config: values })
+    }, [widget.id])
+    
+    
+    const ConfigFormFields = useMemo(() => graph_config[widget.type].config, [widget])
+   
+    return <Form onValuesChange={on_form_change} form={form} labelCol={{ span: 6 }} labelAlign='left' colon={false}>
+           {/* TODO: 通过source_id拿到data_source，取到列名，透传进去  */}
+            <ConfigFormFields col_names={['Information_Analysis', 'forward_returns_1D', 'forward_returns_5D', 'forward_returns_10D']} />
+        </Form>
 }

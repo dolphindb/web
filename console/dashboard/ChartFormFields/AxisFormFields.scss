@@ -1,0 +1,27 @@
+.wrapper {
+    padding: 8px 0px;
+    .ant-form-item{
+        margin-bottom: 8px;
+        &:last-child {
+            margin-bottom: 0px;
+        }
+    }
+}
+
+.axis-wrapper {
+    .ant-form-item{
+        margin-bottom: 8px;
+        &:last-child {
+            margin-bottom: 0px;
+        }
+    }
+}
+
+.divider {
+    margin: 4px 0px;
+}
+
+
+.delete-icon {
+    margin-left: 4px;
+}
