@@ -9,17 +9,17 @@ import { IChartConfig } from '../type.js'
 export function GraphSetting () { 
     const { widget } = dashboard.use(['widget'])
     const [form] = Form.useForm<IChartConfig>()
-    window.form = form
     
     useEffect(() => {
-        console.log('update')
-        console.log(widget, 'widget')
         if (!widget.id)
             return
         else if (widget.config)
             form.setFieldsValue(widget.config)
-        else
+        else { 
+            form.resetFields()
             dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
+        }
+            
     }, [ widget.id ])
     
     
@@ -28,8 +28,7 @@ export function GraphSetting () {
             dashboard.update_widget({ ...widget, config: values })
     }, [widget.id])
     
-    
-    const ConfigFormFields = useMemo(() => graph_config[widget.type].config, [widget])
+    const ConfigFormFields = useMemo(() => graph_config[widget.type].config, [widget.type])
    
     return <Form onValuesChange={on_form_change} form={form} labelCol={{ span: 6 }} labelAlign='left' colon={false}>
            {/* TODO: 通过source_id拿到data_source，取到列名，透传进去  */}

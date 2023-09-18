@@ -25,3 +25,21 @@
 .delete-icon {
     margin-left: 4px;
 }
+
+.col-mapping-title {
+    margin-bottom: 12px;
+}
+
+.col-mapping-item{
+    display: flex;
+    .ant-form-item {
+        width: 45%;
+        margin-bottom: 8px;
+        margin-right: 4px;
+    }   
+    span.title{
+        display: inline-block;
+        width: 45%;
+        margin-bottom: 8px;
+    }
+}
