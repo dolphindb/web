@@ -50,7 +50,6 @@ const convert_chart_config = (widget: Widget, data_source: any[]) => {
         alignTicks: true,
         id: index
     })
-    import { OHLC } from './OHLC/index.js'
     
     const convert_series = (series: ISeriesConfig ) => ({
         type: type.toLocaleLowerCase(),
