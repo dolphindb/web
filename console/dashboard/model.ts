@@ -261,7 +261,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async execute (): Promise<{
+    async execute (code?: string): Promise<{
         type: 'success' | 'error'
         result: string | Result
     }> {
@@ -269,7 +269,7 @@ class DashBoardModel extends Model<DashBoardModel> {
             model.message.warning(t('当前连接正在执行作业，请等待'))
         else 
             try {
-                await this.eval()
+                await this.eval(code)
                 return {
                     type: 'success',
                     result: this.result
