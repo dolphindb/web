@@ -1,20 +1,22 @@
 import { BasicFormFields } from '../ChartFormFields/BasicFormFields.js'
-import { AxisFormFields } from '../ChartFormFields/BasicChartFields.js'
+import { AxisFormFields, SeriesFormFields } from '../ChartFormFields/BasicChartFields.js'
 import ReactECharts from 'echarts-for-react'
 
 import './index.scss'
 import { Widget } from '../model.js'
+import { convert_chart_config } from '../utils.js'
+import { useMemo } from 'react'
 
 
 interface IProps { 
-    options: any
     widget: Widget
+    data_source: any[]
 }
 
 const Chart = (props: IProps) => { 
-    const { options } = props
+    const { widget, data_source } = props
     
-    console.log(options, 'options')
+    const options = useMemo(() => convert_chart_config(widget, data_source), [widget, data_source])
     
     return <ReactECharts notMerge option={options} className='line-chart' theme='dark'/>
 }
@@ -26,8 +28,9 @@ export const  ChartConfigForm = (props: { col_names: string[] }) => {
     const { col_names = [ ] } = props
     
     return <>
-        <BasicFormFields />
+        <BasicFormFields type='chart' />
         <AxisFormFields col_names={col_names} />
+        <SeriesFormFields col_names={col_names}/>
     </>
 }
 

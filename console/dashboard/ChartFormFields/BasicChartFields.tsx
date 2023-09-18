@@ -5,7 +5,7 @@ import { concat_name_path } from '../utils.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../components/formily/FormDependies/index.js'
 
-import './AxisFormFields.scss'
+import './index.scss'
 
 
 interface IProps { 
@@ -143,24 +143,33 @@ export const AxisFormFields = (props: IProps) => {
     
     
     return <Collapse className='' items={[{
-        key: 'x_axis',
-        label: t('X轴属性'),
-        children: <div className='axis-wrapper'><AxisItem name_path='xAxis' col_names={col_names} /></div>,
-        forceRender: true,
-    },
-    {
-        key: 'y_axis',
-        label: t('Y轴属性'),
-        // children: <AxisItem name_path='yAxis' col_names={col_names}/>,
-        children: <YAxis col_names={ col_names } />,
-        forceRender: true,
-    },
-    {
-        key: 'series',
-        label: t('数据列'),
-        children: <Series col_names={col_names} />,
-        forceRender: true,
-    }
+            key: 'x_axis',
+            label: t('X轴属性'),
+            children: <div className='axis-wrapper'><AxisItem name_path='xAxis' col_names={col_names} /></div>,
+            forceRender: true,
+        },
+        {
+            key: 'y_axis',
+            label: t('Y轴属性'),
+            children: <YAxis col_names={ col_names } />,
+            forceRender: true,
+        }
     ]} />
-     
 }
+
+export const SeriesFormFields = (props: { col_names: string[] }) => { 
+    const { col_names } = props
+    return <Collapse className='' items={[
+        {
+            key: 'series',
+            label: t('数据列'),
+            children: <Series col_names={col_names} />,
+            forceRender: true,
+        }
+    ]} />
+    
+    
+    
+}
+
+

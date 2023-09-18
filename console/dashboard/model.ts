@@ -15,7 +15,7 @@ import { t } from '../../i18n/index.js'
 import { Monaco } from '../shell/Editor/index.js'
 import { model } from '../model.js'
 import { unsub_source, type DataType } from './storage/date-source-node.js'
-import { IChartConfig } from './type.js'
+import { IChartConfig, ITableConfig } from './type.js'
 
 
 /** dashboard 中我们自己定义的 Widget，继承了官方的 GridStackWidget，加上额外的业务属性 */
@@ -33,7 +33,7 @@ export interface Widget extends GridStackNode {
     update_graph?: (data: DataType) => void
     
     /** 图表配置 */
-    config?: IChartConfig
+    config?: IChartConfig | ITableConfig
 }
 
 
@@ -209,7 +209,8 @@ class DashBoardModel extends Model<DashBoardModel> {
                 return { ...item, ...widget }
             else
                 return item
-            })
+        })
+       
         this.set({
             widget,
             widgets: new_widgets

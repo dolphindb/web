@@ -22,3 +22,17 @@ export interface IChartConfig {
     yAxis: AxisConfig[]
     series: ISeriesConfig[]
 }
+
+export interface ITableConfig { 
+    title?: string
+    bordered: boolean
+    show_cols: string[]
+    col_mappings: { 
+        original_col: string
+        mapping_name: string
+    }[]
+    pagination: {
+        show: boolean
+        pagesize: number
+    }
+}

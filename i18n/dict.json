@@ -1996,6 +1996,26 @@
     },
     "关联Y轴": {
         "en": "Associated Y axis"
+    },
+    "列配置": {
+        "en": "Column configuration"
+    },
+    "增加映射": {
+        "en": "Add mapping"
+    },
+    "原始列名": {
+        "en": "Original column name"
+    },
+    "展示列名": {
+        "en": "Show column names"
+    },
+    "分页设置": {
+        "en": "Pagination settings"
+    },
+    "需要分页": {
+        "en": "Need pagination"
+    },
+    "默认分页数": {
+        "en": "Default number of pages"
     }
-    
 }
