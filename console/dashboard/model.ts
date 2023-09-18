@@ -48,7 +48,8 @@ export enum WidgetType {
     ORDER = '订单图',
     NEEDLE = '数值针型图',
     STRIP = '带图',
-    HEAT = '热力图'
+    HEAT = '热力图',
+    TEXT = '富文本'
 }
 
 export enum WidgetChartType { 
@@ -63,6 +64,7 @@ export enum WidgetChartType {
     // NEEDLE = 'NEEDLE',
     // STRIP = 'STRIP',
     // HEAT = 'HEAT'
+    TEXT = 'TEXT'
 }
 
 
