@@ -16,6 +16,7 @@ import { loadWASM } from 'vscode-oniguruma'
 import { t, language } from '../../../i18n/index.js'
 
 import { model } from '../../model.js'
+import type { IRawTheme } from 'vscode-textmate/release/theme'
 
 // 在 React DevTool 中显示的组件名字
 MonacoEditor.displayName = 'MonacoEditor'
@@ -72,11 +73,10 @@ export function Editor ({
         }),
         [minimap, enter_completion, readonly, options]
     )
-    
     return <MonacoDolphinDBEditor
             dolphinDBLanguageOptions={{
                 docs: `docs.${ language === 'zh' ? 'zh' : 'en' }.json`,
-                language: language === 'zh' ? 'zh' : 'en'
+                language: language === 'zh' ? 'zh' : 'en',
             }}
             
             wrapperProps={{ className: 'monaco-editor-container' }}

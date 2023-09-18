@@ -64,7 +64,7 @@ $blue: rgb(64, 147, 211)
                     .dashboard-navigation-right-editormode-preview
                         cursor: pointer
                     
-                    .dashboard-navigation-right-editormode-unselected
+                    .editormode-selected
                         color: $blue
                         
                 .dashboard-navigation-right-config
@@ -117,7 +117,6 @@ $blue: rgb(64, 147, 211)
                             color: $fontColor
                             border: 2px $blue solid
                             background-color: rgba(255, 255, 255, 0.2)
-                            border-radius: 5px
                             cursor: pointer
                             
                 .grid-stack-item:hover
@@ -192,6 +191,9 @@ $blue: rgb(64, 147, 211)
             
             .ant-tabs-nav
                 padding: 0px 16px
+            
+            .ant-menu-light
+                background: #2b2b2b
             
             .setting-options
                 height: calc( 100% - 46px )

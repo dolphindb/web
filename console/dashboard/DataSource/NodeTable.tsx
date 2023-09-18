@@ -1,4 +1,4 @@
-import { MutableRefObject, ReactNode, createElement, useState } from 'react'
+import { MutableRefObject, ReactNode, createElement, useEffect, useRef, useState } from 'react'
 
 import { Input, Tree, App } from 'antd'
 import { DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
@@ -6,14 +6,14 @@ import { DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@a
 import { create_data_source_node,
          delete_data_source_node, 
          rename_data_source_node, 
-         type dataSourceNodeType, 
-         dataSourceNodePropertyType, 
+         type DataSourceNodeType, 
+         DataSourceNodePropertyType, 
     } from '../storage/date-source-node.js'
     
 import { data_source_nodes } from '../storage/date-source-node.js'
 
 type PropsType = { 
-    current_data_source_node: dataSourceNodeType
+    current_data_source_node: DataSourceNodeType
     no_save_flag: MutableRefObject<boolean>
     save_confirm: () => {
             destroy: () => void
@@ -23,7 +23,7 @@ type PropsType = {
     }
     handle_save: () => Promise<void>
     change_current_data_source_node: (key: string) => void
-    change_current_data_source_node_property: (key: string, value: dataSourceNodePropertyType) => void
+    change_current_data_source_node_property: (key: string, value: DataSourceNodePropertyType, save_confirm?: boolean) => void
 }
 
 type MenuItemType = {
@@ -44,7 +44,7 @@ export function NodeTable ({
     
     const [current_select, set_current_select] = useState(current_data_source_node?.id || '')
     const [menu_items, set_menu_items] = useState(data_source_nodes.map(
-        (data_source_node: dataSourceNodeType): MenuItemType => {
+        (data_source_node: DataSourceNodeType): MenuItemType => {
             return {
                 key: String(data_source_node.id),
                 icon: createElement(DatabaseOutlined),
@@ -52,6 +52,12 @@ export function NodeTable ({
             }   
         }
     ))
+    
+    const tree_ref = useRef(null)
+    
+    useEffect(() => {
+        tree_ref.current.scrollTo({ key: current_data_source_node.id }) 
+    }, [ ])
     
     const rename_data_source_node_handler = (menu_items: MenuItemType[], select_key: string, old_name: string) => {
         if (!menu_items.length)
@@ -72,7 +78,7 @@ export function NodeTable ({
                 } finally {
                     tmp_menu_item.title = new_name
                     set_menu_items([...menu_items])
-                    change_current_data_source_node_property('name', new_name)
+                    change_current_data_source_node_property('name', new_name, false)
                 }
                 
             }}
@@ -142,6 +148,7 @@ export function NodeTable ({
             <div className='data-source-config-nodetable-bottom'>
                 {data_source_nodes.length
                     ? <Tree
+                        ref={tree_ref}
                         showIcon
                         height={450}
                         blockNode

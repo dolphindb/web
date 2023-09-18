@@ -1,15 +1,15 @@
 import { genid } from 'xshell/utils.browser.js'
 
-import { type WidgetOption } from '../storage/widget_node.js'
+import { type Widget } from '../model.js'
 
 type ExtractTypes<T> = T extends { [key: string]: infer U } ? U : never
 
-export type dataType = { name: string, data: Array<string> }[]
+export type DataType = { name: string, data: Array<string> }[]
 
-export type dataSourceNodeType = {
+export type DataSourceNodeType = {
     auto_refresh?: boolean
     code?: string
-    data?: dataType
+    data?: DataType
     error_message?: string
     id: string
     interval?: number
@@ -18,17 +18,17 @@ export type dataSourceNodeType = {
     name: string
 }
 
-export type dataSourceNodePropertyType = ExtractTypes<dataSourceNodeType>
+export type DataSourceNodePropertyType = ExtractTypes<DataSourceNodeType>
 
 export const find_data_source_node_index = (key: string) =>
     data_source_nodes.findIndex(data_source_node => data_source_node.id === key) 
 
 
-export const save_data_source_node = ( new_data_source_node: dataSourceNodeType) => {
+export const save_data_source_node = ( new_data_source_node: DataSourceNodeType) => {
     data_source_nodes[find_data_source_node_index(new_data_source_node.id)] = { ...new_data_source_node }
     const dep = deps.get(new_data_source_node.id)
     if (dep && dep.length)
-        dep.forEach((widget_option: WidgetOption) => {
+        dep.forEach((widget_option: Widget) => {
             // widget_option.update_graph(data_source_nodes[find_data_source_node_index(new_data_source_node.id)].data)
             console.log(widget_option.id, 'render', data_source_nodes[find_data_source_node_index(new_data_source_node.id)].data)
         })
@@ -72,7 +72,7 @@ export const rename_data_source_node = (key: string, new_name: string) => {
 export const name_is_exist = (new_name: string): boolean => 
     data_source_nodes.findIndex(data_source_node => data_source_node.name === new_name) !== -1
     
-export const sub_source = (widget_option: WidgetOption, source_id: string) => {
+export const sub_source = (widget_option: Widget, source_id: string) => {
     if (widget_option.source_id)
         unsub_source(widget_option, source_id)  
     if (deps.has(source_id)) 
@@ -84,12 +84,12 @@ export const sub_source = (widget_option: WidgetOption, source_id: string) => {
     console.log(widget_option.id, 'render', data_source_nodes[find_data_source_node_index(source_id)].data)    
 }
 
-export const unsub_source = (widget_option: WidgetOption, source_id?: string) => {
+export const unsub_source = (widget_option: Widget, source_id?: string) => {
     if (!source_id || widget_option.source_id !== source_id ) 
-        deps.set(widget_option.source_id, deps.get(widget_option.source_id).filter((dep: WidgetOption) => dep.id !== widget_option.id )) 
+        deps.set(widget_option.source_id, deps.get(widget_option.source_id).filter((dep: Widget) => dep.id !== widget_option.id )) 
 }
 
-export const data_source_nodes: dataSourceNodeType[] = [
+export const data_source_nodes: DataSourceNodeType[] = [
     {
         id: '1',
         name: '节点1',
@@ -117,4 +117,4 @@ export const data_source_nodes: dataSourceNodeType[] = [
     },
  ]
  
-export const deps = new Map<string, WidgetOption[]>()
+export const deps = new Map<string, Widget[]>()

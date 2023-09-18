@@ -6,15 +6,15 @@ import { InputNumber, Switch } from 'antd'
 import { Editor } from '../../shell/Editor/index.js'
 import { DataView } from '../../shell/DataView.js'
 
-import { shell } from '../model.js'
-import { type dataSourceNodeType, type dataSourceNodePropertyType, data_source_nodes, find_data_source_node_index } from '../storage/date-source-node.js'
+import { dashboard } from '../model.js'
+import { type DataSourceNodeType, type DataSourceNodePropertyType, data_source_nodes, find_data_source_node_index } from '../storage/date-source-node.js'
 
 type PropsType = { 
     show_preview: boolean
-    current_data_source_node: dataSourceNodeType
+    current_data_source_node: DataSourceNodeType
     close_preview: () => void 
     change_no_save_flag: (value: boolean) => void
-    change_current_data_source_node_property: (key: string, value: dataSourceNodePropertyType) => void
+    change_current_data_source_node_property: (key: string, value: DataSourceNodePropertyType, save_confirm?: boolean) => void
 }
 export function SqlEditor ({ 
         current_data_source_node, 
@@ -24,7 +24,7 @@ export function SqlEditor ({
         close_preview,
     }: PropsType) 
 { 
-    const { result } = shell.use(['result'])
+    const { result } = dashboard.use(['result'])
     
     useEffect(() => {
         if (current_data_source_node.mode === data_source_nodes[find_data_source_node_index(current_data_source_node.id)].mode)
@@ -38,7 +38,7 @@ export function SqlEditor ({
                     enter_completion
                     on_mount={(editor, monaco) => {
                         editor?.setValue(data_source_nodes[find_data_source_node_index(current_data_source_node.id)].code || '')
-                        shell.set({ editor, monaco })
+                        dashboard.set({ editor, monaco })
                     }}
                     on_change={() => change_no_save_flag(true)}
                 />
@@ -56,7 +56,7 @@ export function SqlEditor ({
                     </div>
                     <div className='data-source-config-preview-main'>
                         {result?.data
-                            ? <DataView type='dashboard'/>
+                            ? <DataView dashboard/>
                             : <div className='data-source-config-preview-main-error'>{current_data_source_node.error_message }</div> 
                         }
                     </div>
@@ -81,12 +81,13 @@ export function SqlEditor ({
                         间隔时间：
                         <InputNumber 
                             size='small' 
-                            min={0.001}
+                            min={1}
+                            max={1000}
                             className='data-source-config-sqlconfig-left-intervals-input'
                             value={current_data_source_node.interval}
                             onChange={value => {
                                 if (value !== null)
-                                    change_current_data_source_node_property('interval', value) 
+                                    change_current_data_source_node_property('interval', Math.ceil(value)) 
                             }}
                         />
                         s
@@ -99,13 +100,13 @@ export function SqlEditor ({
                     最大行数：
                     <InputNumber 
                         size='small' 
-                        min={0}
+                        min={1}
                         max={1000}
                         className='data-source-config-sqlconfig-right-maxline-input' 
                         value={current_data_source_node.max_line}
                         onChange={value => { 
                             if (value !== null)
-                                change_current_data_source_node_property('max_line', value) 
+                                change_current_data_source_node_property('max_line', Math.ceil(value)) 
                         }}
                     />
                 </div>

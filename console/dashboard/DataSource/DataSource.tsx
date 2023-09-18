@@ -10,14 +10,14 @@ import { SqlEditor } from './SqlEditor.js'
 import { StreamEditor } from './StreamEditor.js'
 
 import { formatter } from '../utils.js'
-import { shell } from '../model.js'
-import { type WidgetOption } from '../storage/widget_node.js'
+import { dashboard } from '../model.js'
+import { type Widget } from '../model.js'
 import { data_source_nodes,
     find_data_source_node_index, 
     save_data_source_node, 
     sub_source,
-    type dataSourceNodePropertyType, 
-    type dataSourceNodeType 
+    type DataSourceNodePropertyType, 
+    type DataSourceNodeType 
 } from '../storage/date-source-node.js'
 
 const save_confirm_config = {
@@ -30,7 +30,7 @@ const save_confirm_config = {
     ),   
 }
 
-export function DataSource ({ widget_option }: { widget_option?: WidgetOption }) {
+export function DataSource ({ widget }: { widget?: Widget }) {
     const { visible, open, close } = use_modal()
     
     const [modal, contextHolder] = Modal.useModal()
@@ -49,14 +49,16 @@ export function DataSource ({ widget_option }: { widget_option?: WidgetOption })
         set_show_preview(false)
     }, [ ])
     
-    const change_current_data_source_node_property = useCallback((key: string, value: dataSourceNodePropertyType) => {
-        set_current_data_source_node((pre: dataSourceNodeType) => {
-            pre[key] = value
-            return { ...pre }
-        })
-        if (key !== 'name') 
-            no_save_flag.current = true   
-    }, [ ])
+    const change_current_data_source_node_property = useCallback(
+        (key: string, value: DataSourceNodePropertyType, save_confirm = true) => {
+            set_current_data_source_node((pre: DataSourceNodeType) => {
+                pre[key] = value
+                return { ...pre }
+            })
+            if (save_confirm) 
+                no_save_flag.current = true   
+        }
+    , [ ])
     
     const handle_close = useCallback(async () => {
         if (no_save_flag.current && await modal.confirm(save_confirm_config) ) {
@@ -68,9 +70,9 @@ export function DataSource ({ widget_option }: { widget_option?: WidgetOption })
     }, [no_save_flag.current])
     
     const handle_save = useCallback(async () => {
-        current_data_source_node.code = shell.editor.getValue()
+        current_data_source_node.code = dashboard.editor.getValue()
         
-        const { type, result } = await shell.execute()
+        const { type, result } = await dashboard.execute()
         change_current_data_source_node_property('error_message', type === 'success' ? '' : result as string)
         current_data_source_node.data.length = 0
         if (typeof result === 'object' && result.data) 
@@ -83,7 +85,7 @@ export function DataSource ({ widget_option }: { widget_option?: WidgetOption })
     }, [current_data_source_node])
     return <>
         {
-            widget_option
+            widget
             ? <div className='graph-hint' onClick={open}>点击填充数据源</div>
             : <div className='data-source-config-trigger-navigation' onClick={open}>
                 <DatabaseOutlined className='data-source-config-trigger-navigation-icon'/>
@@ -99,7 +101,9 @@ export function DataSource ({ widget_option }: { widget_option?: WidgetOption })
             maskClosable={false}
             maskStyle={{ backgroundColor: 'rgba(84,84,84,0.5)' }}
             afterOpenChange={() => {
-                set_current_data_source_node({ ...data_source_nodes[0] } )
+                set_current_data_source_node(
+                    { ...data_source_nodes[widget?.source_id ? find_data_source_node_index(widget.source_id) : 0] } 
+                )
             }}
             footer={
                 [
@@ -107,8 +111,8 @@ export function DataSource ({ widget_option }: { widget_option?: WidgetOption })
                         key='preview' 
                         onClick={
                             async () => {
-                                const { type, result } = await shell.execute()
-                                change_current_data_source_node_property('error_message', type === 'success' ? '' : result as string)
+                                const { type, result } = await dashboard.execute()
+                                change_current_data_source_node_property('error_message', type === 'success' ? '' : result as string, false)
                                 set_show_preview(true)
                             }
                         }>
@@ -117,16 +121,16 @@ export function DataSource ({ widget_option }: { widget_option?: WidgetOption })
                     <Button key='save' onClick={async () => {
                         if (no_save_flag.current)
                             await handle_save()
-                        if (widget_option) {
-                            if (!widget_option.source_id || widget_option.source_id !== current_data_source_node.id) {
-                                sub_source(widget_option, current_data_source_node.id)
-                                widget_option.source_id = current_data_source_node.id
+                        if (widget) {
+                            if (!widget.source_id || widget.source_id !== current_data_source_node.id) {
+                                sub_source(widget, current_data_source_node.id)
+                                widget.source_id = current_data_source_node.id
                             }
                             close()
                             set_show_preview(false)
                         }    
                     }}>
-                        {widget_option ? '应用' : '保存'}
+                        {widget ? '应用' : '保存'}
                     </Button>,
                     <Button key='close' type='primary' onClick={handle_close}>
                         关闭

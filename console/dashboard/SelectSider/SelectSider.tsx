@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { DoubleLeftOutlined, DoubleRightOutlined, RiseOutlined } from '@ant-design/icons'
 
-import { GraphTypeName } from '../graph-types.js'
+import { WidgetType } from '../model.js'
 
 
 export function SelectSider ({ hidden }: { hidden: boolean }) {
@@ -9,7 +9,7 @@ export function SelectSider ({ hidden }: { hidden: boolean }) {
     
     return <div className={`dashboard-select-sider ${folding ? 'dashboard-select-sider-folding' : ''} ${hidden ? '' : 'hidden'}`}>
         <div className='dashboard-graph-items'>
-            {Object.entries(GraphTypeName).map(([key, value]) =>
+            {Object.entries(WidgetType).map(([key, value]) =>
                 <div key={key} className='dashboard-graph-item grid-stack-item' data-type={key}>
                     <RiseOutlined className='dashboard-graph-item-icon'/> {folding ? '' : value}
                 </div>
