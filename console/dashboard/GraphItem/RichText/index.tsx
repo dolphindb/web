@@ -3,8 +3,8 @@ import React, { useMemo, useState } from 'react'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import 'react-quill/dist/quill.core.css'
-import './index.sass'
 import { use_modal } from 'react-object-model/modal'
+import './index.sass'
 
 export function RichText () {
   const [text, set_text] = useState('')
@@ -31,8 +31,8 @@ export function RichText () {
   
   return <>
     <Modal open={visible}
-           footer={[ ]}
            onCancel={close}
+           okText='保存'
            >
         <ReactQuill theme='snow' 
                     value={text} 
@@ -42,12 +42,15 @@ export function RichText () {
                     }}/>
                      
     </Modal>
-      {text === '' ?  <div className='empty-area'><Button onClick={open}>
+      {text === '' ?  <div className='empty-area'>
+                        <Button onClick={open}>
                           添加文本
-                      </Button>
-                  </div> : <div dangerouslySetInnerHTML={{ __html: text }}
-                                className='display-area'
-                                onClick={open}/>
+                        </Button>
+                  </div> : <div className='ql-container ql-snow'>
+                            <div dangerouslySetInnerHTML={{ __html: text }}
+                                 className='display-area ql-editor'
+                                 onClick={open}/>
+                          </div>
       }
     </>
 }
