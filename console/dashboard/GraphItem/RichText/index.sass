@@ -9,12 +9,22 @@
         
 .ant-modal
     width: 60% !important
-    height: 50%
+    height: 600px
     .ant-modal-content
         height: 100%
         padding: 0
         .ant-modal-body
             height: 100%
+            .ql-container
+                height: 88%
+                overflow-y: scroll
+        .ant-modal-footer
+            height: 50px
+            background: #fff
+            border-top: 1px solid #ccc
+            margin: 0
+            padding: 10px 20px 10px 0
+            
             
 .empty-area,.display-area
     width: 100%
@@ -28,4 +38,7 @@
     align-items: center
 
 .display-area 
-    padding: 10px
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
