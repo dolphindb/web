@@ -1,19 +1,25 @@
-import { DeleteOutlined, FileOutlined, FolderAddOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
-import { DataSource } from '../DataSource/DataSource.js'
 import { Select, Tooltip } from 'antd'
 
+import { DeleteOutlined, FileOutlined, FolderAddOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
 
-export function Navigation ({ editing, change_editing }: { editing: boolean, change_editing: (is_eiting: boolean) => void }) {
+
+import { dashboard } from '../model.js'
+
+import { DataSource } from '../DataSource/DataSource.js'
+
+
+export function Navigation () {
+    const { editing } = dashboard.use(['editing'])
     
-    const handleChange = (value: string) => {
-        console.log(`selected ${value}`)
-    }
+    
     return <div className='dashboard-navigation'>
         <div className='dashboard-navigation-left'>
             <Select
                 className='dashboard-navigation-left-select'
-                placeholder='选择dashboard'
-                onChange={handleChange}
+                placeholder='选择 dashboard'
+                onChange={(value: string) => {
+                    console.log(`selected ${value}`)
+                }}
                 bordered={false}
                 options={[
                     { value: 'dashboard1', label: 'dashboard1' },
@@ -43,17 +49,17 @@ export function Navigation ({ editing, change_editing }: { editing: boolean, cha
             <div className='dashboard-navigation-right-editormode'>
                 <span
                     className={
-                        `dashboard-navigation-right-editormode-editor${editing ? '' : ' dashboard-navigation-right-editormode-unselected'}`
+                        `dashboard-navigation-right-editormode-editor${editing ? ' editormode-selected' : ''}`
                     }
-                    onClick={() => { change_editing(true) }}
+                    onClick={() => { dashboard.set_editing(true) }}
                 >
                     编辑
                 </span>
                 <span
                     className={
-                        `dashboard-navigation-right-editormode-preview${editing ? ' dashboard-navigation-right-editormode-unselected' : ''} `
+                        `dashboard-navigation-right-editormode-preview${editing ? '' : ' editormode-selected'} `
                     }
-                    onClick={() => { change_editing(false) }}
+                    onClick={() => { dashboard.set_editing(false) }}
                 >
                     预览
                 </span>

@@ -1,17 +1,18 @@
+import echarts from 'echarts'
+
 import { CloseOutlined } from '@ant-design/icons'
 
-import type { GridStack, GridStackNode } from 'gridstack'
 
-import { GraphTypeName } from '../graph-types.js'
+import { WidgetType, dashboard } from '../model.js'
 import { DataSource } from '../DataSource/DataSource.js'
 import { useEffect, useRef, useState } from 'react'
 import { type Widget } from '../model.js'
-import echarts from 'echarts'
-import { unsub_source } from '../storage/date-source-node.js'
 import { RichText } from './RichText/index.js'
 
 
-export function GraphItem  ({ widget, node, grid, actived }: { widget: Widget, node: GridStackNode, grid: GridStack, actived: boolean }) {
+export function GraphItem  ({ widget }: { widget: Widget }) {
+    const { widget: current } = dashboard.use(['widget'])
+    
     // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动
     
     const graph = useRef()
@@ -53,13 +54,8 @@ export function GraphItem  ({ widget, node, grid, actived }: { widget: Widget, n
     }
     
     
-    return <div className={`grid-stack-item-content ${actived ? 'grid-stack-item-active' : ''}`}>
-        <div className='delete-graph' onClick={() => { 
-            grid.removeWidget(node.el)
-            // 取消订阅数据源 
-            if (widget.source_id)
-                unsub_source(widget)
-        }}>
+    return <div className={`grid-stack-item-content ${widget === current ? 'grid-stack-item-active' : ''}`}>
+        <div className='delete-graph' onClick={() => { dashboard.delete_widget(widget) }}>
             <CloseOutlined className='delete-graph-icon'/>
         </div>
         {
@@ -67,8 +63,8 @@ export function GraphItem  ({ widget, node, grid, actived }: { widget: Widget, n
                 <RichText/>
             :
                 <div className='graph-content'>
-                    <div className='title'>{GraphTypeName[widget.type]}</div>
-                    <DataSource widget_option={widget}/>
+                    <div className='title'>{WidgetType[widget.type]}</div>
+                    <DataSource widget={widget}/>
                 </div>
         }
         <div className='drag-icon' />

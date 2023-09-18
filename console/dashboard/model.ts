@@ -1,20 +1,29 @@
+import { createRef } from 'react'
+
 import { Model } from 'react-object-model'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
+
 import { DdbForm, DdbObj, DdbValue } from 'dolphindb/browser.js'
 
-import type { GridStackWidget } from 'gridstack'
+import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
+
+import { assert, genid } from 'xshell/utils.browser.js'
+
 
 import { t } from '../../i18n/index.js'
 import { Monaco } from '../shell/Editor/index.js'
 import { model } from '../model.js'
-import type { DataType } from './storage/date-source-node.js'
+import { unsub_source, type DataType } from './storage/date-source-node.js'
 
 
 /** dashboard 中我们自己定义的 Widget，继承了官方的 GridStackWidget，加上额外的业务属性 */
-export interface Widget extends GridStackWidget {
+export interface Widget extends GridStackNode {
+    /** 保存 dom 节点，在 widgets 配置更新时将 ref 给传给 react `<div>` 获取 dom */
+    ref: React.MutableRefObject<GridItemHTMLElement>
+    
     /** 图表类型 */
-    type: string
+    type: keyof typeof WidgetType
     
     /** 数据源 id */
     source_id?: string
@@ -24,9 +33,39 @@ export interface Widget extends GridStackWidget {
 }
 
 
-type Result = { type: 'object', data: DdbObj<DdbValue> } | null
+export enum WidgetType {
+    BAR = '柱状图',
+    LINE = '折线图',
+    PIE = '饼图',
+    POINT = '散点图',
+    TABLE = '表格',
+    OHLC = 'OHLC',
+    CANDLE = '蜡烛图',
+    ORDER = '订单图',
+    NEEDLE = '数值针型图',
+    STRIP = '带图',
+    HEAT = '热力图'
+}
 
-class ShellModel extends Model<ShellModel> {
+
+class DashBoardModel extends Model<DashBoardModel> {
+    /** GridStack.init 创建的 gridstack 实例 */
+    grid: GridStack
+    
+    /** 画布中所有的图表控件 */
+    widgets: Widget[] = [ ]
+    
+    /** 当前选中的图表控件，焦点在画布时可能为 null (是否合理？不合理可以再加一个 focused 属性) */
+    widget: Widget | null
+    
+    /** 编辑、预览状态切换 */
+    editing = true
+    
+    // gridstack 仅支持 12 列以下的，大于 12 列需要手动添加 css 代码，详见 gridstack 的 readme.md
+    // 目前本项目仅支持仅支持 <= 12
+    maxcols = 12
+    maxrows = 12
+    
     monaco: Monaco
     
     editor: monacoapi.editor.IStandaloneCodeEditor
@@ -35,7 +74,126 @@ class ShellModel extends Model<ShellModel> {
     
     executing = false
     
-    async eval (code = this.editor.getValue()) {        
+    
+    /** 初始化 GridStack 并配置事件监听器 */
+    init ($div: HTMLDivElement) {
+        let grid = GridStack.init({
+            acceptWidgets: true,
+            float: true,
+            column: this.maxcols,
+            row: this.maxrows,
+            margin: 0,
+            draggable: { scroll: false },
+            resizable: { handles: 'n,e,se,s,w' },
+        }, $div)
+        
+        grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
+        
+        // 响应用户从外部添加新 widget 到 GridStack 的事件
+        grid.on('dropped', (event: Event, old_node: GridStackNode, node: GridStackNode) => {
+            // old_widget 为 undefined
+            
+            const widget: Widget = {
+                ...node,
+                ref: createRef(),
+                id: String(genid()),
+                type: node.el.dataset.type as keyof typeof WidgetType,
+            }
+            
+            console.log('拖拽释放，添加 widget:', widget)
+            
+            this.add_widget(widget)
+            
+            grid.removeWidget(node.el)
+        })
+        
+        // 响应 GridStack 中 widget 的位置或尺寸变化的事件
+        grid.on('change', (event: Event, widgets: GridStackNode[]) => {
+            console.log('修改 widget 大小或位置:', widgets)
+            
+            for (const widget of widgets)
+                Object.assign(
+                    this.widgets.find(({ id }) => id === widget.id), 
+                    widget
+                )
+        })
+        
+        // grid.on('resize', () => {
+        //     console.log('resize')
+        // })
+        
+        // grid.on('dragstop', () => {
+        //     console.log('dragstop')
+        // })
+        
+        // todo: throttle?
+        window.addEventListener('resize', () => {
+            grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
+        })
+        
+        GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
+        
+        this.set({ grid })
+    }
+    
+    
+    dispose () {
+        console.log('dispose')
+        this.grid.destroy()
+        this.grid = null
+    }
+    
+    
+    render_widgets () {
+        let { grid, widgets } = this
+        
+        grid.batchUpdate(true)
+        
+        grid.removeAll(false)
+        
+        for (let widget of widgets) {
+            let $element = widget.ref.current
+            
+            // 返回值为 GridItemHTMLElement 类型 (就是在 $element 这个 dom 节点上加了 gridstackNode: GridStackNode 属性)
+            Object.assign(
+                widget,
+                grid.makeWidget($element).gridstackNode
+            )
+        }
+        
+        grid.batchUpdate(false)
+    }
+    
+    
+    add_widget (widget: Widget) {
+        this.set({
+            widget,
+            widgets: [...this.widgets, widget]
+        })
+    }
+    
+    
+    delete_widget (widget: Widget) {
+        const widgets = this.widgets.filter(w => w !== widget)
+        
+        if (widget.source_id)
+            unsub_source(widget)
+        
+        this.set({
+            widget: widgets[0],
+            widgets
+        })
+    }
+    
+    
+    set_editing (editing: boolean) {
+        this.grid.enableMove(!editing)
+        this.grid.enableResize(!editing)
+        this.set({ editing })
+    }
+    
+    
+    async eval (code = this.editor.getValue()) {
         this.set({ executing: true })
         
         try {
@@ -71,8 +229,9 @@ class ShellModel extends Model<ShellModel> {
         }
     }
     
-    async execute (): Promise<{ 
-        type: 'success' | 'error' 
+    
+    async execute (): Promise<{
+        type: 'success' | 'error'
         result: string | Result
     }> {
         if (dashboard.executing)
@@ -93,4 +252,8 @@ class ShellModel extends Model<ShellModel> {
     }
 }
 
-export let dashboard = window.dashboard = new ShellModel()
+
+export let dashboard = window.dashboard = new DashBoardModel()
+
+
+type Result = { type: 'object', data: DdbObj<DdbValue> } | null
