@@ -8,8 +8,20 @@ import { FormDependencies } from '../../components/formily/FormDependies/index.j
 import './index.scss'
 
 
+
 interface IProps { 
     col_names: string[]
+}
+
+interface IAxisItemProps { 
+    name_path?: NamePath
+    col_names: string[]
+    list_name?: string
+    initial_values?: {
+        type: string
+        name: string
+        col_name: string
+    }
 }
 
 const axis_type_options = [{
@@ -36,15 +48,14 @@ const axis_position_options = [
 
 
 
-const AxisItem = (props: { name_path?: NamePath, col_names: string[], list_name?: string }) => { 
-    const { name_path, col_names = [ ], list_name } = props
-    console.log(concat_name_path(name_path, 'type'), 'namepath')
+const AxisItem = (props: IAxisItemProps) => { 
+    const { name_path, col_names = [ ], list_name, initial_values } = props
     
     return <>
-        <Form.Item name={concat_name_path(name_path, 'type')} label={t('类型')} initialValue='category' tooltip={t('数值轴，适用于连续数据\n类目轴，适用于离散的类目数据\n时间轴，适用于连续的时序数据\n对数轴，适用于对数数据')}>
+        <Form.Item name={concat_name_path(name_path, 'type')} label={t('类型')} initialValue={ initial_values?.type ?? 'category'} tooltip={t('数值轴，适用于连续数据\n类目轴，适用于离散的类目数据\n时间轴，适用于连续的时序数据\n对数轴，适用于对数数据')}>
             <Select options={axis_type_options}  />
         </Form.Item>
-        <Form.Item name={concat_name_path(name_path, 'name')} label={t('名称')} initialValue={t('名称')}>
+        <Form.Item name={concat_name_path(name_path, 'name')} label={t('名称')} initialValue={ initial_values?.name ?? t('名称')}>
             <Input />
         </Form.Item>
         {/* 类目轴从col_name中获取data */}
@@ -53,7 +64,7 @@ const AxisItem = (props: { name_path?: NamePath, col_names: string[], list_name?
                 const { type } = list_name ? value[list_name].find(item => !!item) : value[name_path] 
                 if (!['category', 'time'].includes(type))
                     return null
-                return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={col_names?.[0]} >
+                return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
                     <Select options={col_names.map(item => ({ label: item, value: item }))} />
                 </Form.Item>
             } }

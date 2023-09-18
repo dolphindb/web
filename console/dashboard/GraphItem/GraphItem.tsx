@@ -57,6 +57,8 @@ const data_source = [
 export function GraphItem  ({ widget }: { widget: Widget }) {
     const { widget: current } = dashboard.use(['widget'])
     
+    console.log(widget, 'widget')
+    
     const GraphComponent = graph_config[widget.type].component
     
     // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动

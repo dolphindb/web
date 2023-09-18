@@ -206,16 +206,17 @@ class DashBoardModel extends Model<DashBoardModel> {
     }
     
     update_widget (widget: Widget) { 
-        const new_widgets = this.widgets.map(item => { 
-            if (item.id === widget.id)
-                return { ...item, ...widget }
-            else
-                return item
-        })
+        // const new_widgets = this.widgets.map(item => { 
+        //     if (item.id === widget.id)
+        //         return { ...item, ...widget }
+        //     else
+        //         return item
+        // })
+        
+        Object.assign(this.widgets.find(({ id }) => id === widget.id), widget)
        
         this.set({
             widget,
-            widgets: new_widgets
         })
     }
     
