@@ -4,10 +4,11 @@ import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import 'react-quill/dist/quill.core.css'
 import { use_modal } from 'react-object-model/modal'
+import { t } from '../../../../i18n/index.js'
 import './index.sass'
 
 
-function replaceVariables (origin_string: string, variables: object) {
+function replace_variables (origin_string: string, variables: object) {
   const regex = /{{(.*?)}}/g
   let match = null
   let replaced_string = origin_string
@@ -56,14 +57,14 @@ export function RichText () {
   }
   
   const template_text = useMemo(() => 
-    replaceVariables(display_text, variables), 
+    replace_variables(display_text, variables), 
   [display_text])
   
   return <>
     <Modal open={visible}
            onCancel={() => { set_edit_text(display_text)
                              close() }}
-           okText='保存'
+           okText={t('保存')}
            closeIcon={false}
            onOk={() => { set_display_text(edit_edit)
                         close() }}
@@ -80,7 +81,7 @@ export function RichText () {
       {display_text === '' ?  
                       <div className='empty-area'>
                         <Button onClick={open}>
-                          添加文本
+                          {t('添加文本')}
                         </Button>
                       </div> 
                           : 
