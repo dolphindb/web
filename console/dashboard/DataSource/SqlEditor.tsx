@@ -41,6 +41,7 @@ export function SqlEditor ({
                         dashboard.set({ editor, monaco })
                     }}
                     on_change={() => change_no_save_flag(true)}
+                    theme='dark'
                 />
             </div>
             {show_preview

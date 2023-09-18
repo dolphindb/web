@@ -1,6 +1,4 @@
-import './index.sass'
-
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { Editor as MonacoEditor, loader, type OnChange, type OnMount } from '@monaco-editor/react'
 
@@ -47,6 +45,7 @@ export function Editor ({
     on_mount,
     on_change,
     options,
+    theme = 'light'
 }: {
     readonly?: boolean
     default_value?: string
@@ -56,6 +55,7 @@ export function Editor ({
     on_mount?: OnMount
     on_change?: OnChange
     options?: monacoapi.editor.IStandaloneEditorConstructionOptions
+    theme?: 'light' | 'dark'
 }) {
     const finalOptions = useMemo<monacoapi.editor.IStandaloneEditorConstructionOptions>(() => ({
             fontSize: 16,
@@ -73,15 +73,24 @@ export function Editor ({
         }),
         [minimap, enter_completion, readonly, options]
     )
+    
+    useEffect(() => {
+        if (theme === 'light')
+            import('./index.sass')
+    }, [ ])
+    
     return <MonacoDolphinDBEditor
             dolphinDBLanguageOptions={{
                 docs: `docs.${ language === 'zh' ? 'zh' : 'en' }.json`,
                 language: language === 'zh' ? 'zh' : 'en',
+                theme
             }}
             
             wrapperProps={{ className: 'monaco-editor-container' }}
             
             value={value}
+            
+            theme={theme === 'light' ? 'vs' : 'vs-dark'}
             
             defaultValue={default_value}
             
