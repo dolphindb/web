@@ -127,15 +127,17 @@ export function NodeTable ({
                     onClick={
                         () => {
                             const delete_index = delete_data_source_node(current_data_source_node.id)
-                            menu_items.splice(delete_index, 1)
-                            set_menu_items([...menu_items])
-                            if (!data_source_nodes.length) 
-                                change_current_data_source_node('')
-                            else {
-                                const index = delete_index === 0 ? 0 : delete_index - 1
-                                change_current_data_source_node(data_source_nodes[index].id)
-                                set_current_select(data_source_nodes[index].id)
-                            }
+                            if (delete_index) {
+                                menu_items.splice(delete_index, 1)
+                                set_menu_items([...menu_items])
+                                if (!data_source_nodes.length) 
+                                    change_current_data_source_node('')
+                                else {
+                                    const index = delete_index === 0 ? 0 : delete_index - 1
+                                    change_current_data_source_node(data_source_nodes[index].id)
+                                    set_current_select(data_source_nodes[index].id)
+                                }
+                            }  
                         }
                     }
                 >
