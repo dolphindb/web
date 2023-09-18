@@ -18,9 +18,9 @@ interface IAxisItemProps {
     col_names: string[]
     list_name?: string
     initial_values?: {
-        type: string
-        name: string
-        col_name: string
+        type?: string
+        name?: string
+        col_name?: string
     }
 }
 
@@ -47,7 +47,7 @@ const axis_position_options = [
 ]
 
 
-const AxisItem = (props: IAxisItemProps) => { 
+export const AxisItem = (props: IAxisItemProps) => { 
     const { name_path, col_names = [ ], list_name, initial_values } = props
     
     return <>
@@ -118,10 +118,10 @@ const Series = (props: { col_names: string[] }) => {
 }
 
 // 多y轴
-const YAxis = (props: { col_names: string[] }) => { 
-    const { col_names } = props
+export const YAxis = (props: { col_names: string[], initial_values?: { type: string, name: string, position: string }[] }) => { 
+    const { col_names, initial_values } = props
     
-    return <Form.List name='yAxis' initialValue={[{ type: 'category', name: t('名称'), col_name: col_names[0], position: 'left', offset: 0 }]}>
+    return <Form.List name='yAxis' initialValue={initial_values || [{ }]}>
         {(fields, { add, remove }) =>      
             <>
                 {
