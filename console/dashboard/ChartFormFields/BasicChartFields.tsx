@@ -47,12 +47,15 @@ const axis_position_options = [
 ]
 
 
-
 const AxisItem = (props: IAxisItemProps) => { 
     const { name_path, col_names = [ ], list_name, initial_values } = props
     
     return <>
-        <Form.Item name={concat_name_path(name_path, 'type')} label={t('类型')} initialValue={ initial_values?.type ?? 'category'} tooltip={t('数值轴，适用于连续数据\n类目轴，适用于离散的类目数据\n时间轴，适用于连续的时序数据\n对数轴，适用于对数数据')}>
+        <Form.Item
+            name={concat_name_path(name_path, 'type')}
+            label={t('类型')}
+            initialValue={initial_values?.type ?? 'category'}
+            tooltip={t('数值轴，适用于连续数据\n类目轴，适用于离散的类目数据\n时间轴，适用于连续的时序数据\n对数轴，适用于对数数据')}>
             <Select options={axis_type_options}  />
         </Form.Item>
         <Form.Item name={concat_name_path(name_path, 'name')} label={t('名称')} initialValue={ initial_values?.name ?? t('名称')}>
@@ -76,7 +79,7 @@ const AxisItem = (props: IAxisItemProps) => {
 const Series = (props: { col_names: string[] }) => { 
     const { col_names } = props
     
-    return <Form.List name='series' initialValue={[{ }]}>
+    return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: t('名称'), yAxisIndex: 0 }]}>
         {(fields, { add, remove }) => <>
             {
                 fields.map((field, index) => { 
@@ -118,7 +121,7 @@ const Series = (props: { col_names: string[] }) => {
 const YAxis = (props: { col_names: string[] }) => { 
     const { col_names } = props
     
-    return <Form.List name='yAxis' initialValue={[{ }]}>
+    return <Form.List name='yAxis' initialValue={[{ type: 'category', name: t('名称'), col_name: col_names[0], position: 'left', offset: 0 }]}>
         {(fields, { add, remove }) =>      
             <>
                 {

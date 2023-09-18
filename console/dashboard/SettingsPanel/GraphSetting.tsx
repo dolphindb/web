@@ -18,8 +18,7 @@ export function GraphSetting () {
         else { 
             form.resetFields()
             dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
-        }
-            
+        }   
     }, [ widget.id ])
     
     

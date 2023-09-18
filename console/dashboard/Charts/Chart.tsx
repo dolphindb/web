@@ -16,7 +16,7 @@ interface IProps {
 const Chart = (props: IProps) => { 
     const { widget, data_source } = props
     
-    const options = useMemo(() => convert_chart_config(widget, data_source), [widget, data_source])
+    const options = useMemo(() => convert_chart_config(widget, data_source), [widget.config, data_source])
     
     return <ReactECharts notMerge option={options} className='line-chart' theme='dark'/>
 }
