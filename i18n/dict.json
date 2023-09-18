@@ -1933,5 +1933,89 @@
     },
     "因子平台": {
         "en": "Factor Platform"
+    },
+    "标题": {
+        "en": "Title"
+    },
+    "数据源": {
+        "en": "DataSource"
+    },
+    "基本属性": {
+        "en": "Basic properties"
+    },
+    "数值轴，适用于连续数据\n类目轴，适用于离散的类目数据\n时间轴，适用于连续的时序数据\n对数轴，适用于对数数据":{
+        "en": "Numerical axis, suitable for continuous data\nCategory axis, suitable for discrete category data\nTime axis, suitable for continuous time series data\nLogarithmic axis, suitable for logarithmic data"
+    },
+    "X轴名称": {
+        "en": "X-axis name"
+    },
+    "增加数据列": {
+        "en": "Add data column"
+    },
+    "增加Y轴": {
+        "en": "Add Y axis"
+    },
+    "坐标列": {
+        "en": "Axis column"
+    },
+    "是否展示X缩略轴": {
+        "en": "Display the X thumbnail axis"
+    },
+    "是否展示Y缩略轴": {
+        "en": "Display the Y thumbnail axis"
+    },
+    "保存并应用": {
+        "en": "Save and Apply"
+    },
+    "请先选中您需要更改配置的图表": {
+        "en": "Please select the chart you want to change the configuration first"
+    },
+    "画布": {
+        "en": "Canvas"
+    },
+    "图表": {
+        "en": "Charts"
+    },
+    "图例": {
+        "en": "Legend"
+    },
+    "提示": {
+        "en": "Hint"
+    },
+    "X轴缩略轴": {
+        "en": "X-axis abbreviated axis"
+    },
+    "Y轴缩略轴": {
+        "en": "Y-axis abbreviated axis"
+    },
+    "位置": {
+        "en": "Position"
+    },
+    "左侧": {
+        "en": "Left"
+    },
+    "关联Y轴": {
+        "en": "Associated Y axis"
+    },
+    "列配置": {
+        "en": "Column configuration"
+    },
+    "增加映射": {
+        "en": "Add mapping"
+    },
+    "原始列名": {
+        "en": "Original column name"
+    },
+    "展示列名": {
+        "en": "Show column names"
+    },
+    "分页设置": {
+        "en": "Pagination settings"
+    },
+    "需要分页": {
+        "en": "Need pagination"
+    },
+    "默认分页数": {
+        "en": "Default number of pages"
     }
 }

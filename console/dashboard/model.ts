@@ -15,6 +15,7 @@ import { t } from '../../i18n/index.js'
 import { Monaco } from '../shell/Editor/index.js'
 import { model } from '../model.js'
 import { unsub_source, type DataType } from './storage/date-source-node.js'
+import { IChartConfig, ITableConfig } from './type.js'
 
 
 /** dashboard 中我们自己定义的 Widget，继承了官方的 GridStackWidget，加上额外的业务属性 */
@@ -30,6 +31,9 @@ export interface Widget extends GridStackNode {
     
     /** 更新图表方法 */
     update_graph?: (data: DataType) => void
+    
+    /** 图表配置 */
+    config?: IChartConfig | ITableConfig
 }
 
 
@@ -44,7 +48,23 @@ export enum WidgetType {
     ORDER = '订单图',
     NEEDLE = '数值针型图',
     STRIP = '带图',
-    HEAT = '热力图'
+    HEAT = '热力图',
+    TEXT = '富文本'
+}
+
+export enum WidgetChartType { 
+    BAR = 'BAR',
+    LINE = 'LINE',
+    // PIE = 'PIE',
+    // POINT = 'POINT',
+    TABLE = 'TABLE',
+    OHLC = 'OHLC',
+    // CANDLE = 'CANDLE',
+    // ORDER = 'ORDER',
+    // NEEDLE = 'NEEDLE',
+    // STRIP = 'STRIP',
+    // HEAT = 'HEAT'
+    TEXT = 'TEXT'
 }
 
 
@@ -185,6 +205,21 @@ class DashBoardModel extends Model<DashBoardModel> {
         })
     }
     
+    update_widget (widget: Widget) { 
+        // const new_widgets = this.widgets.map(item => { 
+        //     if (item.id === widget.id)
+        //         return { ...item, ...widget }
+        //     else
+        //         return item
+        // })
+        
+        Object.assign(this.widgets.find(({ id }) => id === widget.id), widget)
+       
+        this.set({
+            widget,
+        })
+    }
+    
     
     set_editing (editing: boolean) {
         this.grid.enableMove(!editing)
@@ -253,6 +288,7 @@ class DashBoardModel extends Model<DashBoardModel> {
 }
 
 
+// @ts-ignore
 export let dashboard = window.dashboard = new DashBoardModel()
 
 

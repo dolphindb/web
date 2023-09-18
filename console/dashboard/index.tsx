@@ -27,7 +27,7 @@ import { Navigation } from './Navigation/Navigation.js'
     通过 GridStack.on('dropped', ...) 监听用户从外部添加拖拽 widget 到 GridStack 的事件  
     通过 GridStack.on('change', ...) 响应 GridStack 中 widget 的位置或尺寸变化的事件 */
 export function DashBoard () {
-    const { widgets, editing } = dashboard.use(['widgets', 'editing'])
+    const { widgets, editing, widget } = dashboard.use(['widgets', 'editing', 'widget'])
     
     /** div ref, 用于创建 GridStack  */
     let rdiv = useRef<HTMLDivElement>()
@@ -46,7 +46,7 @@ export function DashBoard () {
     }, [widgets])
     
     
-    return <ConfigProvider theme={{ hashed: false, token: { borderRadius: 0, motion: false }, algorithm: theme.darkAlgorithm }}>
+    return <ConfigProvider theme={{ hashed: false, token: { borderRadius: 0, motion: false, colorBgContainer: 'rgb(40, 40, 40)', colorBgElevated: 'rgb(40, 40, 40)', colorInfoActive: 'rgb(64, 147, 211)' }, algorithm: theme.darkAlgorithm }}>
         <div className='dashboard'>
             <div className='dashboard-header'>
                 <Navigation />
@@ -82,7 +82,7 @@ export function DashBoard () {
                     </div>
                 </div>
                 
-                <SettingsPanel hidden={editing}/>
+                <SettingsPanel hidden={!editing}/>
             </div>
         </div>
     </ConfigProvider>
