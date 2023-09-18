@@ -41,9 +41,14 @@ export const save_data_source_node = ( new_data_source_node: DataSourceNodeType)
 }
 
 export const delete_data_source_node = (key: string) => {
-    const delete_index = find_data_source_node_index(key)
-    data_source_nodes.splice(delete_index, 1)
-    return delete_index
+    if (deps.get(key)?.length)
+        model.message.error('当前数据源已被图表绑定无法删除')
+    else {
+        deps.delete(key)
+        const delete_index = find_data_source_node_index(key)
+        data_source_nodes.splice(delete_index, 1)
+        return delete_index
+    }
 }
 
 export const create_data_source_node = () => {
