@@ -1,25 +1,70 @@
-import { Table, TableProps } from 'antd'
+import { PaginationProps, Table, TableProps } from 'antd'
 import {  BasicFormFields }  from '../ChartFormFields/BasicFormFields.js'
-import { AxisFormFields } from '../ChartFormFields/BasicChartFields.js'
+import { BasicTableFields } from '../ChartFormFields/BasicTableFields.js'
+import { Widget } from '../model.js'
+import { useMemo } from 'react'
+import { ITableConfig } from '../type.js'
 
+import './index.scss'
 
 
 interface IProps extends TableProps<any> { 
-    
+    widget: Widget
+    data_source: any[]
 }
 
 const DBTable = (props: IProps) => { 
-    const { dataSource = [ ], ...otherProps } = props
+    const { widget, data_source = [ ], ...otherProps } = props
     
-    return <Table {...otherProps}  />
+    const config = widget.config as ITableConfig
+    
+    const columns = useMemo(() => {
+        if (!data_source.length )
+            return [ ]
+        const { col_mappings, show_cols } = config
+        return show_cols
+            .map((col: string) => (
+                {
+                    dataIndex: col,
+                    title: col_mappings.find(item => item?.original_col === col)?.mapping_name?.trim() || col,
+                    key: col
+                }
+            ))
+    }, [ config ])
+    
+    const pagination = useMemo<PaginationProps | false>(() => { 
+        console.log(config.pagination, 'pagination')
+        if (!config.pagination.show)
+            return false
+        else
+            return {
+                position: ['bottom'],
+                pageSizeOptions: [5, 10, 15, 20],
+                size: 'small',
+                showSizeChanger: true,
+                showQuickJumper: true
+        }
+    }, [config])
+    
+    
+    return <div className='table-wrapper'>
+        {config.title && <h3 className='table-title'>{ config.title }</h3>}
+        <Table
+            bordered={config.bordered}
+            columns={columns}
+            dataSource={data_source}
+            pagination={pagination}
+            {...otherProps}
+        />
+    </div>
 }
 
 export const DBTableConfigForm = (props: { col_names: string[] }) => { 
     const { col_names = [ ] } = props
     
     return <>
-        <BasicFormFields />
-        <AxisFormFields col_names={col_names} />
+        <BasicFormFields type='table' />
+        <BasicTableFields col_names={col_names}/>
     </>
 }
 
