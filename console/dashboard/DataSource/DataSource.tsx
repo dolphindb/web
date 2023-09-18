@@ -12,6 +12,7 @@ import { StreamEditor } from './StreamEditor.js'
 import { formatter } from '../utils.js'
 import { dashboard } from '../model.js'
 import { type Widget } from '../model.js'
+import { model } from '../../model.js'
 import { data_source_nodes,
     find_data_source_node_index, 
     save_data_source_node, 
@@ -73,16 +74,23 @@ export function DataSource ({ widget }: { widget?: Widget }) {
         current_data_source_node.code = dashboard.editor.getValue()
         
         const { type, result } = await dashboard.execute()
-        change_current_data_source_node_property('error_message', type === 'success' ? '' : result as string)
+        
         current_data_source_node.data.length = 0
-        if (typeof result === 'object' && result.data) 
-            for (let i = 0;  i < result.data.cols;  i++) 
-                current_data_source_node.data.push(formatter(result.data.value[i], current_data_source_node.max_line))
+        if (type === 'success') {
+            if (typeof result === 'object' && result.data) 
+                for (let i = 0;  i < result.data.cols;  i++) 
+                    current_data_source_node.data.push(formatter(result.data.value[i], current_data_source_node.max_line))
+            change_current_data_source_node_property('error_message', '')
+        } else {
+            change_current_data_source_node_property('error_message', result as string)
+            model.message.error(result as string)
+        }
                 
         save_data_source_node(current_data_source_node)
         
         no_save_flag.current = false
     }, [current_data_source_node])
+    
     return <>
         {
             widget

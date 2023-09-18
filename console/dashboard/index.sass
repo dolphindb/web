@@ -185,7 +185,12 @@ $blue: rgb(64, 147, 211)
             width: 40px
                 
         .dashboard-settings-panel
-            width: 280px
+            width: 300px
+            overflow: auto
+            background-color: rgb(48, 48, 48)
+            
+            .ant-tabs-nav
+                padding: 0px 16px
             
             .ant-menu-light
                 background: #2b2b2b
@@ -193,7 +198,7 @@ $blue: rgb(64, 147, 211)
             .setting-options
                 height: calc( 100% - 46px )
                 background-color: rgb(48, 48, 48)
-                padding: 12px
+                // padding: 12px
 
 .data-source-config-trigger-navigation   
     cursor: pointer
@@ -249,6 +254,7 @@ $blue: rgb(64, 147, 211)
         flex: 1
         display: flex
         flex-direction: column
+        overflow: auto
         
         .data-source-config-right-top
             height: 10%
@@ -334,6 +340,7 @@ $blue: rgb(64, 147, 211)
                 .data-source-config-preview-main
                     flex: 1
                     border: 2px solid #e5e5e5
+                    overflow: auto
                     
                     .data-source-config-preview-main-error
                         color: red

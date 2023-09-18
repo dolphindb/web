@@ -625,7 +625,7 @@ function Table ({
                 pageSize={page_size}
                 pageSizeOptions={page_sizes}
                 size='small'
-                showSizeChanger
+                showSizeChanger={ctx !== 'dashboard'}
                 showQuickJumper
                 hideOnSinglePage={page_size <= 50}
                 selectComponentClass={UpSelect}
@@ -693,7 +693,7 @@ export function StreamingTable ({
     let [, rerender] = useState({ })
     
     const [page_size, set_page_size] = useState(
-        (ctx === 'page' || ctx === 'window') ? 20 : (ctx === 'dashboard' ? 5 : 10)
+        (ctx === 'page' || ctx === 'window') ? 20 : 10
     )
     
     const [page_index, set_page_index] = useState(0)
@@ -1245,7 +1245,7 @@ function Matrix ({
                 pageSize={page_size}
                 pageSizeOptions={page_sizes}
                 size='small'
-                showSizeChanger
+                showSizeChanger={ctx !== 'dashboard'}
                 showQuickJumper
                 hideOnSinglePage={page_size <= 50}
                 selectComponentClass={UpSelect}
