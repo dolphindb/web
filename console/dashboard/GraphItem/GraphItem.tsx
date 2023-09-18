@@ -7,7 +7,7 @@ import { WidgetType, dashboard } from '../model.js'
 import { DataSource } from '../DataSource/DataSource.js'
 import { useEffect, useRef, useState } from 'react'
 import { type Widget } from '../model.js'
-import { OHLC } from './OHLC.js'
+import { OHLC } from './OHLC/index.js'
 
 
 export function GraphItem  ({ widget }: { widget: Widget }) {

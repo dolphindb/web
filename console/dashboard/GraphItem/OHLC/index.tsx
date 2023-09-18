@@ -1,7 +1,7 @@
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { useMemo } from 'react'
-import './OHLC.sass'
+import './index.sass'
 
 type OhlcData = {
     // 日期 2004-01-29
@@ -151,13 +151,11 @@ export function OHLC ({ config, data }: { config: Object, data: (number | string
         },
         tooltip: {
             trigger: 'axis',
-            confine: true,
             textStyle: {
               fontSize: 12  
             },
             axisPointer: {
                 type: 'cross'
-                
             },
             
             position: function (pos, params, el, elRect, size) {
