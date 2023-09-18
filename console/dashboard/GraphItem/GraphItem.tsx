@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react'
 import { type Widget } from '../model.js'
 import { graph_config } from '../graph-config.js'
 import { AxisConfig, ISeriesConfig } from '../type.js'
+import { OHLC } from '../Charts/OHLC/index.js'
 
 const convert_chart_config = (widget: Widget, data_source: any[]) => {
     const { config, type } = widget
@@ -144,8 +145,8 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
             <CloseOutlined className='delete-graph-icon'/>
         </div>
         {
-            Object.keys(data).length ? 
-                <GraphComponent col_names={['col_names']} options={widget.config ? convert_chart_config(widget, data_source) : { }} />
+            widget.config ? 
+                <GraphComponent widget={widget} data_source={data_source} />
             :
                 <div className='graph-content'>
                     <div className='title'>{WidgetType[widget.type]}</div>

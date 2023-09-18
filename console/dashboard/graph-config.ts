@@ -1,6 +1,7 @@
 import { JSXComponent } from '@formily/core'
 import DBTable, { DBTableConfigForm } from './Charts/Table.js'
 import Chart, { ChartConfigForm } from './Charts/Chart.js'
+import { OHLC } from './Charts/OHLC/index.js'
 import { WidgetChartType } from './model.js'
 
 type GraphConfig =  { 
@@ -22,6 +23,10 @@ export const graph_config: GraphConfig =  {
     },
     [WidgetChartType.BAR]: {
         component: Chart,
+        config: ChartConfigForm
+    },
+    [WidgetChartType.OHLC]: {
+        component: OHLC,
         config: ChartConfigForm
     }
 }
