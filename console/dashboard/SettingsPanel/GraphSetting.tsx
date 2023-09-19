@@ -33,7 +33,7 @@ export function GraphSetting () {
     
    
     return ConfigFormFields ? <Form onValuesChange={on_form_change} form={form} labelCol={{ span: 6 }} labelAlign='left' colon={false}>
-           {/* TODO: 通过source_id拿到data_source，取到列名，透传进去  */}
+           {/* TODO: 通过 source_id 拿到 data_source，取到列名，透传进去  */}
             <ConfigFormFields col_names={['Information_Analysis', 'forward_returns_1D', 'forward_returns_5D', 'forward_returns_10D']} />
         </Form> : <></>
 }
