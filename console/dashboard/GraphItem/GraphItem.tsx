@@ -61,18 +61,20 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
     const [data_source, set_data_source] = useState([ ])
     
     useEffect(() => { 
-        dashboard.update_widget({
+        if (!widget.update_graph)
+            dashboard.update_widget({
             ...widget, update_graph: data => { 
                 set_data_source(data)
-                return data
         } })
     }, [ ])
     
     const GraphComponent = graph_config[widget.type].component
     
+    console.log(widget.source_id, widget.config, 'widget_config')
+    
     // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动
     // 根据 id 判断当前选中的节点，防止因为对象引用地址不同导致的判断错误
-    return <div className={`grid-stack-item-content ${widget.id === current.id ? 'grid-stack-item-active' : ''}`}>
+    return <div className={`grid-stack-item-content ${widget.id === current?.id ? 'grid-stack-item-active' : ''}`}>
         <div className='delete-graph' onClick={() => { dashboard.delete_widget(widget) }}>
             <CloseOutlined className='delete-graph-icon'/>
         </div>
