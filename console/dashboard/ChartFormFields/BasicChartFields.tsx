@@ -4,8 +4,9 @@ import { t } from '../../../i18n/index.js'
 import { concat_name_path } from '../utils.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../components/formily/FormDependies/index.js'
+import { IAxisItem, IYAxisItemValue } from './type.js'
 
-import './AxisFormFields.scss'
+import './index.scss'
 
 
 interface IProps { 
@@ -35,16 +36,18 @@ const axis_position_options = [
 ]
 
 
-
-const AxisItem = (props: { name_path?: NamePath, col_names: string[], list_name?: string }) => { 
-    const { name_path, col_names = [ ], list_name } = props
-    console.log(concat_name_path(name_path, 'type'), 'namepath')
+export const AxisItem = (props: IAxisItem) => { 
+    const { name_path, col_names = [ ], list_name, initial_values } = props
     
     return <>
-        <Form.Item name={concat_name_path(name_path, 'type')} label={t('类型')} initialValue='category' tooltip={t('数值轴，适用于连续数据\n类目轴，适用于离散的类目数据\n时间轴，适用于连续的时序数据\n对数轴，适用于对数数据')}>
+        <Form.Item
+            name={concat_name_path(name_path, 'type')}
+            label={t('类型')}
+            initialValue={initial_values?.type ?? 'category'}
+            tooltip={t('数值轴，适用于连续数据\n类目轴，适用于离散的类目数据\n时间轴，适用于连续的时序数据\n对数轴，适用于对数数据')}>
             <Select options={axis_type_options}  />
         </Form.Item>
-        <Form.Item name={concat_name_path(name_path, 'name')} label={t('名称')} initialValue={t('名称')}>
+        <Form.Item name={concat_name_path(name_path, 'name')} label={t('名称')} initialValue={ initial_values?.name ?? t('名称')}>
             <Input />
         </Form.Item>
         {/* 类目轴从col_name中获取data */}
@@ -53,7 +56,7 @@ const AxisItem = (props: { name_path?: NamePath, col_names: string[], list_name?
                 const { type } = list_name ? value[list_name].find(item => !!item) : value[name_path] 
                 if (!['category', 'time'].includes(type))
                     return null
-                return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={col_names?.[0]} >
+                return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
                     <Select options={col_names.map(item => ({ label: item, value: item }))} />
                 </Form.Item>
             } }
@@ -65,7 +68,7 @@ const AxisItem = (props: { name_path?: NamePath, col_names: string[], list_name?
 const Series = (props: { col_names: string[] }) => { 
     const { col_names } = props
     
-    return <Form.List name='series' initialValue={[{ }]}>
+    return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: t('名称'), yAxisIndex: 0 }]}>
         {(fields, { add, remove }) => <>
             {
                 fields.map((field, index) => { 
@@ -104,10 +107,20 @@ const Series = (props: { col_names: string[] }) => {
 }
 
 // 多y轴
-const YAxis = (props: { col_names: string[] }) => { 
-    const { col_names } = props
+export const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemValue[] }) => { 
+    const { col_names, initial_values } = props
     
-    return <Form.List name='yAxis' initialValue={[{ }]}>
+    const default_initial_values = [
+        {
+            type: 'category',
+            name: t('名称'),
+            col_name: col_names[0],
+            position: 'left',
+            offset: 0
+        }
+    ]
+    
+    return <Form.List name='yAxis' initialValue={initial_values || default_initial_values}>
         {(fields, { add, remove }) =>      
             <>
                 {
@@ -143,24 +156,33 @@ export const AxisFormFields = (props: IProps) => {
     
     
     return <Collapse className='' items={[{
-        key: 'x_axis',
-        label: t('X轴属性'),
-        children: <div className='axis-wrapper'><AxisItem name_path='xAxis' col_names={col_names} /></div>,
-        forceRender: true,
-    },
-    {
-        key: 'y_axis',
-        label: t('Y轴属性'),
-        // children: <AxisItem name_path='yAxis' col_names={col_names}/>,
-        children: <YAxis col_names={ col_names } />,
-        forceRender: true,
-    },
-    {
-        key: 'series',
-        label: t('数据列'),
-        children: <Series col_names={col_names} />,
-        forceRender: true,
-    }
+            key: 'x_axis',
+            label: t('X轴属性'),
+            children: <div className='axis-wrapper'><AxisItem name_path='xAxis' col_names={col_names} /></div>,
+            forceRender: true,
+        },
+        {
+            key: 'y_axis',
+            label: t('Y轴属性'),
+            children: <YAxis col_names={col_names} />,
+            forceRender: true,
+        }
     ]} />
-     
 }
+
+export const SeriesFormFields = (props: { col_names: string[] }) => { 
+    const { col_names } = props
+    return <Collapse className='' items={[
+        {
+            key: 'series',
+            label: t('数据列'),
+            children: <Series col_names={col_names} />,
+            forceRender: true,
+        }
+    ]} />
+    
+    
+    
+}
+
+

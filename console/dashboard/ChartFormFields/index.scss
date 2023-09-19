@@ -1,0 +1,64 @@
+.wrapper {
+    padding: 8px 0px;
+    .ant-form-item{
+        margin-bottom: 8px;
+        &:last-child {
+            margin-bottom: 0px;
+        }
+    }
+}
+
+.axis-wrapper {
+    .ant-form-item{
+        margin-bottom: 8px;
+        &:last-child {
+            margin-bottom: 0px;
+        }
+    }
+}
+
+.divider {
+    margin: 4px 0px;
+}
+
+
+.delete-icon {
+    margin-left: 4px;
+}
+
+.col-mapping-title {
+    margin-bottom: 12px;
+}
+
+.col-mapping-item{
+    display: flex;
+    margin-top: 12px;
+    .ant-form-item {
+        width: 45%;
+        margin-bottom: 8px;
+        margin-right: 4px;
+    }   
+    span.title{
+        display: inline-block;
+        width: 45%;
+        margin-bottom: 8px;
+    }
+}
+
+
+.value-format-wrapper {
+    margin-top: 16px;
+    .ant-form-item {
+        margin-bottom: 12px;
+    }
+    .value-format-space {
+        width: 100%;
+        .ant-space-item {
+            width: 50%;
+            .ant-input-number {
+                width: 100%;
+            }
+        }
+    } 
+}
+

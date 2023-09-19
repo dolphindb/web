@@ -1,6 +1,7 @@
 $canvasBackColor: rgb(40, 40, 40)
 $fontColor: rgb(215, 215, 215)
 $blue: rgb(64, 147, 211)
+$borderColor: rgb(148, 148, 148)
     
     
 .view-card.dashboard
@@ -91,7 +92,7 @@ $blue: rgb(64, 147, 211)
             .grid-stack
                 height: 100%
                 min-height: 0 !important
-                background-image: radial-gradient(circle at top left, rgb(148, 148, 148) 2px, transparent 2px),radial-gradient(circle at top right, rgb(148, 148, 148) 2px, transparent 2px),radial-gradient(circle at bottom left, rgb(148, 148, 148) 2px, transparent 2px),radial-gradient(circle at bottom right, rgb(148, 148, 148) 2px, transparent 2px)
+                background-image: radial-gradient(circle at top left, $borderColor 2px, transparent 2px),radial-gradient(circle at top right, $borderColor 2px, transparent 2px),radial-gradient(circle at bottom left, $borderColor 2px, transparent 2px),radial-gradient(circle at bottom right, $borderColor 2px, transparent 2px)
                 
                 .grid-stack-item-content
                     background-color: rgba(0, 0, 0, 0.5)
@@ -127,6 +128,7 @@ $blue: rgb(64, 147, 211)
                         right: 3px
                         top: 0
                         color: $fontColor
+                        z-index: 999
                         
                     .drag-icon
                         width: 10px
@@ -140,6 +142,10 @@ $blue: rgb(64, 147, 211)
                     .drag-icon:hover
                         border-bottom: 3px solid $blue
                         border-right: 3px solid $blue
+                
+                .grid-stack-item-content
+                    height: 100%
+                    box-sizing: content-box
                         
                 .grid-stack-item-active
                     border: 2px $blue solid
@@ -209,18 +215,19 @@ $blue: rgb(64, 147, 211)
 .data-source-config-main
     width: 100%
     height: 500px
-    border: 2px solid #e5e5e5
+    color: $fontColor
+    border: 2px solid $borderColor
     display: flex
 
     .data-source-config-nodetable
         width: 200px
-        border-right: 2px solid #e5e5e5
+        border-right: 2px solid $borderColor
         display: flex
         flex-direction: column
         
         .data-source-config-nodetable-top
             height: 45px
-            border-bottom: 2px solid #e5e5e5
+            border-bottom: 2px solid $borderColor
             display: flex
             align-items: center
             justify-content: space-evenly
@@ -263,24 +270,24 @@ $blue: rgb(64, 147, 211)
                 border: none !important
             
         .data-source-config-sqleditor
-            flex: 1
+            height: 83%
             padding: 3px 16px 0 16px
             
             .data-source-config-sqleditor-main
-                border: 2px solid #e5e5e5
+                border: 2px solid $borderColor
                 
         .data-source-config-streameditor
-            flex: 1
+            height: 83%
             padding: 3px 16px 0 16px
             
             .data-source-config-streameditor-main
                 display: flex
                 height: 100%
-                border: 2px solid #e5e5e5
+                border: 2px solid $borderColor
                 
                 .data-source-config-streameditor-main-left
                     width: 20%
-                    border-right: 2px solid #e5e5e5
+                    border-right: 2px solid $borderColor
                     
                     .data-source-config-streameditor-main-left-menu
                         height: 100%
@@ -291,7 +298,7 @@ $blue: rgb(64, 147, 211)
                             
                         .ant-tree-node-content-wrapper
                             height: 40px
-                            padding-left: 25px
+                            padding-left: 5px
                             display: flex
                             align-items: center
                 
@@ -299,14 +306,9 @@ $blue: rgb(64, 147, 211)
                     width: 80%
                     padding: 3px 15px 15px 15px
                     
-                    .data-source-config-streameditor-main-right-preview
-                        height: 100%
-                    
                     .data-source-config-streameditor-main-right-filter
-                        display: flex
-                        flex-direction: column
-                        height: 100%
-                        
+                        height: 40%
+                            
                         .data-source-config-streameditor-main-right-filter-top
                             display: flex
                             justify-content: space-between
@@ -319,10 +321,11 @@ $blue: rgb(64, 147, 211)
                                 color: #666
                                 margin-left: 10px
                                 cursor: pointer 
-                        
+                    
                         .data-source-config-streameditor-main-right-filter-main
                             flex: 1
-                            border: 2px solid #e5e5e5
+                            height: 80%
+                            border: 2px solid $borderColor
                         
         .data-source-config-preview
                 display: flex
@@ -339,7 +342,7 @@ $blue: rgb(64, 147, 211)
                     
                 .data-source-config-preview-main
                     flex: 1
-                    border: 2px solid #e5e5e5
+                    border: 2px solid $borderColor
                     overflow: auto
                     
                     .data-source-config-preview-main-error
@@ -377,20 +380,21 @@ $blue: rgb(64, 147, 211)
                 display: flex
                 
                 .data-source-config-streamconfig-left-node-select
-                    width: 80px
+                    width: 100px
                     margin-right: 15px
                 
                 .data-source-config-streamconfig-left-ip
                     display: flex
+                    margin-right: 15px
                     
                     .data-source-config-streamconfig-left-ip-select
-                        width: 120px
+                        width: 180px
                     
                     .data-source-config-streamconfig-left-ip-manualinput
                         display: flex
                         
                         .data-source-config-streamconfig-left-ip-manualinput-input
-                            width: 120px
+                            width: 180px
                             margin-right: 7px
                             
                         .data-source-config-streamconfig-left-ip-manualinput-icon

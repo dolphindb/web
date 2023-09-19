@@ -61,25 +61,27 @@ export function NodeTable ({
         if (!menu_items.length)
             return 
         const tmp_menu_item = menu_items.find(menu_item => menu_item.key === select_key)
+        const handler = event => {
+            let new_name = event.target.value
+            try {
+                rename_data_source_node(select_key, new_name)
+            } catch (error) {
+                model.message.error(error.message)
+                new_name = old_name
+            } finally {
+                tmp_menu_item.title = new_name
+                set_menu_items([...menu_items])
+                change_current_data_source_node_property('name', new_name, false)
+            }
+            
+        }
         tmp_menu_item.title = <Input
             size='small' 
             autoFocus
             className='data-source-config-nodetable-bottom-menu-rename-input'
             defaultValue={old_name}
-            onBlur={e => {
-                let new_name = e.target.value
-                try {
-                    rename_data_source_node(select_key, new_name)
-                } catch (error) {
-                    model.message.error(error.message)
-                    new_name = old_name
-                } finally {
-                    tmp_menu_item.title = new_name
-                    set_menu_items([...menu_items])
-                    change_current_data_source_node_property('name', new_name, false)
-                }
-                
-            }}
+            onBlur={handler}
+            onPressEnter={handler}
         />
         set_menu_items([...menu_items])
     }

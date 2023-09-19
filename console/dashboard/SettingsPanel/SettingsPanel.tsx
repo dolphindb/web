@@ -1,6 +1,6 @@
 import { MailOutlined, AppstoreOutlined } from '@ant-design/icons'
 import { Alert, Tabs, TabsProps } from 'antd'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CanvasSetting } from './CanvasSetting.js'
 
 import { t } from '../../../i18n/index.js'
