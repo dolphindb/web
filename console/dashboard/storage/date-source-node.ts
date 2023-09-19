@@ -3,7 +3,7 @@ import { genid } from 'xshell/utils.browser.js'
 import { type Widget, dashboard } from '../model.js'
 import { formatter } from '../utils.js'
 import { model } from '../../model.js'
-import { DdbObj, DdbValue } from 'dolphindb'
+import { DdbForm, DdbObj, DdbValue } from 'dolphindb'
 
 type ExtractTypes<T> = T extends { [key: string]: infer U } ? U : never
 
@@ -56,10 +56,14 @@ export const save_data_source_node = async ( new_data_source_node: DataSourceNod
             new_data_source_node.code = dashboard.editor.getValue()
     
             const { type, result } = await dashboard.execute()
+            console.log(result)
             new_data_source_node.data.length = 0
             if (type === 'success') {
                 if (typeof result === 'object' && result.data) 
-                    new_data_source_node.data = formatter(result.data as unknown as DdbObj<DdbValue>, new_data_source_node.max_line)
+                    // 暂时只支持table
+                    new_data_source_node.data = result.data.form === DdbForm.table
+                        ? formatter(result.data as unknown as DdbObj<DdbValue>, new_data_source_node.max_line)
+                        : [ ]
                 new_data_source_node.error_message = ''
             } else {
                 new_data_source_node.error_message = result as string
@@ -186,8 +190,10 @@ const create_interval = (data_source_node: DataSourceNodeType) => {
                 data_source_node.error_message = ''
                 
                 if (typeof result === 'object' && result.data) 
-                    for (let i = 0;  i < result.data.cols;  i++) 
-                        data_source_node.data.push(formatter(result.data.value[i], data_source_node.max_line))
+                    // 暂时只支持table
+                    data_source_node.data = result.data.form === DdbForm.table
+                        ? formatter(result.data as unknown as DdbObj<DdbValue>, data_source_node.max_line)
+                        : [ ]
                     
                 deps.get(id).forEach((widget_option: Widget) => {
                     widget_option.update_graph(data_source_node.data)
