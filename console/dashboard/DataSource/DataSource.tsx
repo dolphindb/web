@@ -9,10 +9,8 @@ import { NodeTable } from './NodeTable.js'
 import { SqlEditor } from './SqlEditor.js'
 import { StreamEditor } from './StreamEditor.js'
 
-import { formatter } from '../utils.js'
 import { dashboard } from '../model.js'
 import { type Widget } from '../model.js'
-import { model } from '../../model.js'
 import { data_source_nodes,
     find_data_source_node_index, 
     save_data_source_node, 
@@ -56,7 +54,7 @@ export function DataSource ({ widget }: { widget?: Widget }) {
                 pre[key] = value
                 return { ...pre }
             })
-            if (save_confirm) 
+            if (save_confirm)
                 no_save_flag.current = true   
         }
     , [ ])
@@ -71,23 +69,7 @@ export function DataSource ({ widget }: { widget?: Widget }) {
     }, [no_save_flag.current])
     
     const handle_save = useCallback(async () => {
-        current_data_source_node.code = dashboard.editor.getValue()
-        
-        const { type, result } = await dashboard.execute()
-        
-        current_data_source_node.data.length = 0
-        if (type === 'success') {
-            if (typeof result === 'object' && result.data) 
-                for (let i = 0;  i < result.data.cols;  i++) 
-                    current_data_source_node.data.push(formatter(result.data.value[i], current_data_source_node.max_line))
-            change_current_data_source_node_property('error_message', '')
-        } else {
-            change_current_data_source_node_property('error_message', result as string)
-            model.message.error(result as string)
-        }
-                
-        save_data_source_node(current_data_source_node)
-        
+        await save_data_source_node(current_data_source_node)
         no_save_flag.current = false
     }, [current_data_source_node])
     
@@ -115,7 +97,8 @@ export function DataSource ({ widget }: { widget?: Widget }) {
             }}
             footer={
                 [
-                    <Button 
+                    current_data_source_node.mode === 'sql'
+                    ? <Button 
                         key='preview' 
                         onClick={
                             async () => {
@@ -125,7 +108,8 @@ export function DataSource ({ widget }: { widget?: Widget }) {
                             }
                         }>
                         预览
-                    </Button>,
+                    </Button>
+                    : <div key='preview' />,
                     <Button key='save' onClick={async () => {
                         if (no_save_flag.current)
                             await handle_save()
@@ -185,10 +169,9 @@ export function DataSource ({ widget }: { widget?: Widget }) {
                                 change_current_data_source_node_property={change_current_data_source_node_property}
                             />
                             : <StreamEditor 
-                                show_preview={show_preview}
                                 current_data_source_node={current_data_source_node} 
-                                close_preview={() =>  set_show_preview(false) }
                                 change_no_save_flag={(value: boolean) => no_save_flag.current = value}
+                                change_current_data_source_node_property={change_current_data_source_node_property}
                             />
                         }
                     </div>
