@@ -168,30 +168,48 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
         // axisPointer: {
         //     link: [{ xAxisIndex: 'all' }]
         // },
-        // toolbox: {
-        //     feature: {
-        //         dataZoom: {
-        //             yAxisIndex: false
-        //         },
-        //         brush: {
-        //             type: ['lineX', 'clear']
-        //         }
-        //     }
-        // },
+        toolbox: {
+            feature: {
+                dataZoom: {
+                    yAxisIndex: false
+                },
+                brush: {
+                    type: ['lineX', 'clear']
+                }
+            }
+        },
         grid: [
             {
-                top: '12%',
+                top: '10%',
                 left: '2%',
                 containLabel: true,
                 right: '2%',
                 bottom: 120,
+                height: '40%'
                 
+            },
+            {
+                top: '52%',
+                left: '2%',
+                containLabel: true,
+                right: '2%',
+                height: '25%'
             }
         ],
         xAxis: [
             {
                 type: 'category',
                 data: data_1.categoryData,
+                show: false,
+                boundaryGap: true
+            },
+            {
+                type: 'category',
+                data: data_1.categoryData,
+                gridIndex: 1,
+                boundaryGap: true
+                
+               
             }
         ],
         yAxis: [
@@ -200,13 +218,24 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
                 type: 'value',
                 scale: true,
                 position: 'left',
+                axisPointer: {
+                    label: {
+                        width: 20
+                    }
+                }
             },
             {
                 type: 'value',
                 name: 'trades',
                 scale: true,
-                alignTicks: true,
-                position: 'right',
+                splitNumber: 2,
+                position: 'left',
+                gridIndex: 1,
+                axisPointer: {
+                    label: {
+                        width: 20
+                    }
+                }
             },
            
         ],
@@ -220,7 +249,8 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
             {
                 show: true,
                 type: 'slider',
-                bottom: 60,
+                xAxisIndex: [0, 1],
+                bottom: 40,
                 start: 98,
                 end: 100,
                 minValueSpan: 10
@@ -241,34 +271,9 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
                 data: data_1.values
             },
             {
-                name: 'Mem',
-                type: 'custom',
-                yAxisIndex: 0,
-                renderItem: renderOHLCItem,
-                dimensions: ['-', 'open', 'close', 'lowest', 'highest'],
-                encode: {
-                    x: 0,
-                    y: [1, 2, 3, 4],
-                    tooltip: [1, 2, 3, 4]
-                },
-                data: data_2.values
-            },
-            {
-                name: 'Func',
-                type: 'custom',
-                yAxisIndex: 0,
-                renderItem: renderOHLCItem,
-                dimensions: ['-', 'open', 'close', 'lowest', 'highest'],
-                encode: {
-                    x: 0,
-                    y: [1, 2, 3, 4],
-                    tooltip: [1, 2, 3, 4]
-                },
-                data: data_3.values
-            },
-            {
                 name: 'Dow',
                 type: 'line',
+                xAxisIndex: 1,
                 yAxisIndex: 1,
                 dimensions: ['-', 'trades'],
                 encode: {
@@ -277,30 +282,6 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
                     tooltip: 1
                 },
                 data: trades_1
-            },
-            {
-                name: 'Mem',
-                type: 'line',
-                yAxisIndex: 1,
-                dimensions: ['-', 'trades'],
-                encode: {
-                    x: 0,
-                    y: 1,
-                    tooltip: 1
-                },
-                data: trades_2
-            },
-            {
-                name: 'Func',
-                type: 'line',
-                yAxisIndex: 1,
-                dimensions: ['-', 'trades'],
-                encode: {
-                    x: 0,
-                    y: 1,
-                    tooltip: 1
-                },
-                data: trades_3
             }
         ]
     }
