@@ -40,15 +40,15 @@ export interface Widget extends GridStackNode {
 export enum WidgetType {
     BAR = '柱状图',
     LINE = '折线图',
-    PIE = '饼图',
-    POINT = '散点图',
+    // PIE = '饼图',
+    // POINT = '散点图',
     TABLE = '表格',
     OHLC = 'OHLC',
-    CANDLE = '蜡烛图',
-    ORDER = '订单图',
-    NEEDLE = '数值针型图',
-    STRIP = '带图',
-    HEAT = '热力图',
+    // CANDLE = '蜡烛图',
+    // ORDER = '订单图',
+    // NEEDLE = '数值针型图',
+    // STRIP = '带图',
+    // HEAT = '热力图',
     TEXT = '富文本'
 }
 
@@ -206,15 +206,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     }
     
     update_widget (widget: Widget) { 
-        // const new_widgets = this.widgets.map(item => { 
-        //     if (item.id === widget.id)
-        //         return { ...item, ...widget }
-        //     else
-        //         return item
-        // })
-        
         Object.assign(this.widgets.find(({ id }) => id === widget.id), widget)
-       
         this.set({
             widget,
         })

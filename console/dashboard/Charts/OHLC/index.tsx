@@ -4,81 +4,10 @@ import { useMemo } from 'react'
 import { type Widget } from '../../model.js'
 import { AxisConfig, ISeriesConfig } from '../../type.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
-import {  OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
+import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 
 import './index.sass'
 
-
-  
-const convert_chart_config = (widget: Widget, data_source: any[]) => {
-    const { config, type } = widget
-    console.log('config', config)
-    const total_data_zoom = [
-    {
-        id: 'dataZoomX',
-        type: 'slider',
-        xAxisIndex: [0],
-        filterMode: 'filter',
-        start: 0,
-        end: 100
-    },
-    {
-        id: 'dataZoomY',
-        type: 'slider',
-        yAxisIndex: [0],
-        filterMode: 'empty',
-        start: 0,
-        end: 100
-    }
-    ]
-    let data_zoom = [ ]
-    if (config.x_datazoom)
-        data_zoom.push(total_data_zoom[0])
-    if (config.y_datazoom)
-        data_zoom.push(total_data_zoom[1])
-    
-    const convert_axis = (axis: AxisConfig, index?: number) => ({
-        show: true,
-        name: axis.name,
-        type: axis.type,
-        data: axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ],
-        splitLine: {
-            show: true,
-            lineStyle: {
-                type: 'dashed',
-            }
-    },
-        position: axis.position,
-        offset: axis.offset,
-        alignTicks: true,
-        id: index
-    })
-    
-    const convert_series = (series: ISeriesConfig ) => ({
-        type: type.toLocaleLowerCase(),
-        name: series.name,
-        yAxisIndex: series.yAxisIndex,
-        data: data_source.map(item => item?.[series.col_name]) 
-    })
-    
-    return {
-        legend: {
-            show: config.with_legend
-        },
-        tooltip: {
-            show: config.with_tooltip,
-            // 与图形类型相关，一期先写死
-            trigger: 'axis',
-        },
-        title: {
-            text: config.title
-        },
-        xAxis: convert_axis(config.xAxis),
-        yAxis: config.yAxis.filter(item => !!item).map(convert_axis),
-        series: config.series.filter(item => !!item).map(convert_series),
-        dataZoom: data_zoom
-    }
-}
 
 const row_data = [
     ['2004-01-02', 10452.74, 10409.85, 10367.41, 10554.96, 168890000],
@@ -210,7 +139,7 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
     // 
     echarts.registerTheme('my_theme', {
         backgroundColor: '#040404'
-      })
+    })
     
     // const option = convert_chart_config(widget, data_source)
       
@@ -390,7 +319,7 @@ export const  OhlcConfigForm = (props: { col_names: string[] }) => {
     const { col_names = [ ] } = props
     
     return <>
-        <BasicFormFields />
+        <BasicFormFields type='chart'/>
         <OhlcFormFields col_names={col_names} />
     </>
 }

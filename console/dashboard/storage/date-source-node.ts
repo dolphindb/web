@@ -71,7 +71,7 @@ export const save_data_source_node = async ( new_data_source_node: DataSourceNod
             const dep = deps.get(id)
             if (dep && dep.length && !new_data_source_node.error_message) {
                 dep.forEach((widget_option: Widget) => {
-                    // widget_option.update_graph(new_data_source_node.data)
+                    widget_option.update_graph(new_data_source_node.data)
                     console.log(widget_option.id, 'render', new_data_source_node.data)
                 })
                 new_data_source_node.auto_refresh ? create_interval(new_data_source_node) : delete_interval(id)   
@@ -149,7 +149,7 @@ export const sub_source = (widget_option: Widget, source_id: string) => {
     if (data_source_node.error_message) 
         model.message.error('当前数据源存在错误')
     else {
-        // widget_option.update_graph(data_source_node.data)
+        widget_option.update_graph(data_source_node.data)
         console.log(widget_option.id, 'render', data_source_node.data)    
     
         if (data_source_node.auto_refresh && !intervals.has(source_id))
@@ -190,7 +190,7 @@ const create_interval = (data_source_node: DataSourceNodeType) => {
                         data_source_node.data.push(formatter(result.data.value[i], data_source_node.max_line))
                     
                 deps.get(id).forEach((widget_option: Widget) => {
-                    // widget_option.update_graph(data_source_node.data)
+                    widget_option.update_graph(data_source_node.data)
                     console.log(widget_option.id, 'render', data_source_node.data)
                 })
             } else {

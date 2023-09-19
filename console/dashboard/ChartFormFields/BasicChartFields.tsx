@@ -4,24 +4,13 @@ import { t } from '../../../i18n/index.js'
 import { concat_name_path } from '../utils.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../components/formily/FormDependies/index.js'
+import { IAxisItem, IYAxisItemValue } from './type.js'
 
 import './index.scss'
 
 
-
 interface IProps { 
     col_names: string[]
-}
-
-interface IAxisItemProps { 
-    name_path?: NamePath
-    col_names: string[]
-    list_name?: string
-    initial_values?: {
-        type?: string
-        name?: string
-        col_name?: string
-    }
 }
 
 const axis_type_options = [{
@@ -47,7 +36,7 @@ const axis_position_options = [
 ]
 
 
-export const AxisItem = (props: IAxisItemProps) => { 
+export const AxisItem = (props: IAxisItem) => { 
     const { name_path, col_names = [ ], list_name, initial_values } = props
     
     return <>
@@ -118,10 +107,20 @@ const Series = (props: { col_names: string[] }) => {
 }
 
 // 多y轴
-export const YAxis = (props: { col_names: string[], initial_values?: { type: string, name: string, position: string }[] }) => { 
+export const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemValue[] }) => { 
     const { col_names, initial_values } = props
     
-    return <Form.List name='yAxis' initialValue={initial_values || [{ }]}>
+    const default_initial_values = [
+        {
+            type: 'category',
+            name: t('名称'),
+            col_name: col_names[0],
+            position: 'left',
+            offset: 0
+        }
+    ]
+    
+    return <Form.List name='yAxis' initialValue={initial_values || default_initial_values}>
         {(fields, { add, remove }) =>      
             <>
                 {
@@ -165,7 +164,7 @@ export const AxisFormFields = (props: IProps) => {
         {
             key: 'y_axis',
             label: t('Y轴属性'),
-            children: <YAxis col_names={ col_names } />,
+            children: <YAxis col_names={col_names} />,
             forceRender: true,
         }
     ]} />

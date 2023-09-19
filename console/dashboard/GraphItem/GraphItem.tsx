@@ -3,7 +3,7 @@ import { CloseOutlined } from '@ant-design/icons'
 
 import { WidgetType, dashboard } from '../model.js'
 import { DataSource } from '../DataSource/DataSource.js'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { type Widget } from '../model.js'
 import { graph_config } from '../graph-config.js'
 
@@ -53,23 +53,20 @@ const data_source = [
     }
 ]
 
+import { RichText } from '../Charts/RichText/index.js'
+
 
 export function GraphItem  ({ widget }: { widget: Widget }) {
     const { widget: current } = dashboard.use(['widget'])
+    const [data_source, set_data_source] = useState([ ])
     
-    console.log(widget, 'widget')
+    useEffect(() => { 
+        dashboard.update_widget({ ...widget, update_graph: data => set_data_source(data) })
+    }, [ ])
     
     const GraphComponent = graph_config[widget.type].component
     
     // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动
-    
-    const graph = useRef()
-    const [data, set_data] = useState({ key: 'key' })
-    
-    // todo : 传入 datasource 组件，当获取数据后，调用该方法，将数据传递过来
-    const getTableData = table_data => {
-        set_data(table_data)
-    }
     
     
     return <div className={`grid-stack-item-content ${widget === current ? 'grid-stack-item-active' : ''}`}>
@@ -77,7 +74,7 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
             <CloseOutlined className='delete-graph-icon'/>
         </div>
         {
-            Object.keys(data).length && widget.config ? 
+            widget.source_id && widget.config ? 
                 <GraphComponent data_source={data_source} widget={widget} />
             :
                 <div className='graph-content'>

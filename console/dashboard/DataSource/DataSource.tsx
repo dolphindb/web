@@ -116,7 +116,8 @@ export function DataSource ({ widget }: { widget?: Widget }) {
                         if (widget) {
                             if (!widget.source_id || widget.source_id !== current_data_source_node.id) {
                                 sub_source(widget, current_data_source_node.id)
-                                widget.source_id = current_data_source_node.id
+                                dashboard.update_widget({ ...widget, source_id: current_data_source_node.id })
+                                // widget.source_id = current_data_source_node.id
                             }
                             close()
                             set_show_preview(false)
