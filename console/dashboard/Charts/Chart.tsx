@@ -15,10 +15,10 @@ interface IProps {
 }
 
 const Chart = (props: IProps) => { 
-    const { widget } = props
-    const [data_source, set_data_source] = useState([ ])
+    const { widget, data_source } = props
+    // const [data_source, set_data_source] = useState([ ])
     
-    console.log(widget, 'widget')
+    // console.log(widget, 'widget')
     
     useEffect(() => {
         dashboard.update_widget({ ...widget, update_graph: data => set_data_source(data) })
