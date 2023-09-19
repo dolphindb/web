@@ -18,10 +18,10 @@ export const BasicFormFields = (props: { type: 'chart' | 'table' }) => {
             <Form.Item name='with_tooltip' label={t('提示框')} initialValue>
                 <BoolRadioGroup />
             </Form.Item>
-            <Form.Item name='x_datazoom' label={t('X轴缩略轴')} initialValue={false}>
+            <Form.Item name='x_datazoom' label={t('X 轴缩略轴')} initialValue={false}>
                 <BoolRadioGroup />
             </Form.Item>
-            <Form.Item name='y_datazoom' label={t('Y轴缩略轴')} initialValue={false}>
+            <Form.Item name='y_datazoom' label={t('Y 轴缩略轴')} initialValue={false}>
                 <BoolRadioGroup />
             </Form.Item>
         </>
