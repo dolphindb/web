@@ -66,7 +66,7 @@ export const BasicTableFields = (props: IProps) => {
                                         <Form.Item name={['value_format', 'cols']}>
                                             <Select placeholder={t('格式化的数据列')} mode='multiple' options={col_select_options}/>
                                         </Form.Item>
-                                        <Form.Item name={['value_format', 'decimal_places'] } initialValue={2}>
+                                        <Form.Item name={['value_format', 'decimal_places'] }>
                                             <InputNumber placeholder={t('保留小数位数')} />
                                         </Form.Item>
                                     </Space>

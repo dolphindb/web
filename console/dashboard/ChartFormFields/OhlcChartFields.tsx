@@ -142,7 +142,7 @@ const Series = (props: { col_names: string[] }) => {
                                             value: idx,
                                             label: item.name
                                         }))
-                                        return <Form.Item name={[field.name, 'yAxisIndex']} label={t('关联Y轴')} initialValue={field.key}>
+                                        return <Form.Item name={[field.name, 'yAxisIndex']} label={t('关联 Y 轴')} initialValue={field.key}>
                                             <Select options={options} />
                                     </Form.Item>
                                     } }
@@ -165,15 +165,15 @@ export const OhlcFormFields = (props: IProps) => {
     const y_axis = [{ type: AxisType.VALUE, name: 'OHLC', position: Position.LEFT }, 
                     { type: AxisType.VALUE, name: '交易量', position: Position.RIGHT }]
     
-    return <Collapse className='' items={[{
+    return <Collapse items={[{
         key: 'x_axis',
-        label: t('X轴属性'),
+        label: t('X 轴属性'),
         children: <div className='axis-wrapper'><AxisItem name_path='xAxis' col_names={col_names} initial_values={x_axis}/></div>,
         forceRender: true,
     },
     {
         key: 'y_axis',
-        label: t('Y轴属性'),
+        label: t('Y 轴属性'),
         // children: <AxisItem name_path='yAxis' col_names={col_names}/>,
         children: <YAxis col_names={ col_names } initial_values={y_axis}/>,
         forceRender: true,

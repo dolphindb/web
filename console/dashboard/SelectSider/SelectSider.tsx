@@ -1,18 +1,35 @@
 import { useState } from 'react'
-import { DoubleLeftOutlined, DoubleRightOutlined, RiseOutlined } from '@ant-design/icons'
+import { BarChartOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, LineChartOutlined, RiseOutlined, TableOutlined } from '@ant-design/icons'
 
 import { WidgetType } from '../model.js'
+
+import './index.scss'
+
+
+
+const ICON_MAP = {
+    [WidgetType.BAR]: <BarChartOutlined className='siderbar-icon'/>,
+    [WidgetType.LINE]: <LineChartOutlined className='siderbar-icon'/>,
+    [WidgetType.OHLC]: <BoxPlotOutlined className='siderbar-icon'/>,
+    [WidgetType.TABLE]: <TableOutlined className='siderbar-icon'/>,
+    [WidgetType.TEXT]: <FileTextOutlined className='siderbar-icon'/>
+}
 
 
 export function SelectSider ({ hidden }: { hidden: boolean }) {
     const [folding, set_folding] = useState(false)
     
+    
+    
     return <div className={`dashboard-select-sider ${folding ? 'dashboard-select-sider-folding' : ''} ${hidden ? '' : 'hidden'}`}>
         <div className='dashboard-graph-items'>
-            {Object.entries(WidgetType).map(([key, value]) =>
-                <div key={key} className='dashboard-graph-item grid-stack-item' data-type={key}>
-                    <RiseOutlined className='dashboard-graph-item-icon'/> {folding ? '' : value}
+            {Object.entries(WidgetType).map(([key, value]) => { 
+                return <div key={key} className='dashboard-graph-item grid-stack-item' data-type={key}>
+                    {ICON_MAP[value]}
+                    <span className='siderbar-text'>{folding ? '' : value}</span>
                 </div>
+            }
+                
             )}
         </div>
         <div className='select-folder' onClick={() => { set_folding(!folding) }}>{

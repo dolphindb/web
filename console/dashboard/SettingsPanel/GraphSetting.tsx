@@ -2,11 +2,11 @@ import { Form } from 'antd'
 import { useCallback, useEffect, useMemo } from 'react'
 import { graph_config } from '../graph-config.js'
 import { dashboard } from '../model.js'
-import { IChartConfig } from '../type.js'
+import { IChartConfig, ITableConfig } from '../type.js'
 
 export function GraphSetting () { 
     const { widget } = dashboard.use(['widget'])
-    const [form] = Form.useForm<IChartConfig>()
+    const [form] = Form.useForm<IChartConfig | ITableConfig>()
     
     
     useEffect(() => {
@@ -32,8 +32,8 @@ export function GraphSetting () {
     
     
    
-    return ConfigFormFields ? <Form onValuesChange={on_form_change} form={form} labelCol={{ span: 6 }} labelAlign='left' colon={false}>
-           {/* TODO: 通过 source_id 拿到 data_source，取到列名，透传进去  */}
-            <ConfigFormFields col_names={['Information_Analysis', 'forward_returns_1D', 'forward_returns_5D', 'forward_returns_10D']} />
+    return ConfigFormFields ? <Form onValuesChange={on_form_change} form={form} labelCol={{ span: 8 }} labelAlign='left' colon={false}>
+           {/* TODO: 通过source_id拿到data_source，取到列名，透传进去  */}
+            <ConfigFormFields col_names={['col1', 'col2', 'col3', 'col4', 'col5', 'col6', 'col7']} />
         </Form> : <></>
 }
