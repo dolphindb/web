@@ -3,6 +3,7 @@ import { DdbObj, formati, DdbVectorValue } from 'dolphindb'
 import { isNil } from 'lodash'
 import { Widget } from './model.js'
 import { AxisConfig, IChartConfig, ISeriesConfig } from './type.js'
+import type { DataSourceNodeType } from './storage/date-source-node.js'
 
 export function formatter (obj: DdbObj<DdbVectorValue>, max_line: number): { name: string, data: Array<string> } {
     let length = obj.rows
@@ -14,6 +15,17 @@ export function formatter (obj: DdbObj<DdbVectorValue>, max_line: number): { nam
         result.data.unshift(formati(obj, length - i))
     return result
 }
+
+export function default_value_in_select (
+    data_source_node: DataSourceNodeType, 
+    key: string, 
+    select_list: { label: string, value: string }[]): string 
+{
+    return (data_source_node[key] && select_list.filter(item => item.value === data_source_node[key]).length) 
+        ? data_source_node[key] 
+        : select_list[0].value
+}
+
 
 
 export function concat_name_path (...paths: NamePath[]): NamePath {

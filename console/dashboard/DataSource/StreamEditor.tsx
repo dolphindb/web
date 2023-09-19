@@ -13,6 +13,8 @@ import {
     find_data_source_node_index, get_stream_tables, get_stream_cols 
 } from '../storage/date-source-node.js'
 import { dashboard } from '../model.js'
+import { NodeType, model } from '../../model.js'
+import { default_value_in_select } from '../utils.js'
 
 type PropsType = { 
     current_data_source_node: DataSourceNodeType
@@ -25,30 +27,26 @@ export function StreamEditor ({
     change_no_save_flag,
     change_current_data_source_node_property
  }: PropsType) {
-    const [stream_tables, set_stream_tables] = useState<MenuProps['items']>([ ])
-    
-    const [current_stream, set_current_stream] = useState(current_data_source_node?.stream_table || '')
-    
-    const [stream_cols, set_stream_cols] = useState<{ label: string, value: string }[]>([ ])
-    
-    const [ip_select, set_ip_select] = useState(true)
-    
-    const on_node_select_change_handler = (value: string) => {
-        console.log(`selected ${value}`)
-    }
-    
-    const on_ip_select_change_handler = (value: string) => {
-        if (value === 'customize') {
-            set_ip_select(false)
-            return
+    const nodes = model.use(['nodes']).nodes.filter(node => node.mode === NodeType.data || node.mode === NodeType.single)
+    const node_list = nodes.map(node => {
+        return {
+            value: node.name,
+            label: node.name
         }
-    }
+    })
+    
+    const [stream_tables, set_stream_tables] = useState<MenuProps['items']>([ ])
+    const [current_stream, set_current_stream] = useState(current_data_source_node?.stream_table || '')
+    const [stream_cols, set_stream_cols] = useState<{ label: string, value: string }[]>([ ])
+    const [ip_list, set_ip_list] = useState<{ label: string, value: string }[]>([ ])
+    const [ip_select, set_ip_select] = useState(true)
     
     useEffect(() => {
         (async () => {
             if (current_data_source_node.mode === data_source_nodes[find_data_source_node_index(current_data_source_node.id)].mode)
                 change_no_save_flag(false)
             
+            // 获取数据库流表
             const table = await get_stream_tables()
             if (table.length)   {
                 set_stream_tables(table.map(stream_table => {
@@ -64,7 +62,6 @@ export function StreamEditor ({
                 }
             }  else 
                 change_current_data_source_node_property('stream_table', '', false)
-            
         })()
     }, [ current_data_source_node.id ])
     
@@ -79,6 +76,25 @@ export function StreamEditor ({
                 }))  
         })()
     }, [current_data_source_node.stream_table])
+    
+    useEffect(() => {
+        const node = nodes.filter(node => node.name === default_value_in_select(current_data_source_node, 'node', node_list))[0]
+        const new_ip_list = [
+            {
+                value: node.host + ':' + node.port,
+                label: node.host + ':' + node.port
+            },
+            {
+                value: node.publicName + ':' + node.port,
+                label: node.publicName + ':' + node.port
+            }
+        ]
+        set_ip_list(new_ip_list)
+        const new_ip = default_value_in_select(current_data_source_node, 'ip', new_ip_list)
+        if (!current_data_source_node.ip)
+            change_current_data_source_node_property('ip', new_ip)
+        set_ip_select(!current_data_source_node.ip || new_ip_list.filter(item => item.value === current_data_source_node.ip).length !== 0)
+    }, [current_data_source_node.node])
     
     return <>
         <div className='data-source-config-streameditor'>
@@ -149,7 +165,7 @@ export function StreamEditor ({
                                     <div className='data-source-config-streameditor-main-right-filter-top-col'>
                                         过滤列:
                                         <Select
-                                            defaultValue={current_data_source_node.filter_col || stream_cols[0].value}
+                                            defaultValue={default_value_in_select(current_data_source_node, 'filter_col', stream_cols)}
                                             className='data-source-config-streameditor-main-right-filter-top-mode-select'
                                             size='small'
                                             onChange={(value: string) => change_current_data_source_node_property('filter_col', value)}
@@ -181,32 +197,52 @@ export function StreamEditor ({
                     <div>
                         节点：
                         <Select
-                            defaultValue='node1'
+                            defaultValue={default_value_in_select(current_data_source_node, 'node', node_list) }
                             className='data-source-config-streamconfig-left-node-select'
                             size='small'
-                            onChange={on_node_select_change_handler}
-                            options={[
-                                { value: 'node1', label: '节点1' },
-                                { value: 'node2', label: '节点2' }
-                            ]}
+                            onChange={(value: string) => { change_current_data_source_node_property('node', value) }}
+                            options={node_list}
                         />
                     </div>
                     <div className='data-source-config-streamconfig-left-ip'>
                         IP：
                         {ip_select
                             ? <Select
-                                defaultValue='127.0.0.1'
+                                value={current_data_source_node.ip}
                                 className='data-source-config-streamconfig-left-ip-select'
                                 size='small'
-                                onChange={on_ip_select_change_handler}
+                                onChange={(value: string) => {
+                                    if (value === 'customize') {
+                                        set_ip_select(false)
+                                        return
+                                    } 
+                                    else 
+                                        change_current_data_source_node_property('ip', value)
+                                }}
                                 options={[
-                                    { value: '127.0.0.1', label: '127.0.0.1' },
+                                    ...ip_list,
                                     { value: 'customize', label: '自定义' }
                                 ]}
                             />
                             : <div  className='data-source-config-streamconfig-left-ip-manualinput'>
-                                <Input size='small' className='data-source-config-streamconfig-left-ip-manualinput-input'/>
-                                <CloseOutlined className='data-source-config-streamconfig-left-ip-manualinput-icon' onClick={() => { set_ip_select(true) }}/>
+                                <Input 
+                                    size='small' 
+                                    className='data-source-config-streamconfig-left-ip-manualinput-input'
+                                    value={current_data_source_node.ip}
+                                    onChange={event => { 
+                                        if (event !== null)
+                                            change_current_data_source_node_property('ip', event.target.value) 
+                                    }}
+                                />
+                                <CloseOutlined 
+                                    className='data-source-config-streamconfig-left-ip-manualinput-icon' 
+                                    onClick={() => { 
+                                        set_ip_select(true) 
+                                        const new_ip = default_value_in_select(current_data_source_node, 'ip', ip_list)
+                                        if (new_ip !== current_data_source_node.ip)
+                                            change_current_data_source_node_property('ip', new_ip)
+                                    }}
+                                />
                             </div>
                         }
                     </div>
