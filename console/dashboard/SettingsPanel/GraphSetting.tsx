@@ -1,5 +1,3 @@
-// import { Button, Collapse, Form, Input, Select, Switch } from 'antd'
-
 import { Form } from 'antd'
 import { useCallback, useEffect, useMemo } from 'react'
 import { graph_config } from '../graph-config.js'
@@ -13,7 +11,7 @@ export function GraphSetting () {
     useEffect(() => {
         if (!widget.id)
             return
-        // 存在config
+        // 已设置config，回显表单
         else if (widget.config)
             form.setFieldsValue(widget.config)
         // 未设置config的时候需要重置表单，将表单的初始值作为图的config

@@ -13,6 +13,14 @@ interface IProps extends TableProps<any> {
     data_source: any[]
 }
 
+const format_value = (val, decimal_places = 2) => { 
+    try { 
+        return Number(val).toFixed(decimal_places)
+    } catch { 
+        return val
+    }
+}
+
 const DBTable = (props: IProps) => { 
     const { widget, data_source = [ ], ...otherProps } = props
     
@@ -21,19 +29,22 @@ const DBTable = (props: IProps) => {
     const columns = useMemo(() => {
         if (!data_source.length )
             return [ ]
-        const { col_mappings, show_cols } = config
+        const { col_mappings, show_cols, value_format } = config
         return show_cols
-            .map((col: string) => (
-                {
+            .map((col: string) => { 
+                const col_config = {
                     dataIndex: col,
                     title: col_mappings.find(item => item?.original_col === col)?.mapping_name?.trim() || col,
                     key: col
                 }
-            ))
+                
+                if (value_format?.cols?.includes(col))
+                    return { ...col_config, render: val => format_value(val, value_format?.decimal_places) }
+                return col_config
+            })
     }, [ config ])
     
     const pagination = useMemo<PaginationProps | false>(() => { 
-        console.log(config.pagination, 'pagination')
         if (!config.pagination.show)
             return false
         else
@@ -48,7 +59,7 @@ const DBTable = (props: IProps) => {
     
     
     return <div className='table-wrapper'>
-        {config.title && <h3 className='table-title'>{ config.title }</h3>}
+        {config.title && <h2 className='table-title'>{ config.title }</h2>}
         <Table
             bordered={config.bordered}
             columns={columns}
@@ -59,15 +70,13 @@ const DBTable = (props: IProps) => {
     </div>
 }
 
-export const DBTableConfigForm = (props: { col_names: string[] }) => { 
-    const { col_names = [ ] } = props
-    
-    return <>
-        <BasicFormFields type='table' />
-        <BasicTableFields col_names={col_names}/>
-    </>
-}
 
 export default DBTable
 
-
+export const DBTableConfigForm = (props: { col_names: string[] }) => { 
+    const { col_names = [ ] } = props
+    return <>
+        <BasicFormFields type='table' />
+        <BasicTableFields  col_names={col_names}/>
+    </>
+}

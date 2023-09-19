@@ -35,4 +35,8 @@ export interface ITableConfig {
         show: boolean
         pagesize: number
     }
+    value_format?: {
+        cols: string[]
+        decimal_places: number
+    }
 }

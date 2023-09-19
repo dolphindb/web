@@ -1,11 +1,12 @@
-import { Form, Select, Input, Collapse, Button, Space, Divider, InputNumber } from 'antd'
-import { NamePath } from 'antd/es/form/interface.js'
+import { Form, Select, Input, Collapse, Button, Space, Divider } from 'antd'
 import { t } from '../../../i18n/index.js'
-import { concat_name_path } from '../utils.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../components/formily/FormDependies/index.js'
 import { AxisItem, YAxis } from './BasicChartFields.js'
+import { AxisType, Position } from './type.js'
+
 import './index.scss'
+
 
 
 interface IProps { 
@@ -60,9 +61,9 @@ const Series = (props: { col_names: string[] }) => {
 export const OhlcFormFields = (props: IProps) => { 
     const { col_names = [ ] } = props
     
-    const x_axis = { type: 'time', name: '时间' }
-    const y_axis = [{ type: 'value', name: 'OHLC', position: 'left' }, 
-                    { type: 'value', name: '交易量', position: 'right' }]
+    const x_axis = { type: AxisType.TIME, name: '时间' }
+    const y_axis = [{ type: AxisType.VALUE, name: 'OHLC', position: Position.LEFT }, 
+                    { type: AxisType.VALUE, name: '交易量', position: Position.RIGHT }]
     
     return <Collapse className='' items={[{
         key: 'x_axis',

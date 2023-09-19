@@ -32,6 +32,7 @@
 
 .col-mapping-item{
     display: flex;
+    margin-top: 12px;
     .ant-form-item {
         width: 45%;
         margin-bottom: 8px;
@@ -43,3 +44,21 @@
         margin-bottom: 8px;
     }
 }
+
+
+.value-format-wrapper {
+    margin-top: 16px;
+    .ant-form-item {
+        margin-bottom: 12px;
+    }
+    .value-format-space {
+        width: 100%;
+        .ant-space-item {
+            width: 50%;
+            .ant-input-number {
+                width: 100%;
+            }
+        }
+    } 
+}
+

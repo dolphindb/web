@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { type Widget } from '../../model.js'
 import { AxisConfig, ISeriesConfig } from '../../type.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
-import {  OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
+import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 
 import './index.sass'
 
@@ -12,7 +12,7 @@ import './index.sass'
   
 const convert_chart_config = (widget: Widget, data_source: any[]) => {
     const { config, type } = widget
-    console.log('config', config)
+    
     const total_data_zoom = [
     {
         id: 'dataZoomX',
@@ -210,7 +210,7 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
     // 
     echarts.registerTheme('my_theme', {
         backgroundColor: '#040404'
-      })
+    })
     
     // const option = convert_chart_config(widget, data_source)
       
@@ -390,7 +390,7 @@ export const  OhlcConfigForm = (props: { col_names: string[] }) => {
     const { col_names = [ ] } = props
     
     return <>
-        <BasicFormFields />
+        <BasicFormFields type='chart'/>
         <OhlcFormFields col_names={col_names} />
     </>
 }

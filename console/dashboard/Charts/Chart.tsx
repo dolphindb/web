@@ -1,6 +1,7 @@
 import { BasicFormFields } from '../ChartFormFields/BasicFormFields.js'
 import { AxisFormFields, SeriesFormFields } from '../ChartFormFields/BasicChartFields.js'
-import ReactECharts from 'echarts-for-react'
+import ReactEChartsCore from 'echarts-for-react/lib/core'
+import * as echarts from 'echarts'
 
 import './index.scss'
 import { Widget } from '../model.js'
@@ -18,7 +19,7 @@ const Chart = (props: IProps) => {
     
     const options = useMemo(() => convert_chart_config(widget, data_source), [widget.config, data_source])
     
-    return <ReactECharts notMerge option={options} className='line-chart' theme='dark'/>
+    return <ReactEChartsCore echarts={echarts} notMerge option={options} className='line-chart' theme='dark'/>
 }
 
 export default Chart
