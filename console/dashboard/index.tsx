@@ -46,7 +46,7 @@ export function DashBoard () {
     }, [widgets])
     
     
-    return <ConfigProvider theme={{ hashed: false, token: { borderRadius: 0, motion: false }, algorithm: theme.darkAlgorithm }}>
+    return <ConfigProvider theme={{ hashed: false, token: { borderRadius: 0, motion: false, colorBgContainer: 'rgb(40, 40, 40)', colorBgElevated: 'rgb(40, 40, 40)', colorInfoActive: 'rgb(64, 147, 211)' }, algorithm: theme.darkAlgorithm }}>
         <div className='dashboard'>
             <div className='dashboard-header'>
                 <Navigation />
