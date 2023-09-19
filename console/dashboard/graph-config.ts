@@ -7,7 +7,7 @@ import { WidgetChartType } from './model.js'
 type GraphConfig =  { 
     [key in WidgetChartType]: {
         component: JSXComponent
-        config: JSXComponent
+        config?: JSXComponent
     }
 }
 

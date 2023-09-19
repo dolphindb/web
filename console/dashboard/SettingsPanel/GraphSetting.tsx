@@ -8,6 +8,7 @@ export function GraphSetting () {
     const { widget } = dashboard.use(['widget'])
     const [form] = Form.useForm<IChartConfig>()
     
+    
     useEffect(() => {
         if (!widget.id)
             return
@@ -27,7 +28,7 @@ export function GraphSetting () {
             dashboard.update_widget({ ...widget, config: values })
     }, [widget])
     
-    const ConfigFormFields = useMemo(() => graph_config[widget.type].config, [widget.type])
+    const ConfigFormFields = useMemo(() => graph_config[widget.type]?.config ?? <></>, [widget.type])
    
     return <Form onValuesChange={on_form_change} form={form} labelCol={{ span: 6 }} labelAlign='left' colon={false}>
            {/* TODO: 通过source_id拿到data_source，取到列名，透传进去  */}
