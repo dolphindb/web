@@ -6,7 +6,7 @@ import { assert } from 'xshell/utils.browser.js'
 
 import { Widget } from './model.js'
 import { AxisConfig, IChartConfig, ISeriesConfig } from './type.js'
-import type { DataSourceNodeType } from './storage/date-source-node.js'
+import { DataSourceNode } from './storage/date-source-node.js'
 import { t } from '../../i18n/index.js'
 
 export function formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
@@ -98,8 +98,15 @@ export function formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
     return rows
 }
 
+export function get_cols (obj: DdbObj<DdbValue>): Array<string> {
+    const cols = [ ]
+    for (let i = 0;  i < obj.rows;  i++) 
+        cols.push(obj.value[i].name)
+    return cols
+}
+
 export function default_value_in_select (
-    data_source_node: DataSourceNodeType, 
+    data_source_node: DataSourceNode, 
     key: string, 
     select_list: { label: string, value: string }[]): string 
 {

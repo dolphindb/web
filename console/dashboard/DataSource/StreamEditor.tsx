@@ -8,7 +8,7 @@ import { DataView } from '../../shell/DataView.js'
 
 import { 
     type DataSourceNodePropertyType, 
-    type DataSourceNodeType, 
+    DataSourceNode, 
     data_source_nodes, 
     find_data_source_node_index, get_stream_tables, get_stream_cols 
 } from '../storage/date-source-node.js'
@@ -17,7 +17,7 @@ import { NodeType, model } from '../../model.js'
 import { default_value_in_select } from '../utils.js'
 
 type PropsType = { 
-    current_data_source_node: DataSourceNodeType
+    current_data_source_node: DataSourceNode
     change_no_save_flag: (value: boolean) => void
     change_current_data_source_node_property: (key: string, value: DataSourceNodePropertyType, save_confirm?: boolean) => void
 }
