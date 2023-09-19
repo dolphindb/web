@@ -7,6 +7,7 @@ import { FormDependencies } from '../../components/formily/FormDependies/index.j
 import { IAxisItem, IYAxisItemValue } from './type.js'
 
 import './index.scss'
+import { useMemo } from 'react'
 
 
 interface IProps { 
@@ -44,7 +45,16 @@ export const AxisItem = (props: IAxisItem) => {
             name={concat_name_path(name_path, 'type')}
             label={t('类型')}
             initialValue={initial_values?.type ?? 'category'}
-            tooltip={t('数值轴，适用于连续数据\n类目轴，适用于离散的类目数据\n时间轴，适用于连续的时序数据\n对数轴，适用于对数数据')}>
+            tooltip={<>
+                {t('数值轴，适用于连续数据')}
+                <br />
+                {t('类目轴，适用于离散的类目数据')}
+                <br />
+                {t('时间轴，适用于连续的时序数据')}
+                <br />
+                {t('对数轴，适用于对数数据')}
+            </>}
+        >
             <Select options={axis_type_options}  />
         </Form.Item>
         <Form.Item name={concat_name_path(name_path, 'name')} label={t('名称')} initialValue={ initial_values?.name ?? t('名称')}>
@@ -59,7 +69,7 @@ export const AxisItem = (props: IAxisItem) => {
                 return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
                     <Select options={col_names.map(item => ({ label: item, value: item }))} />
                 </Form.Item>
-            } }
+            }}
         </FormDependencies>
     </>
 }
@@ -83,15 +93,15 @@ const Series = (props: { col_names: string[] }) => {
                                 </Form.Item>
                                 {/* 数据关联的y轴选择 */}
                                 <FormDependencies dependencies={['yAxis']}>
-                                    {value => {
+                                    { value => {
                                         const { yAxis } = value
                                         const options = yAxis.map((item, idx) => ({
                                             value: idx,
                                             label: item.name
                                         }))
-                                        return <Form.Item name={[field.name, 'yAxisIndex']} label={t('关联Y轴')} initialValue={0}>
+                                        return <Form.Item name={[field.name, 'yAxisIndex']} label={t('关联 Y 轴')} initialValue={0}>
                                             <Select options={options} />
-                                    </Form.Item>
+                                        </Form.Item>
                                     } }
                                 </FormDependencies>
                             </div>
@@ -110,7 +120,7 @@ const Series = (props: { col_names: string[] }) => {
 export const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemValue[] }) => { 
     const { col_names, initial_values } = props
     
-    const default_initial_values = [
+    const default_initial_values = useMemo(() => ([
         {
             type: 'category',
             name: t('名称'),
@@ -118,7 +128,7 @@ export const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemV
             position: 'left',
             offset: 0
         }
-    ]
+    ]), [col_names])
     
     return <Form.List name='yAxis' initialValue={initial_values || default_initial_values}>
         {(fields, { add, remove }) =>      
@@ -145,7 +155,7 @@ export const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemV
                     })
                 }
                 
-                <Button type='dashed' block onClick={() => add()} icon={<PlusCircleOutlined /> }>{t('增加Y轴')}</Button>
+                <Button type='dashed' block onClick={() => add()} icon={<PlusCircleOutlined /> }>{t('增加Y 轴')}</Button>
                     
             </>}
     </Form.List>
@@ -155,15 +165,15 @@ export const AxisFormFields = (props: IProps) => {
     const { col_names = [ ] } = props
     
     
-    return <Collapse className='' items={[{
+    return <Collapse items={[{
             key: 'x_axis',
-            label: t('X轴属性'),
+            label: t('X 轴属性'),
             children: <div className='axis-wrapper'><AxisItem name_path='xAxis' col_names={col_names} /></div>,
             forceRender: true,
         },
         {
             key: 'y_axis',
-            label: t('Y轴属性'),
+            label: t('Y 轴属性'),
             children: <YAxis col_names={col_names} />,
             forceRender: true,
         }
@@ -172,7 +182,7 @@ export const AxisFormFields = (props: IProps) => {
 
 export const SeriesFormFields = (props: { col_names: string[] }) => { 
     const { col_names } = props
-    return <Collapse className='' items={[
+    return <Collapse items={[
         {
             key: 'series',
             label: t('数据列'),
@@ -180,9 +190,6 @@ export const SeriesFormFields = (props: { col_names: string[] }) => {
             forceRender: true,
         }
     ]} />
-    
-    
-    
 }
 
 

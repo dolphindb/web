@@ -76,7 +76,7 @@ export function DataSource ({ widget }: { widget?: Widget }) {
     return <>
         {
             widget
-            ? <div className='graph-hint' onClick={open}>点击填充数据源</div>
+            ? <Button type='dashed' onClick={open}>点击填充数据源</Button>
             : <div className='data-source-config-trigger-navigation' onClick={open}>
                 <DatabaseOutlined className='data-source-config-trigger-navigation-icon'/>
                 数据源
