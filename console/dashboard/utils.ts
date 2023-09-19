@@ -1,19 +1,101 @@
 import { NamePath } from 'antd/es/form/interface'
-import { DdbObj, formati, DdbVectorValue } from 'dolphindb'
+import { DdbObj, DdbForm, DdbType, nulls, DdbValue, format } from 'dolphindb'
+import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
 import { isNil } from 'lodash'
+import { assert } from 'xshell/utils.browser.js'
+
 import { Widget } from './model.js'
 import { AxisConfig, IChartConfig, ISeriesConfig } from './type.js'
 import type { DataSourceNodeType } from './storage/date-source-node.js'
+import { t } from '../../i18n/index.js'
 
-export function formatter (obj: DdbObj<DdbVectorValue>, max_line: number): { name: string, data: Array<string> } {
-    let length = obj.rows
-    let result = {
-        name: obj.name,
-        data: [ ]
+export function formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
+    assert(obj.form === DdbForm.table, t('form 必须是 DdbForm.table, 否则不能 to_rows'))
+    let rows = new Array(obj.rows)
+    let start = obj.rows - max_line
+    let le = obj.le
+    for (let i = start >= 0 ? start : 0;  i < obj.rows;  i++) {
+        let row = { }
+        for (let j = 0;  j < obj.cols;  j++) {
+            const { type, name, value: values } = obj.value[j] // column
+            switch (type) {
+                case DdbType.bool: {
+                    const value = values[i]
+                    row[name] = value === nulls.int8 ?
+                        null
+                        :
+                            Boolean(value)
+                    break
+                }
+                case DdbType.char:
+                    row[name] = values[i] === nulls.int8 ? null : values[i]
+                    break
+                case DdbType.short:
+                    row[name] = values[i] === nulls.int16 ? null : values[i]
+                    break
+                case DdbType.int:
+                    row[name] = values[i]
+                    break
+                case DdbType.date:
+                    row[name] = format(type, values[i], le)
+                    break
+                case DdbType.month:
+                    row[name] = format(type, values[i], le)
+                    break
+                case DdbType.time:
+                    row[name] = format(type, values[i], le)
+                    break
+                case DdbType.minute:
+                    row[name] = format(type, values[i], le)
+                    break
+                case DdbType.second:
+                    row[name] = format(type, values[i], le)
+                    break
+                case DdbType.datetime:
+                    row[name] = format(type, values[i], le)
+                    break
+                case DdbType.datehour:
+                    row[name] = values[i] === nulls.int32 ? null : format(type, values[i], le)
+                    break
+                case DdbType.long:
+                case DdbType.timestamp:
+                    row[name] = format(type, values[i], le)
+                    break
+                case DdbType.nanotime:
+                    row[name] = format(type, values[i], le)
+                    break
+                case DdbType.nanotimestamp:
+                    row[name] = values[i] === nulls.int64 ? null : format(type, values[i], le)
+                    break
+                case DdbType.int128:
+                    row[name] = values[i] === nulls.int128 ? null : values[i]
+                    break
+                case DdbType.float:
+                    row[name] = values[i] === nulls.float32 ? null : values[i]
+                    break
+                case DdbType.double:
+                    row[name] = values[i] === nulls.double ? null : values[i]
+                    break
+                case DdbType.decimal32:
+                case DdbType.decimal64:
+                case DdbType.decimal128:
+                    row[name] = is_decimal_null_value(type, values[i]) ? null : values[i]
+                    break
+                case DdbType.ipaddr:
+                    row[name] = values.subarray(16 * i, 16 * (i + 1))
+                    break
+                case DdbType.symbol_extended: {
+                    const { base, data } = values
+                    row[name] = base[data[i]]
+                    break
+                }
+                default:
+                    row[name] = values[i]
+            }
+        }
+        rows[i] = row
     }
-    for (let i = 1;  i <= max_line && i <= length;  i++) 
-        result.data.unshift(formati(obj, length - i))
-    return result
+    return rows
 }
 
 export function default_value_in_select (

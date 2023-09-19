@@ -3,6 +3,7 @@ import { genid } from 'xshell/utils.browser.js'
 import { type Widget, dashboard } from '../model.js'
 import { formatter } from '../utils.js'
 import { model } from '../../model.js'
+import { DdbObj, DdbValue } from 'dolphindb'
 
 type ExtractTypes<T> = T extends { [key: string]: infer U } ? U : never
 
@@ -10,7 +11,7 @@ const deps = new Map<string, Widget[]>()
 
 const intervals = new Map<string, NodeJS.Timeout>()
 
-export type DataType = { name: string, data: Array<string> }[]
+export type DataType = { }[]
 
 export type DataSourceNodeType = {
     id: string
@@ -58,8 +59,7 @@ export const save_data_source_node = async ( new_data_source_node: DataSourceNod
             new_data_source_node.data.length = 0
             if (type === 'success') {
                 if (typeof result === 'object' && result.data) 
-                    for (let i = 0;  i < result.data.cols;  i++) 
-                        new_data_source_node.data.push(formatter(result.data.value[i], new_data_source_node.max_line))
+                    new_data_source_node.data = formatter(result.data as unknown as DdbObj<DdbValue>, new_data_source_node.max_line)
                 new_data_source_node.error_message = ''
             } else {
                 new_data_source_node.error_message = result as string

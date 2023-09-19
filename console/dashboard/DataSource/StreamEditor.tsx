@@ -39,7 +39,9 @@ export function StreamEditor ({
     const [current_stream, set_current_stream] = useState(current_data_source_node?.stream_table || '')
     const [stream_cols, set_stream_cols] = useState<{ label: string, value: string }[]>([ ])
     const [ip_list, set_ip_list] = useState<{ label: string, value: string }[]>([ ])
-    const [ip_select, set_ip_select] = useState(true)
+    const [ip_select, set_ip_select] = useState(
+        !current_data_source_node.ip || (ip_list.filter(item => item.value === current_data_source_node.ip).length !== 0)
+    )
     
     useEffect(() => {
         (async () => {
@@ -91,9 +93,8 @@ export function StreamEditor ({
         ]
         set_ip_list(new_ip_list)
         const new_ip = default_value_in_select(current_data_source_node, 'ip', new_ip_list)
-        if (!current_data_source_node.ip)
+        if (ip_select)
             change_current_data_source_node_property('ip', new_ip)
-        set_ip_select(!current_data_source_node.ip || new_ip_list.filter(item => item.value === current_data_source_node.ip).length !== 0)
     }, [current_data_source_node.node])
     
     return <>
