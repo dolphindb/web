@@ -17,7 +17,7 @@ interface IProps {
 const Series = (props: { col_names: string[] }) => { 
     const { col_names } = props
     
-    const series = [{ name: 'OHLC', key: 0 }, { name: '交易量', key: 1 }]
+    const series = [{ name: 'OHLC', key: 0, selected_cols: [ 'Open', 'High', 'Low', 'Close'] }, { name: '交易量', key: 1 }]
     
     return <Form.List name='series' initialValue={series}>
         {(fields, { add, remove }) => <>
@@ -26,9 +26,17 @@ const Series = (props: { col_names: string[] }) => {
                     return <div key={ field.name }>
                         <Space>
                             <div className='wrapper'>
-                                <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
-                                    <Select options={col_names.map(item => ({ label: item, value: item })) } />
-                                </Form.Item>
+                                {series[index].selected_cols ?
+                                    series[index].selected_cols.map(col => 
+                                        <Form.Item name={[field.name, col]} label={col} initialValue={col_names?.[0]} >
+                                            <Select options={col_names.map(item => ({ label: item, value: item })) } />
+                                        </Form.Item>) 
+                                                            :
+                                    <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
+                                        <Select options={col_names.map(item => ({ label: item, value: item })) } />
+                                    </Form.Item>
+                                }
+                               
                                 <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={t('名称')}> 
                                     <Input />
                                 </Form.Item>
@@ -81,7 +89,7 @@ export const OhlcFormFields = (props: IProps) => {
     {
         key: 'series',
         label: t('数据列'),
-        children: <Series col_names={col_names} />,
+        children: <Series col_names={col_names}/>,
         forceRender: true,
     }
     ]} />
