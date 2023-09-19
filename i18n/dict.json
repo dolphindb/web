@@ -1970,6 +1970,9 @@
     "请先选中您需要更改配置的图表": {
         "en": "Please select the chart you want to change the configuration first"
     },
+    "请为您的图表配置数据源": {
+        "en": "Please configure the data source for your chart"
+    },
     "画布": {
         "en": "Canvas"
     },

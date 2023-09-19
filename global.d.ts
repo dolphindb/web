@@ -33,6 +33,11 @@ declare module '*.txt' {
     export default text
 }
 
+declare module '*.sass' {
+    const classes: { readonly [key: string]: string }
+    export default classes
+}
+
 interface Window {
     Terminal: typeof import('xterm').Terminal
     
