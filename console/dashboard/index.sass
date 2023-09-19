@@ -1,6 +1,6 @@
 $canvasBackColor: rgb(40, 40, 40)
 $fontColor: rgb(215, 215, 215)
-$blue: rgb(64, 147, 211)
+$blue: rgb(22, 104, 220)
 $borderColor: rgb(148, 148, 148)
     
     
@@ -59,8 +59,10 @@ $borderColor: rgb(148, 148, 148)
                     align-items: center
                     
                     .dashboard-navigation-right-editormode-editor
-                        margin-right: 10px
                         cursor: pointer
+                        
+                    .ant-divider-vertical
+                        border-inline-start: 1px solid $fontColor
                         
                     .dashboard-navigation-right-editormode-preview
                         cursor: pointer
@@ -185,7 +187,7 @@ $borderColor: rgb(148, 148, 148)
                 cursor: pointer
                 
             .select-folder:hover
-                background-color: #e6e6e6
+                background-color: $blue
                 
         .dashboard-select-sider-folding
             width: 40px
