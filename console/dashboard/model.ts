@@ -278,7 +278,6 @@ class DashBoardModel extends Model<DashBoardModel> {
 }
 
 
-// @ts-ignore
 export let dashboard = window.dashboard = new DashBoardModel()
 
 
