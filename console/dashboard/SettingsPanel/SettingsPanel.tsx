@@ -30,12 +30,12 @@ export function SettingsPanel (props: IProps) {
         }
         
         return [
-            {
-                label: <><MailOutlined />{t('画布')}</>,
-                key: 'canvas',
-                children: <CanvasSetting />,
-                forceRender: true,
-            },
+            // {
+            //     label: <><MailOutlined />{t('画布')}</>,
+            //     key: 'canvas',
+            //     children: <CanvasSetting />,
+            //     forceRender: true,
+            // },
             {
                 label: <><AppstoreOutlined />{t('图表')}</>,
                 key: 'graph',

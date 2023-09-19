@@ -60,13 +60,16 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
     const { widget: current } = dashboard.use(['widget'])
     const [data_source, set_data_source] = useState([ ])
     
-    useEffect(() => { 
+    useEffect(() => {
         if (!widget.update_graph)
             dashboard.update_widget({
-            ...widget, update_graph: data => { 
-                set_data_source(data)
-        } })
+                ...widget,
+                update_graph: data => {
+                    set_data_source(data)
+                }
+            })
     }, [ ])
+    
     
     const GraphComponent = graph_config[widget.type].component
     
