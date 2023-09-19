@@ -16,7 +16,7 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
     const { widget: current } = dashboard.use(['widget'])
     const [data_source, set_data_source] = useState([ ])
     
-    useEffect(() => { 
+    useEffect(() => {
         if (!widget.update_graph)
             dashboard.update_widget({
                 ...widget,

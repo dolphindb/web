@@ -1,6 +1,6 @@
-import { Select, Tooltip } from 'antd'
+import { Divider, Select, Tooltip } from 'antd'
 
-import { DeleteOutlined, FileOutlined, FolderAddOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, EyeOutlined, FileOutlined, FolderAddOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
 
 
 import { dashboard } from '../model.js'
@@ -53,15 +53,16 @@ export function Navigation () {
                     }
                     onClick={() => { dashboard.set_editing(true) }}
                 >
-                    编辑
+                    编辑 <EditOutlined />
                 </span>
+                <Divider type='vertical' />
                 <span
                     className={
                         `dashboard-navigation-right-editormode-preview${editing ? '' : ' editormode-selected'} `
                     }
                     onClick={() => { dashboard.set_editing(false) }}
                 >
-                    预览
+                    预览 <EyeOutlined />
                 </span>
             </div>
             <div className='dashboard-navigation-right-config'>
