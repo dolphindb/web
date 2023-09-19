@@ -8,12 +8,12 @@ import { create_data_source_node,
          data_source_nodes,
          delete_data_source_node, 
          rename_data_source_node, 
-         type DataSourceNodeType, 
+         DataSourceNode, 
          DataSourceNodePropertyType, 
     } from '../storage/date-source-node.js'
 
 type PropsType = { 
-    current_data_source_node: DataSourceNodeType
+    current_data_source_node: DataSourceNode
     no_save_flag: MutableRefObject<boolean>
     save_confirm: () => {
             destroy: () => void
@@ -42,7 +42,7 @@ export function NodeTable ({
 }: PropsType ) {
     const [current_select, set_current_select] = useState(current_data_source_node?.id || '')
     const [menu_items, set_menu_items] = useState(data_source_nodes.map(
-        (data_source_node: DataSourceNodeType): MenuItemType => {
+        (data_source_node: DataSourceNode): MenuItemType => {
             return {
                 key: String(data_source_node.id),
                 icon: createElement(DatabaseOutlined),

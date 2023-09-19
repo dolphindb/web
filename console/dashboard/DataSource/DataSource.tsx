@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
+import { cloneDeep } from 'lodash'
 
 import { Button, Modal, Menu } from 'antd'
 import { DatabaseOutlined } from '@ant-design/icons'
@@ -15,8 +16,8 @@ import { data_source_nodes,
     find_data_source_node_index, 
     save_data_source_node, 
     sub_source,
+    DataSourceNode,
     type DataSourceNodePropertyType, 
-    type DataSourceNodeType 
 } from '../storage/date-source-node.js'
 
 const save_confirm_config = {
@@ -44,15 +45,15 @@ export function DataSource ({ widget }: { widget?: Widget }) {
             set_current_data_source_node(null)
             return
         }    
-        set_current_data_source_node({ ...data_source_nodes[find_data_source_node_index(key)] })
+        set_current_data_source_node(cloneDeep(data_source_nodes[find_data_source_node_index(key)]))
         set_show_preview(false)
     }, [ ])
     
     const change_current_data_source_node_property = useCallback(
         (key: string, value: DataSourceNodePropertyType, save_confirm = true) => {
-            set_current_data_source_node((pre: DataSourceNodeType) => {
+            set_current_data_source_node((pre: DataSourceNode) => {
                 pre[key] = value
-                return { ...pre }
+                return cloneDeep(pre)
             })
             if (save_confirm)
                 no_save_flag.current = true   
@@ -91,9 +92,7 @@ export function DataSource ({ widget }: { widget?: Widget }) {
             maskClosable={false}
             maskStyle={{ backgroundColor: 'rgba(84,84,84,0.5)' }}
             afterOpenChange={() => {
-                set_current_data_source_node(
-                    { ...data_source_nodes[widget?.source_id ? find_data_source_node_index(widget.source_id) : 0] } 
-                )
+                set_current_data_source_node(cloneDeep(data_source_nodes[widget?.source_id ? find_data_source_node_index(widget.source_id) : 0]))
             }}
             footer={
                 [

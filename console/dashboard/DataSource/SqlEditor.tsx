@@ -7,11 +7,11 @@ import { Editor } from '../../shell/Editor/index.js'
 import { DataView } from '../../shell/DataView.js'
 
 import { dashboard } from '../model.js'
-import { type DataSourceNodeType, type DataSourceNodePropertyType, data_source_nodes, find_data_source_node_index } from '../storage/date-source-node.js'
+import { DataSourceNode, type DataSourceNodePropertyType, data_source_nodes, find_data_source_node_index } from '../storage/date-source-node.js'
 
 type PropsType = { 
     show_preview: boolean
-    current_data_source_node: DataSourceNodeType
+    current_data_source_node: DataSourceNode
     close_preview: () => void 
     change_no_save_flag: (value: boolean) => void
     change_current_data_source_node_property: (key: string, value: DataSourceNodePropertyType, save_confirm?: boolean) => void
