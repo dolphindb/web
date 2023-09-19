@@ -53,6 +53,8 @@ import { graph_config } from '../graph-config.js'
 //     }
 // ]
 
+import { RichText } from '../Charts/RichText/index.js'
+
 
 export function GraphItem  ({ widget }: { widget: Widget }) {
     const { widget: current } = dashboard.use(['widget'])

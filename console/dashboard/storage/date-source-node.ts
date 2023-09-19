@@ -3,7 +3,6 @@ import { genid } from 'xshell/utils.browser.js'
 import { type Widget, dashboard } from '../model.js'
 import { formatter } from '../utils.js'
 import { model } from '../../model.js'
-import { DdbValue } from 'dolphindb'
 
 type ExtractTypes<T> = T extends { [key: string]: infer U } ? U : never
 
@@ -99,7 +98,7 @@ export const delete_data_source_node = (key: string): number => {
 
 export const create_data_source_node = (): { id: string, name: string } => {
     const id = String(genid())
-    const name = `节点${id.slice(0, 8)}`
+    const name = `数据源${id.slice(0, 7)}`
     data_source_nodes.unshift({
         id,
         name,
@@ -228,7 +227,7 @@ export const get_stream_cols = async (table: string, filter = false): Promise<st
 export const data_source_nodes: DataSourceNodeType[] = [
     {
         id: '1',
-        name: '节点1',
+        name: '数据源1',
         mode: 'sql',
         max_line: 10,
         auto_refresh: false,
@@ -243,23 +242,5 @@ export const data_source_nodes: DataSourceNodeType[] = [
         filter_condition: '',
         node: '',
         ip: ''
-    },
-    {
-        id: '2',
-        name: '节点2',
-        mode: 'stream',
-        max_line: 10,
-        auto_refresh: false,
-        interval: 1,
-        code: '',
-        data: [ ],
-        error_message: '',
-        filter: false,
-        stream_table: '',
-        filter_col: '',
-        filter_mode: 'value',
-        filter_condition: '',
-        node: '',
-        ip: ''
-    },
+    }
  ]
