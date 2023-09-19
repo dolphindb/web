@@ -1,3 +1,5 @@
+import './index.sass'
+
 import { useEffect, useMemo } from 'react'
 
 import { Editor as MonacoEditor, loader, type OnChange, type OnMount } from '@monaco-editor/react'
@@ -74,10 +76,6 @@ export function Editor ({
         [minimap, enter_completion, readonly, options]
     )
     
-    useEffect(() => {
-        if (theme === 'light')
-            import('./index.sass')
-    }, [ ])
     
     return <MonacoDolphinDBEditor
             dolphinDBLanguageOptions={{
@@ -86,7 +84,7 @@ export function Editor ({
                 theme
             }}
             
-            wrapperProps={{ className: 'monaco-editor-container' }}
+            wrapperProps={{ className: `monaco-editor-container ${theme}` }}
             
             value={value}
             
