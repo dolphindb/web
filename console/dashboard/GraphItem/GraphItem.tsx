@@ -71,13 +71,15 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
         set_data(table_data)
     }
     
+    console.log(widget, 'widget')
+    
     
     return <div className={`grid-stack-item-content ${widget === current ? 'grid-stack-item-active' : ''}`}>
         <div className='delete-graph' onClick={() => { dashboard.delete_widget(widget) }}>
             <CloseOutlined className='delete-graph-icon'/>
         </div>
         {
-            Object.keys(data).length && widget.config ? 
+            widget.source_id && widget.config ? 
                 <GraphComponent data_source={data_source} widget={widget} />
             :
                 <div className='graph-content'>
