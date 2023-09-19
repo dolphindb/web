@@ -68,6 +68,7 @@ export function RichText () {
            closeIcon={false}
            onOk={() => { set_display_text(edit_edit)
                         close() }}
+            className='rich-text'
            >
         <ReactQuill theme='snow'
                     value={edit_edit} 
