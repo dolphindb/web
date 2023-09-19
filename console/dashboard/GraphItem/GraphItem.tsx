@@ -53,7 +53,7 @@ const data_source = [
     }
 ]
 
-import { RichText } from './RichText/index.js'
+import { RichText } from '../Charts/RichText/index.js'
 
 
 export function GraphItem  ({ widget }: { widget: Widget }) {

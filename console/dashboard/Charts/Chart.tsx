@@ -20,9 +20,9 @@ const Chart = (props: IProps) => {
     
     // console.log(widget, 'widget')
     
-    useEffect(() => {
-        dashboard.update_widget({ ...widget, update_graph: data => set_data_source(data) })
-    }, [ ])
+    // useEffect(() => {
+    //     dashboard.update_widget({ ...widget, update_graph: data => set_data_source(data) })
+    // }, [ ])
     
     console.log(data_source, 'data_source')
     
