@@ -28,7 +28,7 @@ function replace_variables (origin_string: string, variables: object) {
   return replaced_string
 }
 
-export function RichText ({ widget }: { widget: Widget }) {
+export function RichText ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
   const [edit_edit, set_edit_text] = useState('')
   const [display_text, set_display_text] = useState('')
   const { visible, open, close } = use_modal()
