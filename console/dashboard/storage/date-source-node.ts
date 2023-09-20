@@ -21,7 +21,7 @@ export class DataSourceNode extends Model<DataSourceNode>  {
     id: string
     name: string
     mode = 'sql'
-    max_line = 10
+    max_line = 1000
     data: DataType = [ ]
     cols: string[] = [ ]
     error_message = ''
