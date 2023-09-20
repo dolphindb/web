@@ -252,6 +252,7 @@ export default function OHLC ({ widget }: { widget: Widget }) {
         option={option}
         notMerge
         lazyUpdate
+        theme='dark'
     />
 }
 
