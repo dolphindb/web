@@ -62,6 +62,7 @@ export const get_data_source_node = (id: string): DataSourceNode =>
 
 export const save_data_source_node = async ( new_data_source_node: DataSourceNode ) => {
     const id = new_data_source_node.id
+    const data_source_node = get_data_source_node(id)
     
     switch (new_data_source_node.mode) {
         case 'sql':
@@ -83,7 +84,7 @@ export const save_data_source_node = async ( new_data_source_node: DataSourceNod
                 model.message.error(result as string)
             }
             
-            Object.assign(data_source_nodes[find_data_source_node_index(id)], cloneDeep(new_data_source_node))
+            Object.assign(data_source_node, cloneDeep(new_data_source_node))
             console.log(data_source_nodes)
             
             const dep = deps.get(id)
@@ -99,7 +100,7 @@ export const save_data_source_node = async ( new_data_source_node: DataSourceNod
             break
         case 'stream':
             new_data_source_node.filter_condition = dashboard.editor.getValue()
-            Object.assign(data_source_nodes[find_data_source_node_index(id)], cloneDeep(new_data_source_node))
+            Object.assign(data_source_node, cloneDeep(new_data_source_node))
             console.log(data_source_nodes)
             break
     }       

@@ -1,9 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { cloneDeep } from 'lodash'
-
 import { Button, Modal, Menu } from 'antd'
 import { DatabaseOutlined } from '@ant-design/icons'
-
 import { use_modal } from 'react-object-model/modal.js'
 
 import { NodeTable } from './NodeTable.js'
@@ -57,9 +55,8 @@ export function DataSource ({ widget }: { widget?: Widget }) {
                 return cloneDeep(pre)
             })
             if (save_confirm)
-                no_save_flag.current = true   
-        }
-    , [ ])
+                no_save_flag.current = true 
+    }, [ ])
     
     const handle_close = useCallback(async () => {
         if (no_save_flag.current && await modal.confirm(save_confirm_config) ) {
@@ -97,7 +94,7 @@ export function DataSource ({ widget }: { widget?: Widget }) {
             }}
             footer={
                 [
-                    current_data_source_node.mode === 'sql'
+                    current_data_source_node?.mode === 'sql'
                     ? <Button 
                         key='preview' 
                         onClick={
@@ -117,7 +114,6 @@ export function DataSource ({ widget }: { widget?: Widget }) {
                             if (!widget.source_id || widget.source_id !== current_data_source_node.id) {
                                 sub_source(widget, current_data_source_node.id)
                                 dashboard.update_widget({ ...widget, source_id: current_data_source_node.id })
-                                // widget.source_id = current_data_source_node.id
                             }
                             close()
                             set_show_preview(false)
@@ -146,7 +142,7 @@ export function DataSource ({ widget }: { widget?: Widget }) {
                     ? <div className='data-source-config-right'>
                         <div className='data-source-config-right-top'>
                             <Menu 
-                                onClick={e => { change_current_data_source_node_property('mode', e.key) }} 
+                                onClick={event => { change_current_data_source_node_property('mode', event.key) }} 
                                 selectedKeys={[current_data_source_node.mode]} 
                                 mode='horizontal' 
                                 items={[
