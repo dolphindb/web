@@ -40,9 +40,7 @@ export function StreamEditor ({
     const [current_stream, set_current_stream] = useState(current_data_source_node?.stream_table || '')
     const [stream_cols, set_stream_cols] = useState<{ label: string, value: string }[]>([ ])
     const [ip_list, set_ip_list] = useState<{ label: string, value: string }[]>([ ])
-    const [ip_select, set_ip_select] = useState(
-        !current_data_source_node.ip || (ip_list.filter(item => item.value === current_data_source_node.ip).length !== 0)
-    )
+    const [ip_select, set_ip_select] = useState(true)
     
     useEffect(() => {
         (async () => {
@@ -85,7 +83,6 @@ export function StreamEditor ({
     
     useEffect(() => {
         const node = nodes.filter(node => node.name === default_value_in_select(current_data_source_node, 'node', node_list))[0]
-        console.log(node)
         const new_ip_list = [
             {
                 value: node.host + ':' + node.port,
@@ -98,11 +95,13 @@ export function StreamEditor ({
                 }
             })
         ]
-        console.log(new_ip_list)
         set_ip_list(new_ip_list)
-        const new_ip = default_value_in_select(current_data_source_node, 'ip', new_ip_list)
-        if (ip_select)
-            change_current_data_source_node_property('ip', new_ip)
+        
+        const new_ip_select = !current_data_source_node.ip || (new_ip_list.filter(item => item.value === current_data_source_node.ip).length !== 0)
+        if (new_ip_select)
+            change_current_data_source_node_property('ip', default_value_in_select(current_data_source_node, 'ip', new_ip_list))
+        
+        set_ip_select(new_ip_select)
     }, [current_data_source_node.node])
     
     return <>

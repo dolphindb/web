@@ -83,23 +83,23 @@ export default function OHLC ({ widget }: { widget: Widget }) {
             backgroundColor: '#777'
           }
         },
-        toolbox: {
-          feature: {
-            dataZoom: {
-              yAxisIndex: false
-            },
-            brush: {
-              type: ['lineX', 'clear']
-            }
-          }
-        },
-        brush: {
-          xAxisIndex: 'all',
-          brushLink: 'all',
-          outOfBrush: {
-            colorAlpha: 0.1
-          }
-        },
+        // toolbox: {
+        //   feature: {
+        //     dataZoom: {
+        //       yAxisIndex: false
+        //     },
+        //     brush: {
+        //       type: ['lineX', 'clear']
+        //     }
+        //   }
+        // },
+        // brush: {
+        //   xAxisIndex: 'all',
+        //   brushLink: 'all',
+        //   outOfBrush: {
+        //     colorAlpha: 0.1
+        //   }
+        // },
         visualMap: {
           show: false,
           seriesIndex: 5,
@@ -124,8 +124,8 @@ export default function OHLC ({ widget }: { widget: Widget }) {
           {
             left: '10%',
             right: '10%',
-            bottom: '20%',
-            height: '16%'
+            bottom: '22%',
+            height: '15%'
           }
         ],
         xAxis: [
@@ -200,9 +200,10 @@ export default function OHLC ({ widget }: { widget: Widget }) {
             show: x_datazoom,
             xAxisIndex: [0, 1],
             type: 'slider',
-            top: '85%',
+            top: '86%',
             start: 20,
-            end: 100
+            end: 100,
+            height: 20
           },
           {
             show: y_datazoom,
