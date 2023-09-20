@@ -11,4 +11,13 @@
 
 .table-wrapper {
     overflow: auto;
+    font-size: 12px;
+    .ant-table-row {
+        &:nth-child(even) {
+            background-color: #303030;
+        }
+    }
+    .ant-table-cell {
+        padding: 2px 12px !important;
+    }
 }
