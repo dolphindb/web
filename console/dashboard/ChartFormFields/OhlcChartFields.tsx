@@ -1,6 +1,5 @@
-import { Form, Select, Input, Collapse, Button, Space, Divider, InputNumber } from 'antd'
+import { Form, Select, Input, Collapse, Space, Divider, InputNumber } from 'antd'
 import { t } from '../../../i18n/index.js'
-import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../components/formily/FormDependies/index.js'
 import { AxisType, IAxisItem, IYAxisItemValue, Position } from './type.js'
 
@@ -43,7 +42,7 @@ const AxisItem = (props: IAxisItem) => {
         <Form.Item
             name={concat_name_path(name_path, 'type')}
             label={t('类型')}
-            initialValue='time'
+            initialValue='category'
             tooltip={t('数值轴，适用于连续数据\n类目轴，适用于离散的类目数据\n时间轴，适用于连续的时序数据\n对数轴，适用于对数数据')}>
             <Select disabled options={axis_type_options}  />
         </Form.Item>

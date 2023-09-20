@@ -65,7 +65,6 @@ export function RichText () {
            onCancel={() => { set_edit_text(display_text)
                              close() }}
            okText={t('保存')}
-           closeIcon={false}
            onOk={() => { set_display_text(edit_edit)
                         close() }}
             className='rich-text'
