@@ -29,7 +29,9 @@ export function SqlEditor ({
     useEffect(() => {
         if (dashboard.editor)
             dashboard.editor?.setValue(current_data_source_node.code)
-        change_no_save_flag(false)
+        
+        if (current_data_source_node.mode === get_data_source_node(current_data_source_node.id).mode)
+            change_no_save_flag(false)
     }, [ current_data_source_node.id ])
     
     return <>
