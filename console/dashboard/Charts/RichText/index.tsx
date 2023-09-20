@@ -31,7 +31,7 @@ export function RichText () {
   const [edit_edit, set_edit_text] = useState('')
   const [display_text, set_display_text] = useState('')
   const { visible, open, close } = use_modal()
-  const  toolbarOptions = useMemo(() => [
+  const  toolbar_options = useMemo(() => [
     ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
     ['blockquote', 'code-block'],
   
@@ -65,7 +65,6 @@ export function RichText () {
            onCancel={() => { set_edit_text(display_text)
                              close() }}
            okText={t('保存')}
-           closeIcon={false}
            onOk={() => { set_display_text(edit_edit)
                         close() }}
             className='rich-text'
@@ -75,7 +74,7 @@ export function RichText () {
                     onChange={set_edit_text}
                     
                     modules={{
-                      toolbar: toolbarOptions
+                      toolbar: toolbar_options
                     }}/>
                      
     </Modal>
@@ -86,7 +85,7 @@ export function RichText () {
                         </Button>
                       </div> 
                           : 
-                      <div className='ql-container ql-snow'>
+                      <div className='ql-container ql-snow rich-text-container'>
                         <div dangerouslySetInnerHTML={{ __html: template_text }}
                              className='display-area ql-editor'
                              onClick={open}/>

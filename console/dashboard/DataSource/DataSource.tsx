@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { cloneDeep } from 'lodash'
-import { Button, Modal, Menu } from 'antd'
+
+import { Button, Modal, Menu, ButtonProps } from 'antd'
 import { DatabaseOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/modal.js'
 
@@ -29,9 +30,14 @@ const save_confirm_config = {
     ),   
 }
 
-export function DataSource ({ widget }: { widget?: Widget }) {
+interface IProps extends ButtonProps {
+    widget?: Widget
+    text?: string
+}
+
+export const DataSource = (props: IProps, ref) => {
+    const { widget, text, ...btn_props } = props
     const { visible, open, close } = use_modal()
-    
     const [modal, contextHolder] = Modal.useModal()
     
     const [show_preview, set_show_preview] = useState(false) 
@@ -73,14 +79,16 @@ export function DataSource ({ widget }: { widget?: Widget }) {
     }, [current_data_source_node])
     
     return <>
-        {
-            widget
-            ? <Button type='dashed' onClick={open}>点击填充数据源</Button>
-            : <div className='data-source-config-trigger-navigation' onClick={open}>
-                <DatabaseOutlined className='data-source-config-trigger-navigation-icon'/>
-                数据源
-            </div>
-        }
+        <Button
+            icon={<DatabaseOutlined className='data-source-config-trigger-navigation-icon' />}
+            type='dashed'
+            onClick={open}
+            {...btn_props}
+        >
+            {!widget ? '数据源' : text || '点击填充数据源'}
+        </Button>
+            
+        
         <Modal 
             title='配置数据源'
             width={1000} 

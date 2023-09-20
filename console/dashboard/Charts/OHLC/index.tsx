@@ -158,10 +158,13 @@ export default function OHLC ({ widget }: { widget: Widget }) {
             data: data.categoryData,
             // data: data.categoryData,
             boundaryGap: false,
-            axisLine: { onZero: false },
-            axisTick: { show: false },
-            splitLine: { show: false },
-            axisLabel: { show: false },
+            // axisLine: { onZero: false },
+            // axisTick: { show: false },
+            // splitLine: { show: false },
+            // axisLabel: { show: false },
+            nameTextStyle: {
+              padding: [0, 0, 0, 15]
+            },
             min: 'dataMin',
             max: 'dataMax'
           }
@@ -172,6 +175,9 @@ export default function OHLC ({ widget }: { widget: Widget }) {
             splitArea: {
               show: true
             },
+            nameTextStyle: {
+              padding: [0, 50, 0, 0]
+            },
             name: yAxis[0].name,
             position: yAxis[0].position,
             offset: yAxis[0].offset 
@@ -180,6 +186,9 @@ export default function OHLC ({ widget }: { widget: Widget }) {
             scale: true,
             gridIndex: 1,
             splitNumber: 2,
+            nameTextStyle: {
+              padding: [0, 0, 0, 80]
+            },
             name: yAxis[1].name,
             position: yAxis[1].position,
             offset: yAxis[1].offset, 
@@ -243,6 +252,7 @@ export default function OHLC ({ widget }: { widget: Widget }) {
         option={option}
         notMerge
         lazyUpdate
+        theme='dark'
     />
 }
 
