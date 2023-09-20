@@ -11,7 +11,7 @@ import { t } from '../../i18n/index.js'
 
 export function formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
     assert(obj.form === DdbForm.table, t('form 必须是 DdbForm.table, 否则不能 to_rows'))
-    let rows = new Array(obj.rows)
+    let rows = new Array()
     let start = obj.rows - max_line
     let le = obj.le
     for (let i = start >= 0 ? start : 0;  i < obj.rows;  i++) {
@@ -93,7 +93,7 @@ export function formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
                     row[name] = values[i]
             }
         }
-        rows[i] = row
+        rows.push(row)
     }
     return rows
 }
