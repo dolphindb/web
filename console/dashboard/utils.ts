@@ -110,7 +110,6 @@ export function default_value_in_select (
     key: string, 
     select_list: { label: string, value: string }[]): string 
 {
-    console.log(select_list)
     return (data_source_node[key] && select_list.filter(item => item.value === data_source_node[key]).length) 
         ? data_source_node[key] 
         : select_list[0].value

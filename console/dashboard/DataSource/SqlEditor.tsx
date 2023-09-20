@@ -85,8 +85,7 @@ export function SqlEditor ({
                         间隔时间：
                         <InputNumber 
                             size='small' 
-                            min={1}
-                            max={1000}
+                            min={0.001}
                             className='data-source-config-sqlconfig-left-intervals-input'
                             value={current_data_source_node.interval}
                             onChange={value => {
@@ -105,7 +104,6 @@ export function SqlEditor ({
                     <InputNumber 
                         size='small' 
                         min={1}
-                        max={1000}
                         className='data-source-config-sqlconfig-right-maxline-input' 
                         value={current_data_source_node.max_line}
                         onChange={value => { 
