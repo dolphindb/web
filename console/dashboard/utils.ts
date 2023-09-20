@@ -163,6 +163,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 type: 'dashed',
             }
         },
+        logBase: axis.log_base || 10,
         position: axis.position,
         offset: axis.offset,
         alignTicks: true,
@@ -196,4 +197,13 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         series: series.filter(item => !!item).map(convert_series),
         dataZoom: convert_data_zoom(x_datazoom, y_datazoom)
     }
+}
+
+
+export const convert_list_to_options = (list: string[]) => { 
+    return list.map(item => ({
+        label: item,
+        value: item,
+        key: item,
+    }))
 }

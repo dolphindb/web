@@ -1,14 +1,12 @@
+import { useMemo } from 'react'
 import { Form, Select, Input, Collapse, Button, Space, Divider, InputNumber } from 'antd'
-import { NamePath } from 'antd/es/form/interface.js'
 import { t } from '../../../i18n/index.js'
-import { concat_name_path } from '../utils.js'
+import { concat_name_path, convert_list_to_options } from '../utils.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../components/formily/FormDependies/index.js'
-import { IAxisItem, IYAxisItemValue } from './type.js'
+import { AxisType, IAxisItem, IYAxisItemValue, Position } from './type.js'
 
 import './index.scss'
-import { useMemo } from 'react'
-
 
 interface IProps { 
     col_names: string[]
@@ -16,24 +14,24 @@ interface IProps {
 
 const axis_type_options = [{
     label: t('数据轴'),
-    value: 'value'
+    value: AxisType.VALUE
 },
 {
     label: t('类目轴'),
-    value: 'category'
+    value: AxisType.CATEGORY
 },
 {
     label: t('时间轴'),
-    value: 'time'
+    value: AxisType.TIME
 },
 {
     label: t('对数'),
-    value: 'log'
+    value: AxisType.LOG
 }]
 
 const axis_position_options = [
-    { value: 'left', label: t('左侧') },
-    { value: 'right', label: t('右侧') }
+    { value: Position.LEFT, label: t('左侧') },
+    { value: Position.RIGHT, label: t('右侧') }
 ]
 
 
@@ -44,7 +42,7 @@ export const AxisItem = (props: IAxisItem) => {
         <Form.Item
             name={concat_name_path(name_path, 'type')}
             label={t('类型')}
-            initialValue={initial_values?.type ?? 'category'}
+            initialValue={initial_values?.type ?? AxisType.CATEGORY}
             tooltip={<>
                 {t('数值轴，适用于连续数据')}
                 <br />
@@ -63,12 +61,20 @@ export const AxisItem = (props: IAxisItem) => {
         {/* 类目轴从col_name中获取data */}
         <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'type')]}>
             {value => { 
-                const { type } = list_name ? value[list_name].find(item => !!item) : value[name_path] 
-                if (!['category', 'time'].includes(type))
-                    return null
-                return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
-                    <Select options={col_names.map(item => ({ label: item, value: item }))} />
-                </Form.Item>
+                const type = list_name ? value[list_name]?.find(item => !!item)?.type : value?.[name_path]?.type
+                switch (type) { 
+                    case AxisType.LOG:
+                        return <Form.Item name={concat_name_path(name_path, 'log_base')} label={t('底数')} initialValue={10}>
+                            <InputNumber />
+                        </Form.Item>
+                    case AxisType.TIME:
+                    case AxisType.CATEGORY:
+                        return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
+                            <Select options={convert_list_to_options(col_names)} />
+                        </Form.Item>
+                    default: 
+                        return null
+                }
             }}
         </FormDependencies>
     </>
@@ -82,9 +88,9 @@ const Series = (props: { col_names: string[] }) => {
         {(fields, { add, remove }) => <>
             {
                 fields.map((field, index) => { 
-                    return <div key={ field.name }>
+                    return <div key={ field.name } className='wrapper'>
                         <Space>
-                            <div className='wrapper'>
+                            <div className='axis-wrapper'>
                                 <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
                                     <Select options={col_names.map(item => ({ label: item, value: item })) } />
                                 </Form.Item>
@@ -97,7 +103,7 @@ const Series = (props: { col_names: string[] }) => {
                                         const { yAxis } = value
                                         const options = yAxis.map((item, idx) => ({
                                             value: idx,
-                                            label: item.name
+                                            label: item?.name
                                         }))
                                         return <Form.Item name={[field.name, 'yAxisIndex']} label={t('关联 Y 轴')} initialValue={0}>
                                             <Select options={options} />
@@ -137,7 +143,7 @@ export const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemV
                     fields.map((field, index) => {
                         return <div>
                             <div className='wrapper'>
-                                <Space size='small'>
+                                <Space>
                                     <div className='axis-wrapper'>
                                         <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis' />
                                         <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>

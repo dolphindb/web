@@ -24,7 +24,13 @@ export function SelectSider ({ hidden }: { hidden: boolean }) {
     return <div className={`dashboard-select-sider ${folding ? 'dashboard-select-sider-folding' : ''} ${hidden ? '' : 'hidden'}`}>
         <div className='dashboard-graph-items'>
             {Object.entries(WidgetType).map(([key, value]) => { 
-                return <div key={key} className='dashboard-graph-item grid-stack-item' data-type={key}>
+                return <div
+                    key={key}
+                    className='dashboard-graph-item grid-stack-item'
+                    data-type={key}
+                    gs-w={2}
+                    gs-h={3}
+                >
                     {ICON_MAP[value]}
                     <span className='siderbar-text'>{folding ? '' : value}</span>
                 </div>

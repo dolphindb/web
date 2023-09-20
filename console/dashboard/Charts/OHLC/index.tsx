@@ -3,7 +3,7 @@ import * as echarts from 'echarts'
 import { useMemo } from 'react'
 import { type Widget } from '../../model.js'
 import {  IChartConfig } from '../../type.js'
-import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
+import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { get_data_source_node } from '../../storage/date-source-node.js'
 
@@ -39,26 +39,20 @@ function splitData (rowData: any[], col_name: COL_MAP) {
 }
 
 export default function OHLC ({ widget }: { widget: Widget }) {
-    const { title, with_legend, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
+    const { title, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
     const data_node = get_data_source_node(widget.source_id)
     const { data: origin_data } = data_node.use([ 'data'])
-    const data = splitData(origin_data, { time: xAxis.col_name, 
-                                          open: series[0].open as string, 
-                                          high: series[0].high as string,
-                                          low: series[0].low as string,
-                                          close: series[0].close as string,
-                                          trades: series[1].col_name as string })
-    const option = {
+    const data = useMemo(() => splitData(origin_data, { time: xAxis.col_name, 
+                                                        open: series[0].open as string, 
+                                                        high: series[0].high as string,
+                                                        low: series[0].low as string,
+                                                        close: series[0].close as string,
+                                                        trades: series[1].col_name as string }), [origin_data, xAxis.col_name, series ])
+    const option = useMemo(() => ({
         animation: false,
         title: {
           text: title
-        },
-        legend: {
-          bottom: 10,
-          left: 'center',
-          data: ['OHLC', 'trades'],
-          show: with_legend
-        },     
+        },    
         tooltip: {
           show: with_tooltip,
           trigger: 'axis',
@@ -89,23 +83,23 @@ export default function OHLC ({ widget }: { widget: Widget }) {
             backgroundColor: '#777'
           }
         },
-        toolbox: {
-          feature: {
-            dataZoom: {
-              yAxisIndex: false
-            },
-            brush: {
-              type: ['lineX', 'clear']
-            }
-          }
-        },
-        brush: {
-          xAxisIndex: 'all',
-          brushLink: 'all',
-          outOfBrush: {
-            colorAlpha: 0.1
-          }
-        },
+        // toolbox: {
+        //   feature: {
+        //     dataZoom: {
+        //       yAxisIndex: false
+        //     },
+        //     brush: {
+        //       type: ['lineX', 'clear']
+        //     }
+        //   }
+        // },
+        // brush: {
+        //   xAxisIndex: 'all',
+        //   brushLink: 'all',
+        //   outOfBrush: {
+        //     colorAlpha: 0.1
+        //   }
+        // },
         visualMap: {
           show: false,
           seriesIndex: 5,
@@ -124,14 +118,14 @@ export default function OHLC ({ widget }: { widget: Widget }) {
         grid: [
           {
             left: '10%',
-            right: '8%',
+            right: '10%',
             height: '50%'
           },
           {
             left: '10%',
-            right: '8%',
-            top: '63%',
-            height: '16%'
+            right: '10%',
+            bottom: '22%',
+            height: '15%'
           }
         ],
         xAxis: [
@@ -162,9 +156,6 @@ export default function OHLC ({ widget }: { widget: Widget }) {
             // axisTick: { show: false },
             // splitLine: { show: false },
             // axisLabel: { show: false },
-            nameTextStyle: {
-              padding: [0, 0, 0, 15]
-            },
             min: 'dataMin',
             max: 'dataMax'
           }
@@ -187,7 +178,7 @@ export default function OHLC ({ widget }: { widget: Widget }) {
             gridIndex: 1,
             splitNumber: 2,
             nameTextStyle: {
-              padding: [0, 0, 0, 80]
+              padding: [0, 0, 0, 50]
             },
             name: yAxis[1].name,
             position: yAxis[1].position,
@@ -209,9 +200,10 @@ export default function OHLC ({ widget }: { widget: Widget }) {
             show: x_datazoom,
             xAxisIndex: [0, 1],
             type: 'slider',
-            top: '85%',
+            top: '86%',
             start: 20,
-            end: 100
+            end: 100,
+            height: 20
           },
           {
             show: y_datazoom,
@@ -245,7 +237,7 @@ export default function OHLC ({ widget }: { widget: Widget }) {
             }
           }
         ]
-    }
+    }), [title, with_tooltip, data, xAxis, yAxis, x_datazoom, y_datazoom ])
     
     return <ReactEChartsCore
         echarts={echarts}

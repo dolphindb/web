@@ -4,19 +4,14 @@ import { t } from '../../../i18n/index.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../components/formily/FormDependies/index.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
+import { convert_list_to_options } from '../utils.js'
 
 import './index.scss'
 
 
+
 interface IProps { 
     col_names: string[]
-}
-
-const convert_list_to_options = (list: string[]) => { 
-    return list.map(item => ({
-        label: item,
-        value: item
-    }))
 }
 
 export const BasicTableFields = (props: IProps) => { 
