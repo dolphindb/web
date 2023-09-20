@@ -219,21 +219,20 @@ $borderColor: rgb(148, 148, 148)
     width: 100%
     height: 500px
     color: $fontColor
-    border: 1px solid $borderColor
     display: flex
 
     .data-source-config-nodetable
         width: 200px
-        border-right: 1px solid $borderColor
+        border-right: 2px solid $borderColor
         display: flex
         flex-direction: column
         
         .data-source-config-nodetable-top
+            padding-right: 10px
             height: 45px
-            border-bottom: 1px solid $borderColor
             display: flex
             align-items: center
-            justify-content: space-evenly
+            justify-content: space-between
             
             .data-source-config-nodetable-top-item
                 cursor: pointer
@@ -243,7 +242,7 @@ $borderColor: rgb(148, 148, 148)
             
         .data-source-config-nodetable-bottom
             flex: 1
-            padding: 3px 3px
+            padding-right: 10px
             
             .data-source-config-nodetable-bottom-menu
                 height: 100%
