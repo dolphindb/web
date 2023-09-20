@@ -82,7 +82,7 @@ export function RichText ({ widget }: { widget: Widget }) {
     </Modal>
       {display_text === '' ?  
                       <div className='empty-area'>
-                        <Button onClick={open}>
+                        <Button onClick={editing && open}>
                           {t('添加文本')}
                         </Button>
                       </div> 
