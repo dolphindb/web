@@ -56,6 +56,9 @@ export class DataSourceNode extends Model<DdbModel>  {
 export const find_data_source_node_index = (key: string): number =>
     data_source_nodes.findIndex(data_source_node => data_source_node.id === key) 
 
+export const get_data_source_node = (id: string): DataSourceNode =>
+    data_source_nodes[find_data_source_node_index(id)]
+
 
 export const save_data_source_node = async ( new_data_source_node: DataSourceNode ) => {
     const id = new_data_source_node.id
@@ -81,6 +84,7 @@ export const save_data_source_node = async ( new_data_source_node: DataSourceNod
             }
             
             data_source_nodes[find_data_source_node_index(id)] = cloneDeep(new_data_source_node)
+            console.log(data_source_nodes)
             
             const dep = deps.get(id)
             if (dep && dep.length && !new_data_source_node.error_message) {
@@ -120,7 +124,7 @@ export const create_data_source_node = (): { id: string, name: string } => {
 }
 
 export const rename_data_source_node = (key: string, new_name: string) => {
-    const data_source_node = data_source_nodes[find_data_source_node_index(key)]
+    const data_source_node = get_data_source_node(key)
     
     if (
         (data_source_nodes.findIndex(data_source_node => data_source_node.name === new_name) !== -1) 
@@ -143,7 +147,7 @@ export const sub_source = (widget_option: Widget, source_id: string) => {
      else 
         deps.set(source_id, [widget_option])
     
-    const data_source_node = data_source_nodes[find_data_source_node_index(source_id)]
+    const data_source_node = get_data_source_node(source_id)
     
     if (data_source_node.error_message) 
         model.message.error('当前数据源存在错误')
