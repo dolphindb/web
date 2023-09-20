@@ -76,7 +76,7 @@ export function NodeTable ({
         tmp_menu_item.title = <Input
             size='small' 
             autoFocus
-            className='data-source-config-nodetable-bottom-menu-rename-input'
+            className='bottom-menu-rename-input'
             defaultValue={old_name}
             onBlur={handler}
             onPressEnter={handler}
@@ -85,10 +85,10 @@ export function NodeTable ({
     }
     
     return <>
-        <div className='data-source-config-nodetable'>
-            <div className='data-source-config-nodetable-top'>
+        <div className='config-nodetable'>
+            <div className='nodetable-top'>
                 <div 
-                    className='data-source-config-nodetable-top-item' 
+                    className='nodetable-top-item' 
                     onClick={
                         async () => {
                             if (no_save_flag.current && await save_confirm()) 
@@ -110,20 +110,20 @@ export function NodeTable ({
                         }
                     }
                 >
-                    <FileOutlined className='data-source-config-nodetable-top-item-icon'/>
+                    <FileOutlined className='nodetable-top-item-icon'/>
                     新建
                 </div>
                 <div 
-                    className='data-source-config-nodetable-top-item' 
+                    className='nodetable-top-item' 
                     onClick={
                         () => { rename_data_source_node_handler(menu_items, current_select, current_data_source_node.name) }
                     }
                 >
-                    <EditOutlined className='data-source-config-nodetable-top-item-icon'/>
+                    <EditOutlined className='nodetable-top-item-icon'/>
                     重命名
                 </div>
                 <div 
-                    className='data-source-config-nodetable-top-item' 
+                    className='nodetable-top-item' 
                     onClick={
                         () => {
                             const delete_index = delete_data_source_node(current_data_source_node.id)
@@ -141,11 +141,11 @@ export function NodeTable ({
                         }
                     }
                 >
-                    <DeleteOutlined className='data-source-config-nodetable-top-item-icon'/>
+                    <DeleteOutlined className='nodetable-top-item-icon'/>
                     删除
                 </div>
             </div>
-            <div className='data-source-config-nodetable-bottom'>
+            <div className='nodetable-bottom'>
                 {data_source_nodes.length
                     ? <Tree
                         ref={tree_ref}
@@ -153,7 +153,7 @@ export function NodeTable ({
                         height={450}
                         blockNode
                         selectedKeys={[current_select]}
-                        className='data-source-config-nodetable-bottom-menu'
+                        className='nodetable-bottom-menu'
                         onSelect={async key => { 
                             if (key.length) {
                                 if (no_save_flag.current && await save_confirm()) 

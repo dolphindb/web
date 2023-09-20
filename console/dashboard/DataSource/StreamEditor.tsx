@@ -105,16 +105,16 @@ export function StreamEditor ({
     }, [current_data_source_node.node])
     
     return <>
-        <div className='data-source-config-streameditor'>
+        <div className='streameditor'>
             {stream_tables.length
-                ? <div className='data-source-config-streameditor-main'>
-                    <div className='data-source-config-streameditor-main-left'>
+                ? <div className='streameditor-main'>
+                    <div className='streameditor-main-left'>
                         <Tree
                             showIcon
                             height={405}
                             blockNode
                             selectedKeys={[current_stream]}
-                            className='data-source-config-streameditor-main-left-menu'
+                            className='streameditor-main-left-menu'
                             treeData={stream_tables}
                             onSelect={async key => { 
                                 if (key.length) {
@@ -124,25 +124,25 @@ export function StreamEditor ({
                             }}
                         />
                     </div>
-                    <div className='data-source-config-streameditor-main-right'>
-                        <div className='data-source-config-preview' style={{ height: current_data_source_node.filter ? '60%' : '100%' }}>
-                            <div className='data-source-config-preview-config'>
-                                <div className='data-source-config-preview-config-tag'>
+                    <div className='streameditor-main-right'>
+                        <div className='preview' style={{ height: current_data_source_node.filter ? '60%' : '100%' }}>
+                            <div className='preview-config'>
+                                <div className='preview-config-tag'>
                                     列名预览
                                 </div>
                             </div>
-                            <div className='data-source-config-preview-main'>
+                            <div className='preview-main'>
                                 <DataView dashboard/>
                             </div>
                         </div>
                         {current_data_source_node.filter
-                            ? <div className='data-source-config-streameditor-main-right-filter'>
-                                <div className='data-source-config-streameditor-main-right-filter-top'>
-                                    <div className='data-source-config-streameditor-main-right-filter-top-mode'>
+                            ? <div className='streameditor-main-right-filter'>
+                                <div className='streameditor-main-right-filter-top'>
+                                    <div className='streameditor-main-right-filter-top-mode'>
                                         过滤方式：
                                         <Select
                                             defaultValue={current_data_source_node.filter_mode || 'value'}
-                                            className='data-source-config-streameditor-main-right-filter-top-mode-select'
+                                            className='streameditor-main-right-filter-top-mode-select'
                                             size='small'
                                             onChange={(value: string) => change_current_data_source_node_property('filter_mode', value)}
                                             options={[
@@ -167,21 +167,21 @@ export function StreamEditor ({
                                             )} 
                                             title='过滤方式'
                                         >
-                                            <QuestionCircleOutlined className='data-source-config-streameditor-main-right-filter-top-mode-icon'/>
+                                            <QuestionCircleOutlined className='streameditor-main-right-filter-top-mode-icon'/>
                                         </Popover>
                                     </div>
-                                    <div className='data-source-config-streameditor-main-right-filter-top-col'>
+                                    <div className='streameditor-main-right-filter-top-col'>
                                         过滤列:
                                         <Select
                                             defaultValue={default_value_in_select(current_data_source_node, 'filter_col', stream_cols)}
-                                            className='data-source-config-streameditor-main-right-filter-top-mode-select'
+                                            className='streameditor-main-right-filter-top-mode-select'
                                             size='small'
                                             onChange={(value: string) => change_current_data_source_node_property('filter_col', value)}
                                             options={stream_cols}
                                         />
                                     </div>
                                 </div>
-                                <div className='data-source-config-streameditor-main-right-filter-main'>
+                                <div className='streameditor-main-right-filter-main'>
                                     <Editor
                                         enter_completion
                                         on_mount={(editor, monaco) => {
@@ -197,27 +197,27 @@ export function StreamEditor ({
                         }
                     </div>        
                 </div>
-                : <div className='data-source-config-streameditor-no-table'>无可用流表</div>
+                : <div className='streameditor-no-table'>无可用流表</div>
             }
         </div>
-        <div className='data-source-config-streamconfig'>
-                <div className='data-source-config-streamconfig-left'>
+        <div className='streamconfig'>
+                <div className='streamconfig-left'>
                     <div>
                         节点：
                         <Select
                             defaultValue={default_value_in_select(current_data_source_node, 'node', node_list) }
-                            className='data-source-config-streamconfig-left-node-select'
+                            className='streamconfig-left-node-select'
                             size='small'
                             onChange={(value: string) => { change_current_data_source_node_property('node', value) }}
                             options={node_list}
                         />
                     </div>
-                    <div className='data-source-config-streamconfig-left-ip'>
+                    <div className='streamconfig-left-ip'>
                         IP：
                         {ip_select
                             ? <Select
                                 value={current_data_source_node.ip}
-                                className='data-source-config-streamconfig-left-ip-select'
+                                className='streamconfig-left-ip-select'
                                 size='small'
                                 onChange={(value: string) => {
                                     if (value === 'customize') {
@@ -232,10 +232,10 @@ export function StreamEditor ({
                                     { value: 'customize', label: '自定义' }
                                 ]}
                             />
-                            : <div  className='data-source-config-streamconfig-left-ip-manualinput'>
+                            : <div  className='streamconfig-left-ip-manualinput'>
                                 <Input 
                                     size='small' 
-                                    className='data-source-config-streamconfig-left-ip-manualinput-input'
+                                    className='streamconfig-left-ip-manualinput-input'
                                     value={current_data_source_node.ip}
                                     onChange={event => { 
                                         if (event !== null)
@@ -243,7 +243,7 @@ export function StreamEditor ({
                                     }}
                                 />
                                 <CloseOutlined 
-                                    className='data-source-config-streamconfig-left-ip-manualinput-icon' 
+                                    className='streamconfig-left-ip-manualinput-icon' 
                                     onClick={() => { 
                                         set_ip_select(true) 
                                         const new_ip = default_value_in_select(current_data_source_node, 'ip', ip_list)
@@ -268,13 +268,13 @@ export function StreamEditor ({
                         : <></>
                     }
                 </div>
-                <div className='data-source-config-streamconfig-right'>
+                <div className='streamconfig-right'>
                     <div>
                         最大行数：
                         <InputNumber 
                             size='small' 
                             min={1}
-                            className='data-source-config-sqlconfig-right-maxline-input' 
+                            className='sqlconfig-right-maxline-input' 
                             value={current_data_source_node.max_line}
                             onChange={value => { 
                                 if (value !== null)

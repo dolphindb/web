@@ -13,9 +13,9 @@ export function Navigation () {
     
     
     return <div className='dashboard-navigation'>
-        <div className='dashboard-navigation-left'>
+        <div className='left'>
             <Select
-                className='dashboard-navigation-left-select'
+                className='left-select'
                 placeholder='选择 dashboard'
                 onChange={(value: string) => {
                     console.log(`selected ${value}`)
@@ -28,8 +28,8 @@ export function Navigation () {
                 ]}
             />
         </div>
-        <div className='dashboard-navigation-right'>
-            <div className='dashboard-navigation-right-icons'>
+        <div className='right'>
+            <div className='right-icons'>
                 <Tooltip title='保存'>
                     <FileOutlined />
                 </Tooltip>
@@ -46,10 +46,10 @@ export function Navigation () {
                     <PauseOutlined />
                 </Tooltip>
             </div>
-            <div className='dashboard-navigation-right-editormode'>
+            <div className='right-editormode'>
                 <span
                     className={
-                        `dashboard-navigation-right-editormode-editor ${editing ? 'editormode-selected' : ''}`
+                        `right-editormode-editor ${editing ? 'editormode-selected' : ''}`
                     }
                     onClick={() => { dashboard.set_editing(true) }}
                 >
@@ -57,13 +57,13 @@ export function Navigation () {
                 </span>
                 <span className='divider'>|</span>
                 <span
-                    className={`dashboard-navigation-right-editormode-preview ${editing ? '' : 'editormode-selected'} `}
+                    className={`right-editormode-preview ${editing ? '' : 'editormode-selected'} `}
                     onClick={() => { dashboard.set_editing(false) }}
                 >
                     <EyeOutlined /> 预览
                 </span>
             </div>
-            <div className='dashboard-navigation-right-config'>
+            <div className='right-config'>
                 <DataSource/>
             </div>
         </div>

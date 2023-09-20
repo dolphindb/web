@@ -25,9 +25,7 @@ const save_confirm_config = {
     okText: '保存',
     style: { top: '250px' },
     maskStyle: { backgroundColor: 'rgba(0,0,0,.2)' },
-    content: (
-        <p>此数据源存在未保存的更改。你想保存吗？</p>
-    ),   
+    title: '此数据源存在未保存的更改。你想保存吗？',   
 }
 
 interface IProps extends ButtonProps {
@@ -115,7 +113,7 @@ export const DataSource = (props: IProps, ref) => {
                         预览
                     </Button>
                     : <div key='preview' />,
-                    <Button key='save' onClick={async () => {
+                    <Button key='save' type='primary' onClick={async () => {
                         if (no_save_flag.current)
                             await handle_save()
                         if (widget) {
@@ -129,7 +127,7 @@ export const DataSource = (props: IProps, ref) => {
                     }}>
                         {widget ? '应用' : '保存'}
                     </Button>,
-                    <Button key='close' type='primary' onClick={handle_close}>
+                    <Button key='close' onClick={handle_close}>
                         关闭
                     </Button>,
                 ]
@@ -147,8 +145,8 @@ export const DataSource = (props: IProps, ref) => {
                     change_current_data_source_node_property={change_current_data_source_node_property}
                 />
                 {data_source_nodes.length
-                    ? <div className='data-source-config-right'>
-                        <div className='data-source-config-right-top'>
+                    ? <div className='config-right'>
+                        <div className='config-right-top'>
                             <Menu 
                                 onClick={event => { change_current_data_source_node_property('mode', event.key) }} 
                                 selectedKeys={[current_data_source_node.mode]} 

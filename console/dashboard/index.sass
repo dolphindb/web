@@ -14,7 +14,7 @@ $borderColor: rgb(100, 100, 100)
     flex-direction: column
     
     .dashboard-header
-        height: 40px
+        height: 50px
         border-bottom: 1px black solid
         
         .dashboard-navigation
@@ -25,10 +25,10 @@ $borderColor: rgb(100, 100, 100)
             color: $fontColor
             
                 
-            .dashboard-navigation-left   
+            .left   
                 width: 160px
                 
-                .dashboard-navigation-left-select
+                .left-select
                     width: 100%
                     height: 100%
                     
@@ -40,44 +40,44 @@ $borderColor: rgb(100, 100, 100)
                     .ant-select-selector
                         height: 100%
                         
-            .dashboard-navigation-right
+            .right
                 flex: 1  
                 display: flex
                 justify-content: space-between
                 font-size: 16px
                 cursor: default
                 
-                .dashboard-navigation-right-icons
+                .right-icons
                     width: 160px
                     display: flex
                     justify-content: space-evenly
                     cursor: pointer
                 
-                .dashboard-navigation-right-editormode
+                .right-editormode
                     width: 450px
                     display: flex
                     align-items: center
                     
-                    .dashboard-navigation-right-editormode-editor
+                    .right-editormode-editor
                         cursor: pointer
                         
                     .divider
                         padding: 0px 8px
                         
-                    .dashboard-navigation-right-editormode-preview
+                    .right-editormode-preview
                         cursor: pointer
                     
                     .editormode-selected
                         color: $blue
                         // font-size: 18px
                         
-                .dashboard-navigation-right-config
+                .right-config
                     width: 100px
                     display: flex
                     align-items: center
        
     .dashboard-main
-        height: 95%
+        flex: 1
         display: flex
         flex-direction: row
         
@@ -221,33 +221,33 @@ $borderColor: rgb(100, 100, 100)
     color: $fontColor
     display: flex
 
-    .data-source-config-nodetable
+    .config-nodetable
         width: 200px
         border-right: 1px solid $borderColor
         display: flex
         flex-direction: column
         
-        .data-source-config-nodetable-top
+        .nodetable-top
             padding-right: 10px
             height: 45px
             display: flex
             align-items: center
             justify-content: space-between
             
-            .data-source-config-nodetable-top-item
+            .nodetable-top-item
                 cursor: pointer
                 
-                .data-source-config-nodetable-top-item-icon
+                .nodetable-top-item-icon
                     margin-right: 2px
             
-        .data-source-config-nodetable-bottom
+        .nodetable-bottom
             flex: 1
             padding-right: 10px
             
-            .data-source-config-nodetable-bottom-menu
+            .nodetable-bottom-menu
                 height: 100%
                 
-                .data-source-config-nodetable-bottom-menu-rename-input
+                .bottom-menu-rename-input
                     width: 150px
                 
                 .ant-tree-switcher-noop
@@ -259,44 +259,44 @@ $borderColor: rgb(100, 100, 100)
                     display: flex
                     align-items: center
         
-    .data-source-config-right
+    .config-right
         flex: 1
         display: flex
         flex-direction: column
         overflow: auto
         
-        .data-source-config-right-top
+        .config-right-top
             height: 10%
             
             .ant-menu-horizontal
                 border: none !important
             
-        .data-source-config-sqleditor
+        .sqleditor
             height: 83%
             padding: 8px 16px
             
-            // .data-source-config-sqleditor-main
+            // .sqleditor-main
             //     border: 1px solid $borderColor
                 
-        .data-source-config-streameditor
+        .streameditor
             height: 83%
             padding: 8px 16px
             
-            .data-source-config-streameditor-no-table
+            .streameditor-no-table
                 height: 100%
                 border: 1px solid $borderColor
                 padding: 3px 0 0 10px
             
-            .data-source-config-streameditor-main
+            .streameditor-main
                 display: flex
                 height: 100%
                 border: 1px solid $borderColor
                 
-                .data-source-config-streameditor-main-left
+                .streameditor-main-left
                     width: 20%
                     border-right: 1px solid $borderColor
                     
-                    .data-source-config-streameditor-main-left-menu
+                    .streameditor-main-left-menu
                         height: 100%
                         padding: 3px
 
@@ -309,45 +309,45 @@ $borderColor: rgb(100, 100, 100)
                             display: flex
                             align-items: center
                 
-                .data-source-config-streameditor-main-right
+                .streameditor-main-right
                     width: 80%
                     padding: 3px 15px 15px 15px
                     
-                    .data-source-config-streameditor-main-right-filter
+                    .streameditor-main-right-filter
                         height: 40%
                             
-                        .data-source-config-streameditor-main-right-filter-top
+                        .streameditor-main-right-filter-top
                             display: flex
                             justify-content: space-between
                             padding: 3px 0
                             
-                            .data-source-config-streameditor-main-right-filter-top-mode-select
+                            .streameditor-main-right-filter-top-mode-select
                                 width: 100px
                                 
-                            .data-source-config-streameditor-main-right-filter-top-mode-icon
+                            .streameditor-main-right-filter-top-mode-icon
                                 color: #666
                                 margin-left: 10px
                                 cursor: pointer 
                     
-                        .data-source-config-streameditor-main-right-filter-main
+                        .streameditor-main-right-filter-main
                             flex: 1
                             height: 80%
                             border: 1px solid $borderColor
                         
-        .data-source-config-preview
+        .preview
                 display: flex
                 flex-direction: column
                 height: 60%
                     
-                .data-source-config-preview-config
+                .preview-config
                     display: flex
                     justify-content: space-between
                     padding: 3px 0
                     
-                    .data-source-config-preview-config-close
+                    .preview-config-close
                         cursor: pointer
                     
-                .data-source-config-preview-main
+                .preview-main
                     flex: 1
                     border: 1px solid $borderColor
                     overflow: auto
@@ -389,66 +389,66 @@ $borderColor: rgb(100, 100, 100)
                             background-color: #3f3f3f !important
                             color: $fontColor !important
                     
-                    .data-source-config-preview-main-error
+                    .preview-main-error
                         color: red
                         padding: 5px 10px
     
-        .data-source-config-sqlconfig
+        .sqlconfig
             height: 7%
             padding: 0 16px
             display: flex
             justify-content: space-between
             align-items: center
             
-            .data-source-config-sqlconfig-left
+            .sqlconfig-left
                 display: flex
                 
-                .data-source-config-sqlconfig-left-refresh
+                .sqlconfig-left-refresh
                     margin-right: 20px
                 
-                .data-source-config-sqlconfig-left-intervals-input
+                .sqlconfig-left-intervals-input
                     width: 70px
                     margin-right: 5px
             
-            .data-source-config-sqlconfig-right-maxline-input
+            .sqlconfig-right-maxline-input
                 width: 70px
    
-        .data-source-config-streamconfig
+        .streamconfig
             height: 7%
             padding: 0 16px
             display: flex
             justify-content: space-between
             align-items: center
             
-            .data-source-config-streamconfig-left
+            .streamconfig-left
                 display: flex
                 
-                .data-source-config-streamconfig-left-node-select
+                .streamconfig-left-node-select
                     width: 100px
                     margin-right: 15px
                 
-                .data-source-config-streamconfig-left-ip
+                .streamconfig-left-ip
                     display: flex
                     margin-right: 15px
                     
-                    .data-source-config-streamconfig-left-ip-select
+                    .streamconfig-left-ip-select
                         width: 180px
                     
-                    .data-source-config-streamconfig-left-ip-manualinput
+                    .streamconfig-left-ip-manualinput
                         display: flex
                         
-                        .data-source-config-streamconfig-left-ip-manualinput-input
+                        .streamconfig-left-ip-manualinput-input
                             width: 180px
                             margin-right: 7px
                             
-                        .data-source-config-streamconfig-left-ip-manualinput-icon
+                        .streamconfig-left-ip-manualinput-icon
                             color: #d9d9d9
                             cursor: pointer
                 
-            .data-source-config-streamconfig-right
+            .streamconfig-right
                 display: flex
                 
-                .data-source-config-streamconfig-right-input
+                .streamconfig-right-input
                     width: 70px
                 
             

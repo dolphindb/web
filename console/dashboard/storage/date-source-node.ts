@@ -176,7 +176,6 @@ export const unsub_source = (widget_option: Widget, pre_source_id?: string) => {
 
 const create_interval = (source_id: string) => {
     const data_source_node = get_data_source_node(source_id)
-    console.log(data_source_node)
     if (data_source_node.auto_refresh) {
         const id = data_source_node.id
         

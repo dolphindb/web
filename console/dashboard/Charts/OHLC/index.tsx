@@ -40,16 +40,15 @@ function splitData (rowData: any[], col_name: COL_MAP) {
     }
 }
 
-export default function OHLC ({ widget }: { widget: Widget }) {
+export default function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const { title, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
-    const data_node = get_data_source_node(widget.source_id)
-    const { data: origin_data } = data_node.use([ 'data'])
-    const data = useMemo(() => splitData(origin_data, { time: xAxis.col_name, 
+    console.log('data_source', data_source)
+    const data = useMemo(() => splitData(data_source, { time: xAxis.col_name, 
                                                         open: series[0].open as string, 
                                                         high: series[0].high as string,
                                                         low: series[0].low as string,
                                                         close: series[0].close as string,
-                                                        trades: series[1].col_name as string }), [origin_data, xAxis.col_name, series ])
+                                                        trades: series[1].col_name as string }), [data_source, xAxis.col_name, series ])
     const option = useMemo(() => ({
         animation: false,
         title: {
