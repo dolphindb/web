@@ -5,7 +5,7 @@ import { type Widget } from '../../model.js'
 import {  IChartConfig } from '../../type.js'
 import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
-import { get_data_source_node } from '../../storage/date-source-node.js'
+import { get_source_node } from '../../storage/date-source-node.js'
 
 import './index.sass'
 
@@ -40,7 +40,7 @@ function splitData (rowData: any[], col_name: COL_MAP) {
 
 export default function OHLC ({ widget }: { widget: Widget }) {
     const { title, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
-    const data_node = get_data_source_node(widget.source_id)
+    const data_node = get_source_node(widget.source_id)
     const { data: origin_data } = data_node.use([ 'data'])
     const data = useMemo(() => splitData(origin_data, { time: xAxis.col_name, 
                                                         open: series[0].open as string, 

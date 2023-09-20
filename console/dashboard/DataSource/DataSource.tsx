@@ -11,10 +11,10 @@ import { StreamEditor } from './StreamEditor.js'
 
 import { dashboard } from '../model.js'
 import { type Widget } from '../model.js'
-import { data_source_nodes,
-    find_data_source_node_index, 
-    get_data_source_node,
-    save_data_source_node, 
+import { source_nodes,
+    find_source_node_index, 
+    get_source_node,
+    save_source_node, 
     sub_source,
     DataSourceNode,
     type DataSourceNodePropertyType, 
@@ -39,7 +39,7 @@ export const DataSource = (props: IProps, ref) => {
     const [modal, contextHolder] = Modal.useModal()
     
     const [show_preview, set_show_preview] = useState(false) 
-    const [current_data_source_node, set_current_data_source_node] = useState(data_source_nodes[0] || null)
+    const [current_data_source_node, set_current_data_source_node] = useState(source_nodes[0] || null)
     
     const no_save_flag = useRef(false)
     
@@ -48,7 +48,7 @@ export const DataSource = (props: IProps, ref) => {
             set_current_data_source_node(null)
             return
         }    
-        set_current_data_source_node(cloneDeep(get_data_source_node(key)))
+        set_current_data_source_node(cloneDeep(get_source_node(key)))
         set_show_preview(false)
     }, [ ])
     
@@ -72,7 +72,7 @@ export const DataSource = (props: IProps, ref) => {
     }, [no_save_flag.current])
     
     const handle_save = useCallback(async () => {
-        await save_data_source_node(current_data_source_node)
+        await save_source_node(current_data_source_node)
         no_save_flag.current = false
     }, [current_data_source_node])
     
@@ -96,7 +96,7 @@ export const DataSource = (props: IProps, ref) => {
             maskClosable={false}
             maskStyle={{ backgroundColor: 'rgba(84,84,84,0.5)' }}
             afterOpenChange={() => {
-                set_current_data_source_node(cloneDeep(data_source_nodes[widget?.source_id ? find_data_source_node_index(widget.source_id) : 0]))
+                set_current_data_source_node(cloneDeep(source_nodes[widget?.source_id ? find_source_node_index(widget.source_id) : 0]))
             }}
             footer={
                 [
@@ -144,7 +144,7 @@ export const DataSource = (props: IProps, ref) => {
                     change_current_data_source_node={change_current_data_source_node}
                     change_current_data_source_node_property={change_current_data_source_node_property}
                 />
-                {data_source_nodes.length
+                {source_nodes.length
                     ? <div className='config-right'>
                         <div className='config-right-top'>
                             <Menu 
