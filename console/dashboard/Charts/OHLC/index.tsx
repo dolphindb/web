@@ -5,6 +5,7 @@ import { type Widget } from '../../model.js'
 import {  IChartConfig } from '../../type.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
+import { get_data_source_node } from '../../storage/date-source-node.js'
 
 import './index.sass'
 
@@ -344,18 +345,19 @@ function splitData (rawData) {
 export default function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const data = splitData(row_data)
     const { title, with_legend, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
-    console.log('series', series)
+    const data_node = get_data_source_node(widget.source_id)
+    // const col_names = data_node.use(['cols'])
     const option = {
         animation: false,
+        title: {
+          text: title
+        },
         legend: {
           bottom: 10,
           left: 'center',
-          data: ['Dow-Jones index'],
+          data: ['OHLC', 'trades'],
           show: with_legend
         },     
-        title: {
-            text: title
-        },
         tooltip: {
           show: with_tooltip,
           trigger: 'axis',
@@ -375,7 +377,6 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
             obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30
             return obj
           }
-          // extraCssText: 'width: 170px'
         },
         axisPointer: {
           link: [
@@ -469,12 +470,18 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
             scale: true,
             splitArea: {
               show: true
-            }
+            },
+            name: yAxis[0].name,
+            position: yAxis[0].position,
+            offset: yAxis[0].offset 
           },
           {
             scale: true,
             gridIndex: 1,
             splitNumber: 2,
+            name: yAxis[1].name,
+            position: yAxis[1].position,
+            offset: yAxis[1].offset, 
             axisLabel: { show: false },
             axisLine: { show: false },
             axisTick: { show: false },
@@ -507,18 +514,18 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
         ],
         series: [
           {
-            name: 'Dow-Jones index',
+            name: 'OHLC',
             type: 'candlestick',
             data: data.values,
             itemStyle: {
-              color: upColor,
-              color0: downColor,
-              borderColor: undefined,
-              borderColor0: undefined
+              color: undefined,
+              color0: undefined,
+              borderColor: upColor,
+              borderColor0: downColor
             }
           },
           {
-            name: 'Volume',
+            name: 'trades',
             type: 'bar',
             xAxisIndex: 1,
             yAxisIndex: 1,
@@ -707,7 +714,6 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
 
 export const OhlcConfigForm = (props: { col_names: string[] }) => { 
   const { col_names = [ ] } = props
-  
   return <>
       <BasicFormFields type='chart' />
       <OhlcFormFields col_names={col_names} />
