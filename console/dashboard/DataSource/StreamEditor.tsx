@@ -85,16 +85,20 @@ export function StreamEditor ({
     
     useEffect(() => {
         const node = nodes.filter(node => node.name === default_value_in_select(current_data_source_node, 'node', node_list))[0]
+        console.log(node)
         const new_ip_list = [
             {
                 value: node.host + ':' + node.port,
                 label: node.host + ':' + node.port
             },
-            {
-                value: node.publicName + ':' + node.port,
-                label: node.publicName + ':' + node.port
-            }
+            ...node.publicName.split(';').map(item => {
+                return {
+                    value: item + ':' + node.port,
+                    label: item + ':' + node.port
+                }
+            })
         ]
+        console.log(new_ip_list)
         set_ip_list(new_ip_list)
         const new_ip = default_value_in_select(current_data_source_node, 'ip', new_ip_list)
         if (ip_select)
@@ -103,25 +107,25 @@ export function StreamEditor ({
     
     return <>
         <div className='data-source-config-streameditor'>
-            <div className='data-source-config-streameditor-main'>
-                <div className='data-source-config-streameditor-main-left'>
-                    <Tree
-                        showIcon
-                        height={405}
-                        blockNode
-                        selectedKeys={[current_stream]}
-                        className='data-source-config-streameditor-main-left-menu'
-                        treeData={stream_tables}
-                        onSelect={async key => { 
-                            if (key.length) {
-                                change_current_data_source_node_property('stream_table', String(key[0]))
-                                set_current_stream(String(key[0]))
-                            }
-                        }}
-                    />
-                </div>
-                {stream_tables.length
-                    ? <div className='data-source-config-streameditor-main-right'>
+            {stream_tables.length
+                ? <div className='data-source-config-streameditor-main'>
+                    <div className='data-source-config-streameditor-main-left'>
+                        <Tree
+                            showIcon
+                            height={405}
+                            blockNode
+                            selectedKeys={[current_stream]}
+                            className='data-source-config-streameditor-main-left-menu'
+                            treeData={stream_tables}
+                            onSelect={async key => { 
+                                if (key.length) {
+                                    change_current_data_source_node_property('stream_table', String(key[0]))
+                                    set_current_stream(String(key[0]))
+                                }
+                            }}
+                        />
+                    </div>
+                    <div className='data-source-config-streameditor-main-right'>
                         <div className='data-source-config-preview' style={{ height: current_data_source_node.filter ? '60%' : '100%' }}>
                             <div className='data-source-config-preview-config'>
                                 <div className='data-source-config-preview-config-tag'>
@@ -192,13 +196,12 @@ export function StreamEditor ({
                             </div>
                             : <></>
                         }
-                    </div>
-                    : <></>
-                }
-            </div>
+                    </div>        
+                </div>
+                : <div className='data-source-config-streameditor-no-table'>无可用流表</div>
+            }
         </div>
-        {stream_tables.length
-            ? <div className='data-source-config-streamconfig'>
+        <div className='data-source-config-streamconfig'>
                 <div className='data-source-config-streamconfig-left'>
                     <div>
                         节点：
@@ -252,16 +255,19 @@ export function StreamEditor ({
                             </div>
                         }
                     </div>
-                    <div>
-                        过滤：
-                        <Switch 
-                            size='small' 
-                            checked={current_data_source_node.filter }
-                            onChange={(checked: boolean) => {
-                                change_current_data_source_node_property('filter', checked)
-                            }} 
-                        />
-                    </div>
+                    {stream_tables.length
+                        ? <div>
+                            过滤：
+                            <Switch 
+                                size='small' 
+                                checked={current_data_source_node.filter }
+                                onChange={(checked: boolean) => {
+                                    change_current_data_source_node_property('filter', checked)
+                                }} 
+                            />
+                        </div>
+                        : <></>
+                    }
                 </div>
                 <div className='data-source-config-streamconfig-right'>
                     <div>
@@ -269,7 +275,6 @@ export function StreamEditor ({
                         <InputNumber 
                             size='small' 
                             min={1}
-                            max={1000}
                             className='data-source-config-sqlconfig-right-maxline-input' 
                             value={current_data_source_node.max_line}
                             onChange={value => { 
@@ -279,8 +284,6 @@ export function StreamEditor ({
                         />
                     </div>
                 </div>
-            </div>
-            : <></>
-        }
-    </>
+        </div>
+    </> 
 }
