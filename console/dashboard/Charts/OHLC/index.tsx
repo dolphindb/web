@@ -355,7 +355,7 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
         legend: {
           bottom: 10,
           left: 'center',
-          data: ['Dow-Jones index'],
+          data: ['OHLC', 'trades'],
           show: with_legend
         },     
         tooltip: {
@@ -470,12 +470,18 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
             scale: true,
             splitArea: {
               show: true
-            }
+            },
+            name: yAxis[0].name,
+            position: yAxis[0].position,
+            offset: yAxis[0].offset 
           },
           {
             scale: true,
             gridIndex: 1,
             splitNumber: 2,
+            name: yAxis[1].name,
+            position: yAxis[1].position,
+            offset: yAxis[1].offset, 
             axisLabel: { show: false },
             axisLine: { show: false },
             axisTick: { show: false },
@@ -508,7 +514,7 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
         ],
         series: [
           {
-            name: 'Dow-Jones index',
+            name: 'OHLC',
             type: 'candlestick',
             data: data.values,
             itemStyle: {
@@ -519,7 +525,7 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
             }
           },
           {
-            name: 'Volume',
+            name: 'trades',
             type: 'bar',
             xAxisIndex: 1,
             yAxisIndex: 1,
