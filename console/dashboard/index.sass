@@ -1,7 +1,7 @@
 $canvasBackColor: rgb(40, 40, 40)
 $fontColor: rgb(215, 215, 215)
 $blue: rgb(22, 104, 220)
-$borderColor: rgb(148, 148, 148)
+$borderColor: rgb(100, 100, 100)
     
     
 .view-card.dashboard
@@ -14,7 +14,7 @@ $borderColor: rgb(148, 148, 148)
     flex-direction: column
     
     .dashboard-header
-        height: 5%
+        height: 40px
         border-bottom: 1px black solid
         
         .dashboard-navigation
@@ -61,15 +61,15 @@ $borderColor: rgb(148, 148, 148)
                     .dashboard-navigation-right-editormode-editor
                         cursor: pointer
                         
-                    .ant-divider-vertical
-                        border-inline-start: 1px solid $fontColor
+                    .divider
+                        padding: 0px 8px
                         
                     .dashboard-navigation-right-editormode-preview
                         cursor: pointer
                     
                     .editormode-selected
                         color: $blue
-                        font-size: 18px
+                        // font-size: 18px
                         
                 .dashboard-navigation-right-config
                     width: 100px
@@ -223,7 +223,7 @@ $borderColor: rgb(148, 148, 148)
 
     .data-source-config-nodetable
         width: 200px
-        border-right: 2px solid $borderColor
+        border-right: 1px solid $borderColor
         display: flex
         flex-direction: column
         
@@ -273,14 +273,14 @@ $borderColor: rgb(148, 148, 148)
             
         .data-source-config-sqleditor
             height: 83%
-            padding: 3px 16px 0 16px
+            padding: 8px 16px
             
-            .data-source-config-sqleditor-main
-                border: 1px solid $borderColor
+            // .data-source-config-sqleditor-main
+            //     border: 1px solid $borderColor
                 
         .data-source-config-streameditor
             height: 83%
-            padding: 3px 16px 0 16px
+            padding: 8px 16px
             
             .data-source-config-streameditor-no-table
                 height: 100%
