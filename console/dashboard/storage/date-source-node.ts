@@ -1,8 +1,10 @@
+import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
+import { cloneDeep } from 'lodash'
 
 import { type Widget, dashboard } from '../model.js'
-import { formatter } from '../utils.js'
-import { model } from '../../model.js'
+import { formatter, get_cols } from '../utils.js'
+import { DdbModel, model } from '../../model.js'
 import { DdbForm, DdbObj, DdbValue } from 'dolphindb'
 
 type ExtractTypes<T> = T extends { [key: string]: infer U } ? U : never
@@ -13,42 +15,52 @@ const intervals = new Map<string, NodeJS.Timeout>()
 
 export type DataType = { }[]
 
-export type DataSourceNodeType = {
+export type DataSourceNodePropertyType = string | number | boolean | string[] | DataType
+
+export class DataSourceNode extends Model<DataSourceNode>  {
     id: string
     name: string
-    mode: 'sql' | 'stream'
-    max_line: number
-    data: DataType
-    error_message: string
+    mode = 'sql'
+    max_line = 10
+    data: DataType = [ ]
+    cols: string[] = [ ]
+    error_message = ''
     /** sql 模式专用 */
-    auto_refresh: boolean
+    auto_refresh = false
     /** sql 模式专用 */
-    code: string
+    code = ''
     /** sql 模式专用 */
-    interval: number
+    interval = 1
     /** stream 模式专用 */
-    filter: boolean
+    filter = false
     /** stream 模式专用 */
-    stream_table: string
+    stream_table = ''
     /** stream 模式专用 */
-    filter_col: string
+    filter_col = ''
     /** stream 模式专用 */
-    filter_mode: 'value' | 'scope' | 'hash'
+    filter_mode = 'value'
     /** stream 模式专用 */
-    filter_condition: string
+    filter_condition = ''
     /** stream 模式专用 */
-    node: string
+    node = ''
     /** stream 模式专用 */
-    ip: string
+    ip = ''
+    
+    constructor (id: string, name: string) {
+        super()
+        this.id = id
+        this.name = name
+    }
 }
-
-export type DataSourceNodePropertyType = ExtractTypes<DataSourceNodeType>
 
 export const find_data_source_node_index = (key: string): number =>
     data_source_nodes.findIndex(data_source_node => data_source_node.id === key) 
 
+export const get_data_source_node = (id: string): DataSourceNode =>
+    data_source_nodes[find_data_source_node_index(id)]
 
-export const save_data_source_node = async ( new_data_source_node: DataSourceNodeType ) => {
+
+export const save_data_source_node = async ( new_data_source_node: DataSourceNode ) => {
     const id = new_data_source_node.id
     
     switch (new_data_source_node.mode) {
@@ -56,35 +68,39 @@ export const save_data_source_node = async ( new_data_source_node: DataSourceNod
             new_data_source_node.code = dashboard.editor.getValue()
     
             const { type, result } = await dashboard.execute()
-            console.log(result)
             new_data_source_node.data.length = 0
+            new_data_source_node.cols.length = 0
             if (type === 'success') {
-                if (typeof result === 'object' && result.data) 
+                if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) {
                     // 暂时只支持table
-                    new_data_source_node.data = result.data.form === DdbForm.table
-                        ? formatter(result.data as unknown as DdbObj<DdbValue>, new_data_source_node.max_line)
-                        : [ ]
+                    new_data_source_node.data = formatter(result.data as unknown as DdbObj<DdbValue>, new_data_source_node.max_line)
+                    new_data_source_node.cols = get_cols(result.data as unknown as DdbObj<DdbValue>)
+                }
+                    
                 new_data_source_node.error_message = ''
             } else {
                 new_data_source_node.error_message = result as string
                 model.message.error(result as string)
             }
             
-            data_source_nodes[find_data_source_node_index(id)] = { ...new_data_source_node }
+            data_source_nodes[find_data_source_node_index(id)] = cloneDeep(new_data_source_node)
+            console.log(data_source_nodes)
             
             const dep = deps.get(id)
             if (dep && dep.length && !new_data_source_node.error_message) {
+                
+                // 仅测试用
                 dep.forEach((widget_option: Widget) => {
-                    widget_option.update_graph(new_data_source_node.data)
                     console.log(widget_option.id, 'render', new_data_source_node.data)
                 })
+                
                 new_data_source_node.auto_refresh ? create_interval(new_data_source_node) : delete_interval(id)   
             }
             break
         case 'stream':
             new_data_source_node.filter_condition = dashboard.editor.getValue()
             console.log(new_data_source_node)
-            data_source_nodes[find_data_source_node_index(id)] = { ...new_data_source_node }
+            data_source_nodes[find_data_source_node_index(id)] = cloneDeep(new_data_source_node)
             break
     }       
 }
@@ -103,29 +119,12 @@ export const delete_data_source_node = (key: string): number => {
 export const create_data_source_node = (): { id: string, name: string } => {
     const id = String(genid())
     const name = `数据源${id.slice(0, 7)}`
-    data_source_nodes.unshift({
-        id,
-        name,
-        mode: 'sql',
-        auto_refresh: false,
-        interval: 1,
-        max_line: 10,
-        code: '',
-        data: [ ],
-        error_message: '',
-        filter: false,
-        stream_table: '',
-        filter_col: '',
-        filter_mode: 'value',
-        filter_condition: '',
-        node: '',
-        ip: ''
-    })
+    data_source_nodes.unshift(new DataSourceNode(id, name))
     return { id, name }
 }
 
 export const rename_data_source_node = (key: string, new_name: string) => {
-    const data_source_node = data_source_nodes[find_data_source_node_index(key)]
+    const data_source_node = get_data_source_node(key)
     
     if (
         (data_source_nodes.findIndex(data_source_node => data_source_node.name === new_name) !== -1) 
@@ -148,12 +147,12 @@ export const sub_source = (widget_option: Widget, source_id: string) => {
      else 
         deps.set(source_id, [widget_option])
     
-    const data_source_node = data_source_nodes[find_data_source_node_index(source_id)]
+    const data_source_node = get_data_source_node(source_id)
     
     if (data_source_node.error_message) 
         model.message.error('当前数据源存在错误')
     else {
-        widget_option.update_graph(data_source_node.data)
+        // 仅测试用
         console.log(widget_option.id, 'render', data_source_node.data)    
     
         if (data_source_node.auto_refresh && !intervals.has(source_id))
@@ -174,7 +173,7 @@ export const unsub_source = (widget_option: Widget, pre_source_id?: string) => {
     }  
 }
 
-const create_interval = (data_source_node: DataSourceNodeType) => {
+const create_interval = (data_source_node: DataSourceNode) => {
     if (data_source_node.auto_refresh) {
         const id = data_source_node.id
         
@@ -184,19 +183,20 @@ const create_interval = (data_source_node: DataSourceNodeType) => {
             const { type, result } = await dashboard.execute(data_source_node.code)
             
             data_source_node.data.length = 0
+            data_source_node.cols.length = 0
             if (type === 'success') {
                 console.log('')
                 
                 data_source_node.error_message = ''
                 
-                if (typeof result === 'object' && result.data) 
+                if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) {
                     // 暂时只支持table
-                    data_source_node.data = result.data.form === DdbForm.table
-                        ? formatter(result.data as unknown as DdbObj<DdbValue>, data_source_node.max_line)
-                        : [ ]
-                    
+                    data_source_node.data = formatter(result.data as unknown as DdbObj<DdbValue>, data_source_node.max_line)
+                    data_source_node.cols = get_cols(result.data as unknown as DdbObj<DdbValue>)
+                }
+                
+                // 仅测试用
                 deps.get(id).forEach((widget_option: Widget) => {
-                    widget_option.update_graph(data_source_node.data)
                     console.log(widget_option.id, 'render', data_source_node.data)
                 })
             } else {
@@ -230,23 +230,4 @@ export const get_stream_cols = async (table: string, filter = false): Promise<st
     return res
 }
 
-export const data_source_nodes: DataSourceNodeType[] = [
-    {
-        id: '1',
-        name: '数据源1',
-        mode: 'sql',
-        max_line: 10,
-        auto_refresh: false,
-        interval: 1,
-        code: '',
-        data: [ ],
-        error_message: '',
-        filter: false,
-        stream_table: '',
-        filter_col: '',
-        filter_mode: 'value',
-        filter_condition: '',
-        node: '',
-        ip: ''
-    }
- ]
+export const data_source_nodes: DataSourceNode[] = [new DataSourceNode('1', '数据源1')]

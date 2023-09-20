@@ -7,11 +7,11 @@ import { Editor } from '../../shell/Editor/index.js'
 import { DataView } from '../../shell/DataView.js'
 
 import { dashboard } from '../model.js'
-import { type DataSourceNodeType, type DataSourceNodePropertyType, data_source_nodes, find_data_source_node_index } from '../storage/date-source-node.js'
+import { DataSourceNode, type DataSourceNodePropertyType, get_data_source_node } from '../storage/date-source-node.js'
 
 type PropsType = { 
     show_preview: boolean
-    current_data_source_node: DataSourceNodeType
+    current_data_source_node: DataSourceNode
     close_preview: () => void 
     change_no_save_flag: (value: boolean) => void
     change_current_data_source_node_property: (key: string, value: DataSourceNodePropertyType, save_confirm?: boolean) => void
@@ -27,8 +27,9 @@ export function SqlEditor ({
     const { result } = dashboard.use(['result'])
     
     useEffect(() => {
-        if (current_data_source_node.mode === data_source_nodes[find_data_source_node_index(current_data_source_node.id)].mode)
-            change_no_save_flag(false)
+        if (dashboard.editor)
+            dashboard.editor?.setValue(current_data_source_node.code)
+        change_no_save_flag(false)
     }, [ current_data_source_node.id ])
     
     return <>
@@ -37,7 +38,7 @@ export function SqlEditor ({
                 <Editor 
                     enter_completion
                     on_mount={(editor, monaco) => {
-                        editor?.setValue(data_source_nodes[find_data_source_node_index(current_data_source_node.id)].code || '')
+                        editor?.setValue(get_data_source_node(current_data_source_node.id).code)
                         dashboard.set({ editor, monaco })
                     }}
                     on_change={() => change_no_save_flag(true)}

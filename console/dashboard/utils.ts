@@ -6,12 +6,12 @@ import { assert } from 'xshell/utils.browser.js'
 
 import { Widget } from './model.js'
 import { AxisConfig, IChartConfig, ISeriesConfig } from './type.js'
-import type { DataSourceNodeType } from './storage/date-source-node.js'
+import { DataSourceNode } from './storage/date-source-node.js'
 import { t } from '../../i18n/index.js'
 
 export function formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
     assert(obj.form === DdbForm.table, t('form 必须是 DdbForm.table, 否则不能 to_rows'))
-    let rows = new Array(obj.rows)
+    let rows = new Array()
     let start = obj.rows - max_line
     let le = obj.le
     for (let i = start >= 0 ? start : 0;  i < obj.rows;  i++) {
@@ -93,16 +93,24 @@ export function formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
                     row[name] = values[i]
             }
         }
-        rows[i] = row
+        rows.push(row)
     }
     return rows
 }
 
+export function get_cols (obj: DdbObj<DdbValue>): Array<string> {
+    const cols = [ ]
+    for (let i = 0;  i < obj.cols;  i++) 
+        cols.push(obj.value[i].name)
+    return cols
+}
+
 export function default_value_in_select (
-    data_source_node: DataSourceNodeType, 
+    data_source_node: DataSourceNode, 
     key: string, 
     select_list: { label: string, value: string }[]): string 
 {
+    console.log(select_list)
     return (data_source_node[key] && select_list.filter(item => item.value === data_source_node[key]).length) 
         ? data_source_node[key] 
         : select_list[0].value

@@ -8,16 +8,17 @@ import { DataView } from '../../shell/DataView.js'
 
 import { 
     type DataSourceNodePropertyType, 
-    type DataSourceNodeType, 
-    data_source_nodes, 
-    find_data_source_node_index, get_stream_tables, get_stream_cols 
+    DataSourceNode, 
+    get_stream_tables, 
+    get_stream_cols, 
+    get_data_source_node
 } from '../storage/date-source-node.js'
 import { dashboard } from '../model.js'
 import { NodeType, model } from '../../model.js'
 import { default_value_in_select } from '../utils.js'
 
 type PropsType = { 
-    current_data_source_node: DataSourceNodeType
+    current_data_source_node: DataSourceNode
     change_no_save_flag: (value: boolean) => void
     change_current_data_source_node_property: (key: string, value: DataSourceNodePropertyType, save_confirm?: boolean) => void
 }
@@ -45,9 +46,6 @@ export function StreamEditor ({
     
     useEffect(() => {
         (async () => {
-            if (current_data_source_node.mode === data_source_nodes[find_data_source_node_index(current_data_source_node.id)].mode)
-                change_no_save_flag(false)
-            
             // 获取数据库流表
             const table = await get_stream_tables()
             if (table.length)   {
@@ -59,11 +57,15 @@ export function StreamEditor ({
                     }
                 }))
                 if (!table.includes(current_data_source_node.stream_table)) {
-                    change_current_data_source_node_property('stream_table', table[0], false) 
+                    change_current_data_source_node_property('stream_table', table[0]) 
                     set_current_stream(table[0])
                 }
             }  else 
-                change_current_data_source_node_property('stream_table', '', false)
+                change_current_data_source_node_property('stream_table', '')
+                
+            if (dashboard.editor)
+                dashboard.editor?.setValue(current_data_source_node.code)
+            change_no_save_flag(false)
         })()
     }, [ current_data_source_node.id ])
     
@@ -178,10 +180,11 @@ export function StreamEditor ({
                                     <Editor
                                         enter_completion
                                         on_mount={(editor, monaco) => {
-                                            editor?.setValue(data_source_nodes[find_data_source_node_index(current_data_source_node.id)].filter_condition || '')
+                                            editor?.setValue(get_data_source_node(current_data_source_node.id).filter_condition || '')
                                             dashboard.set({ editor, monaco })
                                         }}
                                         on_change={() => change_no_save_flag(true)}
+                                        theme='dark'
                                     />
                                 </div>
                             </div>
