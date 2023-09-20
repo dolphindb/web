@@ -3,7 +3,7 @@ import * as echarts from 'echarts'
 import { useMemo } from 'react'
 import { type Widget } from '../../model.js'
 import {  IChartConfig } from '../../type.js'
-import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
+import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { get_data_source_node } from '../../storage/date-source-node.js'
 
@@ -52,13 +52,7 @@ export default function OHLC ({ widget }: { widget: Widget }) {
         animation: false,
         title: {
           text: title
-        },
-        legend: {
-          bottom: 10,
-          left: 'center',
-          data: ['OHLC', 'trades'],
-          show: with_legend
-        },     
+        },    
         tooltip: {
           show: with_tooltip,
           trigger: 'axis',
