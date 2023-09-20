@@ -25,9 +25,7 @@ const save_confirm_config = {
     okText: '保存',
     style: { top: '250px' },
     maskStyle: { backgroundColor: 'rgba(0,0,0,.2)' },
-    content: (
-        <p>此数据源存在未保存的更改。你想保存吗？</p>
-    ),   
+    title: '此数据源存在未保存的更改。你想保存吗？',   
 }
 
 interface IProps extends ButtonProps {
@@ -91,7 +89,7 @@ export const DataSource = (props: IProps, ref) => {
         
         <Modal 
             title='配置数据源'
-            width={1000} 
+            width='80%' 
             destroyOnClose
             open={visible}
             onCancel={handle_close} 
