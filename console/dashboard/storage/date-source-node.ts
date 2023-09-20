@@ -17,7 +17,7 @@ export type DataType = { }[]
 
 export type DataSourceNodePropertyType = string | number | boolean | string[] | DataType
 
-export class DataSourceNode extends Model<DdbModel>  {
+export class DataSourceNode extends Model<DataSourceNode>  {
     id: string
     name: string
     mode = 'sql'

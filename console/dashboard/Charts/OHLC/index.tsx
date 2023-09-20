@@ -5,6 +5,7 @@ import { type Widget } from '../../model.js'
 import {  IChartConfig } from '../../type.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
+import { get_data_source_node } from '../../storage/date-source-node.js'
 
 import './index.sass'
 
@@ -344,6 +345,8 @@ function splitData (rawData) {
 export default function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const data = splitData(row_data)
     const { title, with_legend, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
+    const data_node = get_data_source_node(widget.source_id)
+    // const col_names = data_node.use(['cols'])
     const option = {
         animation: false,
         title: {
@@ -509,10 +512,10 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
             type: 'candlestick',
             data: data.values,
             itemStyle: {
-              color: upColor,
-              color0: downColor,
-              borderColor: undefined,
-              borderColor0: undefined
+              color: undefined,
+              color0: undefined,
+              borderColor: upColor,
+              borderColor0: downColor
             }
           },
           {
@@ -705,7 +708,6 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
 
 export const OhlcConfigForm = (props: { col_names: string[] }) => { 
   const { col_names = [ ] } = props
-  console.log('col_names:', col_names)
   return <>
       <BasicFormFields type='chart' />
       <OhlcFormFields col_names={col_names} />
