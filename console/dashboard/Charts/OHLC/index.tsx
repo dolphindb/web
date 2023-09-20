@@ -12,6 +12,8 @@ import './index.sass'
 const upColor = '#00da3c'
 const downColor = '#ec0000'
 
+
+
 type COL_MAP = {
   time: string
   open: string
@@ -244,7 +246,7 @@ export default function OHLC ({ widget }: { widget: Widget }) {
         option={option}
         notMerge
         lazyUpdate
-        theme='dark'
+        theme='my-theme'
     />
 }
 

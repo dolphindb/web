@@ -168,7 +168,7 @@ const Series = (props: { col_names: string[] }) => {
                 fields.map((field, index) => { 
                     return <div key={ field.name }>
                         <Space>
-                            <div className='wrapper'>
+                            <div>
                                 {series[index].selected_cols ?
                                     series[index].selected_cols.map(col => 
                                         <Form.Item key={col} name={[field.name, col]} label={col} initialValue={col_names?.[0]} >
@@ -180,9 +180,9 @@ const Series = (props: { col_names: string[] }) => {
                                     </Form.Item>
                                 }
                                
-                                <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={t('名称')}> 
+                                {/* <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={t('名称')}> 
                                     <Input />
-                                </Form.Item>
+                                </Form.Item> */}
                                 {/* 数据关联的y轴选择 */}
                                 <FormDependencies dependencies={['yAxis']}>
                                     {value => {

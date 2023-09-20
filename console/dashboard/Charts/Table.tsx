@@ -1,11 +1,12 @@
-import { PaginationProps, Table, TableProps } from 'antd'
+import { Checkbox, PaginationProps, Table, TableProps } from 'antd'
 import {  BasicFormFields }  from '../ChartFormFields/BasicFormFields.js'
 import { BasicTableFields } from '../ChartFormFields/BasicTableFields.js'
 import { Widget } from '../model.js'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { ITableConfig } from '../type.js'
 
 import './index.scss'
+import { convert_list_to_options } from '../utils.js'
 
 
 interface IProps extends TableProps<any> { 
@@ -24,13 +25,29 @@ const format_value = (val, decimal_places = 2) => {
 const DBTable = (props: IProps) => { 
     const { widget, data_source = [ ], ...otherProps } = props
     
+    
     const config = widget.config as ITableConfig
+    
+    const [selected_cols, set_select_cols] = useState(config.show_cols)
+    
+    const on_change_selected_cols = useCallback(val => { 
+        set_select_cols(val)
+    }, [ ])
+    
+    const radio_group_options = useMemo(() => { 
+        return config.show_cols?.map(col => ({
+            label: config.col_mappings.find(item => item?.original_col === col)?.mapping_name?.trim() || col,
+            value: col,
+            key: col
+        }))
+    }, [ config])
+    
     
     const columns = useMemo(() => {
         if (!data_source.length )
             return [ ]
-        const { col_mappings, show_cols, value_format } = config
-        return show_cols
+        const { col_mappings, value_format } = config
+        return selected_cols
             .map((col: string) => { 
                 const col_config = {
                     dataIndex: col,
@@ -42,7 +59,7 @@ const DBTable = (props: IProps) => {
                     return { ...col_config, render: val => format_value(val, value_format?.decimal_places) }
                 return col_config
             })
-    }, [ config ])
+    }, [ config, selected_cols ])
     
     const pagination = useMemo<PaginationProps | false>(() => { 
         if (!config.pagination.show)
@@ -60,6 +77,14 @@ const DBTable = (props: IProps) => {
     
     return <div className='table-wrapper'>
         {config.title && <h2 className='table-title'>{ config.title }</h2>}
+        
+        {config.need_select_cols && <Checkbox.Group
+            onChange={on_change_selected_cols}
+            defaultValue={config.show_cols}
+            options={radio_group_options}
+            className='table-radio-group'
+        />}
+        
         <Table
             bordered={config.bordered}
             columns={columns}
