@@ -84,7 +84,7 @@ export const save_data_source_node = async ( new_data_source_node: DataSourceNod
                 model.message.error(result as string)
             }
             
-            Object.assign(data_source_node, cloneDeep(new_data_source_node))
+            data_source_node.set({ ...new_data_source_node })
             console.log(data_source_nodes)
             
             const dep = deps.get(id)
@@ -95,12 +95,12 @@ export const save_data_source_node = async ( new_data_source_node: DataSourceNod
                     console.log(widget_option.id, 'render', new_data_source_node.data)
                 })
                 
-                new_data_source_node.auto_refresh ? create_interval(new_data_source_node) : delete_interval(id)   
+                new_data_source_node.auto_refresh ? create_interval(id) : delete_interval(id)   
             }
             break
         case 'stream':
             new_data_source_node.filter_condition = dashboard.editor.getValue()
-            Object.assign(data_source_node, cloneDeep(new_data_source_node))
+            data_source_node.set({ ...new_data_source_node })
             console.log(data_source_nodes)
             break
     }       
@@ -157,7 +157,7 @@ export const sub_source = (widget_option: Widget, source_id: string) => {
         console.log(widget_option.id, 'render', data_source_node.data)    
     
         if (data_source_node.auto_refresh && !intervals.has(source_id))
-            create_interval(data_source_node)
+            create_interval(source_id)
     }    
 }
 
@@ -174,7 +174,9 @@ export const unsub_source = (widget_option: Widget, pre_source_id?: string) => {
     }  
 }
 
-const create_interval = (data_source_node: DataSourceNode) => {
+const create_interval = (source_id: string) => {
+    const data_source_node = get_data_source_node(source_id)
+    console.log(data_source_node)
     if (data_source_node.auto_refresh) {
         const id = data_source_node.id
         
@@ -183,26 +185,35 @@ const create_interval = (data_source_node: DataSourceNode) => {
         const interval_id = setInterval(async () => {
             const { type, result } = await dashboard.execute(data_source_node.code)
             
-            data_source_node.data.length = 0
-            data_source_node.cols.length = 0
             if (type === 'success') {
-                console.log('')
+                // 暂时只支持table
+                if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) 
+                    data_source_node.set({
+                        data: formatter(result.data as unknown as DdbObj<DdbValue>, data_source_node.max_line),
+                        cols: get_cols(result.data as unknown as DdbObj<DdbValue>),
+                        error_message: ''
+                    })
                 
-                data_source_node.error_message = ''
-                
-                if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) {
-                    // 暂时只支持table
-                    data_source_node.data = formatter(result.data as unknown as DdbObj<DdbValue>, data_source_node.max_line)
-                    data_source_node.cols = get_cols(result.data as unknown as DdbObj<DdbValue>)
-                }
+                    
+                else
+                    data_source_node.set({
+                        data: [ ],
+                        cols: [ ],
+                        error_message: ''
+                    })
                 
                 // 仅测试用
+                console.log('')
                 deps.get(id).forEach((widget_option: Widget) => {
                     console.log(widget_option.id, 'render', data_source_node.data)
                 })
             } else {
                 model.message.error(result as string)
-                data_source_node.error_message = result as string
+                data_source_node.set({
+                    data: [ ],
+                    cols: [ ],
+                    error_message: result as string
+                })
                 delete_interval(id)
             }    
         }, data_source_node.interval * 1000)
