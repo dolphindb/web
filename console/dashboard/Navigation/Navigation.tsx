@@ -49,20 +49,18 @@ export function Navigation () {
             <div className='dashboard-navigation-right-editormode'>
                 <span
                     className={
-                        `dashboard-navigation-right-editormode-editor${editing ? ' editormode-selected' : ''}`
+                        `dashboard-navigation-right-editormode-editor ${editing ? 'editormode-selected' : ''}`
                     }
                     onClick={() => { dashboard.set_editing(true) }}
                 >
-                    编辑 <EditOutlined />
+                    <EditOutlined /> 编辑
                 </span>
-                <Divider type='vertical' />
+                <span className='divider'>|</span>
                 <span
-                    className={
-                        `dashboard-navigation-right-editormode-preview${editing ? '' : ' editormode-selected'} `
-                    }
+                    className={`dashboard-navigation-right-editormode-preview ${editing ? '' : 'editormode-selected'} `}
                     onClick={() => { dashboard.set_editing(false) }}
                 >
-                    预览 <EyeOutlined />
+                    <EyeOutlined /> 预览
                 </span>
             </div>
             <div className='dashboard-navigation-right-config'>

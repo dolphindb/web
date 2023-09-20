@@ -25,7 +25,7 @@ export default function PercentSlider (props: IProps) {
         <InputNumber
           min={0}
           max={1}
-          className='input-number'
+          className='percent-input-number'
           step={0.01}
           value={value}
           onChange={onChange}
