@@ -57,15 +57,17 @@ export function StreamEditor ({
                     }
                 }))
                 if (!table.includes(current_data_source_node.stream_table)) {
-                    change_current_data_source_node_property('stream_table', table[0]) 
+                    change_current_data_source_node_property('stream_table', table[0], false) 
                     set_current_stream(table[0])
                 }
             }  else 
-                change_current_data_source_node_property('stream_table', '')
+                change_current_data_source_node_property('stream_table', '', false)
                 
             if (dashboard.editor)
                 dashboard.editor?.setValue(current_data_source_node.code)
-            change_no_save_flag(false)
+            
+            if (current_data_source_node.mode === get_data_source_node(current_data_source_node.id).mode)
+                change_no_save_flag(false)
         })()
     }, [ current_data_source_node.id ])
     
