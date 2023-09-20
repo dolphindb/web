@@ -83,7 +83,7 @@ export const save_data_source_node = async ( new_data_source_node: DataSourceNod
                 model.message.error(result as string)
             }
             
-            data_source_nodes[find_data_source_node_index(id)] = cloneDeep(new_data_source_node)
+            Object.assign(data_source_nodes[find_data_source_node_index(id)], cloneDeep(new_data_source_node))
             console.log(data_source_nodes)
             
             const dep = deps.get(id)
@@ -99,8 +99,8 @@ export const save_data_source_node = async ( new_data_source_node: DataSourceNod
             break
         case 'stream':
             new_data_source_node.filter_condition = dashboard.editor.getValue()
-            console.log(new_data_source_node)
-            data_source_nodes[find_data_source_node_index(id)] = cloneDeep(new_data_source_node)
+            Object.assign(data_source_nodes[find_data_source_node_index(id)], cloneDeep(new_data_source_node))
+            console.log(data_source_nodes)
             break
     }       
 }
