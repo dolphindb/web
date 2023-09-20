@@ -2029,5 +2029,8 @@
     },
     "默认分页数": {
         "en": "Default number of pages"
+    },
+    "编辑数据源": {
+        "en": "Edit data source"
     }
 }

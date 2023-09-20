@@ -215,8 +215,8 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     
     set_editing (editing: boolean) {
-        this.grid.enableMove(!editing)
-        this.grid.enableResize(!editing)
+        this.grid.enableMove(editing)
+        this.grid.enableResize(editing)
         this.set({ editing })
     }
     
