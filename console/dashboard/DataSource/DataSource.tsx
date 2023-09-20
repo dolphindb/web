@@ -25,9 +25,7 @@ const save_confirm_config = {
     okText: '保存',
     style: { top: '250px' },
     maskStyle: { backgroundColor: 'rgba(0,0,0,.2)' },
-    content: (
-        <p>此数据源存在未保存的更改。你想保存吗？</p>
-    ),   
+    title: '此数据源存在未保存的更改。你想保存吗？',   
 }
 
 interface IProps extends ButtonProps {
