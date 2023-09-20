@@ -1,5 +1,4 @@
 import { Form, Select, Input, Collapse, Button, Space, Divider, InputNumber } from 'antd'
-import { NamePath } from 'antd/es/form/interface.js'
 import { t } from '../../../i18n/index.js'
 import { concat_name_path } from '../utils.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
@@ -88,9 +87,9 @@ const Series = (props: { col_names: string[] }) => {
         {(fields, { add, remove }) => <>
             {
                 fields.map((field, index) => { 
-                    return <div key={ field.name }>
+                    return <div key={ field.name } className='wrapper'>
                         <Space>
-                            <div className='wrapper'>
+                            <div className='axis-wrapper'>
                                 <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
                                     <Select options={col_names.map(item => ({ label: item, value: item })) } />
                                 </Form.Item>
@@ -103,7 +102,7 @@ const Series = (props: { col_names: string[] }) => {
                                         const { yAxis } = value
                                         const options = yAxis.map((item, idx) => ({
                                             value: idx,
-                                            label: item.name
+                                            label: item?.name
                                         }))
                                         return <Form.Item name={[field.name, 'yAxisIndex']} label={t('关联 Y 轴')} initialValue={0}>
                                             <Select options={options} />
@@ -143,7 +142,7 @@ export const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemV
                     fields.map((field, index) => {
                         return <div>
                             <div className='wrapper'>
-                                <Space size='small'>
+                                <Space>
                                     <div className='axis-wrapper'>
                                         <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis' />
                                         <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>
