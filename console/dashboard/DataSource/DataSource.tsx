@@ -14,6 +14,7 @@ import { dashboard } from '../model.js'
 import { type Widget } from '../model.js'
 import { data_source_nodes,
     find_data_source_node_index, 
+    get_data_source_node,
     save_data_source_node, 
     sub_source,
     DataSourceNode,
@@ -45,7 +46,7 @@ export function DataSource ({ widget }: { widget?: Widget }) {
             set_current_data_source_node(null)
             return
         }    
-        set_current_data_source_node(cloneDeep(data_source_nodes[find_data_source_node_index(key)]))
+        set_current_data_source_node(cloneDeep(get_data_source_node(key)))
         set_show_preview(false)
     }, [ ])
     

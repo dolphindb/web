@@ -100,7 +100,7 @@ export function formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
 
 export function get_cols (obj: DdbObj<DdbValue>): Array<string> {
     const cols = [ ]
-    for (let i = 0;  i < obj.rows;  i++) 
+    for (let i = 0;  i < obj.cols;  i++) 
         cols.push(obj.value[i].name)
     return cols
 }
@@ -110,6 +110,7 @@ export function default_value_in_select (
     key: string, 
     select_list: { label: string, value: string }[]): string 
 {
+    console.log(select_list)
     return (data_source_node[key] && select_list.filter(item => item.value === data_source_node[key]).length) 
         ? data_source_node[key] 
         : select_list[0].value
