@@ -344,18 +344,17 @@ function splitData (rawData) {
 export default function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const data = splitData(row_data)
     const { title, with_legend, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
-    console.log('series', series)
     const option = {
         animation: false,
+        title: {
+          text: title
+        },
         legend: {
           bottom: 10,
           left: 'center',
           data: ['Dow-Jones index'],
           show: with_legend
         },     
-        title: {
-            text: title
-        },
         tooltip: {
           show: with_tooltip,
           trigger: 'axis',
@@ -375,7 +374,6 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
             obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30
             return obj
           }
-          // extraCssText: 'width: 170px'
         },
         axisPointer: {
           link: [
@@ -707,7 +705,7 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
 
 export const OhlcConfigForm = (props: { col_names: string[] }) => { 
   const { col_names = [ ] } = props
-  
+  console.log('col_names:', col_names)
   return <>
       <BasicFormFields type='chart' />
       <OhlcFormFields col_names={col_names} />

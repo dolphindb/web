@@ -100,7 +100,7 @@ export function formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
 
 export function get_cols (obj: DdbObj<DdbValue>): Array<string> {
     const cols = [ ]
-    for (let i = 0;  i < obj.rows;  i++) 
+    for (let i = 0;  i < obj.cols;  i++) 
         cols.push(obj.value[i].name)
     return cols
 }
