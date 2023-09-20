@@ -3,9 +3,15 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { graph_config } from '../graph-config.js'
 import { dashboard } from '../model.js'
 import { IChartConfig, ITableConfig } from '../type.js'
+import { get_data_source_node } from '../storage/date-source-node.js'
 
 export function GraphSetting () { 
     const { widget } = dashboard.use(['widget'])
+    const data_source_node = get_data_source_node(widget.source_id)
+    const { cols = [ ] } = data_source_node.use(['cols'])
+    
+    console.log(cols, 'cols')
+    
     const [form] = Form.useForm<IChartConfig | ITableConfig>()
     
     
@@ -34,6 +40,6 @@ export function GraphSetting () {
    
     return ConfigFormFields ? <Form onValuesChange={on_form_change} form={form} labelCol={{ span: 8 }} labelAlign='left' colon={false}>
            {/* TODO: 通过source_id拿到data_source，取到列名，透传进去  */}
-            <ConfigFormFields col_names={['col1', 'col2', 'col3', 'col4', 'col5', 'col6', 'col7']} />
+            <ConfigFormFields col_names={cols} />
         </Form> : <></>
 }
