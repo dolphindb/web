@@ -96,10 +96,9 @@ $borderColor: rgb(148, 148, 148)
                 height: 100%
                 min-height: 0 !important
                 background-image: radial-gradient(circle at top left, $borderColor 2px, transparent 2px),radial-gradient(circle at top right, $borderColor 2px, transparent 2px),radial-gradient(circle at bottom left, $borderColor 2px, transparent 2px),radial-gradient(circle at bottom right, $borderColor 2px, transparent 2px)
-                
                 .grid-stack-item-content
                     background-color: rgba(0, 0, 0, 0.5)
-                    
+                    border: 2px solid transparent
                     .delete-graph
                         display: none
                         
@@ -174,6 +173,7 @@ $borderColor: rgb(148, 148, 148)
                 box-sizing: border-box
                 height: 50px
                 line-height: 50px
+                border: 1px solid transparent
                 
                 .dashboard-graph-item-icon
                     margin-right: 5px

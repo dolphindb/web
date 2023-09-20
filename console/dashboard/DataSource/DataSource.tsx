@@ -91,7 +91,7 @@ export const DataSource = (props: IProps, ref) => {
         
         <Modal 
             title='配置数据源'
-            width={1000} 
+            width='80%' 
             destroyOnClose
             open={visible}
             onCancel={handle_close} 

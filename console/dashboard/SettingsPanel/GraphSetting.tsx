@@ -10,8 +10,6 @@ export function GraphSetting () {
     const data_source_node = get_data_source_node(widget.source_id)
     const { cols = [ ] } = data_source_node.use(['cols'])
     
-    console.log(cols, 'cols')
-    
     const [form] = Form.useForm<IChartConfig | ITableConfig>()
     
     
