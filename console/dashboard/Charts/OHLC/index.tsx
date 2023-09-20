@@ -83,23 +83,23 @@ export default function OHLC ({ widget }: { widget: Widget }) {
             backgroundColor: '#777'
           }
         },
-        toolbox: {
-          feature: {
-            dataZoom: {
-              yAxisIndex: false
-            },
-            brush: {
-              type: ['lineX', 'clear']
-            }
-          }
-        },
-        brush: {
-          xAxisIndex: 'all',
-          brushLink: 'all',
-          outOfBrush: {
-            colorAlpha: 0.1
-          }
-        },
+        // toolbox: {
+        //   feature: {
+        //     dataZoom: {
+        //       yAxisIndex: false
+        //     },
+        //     brush: {
+        //       type: ['lineX', 'clear']
+        //     }
+        //   }
+        // },
+        // brush: {
+        //   xAxisIndex: 'all',
+        //   brushLink: 'all',
+        //   outOfBrush: {
+        //     colorAlpha: 0.1
+        //   }
+        // },
         visualMap: {
           show: false,
           seriesIndex: 5,
