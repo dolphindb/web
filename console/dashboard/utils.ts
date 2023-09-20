@@ -198,3 +198,12 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         dataZoom: convert_data_zoom(x_datazoom, y_datazoom)
     }
 }
+
+
+export const convert_list_to_options = (list: string[]) => { 
+    return list.map(item => ({
+        label: item,
+        value: item,
+        key: item,
+    }))
+}

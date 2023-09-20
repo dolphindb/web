@@ -4,7 +4,7 @@ import { FormDependencies } from '../../components/formily/FormDependies/index.j
 import { AxisType, IAxisItem, IYAxisItemValue, Position } from './type.js'
 
 import './index.scss'
-import { concat_name_path } from '../utils.js'
+import { concat_name_path, convert_list_to_options } from '../utils.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { useMemo } from 'react'
 
@@ -94,12 +94,20 @@ const AxisItem = (props: IAxisItem) => {
         {/* 类目轴从col_name中获取data */}
         <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'type')]}>
             {value => { 
-                const { type } = list_name ? value[list_name].find(item => !!item) : value[name_path] 
-                if (!['category', 'time'].includes(type))
-                    return null
-                return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
-                    <Select options={col_names.map(item => ({ label: item, value: item, key: item }))} />
-                </Form.Item>
+                const type = list_name ? value[list_name]?.find(item => !!item)?.type : value?.[name_path]?.type
+                switch (type) { 
+                    case AxisType.LOG:
+                        return <Form.Item name={concat_name_path(name_path, 'log_base')} label={t('底数')} initialValue={10}>
+                            <InputNumber />
+                        </Form.Item>
+                    case AxisType.TIME:
+                    case AxisType.CATEGORY:
+                        return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
+                            <Select options={convert_list_to_options(col_names)} />
+                        </Form.Item>
+                    default: 
+                        return null
+                }
             } }
         </FormDependencies>
     </>
@@ -164,11 +172,11 @@ const Series = (props: { col_names: string[] }) => {
                                 {series[index].selected_cols ?
                                     series[index].selected_cols.map(col => 
                                         <Form.Item key={col} name={[field.name, col]} label={col} initialValue={col_names?.[0]} >
-                                            <Select options={col_names.map(item => ({ label: item, value: item, key: item })) } />
+                                            <Select options={convert_list_to_options(col_names)} />
                                         </Form.Item>) 
                                                             :
                                     <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
-                                        <Select options={col_names.map(item => ({ label: item, value: item, key: item })) } />
+                                        <Select options={convert_list_to_options(col_names)} />
                                     </Form.Item>
                                 }
                                
