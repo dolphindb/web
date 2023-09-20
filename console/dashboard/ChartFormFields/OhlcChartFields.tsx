@@ -181,7 +181,7 @@ const Series = (props: { col_names: string[] }) => {
                                         const { yAxis } = value
                                         const options = yAxis.map((item, idx) => ({
                                             value: idx,
-                                            label: item.name
+                                            label: item?.name
                                         }))
                                         return <Form.Item name={[field.name, 'yAxisIndex']} label={t('关联 Y 轴')} initialValue={field.key}>
                                             <Select options={options} />
