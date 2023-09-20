@@ -4,7 +4,7 @@ import { t } from '../../../i18n/index.js'
 import { concat_name_path } from '../utils.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../components/formily/FormDependies/index.js'
-import { IAxisItem, IYAxisItemValue } from './type.js'
+import { AxisType, IAxisItem, IYAxisItemValue } from './type.js'
 
 import './index.scss'
 import { useMemo } from 'react'
@@ -64,11 +64,17 @@ export const AxisItem = (props: IAxisItem) => {
         <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'type')]}>
             {value => { 
                 const { type } = list_name ? value[list_name].find(item => !!item) : value[name_path] 
-                if (!['category', 'time'].includes(type))
-                    return null
-                return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
+                if (type === AxisType.LOG)
+                    return <Form.Item name={concat_name_path(name_path, 'log_base')} label={t('底数')} initialValue={10}>
+                        <InputNumber />
+                    </Form.Item>
+                else if (['category', 'time'].includes(type))
+                   
+                    return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
                     <Select options={col_names.map(item => ({ label: item, value: item }))} />
-                </Form.Item>
+                    </Form.Item>
+                else
+                    return null
             }}
         </FormDependencies>
     </>
