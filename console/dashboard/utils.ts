@@ -163,6 +163,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 type: 'dashed',
             }
         },
+        logBase: axis.log_base || 10,
         position: axis.position,
         offset: axis.offset,
         alignTicks: true,

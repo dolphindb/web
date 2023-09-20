@@ -1,9 +1,14 @@
+import { AxisType, Position } from './ChartFormFields/type.js'
+
 export interface AxisConfig { 
     name: string
-    type: 'category' | 'time' | 'value' | 'log'
+    type: AxisType
+    // 时间轴与泪目轴特有
     col_name: string
-    position?: 'left' | 'right'
+    position?: Position
     offset?: number
+    // 对数轴特有
+    log_base?: number
 }
 
 export interface ISeriesConfig {
