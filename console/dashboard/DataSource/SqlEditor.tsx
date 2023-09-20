@@ -35,8 +35,8 @@ export function SqlEditor ({
     }, [ current_data_source_node.id ])
     
     return <>
-        <div className='data-source-config-sqleditor'>
-            <div className='data-source-config-sqleditor-main' style={{  height: (show_preview ? '40%' : '100%') }}>
+        <div className='sqleditor'>
+            <div className='sqleditor-main' style={{  height: (show_preview ? '40%' : '100%') }}>
                 <Editor 
                     enter_completion
                     on_mount={(editor, monaco) => {
@@ -48,29 +48,29 @@ export function SqlEditor ({
                 />
             </div>
             {show_preview
-                ? <div className='data-source-config-preview'>
-                    <div className='data-source-config-preview-config'>
-                        <div className='data-source-config-preview-config-tag'>
+                ? <div className='preview'>
+                    <div className='preview-config'>
+                        <div className='preview-config-tag'>
                             数据预览
                         </div>
-                        <div className='data-source-config-preview-config-close' onClick={close_preview}>
+                        <div className='preview-config-close' onClick={close_preview}>
                             <CloseOutlined/>
                             关闭
                         </div>
                     </div>
-                    <div className='data-source-config-preview-main'>
+                    <div className='preview-main'>
                         {result?.data
                             ? <DataView dashboard/>
-                            : <div className='data-source-config-preview-main-error'>{current_data_source_node.error_message }</div> 
+                            : <div className='preview-main-error'>{current_data_source_node.error_message }</div> 
                         }
                     </div>
                 </div>
                 : <></>
             }
         </div>
-        <div className='data-source-config-sqlconfig'>
-            <div className='data-source-config-sqlconfig-left'>
-                <div className='data-source-config-sqlconfig-left-refresh'>
+        <div className='sqlconfig'>
+            <div className='sqlconfig-left'>
+                <div className='sqlconfig-left-refresh'>
                     自动刷新：
                     <Switch 
                         size='small' 
@@ -86,7 +86,7 @@ export function SqlEditor ({
                         <InputNumber 
                             size='small' 
                             min={0.001}
-                            className='data-source-config-sqlconfig-left-intervals-input'
+                            className='sqlconfig-left-intervals-input'
                             value={current_data_source_node.interval}
                             onChange={value => {
                                 if (value !== null)
@@ -98,13 +98,13 @@ export function SqlEditor ({
                     : <></>
                 }
             </div>
-            <div className='data-source-config-sqlconfig-right'>
+            <div className='sqlconfig-right'>
                 <div>
                     最大行数：
                     <InputNumber 
                         size='small' 
                         min={1}
-                        className='data-source-config-sqlconfig-right-maxline-input' 
+                        className='sqlconfig-right-maxline-input' 
                         value={current_data_source_node.max_line}
                         onChange={value => { 
                             if (value !== null)

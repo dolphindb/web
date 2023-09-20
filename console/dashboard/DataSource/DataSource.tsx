@@ -147,7 +147,7 @@ export const DataSource = (props: IProps, ref) => {
                     change_current_data_source_node_property={change_current_data_source_node_property}
                 />
                 {data_source_nodes.length
-                    ? <div className='data-source-config-right'>
+                    ? <div className='config-right'>
                         <div className='config-right-top'>
                             <Menu 
                                 onClick={event => { change_current_data_source_node_property('mode', event.key) }} 
