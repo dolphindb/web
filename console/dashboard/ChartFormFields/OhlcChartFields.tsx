@@ -57,7 +57,7 @@ const AxisItem = (props: IAxisItem) => {
                 if (!['category', 'time'].includes(type))
                     return null
                 return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
-                    <Select options={col_names.map(item => ({ label: item, value: item }))} />
+                    <Select options={col_names.map(item => ({ label: item, value: item, key: item }))} />
                 </Form.Item>
             } }
         </FormDependencies>
@@ -111,7 +111,7 @@ const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemValue[] 
 const Series = (props: { col_names: string[] }) => { 
     const { col_names } = props
     
-    const series = [{ name: 'OHLC', key: 0, selected_cols: [ 'Open', 'High', 'Low', 'Close'] }, { name: '交易量', key: 1 }]
+    const series = [{ name: 'OHLC', key: 0, selected_cols: [ 'open', 'high', 'low', 'close'] }, { name: '交易量', key: 1 }]
     
     return <Form.List name='series' initialValue={series}>
         {fields => <>
@@ -122,12 +122,12 @@ const Series = (props: { col_names: string[] }) => {
                             <div className='wrapper'>
                                 {series[index].selected_cols ?
                                     series[index].selected_cols.map(col => 
-                                        <Form.Item name={[field.name, col]} label={col} initialValue={col_names?.[0]} >
-                                            <Select options={col_names.map(item => ({ label: item, value: item })) } />
+                                        <Form.Item key={col} name={[field.name, col]} label={col} initialValue={col_names?.[0]} >
+                                            <Select options={col_names.map(item => ({ label: item, value: item, key: item })) } />
                                         </Form.Item>) 
                                                             :
                                     <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
-                                        <Select options={col_names.map(item => ({ label: item, value: item })) } />
+                                        <Select options={col_names.map(item => ({ label: item, value: item, key: item })) } />
                                     </Form.Item>
                                 }
                                

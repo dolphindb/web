@@ -10,6 +10,11 @@ export interface ISeriesConfig {
     col_name: string
     name: string
     yAxisIndex: number
+    // OHLC 特殊列
+    open?: string
+    high?: string
+    low?: string
+    close?: string
 }
 
 export interface IChartConfig {
