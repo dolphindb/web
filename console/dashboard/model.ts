@@ -115,6 +115,9 @@ class DashBoardModel extends Model<DashBoardModel> {
             
             const widget: Widget = {
                 ...node,
+                // 默认大小：宽度 2 ， 高度 3
+                w: 2,
+                h: 3,
                 ref: createRef(),
                 id: String(genid()),
                 type: node.el.dataset.type as keyof typeof WidgetType,
