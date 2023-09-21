@@ -237,15 +237,16 @@ class DashBoardModel extends Model<DashBoardModel> {
                 ddbobj.form === DdbForm.matrix ||
                 ddbobj.form === DdbForm.set ||
                 ddbobj.form === DdbForm.table ||
-                ddbobj.form === DdbForm.vector ||
-                ddbobj.form === DdbForm.scalar
+                ddbobj.form === DdbForm.vector
             )
                 this.set({
                     result: {
                         type: 'object',
-                        data: ddbobj.form === DdbForm.scalar ? null : ddbobj
+                        data:  ddbobj
                     },
                 })
+            else if (ddbobj.form === DdbForm.scalar)
+                return ddbobj.value
                 
         } catch (error) {
             this.set({

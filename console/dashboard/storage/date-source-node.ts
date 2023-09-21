@@ -35,10 +35,6 @@ export class DataSource extends Model<DataSource>  {
     /** stream 模式专用 */
     stream_table = ''
     /** stream 模式专用 */
-    filter_col = ''
-    /** stream 模式专用 */
-    filter_mode = 'value'
-    /** stream 模式专用 */
     filter_condition = ''
     /** stream 模式专用 */
     node = ''
@@ -108,7 +104,9 @@ export const save_data_source = async ( new_source_node: DataSource ) => {
                 sub_stream(data_source)   
             }
             break
-    }       
+    }
+    
+    model.message.success('保存成功！')
 }
 
 export const delete_data_source = (key: string): number => {
@@ -257,12 +255,16 @@ export const get_stream_tables = async (): Promise<string[]> => {
     return dashboard.result.data.value as string[]
 }
 
-export const get_stream_cols = async (table: string, filter = false): Promise<string[]> => {
-    await dashboard.eval(`select name from schema(${table})['colDefs'] ${ filter ? 'where typeString != \'BOOL\'' : ''}`)
-    const res = dashboard.result.data.value[0].value
-    if (filter)
-        await get_stream_cols(table)
-    return res
+export const get_stream_cols = async (table: string): Promise<void> => {
+    await dashboard.eval(`select name from schema(${table})['colDefs']`)
+}
+
+export const get_stream_filter_col = async (table: string): Promise<string> => {
+    try {
+        return await dashboard.eval(`getStreamTableFilterColumn(${table})`) as string
+    } catch (error) {
+        return ''
+    }
 }
 
 export const data_sources: DataSource[] = [new DataSource('1', '数据源1')]
