@@ -7,7 +7,7 @@ import './index.scss'
 import { Widget } from '../model.js'
 import { convert_chart_config } from '../utils.js'
 import { useMemo } from 'react'
-// import config from '../chart.config.json'
+import config from '../chart.config.json'
 
 
 interface IProps { 
@@ -22,7 +22,7 @@ const Chart = (props: IProps) => {
     
     const options = useMemo(() => convert_chart_config(widget, data_source), [widget.config, data_source])
     
-    return <ReactEChartsCore echarts={echarts} notMerge option={options} className='line-chart' theme='my-theme'/>
+    return <ReactEChartsCore echarts={echarts} notMerge option={options} className='line-chart' theme='my-theme' />
 }
 
 export default Chart

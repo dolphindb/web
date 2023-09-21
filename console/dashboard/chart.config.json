@@ -5,9 +5,9 @@
         "seriesCnt": "4",
         "backgroundColor": "#282828",
         "titleColor": "#e6e6e6",
-        "subtitleColor": "#aaaaaa",
+        "subtitleColor": "#e6e6e6",
         "textColorShow": false,
-        "textColor": "#333",
+        "textColor": "#e6e6e6",
         "markTextColor": "#eee",
         "color": [
             "#54d2d2",

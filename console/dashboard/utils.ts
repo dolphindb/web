@@ -161,6 +161,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             show: true,
             lineStyle: {
                 type: 'dashed',
+                color: '#6E6F7A'
             }
         },
         logBase: axis.log_base || 10,
@@ -182,7 +183,10 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     
     return {
         legend: {
-            show: with_legend
+            show: with_legend,
+            textStyle: {
+                color: '#e6e6e6'
+            }
         },
         tooltip: {
             show: with_tooltip,
@@ -190,7 +194,10 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             trigger: 'axis',
         },
         title: {
-            text: title
+            text: title,
+            textStyle: {
+                color: '#e6e6e6',
+            }
         },
         xAxis: convert_axis(xAxis),
         yAxis: yAxis.filter(item => !!item).map(convert_axis),

@@ -52,7 +52,10 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
     const option = useMemo(() => ({
         animation: false,
         title: {
-          text: title
+            text: title,
+            textStyle: {
+                color: '#e6e6e6e'
+            }
         },    
         tooltip: {
           show: with_tooltip,
