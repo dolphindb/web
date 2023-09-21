@@ -19,8 +19,6 @@ const ICON_MAP = {
 export function SelectSider ({ hidden }: { hidden: boolean }) {
     const [folding, set_folding] = useState(false)
     
-    
-    
     return <div className={`dashboard-select-sider ${folding ? 'dashboard-select-sider-folding' : ''} ${hidden ? '' : 'hidden'}`}>
         <div className='dashboard-graph-items'>
             {Object.entries(WidgetType).map(([key, value]) => { 

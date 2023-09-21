@@ -12,6 +12,12 @@ export enum Position {
     LEFT = 'left'
 }
 
+export enum MarkPresetType { 
+    MAX = 'max',
+    MIN = 'min',
+    AVERAGE = 'average'
+}
+
 export interface IAxisItem { 
     name_path?: NamePath
     col_names: string[]
@@ -27,6 +33,6 @@ export interface IYAxisItemValue {
     type?: AxisType
     name?: string
     col_name?: string
-    position?: 'left' | 'right'
+    position?: Position
     offset?: number
 }

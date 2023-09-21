@@ -4,7 +4,7 @@ import { t } from '../../../i18n/index.js'
 import { concat_name_path, convert_list_to_options } from '../utils.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../components/formily/FormDependies/index.js'
-import { AxisType, IAxisItem, IYAxisItemValue, Position } from './type.js'
+import { AxisType, IAxisItem, IYAxisItemValue, MarkPresetType, Position } from './type.js'
 
 import './index.scss'
 
@@ -34,6 +34,21 @@ const axis_position_options = [
     { value: Position.RIGHT, label: t('右侧') }
 ]
 
+const mark_point_options = [
+    {
+        value: MarkPresetType.MAX,
+        label: t('最大值')
+    },
+    {
+        value: MarkPresetType.MIN,
+        label: t('最小值')
+    }
+]
+
+const mark_line_options = [...mark_point_options, {
+    value: MarkPresetType.AVERAGE,
+    label: t('平均值')
+}]
 
 export const AxisItem = (props: IAxisItem) => { 
     const { name_path, col_names = [ ], list_name, initial_values } = props
@@ -88,31 +103,41 @@ const Series = (props: { col_names: string[] }) => {
         {(fields, { add, remove }) => <>
             {
                 fields.map((field, index) => { 
-                    return <div key={ field.name } className='field-wrapper'>
-                        <Space>
-                            <div className='axis-wrapper'>
-                                <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
-                                    <Select options={col_names.map(item => ({ label: item, value: item })) } />
-                                </Form.Item>
-                                <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={t('名称')}> 
-                                    <Input />
-                                </Form.Item>
-                                {/* 数据关联的y轴选择 */}
-                                <FormDependencies dependencies={['yAxis']}>
-                                    { value => {
-                                        const { yAxis } = value
-                                        const options = yAxis.map((item, idx) => ({
-                                            value: idx,
-                                            label: item?.name
-                                        }))
-                                        return <Form.Item name={[field.name, 'yAxisIndex']} label={t('关联 Y 轴')} initialValue={0}>
-                                            <Select options={options} />
-                                        </Form.Item>
-                                    } }
-                                </FormDependencies>
-                            </div>
-                            { fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => remove(field.name)} /> } 
-                        </Space>
+                    return <div key={ field.name }>
+                        <div className='field-wrapper'>
+                            <Space>
+                                <div className='axis-wrapper'>
+                                    <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
+                                        <Select options={col_names.map(item => ({ label: item, value: item })) } />
+                                    </Form.Item>
+                                    <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={t('名称')}> 
+                                        <Input />
+                                    </Form.Item>
+                                    
+                                    {/* 数据关联的y轴选择 */}
+                                    <FormDependencies dependencies={['yAxis']}>
+                                        { value => {
+                                            const { yAxis } = value
+                                            const options = yAxis.map((item, idx) => ({
+                                                value: idx,
+                                                label: item?.name
+                                            }))
+                                            return <Form.Item name={[field.name, 'yAxisIndex']} label={t('关联 Y 轴')} initialValue={0}>
+                                                <Select options={options} />
+                                            </Form.Item>
+                                        } }
+                                    </FormDependencies>
+                                    <Form.Item name={[field.name, 'mark_point']} label='标记点'>
+                                        <Select options={mark_point_options} mode='multiple'/>
+                                    </Form.Item>
+                                    
+                                    <Form.Item label={t('水平线')} name={[field.name, 'mark_line']}>
+                                        <Select options={mark_line_options} mode='tags' />
+                                    </Form.Item>
+                                </div>
+                                { fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => remove(field.name)} /> } 
+                            </Space>
+                        </div>
                         { index < fields.length - 1 && <Divider className='divider'/> }
                     </div>
                 })
@@ -122,7 +147,6 @@ const Series = (props: { col_names: string[] }) => {
     </Form.List>
 }
 
-// 多y轴
 export const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemValue[] }) => { 
     const { col_names, initial_values } = props
     
@@ -141,7 +165,7 @@ export const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemV
             <>
                 {
                     fields.map((field, index) => {
-                        return <div>
+                        return <div key={field.name}>
                             <div className='field-wrapper'>
                                 <Space>
                                     <div className='axis-wrapper'>
@@ -162,7 +186,6 @@ export const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemV
                 }
                 
                 <Button type='dashed' block onClick={() => add()} icon={<PlusCircleOutlined /> }>{t('增加Y 轴')}</Button>
-                    
             </>}
     </Form.List>
 }

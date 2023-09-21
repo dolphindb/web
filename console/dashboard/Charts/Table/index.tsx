@@ -1,12 +1,11 @@
 import { Checkbox, PaginationProps, Table, TableProps } from 'antd'
-import {  BasicFormFields }  from '../ChartFormFields/BasicFormFields.js'
-import { BasicTableFields } from '../ChartFormFields/BasicTableFields.js'
-import { Widget } from '../model.js'
-import { useCallback, useMemo, useState } from 'react'
-import { ITableConfig } from '../type.js'
+import {  BasicFormFields }  from '../../ChartFormFields/BasicFormFields.js'
+import { BasicTableFields } from '../../ChartFormFields/BasicTableFields.js'
+import { Widget } from '../../model.js'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { ITableConfig } from '../../type.js'
 
 import './index.scss'
-import { convert_list_to_options } from '../utils.js'
 
 
 interface IProps extends TableProps<any> { 
@@ -15,11 +14,10 @@ interface IProps extends TableProps<any> {
 }
 
 const format_value = (val, decimal_places = 2) => { 
-    try { 
-        return Number(val).toFixed(decimal_places)
-    } catch { 
+    if (isNaN(Number(val)))
         return val
-    }
+    else
+        return Number(val).toFixed(decimal_places)
 }
 
 const DBTable = (props: IProps) => { 
@@ -29,6 +27,9 @@ const DBTable = (props: IProps) => {
     const config = widget.config as ITableConfig
     
     const [selected_cols, set_select_cols] = useState(config.show_cols)
+    
+    
+    useEffect(() => set_select_cols(config.show_cols), [config.show_cols])
     
     const on_change_selected_cols = useCallback(val => { 
         set_select_cols(val)
@@ -80,7 +81,7 @@ const DBTable = (props: IProps) => {
         
         {config.need_select_cols && <Checkbox.Group
             onChange={on_change_selected_cols}
-            defaultValue={config.show_cols}
+            value={selected_cols}
             options={radio_group_options}
             className='table-radio-group'
         />}
