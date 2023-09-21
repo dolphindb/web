@@ -30,6 +30,9 @@ export const BasicFormFields = (props: { type: 'chart' | 'table' }) => {
             <Form.Item initialValue={false} name='bordered' label={t('展示边框')}>
                 <BoolRadioGroup />
             </Form.Item>
+            <Form.Item initialValue name='need_select_cols' label={t('展示列选择') }>
+                <BoolRadioGroup />
+            </Form.Item>
         </>
         
         return  <div className='axis-wrapper'>

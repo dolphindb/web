@@ -88,7 +88,7 @@ const Series = (props: { col_names: string[] }) => {
         {(fields, { add, remove }) => <>
             {
                 fields.map((field, index) => { 
-                    return <div key={ field.name } className='wrapper'>
+                    return <div key={ field.name } className='field-wrapper'>
                         <Space>
                             <div className='axis-wrapper'>
                                 <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
@@ -142,7 +142,7 @@ export const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemV
                 {
                     fields.map((field, index) => {
                         return <div>
-                            <div className='wrapper'>
+                            <div className='field-wrapper'>
                                 <Space>
                                     <div className='axis-wrapper'>
                                         <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis' />

@@ -6,6 +6,7 @@ import 'react-quill/dist/quill.core.css'
 import { use_modal } from 'react-object-model/modal'
 import { t } from '../../../../i18n/index.js'
 import './index.sass'
+import { Widget, dashboard } from '../../model.js'
 
 
 function replace_variables (origin_string: string, variables: object) {
@@ -27,7 +28,7 @@ function replace_variables (origin_string: string, variables: object) {
   return replaced_string
 }
 
-export function RichText () {
+export function RichText ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
   const [edit_edit, set_edit_text] = useState('')
   const [display_text, set_display_text] = useState('')
   const { visible, open, close } = use_modal()
@@ -36,6 +37,7 @@ export function RichText () {
     ['blockquote', 'code-block'],
   
     [{ header: 1 }, { header: 2 }],               // custom button values
+    [{ color: [ ] }, { background: [ ] }],          // dropdown with defaults from theme
     [{ list: 'ordered' }, { list: 'bullet' }],
     [{ script: 'sub' }, { script: 'super' }],      // superscript/subscript
     [{ indent: '-1' }, { indent: '+1' }],          // outdent/indent
@@ -44,12 +46,13 @@ export function RichText () {
     [{ size: ['small', false, 'large', 'huge'] }],  // custom dropdown
     [{ header: [1, 2, 3, 4, 5, 6, false] }],
   
-    [{ color: [ ] }, { background: [ ] }],          // dropdown with defaults from theme
+    
     [{ font: [ ] }],
     [{ align: [ ] }],
   
     ['clean']                                         // remove formatting button
   ], [ ])
+  const { editing } = dashboard.use(['editing'])
   
   const variables = {
     name: 'rick',
@@ -80,7 +83,7 @@ export function RichText () {
     </Modal>
       {display_text === '' ?  
                       <div className='empty-area'>
-                        <Button onClick={open}>
+                        <Button onClick={editing && open}>
                           {t('添加文本')}
                         </Button>
                       </div> 
@@ -88,7 +91,7 @@ export function RichText () {
                       <div className='ql-container ql-snow rich-text-container'>
                         <div dangerouslySetInnerHTML={{ __html: template_text }}
                              className='display-area ql-editor'
-                             onClick={open}/>
+                             onClick={editing && open}/>
                       </div>
       }
     </>

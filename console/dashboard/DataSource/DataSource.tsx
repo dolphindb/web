@@ -113,7 +113,7 @@ export const DataSource = (props: IProps, ref) => {
                         预览
                     </Button>
                     : <div key='preview' />,
-                    <Button key='save' onClick={async () => {
+                    <Button key='save' type='primary' onClick={async () => {
                         if (no_save_flag.current)
                             await handle_save()
                         if (widget) {
@@ -127,7 +127,7 @@ export const DataSource = (props: IProps, ref) => {
                     }}>
                         {widget ? '应用' : '保存'}
                     </Button>,
-                    <Button key='close' type='primary' onClick={handle_close}>
+                    <Button key='close' onClick={handle_close}>
                         关闭
                     </Button>,
                 ]

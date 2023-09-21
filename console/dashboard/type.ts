@@ -49,4 +49,5 @@ export interface ITableConfig {
         cols: string[]
         decimal_places: number
     }
+    need_select_cols: boolean
 }

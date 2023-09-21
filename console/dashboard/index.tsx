@@ -14,6 +14,10 @@ import { SelectSider } from './SelectSider/SelectSider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 import { Navigation } from './Navigation/Navigation.js'
+import * as echarts from 'echarts'
+
+import config from './chart.config.json'
+echarts.registerTheme('my-theme', config.theme)
 
 
 /** 基于 GridStack.js 开发的拖拽图表可视化面板  
