@@ -23,7 +23,13 @@ const Chart = (props: IProps) => {
         convert_chart_config(widget, data_source),
     [widget.config, data_source])
     
-    return <ReactEChartsCore echarts={echarts} notMerge option={options} className='line-chart' theme='my-theme' />
+    return <ReactEChartsCore
+        echarts={echarts}
+        notMerge
+        option={options}
+        className='dashboard-line-chart'
+        theme='my-theme'
+    />
 }
 
 export default Chart
