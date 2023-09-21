@@ -11,7 +11,7 @@ import {
     DataSourceNode, 
     get_stream_tables, 
     get_stream_cols, 
-    get_data_source_node
+    get_source_node
 } from '../storage/date-source-node.js'
 import { dashboard } from '../model.js'
 import { NodeType, model } from '../../model.js'
@@ -64,7 +64,7 @@ export function StreamEditor ({
             if (dashboard.editor)
                 dashboard.editor?.setValue(current_data_source_node.code)
             
-            if (current_data_source_node.mode === get_data_source_node(current_data_source_node.id).mode)
+            if (current_data_source_node.mode === get_source_node(current_data_source_node.id).mode)
                 change_no_save_flag(false)
         })()
     }, [ current_data_source_node.id ])
@@ -185,7 +185,7 @@ export function StreamEditor ({
                                     <Editor
                                         enter_completion
                                         on_mount={(editor, monaco) => {
-                                            editor?.setValue(get_data_source_node(current_data_source_node.id).filter_condition || '')
+                                            editor?.setValue(get_source_node(current_data_source_node.id).filter_condition || '')
                                             dashboard.set({ editor, monaco })
                                         }}
                                         on_change={() => change_no_save_flag(true)}

@@ -3,10 +3,10 @@ import { Input, Tree } from 'antd'
 import { DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 
 import { model } from '../../model.js'
-import { create_data_source_node,
-         data_source_nodes,
-         delete_data_source_node, 
-         rename_data_source_node, 
+import { create_source_node,
+         source_nodes,
+         delete_source_node, 
+         rename_source_node, 
          DataSourceNode, 
          DataSourceNodePropertyType, 
     } from '../storage/date-source-node.js'
@@ -40,7 +40,7 @@ export function NodeTable ({
     change_current_data_source_node_property
 }: PropsType ) {
     const [current_select, set_current_select] = useState(current_data_source_node?.id || '')
-    const [menu_items, set_menu_items] = useState(data_source_nodes.map(
+    const [menu_items, set_menu_items] = useState(source_nodes.map(
         (data_source_node: DataSourceNode): MenuItemType => {
             return {
                 key: String(data_source_node.id),
@@ -63,7 +63,7 @@ export function NodeTable ({
         const handler = event => {
             let new_name = event.target.value
             try {
-                rename_data_source_node(select_key, new_name)
+                rename_source_node(select_key, new_name)
             } catch (error) {
                 model.message.error(error.message)
                 new_name = old_name
@@ -94,7 +94,7 @@ export function NodeTable ({
                             if (no_save_flag.current && await save_confirm()) 
                                 await handle_save()
                             no_save_flag.current = false
-                            const { id, name } = create_data_source_node()
+                            const { id, name } = create_source_node()
                             const new_menu_items = [
                                 {
                                     key: id,
@@ -126,16 +126,16 @@ export function NodeTable ({
                     className='nodetable-top-item' 
                     onClick={
                         () => {
-                            const delete_index = delete_data_source_node(current_data_source_node.id)
+                            const delete_index = delete_source_node(current_data_source_node.id)
                             if (delete_index >= 0) {
                                 menu_items.splice(delete_index, 1)
                                 set_menu_items([...menu_items])
-                                if (!data_source_nodes.length) 
+                                if (!source_nodes.length) 
                                     change_current_data_source_node('')   
                                 else {
                                     const index = delete_index === 0 ? 0 : delete_index - 1
-                                    change_current_data_source_node(data_source_nodes[index].id)
-                                    set_current_select(data_source_nodes[index].id)
+                                    change_current_data_source_node(source_nodes[index].id)
+                                    set_current_select(source_nodes[index].id)
                                 }
                             }  
                         }
@@ -146,7 +146,7 @@ export function NodeTable ({
                 </div>
             </div>
             <div className='nodetable-bottom'>
-                {data_source_nodes.length
+                {source_nodes.length
                     ? <Tree
                         ref={tree_ref}
                         showIcon

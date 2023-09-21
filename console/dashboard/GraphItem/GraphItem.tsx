@@ -8,14 +8,14 @@ import { type Widget } from '../model.js'
 import { graph_config } from '../graph-config.js'
 
 import ChartSvg from '../icons/chart.svg'
-import { get_data_source_node } from '../storage/date-source-node.js'
+import { get_source_node } from '../storage/date-source-node.js'
 import { t } from '../../../i18n/index.js'
 
 import './index.scss'
 
 
 const GraphComponent = ({ widget }: { widget: Widget }) => {
-    const data_source_node = get_data_source_node(widget.source_id)
+    const data_source_node = get_source_node(widget.source_id)
     const { data = [ ] } = data_source_node.use(['data'])
     
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
