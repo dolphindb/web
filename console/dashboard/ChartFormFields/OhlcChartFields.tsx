@@ -1,4 +1,4 @@
-import { Form, Select, Input, Collapse, Space, Divider, InputNumber } from 'antd'
+import { Form, Select, Input, Collapse, Divider, InputNumber } from 'antd'
 import { t } from '../../../i18n/index.js'
 import { FormDependencies } from '../../components/formily/FormDependies/index.js'
 import { AxisType, IAxisItem, IYAxisItemValue, Position } from './type.js'
@@ -46,7 +46,7 @@ export const BasicFormFields = (props: { type: 'chart' | 'table' }) => {
             <Form.Item name='with_tooltip' label={t('提示框')} initialValue>
                 <BoolRadioGroup />
             </Form.Item>
-            <Form.Item name='x_datazoom' label={t('X 轴缩略轴')} initialValue={false}>
+            <Form.Item name='x_datazoom' label={t('X 轴缩略轴')} initialValue>
                 <BoolRadioGroup />
             </Form.Item>
             <Form.Item name='y_datazoom' label={t('Y 轴缩略轴')} initialValue={false}>
@@ -115,20 +115,8 @@ const AxisItem = (props: IAxisItem) => {
 
 
 // 多y轴
-const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemValue[] }) => { 
-    const { col_names, initial_values } = props
-    
-    const default_initial_values = [
-        {
-            type: 'category',
-            name: t('名称'),
-            col_name: col_names[0],
-            position: 'left',
-            offset: 0
-        }
-    ]
-    
-    return <Form.List name='yAxis' initialValue={initial_values || default_initial_values}>
+const YAxis = ({ col_names, initial_values }: { col_names: string[], initial_values?: IYAxisItemValue[] }) => { 
+    return <Form.List name='yAxis' initialValue={initial_values}>
         {fields =>      
             fields.map((field, index) => {
                 return <div key={field.name}>
@@ -156,7 +144,8 @@ const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemValue[] 
 const Series = (props: { col_names: string[] }) => { 
     const { col_names } = props
     
-    const series = [{ name: 'OHLC', key: 0, selected_cols: [ 'open', 'high', 'low', 'close'] }, { name: '交易量', key: 1 }]
+    const series = useMemo(() => [{ name: 'OHLC', key: 0, selected_cols: [ 'open', 'high', 'low', 'close'] }, 
+                                  { name: '交易量', key: 1 }], [ ])
     
     return <Form.List name='series' initialValue={series}>
         {fields => 
@@ -169,7 +158,7 @@ const Series = (props: { col_names: string[] }) => {
                                             <Select options={convert_list_to_options(col_names)} />
                                         </Form.Item>) 
                                                             :
-                                    <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
+                                    <Form.Item name={[field.name, 'col_name']} label={t('交易量')} initialValue={col_names?.[0]} >
                                         <Select options={convert_list_to_options(col_names)} />
                                     </Form.Item>
                                 }
@@ -198,9 +187,9 @@ const Series = (props: { col_names: string[] }) => {
 export const OhlcFormFields = (props: IProps) => { 
     const { col_names = [ ] } = props
     
-    const x_axis = { type: AxisType.TIME, name: '时间' }
-    const y_axis = [{ type: AxisType.VALUE, name: 'OHLC', position: Position.LEFT }, 
-                    { type: AxisType.VALUE, name: '交易量', position: Position.RIGHT }]
+    const [x_axis, y_axis] = useMemo(() => [{ type: AxisType.TIME, name: '时间' },
+                                            [{ type: AxisType.VALUE, name: 'OHLC', position: Position.LEFT }, 
+                                             { type: AxisType.VALUE, name: '交易量', position: Position.RIGHT }]], [ ])
     
     return <Collapse items={[{
         key: 'x_axis',

@@ -8,10 +8,10 @@ import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 
 import './index.sass'
 
-const upColor = '#00da3c'
-const downColor = '#ec0000'
-
-
+const kColor = '#fd1050'
+const kColor0 = '#0cf49b'
+const kBorderColor = '#fd1050'
+const kBorderColor0 = '#0cf49b'
 
 type COL_MAP = {
   time: string
@@ -41,18 +41,13 @@ function splitData (rowData: any[], col_name: COL_MAP) {
 
 export default function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const { title, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
-    console.log('data_source', data_source)
     const data = useMemo(() => splitData(data_source, { time: xAxis.col_name, 
                                                         open: series[0].open as string, 
                                                         high: series[0].high as string,
                                                         low: series[0].low as string,
                                                         close: series[0].close as string,
                                                         trades: series[1].col_name as string }), [data_source, xAxis.col_name, series ])
-    const kColor = '#fd1050'
-    const kColor0 = '#0cf49b'
-    const kBorderColor = '#fd1050'
-    const kBorderColor0 = '#0cf49b'
-    
+                                                        
     const option = useMemo(() => ({
         animation: false,
         title: {
@@ -176,6 +171,13 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
             splitArea: {
               show: true
             },
+            splitLine: {
+              show: true,
+              lineStyle: {
+                  type: 'dashed',
+                  color: '#6E6F7A'
+              }
+          },
             nameTextStyle: {
               padding: [0, 50, 0, 0]
             },
