@@ -147,7 +147,6 @@ const Series = (props: { col_names: string[] }) => {
     </Form.List>
 }
 
-// 多y轴
 export const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemValue[] }) => { 
     const { col_names, initial_values } = props
     
@@ -187,7 +186,6 @@ export const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemV
                 }
                 
                 <Button type='dashed' block onClick={() => add()} icon={<PlusCircleOutlined /> }>{t('增加Y 轴')}</Button>
-                    
             </>}
     </Form.List>
 }

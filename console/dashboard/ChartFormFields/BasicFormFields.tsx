@@ -6,7 +6,8 @@ import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import './index.scss'
 
 export const BasicFormFields = (props: { type: 'chart' | 'table' }) => { 
-    const { type  } = props
+    const { type } = props
+    
     const FormFields = useMemo(() => { 
         const is_table = type === 'table'
         const is_chart = type === 'chart'

@@ -1,9 +1,9 @@
 import { Checkbox, PaginationProps, Table, TableProps } from 'antd'
-import {  BasicFormFields }  from '../ChartFormFields/BasicFormFields.js'
-import { BasicTableFields } from '../ChartFormFields/BasicTableFields.js'
-import { Widget } from '../model.js'
+import {  BasicFormFields }  from '../../ChartFormFields/BasicFormFields.js'
+import { BasicTableFields } from '../../ChartFormFields/BasicTableFields.js'
+import { Widget } from '../../model.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ITableConfig } from '../type.js'
+import { ITableConfig } from '../../type.js'
 
 import './index.scss'
 
@@ -27,6 +27,7 @@ const DBTable = (props: IProps) => {
     const config = widget.config as ITableConfig
     
     const [selected_cols, set_select_cols] = useState(config.show_cols)
+    
     
     useEffect(() => set_select_cols(config.show_cols), [config.show_cols])
     
