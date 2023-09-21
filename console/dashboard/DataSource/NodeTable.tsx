@@ -116,7 +116,10 @@ export function NodeTable ({
                 <div 
                     className='nodetable-top-item' 
                     onClick={
-                        () => { rename_data_source_node_handler(menu_items, current_select, current_data_source.name) }
+                        () => { 
+                            if (current_data_source)
+                                rename_data_source_node_handler(menu_items, current_select, current_data_source.name) 
+                        }
                     }
                 >
                     <EditOutlined className='nodetable-top-item-icon'/>
