@@ -6,7 +6,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { ITableConfig } from '../type.js'
 
 import './index.scss'
-import { convert_list_to_options } from '../utils.js'
 
 
 interface IProps extends TableProps<any> { 

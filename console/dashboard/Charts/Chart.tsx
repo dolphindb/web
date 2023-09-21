@@ -7,7 +7,6 @@ import './index.scss'
 import { Widget } from '../model.js'
 import { convert_chart_config } from '../utils.js'
 import { useMemo } from 'react'
-import config from '../chart.config.json'
 
 
 interface IProps { 
