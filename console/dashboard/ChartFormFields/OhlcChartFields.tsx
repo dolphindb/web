@@ -130,29 +130,25 @@ const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemValue[] 
     
     return <Form.List name='yAxis' initialValue={initial_values || default_initial_values}>
         {fields =>      
-            <>
-                {
-                    fields.map((field, index) => {
-                        return <div key={field.name}>
-                            <div className='wrapper'>
-                                <Space size='small'>
-                                    <div className='axis-wrapper'>
-                                        <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis' />
-                                        <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>
-                                            <Select options={axis_position_options} />
-                                        </Form.Item>
-                                        <Form.Item name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
-                                            <InputNumber />
-                                        </Form.Item>
-                                    </div>
-                                </Space>
-                            </div>
-                            { index < fields.length - 1 &&  <Divider className='divider'/> }
-                        </div>
-                    })
-                }
+            fields.map((field, index) => {
+                return <div key={field.name}>
                     
-            </>}
+                        
+                            <div className='axis-wrapper'>
+                                <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis' />
+                                <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>
+                                    <Select options={axis_position_options} />
+                                </Form.Item>
+                                <Form.Item name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
+                                    <InputNumber />
+                                </Form.Item>
+                            </div>
+                    
+                    
+                    { index < fields.length - 1 &&  <Divider className='divider'/> }
+                </div>
+            })
+            }
     </Form.List>
 }
 
@@ -163,12 +159,10 @@ const Series = (props: { col_names: string[] }) => {
     const series = [{ name: 'OHLC', key: 0, selected_cols: [ 'open', 'high', 'low', 'close'] }, { name: '交易量', key: 1 }]
     
     return <Form.List name='series' initialValue={series}>
-        {fields => <>
-            {
+        {fields => 
                 fields.map((field, index) => { 
                     return <div key={ field.name }>
-                        <Space>
-                            <div>
+                            <div className='axis-wrapper'>
                                 {series[index].selected_cols ?
                                     series[index].selected_cols.map(col => 
                                         <Form.Item key={col} name={[field.name, col]} label={col} initialValue={col_names?.[0]} >
@@ -179,11 +173,6 @@ const Series = (props: { col_names: string[] }) => {
                                         <Select options={convert_list_to_options(col_names)} />
                                     </Form.Item>
                                 }
-                               
-                                {/* <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={t('名称')}> 
-                                    <Input />
-                                </Form.Item> */}
-                                {/* 数据关联的y轴选择 */}
                                 <FormDependencies dependencies={['yAxis']}>
                                     {value => {
                                         const { yAxis } = value
@@ -197,12 +186,11 @@ const Series = (props: { col_names: string[] }) => {
                                     } }
                                 </FormDependencies>
                             </div>
-                        </Space>
+                      
                         { index < fields.length - 1 && <Divider className='divider'/> }
                     </div>
                 })
-            }
-        </>}
+           }
     </Form.List>
 }
 
