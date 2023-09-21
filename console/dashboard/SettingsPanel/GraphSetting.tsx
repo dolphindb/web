@@ -1,9 +1,10 @@
 import { Form } from 'antd'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { graph_config } from '../graph-config.js'
 import { dashboard } from '../model.js'
 import { IChartConfig, ITableConfig } from '../type.js'
 import { get_source_node } from '../storage/date-source-node.js'
+import { useUpdate } from 'ahooks'
 
 export function GraphSetting () { 
     const { widget } = dashboard.use(['widget'])
@@ -12,6 +13,9 @@ export function GraphSetting () {
     
     const [form] = Form.useForm<IChartConfig | ITableConfig>()
     
+    useEffect(() => { 
+        form.resetFields()
+    }, [cols])
     
     useEffect(() => {
         if (!widget.id)
