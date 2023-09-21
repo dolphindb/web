@@ -48,12 +48,17 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
                                                         low: series[0].low as string,
                                                         close: series[0].close as string,
                                                         trades: series[1].col_name as string }), [data_source, xAxis.col_name, series ])
+    const kColor = '#fd1050'
+    const kColor0 = '#0cf49b'
+    const kBorderColor = '#fd1050'
+    const kBorderColor0 = '#0cf49b'
+    
     const option = useMemo(() => ({
         animation: false,
         title: {
             text: title,
             textStyle: {
-                color: '#e6e6e6e'
+                color: '#e6e6e6'
             }
         },    
         tooltip: {
@@ -110,11 +115,11 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
           pieces: [
             {
               value: 1,
-              color: downColor
+              color: kColor
             },
             {
               value: -1,
-              color: upColor
+              color: kColor0
             }
           ]
         },
@@ -225,8 +230,8 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
             itemStyle: {
               color: undefined,
               color0: undefined,
-              borderColor: upColor,
-              borderColor0: downColor
+              borderColor: kBorderColor,
+              borderColor0: kBorderColor0
             }
           },
           {
@@ -236,7 +241,7 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
             yAxisIndex: 1,
             data: data.volumes,
             itemStyle: {
-                color: ({ value }) => value[2] === -1 ? upColor : downColor
+                color: ({ value }) => value[2] === -1 ? kColor : kColor0
             }
           }
         ]
@@ -247,7 +252,7 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
         option={option}
         notMerge
         lazyUpdate
-        theme='my-theme'
+        theme='ohlc_theme'
     />
 }
 
