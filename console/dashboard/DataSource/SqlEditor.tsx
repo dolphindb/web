@@ -7,19 +7,19 @@ import { Editor } from '../../shell/Editor/index.js'
 import { DataView } from '../../shell/DataView.js'
 
 import { dashboard } from '../model.js'
-import { DataSourceNode, type DataSourceNodePropertyType, get_source_node } from '../storage/date-source-node.js'
+import { DataSource, type DataSourcePropertyType, get_data_source } from '../storage/date-source-node.js'
 
 type PropsType = { 
     show_preview: boolean
-    current_data_source_node: DataSourceNode
+    current_data_source: DataSource
     close_preview: () => void 
     change_no_save_flag: (value: boolean) => void
-    change_current_data_source_node_property: (key: string, value: DataSourceNodePropertyType, save_confirm?: boolean) => void
+    change_current_data_source_property: (key: string, value: DataSourcePropertyType, save_confirm?: boolean) => void
 }
 export function SqlEditor ({ 
-        current_data_source_node, 
+        current_data_source, 
         show_preview,
-        change_current_data_source_node_property,
+        change_current_data_source_property,
         change_no_save_flag,  
         close_preview,
     }: PropsType) 
@@ -28,11 +28,11 @@ export function SqlEditor ({
     
     useEffect(() => {
         if (dashboard.editor)
-            dashboard.editor?.setValue(current_data_source_node.code)
+            dashboard.editor?.setValue(current_data_source.code)
         
-        if (current_data_source_node.mode === get_source_node(current_data_source_node.id).mode)
+        if (current_data_source.mode === get_data_source(current_data_source.id).mode)
             change_no_save_flag(false)
-    }, [ current_data_source_node.id ])
+    }, [ current_data_source.id ])
     
     return <>
         <div className='sqleditor'>
@@ -40,7 +40,7 @@ export function SqlEditor ({
                 <Editor 
                     enter_completion
                     on_mount={(editor, monaco) => {
-                        editor?.setValue(get_source_node(current_data_source_node.id).code)
+                        editor?.setValue(get_data_source(current_data_source.id).code)
                         dashboard.set({ editor, monaco })
                     }}
                     on_change={() => change_no_save_flag(true)}
@@ -61,7 +61,7 @@ export function SqlEditor ({
                     <div className='preview-main'>
                         {result?.data
                             ? <DataView dashboard/>
-                            : <div className='preview-main-error'>{current_data_source_node.error_message }</div> 
+                            : <div className='preview-main-error'>{current_data_source.error_message }</div> 
                         }
                     </div>
                 </div>
@@ -74,23 +74,23 @@ export function SqlEditor ({
                     自动刷新：
                     <Switch 
                         size='small' 
-                        checked={current_data_source_node.auto_refresh }
+                        checked={current_data_source.auto_refresh }
                         onChange={(checked: boolean) => {
-                            change_current_data_source_node_property('auto_refresh', checked)
+                            change_current_data_source_property('auto_refresh', checked)
                         }} 
                     />
                 </div>
-                {current_data_source_node.auto_refresh 
+                {current_data_source.auto_refresh 
                     ? <div>
                         间隔时间：
                         <InputNumber 
                             size='small' 
                             min={0.001}
                             className='sqlconfig-left-intervals-input'
-                            value={current_data_source_node.interval}
+                            value={current_data_source.interval}
                             onChange={value => {
                                 if (value !== null)
-                                    change_current_data_source_node_property('interval', Math.ceil(value)) 
+                                    change_current_data_source_property('interval', Math.ceil(value)) 
                             }}
                         />
                         s
@@ -105,10 +105,10 @@ export function SqlEditor ({
                         size='small' 
                         min={1}
                         className='sqlconfig-right-maxline-input' 
-                        value={current_data_source_node.max_line}
+                        value={current_data_source.max_line}
                         onChange={value => { 
                             if (value !== null)
-                                change_current_data_source_node_property('max_line', Math.ceil(value)) 
+                                change_current_data_source_property('max_line', Math.ceil(value)) 
                         }}
                     />
                 </div>

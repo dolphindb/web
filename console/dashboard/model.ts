@@ -14,7 +14,7 @@ import { assert, genid } from 'xshell/utils.browser.js'
 import { t } from '../../i18n/index.js'
 import { Monaco } from '../shell/Editor/index.js'
 import { model } from '../model.js'
-import { unsub_source, type DataType } from './storage/date-source-node.js'
+import { unsub_data_source, type DataType } from './storage/date-source-node.js'
 import { IChartConfig, ITableConfig } from './type.js'
 
 
@@ -200,7 +200,7 @@ class DashBoardModel extends Model<DashBoardModel> {
         const widgets = this.widgets.filter(w => w !== widget)
         
         if (widget.source_id)
-            unsub_source(widget)
+            unsub_data_source(widget)
         
         this.set({
             widget: widgets[0],
