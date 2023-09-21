@@ -6,8 +6,9 @@ import { assert } from 'xshell/utils.browser.js'
 
 import { Widget } from './model.js'
 import { AxisConfig, IChartConfig, ISeriesConfig } from './type.js'
-import { DataSourceNode } from './storage/date-source-node.js'
+import { DataSource } from './storage/date-source-node.js'
 import { t } from '../../i18n/index.js'
+import { MarkPresetType } from './ChartFormFields/type.js'
 
 export function formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
     assert(obj.form === DdbForm.table, t('form 必须是 DdbForm.table, 否则不能 to_rows'))
@@ -106,7 +107,7 @@ export function get_cols (obj: DdbObj<DdbValue>): Array<string> {
 }
 
 export function default_value_in_select (
-    data_source_node: DataSourceNode, 
+    data_source_node: DataSource, 
     key: string, 
     select_list: { label: string, value: string }[]): string 
 {
@@ -123,6 +124,8 @@ export function concat_name_path (...paths: NamePath[]): NamePath {
 
 export function convert_chart_config (widget: Widget, data_source: any[]) {
     const { config, type } = widget
+    
+    const { title, with_legend, with_tooltip, with_split_line, xAxis, series, yAxis, x_datazoom, y_datazoom } = config as IChartConfig
     
     const convert_data_zoom = (x_datazoom: boolean, y_datazoom: boolean) => { 
         const total_data_zoom = [
@@ -158,9 +161,10 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         type: axis.type,
         data: axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ],
         splitLine: {
-            show: true,
+            show: with_split_line,
             lineStyle: {
                 type: 'dashed',
+                color: '#6E6F7A'
             }
         },
         logBase: axis.log_base || 10,
@@ -170,19 +174,47 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         id: index
     })
     
-    const convert_series = (series: ISeriesConfig ) => ({
-        type: type.toLocaleLowerCase(),
-        name: series.name,
-        // 防止删除yAxis导致渲染失败
-        yAxisIndex: yAxis[series.yAxisIndex] ?  series.yAxisIndex : 0,
-        data: data_source.map(item => item?.[series.col_name]) 
-    })
+    const convert_series = (series: ISeriesConfig) => { 
+        let mark_line_data = series?.mark_line?.map(item => { 
+            if (item in MarkPresetType)
+                return {
+                    type: item,
+                    name: item
+                }
+            else
+                return {
+                yAxis: item
+            }
+        }) || [ ]
+        
+        
+        return {
+            type: type.toLocaleLowerCase(),
+            name: series.name,
+            // 防止删除yAxis导致渲染失败
+            yAxisIndex: yAxis[series.yAxisIndex] ?  series.yAxisIndex : 0,
+            data: data_source.map(item => item?.[series.col_name]),
+            markPoint: {
+                data: series?.mark_point?.map(item => ({
+                    type: item,
+                    name: item
+                }))
+            }, 
+            markLine: {
+                symbol: ['none', 'none'],
+                data: mark_line_data
+            }
+            
+        }
+    }
     
-    const { title, with_legend, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = config as IChartConfig
     
     return {
         legend: {
-            show: with_legend
+            show: with_legend,
+            textStyle: {
+                color: '#e6e6e6'
+            }
         },
         tooltip: {
             show: with_tooltip,
@@ -190,7 +222,10 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             trigger: 'axis',
         },
         title: {
-            text: title
+            text: title,
+            textStyle: {
+                color: '#e6e6e6',
+            }
         },
         xAxis: convert_axis(xAxis),
         yAxis: yAxis.filter(item => !!item).map(convert_axis),

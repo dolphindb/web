@@ -1,7 +1,4 @@
-.line-chart {
-    width: 100%;
-    height: 100%;
-}
+
 
 .table-title {
     font-size: 16px;
@@ -10,8 +7,13 @@
 }
 
 .table-wrapper {
+    background-color: #282828;
     overflow: auto;
     font-size: 12px;
+    padding: 12px;
+    .table-radio-group {
+        margin-bottom: 12px;
+    }
     .ant-table-row {
         &:nth-child(even) {
             background-color: #303030;

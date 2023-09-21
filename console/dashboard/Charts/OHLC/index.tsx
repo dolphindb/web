@@ -5,12 +5,13 @@ import { type Widget } from '../../model.js'
 import {  IChartConfig } from '../../type.js'
 import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
-import { get_data_source_node } from '../../storage/date-source-node.js'
 
 import './index.sass'
 
-const upColor = '#00da3c'
-const downColor = '#ec0000'
+const kColor = '#fd1050'
+const kColor0 = '#0cf49b'
+const kBorderColor = '#fd1050'
+const kBorderColor0 = '#0cf49b'
 
 type COL_MAP = {
   time: string
@@ -38,27 +39,31 @@ function splitData (rowData: any[], col_name: COL_MAP) {
     }
 }
 
-export default function OHLC ({ widget }: { widget: Widget }) {
+export default function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const { title, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
-    const data_node = get_data_source_node(widget.source_id)
-    const { data: origin_data } = data_node.use([ 'data'])
-    const data = useMemo(() => splitData(origin_data, { time: xAxis.col_name, 
+    const data = useMemo(() => splitData(data_source, { time: xAxis.col_name, 
                                                         open: series[0].open as string, 
                                                         high: series[0].high as string,
                                                         low: series[0].low as string,
                                                         close: series[0].close as string,
-                                                        trades: series[1].col_name as string }), [origin_data, xAxis.col_name, series ])
+                                                        trades: series[1].col_name as string }), [data_source, xAxis.col_name, series ])
+                                                        
     const option = useMemo(() => ({
         animation: false,
         title: {
-          text: title
+            text: title,
+            textStyle: {
+                color: '#e6e6e6'
+            }
         },    
+        backgroundColor: '#282828',
         tooltip: {
           show: with_tooltip,
           trigger: 'axis',
           axisPointer: {
             type: 'cross'
           },
+          backgroundColor: '#eeeeee',
           borderWidth: 1,
           borderColor: '#ccc',
           padding: 10,
@@ -107,11 +112,11 @@ export default function OHLC ({ widget }: { widget: Widget }) {
           pieces: [
             {
               value: 1,
-              color: downColor
+              color: kColor
             },
             {
               value: -1,
-              color: upColor
+              color: kColor0
             }
           ]
         },
@@ -166,6 +171,13 @@ export default function OHLC ({ widget }: { widget: Widget }) {
             splitArea: {
               show: true
             },
+            splitLine: {
+              show: true,
+              lineStyle: {
+                  type: 'dashed',
+                  color: '#6E6F7A'
+              }
+          },
             nameTextStyle: {
               padding: [0, 50, 0, 0]
             },
@@ -222,8 +234,8 @@ export default function OHLC ({ widget }: { widget: Widget }) {
             itemStyle: {
               color: undefined,
               color0: undefined,
-              borderColor: upColor,
-              borderColor0: downColor
+              borderColor: kBorderColor,
+              borderColor0: kBorderColor0
             }
           },
           {
@@ -233,7 +245,7 @@ export default function OHLC ({ widget }: { widget: Widget }) {
             yAxisIndex: 1,
             data: data.volumes,
             itemStyle: {
-                color: ({ value }) => value[2] === -1 ? upColor : downColor
+                color: ({ value }) => value[2] === -1 ? kColor : kColor0
             }
           }
         ]
@@ -244,7 +256,7 @@ export default function OHLC ({ widget }: { widget: Widget }) {
         option={option}
         notMerge
         lazyUpdate
-        theme='dark'
+        theme='ohlc_theme'
     />
 }
 

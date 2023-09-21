@@ -15,6 +15,8 @@ export interface ISeriesConfig {
     col_name: string
     name: string
     yAxisIndex: number
+    mark_point?: Array<'max' | 'min'>
+    mark_line?: string[]
     // OHLC 特殊列
     open?: string
     high?: string
@@ -26,6 +28,7 @@ export interface IChartConfig {
     title?: string
     x_datazoom: boolean
     y_datazoom: boolean
+    with_split_line: boolean
     with_tooltip: boolean
     with_legend: boolean
     xAxis: AxisConfig
@@ -49,4 +52,5 @@ export interface ITableConfig {
         cols: string[]
         decimal_places: number
     }
+    need_select_cols: boolean
 }

@@ -6,7 +6,8 @@ import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import './index.scss'
 
 export const BasicFormFields = (props: { type: 'chart' | 'table' }) => { 
-    const { type  } = props
+    const { type } = props
+    
     const FormFields = useMemo(() => { 
         const is_table = type === 'table'
         const is_chart = type === 'chart'
@@ -24,10 +25,16 @@ export const BasicFormFields = (props: { type: 'chart' | 'table' }) => {
             <Form.Item name='y_datazoom' label={t('Y 轴缩略轴')} initialValue={false}>
                 <BoolRadioGroup />
             </Form.Item>
+            <Form.Item name='with_split_line' label='展示网格线' initialValue={false}>
+                <BoolRadioGroup />
+            </Form.Item>
         </>
   
         const BasicTableSetting =  <>
             <Form.Item initialValue={false} name='bordered' label={t('展示边框')}>
+                <BoolRadioGroup />
+            </Form.Item>
+            <Form.Item initialValue name='need_select_cols' label={t('展示列选择') }>
                 <BoolRadioGroup />
             </Form.Item>
         </>

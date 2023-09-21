@@ -23,7 +23,6 @@ export const BasicTableFields = (props: IProps) => {
                 <Select mode='multiple' options={convert_list_to_options(col_names)} />
             </Form.Item>
     
-           
             <FormDependencies dependencies={['show_cols']}>
                 {value => { 
                     const { show_cols = [ ] } = value

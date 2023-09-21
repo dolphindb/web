@@ -7,26 +7,26 @@ import { Editor } from '../../shell/Editor/index.js'
 import { DataView } from '../../shell/DataView.js'
 
 import { 
-    type DataSourceNodePropertyType, 
-    DataSourceNode, 
+    type DataSourcePropertyType, 
+    DataSource, 
     get_stream_tables, 
     get_stream_cols, 
-    get_data_source_node
+    get_data_source
 } from '../storage/date-source-node.js'
 import { dashboard } from '../model.js'
 import { NodeType, model } from '../../model.js'
 import { default_value_in_select } from '../utils.js'
 
 type PropsType = { 
-    current_data_source_node: DataSourceNode
+    current_data_source: DataSource
     change_no_save_flag: (value: boolean) => void
-    change_current_data_source_node_property: (key: string, value: DataSourceNodePropertyType, save_confirm?: boolean) => void
+    change_current_data_source_property: (key: string, value: DataSourcePropertyType, save_confirm?: boolean) => void
 }
   
 export function StreamEditor ({ 
-    current_data_source_node,
+    current_data_source,
     change_no_save_flag,
-    change_current_data_source_node_property
+    change_current_data_source_property
  }: PropsType) {
     const nodes = model.use(['nodes']).nodes.filter(node => node.mode === NodeType.data || node.mode === NodeType.single)
     const node_list = nodes.map(node => {
@@ -37,7 +37,7 @@ export function StreamEditor ({
     })
     
     const [stream_tables, set_stream_tables] = useState<MenuProps['items']>([ ])
-    const [current_stream, set_current_stream] = useState(current_data_source_node?.stream_table || '')
+    const [current_stream, set_current_stream] = useState(current_data_source?.stream_table || '')
     const [stream_cols, set_stream_cols] = useState<{ label: string, value: string }[]>([ ])
     const [ip_list, set_ip_list] = useState<{ label: string, value: string }[]>([ ])
     const [ip_select, set_ip_select] = useState(true)
@@ -54,35 +54,35 @@ export function StreamEditor ({
                         title: stream_table
                     }
                 }))
-                if (!table.includes(current_data_source_node.stream_table)) {
-                    change_current_data_source_node_property('stream_table', table[0], false) 
+                if (!table.includes(current_data_source.stream_table)) {
+                    change_current_data_source_property('stream_table', table[0], false) 
                     set_current_stream(table[0])
                 }
             }  else 
-                change_current_data_source_node_property('stream_table', '', false)
+                change_current_data_source_property('stream_table', '', false)
                 
             if (dashboard.editor)
-                dashboard.editor?.setValue(current_data_source_node.code)
+                dashboard.editor?.setValue(current_data_source.code)
             
-            if (current_data_source_node.mode === get_data_source_node(current_data_source_node.id).mode)
+            if (current_data_source.mode === get_data_source(current_data_source.id).mode)
                 change_no_save_flag(false)
         })()
-    }, [ current_data_source_node.id ])
+    }, [ current_data_source.id ])
     
     useEffect(() => {
         (async () => {
-            if (current_data_source_node.stream_table) 
-                set_stream_cols((await get_stream_cols(current_data_source_node.stream_table, true)).map(col => {
+            if (current_data_source.stream_table) 
+                set_stream_cols((await get_stream_cols(current_data_source.stream_table, true)).map(col => {
                     return {
                         label: col,
                         value: col
                     }
                 }))  
         })()
-    }, [current_data_source_node.stream_table])
+    }, [current_data_source.stream_table])
     
     useEffect(() => {
-        const node = nodes.filter(node => node.name === default_value_in_select(current_data_source_node, 'node', node_list))[0]
+        const node = nodes.filter(node => node.name === default_value_in_select(current_data_source, 'node', node_list))[0]
         const new_ip_list = [
             {
                 value: node.host + ':' + node.port,
@@ -97,12 +97,12 @@ export function StreamEditor ({
         ]
         set_ip_list(new_ip_list)
         
-        const new_ip_select = !current_data_source_node.ip || (new_ip_list.filter(item => item.value === current_data_source_node.ip).length !== 0)
+        const new_ip_select = !current_data_source.ip || (new_ip_list.filter(item => item.value === current_data_source.ip).length !== 0)
         if (new_ip_select)
-            change_current_data_source_node_property('ip', default_value_in_select(current_data_source_node, 'ip', new_ip_list))
+            change_current_data_source_property('ip', default_value_in_select(current_data_source, 'ip', new_ip_list))
         
         set_ip_select(new_ip_select)
-    }, [current_data_source_node.node])
+    }, [current_data_source.node])
     
     return <>
         <div className='streameditor'>
@@ -118,14 +118,14 @@ export function StreamEditor ({
                             treeData={stream_tables}
                             onSelect={async key => { 
                                 if (key.length) {
-                                    change_current_data_source_node_property('stream_table', String(key[0]))
+                                    change_current_data_source_property('stream_table', String(key[0]))
                                     set_current_stream(String(key[0]))
                                 }
                             }}
                         />
                     </div>
                     <div className='streameditor-main-right'>
-                        <div className='preview' style={{ height: current_data_source_node.filter ? '60%' : '100%' }}>
+                        <div className='preview' style={{ height: current_data_source.filter ? '60%' : '100%' }}>
                             <div className='preview-config'>
                                 <div className='preview-config-tag'>
                                     列名预览
@@ -135,16 +135,16 @@ export function StreamEditor ({
                                 <DataView dashboard/>
                             </div>
                         </div>
-                        {current_data_source_node.filter
+                        {current_data_source.filter
                             ? <div className='streameditor-main-right-filter'>
                                 <div className='streameditor-main-right-filter-top'>
                                     <div className='streameditor-main-right-filter-top-mode'>
                                         过滤方式：
                                         <Select
-                                            defaultValue={current_data_source_node.filter_mode || 'value'}
+                                            defaultValue={current_data_source.filter_mode || 'value'}
                                             className='streameditor-main-right-filter-top-mode-select'
                                             size='small'
-                                            onChange={(value: string) => change_current_data_source_node_property('filter_mode', value)}
+                                            onChange={(value: string) => change_current_data_source_property('filter_mode', value)}
                                             options={[
                                                 { value: 'value', label: '值过滤' },
                                                 { value: 'scope', label: '范围过滤' },
@@ -173,10 +173,10 @@ export function StreamEditor ({
                                     <div className='streameditor-main-right-filter-top-col'>
                                         过滤列:
                                         <Select
-                                            defaultValue={default_value_in_select(current_data_source_node, 'filter_col', stream_cols)}
+                                            defaultValue={default_value_in_select(current_data_source, 'filter_col', stream_cols)}
                                             className='streameditor-main-right-filter-top-mode-select'
                                             size='small'
-                                            onChange={(value: string) => change_current_data_source_node_property('filter_col', value)}
+                                            onChange={(value: string) => change_current_data_source_property('filter_col', value)}
                                             options={stream_cols}
                                         />
                                     </div>
@@ -185,7 +185,7 @@ export function StreamEditor ({
                                     <Editor
                                         enter_completion
                                         on_mount={(editor, monaco) => {
-                                            editor?.setValue(get_data_source_node(current_data_source_node.id).filter_condition || '')
+                                            editor?.setValue(get_data_source(current_data_source.id).filter_condition || '')
                                             dashboard.set({ editor, monaco })
                                         }}
                                         on_change={() => change_no_save_flag(true)}
@@ -205,10 +205,10 @@ export function StreamEditor ({
                     <div>
                         节点：
                         <Select
-                            defaultValue={default_value_in_select(current_data_source_node, 'node', node_list) }
+                            defaultValue={default_value_in_select(current_data_source, 'node', node_list) }
                             className='streamconfig-left-node-select'
                             size='small'
-                            onChange={(value: string) => { change_current_data_source_node_property('node', value) }}
+                            onChange={(value: string) => { change_current_data_source_property('node', value) }}
                             options={node_list}
                         />
                     </div>
@@ -216,7 +216,7 @@ export function StreamEditor ({
                         IP：
                         {ip_select
                             ? <Select
-                                value={current_data_source_node.ip}
+                                value={current_data_source.ip}
                                 className='streamconfig-left-ip-select'
                                 size='small'
                                 onChange={(value: string) => {
@@ -225,7 +225,7 @@ export function StreamEditor ({
                                         return
                                     } 
                                     else 
-                                        change_current_data_source_node_property('ip', value)
+                                        change_current_data_source_property('ip', value)
                                 }}
                                 options={[
                                     ...ip_list,
@@ -236,19 +236,19 @@ export function StreamEditor ({
                                 <Input 
                                     size='small' 
                                     className='streamconfig-left-ip-manualinput-input'
-                                    value={current_data_source_node.ip}
+                                    value={current_data_source.ip}
                                     onChange={event => { 
                                         if (event !== null)
-                                            change_current_data_source_node_property('ip', event.target.value) 
+                                            change_current_data_source_property('ip', event.target.value) 
                                     }}
                                 />
                                 <CloseOutlined 
                                     className='streamconfig-left-ip-manualinput-icon' 
                                     onClick={() => { 
                                         set_ip_select(true) 
-                                        const new_ip = default_value_in_select(current_data_source_node, 'ip', ip_list)
-                                        if (new_ip !== current_data_source_node.ip)
-                                            change_current_data_source_node_property('ip', new_ip)
+                                        const new_ip = default_value_in_select(current_data_source, 'ip', ip_list)
+                                        if (new_ip !== current_data_source.ip)
+                                            change_current_data_source_property('ip', new_ip)
                                     }}
                                 />
                             </div>
@@ -259,9 +259,9 @@ export function StreamEditor ({
                             过滤：
                             <Switch 
                                 size='small' 
-                                checked={current_data_source_node.filter }
+                                checked={current_data_source.filter }
                                 onChange={(checked: boolean) => {
-                                    change_current_data_source_node_property('filter', checked)
+                                    change_current_data_source_property('filter', checked)
                                 }} 
                             />
                         </div>
@@ -275,10 +275,10 @@ export function StreamEditor ({
                             size='small' 
                             min={1}
                             className='sqlconfig-right-maxline-input' 
-                            value={current_data_source_node.max_line}
+                            value={current_data_source.max_line}
                             onChange={value => { 
                                 if (value !== null)
-                                    change_current_data_source_node_property('max_line', Math.ceil(value)) 
+                                    change_current_data_source_property('max_line', Math.ceil(value)) 
                             }}
                         />
                     </div>

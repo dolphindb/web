@@ -11,13 +11,13 @@ import { StreamEditor } from './StreamEditor.js'
 
 import { dashboard } from '../model.js'
 import { type Widget } from '../model.js'
-import { data_source_nodes,
-    find_data_source_node_index, 
-    get_data_source_node,
-    save_data_source_node, 
-    sub_source,
-    DataSourceNode,
-    type DataSourceNodePropertyType, 
+import { data_sources,
+    find_data_source_index, 
+    get_data_source,
+    save_data_source, 
+    sub_data_source,
+    DataSource,
+    type DataSourcePropertyType, 
 } from '../storage/date-source-node.js'
 
 const save_confirm_config = {
@@ -33,28 +33,28 @@ interface IProps extends ButtonProps {
     text?: string
 }
 
-export const DataSource = (props: IProps, ref) => {
+export const DataSourceConfig = (props: IProps, ref) => {
     const { widget, text, ...btn_props } = props
     const { visible, open, close } = use_modal()
     const [modal, contextHolder] = Modal.useModal()
     
     const [show_preview, set_show_preview] = useState(false) 
-    const [current_data_source_node, set_current_data_source_node] = useState(data_source_nodes[0] || null)
+    const [current_data_source, set_current_data_source] = useState(data_sources[0] || null)
     
     const no_save_flag = useRef(false)
     
-    const change_current_data_source_node = useCallback((key: string) => {
+    const change_current_data_source = useCallback((key: string) => {
         if (key === '') {
-            set_current_data_source_node(null)
+            set_current_data_source(null)
             return
         }    
-        set_current_data_source_node(cloneDeep(get_data_source_node(key)))
+        set_current_data_source(cloneDeep(get_data_source(key)))
         set_show_preview(false)
     }, [ ])
     
-    const change_current_data_source_node_property = useCallback(
-        (key: string, value: DataSourceNodePropertyType, save_confirm = true) => {
-            set_current_data_source_node((pre: DataSourceNode) => {
+    const change_current_data_source_property = useCallback(
+        (key: string, value: DataSourcePropertyType, save_confirm = true) => {
+            set_current_data_source((pre: DataSource) => {
                 pre[key] = value
                 return cloneDeep(pre)
             })
@@ -72,9 +72,9 @@ export const DataSource = (props: IProps, ref) => {
     }, [no_save_flag.current])
     
     const handle_save = useCallback(async () => {
-        await save_data_source_node(current_data_source_node)
+        await save_data_source(current_data_source)
         no_save_flag.current = false
-    }, [current_data_source_node])
+    }, [current_data_source])
     
     return <>
         <Button
@@ -96,30 +96,30 @@ export const DataSource = (props: IProps, ref) => {
             maskClosable={false}
             maskStyle={{ backgroundColor: 'rgba(84,84,84,0.5)' }}
             afterOpenChange={() => {
-                set_current_data_source_node(cloneDeep(data_source_nodes[widget?.source_id ? find_data_source_node_index(widget.source_id) : 0]))
+                set_current_data_source(cloneDeep(data_sources[widget?.source_id ? find_data_source_index(widget.source_id) : 0]))
             }}
             footer={
                 [
-                    current_data_source_node?.mode === 'sql'
+                    current_data_source?.mode === 'sql'
                     ? <Button 
                         key='preview' 
                         onClick={
                             async () => {
                                 const { type, result } = await dashboard.execute()
-                                change_current_data_source_node_property('error_message', type === 'success' ? '' : result as string, false)
+                                change_current_data_source_property('error_message', type === 'success' ? '' : result as string, false)
                                 set_show_preview(true)
                             }
                         }>
                         预览
                     </Button>
                     : <div key='preview' />,
-                    <Button key='save' onClick={async () => {
+                    <Button key='save' type='primary' onClick={async () => {
                         if (no_save_flag.current)
                             await handle_save()
                         if (widget) {
-                            if (!widget.source_id || widget.source_id !== current_data_source_node.id) {
-                                sub_source(widget, current_data_source_node.id)
-                                dashboard.update_widget({ ...widget, source_id: current_data_source_node.id })
+                            if (!widget.source_id || widget.source_id !== current_data_source.id) {
+                                sub_data_source(widget, current_data_source.id)
+                                dashboard.update_widget({ ...widget, source_id: current_data_source.id })
                             }
                             close()
                             set_show_preview(false)
@@ -127,7 +127,7 @@ export const DataSource = (props: IProps, ref) => {
                     }}>
                         {widget ? '应用' : '保存'}
                     </Button>,
-                    <Button key='close' type='primary' onClick={handle_close}>
+                    <Button key='close' onClick={handle_close}>
                         关闭
                     </Button>,
                 ]
@@ -137,19 +137,19 @@ export const DataSource = (props: IProps, ref) => {
             {contextHolder}
             <div className='data-source-config-main'>
                 <NodeTable 
-                    current_data_source_node={current_data_source_node}
+                    current_data_source={current_data_source}
                     no_save_flag={no_save_flag}
                     save_confirm={() => modal.confirm(save_confirm_config) }
                     handle_save={handle_save}
-                    change_current_data_source_node={change_current_data_source_node}
-                    change_current_data_source_node_property={change_current_data_source_node_property}
+                    change_current_data_source={change_current_data_source}
+                    change_current_data_source_property={change_current_data_source_property}
                 />
-                {data_source_nodes.length
+                {data_sources.length
                     ? <div className='config-right'>
                         <div className='config-right-top'>
                             <Menu 
-                                onClick={event => { change_current_data_source_node_property('mode', event.key) }} 
-                                selectedKeys={[current_data_source_node.mode]} 
+                                onClick={event => { change_current_data_source_property('mode', event.key) }} 
+                                selectedKeys={[current_data_source.mode]} 
                                 mode='horizontal' 
                                 items={[
                                     {
@@ -163,18 +163,18 @@ export const DataSource = (props: IProps, ref) => {
                                 ]} 
                             />
                         </div>
-                        {current_data_source_node.mode === 'sql'
+                        {current_data_source.mode === 'sql'
                             ? <SqlEditor 
                                 show_preview={show_preview} 
-                                current_data_source_node={current_data_source_node}
+                                current_data_source={current_data_source}
                                 close_preview={() =>  set_show_preview(false) } 
                                 change_no_save_flag={(value: boolean) => no_save_flag.current = value}
-                                change_current_data_source_node_property={change_current_data_source_node_property}
+                                change_current_data_source_property={change_current_data_source_property}
                             />
                             : <StreamEditor 
-                                current_data_source_node={current_data_source_node} 
+                                current_data_source={current_data_source} 
                                 change_no_save_flag={(value: boolean) => no_save_flag.current = value}
-                                change_current_data_source_node_property={change_current_data_source_node_property}
+                                change_current_data_source_property={change_current_data_source_property}
                             />
                         }
                     </div>
