@@ -4,11 +4,11 @@ import { graph_config } from '../graph-config.js'
 import { dashboard } from '../model.js'
 import { IChartConfig, ITableConfig } from '../type.js'
 import { get_source_node } from '../storage/date-source-node.js'
-import { useUpdate } from 'ahooks'
+import { get_data_source } from '../storage/date-source-node.js'
 
 export function GraphSetting () { 
     const { widget } = dashboard.use(['widget'])
-    const data_source_node = get_source_node(widget.source_id)
+    const data_source_node = get_data_source(widget.source_id)
     const { cols = [ ] } = data_source_node.use(['cols'])
     
     const [form] = Form.useForm<IChartConfig | ITableConfig>()

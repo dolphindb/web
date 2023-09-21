@@ -5,7 +5,7 @@ import { DeleteOutlined, EditOutlined, EyeOutlined, FileOutlined, FolderAddOutli
 
 import { dashboard } from '../model.js'
 
-import { DataSource } from '../DataSource/DataSource.js'
+import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 
 
 export function Navigation () {
@@ -64,7 +64,7 @@ export function Navigation () {
                 </span>
             </div>
             <div className='right-config'>
-                <DataSource/>
+                <DataSourceConfig/>
             </div>
         </div>
     </div>

@@ -2,20 +2,20 @@ import { CloseOutlined } from '@ant-design/icons'
 
 
 import { WidgetType, dashboard } from '../model.js'
-import { DataSource } from '../DataSource/DataSource.js'
+import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import { useMemo } from 'react'
 import { type Widget } from '../model.js'
 import { graph_config } from '../graph-config.js'
 
 import ChartSvg from '../icons/chart.svg'
-import { get_source_node } from '../storage/date-source-node.js'
+import { get_data_source } from '../storage/date-source-node.js'
 import { t } from '../../../i18n/index.js'
 
 import './index.scss'
 
 
 const GraphComponent = ({ widget }: { widget: Widget }) => {
-    const data_source_node = get_source_node(widget.source_id)
+    const data_source_node = get_data_source(widget.source_id)
     const { data = [ ] } = data_source_node.use(['data'])
     
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
@@ -32,7 +32,7 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
     return <div className={`grid-stack-item-content ${widget.id === current?.id ? 'grid-stack-item-active' : ''}`}>
         { editing && <div className='delete-graph'>
             {/* 选中时 hover 且当前有数据源时才能修改数据源 */}
-            {widget.id === current?.id && widget.source_id && <DataSource className='edit-data-source-btn' type='link' widget={current} text={t('编辑数据源')} />}
+            {widget.id === current?.id && widget.source_id && <DataSourceConfig className='edit-data-source-btn' type='link' widget={current} text={t('编辑数据源')} />}
             <CloseOutlined className='delete-graph-icon' onClick={() => { dashboard.delete_widget(widget) }}/>
         </div>
         }
@@ -43,7 +43,7 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
                 <div className='graph-content'>
                     <div className='graph-title'>{WidgetType[widget.type]}</div>
                     <img src={ChartSvg} className='default-img'/>
-                    <DataSource widget={widget}/>
+                    <DataSourceConfig widget={widget}/>
                 </div>
         }
         <div className='drag-icon' />
