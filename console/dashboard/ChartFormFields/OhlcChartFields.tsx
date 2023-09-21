@@ -1,4 +1,4 @@
-import { Form, Select, Input, Collapse, Divider, InputNumber } from 'antd'
+import { Form, Select, Input, Collapse, Divider, InputNumber, Space } from 'antd'
 import { t } from '../../../i18n/index.js'
 import { FormDependencies } from '../../components/formily/FormDependies/index.js'
 import { AxisType, IAxisItem, IYAxisItemValue, Position } from './type.js'
