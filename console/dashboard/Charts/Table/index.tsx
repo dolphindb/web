@@ -76,7 +76,7 @@ const DBTable = (props: IProps) => {
     }, [config])
     
     
-    return <div className='table-wrapper'>
+    return <div className='dashboard-table-wrapper'>
         {config.title && <h2 className='table-title'>{ config.title }</h2>}
         
         {config.need_select_cols && <Checkbox.Group
