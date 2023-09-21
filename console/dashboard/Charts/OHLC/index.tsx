@@ -5,7 +5,6 @@ import { type Widget } from '../../model.js'
 import {  IChartConfig } from '../../type.js'
 import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
-import { get_source_node } from '../../storage/date-source-node.js'
 
 import './index.sass'
 
