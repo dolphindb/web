@@ -258,9 +258,9 @@ const sub_stream = async (source_id: string) => {
                     else {
                         data_source.data.push(...stream_formatter(message.data, data_source.max_line, data_source.cols))
                         if (data_source.data.length > data_source.max_line)
-                            data_source.data.splice(data_source.data.length - data_source.max_line)
+                            data_source.data = data_source.data.splice(data_source.data.length - data_source.max_line)
                         data_source.set({
-                            data: data_source.data
+                            data: [...data_source.data]
                         }) 
                         console.log(data_source)   
                     }   
