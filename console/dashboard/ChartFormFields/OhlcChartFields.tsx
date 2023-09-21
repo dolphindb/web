@@ -122,19 +122,15 @@ const YAxis = ({ col_names, initial_values }: { col_names: string[], initial_val
                 {
                     fields.map((field, index) => {
                         return <div key={field.name}>
-                            <div className='wrapper'>
-                                <Space size='small'>
-                                    <div className='axis-wrapper'>
-                                        <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis' />
-                                        <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>
-                                            <Select options={axis_position_options} />
-                                        </Form.Item>
-                                        <Form.Item name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
-                                            <InputNumber />
-                                        </Form.Item>
-                                    </div>
-                                </Space>
-                            </div>
+                                <div className='axis-wrapper'>
+                                    <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis' />
+                                    <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>
+                                        <Select options={axis_position_options} />
+                                    </Form.Item>
+                                    <Form.Item name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
+                                        <InputNumber />
+                                    </Form.Item>
+                                </div>
                             { index < fields.length - 1 &&  <Divider className='divider'/> }
                         </div>
                     })
@@ -156,8 +152,7 @@ const Series = (props: { col_names: string[] }) => {
             {
                 fields.map((field, index) => { 
                     return <div key={ field.name }>
-                        <Space>
-                            <div>
+                            <div className='axis-wrapper'>
                                 {series[index].selected_cols ?
                                     series[index].selected_cols.map(col => 
                                         <Form.Item key={col} name={[field.name, col]} label={col} initialValue={col_names?.[0]} >
@@ -186,7 +181,6 @@ const Series = (props: { col_names: string[] }) => {
                                     } }
                                 </FormDependencies>
                             </div>
-                        </Space>
                         { index < fields.length - 1 && <Divider className='divider'/> }
                     </div>
                 })
