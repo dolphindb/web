@@ -7,7 +7,7 @@ import { useMemo } from 'react'
 import { type Widget } from '../model.js'
 import { graph_config } from '../graph-config.js'
 
-import ChartSvg from '../../icons/chartIcon.svg'
+import ChartSvg from '../icons/chart.svg'
 import { get_source_node } from '../storage/date-source-node.js'
 import { t } from '../../../i18n/index.js'
 
