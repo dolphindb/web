@@ -61,12 +61,14 @@ export default function OHLC ({ widget, data_source }: { widget: Widget, data_so
                 color: '#e6e6e6'
             }
         },    
+        backgroundColor: '#282828',
         tooltip: {
           show: with_tooltip,
           trigger: 'axis',
           axisPointer: {
             type: 'cross'
           },
+          backgroundColor: '#eeeeee',
           borderWidth: 1,
           borderColor: '#ccc',
           padding: 10,
