@@ -24,6 +24,9 @@ export const BasicFormFields = (props: { type: 'chart' | 'table' }) => {
             <Form.Item name='y_datazoom' label={t('Y 轴缩略轴')} initialValue={false}>
                 <BoolRadioGroup />
             </Form.Item>
+            <Form.Item name='with_split_line' label='展示网格线' initialValue={false}>
+                <BoolRadioGroup />
+            </Form.Item>
         </>
   
         const BasicTableSetting =  <>
