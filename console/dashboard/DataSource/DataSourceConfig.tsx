@@ -40,6 +40,7 @@ export const DataSourceConfig = (props: IProps, ref) => {
     
     const [show_preview, set_show_preview] = useState(false) 
     const [current_data_source, set_current_data_source] = useState(data_sources[0] || null)
+    const [connecting, set_connecting] = useState(false)
     
     const no_save_flag = useRef(false)
     
@@ -113,17 +114,22 @@ export const DataSourceConfig = (props: IProps, ref) => {
                         预览
                     </Button>
                     : <div key='preview' />,
-                    <Button key='save' type='primary' onClick={async () => {
-                        if (no_save_flag.current)
-                            await handle_save()
-                        if (widget) {
-                            if (!widget.source_id || widget.source_id !== current_data_source.id) {
-                                sub_data_source(widget, current_data_source.id)
-                                dashboard.update_widget({ ...widget, source_id: current_data_source.id })
-                            }
-                            close()
-                            set_show_preview(false)
-                        }    
+                    <Button key='save' type='primary' loading={current_data_source.mode === 'stream' && connecting} onClick={async () => {
+                        try {
+                            set_connecting(true)
+                            if (no_save_flag.current)
+                                await handle_save()
+                            if (widget) {
+                                if (!widget.source_id || widget.source_id !== current_data_source.id) {
+                                    await sub_data_source(widget, current_data_source.id)
+                                    dashboard.update_widget({ ...widget, source_id: current_data_source.id })
+                                }
+                                close()
+                                set_show_preview(false)
+                            } 
+                        } finally {
+                            set_connecting(false)
+                        }
                     }}>
                         {widget ? '应用' : '保存'}
                     </Button>,
