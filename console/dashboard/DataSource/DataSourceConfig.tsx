@@ -92,6 +92,7 @@ export const DataSourceConfig = (props: IProps, ref) => {
             title='配置数据源'
             width='80%' 
             destroyOnClose
+            className='data-source'
             open={visible}
             onCancel={handle_close} 
             maskClosable={false}

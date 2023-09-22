@@ -66,6 +66,24 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
+        // await this.get_configs()
+        if (!this.config) {
+            const new_dashboard_config = {
+                id: genid(),
+                name: 'dashboard_0',
+                datasources: [ ],
+                canvas: {
+                    widgets: [ ],
+                }
+            }
+            this.set({ config: new_dashboard_config, 
+                       configs: [new_dashboard_config],
+                     })
+        }
+        this.set({ widgets: this.config.canvas.widgets.map(widget => ({
+            ...widget, 
+            ref: createRef(), 
+        })) as any })
         let grid = GridStack.init({
             acceptWidgets: true,
             float: true,
@@ -127,7 +145,6 @@ class DashBoardModel extends Model<DashBoardModel> {
         
         this.set({ grid })
         
-        await this.get_configs()
     }
     
     
@@ -194,7 +211,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async eval (code: string) {
+    async eval (code = this.editor.getValue()) {
         this.set({ executing: true })
         
         try {
@@ -236,8 +253,14 @@ class DashBoardModel extends Model<DashBoardModel> {
         type: 'success' | 'error'
         result: string | Result
     }> {
-        if (dashboard.executing)
+        if (dashboard.executing) {
             this.message.warning(t('当前连接正在执行作业，请等待'))
+            return {
+                type: 'error',
+                result: '当时连接正在执行作业，无返回结果，请重新保存'
+            }
+        }
+        
         else 
             try {
                 await this.eval(code)
