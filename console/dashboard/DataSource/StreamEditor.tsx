@@ -1,10 +1,9 @@
 import { createElement, useEffect, useRef, useState } from 'react'
 
-import { Input, Popover, Select, Tree, type MenuProps, InputNumber, Switch } from 'antd'
+import { Input, Popover, Select, Tree, type MenuProps, InputNumber, Switch, Table as AntTable } from 'antd'
 import { CloseOutlined, QuestionCircleOutlined, TableOutlined } from '@ant-design/icons'
 
 import { Editor } from '../../shell/Editor/index.js'
-import { DataView } from '../../shell/DataView.js'
 
 import { 
     type DataSourcePropertyType, 
@@ -134,7 +133,32 @@ export function StreamEditor ({
                                 </div>
                             </div>
                             <div className='preview-main'>
-                                <DataView dashboard/>
+                                <AntTable 
+                                    columns={[
+                                        {
+                                            title: 'Index',
+                                            dataIndex: 'index',
+                                            width: 30,
+                                        },
+                                        {
+                                            title: 'Name',
+                                            dataIndex: 'Name',
+                                            width: 50,
+                                        },
+                                    ]} 
+                                    dataSource={
+                                        current_data_source.cols.map((col, index) => {
+                                            console.log(col, index)
+                                            return {
+                                                key: col,
+                                                index,
+                                                name: col
+                                            }
+                                        })
+                                    } 
+                                    pagination={{ pageSize: 10 }} 
+                                    scroll={{ y: 200 }} 
+                                />
                             </div>
                         </div>
                         {current_data_source.filter
