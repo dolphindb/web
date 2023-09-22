@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, Divider, Input, Modal, Select, Tooltip } from 'antd'
 import { DeleteOutlined, EditOutlined, EyeOutlined, FileOutlined, FolderAddOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
 
@@ -7,8 +7,9 @@ import { Widget, dashboard } from '../model.js'
 import { use_modal } from 'react-object-model/modal.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import { genid } from 'xshell/utils.browser.js'
-
+import { export_data_sources, load_data_sources } from '../storage/date-source-node.js'
 import './index.sass'
+import { t } from '../../../i18n/index.js'
 
 
 function get_widget_config (widget: Widget) {
@@ -48,27 +49,26 @@ export function Navigation () {
                 model.show_error({ error })
             }
         })()
-        
     }, [ ])
     
-    const handle_save = useCallback(async () => {
+    
+    async function handle_save () {
         dashboard.set({ config: Object.assign(config, {
-            datasource: {
-                
-            },
+            datasource: export_data_sources(),
             canvas: {
                 widgets: widgets.map(widget => get_widget_config(widget))
             }
         }) })
         try {
             await dashboard.save_configs()
+            model.message.success(t('dashboard 保存成功'))
         } catch (error) {
             model.show_error({ error })
         }
-    }, [ ])
+    }
     
     
-    const handle_add = async () => {
+    async function handle_add () {
         const new_dashboard_config = {
             id: genid(),
             name: new_dashboard_name,
@@ -78,22 +78,25 @@ export function Navigation () {
             }
         }
         dashboard.set({ configs: [...configs, new_dashboard_config] })
+        // console.log(new_dashboard_config)
         try {
             await dashboard.save_configs()
+            model.message.success(t('添加成功'))
         } catch (error) {
             model.show_error({ error })
         }
     }
     
     
-    const handle_delete = useCallback(async () => {
+    async function handle_delete () {
         dashboard.set({ configs: configs.filter(({ id }) => id !== config.id) })
         try {
             await dashboard.save_configs()
+            model.message.success(t('删除成功'))
         } catch (error) {
             model.show_error({ error })
         }
-    }, [ ])
+    }
     
     
     return <div className='dashboard-navigation'>
@@ -121,18 +124,19 @@ export function Navigation () {
             <div className='right-icons'>
                 <Modal open={visible}
                        onCancel={close}
-                       onOk={handle_add}>
-                    <Input value={new_dashboard_name} 
+                       onOk={handle_add}
+                       closeIcon={false}>
+                    <Input value={new_dashboard_name}
                            onChange={event => set_new_dashboard_name(event.target.value)}/>
                 </Modal>
                 <Tooltip title='保存'>
-                    <Button className='action'><FileOutlined /></Button>
+                    <Button className='action' onClick={handle_save}><FileOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='新增'>
                     <Button className='action' onClick={open}><FolderAddOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='删除'>
-                    <Button className='action'><DeleteOutlined /></Button>
+                    <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='刷新'>
                     <Button className='action'><SyncOutlined /></Button>
