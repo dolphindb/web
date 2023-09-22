@@ -308,7 +308,7 @@ export const export_data_sources = () => data_sources.map(
     }
 )
 
-export const load_data_sources = (_data_sources: DataSource[]) => {
+export const import_data_sources = (_data_sources: DataSource[]) => {
     data_sources = _data_sources
     data_sources.forEach(async data_source => save_data_source(data_source))
 }
