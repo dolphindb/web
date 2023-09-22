@@ -717,46 +717,8 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    show_error ({ error, title, content }: { error?: Error, title?: string, content?: string }) {
-        console.log(error)
-        
-        this.modal.error({
-            className: 'modal-error',
-            title: title || error?.message,
-            content: (() => {
-                if (content)
-                    return content
-                    
-                if (error) {
-                    let s = ''
-                    
-                    if (error instanceof DdbDatabaseError) {
-                        const { type, options } = error
-                        switch (type) {
-                            case 'script':
-                                s += t('运行以下脚本时出错:\n') +
-                                    error.options.script + '\n'
-                                break
-                            
-                            case 'function':
-                                s += t('调用 {{func}} 函数时出错，参数为:\n', { func: error.options.func }) +
-                                    options.args.map(arg => arg.toString())
-                                        .join_lines()
-                                break
-                        }
-                    }
-                    
-                    s += t('调用栈:\n') +
-                        error.stack
-                    
-                    if (error.cause)
-                        s += '\n' + (error.cause as Error).stack
-                    
-                    return s
-                }
-            })(),
-            width: 1000,
-        })
+    show_error (options: ErrorOptions) {
+        show_error(this.modal, options)
     }
     
     
@@ -817,6 +779,56 @@ export enum NodeType {
     controller = 2,
     single = 3,
     computing = 4,
+}
+
+
+export interface ErrorOptions {
+    error?: Error
+    title?: string
+    content?: string
+}
+
+
+export function show_error (modal: DdbModel['modal'], { title, error, content }: ErrorOptions) {
+    console.log(error)
+    
+    modal.error({
+        className: 'modal-error',
+        title: title || error?.message,
+        content: (() => {
+            if (content)
+                return content
+                
+            if (error) {
+                let s = ''
+                
+                if (error instanceof DdbDatabaseError) {
+                    const { type, options } = error
+                    switch (type) {
+                        case 'script':
+                            s += t('运行以下脚本时出错:\n') +
+                                error.options.script + '\n'
+                            break
+                        
+                        case 'function':
+                            s += t('调用 {{func}} 函数时出错，参数为:\n', { func: error.options.func }) +
+                                options.args.map(arg => arg.toString())
+                                    .join_lines()
+                            break
+                    }
+                }
+                
+                s += t('调用栈:\n') +
+                    error.stack
+                
+                if (error.cause)
+                    s += '\n' + (error.cause as Error).stack
+                
+                return s
+            }
+        })(),
+        width: 1000,
+    })
 }
 
 

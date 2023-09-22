@@ -17,7 +17,7 @@ import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
 import { t } from '../../i18n/index.js'
 import { Monaco } from '../shell/Editor/index.js'
-import { model } from '../model.js'
+import { model, show_error, type ErrorOptions } from '../model.js'
 import { unsub_data_source, type DataType } from './DataSource/date-source.js'
 import { IChartConfig, ITableConfig } from './type.js'
 
@@ -294,6 +294,11 @@ class DashBoardModel extends Model<DashBoardModel> {
     /** 将配置持久化保存到服务器 */
     async save_configs () {
         await model.ddb.call<DdbVoid>('set_dashboard_configs', [JSON.stringify(this.configs)])
+    }
+    
+    
+    show_error (options: ErrorOptions) {
+        show_error(this.modal, options)
     }
 }
 
