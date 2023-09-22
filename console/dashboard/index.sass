@@ -1,9 +1,9 @@
-$canvasBackColor: rgb(40, 40, 40)
-$fontColor: rgb(215, 215, 215)
+$canvas_back_color: rgb(40, 40, 40)
+$font_color: rgb(215, 215, 215)
 $blue: rgb(22, 104, 220)
-$borderColor: rgb(100, 100, 100)
-    
-    
+$border_color: #333333
+
+
 .view-card.dashboard
     height: 100%
     padding: 0px !important
@@ -29,7 +29,7 @@ $borderColor: rgb(100, 100, 100)
         .dashboard-canvas
             padding-top: 1px
             flex-grow: 1
-            background-color: $canvasBackColor
+            background-color: $canvas_back_color
             
             // 没有 overflow: hidden 会导致在 hover 最下面一行的 widget 时画布变大 1px （原因未知）从而导致出现滚动条
             overflow: hidden
@@ -37,7 +37,7 @@ $borderColor: rgb(100, 100, 100)
             .grid-stack
                 height: 100% !important
                 min-height: 0 !important
-                background-image: radial-gradient(circle at top left, $borderColor 2px, transparent 2px),radial-gradient(circle at top right, $borderColor 2px, transparent 2px),radial-gradient(circle at bottom left, $borderColor 2px, transparent 2px),radial-gradient(circle at bottom right, $borderColor 2px, transparent 2px)
+                background-image: radial-gradient(circle at top left, $border_color 2px, transparent 2px),radial-gradient(circle at top right, $border_color 2px, transparent 2px),radial-gradient(circle at bottom left, $border_color 2px, transparent 2px),radial-gradient(circle at bottom right, $border_color 2px, transparent 2px)
                 
                 .grid-stack-item-content
                     background-color: rgba(0, 0, 0, 0.25)
@@ -63,7 +63,7 @@ $borderColor: rgb(100, 100, 100)
                             width: 90%
                             height: 50px
                             text-align: center
-                            color: $fontColor
+                            color: $font_color
                             border: 2px $blue solid
                             background-color: rgba(255, 255, 255, 0.2)
                             cursor: pointer
@@ -74,14 +74,14 @@ $borderColor: rgb(100, 100, 100)
                         position: absolute
                         right: 3px
                         top: 0
-                        color: $fontColor
+                        color: $font_color
                         z-index: 999
                         
                     .drag-icon
                         width: 10px
                         height: 10px
-                        border-bottom: 3px solid $fontColor
-                        border-right: 3px solid $fontColor
+                        border-bottom: 3px solid $font_color
+                        border-right: 3px solid $font_color
                         position: absolute
                         right: 5px
                         bottom: 5px
@@ -104,7 +104,7 @@ $borderColor: rgb(100, 100, 100)
             padding-top: 1px
             text-align: center
             background-color: rgb(52, 52, 52)
-            color: $fontColor
+            color: $font_color
             display: flex
             flex-direction: column
             justify-content: space-between
@@ -153,9 +153,9 @@ $borderColor: rgb(100, 100, 100)
                 
 .data-source
     .ant-modal-content
-        background-color: $canvasBackColor
+        background-color: $canvas_back_color
         .ant-modal-title
-            background-color: $canvasBackColor
+            background-color: $canvas_back_color
 
 .data-source-config-trigger-navigation   
     cursor: pointer
@@ -166,12 +166,12 @@ $borderColor: rgb(100, 100, 100)
 .data-source-config-main
     width: 100%
     height: 500px
-    color: $fontColor
+    color: $font_color
     display: flex
 
     .config-nodetable
         width: 200px
-        border-right: 1px solid $borderColor
+        border-right: 1px solid $border_color
         display: flex
         flex-direction: column
         
@@ -224,7 +224,7 @@ $borderColor: rgb(100, 100, 100)
             padding: 8px 16px
             
             // .sqleditor-main
-            //     border: 1px solid $borderColor
+            //     border: 1px solid $border_color
                 
         .streameditor
             height: 83%
@@ -232,17 +232,17 @@ $borderColor: rgb(100, 100, 100)
             
             .streameditor-no-table
                 height: 100%
-                border: 1px solid $borderColor
+                border: 1px solid $border_color
                 padding: 3px 0 0 10px
             
             .streameditor-main
                 display: flex
                 height: 100%
-                border: 1px solid $borderColor
+                border: 1px solid $border_color
                 
                 .streameditor-main-left
                     width: 20%
-                    border-right: 1px solid $borderColor
+                    border-right: 1px solid $border_color
                     
                     .streameditor-main-left-menu
                         height: 100%
@@ -277,7 +277,7 @@ $borderColor: rgb(100, 100, 100)
                         .streameditor-main-right-filter-main
                             flex: 1
                             height: 80%
-                            border: 1px solid $borderColor
+                            border: 1px solid $border_color
                         
         .preview
                 display: flex
@@ -294,26 +294,26 @@ $borderColor: rgb(100, 100, 100)
                     
                 .preview-main
                     flex: 1
-                    border: 1px solid $borderColor
+                    border: 1px solid $border_color
                     overflow: auto
                     
                     .ant-table
-                        background-color: $canvasBackColor !important
+                        background-color: $canvas_back_color !important
                         
                         .ant-table-cell
-                            background-color: $canvasBackColor !important
-                            color: $fontColor !important
-                            border-color: $borderColor !important
+                            background-color: $canvas_back_color !important
+                            color: $font_color !important
+                            border-color: $border_color !important
                             
                     .info
                         color: #b7b5b5db !important
                         
                     .ant-pagination
                         .ant-pagination-item a
-                            color: $fontColor !important
+                            color: $font_color !important
                             
                         .ant-pagination-item-link
-                            color: $fontColor !important
+                            color: $font_color !important
                             
                         .ant-pagination-item-active
                             background-color: #3f3f3f !important
@@ -321,18 +321,18 @@ $borderColor: rgb(100, 100, 100)
                             font-weight: bold
                             
                         .ant-pagination-item-link-icon
-                            color: $fontColor !important
+                            color: $font_color !important
                         
                         .ant-pagination-disabled svg
                             color: #5f5f5f !important
                         
                         .ant-pagination-options
-                            color: $fontColor !important
+                            color: $font_color !important
                             display: inline-block !important
                             
                         input
                             background-color: #3f3f3f !important
-                            color: $fontColor !important
+                            color: $font_color !important
                     
                     .preview-main-error
                         color: red

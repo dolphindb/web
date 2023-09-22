@@ -17,7 +17,7 @@ import { export_data_sources } from '../DataSource/date-source.js'
 
 
 function get_widget_config (widget: Widget) {
-    return {
+    return  {
         id: widget.id,
         w: widget.w,
         h: widget.h,
@@ -27,37 +27,40 @@ function get_widget_config (widget: Widget) {
         source_id: widget.source_id,
         config: widget.config
     }
+    
 }
 
 
 export function Navigation () {
     const { editing, widgets, configs, config } = dashboard.use(['editing', 'widgets', 'configs', 'config'])
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
-    const { visible, open, close } = use_modal()
+    const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
+    const { visible: add_visible, open: add_open, close: add_close } = use_modal()
+    const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     
     async function handle_save () {
-        console.log('config:', JSON.stringify( {
-            ...config,
-            datasources: export_data_sources(),
-            canvas: {
-                widgets: widgets.map(widget => get_widget_config(widget))
-            }
-        }))
-        // const new_config =  {
+        // console.log('config:', JSON.stringify( {
         //     ...config,
         //     datasources: export_data_sources(),
         //     canvas: {
         //         widgets: widgets.map(widget => get_widget_config(widget))
         //     }
-        // }
-        // dashboard.set({ config: new_config, 
-        //                 configs: [...configs.filter(({ id }) => id !== config.id), new_config] })
-        // try {
-        //     await dashboard.save_configs()
-        //     dashboard.message.success(t('dashboard 保存成功'))
-        // } catch (error) {
-        //     model.show_error({ error })
-        // }
+        // }))
+        const new_config =  {
+            ...config,
+            datasources: export_data_sources(),
+            canvas: {
+                widgets: widgets.map(widget => get_widget_config(widget))
+            }
+        }
+        dashboard.set({ config: new_config, 
+                        configs: [...configs.filter(({ id }) => id !== config.id), new_config] })
+        try {
+            await dashboard.save_configs()
+            dashboard.message.success(t('dashboard 保存成功'))
+        } catch (error) {
+            model.show_error({ error })
+        }
     }
     
     
@@ -75,6 +78,22 @@ export function Navigation () {
         try {
             await dashboard.save_configs()
             dashboard.message.success(t('添加成功'))
+        } catch (error) {
+            model.show_error({ error })
+        }
+    }
+    
+    
+    async function handle_edit () {
+        const edit_dashboard_config = {
+            ...config,
+            name: edit_dashboard_name,
+        }
+        dashboard.set({ configs: [...configs.filter(({ id }) => id !== config.id), edit_dashboard_config] })
+        // console.log(new_dashboard_config)
+        try {
+            await dashboard.save_configs()
+            dashboard.message.success(t('修改成功'))
         } catch (error) {
             model.show_error({ error })
         }
@@ -110,22 +129,39 @@ export function Navigation () {
                     location.href = url.toString()
                 }}
                 bordered={false}
-                options={[
-                    { value: 'dashboard1', label: 'dashboard1' },
-                    { value: 'dashboard2', label: 'dashboard2' },
-                    { value: 'dashboard3', label: 'dashboard3' },
-                ]}
+                options={configs?.map(({ id, name }) => ({
+                    key: id,
+                    value: name,
+                    label: name
+                }))}
+                // options={[
+                //     { value: 'dashboard1', label: 'dashboard1' },
+                //     { value: 'dashboard2', label: 'dashboard2' },
+                //     { value: 'dashboard3', label: 'dashboard3' },
+                // ]}
             />
         </div>
         <div className='right'>
             <div className='right-icons'>
-                <Modal open={visible}
-                       onCancel={close}
+                <Modal open={add_visible}
+                       onCancel={add_close}
                        onOk={handle_add}
-                       closeIcon={false}>
+                       closeIcon={false}
+                       title={t('请输入 dashboard 的名称')}>
                     <Input value={new_dashboard_name}
                            onChange={event => set_new_dashboard_name(event.target.value)}/>
                 </Modal>
+                
+                <Modal open={edit_visible}
+                       onCancel={edit_close}
+                       onOk={handle_edit}
+                       closeIcon={false}
+                       title={t('请修改 dashboard 的名称')}>
+                    <Input value={edit_dashboard_name}
+                           placeholder={config?.name}
+                           onChange={event => set_edit_dashboard_name(event.target.value)}/>
+                </Modal>
+    
                 <Tooltip title='返回交互编程'>
                     <Button className='action'><HomeOutlined onClick={back_to_home} /></Button>
                 </Tooltip>
@@ -133,7 +169,10 @@ export function Navigation () {
                     <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='新增'>
-                    <Button className='action' onClick={open}><FolderAddOutlined /></Button>
+                    <Button className='action' onClick={add_open}><FolderAddOutlined /></Button>
+                </Tooltip>
+                <Tooltip title='修改'>
+                    <Button className='action' onClick={edit_open}><EditOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='删除'>
                     <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
