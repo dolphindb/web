@@ -2,8 +2,9 @@ import { MutableRefObject, ReactNode, createElement, useEffect, useRef, useState
 import { Input, Tree } from 'antd'
 import { DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 
-import { model } from '../../model.js'
+import { dashboard } from '../model.js'
 import { create_data_source, data_sources, delete_data_source, rename_data_source, DataSource, DataSourcePropertyType } from './date-source.js'
+
 
 type PropsType = {
     current_data_source: DataSource
@@ -59,7 +60,7 @@ export function NodeTable ({
             try {
                 rename_data_source(select_key, new_name)
             } catch (error) {
-                model.message.error(error.message)
+                dashboard.message.error(error.message)
                 new_name = old_name
             } finally {
                 tmp_menu_item.title = new_name

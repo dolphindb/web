@@ -54,7 +54,7 @@ export function Navigation () {
         //                 configs: [...configs.filter(({ id }) => id !== config.id), new_config] })
         // try {
         //     await dashboard.save_configs()
-        //     model.message.success(t('dashboard 保存成功'))
+        //     dashboard.message.success(t('dashboard 保存成功'))
         // } catch (error) {
         //     model.show_error({ error })
         // }
@@ -74,7 +74,7 @@ export function Navigation () {
         // console.log(new_dashboard_config)
         try {
             await dashboard.save_configs()
-            model.message.success(t('添加成功'))
+            dashboard.message.success(t('添加成功'))
         } catch (error) {
             model.show_error({ error })
         }
@@ -85,7 +85,7 @@ export function Navigation () {
         dashboard.set({ configs: configs.filter(({ id }) => id !== config.id) })
         try {
             await dashboard.save_configs()
-            model.message.success(t('删除成功'))
+            dashboard.message.success(t('删除成功'))
         } catch (error) {
             model.show_error({ error })
         }
