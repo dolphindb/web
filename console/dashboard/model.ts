@@ -182,7 +182,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async eval (code: string) {
+    async eval (code = this.editor.getValue()) {
         this.set({ executing: true })
         
         try {
@@ -224,8 +224,14 @@ class DashBoardModel extends Model<DashBoardModel> {
         type: 'success' | 'error'
         result: string | Result
     }> {
-        if (dashboard.executing)
+        if (dashboard.executing) {
             model.message.warning(t('当前连接正在执行作业，请等待'))
+            return {
+                type: 'error',
+                result: '当时连接正在执行作业，无返回结果，请重新保存'
+            }
+        }
+            
         else 
             try {
                 await this.eval(code)
