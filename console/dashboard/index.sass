@@ -30,6 +30,7 @@ $borderColor: rgb(100, 100, 100)
             padding-top: 1px
             flex-grow: 1
             background-color: $canvasBackColor
+            
             // 没有 overflow: hidden 会导致在 hover 最下面一行的 widget 时画布变大 1px （原因未知）从而导致出现滚动条
             overflow: hidden
             
@@ -37,9 +38,13 @@ $borderColor: rgb(100, 100, 100)
                 height: 100% !important
                 min-height: 0 !important
                 background-image: radial-gradient(circle at top left, $borderColor 2px, transparent 2px),radial-gradient(circle at top right, $borderColor 2px, transparent 2px),radial-gradient(circle at bottom left, $borderColor 2px, transparent 2px),radial-gradient(circle at bottom right, $borderColor 2px, transparent 2px)
+                
                 .grid-stack-item-content
-                    background-color: rgba(0, 0, 0, 0.5)
-                    border: 2px solid rgba(40,40,40,1)
+                    background-color: rgba(0, 0, 0, 0.25)
+                    
+                    height: 100%
+                    overflow: hidden
+                    
                     .delete-graph
                         display: none
                         
@@ -62,7 +67,7 @@ $borderColor: rgb(100, 100, 100)
                             border: 2px $blue solid
                             background-color: rgba(255, 255, 255, 0.2)
                             cursor: pointer
-                            
+                
                 .grid-stack-item:hover
                     .delete-graph
                         display: block
@@ -85,15 +90,10 @@ $borderColor: rgb(100, 100, 100)
                         border-bottom: 3px solid $blue
                         border-right: 3px solid $blue
                 
-                .grid-stack-item-content
-                    height: 100%
-                    box-sizing: content-box
-                    overflow: hidden
-                        
                 .grid-stack-item-active
                     z-index: 100
-                    border: 2px $blue solid
-                    background-color: black
+                    border: 1px $blue solid
+                    background-color: #1d1d1d
                     
                 // 去除原来的拖拽图标
                 .grid-stack-item>.ui-resizable-ne, .grid-stack-item>.ui-resizable-nw, .grid-stack-item>.ui-resizable-se, .grid-stack-item>.ui-resizable-sw
@@ -134,21 +134,21 @@ $borderColor: rgb(100, 100, 100)
                 
         .dashboard-select-sider-folding
             width: 40px
-                
+        
         .dashboard-settings-panel
             width: 320px
             overflow: auto
-            background-color: rgb(48, 48, 48)
+            background-color: #303030
             
             .ant-tabs-nav
-                padding: 0px 16px
+                margin: unset
             
             .ant-menu-light
                 background: #2b2b2b
             
             .setting-options
                 height: calc( 100% - 46px )
-                background-color: rgb(48, 48, 48)
+                background-color: #303030
                 // padding: 12px
 
 .data-source-config-trigger-navigation   
@@ -264,7 +264,7 @@ $borderColor: rgb(100, 100, 100)
                             padding: 3px 0
                                 
                             .streameditor-main-right-filter-top-mode-icon
-                                color: #666
+                                color: #666666
                                 margin-left: 10px
                                 cursor: pointer 
                     
