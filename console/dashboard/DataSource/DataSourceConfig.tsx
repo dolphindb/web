@@ -114,7 +114,7 @@ export const DataSourceConfig = (props: IProps, ref) => {
                         预览
                     </Button>
                     : <div key='preview' />,
-                    <Button key='save' type='primary' loading={current_data_source.mode === 'stream' && connecting} onClick={async () => {
+                    <Button key='save' type='primary' loading={current_data_source?.mode === 'stream' && connecting} onClick={async () => {
                         try {
                             set_connecting(true)
                             if (no_save_flag.current)
@@ -150,12 +150,12 @@ export const DataSourceConfig = (props: IProps, ref) => {
                     change_current_data_source={change_current_data_source}
                     change_current_data_source_property={change_current_data_source_property}
                 />
-                {data_sources.length
+                {current_data_source
                     ? <div className='config-right'>
                         <div className='config-right-top'>
                             <Menu 
                                 onClick={event => { change_current_data_source_property('mode', event.key) }} 
-                                selectedKeys={[current_data_source.mode]} 
+                                selectedKeys={[current_data_source?.mode]} 
                                 mode='horizontal' 
                                 items={[
                                     {
@@ -169,7 +169,7 @@ export const DataSourceConfig = (props: IProps, ref) => {
                                 ]} 
                             />
                         </div>
-                        {current_data_source.mode === 'sql'
+                        {current_data_source?.mode === 'sql'
                             ? <SqlEditor 
                                 show_preview={show_preview} 
                                 current_data_source={current_data_source}

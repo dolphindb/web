@@ -131,7 +131,7 @@ export function NodeTable ({
                         删除
                     </div>
                 </div>
-                <div className='nodetable-bottom'>
+                { current_data_source ? <div className='nodetable-bottom'>
                     {data_sources.length ? (
                         <Tree
                             ref={tree_ref}
@@ -154,7 +154,7 @@ export function NodeTable ({
                     ) : (
                         <></>
                     )}
-                </div>
+                </div> : <></> }
             </div>
         </>
 }
