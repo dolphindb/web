@@ -237,13 +237,23 @@ class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
+    /** 从服务器获取 dashboard 配置 */
     async get_configs () {
-        await model.ddb.call<DdbStringObj>('get_dashboard_configs')
+        const configs: DashBoardConfig[] = JSON.parse(
+            (await model.ddb.call<DdbStringObj>('get_dashboard_configs'))
+                .value
+        )
+        
+        this.set({
+            configs,
+            config: configs[0]
+        })
     }
     
     
-    async set_configs () {
-        await model.ddb.call<DdbVoid>('set_dashboard_configs')
+    /** 将配置持久化保存到服务器 */
+    async save_configs () {
+        await model.ddb.call<DdbVoid>('set_dashboard_configs', [JSON.stringify(this.configs)])
     }
 }
 
