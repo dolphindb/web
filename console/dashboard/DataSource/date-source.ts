@@ -119,7 +119,7 @@ export const delete_data_source = (key: string): number => {
 
 export const create_data_source = (): { id: string, name: string } => {
     const id = String(genid())
-    const name = `数据源${id.slice(0, 7)}`
+    const name = `数据源 ${id.slice(0, 4)}`
     data_sources.unshift(new DataSource(id, name))
     return { id, name }
 }

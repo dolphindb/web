@@ -2,7 +2,7 @@ import './index.sass'
 
 import { useState, useCallback } from 'react'
 import { Button, Input, Modal, Select, Tooltip } from 'antd'
-import { DeleteOutlined, EditOutlined, EyeOutlined, FileOutlined, FolderAddOutlined, HomeOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, EyeOutlined, FolderAddOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, SyncOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -126,8 +126,11 @@ export function Navigation () {
                     <Input value={new_dashboard_name}
                            onChange={event => set_new_dashboard_name(event.target.value)}/>
                 </Modal>
+                <Tooltip title='返回交互编程'>
+                    <Button className='action'><HomeOutlined onClick={back_to_home} /></Button>
+                </Tooltip>
                 <Tooltip title='保存'>
-                    <Button className='action' onClick={handle_save}><FileOutlined /></Button>
+                    <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='新增'>
                     <Button className='action' onClick={open}><FolderAddOutlined /></Button>
@@ -164,11 +167,6 @@ export function Navigation () {
             </div>
             <div className='right-config'>
                 <DataSourceConfig/>
-            </div>
-            <div className='back-to-home'>
-                <Tooltip title='返回交互编程'>
-                    <HomeOutlined onClick={back_to_home} />
-                </Tooltip>
             </div>
         </div>
     </div>
