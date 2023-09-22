@@ -53,7 +53,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     
     /** 初始化 GridStack 并配置事件监听器 */
-    init ($div: HTMLDivElement) {
+    async init ($div: HTMLDivElement) {
         let grid = GridStack.init({
             acceptWidgets: true,
             float: true,
@@ -114,6 +114,8 @@ class DashBoardModel extends Model<DashBoardModel> {
         GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
         
         this.set({ grid })
+        
+        await this.get_configs()
     }
     
     
