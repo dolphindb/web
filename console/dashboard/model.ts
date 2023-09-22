@@ -4,7 +4,7 @@ import { Model } from 'react-object-model'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { DdbForm, DdbObj, DdbValue } from 'dolphindb/browser.js'
+import { DdbForm, type DdbVoid, type DdbObj, type DdbStringObj, type DdbValue } from 'dolphindb/browser.js'
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
@@ -18,57 +18,14 @@ import { unsub_data_source, type DataType } from './storage/date-source-node.js'
 import { IChartConfig, ITableConfig } from './type.js'
 
 
-/** dashboard 中我们自己定义的 Widget，继承了官方的 GridStackWidget，加上额外的业务属性 */
-export interface Widget extends GridStackNode {
-    /** 保存 dom 节点，在 widgets 配置更新时将 ref 给传给 react `<div>` 获取 dom */
-    ref: React.MutableRefObject<GridItemHTMLElement>
-    
-    /** 图表类型 */
-    type: keyof typeof WidgetType
-    
-    /** 数据源 id */
-    source_id?: string
-    
-    /** 更新图表方法 */
-    update_graph?: (data: DataType) => void
-    
-    /** 图表配置 */
-    config?: IChartConfig | ITableConfig
-}
-
-
-export enum WidgetType {
-    BAR = '柱状图',
-    LINE = '折线图',
-    // PIE = '饼图',
-    // POINT = '散点图',
-    TABLE = '表格',
-    OHLC = 'OHLC',
-    // CANDLE = '蜡烛图',
-    // ORDER = '订单图',
-    // NEEDLE = '数值针型图',
-    // STRIP = '带图',
-    // HEAT = '热力图',
-    TEXT = '富文本'
-}
-
-export enum WidgetChartType { 
-    BAR = 'BAR',
-    LINE = 'LINE',
-    // PIE = 'PIE',
-    // POINT = 'POINT',
-    TABLE = 'TABLE',
-    OHLC = 'OHLC',
-    // CANDLE = 'CANDLE',
-    // ORDER = 'ORDER',
-    // NEEDLE = 'NEEDLE',
-    // STRIP = 'STRIP',
-    // HEAT = 'HEAT'
-    TEXT = 'TEXT'
-}
-
-
 class DashBoardModel extends Model<DashBoardModel> {
+    /** 所有 dashboard 的配置 */
+    configs: DashBoardConfig[]
+    
+    /** 当前 dashboard 配置 */
+    config: DashBoardConfig
+    
+    
     /** GridStack.init 创建的 gridstack 实例 */
     grid: GridStack
     
@@ -279,10 +236,95 @@ class DashBoardModel extends Model<DashBoardModel> {
                 }
             }
     }
+    
+    
+    /** 从服务器获取 dashboard 配置 */
+    async get_configs () {
+        const configs: DashBoardConfig[] = JSON.parse(
+            (await model.ddb.call<DdbStringObj>('get_dashboard_configs'))
+                .value
+        )
+        
+        this.set({
+            configs,
+            config: configs[0]
+        })
+    }
+    
+    
+    /** 将配置持久化保存到服务器 */
+    async save_configs () {
+        await model.ddb.call<DdbVoid>('set_dashboard_configs', [JSON.stringify(this.configs)])
+    }
 }
 
 
 export let dashboard = window.dashboard = new DashBoardModel()
+
+
+interface DashBoardConfig {
+    id: string
+    
+    /** 数据源配置 */
+    datasources: {
+        id: string
+    }[ ]
+    
+    /** 画布配置 */
+    canvas: {
+        widgets: any[]
+    }
+}
+
+
+/** dashboard 中我们自己定义的 Widget，继承了官方的 GridStackWidget，加上额外的业务属性 */
+export interface Widget extends GridStackNode {
+    /** 保存 dom 节点，在 widgets 配置更新时将 ref 给传给 react `<div>` 获取 dom */
+    ref: React.MutableRefObject<GridItemHTMLElement>
+    
+    /** 图表类型 */
+    type: keyof typeof WidgetType
+    
+    /** 数据源 id */
+    source_id?: string
+    
+    /** 更新图表方法 */
+    update_graph?: (data: DataType) => void
+    
+    /** 图表配置 */
+    config?: IChartConfig | ITableConfig
+}
+
+
+export enum WidgetType {
+    BAR = '柱状图',
+    LINE = '折线图',
+    // PIE = '饼图',
+    // POINT = '散点图',
+    TABLE = '表格',
+    OHLC = 'OHLC',
+    // CANDLE = '蜡烛图',
+    // ORDER = '订单图',
+    // NEEDLE = '数值针型图',
+    // STRIP = '带图',
+    // HEAT = '热力图',
+    TEXT = '富文本'
+}
+
+export enum WidgetChartType { 
+    BAR = 'BAR',
+    LINE = 'LINE',
+    // PIE = 'PIE',
+    // POINT = 'POINT',
+    TABLE = 'TABLE',
+    OHLC = 'OHLC',
+    // CANDLE = 'CANDLE',
+    // ORDER = 'ORDER',
+    // NEEDLE = 'NEEDLE',
+    // STRIP = 'STRIP',
+    // HEAT = 'HEAT'
+    TEXT = 'TEXT'
+}
 
 
 type Result = { type: 'object', data: DdbObj<DdbValue> } | null

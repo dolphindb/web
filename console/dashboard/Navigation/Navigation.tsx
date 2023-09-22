@@ -1,11 +1,9 @@
-import { Divider, Select, Tooltip } from 'antd'
-
+import { Button, Divider, Select, Tooltip } from 'antd'
 import { DeleteOutlined, EditOutlined, EyeOutlined, FileOutlined, FolderAddOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
 
-
 import { dashboard } from '../model.js'
-
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
+import './index.sass'
 
 
 export function Navigation () {
@@ -31,19 +29,19 @@ export function Navigation () {
         <div className='right'>
             <div className='right-icons'>
                 <Tooltip title='保存'>
-                    <FileOutlined />
+                    <Button className='action'><FileOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='新增'>
-                    <FolderAddOutlined />
+                    <Button className='action'><FolderAddOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='删除'>
-                    <DeleteOutlined />
+                    <Button className='action'><DeleteOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='刷新'>
-                    <SyncOutlined />
+                    <Button className='action'><SyncOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='暂停流数据接收'>
-                    <PauseOutlined />
+                    <Button className='action'><PauseOutlined /></Button>
                 </Tooltip>
             </div>
             <div className='right-editormode'>

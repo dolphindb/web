@@ -262,7 +262,6 @@ const sub_stream = async (source_id: string) => {
                         data_source.set({
                             data: [...data_source.data]
                         }) 
-                        console.log(data_source)   
                     }   
                 }
             }
@@ -272,8 +271,6 @@ const sub_stream = async (source_id: string) => {
     try {
         await stream_connection.connect()
         stream_connections.set(source_id, stream_connection)
-    
-        console.log(stream_connections)
     } catch (error) {
         model.message.error(error.message)
         throw error
