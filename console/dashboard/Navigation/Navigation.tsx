@@ -1,13 +1,18 @@
 import { Button, Divider, Select, Tooltip } from 'antd'
-import { DeleteOutlined, EditOutlined, EyeOutlined, FileOutlined, FolderAddOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, EyeOutlined, FileOutlined, FolderAddOutlined, HomeOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
 
 import { dashboard } from '../model.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import './index.sass'
-
+import { useCallback } from 'react'
+import { model } from '../../model.js'
 
 export function Navigation () {
     const { editing } = dashboard.use(['editing'])
+    
+    const back_to_home = useCallback(() => { 
+        model.set({ view: 'shell', sider: true, header: true })
+    }, [ ])
     
     
     return <div className='dashboard-navigation'>
@@ -63,6 +68,11 @@ export function Navigation () {
             </div>
             <div className='right-config'>
                 <DataSourceConfig/>
+            </div>
+            <div className='back-to-home'>
+                <Tooltip title='返回交互编程'>
+                    <HomeOutlined onClick={back_to_home} />
+                </Tooltip>
             </div>
         </div>
     </div>

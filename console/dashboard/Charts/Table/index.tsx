@@ -23,11 +23,9 @@ const format_value = (val, decimal_places = 2) => {
 const DBTable = (props: IProps) => { 
     const { widget, data_source = [ ], ...otherProps } = props
     
-    console.log(props, 'props')
-    
     const config = widget.config as ITableConfig
     
-    const [selected_cols, set_select_cols] = useState(config.show_cols)
+    const [selected_cols, set_select_cols] = useState([ ])
     
     
     useEffect(() => set_select_cols(config.show_cols), [config])
@@ -61,8 +59,6 @@ const DBTable = (props: IProps) => {
                 return col_config
             })
     }, [config.show_cols, selected_cols])
-    
-    // console.log(columns, 'columns')
     
     const pagination = useMemo<PaginationProps | false>(() => { 
         if (!config.pagination.show)

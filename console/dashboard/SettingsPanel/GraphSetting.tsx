@@ -10,24 +10,20 @@ export function GraphSetting () {
     const data_source_node = get_data_source(widget.source_id)
     const { cols = [ ] } = data_source_node.use(['cols'])
     
-    const [ form ] = Form.useForm<IChartConfig | ITableConfig>()
-    
-    useEffect(() => { 
-        form.resetFields()
-        dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
-    }, [cols])
+    const [form] = Form.useForm<IChartConfig | ITableConfig>()
     
     useEffect(() => {
         if (!widget.id)
             return
         // 已设置config，回显表单
-        else if (widget.config)
+        else if (widget.config) 
             form.setFieldsValue(widget.config)
         // 未设置config的时候需要重置表单，将表单的初始值作为图的config
         else { 
             form.resetFields()
             dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
-        }   
+        }
+           
     }, [ widget.id ])
     
     
