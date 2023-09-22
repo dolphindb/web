@@ -148,29 +148,32 @@ export function NodeTable ({
                     删除
                 </div>
             </div>
-            <div className='nodetable-bottom'>
-                {data_sources.length
-                    ? <Tree
-                        ref={tree_ref}
-                        showIcon
-                        height={450}
-                        blockNode
-                        selectedKeys={[current_select]}
-                        className='nodetable-bottom-menu'
-                        onSelect={async key => { 
-                            if (key.length) {
-                                if (no_save_flag.current && await save_confirm()) 
-                                    await handle_save()
-                                no_save_flag.current = false
-                                change_current_data_source(String(key[0]))
-                                set_current_select(String(key[0]))
-                            }
-                        }}
-                        treeData={menu_items}
-                    />
-                    : <></>
-                }
-            </div>
+            {current_data_source
+                ? <div className='nodetable-bottom'>
+                    {data_sources.length
+                        ? <Tree
+                            ref={tree_ref}
+                            showIcon
+                            height={450}
+                            blockNode
+                            selectedKeys={[current_select]}
+                            className='nodetable-bottom-menu'
+                            onSelect={async key => { 
+                                if (key.length) {
+                                    if (no_save_flag.current && await save_confirm()) 
+                                        await handle_save()
+                                    no_save_flag.current = false
+                                    change_current_data_source(String(key[0]))
+                                    set_current_select(String(key[0]))
+                                }
+                            }}
+                            treeData={menu_items}
+                        />
+                        : <></>
+                    }
+                </div>
+                : <></>
+            }
         </div>
     </>
 }

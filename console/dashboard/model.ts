@@ -182,7 +182,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async eval (code = this.editor.getValue()) {
+    async eval (code: string) {
         this.set({ executing: true })
         
         try {

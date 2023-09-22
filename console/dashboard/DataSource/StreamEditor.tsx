@@ -112,7 +112,7 @@ export function StreamEditor ({
                         <Tree
                             ref={tree_ref}
                             showIcon
-                            height={405}
+                            height={395}
                             blockNode
                             selectedKeys={[current_stream]}
                             className='streameditor-main-left-menu'
