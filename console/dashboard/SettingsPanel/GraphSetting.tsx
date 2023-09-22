@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { graph_config } from '../graph-config.js'
 import { dashboard } from '../model.js'
 import { IChartConfig, ITableConfig } from '../type.js'
-import { get_data_source } from '../storage/date-source-node.js'
+import { get_data_source } from '../DataSource/date-source.js'
 
 export function GraphSetting () { 
     const { widget } = dashboard.use(['widget'])

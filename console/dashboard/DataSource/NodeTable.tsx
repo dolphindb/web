@@ -9,7 +9,7 @@ import { create_data_source,
          rename_data_source, 
          DataSource, 
          DataSourcePropertyType, 
-    } from '../storage/date-source-node.js'
+    } from './date-source.js'
 
 type PropsType = { 
     current_data_source: DataSource
