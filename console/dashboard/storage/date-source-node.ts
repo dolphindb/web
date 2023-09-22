@@ -17,7 +17,7 @@ export class DataSource extends Model<DataSource>  {
     max_line = 1000
     data: DataType = [ ]
     cols: string[] = [ ]
-    deps: Widget[] = [ ]
+    deps: string[] = [ ]
     error_message = ''
     /** sql 模式专用 */
     auto_refresh = false
@@ -100,10 +100,10 @@ export const save_data_source = async ( new_source_node: DataSource ) => {
             break
     }
     // 仅测试用
-    if (dep && dep.length && !new_source_node.error_message ) 
-        dep.forEach((widget_option: Widget) => {
-            console.log(widget_option.id, 'render', new_source_node.data)
-        })
+    // if (dep && dep.length && !new_source_node.error_message ) 
+    //     dep.forEach((widget_id: string) => {
+    //         console.log(widget_id, 'render', new_source_node.data)
+    //     })
     
     model.message.success('保存成功！')
 }
@@ -148,11 +148,11 @@ export const sub_data_source = async (widget_option: Widget, source_id: string) 
     if (widget_option.source_id)
         unsub_data_source(widget_option, source_id)  
         
-    data_source.deps.push(widget_option)
+    data_source.deps.push(widget_option.id)
     
     if (data_source.error_message) 
         model.message.error('当前数据源存在错误')
-    else {  
+    else   
         switch (data_source.mode) {
             case 'sql':
                 if (data_source.auto_refresh && !data_source.timer)
@@ -165,16 +165,14 @@ export const sub_data_source = async (widget_option: Widget, source_id: string) 
         }
         
         // 仅测试用
-        console.log(widget_option.id, 'render', data_source.data)  
-    }    
+        // console.log(widget_option.id, 'render', data_source.data)      
 }
 
 export const unsub_data_source = (widget_option: Widget, pre_source_id?: string) => {
     const source_id = widget_option.source_id
     const data_source = get_data_source(source_id)
     if (!pre_source_id || source_id !== pre_source_id ) {
-        data_source.deps = data_source.deps.filter((dep: Widget) => dep.id !== widget_option.id )
-        console.log(data_source.deps)
+        data_source.deps = data_source.deps.filter((widget_id: string) => widget_id !== widget_option.id )
         if (!data_source.deps.length) {
             delete_interval(source_id)
             unsub_stream(source_id)
@@ -190,7 +188,7 @@ const create_interval = (source_id: string) => {
         const interval_id = setInterval(async () => {
             const { type, result } = await dashboard.execute(data_source.code)
             
-            if (type === 'success') {
+            if (type === 'success') 
                 // 暂时只支持table
                 if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) 
                     data_source.set({
@@ -206,11 +204,11 @@ const create_interval = (source_id: string) => {
                     })
                 
                 // 仅测试用
-                console.log('')
-                data_source.deps.forEach((widget_option: Widget) => {
-                    console.log(widget_option.id, 'render', data_source.data)
-                })
-            } else {
+                // console.log('')
+                // data_source.deps.forEach((widget_id: string) => {
+                //     console.log(widget_id, 'render', data_source.data)
+                // })
+             else {
                 model.message.error(result as string)
                 data_source.set({
                     data: [ ],
@@ -302,8 +300,17 @@ export const get_stream_filter_col = async (table: string): Promise<string> => {
     }
 }
 
-export const export_serve = () => {
-    
+export const export_data_sources = () => data_sources.map(
+    data_source => {
+        data_source.timer = null
+        data_source.ddb = null
+        return data_source
+    }
+)
+
+export const load_data_sources = (_data_sources: DataSource[]) => {
+    data_sources = _data_sources
+    data_sources.forEach(async data_source => save_data_source(data_source))
 }
 
-export const data_sources: DataSource[] = [new DataSource('1', '数据源1')]
+export let data_sources: DataSource[] = [new DataSource('1', '数据源1')]
