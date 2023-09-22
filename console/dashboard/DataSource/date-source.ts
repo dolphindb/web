@@ -90,6 +90,7 @@ export const save_data_source = async ( new_source_node: DataSource, code?: stri
             
             break
         case 'stream':
+            data_source.set({ ...new_source_node })
             
             if (dep && dep.length && !new_source_node.error_message) 
                 await sub_stream(id)   
