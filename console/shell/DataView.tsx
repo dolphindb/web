@@ -8,7 +8,7 @@ import { dashboard as dashboard_model } from '../dashboard/model.js'
 
 
 export function DataView ({ dashboard = false }) {
-    const { result } = dashboard ?  dashboard_model : shell.use(['result'])
+    const { result } = dashboard ?  dashboard_model.use(['result']) : shell.use(['result'])
     const { options } = model.use(['options'])
     
     return <div className='dataview result embed'>{

@@ -23,13 +23,14 @@ const format_value = (val, decimal_places = 2) => {
 const DBTable = (props: IProps) => { 
     const { widget, data_source = [ ], ...otherProps } = props
     
+    console.log(props, 'props')
     
     const config = widget.config as ITableConfig
     
     const [selected_cols, set_select_cols] = useState(config.show_cols)
     
     
-    useEffect(() => set_select_cols(config.show_cols), [config.show_cols])
+    useEffect(() => set_select_cols(config.show_cols), [config])
     
     const on_change_selected_cols = useCallback(val => { 
         set_select_cols(val)
@@ -41,12 +42,11 @@ const DBTable = (props: IProps) => {
             value: col,
             key: col
         }))
-    }, [ config])
+    }, [config])
+    
     
     
     const columns = useMemo(() => {
-        if (!data_source.length )
-            return [ ]
         const { col_mappings, value_format } = config
         return selected_cols
             .map((col: string) => { 
@@ -60,7 +60,9 @@ const DBTable = (props: IProps) => {
                     return { ...col_config, render: val => format_value(val, value_format?.decimal_places) }
                 return col_config
             })
-    }, [ config, selected_cols ])
+    }, [config.show_cols, selected_cols])
+    
+    console.log(columns, 'columns')
     
     const pagination = useMemo<PaginationProps | false>(() => { 
         if (!config.pagination.show)
@@ -76,7 +78,7 @@ const DBTable = (props: IProps) => {
     }, [config])
     
     
-    return <div className='table-wrapper'>
+    return <div className='dashboard-table-wrapper'>
         {config.title && <h2 className='table-title'>{ config.title }</h2>}
         
         {config.need_select_cols && <Checkbox.Group
