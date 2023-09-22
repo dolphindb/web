@@ -48,8 +48,9 @@ export function NodeTable ({
     const tree_ref = useRef(null)
     
     useEffect(() => {
+        set_current_select(current_data_source?.id)
         tree_ref.current?.scrollTo({ key: current_data_source.id })
-    }, [ ])
+    }, [ current_data_source ])
     
     const rename_data_source_node_handler = (menu_items: MenuItemType[], select_key: string, old_name: string) => {
         if (!menu_items.length)
