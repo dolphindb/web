@@ -18,7 +18,6 @@ import { data_sources,
     sub_data_source,
     DataSource,
     type DataSourcePropertyType,
-    export_data_sources, 
 } from './date-source.js'
 
 const save_confirm_config = {
@@ -71,7 +70,6 @@ export const DataSourceConfig = (props: IProps, ref) => {
         }    
         close()
         set_show_preview(false)
-        console.log(export_data_sources())
     }, [no_save_flag.current])
     
     const handle_save = useCallback(async () => {
