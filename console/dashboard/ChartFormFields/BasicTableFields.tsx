@@ -76,7 +76,7 @@ export const BasicTableFields = (props: IProps) => {
     
     const PaginationSetting = useMemo(() => { 
         return <>
-            <Form.Item name={['pagination', 'show']} label={t('需要分页')} initialValue={false}>
+            <Form.Item name={['pagination', 'show']} label={t('需要分页')} initialValue>
                 <BoolRadioGroup />
             </Form.Item>
         </>

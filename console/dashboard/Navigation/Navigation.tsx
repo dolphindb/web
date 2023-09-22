@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react'
-import { Button, Divider, Input, Modal, Select, Tooltip } from 'antd'
-import { DeleteOutlined, EditOutlined, EyeOutlined, FileOutlined, FolderAddOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
+import { useState } from 'react'
+import { Button, Input, Modal, Select, Tooltip } from 'antd'
+import { DeleteOutlined, EditOutlined, EyeOutlined, FileOutlined, FolderAddOutlined, HomeOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
 
 import { model } from '../../model.js'
 import { Widget, dashboard } from '../model.js'
 import { use_modal } from 'react-object-model/modal.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import { genid } from 'xshell/utils.browser.js'
-import { export_data_sources, load_data_sources } from '../DataSource/date-source.js'
+import { export_data_sources } from '../DataSource/date-source.js'
 import './index.sass'
+import { useCallback } from 'react'
 import { t } from '../../../i18n/index.js'
 
 
@@ -85,6 +86,10 @@ export function Navigation () {
         }
     }
     
+    const back_to_home = useCallback(() => { 
+        model.set({ view: 'shell', sider: true, header: true })
+    }, [ ])
+    
     
     return <div className='dashboard-navigation'>
         <div className='left'>
@@ -151,6 +156,11 @@ export function Navigation () {
             </div>
             <div className='right-config'>
                 <DataSourceConfig/>
+            </div>
+            <div className='back-to-home'>
+                <Tooltip title='返回交互编程'>
+                    <HomeOutlined onClick={back_to_home} />
+                </Tooltip>
             </div>
         </div>
     </div>
