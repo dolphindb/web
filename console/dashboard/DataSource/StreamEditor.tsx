@@ -89,7 +89,7 @@ export function StreamEditor ({
                 value: node.host + ':' + node.port,
                 label: node.host + ':' + node.port
             },
-            ...node.publicName.split(';').map(item => {
+            ...node.publicName.split((/,|;/)).map(item => {
                 return {
                     value: item + ':' + node.port,
                     label: item + ':' + node.port
