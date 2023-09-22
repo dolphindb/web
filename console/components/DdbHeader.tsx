@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 
-import { Dropdown, Avatar, Button } from 'antd'
+import { Dropdown, Avatar } from 'antd'
 
-import { default as Icon, LoginOutlined, LogoutOutlined, UserOutlined, ReloadOutlined } from '@ant-design/icons'
+import { default as Icon, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
 
 
 import { t } from '../../i18n/index.js'
@@ -12,7 +12,7 @@ import { model } from '../model.js'
 import { License } from './License.js'
 import { Status } from './Status.js'
 import { Settings } from './Settings.js'
-
+import { CompileAndRefresh } from './CompileAndRefresh.js'
 
 import SvgArrowDown from './icons/arrow.down.icon.svg'
 
@@ -29,11 +29,7 @@ export function DdbHeader () {
     return <>
         <img className='logo' src='./ddb.svg' />
         
-        { model.dev && 
-            <Button
-                className='refresh-button' size='small' icon={<ReloadOutlined /> } 
-                onClick={async () => { await model.recompile_and_refresh() } }
-            >{t('编译并刷新 (r)')}</Button> }
+        { model.dev && <CompileAndRefresh /> }
         
         <div className='padding' />
         

@@ -1,27 +1,23 @@
+import './index.scss'
+
 import { useMemo } from 'react'
 import { Form, Select, Input, Collapse, Button, Space, Divider, InputNumber } from 'antd'
+import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
+
 import { t } from '../../../i18n/index.js'
 import { concat_name_path, convert_list_to_options } from '../utils.js'
-import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
-import { FormDependencies } from '../../components/formily/FormDependies/index.js'
+import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { AxisType, IAxisItem, ILineType, IYAxisItemValue } from './type.js'
 
-import './index.scss'
+
 import { axis_position_options, axis_type_options, line_type_options, mark_line_options, mark_point_options } from './constant.js'
 
-interface IProps { 
-    col_names: string[]
-}
 
-
-
-export const AxisItem = (props: IAxisItem) => { 
-    const { name_path, col_names = [ ], list_name, initial_values } = props
-    
+export const AxisItem = ({ name_path, col_names = [ ], list_name, initial_values }: IAxisItem) => { 
     return <>
         <Form.Item
-            name={concat_name_path(name_path, 'type')}
             label={t('类型')}
+            name={concat_name_path(name_path, 'type')}
             initialValue={initial_values?.type ?? AxisType.CATEGORY}
             tooltip={<>
                 {t('数值轴，适用于连续数据')}
@@ -35,13 +31,13 @@ export const AxisItem = (props: IAxisItem) => {
         >
             <Select options={axis_type_options}  />
         </Form.Item>
-        <Form.Item name={concat_name_path(name_path, 'name')} label={t('名称')} initialValue={ initial_values?.name ?? t('名称')}>
+        <Form.Item label={t('名称')} name={concat_name_path(name_path, 'name')} initialValue={ initial_values?.name ?? t('名称')}>
             <Input />
         </Form.Item>
-        {/* 类目轴从col_name中获取data */}
+        {/* 类目轴从 col_name 中获取 data */}
         <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'type')]}>
-            {value => { 
-                const type = list_name ? value[list_name]?.find(item => !!item)?.type : value?.[name_path]?.type
+            {value => {
+                const type = list_name ? value[list_name]?.find(item => item)?.type : value?.[name_path]?.type
                 switch (type) { 
                     case AxisType.LOG:
                         return <Form.Item name={concat_name_path(name_path, 'log_base')} label={t('底数')} initialValue={10}>
@@ -116,7 +112,7 @@ const Series = (props: { col_names: string[] }) => {
     </Form.List>
 }
 
-export const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemValue[] }) => { 
+export function YAxis (props: { col_names: string[], initial_values?: IYAxisItemValue[] } ) {
     const { col_names, initial_values } = props
     
     const default_initial_values = useMemo(() => ([
@@ -130,55 +126,50 @@ export const YAxis = (props: { col_names: string[], initial_values?: IYAxisItemV
     ]), [col_names])
     
     return <Form.List name='yAxis' initialValue={initial_values || default_initial_values}>
-        {(fields, { add, remove }) =>      
-            <>
-                {
-                    fields.map((field, index) => {
-                        return <div key={field.name}>
-                            <div className='field-wrapper'>
-                                <Space>
-                                    <div className='axis-wrapper'>
-                                        <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis' />
-                                        <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>
-                                            <Select options={axis_position_options} />
-                                        </Form.Item>
-                                        <Form.Item name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
-                                            <InputNumber />
-                                        </Form.Item>
-                                    </div>
-                                    { fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => remove(field.name)} /> }
-                                </Space>
+        {(fields, { add, remove }) => <>
+            {fields.map((field, index) => {
+                return <div key={field.name}>
+                    <div className='field-wrapper'>
+                        <Space>
+                            <div className='axis-wrapper'>
+                                <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis' />
+                                <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>
+                                    <Select options={axis_position_options} />
+                                </Form.Item>
+                                <Form.Item name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
+                                    <InputNumber />
+                                </Form.Item>
                             </div>
-                            { index < fields.length - 1 &&  <Divider className='divider'/> }
-                        </div>
-                    })
-                }
-                
-                <Button type='dashed' block onClick={() => add()} icon={<PlusCircleOutlined /> }>{t('增加Y 轴')}</Button>
-            </>}
+                            {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => remove(field.name)} />}
+                        </Space>
+                    </div>
+                    {index < fields.length - 1 && <Divider className='divider' />}
+                </div>
+            })}
+            
+            <Button type='dashed' block onClick={() => add()} icon={<PlusCircleOutlined />}>{t('增加 Y 轴')}</Button>
+        </>}
     </Form.List>
 }
 
-export const AxisFormFields = (props: IProps) => { 
-    const { col_names = [ ] } = props
-    
-    
+export function AxisFormFields ({ col_names = [ ] }: { col_names: string[] }) {
     return <Collapse items={[{
-            key: 'x_axis',
-            label: t('X 轴属性'),
-            children: <div className='axis-wrapper'><AxisItem name_path='xAxis' col_names={col_names} /></div>,
-            forceRender: true,
-        },
-        {
-            key: 'y_axis',
-            label: t('Y 轴属性'),
-            children: <YAxis col_names={col_names} />,
-            forceRender: true,
-        }
+        key: 'x_axis',
+        label: t('X 轴属性'),
+        children: <div className='axis-wrapper'><AxisItem name_path='xAxis' col_names={col_names} /></div>,
+        forceRender: true,
+    },
+    {
+        key: 'y_axis',
+        label: t('Y 轴属性'),
+        children: <YAxis col_names={col_names} />,
+        forceRender: true,
+    }
     ]} />
 }
 
-export const SeriesFormFields = (props: { col_names: string[] }) => { 
+
+export function SeriesFormFields (props: { col_names: string[] } ) {
     const { col_names } = props
     return <Collapse items={[
         {

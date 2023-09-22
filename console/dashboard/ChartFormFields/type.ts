@@ -1,4 +1,4 @@
-import { NamePath } from 'antd/lib/form/interface'
+import type { NamePath } from 'antd/lib/form/interface'
 
 export enum AxisType { 
     CATEGORY = 'category',
