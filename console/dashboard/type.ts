@@ -1,4 +1,4 @@
-import { AxisType, Position } from './ChartFormFields/type.js'
+import { AxisType, ILineType, Position } from './ChartFormFields/type.js'
 
 export interface AxisConfig { 
     name: string
@@ -17,6 +17,7 @@ export interface ISeriesConfig {
     yAxisIndex: number
     mark_point?: Array<'max' | 'min'>
     mark_line?: string[]
+    line_type: ILineType
     // OHLC 特殊列
     open?: string
     high?: string
