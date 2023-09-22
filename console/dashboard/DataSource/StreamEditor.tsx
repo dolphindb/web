@@ -12,7 +12,7 @@ import {
     get_stream_cols, 
     get_data_source,
     get_stream_filter_col
-} from '../storage/date-source-node.js'
+} from './date-source.js'
 import { dashboard } from '../model.js'
 import { NodeType, model } from '../../model.js'
 import { default_value_in_select } from '../utils.js'

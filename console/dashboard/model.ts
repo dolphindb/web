@@ -14,7 +14,7 @@ import { assert, genid } from 'xshell/utils.browser.js'
 import { t } from '../../i18n/index.js'
 import { Monaco } from '../shell/Editor/index.js'
 import { model } from '../model.js'
-import { unsub_data_source, type DataType } from './storage/date-source-node.js'
+import { unsub_data_source, type DataType } from './DataSource/date-source.js'
 import { IChartConfig, ITableConfig } from './type.js'
 
 
