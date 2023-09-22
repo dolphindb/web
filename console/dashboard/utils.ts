@@ -9,6 +9,7 @@ import { AxisConfig, IChartConfig, ISeriesConfig } from './type.js'
 import { DataSource } from './storage/date-source-node.js'
 import { t } from '../../i18n/index.js'
 import { MarkPresetType } from './ChartFormFields/type.js'
+import { LeftCircleTwoTone } from '@ant-design/icons'
 
 function formatter (type, value, le, index?, values?) {
     switch (type) {
@@ -190,6 +191,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         return {
             type: type.toLocaleLowerCase(),
             name: series.name,
+            symbol: 'none',
             // 防止删除yAxis导致渲染失败
             yAxisIndex: yAxis[series.yAxisIndex] ?  series.yAxisIndex : 0,
             data: data_source.map(item => item?.[series.col_name]),
@@ -202,8 +204,10 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             markLine: {
                 symbol: ['none', 'none'],
                 data: mark_line_data
+            },
+            lineStyle: {
+                type: series.line_type
             }
-            
         }
     }
     
