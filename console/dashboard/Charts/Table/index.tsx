@@ -62,7 +62,7 @@ const DBTable = (props: IProps) => {
             })
     }, [config.show_cols, selected_cols])
     
-    console.log(columns, 'columns')
+    // console.log(columns, 'columns')
     
     const pagination = useMemo<PaginationProps | false>(() => { 
         if (!config.pagination.show)
