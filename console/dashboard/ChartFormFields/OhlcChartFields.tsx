@@ -1,6 +1,6 @@
 import { Form, Select, Input, Collapse, Divider, InputNumber, Space } from 'antd'
 import { t } from '../../../i18n/index.js'
-import { FormDependencies } from '../../components/formily/FormDependies/index.js'
+import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { AxisType, IAxisItem, IYAxisItemValue, Position } from './type.js'
 
 import './index.scss'
@@ -67,7 +67,7 @@ export const BasicFormFields = (props: { type: 'chart' | 'table' }) => {
             {is_chart && BasicChartSetting}
             {is_table && BasicTableSetting}
         </div>
-    }, [ type ])
+    }, [type])
     
     return <Collapse items={[{
         key: 'basic',
@@ -190,32 +190,44 @@ const Series = (props: { col_names: string[] }) => {
 }
 
 
-export const OhlcFormFields = (props: IProps) => { 
+export function OhlcFormFields (props: IProps) {
     const { col_names = [ ] } = props
     
-    const [x_axis, y_axis] = useMemo(() => [{ type: AxisType.TIME, name: '时间' },
-                                            [{ type: AxisType.VALUE, name: 'OHLC', position: Position.LEFT }, 
-                                             { type: AxisType.VALUE, name: '交易量', position: Position.RIGHT }]], [ ])
+    const [x_axis, y_axis] = useMemo(
+        () => [
+            { type: AxisType.TIME, name: '时间' },
+            [
+                { type: AxisType.VALUE, name: 'OHLC', position: Position.LEFT },
+                { type: AxisType.VALUE, name: '交易量', position: Position.RIGHT }
+            ]
+        ],
+        [ ]
+    )
     
-    return <Collapse items={[{
-        key: 'x_axis',
-        label: t('X 轴属性'),
-        children: <div className='axis-wrapper'><AxisItem name_path='xAxis' col_names={col_names} initial_values={x_axis}/></div>,
-        forceRender: true,
-    },
-    {
-        key: 'y_axis',
-        label: t('Y 轴属性'),
-        // children: <AxisItem name_path='yAxis' col_names={col_names}/>,
-        children: <YAxis col_names={ col_names } initial_values={y_axis}/>,
-        forceRender: true,
-    },
-    {
-        key: 'series',
-        label: t('数据列'),
-        children: <Series col_names={col_names}/>,
-        forceRender: true,
-    }
-    ]} />
-     
+    return <Collapse
+        items={[
+            {
+                key: 'x_axis',
+                label: t('X 轴属性'),
+                children: (
+                    <div className='axis-wrapper'>
+                        <AxisItem name_path='xAxis' col_names={col_names} initial_values={x_axis} />
+                    </div>
+                ),
+                forceRender: true
+            },
+            {
+                key: 'y_axis',
+                label: t('Y 轴属性'),
+                // children: <AxisItem name_path='yAxis' col_names={col_names}/>,
+                children: <YAxis col_names={col_names} initial_values={y_axis} />,
+                forceRender: true
+            },
+            {
+                key: 'series',
+                label: t('数据列'),
+                children: <Series col_names={col_names} />,
+                forceRender: true
+            }
+        ]} />
 }

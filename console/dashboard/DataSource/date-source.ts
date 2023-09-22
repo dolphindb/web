@@ -54,7 +54,7 @@ export const get_data_source = (id: string): DataSource =>
     data_sources[find_data_source_index(id)]
 
 
-export const save_data_source = async ( new_source_node: DataSource ) => {
+export const save_data_source = async ( new_source_node: DataSource, code?: string ) => {
     const id = new_source_node.id
     const data_source = get_data_source(id)
     const dep = data_source.deps
@@ -63,14 +63,14 @@ export const save_data_source = async ( new_source_node: DataSource ) => {
     unsub_stream(id)
     new_source_node.data.length = 0
     new_source_node.error_message = ''
+    new_source_node.code = code || dashboard.editor?.getValue() || ''
     
     switch (new_source_node.mode) {
         case 'sql':
-            new_source_node.code = dashboard.editor.getValue()
             
             new_source_node.cols.length = 0
     
-            const { type, result } = await dashboard.execute()
+            const { type, result } = await dashboard.execute(new_source_node.code)
             if (type === 'success') {
                 if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) {
                     // 暂时只支持table
@@ -79,19 +79,17 @@ export const save_data_source = async ( new_source_node: DataSource ) => {
                 }
             } else {
                 new_source_node.error_message = result as string
-                model.message.error(result as string)
+                if (code === undefined)
+                    dashboard.message.error(result as string)
             }
             
             data_source.set({ ...new_source_node })
-            
-            console.log(data_source)
             
             if (dep && dep.length && !new_source_node.error_message && new_source_node.auto_refresh) 
                 create_interval(id) 
             
             break
         case 'stream':
-            new_source_node.filter_condition = dashboard.editor.getValue()
             data_source.set({ ...new_source_node })
             
             if (dep && dep.length && !new_source_node.error_message) 
@@ -104,14 +102,14 @@ export const save_data_source = async ( new_source_node: DataSource ) => {
     //     dep.forEach((widget_id: string) => {
     //         console.log(widget_id, 'render', new_source_node.data)
     //     })
-    
-    model.message.success('保存成功！')
+    if (code === undefined)
+        dashboard.message.success('保存成功！')
 }
 
 export const delete_data_source = (key: string): number => {
     const data_source = get_data_source(key)
     if (data_source.deps?.length)
-        model.message.error('当前数据源已被图表绑定无法删除')
+        dashboard.message.error('当前数据源已被图表绑定无法删除')
     else {
         const delete_index = find_data_source_index(key)
         data_sources.splice(delete_index, 1)
@@ -151,7 +149,7 @@ export const sub_data_source = async (widget_option: Widget, source_id: string) 
     data_source.deps.push(widget_option.id)
     
     if (data_source.error_message) 
-        model.message.error('当前数据源存在错误')
+        dashboard.message.error('当前数据源存在错误')
     else   
         switch (data_source.mode) {
             case 'sql':
@@ -209,7 +207,7 @@ const create_interval = (source_id: string) => {
                 //     console.log(widget_id, 'render', data_source.data)
                 // })
              else {
-                model.message.error(result as string)
+                dashboard.message.error(result as string)
                 data_source.set({
                     data: [ ],
                     cols: [ ],
@@ -250,7 +248,7 @@ const sub_stream = async (source_id: string) => {
                 handler (message) {
                     const { error } = message
                     if (error)
-                        model.message.error(error.message)
+                        dashboard.message.error(error.message)
                     else {
                         data_source.data.push(...stream_formatter(message.data, data_source.max_line, data_source.cols))
                         if (data_source.data.length > data_source.max_line)
@@ -268,7 +266,7 @@ const sub_stream = async (source_id: string) => {
         await stream_connection.connect()
         data_source.ddb = stream_connection
     } catch (error) {
-        model.message.error(error.message)
+        dashboard.show_error(error)
         throw error
     }
 }
@@ -309,11 +307,11 @@ export const export_data_sources = () => [...data_sources].map(
     }
 )
 
-export const import_data_sources = _data_sources => {
-    _data_sources.forEach(_data_source => {
-        data_sources.push(new DataSource(_data_source.id, _data_source.name))
-        save_data_source(_data_source)
-    })
+export const import_data_sources = async _data_sources => {
+    for (let data_source of _data_sources) {
+        data_sources.push(new DataSource(data_source.id, data_source.name))
+        await save_data_source(data_source, data_source.code)
+    }
 }
 
-export let data_sources: DataSource[] = [new DataSource('1', '数据源1')]
+export let data_sources: DataSource[] = [ ]
