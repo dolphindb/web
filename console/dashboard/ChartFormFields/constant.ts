@@ -1,4 +1,5 @@
 import { t } from '../../../i18n/index.js'
+
 import { AxisType, ILineType, MarkPresetType, Position } from './type.js'
 
 export const axis_type_options = [{

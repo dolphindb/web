@@ -1,8 +1,9 @@
 import { Checkbox, PaginationProps, Table, TableProps } from 'antd'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+
 import {  BasicFormFields }  from '../../ChartFormFields/BasicFormFields.js'
 import { BasicTableFields } from '../../ChartFormFields/BasicTableFields.js'
 import { Widget } from '../../model.js'
-import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ITableConfig } from '../../type.js'
 
 import './index.scss'
@@ -20,7 +21,8 @@ const format_value = (val, decimal_places = 2) => {
         return Number(val).toFixed(decimal_places)
 }
 
-const DBTable = (props: IProps) => { 
+
+export function DBTable (props: IProps) {
     const { widget, data_source = [ ], ...otherProps } = props
     
     console.log(props, 'props')
@@ -32,11 +34,11 @@ const DBTable = (props: IProps) => {
     
     useEffect(() => set_select_cols(config.show_cols), [config])
     
-    const on_change_selected_cols = useCallback(val => { 
+    const on_change_selected_cols = useCallback(val => {
         set_select_cols(val)
     }, [ ])
     
-    const radio_group_options = useMemo(() => { 
+    const radio_group_options = useMemo(() => {
         return config.show_cols?.map(col => ({
             label: config.col_mappings.find(item => item?.original_col === col)?.mapping_name?.trim() || col,
             value: col,
@@ -44,12 +46,10 @@ const DBTable = (props: IProps) => {
         }))
     }, [config])
     
-    
-    
     const columns = useMemo(() => {
         const { col_mappings, value_format } = config
         return selected_cols
-            .map((col: string) => { 
+            .map((col: string) => {
                 const col_config = {
                     dataIndex: col,
                     title: col_mappings.find(item => item?.original_col === col)?.mapping_name?.trim() || col,
@@ -63,10 +63,10 @@ const DBTable = (props: IProps) => {
     }, [config.show_cols, selected_cols])
     
     // console.log(columns, 'columns')
-    
-    const pagination = useMemo<PaginationProps | false>(() => { 
+    const pagination = useMemo<PaginationProps | false>(() => {
         if (!config.pagination.show)
             return false
+            
         else
             return {
                 position: ['bottom'],
@@ -74,32 +74,28 @@ const DBTable = (props: IProps) => {
                 size: 'small',
                 showSizeChanger: true,
                 showQuickJumper: true
-        }
+            }
     }, [config])
     
     
     return <div className='dashboard-table-wrapper'>
-        {config.title && <h2 className='table-title'>{ config.title }</h2>}
+        {config.title && <h2 className='table-title'>{config.title}</h2>}
         
         {config.need_select_cols && <Checkbox.Group
             onChange={on_change_selected_cols}
             value={selected_cols}
             options={radio_group_options}
-            className='table-radio-group'
-        />}
-        
+            className='table-radio-group' />}
+            
         <Table
             bordered={config.bordered}
             columns={columns}
             dataSource={data_source}
             pagination={pagination}
-            {...otherProps}
-        />
+            {...otherProps} />
     </div>
 }
 
-
-export default DBTable
 
 export const DBTableConfigForm = (props: { col_names: string[] }) => { 
     const { col_names = [ ] } = props

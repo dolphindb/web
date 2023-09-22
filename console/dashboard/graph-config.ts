@@ -3,7 +3,7 @@ import OHLC, { OhlcConfigForm } from './Charts/OHLC/index.js'
 import { RichText } from './Charts/RichText/index.js'
 import { WidgetChartType } from './model.js'
 import Chart, { ChartConfigForm } from './Charts/Chart/index.js'
-import DBTable, { DBTableConfigForm } from './Charts/Table/index.js'
+import { DBTable, DBTableConfigForm } from './Charts/Table/index.js'
 
 type GraphConfig =  { 
     [key in WidgetChartType]: {

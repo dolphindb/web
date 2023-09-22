@@ -15,33 +15,28 @@ interface IProps {
 }
 
 
-
-const Chart = (props: IProps) => { 
+export function Chart (props: IProps) {
     const { widget, data_source } = props
     
-    const options = useMemo(() =>
-        convert_chart_config(widget, data_source),
-    [widget.config, data_source])
-    
+    const options = useMemo(() => convert_chart_config(widget, data_source),
+        [widget.config, data_source])
+        
     return <ReactEChartsCore
         echarts={echarts}
         notMerge
         option={options}
         className='dashboard-line-chart'
-        theme='my-theme'
-    />
+        theme='my-theme' />
 }
 
-export default Chart
 
-
-export const  ChartConfigForm = (props: { col_names: string[] }) => { 
+export function ChartConfigForm (props: { col_names: string[] } ) {
     const { col_names = [ ] } = props
     
     return <>
         <BasicFormFields type='chart' />
         <AxisFormFields col_names={col_names} />
-        <SeriesFormFields col_names={col_names}/>
+        <SeriesFormFields col_names={col_names} />
     </>
 }
 
