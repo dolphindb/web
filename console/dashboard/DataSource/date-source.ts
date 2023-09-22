@@ -266,7 +266,7 @@ const sub_stream = async (source_id: string) => {
         await stream_connection.connect()
         data_source.ddb = stream_connection
     } catch (error) {
-        dashboard.show_error(error)
+        dashboard.show_error({ error })
         throw error
     }
 }
