@@ -1,6 +1,6 @@
 import { createElement, useEffect, useRef, useState } from 'react'
 
-import { Input, Popover, Select, Tree, type MenuProps, InputNumber, Switch, Table as AntTable } from 'antd'
+import { Input, Popover, Select, Tree, type MenuProps, InputNumber, Switch, Table } from 'antd'
 import { CloseOutlined, QuestionCircleOutlined, TableOutlined } from '@ant-design/icons'
 
 import { Editor } from '../../shell/Editor/index.js'
@@ -129,35 +129,33 @@ export function StreamEditor ({
                         <div className='preview' style={{ height: current_data_source.filter ? '60%' : '100%' }}>
                             <div className='preview-config'>
                                 <div className='preview-config-tag'>
-                                    列名预览
+                                    {`列名预览（共${current_data_source.cols.length}列）：`}
                                 </div>
                             </div>
                             <div className='preview-main'>
-                                <AntTable 
+                                <Table 
                                     columns={[
                                         {
                                             title: 'Index',
                                             dataIndex: 'index',
-                                            width: 30,
                                         },
                                         {
                                             title: 'Name',
-                                            dataIndex: 'Name',
-                                            width: 50,
+                                            dataIndex: 'name',
                                         },
                                     ]} 
                                     dataSource={
                                         current_data_source.cols.map((col, index) => {
-                                            console.log(col, index)
                                             return {
                                                 key: col,
-                                                index,
+                                                index: index + 1,
                                                 name: col
                                             }
                                         })
                                     } 
-                                    pagination={{ pageSize: 10 }} 
-                                    scroll={{ y: 200 }} 
+                                    bordered
+                                    size='small'
+                                    pagination={{ pageSize: 6, position: ['bottomCenter'] }} 
                                 />
                             </div>
                         </div>
