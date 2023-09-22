@@ -80,7 +80,7 @@ export const save_data_source = async ( new_source_node: DataSource, code?: stri
             } else {
                 new_source_node.error_message = result as string
                 if (code === undefined)
-                    model.message.error(result as string)
+                    dashboard.message.error(result as string)
             }
             
             data_source.set({ ...new_source_node })
@@ -102,13 +102,13 @@ export const save_data_source = async ( new_source_node: DataSource, code?: stri
     //         console.log(widget_id, 'render', new_source_node.data)
     //     })
     if (code === undefined)
-        model.message.success('保存成功！')
+        dashboard.message.success('保存成功！')
 }
 
 export const delete_data_source = (key: string): number => {
     const data_source = get_data_source(key)
     if (data_source.deps?.length)
-        model.message.error('当前数据源已被图表绑定无法删除')
+        dashboard.message.error('当前数据源已被图表绑定无法删除')
     else {
         const delete_index = find_data_source_index(key)
         data_sources.splice(delete_index, 1)
@@ -148,7 +148,7 @@ export const sub_data_source = async (widget_option: Widget, source_id: string) 
     data_source.deps.push(widget_option.id)
     
     if (data_source.error_message) 
-        model.message.error('当前数据源存在错误')
+        dashboard.message.error('当前数据源存在错误')
     else   
         switch (data_source.mode) {
             case 'sql':
@@ -206,7 +206,7 @@ const create_interval = (source_id: string) => {
                 //     console.log(widget_id, 'render', data_source.data)
                 // })
              else {
-                model.message.error(result as string)
+                dashboard.message.error(result as string)
                 data_source.set({
                     data: [ ],
                     cols: [ ],
@@ -247,7 +247,7 @@ const sub_stream = async (source_id: string) => {
                 handler (message) {
                     const { error } = message
                     if (error)
-                        model.message.error(error.message)
+                        dashboard.message.error(error.message)
                     else {
                         data_source.data.push(...stream_formatter(message.data, data_source.max_line, data_source.cols))
                         if (data_source.data.length > data_source.max_line)
@@ -265,7 +265,7 @@ const sub_stream = async (source_id: string) => {
         await stream_connection.connect()
         data_source.ddb = stream_connection
     } catch (error) {
-        model.message.error(error.message)
+        dashboard.message.error(error.message)
         throw error
     }
 }

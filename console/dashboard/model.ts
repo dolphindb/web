@@ -10,6 +10,10 @@ import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridsta
 
 import { assert, genid } from 'xshell/utils.browser.js'
 
+import type { MessageInstance } from 'antd/es/message/interface.js'
+import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
+import type { NotificationInstance } from 'antd/es/notification/interface.js'
+
 
 import { t } from '../../i18n/index.js'
 import { Monaco } from '../shell/Editor/index.js'
@@ -50,6 +54,14 @@ class DashBoardModel extends Model<DashBoardModel> {
     result: Result
     
     executing = false
+    
+    
+    // console/model.js 对应黑色主题的版本
+    message: MessageInstance
+    
+    modal: Omit<ModalStaticFunctions, 'warn'>
+    
+    notification: NotificationInstance
     
     
     /** 初始化 GridStack 并配置事件监听器 */
@@ -167,7 +179,7 @@ class DashBoardModel extends Model<DashBoardModel> {
         })
     }
     
-    update_widget (widget: Widget) { 
+    update_widget (widget: Widget) {
         if (this.widgets.find(({ id }) => id === widget.id)) { 
             Object.assign(this.widgets.find(({ id }) => id === widget.id), widget)
             this.set({ widget })
@@ -225,7 +237,7 @@ class DashBoardModel extends Model<DashBoardModel> {
         result: string | Result
     }> {
         if (dashboard.executing)
-            model.message.warning(t('当前连接正在执行作业，请等待'))
+            this.message.warning(t('当前连接正在执行作业，请等待'))
         else 
             try {
                 await this.eval(code)
