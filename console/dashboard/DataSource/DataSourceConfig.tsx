@@ -80,7 +80,6 @@ export const DataSourceConfig = (props: IProps, ref) => {
     return <>
         <Button
             icon={<DatabaseOutlined className='data-source-config-trigger-navigation-icon' />}
-            type='dashed'
             onClick={open}
             {...btn_props}
         >
