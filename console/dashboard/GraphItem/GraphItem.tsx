@@ -8,7 +8,7 @@ import { type Widget } from '../model.js'
 import { graph_config } from '../graph-config.js'
 
 import ChartSvg from '../icons/chart.svg'
-import { get_data_source } from '../storage/date-source-node.js'
+import { get_data_source } from '../DataSource/date-source.js'
 import { t } from '../../../i18n/index.js'
 
 import './index.scss'

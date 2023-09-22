@@ -6,7 +6,7 @@ import { assert } from 'xshell/utils.browser.js'
 
 import { Widget } from './model.js'
 import { AxisConfig, IChartConfig, ISeriesConfig } from './type.js'
-import { DataSource } from './storage/date-source-node.js'
+import { DataSource } from './DataSource/date-source.js'
 import { t } from '../../i18n/index.js'
 import { MarkPresetType } from './ChartFormFields/type.js'
 import { LeftCircleTwoTone } from '@ant-design/icons'

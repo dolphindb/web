@@ -17,8 +17,8 @@ import { data_sources,
     save_data_source, 
     sub_data_source,
     DataSource,
-    type DataSourcePropertyType, 
-} from '../storage/date-source-node.js'
+    type DataSourcePropertyType,
+} from './date-source.js'
 
 const save_confirm_config = {
     cancelText: '不保存',

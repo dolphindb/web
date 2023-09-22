@@ -300,17 +300,20 @@ export const get_stream_filter_col = async (table: string): Promise<string> => {
     }
 }
 
-export const export_data_sources = () => data_sources.map(
+export const export_data_sources = () => [...data_sources].map(
     data_source => {
         data_source.timer = null
         data_source.ddb = null
+        data_source.data = [ ]
         return data_source
     }
 )
 
-export const load_data_sources = (_data_sources: DataSource[]) => {
-    data_sources = _data_sources
-    data_sources.forEach(async data_source => save_data_source(data_source))
+export const import_data_sources = _data_sources => {
+    _data_sources.forEach(_data_source => {
+        data_sources.push(new DataSource(_data_source.id, _data_source.name))
+        save_data_source(_data_source)
+    })
 }
 
 export let data_sources: DataSource[] = [new DataSource('1', '数据源1')]

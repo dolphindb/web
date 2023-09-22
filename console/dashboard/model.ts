@@ -14,7 +14,7 @@ import { assert, genid } from 'xshell/utils.browser.js'
 import { t } from '../../i18n/index.js'
 import { Monaco } from '../shell/Editor/index.js'
 import { model } from '../model.js'
-import { unsub_data_source, type DataType } from './storage/date-source-node.js'
+import { unsub_data_source, type DataType } from './DataSource/date-source.js'
 import { IChartConfig, ITableConfig } from './type.js'
 
 
@@ -53,7 +53,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     
     /** 初始化 GridStack 并配置事件监听器 */
-    init ($div: HTMLDivElement) {
+    async init ($div: HTMLDivElement) {
         let grid = GridStack.init({
             acceptWidgets: true,
             float: true,
@@ -114,6 +114,8 @@ class DashBoardModel extends Model<DashBoardModel> {
         GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
         
         this.set({ grid })
+        
+        await this.get_configs()
     }
     
     
@@ -265,8 +267,9 @@ export let dashboard = window.dashboard = new DashBoardModel()
 
 
 interface DashBoardConfig {
-    id: string
+    id: number
     
+    name: string
     /** 数据源配置 */
     datasources: {
         id: string
