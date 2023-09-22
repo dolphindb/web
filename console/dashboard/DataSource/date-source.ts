@@ -309,9 +309,11 @@ export const export_data_sources = () => [...data_sources].map(
     }
 )
 
-export const import_data_sources = (_data_sources: DataSource[]) => {
-    data_sources = _data_sources
-    data_sources.forEach(async data_source => save_data_source(data_source))
+export const import_data_sources = _data_sources => {
+    _data_sources.forEach(_data_source => {
+        data_sources.push(new DataSource(_data_source.id, _data_source.name))
+        save_data_source(_data_source)
+    })
 }
 
 export let data_sources: DataSource[] = [new DataSource('1', '数据源1')]
