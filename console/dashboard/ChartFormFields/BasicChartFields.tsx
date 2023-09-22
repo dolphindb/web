@@ -4,51 +4,16 @@ import { t } from '../../../i18n/index.js'
 import { concat_name_path, convert_list_to_options } from '../utils.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../components/formily/FormDependies/index.js'
-import { AxisType, IAxisItem, IYAxisItemValue, MarkPresetType, Position } from './type.js'
+import { AxisType, IAxisItem, ILineType, IYAxisItemValue } from './type.js'
 
 import './index.scss'
+import { axis_position_options, axis_type_options, line_type_options, mark_line_options, mark_point_options } from './constant.js'
 
 interface IProps { 
     col_names: string[]
 }
 
-const axis_type_options = [{
-    label: t('数据轴'),
-    value: AxisType.VALUE
-},
-{
-    label: t('类目轴'),
-    value: AxisType.CATEGORY
-},
-{
-    label: t('时间轴'),
-    value: AxisType.TIME
-},
-{
-    label: t('对数'),
-    value: AxisType.LOG
-}]
 
-const axis_position_options = [
-    { value: Position.LEFT, label: t('左侧') },
-    { value: Position.RIGHT, label: t('右侧') }
-]
-
-const mark_point_options = [
-    {
-        value: MarkPresetType.MAX,
-        label: t('最大值')
-    },
-    {
-        value: MarkPresetType.MIN,
-        label: t('最小值')
-    }
-]
-
-const mark_line_options = [...mark_point_options, {
-    value: MarkPresetType.AVERAGE,
-    label: t('平均值')
-}]
 
 export const AxisItem = (props: IAxisItem) => { 
     const { name_path, col_names = [ ], list_name, initial_values } = props
@@ -133,6 +98,10 @@ const Series = (props: { col_names: string[] }) => {
                                     
                                     <Form.Item label={t('水平线')} name={[field.name, 'mark_line']}>
                                         <Select options={mark_line_options} mode='tags' />
+                                    </Form.Item>
+                                    
+                                    <Form.Item tooltip='仅对折线图生效' label={t('线类型')} name={[field.name, 'line_type']} initialValue={ILineType.SOLID}>
+                                        <Select options={line_type_options} />
                                     </Form.Item>
                                 </div>
                                 { fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => remove(field.name)} /> } 

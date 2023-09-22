@@ -36,3 +36,10 @@ export interface IYAxisItemValue {
     position?: Position
     offset?: number
 }
+
+
+export enum ILineType { 
+    SOLID = 'solid',
+    DASHED = 'dashed',
+    DOTTED = 'dotted'
+}
