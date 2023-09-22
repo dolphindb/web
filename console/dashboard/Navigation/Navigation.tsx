@@ -2,7 +2,7 @@ import './index.sass'
 
 import { useState, useCallback } from 'react'
 import { Button, Input, Modal, Select, Tooltip } from 'antd'
-import { DeleteOutlined, EditOutlined, EyeOutlined, FileOutlined, FolderAddOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, SyncOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, EyeOutlined, FolderAddOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, SyncOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -133,7 +133,7 @@ export function Navigation () {
                     <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='新增'>
-                    <Button className='action' onClick={open}><PlusCircleOutlined /></Button>
+                    <Button className='action' onClick={open}><FolderAddOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='删除'>
                     <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
