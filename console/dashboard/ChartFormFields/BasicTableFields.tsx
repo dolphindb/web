@@ -71,7 +71,7 @@ export function BasicTableFields ({ col_names }: { col_names: string[] } ) {
             key: 'pagination',
             label: t('分页设置'),
             forceRender: true,
-            children: <Form.Item name={['pagination', 'show']} label={t('需要分页')} initialValue={false}>
+            children: <Form.Item name={['pagination', 'show']} label={t('需要分页')} initialValue >
                 <BoolRadioGroup />
             </Form.Item>,
             

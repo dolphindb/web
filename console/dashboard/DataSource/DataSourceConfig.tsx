@@ -17,7 +17,7 @@ import { data_sources,
     save_data_source, 
     sub_data_source,
     DataSource,
-    type DataSourcePropertyType, 
+    type DataSourcePropertyType,
 } from './date-source.js'
 
 const save_confirm_config = {
