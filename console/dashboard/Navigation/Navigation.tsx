@@ -7,7 +7,7 @@ import { Widget, dashboard } from '../model.js'
 import { use_modal } from 'react-object-model/modal.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import { genid } from 'xshell/utils.browser.js'
-import { export_data_sources, load_data_sources } from '../storage/date-source-node.js'
+import { export_data_sources, load_data_sources } from '../DataSource/date-source.js'
 import './index.sass'
 import { t } from '../../../i18n/index.js'
 
@@ -29,42 +29,29 @@ export function Navigation () {
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const { visible, open, close } = use_modal()
     
-    // if (widget) 
-    //     console.log('widget', widget, JSON.stringify({
-    //         id: widget.id,
-    //         w: widget.w,
-    //         h: widget.h,
-    //         x: widget.x,
-    //         y: widget.y,
-    //         type: widget.type,
-    //         source_id: widget.source_id,
-    //         config: widget.config
-    //     }))
-    
-    useEffect(() => {
-        (async () => {
-            try {
-                dashboard.get_configs()
-            } catch (error) {
-                model.show_error({ error })
-            }
-        })()
-    }, [ ])
-    
-    
     async function handle_save () {
-        dashboard.set({ config: Object.assign(config, {
-            datasource: export_data_sources(),
+        console.log('config:', JSON.stringify( {
+            ...config,
+            datasources: export_data_sources(),
             canvas: {
                 widgets: widgets.map(widget => get_widget_config(widget))
             }
-        }) })
-        try {
-            await dashboard.save_configs()
-            model.message.success(t('dashboard 保存成功'))
-        } catch (error) {
-            model.show_error({ error })
-        }
+        }))
+        // const new_config =  {
+        //     ...config,
+        //     datasources: export_data_sources(),
+        //     canvas: {
+        //         widgets: widgets.map(widget => get_widget_config(widget))
+        //     }
+        // }
+        // dashboard.set({ config: new_config, 
+        //                 configs: [...configs.filter(({ id }) => id !== config.id), new_config] })
+        // try {
+        //     await dashboard.save_configs()
+        //     model.message.success(t('dashboard 保存成功'))
+        // } catch (error) {
+        //     model.show_error({ error })
+        // }
     }
     
     
