@@ -1,29 +1,34 @@
-import { useState } from 'react'
+import './index.sass'
+
+import { useState, useCallback } from 'react'
 import { Button, Input, Modal, Select, Tooltip } from 'antd'
 import { DeleteOutlined, EditOutlined, EyeOutlined, FileOutlined, FolderAddOutlined, HomeOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
 
-import { model } from '../../model.js'
-import { Widget, dashboard } from '../model.js'
 import { use_modal } from 'react-object-model/modal.js'
-import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import { genid } from 'xshell/utils.browser.js'
-import { export_data_sources } from '../DataSource/date-source.js'
-import './index.sass'
-import { useCallback } from 'react'
+
+import { model } from '../../model.js'
 import { t } from '../../../i18n/index.js'
+import { CompileAndRefresh } from '../../components/CompileAndRefresh.js'
+
+import { Widget, dashboard } from '../model.js'
+import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
+import { export_data_sources } from '../DataSource/date-source.js'
 
 
 function get_widget_config (widget: Widget) {
-        return {
-            id: widget.id,
-            w: widget.w,
-            h: widget.h,
-            x: widget.x,
-            y: widget.y,
-            type: widget.type,
-            source_id: widget.source_id,
-            config: widget.config }
+    return {
+        id: widget.id,
+        w: widget.w,
+        h: widget.h,
+        x: widget.x,
+        y: widget.y,
+        type: widget.type,
+        source_id: widget.source_id,
+        config: widget.config
+    }
 }
+
 
 export function Navigation () {
     const { editing, widgets, configs, config } = dashboard.use(['editing', 'widgets', 'configs', 'config'])
@@ -136,7 +141,10 @@ export function Navigation () {
                 <Tooltip title='暂停流数据接收'>
                     <Button className='action'><PauseOutlined /></Button>
                 </Tooltip>
+                
+                { model.dev && <CompileAndRefresh /> }
             </div>
+            
             <div className='right-editormode'>
                 <span
                     className={
