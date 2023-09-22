@@ -54,6 +54,24 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
+        // await this.get_configs()
+        if (!this.config) {
+            const new_dashboard_config = {
+                id: genid(),
+                name: 'dashboard_0',
+                datasources: [ ],
+                canvas: {
+                    widgets: [ ],
+                }
+            }
+            this.set({ config: new_dashboard_config, 
+                       configs: [new_dashboard_config],
+                     })
+        }
+        this.set({ widgets: this.config.canvas.widgets.map(widget => ({
+            ...widget, 
+            ref: createRef(), 
+        })) as any })
         let grid = GridStack.init({
             acceptWidgets: true,
             float: true,
@@ -115,7 +133,6 @@ class DashBoardModel extends Model<DashBoardModel> {
         
         this.set({ grid })
         
-        await this.get_configs()
     }
     
     
