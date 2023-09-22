@@ -156,7 +156,7 @@ export const DataSourceConfig = (props: IProps, ref) => {
                         <div className='config-right-top'>
                             <Menu 
                                 onClick={event => { change_current_data_source_property('mode', event.key) }} 
-                                selectedKeys={[current_data_source?.mode]} 
+                                selectedKeys={[current_data_source.mode]} 
                                 mode='horizontal' 
                                 items={[
                                     {
@@ -170,7 +170,7 @@ export const DataSourceConfig = (props: IProps, ref) => {
                                 ]} 
                             />
                         </div>
-                        {current_data_source?.mode === 'sql'
+                        {current_data_source.mode === 'sql'
                             ? <SqlEditor 
                                 show_preview={show_preview} 
                                 current_data_source={current_data_source}
