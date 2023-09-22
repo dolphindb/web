@@ -1,16 +1,18 @@
 
 
-.table-title {
-    font-size: 16px;
-    color: #fff;
-    font-weight: 500;
-}
 
-.table-wrapper {
+.dashboard-table-wrapper {
     background-color: #282828;
     overflow: auto;
     font-size: 12px;
     padding: 12px;
+    
+    .table-title {
+        font-size: 16px;
+        color: #fff;
+        font-weight: 500;
+    }
+    
     .table-radio-group {
         margin-bottom: 12px;
     }

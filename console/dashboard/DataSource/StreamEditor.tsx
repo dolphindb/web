@@ -1,4 +1,4 @@
-import { createElement, useEffect, useState } from 'react'
+import { createElement, useEffect, useRef, useState } from 'react'
 
 import { Input, Popover, Select, Tree, type MenuProps, InputNumber, Switch } from 'antd'
 import { CloseOutlined, QuestionCircleOutlined, TableOutlined } from '@ant-design/icons'
@@ -11,7 +11,8 @@ import {
     DataSource, 
     get_stream_tables, 
     get_stream_cols, 
-    get_data_source
+    get_data_source,
+    get_stream_filter_col
 } from '../storage/date-source-node.js'
 import { dashboard } from '../model.js'
 import { NodeType, model } from '../../model.js'
@@ -38,12 +39,15 @@ export function StreamEditor ({
     
     const [stream_tables, set_stream_tables] = useState<MenuProps['items']>([ ])
     const [current_stream, set_current_stream] = useState(current_data_source?.stream_table || '')
-    const [stream_cols, set_stream_cols] = useState<{ label: string, value: string }[]>([ ])
+    const [stream_filter_col, set_stream_filter_col] = useState('')
     const [ip_list, set_ip_list] = useState<{ label: string, value: string }[]>([ ])
     const [ip_select, set_ip_select] = useState(true)
     
+    const tree_ref = useRef(null)
+    
     useEffect(() => {
         (async () => {
+            tree_ref.current?.scrollTo({ key: current_data_source.stream_table })
             // 获取数据库流表
             const table = await get_stream_tables()
             if (table.length)   {
@@ -71,13 +75,10 @@ export function StreamEditor ({
     
     useEffect(() => {
         (async () => {
-            if (current_data_source.stream_table) 
-                set_stream_cols((await get_stream_cols(current_data_source.stream_table, true)).map(col => {
-                    return {
-                        label: col,
-                        value: col
-                    }
-                }))  
+            if (current_data_source.stream_table) {
+                set_stream_filter_col(await get_stream_filter_col(current_stream))
+                change_current_data_source_property('cols', await get_stream_cols(current_stream), false)
+            }         
         })()
     }, [current_data_source.stream_table])
     
@@ -110,6 +111,7 @@ export function StreamEditor ({
                 ? <div className='streameditor-main'>
                     <div className='streameditor-main-left'>
                         <Tree
+                            ref={tree_ref}
                             showIcon
                             height={405}
                             blockNode
@@ -139,18 +141,7 @@ export function StreamEditor ({
                             ? <div className='streameditor-main-right-filter'>
                                 <div className='streameditor-main-right-filter-top'>
                                     <div className='streameditor-main-right-filter-top-mode'>
-                                        过滤方式：
-                                        <Select
-                                            defaultValue={current_data_source.filter_mode || 'value'}
-                                            className='streameditor-main-right-filter-top-mode-select'
-                                            size='small'
-                                            onChange={(value: string) => change_current_data_source_property('filter_mode', value)}
-                                            options={[
-                                                { value: 'value', label: '值过滤' },
-                                                { value: 'scope', label: '范围过滤' },
-                                                { value: 'hash', label: '哈希过滤' },
-                                            ]}
-                                        />
+                                        过滤条件：
                                         <Popover 
                                             content={(
                                                 <div>
@@ -165,20 +156,12 @@ export function StreamEditor ({
                                                     </p>
                                                 </div>
                                             )} 
-                                            title='过滤方式'
                                         >
                                             <QuestionCircleOutlined className='streameditor-main-right-filter-top-mode-icon'/>
                                         </Popover>
                                     </div>
                                     <div className='streameditor-main-right-filter-top-col'>
-                                        过滤列:
-                                        <Select
-                                            defaultValue={default_value_in_select(current_data_source, 'filter_col', stream_cols)}
-                                            className='streameditor-main-right-filter-top-mode-select'
-                                            size='small'
-                                            onChange={(value: string) => change_current_data_source_property('filter_col', value)}
-                                            options={stream_cols}
-                                        />
+                                        {stream_filter_col ? ('当前过滤列为:' + stream_filter_col) : '当前流表无过滤列'}
                                     </div>
                                 </div>
                                 <div className='streameditor-main-right-filter-main'>

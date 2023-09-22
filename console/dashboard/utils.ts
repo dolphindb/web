@@ -10,7 +10,63 @@ import { DataSource } from './storage/date-source-node.js'
 import { t } from '../../i18n/index.js'
 import { MarkPresetType } from './ChartFormFields/type.js'
 
-export function formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
+function formatter (type, value, le, index?, values?) {
+    switch (type) {
+        case DdbType.bool: {
+            return value === nulls.int8 ?
+                null
+                :
+                    Boolean(value)
+        }
+        case DdbType.char:
+            return value === nulls.int8 ? null : value
+        case DdbType.short:
+            return value === nulls.int16 ? null : value
+        case DdbType.int:
+            return value
+        case DdbType.date:
+            return format(type, value, le)
+        case DdbType.month:
+            return format(type, value, le)
+        case DdbType.time:
+            return format(type, value, le)
+        case DdbType.minute:
+            return format(type, value, le)
+        case DdbType.second:
+            return format(type, value, le)
+        case DdbType.datetime:
+            return format(type, value, le)
+        case DdbType.datehour:
+            return value === nulls.int32 ? null : format(type, value, le)
+        case DdbType.long:
+        case DdbType.timestamp:
+            return format(type, value, le)
+        case DdbType.nanotime:
+            return format(type, value, le)
+        case DdbType.nanotimestamp:
+            return value === nulls.int64 ? null : format(type, value, le)
+        case DdbType.int128:
+            return value === nulls.int128 ? null : value
+        case DdbType.float:
+            return value === nulls.float32 ? null : value
+        case DdbType.double:
+            return value === nulls.double ? null : value
+        case DdbType.decimal32:
+        case DdbType.decimal64:
+        case DdbType.decimal128:
+            return is_decimal_null_value(type, value) ? null : value
+        case DdbType.ipaddr:
+            return values.subarray(16 * index, 16 * (index + 1))
+        case DdbType.symbol_extended: {
+            const { base, data } = values
+            return base[data[index]]
+        }
+        default:
+            return value
+    }
+}
+
+export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
     assert(obj.form === DdbForm.table, t('form 必须是 DdbForm.table, 否则不能 to_rows'))
     let rows = new Array()
     let start = obj.rows - max_line
@@ -19,83 +75,26 @@ export function formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
         let row = { }
         for (let j = 0;  j < obj.cols;  j++) {
             const { type, name, value: values } = obj.value[j] // column
-            switch (type) {
-                case DdbType.bool: {
-                    const value = values[i]
-                    row[name] = value === nulls.int8 ?
-                        null
-                        :
-                            Boolean(value)
-                    break
-                }
-                case DdbType.char:
-                    row[name] = values[i] === nulls.int8 ? null : values[i]
-                    break
-                case DdbType.short:
-                    row[name] = values[i] === nulls.int16 ? null : values[i]
-                    break
-                case DdbType.int:
-                    row[name] = values[i]
-                    break
-                case DdbType.date:
-                    row[name] = format(type, values[i], le)
-                    break
-                case DdbType.month:
-                    row[name] = format(type, values[i], le)
-                    break
-                case DdbType.time:
-                    row[name] = format(type, values[i], le)
-                    break
-                case DdbType.minute:
-                    row[name] = format(type, values[i], le)
-                    break
-                case DdbType.second:
-                    row[name] = format(type, values[i], le)
-                    break
-                case DdbType.datetime:
-                    row[name] = format(type, values[i], le)
-                    break
-                case DdbType.datehour:
-                    row[name] = values[i] === nulls.int32 ? null : format(type, values[i], le)
-                    break
-                case DdbType.long:
-                case DdbType.timestamp:
-                    row[name] = format(type, values[i], le)
-                    break
-                case DdbType.nanotime:
-                    row[name] = format(type, values[i], le)
-                    break
-                case DdbType.nanotimestamp:
-                    row[name] = values[i] === nulls.int64 ? null : format(type, values[i], le)
-                    break
-                case DdbType.int128:
-                    row[name] = values[i] === nulls.int128 ? null : values[i]
-                    break
-                case DdbType.float:
-                    row[name] = values[i] === nulls.float32 ? null : values[i]
-                    break
-                case DdbType.double:
-                    row[name] = values[i] === nulls.double ? null : values[i]
-                    break
-                case DdbType.decimal32:
-                case DdbType.decimal64:
-                case DdbType.decimal128:
-                    row[name] = is_decimal_null_value(type, values[i]) ? null : values[i]
-                    break
-                case DdbType.ipaddr:
-                    row[name] = values.subarray(16 * i, 16 * (i + 1))
-                    break
-                case DdbType.symbol_extended: {
-                    const { base, data } = values
-                    row[name] = base[data[i]]
-                    break
-                }
-                default:
-                    row[name] = values[i]
-            }
+            row[name] = formatter(type, values[i], le, i, values)
         }
         rows.push(row)
     }
+    return rows
+}
+
+export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols: string[]): Array<{}> {
+    let rows = new Array()
+    let start = obj.value[0].rows - max_line
+    for (let i = start >= 0 ? start : 0;  i < obj.value[0].rows;  i++) {
+        let row = { }
+        for (let j in cols) {
+            const { type, le } = obj.value[j]
+            row[cols[j]] = formatter(type, obj.value[j].value[i], le)
+        }    
+        rows.push(row)
+    }
+        
+    
     return rows
 }
 
