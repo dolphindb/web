@@ -1,13 +1,99 @@
-import { Button, Divider, Select, Tooltip } from 'antd'
+import { useCallback, useEffect, useState } from 'react'
+import { Button, Divider, Input, Modal, Select, Tooltip } from 'antd'
 import { DeleteOutlined, EditOutlined, EyeOutlined, FileOutlined, FolderAddOutlined, PauseOutlined, SyncOutlined } from '@ant-design/icons'
 
-import { dashboard } from '../model.js'
+import { model } from '../../model.js'
+import { Widget, dashboard } from '../model.js'
+import { use_modal } from 'react-object-model/modal.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
+import { genid } from 'xshell/utils.browser.js'
+
 import './index.sass'
 
 
+function get_widget_config (widget: Widget) {
+        return {
+            id: widget.id,
+            w: widget.w,
+            h: widget.h,
+            x: widget.x,
+            y: widget.y,
+            type: widget.type,
+            source_id: widget.source_id,
+            config: widget.config }
+}
+
 export function Navigation () {
-    const { editing } = dashboard.use(['editing'])
+    const { editing, widgets, configs, config } = dashboard.use(['editing', 'widgets', 'configs', 'config'])
+    const [new_dashboard_name, set_new_dashboard_name] = useState('')
+    const { visible, open, close } = use_modal()
+    
+    // if (widget) 
+    //     console.log('widget', widget, JSON.stringify({
+    //         id: widget.id,
+    //         w: widget.w,
+    //         h: widget.h,
+    //         x: widget.x,
+    //         y: widget.y,
+    //         type: widget.type,
+    //         source_id: widget.source_id,
+    //         config: widget.config
+    //     }))
+    
+    useEffect(() => {
+        (async () => {
+            try {
+                dashboard.get_configs()
+            } catch (error) {
+                model.show_error({ error })
+            }
+        })()
+        
+    }, [ ])
+    
+    const handle_save = useCallback(async () => {
+        dashboard.set({ config: Object.assign(config, {
+            datasource: {
+                
+            },
+            canvas: {
+                widgets: widgets.map(widget => get_widget_config(widget))
+            }
+        }) })
+        try {
+            await dashboard.save_configs()
+        } catch (error) {
+            model.show_error({ error })
+        }
+    }, [ ])
+    
+    
+    const handle_add = async () => {
+        const new_dashboard_config = {
+            id: genid(),
+            name: new_dashboard_name,
+            datasources: [ ],
+            canvas: {
+                widgets: [ ],
+            }
+        }
+        dashboard.set({ configs: [...configs, new_dashboard_config] })
+        try {
+            await dashboard.save_configs()
+        } catch (error) {
+            model.show_error({ error })
+        }
+    }
+    
+    
+    const handle_delete = useCallback(async () => {
+        dashboard.set({ configs: configs.filter(({ id }) => id !== config.id) })
+        try {
+            await dashboard.save_configs()
+        } catch (error) {
+            model.show_error({ error })
+        }
+    }, [ ])
     
     
     return <div className='dashboard-navigation'>
@@ -17,6 +103,11 @@ export function Navigation () {
                 placeholder='选择 dashboard'
                 onChange={(value: string) => {
                     console.log(`selected ${value}`)
+                    const url_params = new URLSearchParams(location.search)
+                    const url = new URL(location.href)
+                    url_params.set('dashboard', value)
+                    url.search = url_params.toString()
+                    location.href = url.toString()
                 }}
                 bordered={false}
                 options={[
@@ -28,11 +119,17 @@ export function Navigation () {
         </div>
         <div className='right'>
             <div className='right-icons'>
+                <Modal open={visible}
+                       onCancel={close}
+                       onOk={handle_add}>
+                    <Input value={new_dashboard_name} 
+                           onChange={event => set_new_dashboard_name(event.target.value)}/>
+                </Modal>
                 <Tooltip title='保存'>
                     <Button className='action'><FileOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='新增'>
-                    <Button className='action'><FolderAddOutlined /></Button>
+                    <Button className='action' onClick={open}><FolderAddOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='删除'>
                     <Button className='action'><DeleteOutlined /></Button>

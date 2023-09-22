@@ -263,8 +263,9 @@ export let dashboard = window.dashboard = new DashBoardModel()
 
 
 interface DashBoardConfig {
-    id: string
+    id: number
     
+    name: string
     /** 数据源配置 */
     datasources: {
         id: string
