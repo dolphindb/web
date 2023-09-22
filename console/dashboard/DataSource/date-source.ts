@@ -47,14 +47,15 @@ export class DataSource extends Model<DataSource>  {
     }
 }
 
-export const find_data_source_index = (key: string): number =>
-    data_sources.findIndex(data_source => data_source.id === key) 
+export function find_data_source_index (key: string): number {
+    return data_sources.findIndex(data_source => data_source.id === key) 
+}
 
-export const get_data_source = (id: string): DataSource =>
-    data_sources[find_data_source_index(id)]
+export function get_data_source (id: string): DataSource {
+    return data_sources[find_data_source_index(id)]
+}
 
-
-export const save_data_source = async ( new_source_node: DataSource, code?: string ) => {
+export async function save_data_source ( new_source_node: DataSource, code?: string ) {
     const id = new_source_node.id
     const data_source = get_data_source(id)
     const dep = data_source.deps
@@ -106,7 +107,7 @@ export const save_data_source = async ( new_source_node: DataSource, code?: stri
         dashboard.message.success('保存成功！')
 }
 
-export const delete_data_source = (key: string): number => {
+export function delete_data_source (key: string): number {
     const data_source = get_data_source(key)
     if (data_source.deps?.length)
         dashboard.message.error('当前数据源已被图表绑定无法删除')
@@ -117,14 +118,14 @@ export const delete_data_source = (key: string): number => {
     }
 }
 
-export const create_data_source = (): { id: string, name: string } => {
+export function create_data_source  (): { id: string, name: string } {
     const id = String(genid())
     const name = `数据源 ${id.slice(0, 4)}`
     data_sources.unshift(new DataSource(id, name))
     return { id, name }
 }
 
-export const rename_data_source = (key: string, new_name: string) => {
+export function rename_data_source (key: string, new_name: string) {
     const data_source = get_data_source(key)
     
     if (
@@ -140,7 +141,7 @@ export const rename_data_source = (key: string, new_name: string) => {
         data_source.name = new_name
 }
 
-export const sub_data_source = async (widget_option: Widget, source_id: string) => {
+export async function sub_data_source (widget_option: Widget, source_id: string) {
     const data_source = get_data_source(source_id)
     
     if (widget_option.source_id)
@@ -166,7 +167,7 @@ export const sub_data_source = async (widget_option: Widget, source_id: string) 
         // console.log(widget_option.id, 'render', data_source.data)      
 }
 
-export const unsub_data_source = (widget_option: Widget, pre_source_id?: string) => {
+export function unsub_data_source (widget_option: Widget, pre_source_id?: string) {
     const source_id = widget_option.source_id
     const data_source = get_data_source(source_id)
     if (!pre_source_id || source_id !== pre_source_id ) {
@@ -178,7 +179,7 @@ export const unsub_data_source = (widget_option: Widget, pre_source_id?: string)
     }  
 }
 
-const create_interval = (source_id: string) => {
+function create_interval (source_id: string) {
     const data_source = get_data_source(source_id)
     if (data_source.auto_refresh) {
         delete_interval(source_id)
@@ -221,7 +222,7 @@ const create_interval = (source_id: string) => {
     }
 }
 
-const delete_interval = (source_id: string) => {
+function delete_interval (source_id: string) {
     const data_source = get_data_source(source_id)
     const interval = data_source.timer
     if (interval) {
@@ -231,7 +232,7 @@ const delete_interval = (source_id: string) => {
         
 }
 
-const sub_stream = async (source_id: string) => {
+async function sub_stream (source_id: string) {
     const data_source = get_data_source(source_id)
     
     unsub_stream(source_id)
@@ -271,7 +272,7 @@ const sub_stream = async (source_id: string) => {
     }
 }
 
-const unsub_stream = (source_id: string) => {
+function unsub_stream (source_id: string) {
     const data_source = get_data_source(source_id)
     const stream_connection = data_source.ddb
     if (stream_connection) {
@@ -280,17 +281,17 @@ const unsub_stream = (source_id: string) => {
     } 
 }
 
-export const get_stream_tables = async (): Promise<string[]> => {
+export async function get_stream_tables (): Promise<string[]> {
     await dashboard.eval('exec name from objs(true) where type="REALTIME"')
     return dashboard.result.data.value as string[]
 }
 
-export const get_stream_cols = async (table: string): Promise<string[]> => {
+export async function get_stream_cols (table: string): Promise<string[]> {
     await dashboard.eval(`select name from schema(${table})['colDefs']`)
     return dashboard.result.data.value[0].value
 }
 
-export const get_stream_filter_col = async (table: string): Promise<string> => {
+export async function get_stream_filter_col (table: string): Promise<string> {
     try {
         return await dashboard.eval(`getStreamTableFilterColumn(${table})`) as string
     } catch (error) {
@@ -298,16 +299,18 @@ export const get_stream_filter_col = async (table: string): Promise<string> => {
     }
 }
 
-export const export_data_sources = () => [...data_sources].map(
-    data_source => {
-        data_source.timer = null
-        data_source.ddb = null
-        data_source.data = [ ]
-        return data_source
-    }
-)
+export async function export_data_sources () {
+    return [...data_sources].map(
+        data_source => {
+            data_source.timer = null
+            data_source.ddb = null
+            data_source.data = [ ]
+            return data_source
+        }
+    )
+} 
 
-export const import_data_sources = async _data_sources => {
+export async function import_data_sources (_data_sources) {
     for (let data_source of _data_sources) {
         data_sources.push(new DataSource(data_source.id, data_source.name))
         await save_data_source(data_source, data_source.code)
