@@ -47,11 +47,13 @@ export class DataSource extends Model<DataSource>  {
     }
 }
 
-export const find_data_source_index = (key: string): number =>
-    data_sources.findIndex(data_source => data_source.id === key) 
+export function find_data_source_index (key: string): number {
+    return data_sources.findIndex(data_source => data_source.id === key)
+} 
 
-export const get_data_source = (id: string): DataSource =>
-    data_sources[find_data_source_index(id)]
+export function get_data_source (id: string): DataSource {
+    return data_sources[find_data_source_index(id)]
+}
 
 
 export const save_data_source = async ( new_source_node: DataSource, code?: string ) => {
@@ -266,7 +268,7 @@ const sub_stream = async (source_id: string) => {
         await stream_connection.connect()
         data_source.ddb = stream_connection
     } catch (error) {
-        dashboard.show_error(error)
+        dashboard.show_error({ error })
         throw error
     }
 }
