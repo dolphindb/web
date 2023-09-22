@@ -7,7 +7,7 @@ import { Widget, dashboard } from '../model.js'
 import { use_modal } from 'react-object-model/modal.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import { genid } from 'xshell/utils.browser.js'
-import { export_data_sources, load_data_sources } from '../storage/date-source-node.js'
+import { export_data_sources, import_data_sources } from '../storage/date-source-node.js'
 import './index.sass'
 import { t } from '../../../i18n/index.js'
 
