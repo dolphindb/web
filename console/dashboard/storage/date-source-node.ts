@@ -6,12 +6,6 @@ import { sql_formatter, get_cols, stream_formatter } from '../utils.js'
 import { model } from '../../model.js'
 import { DDB, DdbForm, DdbObj, DdbValue } from 'dolphindb'
 
-const deps = new Map<string, Widget[]>()
-
-const intervals = new Map<string, NodeJS.Timeout>()
-
-const stream_connections = new Map<string, DDB>()
-
 export type DataType = { }[]
 
 export type DataSourcePropertyType = string | number | boolean | string[] | DataType
@@ -23,6 +17,7 @@ export class DataSource extends Model<DataSource>  {
     max_line = 1000
     data: DataType = [ ]
     cols: string[] = [ ]
+    deps: Widget[] = [ ]
     error_message = ''
     /** sql 模式专用 */
     auto_refresh = false
@@ -30,6 +25,8 @@ export class DataSource extends Model<DataSource>  {
     code = ''
     /** sql 模式专用 */
     interval = 1
+    /** sql 模式专用 */
+    timer: NodeJS.Timeout
     /** stream 模式专用 */
     filter = false
     /** stream 模式专用 */
@@ -40,6 +37,8 @@ export class DataSource extends Model<DataSource>  {
     node = ''
     /** stream 模式专用 */
     ip = ''
+    /** stream 模式专用 */
+    ddb: DDB
     
     constructor (id: string, name: string) {
         super()
@@ -57,8 +56,8 @@ export const get_data_source = (id: string): DataSource =>
 
 export const save_data_source = async ( new_source_node: DataSource ) => {
     const id = new_source_node.id
-    const dep = deps.get(id)
     const data_source = get_data_source(id)
+    const dep = data_source.deps
     
     delete_interval(id)
     unsub_stream(id)
@@ -101,19 +100,19 @@ export const save_data_source = async ( new_source_node: DataSource ) => {
             break
     }
     // 仅测试用
-    // if (dep && dep.length && !new_source_node.error_message ) 
-    //     dep.forEach((widget_option: Widget) => {
-    //         console.log(widget_option.id, 'render', new_source_node.data)
-    //     })
+    if (dep && dep.length && !new_source_node.error_message ) 
+        dep.forEach((widget_option: Widget) => {
+            console.log(widget_option.id, 'render', new_source_node.data)
+        })
     
     model.message.success('保存成功！')
 }
 
 export const delete_data_source = (key: string): number => {
-    if (deps.get(key)?.length)
+    const data_source = get_data_source(key)
+    if (data_source.deps?.length)
         model.message.error('当前数据源已被图表绑定无法删除')
     else {
-        deps.delete(key)
         const delete_index = find_data_source_index(key)
         data_sources.splice(delete_index, 1)
         return delete_index
@@ -144,25 +143,23 @@ export const rename_data_source = (key: string, new_name: string) => {
 }
 
 export const sub_data_source = async (widget_option: Widget, source_id: string) => {
+    const data_source = get_data_source(source_id)
+    
     if (widget_option.source_id)
         unsub_data_source(widget_option, source_id)  
-    if (deps.has(source_id)) 
-        deps.get(source_id).push(widget_option)
-     else 
-        deps.set(source_id, [widget_option])
-    
-    const data_source = get_data_source(source_id)
+        
+    data_source.deps.push(widget_option)
     
     if (data_source.error_message) 
         model.message.error('当前数据源存在错误')
     else {  
         switch (data_source.mode) {
             case 'sql':
-                if (data_source.auto_refresh && !intervals.has(source_id))
+                if (data_source.auto_refresh && !data_source.timer)
                     create_interval(source_id)
                 break
             case 'stream':
-                if (!stream_connections.has(source_id))
+                if (!data_source.ddb)
                     await sub_stream(source_id)
                 break
         }
@@ -174,15 +171,14 @@ export const sub_data_source = async (widget_option: Widget, source_id: string) 
 
 export const unsub_data_source = (widget_option: Widget, pre_source_id?: string) => {
     const source_id = widget_option.source_id
+    const data_source = get_data_source(source_id)
     if (!pre_source_id || source_id !== pre_source_id ) {
-        const new_dep = deps.get(source_id).filter((dep: Widget) => dep.id !== widget_option.id )
-        if (new_dep.length)
-            deps.set(source_id, new_dep) 
-        else {
-            deps.delete(source_id)
+        data_source.deps = data_source.deps.filter((dep: Widget) => dep.id !== widget_option.id )
+        console.log(data_source.deps)
+        if (!data_source.deps.length) {
             delete_interval(source_id)
             unsub_stream(source_id)
-        }
+        }   
     }  
 }
 
@@ -211,7 +207,7 @@ const create_interval = (source_id: string) => {
                 
                 // 仅测试用
                 console.log('')
-                deps.get(source_id).forEach((widget_option: Widget) => {
+                data_source.deps.forEach((widget_option: Widget) => {
                     console.log(widget_option.id, 'render', data_source.data)
                 })
             } else {
@@ -225,16 +221,18 @@ const create_interval = (source_id: string) => {
             }    
         }, data_source.interval * 1000)
         
-        intervals.set(source_id, interval_id)
+        data_source.timer = interval_id
     }
 }
 
 const delete_interval = (source_id: string) => {
-    const interval = intervals.get(source_id)
+    const data_source = get_data_source(source_id)
+    const interval = data_source.timer
     if (interval) {
         clearInterval(interval)
-        intervals.delete(source_id)
+        data_source.timer = null
     }
+        
 }
 
 const sub_stream = async (source_id: string) => {
@@ -270,7 +268,7 @@ const sub_stream = async (source_id: string) => {
     
     try {
         await stream_connection.connect()
-        stream_connections.set(source_id, stream_connection)
+        data_source.ddb = stream_connection
     } catch (error) {
         model.message.error(error.message)
         throw error
@@ -278,10 +276,11 @@ const sub_stream = async (source_id: string) => {
 }
 
 const unsub_stream = (source_id: string) => {
-    const stream_connection = stream_connections.get(source_id)
+    const data_source = get_data_source(source_id)
+    const stream_connection = data_source.ddb
     if (stream_connection) {
         stream_connection.disconnect()
-        stream_connections.delete(source_id)
+        data_source.ddb = null
     } 
 }
 
@@ -301,6 +300,10 @@ export const get_stream_filter_col = async (table: string): Promise<string> => {
     } catch (error) {
         return ''
     }
+}
+
+export const export_serve = () => {
+    
 }
 
 export const data_sources: DataSource[] = [new DataSource('1', '数据源1')]
