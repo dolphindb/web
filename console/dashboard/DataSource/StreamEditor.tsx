@@ -1,10 +1,9 @@
 import { createElement, useEffect, useRef, useState } from 'react'
 
-import { Input, Popover, Select, Tree, type MenuProps, InputNumber, Switch } from 'antd'
+import { Input, Popover, Select, Tree, type MenuProps, InputNumber, Switch, Table } from 'antd'
 import { CloseOutlined, QuestionCircleOutlined, TableOutlined } from '@ant-design/icons'
 
 import { Editor } from '../../shell/Editor/index.js'
-import { DataView } from '../../shell/DataView.js'
 
 import { 
     type DataSourcePropertyType, 
@@ -130,11 +129,34 @@ export function StreamEditor ({
                         <div className='preview' style={{ height: current_data_source.filter ? '60%' : '100%' }}>
                             <div className='preview-config'>
                                 <div className='preview-config-tag'>
-                                    列名预览
+                                    {`列名预览（共${current_data_source.cols.length}列）：`}
                                 </div>
                             </div>
                             <div className='preview-main'>
-                                <DataView dashboard/>
+                                <Table 
+                                    columns={[
+                                        {
+                                            title: 'Index',
+                                            dataIndex: 'index',
+                                        },
+                                        {
+                                            title: 'Name',
+                                            dataIndex: 'name',
+                                        },
+                                    ]} 
+                                    dataSource={
+                                        current_data_source.cols.map((col, index) => {
+                                            return {
+                                                key: col,
+                                                index: index + 1,
+                                                name: col
+                                            }
+                                        })
+                                    } 
+                                    bordered
+                                    size='small'
+                                    pagination={{ pageSize: 6, position: ['bottomCenter'] }} 
+                                />
                             </div>
                         </div>
                         {current_data_source.filter
