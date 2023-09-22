@@ -30,6 +30,7 @@ $borderColor: rgb(100, 100, 100)
             padding-top: 1px
             flex-grow: 1
             background-color: $canvasBackColor
+            
             // 没有 overflow: hidden 会导致在 hover 最下面一行的 widget 时画布变大 1px （原因未知）从而导致出现滚动条
             overflow: hidden
             
@@ -140,7 +141,7 @@ $borderColor: rgb(100, 100, 100)
             background-color: #303030
             
             .ant-tabs-nav
-                padding: 0px 16px
+                margin: unset
             
             .ant-menu-light
                 background: #2b2b2b
