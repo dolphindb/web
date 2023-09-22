@@ -166,8 +166,10 @@ class DashBoardModel extends Model<DashBoardModel> {
     }
     
     update_widget (widget: Widget) { 
-        Object.assign(this.widgets.find(({ id }) => id === widget.id), widget)
-        this.set({ widget })
+        if (this.widgets.find(({ id }) => id === widget.id)) { 
+            Object.assign(this.widgets.find(({ id }) => id === widget.id), widget)
+            this.set({ widget })
+        } 
     }
     
     
