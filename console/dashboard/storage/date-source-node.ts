@@ -304,6 +304,7 @@ export const export_data_sources = () => data_sources.map(
     data_source => {
         data_source.timer = null
         data_source.ddb = null
+        data_source.data = [ ]
         return data_source
     }
 )
