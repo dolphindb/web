@@ -63,8 +63,6 @@ const Series = (props: { col_names: string[] }) => {
     const { col_names } = props
     const { widget: { type } } = dashboard.use(['widget'])
     
-    console.log(type === WidgetChartType.MIX ? 'line' : type.toLowerCase(), 'type')
-    
     return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: t('名称'), yAxisIndex: 0 }]}>
         {(fields, { add, remove }) => <>
             {

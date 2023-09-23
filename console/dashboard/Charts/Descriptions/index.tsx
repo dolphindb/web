@@ -18,7 +18,6 @@ interface IProps {
 
 export function DBDescriptions (props: IProps) {
     const { data_source = [ ], widget } = props
-    console.log(data_source, 'datasource')
     
     const config = useMemo(() => widget.config as IDescriptionsConfig, [widget.config])
     
@@ -40,7 +39,6 @@ export function DBDescriptions (props: IProps) {
         })
     }, [config, data_source])
     
-    console.log(items, 'items')
     
     
     return <Descriptions
