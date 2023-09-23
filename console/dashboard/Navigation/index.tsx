@@ -39,10 +39,18 @@ type dashboard_option = {
 
 export function Navigation () {
     const { editing, widgets, configs, config } = dashboard.use(['editing', 'widgets', 'configs', 'config'])
-    const [new_dashboard_name, set_new_dashboard_name] = useState('')
+    const [new_dashboard_name, set_new_dashboard_name] = useState('dashboard-' + genid().toString().slice(0, 4))
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
+    // console.log('names', configs?.map(config => config.name))
+    
+    function check_repeat_name (new_name: string) {
+        return configs?.filter(({ id }) => id !== config.id).
+                        map(config => config.name).
+                        find(name => name === new_name)
+    }
+    
     
     async function handle_save () {
         const new_config =  {
@@ -65,6 +73,10 @@ export function Navigation () {
     
     
     async function handle_add () {
+        if (check_repeat_name(new_dashboard_name)) {
+            dashboard.message.error(t('名称重复，请重新输入'))
+            return 
+        } 
         const new_dashboard_config = {
             id: genid(),
             name: new_dashboard_name,
@@ -74,7 +86,6 @@ export function Navigation () {
             }
         }
         dashboard.set({ configs: [...configs, new_dashboard_config] })
-        // console.log(new_dashboard_config)
         try {
             await dashboard.save_configs()
             dashboard.message.success(t('添加成功'))
@@ -87,6 +98,10 @@ export function Navigation () {
     
     
     async function handle_edit () {
+        if (check_repeat_name(edit_dashboard_name)) {
+            dashboard.message.error(t('名称重复，请重新输入'))
+            return
+        } 
         const edit_dashboard_config = {
             ...config,
             name: edit_dashboard_name,
@@ -131,9 +146,10 @@ export function Navigation () {
                     const url = new URL(location.href)
                     url_params.set('dashboard', value)
                     url.search = url_params.toString()
-                    // location.href = url.toString()
-                    history.pushState({ }, '', url)
+                    history.replaceState({ }, '', url)
                 }}
+                defaultValue={ config?.name || new_dashboard_name}
+                value={config?.name}
                 bordered={false}
                 options={configs?.map(({ id, name }) => ({
                     key: id,
@@ -164,6 +180,7 @@ export function Navigation () {
                        closeIcon={false}
                        title={t('请修改 dashboard 的名称')}>
                     <Input value={edit_dashboard_name}
+                           defaultValue={config?.name}
                            placeholder={config?.name}
                            onChange={event => set_edit_dashboard_name(event.target.value)}/>
                 </Modal>

@@ -143,8 +143,8 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     
     async load_config () {
-        await import_data_sources(this.config.datasources) 
-        this.set({ widgets: this.config.canvas.widgets.map(widget => ({
+        await import_data_sources(this.config?.datasources) 
+        this.set({ widgets: this.config?.canvas.widgets.map(widget => ({
             ...widget, 
             ref: createRef(), 
         })) as any  })
@@ -354,7 +354,7 @@ export enum WidgetType {
     TABLE = '表格',
     OHLC = 'OHLC',
     MIX = '混合图',
-    // CANDLE = '蜡烛图',
+    CANDLE = '蜡烛图',
     // ORDER = '订单图',
     // NEEDLE = '数值针型图',
     // STRIP = '带图',
@@ -371,7 +371,7 @@ export enum WidgetChartType {
     // POINT = 'POINT',
     TABLE = 'TABLE',
     OHLC = 'OHLC',
-    // CANDLE = 'CANDLE',
+    CANDLE = 'CANDLE',
     // ORDER = 'ORDER',
     // NEEDLE = 'NEEDLE',
     // STRIP = 'STRIP',
