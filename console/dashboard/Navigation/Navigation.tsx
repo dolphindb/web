@@ -48,7 +48,7 @@ export function Navigation () {
         // }))
         const new_config =  {
             ...config,
-            datasources: export_data_sources(),
+            datasources: await export_data_sources(),
             canvas: {
                 widgets: widgets.map(widget => get_widget_config(widget))
             }
