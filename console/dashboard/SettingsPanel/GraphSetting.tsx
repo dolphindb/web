@@ -2,15 +2,14 @@ import { Form } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { graph_config } from '../graph-config.js'
 import { dashboard } from '../model.js'
-import { IChartConfig, ITableConfig } from '../type.js'
 import { get_data_source } from '../DataSource/date-source.js'
 
 export function GraphSetting () { 
     const { widget } = dashboard.use(['widget'])
     const data_source_node = get_data_source(widget.source_id)
-    const { cols = [ ] } = data_source_node.use(['cols'])
+    const { cols = [ ], data: data_source = [ ] } = data_source_node.use(['cols', 'data'])
     
-    const [form] = Form.useForm<IChartConfig | ITableConfig>()
+    const [form] = Form.useForm()
     
     useEffect(() => {
         if (!widget.id)
@@ -32,6 +31,8 @@ export function GraphSetting () {
             dashboard.update_widget({ ...widget, config: values })
     }, [widget])
     
+    
+    console.log(widget.type, graph_config, 'config')
     const ConfigFormFields = useMemo(() => graph_config[widget.type]?.config, [widget.type])
     
     
@@ -44,7 +45,7 @@ export function GraphSetting () {
             labelAlign='left'
             colon={false}
         >
-            <ConfigFormFields col_names={cols} />
+            <ConfigFormFields col_names={cols} data_source={data_source} />
         </Form>
         : <></>
 }

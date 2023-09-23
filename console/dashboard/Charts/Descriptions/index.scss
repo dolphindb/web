@@ -1,0 +1,26 @@
+.color-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    
+    .ant-space-item:not(:last-child) {
+        width: 45%;
+    }
+    .color-item-delete-icon {
+        cursor: pointer;
+        margin-bottom: 8px;
+    }
+    .ant-form-item {
+        margin-bottom: 8px;
+    }
+}
+
+.value-color-values {
+    margin-bottom: 12px;
+}
+
+.my-descriptions {
+    &.ant-descriptions .ant-descriptions-row >th, .ant-descriptions .ant-descriptions-row >td {
+        padding-bottom: 0px;
+    }
+}

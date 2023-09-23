@@ -19,7 +19,7 @@ import { t } from '../../i18n/index.js'
 import { Monaco } from '../shell/Editor/index.js'
 import { model, show_error, type ErrorOptions } from '../model.js'
 import { unsub_data_source, type DataType } from './DataSource/date-source.js'
-import { IChartConfig, ITableConfig, ITextConfig } from './type.js'
+import { IChartConfig, IDescriptionsConfig, ITableConfig, ITextConfig } from './type.js'
 
 
 class DashBoardModel extends Model<DashBoardModel> {
@@ -342,7 +342,7 @@ export interface Widget extends GridStackNode {
     update_graph?: (data: DataType) => void
     
     /** 图表配置 */
-    config?: IChartConfig | ITableConfig | ITextConfig
+    config?: IChartConfig | ITableConfig | ITextConfig | IDescriptionsConfig
 }
 
 
@@ -359,13 +359,14 @@ export enum WidgetType {
     // NEEDLE = '数值针型图',
     // STRIP = '带图',
     // HEAT = '热力图',
-    TEXT = '富文本'
+    TEXT = '富文本',
+    DESCRIPTIONS = '描述列表'
 }
 
 export enum WidgetChartType { 
     BAR = 'BAR',
     LINE = 'LINE',
-    MIX  = 'MIX',
+    MIX = 'MIX',
     // PIE = 'PIE',
     // POINT = 'POINT',
     TABLE = 'TABLE',
@@ -375,7 +376,8 @@ export enum WidgetChartType {
     // NEEDLE = 'NEEDLE',
     // STRIP = 'STRIP',
     // HEAT = 'HEAT'
-    TEXT = 'TEXT'
+    TEXT = 'TEXT',
+    DESCRIPTIONS = 'DESCRIPTIONS'
 }
 
 

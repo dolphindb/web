@@ -1,9 +1,11 @@
+import { ColorPickerProps } from 'antd'
 import { AxisType, ILineType, IStackStrategy, Position } from './ChartFormFields/type.js'
+import { ColorFactory } from 'antd/es/color-picker/color.js'
 
 export interface AxisConfig { 
     name: string
     type: AxisType
-    // 时间轴与泪目轴特有
+    // 时间轴与类目轴特有
     col_name: string
     position?: Position
     offset?: number
@@ -68,4 +70,16 @@ export interface ITableConfig {
 
 export interface ITextConfig {
     value: string
+}
+
+
+export interface IDescriptionsConfig { 
+    title?: string
+    label_col: string
+    value_col: string
+    column_num?: number
+    value_colors: Array<{
+        col: string
+        color: ColorFactory
+    }>
 }

@@ -36,7 +36,7 @@ const axis_position_options = [
     { value: 'right', label: t('右侧') }
 ]
 
-export const BasicFormFields = (props: { type: 'chart' | 'table' }) => { 
+export const BasicFormFields = (props: { type: 'chart' | 'table' | 'description' }) => { 
     const { type  } = props
     const FormFields = useMemo(() => { 
         const is_table = type === 'table'
