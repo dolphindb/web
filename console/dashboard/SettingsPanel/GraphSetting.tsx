@@ -32,7 +32,6 @@ export function GraphSetting () {
     }, [widget])
     
     
-    console.log(widget.type, graph_config, 'config')
     const ConfigFormFields = useMemo(() => graph_config[widget.type]?.config, [widget.type])
     
     
