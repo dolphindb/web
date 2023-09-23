@@ -63,15 +63,26 @@ function MainLayout () {
     
     
     useEffect(() => {
-        dashboard.init(rdiv.current)
+        (async () => {
+            try {
+                await dashboard.init(rdiv.current)
+            } catch (error) {
+                dashboard.show_error({ error })
+                throw error
+            }
+        })()
         return () => { dashboard.dispose() }
     }, [ ])
+    
+    
+    useEffect(() => {
+        dashboard.load_config()
+    }, [ config])
     
     
     // widget 变化时通过 GridStack.makeWidget 将画布中已有的 dom 节点交给 GridStack 管理 
     useEffect(() => {
         dashboard.render_widgets()
-        console.log('widgets', widgets)
     }, [widgets])
     
     

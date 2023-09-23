@@ -66,11 +66,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
-        try {
-            await this.get_configs()
-        } catch (error) {
-            this.show_error({ error })
-        }
+        await this.get_configs()
         if (!this.config) {
             const new_dashboard_config = {
                 id: genid(),
@@ -141,16 +137,17 @@ class DashBoardModel extends Model<DashBoardModel> {
             grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
         })
         
-        GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
-        await import_data_sources(this.config.datasources)
-        
-        this.set({ grid, widgets: this.config.canvas.widgets.map(widget => ({
+        GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })        
+        this.set({ grid })
+    }
+    
+    
+    async load_config () {
+        await import_data_sources(this.config.datasources) 
+        this.set({ widgets: this.config.canvas.widgets.map(widget => ({
             ...widget, 
             ref: createRef(), 
         })) as any  })
-        
-        // this.set({ })
-        
     }
     
     

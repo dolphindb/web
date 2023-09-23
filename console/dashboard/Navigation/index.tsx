@@ -45,13 +45,6 @@ export function Navigation () {
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     
     async function handle_save () {
-        // console.log('config:', JSON.stringify( {
-        //     ...config,
-        //     datasources: export_data_sources(),
-        //     canvas: {
-        //         widgets: widgets.map(widget => get_widget_config(widget))
-        //     }
-        // }))
         const new_config =  {
             ...config,
             datasources: await export_data_sources(),
@@ -66,6 +59,7 @@ export function Navigation () {
             dashboard.message.success(t('dashboard 保存成功'))
         } catch (error) {
             model.show_error({ error })
+            throw error
         }
     }
     
@@ -86,6 +80,7 @@ export function Navigation () {
             dashboard.message.success(t('添加成功'))
         } catch (error) {
             model.show_error({ error })
+            throw error
         }
         add_close()
     }
@@ -103,6 +98,7 @@ export function Navigation () {
             dashboard.message.success(t('修改成功'))
         } catch (error) {
             model.show_error({ error })
+            throw error
         }
         edit_close()
     }
@@ -115,6 +111,7 @@ export function Navigation () {
             dashboard.message.success(t('删除成功'))
         } catch (error) {
             model.show_error({ error })
+            throw error
         }
     }
     
@@ -129,7 +126,6 @@ export function Navigation () {
                 className='left-select'
                 placeholder='选择 dashboard'
                 onChange={(value: string, option: dashboard_option) => {
-                    console.log(`selected ${value}`, option)
                     dashboard.set({ config: configs.find(({ id }) => id === option.key) })
                     const url_params = new URLSearchParams(location.search)
                     const url = new URL(location.href)
