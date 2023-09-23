@@ -21,6 +21,10 @@ export const graph_config: GraphConfig =  {
         component: Chart,
         config: ChartConfigForm
     },
+    [WidgetChartType.MIX]: {
+        component: Chart,
+        config: ChartConfigForm
+    },
     [WidgetChartType.BAR]: {
         component: Chart,
         config: ChartConfigForm

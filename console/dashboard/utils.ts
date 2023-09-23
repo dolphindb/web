@@ -186,7 +186,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         }) || [ ]
         
         return {
-            type: type.toLocaleLowerCase(),
+            type: series.type?.toLowerCase(),
             name: series.name,
             symbol: 'none',
             stack: series.stack,

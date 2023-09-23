@@ -12,6 +12,7 @@ export interface AxisConfig {
 }
 
 export interface ISeriesConfig {
+    type: string
     col_name: string
     name: string
     yAxisIndex: number

@@ -10,7 +10,7 @@ import { FormDependencies } from '../../components/formily/FormDependcies/index.
 import { AxisType, IAxisItem, ILineType, IYAxisItemValue } from './type.js'
 
 
-import { axis_position_options, axis_type_options, line_type_options, mark_line_options, mark_point_options, stack_strategy_options } from './constant.js'
+import { axis_position_options, axis_type_options, chart_type_options, line_type_options, mark_line_options, mark_point_options, stack_strategy_options } from './constant.js'
 import { WidgetChartType, dashboard } from '../model.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 
@@ -63,6 +63,8 @@ const Series = (props: { col_names: string[] }) => {
     const { col_names } = props
     const { widget: { type } } = dashboard.use(['widget'])
     
+    console.log(type === WidgetChartType.MIX ? 'line' : type.toLowerCase(), 'type')
+    
     return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: t('名称'), yAxisIndex: 0 }]}>
         {(fields, { add, remove }) => <>
             {
@@ -76,6 +78,10 @@ const Series = (props: { col_names: string[] }) => {
                                     </Form.Item>
                                     <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={t('名称')}> 
                                         <Input />
+                                    </Form.Item>
+                                    
+                                    <Form.Item name={[field.name, 'type']} label={t('类型')} initialValue={type === WidgetChartType.MIX ? WidgetChartType.LINE : type}>
+                                        <Select options={chart_type_options} disabled={type !== WidgetChartType.MIX} />
                                     </Form.Item>
                                     
                                     {/* 数据关联的y轴选择 */}

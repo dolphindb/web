@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BarChartOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, LineChartOutlined, RiseOutlined, TableOutlined } from '@ant-design/icons'
+import { BarChartOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, FundOutlined, LineChartOutlined, RiseOutlined, TableOutlined } from '@ant-design/icons'
 
 import { WidgetType } from '../model.js'
 
@@ -12,7 +12,8 @@ const ICON_MAP = {
     [WidgetType.LINE]: <LineChartOutlined className='siderbar-icon'/>,
     [WidgetType.OHLC]: <BoxPlotOutlined className='siderbar-icon'/>,
     [WidgetType.TABLE]: <TableOutlined className='siderbar-icon'/>,
-    [WidgetType.TEXT]: <FileTextOutlined className='siderbar-icon'/>
+    [WidgetType.TEXT]: <FileTextOutlined className='siderbar-icon' />,
+    [WidgetType.MIX]: <FundOutlined className='siderbar-icon'/>
 }
 
 
