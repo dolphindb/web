@@ -13,7 +13,7 @@ import { dashboard } from './model.js'
 import { SelectSider } from './SelectSider/SelectSider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
-import { Navigation } from './Navigation/Navigation.js'
+import { Navigation } from './Navigation/index.js'
 import * as echarts from 'echarts'
 
 import config from './chart.config.json'

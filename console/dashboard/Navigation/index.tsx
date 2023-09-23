@@ -81,6 +81,7 @@ export function Navigation () {
         } catch (error) {
             model.show_error({ error })
         }
+        add_close()
     }
     
     
@@ -97,6 +98,7 @@ export function Navigation () {
         } catch (error) {
             model.show_error({ error })
         }
+        edit_close()
     }
     
     
