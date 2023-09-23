@@ -30,6 +30,12 @@ function get_widget_config (widget: Widget) {
     
 }
 
+type dashboard_option = {
+    key: number
+    value: string
+    label: string
+}
+
 
 export function Navigation () {
     const { editing, widgets, configs, config } = dashboard.use(['editing', 'widgets', 'configs', 'config'])
@@ -122,13 +128,15 @@ export function Navigation () {
             <Select
                 className='left-select'
                 placeholder='选择 dashboard'
-                onChange={(value: string) => {
-                    console.log(`selected ${value}`)
+                onChange={(value: string, option: dashboard_option) => {
+                    console.log(`selected ${value}`, option)
+                    dashboard.set({ config: configs.find(({ id }) => id === option.key) })
                     const url_params = new URLSearchParams(location.search)
                     const url = new URL(location.href)
                     url_params.set('dashboard', value)
                     url.search = url_params.toString()
-                    location.href = url.toString()
+                    // location.href = url.toString()
+                    history.pushState({ }, '', url)
                 }}
                 bordered={false}
                 options={configs?.map(({ id, name }) => ({
