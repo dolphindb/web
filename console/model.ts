@@ -11,8 +11,8 @@ import { strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
-    DDB, SqlStandard, DdbFunctionType, DdbVectorString, DdbObj, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, DdbStringObj, type DdbDictObj, type DdbVectorStringObj
+    DDB, SqlStandard, DdbFunctionType, DdbVectorString, type DdbObj, DdbInt, DdbLong, type InspectOptions,
+    DdbDatabaseError, type DdbStringObj, type DdbDictObj, type DdbVectorStringObj
 } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'

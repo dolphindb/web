@@ -1,5 +1,5 @@
 import type { ColorFactory } from 'antd/es/color-picker/color.js'
-import { AxisType, ILineType, IStackStrategy, Position } from './ChartFormFields/type.js'
+import { type AxisType, type ILineType, type IStackStrategy, type Position } from './ChartFormFields/type.js'
 
 export interface AxisConfig { 
     name: string

@@ -9,7 +9,7 @@ import { isNil, omitBy } from 'lodash'
 
 import { t } from '../../i18n/index.js'
 
-import { model, DdbModel, NodeType, storage_keys } from '../model.js'
+import { model, type DdbModel, NodeType, storage_keys } from '../model.js'
 
 
 import SvgOverview from '../overview/icons/overview.icon.svg'

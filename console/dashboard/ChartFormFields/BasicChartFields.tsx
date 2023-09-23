@@ -7,7 +7,7 @@ import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { t } from '../../../i18n/index.js'
 import { concat_name_path, convert_list_to_options } from '../utils.js'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-import { AxisType, IAxisItem, ILineType, IYAxisItemValue } from './type.js'
+import { AxisType, type IAxisItem, ILineType, type IYAxisItemValue } from './type.js'
 
 
 import { axis_position_options, axis_type_options, chart_type_options, line_type_options, mark_line_options, mark_point_options, stack_strategy_options } from './constant.js'

@@ -1,4 +1,4 @@
-import { CollapseProps, Form, Input, Collapse } from 'antd'
+import { type CollapseProps, Form, Input, Collapse } from 'antd'
 
 export function CanvasSetting () {
     interface SettingOptions {

@@ -1,9 +1,9 @@
-import { MutableRefObject, ReactNode, createElement, useEffect, useRef, useState } from 'react'
+import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState } from 'react'
 import { Input, Tree } from 'antd'
 import { DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 
 import { dashboard } from '../model.js'
-import { create_data_source, data_sources, delete_data_source, rename_data_source, DataSource, DataSourcePropertyType } from './date-source.js'
+import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType } from './date-source.js'
 
 
 type PropsType = {

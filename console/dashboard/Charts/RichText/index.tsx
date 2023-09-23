@@ -6,8 +6,8 @@ import 'react-quill/dist/quill.core.css'
 import { use_modal } from 'react-object-model/modal'
 import { t } from '../../../../i18n/index.js'
 import './index.sass'
-import { Widget, dashboard } from '../../model.js'
-import { ITextConfig } from '../../type.js'
+import { type Widget, dashboard } from '../../model.js'
+import { type ITextConfig } from '../../type.js'
 
 
 function replace_variables (origin_string: string, variables: object) {

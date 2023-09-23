@@ -1,13 +1,13 @@
 import { Switch } from 'antd'
 import dayjs from 'dayjs'
-import { StreamingMessage, formati, DDB } from 'dolphindb/browser.js'
-import { EChartsType } from 'echarts'
+import { type StreamingMessage, formati, DDB } from 'dolphindb/browser.js'
+import { type EChartsType } from 'echarts'
 import * as echarts from 'echarts'
 import React, { useId, useMemo } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { use_streaming } from './hooks/use-streaming.js'
 import { StreamingError } from './StreamingError.js'
-import { ErrorType, ScatterConfigType } from './types.js'
+import { type ErrorType, type ScatterConfigType } from './types.js'
 
 /** 
     @param table 表名

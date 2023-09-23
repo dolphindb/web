@@ -11,7 +11,7 @@ import * as echarts from 'echarts'
 
 import { DDB, formati, type StreamingMessage } from 'dolphindb/browser.js'
 
-import { EChartsType } from 'echarts'
+import { type EChartsType } from 'echarts'
 export type Context = 'page' | 'webview' | 'window' | 'embed'
 
 interface ErrorType {

@@ -1,7 +1,7 @@
 import { Form, Select, Input, Collapse, Divider, InputNumber, Space } from 'antd'
 import { t } from '../../../i18n/index.js'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-import { AxisType, IAxisItem, IYAxisItemValue, Position } from './type.js'
+import { AxisType, type IAxisItem, type IYAxisItemValue, Position } from './type.js'
 
 import './index.scss'
 import { concat_name_path, convert_list_to_options } from '../utils.js'

@@ -3,7 +3,7 @@ import './CopyIconButton.scss'
 import React, { useEffect, useState } from 'react'
 import cn from 'classnames'
 
-import { Button, ButtonProps, Tooltip } from 'antd'
+import { Button, type ButtonProps, Tooltip } from 'antd'
 import copy from 'copy-to-clipboard'
 
 import { t } from '../../../i18n/index.js'

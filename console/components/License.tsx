@@ -1,6 +1,4 @@
 
-import { default as React } from 'react'
-
 import { date2str } from 'dolphindb/browser.js'
 
 import { Tag, Popover, Descriptions, Card } from 'antd'
@@ -8,7 +6,7 @@ import { Tag, Popover, Descriptions, Card } from 'antd'
 
 import { t } from '../../i18n/index.js'
 
-import { model, DdbLicense, LicenseTypes } from '../model.js'
+import { model, type DdbLicense, LicenseTypes } from '../model.js'
 
 
 const licenseTypes: Record<DdbLicense['licenseType'], string> = {

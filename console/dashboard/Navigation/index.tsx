@@ -11,7 +11,7 @@ import { model } from '../../model.js'
 import { t } from '../../../i18n/index.js'
 import { CompileAndRefresh } from '../../components/CompileAndRefresh.js'
 
-import { Widget, dashboard } from '../model.js'
+import { type Widget, dashboard } from '../model.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import { export_data_sources } from '../DataSource/date-source.js'
 

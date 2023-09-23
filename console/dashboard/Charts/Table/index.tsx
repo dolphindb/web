@@ -1,10 +1,10 @@
-import { Checkbox, PaginationProps, Table, TableProps } from 'antd'
+import { Checkbox, type PaginationProps, Table, type TableProps } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import {  BasicFormFields }  from '../../ChartFormFields/BasicFormFields.js'
 import { BasicTableFields } from '../../ChartFormFields/BasicTableFields.js'
-import { Widget } from '../../model.js'
-import { ITableConfig } from '../../type.js'
+import { type Widget } from '../../model.js'
+import { type ITableConfig } from '../../type.js'
 
 import './index.scss'
 

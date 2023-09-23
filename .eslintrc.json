@@ -171,6 +171,8 @@
         "@typescript-eslint/prefer-regexp-exec": "error",
         
         // 禁止使用 export default
-        "no-restricted-exports": ["error", { "restrictDefaultExports": { "direct": true, "named": true, "defaultFrom": true, "namedFrom": true, "namespaceFrom": true } }]
+        "no-restricted-exports": ["error", { "restrictDefaultExports": { "direct": true, "named": true, "defaultFrom": true, "namedFrom": true, "namespaceFrom": true } }],
+        
+        "@typescript-eslint/consistent-type-imports": ["error", { "fixStyle": "inline-type-imports", "disallowTypeAnnotations": false }]
     }
 }

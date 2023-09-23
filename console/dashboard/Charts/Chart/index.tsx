@@ -4,7 +4,7 @@ import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { AxisFormFields, SeriesFormFields } from '../../ChartFormFields/BasicChartFields.js'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
-import { Widget } from '../../model.js'
+import { type Widget } from '../../model.js'
 import { convert_chart_config } from '../../utils.js'
 
 

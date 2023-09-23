@@ -3,7 +3,7 @@ import * as echarts from 'echarts'
 import { useMemo } from 'react'
 
 import { type Widget } from '../../model.js'
-import { IChartConfig } from '../../type.js'
+import { type IChartConfig } from '../../type.js'
 import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 

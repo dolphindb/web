@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { AppstoreOutlined } from '@ant-design/icons'
 
-import { Alert, Tabs, TabsProps } from 'antd'
+import { Alert, Tabs, type TabsProps } from 'antd'
 
 import cn from 'classnames'
 
