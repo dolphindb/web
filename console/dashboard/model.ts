@@ -284,14 +284,10 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
-        const ori_data = (await model.ddb.call < DdbStringObj | DdbBlob >('get_dashboard_configs'))
-        .value
-        if (typeof ori_data === Uint8Array) 
-            Decode
-        
-        const configs: DashBoardConfig[] = JSON.parse(
-            
-        )
+        let data = (await model.ddb.call < DdbStringObj | DdbBlob >('get_dashboard_configs')).value
+        if (typeof data !== 'string') 
+            data = new TextDecoder().decode(data)
+        const configs: DashBoardConfig[] = JSON.parse(data)
         
         this.set({
             configs,
