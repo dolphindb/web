@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { cloneDeep } from 'lodash'
 
-import { Button, Modal, Menu, ButtonProps } from 'antd'
+import { Button, Modal, Menu, ButtonProps, Tabs } from 'antd'
 import { DatabaseOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/modal.js'
 

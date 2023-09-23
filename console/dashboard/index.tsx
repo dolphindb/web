@@ -13,7 +13,7 @@ import { dashboard } from './model.js'
 import { SelectSider } from './SelectSider/SelectSider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
-import { Navigation } from './Navigation/Navigation.js'
+import { Navigation } from './Navigation/index.js'
 import * as echarts from 'echarts'
 
 import config from './chart.config.json'
@@ -53,7 +53,7 @@ export function DashBoard () {
 
 
 function MainLayout () {
-    const { widgets, editing, widget } = dashboard.use(['widgets', 'editing', 'widget'])
+    const { widgets, editing, config, widget } = dashboard.use(['widgets', 'editing', 'config', 'widget'])
     
     /** div ref, 用于创建 GridStack  */
     let rdiv = useRef<HTMLDivElement>()
@@ -63,10 +63,21 @@ function MainLayout () {
     
     
     useEffect(() => {
-        dashboard.init(rdiv.current)
-        
+        (async () => {
+            try {
+                await dashboard.init(rdiv.current)
+            } catch (error) {
+                dashboard.show_error({ error })
+                throw error
+            }
+        })()
         return () => { dashboard.dispose() }
     }, [ ])
+    
+    
+    useEffect(() => {
+        dashboard.load_config()
+    }, [ config])
     
     
     // widget 变化时通过 GridStack.makeWidget 将画布中已有的 dom 节点交给 GridStack 管理 

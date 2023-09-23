@@ -42,7 +42,7 @@ export function SettingsPanel (props: IProps) {
             })(),
             forceRender: true
         },
-    ], [ widget, widget?.source_id ])
+    ], [widget, widget?.source_id])
     
     return <div className={cn('dashboard-settings-panel', { hidden })}>
             <Tabs className='dashboard-config-tabs' items={tab_items} type='card' />

@@ -17,7 +17,7 @@ import { export_data_sources } from '../DataSource/date-source.js'
 
 
 function get_widget_config (widget: Widget) {
-    return {
+    return  {
         id: widget.id,
         w: widget.w,
         h: widget.h,
@@ -27,6 +27,13 @@ function get_widget_config (widget: Widget) {
         source_id: widget.source_id,
         config: widget.config
     }
+    
+}
+
+type dashboard_option = {
+    key: number
+    value: string
+    label: string
 }
 
 
@@ -38,28 +45,22 @@ export function Navigation () {
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     
     async function handle_save () {
-        console.log('config:', JSON.stringify( {
+        const new_config =  {
             ...config,
-            datasources: export_data_sources(),
+            datasources: await export_data_sources(),
             canvas: {
                 widgets: widgets.map(widget => get_widget_config(widget))
             }
-        }))
-        // const new_config =  {
-        //     ...config,
-        //     datasources: export_data_sources(),
-        //     canvas: {
-        //         widgets: widgets.map(widget => get_widget_config(widget))
-        //     }
-        // }
-        // dashboard.set({ config: new_config, 
-        //                 configs: [...configs.filter(({ id }) => id !== config.id), new_config] })
-        // try {
-        //     await dashboard.save_configs()
-        //     dashboard.message.success(t('dashboard 保存成功'))
-        // } catch (error) {
-        //     model.show_error({ error })
-        // }
+        }
+        dashboard.set({ config: new_config, 
+                        configs: [...configs.filter(({ id }) => id !== config.id), new_config] })
+        try {
+            await dashboard.save_configs()
+            dashboard.message.success(t('dashboard 保存成功'))
+        } catch (error) {
+            model.show_error({ error })
+            throw error
+        }
     }
     
     
@@ -79,7 +80,9 @@ export function Navigation () {
             dashboard.message.success(t('添加成功'))
         } catch (error) {
             model.show_error({ error })
+            throw error
         }
+        add_close()
     }
     
     
@@ -88,14 +91,16 @@ export function Navigation () {
             ...config,
             name: edit_dashboard_name,
         }
-        dashboard.set({ configs: [...configs, edit_dashboard_config] })
+        dashboard.set({ configs: [...configs.filter(({ id }) => id !== config.id), edit_dashboard_config] })
         // console.log(new_dashboard_config)
         try {
             await dashboard.save_configs()
             dashboard.message.success(t('修改成功'))
         } catch (error) {
             model.show_error({ error })
+            throw error
         }
+        edit_close()
     }
     
     
@@ -106,6 +111,7 @@ export function Navigation () {
             dashboard.message.success(t('删除成功'))
         } catch (error) {
             model.show_error({ error })
+            throw error
         }
     }
     
@@ -119,13 +125,14 @@ export function Navigation () {
             <Select
                 className='left-select'
                 placeholder='选择 dashboard'
-                onChange={(value: string) => {
-                    console.log(`selected ${value}`)
+                onChange={(value: string, option: dashboard_option) => {
+                    dashboard.set({ config: configs.find(({ id }) => id === option.key) })
                     const url_params = new URLSearchParams(location.search)
                     const url = new URL(location.href)
                     url_params.set('dashboard', value)
                     url.search = url_params.toString()
-                    location.href = url.toString()
+                    // location.href = url.toString()
+                    history.pushState({ }, '', url)
                 }}
                 bordered={false}
                 options={configs?.map(({ id, name }) => ({
@@ -157,16 +164,10 @@ export function Navigation () {
                        closeIcon={false}
                        title={t('请修改 dashboard 的名称')}>
                     <Input value={edit_dashboard_name}
+                           placeholder={config?.name}
                            onChange={event => set_edit_dashboard_name(event.target.value)}/>
                 </Modal>
-                <Modal open={add_visible}
-                       onCancel={add_close}
-                       onOk={handle_add}
-                       closeIcon={false}>
-                    <Input value={new_dashboard_name}
-                           placeholder={config?.name}
-                           onChange={event => set_new_dashboard_name(event.target.value)}/>
-                </Modal>
+    
                 <Tooltip title='返回交互编程'>
                     <Button className='action'><HomeOutlined onClick={back_to_home} /></Button>
                 </Tooltip>

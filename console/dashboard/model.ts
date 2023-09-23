@@ -13,7 +13,7 @@ import { assert, genid } from 'xshell/utils.browser.js'
 import type { MessageInstance } from 'antd/es/message/interface.js'
 import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
-
+import { import_data_sources } from './DataSource/date-source.js'
 
 import { t } from '../../i18n/index.js'
 import { Monaco } from '../shell/Editor/index.js'
@@ -66,7 +66,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
-        // await this.get_configs()
+        await this.get_configs()
         if (!this.config) {
             const new_dashboard_config = {
                 id: genid(),
@@ -80,10 +80,6 @@ class DashBoardModel extends Model<DashBoardModel> {
                        configs: [new_dashboard_config],
                      })
         }
-        this.set({ widgets: this.config.canvas.widgets.map(widget => ({
-            ...widget, 
-            ref: createRef(), 
-        })) as any })
         let grid = GridStack.init({
             acceptWidgets: true,
             float: true,
@@ -141,10 +137,17 @@ class DashBoardModel extends Model<DashBoardModel> {
             grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
         })
         
-        GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
-        
+        GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })        
         this.set({ grid })
-        
+    }
+    
+    
+    async load_config () {
+        await import_data_sources(this.config.datasources) 
+        this.set({ widgets: this.config.canvas.widgets.map(widget => ({
+            ...widget, 
+            ref: createRef(), 
+        })) as any  })
     }
     
     
@@ -157,6 +160,8 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     render_widgets () {
         let { grid, widgets } = this
+        if (!grid)
+            return
         
         grid.batchUpdate(true)
         
