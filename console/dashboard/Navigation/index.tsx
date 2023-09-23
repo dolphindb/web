@@ -39,7 +39,7 @@ type dashboard_option = {
 
 export function Navigation () {
     const { editing, widgets, configs, config } = dashboard.use(['editing', 'widgets', 'configs', 'config'])
-    const [new_dashboard_name, set_new_dashboard_name] = useState('dashboard_0')
+    const [new_dashboard_name, set_new_dashboard_name] = useState('dashboard-' + genid().toString().slice(0, 4))
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
