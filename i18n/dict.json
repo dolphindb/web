@@ -2032,5 +2032,27 @@
     },
     "编辑数据源": {
         "en": "Edit data source"
+    },
+    "堆叠值": {
+        "en": "Stack value"
+    },
+    "堆叠策略": {
+        "en": "Stacking strategy"
+    },
+    "samesign 只在堆叠值与当前累积堆叠值同正负符号时堆叠": {
+        "en": "Samesign Stacks only when the stacking value has the same positive and negative sign as the current cumulative stacking value"
+    },
+    "all 堆叠所有的值": {
+        "en": "All stacks all values"
+    },
+    "positive 只堆积正值": {
+        "en": "Positive only stacks positive values"
+    },
+    "negative 只堆叠负值": {
+        "en": "Negative only stacks negative values"
+    },
+    "同个类目轴上系列配置相同的 stack 值可以堆叠放置": {
+        "en": "Series configurations with the same stack value on the same category axis can be stacked."
     }
+    
 }

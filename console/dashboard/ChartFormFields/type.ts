@@ -43,3 +43,11 @@ export enum ILineType {
     DASHED = 'dashed',
     DOTTED = 'dotted'
 }
+
+
+export enum IStackStrategy { 
+    SAMESIGN = 'samesign',
+    ALL = 'all',
+    POSITIVE = 'positive',
+    NEGATIVE = 'negative'
+}

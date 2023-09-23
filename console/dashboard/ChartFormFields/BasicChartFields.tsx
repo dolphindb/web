@@ -10,7 +10,9 @@ import { FormDependencies } from '../../components/formily/FormDependcies/index.
 import { AxisType, IAxisItem, ILineType, IYAxisItemValue } from './type.js'
 
 
-import { axis_position_options, axis_type_options, line_type_options, mark_line_options, mark_point_options } from './constant.js'
+import { axis_position_options, axis_type_options, line_type_options, mark_line_options, mark_point_options, stack_strategy_options } from './constant.js'
+import { WidgetChartType, dashboard } from '../model.js'
+import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 
 
 export const AxisItem = ({ name_path, col_names = [ ], list_name, initial_values }: IAxisItem) => { 
@@ -59,6 +61,7 @@ export const AxisItem = ({ name_path, col_names = [ ], list_name, initial_values
 
 const Series = (props: { col_names: string[] }) => { 
     const { col_names } = props
+    const { widget: { type } } = dashboard.use(['widget'])
     
     return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: t('名称'), yAxisIndex: 0 }]}>
         {(fields, { add, remove }) => <>
@@ -95,10 +98,36 @@ const Series = (props: { col_names: string[] }) => {
                                     <Form.Item label={t('水平线')} name={[field.name, 'mark_line']}>
                                         <Select options={mark_line_options} mode='tags' />
                                     </Form.Item>
+                                    {/* 仅折线图可选择线类型 */}
+                                    {
+                                        type === WidgetChartType.LINE && <Form.Item label={t('线类型')} name={[field.name, 'line_type']} initialValue={ILineType.SOLID}>
+                                            <Select options={line_type_options} />
+                                        </Form.Item>
+                                    }
+                                    {/* 柱状图需要选择是否堆叠展示 */}
+                                    {
+                                        type === WidgetChartType.BAR && <>
+                                            <Form.Item tooltip={t('同个类目轴上系列配置相同的 stack 值可以堆叠放置')} label={t('堆叠值')} name={[field.name, 'stack']}>
+                                                <Input />
+                                            </Form.Item>
+                                            {/* <Form.Item
+                                                tooltip={<>
+                                                    {t('samesign 只在堆叠值与当前累积堆叠值同正负符号时堆叠')}
+                                                    <br/>
+                                                    {t('all 堆叠所有的值')}
+                                                    <br />
+                                                    {t('positive 只堆积正值')}
+                                                    <br />
+                                                    {t('negative 只堆叠负值')}
+                                                </>}
+                                                label={t('堆叠策略')}
+                                                name={[field.name, 'stack_strategy']}
+                                            >
+                                                <Select options={stack_strategy_options} allowClear/>
+                                            </Form.Item> */}
+                                        </>
+                                    }
                                     
-                                    <Form.Item tooltip='仅对折线图生效' label={t('线类型')} name={[field.name, 'line_type']} initialValue={ILineType.SOLID}>
-                                        <Select options={line_type_options} />
-                                    </Form.Item>
                                 </div>
                                 { fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => remove(field.name)} /> } 
                             </Space>
@@ -169,7 +198,7 @@ export function AxisFormFields ({ col_names = [ ] }: { col_names: string[] }) {
 }
 
 
-export function SeriesFormFields (props: { col_names: string[] } ) {
+export function SeriesFormFields (props: { col_names: string[] }) {
     const { col_names } = props
     return <Collapse items={[
         {

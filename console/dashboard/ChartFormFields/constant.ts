@@ -1,6 +1,6 @@
 import { t } from '../../../i18n/index.js'
 
-import { AxisType, ILineType, MarkPresetType, Position } from './type.js'
+import { AxisType, ILineType, IStackStrategy, MarkPresetType, Position } from './type.js'
 
 export const axis_type_options = [{
     label: t('数据轴'),
@@ -56,3 +56,9 @@ export const line_type_options = [
     },
     
 ]
+
+
+export const stack_strategy_options = Object.keys(IStackStrategy).map(item => ({
+    label: item,
+    value: item
+}))

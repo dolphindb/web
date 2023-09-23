@@ -182,16 +182,15 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                     name: item
                 }
             else
-                return {
-                yAxis: item
-            }
+                return { yAxis: item }
         }) || [ ]
-        
         
         return {
             type: type.toLocaleLowerCase(),
             name: series.name,
             symbol: 'none',
+            stack: series.stack,
+            stackStrategy: series.stack_strategy,
             // 防止删除yAxis导致渲染失败
             yAxisIndex: yAxis[series.yAxisIndex] ?  series.yAxisIndex : 0,
             data: data_source.map(item => item?.[series.col_name]),
