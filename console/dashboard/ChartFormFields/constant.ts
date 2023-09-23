@@ -1,4 +1,5 @@
 import { t } from '../../../i18n/index.js'
+import { WidgetChartType, WidgetType } from '../model.js'
 
 import { AxisType, ILineType, IStackStrategy, MarkPresetType, Position } from './type.js'
 
@@ -62,3 +63,14 @@ export const stack_strategy_options = Object.keys(IStackStrategy).map(item => ({
     label: item,
     value: item
 }))
+
+export const chart_type_options = [
+    {
+        label: WidgetType.BAR,
+        value: WidgetChartType.BAR
+    },
+    {
+        label: WidgetType.LINE,
+        value:  WidgetChartType.LINE
+    }
+]

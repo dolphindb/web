@@ -353,6 +353,7 @@ export enum WidgetType {
     // POINT = '散点图',
     TABLE = '表格',
     OHLC = 'OHLC',
+    MIX = '混合图',
     // CANDLE = '蜡烛图',
     // ORDER = '订单图',
     // NEEDLE = '数值针型图',
@@ -364,6 +365,7 @@ export enum WidgetType {
 export enum WidgetChartType { 
     BAR = 'BAR',
     LINE = 'LINE',
+    MIX  = 'MIX',
     // PIE = 'PIE',
     // POINT = 'POINT',
     TABLE = 'TABLE',
