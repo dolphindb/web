@@ -25,7 +25,7 @@ function get_widget_config (widget: Widget) {
         y: widget.y,
         type: widget.type,
         source_id: widget.source_id,
-        config: widget.config
+        config: widget.config,
     }
     
 }

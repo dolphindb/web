@@ -55,3 +55,8 @@ export interface ITableConfig {
     }
     need_select_cols: boolean
 }
+
+
+export interface ITextConfig {
+    value: string
+}
