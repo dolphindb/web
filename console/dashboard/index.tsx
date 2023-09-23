@@ -64,9 +64,8 @@ function MainLayout () {
     
     useEffect(() => {
         dashboard.init(rdiv.current)
-        console.log('ridv', rdiv)
         return () => { dashboard.dispose() }
-    }, [config])
+    }, [ ])
     
     
     // widget 变化时通过 GridStack.makeWidget 将画布中已有的 dom 节点交给 GridStack 管理 

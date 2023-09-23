@@ -66,7 +66,11 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
-        await this.get_configs()
+        try {
+            await this.get_configs()
+        } catch (error) {
+            this.show_error({ error })
+        }
         if (!this.config) {
             const new_dashboard_config = {
                 id: genid(),
