@@ -1,9 +1,10 @@
 import { JSXComponent } from '@formily/core'
-import OHLC, { OhlcConfigForm } from './Charts/OHLC/index.js'
+import { OHLC, OhlcConfigForm } from './Charts/OHLC/index.js'
 import { RichText } from './Charts/RichText/index.js'
 import { WidgetChartType } from './model.js'
 import { Chart, ChartConfigForm } from './Charts/Chart/index.js'
 import { DBTable, DBTableConfigForm } from './Charts/Table/index.js'
+import { Candlestick, CandleConfigForm } from './Charts/Candlestick/index.js'
 
 type GraphConfig =  { 
     [key in WidgetChartType]: {
@@ -32,6 +33,10 @@ export const graph_config: GraphConfig =  {
     [WidgetChartType.OHLC]: {
         component: OHLC,
         config: OhlcConfigForm
+    },
+    [WidgetChartType.CANDLE]: {
+        component: Candlestick,
+        config: CandleConfigForm
     },
     [WidgetChartType.TEXT]: {
         component: RichText,
