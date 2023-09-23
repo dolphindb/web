@@ -3,8 +3,9 @@
     display: flex;
     align-items: center;
     
-    .ant-space-item:not(:last-child) {
-        width: 45%;
+    
+    .ant-space-item:first-child {
+        width: 80%;
     }
     .color-item-delete-icon {
         cursor: pointer;
@@ -20,6 +21,7 @@
 }
 
 .my-descriptions {
+    background-color: #282828;
     &.ant-descriptions .ant-descriptions-row >th, .ant-descriptions .ant-descriptions-row >td {
         padding-bottom: 0px;
     }

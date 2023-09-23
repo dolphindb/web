@@ -1,6 +1,6 @@
 import './index.scss'
 
-import { Button, Collapse, ColorPicker, ColorPickerProps, Descriptions, DescriptionsProps, Form, InputNumber, Select, Space } from 'antd'
+import { Button, Collapse, ColorPicker, ColorPickerProps, Descriptions, DescriptionsProps, Divider, Form, InputNumber, Select, Space } from 'antd'
 import { Widget } from '../../model.js'
 import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { convert_list_to_options } from '../../utils.js'
@@ -65,6 +65,8 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
             <InputNumber />
         </Form.Item>
         
+        <Divider />
+        
         <div className='value-color-values'>值颜色配置</div>
         <FormDependencies dependencies={['label_col']}>
             {({ label_col }) => { 
@@ -73,10 +75,10 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
                         {
                             fields.map(field =>
                                 <Space key={field.name} className='color-item'>
-                                    <Form.Item name={[field.name, 'col']} label='值列'>
+                                    <Form.Item name={[field.name, 'col']} label='标签列'>
                                         <Select options={convert_list_to_options(data_source.map(item => item[label_col]))} />
                                     </Form.Item>
-                                    <Form.Item initialValue={null} name={[field.name, 'color']} label='颜色'>
+                                    <Form.Item initialValue={null} name={[field.name, 'color']}>
                                         <ColorPicker />
                                     </Form.Item>
                                     <DeleteOutlined className='color-item-delete-icon' onClick={() => remove(field.name)}/>
