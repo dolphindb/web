@@ -7,6 +7,7 @@ import { use_modal } from 'react-object-model/modal'
 import { t } from '../../../../i18n/index.js'
 import './index.sass'
 import { Widget, dashboard } from '../../model.js'
+import { ITextConfig } from '../../type.js'
 
 
 function replace_variables (origin_string: string, variables: object) {
@@ -28,8 +29,8 @@ function replace_variables (origin_string: string, variables: object) {
 }
 
 export function RichText ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
-    const [edit_edit, set_edit_text] = useState('')
-    const [display_text, set_display_text] = useState('')
+    const [display_text, set_display_text] = useState((widget.config as ITextConfig).value || '')
+    const [edit_text, set_edit_text] = useState(display_text)
     const { visible, open, close } = use_modal()
     const toolbar_options = useMemo(
         () => [
@@ -71,14 +72,15 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
                 }}
                 okText={t('保存')}
                 onOk={() => {
-                    set_display_text(edit_edit)
+                    set_display_text(edit_text)
+                    dashboard.update_widget( { ...widget, config: { value: edit_text } } )
                     close()
                 }}
                 className='rich-text'
             >
                 <ReactQuill
                     theme='snow'
-                    value={edit_edit}
+                    value={edit_text}
                     onChange={set_edit_text}
                     modules={{
                         toolbar: toolbar_options

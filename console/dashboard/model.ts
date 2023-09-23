@@ -4,7 +4,7 @@ import { Model } from 'react-object-model'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { DdbForm, type DdbVoid, type DdbObj, type DdbStringObj, type DdbValue } from 'dolphindb/browser.js'
+import { DdbForm, type DdbVoid, type DdbObj, type DdbStringObj, type DdbValue, DdbBlob } from 'dolphindb/browser.js'
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
@@ -19,7 +19,7 @@ import { t } from '../../i18n/index.js'
 import { Monaco } from '../shell/Editor/index.js'
 import { model, show_error, type ErrorOptions } from '../model.js'
 import { unsub_data_source, type DataType } from './DataSource/date-source.js'
-import { IChartConfig, ITableConfig } from './type.js'
+import { IChartConfig, ITableConfig, ITextConfig } from './type.js'
 
 
 class DashBoardModel extends Model<DashBoardModel> {
@@ -284,10 +284,10 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
-        const configs: DashBoardConfig[] = JSON.parse(
-            (await model.ddb.call<DdbStringObj>('get_dashboard_configs'))
-                .value
-        )
+        let data = (await model.ddb.call < DdbStringObj | DdbBlob >('get_dashboard_configs')).value || '{}'
+        if (typeof data !== 'string') 
+            data = new TextDecoder().decode(data)
+        const configs: DashBoardConfig[] = JSON.parse(data)
         
         this.set({
             configs,
@@ -342,7 +342,7 @@ export interface Widget extends GridStackNode {
     update_graph?: (data: DataType) => void
     
     /** 图表配置 */
-    config?: IChartConfig | ITableConfig
+    config?: IChartConfig | ITableConfig | ITextConfig
 }
 
 
