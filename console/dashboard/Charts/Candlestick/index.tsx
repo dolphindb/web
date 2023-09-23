@@ -116,13 +116,12 @@ export function Candlestick ({ widget, data_source }: { widget: Widget, data_sou
                 {
                     left: '10%',
                     right: '10%',
-                    height: '70%'
+                    height: '60%'
                 },
             ],
             xAxis: [
                 {
                     type: 'category',
-                    show: false,
                     name: xAxis.name,
                     data: data.categoryData,
                     // data: data.categoryData,
@@ -157,20 +156,20 @@ export function Candlestick ({ widget, data_source }: { widget: Widget, data_sou
                     position: yAxis[0].position,
                     offset: yAxis[0].offset
                 },
-                {
-                    scale: true,
-                    splitNumber: 2,
-                    nameTextStyle: {
-                        padding: [0, 0, 0, 50]
-                    },
-                    name: yAxis[1].name,
-                    position: yAxis[1].position,
-                    offset: yAxis[1].offset,
-                    axisLabel: { show: false },
-                    axisLine: { show: false },
-                    axisTick: { show: false },
-                    splitLine: { show: false }
-                }
+                // {
+                //     scale: true,
+                //     splitNumber: 2,
+                //     nameTextStyle: {
+                //         padding: [0, 0, 0, 50]
+                //     },
+                //     name: yAxis[1].name,
+                //     position: yAxis[1].position,
+                //     offset: yAxis[1].offset,
+                //     axisLabel: { show: false },
+                //     axisLine: { show: false },
+                //     axisTick: { show: false },
+                //     splitLine: { show: false }
+                // }
             ],
             dataZoom: [
                 {
@@ -207,12 +206,30 @@ export function Candlestick ({ widget, data_source }: { widget: Widget, data_sou
                         color0: undefined,
                         borderColor: kBorderColor,
                         borderColor0: kBorderColor0
-                    }
+                    },
                 },
                 {
                     name: 'trades',
                     type: 'line',
                     data: data.volumes,
+                    markLine: {
+                        symbol: ['circle', 'none'],
+                        silent: true,
+                        itemStyle: {
+                            normal: {
+                                show: true,
+                                color: '#1212f2'
+                            }
+                        },
+                        label: {
+                            normal: {
+                                position: 'middle'
+                            }
+                        },
+                        data: [{
+                            yAxis: series[0].limit || 0
+                        }]
+                    }
                     // itemStyle: {
                     //     color: ({ value }) => (value[2] === -1 ? kColor : kColor0)
                     // }
