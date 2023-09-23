@@ -1,4 +1,4 @@
-import { AxisType, ILineType, Position } from './ChartFormFields/type.js'
+import { AxisType, ILineType, IStackStrategy, Position } from './ChartFormFields/type.js'
 
 export interface AxisConfig { 
     name: string
@@ -18,20 +18,28 @@ export interface ISeriesConfig {
     mark_point?: Array<'max' | 'min'>
     mark_line?: string[]
     line_type: ILineType
+    // 柱状图是否堆叠
+    stack?: string
+    stack_strategy?: IStackStrategy
     // OHLC 特殊列
     open?: string
     high?: string
     low?: string
     close?: string
+    
 }
 
 export interface IChartConfig {
     title?: string
+    // 缩略轴
     x_datazoom: boolean
     y_datazoom: boolean
+    // 网格线
     with_split_line: boolean
     with_tooltip: boolean
     with_legend: boolean
+    // 是否增加数据过滤选择
+    with_data_filter: boolean
     xAxis: AxisConfig
     yAxis: AxisConfig[]
     series: ISeriesConfig[]

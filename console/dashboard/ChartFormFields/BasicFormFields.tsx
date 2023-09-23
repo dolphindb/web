@@ -29,6 +29,9 @@ export const BasicFormFields = ({ type }: { type: 'chart' | 'table' }) => {
                 <Form.Item name='with_split_line' label='展示网格线' initialValue={false}>
                     <BoolRadioGroup />
                 </Form.Item>
+                <Form.Item name='with_data_filter' label='数据列过滤' initialValue>
+                    <BoolRadioGroup />
+                </Form.Item>
             </>}
             {type === 'table' && <>
                 <Form.Item initialValue={false} name='bordered' label={t('展示边框')}>
