@@ -13,12 +13,7 @@ import { GraphSetting } from './GraphSetting.js'
 import { dashboard } from '../model.js'
 
 
-interface IProps {
-    hidden: boolean
-}
-
-
-export function SettingsPanel (props: IProps) {
+export function SettingsPanel (props: { hidden: boolean }) {
     const { hidden } = props    
     const { widget } = dashboard.use(['widget'])
     

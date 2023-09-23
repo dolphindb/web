@@ -30,7 +30,7 @@ function get_widget_config (widget: Widget) {
     
 }
 
-type dashboard_option = {
+interface DashboardOption {
     key: number
     value: string
     label: string
@@ -140,7 +140,7 @@ export function Navigation () {
             <Select
                 className='left-select'
                 placeholder='选择 dashboard'
-                onChange={(value: string, option: dashboard_option) => {
+                onChange={(value: string, option: DashboardOption) => {
                     dashboard.set({ config: configs.find(({ id }) => id === option.key) })
                     const url_params = new URLSearchParams(location.search)
                     const url = new URL(location.href)
@@ -212,9 +212,7 @@ export function Navigation () {
             
             <div className='right-editormode'>
                 <span
-                    className={
-                        `right-editormode-editor ${editing ? 'editormode-selected' : ''}`
-                    }
+                    className={`right-editormode-editor ${editing ? 'editormode-selected' : ''}`}
                     onClick={() => { dashboard.set_editing(true) }}
                 >
                     <EditOutlined /> 编辑
