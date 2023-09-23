@@ -36,7 +36,7 @@
         "css-loader": "^6.8.1",
         "eslint": "^8.50.0",
         "eslint-plugin-react": "^7.33.2",
-        "eslint-plugin-xlint": "^1.0.8",
+        "eslint-plugin-xlint": "^1.0.9",
         "license-webpack-plugin": "^4.0.2",
         "rc-table": "^7.34.3",
         "react": "^18.2.0",
