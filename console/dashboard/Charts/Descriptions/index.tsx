@@ -9,7 +9,6 @@ import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { useMemo } from 'react'
 import { IDescriptionsConfig } from '../../type.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
-import { ColorFactory } from 'antd/es/color-picker/color.js'
 
 interface IProps { 
     widget: Widget
@@ -42,6 +41,7 @@ export function DBDescriptions (props: IProps) {
     
     
     return <Descriptions
+        colon={false}
         className='my-descriptions'
         layout='vertical'
         title={config.title}

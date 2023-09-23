@@ -21,8 +21,10 @@
 }
 
 .my-descriptions {
+    height: 100%;
+    overflow: auto;
     background-color: #282828;
     &.ant-descriptions .ant-descriptions-row >th, .ant-descriptions .ant-descriptions-row >td {
         padding-bottom: 0px;
     }
-}
+}ß
