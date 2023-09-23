@@ -146,7 +146,7 @@ export function Navigation () {
                     const url = new URL(location.href)
                     url_params.set('dashboard', value)
                     url.search = url_params.toString()
-                    history.pushState({ }, '', url)
+                    history.replaceState({ }, '', url)
                 }}
                 defaultValue={ config?.name || new_dashboard_name}
                 value={config?.name}
