@@ -15,7 +15,7 @@ import { WidgetChartType, dashboard } from '../model.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 
 
-export const AxisItem = ({ name_path, col_names = [ ], list_name, initial_values }: IAxisItem) => { 
+export function AxisItem ({ name_path, col_names = [ ], list_name, initial_values }: IAxisItem) { 
     return <>
         <Form.Item
             label={t('类型')}
@@ -59,7 +59,7 @@ export const AxisItem = ({ name_path, col_names = [ ], list_name, initial_values
 }
 
 
-const Series = (props: { col_names: string[] }) => { 
+function Series (props: { col_names: string[] }) { 
     const { col_names } = props
     const { widget: { type } } = dashboard.use(['widget'])
     

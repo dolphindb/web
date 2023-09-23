@@ -224,7 +224,7 @@ const DDB_COLUMN_COMPRESS_METHODS_SELECT_OPTIONS: SelectProps['options'] = [
 const COLUMNS_REACTION_FULLFILL_EXPRESSION =
     '{{ $deps.columns?.filter(col => col.name).map(column => ({ label: column.name, value: column.name })) || []  }}'
     
-const getPartitionSchemeDescription = ({ schema, typeName, columnType }: IPartition) => {
+function getPartitionSchemeDescription ({ schema, typeName, columnType }: IPartition) {
     let schemaType = ''
     
     if (columnType) 

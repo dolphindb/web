@@ -14,7 +14,7 @@ interface IProps extends TableProps<any> {
     data_source: any[]
 }
 
-const format_value = (val, decimal_places = 2) => { 
+function format_value (val, decimal_places = 2) { 
     if (isNaN(Number(val)))
         return val
     else
@@ -94,7 +94,7 @@ export function DBTable (props: IProps) {
 }
 
 
-export const DBTableConfigForm = (props: { col_names: string[] }) => { 
+export function DBTableConfigForm (props: { col_names: string[] }) { 
     const { col_names = [ ] } = props
     return <>
         <BasicFormFields type='table' />

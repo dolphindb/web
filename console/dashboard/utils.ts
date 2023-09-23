@@ -127,7 +127,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     
     const { title, with_legend, with_tooltip, with_split_line, xAxis, series, yAxis, x_datazoom, y_datazoom } = config as IChartConfig
     
-    const convert_data_zoom = (x_datazoom: boolean, y_datazoom: boolean) => { 
+    function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
             {
                 id: 'dataZoomX',
@@ -174,7 +174,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         id: index
     })
     
-    const convert_series = (series: ISeriesConfig) => { 
+    function convert_series (series: ISeriesConfig) { 
         let mark_line_data = series?.mark_line?.map(item => { 
             if (item in MarkPresetType)
                 return {
@@ -239,7 +239,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
 }
 
 
-export const convert_list_to_options = (list: string[]) => { 
+export function convert_list_to_options (list: string[]) { 
     return list.map(item => ({
         label: item,
         value: item,

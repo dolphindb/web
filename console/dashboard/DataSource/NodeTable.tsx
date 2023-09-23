@@ -52,11 +52,11 @@ export function NodeTable ({
         tree_ref.current?.scrollTo({ key: current_data_source.id })
     }, [ current_data_source ])
     
-    const rename_data_source_node_handler = (menu_items: MenuItemType[], select_key: string, old_name: string) => {
+    function rename_data_source_node_handler (menu_items: MenuItemType[], select_key: string, old_name: string) {
         if (!menu_items.length)
             return
         const tmp_menu_item = menu_items.find(menu_item => menu_item.key === select_key)
-        const handler = event => {
+        function handler (event) {
             let new_name = event.target.value
             try {
                 rename_data_source(select_key, new_name)

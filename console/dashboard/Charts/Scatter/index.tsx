@@ -16,7 +16,7 @@ interface IProps {
 
 
 
-const DBScatter = (props: IProps) => { 
+function DBScatter (props: IProps) { 
     const { widget, data_source } = props
     
     const options = useMemo(() =>
@@ -35,7 +35,7 @@ const DBScatter = (props: IProps) => {
 export default DBScatter
 
 
-export const  ScatterConfigForm = (props: { col_names: string[] }) => { 
+export function ScatterConfigForm (props: { col_names: string[] }) { 
     const { col_names = [ ] } = props
     
     const ValueSelect = useMemo(() => <>

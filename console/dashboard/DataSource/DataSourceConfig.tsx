@@ -33,7 +33,7 @@ interface IProps extends ButtonProps {
     text?: string
 }
 
-export const DataSourceConfig = (props: IProps, ref) => {
+export function DataSourceConfig (props: IProps, ref) {
     const { widget, text, ...btn_props } = props
     const { visible, open, close } = use_modal()
     const [modal, contextHolder] = Modal.useModal()

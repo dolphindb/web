@@ -265,7 +265,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
 }
 
 
-export const OhlcConfigForm = (props: { col_names: string[] }) => {
+export function OhlcConfigForm (props: { col_names: string[] }) {
     const { col_names = [ ] } = props
     return <>
             <BasicFormFields type='chart' />

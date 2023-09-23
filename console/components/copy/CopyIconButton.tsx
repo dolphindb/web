@@ -25,7 +25,7 @@ export function CopyIconButton (props: CopyIconButtonProps) {
     const { onCopy: on_copy_props, text, copyOptions: copy_options, copyTooltips = COPY_TOOLTIPS, ...button_props } = props
     const [copied, set_copied] = useState(false)
     
-    const onCopy = () => {
+    function onCopy () {
         copy(text, copy_options)
         set_copied(true)
         on_copy_props?.()
