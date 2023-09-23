@@ -1,10 +1,10 @@
 import { Col, Row } from 'antd'
-import StreamingScatter from './StreamingScatter.js'
-import StreamingKLine from './StreamingKLine.js'
-import StreamingSortBar from './StreamingSortBar.js'
-import StreamingSection from './StreamingSection.js'
-import StreamingLine from './StreamingLine.js'
-import StreamingHeatMap from './StreamingHeatMap.js'
+import { StreamingScatter } from './StreamingScatter.js'
+import { StreamingKLine } from './StreamingKLine.js'
+import { StreamingSortBar } from './StreamingSortBar.js'
+import { StreamingSection } from './StreamingSection.js'
+import { StreamingLine } from './StreamingLine.js'
+import { StreamingHeatMap } from './StreamingHeatMap.js'
 
 export function StreamingTest () {
     // 监听开始与否

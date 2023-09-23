@@ -16,7 +16,7 @@ interface IProps {
 
 
 
-function DBScatter (props: IProps) { 
+export function DBScatter (props: IProps) { 
     const { widget, data_source } = props
     
     const options = useMemo(() =>
@@ -31,8 +31,6 @@ function DBScatter (props: IProps) {
         theme='my-theme'
     />
 }
-
-export default DBScatter
 
 
 export function ScatterConfigForm (props: { col_names: string[] }) { 

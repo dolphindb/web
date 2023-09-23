@@ -3,7 +3,7 @@ import { DDB, formati, StreamingMessage } from 'dolphindb/browser.js'
 import React from 'react'
 import { useRef, useState } from 'react'
 import { use_streaming } from './hooks/use-streaming.js'
-import StreamingError from './StreamingError.js'
+import { StreamingError } from './StreamingError.js'
 import { ErrorType, TableConfigType } from './types.js'
 
 /** 
@@ -12,7 +12,7 @@ import { ErrorType, TableConfigType } from './types.js'
     @param column 每行列数
     @param layout 布局方式
     @returns JSX */
-export default function StreamingSection ({
+export function StreamingSection ({
     config: { table, properties, column, username, password, layout, url },
     onError
 }: {

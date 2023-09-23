@@ -5,7 +5,7 @@ import { EChartsType } from 'echarts'
 import React, { useMemo } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { use_streaming } from './hooks/use-streaming.js'
-import StreamingError from './StreamingError.js'
+import { StreamingError } from './StreamingError.js'
 import { ErrorType, SortBarConfigType } from './types.js'
 
 /** 
@@ -15,7 +15,7 @@ import { ErrorType, SortBarConfigType } from './types.js'
     @param height 容器高度px
     @param sort 排序方式（可选）
     @returns JSX */
-export default function StreamingSortBar ({
+export function StreamingSortBar ({
     config: { url, table, properties, sort, username, password, animationDuration, height, width },
     onError
 }: {
