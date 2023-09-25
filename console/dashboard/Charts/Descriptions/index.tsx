@@ -80,11 +80,11 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
                                     <Form.Item initialValue={null} name={[field.name, 'color']}>
                                         <ColorPicker />
                                     </Form.Item>
-                                    <DeleteOutlined className='color-item-delete-icon' onClick={() => remove(field.name)}/>
+                                    <DeleteOutlined className='color-item-delete-icon' onClick={() => { remove(field.name) }}/>
                             </Space>)
                         }
                         
-                        <Button block type='dashed' icon={<PlusCircleOutlined />} onClick={() => add()}>增加颜色配置</Button>
+                        <Button block type='dashed' icon={<PlusCircleOutlined />} onClick={() => { add() }}>增加颜色配置</Button>
                     
                     </>}
                 </Form.List>
