@@ -6,7 +6,6 @@ import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 import { t } from '../../../i18n/index.js'
 
-import { WidgetChartType, dashboard } from '../model.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 
 export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) { 
@@ -35,31 +34,34 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
 
 function Series (props: { col_names: string[] }) { 
     const { col_names } = props
-    const { widget: { type } } = dashboard.use(['widget'])
     
-    return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: t('名称'), yAxisIndex: 0, type: type === WidgetChartType.MIX ? WidgetChartType.LINE : type }]}>
+    return <Form.List name='series' initialValue={[{ value: col_names[0], name: col_names[0] }]}>
         {(fields, { add, remove }) => <>
             {
                 fields.map((field, index) => { 
-                    return <div key={ field.name }>
-                        <div className='field-wrapper'>
-                            <Space>
-                                <div className='axis-wrapper'>
-                                    <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
-                                        <Select options={col_names.map(item => ({ label: item, value: item })) } />
-                                    </Form.Item> 
-                                    <Form.Item name={[field.name, 'col_name']} label='名称列' initialValue={col_names?.[0]} >
-                                        <Select options={col_names.map(item => ({ label: item, value: item })) } />
-                                    </Form.Item>    
-                                </div>
-                                { fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => remove(field.name)} /> } 
-                            </Space>
+                    return <div key={field.name}>
+                            <div className='field-wrapper'>
+                                <Space>
+                                    <div className='axis-wrapper'>
+                                        <Form.Item name={[field.name, 'value']} label={t('数据列')} >
+                                            <Select options={col_names.map(item => ({ label: item, value: item }))} />
+                                        </Form.Item>
+                                        <Form.Item name={[field.name, 'name']} label={t('名称')}>
+                                            <Select options={col_names.map(item => ({ label: item, value: item }))} />
+                                        </Form.Item>
+                                    </div>
+                                    {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) } } />}
+                                </Space>
+                            </div>
+                            {index < fields.length - 1 && <Divider className='divider' />}
                         </div>
-                        { index < fields.length - 1 && <Divider className='divider'/> }
-                    </div>
                 })
+            } 
+            {
+                fields.length < 3
+                    ? <Button type='dashed' block onClick={() => { add() } } icon={<PlusCircleOutlined />}>增加环</Button>
+                    : <></>
             }
-            <Button type='dashed' block onClick={() => add()} icon={<PlusCircleOutlined /> }>增加环数</Button> 
         </>}
     </Form.List>
 }
@@ -70,7 +72,7 @@ export function SeriesFormFields (props: { col_names: string[] }) {
     return <Collapse items={[
         {
             key: 'series',
-            label: t('数据列'),
+            label: t('数据环'),
             children: <Series col_names={col_names} />,
             forceRender: true,
         }
