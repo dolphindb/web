@@ -177,8 +177,9 @@ export function Navigation () {
                        onOk={handle_add}
                        closeIcon={false}
                        title={t('请输入 dashboard 的名称')}>
-                    <Input value={new_dashboard_name || 'dashboard-' + String(genid()).slice(0, 4)}
-                           onChange={event => set_new_dashboard_name(event.target.value)}/>
+                    <Input value={new_dashboard_name}
+                           onChange={event => set_new_dashboard_name(event.target.value)}
+                           />
                 </Modal>
                 
                 <Modal open={edit_visible}
@@ -199,7 +200,7 @@ export function Navigation () {
                     <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='新增'>
-                    <Button className='action' onClick={add_open}><FolderAddOutlined /></Button>
+                    <Button className='action' onClick={() => { add_open();set_new_dashboard_name('dashboard-' + String(genid()).slice(0, 4)) }}><FolderAddOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='修改'>
                     <Button className='action' onClick={edit_open}><EditOutlined /></Button>
