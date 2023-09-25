@@ -7,7 +7,7 @@ import { useMemo } from 'react'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 
 
-export const BasicFormFields = ({ type }: { type: 'chart' | 'table' }) => { 
+export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) { 
     const FormFields = useMemo(() => { 
         return  <div className='axis-wrapper'>
             <Form.Item name='title' label={t('标题')} initialValue={t('标题')}>

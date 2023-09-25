@@ -1,13 +1,13 @@
 import './index.scss'
 
-import { Button, Collapse, ColorPicker, ColorPickerProps, Descriptions, DescriptionsProps, Divider, Form, InputNumber, Select, Space } from 'antd'
-import { Widget } from '../../model.js'
+import { Button, Collapse, ColorPicker, ColorPickerProps, Descriptions, type DescriptionsProps, Divider, Form, InputNumber, Select, Space } from 'antd'
+import { type Widget } from '../../model.js'
 import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { convert_list_to_options } from '../../utils.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 import { useMemo } from 'react'
-import { IDescriptionsConfig } from '../../type.js'
+import { type IDescriptionsConfig } from '../../type.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 
 interface IProps { 

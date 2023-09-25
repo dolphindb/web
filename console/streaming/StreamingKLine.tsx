@@ -1,11 +1,11 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
-import { ErrorType, KLineConfigType, KLineNodeType } from './types.js'
+import { type ErrorType, type KLineConfigType, type KLineNodeType } from './types.js'
 import { type StreamingMessage } from 'dolphindb/browser.js'
 import { use_streaming } from './hooks/use-streaming.js'
-import { EChartsType } from 'echarts'
+import { type EChartsType } from 'echarts'
 import * as echarts from 'echarts'
 import dayjs from 'dayjs'
-import StreamingError from './StreamingError.js'
+import { StreamingError } from './StreamingError.js'
 import { Switch } from 'antd'
 import './index.sass'
 
@@ -18,7 +18,7 @@ import './index.sass'
     @param maximum_price_variable 最高价
     @param minimum_price_variable 最低价
     @returns JSX */
-export default function StreamingKLine ({
+export function StreamingKLine ({
     config: {
         url,
         table,

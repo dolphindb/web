@@ -4,7 +4,7 @@ import { Model } from 'react-object-model'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { DdbForm, type DdbVoid, type DdbObj, type DdbStringObj, type DdbValue, DdbBlob } from 'dolphindb/browser.js'
+import { DdbForm, type DdbVoid, type DdbObj, type DdbStringObj, type DdbValue, type DdbBlob } from 'dolphindb/browser.js'
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
@@ -16,10 +16,10 @@ import type { NotificationInstance } from 'antd/es/notification/interface.js'
 import { import_data_sources } from './DataSource/date-source.js'
 
 import { t } from '../../i18n/index.js'
-import { Monaco } from '../shell/Editor/index.js'
+import { type Monaco } from '../shell/Editor/index.js'
 import { model, show_error, type ErrorOptions } from '../model.js'
 import { unsub_data_source, type DataType } from './DataSource/date-source.js'
-import { IChartConfig, IDescriptionsConfig, ITableConfig, ITextConfig } from './type.js'
+import { type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig } from './type.js'
 
 
 class DashBoardModel extends Model<DashBoardModel> {
@@ -143,11 +143,13 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     
     async load_config () {
-        await import_data_sources(this.config?.datasources) 
-        this.set({ widgets: this.config?.canvas.widgets.map(widget => ({
-            ...widget, 
-            ref: createRef(), 
-        })) as any  })
+        if (this.config) {
+            await import_data_sources(this.config.datasources) 
+            this.set({ widgets: this.config.canvas.widgets.map(widget => ({
+                ...widget, 
+                ref: createRef(), 
+            })) as any  })
+        }    
     }
     
     

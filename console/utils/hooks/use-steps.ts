@@ -10,7 +10,7 @@ export function useSteps <StepsEnum extends string> (
         Partial<Record<StepsEnum, any>>
     >({ })
     
-    const prev = () => {
+    function prev () {
         const current_index = steps.indexOf(current)
         if (current_index <= 0)
             return
@@ -24,7 +24,7 @@ export function useSteps <StepsEnum extends string> (
         set_current(step)
     }
     
-    const next = (context_value: any) => {
+    function next (context_value: any) {
         const currentIndex = steps.indexOf(current)
         if (currentIndex >= steps.length - 1)
             return
@@ -36,7 +36,7 @@ export function useSteps <StepsEnum extends string> (
         set_current(steps[currentIndex + 1])
     }
     
-    const reset = () => {
+    function reset () {
         set_current(initial_step)
         set_context_map({ })
     }

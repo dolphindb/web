@@ -1,4 +1,4 @@
-import { JSXComponent } from '@formily/core'
+import { type JSXComponent } from '@formily/core'
 import { OHLC, OhlcConfigForm } from './Charts/OHLC/index.js'
 import { RichText } from './Charts/RichText/index.js'
 import { WidgetChartType } from './model.js'

@@ -11,8 +11,8 @@ import { strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
-    DDB, SqlStandard, DdbFunctionType, DdbVectorString, DdbObj, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, DdbStringObj, type DdbDictObj, type DdbVectorStringObj
+    DDB, SqlStandard, DdbFunctionType, DdbVectorString, type DdbObj, DdbInt, DdbLong, type InspectOptions,
+    DdbDatabaseError, type DdbStringObj, type DdbDictObj, type DdbVectorStringObj
 } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
@@ -538,7 +538,7 @@ export class DdbModel extends Model<DdbModel> {
         const hosts = [...node.publicName.split(';').map(name => name.trim()), node.host]
         
         // 匹配当前域名/IP 和 hosts 中域名/IP 的相似度，动态规划最长公共子串
-        const calc_host_score = (hostname: string) => {
+        function calc_host_score (hostname: string) {
             let maxlen = 0 // 最长公共子串的长度
             // 初始化 dp 数组
             let dp: number[][] = new Array(hostname.length + 1)

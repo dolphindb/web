@@ -14,7 +14,7 @@ import { t } from '../../../i18n/index.js'
 import './index.scss'
 
 
-const GraphComponent = ({ widget }: { widget: Widget }) => {
+function GraphComponent ({ widget }: { widget: Widget }) {
     const data_source_node = get_data_source(widget.source_id)
     const { data = [ ] } = data_source_node.use(['data'])
     

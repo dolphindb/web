@@ -7,7 +7,7 @@ import { Editor } from '../../shell/Editor/index.js'
 
 import { 
     type DataSourcePropertyType, 
-    DataSource, 
+    type DataSource, 
     get_stream_tables, 
     get_stream_cols, 
     get_data_source,

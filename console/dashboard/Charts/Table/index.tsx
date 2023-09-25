@@ -1,10 +1,10 @@
-import { Checkbox, PaginationProps, Table, TableProps } from 'antd'
+import { Checkbox, type PaginationProps, Table, type TableProps } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import {  BasicFormFields }  from '../../ChartFormFields/BasicFormFields.js'
 import { BasicTableFields } from '../../ChartFormFields/BasicTableFields.js'
-import { Widget } from '../../model.js'
-import { ITableConfig } from '../../type.js'
+import { type Widget } from '../../model.js'
+import { type ITableConfig } from '../../type.js'
 
 import './index.scss'
 
@@ -14,7 +14,7 @@ interface IProps extends TableProps<any> {
     data_source: any[]
 }
 
-const format_value = (val, decimal_places = 2) => { 
+function format_value (val, decimal_places = 2) { 
     if (isNaN(Number(val)))
         return val
     else
@@ -94,7 +94,7 @@ export function DBTable (props: IProps) {
 }
 
 
-export const DBTableConfigForm = (props: { col_names: string[] }) => { 
+export function DBTableConfigForm (props: { col_names: string[] }) { 
     const { col_names = [ ] } = props
     return <>
         <BasicFormFields type='table' />
