@@ -150,10 +150,11 @@ export function Navigation () {
                 onChange={(value: string, option: DashboardOption) => {
                     const choose_config = configs.find(({ id }) => id === option.key) 
                     dashboard.set({ config: choose_config })
+                    dashboard.set({ widget: null })
                     // dashboard.set({ widgets: choose_config.canvas.widgets })
                     const url_params = new URLSearchParams(location.search)
                     const url = new URL(location.href)
-                    url_params.set('dashboard', value)
+                    url_params.set('dashboard', String(choose_config.id))
                     url.search = url_params.toString()
                     history.replaceState({ }, '', url)
                 }}
