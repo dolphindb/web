@@ -77,7 +77,7 @@ function MainLayout () {
     
     useEffect(() => {
         dashboard.load_config()
-    }, [ config])
+    }, [ config?.id])
     
     
     // widget 变化时通过 GridStack.makeWidget 将画布中已有的 dom 节点交给 GridStack 管理 

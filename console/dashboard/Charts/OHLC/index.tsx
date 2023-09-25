@@ -20,23 +20,27 @@ type COL_MAP = {
     high: string
     low: string
     close: string
+    value: string
     trades: string
 }
 
 function splitData (rowData: any[], col_name: COL_MAP) {
-    const { time, open, high, low, close, trades } = col_name
+    const { time, open, high, low, close, value, trades } = col_name
     let categoryData = [ ]
     let values = [ ]
     let volumes = [ ]
+    let lines = [ ]
     for (let i = 0;  i < rowData.length;  i++) {
         categoryData.push(rowData[i][time])
         values.push([rowData[i][open], rowData[i][high], rowData[i][low], rowData[i][close]])
         volumes.push([i, rowData[i][trades], rowData[i][open] > rowData[i][high] ? 1 : -1])
+        lines.push(rowData[i][value])
     }
     return {
-        categoryData: categoryData,
-        values: values,
-        volumes: volumes
+        categoryData,
+        values,
+        volumes,
+        lines
     }
 }
 
@@ -50,6 +54,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 high: series[0].high as string,
                 low: series[0].low as string,
                 close: series[0].close as string,
+                value: series[0].value as string,
                 trades: series[1].col_name as string
             }),
         [data_source, xAxis.col_name, series]
@@ -236,7 +241,6 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
             ],
             series: [
                 {
-                    name: 'OHLC',
                     type: 'candlestick',
                     data: data.values,
                     itemStyle: {
@@ -244,6 +248,34 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                         color0: undefined,
                         borderColor: kBorderColor,
                         borderColor0: kBorderColor0
+                    }
+                },
+                {
+                    type: 'line',
+                    data: data.lines,
+                    itemStyle: {
+                        color: undefined,
+                        color0: undefined,
+                        borderColor: kBorderColor,
+                        borderColor0: kBorderColor0
+                    },
+                    markLine: {
+                        symbol: ['none', 'none'],
+                        silent: true,
+                        itemStyle: {
+                            normal: {
+                                show: true,
+                                color: '#f21212'
+                            }
+                        },
+                        label: {
+                            normal: {
+                                position: 'middle'
+                            }
+                        },
+                        data: [{
+                            yAxis: series[0].limit || 0
+                        }]
                     }
                 },
                 {
@@ -268,7 +300,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
 export function OhlcConfigForm (props: { col_names: string[] }) {
     const { col_names = [ ] } = props
     return <>
-            <BasicFormFields type='chart' />
-            <OhlcFormFields col_names={col_names} />
-        </>
+        <BasicFormFields type='chart' />
+        <OhlcFormFields col_names={col_names} />
+    </>
 }

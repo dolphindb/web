@@ -145,7 +145,10 @@ export function Navigation () {
                 className='left-select'
                 placeholder='选择 dashboard'
                 onChange={(value: string, option: DashboardOption) => {
-                    dashboard.set({ config: configs.find(({ id }) => id === option.key) })
+                    const choose_config = configs.find(({ id }) => id === option.key) 
+                    dashboard.set({ config: choose_config })
+                    dashboard.set({ widgets: choose_config.canvas.widgets })
+                    console.log('config', config, option)
                     const url_params = new URLSearchParams(location.search)
                     const url = new URL(location.href)
                     url_params.set('dashboard', value)
