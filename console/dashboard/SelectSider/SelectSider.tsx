@@ -1,7 +1,7 @@
 import './index.scss'
 
 import { useState } from 'react'
-import { BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, FundOutlined, LineChartOutlined, RiseOutlined, TableOutlined } from '@ant-design/icons'
+import { BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, FundOutlined, LineChartOutlined, PieChartOutlined, RiseOutlined, TableOutlined } from '@ant-design/icons'
 
 import { WidgetType } from '../model.js'
 
@@ -9,6 +9,7 @@ import { WidgetType } from '../model.js'
 const icons = {
     [WidgetType.BAR]: <BarChartOutlined className='siderbar-icon'/>,
     [WidgetType.LINE]: <LineChartOutlined className='siderbar-icon'/>,
+    [WidgetType.PIE]: <PieChartOutlined  className='siderbar-icon'/>,
     [WidgetType.OHLC]: <BoxPlotOutlined className='siderbar-icon'/>,
     [WidgetType.TABLE]: <TableOutlined className='siderbar-icon'/>,
     [WidgetType.TEXT]: <FileTextOutlined className='siderbar-icon' />,

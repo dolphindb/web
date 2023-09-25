@@ -40,5 +40,9 @@ export const graph_config: GraphConfig =  {
     [WidgetChartType.DESCRIPTIONS]: {
         component: DBDescriptions,
         config: DBDescriptionsForm
-    }
+    },
+    [WidgetChartType.PIE]: {
+        component: Chart,
+        config: ChartConfigForm
+    },
 }
