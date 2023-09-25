@@ -138,16 +138,18 @@ class DashBoardModel extends Model<DashBoardModel> {
         })
         
         GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })        
-        this.set({ grid })
+        this.set({ grid, widget: null })
     }
     
     
     async load_config () {
-        await import_data_sources(this.config?.datasources)
-        this.set({ widgets: this.config?.canvas.widgets.map(widget => ({
-            ...widget, 
-            ref: createRef(), 
-        })) as any  })
+        if (this.config) {
+            await import_data_sources(this.config.datasources) 
+            this.set({ widgets: this.config.canvas.widgets.map(widget => ({
+                ...widget, 
+                ref: createRef(), 
+            })) as any  })
+        }    
     }
     
     

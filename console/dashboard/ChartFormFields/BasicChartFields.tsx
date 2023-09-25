@@ -12,7 +12,7 @@ import { AxisType, type IAxisItem, ILineType, type IYAxisItemValue } from './typ
 
 import { axis_position_options, axis_type_options, chart_type_options, line_type_options, mark_line_options, mark_point_options, stack_strategy_options } from './constant.js'
 import { WidgetChartType, dashboard } from '../model.js'
-import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
+
 
 
 export function AxisItem ({ name_path, col_names = [ ], list_name, initial_values }: IAxisItem) { 
@@ -63,7 +63,7 @@ function Series (props: { col_names: string[] }) {
     const { col_names } = props
     const { widget: { type } } = dashboard.use(['widget'])
     
-    return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: t('名称'), yAxisIndex: 0 }]}>
+    return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: t('名称'), yAxisIndex: 0, type: type === WidgetChartType.MIX ? WidgetChartType.LINE : type }]}>
         {(fields, { add, remove }) => <>
             {
                 fields.map((field, index) => { 
@@ -169,7 +169,7 @@ export function YAxis (props: { col_names: string[], initial_values?: IYAxisItem
                                 <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>
                                     <Select options={axis_position_options} />
                                 </Form.Item>
-                                <Form.Item name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
+                                <Form.Item tooltip='Y 轴相对于左右默认位置的偏移' name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
                                     <InputNumber />
                                 </Form.Item>
                             </div>

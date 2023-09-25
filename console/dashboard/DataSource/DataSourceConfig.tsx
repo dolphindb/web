@@ -39,7 +39,7 @@ export function DataSourceConfig (props: IProps, ref) {
     const [modal, contextHolder] = Modal.useModal()
     
     const [show_preview, set_show_preview] = useState(false) 
-    const [current_data_source, set_current_data_source] = useState(data_sources[0] || null)
+    const [current_data_source, set_current_data_source] = useState(null)
     const [connecting, set_connecting] = useState(false)
     
     const no_save_flag = useRef(false)

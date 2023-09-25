@@ -7,7 +7,7 @@ import { get_data_source } from '../DataSource/date-source.js'
 export function GraphSetting () { 
     const { widget } = dashboard.use(['widget'])
     const data_source_node = get_data_source(widget.source_id)
-    const { cols = [ ], data: data_source = [ ] } = data_source_node.use(['cols', 'data'])
+    const { cols = [ ], data: data_source = [ ] } = data_source_node?.use(['cols', 'data'])
     
     const [form] = Form.useForm()
     

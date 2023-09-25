@@ -58,7 +58,7 @@ export function DBTable (props: IProps) {
                     return { ...col_config, render: val => format_value(val, value_format?.decimal_places) }
                 return col_config
             })
-    }, [config.show_cols, selected_cols])
+    }, [config, selected_cols])
     
     const pagination = useMemo<PaginationProps | false>(() => { 
         if (!config.pagination.show)
