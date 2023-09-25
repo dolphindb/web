@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState, useEffect } from 'react'
 import { cloneDeep } from 'lodash'
 
-import { Button, Modal, Menu, type ButtonProps, Tabs } from 'antd'
+import { Button, Modal, type ButtonProps, Tabs } from 'antd'
 import { DatabaseOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/modal.js'
 
@@ -91,7 +91,6 @@ export function DataSourceConfig (props: IProps, ref) {
             {!widget ? '数据源' : text || '点击填充数据源'}
         </Button>
             
-        
         <Modal 
             title='配置数据源'
             width='80%' 
@@ -158,10 +157,9 @@ export function DataSourceConfig (props: IProps, ref) {
                 {current_data_source
                     ? <div className='config-right'>
                         <div className='config-right-top'>
-                            <Menu 
-                                onClick={event => { change_current_data_source_property('mode', event.key) }} 
-                                selectedKeys={[current_data_source.mode]} 
-                                mode='horizontal' 
+                            <Tabs 
+                                onChange={activeKey => { change_current_data_source_property('mode', activeKey) }} 
+                                activeKey={current_data_source.mode} 
                                 items={[
                                     {
                                         label: 'DolphinDB 脚本 / SQL',
@@ -178,7 +176,7 @@ export function DataSourceConfig (props: IProps, ref) {
                             ? <SqlEditor 
                                 show_preview={show_preview} 
                                 current_data_source={current_data_source}
-                                close_preview={() =>  set_show_preview(false) } 
+                                close_preview={() =>  { set_show_preview(false) } } 
                                 change_no_save_flag={(value: boolean) => no_save_flag.current = value}
                                 change_current_data_source_property={change_current_data_source_property}
                             />

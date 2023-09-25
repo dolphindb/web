@@ -290,10 +290,11 @@ class DashBoardModel extends Model<DashBoardModel> {
         if (typeof data !== 'string') 
             data = new TextDecoder().decode(data)
         const configs: DashBoardConfig[] = JSON.parse(data)
-        
+        const current_config_name = new URLSearchParams(location.search).get('dashboard')
+        const current_config = configs.find(({ name }) => name === current_config_name)
         this.set({
             configs,
-            config: configs[0]
+            config:  current_config || configs[0]
         })
     }
     
@@ -351,12 +352,12 @@ export interface Widget extends GridStackNode {
 export enum WidgetType {
     BAR = '柱状图',
     LINE = '折线图',
-    // PIE = '饼图',
+    PIE = '饼图',
     // POINT = '散点图',
     TABLE = '表格',
     OHLC = 'OHLC',
     MIX = '混合图',
-    CANDLE = '蜡烛图',
+    // CANDLE = '蜡烛图',
     // ORDER = '订单图',
     // NEEDLE = '数值针型图',
     // STRIP = '带图',
@@ -369,11 +370,11 @@ export enum WidgetChartType {
     BAR = 'BAR',
     LINE = 'LINE',
     MIX = 'MIX',
-    // PIE = 'PIE',
+    PIE = 'PIE',
     // POINT = 'POINT',
     TABLE = 'TABLE',
     OHLC = 'OHLC',
-    CANDLE = 'CANDLE',
+    // CANDLE = 'CANDLE',
     // ORDER = 'ORDER',
     // NEEDLE = 'NEEDLE',
     // STRIP = 'STRIP',

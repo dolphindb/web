@@ -312,13 +312,11 @@ export async function export_data_sources () {
 } 
 
 export async function import_data_sources (_data_sources) {
-    if (!_data_sources.length)
-        data_sources = [ ]
-    else
-        for (let data_source of _data_sources) {
-            data_sources.push(new DataSource(data_source.id, data_source.name))
-            await save_data_source(data_source, data_source.code)
-        }
+    data_sources = [ ]
+    for (let data_source of _data_sources) {
+        data_sources.push(new DataSource(data_source.id, data_source.name))
+        await save_data_source(data_source, data_source.code)
+    }
 }
 
 export let data_sources: DataSource[] = [ ]

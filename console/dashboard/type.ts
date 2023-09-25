@@ -27,7 +27,6 @@ export interface ISeriesConfig {
     high?: string
     low?: string
     close?: string
-    // Candle 组合图
     value?: string
     limit?: string
     

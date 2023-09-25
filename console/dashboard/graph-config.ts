@@ -5,7 +5,6 @@ import { WidgetChartType } from './model.js'
 import { Chart, ChartConfigForm } from './Charts/Chart/index.js'
 import { DBTable, DBTableConfigForm } from './Charts/Table/index.js'
 import { DBDescriptions, DBDescriptionsForm } from './Charts/Descriptions/index.js'
-import { Candlestick, CandleConfigForm } from './Charts/Candlestick/index.js'
 
 type GraphConfig =  { 
     [key in WidgetChartType]: {
@@ -35,15 +34,15 @@ export const graph_config: GraphConfig =  {
         component: OHLC,
         config: OhlcConfigForm
     },
-    [WidgetChartType.CANDLE]: {
-        component: Candlestick,
-        config: CandleConfigForm
-    },
     [WidgetChartType.TEXT]: {
         component: RichText,
     },
     [WidgetChartType.DESCRIPTIONS]: {
         component: DBDescriptions,
         config: DBDescriptionsForm
-    }
+    },
+    [WidgetChartType.PIE]: {
+        component: Chart,
+        config: ChartConfigForm
+    },
 }

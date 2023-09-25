@@ -347,7 +347,7 @@ export function StreamingLine ({
     
     return <>
             <StreamingError error={error} />
-            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => setDrawing(checked)} />
+            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => { setDrawing(checked) }} />
             <div id={`line_container_${TIMESTAMP}`} style={{ width: '100%', height: '100%' }} />
             <span
                 style={{
@@ -713,7 +713,7 @@ export function StreamingSortBar ({
     }
     return <>
             <StreamingError error={error} />
-            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => setDrawing(checked)} />
+            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => { setDrawing(checked) }} />
             <div id={`sort_bar_container_${TIMESTAMP}`} style={{ width: '100%', height: '100%' }} />
         </>
 }
@@ -932,7 +932,7 @@ export function StreamingKLine ({
     
     return <>
             <StreamingError error={error} />
-            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => setDrawing(checked)} />
+            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => { setDrawing(checked) }} />
             <div id={`k_line_container_${TIMESTAMP}`} style={{ width: '100%', height: '100%' }} />
             {`已装填数据条数：${pres_data.length}`}
         </>
@@ -1162,7 +1162,7 @@ export function StreamingScatter ({
     
     return <>
             <StreamingError error={error} />
-            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => setDrawing(checked)} />
+            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => { setDrawing(checked) }} />
             <div id={`scatter_container_${TIMESTAMP}`} style={{ width: '100%', height: '100%' }} />
             {`已装填数据条数：${pres_data.length}`}
         </>
