@@ -169,10 +169,6 @@ function Series (props: { col_names: string[] }) {
                                         <Select options={convert_list_to_options(col_names)} />
                                     </Form.Item>
                                 }
-                               
-                                {/* <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={t('名称')}> 
-                                    <Input />
-                                </Form.Item> */}
                                 {/* 数据关联的y轴选择 */}
                                 <FormDependencies dependencies={['yAxis']}>
                                     {value => {
