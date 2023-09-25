@@ -153,7 +153,7 @@ function Series (props: { col_names: string[] }) {
                 fields.map((field, index) => { 
                     return <div key={ field.name }>
                             <div className='axis-wrapper'>
-                                {series[index].selected_cols ?
+                                {series[index]?.selected_cols ?
                                     series[index].selected_cols.map(col => 
                                         <Form.Item key={col} name={[field.name, col]} label={col} initialValue={col_names?.[0]} >
                                             {
