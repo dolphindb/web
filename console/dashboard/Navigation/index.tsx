@@ -178,7 +178,7 @@ export function Navigation () {
                        closeIcon={false}
                        title={t('请输入 dashboard 的名称')}>
                     <Input value={new_dashboard_name}
-                           onChange={event => set_new_dashboard_name(event.target.value)}
+                           onChange={event => { set_new_dashboard_name(event.target.value) }}
                            />
                 </Modal>
                 
@@ -190,7 +190,7 @@ export function Navigation () {
                     <Input value={edit_dashboard_name}
                            defaultValue={config?.name}
                            placeholder={config?.name}
-                           onChange={event => set_edit_dashboard_name(event.target.value)}/>
+                           onChange={event => { set_edit_dashboard_name(event.target.value) }}/>
                 </Modal>
                 
                 <Tooltip title='返回交互编程'>

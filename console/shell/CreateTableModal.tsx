@@ -131,7 +131,7 @@ function CreateTableModalPreviewCode () {
         </div>
         <div className='create-table-preview-code-action'>
             <Button onClick={steps.prev}>{t('上一步')}</Button>
-            <Button type='primary' onClick={() => steps.next(code)}>
+            <Button type='primary' onClick={() => { steps.next(code) }}>
                 {t('执行')}
             </Button>
         </div>

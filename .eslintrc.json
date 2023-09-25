@@ -173,6 +173,9 @@
         // 禁止使用 export default
         "no-restricted-exports": ["error", { "restrictDefaultExports": { "direct": true, "named": true, "defaultFrom": true, "namedFrom": true, "namespaceFrom": true } }],
         
-        "@typescript-eslint/consistent-type-imports": ["error", { "fixStyle": "inline-type-imports", "disallowTypeAnnotations": false }]
+        "@typescript-eslint/consistent-type-imports": ["error", { "fixStyle": "inline-type-imports", "disallowTypeAnnotations": false }],
+        
+        // () => { 返回 void 的表达式 }
+        "@typescript-eslint/no-confusing-void-expression": "error"
     }
 }
