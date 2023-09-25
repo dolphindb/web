@@ -43,7 +43,7 @@ export function SqlEditor ({
                         editor?.setValue(get_data_source(current_data_source.id).code)
                         dashboard.set({ editor, monaco })
                     }}
-                    on_change={() => change_no_save_flag(true)}
+                    on_change={() => { change_no_save_flag(true) }}
                     theme='dark'
                 />
             </div>

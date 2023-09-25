@@ -36,7 +36,7 @@ export function CopyIconButton (props: CopyIconButtonProps) {
             const timeout = setTimeout(() => {
                 set_copied(false)
             }, 2000)
-            return () => clearTimeout(timeout)
+            return () => { clearTimeout(timeout) }
         }
     }, [copied])
     

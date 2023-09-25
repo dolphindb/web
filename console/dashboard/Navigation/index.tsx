@@ -2,7 +2,7 @@ import './index.sass'
 
 import { useState, useCallback } from 'react'
 import { Button, Input, Modal, Select, Tooltip } from 'antd'
-import { DeleteOutlined, EditOutlined, EyeOutlined, FolderAddOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, SyncOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, SyncOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -44,13 +44,16 @@ export function Navigation () {
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     // console.log('names', configs?.map(config => config.name))
-    
-    function check_repeat_name (new_name: string) {
-        return configs?.filter(({ id }) => id !== config.id).
-                        map(config => config.name).
-                        find(name => name === new_name)
+    function get_new_config () {
+        return {
+            id: genid(),
+            name: new_dashboard_name,
+            datasources: [ ],
+            canvas: {
+                widgets: [ ],
+            }
+        }
     }
-    
     
     async function handle_save () {
         const new_config =  {
@@ -73,19 +76,15 @@ export function Navigation () {
     
     
     async function handle_add () {
-        if (check_repeat_name(new_dashboard_name)) {
+        if (!new_dashboard_name) {
+            dashboard.message.error(t('dashboard 名称不允许为空'))
+            return 
+        } 
+        if (configs.find(({ name }) => name === new_dashboard_name)) {
             dashboard.message.error(t('名称重复，请重新输入'))
             return 
         } 
-        const new_dashboard_config = {
-            id: genid(),
-            name: new_dashboard_name,
-            datasources: [ ],
-            canvas: {
-                widgets: [ ],
-            }
-        }
-       
+        const new_dashboard_config = get_new_config()
         try {
             await dashboard.save_configs()
             dashboard.set({ config: new_dashboard_config })
@@ -100,7 +99,11 @@ export function Navigation () {
     
     
     async function handle_edit () {
-        if (check_repeat_name(edit_dashboard_name)) {
+        if (!edit_dashboard_name) {
+            dashboard.message.error(t('dashboard 名称不允许为空'))
+            return 
+        }
+        if (configs.find(({ id, name }) => id !== config.id && name === edit_dashboard_name)) {
             dashboard.message.error(t('名称重复，请重新输入'))
             return
         } 
@@ -148,7 +151,6 @@ export function Navigation () {
                     const choose_config = configs.find(({ id }) => id === option.key) 
                     dashboard.set({ config: choose_config })
                     // dashboard.set({ widgets: choose_config.canvas.widgets })
-                    console.log('config', config, option)
                     const url_params = new URLSearchParams(location.search)
                     const url = new URL(location.href)
                     url_params.set('dashboard', value)
@@ -178,7 +180,7 @@ export function Navigation () {
                        closeIcon={false}
                        title={t('请输入 dashboard 的名称')}>
                     <Input value={new_dashboard_name}
-                           onChange={event => set_new_dashboard_name(event.target.value)}
+                           onChange={event => { set_new_dashboard_name(event.target.value) }}
                            />
                 </Modal>
                 
@@ -186,31 +188,49 @@ export function Navigation () {
                        onCancel={edit_close}
                        onOk={handle_edit}
                        closeIcon={false}
-                       title={t('请修改 dashboard 的名称')}>
+                       title={t('请输入新的 dashboard 名称')}>
                     <Input value={edit_dashboard_name}
-                           defaultValue={config?.name}
-                           placeholder={config?.name}
-                           onChange={event => set_edit_dashboard_name(event.target.value)}/>
+                           onChange={event => { set_edit_dashboard_name(event.target.value) }}/>
                 </Modal>
-    
+                
                 <Tooltip title='返回交互编程'>
                     <Button className='action'><HomeOutlined onClick={back_to_home} /></Button>
                 </Tooltip>
+                
+                <Tooltip title='新增'>
+                    <Button
+                        className='action'
+                        onClick={() => {
+                            add_open()
+                            set_new_dashboard_name(`dashboard-${String(genid()).slice(0, 4)}`)
+                        }}
+                    >
+                        <FileOutlined />
+                    </Button>
+                </Tooltip>
+                
                 <Tooltip title='保存'>
                     <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
                 </Tooltip>
-                <Tooltip title='新增'>
-                    <Button className='action' onClick={() => { add_open();set_new_dashboard_name('dashboard-' + String(genid()).slice(0, 4)) }}><FolderAddOutlined /></Button>
-                </Tooltip>
+                
                 <Tooltip title='修改'>
-                    <Button className='action' onClick={edit_open}><EditOutlined /></Button>
+                    <Button className='action' 
+                            onClick={() => { 
+                                edit_open()
+                                set_edit_dashboard_name(config?.name) 
+                            }}>
+                                <EditOutlined />
+                    </Button>
                 </Tooltip>
+                
                 <Tooltip title='删除'>
                     <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
                 </Tooltip>
+                
                 <Tooltip title='刷新'>
                     <Button className='action'><SyncOutlined /></Button>
                 </Tooltip>
+                
                 <Tooltip title='暂停流数据接收'>
                     <Button className='action'><PauseOutlined /></Button>
                 </Tooltip>

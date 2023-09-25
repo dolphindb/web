@@ -190,7 +190,7 @@ function DolphinDB () {
                 width='380px'
                 open={isModalOpen}
                 closable={false}
-                afterClose={() => form.resetFields()}
+                afterClose={() => { form.resetFields() }}
             >
             {/* 这个图片实际上在 ../console/ddb.svg。因打包需要，使用 ./ddb.svg，并在 build.ts 和 dev.ts 中特殊处理。 */}
             <img className='logo' src='./ddb.svg' />

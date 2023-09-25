@@ -177,7 +177,7 @@ export function DataSourceConfig (props: IProps, ref) {
                             ? <SqlEditor 
                                 show_preview={show_preview} 
                                 current_data_source={current_data_source}
-                                close_preview={() =>  set_show_preview(false) } 
+                                close_preview={() =>  { set_show_preview(false) } } 
                                 change_no_save_flag={(value: boolean) => no_save_flag.current = value}
                                 change_current_data_source_property={change_current_data_source_property}
                             />
