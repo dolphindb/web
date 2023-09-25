@@ -290,10 +290,11 @@ class DashBoardModel extends Model<DashBoardModel> {
         if (typeof data !== 'string') 
             data = new TextDecoder().decode(data)
         const configs: DashBoardConfig[] = JSON.parse(data)
-        
+        const current_config_id = new URLSearchParams(location.search).get('dashboard')
+        const current_config = configs.find(({ id }) => String(id) === current_config_id)
         this.set({
             configs,
-            config: configs[0]
+            config:  current_config || configs[0]
         })
     }
     
@@ -356,7 +357,7 @@ export enum WidgetType {
     TABLE = '表格',
     OHLC = 'OHLC',
     MIX = '混合图',
-    CANDLE = '蜡烛图',
+    // CANDLE = '蜡烛图',
     // ORDER = '订单图',
     // NEEDLE = '数值针型图',
     // STRIP = '带图',
@@ -373,7 +374,7 @@ export enum WidgetChartType {
     // POINT = 'POINT',
     TABLE = 'TABLE',
     OHLC = 'OHLC',
-    CANDLE = 'CANDLE',
+    // CANDLE = 'CANDLE',
     // ORDER = 'ORDER',
     // NEEDLE = 'NEEDLE',
     // STRIP = 'STRIP',

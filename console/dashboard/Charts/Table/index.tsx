@@ -30,7 +30,7 @@ export function DBTable (props: IProps) {
     const [selected_cols, set_select_cols] = useState([ ])
     
     
-    useEffect(() => set_select_cols(config.show_cols), [config])
+    useEffect(() => { set_select_cols(config.show_cols) }, [config])
     
     const on_change_selected_cols = useCallback(val => {
         set_select_cols(val)

@@ -1,4 +1,3 @@
-import type { ColorFactory } from 'antd/es/color-picker/color.js'
 import { type AxisType, type ILineType, type IStackStrategy, type Position } from './ChartFormFields/type.js'
 
 export interface AxisConfig { 
@@ -28,7 +27,6 @@ export interface ISeriesConfig {
     high?: string
     low?: string
     close?: string
-    // Candle 组合图
     value?: string
     limit?: string
     
@@ -82,6 +80,6 @@ export interface IDescriptionsConfig {
     column_num?: number
     value_colors: Array<{
         col: string
-        color: ColorFactory
+        color: string
     }>
 }

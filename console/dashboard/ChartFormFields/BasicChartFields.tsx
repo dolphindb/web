@@ -140,14 +140,14 @@ function Series (props: { col_names: string[] }) {
                                     }
                                     
                                 </div>
-                                { fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => remove(field.name)} /> } 
+                                { fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} /> } 
                             </Space>
                         </div>
                         { index < fields.length - 1 && <Divider className='divider'/> }
                     </div>
                 })
             }
-            <Button type='dashed' block onClick={() => add()} icon={<PlusCircleOutlined /> }>{t('增加数据列')}</Button> 
+            <Button type='dashed' block onClick={() => { add() }} icon={<PlusCircleOutlined /> }>{t('增加数据列')}</Button> 
         </>}
     </Form.List>
 }
@@ -180,14 +180,14 @@ export function YAxis (props: { col_names: string[], initial_values?: IYAxisItem
                                     <InputNumber />
                                 </Form.Item>
                             </div>
-                            {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => remove(field.name)} />}
+                            {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />}
                         </Space>
                     </div>
                     {index < fields.length - 1 && <Divider className='divider' />}
                 </div>
             })}
             
-            <Button type='dashed' block onClick={() => add()} icon={<PlusCircleOutlined />}>{t('增加 Y 轴')}</Button>
+            <Button type='dashed' block onClick={() => { add() }} icon={<PlusCircleOutlined />}>{t('增加 Y 轴')}</Button>
         </>}
     </Form.List>
 }

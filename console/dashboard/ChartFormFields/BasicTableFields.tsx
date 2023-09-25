@@ -36,10 +36,10 @@ export function BasicTableFields ({ col_names }: { col_names: string[] } ) {
                                             <Form.Item name={[field.name, 'mapping_name']}>
                                                 <Input />
                                             </Form.Item>
-                                            <DeleteOutlined className='delete-icon' onClick={() => remove(field.name)} />
+                                            <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />
                                         </div>
                                     })}
-                                    {fields.length < show_cols.length && <Button type='dashed' icon={<PlusCircleOutlined />} block onClick={() => add()}>{t('增加映射')}</Button>}
+                                    {fields.length < show_cols.length && <Button type='dashed' icon={<PlusCircleOutlined />} block onClick={() => { add() }}>{t('增加映射')}</Button>}
                                 </>}
                             </Form.List>
                             

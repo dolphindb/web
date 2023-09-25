@@ -166,7 +166,7 @@ export function StreamingSortBar ({
     }
     return <>
             <StreamingError error={error} />
-            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => setDrawing(checked)} />
+            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => { setDrawing(checked) }} />
             <div ref={container} style={{ width: width || '100%', height: height || '100%' }} />
         </>
 }

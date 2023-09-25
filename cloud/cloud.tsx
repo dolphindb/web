@@ -305,9 +305,9 @@ function Clusters () {
                     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) =>
                        <Input
                             autoFocus
-                            value={selectedKeys[0]}
+                            value={selectedKeys[0] as any}
                             placeholder={t('输入关键字搜索集群名称')}
-                            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [ ])}
+                            onChange={e => { setSelectedKeys(e.target.value ? [e.target.value] : [ ]) }}
                             onPressEnter={() => {
                                 confirm()
                             }}
@@ -1989,7 +1989,7 @@ function ConfigEditableList ({
                         </Typography.Link>
                     </span>
                 ) : (
-                    <Typography.Link disabled={editingName !== ''} onClick={() => edit(record)}>
+                    <Typography.Link disabled={editingName !== ''} onClick={() => { edit(record) }}>
                       {t('编辑参数')}
                     </Typography.Link>
                   )
@@ -3510,7 +3510,7 @@ function useInterval (callback, delay) {
         }
         
         let id = setInterval(tick, delay)
-        return () => clearInterval(id)
+        return () => { clearInterval(id) }
     }, [delay])
 }
 
