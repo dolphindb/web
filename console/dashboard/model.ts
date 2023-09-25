@@ -143,11 +143,13 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     
     async load_config () {
-        await import_data_sources(this.config?.datasources) 
-        this.set({ widgets: this.config?.canvas.widgets.map(widget => ({
-            ...widget, 
-            ref: createRef(), 
-        })) as any  })
+        if (this.config) {
+            await import_data_sources(this.config.datasources) 
+            this.set({ widgets: this.config.canvas.widgets.map(widget => ({
+                ...widget, 
+                ref: createRef(), 
+            })) as any  })
+        }    
     }
     
     
