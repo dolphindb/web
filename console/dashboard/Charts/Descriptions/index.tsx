@@ -1,14 +1,15 @@
 import './index.scss'
 
-import { Button, Collapse, ColorPicker, ColorPickerProps, Descriptions, type DescriptionsProps, Divider, Form, InputNumber, Select, Space } from 'antd'
+import { Button, Collapse, Descriptions, type DescriptionsProps, Divider, Form, InputNumber, Select, Space } from 'antd'
 import { type Widget } from '../../model.js'
 import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { convert_list_to_options } from '../../utils.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { type IDescriptionsConfig } from '../../type.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
+import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 
 interface IProps { 
     widget: Widget
@@ -24,14 +25,13 @@ export function DBDescriptions (props: IProps) {
     const items = useMemo<DescriptionsProps['items']>(() => { 
         return data_source.map((item, idx) => {
             const color = config.value_colors.find(color => color?.col === item[config.label_col])?.color 
-            
             return {
                 key: idx,
                 label: item[config.label_col],
                 children: item[config.value_col],
                 contentStyle: {
                     fontWeight: 500,
-                    color: color?.toHexString() ?? '#fff'
+                    color
                 }
             }
             
@@ -49,7 +49,6 @@ export function DBDescriptions (props: IProps) {
         column={config.column_num}
     />
 }
-
 
 export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_names: string[], data_source?: any[] }) { 
     const ColSetting = <>
@@ -77,8 +76,8 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
                                     <Form.Item name={[field.name, 'col']} label='标签列'>
                                         <Select options={convert_list_to_options(data_source.map(item => item[label_col]))} />
                                     </Form.Item>
-                                    <Form.Item initialValue={null} name={[field.name, 'color']}>
-                                        <ColorPicker />
+                                    <Form.Item name={[field.name, 'color']}>
+                                        <StringColorPicker />
                                     </Form.Item>
                                     <DeleteOutlined className='color-item-delete-icon' onClick={() => remove(field.name)}/>
                             </Space>)
