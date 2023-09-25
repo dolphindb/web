@@ -31,7 +31,7 @@ export function DBDescriptions (props: IProps) {
                 children: item[config.value_col],
                 contentStyle: {
                     fontWeight: 500,
-                    color: color?.toHexString() ?? '#fff'
+                    color: color?.toHexString?.() ?? '#fff'
                 }
             }
             
