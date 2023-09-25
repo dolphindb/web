@@ -5,6 +5,7 @@ import { type Widget, dashboard } from '../model.js'
 import { sql_formatter, get_cols, stream_formatter } from '../utils.js'
 import { model } from '../../model.js'
 import { DDB, DdbForm, type DdbObj, type DdbValue } from 'dolphindb'
+import { cloneDeep } from 'lodash'
 
 export type DataType = { }[]
 
@@ -58,7 +59,7 @@ export function get_data_source (id: string): DataSource {
 export async function save_data_source ( new_source_node: DataSource, code?: string ) {
     const id = new_source_node.id
     const data_source = get_data_source(id)
-    const dep = data_source.deps
+    const dep = new_source_node.deps
     
     delete_interval(id)
     unsub_stream(id)
@@ -94,7 +95,7 @@ export async function save_data_source ( new_source_node: DataSource, code?: str
             data_source.set({ ...new_source_node })
             
             if (dep && dep.length && !new_source_node.error_message) 
-                await sub_stream(id)   
+                await sub_stream(id) 
             
             break
     }
@@ -300,7 +301,7 @@ export async function get_stream_filter_col (table: string): Promise<string> {
 }
 
 export async function export_data_sources () {
-    return [...data_sources].map(
+    return cloneDeep(data_sources).map(
         data_source => {
             data_source.timer = null
             data_source.ddb = null
@@ -311,10 +312,13 @@ export async function export_data_sources () {
 } 
 
 export async function import_data_sources (_data_sources) {
-    for (let data_source of _data_sources) {
-        data_sources.push(new DataSource(data_source.id, data_source.name))
-        await save_data_source(data_source, data_source.code)
-    }
+    if (!_data_sources.length)
+        data_sources = [ ]
+    else
+        for (let data_source of _data_sources) {
+            data_sources.push(new DataSource(data_source.id, data_source.name))
+            await save_data_source(data_source, data_source.code)
+        }
 }
 
 export let data_sources: DataSource[] = [ ]

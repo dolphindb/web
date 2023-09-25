@@ -138,7 +138,7 @@ class DashBoardModel extends Model<DashBoardModel> {
         })
         
         GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })        
-        this.set({ grid })
+        this.set({ grid, widget: null })
     }
     
     
