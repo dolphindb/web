@@ -147,7 +147,7 @@ export function Navigation () {
                 onChange={(value: string, option: DashboardOption) => {
                     const choose_config = configs.find(({ id }) => id === option.key) 
                     dashboard.set({ config: choose_config })
-                    dashboard.set({ widgets: choose_config.canvas.widgets })
+                    // dashboard.set({ widgets: choose_config.canvas.widgets })
                     console.log('config', config, option)
                     const url_params = new URLSearchParams(location.search)
                     const url = new URL(location.href)

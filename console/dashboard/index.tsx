@@ -77,6 +77,7 @@ function MainLayout () {
     
     useEffect(() => {
         dashboard.load_config()
+        dashboard.render_widgets()
     }, [ config?.id])
     
     
@@ -84,7 +85,6 @@ function MainLayout () {
     useEffect(() => {
         dashboard.render_widgets()
     }, [widgets])
-    
     
     return <div className='dashboard'>
         <div className='dashboard-header'>
