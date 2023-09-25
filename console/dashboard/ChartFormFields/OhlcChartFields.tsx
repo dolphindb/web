@@ -157,7 +157,7 @@ function Series (props: { col_names: string[] }) {
                                     series[index].selected_cols.map(col => 
                                         <Form.Item key={col} name={[field.name, col]} label={col} initialValue={col_names?.[0]} >
                                             {
-                                                col === 'limit' ?
+                                                col !== 'limit' ?
                                                         <Select options={convert_list_to_options(col_names)} />
                                                               :
                                                         <InputNumber />
