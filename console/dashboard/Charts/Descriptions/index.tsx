@@ -52,7 +52,6 @@ export function DBDescriptions (props: IProps) {
 
 
 export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_names: string[], data_source?: any[] }) { 
-    console.log(data_source, 'data_source')
     const ColSetting = <>
         <Form.Item name='label_col' label='标签列' initialValue={col_names[0]}>
             <Select options={convert_list_to_options(col_names)} />

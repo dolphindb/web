@@ -9,7 +9,6 @@ import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.j
 import { type DataSource } from './DataSource/date-source.js'
 import { t } from '../../i18n/index.js'
 import { MarkPresetType } from './ChartFormFields/type.js'
-import { LeftCircleTwoTone } from '@ant-design/icons'
 
 function formatter (type, value, le, index?, values?) {
     switch (type) {
