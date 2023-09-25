@@ -67,7 +67,7 @@ export function StreamEditor ({
             if (dashboard.editor)
                 dashboard.editor?.setValue(current_data_source.code)
             
-            if (current_data_source?.mode === get_data_source(current_data_source.id).mode)
+            if (current_data_source.mode === get_data_source(current_data_source.id).mode)
                 change_no_save_flag(false)
         })()
     }, [ current_data_source.id ])

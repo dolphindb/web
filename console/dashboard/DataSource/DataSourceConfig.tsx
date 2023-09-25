@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, useEffect } from 'react'
 import { cloneDeep } from 'lodash'
 
 import { Button, Modal, Menu, type ButtonProps, Tabs } from 'antd'
@@ -37,12 +37,17 @@ export function DataSourceConfig (props: IProps, ref) {
     const { widget, text, ...btn_props } = props
     const { visible, open, close } = use_modal()
     const [modal, contextHolder] = Modal.useModal()
+    const { config } = dashboard.use(['config'])
     
     const [show_preview, set_show_preview] = useState(false) 
     const [current_data_source, set_current_data_source] = useState(null)
     const [connecting, set_connecting] = useState(false)
     
     const no_save_flag = useRef(false)
+    
+    useEffect(() => {
+       set_current_data_source(null) 
+    }, [config?.id])
     
     const change_current_data_source = useCallback((key: string) => {
         if (key === '') {
