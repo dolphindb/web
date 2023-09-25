@@ -39,7 +39,7 @@ interface DashboardOption {
 
 export function Navigation () {
     const { editing, widgets, configs, config } = dashboard.use(['editing', 'widgets', 'configs', 'config'])
-    const [new_dashboard_name, set_new_dashboard_name] = useState('dashboard-' + genid().toString().slice(0, 4))
+    const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
@@ -85,9 +85,11 @@ export function Navigation () {
                 widgets: [ ],
             }
         }
-        dashboard.set({ configs: [...configs, new_dashboard_config] })
+       
         try {
             await dashboard.save_configs()
+            dashboard.set({ config: new_dashboard_config })
+            dashboard.set({ configs: [...configs, new_dashboard_config] })
             dashboard.message.success(t('添加成功'))
         } catch (error) {
             model.show_error({ error })
@@ -106,10 +108,11 @@ export function Navigation () {
             ...config,
             name: edit_dashboard_name,
         }
-        dashboard.set({ configs: [...configs.filter(({ id }) => id !== config.id), edit_dashboard_config] })
         // console.log(new_dashboard_config)
         try {
             await dashboard.save_configs()
+            dashboard.set({ config: edit_dashboard_config })
+            dashboard.set({ configs: [...configs.filter(({ id }) => id !== config.id), edit_dashboard_config] })
             dashboard.message.success(t('修改成功'))
         } catch (error) {
             model.show_error({ error })
@@ -120,9 +123,10 @@ export function Navigation () {
     
     
     async function handle_delete () {
-        dashboard.set({ configs: configs.filter(({ id }) => id !== config.id) })
         try {
             await dashboard.save_configs()
+            dashboard.set({ configs: configs.filter(({ id }) => id !== config.id) })
+            dashboard.set({ config: configs[0] })
             dashboard.message.success(t('删除成功'))
         } catch (error) {
             model.show_error({ error })
@@ -141,7 +145,10 @@ export function Navigation () {
                 className='left-select'
                 placeholder='选择 dashboard'
                 onChange={(value: string, option: DashboardOption) => {
-                    dashboard.set({ config: configs.find(({ id }) => id === option.key) })
+                    const choose_config = configs.find(({ id }) => id === option.key) 
+                    dashboard.set({ config: choose_config })
+                    // dashboard.set({ widgets: choose_config.canvas.widgets })
+                    console.log('config', config, option)
                     const url_params = new URLSearchParams(location.search)
                     const url = new URL(location.href)
                     url_params.set('dashboard', value)
@@ -171,7 +178,8 @@ export function Navigation () {
                        closeIcon={false}
                        title={t('请输入 dashboard 的名称')}>
                     <Input value={new_dashboard_name}
-                           onChange={event => set_new_dashboard_name(event.target.value)}/>
+                           onChange={event => set_new_dashboard_name(event.target.value)}
+                           />
                 </Modal>
                 
                 <Modal open={edit_visible}
@@ -192,7 +200,7 @@ export function Navigation () {
                     <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='新增'>
-                    <Button className='action' onClick={add_open}><FolderAddOutlined /></Button>
+                    <Button className='action' onClick={() => { add_open();set_new_dashboard_name('dashboard-' + String(genid()).slice(0, 4)) }}><FolderAddOutlined /></Button>
                 </Tooltip>
                 <Tooltip title='修改'>
                     <Button className='action' onClick={edit_open}><EditOutlined /></Button>
