@@ -351,7 +351,7 @@ export interface Widget extends GridStackNode {
 export enum WidgetType {
     BAR = '柱状图',
     LINE = '折线图',
-    // PIE = '饼图',
+    PIE = '饼图',
     // POINT = '散点图',
     TABLE = '表格',
     OHLC = 'OHLC',
@@ -369,7 +369,7 @@ export enum WidgetChartType {
     BAR = 'BAR',
     LINE = 'LINE',
     MIX = 'MIX',
-    // PIE = 'PIE',
+    PIE = 'PIE',
     // POINT = 'POINT',
     TABLE = 'TABLE',
     OHLC = 'OHLC',
