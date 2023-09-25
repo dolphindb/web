@@ -16,8 +16,7 @@ interface IProps {
 
 
 export function Chart (props: IProps) {
-    const { widget, data_source } = props
-       
+    const { widget, data_source } = props    
     return  <ReactEChartsCore
                 echarts={echarts}
                 notMerge

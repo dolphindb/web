@@ -6,6 +6,7 @@ import { Chart, ChartConfigForm } from './Charts/Chart/index.js'
 import { DBTable, DBTableConfigForm } from './Charts/Table/index.js'
 import { DBDescriptions, DBDescriptionsForm } from './Charts/Descriptions/index.js'
 import { Candlestick, CandleConfigForm } from './Charts/Candlestick/index.js'
+import { Pie, PieConfigForm } from './Charts/PIE/index.js'
 
 type GraphConfig =  { 
     [key in WidgetChartType]: {
@@ -47,7 +48,7 @@ export const graph_config: GraphConfig =  {
         config: DBDescriptionsForm
     },
     [WidgetChartType.PIE]: {
-        component: Chart,
-        config: ChartConfigForm
+        component: Pie,
+        config: PieConfigForm
     },
 }
