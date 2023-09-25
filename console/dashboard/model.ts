@@ -290,10 +290,11 @@ class DashBoardModel extends Model<DashBoardModel> {
         if (typeof data !== 'string') 
             data = new TextDecoder().decode(data)
         const configs: DashBoardConfig[] = JSON.parse(data)
-        
+        const current_config_name = new URLSearchParams(location.search).get('dashboard')
+        const current_config = configs.find(({ name }) => name === current_config_name)
         this.set({
             configs,
-            config: configs[0]
+            config:  current_config || configs[0]
         })
     }
     
