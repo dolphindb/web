@@ -29,7 +29,7 @@ export function BasicTableFields ({ col_names }: { col_names: string[] } ) {
                             <Form.List name='col_mappings' initialValue={[{ }]}>
                                 {(fields, { add, remove }) => <>
                                     {fields.map((field, index) => {
-                                        return <div className='col-mapping-item'>
+                                        return <div className='col-mapping-item' key={index}>
                                             <Form.Item name={[field.name, 'original_col']} initialValue={show_cols[index]}>
                                                 <Select options={col_select_options} />
                                             </Form.Item>
