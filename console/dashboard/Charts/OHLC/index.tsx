@@ -88,9 +88,9 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 borderColor: '#333',
                 borderWidth: 1,
                 padding: 10,
-                textStyle: {
-                    color: '#000'
-                },
+                // textStyle: {
+                //     color: '#e6e6e6'
+                // },
                 position: function (pos, params, el, elRect, size) {
                     const obj = {
                         top: 10
