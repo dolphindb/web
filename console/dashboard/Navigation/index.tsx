@@ -2,7 +2,7 @@ import './index.sass'
 
 import { useState, useCallback } from 'react'
 import { Button, Input, Modal, Select, Tooltip } from 'antd'
-import { DeleteOutlined, EditOutlined, EyeOutlined, FolderAddOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, SyncOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, SyncOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -192,25 +192,39 @@ export function Navigation () {
                            placeholder={config?.name}
                            onChange={event => set_edit_dashboard_name(event.target.value)}/>
                 </Modal>
-    
+                
                 <Tooltip title='返回交互编程'>
                     <Button className='action'><HomeOutlined onClick={back_to_home} /></Button>
                 </Tooltip>
+                
+                <Tooltip title='新增'>
+                    <Button
+                        className='action'
+                        onClick={() => {
+                            add_open()
+                            set_new_dashboard_name(`dashboard-${String(genid()).slice(0, 4)}`)
+                        }}
+                    >
+                        <FileOutlined />
+                    </Button>
+                </Tooltip>
+                
                 <Tooltip title='保存'>
                     <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
                 </Tooltip>
-                <Tooltip title='新增'>
-                    <Button className='action' onClick={() => { add_open();set_new_dashboard_name('dashboard-' + String(genid()).slice(0, 4)) }}><FolderAddOutlined /></Button>
-                </Tooltip>
+                
                 <Tooltip title='修改'>
                     <Button className='action' onClick={edit_open}><EditOutlined /></Button>
                 </Tooltip>
+                
                 <Tooltip title='删除'>
                     <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
                 </Tooltip>
+                
                 <Tooltip title='刷新'>
                     <Button className='action'><SyncOutlined /></Button>
                 </Tooltip>
+                
                 <Tooltip title='暂停流数据接收'>
                     <Button className='action'><PauseOutlined /></Button>
                 </Tooltip>
