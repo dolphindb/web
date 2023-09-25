@@ -3,7 +3,7 @@ import * as echarts from 'echarts'
 import { useMemo } from 'react'
 
 import { type Widget } from '../../model.js'
-import { IChartConfig } from '../../type.js'
+import { type IChartConfig } from '../../type.js'
 import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 
@@ -243,7 +243,7 @@ export function Candlestick ({ widget, data_source }: { widget: Widget, data_sou
 }
 
 
-export const CandleConfigForm = (props: { col_names: string[] }) => {
+export function CandleConfigForm (props: { col_names: string[] }) {
     const { col_names = [ ] } = props
     return <>
             <BasicFormFields type='chart' />

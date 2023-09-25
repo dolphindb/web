@@ -2,7 +2,7 @@ import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { AxisFormFields, SeriesFormFields } from '../../ChartFormFields/BasicChartFields.js'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
-import { Widget } from '../../model.js'
+import { type Widget } from '../../model.js'
 import { convert_chart_config, convert_list_to_options } from '../../utils.js'
 import { useMemo } from 'react'
 import { Collapse, Form, Select } from 'antd'
@@ -16,7 +16,7 @@ interface IProps {
 
 
 
-const DBScatter = (props: IProps) => { 
+export function DBScatter (props: IProps) { 
     const { widget, data_source } = props
     
     const options = useMemo(() =>
@@ -32,10 +32,8 @@ const DBScatter = (props: IProps) => {
     />
 }
 
-export default DBScatter
 
-
-export const  ScatterConfigForm = (props: { col_names: string[] }) => { 
+export function ScatterConfigForm (props: { col_names: string[] }) { 
     const { col_names = [ ] } = props
     
     const ValueSelect = useMemo(() => <>

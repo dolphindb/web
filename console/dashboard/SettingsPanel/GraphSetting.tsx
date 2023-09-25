@@ -32,13 +32,10 @@ export function GraphSetting () {
     }, [widget])
     
     
-    console.log(widget.type, graph_config, 'config')
     const ConfigFormFields = useMemo(() => graph_config[widget.type]?.config, [widget.type])
     
-    
    
-    return ConfigFormFields ?
-        <Form
+    return ConfigFormFields && <Form
             onValuesChange={on_form_change}
             form={form}
             labelCol={{ span: 8 }}
@@ -47,5 +44,4 @@ export function GraphSetting () {
         >
             <ConfigFormFields col_names={cols} data_source={data_source} />
         </Form>
-        : <></>
 }

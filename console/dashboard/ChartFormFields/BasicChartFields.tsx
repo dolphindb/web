@@ -7,7 +7,7 @@ import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { t } from '../../../i18n/index.js'
 import { concat_name_path, convert_list_to_options } from '../utils.js'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-import { AxisType, IAxisItem, ILineType, IYAxisItemValue } from './type.js'
+import { AxisType, type IAxisItem, ILineType, type IYAxisItemValue } from './type.js'
 
 
 import { axis_position_options, axis_type_options, chart_type_options, line_type_options, mark_line_options, mark_point_options, stack_strategy_options } from './constant.js'
@@ -15,7 +15,7 @@ import { WidgetChartType, dashboard } from '../model.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 
 
-export const AxisItem = ({ name_path, col_names = [ ], list_name, initial_values }: IAxisItem) => { 
+export function AxisItem ({ name_path, col_names = [ ], list_name, initial_values }: IAxisItem) { 
     return <>
         <Form.Item
             label={t('类型')}
@@ -59,11 +59,9 @@ export const AxisItem = ({ name_path, col_names = [ ], list_name, initial_values
 }
 
 
-const Series = (props: { col_names: string[] }) => { 
+function Series (props: { col_names: string[] }) { 
     const { col_names } = props
     const { widget: { type } } = dashboard.use(['widget'])
-    
-    console.log(type === WidgetChartType.MIX ? 'line' : type.toLowerCase(), 'type')
     
     return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: t('名称'), yAxisIndex: 0 }]}>
         {(fields, { add, remove }) => <>

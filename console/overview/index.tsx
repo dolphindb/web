@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { ReactNode, useState, useEffect, type JSX } from 'react'
+import { type ReactNode, useState, useEffect, type JSX } from 'react'
 
 import { Layout, Button, Modal, Tooltip, Progress, Tag, Checkbox, Popconfirm } from 'antd'
 const { Header } = Layout
@@ -13,7 +13,7 @@ import { delay } from 'xshell/utils.browser.js'
 
 import { t, language } from '../../i18n/index.js'
 
-import { NodeType, DdbNodeState, DdbNode, model } from '../model.js'
+import { NodeType, DdbNodeState, type DdbNode, model } from '../model.js'
 
 
 import SvgRefresh from './icons/refresh.icon.svg'

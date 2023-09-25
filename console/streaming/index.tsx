@@ -11,7 +11,7 @@ import * as echarts from 'echarts'
 
 import { DDB, formati, type StreamingMessage } from 'dolphindb/browser.js'
 
-import { EChartsType } from 'echarts'
+import { type EChartsType } from 'echarts'
 export type Context = 'page' | 'webview' | 'window' | 'embed'
 
 interface ErrorType {
@@ -215,7 +215,7 @@ export function StreamingLine ({
                 formatter: params => {
                     return `${time_variable}: ${dayjs(Number(params[0].data[time_variable])).format('YYYY/MM/DD HH:mm:ss')} <br /> \
                     ${
-                        properties.length == 1
+                        properties.length === 1
                             ? `${properties[0]}: ${params[0].data[properties[0]]}`
                             : properties.reduce((prev, val) => {
                                   return `${prev}: ${params[0].data[prev]} <br /> ${val}: ${params[0].data[val]}`

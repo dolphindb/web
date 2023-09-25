@@ -7,7 +7,7 @@ import { Editor } from '../../shell/Editor/index.js'
 import { DataView } from '../../shell/DataView.js'
 
 import { dashboard } from '../model.js'
-import { DataSource, type DataSourcePropertyType, get_data_source } from './date-source.js'
+import { type DataSource, type DataSourcePropertyType, get_data_source } from './date-source.js'
 
 type PropsType = { 
     show_preview: boolean

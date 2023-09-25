@@ -4,7 +4,7 @@ import { genid } from 'xshell/utils.browser.js'
 import { type Widget, dashboard } from '../model.js'
 import { sql_formatter, get_cols, stream_formatter } from '../utils.js'
 import { model } from '../../model.js'
-import { DDB, DdbForm, DdbObj, DdbValue } from 'dolphindb'
+import { DDB, DdbForm, type DdbObj, type DdbValue } from 'dolphindb'
 
 export type DataType = { }[]
 

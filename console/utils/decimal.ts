@@ -1,4 +1,4 @@
-import { DDBTypeNames } from '../constants/column-data-types.js'
+import { type DDBTypeNames } from '../constants/column-data-types.js'
 
 export function getDecimalScaleRange (decimalType: DDBTypeNames) {
     switch (decimalType) {

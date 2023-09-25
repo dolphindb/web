@@ -1,5 +1,5 @@
 import { useMount, useUnmount, useUpdate, useUpdateEffect } from 'ahooks'
-import { Form, FormInstance } from 'antd'
+import { Form, type FormInstance } from 'antd'
 
 import type { NamePath } from 'antd/es/form/interface'
 

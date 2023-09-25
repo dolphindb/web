@@ -29,7 +29,7 @@ import { language, t } from '../i18n/index.js'
 
 import Cookies from 'js-cookie'
 
-import { CloudModel, model, PageViews } from './model.js'
+import { type CloudModel, model, type PageViews } from './model.js'
 import { Cloud } from './cloud.js'
 import { Shell } from './shell.js'
 import SvgCluster from './cluster.icon.svg'

@@ -1,12 +1,12 @@
-import { NamePath } from 'antd/es/form/interface'
-import { DdbObj, DdbForm, DdbType, nulls, DdbValue, format } from 'dolphindb'
+import { type NamePath } from 'antd/es/form/interface'
+import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format } from 'dolphindb'
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
 import { isNil } from 'lodash'
 import { assert } from 'xshell/utils.browser.js'
 
-import { Widget } from './model.js'
-import { AxisConfig, IChartConfig, ISeriesConfig } from './type.js'
-import { DataSource } from './DataSource/date-source.js'
+import { type Widget } from './model.js'
+import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
+import { type DataSource } from './DataSource/date-source.js'
 import { t } from '../../i18n/index.js'
 import { MarkPresetType } from './ChartFormFields/type.js'
 import { LeftCircleTwoTone } from '@ant-design/icons'
@@ -127,7 +127,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     
     const { title, with_legend, with_tooltip, with_split_line, xAxis, series, yAxis, x_datazoom, y_datazoom } = config as IChartConfig
     
-    const convert_data_zoom = (x_datazoom: boolean, y_datazoom: boolean) => { 
+    function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
             {
                 id: 'dataZoomX',
@@ -174,7 +174,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         id: index
     })
     
-    const convert_series = (series: ISeriesConfig) => { 
+    function convert_series (series: ISeriesConfig) { 
         let mark_line_data = series?.mark_line?.map(item => { 
             if (item in MarkPresetType)
                 return {
@@ -222,6 +222,8 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             show: with_tooltip,
             // 与图形类型相关，一期先写死
             trigger: 'axis',
+            backgroundColor: '#1D1D1D',
+            borderColor: '#333'
         },
         title: {
             text: title,
@@ -237,7 +239,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
 }
 
 
-export const convert_list_to_options = (list: string[]) => { 
+export function convert_list_to_options (list: string[]) { 
     return list.map(item => ({
         label: item,
         value: item,

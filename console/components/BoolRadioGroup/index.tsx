@@ -1,4 +1,4 @@
-import { Radio, RadioChangeEvent, RadioGroupProps } from 'antd'
+import { Radio, type RadioChangeEvent, type RadioGroupProps } from 'antd'
 import { useCallback } from 'react'
 import { t } from '../../../i18n/index.js'
 

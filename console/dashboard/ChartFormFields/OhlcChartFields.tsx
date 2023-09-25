@@ -1,7 +1,7 @@
 import { Form, Select, Input, Collapse, Divider, InputNumber, Space } from 'antd'
 import { t } from '../../../i18n/index.js'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-import { AxisType, IAxisItem, IYAxisItemValue, Position } from './type.js'
+import { AxisType, type IAxisItem, type IYAxisItemValue, Position } from './type.js'
 
 import './index.scss'
 import { concat_name_path, convert_list_to_options } from '../utils.js'
@@ -36,7 +36,7 @@ const axis_position_options = [
     { value: 'right', label: t('右侧') }
 ]
 
-export const BasicFormFields = (props: { type: 'chart' | 'table' | 'description' }) => { 
+export function BasicFormFields (props: { type: 'chart' | 'table' | 'description' }) { 
     const { type  } = props
     const FormFields = useMemo(() => { 
         const is_table = type === 'table'
@@ -77,7 +77,7 @@ export const BasicFormFields = (props: { type: 'chart' | 'table' | 'description'
      }]} />
 }
 
-const AxisItem = (props: IAxisItem) => { 
+function AxisItem (props: IAxisItem) { 
     const { name_path, col_names = [ ], list_name, initial_values } = props
     
     return <>
@@ -115,7 +115,7 @@ const AxisItem = (props: IAxisItem) => {
 
 
 // 多y轴
-const YAxis = ({ col_names, initial_values }: { col_names: string[], initial_values?: IYAxisItemValue[] }) => { 
+function YAxis ({ col_names, initial_values }: { col_names: string[], initial_values?: IYAxisItemValue[] }) { 
     return <Form.List name='yAxis' initialValue={initial_values}>
         {fields =>      
             <>
@@ -141,7 +141,7 @@ const YAxis = ({ col_names, initial_values }: { col_names: string[], initial_val
 }
 
 
-const Series = (props: { col_names: string[] }) => { 
+function Series (props: { col_names: string[] }) { 
     const { col_names } = props
     
     const series = useMemo(() => [{ name: 'OHLC', key: 0, selected_cols: [ 'open', 'high', 'low', 'close'] }, 

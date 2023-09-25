@@ -13,7 +13,7 @@ import { red, blue, underline } from 'xshell/chalk.browser.js'
 
 import {
     DdbForm,
-    DdbObj,
+    type DdbObj,
     DdbType,
     DdbFunctionType,
     type InspectOptions,
@@ -26,7 +26,7 @@ import {
 
 import { t } from '../../i18n/index.js'
 
-import { DdbObjRef } from '../obj.js'
+import { type DdbObjRef } from '../obj.js'
 
 import { model, NodeType, storage_keys } from '../model.js'
 

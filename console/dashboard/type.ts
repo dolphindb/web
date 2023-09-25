@@ -1,6 +1,5 @@
-import { ColorPickerProps } from 'antd'
-import { AxisType, ILineType, IStackStrategy, Position } from './ChartFormFields/type.js'
-import { ColorFactory } from 'antd/es/color-picker/color.js'
+import type { ColorFactory } from 'antd/es/color-picker/color.js'
+import { type AxisType, type ILineType, type IStackStrategy, type Position } from './ChartFormFields/type.js'
 
 export interface AxisConfig { 
     name: string

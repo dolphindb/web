@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { cloneDeep } from 'lodash'
 
-import { Button, Modal, Menu, ButtonProps, Tabs } from 'antd'
+import { Button, Modal, Menu, type ButtonProps, Tabs } from 'antd'
 import { DatabaseOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/modal.js'
 
@@ -16,7 +16,7 @@ import { data_sources,
     get_data_source,
     save_data_source, 
     sub_data_source,
-    DataSource,
+    type DataSource,
     type DataSourcePropertyType,
 } from './date-source.js'
 
@@ -33,7 +33,7 @@ interface IProps extends ButtonProps {
     text?: string
 }
 
-export const DataSourceConfig = (props: IProps, ref) => {
+export function DataSourceConfig (props: IProps, ref) {
     const { widget, text, ...btn_props } = props
     const { visible, open, close } = use_modal()
     const [modal, contextHolder] = Modal.useModal()
