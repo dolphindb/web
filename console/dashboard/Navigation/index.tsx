@@ -45,13 +45,6 @@ export function Navigation () {
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     // console.log('names', configs?.map(config => config.name))
     
-    function check_repeat_name (new_name: string) {
-        return configs?.filter(({ id }) => id !== config.id).
-                        map(config => config.name).
-                        find(name => name === new_name)
-    }
-    
-    
     async function handle_save () {
         const new_config =  {
             ...config,
@@ -73,7 +66,7 @@ export function Navigation () {
     
     
     async function handle_add () {
-        if (check_repeat_name(new_dashboard_name)) {
+        if (configs.find(({ name }) => name === new_dashboard_name)) {
             dashboard.message.error(t('名称重复，请重新输入'))
             return 
         } 
@@ -100,7 +93,7 @@ export function Navigation () {
     
     
     async function handle_edit () {
-        if (check_repeat_name(edit_dashboard_name)) {
+        if (configs.find(({ id, name }) => id !== config.id && name === edit_dashboard_name)) {
             dashboard.message.error(t('名称重复，请重新输入'))
             return
         } 
@@ -148,7 +141,6 @@ export function Navigation () {
                     const choose_config = configs.find(({ id }) => id === option.key) 
                     dashboard.set({ config: choose_config })
                     // dashboard.set({ widgets: choose_config.canvas.widgets })
-                    console.log('config', config, option)
                     const url_params = new URLSearchParams(location.search)
                     const url = new URL(location.href)
                     url_params.set('dashboard', value)
