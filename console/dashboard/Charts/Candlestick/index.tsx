@@ -202,10 +202,10 @@ export function Candlestick ({ widget, data_source }: { widget: Widget, data_sou
                     type: 'candlestick',
                     data: data.values,
                     itemStyle: {
-                        color: undefined,
-                        color0: undefined,
-                        borderColor: kBorderColor,
-                        borderColor0: kBorderColor0
+                        color: kColor,
+                        color0: kColor0,
+                        // borderColor: kBorderColor,
+                        // borderColor0: kBorderColor0
                     },
                 },
                 {
@@ -218,7 +218,7 @@ export function Candlestick ({ widget, data_source }: { widget: Widget, data_sou
                         itemStyle: {
                             normal: {
                                 show: true,
-                                color: '#1212f2'
+                                color: '#f21212'
                             }
                         },
                         label: {
