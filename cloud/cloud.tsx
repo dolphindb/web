@@ -305,7 +305,7 @@ function Clusters () {
                     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) =>
                        <Input
                             autoFocus
-                            value={selectedKeys[0]}
+                            value={selectedKeys[0] as any}
                             placeholder={t('输入关键字搜索集群名称')}
                             onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [ ])}
                             onPressEnter={() => {
