@@ -44,6 +44,16 @@ export function Navigation () {
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     // console.log('names', configs?.map(config => config.name))
+    function get_new_config () {
+        return {
+            id: genid(),
+            name: new_dashboard_name,
+            datasources: [ ],
+            canvas: {
+                widgets: [ ],
+            }
+        }
+    }
     
     async function handle_save () {
         const new_config =  {
@@ -66,19 +76,15 @@ export function Navigation () {
     
     
     async function handle_add () {
+        if (!new_dashboard_name) {
+            dashboard.message.error(t('dashboard 名称不允许为空'))
+            return 
+        } 
         if (configs.find(({ name }) => name === new_dashboard_name)) {
             dashboard.message.error(t('名称重复，请重新输入'))
             return 
         } 
-        const new_dashboard_config = {
-            id: genid(),
-            name: new_dashboard_name,
-            datasources: [ ],
-            canvas: {
-                widgets: [ ],
-            }
-        }
-       
+        const new_dashboard_config = get_new_config()
         try {
             await dashboard.save_configs()
             dashboard.set({ config: new_dashboard_config })
@@ -93,6 +99,10 @@ export function Navigation () {
     
     
     async function handle_edit () {
+        if (!edit_dashboard_name) {
+            dashboard.message.error(t('dashboard 名称不允许为空'))
+            return 
+        }
         if (configs.find(({ id, name }) => id !== config.id && name === edit_dashboard_name)) {
             dashboard.message.error(t('名称重复，请重新输入'))
             return
