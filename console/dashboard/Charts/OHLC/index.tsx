@@ -69,6 +69,14 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     color: '#e6e6e6'
                 }
             },
+            legend: {
+                top: 10,
+                left: 'center',
+                data: ['折线', '阈值'],
+                textStyle: {
+                    color: '#e6e6e6'
+                }
+              },
             backgroundColor: '#282828',
             tooltip: {
                 show: with_tooltip,
@@ -76,9 +84,9 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 axisPointer: {
                     type: 'cross'
                 },
-                backgroundColor: '#eeeeee',
+                backgroundColor: '#1D1D1D',
+                borderColor: '#333',
                 borderWidth: 1,
-                borderColor: '#ccc',
                 padding: 10,
                 textStyle: {
                     color: '#000'
@@ -244,40 +252,29 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     type: 'candlestick',
                     data: data.values,
                     itemStyle: {
-                        color: undefined,
-                        color0: undefined,
-                        borderColor: kBorderColor,
-                        borderColor0: kBorderColor0
+                        color: kColor,
+                        color0: kColor0,
+                        borderColor: undefined,
+                        borderColor0: undefined
                     }
                 },
                 {
                     type: 'line',
+                    name: '折线',
                     data: data.lines,
                     itemStyle: {
-                        color: undefined,
-                        color0: undefined,
-                        borderColor: kBorderColor,
-                        borderColor0: kBorderColor0
+                        color: '#54d2d2',
                     },
-                    markLine: {
-                        symbol: ['none', 'none'],
-                        silent: true,
-                        itemStyle: {
-                            normal: {
-                                show: true,
-                                color: '#f21212'
-                            }
-                        },
-                        label: {
-                            normal: {
-                                position: 'middle'
-                            }
-                        },
-                        data: [{
-                            yAxis: series[0].limit || 0
-                        }]
+                },
+                {
+                    type: 'line',
+                    name: '阈值',
+                    data: new Array(data.categoryData.length).fill(series[0].limit),
+                    itemStyle: {
+                        color: '#1f7ed2',
                     }
                 },
+                
                 {
                     name: 'trades',
                     type: 'bar',
