@@ -103,11 +103,18 @@ function Series (props: { col_names: string[] }) {
                                         <Select options={mark_line_options} mode='tags' />
                                     </Form.Item>
                                     {/* 仅折线图可选择线类型 */}
-                                    {
-                                        type === WidgetChartType.LINE && <Form.Item label={t('线类型')} name={[field.name, 'line_type']} initialValue={ILineType.SOLID}>
-                                            <Select options={line_type_options} />
-                                        </Form.Item>
-                                    }
+                                    
+                                    <FormDependencies dependencies={[['series', field.name, 'type']]}>
+                                        {({ series }) => { 
+                                            const { type: seriesType } = series.find(item => !!item)
+                                            if (seriesType !== WidgetChartType.LINE)
+                                                return null
+                                            else
+                                                return <Form.Item label={t('线类型')} name={[field.name, 'line_type']} initialValue={ILineType.SOLID}>
+                                                    <Select options={line_type_options} />
+                                                </Form.Item>
+                                        } }
+                                    </FormDependencies>
                                     {/* 柱状图需要选择是否堆叠展示 */}
                                     {
                                         type === WidgetChartType.BAR && <>
