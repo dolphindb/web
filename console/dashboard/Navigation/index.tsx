@@ -188,10 +188,8 @@ export function Navigation () {
                        onCancel={edit_close}
                        onOk={handle_edit}
                        closeIcon={false}
-                       title={t('请修改 dashboard 的名称')}>
+                       title={t('请输入新的 dashboard 名称')}>
                     <Input value={edit_dashboard_name}
-                           defaultValue={config?.name}
-                           placeholder={config?.name}
                            onChange={event => { set_edit_dashboard_name(event.target.value) }}/>
                 </Modal>
                 
@@ -216,7 +214,13 @@ export function Navigation () {
                 </Tooltip>
                 
                 <Tooltip title='修改'>
-                    <Button className='action' onClick={edit_open}><EditOutlined /></Button>
+                    <Button className='action' 
+                            onClick={() => { 
+                                edit_open()
+                                set_edit_dashboard_name(config?.name) 
+                            }}>
+                                <EditOutlined />
+                    </Button>
                 </Tooltip>
                 
                 <Tooltip title='删除'>
