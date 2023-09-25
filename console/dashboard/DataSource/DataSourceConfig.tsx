@@ -46,7 +46,7 @@ export function DataSourceConfig (props: IProps, ref) {
     const no_save_flag = useRef(false)
     
     useEffect(() => {
-       set_current_data_source(null) 
+       change_current_data_source('')
     }, [config?.id])
     
     const change_current_data_source = useCallback((key: string) => {
@@ -68,6 +68,12 @@ export function DataSourceConfig (props: IProps, ref) {
                 no_save_flag.current = true 
     }, [ ])
     
+    const handle_save = useCallback(async () => {
+        console.log(current_data_source)
+        await save_data_source(current_data_source)
+        no_save_flag.current = false
+    }, [current_data_source])
+    
     const handle_close = useCallback(async () => {
         if (no_save_flag.current && await modal.confirm(save_confirm_config) ) {
             await handle_save()
@@ -75,12 +81,7 @@ export function DataSourceConfig (props: IProps, ref) {
         }    
         close()
         set_show_preview(false)
-    }, [no_save_flag.current])
-    
-    const handle_save = useCallback(async () => {
-        await save_data_source(current_data_source)
-        no_save_flag.current = false
-    }, [current_data_source])
+    }, [no_save_flag.current, handle_save])
     
     return <>
         <Button
