@@ -41,6 +41,7 @@ export function GraphSetting () {
             labelCol={{ span: 8 }}
             labelAlign='left'
             colon={false}
+            className='graph-setting-form'
         >
             <ConfigFormFields col_names={cols} data_source={data_source} />
         </Form>

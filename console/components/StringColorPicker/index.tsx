@@ -14,7 +14,13 @@ export function StringColorPicker (props: IProps) {
         onChange?.(color.toHexString() || color.toHsbString?.() || color.toRgbString?.())
     }, [ ])
     
-    return <ColorPicker defaultValue={null} format='hex' defaultFormat='hex' {...others} onChange={on_color_change}/>
+    return <ColorPicker
+        defaultValue={null}
+        format='hex'
+        defaultFormat='hex'
+        {...others}
+        onChange={on_color_change}
+    />
 }
 
 

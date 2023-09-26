@@ -89,7 +89,9 @@ export function DBTable (props: IProps) {
             columns={columns}
             dataSource={data_source}
             pagination={pagination}
+            rowKey={selected_cols[0]}
             {...otherProps} />
+            
     </div>
 }
 
