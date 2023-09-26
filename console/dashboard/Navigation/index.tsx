@@ -14,6 +14,7 @@ import { CompileAndRefresh } from '../../components/CompileAndRefresh.js'
 import { type Widget, dashboard } from '../model.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import { export_data_sources } from '../DataSource/date-source.js'
+import { VariableConfig } from '../Variable/VariableConfig.js'
 
 
 function get_widget_config (widget: Widget) {
@@ -255,6 +256,7 @@ export function Navigation () {
                 </span>
             </div>
             <div className='right-config'>
+                <VariableConfig/>
                 <DataSourceConfig/>
             </div>
         </div>

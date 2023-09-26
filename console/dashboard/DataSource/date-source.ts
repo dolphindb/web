@@ -18,7 +18,8 @@ export class DataSource extends Model<DataSource>  {
     max_line = 1000
     data: DataType = [ ]
     cols: string[] = [ ]
-    deps: string[] = [ ]
+    deps: Set<string> = new Set()
+    variables: Set<string> = new Set()
     error_message = ''
     /** sql 模式专用 */
     auto_refresh = false
@@ -56,53 +57,53 @@ export function get_data_source (id: string): DataSource {
     return data_sources[find_data_source_index(id)]
 }
 
-export async function save_data_source ( new_source_node: DataSource, code?: string ) {
-    const id = new_source_node.id
+export async function save_data_source ( new_data_source: DataSource, code?: string ) {
+    const id = new_data_source.id
     const data_source = get_data_source(id)
-    const dep = new_source_node.deps
+    const dep = new_data_source.deps
     
     delete_interval(id)
     unsub_stream(id)
-    new_source_node.data.length = 0
-    new_source_node.error_message = ''
-    new_source_node.code = code || dashboard.editor?.getValue() || ''
+    new_data_source.data.length = 0
+    new_data_source.error_message = ''
+    new_data_source.code = code || dashboard.editor?.getValue() || ''
     
-    switch (new_source_node.mode) {
+    switch (new_data_source.mode) {
         case 'sql':
             
-            new_source_node.cols.length = 0
+            new_data_source.cols.length = 0
     
-            const { type, result } = await dashboard.execute(new_source_node.code)
+            const { type, result } = await dashboard.execute(new_data_source.code)
             if (type === 'success') {
                 if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) {
                     // 暂时只支持table
-                    new_source_node.data = sql_formatter(result.data as unknown as DdbObj<DdbValue>, new_source_node.max_line)
-                    new_source_node.cols = get_cols(result.data as unknown as DdbObj<DdbValue>)
+                    new_data_source.data = sql_formatter(result.data as unknown as DdbObj<DdbValue>, new_data_source.max_line)
+                    new_data_source.cols = get_cols(result.data as unknown as DdbObj<DdbValue>)
                 }
             } else {
-                new_source_node.error_message = result as string
+                new_data_source.error_message = result as string
                 if (code === undefined)
                     dashboard.message.error(result as string)
             }
             
-            data_source.set({ ...new_source_node })
+            data_source.set({ ...new_data_source })
             
-            if (dep && dep.length && !new_source_node.error_message && new_source_node.auto_refresh) 
+            if (dep.size && !new_data_source.error_message && new_data_source.auto_refresh) 
                 create_interval(id) 
             
             break
         case 'stream':
-            data_source.set({ ...new_source_node })
+            data_source.set({ ...new_data_source })
             
-            if (dep && dep.length && !new_source_node.error_message) 
+            if (dep.size && !new_data_source.error_message) 
                 await sub_stream(id) 
             
             break
     }
     // 仅测试用
-    // if (dep && dep.length && !new_source_node.error_message ) 
+    // if (dep && dep.length && !new_data_source.error_message ) 
     //     dep.forEach((widget_id: string) => {
-    //         console.log(widget_id, 'render', new_source_node.data)
+    //         console.log(widget_id, 'render', new_data_source.data)
     //     })
     if (code === undefined)
         dashboard.message.success('保存成功！')
@@ -110,7 +111,7 @@ export async function save_data_source ( new_source_node: DataSource, code?: str
 
 export function delete_data_source (key: string): number {
     const data_source = get_data_source(key)
-    if (data_source.deps?.length)
+    if (data_source.deps.size)
         dashboard.message.error('当前数据源已被图表绑定无法删除')
     else {
         const delete_index = find_data_source_index(key)
@@ -148,7 +149,7 @@ export async function sub_data_source (widget_option: Widget, source_id: string)
     if (widget_option.source_id)
         unsub_data_source(widget_option, source_id)  
         
-    data_source.deps.push(widget_option.id)
+    data_source.deps.add(widget_option.id)
     
     if (data_source.error_message) 
         dashboard.message.error('当前数据源存在错误')
@@ -168,12 +169,12 @@ export async function sub_data_source (widget_option: Widget, source_id: string)
         // console.log(widget_option.id, 'render', data_source.data)      
 }
 
-export function unsub_data_source (widget_option: Widget, pre_source_id?: string) {
+export function unsub_data_source (widget_option: Widget, new_source_id?: string) {
     const source_id = widget_option.source_id
     const data_source = get_data_source(source_id)
-    if (!pre_source_id || source_id !== pre_source_id ) {
-        data_source.deps = data_source.deps.filter((widget_id: string) => widget_id !== widget_option.id )
-        if (!data_source.deps.length) {
+    if (!new_source_id || source_id !== new_source_id ) {
+        data_source.deps.delete(source_id)
+        if (!data_source.deps.size) {
             delete_interval(source_id)
             unsub_stream(source_id)
         }   
@@ -301,11 +302,13 @@ export async function get_stream_filter_col (table: string): Promise<string> {
 }
 
 export async function export_data_sources () {
-    return cloneDeep(data_sources).map(
+    return (cloneDeep(data_sources)).map(
         data_source => {
             data_source.timer = null
             data_source.ddb = null
             data_source.data = [ ]
+            data_source.deps = Array.from(data_source.deps) as any
+            data_source.variables = Array.from(data_source.variables) as any
             return data_source
         }
     )
@@ -315,6 +318,8 @@ export async function import_data_sources (_data_sources) {
     data_sources = [ ]
     for (let data_source of _data_sources) {
         data_sources.push(new DataSource(data_source.id, data_source.name))
+        data_source.deps = new Set(data_source.deps)
+        data_source.variables = new Set(data_source.variables)
         await save_data_source(data_source, data_source.code)
     }
 }
