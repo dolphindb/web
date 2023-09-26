@@ -26,7 +26,7 @@ type MenuItemType = {
     title: ReactNode
 }
 
-export function NodeTable ({
+export function DataSourceList ({
     current_data_source,
     no_save_flag,
     save_confirm,
@@ -36,11 +36,11 @@ export function NodeTable ({
 }: PropsType) {
     const [current_select, set_current_select] = useState(current_data_source?.id || '')
     const [menu_items, set_menu_items] = useState(
-        data_sources.map((data_source_node: DataSource): MenuItemType => {
+        data_sources.map((data_source: DataSource): MenuItemType => {
             return {
-                key: String(data_source_node.id),
+                key: String(data_source.id),
                 icon: createElement(DatabaseOutlined),
-                title: data_source_node.name
+                title: data_source.name
             }
         })
     )

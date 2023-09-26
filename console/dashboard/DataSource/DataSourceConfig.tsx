@@ -1,3 +1,5 @@
+import './index.sass'
+
 import { useCallback, useRef, useState, useEffect } from 'react'
 import { cloneDeep } from 'lodash'
 
@@ -5,7 +7,7 @@ import { Button, Modal, type ButtonProps, Tabs } from 'antd'
 import { DatabaseOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/modal.js'
 
-import { NodeTable } from './NodeTable.js'
+import { DataSourceList } from './DataSourceList.js'
 import { SqlEditor } from './SqlEditor.js'
 import { StreamEditor } from './StreamEditor.js'
 
@@ -15,7 +17,7 @@ import { data_sources,
     find_data_source_index, 
     get_data_source,
     save_data_source, 
-    sub_data_source,
+    sub_data_source, 
     type DataSource,
     type DataSourcePropertyType,
 } from './date-source.js'
@@ -69,7 +71,6 @@ export function DataSourceConfig (props: IProps, ref) {
     }, [ ])
     
     const handle_save = useCallback(async () => {
-        console.log(current_data_source)
         await save_data_source(current_data_source)
         no_save_flag.current = false
     }, [current_data_source])
@@ -147,7 +148,7 @@ export function DataSourceConfig (props: IProps, ref) {
             {/* 未保存提示框 */}
             {contextHolder}
             <div className='data-source-config-main'>
-                <NodeTable 
+                <DataSourceList
                     current_data_source={current_data_source}
                     no_save_flag={no_save_flag}
                     save_confirm={() => modal.confirm(save_confirm_config) }
