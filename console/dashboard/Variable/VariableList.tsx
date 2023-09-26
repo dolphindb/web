@@ -76,10 +76,10 @@ export function VariableList ({
     }
     
     return <>
-            <div className='config-nodetable'>
-                <div className='nodetable-top'>
+            <div className='config-variable-list'>
+                <div className='variable-list-top'>
                     <div
-                        className='nodetable-top-item'
+                        className='variable-list-top-item'
                         onClick={async () => {
                             if (no_save_flag.current && (await save_confirm()))
                                 await handle_save()
@@ -99,21 +99,21 @@ export function VariableList ({
                             rename_data_source_node_handler(new_menu_items, id, name)
                         }}
                     >
-                        <FileOutlined className='nodetable-top-item-icon' />
+                        <FileOutlined className='variable-list-top-item-icon' />
                         新建
                     </div>
                     <div
-                        className='nodetable-top-item'
+                        className='variable-list-top-item'
                         onClick={() => {
                             if (current_variable)
                                 rename_data_source_node_handler(menu_items, current_select, current_variable.name)
                         }}
                     >
-                        <EditOutlined className='nodetable-top-item-icon' />
+                        <EditOutlined className='variable-list-top-item-icon' />
                         重命名
                     </div>
                     <div
-                        className='nodetable-top-item'
+                        className='variable-list-top-item'
                         onClick={() => {
                             const delete_index = delete_variable(current_variable.id)
                             if (delete_index >= 0) {
@@ -129,11 +129,11 @@ export function VariableList ({
                             }
                         }}
                     >
-                        <DeleteOutlined className='nodetable-top-item-icon' />
+                        <DeleteOutlined className='variable-list-top-item-icon' />
                         删除
                     </div>
                 </div>
-                { current_variable ? <div className='nodetable-bottom'>
+                { current_variable ? <div className='variable-list-bottom'>
                     {variables.length ? (
                         <Tree
                             ref={tree_ref}
@@ -141,7 +141,7 @@ export function VariableList ({
                             height={450}
                             blockNode
                             selectedKeys={[current_select]}
-                            className='nodetable-bottom-menu'
+                            className='variable-list-bottom-menu'
                             onSelect={async key => {
                                 if (key.length) {
                                     if (no_save_flag.current && (await save_confirm()))

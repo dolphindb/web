@@ -106,7 +106,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
     //         console.log(widget_id, 'render', new_data_source.data)
     //     })
     if (code === undefined)
-        dashboard.message.success('保存成功！')
+        dashboard.message.success(`${data_source.name} 保存成功！`)
 }
 
 export function delete_data_source (key: string): number {

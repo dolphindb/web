@@ -76,10 +76,10 @@ export function DataSourceList ({
     }
     
     return <>
-            <div className='config-nodetable'>
-                <div className='nodetable-top'>
+            <div className='config-data-source-list'>
+                <div className='data-source-list-top'>
                     <div
-                        className='nodetable-top-item'
+                        className='data-source-list-top-item'
                         onClick={async () => {
                             if (no_save_flag.current && (await save_confirm()))
                                 await handle_save()
@@ -99,21 +99,21 @@ export function DataSourceList ({
                             rename_data_source_node_handler(new_menu_items, id, name)
                         }}
                     >
-                        <FileOutlined className='nodetable-top-item-icon' />
+                        <FileOutlined className='data-source-list-top-item-icon' />
                         新建
                     </div>
                     <div
-                        className='nodetable-top-item'
+                        className='data-source-list-top-item'
                         onClick={() => {
                             if (current_data_source)
                                 rename_data_source_node_handler(menu_items, current_select, current_data_source.name)
                         }}
                     >
-                        <EditOutlined className='nodetable-top-item-icon' />
+                        <EditOutlined className='data-source-list-top-item-icon' />
                         重命名
                     </div>
                     <div
-                        className='nodetable-top-item'
+                        className='data-source-list-top-item'
                         onClick={() => {
                             const delete_index = delete_data_source(current_data_source.id)
                             if (delete_index >= 0) {
@@ -129,11 +129,11 @@ export function DataSourceList ({
                             }
                         }}
                     >
-                        <DeleteOutlined className='nodetable-top-item-icon' />
+                        <DeleteOutlined className='data-source-list-top-item-icon' />
                         删除
                     </div>
                 </div>
-                { current_data_source ? <div className='nodetable-bottom'>
+                { current_data_source ? <div className='data-source-list-bottom'>
                     {data_sources.length ? (
                         <Tree
                             ref={tree_ref}
@@ -141,7 +141,7 @@ export function DataSourceList ({
                             height={450}
                             blockNode
                             selectedKeys={[current_select]}
-                            className='nodetable-bottom-menu'
+                            className='data-source-list-bottom-menu'
                             onSelect={async key => {
                                 if (key.length) {
                                     if (no_save_flag.current && (await save_confirm()))

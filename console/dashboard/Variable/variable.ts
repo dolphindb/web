@@ -1,14 +1,12 @@
 import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
 
-import { type Widget, dashboard } from '../model.js'
-import { sql_formatter, get_cols, stream_formatter } from '../utils.js'
-import { model } from '../../model.js'
-import { DDB, DdbForm, type DdbObj, type DdbValue } from 'dolphindb'
-import { cloneDeep } from 'lodash'
+import { dashboard } from '../model.js'
 import { type DataSource } from '../DataSource/date-source.js'
 
-export type VariablePropertyType = string | string[] 
+export type VariablePropertyType = string | string[] | OptionType[]
+
+export type OptionType = { label: string, value: string, key: string }
 
 export class Variable extends Model<Variable>  {
     id: string
@@ -16,10 +14,9 @@ export class Variable extends Model<Variable>  {
     display_name: string
     mode = 'select'
     deps: Set<string> = new Set()
-    /** select 模式专用 */
-    select_keys: string[] = [ ]
-    /** text 模式专用 */
-    text = ''
+    value: string[] = ['']
+    /** select 模式专用，可选的key*/
+    options: OptionType[] = [ ]
     
     constructor (id: string, name: string, display_name: string) {
         super()
@@ -45,7 +42,7 @@ export async function save_variable ( new_variable: Variable ) {
     
     console.log(variables)
     
-    dashboard.message.success('保存成功！')
+    dashboard.message.success(`${variable.name} 保存成功！`)
 }
 
 export function delete_variable (key: string): number {
