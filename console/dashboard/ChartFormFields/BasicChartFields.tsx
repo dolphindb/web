@@ -104,22 +104,23 @@ function Series (props: { col_names: string[] }) {
                         <FormDependencies dependencies={[['series', field.name, 'type']]}>
                             {({ series }) => { 
                                 const { type: seriesType } = series.find(item => !!item)
-                                if (seriesType !== WidgetChartType.LINE)
-                                    return null
-                                else
+                                { /**
+                                    柱状图可以选择是否堆叠展示 
+                                    折线图可以选择线类型
+                                 */ 
+                                }
+                                if (seriesType === WidgetChartType.BAR)
+                                    return <Form.Item tooltip={t('同个类目轴上系列配置相同的 stack 值可以堆叠放置')} label={t('堆叠值')} name={[field.name, 'stack']}>
+                                        <Input />
+                                    </Form.Item>
+                                else if (seriesType === WidgetChartType.LINE)
                                     return <Form.Item label={t('线类型')} name={[field.name, 'line_type']} initialValue={ILineType.SOLID}>
                                         <Select options={line_type_options} />
                                     </Form.Item>
+                                else
+                                    return null
                             } }
                         </FormDependencies>
-                        {/* 柱状图需要选择是否堆叠展示 */}
-                        {
-                            type === WidgetChartType.BAR && <>
-                                <Form.Item tooltip={t('同个类目轴上系列配置相同的 stack 值可以堆叠放置')} label={t('堆叠值')} name={[field.name, 'stack']}>
-                                    <Input />
-                                </Form.Item>
-                            </>
-                        }
                     </div>
                 
                 return {
@@ -148,8 +149,6 @@ function Series (props: { col_names: string[] }) {
                     {t('增加数据列')}
                 </Button> 
             </>
-            
-            
         }}
     </Form.List>
 }

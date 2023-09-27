@@ -155,7 +155,7 @@ function Series (props: { col_names: string[] }) {
                             <div className='axis-wrapper'>
                                 {series[index]?.selected_cols ?
                                     series[index].selected_cols.map(col => 
-                                        <Form.Item key={col} name={[field.name, col]} label={col} initialValue={col_names?.[0]} >
+                                        <Form.Item key={col} name={[field.name, col]} label={col} initialValue={col !== 'limit' ? col_names?.[0] : 0} >
                                             {
                                                 col !== 'limit' ?
                                                         <Select options={convert_list_to_options(col_names)} />
