@@ -234,8 +234,11 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             show: with_tooltip,
             // 与图形类型相关，一期先写死
             trigger: 'axis',
-            backgroundColor: '#1D1D1D',
-            borderColor: '#333'
+            backgroundColor: '#060606',
+            borderColor: '#060606',
+            textStyle: {
+                color: '#F5F5F5'
+            }
         },
         title: {
             text: title,
