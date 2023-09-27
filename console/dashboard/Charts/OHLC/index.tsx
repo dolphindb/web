@@ -262,6 +262,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     type: 'line',
                     name: '折线',
                     data: data.lines,
+                    symbol: 'none',
                     itemStyle: {
                         color: '#54d2d2',
                     },
@@ -269,6 +270,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 {
                     type: 'line',
                     name: '阈值',
+                    symbol: 'none',
                     data: new Array(data.categoryData.length).fill(series[0].limit),
                     itemStyle: {
                         color: '#1f7ed2',
