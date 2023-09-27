@@ -344,12 +344,6 @@ export async function export_data_sources (): Promise<ExportDataSource[]> {
                 deps: Array.from(data_source.deps),
                 variables: Array.from(data_source.variables)
             }
-            // data_source.timer = null
-            // data_source.ddb = null
-            // data_source.data = [ ]
-            // data_source.deps = Array.from(data_source.deps)
-            // data_source.variables = Array.from(data_source.variables) as any
-            // return data_source
         }
     )
 } 
@@ -360,12 +354,8 @@ export async function import_data_sources (_data_sources: ExportDataSource[]) {
         const import_data_source = new DataSource(data_source.id, data_source.name)
         Object.assign(import_data_source, data_source, { deps: new Set(data_source.deps), variables: new Set(data_source.variables) })
         data_sources.push(import_data_source)
-        // data_source.deps = new Set(data_source.deps)
-        // data_source.variables = new Set(data_source.variables)
         await save_data_source(import_data_source, import_data_source.code)
     }
-    console.log('data_sources', data_sources)
-    
 }
 
 export let data_sources: DataSource[] = [ ]
