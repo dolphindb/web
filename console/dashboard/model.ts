@@ -146,7 +146,6 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     async load_config () {
         if (this.config) {
-            console.log(this.config)
             await import_data_sources(this.config.datasources) 
             await import_variable(this.config.variables)
             this.set({ widgets: this.config.canvas.widgets.map(widget => ({

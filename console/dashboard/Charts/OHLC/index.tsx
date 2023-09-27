@@ -84,8 +84,11 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 axisPointer: {
                     type: 'cross'
                 },
-                backgroundColor: '#1D1D1D',
-                borderColor: '#333',
+                backgroundColor: '#060606',
+                borderColor: '#060606',
+                textStyle: {
+                    color: '#F5F5F5'
+                },
                 borderWidth: 1,
                 padding: 10,
                 // textStyle: {

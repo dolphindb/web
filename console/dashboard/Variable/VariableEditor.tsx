@@ -30,7 +30,7 @@ export function VariableEditor ({
                     />
                 </div>
                 <div className='variable-editor-main-mode'>
-                    变量模式：
+                    变量类型：
                     <Select
                         value={current_variable.mode}
                         className='variable-editor-main-mode-select'
