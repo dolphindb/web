@@ -129,8 +129,13 @@ export function Navigation () {
     
     
     async function handle_delete () {
-        dashboard.set({ configs: configs.filter(({ id }) => id !== config.id) })
-        dashboard.set({ config: configs[0] })
+        if (!configs.length) {
+            dashboard.message.error(t('当前 dashboard 列表为空'))
+            return 
+        }
+        const other_configs = configs.filter(({ id }) => id !== config.id)
+        dashboard.set({ configs: other_configs })
+        dashboard.set({ config: other_configs[0] })
         try {
             await dashboard.save_configs()
             dashboard.message.success(t('删除成功'))
@@ -161,7 +166,7 @@ export function Navigation () {
                     url.search = url_params.toString()
                     history.replaceState({ }, '', url)
                 }}
-                defaultValue={ config?.name || new_dashboard_name}
+                // defaultValue={ config?.name || new_dashboard_name}
                 value={config?.name}
                 bordered={false}
                 options={configs?.map(({ id, name }) => ({
