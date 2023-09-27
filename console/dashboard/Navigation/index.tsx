@@ -2,7 +2,7 @@ import './index.sass'
 
 import { useState } from 'react'
 import { Button, Input, Modal, Select, Tooltip } from 'antd'
-import { DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, SyncOutlined } from '@ant-design/icons'
+import { DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -233,7 +233,7 @@ export function Navigation () {
                         className='action'
                         onClick={() => {
                             add_open()
-                            set_new_dashboard_name(`dashboard-${String(genid()).slice(0, 4)}`)
+                            set_new_dashboard_name(String(genid()).slice(0, 4))
                         }}
                     >
                         <FileOutlined />
@@ -274,16 +274,28 @@ export function Navigation () {
                     }}><DownloadOutlined /></Button>
                 </Tooltip>
                 
+                <Tooltip title={t('导入')}>
+                    <Button className='action' onClick={async () => {
+                        // try {
+                            
+                        // } catch (error) {
+                        //     model.show_error({ error })
+                        // }
+                        
+                        dashboard.message.error(t('功能还未实现'))
+                    }}><UploadOutlined /></Button>
+                </Tooltip>
+                
                 <Tooltip title='删除'>
                     <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
                 </Tooltip>
                 
                 <Tooltip title='刷新'>
-                    <Button className='action'><SyncOutlined /></Button>
+                    <Button className='action' onClick={() => { dashboard.message.error(t('功能还未实现')) }}><SyncOutlined /></Button>
                 </Tooltip>
                 
                 <Tooltip title='暂停流数据接收'>
-                    <Button className='action'><PauseOutlined /></Button>
+                    <Button className='action' onClick={() => { dashboard.message.error(t('功能还未实现')) }}><PauseOutlined /></Button>
                 </Tooltip>
                 
                 { model.dev && <CompileAndRefresh /> }
