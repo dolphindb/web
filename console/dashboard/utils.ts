@@ -8,7 +8,8 @@ import { type Widget } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
 import { type DataSource } from './DataSource/date-source.js'
 import { t } from '../../i18n/index.js'
-import { MarkPresetType } from './ChartFormFields/type.js'
+import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
+import dayjs from 'dayjs'
 
 function formatter (type, value, le, index?, values?) {
     switch (type) {
@@ -154,24 +155,30 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     }
     
     
-    const convert_axis = (axis: AxisConfig, index?: number) => ({
-        show: true,
-        name: axis.name,
-        type: axis.type,
-        data: axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ],
-        splitLine: {
-            show: with_split_line,
-            lineStyle: {
-                type: 'dashed',
-                color: '#6E6F7A'
-            }
-        },
-        logBase: axis.log_base || 10,
-        position: axis.position,
-        offset: axis.offset,
-        alignTicks: true,
-        id: index
-    })
+    function convert_axis (axis: AxisConfig, index?: number) {
+        let data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
+        if (axis.type === AxisType.TIME)  
+            data = data.map(item => dayjs(item).format('YYYY-MM-DD HH:mm:ss'))
+        
+        return {
+            show: true,
+            name: axis.name,
+            type: axis.type,
+            data,
+            splitLine: {
+                show: with_split_line,
+                lineStyle: {
+                    type: 'dashed',
+                    color: '#6E6F7A'
+                }
+            },
+            logBase: axis.log_base || 10,
+            position: axis.position,
+            offset: axis.offset,
+            alignTicks: true,
+            id: index
+        }
+    }
     
     function convert_series (series: ISeriesConfig) { 
         let mark_line_data = series?.mark_line?.map(item => { 
@@ -184,6 +191,12 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 return { yAxis: item }
         }) || [ ]
         
+        
+        let data = data_source.map(item => item?.[series.col_name])
+        
+        if (xAxis.type === AxisType.TIME)  
+            data = data_source.map(item => [dayjs(item?.[xAxis.col_name]).format('YYYY-MM-DD HH:mm:ss'), item?.[series.col_name]])
+        
         return {
             type: series.type?.toLowerCase(),
             name: series.name,
@@ -192,7 +205,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             stackStrategy: series.stack_strategy,
             // 防止删除yAxis导致渲染失败
             yAxisIndex: yAxis[series.yAxisIndex] ?  series.yAxisIndex : 0,
-            data: data_source.map(item => item?.[series.col_name]),
+            data,
             markPoint: {
                 data: series?.mark_point?.map(item => ({
                     type: item,
