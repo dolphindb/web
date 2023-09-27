@@ -1,11 +1,11 @@
 import './index.sass'
 
 import { useState } from 'react'
-import { Button, Input, Modal, Select, Tooltip } from 'antd'
+import { Button, Input, Modal, Select, Tooltip, Upload } from 'antd'
 import { DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
-import { genid } from 'xshell/utils.browser.js'
+import { genid, log } from 'xshell/utils.browser.js'
 
 import { model } from '../../model.js'
 import { t } from '../../../i18n/index.js'
@@ -275,15 +275,23 @@ export function Navigation () {
                 </Tooltip>
                 
                 <Tooltip title={t('导入')}>
-                    <Button className='action' onClick={async () => {
-                        // try {
+                    <Upload
+                        className='action'
+                        showUploadList={false}
+                        beforeUpload={async file => {
+                            const config = JSON.parse(
+                                await file.text()
+                            )
                             
-                        // } catch (error) {
-                        //     model.show_error({ error })
-                        // }
-                        
-                        dashboard.message.error(t('功能还未实现'))
-                    }}><UploadOutlined /></Button>
+                            log(config)
+                            
+                            dashboard.message.error(t('功能还未实现'))
+                            
+                            return false
+                        }}
+                    >
+                        <UploadOutlined />
+                    </Upload>
                 </Tooltip>
                 
                 <Tooltip title='删除'>
