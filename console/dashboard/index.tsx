@@ -76,10 +76,7 @@ function MainLayout () {
     
     
     useEffect(() => {
-        // dashboard.set({ widgets: [ ] })
-        dashboard.set({ widget: null, widgets: [ ] })
         dashboard.load_config()
-        // dashboard.render_widgets()
     }, [ config?.id])
     
     

@@ -86,7 +86,7 @@ export function find_data_source_index (key: string): number {
 } 
 
 export function get_data_source (id: string): DataSource {
-    return data_sources[find_data_source_index(id)]
+    return data_sources[find_data_source_index(id)] || new DataSource('', '')
 }
 
 export async function save_data_source ( new_data_source: DataSource, code?: string ) {
