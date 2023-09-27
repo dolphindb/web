@@ -23,7 +23,9 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     
-    return <Component data_source={data} widget={widget} />
+    return <div className='graph-item-wrapper'>
+        <Component data_source={data} widget={widget} />
+    </div>
 }
 
 
@@ -37,10 +39,17 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
     })}>
         { editing && <div className='delete-graph'>
             {/* 选中时 hover 且当前有数据源时才能修改数据源 */}
-            {widget.id === current?.id && widget.source_id && <DataSourceConfig className='edit-data-source-btn' type='link' widget={current} text={t('编辑数据源')} />}
+            {
+                widget.id === current?.id && widget.source_id &&
+                <DataSourceConfig
+                    className='edit-data-source-btn'
+                    type='link'
+                    widget={current}
+                    text={t('编辑数据源')}
+                />
+            }
             <CloseOutlined className='delete-graph-icon' onClick={() => { dashboard.delete_widget(widget) }}/>
-        </div>
-        }
+        </div> }
         {
             widget.source_id && widget.config ? 
                 <GraphComponent widget={widget} />

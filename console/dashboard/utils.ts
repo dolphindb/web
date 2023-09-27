@@ -94,8 +94,6 @@ export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols:
         }    
         rows.push(row)
     }
-        
-    
     return rows
 }
 
@@ -114,6 +112,10 @@ export function default_value_in_select (
     return (data_source_node[key] && select_list.filter(item => item.value === data_source_node[key]).length) 
         ? data_source_node[key] 
         : select_list[0].value
+}
+
+export function parse_code (code: string): string {
+    return code
 }
 
 
