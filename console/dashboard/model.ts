@@ -20,6 +20,7 @@ import { type Monaco } from '../shell/Editor/index.js'
 import { model, show_error, type ErrorOptions } from '../model.js'
 import { unsub_data_source, type DataType } from './DataSource/date-source.js'
 import { type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig } from './type.js'
+import { import_variable } from './Variable/variable.js'
 
 
 class DashBoardModel extends Model<DashBoardModel> {
@@ -72,6 +73,7 @@ class DashBoardModel extends Model<DashBoardModel> {
                 id: genid(),
                 name: 'dashboard_0',
                 datasources: [ ],
+                variables: [ ],
                 canvas: {
                     widgets: [ ],
                 }
@@ -144,7 +146,9 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     async load_config () {
         if (this.config) {
+            console.log(this.config)
             await import_data_sources(this.config.datasources) 
+            await import_variable(this.config.variables)
             this.set({ widgets: this.config.canvas.widgets.map(widget => ({
                 ...widget, 
                 ref: createRef(), 
@@ -320,6 +324,11 @@ interface DashBoardConfig {
     name: string
     /** 数据源配置 */
     datasources: {
+        id: string
+    }[ ]
+    
+    /** 变量配置 */
+    variables: {
         id: string
     }[ ]
     

@@ -3,6 +3,7 @@ import { genid } from 'xshell/utils.browser.js'
 
 import { dashboard } from '../model.js'
 import { type DataSource } from '../DataSource/date-source.js'
+import { cloneDeep } from 'lodash'
 
 export type VariablePropertyType = string | string[] | OptionType[]
 
@@ -14,7 +15,7 @@ export class Variable extends Model<Variable>  {
     display_name: string
     mode = 'select'
     deps: Set<string> = new Set()
-    value: string[] = ['']
+    value = ''
     /** select 模式专用，可选的key*/
     options: OptionType[] = [ ]
     
@@ -34,15 +35,14 @@ export function get_variable (id: string): Variable {
     return variables[find_variable_index(id)]
 }
 
-export async function save_variable ( new_variable: Variable ) {
+export async function save_variable ( new_variable: Variable, message = true) {
     const id = new_variable.id
     const variable = get_variable(id)
     
     variable.set({ ...new_variable })
     
-    console.log(variables)
-    
-    dashboard.message.success(`${variable.name} 保存成功！`)
+    if (message)
+        dashboard.message.success(`${variable.name} 保存成功！`)
 }
 
 export function delete_variable (key: string): number {
@@ -94,15 +94,19 @@ export function unsub_variable (data_source: DataSource, variable_id: string) {
     data_source.variables.delete(variable.id) 
 }
 
-export async function export_data_sources () {
-    return variables
+export async function export_variable () {
+    return cloneDeep(variables).map(variable => {
+        variable.deps = Array.from(variable.deps) as any
+        return variable
+    })
 } 
 
-export async function import_data_sources (_variables) {
+export async function import_variable (_variables) {
     variables = [ ]
     for (let variable of _variables) {
         variables.push(new Variable(variable.id, variable.name, variable.display_name))
-        await save_variable(variable)
+        variable.deps = new Set(variable.deps)
+        await save_variable(variable, false)
     }
 }
 
