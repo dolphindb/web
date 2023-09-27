@@ -13,14 +13,14 @@ import { assert, genid } from 'xshell/utils.browser.js'
 import type { MessageInstance } from 'antd/es/message/interface.js'
 import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
-import { type ExportDataSource, import_data_sources } from './DataSource/date-source.js'
 
 import { t } from '../../i18n/index.js'
-import { type Monaco } from '../shell/Editor/index.js'
 import { model, show_error, type ErrorOptions } from '../model.js'
-import { unsubscribe_data_source, type DataType } from './DataSource/date-source.js'
+import { type Monaco } from '../shell/Editor/index.js'
+
+import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType } from './DataSource/date-source.js'
 import { type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig } from './type.js'
-import { import_variable } from './Variable/variable.js'
+import { type Variable, import_variables } from './Variable/variable.js'
 
 
 class DashBoardModel extends Model<DashBoardModel> {
@@ -39,6 +39,15 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 当前选中的图表控件，焦点在画布时可能为 null (是否合理？不合理可以再加一个 focused 属性) */
     widget: Widget | null
+    
+    
+    /** 全局变量 */
+    variables: Variable[] = [ ]
+    
+    
+    /** 数据源 */
+    data_sources: DataSource[] = [ ]
+    
     
     /** 编辑、预览状态切换 */
     editing = true
@@ -68,6 +77,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
         await this.get_configs()
+        
         if (!this.config) {
             const new_dashboard_config = {
                 id: genid(),
@@ -75,13 +85,16 @@ class DashBoardModel extends Model<DashBoardModel> {
                 datasources: [ ],
                 variables: [ ],
                 canvas: {
-                    widgets: [ ],
+                    widgets: [ ]
                 }
             }
-            this.set({ config: new_dashboard_config, 
-                       configs: [new_dashboard_config],
-                     })
+            
+            this.set({
+                config: new_dashboard_config,
+                configs: [new_dashboard_config]
+            })
         }
+        
         let grid = GridStack.init({
             acceptWidgets: true,
             float: true,
@@ -145,14 +158,20 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     
     async load_config () {
-        if (this.config) {
-            await import_variable(this.config.variables)
-            await import_data_sources(this.config.datasources) 
-            this.set({ widgets: this.config.canvas.widgets.map(widget => ({
-                ...widget, 
-                ref: createRef(), 
-            })) as any  })
-        }    
+        this.set({
+            variables: await import_variables(this.config.variables),
+            
+            data_sources: await import_data_sources(this.config.datasources),
+            
+            widgets: this.config.canvas.widgets.map(widget => ({
+                ...widget,
+                ref: createRef()
+            })) as any,
+            
+            widget: null,
+        })
+        
+        console.log(t('dashboard 配置加载成功'))
     }
     
     
@@ -174,8 +193,9 @@ class DashBoardModel extends Model<DashBoardModel> {
         
         for (let widget of widgets) {
             let $element = widget.ref.current
-            if (!$element)
-                return
+            
+            assert($element)
+            
             // 返回值为 GridItemHTMLElement 类型 (就是在 $element 这个 dom 节点上加了 gridstackNode: GridStackNode 属性)
             Object.assign(
                 widget,

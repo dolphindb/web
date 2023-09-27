@@ -7,6 +7,8 @@ import { useEffect, useRef } from 'react'
 
 import { App, ConfigProvider, theme } from 'antd'
 
+import * as echarts from 'echarts'
+
 
 import { dashboard } from './model.js'
 
@@ -14,9 +16,9 @@ import { SelectSider } from './SelectSider/SelectSider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 import { Navigation } from './Navigation/index.js'
-import * as echarts from 'echarts'
 
-import config from './chart.config.json'
+
+import config from './chart.config.json' assert { type: 'json' }
 
 echarts.registerTheme('my-theme', config.theme)
 
@@ -76,14 +78,28 @@ function MainLayout () {
     
     
     useEffect(() => {
-        dashboard.load_config()
-    }, [ config?.id])
+        if (!config?.id)
+            return
+        
+        // dashboard.set({ widget: null, widgets: [ ] })
+        
+        ;(async () => {
+            try {
+                await dashboard.load_config()
+                // dashboard.render_widgets()
+            } catch (error) {
+                dashboard.show_error({ error })
+                throw error
+            }
+        })()
+    }, [config?.id])
     
     
-    // widget 变化时通过 GridStack.makeWidget 将画布中已有的 dom 节点交给 GridStack 管理 
+    // widget 变化时通过 GridStack.makeWidget 将画布中已有的 dom 节点交给 GridStack 管理
     useEffect(() => {
         dashboard.render_widgets()
     }, [widgets])
+    
     
     return <div className='dashboard'>
         <div className='dashboard-header'>

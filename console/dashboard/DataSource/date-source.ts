@@ -7,6 +7,7 @@ import { model } from '../../model.js'
 import { DDB, DdbForm, type DdbObj, type DdbValue } from 'dolphindb'
 import { cloneDeep } from 'lodash'
 
+
 export type DataType = { }[]
 
 export type DataSourcePropertyType = string | number | boolean | string[] | DataType
@@ -42,6 +43,7 @@ export type ExportDataSource = {
     /** stream 模式专用 */
     ddb: string
 }
+
 
 export class DataSource extends Model<DataSource>  {
     id: string
@@ -80,6 +82,7 @@ export class DataSource extends Model<DataSource>  {
         this.name = name
     }
 }
+
 
 export function find_data_source_index (key: string): number {
     return data_sources.findIndex(data_source => data_source.id === key)
@@ -160,6 +163,7 @@ export function create_data_source  (): { id: string, name: string } {
     return { id, name }
 }
 
+
 export function rename_data_source (key: string, new_name: string) {
     const data_source = get_data_source(key)
     
@@ -175,6 +179,7 @@ export function rename_data_source (key: string, new_name: string) {
     else
         data_source.name = new_name
 }
+
 
 export async function subscribe_data_source (widget_option: Widget, source_id: string) {
     const data_source = get_data_source(source_id)
@@ -201,6 +206,7 @@ export async function subscribe_data_source (widget_option: Widget, source_id: s
         // 仅测试用
         // console.log(widget_option.id, 'render', data_source.data)      
 }
+
 
 export function unsubscribe_data_source (widget_option: Widget, new_source_id?: string) {
     const source_id = widget_option.source_id
@@ -266,6 +272,7 @@ function create_interval (source_id: string) {
     }
 }
 
+
 function delete_interval (source_id: string) {
     const data_source = get_data_source(source_id)
     const interval = data_source.timer
@@ -275,6 +282,7 @@ function delete_interval (source_id: string) {
     }
         
 }
+
 
 async function subscribe_stream (source_id: string) {
     const data_source = get_data_source(source_id)
@@ -316,6 +324,7 @@ async function subscribe_stream (source_id: string) {
     }
 }
 
+
 function unsubscribe_stream (source_id: string) {
     const data_source = get_data_source(source_id)
     const stream_connection = data_source.ddb
@@ -325,15 +334,18 @@ function unsubscribe_stream (source_id: string) {
     } 
 }
 
+
 export async function get_stream_tables (): Promise<string[]> {
     await dashboard.eval('exec name from objs(true) where type="REALTIME"')
     return dashboard.result.data.value as string[]
 }
 
+
 export async function get_stream_cols (table: string): Promise<string[]> {
     await dashboard.eval(`select name from schema(${table})['colDefs']`)
     return dashboard.result.data.value[0].value
 }
+
 
 export async function get_stream_filter_col (table: string): Promise<string> {
     try {
@@ -342,6 +354,7 @@ export async function get_stream_filter_col (table: string): Promise<string> {
         return ''
     }
 }
+
 
 export async function export_data_sources (): Promise<ExportDataSource[]> {
     return (cloneDeep(data_sources)).map(
@@ -356,16 +369,21 @@ export async function export_data_sources (): Promise<ExportDataSource[]> {
             }
         }
     )
-} 
+}
+
 
 export async function import_data_sources (_data_sources: ExportDataSource[]) {
     data_sources = [ ]
+    
     for (let data_source of _data_sources) {
         const import_data_source = new DataSource(data_source.id, data_source.name)
         Object.assign(import_data_source, data_source, { deps: new Set(data_source.deps), variables: new Set(data_source.variables) })
         data_sources.push(import_data_source)
         await save_data_source(import_data_source, import_data_source.code)
     }
+    
+    return data_sources
 }
+
 
 export let data_sources: DataSource[] = [ ]

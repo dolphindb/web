@@ -15,7 +15,7 @@ import { type Widget, dashboard } from '../model.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import { export_data_sources } from '../DataSource/date-source.js'
 import { VariableConfig } from '../Variable/VariableConfig.js'
-import { export_variable } from '../Variable/variable.js'
+import { export_variables } from '../Variable/variable.js'
 
 
 function get_widget_config (widget: Widget) {
@@ -62,7 +62,7 @@ export function Navigation () {
         const new_config =  {
             ...config,
             datasources: await export_data_sources(),
-            variables: await export_variable(),
+            variables: await export_variables(),
             canvas: {
                 widgets: widgets.map(widget => get_widget_config(widget))
             }
@@ -115,8 +115,11 @@ export function Navigation () {
             ...config,
             name: edit_dashboard_name,
         }
-        dashboard.set({ config: edit_dashboard_config })
-        dashboard.set({ configs: [...configs.filter(({ id }) => id !== config.id), edit_dashboard_config] })
+        dashboard.set({
+            config: edit_dashboard_config,
+            configs: [...configs.filter(({ id }) => id !== config.id), edit_dashboard_config]
+        })
+        
         try {
             await dashboard.save_configs()
             dashboard.message.success(t('修改成功'))
@@ -134,8 +137,10 @@ export function Navigation () {
             return 
         }
         const other_configs = configs.filter(({ id }) => id !== config.id)
-        dashboard.set({ configs: other_configs })
-        dashboard.set({ config: other_configs[0] })
+        dashboard.set({
+            configs: other_configs,
+            config: other_configs[0]
+        })
         try {
             await dashboard.save_configs()
             dashboard.message.success(t('删除成功'))
