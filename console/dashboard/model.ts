@@ -18,7 +18,7 @@ import { type ExportDataSource, import_data_sources } from './DataSource/date-so
 import { t } from '../../i18n/index.js'
 import { type Monaco } from '../shell/Editor/index.js'
 import { model, show_error, type ErrorOptions } from '../model.js'
-import { unsub_data_source, type DataType } from './DataSource/date-source.js'
+import { unsubscribe_data_source, type DataType } from './DataSource/date-source.js'
 import { type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig } from './type.js'
 import { import_variable } from './Variable/variable.js'
 
@@ -199,7 +199,7 @@ class DashBoardModel extends Model<DashBoardModel> {
         const widgets = this.widgets.filter(w => w !== widget)
         
         if (widget.source_id)
-            unsub_data_source(widget)
+            unsubscribe_data_source(widget)
         
         this.set({
             widget: widgets[0],
