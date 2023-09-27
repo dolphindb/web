@@ -1,23 +1,26 @@
 import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
-
-import { dashboard } from '../model.js'
-import { type DataSource } from '../DataSource/date-source.js'
 import { cloneDeep } from 'lodash'
 
-export type VariablePropertyType = string | string[] | OptionType[]
+import { dashboard } from '../model.js'
 
-export type OptionType = { label: string, value: string, key: string }
 
 export class Variable extends Model<Variable>  {
     id: string
+    
     name: string
+    
     display_name: string
+    
     mode = 'select'
+    
     // deps: Set<string> = new Set()
+    
     value = ''
+    
     /** select 模式专用，可选的key*/
     options: OptionType[] = [ ]
+    
     
     constructor (id: string, name: string, display_name: string) {
         super()
@@ -27,13 +30,21 @@ export class Variable extends Model<Variable>  {
     }
 }
 
+
+export type VariablePropertyType = string | string[] | OptionType[]
+
+export type OptionType = { label: string, value: string, key: string }
+
+
 export function find_variable_index (id: string): number {
     return variables.findIndex(variable => variable.id === id)
-} 
+}
+
 
 export function get_variable (id: string): Variable {
     return variables[find_variable_index(id)]
 }
+
 
 export async function save_variable ( new_variable: Variable, message = true) {
     const id = new_variable.id
@@ -44,6 +55,7 @@ export async function save_variable ( new_variable: Variable, message = true) {
     if (message)
         dashboard.message.success(`${variable.name} 保存成功！`)
 }
+
 
 export function delete_variable (key: string): number {
     const variable = get_variable(key)
@@ -59,13 +71,15 @@ export function delete_variable (key: string): number {
     return delete_index
 }
 
-export function create_variable  (): { id: string, name: string, display_name: string } {
+
+export function create_variable  () {
     const id = String(genid())
     const name = `var_${id.slice(0, 4)}`
     const display_name = name
     variables.unshift(new Variable(id, name, display_name))
     return { id, name, display_name }
 }
+
 
 export function rename_variable (key: string, new_name: string) {
     const variable = get_variable(key)
@@ -97,20 +111,23 @@ export function rename_variable (key: string, new_name: string) {
 //     data_source.variables.delete(variable.id) 
 // }
 
-export async function export_variable () {
+export async function export_variables () {
     return cloneDeep(variables).map(variable => {
         // variable.deps = Array.from(variable.deps) as any
         return variable
     })
 } 
 
-export async function import_variable (_variables) {
+
+export async function import_variables (_variables: any) {
     variables = [ ]
     for (let variable of _variables) {
         variables.push(new Variable(variable.id, variable.name, variable.display_name))
         variable.deps = new Set(variable.deps)
         await save_variable(variable, false)
     }
+    
+    return variables
 }
 
 export let variables: Variable[] = [ ]

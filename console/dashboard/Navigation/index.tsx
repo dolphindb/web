@@ -15,7 +15,7 @@ import { type Widget, dashboard } from '../model.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import { export_data_sources } from '../DataSource/date-source.js'
 import { VariableConfig } from '../Variable/VariableConfig.js'
-import { export_variable } from '../Variable/variable.js'
+import { export_variables } from '../Variable/variable.js'
 
 
 function get_widget_config (widget: Widget) {
@@ -62,7 +62,7 @@ export function Navigation () {
         const new_config =  {
             ...config,
             datasources: await export_data_sources(),
-            variables: await export_variable(),
+            variables: await export_variables(),
             canvas: {
                 widgets: widgets.map(widget => get_widget_config(widget))
             }

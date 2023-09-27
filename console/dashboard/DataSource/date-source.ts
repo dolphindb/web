@@ -63,7 +63,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
     const dep = new_data_source.deps
     
     delete_interval(id)
-    unsub_stream(id)
+    unsubscribe_stream(id)
     new_data_source.data.length = 0
     new_data_source.error_message = ''
     new_data_source.code = code || dashboard.editor?.getValue() || ''
@@ -96,7 +96,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
             data_source.set({ ...new_data_source })
             
             if (dep.size && !new_data_source.error_message) 
-                await sub_stream(id) 
+                await subscribe_stream(id) 
             
             break
     }
@@ -127,6 +127,7 @@ export function create_data_source  (): { id: string, name: string } {
     return { id, name }
 }
 
+
 export function rename_data_source (key: string, new_name: string) {
     const data_source = get_data_source(key)
     
@@ -143,11 +144,12 @@ export function rename_data_source (key: string, new_name: string) {
         data_source.name = new_name
 }
 
-export async function sub_data_source (widget_option: Widget, source_id: string) {
+
+export async function subscribe_data_source (widget_option: Widget, source_id: string) {
     const data_source = get_data_source(source_id)
     
     if (widget_option.source_id)
-        unsub_data_source(widget_option, source_id)  
+        unsubscribe_data_source(widget_option, source_id)  
         
     data_source.deps.add(widget_option.id)
     
@@ -161,7 +163,7 @@ export async function sub_data_source (widget_option: Widget, source_id: string)
                 break
             case 'stream':
                 if (!data_source.ddb)
-                    await sub_stream(source_id)
+                    await subscribe_stream(source_id)
                 break
         }
         
@@ -169,17 +171,19 @@ export async function sub_data_source (widget_option: Widget, source_id: string)
         // console.log(widget_option.id, 'render', data_source.data)      
 }
 
-export function unsub_data_source (widget_option: Widget, new_source_id?: string) {
+
+export function unsubscribe_data_source (widget_option: Widget, new_source_id?: string) {
     const source_id = widget_option.source_id
     const data_source = get_data_source(source_id)
     if (!new_source_id || source_id !== new_source_id ) {
         data_source.deps.delete(source_id)
         if (!data_source.deps.size) {
             delete_interval(source_id)
-            unsub_stream(source_id)
+            unsubscribe_stream(source_id)
         }   
     }  
 }
+
 
 function create_interval (source_id: string) {
     const data_source = get_data_source(source_id)
@@ -224,6 +228,7 @@ function create_interval (source_id: string) {
     }
 }
 
+
 function delete_interval (source_id: string) {
     const data_source = get_data_source(source_id)
     const interval = data_source.timer
@@ -234,10 +239,11 @@ function delete_interval (source_id: string) {
         
 }
 
-async function sub_stream (source_id: string) {
+
+async function subscribe_stream (source_id: string) {
     const data_source = get_data_source(source_id)
     
-    unsub_stream(source_id)
+    unsubscribe_stream(source_id)
     
     const { ddb: { username, password } } = model
     const stream_connection = new DDB(
@@ -274,7 +280,8 @@ async function sub_stream (source_id: string) {
     }
 }
 
-function unsub_stream (source_id: string) {
+
+function unsubscribe_stream (source_id: string) {
     const data_source = get_data_source(source_id)
     const stream_connection = data_source.ddb
     if (stream_connection) {
@@ -283,15 +290,18 @@ function unsub_stream (source_id: string) {
     } 
 }
 
+
 export async function get_stream_tables (): Promise<string[]> {
     await dashboard.eval('exec name from objs(true) where type="REALTIME"')
     return dashboard.result.data.value as string[]
 }
 
+
 export async function get_stream_cols (table: string): Promise<string[]> {
     await dashboard.eval(`select name from schema(${table})['colDefs']`)
     return dashboard.result.data.value[0].value
 }
+
 
 export async function get_stream_filter_col (table: string): Promise<string> {
     try {
@@ -300,6 +310,7 @@ export async function get_stream_filter_col (table: string): Promise<string> {
         return ''
     }
 }
+
 
 export async function export_data_sources () {
     return (cloneDeep(data_sources)).map(
@@ -312,16 +323,21 @@ export async function export_data_sources () {
             return data_source
         }
     )
-} 
+}
+
 
 export async function import_data_sources (_data_sources) {
     data_sources = [ ]
+    
     for (let data_source of _data_sources) {
         data_sources.push(new DataSource(data_source.id, data_source.name))
         data_source.deps = new Set(data_source.deps)
         data_source.variables = new Set(data_source.variables)
         await save_data_source(data_source, data_source.code)
     }
+    
+    return data_sources
 }
+
 
 export let data_sources: DataSource[] = [ ]
