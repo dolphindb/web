@@ -8,8 +8,7 @@ import { ToolOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/modal.js'
 
 import { VariableList } from './VariableList.js'
-import { SqlEditor } from './SqlEditor.js'
-import { StreamEditor } from './StreamEditor.js'
+import { VariableEditor } from './VariableEditor.js'
 
 import { dashboard } from '../model.js'
 import { variables,
@@ -78,7 +77,7 @@ export function VariableConfig (props: IProps) {
     
     return <>
         <Button
-            icon={<ToolOutlined className='data-source-config-trigger-navigation-icon' />}
+            icon={<ToolOutlined className='variable-config-trigger-navigation-icon' />}
             onClick={open}
             {...btn_props}
         >
@@ -89,7 +88,7 @@ export function VariableConfig (props: IProps) {
             title='配置变量'
             width='80%' 
             destroyOnClose
-            className='data-source'
+            className='variable'
             open={visible}
             onCancel={handle_close} 
             maskClosable={false}
@@ -117,7 +116,7 @@ export function VariableConfig (props: IProps) {
         >
             {/* 未保存提示框 */}
             {contextHolder}
-            <div className='data-source-config-main'>
+            <div className='variable-config-main'>
                 <VariableList 
                     current_variable={current_variable}
                     no_save_flag={no_save_flag}
@@ -128,28 +127,12 @@ export function VariableConfig (props: IProps) {
                 />
                 {current_variable
                     ? <div className='config-right'>
-                        <div className='config-right-top'>
-                            <Tabs 
-                                onChange={activeKey => { change_current_variable_property('mode', activeKey) }} 
-                                activeKey={current_variable.mode} 
-                                items={[
-                                    {
-                                        label: '选择项',
-                                        key: 'select',
-                                    },
-                                    {
-                                        label: '自由文本',
-                                        key: 'text'
-                                    }
-                                ]} 
-                            />
-                        </div>
-                        {current_variable.mode === 'select'
-                            ? <div>select</div>
-                            : <div>text</div>
-                        }
+                        <VariableEditor
+                            current_variable={current_variable}
+                            change_no_save_flag={(value: boolean) => no_save_flag.current = value}
+                            change_current_variable_property={change_current_variable_property}
+                        />
                     </div>
-                
                     : <></>
                 }
             </div>
