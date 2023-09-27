@@ -102,27 +102,28 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
     
     switch (new_data_source.mode) {
         case 'sql':
-            
             new_data_source.cols.length = 0
     
-            const { type, result } = await dashboard.execute(new_data_source.code)
-            if (type === 'success') {
-                if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) {
-                    // 暂时只支持table
-                    new_data_source.data = sql_formatter(result.data as unknown as DdbObj<DdbValue>, new_data_source.max_line)
-                    new_data_source.cols = get_cols(result.data as unknown as DdbObj<DdbValue>)
-                }
-            } else {
-                new_data_source.error_message = result as string
+            try {
+                const { type, result } = await dashboard.execute(parse_code(new_data_source.code))
+                if (type === 'success') {
+                    if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) {
+                        // 暂时只支持table
+                        new_data_source.data = sql_formatter(result.data as unknown as DdbObj<DdbValue>, new_data_source.max_line)
+                        new_data_source.cols = get_cols(result.data as unknown as DdbObj<DdbValue>)
+                    }
+                } else 
+                    throw new Error(result as string)
+            } catch (error) {
+                new_data_source.error_message = error.message
                 if (code === undefined)
-                    dashboard.message.error(result as string)
+                    dashboard.message.error(error.message)
+            } finally {
+                data_source.set({ ...new_data_source })
+            
+                if (dep.size && !new_data_source.error_message && new_data_source.auto_refresh) 
+                    create_interval(id) 
             }
-            
-            data_source.set({ ...new_data_source })
-            
-            if (dep.size && !new_data_source.error_message && new_data_source.auto_refresh) 
-                create_interval(id) 
-            
             break
         case 'stream':
             data_source.set({ ...new_data_source })
@@ -215,36 +216,38 @@ export function unsubscribe_data_source (widget_option: Widget, new_source_id?: 
 
 async function execute (source_id: string) {
     const data_source = get_data_source(source_id)
-    const { type, result } = await dashboard.execute(data_source.code)
-    // const { type, result } = await dashboard.execute(parse_code(data_source.code))
+    try {
+        const { type, result } = await dashboard.execute(data_source.code)
+        // const { type, result } = await dashboard.execute(parse_code(data_source.code))
+                
+        if (type === 'success') 
+            // 暂时只支持table
+            if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) 
+                data_source.set({
+                    data: sql_formatter(result.data as unknown as DdbObj<DdbValue>, data_source.max_line),
+                    cols: get_cols(result.data as unknown as DdbObj<DdbValue>),
+                    error_message: ''
+                })    
+            else
+                data_source.set({
+                    data: [ ],
+                    cols: [ ],
+                    error_message: ''
+                })
             
-    if (type === 'success') 
-        // 暂时只支持table
-        if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) 
-            data_source.set({
-                data: sql_formatter(result.data as unknown as DdbObj<DdbValue>, data_source.max_line),
-                cols: get_cols(result.data as unknown as DdbObj<DdbValue>),
-                error_message: ''
-            })    
-        else
-            data_source.set({
-                data: [ ],
-                cols: [ ],
-                error_message: ''
-            })
-        
-        // 仅测试用
-        // console.log('')
-        // data_source.deps.forEach((widget_id: string) => {
-        //     console.log(widget_id, 'render', data_source.data)
-        // })
-    
-    else {
-        dashboard.message.error(result as string)
+            // 仅测试用
+            // console.log('')
+            // data_source.deps.forEach((widget_id: string) => {
+            //     console.log(widget_id, 'render', data_source.data)
+            // })
+        else 
+            throw new Error(result as string)    
+    } catch (error) {
+        dashboard.message.error(error.message)
         data_source.set({
             data: [ ],
             cols: [ ],
-            error_message: result as string
+            error_message: error.message
         })
         delete_interval(source_id)
     }
