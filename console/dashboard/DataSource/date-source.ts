@@ -7,9 +7,43 @@ import { model } from '../../model.js'
 import { DDB, DdbForm, type DdbObj, type DdbValue } from 'dolphindb'
 import { cloneDeep } from 'lodash'
 
+
 export type DataType = { }[]
 
 export type DataSourcePropertyType = string | number | boolean | string[] | DataType
+
+export type ExportDataSource = {
+    id: string
+    name: string
+    mode: string
+    max_line: number
+    data: DataType 
+    cols: string[] 
+    deps: string[]
+    variables: string[]
+    error_message: string
+    /** sql 模式专用 */
+    auto_refresh: boolean
+    /** sql 模式专用 */
+    code: string
+    /** sql 模式专用 */
+    interval: number
+    /** sql 模式专用 */
+    timer: null
+    /** stream 模式专用 */
+    filter: boolean
+    /** stream 模式专用 */
+    stream_table: string
+    /** stream 模式专用 */
+    filter_condition: string
+    /** stream 模式专用 */
+    node: string
+    /** stream 模式专用 */
+    ip: string
+    /** stream 模式专用 */
+    ddb: string
+}
+
 
 export class DataSource extends Model<DataSource>  {
     id: string
@@ -48,6 +82,7 @@ export class DataSource extends Model<DataSource>  {
         this.name = name
     }
 }
+
 
 export function find_data_source_index (key: string): number {
     return data_sources.findIndex(data_source => data_source.id === key)
@@ -312,28 +347,30 @@ export async function get_stream_filter_col (table: string): Promise<string> {
 }
 
 
-export async function export_data_sources () {
+export async function export_data_sources (): Promise<ExportDataSource[]> {
     return (cloneDeep(data_sources)).map(
         data_source => {
-            data_source.timer = null
-            data_source.ddb = null
-            data_source.data = [ ]
-            data_source.deps = Array.from(data_source.deps) as any
-            data_source.variables = Array.from(data_source.variables) as any
-            return data_source
+            return { 
+                ...data_source, 
+                timer: null,
+                ddb: null,
+                data: [ ],
+                deps: Array.from(data_source.deps),
+                variables: Array.from(data_source.variables)
+            }
         }
     )
 }
 
 
-export async function import_data_sources (_data_sources) {
+export async function import_data_sources (_data_sources: ExportDataSource[]) {
     data_sources = [ ]
     
     for (let data_source of _data_sources) {
-        data_sources.push(new DataSource(data_source.id, data_source.name))
-        data_source.deps = new Set(data_source.deps)
-        data_source.variables = new Set(data_source.variables)
-        await save_data_source(data_source, data_source.code)
+        const import_data_source = new DataSource(data_source.id, data_source.name)
+        Object.assign(import_data_source, data_source, { deps: new Set(data_source.deps), variables: new Set(data_source.variables) })
+        data_sources.push(import_data_source)
+        await save_data_source(import_data_source, import_data_source.code)
     }
     
     return data_sources

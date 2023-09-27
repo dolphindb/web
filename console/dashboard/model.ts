@@ -13,7 +13,7 @@ import { assert, genid } from 'xshell/utils.browser.js'
 import type { MessageInstance } from 'antd/es/message/interface.js'
 import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
-import { type DataSource, import_data_sources } from './DataSource/date-source.js'
+import { type DataSource, type ExportDataSource, import_data_sources } from './DataSource/date-source.js'
 
 import { t } from '../../i18n/index.js'
 import { type Monaco } from '../shell/Editor/index.js'
@@ -193,6 +193,7 @@ class DashBoardModel extends Model<DashBoardModel> {
         
         for (let widget of widgets) {
             let $element = widget.ref.current
+            
             assert($element)
             
             // 返回值为 GridItemHTMLElement 类型 (就是在 $element 这个 dom 节点上加了 gridstackNode: GridStackNode 属性)
@@ -342,9 +343,7 @@ interface DashBoardConfig {
     
     name: string
     /** 数据源配置 */
-    datasources: {
-        id: string
-    }[ ]
+    datasources: ExportDataSource[ ]
     
     /** 变量配置 */
     variables: {

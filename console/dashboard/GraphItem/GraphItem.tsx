@@ -19,7 +19,7 @@ import './index.scss'
 function GraphComponent ({ widget }: { widget: Widget }) {
     
     const data_source_node = get_data_source(widget.source_id)
-    const { data = [ ] } = data_source_node?.use(['data'])
+    const { data = [ ] } = data_source_node.use(['data'])
     
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     

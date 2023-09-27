@@ -81,6 +81,8 @@ function MainLayout () {
         if (!config?.id)
             return
         
+        // dashboard.set({ widget: null, widgets: [ ] })
+        
         ;(async () => {
             try {
                 await dashboard.load_config()
