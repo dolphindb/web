@@ -14,7 +14,7 @@ export class Variable extends Model<Variable>  {
     name: string
     display_name: string
     mode = 'select'
-    deps: Set<string> = new Set()
+    // deps: Set<string> = new Set()
     value = ''
     /** select 模式专用，可选的key*/
     options: OptionType[] = [ ]
@@ -27,8 +27,8 @@ export class Variable extends Model<Variable>  {
     }
 }
 
-export function find_variable_index (key: string): number {
-    return variables.findIndex(variable => variable.id === key)
+export function find_variable_index (id: string): number {
+    return variables.findIndex(variable => variable.id === id)
 } 
 
 export function get_variable (id: string): Variable {
@@ -47,18 +47,21 @@ export async function save_variable ( new_variable: Variable, message = true) {
 
 export function delete_variable (key: string): number {
     const variable = get_variable(key)
-    if (variable.deps.size)
-        dashboard.message.error('当前变量已被数据源使用无法删除')
-    else {
-        const delete_index = find_variable_index(key)
-        variables.splice(delete_index, 1)
-        return delete_index
-    }
+    // if (variable.deps.size)
+    //     dashboard.message.error('当前变量已被数据源使用无法删除')
+    // else {
+    //     const delete_index = find_variable_index(key)
+    //     variables.splice(delete_index, 1)
+    //     return delete_index
+    // }
+    const delete_index = find_variable_index(key)
+    variables.splice(delete_index, 1)
+    return delete_index
 }
 
 export function create_variable  (): { id: string, name: string, display_name: string } {
     const id = String(genid())
-    const name = `变量 ${id.slice(0, 4)}`
+    const name = `var_${id.slice(0, 4)}`
     const display_name = name
     variables.unshift(new Variable(id, name, display_name))
     return { id, name, display_name }
@@ -80,23 +83,23 @@ export function rename_variable (key: string, new_name: string) {
         variable.name = new_name
 }
 
-export async function sub_variable (data_source: DataSource, variable_id: string) {
-    const variable = get_variable(variable_id)
+// export async function sub_variable (data_source: DataSource, variable_id: string) {
+//     const variable = get_variable(variable_id)
     
-    variable.deps.add(data_source.id)
-    data_source.variables.add(variable.id)
-}
+//     variable.deps.add(data_source.id)
+//     data_source.variables.add(variable.id)
+// }
 
-export function unsub_variable (data_source: DataSource, variable_id: string) {
-    const variable = get_variable(variable_id)
+// export function unsub_variable (data_source: DataSource, variable_id: string) {
+//     const variable = get_variable(variable_id)
     
-    variable.deps.delete(data_source.id)
-    data_source.variables.delete(variable.id) 
-}
+//     variable.deps.delete(data_source.id)
+//     data_source.variables.delete(variable.id) 
+// }
 
 export async function export_variable () {
     return cloneDeep(variables).map(variable => {
-        variable.deps = Array.from(variable.deps) as any
+        // variable.deps = Array.from(variable.deps) as any
         return variable
     })
 } 

@@ -89,10 +89,10 @@ export function Navigation () {
             return 
         } 
         const new_dashboard_config = get_new_config()
+        dashboard.set({ config: new_dashboard_config })
+        dashboard.set({ configs: [...configs, new_dashboard_config] })
         try {
             await dashboard.save_configs()
-            dashboard.set({ config: new_dashboard_config })
-            dashboard.set({ configs: [...configs, new_dashboard_config] })
             dashboard.message.success(t('添加成功'))
         } catch (error) {
             model.show_error({ error })

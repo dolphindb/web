@@ -117,22 +117,17 @@ export function OptionList ({
     } 
     const defaultColumns: (ColumnTypes[number] & { editable?: boolean, dataIndex: string })[] = [
         {
-            title: 'Key',
-            dataIndex: 'key',
-            width: '10%',
-        },
-        {
-            title: 'Label',
+            title: '标签',
             dataIndex: 'label',
             editable: true,
         },
         {
-            title: 'Value',
+            title: '值',
             dataIndex: 'value',
             editable: true,
         },
         {
-            title: 'operation',
+            title: '操作',
             dataIndex: 'operation',
             render: (_, record: { key: React.Key }) => 
                 current_options.length >= 1 ? (
