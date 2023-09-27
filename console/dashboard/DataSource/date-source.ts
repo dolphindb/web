@@ -99,7 +99,6 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
     
     delete_interval(id)
     unsubscribe_stream(id)
-    unsubscribe_stream(id)
     new_data_source.data.length = 0
     new_data_source.error_message = ''
     new_data_source.code = code || dashboard.editor?.getValue() || ''
@@ -132,7 +131,6 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
             data_source.set({ ...new_data_source })
             
             if (dep.size && !new_data_source.error_message) 
-                await subscribe_stream(id) 
                 await subscribe_stream(id) 
             
             break
@@ -187,7 +185,6 @@ export async function subscribe_data_source (widget_option: Widget, source_id: s
     
     if (widget_option.source_id)
         unsubscribe_data_source(widget_option, source_id)  
-        unsubscribe_data_source(widget_option, source_id)  
         
     data_source.deps.add(widget_option.id)
     
@@ -201,7 +198,6 @@ export async function subscribe_data_source (widget_option: Widget, source_id: s
                 break
             case 'stream':
                 if (!data_source.ddb)
-                    await subscribe_stream(source_id)
                     await subscribe_stream(source_id)
                 break
         }
@@ -219,13 +215,11 @@ export function unsubscribe_data_source (widget_option: Widget, new_source_id?: 
         if (!data_source.deps.size) {
             delete_interval(source_id)
             unsubscribe_stream(source_id)
-            unsubscribe_stream(source_id)
         }   
     }  
 }
 
-
-function create_interval (source_id: string) {
+async function execute (source_id: string) {
     const data_source = get_data_source(source_id)
     const { type, result } = await dashboard.execute(data_source.code)
     // const { type, result } = await dashboard.execute(parse_code(data_source.code))
@@ -290,7 +284,6 @@ function delete_interval (source_id: string) {
 async function subscribe_stream (source_id: string) {
     const data_source = get_data_source(source_id)
     
-    unsubscribe_stream(source_id)
     unsubscribe_stream(source_id)
     
     const { ddb: { username, password } } = model
