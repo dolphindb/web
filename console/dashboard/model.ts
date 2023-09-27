@@ -13,7 +13,7 @@ import { assert, genid } from 'xshell/utils.browser.js'
 import type { MessageInstance } from 'antd/es/message/interface.js'
 import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
-import { import_data_sources } from './DataSource/date-source.js'
+import { type ExportDataSource, import_data_sources } from './DataSource/date-source.js'
 
 import { t } from '../../i18n/index.js'
 import { type Monaco } from '../shell/Editor/index.js'
@@ -146,8 +146,8 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     async load_config () {
         if (this.config) {
-            await import_data_sources(this.config.datasources) 
             await import_variable(this.config.variables)
+            await import_data_sources(this.config.datasources) 
             this.set({ widgets: this.config.canvas.widgets.map(widget => ({
                 ...widget, 
                 ref: createRef(), 
@@ -322,9 +322,7 @@ interface DashBoardConfig {
     
     name: string
     /** 数据源配置 */
-    datasources: {
-        id: string
-    }[ ]
+    datasources: ExportDataSource[ ]
     
     /** 变量配置 */
     variables: {
