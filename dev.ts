@@ -248,6 +248,7 @@ if (ramdisk) {
 const info = 
     'web:\n' +
     'http://localhost:8432/console/?view=dashboard&hostname=115.239.209.123&port=8878\n'.blue.underline +
+    'http://localhost:8432/console/?view=dashboard&hostname=115.239.209.123&port=8868\n'.blue.underline +
     'http://localhost:8432/console/?view=dashboard&hostname=192.168.0.200&port=20023\n'.blue.underline +
     'http://localhost:8432/console/?view=dashboard&hostname=192.168.0.200&port=20000\n'.blue.underline +
     'http://localhost:8432/console/?view=dashboard&hostname=115.239.209.123&port=8892\n'.blue.underline +
