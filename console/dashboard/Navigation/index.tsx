@@ -115,11 +115,10 @@ export function Navigation () {
             ...config,
             name: edit_dashboard_name,
         }
-        // console.log(new_dashboard_config)
+        dashboard.set({ config: edit_dashboard_config })
+        dashboard.set({ configs: [...configs.filter(({ id }) => id !== config.id), edit_dashboard_config] })
         try {
             await dashboard.save_configs()
-            dashboard.set({ config: edit_dashboard_config })
-            dashboard.set({ configs: [...configs.filter(({ id }) => id !== config.id), edit_dashboard_config] })
             dashboard.message.success(t('修改成功'))
         } catch (error) {
             model.show_error({ error })
@@ -130,10 +129,15 @@ export function Navigation () {
     
     
     async function handle_delete () {
+        if (!configs.length) {
+            dashboard.message.error(t('当前 dashboard 列表为空'))
+            return 
+        }
+        const other_configs = configs.filter(({ id }) => id !== config.id)
+        dashboard.set({ configs: other_configs })
+        dashboard.set({ config: other_configs[0] })
         try {
             await dashboard.save_configs()
-            dashboard.set({ configs: configs.filter(({ id }) => id !== config.id) })
-            dashboard.set({ config: configs[0] })
             dashboard.message.success(t('删除成功'))
         } catch (error) {
             model.show_error({ error })
@@ -153,8 +157,8 @@ export function Navigation () {
                 placeholder='选择 dashboard'
                 onChange={(value: string, option: DashboardOption) => {
                     const choose_config = configs.find(({ id }) => id === option.key) 
-                    dashboard.set({ config: choose_config })
-                    dashboard.set({ widget: null })
+                    dashboard.set({ config: choose_config, widget: null })
+                    
                     // dashboard.set({ widgets: choose_config.canvas.widgets })
                     const url_params = new URLSearchParams(location.search)
                     const url = new URL(location.href)
@@ -162,7 +166,7 @@ export function Navigation () {
                     url.search = url_params.toString()
                     history.replaceState({ }, '', url)
                 }}
-                defaultValue={ config?.name || new_dashboard_name}
+                // defaultValue={ config?.name || new_dashboard_name}
                 value={config?.name}
                 bordered={false}
                 options={configs?.map(({ id, name }) => ({

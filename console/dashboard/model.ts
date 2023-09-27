@@ -13,12 +13,12 @@ import { assert, genid } from 'xshell/utils.browser.js'
 import type { MessageInstance } from 'antd/es/message/interface.js'
 import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
-import { import_data_sources } from './DataSource/date-source.js'
+import { type ExportDataSource, import_data_sources } from './DataSource/date-source.js'
 
 import { t } from '../../i18n/index.js'
 import { type Monaco } from '../shell/Editor/index.js'
 import { model, show_error, type ErrorOptions } from '../model.js'
-import { unsub_data_source, type DataType } from './DataSource/date-source.js'
+import { unsubscribe_data_source, type DataType } from './DataSource/date-source.js'
 import { type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig } from './type.js'
 import { import_variable } from './Variable/variable.js'
 
@@ -146,8 +146,8 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     async load_config () {
         if (this.config) {
-            await import_data_sources(this.config.datasources) 
             await import_variable(this.config.variables)
+            await import_data_sources(this.config.datasources) 
             this.set({ widgets: this.config.canvas.widgets.map(widget => ({
                 ...widget, 
                 ref: createRef(), 
@@ -174,7 +174,8 @@ class DashBoardModel extends Model<DashBoardModel> {
         
         for (let widget of widgets) {
             let $element = widget.ref.current
-            
+            if (!$element)
+                return
             // 返回值为 GridItemHTMLElement 类型 (就是在 $element 这个 dom 节点上加了 gridstackNode: GridStackNode 属性)
             Object.assign(
                 widget,
@@ -198,7 +199,7 @@ class DashBoardModel extends Model<DashBoardModel> {
         const widgets = this.widgets.filter(w => w !== widget)
         
         if (widget.source_id)
-            unsub_data_source(widget)
+            unsubscribe_data_source(widget)
         
         this.set({
             widget: widgets[0],
@@ -322,9 +323,7 @@ interface DashBoardConfig {
     
     name: string
     /** 数据源配置 */
-    datasources: {
-        id: string
-    }[ ]
+    datasources: ExportDataSource[ ]
     
     /** 变量配置 */
     variables: {

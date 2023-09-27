@@ -17,7 +17,7 @@ import { data_sources,
     find_data_source_index, 
     get_data_source,
     save_data_source, 
-    sub_data_source, 
+    subscribe_data_source, 
     type DataSource,
     type DataSourcePropertyType,
 } from './date-source.js'
@@ -127,7 +127,7 @@ export function DataSourceConfig (props: IProps, ref) {
                                 await handle_save()
                             if (widget) {
                                 if (!widget.source_id || widget.source_id !== current_data_source.id) {
-                                    await sub_data_source(widget, current_data_source.id)
+                                    await subscribe_data_source(widget, current_data_source.id)
                                     dashboard.update_widget({ ...widget, source_id: current_data_source.id })
                                 }
                                 close()

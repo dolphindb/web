@@ -83,14 +83,14 @@ export function rename_variable (key: string, new_name: string) {
         variable.name = new_name
 }
 
-// export async function sub_variable (data_source: DataSource, variable_id: string) {
+// export async function subscribe_variable (data_source: DataSource, variable_id: string) {
 //     const variable = get_variable(variable_id)
     
 //     variable.deps.add(data_source.id)
 //     data_source.variables.add(variable.id)
 // }
 
-// export function unsub_variable (data_source: DataSource, variable_id: string) {
+// export function unsubscribe_variable (data_source: DataSource, variable_id: string) {
 //     const variable = get_variable(variable_id)
     
 //     variable.deps.delete(data_source.id)
