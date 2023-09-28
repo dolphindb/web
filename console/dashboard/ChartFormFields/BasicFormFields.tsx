@@ -11,8 +11,6 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' | 'descript
     
     const { variable_names } = variables.use(['variable_names'])
     
-    console.log(variable_names)
-    
     const FormFields = useMemo(() => { 
         return  <div className='axis-wrapper'>
             <Form.Item name='title' label={t('标题')} initialValue={t('标题')}>

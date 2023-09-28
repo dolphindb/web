@@ -33,7 +33,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
                 <BoolRadioGroup />
             </Form.Item>
         </div>
-    }, [ type ])
+    }, [ type, variable_names ])
     
     return <Collapse items={[{
         key: 'basic',
