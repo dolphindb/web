@@ -371,7 +371,7 @@ export interface Widget extends GridStackNode {
     
     /** 图表配置 */
     config?: (IChartConfig | ITableConfig | ITextConfig | IDescriptionsConfig) & {
-        variable_ids: string[]
+        variable_names: string[]
     }
 }
 

@@ -67,6 +67,8 @@ export function find_variable_index (name: string): number {
 export async function update_variable_value (name: string, value: string) {
     variables.set({ [name]: { ...variables[name], value } })
     
+    console.log(variables, 'variables')
+    
     for (let source_id of variables[name].deps)
         await execute(source_id)
 }
