@@ -15,7 +15,7 @@ import { dashboard } from './model.js'
 import { Sider } from './Sider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
-import { Navigation } from './Navigation.js'
+import { Header } from './Header.js'
 
 
 import config from './chart.config.json' assert { type: 'json' }
@@ -85,7 +85,7 @@ function MainLayout () {
     
     return <div className='dashboard'>
         <div className='dashboard-header'>
-            <Navigation />
+            <Header />
         </div>
         <div className='dashboard-main'>
             <Sider visible={editing}/>

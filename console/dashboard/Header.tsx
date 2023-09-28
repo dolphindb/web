@@ -39,7 +39,7 @@ interface DashboardOption {
 }
 
 
-export function Navigation () {
+export function Header () {
     const { editing, widgets, configs, config } = dashboard.use(['editing', 'widgets', 'configs', 'config'])
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
@@ -143,7 +143,7 @@ export function Navigation () {
     }
     
     
-    return <div className='dashboard-navigation'>
+    return <div className='dashboard-header'>
         <div className='left'>
             <Select
                 className='left-select'
