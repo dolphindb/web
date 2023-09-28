@@ -4,15 +4,15 @@ import { useMemo } from 'react'
 
 import { type Widget } from '../../model.js'
 import { type IChartConfig } from '../../type.js'
-import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
+import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 
 import './index.sass'
 
 const kColor = '#fd1050'
 const kColor0 = '#0cf49b'
-const kBorderColor = '#fd1050'
-const kBorderColor0 = '#0cf49b'
+// const kBorderColor = '#fd1050'
+// const kBorderColor0 = '#0cf49b'
 
 type COL_MAP = {
     time: string
@@ -45,7 +45,7 @@ function splitData (rowData: any[], col_name: COL_MAP) {
 }
 
 export function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
-    const { title, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
+    const { title, title_size, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
     const data = useMemo(
         () =>
             splitData(data_source, {
@@ -66,7 +66,8 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
             title: {
                 text: title,
                 textStyle: {
-                    color: '#e6e6e6'
+                    color: '#e6e6e6',
+                    fontSize: title_size || 18,
                 }
             },
             legend: {
@@ -267,7 +268,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     data: data.lines,
                     symbol: 'none',
                     itemStyle: {
-                        color: '#54d2d2',
+                        color: series[0].line_color || '#54d2d2',
                     },
                 },
                 {
@@ -276,7 +277,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     symbol: 'none',
                     data: new Array(data.categoryData.length).fill(series[0].limit),
                     itemStyle: {
-                        color: '#1f7ed2',
+                        color: series[0].limit_color || '#1f7ed2',
                     }
                 },
                 

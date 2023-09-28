@@ -7,6 +7,8 @@ import './index.scss'
 import { concat_name_path, convert_list_to_options } from '../utils.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { useMemo } from 'react'
+import { dashboard } from '../model.js'
+import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 
 
 
@@ -36,43 +38,37 @@ const axis_position_options = [
     { value: 'right', label: t('右侧') }
 ]
 
-export function BasicFormFields (props: { type: 'chart' | 'table' | 'description' }) { 
-    const { type  } = props
-    const FormFields = useMemo(() => { 
-        const is_table = type === 'table'
-        const is_chart = type === 'chart'
-        
-        const BasicChartSetting = <>
-            <Form.Item name='with_tooltip' label={t('提示框')} initialValue>
-                <BoolRadioGroup />
-            </Form.Item>
-            <Form.Item name='x_datazoom' label={t('X 轴缩略轴')} initialValue>
-                <BoolRadioGroup />
-            </Form.Item>
-            <Form.Item name='y_datazoom' label={t('Y 轴缩略轴')} initialValue={false}>
-                <BoolRadioGroup />
-            </Form.Item>
-        </>
-  
-        const BasicTableSetting =  <>
-            <Form.Item initialValue={false} name='bordered' label={t('展示边框')}>
-                <BoolRadioGroup />
-            </Form.Item>
-        </>
-        
-        return  <div className='axis-wrapper'>
-            <Form.Item name='title' label={ t('标题') } initialValue={ t('标题') }>
-                <Input />
-            </Form.Item>
-            {is_chart && BasicChartSetting}
-            {is_table && BasicTableSetting}
-        </div>
-    }, [type])
+export function BasicFormFields () { 
+    
+    const { variables } = dashboard.use(['variables'])
     
     return <Collapse items={[{
         key: 'basic',
         label: t('基本属性'),
-        children: FormFields,
+        children: <div className='axis-wrapper'>
+        <Form.Item name='title' label={ t('标题') } initialValue={ t('标题') }>
+            <Input />
+        </Form.Item>
+        <Form.Item name='title_size' label='标题字号'>
+                <InputNumber addonAfter='px'/>
+            </Form.Item>
+            
+        <Form.Item name='variable_ids' label={t('关联变量')}>
+            <Select mode='multiple' options={variables.map(item => ({
+                label: item.name,
+                value: item.id
+            }))} />
+        </Form.Item>
+        <Form.Item name='with_tooltip' label={t('提示框')} initialValue>
+            <BoolRadioGroup />
+        </Form.Item>
+        <Form.Item name='x_datazoom' label={t('X 轴缩略轴')} initialValue>
+            <BoolRadioGroup />
+        </Form.Item>
+        <Form.Item name='y_datazoom' label={t('Y 轴缩略轴')} initialValue={false}>
+            <BoolRadioGroup />
+        </Form.Item>
+    </div>,
         forceRender: true
      }]} />
 }
@@ -144,8 +140,8 @@ function YAxis ({ col_names, initial_values }: { col_names: string[], initial_va
 function Series (props: { col_names: string[] }) { 
     const { col_names } = props
     
-    const series = useMemo(() => [{ name: 'OHLC', key: 0, selected_cols: [ 'open', 'high', 'low', 'close', 'value', 'limit'] }, 
-                                  { name: '交易量', key: 1 }], [ ])
+    const series = useMemo(() => [{ name: '', key: 0, selected_cols: [ 'open', 'high', 'low', 'close', 'value', 'limit'] }, 
+                                  { name: '', key: 1 }], [ ])
     
     return <Form.List name='series' initialValue={series}>
         {fields => <>
@@ -182,6 +178,18 @@ function Series (props: { col_names: string[] }) {
                                     </Form.Item>
                                     } }
                                 </FormDependencies>
+                                
+                                {
+                                    series[index]?.selected_cols &&  
+                                    <>
+                                        <Form.Item name={[field.name, 'line_color']} label='折线颜色'>
+                                            <StringColorPicker />
+                                        </Form.Item>
+                                        <Form.Item name={[field.name, 'limit_color']} label='阈值颜色'>
+                                            <StringColorPicker />
+                                        </Form.Item>
+                                    </>
+                                }
                             </div>
                         { index < fields.length - 1 && <Divider className='divider'/> }
                     </div>
@@ -197,10 +205,10 @@ export function OhlcFormFields (props: IProps) {
     
     const [x_axis, y_axis] = useMemo(
         () => [
-            { type: AxisType.TIME, name: '时间' },
+            { type: AxisType.TIME, name: '' },
             [
-                { type: AxisType.VALUE, name: 'OHLC', position: Position.LEFT },
-                { type: AxisType.VALUE, name: '交易量', position: Position.RIGHT }
+                { type: AxisType.VALUE, name: '', position: Position.LEFT },
+                { type: AxisType.VALUE, name: '', position: Position.RIGHT }
             ]
         ],
         [ ]

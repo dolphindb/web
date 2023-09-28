@@ -33,6 +33,8 @@ export interface ISeriesConfig {
     close?: string
     value?: string
     limit?: string
+    line_color?: string
+    limit_color?: string
     
 }
 
