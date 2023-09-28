@@ -15,8 +15,10 @@ export function GraphSetting () {
         if (!widget.id)
             return
         // 已设置config，回显表单
-        else if (widget.config) 
+        else if (widget.config) { 
+            form.resetFields()
             form.setFieldsValue(widget.config)
+        }
         // 未设置config的时候需要重置表单，将表单的初始值作为图的config
         else { 
             form.resetFields()
