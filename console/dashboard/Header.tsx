@@ -144,152 +144,152 @@ export function Header () {
     
     
     return <div className='dashboard-header'>
-        <div className='left'>
-            <Select
-                className='left-select'
-                placeholder='选择 dashboard'
-                onChange={(value: string, option: DashboardOption) => {
-                    dashboard.update_config(
-                        configs.find(({ id }) => id === option.key)
-                    )
-                }}
-                // defaultValue={ config?.name || new_dashboard_name}
-                value={config?.name}
-                bordered={false}
-                options={configs?.map(({ id, name }) => ({
-                    key: id,
-                    value: name,
-                    label: name
-                }))}
-                // options={[
-                //     { value: 'dashboard1', label: 'dashboard1' },
-                //     { value: 'dashboard2', label: 'dashboard2' },
-                //     { value: 'dashboard3', label: 'dashboard3' },
-                // ]}
-            />
-        </div>
-        <div className='right'>
-            <div className='right-icons'>
-                <Modal open={add_visible}
-                       maskClosable={false}
-                       onCancel={add_close}
-                       onOk={handle_add}
-                       closeIcon={false}
-                       title={t('请输入 dashboard 的名称')}>
-                    <Input value={new_dashboard_name}
-                           onChange={event => { set_new_dashboard_name(event.target.value) }}
-                           />
-                </Modal>
-                
-                <Modal open={edit_visible}
-                       maskClosable={false}
-                       onCancel={edit_close}
-                       onOk={handle_edit}
-                       closeIcon={false}
-                       title={t('请输入新的 dashboard 名称')}>
-                    <Input value={edit_dashboard_name} onChange={event => { set_edit_dashboard_name(event.target.value) }}/>
-                </Modal>
-                
-                <Tooltip title='返回交互编程'>
-                    <Button className='action' onClick={() => { model.set({ view: 'shell', sider: true, header: true }) }}><HomeOutlined /></Button>
-                </Tooltip>
-                
-                <Tooltip title='新增'>
-                    <Button
-                        className='action'
-                        onClick={() => {
-                            add_open()
-                            set_new_dashboard_name(String(genid()).slice(0, 4))
-                        }}
-                    >
-                        <FileOutlined />
-                    </Button>
-                </Tooltip>
-                
-                <Tooltip title='修改'>
-                    <Button className='action' 
-                            onClick={() => { 
-                                edit_open()
-                                set_edit_dashboard_name(config?.name) 
-                            }}>
-                                <EditOutlined />
-                    </Button>
-                </Tooltip>
-                
-                <Tooltip title='保存'>
-                    <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
-                </Tooltip>
-                
-                <Tooltip title={t('导出')}>
-                    <Button className='action' onClick={async () => {
-                        try {
-                            await save_config()
-                            
-                            let a = document.createElement('a')
-                            a.download = `dashboard.${config.id}.json`
-                            a.href = URL.createObjectURL(
-                                new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
-                            )
-                            
-                            document.body.appendChild(a)
-                            a.click()
-                            document.body.removeChild(a)
-                        } catch (error) {
-                            model.show_error({ error })
-                        }
-                    }}><DownloadOutlined /></Button>
-                </Tooltip>
-                
-                <Tooltip title={t('导入')}>
-                    <Upload
-                        className='action'
-                        showUploadList={false}
-                        beforeUpload={async file => {
-                            dashboard.update_config(
-                                JSON.parse(await file.text()) as DashBoardConfig
-                            )
-                            
-                            return false
-                        }}
-                    >
-                        <UploadOutlined />
-                    </Upload>
-                </Tooltip>
-                
-                <Tooltip title='删除'>
-                    <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
-                </Tooltip>
-                
-                <Tooltip title='刷新'>
-                    <Button className='action' onClick={() => { dashboard.message.error(t('功能还未实现')) }}><SyncOutlined /></Button>
-                </Tooltip>
-                
-                <Tooltip title='暂停流数据接收'>
-                    <Button className='action' onClick={() => { dashboard.message.error(t('功能还未实现')) }}><PauseOutlined /></Button>
-                </Tooltip>
-                
-                { model.dev && <CompileAndRefresh /> }
-            </div>
+        <Select
+            className='switcher'
+            placeholder='选择 dashboard'
+            onChange={(value: string, option: DashboardOption) => {
+                dashboard.update_config(
+                    configs.find(({ id }) => id === option.key)
+                )
+            }}
+            // defaultValue={ config?.name || new_dashboard_name}
+            value={config?.name}
+            bordered={false}
+            options={configs?.map(({ id, name }) => ({
+                key: id,
+                value: name,
+                label: name
+            }))}
+            // options={[
+            //     { value: 'dashboard1', label: 'dashboard1' },
+            //     { value: 'dashboard2', label: 'dashboard2' },
+            //     { value: 'dashboard3', label: 'dashboard3' },
+            // ]}
+        />
+        
+        <div className='actions'>
+            <Modal open={add_visible}
+                   maskClosable={false}
+                   onCancel={add_close}
+                   onOk={handle_add}
+                   closeIcon={false}
+                   title={t('请输入 dashboard 的名称')}>
+                <Input value={new_dashboard_name}
+                       onChange={event => { set_new_dashboard_name(event.target.value) }}
+                       />
+            </Modal>
             
-            <div className='right-editormode'>
-                <span
-                    className={`right-editormode-editor ${editing ? 'editormode-selected' : ''}`}
-                    onClick={() => { dashboard.set_editing(true) }}
+            <Modal open={edit_visible}
+                   maskClosable={false}
+                   onCancel={edit_close}
+                   onOk={handle_edit}
+                   closeIcon={false}
+                   title={t('请输入新的 dashboard 名称')}>
+                <Input value={edit_dashboard_name} onChange={event => { set_edit_dashboard_name(event.target.value) }}/>
+            </Modal>
+            
+            <Tooltip title='返回交互编程'>
+                <Button className='action' onClick={() => { model.set({ view: 'shell', sider: true, header: true }) }}><HomeOutlined /></Button>
+            </Tooltip>
+            
+            <Tooltip title='新增'>
+                <Button
+                    className='action'
+                    onClick={() => {
+                        add_open()
+                        set_new_dashboard_name(String(genid()).slice(0, 4))
+                    }}
                 >
-                    <EditOutlined /> 编辑
-                </span>
-                <span className='divider'>|</span>
-                <span
-                    className={`right-editormode-preview ${editing ? '' : 'editormode-selected'} `}
-                    onClick={() => { dashboard.set_editing(false) }}
+                    <FileOutlined />
+                </Button>
+            </Tooltip>
+            
+            <Tooltip title='修改'>
+                <Button className='action' 
+                        onClick={() => { 
+                            edit_open()
+                            set_edit_dashboard_name(config?.name) 
+                        }}>
+                            <EditOutlined />
+                </Button>
+            </Tooltip>
+            
+            <Tooltip title='保存'>
+                <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
+            </Tooltip>
+            
+            <Tooltip title={t('导出')}>
+                <Button className='action' onClick={async () => {
+                    try {
+                        await save_config()
+                        
+                        let a = document.createElement('a')
+                        a.download = `dashboard.${config.id}.json`
+                        a.href = URL.createObjectURL(
+                            new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
+                        )
+                        
+                        document.body.appendChild(a)
+                        a.click()
+                        document.body.removeChild(a)
+                    } catch (error) {
+                        model.show_error({ error })
+                    }
+                }}><DownloadOutlined /></Button>
+            </Tooltip>
+            
+            <Tooltip title={t('导入')}>
+                <Upload
+                    className='action'
+                    showUploadList={false}
+                    beforeUpload={async file => {
+                        dashboard.update_config(
+                            JSON.parse(await file.text()) as DashBoardConfig
+                        )
+                        
+                        return false
+                    }}
                 >
-                    <EyeOutlined /> 预览
-                </span>
-            </div>
-            <div className='right-config'>
-                <VariableConfig/>
-                <DataSourceConfig/>
-            </div>
+                    <UploadOutlined />
+                </Upload>
+            </Tooltip>
+            
+            <Tooltip title='删除'>
+                <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
+            </Tooltip>
+            
+            <Tooltip title='刷新'>
+                <Button className='action' onClick={() => { dashboard.message.error(t('功能还未实现')) }}><SyncOutlined /></Button>
+            </Tooltip>
+            
+            <Tooltip title='暂停流数据接收'>
+                <Button className='action' onClick={() => { dashboard.message.error(t('功能还未实现')) }}><PauseOutlined /></Button>
+            </Tooltip>
+            
+            { model.dev && <CompileAndRefresh /> }
+        </div>
+        
+        <div className='modes'>
+            <span
+                className={`right-editormode-editor ${editing ? 'editormode-selected' : ''}`}
+                onClick={() => { dashboard.set_editing(true) }}
+            >
+                <EditOutlined /> 编辑
+            </span>
+            <span className='divider'>|</span>
+            <span
+                className={`right-editormode-preview ${editing ? '' : 'editormode-selected'} `}
+                onClick={() => { dashboard.set_editing(false) }}
+            >
+                <EyeOutlined /> 预览
+            </span>
+        </div>
+        
+        <div className='padding' />
+        
+        <div className='configs'>
+            <VariableConfig/>
+            <DataSourceConfig/>
         </div>
     </div>
 }
