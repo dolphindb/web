@@ -120,7 +120,6 @@ export function VariableList ({
                             const delete_index = delete_variable(current_variable.name)
                             if (delete_index >= 0) {
                                 menu_items.splice(delete_index, 1)
-                                console.log(menu_items)
                                 set_menu_items([...menu_items])
                                 if (!variable_names.length)
                                     change_current_variable('')

@@ -46,7 +46,7 @@ export class Variable  {
     }
 }
 
-export class VariableContainer extends Model<VariableContainer>  {
+export class Variables extends Model<Variables>  {
     variable_names: string[] = [ ]
     constructor () {
         super()
@@ -63,10 +63,6 @@ export function find_variable_index (name: string): number {
     return variables.variable_names.findIndex(variable_name => variable_name === name)
 }
 
-
-// export function get_variable (id: string): Variable {
-//     return variables.variable_names[find_variable_index(id)]
-// }
 
 export async function update_variable (name: string, value: string) {
         variables.set({ [name]: { ...variables[name], value } })
@@ -168,7 +164,7 @@ export async function import_variables (_variables: ExportVariable[]) {
         await save_variable(import_variable, false)
     }
     
-    return variables.variable_names
+    return variables.variable_names.map(variable_name => variables[variable_name])
 }
 
-export const variables = new VariableContainer()
+export const variables = new Variables()
