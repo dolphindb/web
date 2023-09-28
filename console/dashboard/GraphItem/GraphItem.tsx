@@ -20,14 +20,14 @@ import { VariableForm } from './VariableForm.js'
 function GraphComponent ({ widget }: { widget: Widget }) {
     
     const data_source_node = get_data_source(widget.source_id)
-    const { variable_ids } =  widget.config
+    const { variable_names } = widget.config
     
     const { data = [ ] } = data_source_node.use(['data'])
     
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     
     return <div className='graph-item-wrapper'>
-        { !!variable_ids?.length && <VariableForm ids={variable_ids} /> }
+        { !!variable_names?.length && <VariableForm names={variable_names} /> }
         <div className='graph-component'>
             <Component data_source={data} widget={widget} />
         </div>

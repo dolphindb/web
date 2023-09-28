@@ -67,6 +67,8 @@ export function find_variable_index (name: string): number {
 export async function update_variable_value (name: string, value: string) {
     variables.set({ [name]: { ...variables[name], value } })
     
+    console.log(variables, 'variables')
+    
     for (let source_id of variables[name].deps)
         await execute(source_id)
 }
@@ -135,7 +137,7 @@ export function rename_variable (old_name: string, new_name: string) {
 }
 
 export async function subscribe_variable (data_source: DataSource, variable_name: string) {
-    const variable = variable_name[variable_name]
+    const variable = variables[variable_name]
     
     variable.deps.add(data_source.id)
     data_source.variables.add(variable_name)

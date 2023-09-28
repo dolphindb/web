@@ -1,15 +1,22 @@
 import { DatePicker, Form, Input, Radio, Space } from 'antd'
-import { useCallback, useMemo } from 'react'
-import { dashboard } from '../model.js'
-import { type Variable } from '../Variable/variable'
+import { useCallback, useEffect, useMemo } from 'react'
+
+import { type Variable, variables, update_variable_value, type Variables } from '../Variable/variable.js'
 
 interface IProps { 
-    ids: string[]
+    names: string[]
 }
 
 
 function ControlField ({ variable }: { variable: Variable }) {
     const { mode, name, options, display_name } = variable
+    
+    const variable_obj = variables.use()
+    const form = Form.useFormInstance()
+    
+    useEffect(() => { 
+        form.setFieldValue(name, variable_obj[name].value)
+    }, [variable_obj[name].value, name])
     
     switch (mode) {
         case 'time':
@@ -33,19 +40,19 @@ function ControlField ({ variable }: { variable: Variable }) {
 
 
 export function VariableForm (props: IProps) {
-    const { variables } = dashboard.use(['variables'])
-    const { ids } = props
+     
+    const { names } = props
     
     const [form] = Form.useForm()
     
-    const used_variables = useMemo<Variable[]>(() =>
-        variables.filter(item => ids.includes(item.id))
-        , [variables, ids])
+    const variables_obj =  variables.use()
     
-    
+    const used_variables = names.map(name => variables_obj[name])
+       
     const on_variables_change = useCallback((_, values) => { 
-        // TODO: 更新变量
-        console.log(values, 'values')
+        Object.entries(values).forEach(([key, value]) => { 
+            update_variable_value(key, value as string)
+        })
     }, [ ])
     
     return <Form form={form} onValuesChange={on_variables_change}>

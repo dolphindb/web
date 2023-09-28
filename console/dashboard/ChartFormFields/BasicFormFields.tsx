@@ -5,12 +5,12 @@ import { Collapse, Form, Input, InputNumber, Select } from 'antd'
 import { t } from '../../../i18n/index.js'
 import { useMemo } from 'react'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
-import { dashboard } from '../model.js'
-
+import { variables } from '../Variable/variable.js'
 
 export function BasicFormFields ({ type }: { type: 'chart' | 'table' | 'description' }) { 
     
-    const { variables } = dashboard.use(['variables'])
+    const { variable_names } = variables.use(['variable_names'])
+    
     
     
     const FormFields = useMemo(() => { 
@@ -23,10 +23,10 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' | 'descript
                 <InputNumber addonAfter='px'/>
             </Form.Item>
             
-            <Form.Item name='variable_ids' label={t('关联变量')}>
-                <Select mode='multiple' options={variables.map(item => ({
-                    label: item.name,
-                    value: item.id
+            <Form.Item name='variable_names' label={t('关联变量')}>
+                <Select mode='multiple' options={variable_names.map(item => ({
+                    label: item,
+                    value: item
                 }))} />
             </Form.Item>
             
@@ -57,7 +57,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' | 'descript
                 </Form.Item>
             </>}
         </div>
-    }, [ type, variables ])
+    }, [ type, variable_names ])
     
     return <Collapse items={[{
         key: 'basic',
