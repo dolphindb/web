@@ -100,8 +100,9 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
     
     delete_interval(id)
     unsubscribe_stream(id)
-    while (data_source.variables.size) 
-        unsubscribe_variable(data_source, data_source.deps[0])
+    
+    Array.from(data_source.variables).forEach(dep => { unsubscribe_variable(data_source, dep) }) 
+        
     new_data_source.data.length = 0
     new_data_source.error_message = ''
     new_data_source.code = code || dashboard.editor?.getValue() || ''

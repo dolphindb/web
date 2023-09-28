@@ -67,8 +67,6 @@ export function find_variable_index (name: string): number {
 export async function update_variable_value (name: string, value: string) {
     variables.set({ [name]: { ...variables[name], value } })
     
-    console.log(variables, 'variables')
-    
     for (let source_id of variables[name].deps)
         await execute(source_id)
 }
@@ -86,7 +84,7 @@ export function get_variable_value (name: string): string {
 export async function save_variable ( new_variable: Variable, message = true) {
     const name = new_variable.name
     
-    variables.set({ [name]: { ...new_variable, value: '' } })
+    variables.set({ [name]: { ...new_variable } })
     
     for (let source_id of variables[name].deps)
         await execute(source_id)
@@ -144,7 +142,7 @@ export async function subscribe_variable (data_source: DataSource, variable_name
 }
 
 export function unsubscribe_variable (data_source: DataSource, variable_name: string) {
-    const variable = variable_name[variable_name]
+    const variable = variables[variable_name]
     
     variable.deps.delete(data_source.id)
     data_source.variables.delete(variable.name) 
@@ -174,7 +172,6 @@ export async function import_variables (_variables: ExportVariable[]) {
         variables.variable_names.push(import_variable.name)
         await save_variable(import_variable, false)
     }
-    
     return variables.variable_names.map(variable_name => variables[variable_name])
 }
 
