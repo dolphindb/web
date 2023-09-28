@@ -213,6 +213,9 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                     name: item
                 }))
             }, 
+            itemStyle: {
+                color: series.color,
+            },
             markLine: {
                 symbol: ['none', 'none'],
                 data: mark_line_data
