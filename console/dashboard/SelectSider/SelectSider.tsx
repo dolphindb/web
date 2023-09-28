@@ -11,6 +11,7 @@ const icons = {
     [WidgetType.LINE]: <LineChartOutlined className='siderbar-icon'/>,
     [WidgetType.PIE]: <PieChartOutlined  className='siderbar-icon'/>,
     [WidgetType.OHLC]: <BoxPlotOutlined className='siderbar-icon'/>,
+    [WidgetType.ORDER]: <BoxPlotOutlined className='siderbar-icon'/>,
     [WidgetType.TABLE]: <TableOutlined className='siderbar-icon'/>,
     [WidgetType.TEXT]: <FileTextOutlined className='siderbar-icon' />,
     [WidgetType.MIX]: <FundOutlined className='siderbar-icon' />,

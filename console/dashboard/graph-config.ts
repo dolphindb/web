@@ -6,6 +6,7 @@ import { Chart, ChartConfigForm } from './Charts/Chart/index.js'
 import { DBTable, DBTableConfigForm } from './Charts/Table/index.js'
 import { DBDescriptions, DBDescriptionsForm } from './Charts/Descriptions/index.js'
 import { Pie, PieConfigForm } from './Charts/PIE/index.js'
+import { OrderBook, OrderConfigForm } from './Charts/OrderBook/index.js'
 
 type GraphConfig =  { 
     [key in WidgetChartType]: {
@@ -30,6 +31,10 @@ export const graph_config: GraphConfig =  {
     [WidgetChartType.BAR]: {
         component: Chart,
         config: ChartConfigForm
+    },
+    [WidgetChartType.ORDER]: {
+        component: OrderBook,
+        config: OrderConfigForm
     },
     [WidgetChartType.OHLC]: {
         component: OHLC,
