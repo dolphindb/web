@@ -47,12 +47,8 @@ export function VariableForm (props: IProps) {
     
     const variables_obj =  variables.use()
     
-    const used_variables = useMemo<Variable[]>(() =>
-        // @ts-ignore
-        names.map(name => variables_obj[name])
-        , [names, variables_obj])
-    
-    
+    const used_variables = names.map(name => variables_obj[name])
+       
     const on_variables_change = useCallback((_, values) => { 
         Object.entries(values).forEach(([key, value]) => { 
             update_variable_value(key, value as string)
