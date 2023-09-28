@@ -60,7 +60,7 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                 })
             }
         },
-        [title, with_tooltip, with_legend, series, title_size]
+        [title, with_tooltip, with_legend, series, title_size, data_source]
     )
     
     return <ReactEChartsCore echarts={echarts} option={option} notMerge lazyUpdate theme='ohlc_theme' />
