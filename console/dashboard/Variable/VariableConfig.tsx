@@ -31,7 +31,7 @@ interface IProps extends ButtonProps {
 }
 
 export function VariableConfig (props: IProps) {
-    const variable_names = variables.variable_names
+    const { variable_names } = variables.use(['variable_names'])
     const { ...btn_props } = props
     const { visible, open, close } = use_modal()
     const [modal, contextHolder] = Modal.useModal()

@@ -36,16 +36,7 @@ export function VariableList ({
 }: PropsType) {
     const { variable_names } = variables.use(['variable_names'])
     const [current_select, set_current_select] = useState(current_variable?.name || '')
-    const [menu_items, set_menu_items] = useState(
-        variable_names.map((variable_name: string): MenuItemType => {
-            const variable = variables[variable_name]
-            return {
-                key: variable.name,
-                icon: createElement(ToolOutlined),
-                title: variable.name
-            }
-        })
-    )
+    const [menu_items, set_menu_items] = useState<MenuItemType[]>([ ])
     
     const tree_ref = useRef(null)
     
@@ -53,6 +44,17 @@ export function VariableList ({
         set_current_select(current_variable?.name)
         tree_ref.current?.scrollTo({ key: current_variable.name })
     }, [ current_variable ])
+    
+    useEffect(() => {
+        set_menu_items(variable_names.map((variable_name: string): MenuItemType => {
+            const variable = variables[variable_name]
+            return {
+                key: variable.name,
+                icon: createElement(ToolOutlined),
+                title: variable.name
+            }
+        }))
+    }, [variable_names])
     
     function rename_data_source_node_handler (menu_items: MenuItemType[], old_name: string, save_confirm = true) {
         if (!menu_items.length)
