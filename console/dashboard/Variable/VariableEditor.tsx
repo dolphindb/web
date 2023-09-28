@@ -1,6 +1,6 @@
 import { Input, Select } from 'antd'
 
-import { type Variable, type VariablePropertyType, get_variable, variables } from './variable.js'
+import { type Variable, type VariablePropertyType } from './variable.js'
 import { OptionList } from './OptionList.js'
 
 type PropsType = { 

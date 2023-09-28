@@ -22,6 +22,10 @@ export interface ISeriesConfig {
     // 柱状图是否堆叠
     stack?: string
     stack_strategy?: IStackStrategy
+    
+    // 颜色
+    color?: string
+    
     // OHLC 特殊列
     open?: string
     high?: string
@@ -34,6 +38,7 @@ export interface ISeriesConfig {
 
 export interface IChartConfig {
     title?: string
+    title_size?: number
     // 缩略轴
     x_datazoom: boolean
     y_datazoom: boolean
@@ -50,6 +55,7 @@ export interface IChartConfig {
 
 export interface ITableConfig { 
     title?: string
+    title_size?: number
     bordered: boolean
     show_cols: string[]
     col_mappings: { 
@@ -75,6 +81,7 @@ export interface ITextConfig {
 
 export interface IDescriptionsConfig { 
     title?: string
+    title_size?: number
     label_col: string
     value_col: string
     column_num?: number
