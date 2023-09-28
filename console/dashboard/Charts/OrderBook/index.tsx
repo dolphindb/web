@@ -16,12 +16,29 @@ interface IProps {
 
 export function OrderBook (props: IProps) {
     const { widget, data_source } = props
-    console.log(widget)
-    console.log(data_source)
+    
     const { title, with_tooltip } = widget.config as IChartConfig
     
-    // 先写死，后面再改
+    // 样式调整先写死，后面再改
     const convert_order_config = useMemo(() => {
+      const data = [ ]
+      for (let item of data_source) {
+        if (item.bmdEntryPrice)
+            for (let i = 0;  i < item.bmdEntryPrice.data.length;  i++)
+                data.push([item.sendingTime, item.bmdEntryPrice.data[i], item.bmdEntrySize.data[i]])
+            
+                
+          
+        
+        if (item.omdEntryPrice)
+            for (let i = 0;  i < item.omdEntryPrice.data.length;  i++)
+                data.push([item.sendingTime, item.omdEntryPrice.data[i], -item.omdEntrySize.data[i]])
+          
+        
+      }
+      
+      console.log(data)
+      
       return {
         title: {
           text: title,
@@ -41,11 +58,11 @@ export function OrderBook (props: IProps) {
           top: '10%'
         },
         xAxis: {
-          type: 'time',
+          type: 'category',
           splitNumber: 5
         },
         yAxis: {
-          type: 'value',
+          type: 'category',
           scale: true
         },
         visualMap: {
@@ -63,7 +80,7 @@ export function OrderBook (props: IProps) {
           {   
             name: 'Punch Card',
             type: 'heatmap',
-            data: buydata,
+            data: data,
             emphasis: {
               itemStyle: {
                 shadowBlur: 10,
