@@ -5,13 +5,13 @@ import { Button, Input, Modal, Select, Tooltip, Upload } from 'antd'
 import { DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
-import { genid, log } from 'xshell/utils.browser.js'
+import { genid } from 'xshell/utils.browser.js'
 
 import { model } from '../../model.js'
 import { t } from '../../../i18n/index.js'
 import { CompileAndRefresh } from '../../components/CompileAndRefresh.js'
 
-import { type Widget, dashboard } from '../model.js'
+import { type Widget, dashboard, type DashBoardConfig } from '../model.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import { export_data_sources } from '../DataSource/date-source.js'
 import { VariableConfig } from '../Variable/VariableConfig.js'
@@ -46,35 +46,15 @@ export function Navigation () {
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     
-    function get_new_config () {
-        return {
-            id: genid(),
-            name: new_dashboard_name,
-            datasources: [ ],
-            variables: [ ],
-            canvas: {
-                widgets: [ ],
-            }
-        }
-    }
-    
     
     async function save_config () {
-        const new_config = {
+        await dashboard.update_config({
             ...config,
             datasources: await export_data_sources(),
             variables: await export_variables(),
             canvas: {
                 widgets: widgets.map(widget => get_widget_config(widget))
             }
-        }
-        
-        dashboard.set({
-            config: new_config,
-            configs: [
-                ...configs.filter(({ id }) => id !== config.id), 
-                new_config
-            ]
         })
     }
     
@@ -96,18 +76,14 @@ export function Navigation () {
             if (!new_dashboard_name) {
                 dashboard.message.error(t('dashboard 名称不允许为空'))
                 return 
-            } 
+            }
+            
             if (configs.find(({ name }) => name === new_dashboard_name)) {
                 dashboard.message.error(t('名称重复，请重新输入'))
                 return 
             }
             
-            const new_dashboard_config = get_new_config()
-            
-            dashboard.set({
-                config: new_dashboard_config,
-                configs: [...configs, new_dashboard_config]
-            })
+            await dashboard.update_config(dashboard.generate_new_config(new_dashboard_name))
             
             await dashboard.save_configs_to_server()
             
@@ -126,27 +102,25 @@ export function Navigation () {
                 dashboard.message.error(t('dashboard 名称不允许为空'))
                 return 
             }
+            
             if (configs.find(({ id, name }) => id !== config.id && name === edit_dashboard_name)) {
                 dashboard.message.error(t('名称重复，请重新输入'))
                 return
-            } 
-            const edit_dashboard_config = {
+            }
+            
+            await dashboard.update_config({
                 ...config,
                 name: edit_dashboard_name,
-            }
-            dashboard.set({
-                config: edit_dashboard_config,
-                configs: [...configs.filter(({ id }) => id !== config.id), edit_dashboard_config]
             })
             
             await dashboard.save_configs_to_server()
             dashboard.message.success(t('修改成功'))
+            
+            edit_close()
         } catch (error) {
             model.show_error({ error })
             throw error
         }
-        
-        edit_close()
     }
     
     
@@ -157,14 +131,10 @@ export function Navigation () {
                 return
             }
             
-            const other_configs = configs.filter(({ id }) => id !== config.id)
-            
-            dashboard.set({
-                configs: other_configs,
-                config: other_configs[0]
-            })
+            await dashboard.update_config(config, true)
             
             await dashboard.save_configs_to_server()
+            
             dashboard.message.success(t('删除成功'))
         } catch (error) {
             model.show_error({ error })
@@ -179,15 +149,9 @@ export function Navigation () {
                 className='left-select'
                 placeholder='选择 dashboard'
                 onChange={(value: string, option: DashboardOption) => {
-                    const choose_config = configs.find(({ id }) => id === option.key) 
-                    dashboard.set({ config: choose_config, widget: null })
-                    
-                    // dashboard.set({ widgets: choose_config.canvas.widgets })
-                    const url_params = new URLSearchParams(location.search)
-                    const url = new URL(location.href)
-                    url_params.set('dashboard', String(choose_config.id))
-                    url.search = url_params.toString()
-                    history.replaceState({ }, '', url)
+                    dashboard.update_config(
+                        configs.find(({ id }) => id === option.key)
+                    )
                 }}
                 // defaultValue={ config?.name || new_dashboard_name}
                 value={config?.name}
@@ -279,13 +243,9 @@ export function Navigation () {
                         className='action'
                         showUploadList={false}
                         beforeUpload={async file => {
-                            const config = JSON.parse(
-                                await file.text()
+                            dashboard.update_config(
+                                JSON.parse(await file.text()) as DashBoardConfig
                             )
-                            
-                            log(config)
-                            
-                            dashboard.message.error(t('功能还未实现'))
                             
                             return false
                         }}
