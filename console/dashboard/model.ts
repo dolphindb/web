@@ -118,11 +118,14 @@ class DashBoardModel extends Model<DashBoardModel> {
         grid.on('change', (event: Event, widgets: GridStackNode[]) => {
             console.log('修改 widget 大小或位置:', widgets)
             
-            for (const widget of widgets)
-                Object.assign(
-                    this.widgets.find(({ id }) => id === widget.id), 
-                    widget
-                )
+            if (widgets?.length)
+                for (const widget of widgets)
+                    Object.assign(
+                        this.widgets.find(({ id }) => id === widget.id), 
+                        widget
+                    )
+            else
+                console.log('gridstack change 时 widgets 为空')
         })
         
         // grid.on('resize', () => {
