@@ -36,7 +36,16 @@ export function VariableList ({
 }: PropsType) {
     const { variable_names } = variables.use(['variable_names'])
     const [current_select, set_current_select] = useState(current_variable?.name || '')
-    const [menu_items, set_menu_items] = useState<MenuItemType[]>([ ])
+    const [menu_items, set_menu_items] = useState(
+        variable_names.map((variable_name: string): MenuItemType => {
+            const variable = variables[variable_name]
+            return {
+                key: variable.name,
+                icon: createElement(ToolOutlined),
+                title: variable.name
+            }
+        })
+    )
     
     const tree_ref = useRef(null)
     
@@ -44,17 +53,6 @@ export function VariableList ({
         set_current_select(current_variable?.name)
         tree_ref.current?.scrollTo({ key: current_variable.name })
     }, [ current_variable ])
-    
-    useEffect(() => {
-        set_menu_items(variable_names.map((variable_name: string): MenuItemType => {
-            const variable = variables[variable_name]
-            return {
-                key: variable.name,
-                icon: createElement(ToolOutlined),
-                title: variable.name
-            }
-        }))
-    }, [variable_names])
     
     function rename_data_source_node_handler (menu_items: MenuItemType[], old_name: string, save_confirm = true) {
         if (!menu_items.length)
@@ -64,13 +62,14 @@ export function VariableList ({
             let new_name = event.target.value
             try {
                 rename_variable(old_name, new_name)
+                change_current_variable_property('name', new_name, save_confirm)
             } catch (error) {
                 dashboard.message.error(error.message)
                 new_name = old_name
             } finally {
                 tmp_menu_item.title = new_name
+                tmp_menu_item.key = new_name
                 set_menu_items([...menu_items])
-                change_current_variable_property('name', new_name, save_confirm)
             }
         }
         tmp_menu_item.title = (
@@ -97,6 +96,7 @@ export function VariableList ({
                                 },
                                 ...menu_items
                             ]
+                            console.log(new_menu_items)
                             set_menu_items(new_menu_items)
                             set_current_select(name)
                             change_current_variable(name)

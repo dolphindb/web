@@ -60,13 +60,13 @@ export function DataSourceList ({
             let new_name = event.target.value
             try {
                 rename_data_source(select_key, new_name)
+                change_current_data_source_property('name', new_name, false)
             } catch (error) {
                 dashboard.message.error(error.message)
                 new_name = old_name
             } finally {
                 tmp_menu_item.title = new_name
                 set_menu_items([...menu_items])
-                change_current_data_source_property('name', new_name, false)
             }
         }
         tmp_menu_item.title = (
