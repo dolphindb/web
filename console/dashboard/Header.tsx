@@ -1,4 +1,4 @@
-import './index.sass'
+import './Navigation.sass'
 
 import { useState } from 'react'
 import { Button, Input, Modal, Select, Tooltip, Upload } from 'antd'
@@ -7,15 +7,15 @@ import { DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlin
 import { use_modal } from 'react-object-model/modal.js'
 import { genid } from 'xshell/utils.browser.js'
 
-import { model } from '../../model.js'
-import { t } from '../../../i18n/index.js'
-import { CompileAndRefresh } from '../../components/CompileAndRefresh.js'
+import { model } from '../model.js'
+import { t } from '../../i18n/index.js'
+import { CompileAndRefresh } from '../components/CompileAndRefresh.js'
 
-import { type Widget, dashboard, type DashBoardConfig } from '../model.js'
-import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
-import { export_data_sources } from '../DataSource/date-source.js'
-import { VariableConfig } from '../Variable/VariableConfig.js'
-import { export_variables } from '../Variable/variable.js'
+import { type Widget, dashboard, type DashBoardConfig } from './model.js'
+import { DataSourceConfig } from './DataSource/DataSourceConfig.js'
+import { export_data_sources } from './DataSource/date-source.js'
+import { VariableConfig } from './Variable/VariableConfig.js'
+import { export_variables } from './Variable/variable.js'
 
 
 function get_widget_config (widget: Widget) {
@@ -39,7 +39,7 @@ interface DashboardOption {
 }
 
 
-export function Navigation () {
+export function Header () {
     const { editing, widgets, configs, config } = dashboard.use(['editing', 'widgets', 'configs', 'config'])
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
@@ -143,7 +143,7 @@ export function Navigation () {
     }
     
     
-    return <div className='dashboard-navigation'>
+    return <div className='dashboard-header'>
         <div className='left'>
             <Select
                 className='left-select'
@@ -220,7 +220,7 @@ export function Navigation () {
                     <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
                 </Tooltip>
                 
-                <Tooltip title={t('下载')}>
+                <Tooltip title={t('导出')}>
                     <Button className='action' onClick={async () => {
                         try {
                             await save_config()

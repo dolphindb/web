@@ -17,7 +17,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
             <Form.Item name='title' label={t('标题')} initialValue={t('标题')}>
                 <Input />
             </Form.Item>
-            <Form.Item name='title_size' label='标题字号'>
+            <Form.Item name='title_size' label='标题字号' initialValue={18}>
                 <InputNumber addonAfter='px' />
             </Form.Item>
             <Form.Item name='variable_names' label={t('关联变量')}>
