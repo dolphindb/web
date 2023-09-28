@@ -18,13 +18,13 @@ dependencies:
     version: 1.2.5(react-dom@18.2.0)(react@18.2.0)
   '@ant-design/pro-layout':
     specifier: ^7.17.6
-    version: 7.17.6(antd@5.9.3)(react-dom@18.2.0)(react@18.2.0)
+    version: 7.17.6(antd@5.9.4)(react-dom@18.2.0)(react@18.2.0)
   '@ebay/nice-modal-react':
     specifier: ^1.2.10
     version: 1.2.10(react-dom@18.2.0)(react@18.2.0)
   '@formily/antd-v5':
     specifier: 1.1.2
-    version: 1.1.2(@types/react-dom@18.2.8)(@types/react@18.2.23)(antd@5.9.3)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.2.2)
+    version: 1.1.2(@types/react-dom@18.2.8)(@types/react@18.2.23)(antd@5.9.4)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.2.2)
   '@formily/core':
     specifier: ^2.2.29
     version: 2.2.29
@@ -38,8 +38,8 @@ dependencies:
     specifier: ^3.7.8
     version: 3.7.8(react@18.2.0)
   antd:
-    specifier: ^5.9.3
-    version: 5.9.3(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^5.9.4
+    version: 5.9.4(react-dom@18.2.0)(react@18.2.0)
   classnames:
     specifier: ^2.3.2
     version: 2.3.2
@@ -263,7 +263,7 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@ant-design/pro-layout@7.17.6(antd@5.9.3)(react-dom@18.2.0)(react@18.2.0):
+  /@ant-design/pro-layout@7.17.6(antd@5.9.4)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-hoFxLUbwCsH6r9MPXDbePng9nOWNILmLdqzP4Rwnii3AaUjYHeubS5ZRBF0J5KKMj2etbGRTEhQQWhiys9SANQ==}
     peerDependencies:
       antd: '>=4.23.0 || >=5.0.0'
@@ -271,12 +271,12 @@ packages:
       react-dom: '>=17.0.0'
     dependencies:
       '@ant-design/icons': 5.2.6(react-dom@18.2.0)(react@18.2.0)
-      '@ant-design/pro-provider': 2.13.1(antd@5.9.3)(react-dom@18.2.0)(react@18.2.0)
-      '@ant-design/pro-utils': 2.14.6(antd@5.9.3)(react-dom@18.2.0)(react@18.2.0)
+      '@ant-design/pro-provider': 2.13.1(antd@5.9.4)(react-dom@18.2.0)(react@18.2.0)
+      '@ant-design/pro-utils': 2.14.6(antd@5.9.4)(react-dom@18.2.0)(react@18.2.0)
       '@babel/runtime': 7.22.6
       '@umijs/route-utils': 4.0.1
       '@umijs/use-params': 1.0.9(react@18.2.0)
-      antd: 5.9.3(react-dom@18.2.0)(react@18.2.0)
+      antd: 5.9.4(react-dom@18.2.0)(react@18.2.0)
       classnames: 2.3.2
       lodash.merge: 4.6.2
       omit.js: 2.0.2
@@ -289,7 +289,7 @@ packages:
       warning: 4.0.3
     dev: false
 
-  /@ant-design/pro-provider@2.13.1(antd@5.9.3)(react-dom@18.2.0)(react@18.2.0):
+  /@ant-design/pro-provider@2.13.1(antd@5.9.4)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-6oj2X2Rbr2tQ9lZeTX/g/Rojk1QypvewaDyAjQ18xbF4oL//zEWiDD/nvm0ng+K6IigyFYixkEVqf5NcOCSYEQ==}
     peerDependencies:
       antd: '>=4.23.0 || >=5.0.0'
@@ -299,14 +299,14 @@ packages:
       '@ant-design/cssinjs': 1.16.1(react-dom@18.2.0)(react@18.2.0)
       '@babel/runtime': 7.22.6
       '@ctrl/tinycolor': 3.6.0
-      antd: 5.9.3(react-dom@18.2.0)(react@18.2.0)
+      antd: 5.9.4(react-dom@18.2.0)(react@18.2.0)
       rc-util: 5.37.0(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       swr: 2.0.3(react@18.2.0)
     dev: false
 
-  /@ant-design/pro-utils@2.14.6(antd@5.9.3)(react-dom@18.2.0)(react@18.2.0):
+  /@ant-design/pro-utils@2.14.6(antd@5.9.4)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-UO3BmooJWR+qRwh5xwbRNtpCLNGZdo7dRVIkbCEB/QiA06kRTbnxB6lWL02Pfjp9xraiThEmxmq8oLSjmG/Uhg==}
     peerDependencies:
       antd: '>=4.23.0 || >=5.0.0'
@@ -314,9 +314,9 @@ packages:
       react-dom: '>=17.0.0'
     dependencies:
       '@ant-design/icons': 5.2.6(react-dom@18.2.0)(react@18.2.0)
-      '@ant-design/pro-provider': 2.13.1(antd@5.9.3)(react-dom@18.2.0)(react@18.2.0)
+      '@ant-design/pro-provider': 2.13.1(antd@5.9.4)(react-dom@18.2.0)(react@18.2.0)
       '@babel/runtime': 7.22.6
-      antd: 5.9.3(react-dom@18.2.0)(react@18.2.0)
+      antd: 5.9.4(react-dom@18.2.0)(react@18.2.0)
       classnames: 2.3.2
       dayjs: 1.11.10
       lodash.merge: 4.6.2
@@ -2040,7 +2040,7 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /@formily/antd-v5@1.1.2(@types/react-dom@18.2.8)(@types/react@18.2.23)(antd@5.9.3)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.2.2):
+  /@formily/antd-v5@1.1.2(@types/react-dom@18.2.8)(@types/react@18.2.23)(antd@5.9.4)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.2.2):
     resolution: {integrity: sha512-RP9YdDqMHsCgyPl5kXZwC0iwbSQwEmb9tmEDyzauz9vw9tyuK4JM6ZQ3eaqvS7iGhDc+IpfPKHzzPZMpikfPUQ==}
     engines: {npm: '>=3.0.0'}
     peerDependencies:
@@ -2064,7 +2064,7 @@ packages:
       '@formily/shared': 2.2.29
       '@types/react': 18.2.23
       '@types/react-dom': 18.2.8
-      antd: 5.9.3(react-dom@18.2.0)(react@18.2.0)
+      antd: 5.9.4(react-dom@18.2.0)(react@18.2.0)
       classnames: 2.3.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -3313,8 +3313,8 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /antd@5.9.3(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-a7gY6hfsjoDLOENHKzjXZgmAxi1hDdsuIvYm6YMTctb08EhTEXCZoeFOekwz9S0vrTcdSpUMblRWsiwuYRdPYg==}
+  /antd@5.9.4(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-eyNn1C/Q9ESn4ktfTlRIIXBbWT5L/Rr38xP37dIvJ3FeD/a4vaVcMqqLz5ywwMPKxgWnuUxggo1mJwWdPoIdSg==}
     peerDependencies:
       react: '>=16.9.0'
       react-dom: '>=16.9.0'
