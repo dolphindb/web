@@ -100,16 +100,19 @@ $border_color: #333333
                 .grid-stack-item>.ui-resizable-ne, .grid-stack-item>.ui-resizable-nw, .grid-stack-item>.ui-resizable-se, .grid-stack-item>.ui-resizable-sw
                     background-image: none
                     
-        .dashboard-select-sider
+        .sider
             width: 120px
-            padding-top: 1px
+            margin-top: 0px
             text-align: center
-            background-color: rgb(52, 52, 52)
+            background: rgb(52, 52, 52)
             color: $font_color
             display: flex
             flex-direction: column
             justify-content: space-between
             cursor: default
+            
+            &.collapsed
+                width: 40px
             
             .dashboard-graph-item
                 cursor: pointer
@@ -118,23 +121,25 @@ $border_color: #333333
                 line-height: 50px
                 border: 1px solid transparent
                 
-                .dashboard-graph-item-icon
-                    margin-right: 5px
+                &:hover
+                    border: 1px $blue solid
                 
-            .dashboard-graph-item:hover
-                border: 1px $blue solid
+                .sider-icon
+                    font-size: 16px
                 
-            .select-folder
+                .sider-text
+                    display: inline-block
+                    width: 60px
+            
+            .collapser
                 display: flex
                 justify-content: center
                 height: 48px
                 cursor: pointer
                 
-            .select-folder:hover
-                background-color: $blue
+                &:hover
+                    background-color: $blue
                 
-        .dashboard-select-sider-folding
-            width: 40px
         
         .dashboard-settings-panel
             width: 320px

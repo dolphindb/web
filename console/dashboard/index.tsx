@@ -12,10 +12,10 @@ import * as echarts from 'echarts'
 
 import { dashboard } from './model.js'
 
-import { SelectSider } from './SelectSider/SelectSider.js'
+import { Sider } from './Sider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
-import { Navigation } from './Navigation/index.js'
+import { Navigation } from './Navigation.js'
 
 
 import config from './chart.config.json' assert { type: 'json' }
@@ -88,7 +88,7 @@ function MainLayout () {
             <Navigation />
         </div>
         <div className='dashboard-main'>
-            <SelectSider hidden={editing}/>
+            <Sider visible={editing}/>
             
             {/* 画布区域 (dashboard-canvas) 包含实际的 GridStack 网格和 widgets。每个 widget 都有一个 GraphItem 组件表示，并且每次点击都会更改 dashboard.widget */}
             <div className='dashboard-canvas' onClick={() => { dashboard.set({ widget: null }) }}>
