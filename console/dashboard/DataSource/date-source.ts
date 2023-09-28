@@ -6,6 +6,7 @@ import { sql_formatter, get_cols, stream_formatter, parse_code } from '../utils.
 import { model } from '../../model.js'
 import { DDB, DdbForm, type DdbObj, type DdbValue } from 'dolphindb'
 import { cloneDeep } from 'lodash'
+import { subscribe_variable, unsubscribe_variable } from '../Variable/variable.js'
 
 
 export type DataType = { }[]
@@ -95,25 +96,34 @@ export function get_data_source (id: string): DataSource {
 export async function save_data_source ( new_data_source: DataSource, code?: string ) {
     const id = new_data_source.id
     const data_source = get_data_source(id)
-    const dep = new_data_source.deps
+    const deps = new_data_source.deps
     
     delete_interval(id)
     unsubscribe_stream(id)
+    while (data_source.variables.size) 
+        unsubscribe_variable(data_source, data_source.deps[0])
     new_data_source.data.length = 0
     new_data_source.error_message = ''
     new_data_source.code = code || dashboard.editor?.getValue() || ''
+    
     
     switch (new_data_source.mode) {
         case 'sql':
             new_data_source.cols.length = 0
     
             try {
-                const { type, result } = await dashboard.execute(parse_code(new_data_source.code))
+                const { code: parsed_code, variables } = parse_code(new_data_source.code)
+                const { type, result } = await dashboard.execute(parsed_code)
+                
                 if (type === 'success') {
                     if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) {
                         // 暂时只支持table
                         new_data_source.data = sql_formatter(result.data as unknown as DdbObj<DdbValue>, new_data_source.max_line)
                         new_data_source.cols = get_cols(result.data as unknown as DdbObj<DdbValue>)
+                        
+                        variables.forEach(variable => {
+                            subscribe_variable(new_data_source, variable)
+                        })
                     }
                 } else 
                     throw new Error(result as string)
@@ -124,14 +134,15 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
             } finally {
                 data_source.set({ ...new_data_source })
             
-                if (dep.size && !new_data_source.error_message && new_data_source.auto_refresh) 
+                if (deps.size && !new_data_source.error_message && new_data_source.auto_refresh) 
                     create_interval(id) 
             }
+            
             break
         case 'stream':
             data_source.set({ ...new_data_source })
             
-            if (dep.size && !new_data_source.error_message) 
+            if (deps.size && !new_data_source.error_message) 
                 await subscribe_stream(id) 
             
             break
@@ -151,6 +162,8 @@ export function delete_data_source (key: string): number {
         dashboard.message.error('当前数据源已被图表绑定无法删除')
     else {
         const delete_index = find_data_source_index(key)
+        while (data_source.variables.size) 
+            unsubscribe_variable(data_source, data_source.deps[0])
         data_sources.splice(delete_index, 1)
         return delete_index
     }
@@ -184,8 +197,8 @@ export function rename_data_source (key: string, new_name: string) {
 export async function subscribe_data_source (widget_option: Widget, source_id: string) {
     const data_source = get_data_source(source_id)
     
-    if (widget_option.source_id)
-        unsubscribe_data_source(widget_option, source_id)  
+    if (widget_option.source_id && widget_option.source_id !== source_id)
+        unsubscribe_data_source(widget_option)  
         
     data_source.deps.add(widget_option.id)
     
@@ -208,23 +221,20 @@ export async function subscribe_data_source (widget_option: Widget, source_id: s
 }
 
 
-export function unsubscribe_data_source (widget_option: Widget, new_source_id?: string) {
+export function unsubscribe_data_source (widget_option: Widget) {
     const source_id = widget_option.source_id
     const data_source = get_data_source(source_id)
-    if (!new_source_id || source_id !== new_source_id ) {
-        data_source.deps.delete(widget_option.id)
-        if (!data_source.deps.size) {
-            delete_interval(source_id)
-            unsubscribe_stream(source_id)
-        }   
-    }  
+    data_source.deps.delete(widget_option.id)
+    if (!data_source.deps.size) {
+        delete_interval(source_id)
+        unsubscribe_stream(source_id)
+    }   
 }
 
 export async function execute (source_id: string) {
     const data_source = get_data_source(source_id)
     try {
-        const { type, result } = await dashboard.execute(data_source.code)
-        // const { type, result } = await dashboard.execute(parse_code(data_source.code))
+        const { type, result } = await dashboard.execute(parse_code(data_source.code).code)
                 
         if (type === 'success') 
             // 暂时只支持table
@@ -246,6 +256,7 @@ export async function execute (source_id: string) {
             // data_source.deps.forEach((widget_id: string) => {
             //     console.log(widget_id, 'render', data_source.data)
             // })
+        
         else 
             throw new Error(result as string)    
     } catch (error) {
