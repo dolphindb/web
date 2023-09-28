@@ -13,10 +13,6 @@ $border_color: #333333
     display: flex
     flex-direction: column
     
-    .dashboard-header
-        height: 50px
-        border-bottom: 1px black solid
-           
     .dashboard-main
         flex: 1
         display: flex
@@ -101,35 +97,37 @@ $border_color: #333333
                     background-image: none
                     
         .sider
-            width: 120px
+            width: 100px
             margin-top: 0px
-            text-align: center
-            background: rgb(52, 52, 52)
+            background: #303030
             color: $font_color
+            
             display: flex
             flex-direction: column
             justify-content: space-between
-            cursor: default
             
             &.collapsed
                 width: 40px
             
             .dashboard-graph-item
-                cursor: pointer
+                cursor: grab
                 box-sizing: border-box
                 height: 50px
                 line-height: 50px
                 border: 1px solid transparent
                 
+                padding-left: 12px
+                
                 &:hover
                     border: 1px $blue solid
                 
-                .sider-icon
+                .icon
                     font-size: 16px
                 
-                .sider-text
+                .name
                     display: inline-block
-                    width: 60px
+                    margin-left: 8px
+                    
             
             .collapser
                 display: flex
@@ -140,7 +138,6 @@ $border_color: #333333
                 &:hover
                     background-color: $blue
                 
-        
         .dashboard-settings-panel
             width: 320px
             overflow: auto

@@ -431,7 +431,7 @@ export enum WidgetType {
     PIE = '饼图',
     // POINT = '散点图',
     TABLE = '表格',
-    OHLC = 'OHLC',
+    OHLC = 'K 线',
     MIX = '混合图',
     // CANDLE = '蜡烛图',
     ORDER = '订单图',
@@ -439,7 +439,7 @@ export enum WidgetType {
     // STRIP = '带图',
     // HEAT = '热力图',
     TEXT = '富文本',
-    DESCRIPTIONS = '描述列表'
+    DESCRIPTIONS = '描述表'
 }
 
 export enum WidgetChartType { 

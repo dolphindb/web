@@ -5,15 +5,15 @@ import { WidgetType } from './model.js'
 
 
 const icons = {
-    [WidgetType.BAR]: <BarChartOutlined className='sider-icon'/>,
-    [WidgetType.LINE]: <LineChartOutlined className='sider-icon'/>,
-    [WidgetType.PIE]: <PieChartOutlined  className='sider-icon'/>,
-    [WidgetType.OHLC]: <BoxPlotOutlined className='sider-icon'/>,
-    [WidgetType.ORDER]: <BoxPlotOutlined className='siderbar-icon'/>,
-    [WidgetType.TABLE]: <TableOutlined className='sider-icon'/>,
-    [WidgetType.TEXT]: <FileTextOutlined className='sider-icon' />,
-    [WidgetType.MIX]: <FundOutlined className='sider-icon' />,
-    [WidgetType.DESCRIPTIONS]: <BarsOutlined className='sider-icon'/>
+    [WidgetType.BAR]: <BarChartOutlined className='icon'/>,
+    [WidgetType.LINE]: <LineChartOutlined className='icon'/>,
+    [WidgetType.PIE]: <PieChartOutlined  className='icon'/>,
+    [WidgetType.OHLC]: <BoxPlotOutlined className='icon'/>,
+    [WidgetType.ORDER]: <BoxPlotOutlined className='icon'/>,
+    [WidgetType.TABLE]: <TableOutlined className='icon'/>,
+    [WidgetType.TEXT]: <FileTextOutlined className='icon' />,
+    [WidgetType.MIX]: <FundOutlined className='icon' />,
+    [WidgetType.DESCRIPTIONS]: <BarsOutlined className='icon'/>
 }
 
 
@@ -31,7 +31,7 @@ export function Sider ({ visible }: { visible: boolean }) {
                     gs-h={3}
                 >
                     {icons[value]}
-                    <span className='sider-text'>{collapsed ? '' : value}</span>
+                    <span className='name'>{collapsed ? '' : value}</span>
                 </div>)}
         </div>
         <div className='collapser' onClick={() => { set_collapsed(!collapsed) }}>{
