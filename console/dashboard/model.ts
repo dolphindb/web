@@ -20,7 +20,7 @@ import { type Monaco } from '../shell/Editor/index.js'
 
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType } from './DataSource/date-source.js'
 import { type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig } from './type.js'
-import { type Variable, import_variables } from './Variable/variable.js'
+import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 
 
 class DashBoardModel extends Model<DashBoardModel> {
@@ -346,9 +346,7 @@ interface DashBoardConfig {
     datasources: ExportDataSource[ ]
     
     /** 变量配置 */
-    variables: {
-        id: string
-    }[ ]
+    variables: ExportVariable[ ]
     
     /** 画布配置 */
     canvas: {

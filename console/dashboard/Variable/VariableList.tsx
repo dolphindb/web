@@ -3,7 +3,7 @@ import { Input, Tree } from 'antd'
 import { DeleteOutlined, EditOutlined, FileOutlined, ToolOutlined } from '@ant-design/icons'
 
 import { dashboard } from '../model.js'
-import { create_variable, variables, delete_variable, rename_variable, type Variable, type VariablePropertyType } from './variable.js'
+import { create_variable, delete_variable, rename_variable, type Variable, type VariablePropertyType, variables } from './variable.js'
 
 
 type PropsType = {
@@ -34,11 +34,13 @@ export function VariableList ({
     change_current_variable,
     change_current_variable_property
 }: PropsType) {
-    const [current_select, set_current_select] = useState(current_variable?.id || '')
+    const { variable_names } = variables.use(['variable_names'])
+    const [current_select, set_current_select] = useState(current_variable?.name || '')
     const [menu_items, set_menu_items] = useState(
-        variables.map((variable: Variable): MenuItemType => {
+        variable_names.map((variable_name: string): MenuItemType => {
+            const variable = variables[variable_name]
             return {
-                key: String(variable.id),
+                key: variable.name,
                 icon: createElement(ToolOutlined),
                 title: variable.name
             }
@@ -48,25 +50,25 @@ export function VariableList ({
     const tree_ref = useRef(null)
     
     useEffect(() => {
-        set_current_select(current_variable?.id)
-        tree_ref.current?.scrollTo({ key: current_variable.id })
+        set_current_select(current_variable?.name)
+        tree_ref.current?.scrollTo({ key: current_variable.name })
     }, [ current_variable ])
     
-    function rename_data_source_node_handler (menu_items: MenuItemType[], select_key: string, old_name: string) {
+    function rename_data_source_node_handler (menu_items: MenuItemType[], old_name: string, save_confirm = true) {
         if (!menu_items.length)
             return
-        const tmp_menu_item = menu_items.find(menu_item => menu_item.key === select_key)
+        const tmp_menu_item = menu_items.find(menu_item => menu_item.key === old_name)
         function handler (event) {
             let new_name = event.target.value
             try {
-                rename_variable(select_key, new_name)
+                rename_variable(old_name, new_name)
             } catch (error) {
                 dashboard.message.error(error.message)
                 new_name = old_name
             } finally {
                 tmp_menu_item.title = new_name
                 set_menu_items([...menu_items])
-                change_current_variable_property('name', new_name, false)
+                change_current_variable_property('name', new_name, save_confirm)
             }
         }
         tmp_menu_item.title = (
@@ -87,16 +89,16 @@ export function VariableList ({
                             const { id, name } = create_variable()
                             const new_menu_items = [
                                 {
-                                    key: id,
+                                    key: name,
                                     icon: createElement(ToolOutlined),
                                     title: name
                                 },
                                 ...menu_items
                             ]
                             set_menu_items(new_menu_items)
-                            set_current_select(id)
-                            change_current_variable(id)
-                            rename_data_source_node_handler(new_menu_items, id, name)
+                            set_current_select(name)
+                            change_current_variable(name)
+                            rename_data_source_node_handler(new_menu_items, name, false)
                         }}
                     >
                         <FileOutlined className='variable-list-top-item-icon' />
@@ -106,7 +108,7 @@ export function VariableList ({
                         className='variable-list-top-item'
                         onClick={() => {
                             if (current_variable)
-                                rename_data_source_node_handler(menu_items, current_select, current_variable.name)
+                                rename_data_source_node_handler(menu_items, current_variable.name)
                         }}
                     >
                         <EditOutlined className='variable-list-top-item-icon' />
@@ -115,16 +117,17 @@ export function VariableList ({
                     <div
                         className='variable-list-top-item'
                         onClick={() => {
-                            const delete_index = delete_variable(current_variable.id)
+                            const delete_index = delete_variable(current_variable.name)
                             if (delete_index >= 0) {
                                 menu_items.splice(delete_index, 1)
+                                console.log(menu_items)
                                 set_menu_items([...menu_items])
-                                if (!variables.length)
+                                if (!variable_names.length)
                                     change_current_variable('')
                                 else {
                                     const index = delete_index === 0 ? 0 : delete_index - 1
-                                    change_current_variable(variables[index].id)
-                                    set_current_select(variables[index].id)
+                                    change_current_variable(variables[variable_names[index]].name)
+                                    set_current_select(variables[variable_names[index]].name)
                                 }
                             }
                         }}
@@ -134,7 +137,7 @@ export function VariableList ({
                     </div>
                 </div>
                 { current_variable ? <div className='variable-list-bottom'>
-                    {variables.length ? (
+                    {variable_names.length ? (
                         <Tree
                             ref={tree_ref}
                             showIcon

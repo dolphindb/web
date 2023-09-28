@@ -11,11 +11,11 @@ import { VariableList } from './VariableList.js'
 import { VariableEditor } from './VariableEditor.js'
 
 import { dashboard } from '../model.js'
-import { variables,
-    get_variable,
+import { 
     save_variable, 
     type Variable,
     type VariablePropertyType,
+    variables,
 } from './variable.js'
 
 const save_confirm_config = {
@@ -31,6 +31,7 @@ interface IProps extends ButtonProps {
 }
 
 export function VariableConfig (props: IProps) {
+    const { variable_names } = variables.use(['variable_names'])
     const { ...btn_props } = props
     const { visible, open, close } = use_modal()
     const [modal, contextHolder] = Modal.useModal()
@@ -44,12 +45,12 @@ export function VariableConfig (props: IProps) {
        change_current_variable('')
     }, [config?.id])
     
-    const change_current_variable = useCallback((key: string) => {
-        if (key === '') {
+    const change_current_variable = useCallback((name: string) => {
+        if (name === '') {
             set_current_variable(null)
             return
         }    
-        set_current_variable(cloneDeep(get_variable(key)))
+        set_current_variable(cloneDeep(variables[name]))
     }, [ ])
     
     const change_current_variable_property = useCallback(
@@ -94,7 +95,7 @@ export function VariableConfig (props: IProps) {
             maskClosable={false}
             maskStyle={{ backgroundColor: 'rgba(84,84,84,0.5)' }}
             afterOpenChange={() => {
-                set_current_variable(cloneDeep(variables[0]))
+                set_current_variable(cloneDeep(variables[variable_names[0]]))
             }}
             footer={
                 [

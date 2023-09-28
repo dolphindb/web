@@ -220,7 +220,7 @@ export function unsubscribe_data_source (widget_option: Widget, new_source_id?: 
     }  
 }
 
-async function execute (source_id: string) {
+export async function execute (source_id: string) {
     const data_source = get_data_source(source_id)
     try {
         const { type, result } = await dashboard.execute(data_source.code)
@@ -357,7 +357,7 @@ export async function get_stream_filter_col (table: string): Promise<string> {
 
 
 export async function export_data_sources (): Promise<ExportDataSource[]> {
-    return (cloneDeep(data_sources)).map(
+    return cloneDeep(data_sources).map(
         data_source => {
             return { 
                 ...data_source, 
