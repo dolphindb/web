@@ -19,7 +19,7 @@ function ControlField ({ variable }: { variable: Variable }) {
     }, [variable_obj[name].value, name])
     
     switch (mode) {
-        case 'time':
+        case 'date':
             return <Form.Item name={name} label={display_name}>
                 <DatePicker />
             </Form.Item>

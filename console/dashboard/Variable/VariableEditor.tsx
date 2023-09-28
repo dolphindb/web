@@ -1,4 +1,6 @@
-import { Input, Select } from 'antd'
+import dayjs from 'dayjs'
+
+import { DatePicker, Input, Select } from 'antd'
 
 import { type Variable, type VariablePropertyType } from './variable.js'
 import { OptionList } from './OptionList.js'
@@ -14,6 +16,32 @@ export function VariableEditor ({
         change_no_save_flag
     }: PropsType) 
 { 
+    const value_editor = {
+        select: <Select
+                    size='small'
+                    className='variable-editor-main-value-control'
+                    defaultValue={current_variable.value}
+                    onChange={value => { change_current_variable_property('value', value) }}
+                    options={current_variable.options}
+                />,
+        text: <Input 
+                    size='small' 
+                    className='variable-editor-main-value-control'
+                    defaultValue={current_variable.value}
+                    onChange={event => {
+                        change_current_variable_property('value', event.target.value) 
+                    }}
+                />,
+        date: <DatePicker 
+                    size='small'
+                    className='variable-editor-main-value-control'
+                    defaultValue={dayjs(current_variable.value)}
+                    onChange={date => {
+                        change_current_variable_property('value', date ? date.format('YYYY.MM.DD') : '')
+                    }} 
+                />
+    }
+    
     return <>
         <div className='variable-editor'>
             <div className='variable-editor-main'>
@@ -35,7 +63,10 @@ export function VariableEditor ({
                         value={current_variable.mode}
                         className='variable-editor-main-mode-select'
                         size='small'
-                        onChange={(value: string) => { change_current_variable_property('mode', value) }}
+                        onChange={(value: string) => { 
+                            change_current_variable_property('mode', value) 
+                            change_current_variable_property('value', '')
+                        }}
                         options={[
                             {
                                 label: '选择项',
@@ -54,6 +85,7 @@ export function VariableEditor ({
                 </div>
                 <div className='variable-editor-main-value'>
                     变量值：
+                    {value_editor[current_variable.mode]}
                 </div>
                 {current_variable.mode === 'select'
                     ? <OptionList
