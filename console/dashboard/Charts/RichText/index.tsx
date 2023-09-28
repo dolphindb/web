@@ -73,7 +73,7 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
                 okText={t('保存')}
                 onOk={() => {
                     set_display_text(edit_text)
-                    dashboard.update_widget( { ...widget, config: { value: edit_text } } )
+                    dashboard.update_widget( { ...widget, config: { variable_ids: [ ], value: edit_text } } )
                     close()
                 }}
                 className='rich-text'

@@ -9,10 +9,9 @@ import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 
 import './index.sass'
 
-const kColor = '#fd1050'
-const kColor0 = '#0cf49b'
-const kBorderColor = '#fd1050'
-const kBorderColor0 = '#0cf49b'
+
+// const kBorderColor = '#fd1050'
+// const kBorderColor0 = '#0cf49b'
 
 type COL_MAP = {
     time: string
@@ -45,7 +44,7 @@ function splitData (rowData: any[], col_name: COL_MAP) {
 }
 
 export function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
-    const { title, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
+    const { title, title_size, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
     const data = useMemo(
         () =>
             splitData(data_source, {
@@ -60,19 +59,23 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
         [data_source, xAxis.col_name, series]
     )
     
+    const [kColor = '#fd1050', kColor0 = '#0cf49b', line_name = '折线', limit_name = '阈值'] = useMemo(() => 
+            [ series[0].kcolor, series[0].kcolor0, series[0].line_name, series[0].limit_name], 
+    [series[0]])
     const option = useMemo(
         () => ({
             animation: false,
             title: {
                 text: title,
                 textStyle: {
-                    color: '#e6e6e6'
+                    color: '#e6e6e6',
+                    fontSize: title_size || 18,
                 }
             },
             legend: {
                 top: 10,
                 left: 'center',
-                data: ['折线', '阈值'],
+                data: [line_name, limit_name],
                 textStyle: {
                     color: '#e6e6e6'
                 }
@@ -263,20 +266,21 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 },
                 {
                     type: 'line',
-                    name: '折线',
+                    name: line_name,
+                    
                     data: data.lines,
                     symbol: 'none',
                     itemStyle: {
-                        color: '#54d2d2',
+                        color: series[0].line_color || '#54d2d2',
                     },
                 },
                 {
                     type: 'line',
-                    name: '阈值',
+                    name: limit_name,
                     symbol: 'none',
                     data: new Array(data.categoryData.length).fill(series[0].limit),
                     itemStyle: {
-                        color: '#1f7ed2',
+                        color: series[0].limit_color || '#1f7ed2',
                     }
                 },
                 
@@ -302,7 +306,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
 export function OhlcConfigForm (props: { col_names: string[] }) {
     const { col_names = [ ] } = props
     return <>
-        <BasicFormFields type='chart' />
+        <BasicFormFields/>
         <OhlcFormFields col_names={col_names} />
     </>
 }
