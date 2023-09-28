@@ -370,7 +370,9 @@ export interface Widget extends GridStackNode {
     update_graph?: (data: DataType) => void
     
     /** 图表配置 */
-    config?: IChartConfig | ITableConfig | ITextConfig | IDescriptionsConfig
+    config?: (IChartConfig | ITableConfig | ITextConfig | IDescriptionsConfig) & {
+        variable_ids: string[]
+    }
 }
 
 

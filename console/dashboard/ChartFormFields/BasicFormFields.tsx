@@ -1,18 +1,35 @@
 import './index.scss'
 
-import { Collapse, Form, Input } from 'antd'
+import { Collapse, Form, Input, InputNumber, Select } from 'antd'
 
 import { t } from '../../../i18n/index.js'
 import { useMemo } from 'react'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
+import { dashboard } from '../model.js'
 
 
-export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) { 
+export function BasicFormFields ({ type }: { type: 'chart' | 'table' | 'description' }) { 
+    
+    const { variables } = dashboard.use(['variables'])
+    
+    
     const FormFields = useMemo(() => { 
         return  <div className='axis-wrapper'>
             <Form.Item name='title' label={t('标题')} initialValue={t('标题')}>
                 <Input />
             </Form.Item>
+            
+            <Form.Item name='title_size' label='标题字号'>
+                <InputNumber addonAfter='px'/>
+            </Form.Item>
+            
+            <Form.Item name='variable_ids' label={t('关联变量')}>
+                <Select mode='multiple' options={variables.map(item => ({
+                    label: item.name,
+                    value: item.id
+                }))} />
+            </Form.Item>
+            
             {type === 'chart' && <>
                 <Form.Item name='with_legend' label={t('图例')} initialValue>
                     <BoolRadioGroup />
@@ -30,6 +47,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
                     <BoolRadioGroup />
                 </Form.Item>
             </>}
+            
             {type === 'table' && <>
                 <Form.Item initialValue={false} name='bordered' label={t('展示边框')}>
                     <BoolRadioGroup />
@@ -39,7 +57,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
                 </Form.Item>
             </>}
         </div>
-    }, [ type ])
+    }, [ type, variables ])
     
     return <Collapse items={[{
         key: 'basic',

@@ -1,7 +1,7 @@
 import './index.scss'
 
 import { useMemo } from 'react'
-import { Form, Select, Input, Collapse, Button, Space, Divider } from 'antd'
+import { Form, Select, Input, Collapse, Button, Space, Divider, InputNumber } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 import { t } from '../../../i18n/index.js'
@@ -13,6 +13,9 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
         return  <div className='axis-wrapper'>
             <Form.Item name='title' label={t('标题')} initialValue={t('标题')}>
                 <Input />
+            </Form.Item>
+            <Form.Item name='title_size' label='标题字号'>
+                <InputNumber addonAfter='px' />
             </Form.Item>
             <Form.Item name='with_legend' label={t('图例')} initialValue>
                 <BoolRadioGroup />
