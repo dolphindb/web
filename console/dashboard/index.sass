@@ -13,10 +13,6 @@ $border_color: #333333
     display: flex
     flex-direction: column
     
-    .dashboard-header
-        height: 50px
-        border-bottom: 1px black solid
-           
     .dashboard-main
         flex: 1
         display: flex
@@ -100,42 +96,48 @@ $border_color: #333333
                 .grid-stack-item>.ui-resizable-ne, .grid-stack-item>.ui-resizable-nw, .grid-stack-item>.ui-resizable-se, .grid-stack-item>.ui-resizable-sw
                     background-image: none
                     
-        .dashboard-select-sider
-            width: 120px
-            padding-top: 1px
-            text-align: center
-            background-color: rgb(52, 52, 52)
+        .sider
+            width: 100px
+            margin-top: 0px
+            background: #303030
             color: $font_color
+            
             display: flex
             flex-direction: column
             justify-content: space-between
-            cursor: default
+            
+            &.collapsed
+                width: 40px
             
             .dashboard-graph-item
-                cursor: pointer
+                cursor: grab
                 box-sizing: border-box
                 height: 50px
                 line-height: 50px
                 border: 1px solid transparent
                 
-                .dashboard-graph-item-icon
-                    margin-right: 5px
+                padding-left: 12px
                 
-            .dashboard-graph-item:hover
-                border: 1px $blue solid
+                &:hover
+                    border: 1px $blue solid
                 
-            .select-folder
+                .icon
+                    font-size: 16px
+                
+                .name
+                    display: inline-block
+                    margin-left: 8px
+                    
+            
+            .collapser
                 display: flex
                 justify-content: center
                 height: 48px
                 cursor: pointer
                 
-            .select-folder:hover
-                background-color: $blue
+                &:hover
+                    background-color: $blue
                 
-        .dashboard-select-sider-folding
-            width: 40px
-        
         .dashboard-settings-panel
             width: 320px
             overflow: auto

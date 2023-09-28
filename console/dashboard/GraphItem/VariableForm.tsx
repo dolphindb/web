@@ -1,5 +1,5 @@
 import { DatePicker, Form, Input, Radio, Space } from 'antd'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import { type Variable, variables, update_variable_value, type Variables } from '../Variable/variable.js'
 
@@ -47,7 +47,6 @@ export function VariableForm (props: IProps) {
     
     const variables_obj =  variables.use()
     
-    const used_variables = names.map(name => variables_obj[name])
        
     const on_variables_change = useCallback((_, values) => { 
         Object.entries(values).forEach(([key, value]) => { 
@@ -55,9 +54,10 @@ export function VariableForm (props: IProps) {
         })
     }, [ ])
     
+    
     return <Form form={form} onValuesChange={on_variables_change}>
         <Space size='large'>
-            {used_variables.map(item => <ControlField variable={item} key={item.id} />)}
+            {names.map(name => variables_obj[name]).filter(Boolean).map(item => <ControlField variable={item} key={item?.name} />)}
         </Space>
     </Form>
 }

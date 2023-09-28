@@ -11,7 +11,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' | 'descript
     
     const { variable_names } = variables.use(['variable_names'])
     
-    
+    console.log(variable_names)
     
     const FormFields = useMemo(() => { 
         return  <div className='axis-wrapper'>
@@ -19,7 +19,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' | 'descript
                 <Input />
             </Form.Item>
             
-            <Form.Item name='title_size' label='标题字号'>
+            <Form.Item name='title_size' label='标题字号' initialValue={18}>
                 <InputNumber addonAfter='px'/>
             </Form.Item>
             

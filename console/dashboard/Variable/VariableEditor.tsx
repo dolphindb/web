@@ -46,11 +46,14 @@ export function VariableEditor ({
                                 value: 'text'
                             },
                             {
-                                label: '时间',
-                                value: 'time'
+                                label: '日期',
+                                value: 'date'
                             }
                         ]}
                     />
+                </div>
+                <div className='variable-editor-main-value'>
+                    变量值：
                 </div>
                 {current_variable.mode === 'select'
                     ? <OptionList

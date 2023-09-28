@@ -77,10 +77,20 @@ class DashBoardModel extends Model<DashBoardModel> {
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
         await this.get_configs()
-        
-        if (!this.config)
-            await this.update_config(this.generate_new_config())
-        
+        if (!this.config) {
+            const new_dashboard_config = {
+                id: genid(),
+                name: 'dashboard_0',
+                datasources: [ ],
+                variables: [ ],
+                canvas: {
+                    widgets: [ ],
+                }
+            }
+            this.set({ config: new_dashboard_config, 
+                       configs: [new_dashboard_config],
+                     })
+        }
         let grid = GridStack.init({
             acceptWidgets: true,
             float: true,
@@ -421,15 +431,15 @@ export enum WidgetType {
     PIE = '饼图',
     // POINT = '散点图',
     TABLE = '表格',
-    OHLC = 'OHLC',
+    OHLC = 'K 线',
     MIX = '混合图',
     // CANDLE = '蜡烛图',
-    // ORDER = '订单图',
+    ORDER = '订单图',
     // NEEDLE = '数值针型图',
     // STRIP = '带图',
     // HEAT = '热力图',
     TEXT = '富文本',
-    DESCRIPTIONS = '描述列表'
+    DESCRIPTIONS = '描述表'
 }
 
 export enum WidgetChartType { 
@@ -441,7 +451,7 @@ export enum WidgetChartType {
     TABLE = 'TABLE',
     OHLC = 'OHLC',
     // CANDLE = 'CANDLE',
-    // ORDER = 'ORDER',
+    ORDER = 'ORDER',
     // NEEDLE = 'NEEDLE',
     // STRIP = 'STRIP',
     // HEAT = 'HEAT'

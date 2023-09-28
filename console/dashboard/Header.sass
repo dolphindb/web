@@ -1,0 +1,78 @@
+$font_color: rgb(215, 215, 215)
+$blue: rgb(22, 104, 220)
+    
+.dashboard-header
+    height: 50px
+    
+    border-bottom: 1px black solid
+    
+    display: flex
+    
+    background-color: rgb(44, 42, 41)
+    
+    color: $font_color
+    
+    width: 100%
+    
+    .switcher
+        width: 160px
+        height: 100%
+        
+        .ant-select-selection-placeholder, .ant-select-selection-item
+            display: flex
+            align-items: center
+            color: $font_color
+    
+    .actions
+        display: flex
+        justify-content: space-evenly
+        align-items: center
+        cursor: pointer
+        
+        .action
+            border: none
+            box-shadow: none
+            padding: 5px 10px
+            font-size: 16px
+            background-color: #282828
+            
+        .refresh-button
+            margin-left: 20px
+    
+    .modes
+        position: absolute
+        left: 40%
+        top: 8px
+        font-size: 16px
+        
+        display: flex
+        align-items: center
+        flex: 1
+        
+        .right-editormode-editor
+            cursor: pointer
+            
+        .divider
+            padding: 0px 8px
+            
+        .right-editormode-preview
+            cursor: pointer
+        
+        .editormode-selected
+            color: $blue
+    
+    .padding
+        flex: 1
+    
+    .configs
+        display: flex
+        
+        align-items: center
+        
+        margin-right: 12px
+        
+        justify-self: flex-end
+        
+        gap: 12px
+        
+    

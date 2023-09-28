@@ -64,7 +64,7 @@ function Series (props: { col_names: string[] }) {
     const { col_names } = props
     const { widget: { type } } = dashboard.use(['widget'])
     
-    return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: t('名称'), yAxisIndex: 0, type: type === WidgetChartType.MIX ? WidgetChartType.LINE : type }]}>
+    return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: t('名称'), yAxisIndex: 0, type: type === WidgetChartType.MIX ? WidgetChartType.LINE : type, color: null }]}>
         {(fields, { add, remove }) => { 
             const items = fields.map(field => { 
                 const children = 
@@ -94,7 +94,7 @@ function Series (props: { col_names: string[] }) {
                             } }
                         </FormDependencies>
                         
-                        <Form.Item name={[field.name, 'color']} label='线条颜色'>
+                        <Form.Item name={[field.name, 'color']} label='线条颜色' initialValue={null}>
                             <StringColorPicker />
                         </Form.Item>
                         
