@@ -3,7 +3,7 @@ import { genid } from 'xshell/utils.browser.js'
 import { cloneDeep } from 'lodash'
 
 import { dashboard } from '../model.js'
-import { execute } from '../DataSource/date-source.js'
+import { type DataSource, execute } from '../DataSource/date-source.js'
 
 
 export type ExportVariable = {
@@ -64,12 +64,21 @@ export function find_variable_index (name: string): number {
 }
 
 
-export async function update_variable (name: string, value: string) {
-        variables.set({ [name]: { ...variables[name], value } })
-        
-        for (let source_id of variables[name].deps)
-            await execute(source_id)
+export async function update_variable_value (name: string, value: string) {
+    variables.set({ [name]: { ...variables[name], value } })
+    
+    for (let source_id of variables[name].deps)
+        await execute(source_id)
 }
+
+
+export function get_variable_value (name: string): string {
+    if (variables[name])
+        return variables[name].value
+    else
+        throw new Error(`变量 ${name} 不存在`)
+}
+
 
 
 export async function save_variable ( new_variable: Variable, message = true) {
@@ -125,19 +134,19 @@ export function rename_variable (old_name: string, new_name: string) {
         variable.name = new_name
 }
 
-// export async function subscribe_variable (data_source: DataSource, variable_id: string) {
-//     const variable = get_variable(variable_id)
+export async function subscribe_variable (data_source: DataSource, variable_name: string) {
+    const variable = variable_name[variable_name]
     
-//     variable.deps.add(data_source.id)
-//     data_source.variables.variable_names.add(variable.id)
-// }
+    variable.deps.add(data_source.id)
+    data_source.variables.add(variable_name)
+}
 
-// export function unsubscribe_variable (data_source: DataSource, variable_id: string) {
-//     const variable = get_variable(variable_id)
+export function unsubscribe_variable (data_source: DataSource, variable_name: string) {
+    const variable = variable_name[variable_name]
     
-//     variable.deps.delete(data_source.id)
-//     data_source.variables.variable_names.delete(variable.id) 
-// }
+    variable.deps.delete(data_source.id)
+    data_source.variables.delete(variable.name) 
+}
 
 export async function export_variables (): Promise<ExportVariable[]> {
     return variables.variable_names.map(variable_name => {
