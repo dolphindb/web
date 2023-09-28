@@ -101,6 +101,7 @@ export function delete_variable (name: string): number {
     else {
         const delete_index = find_variable_index(name)
         variables.variable_names.splice(delete_index, 1)
+        variables.set({ variable_names: [...variables.variable_names] })
         delete variables[variable.name]
         return delete_index
     }
@@ -112,8 +113,7 @@ export function create_variable  () {
     const name = `var_${id.slice(0, 4)}`
     const display_name = name
     const variable = new Variable(id, name, display_name)
-    variables[name] = variable
-    variables.variable_names.unshift(name)
+    variables.set({ [name]: { ...variable }, variable_names: [name, ...variables.variable_names] })
     return { id, name, display_name }
 }
 
@@ -130,8 +130,13 @@ export function rename_variable (old_name: string, new_name: string) {
         throw new Error('节点名长度不能大于10')
     else if (new_name.length === 0)
         throw new Error('节点名不能为空')
-    else
-        variable.name = new_name
+    else {
+        variables.variable_names[find_variable_index(old_name)] = new_name
+        variables.set({ [new_name]: { ...variables[old_name], name: new_name }, variable_names: [...variables.variable_names] })
+        if (new_name !== old_name)
+            delete variables[old_name]
+    }
+        
 }
 
 export async function subscribe_variable (data_source: DataSource, variable_name: string) {
