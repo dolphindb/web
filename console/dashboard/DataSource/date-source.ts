@@ -6,6 +6,8 @@ import { sql_formatter, get_cols, stream_formatter, parse_code } from '../utils.
 import { model } from '../../model.js'
 import { DDB, DdbForm, type DdbObj, type DdbValue } from 'dolphindb'
 import { cloneDeep } from 'lodash'
+import { subscribe_variable, unsubscribe_variable } from '../Variable/variable.js'
+
 
 export type DataType = { }[]
 
@@ -42,6 +44,7 @@ export type ExportDataSource = {
     /** stream 模式专用 */
     ddb: string
 }
+
 
 export class DataSource extends Model<DataSource>  {
     id: string
@@ -81,53 +84,65 @@ export class DataSource extends Model<DataSource>  {
     }
 }
 
+
 export function find_data_source_index (key: string): number {
     return data_sources.findIndex(data_source => data_source.id === key)
 } 
 
 export function get_data_source (id: string): DataSource {
-    return data_sources[find_data_source_index(id)]
+    return data_sources[find_data_source_index(id)] || new DataSource('', '')
 }
 
 export async function save_data_source ( new_data_source: DataSource, code?: string ) {
     const id = new_data_source.id
     const data_source = get_data_source(id)
-    const dep = new_data_source.deps
+    const deps = new_data_source.deps
     
     delete_interval(id)
     unsubscribe_stream(id)
+    while (data_source.variables.size) 
+        unsubscribe_variable(data_source, data_source.deps[0])
     new_data_source.data.length = 0
     new_data_source.error_message = ''
     new_data_source.code = code || dashboard.editor?.getValue() || ''
     
+    
     switch (new_data_source.mode) {
         case 'sql':
-            
             new_data_source.cols.length = 0
     
-            const { type, result } = await dashboard.execute(new_data_source.code)
-            if (type === 'success') {
-                if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) {
-                    // 暂时只支持table
-                    new_data_source.data = sql_formatter(result.data as unknown as DdbObj<DdbValue>, new_data_source.max_line)
-                    new_data_source.cols = get_cols(result.data as unknown as DdbObj<DdbValue>)
-                }
-            } else {
-                new_data_source.error_message = result as string
+            try {
+                const { code: parsed_code, variables } = parse_code(new_data_source.code)
+                const { type, result } = await dashboard.execute(parsed_code)
+                
+                if (type === 'success') {
+                    if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) {
+                        // 暂时只支持table
+                        new_data_source.data = sql_formatter(result.data as unknown as DdbObj<DdbValue>, new_data_source.max_line)
+                        new_data_source.cols = get_cols(result.data as unknown as DdbObj<DdbValue>)
+                        
+                        variables.forEach(variable => {
+                            subscribe_variable(new_data_source, variable)
+                        })
+                    }
+                } else 
+                    throw new Error(result as string)
+            } catch (error) {
+                new_data_source.error_message = error.message
                 if (code === undefined)
-                    dashboard.message.error(result as string)
+                    dashboard.message.error(error.message)
+            } finally {
+                data_source.set({ ...new_data_source })
+            
+                if (deps.size && !new_data_source.error_message && new_data_source.auto_refresh) 
+                    create_interval(id) 
             }
-            
-            data_source.set({ ...new_data_source })
-            
-            if (dep.size && !new_data_source.error_message && new_data_source.auto_refresh) 
-                create_interval(id) 
             
             break
         case 'stream':
             data_source.set({ ...new_data_source })
             
-            if (dep.size && !new_data_source.error_message) 
+            if (deps.size && !new_data_source.error_message) 
                 await subscribe_stream(id) 
             
             break
@@ -147,6 +162,8 @@ export function delete_data_source (key: string): number {
         dashboard.message.error('当前数据源已被图表绑定无法删除')
     else {
         const delete_index = find_data_source_index(key)
+        while (data_source.variables.size) 
+            unsubscribe_variable(data_source, data_source.deps[0])
         data_sources.splice(delete_index, 1)
         return delete_index
     }
@@ -158,6 +175,7 @@ export function create_data_source  (): { id: string, name: string } {
     data_sources.unshift(new DataSource(id, name))
     return { id, name }
 }
+
 
 export function rename_data_source (key: string, new_name: string) {
     const data_source = get_data_source(key)
@@ -175,11 +193,12 @@ export function rename_data_source (key: string, new_name: string) {
         data_source.name = new_name
 }
 
+
 export async function subscribe_data_source (widget_option: Widget, source_id: string) {
     const data_source = get_data_source(source_id)
     
-    if (widget_option.source_id)
-        unsubscribe_data_source(widget_option, source_id)  
+    if (widget_option.source_id && widget_option.source_id !== source_id)
+        unsubscribe_data_source(widget_option)  
         
     data_source.deps.add(widget_option.id)
     
@@ -201,50 +220,51 @@ export async function subscribe_data_source (widget_option: Widget, source_id: s
         // console.log(widget_option.id, 'render', data_source.data)      
 }
 
-export function unsubscribe_data_source (widget_option: Widget, new_source_id?: string) {
+
+export function unsubscribe_data_source (widget_option: Widget) {
     const source_id = widget_option.source_id
     const data_source = get_data_source(source_id)
-    if (!new_source_id || source_id !== new_source_id ) {
-        data_source.deps.delete(widget_option.id)
-        if (!data_source.deps.size) {
-            delete_interval(source_id)
-            unsubscribe_stream(source_id)
-        }   
-    }  
+    data_source.deps.delete(widget_option.id)
+    if (!data_source.deps.size) {
+        delete_interval(source_id)
+        unsubscribe_stream(source_id)
+    }   
 }
 
-async function execute (source_id: string) {
+export async function execute (source_id: string) {
     const data_source = get_data_source(source_id)
-    const { type, result } = await dashboard.execute(data_source.code)
-    // const { type, result } = await dashboard.execute(parse_code(data_source.code))
+    try {
+        const { type, result } = await dashboard.execute(parse_code(data_source.code).code)
+                
+        if (type === 'success') 
+            // 暂时只支持table
+            if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) 
+                data_source.set({
+                    data: sql_formatter(result.data as unknown as DdbObj<DdbValue>, data_source.max_line),
+                    cols: get_cols(result.data as unknown as DdbObj<DdbValue>),
+                    error_message: ''
+                })    
+            else
+                data_source.set({
+                    data: [ ],
+                    cols: [ ],
+                    error_message: ''
+                })
             
-    if (type === 'success') 
-        // 暂时只支持table
-        if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) 
-            data_source.set({
-                data: sql_formatter(result.data as unknown as DdbObj<DdbValue>, data_source.max_line),
-                cols: get_cols(result.data as unknown as DdbObj<DdbValue>),
-                error_message: ''
-            })    
-        else
-            data_source.set({
-                data: [ ],
-                cols: [ ],
-                error_message: ''
-            })
+            // 仅测试用
+            // console.log('')
+            // data_source.deps.forEach((widget_id: string) => {
+            //     console.log(widget_id, 'render', data_source.data)
+            // })
         
-        // 仅测试用
-        // console.log('')
-        // data_source.deps.forEach((widget_id: string) => {
-        //     console.log(widget_id, 'render', data_source.data)
-        // })
-    
-    else {
-        dashboard.message.error(result as string)
+        else 
+            throw new Error(result as string)    
+    } catch (error) {
+        dashboard.message.error(error.message)
         data_source.set({
             data: [ ],
             cols: [ ],
-            error_message: result as string
+            error_message: error.message
         })
         delete_interval(source_id)
     }
@@ -263,6 +283,7 @@ function create_interval (source_id: string) {
     }
 }
 
+
 function delete_interval (source_id: string) {
     const data_source = get_data_source(source_id)
     const interval = data_source.timer
@@ -272,6 +293,7 @@ function delete_interval (source_id: string) {
     }
         
 }
+
 
 async function subscribe_stream (source_id: string) {
     const data_source = get_data_source(source_id)
@@ -313,6 +335,7 @@ async function subscribe_stream (source_id: string) {
     }
 }
 
+
 function unsubscribe_stream (source_id: string) {
     const data_source = get_data_source(source_id)
     const stream_connection = data_source.ddb
@@ -322,15 +345,18 @@ function unsubscribe_stream (source_id: string) {
     } 
 }
 
+
 export async function get_stream_tables (): Promise<string[]> {
     await dashboard.eval('exec name from objs(true) where type="REALTIME"')
     return dashboard.result.data.value as string[]
 }
 
+
 export async function get_stream_cols (table: string): Promise<string[]> {
     await dashboard.eval(`select name from schema(${table})['colDefs']`)
     return dashboard.result.data.value[0].value
 }
+
 
 export async function get_stream_filter_col (table: string): Promise<string> {
     try {
@@ -340,8 +366,9 @@ export async function get_stream_filter_col (table: string): Promise<string> {
     }
 }
 
+
 export async function export_data_sources (): Promise<ExportDataSource[]> {
-    return (cloneDeep(data_sources)).map(
+    return cloneDeep(data_sources).map(
         data_source => {
             return { 
                 ...data_source, 
@@ -353,16 +380,21 @@ export async function export_data_sources (): Promise<ExportDataSource[]> {
             }
         }
     )
-} 
+}
+
 
 export async function import_data_sources (_data_sources: ExportDataSource[]) {
     data_sources = [ ]
+    
     for (let data_source of _data_sources) {
         const import_data_source = new DataSource(data_source.id, data_source.name)
         Object.assign(import_data_source, data_source, { deps: new Set(data_source.deps), variables: new Set(data_source.variables) })
         data_sources.push(import_data_source)
         await save_data_source(import_data_source, import_data_source.code)
     }
+    
+    return data_sources
 }
+
 
 export let data_sources: DataSource[] = [ ]

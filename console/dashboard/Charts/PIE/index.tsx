@@ -14,7 +14,7 @@ const radius = {
 }
 
 export function Pie ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
-    const { title, with_tooltip, with_legend, series } = widget.config as IChartConfig
+    const { title, title_size = 18, with_tooltip, with_legend, series } = widget.config as IChartConfig
     
     const option = useMemo(
         () => {
@@ -36,6 +36,7 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                     text: title,
                     textStyle: {
                         color: '#e6e6e6',
+                        fontSize: title_size,
                     }
                 },
                 series: series.map((serie, index) => {
@@ -59,7 +60,7 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                 })
             }
         },
-        [title, with_tooltip, with_legend, series]
+        [title, with_tooltip, with_legend, series, title_size]
     )
     
     return <ReactEChartsCore echarts={echarts} option={option} notMerge lazyUpdate theme='ohlc_theme' />

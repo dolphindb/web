@@ -10,6 +10,7 @@ import { type DataSource } from './DataSource/date-source.js'
 import { t } from '../../i18n/index.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import dayjs from 'dayjs'
+import { get_variable_value } from './Variable/variable.js'
 
 function formatter (type, value, le, index?, values?) {
     switch (type) {
@@ -114,8 +115,17 @@ export function default_value_in_select (
         : select_list[0].value
 }
 
-export function parse_code (code: string): string {
-    return code
+export function parse_code (code: string): { code: string, variables: Set<string> } {
+    try {
+        const variables = new Set<string>()
+        code = code.replace(/\{\{(.*?)\}\}/g, function (match, variable) {
+            variables.add(variable)
+            return get_variable_value(variable.trim())
+        })
+        return { code, variables }
+    } catch (error) {
+        throw error
+    }
 }
 
 
@@ -127,7 +137,7 @@ export function concat_name_path (...paths: NamePath[]): NamePath {
 export function convert_chart_config (widget: Widget, data_source: any[]) {
     const { config, type } = widget
     
-    const { title, with_legend, with_tooltip, with_split_line, xAxis, series, yAxis, x_datazoom, y_datazoom } = config as IChartConfig
+    const { title, title_size, with_legend, with_tooltip, with_split_line, xAxis, series, yAxis, x_datazoom, y_datazoom } = config as IChartConfig
     
     function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
@@ -198,7 +208,6 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         
         if (xAxis.type === AxisType.TIME)  
             data = data_source.map(item => [dayjs(item?.[xAxis.col_name]).format('YYYY-MM-DD HH:mm:ss'), item?.[series.col_name]])
-        
         return {
             type: series.type?.toLowerCase(),
             name: series.name,
@@ -214,12 +223,16 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                     name: item
                 }))
             }, 
+            itemStyle: {
+                color: series.color,
+            },
             markLine: {
                 symbol: ['none', 'none'],
                 data: mark_line_data
             },
             lineStyle: {
-                type: series.line_type
+                type: series.line_type,
+                color: series.color
             }
         }
     }
@@ -228,6 +241,9 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     return {
         legend: {
             show: with_legend,
+            itemStyle: {
+                color: 'transparent',
+            },
             textStyle: {
                 color: '#e6e6e6'
             }
@@ -246,6 +262,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             text: title,
             textStyle: {
                 color: '#e6e6e6',
+                fontSize: title_size || 18,
             }
         },
         xAxis: convert_axis(xAxis),

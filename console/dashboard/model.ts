@@ -13,14 +13,14 @@ import { assert, genid } from 'xshell/utils.browser.js'
 import type { MessageInstance } from 'antd/es/message/interface.js'
 import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
-import { type ExportDataSource, import_data_sources } from './DataSource/date-source.js'
 
 import { t } from '../../i18n/index.js'
-import { type Monaco } from '../shell/Editor/index.js'
 import { model, show_error, type ErrorOptions } from '../model.js'
-import { unsubscribe_data_source, type DataType } from './DataSource/date-source.js'
+import { type Monaco } from '../shell/Editor/index.js'
+
+import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType } from './DataSource/date-source.js'
 import { type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig } from './type.js'
-import { import_variable } from './Variable/variable.js'
+import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 
 
 class DashBoardModel extends Model<DashBoardModel> {
@@ -39,6 +39,15 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 当前选中的图表控件，焦点在画布时可能为 null (是否合理？不合理可以再加一个 focused 属性) */
     widget: Widget | null
+    
+    
+    /** 全局变量 */
+    variables: Variable[] = [ ]
+    
+    
+    /** 数据源 */
+    data_sources: DataSource[] = [ ]
+    
     
     /** 编辑、预览状态切换 */
     editing = true
@@ -119,11 +128,14 @@ class DashBoardModel extends Model<DashBoardModel> {
         grid.on('change', (event: Event, widgets: GridStackNode[]) => {
             console.log('修改 widget 大小或位置:', widgets)
             
-            for (const widget of widgets)
-                Object.assign(
-                    this.widgets.find(({ id }) => id === widget.id), 
-                    widget
-                )
+            if (widgets?.length)
+                for (const widget of widgets)
+                    Object.assign(
+                        this.widgets.find(({ id }) => id === widget.id), 
+                        widget
+                    )
+            else
+                console.log('gridstack change 时 widgets 为空')
         })
         
         // grid.on('resize', () => {
@@ -144,15 +156,68 @@ class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async load_config () {
-        if (this.config) {
-            await import_variable(this.config.variables)
-            await import_data_sources(this.config.datasources) 
-            this.set({ widgets: this.config.canvas.widgets.map(widget => ({
-                ...widget, 
-                ref: createRef(), 
-            })) as any  })
-        }    
+    /** 传入 _delete === true 时表示删除传入的 config */
+    async update_config (config: DashBoardConfig, _delete = false) {
+        const { config: config_, configs } = (() => {
+            if (_delete) {
+                const configs = this.configs.filter(c => c.id !== config.id)
+                
+                return {
+                    config: configs[0] || this.generate_new_config(),
+                    configs,
+                }
+            } else {
+                let index = this.configs.findIndex(c => c.id === config.id)
+                
+                return {
+                    config,
+                    
+                    configs: index === -1 ?
+                        [...this.configs, config]
+                    :
+                        this.configs.toSpliced(index, 1, config),
+                }
+            }
+        })()
+        
+        const url_params = new URLSearchParams(location.search)
+        url_params.set('dashboard', String(config.id))
+        let url = new URL(location.href)
+        url.search = url_params.toString()
+        history.replaceState({ }, '', url)
+        
+        this.set({
+            config: config_,
+            
+            configs,
+            
+            variables: await import_variables(config_.variables),
+            
+            data_sources: await import_data_sources(config_.datasources),
+            
+            widgets: config_.canvas.widgets.map(widget => ({
+                ...widget,
+                ref: createRef()
+            })) as any,
+            
+            widget: null,
+        })
+        
+        console.log(t('dashboard 配置加载成功'))
+    }
+    
+    
+    generate_new_config (name?: string) {
+        const id = genid()
+        return {
+            id,
+            name: String(id).slice(0, 4),
+            datasources: [ ],
+            variables: [ ],
+            canvas: {
+                widgets: [ ],
+            }
+        }
     }
     
     
@@ -174,8 +239,9 @@ class DashBoardModel extends Model<DashBoardModel> {
         
         for (let widget of widgets) {
             let $element = widget.ref.current
-            if (!$element)
-                return
+            
+            assert($element)
+            
             // 返回值为 GridItemHTMLElement 类型 (就是在 $element 这个 dom 节点上加了 gridstackNode: GridStackNode 属性)
             Object.assign(
                 widget,
@@ -290,21 +356,24 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
-        let data = (await model.ddb.call < DdbStringObj | DdbBlob >('get_dashboard_configs')).value || '{}'
+        let data = (await model.ddb.call < DdbStringObj | DdbBlob >('get_dashboard_configs')).value || '[]'
         if (typeof data !== 'string') 
             data = new TextDecoder().decode(data)
-        const configs: DashBoardConfig[] = JSON.parse(data)
+        
+        this.configs = JSON.parse(data)
+        
         const current_config_id = new URLSearchParams(location.search).get('dashboard')
-        const current_config = configs.find(({ id }) => String(id) === current_config_id)
-        this.set({
-            configs,
-            config:  current_config || configs[0]
-        })
+        
+        const config = this.configs.find(({ id }) => !current_config_id || String(id) === current_config_id)
+        if (config)
+            await this.update_config(config)
+        else
+            this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
     }
     
     
     /** 将配置持久化保存到服务器 */
-    async save_configs () {
+    async save_configs_to_server () {
         await model.ddb.call<DdbVoid>('set_dashboard_configs', [JSON.stringify(this.configs)])
     }
     
@@ -318,7 +387,7 @@ class DashBoardModel extends Model<DashBoardModel> {
 export let dashboard = window.dashboard = new DashBoardModel()
 
 
-interface DashBoardConfig {
+export interface DashBoardConfig {
     id: number
     
     name: string
@@ -326,9 +395,7 @@ interface DashBoardConfig {
     datasources: ExportDataSource[ ]
     
     /** 变量配置 */
-    variables: {
-        id: string
-    }[ ]
+    variables: ExportVariable[ ]
     
     /** 画布配置 */
     canvas: {
@@ -352,7 +419,9 @@ export interface Widget extends GridStackNode {
     update_graph?: (data: DataType) => void
     
     /** 图表配置 */
-    config?: IChartConfig | ITableConfig | ITextConfig | IDescriptionsConfig
+    config?: (IChartConfig | ITableConfig | ITextConfig | IDescriptionsConfig) & {
+        variable_names: string[]
+    }
 }
 
 
