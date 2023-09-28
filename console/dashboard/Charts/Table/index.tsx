@@ -1,5 +1,6 @@
 import { Checkbox, type PaginationProps, Table, type TableProps, Empty } from 'antd'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { genid } from 'xshell/utils.browser.js'
 
 import {  BasicFormFields }  from '../../ChartFormFields/BasicFormFields.js'
 import { BasicTableFields } from '../../ChartFormFields/BasicTableFields.js'
@@ -81,18 +82,20 @@ export function DBTable (props: IProps) {
             value={selected_cols}
             options={radio_group_options}
             className='table-radio-group' />}
-            
-        {
-            selected_cols?.length ? <Table
-            bordered={config.bordered}
-            columns={columns}
-            dataSource={data_source}
-            pagination={pagination}
-            {...otherProps} />
-            : <Empty className='empty-table' />
         
+        {
+            selected_cols?.length ?
+                <Table
+                    bordered={config.bordered}
+                    columns={columns}
+                    dataSource={data_source}
+                    pagination={pagination}
+                    rowKey={() => genid()}
+                    {...otherProps}
+                />
+            :
+                <Empty className='empty-table' />
         }
-            
     </div>
 }
 

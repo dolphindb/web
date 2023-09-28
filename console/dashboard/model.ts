@@ -211,7 +211,7 @@ class DashBoardModel extends Model<DashBoardModel> {
         const id = genid()
         return {
             id,
-            name: String(id).slice(0, 4),
+            name: name || String(id).slice(0, 4),
             datasources: [ ],
             variables: [ ],
             canvas: {
