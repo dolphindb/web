@@ -2,14 +2,14 @@ import './index.scss'
 
 import { Button, Collapse, Descriptions, type DescriptionsProps, Divider, Form, InputNumber, Select, Space } from 'antd'
 import { type Widget } from '../../model.js'
-import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { convert_list_to_options } from '../../utils.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { type IDescriptionsConfig } from '../../type.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
+import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 
 interface IProps { 
     widget: Widget
@@ -44,7 +44,7 @@ export function DBDescriptions (props: IProps) {
         colon={false}
         className='my-descriptions'
         layout='vertical'
-        title={config.title}
+        title={<div style={{ fontSize: config.title_size || 18 }}>{config.title}</div>}
         items={items}
         column={config.column_num}
     />

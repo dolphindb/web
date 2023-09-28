@@ -127,7 +127,7 @@ export function concat_name_path (...paths: NamePath[]): NamePath {
 export function convert_chart_config (widget: Widget, data_source: any[]) {
     const { config, type } = widget
     
-    const { title, with_legend, with_tooltip, with_split_line, xAxis, series, yAxis, x_datazoom, y_datazoom } = config as IChartConfig
+    const { title, title_size, with_legend, with_tooltip, with_split_line, xAxis, series, yAxis, x_datazoom, y_datazoom } = config as IChartConfig
     
     function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
@@ -198,7 +198,6 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         
         if (xAxis.type === AxisType.TIME)  
             data = data_source.map(item => [dayjs(item?.[xAxis.col_name]).format('YYYY-MM-DD HH:mm:ss'), item?.[series.col_name]])
-        
         return {
             type: series.type?.toLowerCase(),
             name: series.name,
@@ -219,7 +218,8 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 data: mark_line_data
             },
             lineStyle: {
-                type: series.line_type
+                type: series.line_type,
+                color: series.color
             }
         }
     }
@@ -228,6 +228,9 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     return {
         legend: {
             show: with_legend,
+            itemStyle: {
+                color: 'transparent',
+            },
             textStyle: {
                 color: '#e6e6e6'
             }
@@ -246,6 +249,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             text: title,
             textStyle: {
                 color: '#e6e6e6',
+                fontSize: title_size || 18,
             }
         },
         xAxis: convert_axis(xAxis),

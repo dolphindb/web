@@ -12,6 +12,7 @@ import { AxisType, type IAxisItem, ILineType, type IYAxisItemValue } from './typ
 
 import { axis_position_options, axis_type_options, chart_type_options, line_type_options, mark_line_options, mark_point_options, stack_strategy_options } from './constant.js'
 import { WidgetChartType, dashboard } from '../model.js'
+import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 
 
 
@@ -92,6 +93,11 @@ function Series (props: { col_names: string[] }) {
                                 </Form.Item>
                             } }
                         </FormDependencies>
+                        
+                        <Form.Item name={[field.name, 'color']} label='线条颜色'>
+                            <StringColorPicker />
+                        </Form.Item>
+                        
                         <Form.Item name={[field.name, 'mark_point']} label='标记点'>
                             <Select options={mark_point_options} mode='multiple'/>
                         </Form.Item>
@@ -158,7 +164,7 @@ export function YAxis (props: { col_names: string[], initial_values?: IYAxisItem
     
     const default_initial_values = useMemo(() => ([
         {
-            type: 'category',
+            type: AxisType.VALUE,
             name: t('名称'),
             col_name: col_names[0],
             position: 'left',
@@ -172,7 +178,7 @@ export function YAxis (props: { col_names: string[], initial_values?: IYAxisItem
                 const children = <div className='field-wrapper' key={field.name}>
                     <Space>
                         <div className='axis-wrapper'>
-                            <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis' />
+                            <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis'/>
                             <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>
                                 <Select options={axis_position_options} />
                             </Form.Item>

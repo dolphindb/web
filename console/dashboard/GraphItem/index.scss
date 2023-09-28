@@ -29,10 +29,18 @@
     padding: 12px;
     background-color: #282828;
     
-    ::-webkit-scrollbar-track-piece {
+    display: flex;
+    flex-direction: column;
+    
+    .graph-component {
+        width: 100%;
+        flex-grow: 1;
+    }
+    
+    &::-webkit-scrollbar-track-piece {
         background-color: #474747 !important;
     }
-    ::-webkit-scrollbar-thumb {
+    &::-webkit-scrollbar-thumb {
         border-radius: 0px;
         border: 1px solid #606060 !important;
         box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);

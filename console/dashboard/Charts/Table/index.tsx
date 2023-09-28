@@ -1,4 +1,4 @@
-import { Checkbox, type PaginationProps, Table, type TableProps } from 'antd'
+import { Checkbox, type PaginationProps, Table, type TableProps, Empty } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import {  BasicFormFields }  from '../../ChartFormFields/BasicFormFields.js'
@@ -32,10 +32,6 @@ export function DBTable (props: IProps) {
     
     useEffect(() => { set_select_cols(config.show_cols) }, [config])
     
-    const on_change_selected_cols = useCallback(val => {
-        set_select_cols(val)
-    }, [ ])
-    
     const radio_group_options = useMemo(() => {
         return config.show_cols?.map(col => ({
             label: config.col_mappings.find(item => item?.original_col === col)?.mapping_name?.trim() || col,
@@ -51,7 +47,8 @@ export function DBTable (props: IProps) {
                 const col_config = {
                     dataIndex: col,
                     title: col_mappings.find(item => item?.original_col === col)?.mapping_name?.trim() || col,
-                    key: col
+                    key: col,
+                    render: (_, record) => record[col] || '-'
                 }
                 
                 if (value_format?.cols?.includes(col))
@@ -59,6 +56,7 @@ export function DBTable (props: IProps) {
                 return col_config
             })
     }, [config, selected_cols])
+    
     
     const pagination = useMemo<PaginationProps | false>(() => { 
         if (!config.pagination.show)
@@ -76,21 +74,24 @@ export function DBTable (props: IProps) {
     
     
     return <div className='dashboard-table-wrapper'>
-        {config.title && <h2 className='table-title'>{config.title}</h2>}
+        {config.title && <h2 style={{ fontSize: config.title_size || 18 }} className='table-title'>{config.title}</h2>}
         
         {config.need_select_cols && <Checkbox.Group
-            onChange={on_change_selected_cols}
+            onChange={ val => { set_select_cols(val) }  }
             value={selected_cols}
             options={radio_group_options}
             className='table-radio-group' />}
             
-        <Table
+        {
+            selected_cols?.length ? <Table
             bordered={config.bordered}
             columns={columns}
             dataSource={data_source}
             pagination={pagination}
-            rowKey={selected_cols[0]}
             {...otherProps} />
+            : <Empty className='empty-table' />
+        
+        }
             
     </div>
 }
