@@ -182,12 +182,31 @@ function Series (props: { col_names: string[] }) {
                                 {
                                     series[index]?.selected_cols &&  
                                     <>
+                                         <Form.Item name={[field.name, 'line_name']} label='折线名称' initialValue={ t('折线') }>
+                                            <Input />
+                                        </Form.Item>
+                                        
+                                        <Form.Item name={[field.name, 'limit_name']} label='阈值线名称' initialValue={ t('阈值') }>
+                                            <Input />
+                                        </Form.Item>
+                                        
+                                        <Form.Item name={[field.name, 'kcolor']} label='k 线颜色（涨）'>
+                                            <StringColorPicker />
+                                        </Form.Item>
+                                       
+                                        <Form.Item name={[field.name, 'kcolor0']} label='k 线颜色（跌）'>
+                                            <StringColorPicker />
+                                        </Form.Item>
+                                    
                                         <Form.Item name={[field.name, 'line_color']} label='折线颜色'>
                                             <StringColorPicker />
                                         </Form.Item>
+                                       
                                         <Form.Item name={[field.name, 'limit_color']} label='阈值颜色'>
                                             <StringColorPicker />
                                         </Form.Item>
+                                        
+                                       
                                     </>
                                 }
                             </div>

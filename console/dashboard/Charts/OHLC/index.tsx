@@ -4,13 +4,12 @@ import { useMemo } from 'react'
 
 import { type Widget } from '../../model.js'
 import { type IChartConfig } from '../../type.js'
-import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
+import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 
 import './index.sass'
 
-const kColor = '#fd1050'
-const kColor0 = '#0cf49b'
+
 // const kBorderColor = '#fd1050'
 // const kBorderColor0 = '#0cf49b'
 
@@ -60,6 +59,9 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
         [data_source, xAxis.col_name, series]
     )
     
+    const [kColor = '#fd1050', kColor0 = '#0cf49b', line_name = '折线', limit_name = '阈值'] = useMemo(() => 
+            [ series[0].kcolor, series[0].kcolor0, series[0].line_name, series[0].limit_name], 
+    [series[0]])
     const option = useMemo(
         () => ({
             animation: false,
@@ -73,7 +75,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
             legend: {
                 top: 10,
                 left: 'center',
-                data: ['折线', '阈值'],
+                data: [line_name, limit_name],
                 textStyle: {
                     color: '#e6e6e6'
                 }
@@ -264,7 +266,8 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 },
                 {
                     type: 'line',
-                    name: '折线',
+                    name: line_name,
+                    
                     data: data.lines,
                     symbol: 'none',
                     itemStyle: {
@@ -273,7 +276,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 },
                 {
                     type: 'line',
-                    name: '阈值',
+                    name: limit_name,
                     symbol: 'none',
                     data: new Array(data.categoryData.length).fill(series[0].limit),
                     itemStyle: {
@@ -303,7 +306,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
 export function OhlcConfigForm (props: { col_names: string[] }) {
     const { col_names = [ ] } = props
     return <>
-        <BasicFormFields type='chart' />
+        <BasicFormFields/>
         <OhlcFormFields col_names={col_names} />
     </>
 }
