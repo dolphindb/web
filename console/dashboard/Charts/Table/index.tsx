@@ -48,7 +48,7 @@ export function DBTable (props: IProps) {
                     dataIndex: col,
                     title: col_mappings.find(item => item?.original_col === col)?.mapping_name?.trim() || col,
                     key: col,
-                    render: (_, record) => record[col] || '-'
+                    render: (_, record) => typeof record[col] === 'number' ? record[col] : record[col] || '-'
                 }
                 
                 if (value_format?.cols?.includes(col))
