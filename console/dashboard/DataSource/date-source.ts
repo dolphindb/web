@@ -6,7 +6,7 @@ import { sql_formatter, get_cols, stream_formatter, parse_code } from '../utils.
 import { model } from '../../model.js'
 import { DDB, DdbForm, type DdbObj, type DdbValue } from 'dolphindb'
 import { cloneDeep } from 'lodash'
-import { subscribe_variable, unsubscribe_variable } from '../Variable/variable.js'
+import { unsubscribe_variable } from '../Variable/variable.js'
 
 
 export type DataType = { }[]
@@ -106,6 +106,8 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
     new_data_source.data.length = 0
     new_data_source.error_message = ''
     new_data_source.code = code || dashboard.editor?.getValue() || ''
+    new_data_source.timer = null
+    new_data_source.ddb = null
     
     
     switch (new_data_source.mode) {
@@ -113,7 +115,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
             new_data_source.cols.length = 0
     
             try {
-                const { code: parsed_code, variables } = parse_code(new_data_source.code)
+                const parsed_code = parse_code(new_data_source)
                 const { type, result } = await dashboard.execute(parsed_code)
                 
                 if (type === 'success') {
@@ -121,10 +123,6 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                         // 暂时只支持table
                         new_data_source.data = sql_formatter(result.data as unknown as DdbObj<DdbValue>, new_data_source.max_line)
                         new_data_source.cols = get_cols(result.data as unknown as DdbObj<DdbValue>)
-                        
-                        variables.forEach(variable => {
-                            subscribe_variable(new_data_source, variable)
-                        })
                     }
                 } else 
                     throw new Error(result as string)
@@ -234,9 +232,9 @@ export function unsubscribe_data_source (widget_option: Widget) {
 export async function execute (source_id: string) {
     const data_source = get_data_source(source_id)
     try {
-        const { type, result } = await dashboard.execute(parse_code(data_source.code).code)
+        const { type, result } = await dashboard.execute(parse_code(data_source))
                 
-        if (type === 'success') 
+        if (type === 'success') {
             // 暂时只支持table
             if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) 
                 data_source.set({
@@ -251,11 +249,16 @@ export async function execute (source_id: string) {
                     error_message: ''
                 })
             
+            if (data_source.deps.size && !data_source.timer && data_source.auto_refresh) 
+                create_interval(data_source.id) 
+            
             // 仅测试用
             // console.log('')
             // data_source.deps.forEach((widget_id: string) => {
             //     console.log(widget_id, 'render', data_source.data)
             // })
+        }
+            
         
         else 
             throw new Error(result as string)    
@@ -290,8 +293,7 @@ function delete_interval (source_id: string) {
     if (interval) {
         clearInterval(interval)
         data_source.timer = null
-    }
-        
+    }     
 }
 
 

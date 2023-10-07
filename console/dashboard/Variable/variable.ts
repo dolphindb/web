@@ -1,9 +1,8 @@
 import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
-import { cloneDeep } from 'lodash'
 
 import { dashboard } from '../model.js'
-import { type DataSource, execute } from '../DataSource/date-source.js'
+import { type DataSource, execute, data_sources } from '../DataSource/date-source.js'
 
 
 export type ExportVariable = {
@@ -31,7 +30,7 @@ export class Variable  {
     
     mode = 'select'
     
-    deps: Set<string> = new Set()
+    deps: Set<string>
     
     value = ''
     
@@ -39,10 +38,11 @@ export class Variable  {
     options: OptionType[] = [ ]
     
     
-    constructor (id: string, name: string, display_name: string) {
+    constructor (id: string, name: string, display_name: string, deps: Set<string>) {
         this.id = id
         this.name = name
         this.display_name = display_name
+        this.deps = deps
     }
 }
 
@@ -84,8 +84,7 @@ export function get_variable_value (name: string): string {
 export async function save_variable ( new_variable: Variable, message = true) {
     const name = new_variable.name
     
-    variables.set({ [name]: { ...new_variable } })
-    
+    variables.set({ [name]: { ...new_variable, deps: variables[name].deps } })
     for (let source_id of variables[name].deps)
         await execute(source_id)
     
@@ -112,7 +111,11 @@ export function create_variable  () {
     const id = String(genid())
     const name = `var_${id.slice(0, 4)}`
     const display_name = name
-    const variable = new Variable(id, name, display_name)
+    const deps = new Set<string>()
+    
+    get_deps(name).forEach(dep => deps.add(dep))
+    
+    const variable = new Variable(id, name, display_name, deps)
     variables.set({ [name]: { ...variable }, variable_names: [name, ...variables.variable_names] })
     return { id, name, display_name }
 }
@@ -132,25 +135,46 @@ export function rename_variable (old_name: string, new_name: string) {
     else if (variable.deps.size)
         throw new Error('此变量已被数据源引用无法修改名称')
     else {
+        const new_deps = new Set<string>()
+        get_deps(new_name).forEach(dep => new_deps.add(dep))
         variables.variable_names[find_variable_index(old_name)] = new_name
-        variables.set({ [new_name]: { ...variables[old_name], name: new_name }, variable_names: [...variables.variable_names] })
+        variables.set({ [new_name]: { ...variables[old_name], name: new_name, deps: new_deps }, variable_names: [...variables.variable_names] })
         delete variables[old_name]
     }     
 }
 
+
 export async function subscribe_variable (data_source: DataSource, variable_name: string) {
     const variable = variables[variable_name]
     
-    variable.deps.add(data_source.id)
+    if (variable) 
+        variable.deps.add(data_source.id)
+    
     data_source.variables.add(variable_name)
 }
 
+
 export function unsubscribe_variable (data_source: DataSource, variable_name: string) {
-    const variable = variables[variable_name]
+    const variable = variables[variable_name] as Variable
     
-    variable.deps.delete(data_source.id)
-    data_source.variables.delete(variable.name) 
+    if (variable) {
+        variable.deps.delete(data_source.id)
+        data_source.variables.delete(variable.name) 
+    }
 }
+
+
+function get_deps (name: string): string[] {
+    const deps = [ ]
+    data_sources.forEach(data_source => {
+        data_source.variables.forEach(variable => {
+            if (variable === name)
+                deps.push(data_source.id)
+        })
+    })
+    return deps
+}
+
 
 export async function export_variables (): Promise<ExportVariable[]> {
     return variables.variable_names.map(variable_name => {
@@ -170,8 +194,8 @@ export async function import_variables (_variables: ExportVariable[]) {
     variables.variable_names = [ ]
     
     for (let variable of _variables) {
-        const import_variable = new Variable(variable.id, variable.name, variable.display_name)
-        Object.assign(import_variable, variable, { deps: new Set(variable.deps) })
+        const import_variable = new Variable(variable.id, variable.name, variable.display_name, new Set(variable.deps))
+        Object.assign(import_variable, variable, { deps: import_variable.deps })
         variables[variable.name] = import_variable
         variables.variable_names.push(import_variable.name)
         await save_variable(import_variable, false)

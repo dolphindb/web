@@ -54,7 +54,7 @@ export function VariableList ({
         tree_ref.current?.scrollTo({ key: current_variable.name })
     }, [ current_variable ])
     
-    function rename_data_source_node_handler (menu_items: MenuItemType[], old_name: string, save_confirm = true) {
+    function rename_variable_handler (menu_items: MenuItemType[], old_name: string) {
         if (!menu_items.length)
             return
         const tmp_menu_item = menu_items.find(menu_item => menu_item.key === old_name)
@@ -62,7 +62,7 @@ export function VariableList ({
             let new_name = event.target.value
             try {
                 rename_variable(old_name, new_name)
-                change_current_variable_property('name', new_name, save_confirm)
+                change_current_variable_property('name', new_name, old_name !== new_name)
             } catch (error) {
                 dashboard.message.error(error.message)
                 new_name = old_name
@@ -96,11 +96,10 @@ export function VariableList ({
                                 },
                                 ...menu_items
                             ]
-                            console.log(new_menu_items)
                             set_menu_items(new_menu_items)
                             set_current_select(name)
                             change_current_variable(name)
-                            rename_data_source_node_handler(new_menu_items, name, false)
+                            rename_variable_handler(new_menu_items, name)
                         }}
                     >
                         <FileOutlined className='variable-list-top-item-icon' />
@@ -110,7 +109,7 @@ export function VariableList ({
                         className='variable-list-top-item'
                         onClick={() => {
                             if (current_variable)
-                                rename_data_source_node_handler(menu_items, current_variable.name)
+                                rename_variable_handler(menu_items, current_variable.name)
                         }}
                     >
                         <EditOutlined className='variable-list-top-item-icon' />

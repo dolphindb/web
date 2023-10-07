@@ -83,7 +83,7 @@ export function OptionList ({
                     },
                 ]}
             >
-                <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+                <Input ref={inputRef} onPressEnter={save} onBlur={save} size='small'/>
             </Form.Item>
             ) : (
             <div className='editable-cell-value-wrap' style={{ paddingRight: 24 }} onClick={toggleEdit}>

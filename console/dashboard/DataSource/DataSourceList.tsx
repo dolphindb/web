@@ -52,7 +52,7 @@ export function DataSourceList ({
         tree_ref.current?.scrollTo({ key: current_data_source.id })
     }, [ current_data_source ])
     
-    function rename_data_source_node_handler (menu_items: MenuItemType[], select_key: string, old_name: string) {
+    function rename_data_source_handler (menu_items: MenuItemType[], select_key: string, old_name: string) {
         if (!menu_items.length)
             return
         const tmp_menu_item = menu_items.find(menu_item => menu_item.key === select_key)
@@ -96,7 +96,7 @@ export function DataSourceList ({
                             set_menu_items(new_menu_items)
                             set_current_select(id)
                             change_current_data_source(id)
-                            rename_data_source_node_handler(new_menu_items, id, name)
+                            rename_data_source_handler(new_menu_items, id, name)
                         }}
                     >
                         <FileOutlined className='data-source-list-top-item-icon' />
@@ -106,7 +106,7 @@ export function DataSourceList ({
                         className='data-source-list-top-item'
                         onClick={() => {
                             if (current_data_source)
-                                rename_data_source_node_handler(menu_items, current_select, current_data_source.name)
+                                rename_data_source_handler(menu_items, current_select, current_data_source.name)
                         }}
                     >
                         <EditOutlined className='data-source-list-top-item-icon' />

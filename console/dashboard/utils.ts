@@ -10,7 +10,7 @@ import { type DataSource } from './DataSource/date-source.js'
 import { t } from '../../i18n/index.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import dayjs from 'dayjs'
-import { get_variable_value } from './Variable/variable.js'
+import { get_variable_value, subscribe_variable } from './Variable/variable.js'
 
 function formatter (type, value, le, index?, values?) {
     switch (type) {
@@ -115,14 +115,13 @@ export function default_value_in_select (
         : select_list[0].value
 }
 
-export function parse_code (code: string): { code: string, variables: Set<string> } {
+export function parse_code (data_source: DataSource): string {
     try {
-        const variables = new Set<string>()
-        code = code.replace(/\{\{(.*?)\}\}/g, function (match, variable) {
-            variables.add(variable)
+        let code = data_source.code.replace(/\{\{(.*?)\}\}/g, function (match, variable) {
+            subscribe_variable(data_source, variable)
             return get_variable_value(variable.trim())
         })
-        return { code, variables }
+        return code
     } catch (error) {
         throw error
     }
