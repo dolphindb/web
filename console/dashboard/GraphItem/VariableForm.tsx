@@ -21,17 +21,17 @@ function ControlField ({ variable }: { variable: Variable }) {
     
     switch (mode) {
         case 'date':
-            return <Form.Item name={name} label={display_name}>
+            return <Form.Item name={id} label={display_name}>
                 <StringDatePicker />
             </Form.Item>
         case 'select':
-            return <Form.Item name={name} label={display_name}>
+            return <Form.Item name={id} label={display_name}>
                 <Radio.Group>
                     {options.map(opt => <Radio.Button value={opt.value} key={opt.value}>{opt.label}</Radio.Button>)}
                 </Radio.Group>
             </Form.Item>
         case 'text':
-            return <Form.Item name={name} label={display_name}>
+            return <Form.Item name={id} label={display_name}>
                 <Input />
             </Form.Item>
         default:
