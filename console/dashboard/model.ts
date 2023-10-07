@@ -420,7 +420,7 @@ export interface Widget extends GridStackNode {
     
     /** 图表配置 */
     config?: (IChartConfig | ITableConfig | ITextConfig | IDescriptionsConfig) & {
-        variable_names: string[]
+        variable_ids: string[]
     }
 }
 

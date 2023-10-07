@@ -21,7 +21,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' | 'descript
                 <InputNumber addonAfter='px'/>
             </Form.Item>
             
-            <Form.Item name='variable_names' label={t('关联变量')}>
+            <Form.Item name='variable_ids' label={t('关联变量')}>
                 <Select mode='multiple' options={variable_infos.map(variable_info => ({
                     label: variable_info.name,
                     value: variable_info.id
