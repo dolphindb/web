@@ -144,7 +144,7 @@ function Series (props: { col_names: string[] }) {
                 <Collapse
                     size='small'
                     className='series-collapse'
-                    items={items } /> 
+                    items={items} /> 
                 <Button
                     className='add-series-btn'
                     type='dashed'
