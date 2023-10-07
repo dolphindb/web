@@ -34,41 +34,39 @@ export function VariableList ({
     change_current_variable,
     change_current_variable_property
 }: PropsType) {
-    const { variable_names } = variables.use(['variable_names'])
-    const [current_select, set_current_select] = useState(current_variable?.name || '')
+    const { variable_infos } = variables.use(['variable_infos'])
+    const [current_select, set_current_select] = useState(current_variable?.id || '')
     const [menu_items, set_menu_items] = useState(
-        variable_names.map((variable_name: string): MenuItemType => {
-            const variable = variables[variable_name]
-            return {
-                key: variable.name,
+        variable_infos.map((variable_info: { id: string, name: string }): MenuItemType => (
+            {
+                key: variable_info.id,
                 icon: createElement(ToolOutlined),
-                title: variable.name
+                title: variable_info.name
             }
-        })
+        ))
     )
     
     const tree_ref = useRef(null)
     
     useEffect(() => {
-        set_current_select(current_variable?.name)
-        tree_ref.current?.scrollTo({ key: current_variable.name })
+        set_current_select(current_variable?.id)
+        tree_ref.current?.scrollTo({ key: current_variable.id })
     }, [ current_variable ])
     
-    function rename_variable_handler (menu_items: MenuItemType[], old_name: string) {
+    function rename_variable_handler (menu_items: MenuItemType[], select_key: string, old_name: string) {
         if (!menu_items.length)
             return
-        const tmp_menu_item = menu_items.find(menu_item => menu_item.key === old_name)
+        const tmp_menu_item = menu_items.find(menu_item => menu_item.key === select_key)
         function handler (event) {
             let new_name = event.target.value
             try {
-                rename_variable(old_name, new_name)
+                rename_variable(select_key, new_name)
                 change_current_variable_property('name', new_name, old_name !== new_name)
             } catch (error) {
                 dashboard.message.error(error.message)
                 new_name = old_name
             } finally {
                 tmp_menu_item.title = new_name
-                tmp_menu_item.key = new_name
                 set_menu_items([...menu_items])
             }
         }
@@ -90,16 +88,16 @@ export function VariableList ({
                             const { id, name } = create_variable()
                             const new_menu_items = [
                                 {
-                                    key: name,
+                                    key: id,
                                     icon: createElement(ToolOutlined),
                                     title: name
                                 },
                                 ...menu_items
                             ]
                             set_menu_items(new_menu_items)
-                            set_current_select(name)
-                            change_current_variable(name)
-                            rename_variable_handler(new_menu_items, name)
+                            set_current_select(id)
+                            change_current_variable(id)
+                            rename_variable_handler(new_menu_items, id, name)
                         }}
                     >
                         <FileOutlined className='variable-list-top-item-icon' />
@@ -109,7 +107,7 @@ export function VariableList ({
                         className='variable-list-top-item'
                         onClick={() => {
                             if (current_variable)
-                                rename_variable_handler(menu_items, current_variable.name)
+                                rename_variable_handler(menu_items, current_select, current_variable.name)
                         }}
                     >
                         <EditOutlined className='variable-list-top-item-icon' />
@@ -118,16 +116,16 @@ export function VariableList ({
                     <div
                         className='variable-list-top-item'
                         onClick={() => {
-                            const delete_index = delete_variable(current_variable.name)
+                            const delete_index = delete_variable(current_variable.id)
                             if (delete_index >= 0) {
                                 menu_items.splice(delete_index, 1)
                                 set_menu_items([...menu_items])
-                                if (!variable_names.length)
+                                if (!variable_infos.length)
                                     change_current_variable('')
                                 else {
                                     const index = delete_index === 0 ? 0 : delete_index - 1
-                                    change_current_variable(variables[variable_names[index]].name)
-                                    set_current_select(variables[variable_names[index]].name)
+                                    change_current_variable(variable_infos[index].id)
+                                    set_current_select(variable_infos[index].id)
                                 }
                             }
                         }}
@@ -137,7 +135,7 @@ export function VariableList ({
                     </div>
                 </div>
                 { current_variable ? <div className='variable-list-bottom'>
-                    {variable_names.length ? (
+                    {variable_infos.length ? (
                         <Tree
                             ref={tree_ref}
                             showIcon

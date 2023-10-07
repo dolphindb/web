@@ -5,19 +5,19 @@ import { type Variable, variables, update_variable_value } from '../Variable/var
 import { StringDatePicker } from '../../components/StringDatePicker/index.js'
 
 interface IProps { 
-    names: string[]
+    ids: string[]
 }
 
 
 function ControlField ({ variable }: { variable: Variable }) {
-    const { mode, name, options, display_name } = variable
+    const { id, mode, name, options, display_name } = variable
     
     const variable_obj = variables.use()
     const form = Form.useFormInstance()
     
     useEffect(() => { 
-        form.setFieldValue(name, variable_obj[name].value)
-    }, [variable_obj[name].value, name])
+        form.setFieldValue(name, variable_obj[id].value)
+    }, [variable_obj[id].value, name])
     
     switch (mode) {
         case 'date':
@@ -41,8 +41,7 @@ function ControlField ({ variable }: { variable: Variable }) {
 
 
 export function VariableForm (props: IProps) {
-     
-    const { names } = props
+    const { ids } = props
     
     const [form] = Form.useForm()
     
@@ -58,7 +57,7 @@ export function VariableForm (props: IProps) {
     
     return <Form form={form} onValuesChange={on_variables_change}>
         <Space size='large'>
-            {names.map(name => variables_obj[name]).filter(Boolean).map(item => <ControlField variable={item} key={item?.name} />)}
+            {ids.map(id => variables_obj[id]).filter(Boolean).map(item => <ControlField variable={item} key={item?.id} />)}
         </Space>
     </Form>
 }

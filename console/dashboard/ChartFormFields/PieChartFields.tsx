@@ -10,7 +10,7 @@ import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { variables } from '../Variable/variable.js'
 
 export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) { 
-    const { variable_names } = variables.use(['variable_names'])
+    const { variable_infos } = variables.use(['variable_infos'])
     
     const FormFields = useMemo(() => { 
         return  <div className='axis-wrapper'>
@@ -21,9 +21,9 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
                 <InputNumber addonAfter='px' />
             </Form.Item>
             <Form.Item name='variable_names' label={t('关联变量')}>
-                <Select mode='multiple' options={variable_names.map(item => ({
-                    label: item,
-                    value: item
+                <Select mode='multiple' options={variable_infos.map(variable_info => ({
+                    label: variable_info.name,
+                    value: variable_info.id
                 }))} />
             </Form.Item>
             <Form.Item name='with_legend' label={t('图例')} initialValue>
@@ -33,7 +33,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
                 <BoolRadioGroup />
             </Form.Item>
         </div>
-    }, [ type, variable_names ])
+    }, [ type, variable_infos ])
     
     return <Collapse items={[{
         key: 'basic',
