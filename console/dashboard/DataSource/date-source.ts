@@ -181,15 +181,14 @@ export function create_data_source  (): { id: string, name: string } {
 export function rename_data_source (key: string, new_name: string) {
     const data_source = get_data_source(key)
     
-    if (
-        (data_sources.findIndex(data_source => data_source.name === new_name) !== -1) 
-        && new_name !== data_source.name
-    ) 
-        throw new Error('该节点名已存在')
+    if (new_name === data_source.name)
+        return
+    else if (data_sources.findIndex(data_source => data_source.name === new_name) !== -1) 
+        throw new Error('该数据源名已存在')
     else if (new_name.length > 10)
-        throw new Error('节点名长度不能大于10')
+        throw new Error('数据源名长度不能大于10')
     else if (new_name.length === 0)
-        throw new Error('节点名不能为空')
+        throw new Error('数据源名不能为空')
     else
         data_source.name = new_name
 }

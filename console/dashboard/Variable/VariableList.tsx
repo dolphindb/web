@@ -62,13 +62,14 @@ export function VariableList ({
             let new_name = event.target.value
             try {
                 rename_variable(old_name, new_name)
+                change_current_variable_property('name', new_name, save_confirm)
             } catch (error) {
                 dashboard.message.error(error.message)
                 new_name = old_name
             } finally {
                 tmp_menu_item.title = new_name
+                tmp_menu_item.key = new_name
                 set_menu_items([...menu_items])
-                change_current_variable_property('name', new_name, save_confirm)
             }
         }
         tmp_menu_item.title = (
@@ -95,6 +96,7 @@ export function VariableList ({
                                 },
                                 ...menu_items
                             ]
+                            console.log(new_menu_items)
                             set_menu_items(new_menu_items)
                             set_current_select(name)
                             change_current_variable(name)

@@ -121,22 +121,21 @@ export function create_variable  () {
 export function rename_variable (old_name: string, new_name: string) {
     const variable = variables[old_name]
     
-    if (
-        (find_variable_index(new_name) !== -1) 
-        && new_name !== variable.name
-    ) 
-        throw new Error('该节点名已存在')
+    if (new_name === variable.name)
+        return
+    else if (find_variable_index(new_name) !== -1)
+        throw new Error('该变量名已存在')
     else if (new_name.length > 10)
-        throw new Error('节点名长度不能大于10')
+        throw new Error('变量名长度不能大于10')
     else if (new_name.length === 0)
-        throw new Error('节点名不能为空')
+        throw new Error('变量名不能为空')
+    else if (variable.deps.size)
+        throw new Error('此变量已被数据源引用无法修改名称')
     else {
         variables.variable_names[find_variable_index(old_name)] = new_name
         variables.set({ [new_name]: { ...variables[old_name], name: new_name }, variable_names: [...variables.variable_names] })
-        if (new_name !== old_name)
-            delete variables[old_name]
-    }
-        
+        delete variables[old_name]
+    }     
 }
 
 export async function subscribe_variable (data_source: DataSource, variable_name: string) {
