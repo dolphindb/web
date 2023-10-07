@@ -241,9 +241,6 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     return {
         legend: {
             show: with_legend,
-            itemStyle: {
-                color: 'transparent',
-            },
             textStyle: {
                 color: '#e6e6e6'
             }
