@@ -44,7 +44,7 @@ export function DBDescriptions (props: IProps) {
         colon={false}
         className='my-descriptions'
         layout='vertical'
-        title={<div style={{ fontSize: config.title_size || 18 }}>{config.title}</div>}
+        title={<div style={{ fontSize: config.title_size }}>{config.title}</div>}
         items={items}
         column={config.column_num}
     />
