@@ -35,7 +35,7 @@ export function VariableEditor ({
         date: <DatePicker 
                     size='small'
                     className='variable-editor-main-value-control'
-                    defaultValue={dayjs(current_variable.value)}
+                    defaultValue={current_variable.value ? dayjs(current_variable.value) : null}
                     onChange={date => {
                         change_current_variable_property('value', date ? date.format('YYYY.MM.DD') : '')
                     }} 

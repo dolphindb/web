@@ -1,7 +1,8 @@
-import { DatePicker, Form, Input, Radio, Space } from 'antd'
+import { Form, Input, Radio, Space } from 'antd'
 import { useCallback, useEffect } from 'react'
 
-import { type Variable, variables, update_variable_value, type Variables } from '../Variable/variable.js'
+import { type Variable, variables, update_variable_value } from '../Variable/variable.js'
+import { StringDatePicker } from '../../components/StringDatePicker/index.js'
 
 interface IProps { 
     names: string[]
@@ -21,7 +22,7 @@ function ControlField ({ variable }: { variable: Variable }) {
     switch (mode) {
         case 'date':
             return <Form.Item name={name} label={display_name}>
-                <DatePicker />
+                <StringDatePicker />
             </Form.Item>
         case 'select':
             return <Form.Item name={name} label={display_name}>
@@ -48,7 +49,7 @@ export function VariableForm (props: IProps) {
     const variables_obj =  variables.use()
     
        
-    const on_variables_change = useCallback((_, values) => { 
+    const on_variables_change = useCallback((_, values: any) => { 
         Object.entries(values).forEach(([key, value]) => { 
             update_variable_value(key, value as string)
         })

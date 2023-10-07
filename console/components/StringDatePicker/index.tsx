@@ -5,13 +5,14 @@ import { useCallback } from 'react'
 interface IProps extends Omit<DatePickerProps, 'onChange' | 'value'> { 
     value?: string
     onChange?: (val: string) => void
+    submitFormat?: string
 }
 
 export function StringDatePicker (props: IProps) { 
-    const { onChange, value, ...others } = props
+    const { onChange, value, submitFormat = 'YYYY.MM.DD', ...others } = props
     
     const on_date_change = useCallback((value: Dayjs) => { 
-        onChange(value.format('YYYY.MM.DD'))
+        onChange(value.format(submitFormat))
     }, [ ])
     
     return <DatePicker picker='date' {...others} onChange={on_date_change} value={value ? dayjs(value) : null} />

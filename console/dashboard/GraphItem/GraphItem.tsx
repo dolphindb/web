@@ -1,3 +1,5 @@
+import './index.scss'
+
 import { CloseOutlined } from '@ant-design/icons'
 
 
@@ -11,8 +13,6 @@ import ChartSvg from '../icons/chart.svg'
 import { get_data_source } from '../DataSource/date-source.js'
 import { t } from '../../../i18n/index.js' 
 import cn from 'classnames'
-
-import './index.scss'
 import { VariableForm } from './VariableForm.js'
 
 
@@ -20,14 +20,14 @@ import { VariableForm } from './VariableForm.js'
 function GraphComponent ({ widget }: { widget: Widget }) {
     
     const data_source_node = get_data_source(widget.source_id)
-    const { variable_names } = widget.config
+    const { variable_names = [ ] } = widget.config
     
     const { data = [ ] } = data_source_node.use(['data'])
     
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     
     return <div className='graph-item-wrapper'>
-        { !!variable_names?.length && <VariableForm names={variable_names} /> }
+        <VariableForm names={variable_names} />
         <div className='graph-component'>
             <Component data_source={data} widget={widget} />
         </div>
