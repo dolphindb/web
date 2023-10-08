@@ -10,14 +10,14 @@ interface IProps {
 
 
 function ControlField ({ variable }: { variable: Variable }) {
-    const { id, mode, name, options, display_name } = variable
+    const { id, mode, options, display_name } = variable
     
     const variable_obj = variables.use()
     const form = Form.useFormInstance()
     
     useEffect(() => { 
         form.setFieldValue(id, variable_obj[id].value)
-    }, [variable_obj[id].value, name])
+    }, [variable_obj[id].value, id])
     
     switch (mode) {
         case 'date':
@@ -48,8 +48,8 @@ export function VariableForm (props: IProps) {
     const variables_obj =  variables.use()
     
        
-    const on_variables_change = useCallback((_, values: any) => { 
-        Object.entries(values).forEach(([key, value]) => { 
+    const on_variables_change = useCallback((changed_values: any) => { 
+        Object.entries(changed_values).forEach(([key, value]) => { 
             update_variable_value(key, value as string)
         })
     }, [ ])
