@@ -16,7 +16,7 @@ function ControlField ({ variable }: { variable: Variable }) {
     const form = Form.useFormInstance()
     
     useEffect(() => { 
-        form.setFieldValue(name, variable_obj[id].value)
+        form.setFieldValue(id, variable_obj[id].value)
     }, [variable_obj[id].value, name])
     
     switch (mode) {
