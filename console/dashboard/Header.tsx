@@ -2,7 +2,7 @@ import './Header.sass'
 
 import { useState } from 'react'
 import { Button, Input, Modal, Select, Tooltip, Upload } from 'antd'
-import { DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
+import { CloudUploadOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -240,7 +240,6 @@ export function Header () {
             
             <Tooltip title={t('导入')}>
                 <Upload
-                    className='action'
                     showUploadList={false}
                     beforeUpload={async file => {
                         dashboard.update_config(
@@ -250,7 +249,9 @@ export function Header () {
                         return false
                     }}
                 >
-                    <UploadOutlined />
+                    <Button className='action'>
+                        <CloudUploadOutlined />
+                    </Button>
                 </Upload>
             </Tooltip>
             
