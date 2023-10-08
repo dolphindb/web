@@ -18,39 +18,39 @@ export function OrderBook (props: IProps) {
     const { widget, data_source } = props
     
     const { title, with_tooltip } = widget.config as IChartConfig
-    // console.log(data_source)
+    console.log(data_source)
+    
     
     // 样式调整先写死，后面再改
     const convert_order_config = useMemo(() => {
-      let data = [ ]
-      // console.log(data_source)
+        let data = [ ]
       
-      for (let item of data_source) {
-        let bmdEntry = [ ]
-        if (item.bmdEntryPrice)
-            for (let i = 0;  i < item.bmdEntryPrice.data.length && i < 10;  i++)
-                bmdEntry.push([convertDateFormat(item.sendingTime), item.bmdEntryPrice.data[i] < 0 ? 10000 : item.bmdEntryPrice.data[i] * 100, item.bmdEntrySize.data[i]])
-        bmdEntry.sort((a, b) => {
-          return a[2] - b[2]
-        })
-        bmdEntry.forEach((item, index) => {
-          item[2] = index
-        })
-        data.push(...bmdEntry)
-        
-        let omdEntry = [ ]
-        if (item.omdEntryPrice)
-            for (let i = 0;  i < item.omdEntryPrice.data.length && i < 10;  i++)
-                omdEntry.push([convertDateFormat(item.sendingTime), item.omdEntryPrice.data[i] < 0 ? 10000 : item.omdEntryPrice.data[i] * 100, item.omdEntrySize.data[i]])
-              
-        omdEntry.sort((a, b) => {
-          return a[2] - b[2]
-        })
-        omdEntry.forEach((item, index) => {   
-          item[2] = -index - 1
-        })
-        data.push(...omdEntry)
-      }
+        for (let item of data_source) {
+            let bmdEntry = [ ]
+            if (item.bidmdEntryPrice)
+                for (let i = 0;  i < item.bidmdEntryPrice.data.length && i < 10;  i++)
+                    bmdEntry.push([convertDateFormat(item.sendingTime), item.bidmdEntryPrice.data[i] < 0 ? 10000 : item.bidmdEntryPrice.data[i] * 100, item.bidmdEntrySize.data[i]])
+            bmdEntry.sort((a, b) => {
+                return a[2] > b[2] ? 1 : 0 
+            })
+            bmdEntry.forEach((item, index) => {
+            item[2] = index
+            })
+            data.push(...bmdEntry)
+            
+            let omdEntry = [ ]
+            if (item.offermdEntryPrice)
+                for (let i = 0;  i < item.offermdEntryPrice.data.length && i < 10;  i++)
+                    omdEntry.push([convertDateFormat(item.sendingTime), item.offermdEntryPrice.data[i] < 0 ? 10000 : item.offermdEntryPrice.data[i] * 100, item.offermdEntrySize.data[i]])
+                
+            omdEntry.sort((a, b) => {
+                return a[2] > b[2] ? 1 : 0 
+            })
+            omdEntry.forEach((item, index) => {   
+            item[2] = -index - 1
+            })
+            data.push(...omdEntry)
+        }
       
       if (data.length > 1000)
           data = data.slice(data.length - 1000)
@@ -69,7 +69,10 @@ export function OrderBook (props: IProps) {
         },
         tooltip: {
           show: with_tooltip,
-          position: 'top'
+          position: 'top',
+          formatter: params => {
+            return `${params.data[0]}  ${params.data[1]}  ${params.data[2]}`
+          }
         },
         grid: {
           height: '70%',
