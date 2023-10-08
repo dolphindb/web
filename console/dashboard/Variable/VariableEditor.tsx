@@ -20,14 +20,14 @@ export function VariableEditor ({
         select: <Select
                     size='small'
                     className='variable-editor-main-value-control'
-                    defaultValue={current_variable.value}
+                    value={current_variable.value}
                     onChange={value => { change_current_variable_property('value', value) }}
                     options={current_variable.options}
                 />,
         text: <Input 
                     size='small' 
                     className='variable-editor-main-value-control'
-                    defaultValue={current_variable.value}
+                    value={current_variable.value}
                     onChange={event => {
                         change_current_variable_property('value', event.target.value) 
                     }}
@@ -35,7 +35,7 @@ export function VariableEditor ({
         date: <DatePicker 
                     size='small'
                     className='variable-editor-main-value-control'
-                    defaultValue={current_variable.value ? dayjs(current_variable.value) : null}
+                    value={current_variable.value ? dayjs(current_variable.value) : null}
                     onChange={date => {
                         change_current_variable_property('value', date ? date.format('YYYY.MM.DD') : '')
                     }} 

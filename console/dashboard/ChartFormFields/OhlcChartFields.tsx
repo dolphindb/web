@@ -9,6 +9,7 @@ import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { useMemo } from 'react'
 import { dashboard } from '../model.js'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
+import { variables } from '../Variable/variable.js'
 
 
 
@@ -40,7 +41,7 @@ const axis_position_options = [
 
 export function BasicFormFields () { 
     
-    const { variables } = dashboard.use(['variables'])
+    const { variable_infos } = variables.use(['variable_infos'])
     
     return <Collapse items={[{
         key: 'basic',
@@ -54,9 +55,9 @@ export function BasicFormFields () {
             </Form.Item>
             
         <Form.Item name='variable_ids' label={t('关联变量')}>
-            <Select mode='multiple' options={variables.map(item => ({
-                label: item.name,
-                value: item.id
+            <Select mode='multiple' options={variable_infos.map(variable_info => ({
+                label: variable_info.name,
+                value: variable_info.id
             }))} />
         </Form.Item>
         <Form.Item name='with_tooltip' label={t('提示框')} initialValue>

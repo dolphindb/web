@@ -5,33 +5,33 @@ import { type Variable, variables, update_variable_value } from '../Variable/var
 import { StringDatePicker } from '../../components/StringDatePicker/index.js'
 
 interface IProps { 
-    names: string[]
+    ids: string[]
 }
 
 
 function ControlField ({ variable }: { variable: Variable }) {
-    const { mode, name, options, display_name } = variable
+    const { id, mode, options, display_name } = variable
     
     const variable_obj = variables.use()
     const form = Form.useFormInstance()
     
     useEffect(() => { 
-        form.setFieldValue(name, variable_obj[name].value)
-    }, [variable_obj[name].value, name])
+        form.setFieldValue(id, variable_obj[id].value)
+    }, [variable_obj[id].value, id])
     
     switch (mode) {
         case 'date':
-            return <Form.Item name={name} label={display_name}>
+            return <Form.Item name={id} label={display_name}>
                 <StringDatePicker />
             </Form.Item>
         case 'select':
-            return <Form.Item name={name} label={display_name}>
+            return <Form.Item name={id} label={display_name}>
                 <Radio.Group>
                     {options.map(opt => <Radio.Button value={opt.value} key={opt.value}>{opt.label}</Radio.Button>)}
                 </Radio.Group>
             </Form.Item>
         case 'text':
-            return <Form.Item name={name} label={display_name}>
+            return <Form.Item name={id} label={display_name}>
                 <Input />
             </Form.Item>
         default:
@@ -41,16 +41,15 @@ function ControlField ({ variable }: { variable: Variable }) {
 
 
 export function VariableForm (props: IProps) {
-     
-    const { names } = props
+    const { ids } = props
     
     const [form] = Form.useForm()
     
     const variables_obj =  variables.use()
     
        
-    const on_variables_change = useCallback((_, values: any) => { 
-        Object.entries(values).forEach(([key, value]) => { 
+    const on_variables_change = useCallback((changed_values: any) => { 
+        Object.entries(changed_values).forEach(([key, value]) => { 
             update_variable_value(key, value as string)
         })
     }, [ ])
@@ -58,7 +57,7 @@ export function VariableForm (props: IProps) {
     
     return <Form form={form} onValuesChange={on_variables_change}>
         <Space size='large'>
-            {names.map(name => variables_obj[name]).filter(Boolean).map(item => <ControlField variable={item} key={item?.name} />)}
+            {ids.map(id => variables_obj[id]).filter(Boolean).map(item => <ControlField variable={item} key={item?.id} />)}
         </Space>
     </Form>
 }

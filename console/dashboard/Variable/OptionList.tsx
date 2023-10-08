@@ -63,6 +63,7 @@ export function OptionList ({
                 const values = await form.validateFields()
                 
                 toggleEdit()
+                change_current_variable_property('value', '')
                 handleSave({ ...record, ...values })
             } catch (errInfo) {
                 console.log('Save failed:', errInfo)
@@ -114,6 +115,7 @@ export function OptionList ({
     function handleDelete (key: string) {
         const newData = current_options.filter(item => item.key !== key)
         set_current_options(newData)
+        change_current_variable_property('value', '')
     } 
     const defaultColumns: (ColumnTypes[number] & { editable?: boolean, dataIndex: string })[] = [
         {

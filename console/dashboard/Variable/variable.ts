@@ -47,7 +47,7 @@ export class Variable  {
 }
 
 export class Variables extends Model<Variables>  {
-    variable_names: string[] = [ ]
+    variable_infos: Array<{ id: string, name: string }> = [ ]
     constructor () {
         super()
     }
@@ -59,33 +59,40 @@ export type VariablePropertyType = string | string[] | OptionType[]
 export type OptionType = { label: string, value: string, key: string }
 
 
-export function find_variable_index (name: string): number {
-    return variables.variable_names.findIndex(variable_name => variable_name === name)
+export function find_variable_index (key: string, type: 'id' | 'name'): number {
+    return variables.variable_infos.findIndex(variable_info => variable_info[type] === key)
 }
 
 
-export async function update_variable_value (name: string, value: string) {
-    variables.set({ [name]: { ...variables[name], value } })
+export function find_variable_by_name (variable_name: string): Variable {
+    const index = find_variable_index(variable_name, 'name')
+    return index !== -1 ? variables[variables.variable_infos[index].id] : undefined
+}
+
+
+export async function update_variable_value (variable_id: string, value: string) {
+    variables.set({ [variable_id]: { ...variables[variable_id], value } })
     
-    for (let source_id of variables[name].deps)
+    for (let source_id of variables[variable_id].deps)
         await execute(source_id)
 }
 
 
-export function get_variable_value (name: string): string {
-    if (variables[name])
-        return variables[name].value
+export function get_variable_value (variable_name: string): string {
+    const variable = find_variable_by_name(variable_name)
+    if (variable)
+        return variable.value
     else
-        throw new Error(`变量 ${name} 不存在`)
+        throw new Error(`变量 ${variable_name} 不存在`)
 }
 
 
 
 export async function save_variable ( new_variable: Variable, message = true) {
-    const name = new_variable.name
+    const id = new_variable.id
     
-    variables.set({ [name]: { ...new_variable, deps: variables[name].deps } })
-    for (let source_id of variables[name].deps)
+    variables.set({ [id]: { ...new_variable, deps: variables[id].deps } })
+    for (let source_id of variables[id].deps)
         await execute(source_id)
     
     if (message)
@@ -93,15 +100,15 @@ export async function save_variable ( new_variable: Variable, message = true) {
 }
 
 
-export function delete_variable (name: string): number {
-    const variable = variables[name]
+export function delete_variable (variable_id: string): number {
+    const variable = variables[variable_id]
     if (variable.deps.size)
         dashboard.message.error('当前变量已被数据源使用无法删除')
     else {
-        const delete_index = find_variable_index(name)
-        variables.variable_names.splice(delete_index, 1)
-        variables.set({ variable_names: [...variables.variable_names] })
-        delete variables[variable.name]
+        const delete_index = find_variable_index(variable_id, 'id')
+        variables.variable_infos.splice(delete_index, 1)
+        variables.set({ variable_infos: [...variables.variable_infos] })
+        delete variables[variable.id]
         return delete_index
     }
 }
@@ -116,17 +123,17 @@ export function create_variable  () {
     get_deps(name).forEach(dep => deps.add(dep))
     
     const variable = new Variable(id, name, display_name, deps)
-    variables.set({ [name]: { ...variable }, variable_names: [name, ...variables.variable_names] })
+    variables.set({ [id]: { ...variable }, variable_infos: [{ id, name }, ...variables.variable_infos] })
     return { id, name, display_name }
 }
 
 
-export function rename_variable (old_name: string, new_name: string) {
-    const variable = variables[old_name]
+export function rename_variable (id: string, new_name: string) {
+    const variable = variables[id]
     
     if (new_name === variable.name)
         return
-    else if (find_variable_index(new_name) !== -1)
+    else if (find_variable_index(new_name, 'name') !== -1)
         throw new Error('该变量名已存在')
     else if (new_name.length > 10)
         throw new Error('变量名长度不能大于10')
@@ -137,15 +144,14 @@ export function rename_variable (old_name: string, new_name: string) {
     else {
         const new_deps = new Set<string>()
         get_deps(new_name).forEach(dep => new_deps.add(dep))
-        variables.variable_names[find_variable_index(old_name)] = new_name
-        variables.set({ [new_name]: { ...variables[old_name], name: new_name, deps: new_deps }, variable_names: [...variables.variable_names] })
-        delete variables[old_name]
+        variables.variable_infos[find_variable_index(id, 'id')].name = new_name
+        variables.set({ [id]: { ...variables[id], name: new_name, deps: new_deps }, variable_infos: [...variables.variable_infos] })
     }     
 }
 
 
 export async function subscribe_variable (data_source: DataSource, variable_name: string) {
-    const variable = variables[variable_name]
+    const variable = find_variable_by_name(variable_name)
     
     if (variable) 
         variable.deps.add(data_source.id)
@@ -155,12 +161,12 @@ export async function subscribe_variable (data_source: DataSource, variable_name
 
 
 export function unsubscribe_variable (data_source: DataSource, variable_name: string) {
-    const variable = variables[variable_name] as Variable
+    const variable = find_variable_by_name(variable_name)
     
-    if (variable) {
+    if (variable) 
         variable.deps.delete(data_source.id)
-        data_source.variables.delete(variable.name) 
-    }
+    
+    data_source.variables.delete(variable_name) 
 }
 
 
@@ -177,8 +183,8 @@ function get_deps (name: string): string[] {
 
 
 export async function export_variables (): Promise<ExportVariable[]> {
-    return variables.variable_names.map(variable_name => {
-        const variable = variables[variable_name]
+    return variables.variable_infos.map(variable_info => {
+        const variable = variables[variable_info.id]
         return {
             ...variable,
             deps: Array.from(variable.deps)
@@ -188,19 +194,19 @@ export async function export_variables (): Promise<ExportVariable[]> {
 
 
 export async function import_variables (_variables: ExportVariable[]) {
-    variables.variable_names.forEach(variable_name => {
-        delete variables[variable_name]
+    variables.variable_infos.forEach(variable_info => {
+        delete variables[variable_info.id]
     })
-    variables.variable_names = [ ]
+    variables.variable_infos = [ ]
     
     for (let variable of _variables) {
         const import_variable = new Variable(variable.id, variable.name, variable.display_name, new Set(variable.deps))
         Object.assign(import_variable, variable, { deps: import_variable.deps })
-        variables[variable.name] = import_variable
-        variables.variable_names.push(import_variable.name)
+        variables[variable.id] = import_variable
+        variables.variable_infos.push({ id: variable.id, name: variable.name })
         await save_variable(import_variable, false)
     }
-    return variables.variable_names.map(variable_name => variables[variable_name])
+    return variables.variable_infos.map(variable_info => variables[variable_info.id])
 }
 
 export const variables = new Variables()

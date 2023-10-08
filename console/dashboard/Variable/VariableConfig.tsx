@@ -3,7 +3,7 @@ import './index.sass'
 import { useCallback, useRef, useState, useEffect } from 'react'
 import { cloneDeep } from 'lodash'
 
-import { Button, Modal, type ButtonProps, Tabs } from 'antd'
+import { Button, Modal, type ButtonProps } from 'antd'
 import { ToolOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/modal.js'
 
@@ -23,7 +23,7 @@ const save_confirm_config = {
     okText: '保存',
     style: { top: '250px' },
     maskStyle: { backgroundColor: 'rgba(0,0,0,.2)' },
-    title: '此数据源存在未保存的更改。你想保存吗？',   
+    title: '此变量存在未保存的更改。你想保存吗？',   
 }
 
 interface IProps extends ButtonProps {
@@ -31,7 +31,7 @@ interface IProps extends ButtonProps {
 }
 
 export function VariableConfig (props: IProps) {
-    const { variable_names } = variables.use(['variable_names'])
+    const { variable_infos } = variables.use(['variable_infos'])
     const { ...btn_props } = props
     const { visible, open, close } = use_modal()
     const [modal, contextHolder] = Modal.useModal()
@@ -45,12 +45,12 @@ export function VariableConfig (props: IProps) {
        change_current_variable('')
     }, [config?.id])
     
-    const change_current_variable = useCallback((name: string) => {
-        if (name === '') {
+    const change_current_variable = useCallback((key: string) => {
+        if (key === '') {
             set_current_variable(null)
             return
         }    
-        set_current_variable(cloneDeep(variables[name]))
+        set_current_variable(cloneDeep(variables[key]))
     }, [ ])
     
     const change_current_variable_property = useCallback(
@@ -94,7 +94,7 @@ export function VariableConfig (props: IProps) {
             maskClosable={false}
             maskStyle={{ backgroundColor: 'rgba(84,84,84,0.5)' }}
             afterOpenChange={() => {
-                set_current_variable(cloneDeep(variables[variable_names[0]]))
+                set_current_variable(cloneDeep(variables[variable_infos[0]?.id]))
             }}
             footer={
                 [
