@@ -1,7 +1,7 @@
 import './index.scss'
 
 import { useMemo } from 'react'
-import { Form, Select, Input, Collapse, Button, Space, Divider, InputNumber } from 'antd'
+import { Form, Select, Input, Collapse, Button, Space, InputNumber } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 import { t } from '../../../i18n/index.js'
@@ -64,7 +64,7 @@ function Series (props: { col_names: string[] }) {
     const { col_names } = props
     const { widget: { type } } = dashboard.use(['widget'])
     
-    return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: t('名称'), yAxisIndex: 0, type: type === WidgetChartType.MIX ? WidgetChartType.LINE : type, color: null }]}>
+    return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: '数据列 1', yAxisIndex: 0, type: type === WidgetChartType.MIX ? WidgetChartType.LINE : type, color: null }]}>
         {(fields, { add, remove }) => { 
             const items = fields.map(field => { 
                 const children = 
@@ -72,7 +72,7 @@ function Series (props: { col_names: string[] }) {
                         <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
                             <Select options={col_names.map(item => ({ label: item, value: item })) } />
                         </Form.Item>
-                        <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={t('名称')}> 
+                        <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={`数据列 ${field.key + 1}`}> 
                             <Input />
                         </Form.Item>
                         
