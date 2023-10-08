@@ -166,7 +166,7 @@ export function unsubscribe_variable (data_source: DataSource, variable_name: st
     if (variable) 
         variable.deps.delete(data_source.id)
     
-    data_source.variables.delete(variable.name) 
+    data_source.variables.delete(variable_name) 
 }
 
 
