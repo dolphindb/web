@@ -18,7 +18,6 @@ export function OrderBook (props: IProps) {
     const { widget, data_source } = props
     
     const { title, with_tooltip } = widget.config as IChartConfig
-    console.log(data_source)
     
     
     // 样式调整先写死，后面再改
@@ -47,15 +46,13 @@ export function OrderBook (props: IProps) {
                 return a[2] > b[2] ? 1 : 0 
             })
             omdEntry.forEach((item, index) => {   
-            item[2] = -index - 1
+                item[2] = -index - 1
             })
             data.push(...omdEntry)
         }
       
-      if (data.length > 1000)
-          data = data.slice(data.length - 1000)
-      
-      console.log(data)
+        if (data.length > 1000)
+            data = data.slice(data.length - 1000)
       
       return {
         title: {
