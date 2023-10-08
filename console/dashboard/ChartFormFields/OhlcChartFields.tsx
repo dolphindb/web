@@ -7,7 +7,6 @@ import './index.scss'
 import { concat_name_path, convert_list_to_options } from '../utils.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { useMemo } from 'react'
-import { dashboard } from '../model.js'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 import { variables } from '../Variable/variable.js'
 
