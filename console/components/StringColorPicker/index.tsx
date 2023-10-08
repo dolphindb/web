@@ -11,7 +11,7 @@ export function StringColorPicker (props: IProps) {
     const { onChange, ...others } = props  
     
     const on_color_change = useCallback((color: Color) => {
-        onChange?.(color.toHexString() || color.toHsbString?.() || color.toRgbString?.())
+        onChange?.(color.toHexString?.() || color.toHsbString?.() || color.toRgbString?.())
     }, [ ])
     
     return <ColorPicker

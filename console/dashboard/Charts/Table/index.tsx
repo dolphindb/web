@@ -66,6 +66,7 @@ export function DBTable (props: IProps) {
         else
             return {
                 position: ['bottom'],
+                defaultPageSize: 5,
                 pageSizeOptions: [5, 10, 15, 20],
                 size: 'small',
                 showSizeChanger: true,
@@ -87,6 +88,7 @@ export function DBTable (props: IProps) {
             selected_cols?.length ?
                 <Table
                     bordered={config.bordered}
+                    scroll={{ x: '100%' }}
                     columns={columns}
                     dataSource={data_source}
                     pagination={pagination}
