@@ -3,7 +3,7 @@ import './index.sass'
 import { useCallback, useRef, useState, useEffect } from 'react'
 import { cloneDeep } from 'lodash'
 
-import { Button, Modal, type ButtonProps } from 'antd'
+import { Button, Modal } from 'antd'
 import { ToolOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/modal.js'
 
@@ -26,13 +26,9 @@ const save_confirm_config = {
     title: '此变量存在未保存的更改。你想保存吗？',   
 }
 
-interface IProps extends ButtonProps {
-    
-}
 
-export function VariableConfig (props: IProps) {
+export function VariableConfig () {
     const { variable_infos } = variables.use(['variable_infos'])
-    const { ...btn_props } = props
     const { visible, open, close } = use_modal()
     const [modal, contextHolder] = Modal.useModal()
     const { config } = dashboard.use(['config'])
@@ -80,7 +76,6 @@ export function VariableConfig (props: IProps) {
         <Button
             icon={<ToolOutlined className='variable-config-trigger-navigation-icon' />}
             onClick={open}
-            {...btn_props}
         >
             变量
         </Button>
