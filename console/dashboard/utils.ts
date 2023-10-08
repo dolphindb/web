@@ -276,3 +276,26 @@ export function convert_list_to_options (list: string[]) {
         key: item,
     }))
 }
+
+
+export function to_chart_data (data: DdbValue, datatype: DdbType) {
+    switch (datatype) {
+        case DdbType.int:
+            return data === nulls.int32 ? null : Number(data)
+            
+        case DdbType.short:
+            return data === nulls.int16 ? null : Number(data)
+            
+        case DdbType.float:
+            return data === nulls.float32 ? null : Number(data)
+            
+        case DdbType.double:
+            return data === nulls.double ? null : Number(data)
+            
+        case DdbType.long:
+            return data === nulls.int64 ? null : Number(data)
+            
+        default:
+            return Number(data)
+    }
+}
