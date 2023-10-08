@@ -83,7 +83,7 @@ export function get_variable_value (variable_name: string): string {
     if (variable)
         return variable.value
     else
-        throw new Error(`变量 ${name} 不存在`)
+        throw new Error(`变量 ${variable_name} 不存在`)
 }
 
 
