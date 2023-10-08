@@ -19,7 +19,7 @@ function format_value (val, decimal_places = 2) {
     if (isNaN(Number(val)))
         return val
     else
-        return Number(val).toFixed(decimal_places)
+        return parseFloat(Number(val).toFixed(decimal_places))
 }
 
 
