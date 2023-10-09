@@ -81,9 +81,15 @@ export function OrderBook (props: IProps) {
         yAxis: {
           type: 'value',
           scale: true,
-          // minorTick: {
-          //   splitNumber: 100
-          // }
+        //   minorTick: {
+        //     splitNumber: 100
+        //   },
+        //   minInterval: 0.001
+            axisLabel: {
+                formatter: params => {
+                    return params / time_rate
+                }
+            }
         },
         visualMap: {
           min: -10,
