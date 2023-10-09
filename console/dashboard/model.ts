@@ -23,7 +23,7 @@ import { type IChartConfig, type IDescriptionsConfig, type ITableConfig, type IT
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 
 
-class DashBoardModel extends Model<DashBoardModel> {
+export class DashBoardModel extends Model<DashBoardModel> {
     /** 所有 dashboard 的配置 */
     configs: DashBoardConfig[]
     
@@ -370,7 +370,7 @@ class DashBoardModel extends Model<DashBoardModel> {
         const current_config_id = new URLSearchParams(location.search).get('dashboard')
         
         if (current_config_id) {
-            const config = this.configs.find(({ id }) => !current_config_id || String(id) === current_config_id)
+            const config = this.configs.find(({ id }) =>  String(id) === current_config_id)
             if (config)
                 await this.update_config(config)
             else
@@ -391,11 +391,6 @@ class DashBoardModel extends Model<DashBoardModel> {
         并存储到每一位 receiver 的 dashboard 数组中， 在后续调用 get_configs 拉取 receiver 的 dashboard 时，
         需要将分享过来的 dashboard 一起返回，并且将 owner 的值设置为 false
         */
-    }
-    
-    
-    async share (dashboard_ids: number[], receivers: string[]) {
-        
     }
     
     

@@ -38,7 +38,9 @@ echarts.registerTheme('my-theme', config.theme)
 export function DashBoard () {
     
     const { configs, config } = dashboard.use([ 'configs', 'config'])
-    console.log(model.header, model.sider, 'show')
+    
+    model.set({ header: !config, sider: !config })
+    
     useEffect(() => {
         (async () => {
             try {
@@ -63,47 +65,47 @@ export function DashBoard () {
     }
     
     return  !config ?
-                    <Table
-                        columns={[{ title: t('名称'), dataIndex: 'name', key: 'name', 
-                                        render: ( text, record ) => <a onClick={() => { 
-                                            dashboard.update_config(configs.find(({ id }) => id === record.key))
-                                            model.set({ header: false, sider: false })
-                                    }}>{text}</a>, 
-                                },
-                                { title: t('删除'), dataIndex: '', key: 'delete', render: ({ key }) => <a onClick={() => { handle_delete(key) }}>Delete</a>, },
-                                { title: t('修改'), dataIndex: '', key: 'edit', render: ({ key }) => <a onClick={() => { handle_edit(key) }}>Edit</a>, },
-                                { title: t('导出'), dataIndex: '', key: 'export', render: ({ key }) => <a onClick={() => { handle_export(key) }}>Export</a>, },]}
-                                
-                        dataSource={configs?.map(({ id, name }) => ({
-                            key: id,
-                            name
-                        }))}
-                        title={() => <div className='title'>
-                            <h2>{t('Dashboard 管理')}</h2>
-                            <div className='toolbar'>
-                                <Button icon={<FileOutlined />} className='action'>{t('新增')}</Button>
-                                <Button icon={<CloudUploadOutlined />} className='action'>{t('导入')}</Button>
-                                <Button icon={<ShareAltOutlined />} className='action'>{t('分享')}</Button>
-                            </div>
-                        </div>}
-                    />
-             : <ConfigProvider
-             theme={{
-                 hashed: false,
-                 token: {
-                     borderRadius: 0,
-                     motion: false,
-                     colorBgContainer: 'rgb(40, 40, 40)',
-                     colorBgElevated: '#555555',
-                     colorInfoActive: 'rgb(64, 147, 211)'
-                 },
-                 algorithm: theme.darkAlgorithm
-             }}
-         >
-             <App className='app'>
-                 <MainLayout />
-             </App>
-         </ConfigProvider>
+                <Table
+                    columns={[{ title: t('名称'), dataIndex: 'name', key: 'name', 
+                                    render: ( text, record ) => <a onClick={() => { 
+                                        dashboard.update_config(configs.find(({ id }) => id === record.key))
+                                }}>{text}</a>, 
+                            },
+                            { title: t('删除'), dataIndex: '', key: 'delete', render: ({ key }) => <a onClick={() => { handle_delete(key) }}>Delete</a>, },
+                            { title: t('修改'), dataIndex: '', key: 'edit', render: ({ key }) => <a onClick={() => { handle_edit(key) }}>Edit</a>, },
+                            { title: t('导出'), dataIndex: '', key: 'export', render: ({ key }) => <a onClick={() => { handle_export(key) }}>Export</a>, },]}
+                            
+                    dataSource={configs?.map(({ id, name }) => ({
+                        key: id,
+                        name
+                    }))}
+                    title={() => <div className='title'>
+                        <h2>{t('Dashboard 管理')}</h2>
+                        <div className='toolbar'>
+                            <Button icon={<FileOutlined />} className='action'>{t('新增')}</Button>
+                            <Button icon={<CloudUploadOutlined />} className='action'>{t('导入')}</Button>
+                            <Button icon={<ShareAltOutlined />} className='action'>{t('分享')}</Button>
+                        </div>
+                    </div>}
+                />
+                    : 
+                <ConfigProvider
+                    theme={{
+                        hashed: false,
+                        token: {
+                            borderRadius: 0,
+                            motion: false,
+                            colorBgContainer: 'rgb(40, 40, 40)',
+                            colorBgElevated: '#555555',
+                            colorInfoActive: 'rgb(64, 147, 211)'
+                        },
+                        algorithm: theme.darkAlgorithm
+                    }}
+                >
+                    <App className='app'>
+                        <MainLayout />
+                    </App>
+                </ConfigProvider>
 }
 
 
