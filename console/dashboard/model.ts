@@ -356,7 +356,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
-        let data = (await model.ddb.call < DdbStringObj | DdbBlob >('get_dashboard_configs')).value || '[]'
+        let data = (await model.ddb.call<DdbStringObj | DdbBlob>('get_dashboard_configs')).value || '[]'
         if (typeof data !== 'string') 
             data = new TextDecoder().decode(data)
         
@@ -378,6 +378,11 @@ class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
+    async share (dashboard_ids: number[], receivers: string[]) {
+        
+    }
+    
+    
     show_error (options: ErrorOptions) {
         show_error(this.modal, options)
     }
@@ -391,11 +396,15 @@ export interface DashBoardConfig {
     id: number
     
     name: string
+    
+    /** 当前用户是否有所有权, 被分享时 owned 为 false */
+    owned?: boolean
+    
     /** 数据源配置 */
-    datasources: ExportDataSource[ ]
+    datasources: ExportDataSource[]
     
     /** 变量配置 */
-    variables: ExportVariable[ ]
+    variables: ExportVariable[]
     
     /** 画布配置 */
     canvas: {
