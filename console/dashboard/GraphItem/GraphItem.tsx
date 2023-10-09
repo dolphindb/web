@@ -66,6 +66,6 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
                     <DataSourceConfig widget={widget}/>
                 </div>
         }
-        <div className='drag-icon' />
+        <div className={cn({ 'drag-icon': editing }) } />
      </div>
 }
