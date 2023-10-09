@@ -96,3 +96,8 @@ export interface IDescriptionsConfig {
         color: string
     }>
 }
+
+
+export interface IOrderBookConfig {
+    time_rate: number
+}

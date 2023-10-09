@@ -4,9 +4,10 @@ import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { type Widget } from '../../model.js'
 import { useMemo } from 'react'
-import { type IChartConfig } from '../../type.js'
+import { type IOrderBookConfig, type IChartConfig } from '../../type.js'
 import { to_chart_data } from '../../utils.js'
 import { DdbType } from 'dolphindb/browser.js'
+import { OrderFormFields } from '../../ChartFormFields/OrderBookField.js'
 
 
 
@@ -19,12 +20,14 @@ interface IProps {
 export function OrderBook (props: IProps) {
     const { widget, data_source } = props
     
-    const { title, with_tooltip } = widget.config as IChartConfig
-    const time_rate = 10
+    let { title, with_tooltip, time_rate } = widget.config as unknown as IChartConfig & IOrderBookConfig
     
     // 样式调整先写死，后面再改
     const convert_order_config = useMemo(() => {
         let data = [ ]
+        if (!time_rate) 
+            time_rate = 100
+        
         function formatData (price, size, sendingTime, is_buy) {
             let entry = [ ]
             if (price && size)
@@ -87,7 +90,7 @@ export function OrderBook (props: IProps) {
         //   minInterval: 0.001
             axisLabel: {
                 formatter: params => {
-                    return params / time_rate
+                    return (params / time_rate).toFixed(2)
                 }
             }
         },
@@ -116,7 +119,7 @@ export function OrderBook (props: IProps) {
           }
         ]
       }
-    }, [title, with_tooltip, data_source]) 
+    }, [title, with_tooltip, time_rate, data_source]) 
     
     
     return  <ReactEChartsCore
@@ -134,6 +137,7 @@ export function OrderConfigForm (props: { col_names: string[] } ) {
     return <>
         <BasicFormFields type='chart' />
         {/* <AxisFormFields col_names={col_names} /> */}
+        <OrderFormFields />
     </>
 }
 
