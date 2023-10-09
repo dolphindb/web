@@ -46,7 +46,6 @@ export function Header () {
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     
-    
     async function save_config () {
         await dashboard.update_config({
             ...config,
@@ -142,6 +141,21 @@ export function Header () {
         }
     }
     
+    function on_preview () {
+        dashboard.set_editing(false)
+        const url_obj = new URL(location.href)
+        url_obj.searchParams.set('preview', '1')
+        window.history.replaceState(null, null, url_obj.href)
+    }
+    
+    
+    function on_edit () { 
+        dashboard.set_editing(true)
+        const url_obj = new URL(location.href)
+        url_obj.searchParams.delete('preview')
+        window.history.replaceState(null, null, url_obj.href)
+    }
+    
     
     return <div className='dashboard-header'>
         <Select
@@ -167,7 +181,7 @@ export function Header () {
             // ]}
         />
         
-        <div className='actions'>
+        { editing && <div className='actions'>
             <Modal open={add_visible}
                    maskClosable={false}
                    onCancel={add_close}
@@ -205,12 +219,14 @@ export function Header () {
             </Tooltip>
             
             <Tooltip title='修改'>
-                <Button className='action' 
-                        onClick={() => { 
-                            edit_open()
-                            set_edit_dashboard_name(config?.name) 
-                        }}>
-                            <EditOutlined />
+                <Button
+                    className='action' 
+                    onClick={() => { 
+                        edit_open()
+                        set_edit_dashboard_name(config?.name) 
+                    }}
+                >
+                    <EditOutlined />
                 </Button>
             </Tooltip>
             
@@ -268,19 +284,19 @@ export function Header () {
             </Tooltip>
             
             { model.dev && <CompileAndRefresh /> }
-        </div>
+        </div> }
         
         <div className='modes'>
             <span
                 className={`right-editormode-editor ${editing ? 'editormode-selected' : ''}`}
-                onClick={() => { dashboard.set_editing(true) }}
+                onClick={on_edit}
             >
                 <EditOutlined /> 编辑
             </span>
             <span className='divider'>|</span>
             <span
                 className={`right-editormode-preview ${editing ? '' : 'editormode-selected'} `}
-                onClick={() => { dashboard.set_editing(false) }}
+                onClick={on_preview}
             >
                 <EyeOutlined /> 预览
             </span>
@@ -288,9 +304,11 @@ export function Header () {
         
         <div className='padding' />
         
-        <div className='configs'>
-            <VariableConfig/>
-            <DataSourceConfig/>
-        </div>
+        {
+            editing && <div className='configs'>
+                <VariableConfig/>
+                <DataSourceConfig/>
+            </div>
+        }
     </div>
 }
