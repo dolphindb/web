@@ -151,9 +151,10 @@ export class DdbModel extends Model<DdbModel> {
         )
         
         const view = params.get('view')
+        const dashboard = params.get('dashboard')
         
-        this.header = params.get('header') !== '0' && view !== 'dashboard'
-        this.sider = params.get('sider') !== '0' && view !== 'dashboard'
+        this.header = params.get('header') !== '0' && (view !== 'dashboard' || !dashboard)
+        this.sider = params.get('sider') !== '0' && (view !== 'dashboard' || !dashboard)
         this.code_template = params.get('code-template') === '1'
         this.redirection = params.get('redirection') as PageViews
     }

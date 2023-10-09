@@ -9,7 +9,8 @@ import { App, ConfigProvider, theme, Table, type TableColumnType, Button } from 
 
 import * as echarts from 'echarts'
 
-
+import { t } from '../../i18n/index.js'
+import { model } from '../model.js'
 import { dashboard } from './model.js'
 
 import { Sider } from './Sider.js'
@@ -19,6 +20,7 @@ import { Header } from './Header.js'
 
 
 import config from './chart.config.json' assert { type: 'json' }
+import { CloudUploadOutlined, FileOutlined, ShareAltOutlined } from '@ant-design/icons'
 
 echarts.registerTheme('my-theme', config.theme)
 
@@ -34,30 +36,9 @@ echarts.registerTheme('my-theme', config.theme)
     通过 GridStack.on('dropped', ...) 监听用户从外部添加拖拽 widget 到 GridStack 的事件  
     通过 GridStack.on('change', ...) 响应 GridStack 中 widget 的位置或尺寸变化的事件 */
 export function DashBoard () {
-    return <ConfigProvider
-        theme={{
-            hashed: false,
-            token: {
-                borderRadius: 0,
-                motion: false,
-                colorBgContainer: 'rgb(40, 40, 40)',
-                colorBgElevated: '#555555',
-                colorInfoActive: 'rgb(64, 147, 211)'
-            },
-            algorithm: theme.darkAlgorithm
-        }}
-    >
-        <App className='app'>
-            <DashboardManage />
-        </App>
-    </ConfigProvider>
-}
-
-function DashboardManage () {
-    const { configs } = dashboard.use([ 'configs'])
     
-    const [choose_dashboard, set_choose_dashboard] = useState(false)
-    
+    const { configs, config } = dashboard.use([ 'configs', 'config'])
+    console.log(model.header, model.sider, 'show')
     useEffect(() => {
         (async () => {
             try {
@@ -81,30 +62,48 @@ function DashboardManage () {
         console.log(dashboard_id)
     }
     
-    return  !choose_dashboard ?
-                <>  
-                    <div>
-                        <Button>新增</Button>
-                        <Button>导入</Button>
-                        <Button>分享</Button>
-                    </div>
+    return  !config ?
                     <Table
-                        columns={[{ title: 'Dashboard', dataIndex: 'name', key: 'name', 
+                        columns={[{ title: t('名称'), dataIndex: 'name', key: 'name', 
                                         render: ( text, record ) => <a onClick={() => { 
-                                        dashboard.update_config(configs.find(({ id }) => id === record.key))
-                                        set_choose_dashboard(true)
+                                            dashboard.update_config(configs.find(({ id }) => id === record.key))
+                                            model.set({ header: false, sider: false })
                                     }}>{text}</a>, 
                                 },
-                                { title: '删除', dataIndex: '', key: 'delete', render: ({ key }) => <a onClick={() => { handle_delete(key) }}>Delete</a>, },
-                                { title: '修改', dataIndex: '', key: 'edit', render: ({ key }) => <a onClick={() => { handle_edit(key) }}>Edit</a>, },
-                                { title: '导出', dataIndex: '', key: 'export', render: ({ key }) => <a onClick={() => { handle_export(key) }}>Export</a>, },]}
+                                { title: t('删除'), dataIndex: '', key: 'delete', render: ({ key }) => <a onClick={() => { handle_delete(key) }}>Delete</a>, },
+                                { title: t('修改'), dataIndex: '', key: 'edit', render: ({ key }) => <a onClick={() => { handle_edit(key) }}>Edit</a>, },
+                                { title: t('导出'), dataIndex: '', key: 'export', render: ({ key }) => <a onClick={() => { handle_export(key) }}>Export</a>, },]}
                                 
                         dataSource={configs?.map(({ id, name }) => ({
                             key: id,
                             name
                         }))}
+                        title={() => <div className='title'>
+                            <h2>{t('Dashboard 管理')}</h2>
+                            <div className='toolbar'>
+                                <Button icon={<FileOutlined />} className='action'>{t('新增')}</Button>
+                                <Button icon={<CloudUploadOutlined />} className='action'>{t('导入')}</Button>
+                                <Button icon={<ShareAltOutlined />} className='action'>{t('分享')}</Button>
+                            </div>
+                        </div>}
                     />
-                </>  : <MainLayout/>
+             : <ConfigProvider
+             theme={{
+                 hashed: false,
+                 token: {
+                     borderRadius: 0,
+                     motion: false,
+                     colorBgContainer: 'rgb(40, 40, 40)',
+                     colorBgElevated: '#555555',
+                     colorInfoActive: 'rgb(64, 147, 211)'
+                 },
+                 algorithm: theme.darkAlgorithm
+             }}
+         >
+             <App className='app'>
+                 <MainLayout />
+             </App>
+         </ConfigProvider>
 }
 
 

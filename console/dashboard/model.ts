@@ -364,15 +364,18 @@ class DashBoardModel extends Model<DashBoardModel> {
         if (typeof data !== 'string') 
             data = new TextDecoder().decode(data)
         
-        this.configs = JSON.parse(data)
+        // this.configs = JSON.parse(data)
+        this.set({ configs: JSON.parse(data) })
         
         const current_config_id = new URLSearchParams(location.search).get('dashboard')
         
-        const config = this.configs.find(({ id }) => !current_config_id || String(id) === current_config_id)
-        if (config)
-            await this.update_config(config)
-        else
-            this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
+        if (current_config_id) {
+            const config = this.configs.find(({ id }) => !current_config_id || String(id) === current_config_id)
+            if (config)
+                await this.update_config(config)
+            else
+                this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
+        } 
     }
     
     
