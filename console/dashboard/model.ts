@@ -50,7 +50,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     
     /** 编辑、预览状态切换 */
-    editing = true
+    editing = (new URL(location.href)).searchParams.get('preview') !== '1'
     
     // gridstack 仅支持 12 列以下的，大于 12 列需要手动添加 css 代码，详见 gridstack 的 readme.md
     // 目前本项目仅支持仅支持 <= 12
@@ -76,6 +76,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
+        
         await this.get_configs()
         if (!this.config) {
             const new_dashboard_config = {
@@ -102,6 +103,9 @@ class DashBoardModel extends Model<DashBoardModel> {
         }, $div)
         
         grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
+        
+        grid.enableMove(this.editing)
+        grid.enableResize(this.editing)
         
         // 响应用户从外部添加新 widget 到 GridStack 的事件
         grid.on('dropped', (event: Event, old_node: GridStackNode, node: GridStackNode) => {
@@ -374,6 +378,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 将配置持久化保存到服务器 */
     async save_configs_to_server () {
+        console.log('dashboard_configs:', JSON.stringify(this.configs))
         await model.ddb.call<DdbVoid>('set_dashboard_configs', [JSON.stringify(this.configs)])
     }
     

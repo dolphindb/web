@@ -8,6 +8,8 @@ import { t } from '../../../../i18n/index.js'
 import './index.sass'
 import { type Widget, dashboard } from '../../model.js'
 import { type ITextConfig } from '../../type.js'
+import { EditOutlined } from '@ant-design/icons'
+import cn from 'classnames'
 
 
 function replace_variables (origin_string: string, variables: object) {
@@ -54,7 +56,7 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
         ],
         [ ]
     )
-    const { editing } = dashboard.use(['editing'])
+    const { editing, widget: current } = dashboard.use(['editing', 'widget'])
     
     const variables = {
         name: 'rick',
@@ -93,7 +95,17 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
                 </div>
             ) : (
                 <div className='ql-container ql-snow rich-text-container'>
-                    <div dangerouslySetInnerHTML={{ __html: template_text }} className='display-area ql-editor' onClick={editing && open} />
+                    <div
+                        className={cn({
+                            'edit-rich-text': true,
+                            'edit-rich-text-hover': widget.id === current?.id && editing,
+                        })}
+                        onClick={editing && open}
+                    >
+                        <EditOutlined className='edit-rich-text-icon' />
+                        编辑文本
+                    </div>
+                    <div dangerouslySetInnerHTML={{ __html: template_text }} className='display-area ql-editor' />
                 </div>
             )}
         </>
