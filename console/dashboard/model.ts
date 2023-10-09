@@ -50,7 +50,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     
     /** 编辑、预览状态切换 */
-    editing = (new URL(location.href)).searchParams.get('preview') !== '1'
+    editing = (new URLSearchParams(location.search)).get('preview') !== '1'
     
     // gridstack 仅支持 12 列以下的，大于 12 列需要手动添加 css 代码，详见 gridstack 的 readme.md
     // 目前本项目仅支持仅支持 <= 12
@@ -360,7 +360,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
-        let data = (await model.ddb.call < DdbStringObj | DdbBlob >('get_dashboard_configs')).value || '[]'
+        let data = (await model.ddb.call<DdbStringObj | DdbBlob>('get_dashboard_configs')).value || '[]'
         if (typeof data !== 'string') 
             data = new TextDecoder().decode(data)
         
@@ -394,6 +394,11 @@ class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
+    async share (dashboard_ids: number[], receivers: string[]) {
+        
+    }
+    
+    
     show_error (options: ErrorOptions) {
         show_error(this.modal, options)
     }
@@ -407,11 +412,15 @@ export interface DashBoardConfig {
     id: number
     
     name: string
+    
+    /** 当前用户是否有所有权, 被分享时 owned 为 false */
+    owned?: boolean
+    
     /** 数据源配置 */
-    datasources: ExportDataSource[ ]
+    datasources: ExportDataSource[]
     
     /** 变量配置 */
-    variables: ExportVariable[ ]
+    variables: ExportVariable[]
     
     /** 画布配置 */
     canvas: {
