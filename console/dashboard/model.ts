@@ -378,6 +378,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 将配置持久化保存到服务器 */
     async save_configs_to_server () {
+        console.log('dashboard_configs:', JSON.stringify(this.configs))
         await model.ddb.call<DdbVoid>('set_dashboard_configs', [JSON.stringify(this.configs)])
     }
     
