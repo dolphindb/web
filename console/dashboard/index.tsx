@@ -3,9 +3,9 @@ import 'gridstack/dist/gridstack-extra.css'
 import './index.sass'
 
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-import { App, ConfigProvider, theme } from 'antd'
+import { App, ConfigProvider, theme, Table, type TableColumnType, Button } from 'antd'
 
 import * as echarts from 'echarts'
 
@@ -48,9 +48,63 @@ export function DashBoard () {
         }}
     >
         <App className='app'>
-            <MainLayout />
+            <DashboardManage />
         </App>
     </ConfigProvider>
+}
+
+function DashboardManage () {
+    const { configs } = dashboard.use([ 'configs'])
+    
+    const [choose_dashboard, set_choose_dashboard] = useState(false)
+    
+    useEffect(() => {
+        (async () => {
+            try {
+                await dashboard.get_configs()
+            } catch (error) {
+                dashboard.show_error({ error })
+                throw error
+            }
+        })()
+    }, [ ])
+    
+    function handle_delete (dashboard_id: number) {
+        console.log(dashboard_id)
+    }
+    
+    function handle_edit (dashboard_id: number) {
+        console.log(dashboard_id)
+    }
+    
+    function handle_export (dashboard_id: number) {
+        console.log(dashboard_id)
+    }
+    
+    return  !choose_dashboard ?
+                <>  
+                    <div>
+                        <Button>新增</Button>
+                        <Button>导入</Button>
+                        <Button>分享</Button>
+                    </div>
+                    <Table
+                        columns={[{ title: 'Dashboard', dataIndex: 'name', key: 'name', 
+                                        render: ( text, record ) => <a onClick={() => { 
+                                        dashboard.update_config(configs.find(({ id }) => id === record.key))
+                                        set_choose_dashboard(true)
+                                    }}>{text}</a>, 
+                                },
+                                { title: '删除', dataIndex: '', key: 'delete', render: ({ key }) => <a onClick={() => { handle_delete(key) }}>Delete</a>, },
+                                { title: '修改', dataIndex: '', key: 'edit', render: ({ key }) => <a onClick={() => { handle_edit(key) }}>Edit</a>, },
+                                { title: '导出', dataIndex: '', key: 'export', render: ({ key }) => <a onClick={() => { handle_export(key) }}>Export</a>, },]}
+                                
+                        dataSource={configs?.map(({ id, name }) => ({
+                            key: id,
+                            name
+                        }))}
+                    />
+                </>  : <MainLayout/>
 }
 
 

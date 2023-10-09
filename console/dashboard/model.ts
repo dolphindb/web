@@ -377,6 +377,14 @@ class DashBoardModel extends Model<DashBoardModel> {
         await model.ddb.call<DdbVoid>('set_dashboard_configs', [JSON.stringify(this.configs)])
     }
     
+    async share (dashboard_ids: number[], receivers: string[]) {
+        /** 
+        将 dashboard_ids 数组中的 dashboard 分享给 receivers 数组中的每一位用户，
+        并存储到每一位 receiver 的 dashboard 数组中， 在后续调用 get_configs 拉取 receiver 的 dashboard 时，
+        需要将分享过来的 dashboard 一起返回，并且将 owner 的值设置为 false
+        */
+    }
+    
     
     show_error (options: ErrorOptions) {
         show_error(this.modal, options)
