@@ -76,6 +76,7 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
+        
         await this.get_configs()
         if (!this.config) {
             const new_dashboard_config = {
@@ -102,6 +103,9 @@ class DashBoardModel extends Model<DashBoardModel> {
         }, $div)
         
         grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
+        
+        grid.enableMove(this.editing)
+        grid.enableResize(this.editing)
         
         // 响应用户从外部添加新 widget 到 GridStack 的事件
         grid.on('dropped', (event: Event, old_node: GridStackNode, node: GridStackNode) => {

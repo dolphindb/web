@@ -148,6 +148,7 @@ export function Header () {
         window.history.replaceState(null, null, url_obj.href)
     }
     
+    
     function on_edit () { 
         dashboard.set_editing(true)
         const url_obj = new URL(location.href)
@@ -218,12 +219,14 @@ export function Header () {
             </Tooltip>
             
             <Tooltip title='修改'>
-                <Button className='action' 
-                        onClick={() => { 
-                            edit_open()
-                            set_edit_dashboard_name(config?.name) 
-                        }}>
-                            <EditOutlined />
+                <Button
+                    className='action' 
+                    onClick={() => { 
+                        edit_open()
+                        set_edit_dashboard_name(config?.name) 
+                    }}
+                >
+                    <EditOutlined />
                 </Button>
             </Tooltip>
             
