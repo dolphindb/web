@@ -86,8 +86,7 @@ export function DdbSider () {
                 if (key === 'factor')
                     return
                 
-                // if (key === 'dashboard')
-                //     model.set({ header: false, sider: false })
+                model.set_query('view', key)
                 
                 model.set({ view: key as DdbModel['view'] })
             }}
@@ -130,7 +129,7 @@ export function DdbSider () {
                 },
                 ... model.dev ? [{
                        key: 'test',
-                       icon: <ExperimentOutlined />,
+                       icon: <ExperimentOutlined className='icon-menu' />,
                        label: '测试模块'
                 }] : [ ],
             ]}

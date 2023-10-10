@@ -767,6 +767,21 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
+    /** 设置 url 上的 query 参数
+        - key: 参数名
+        - value: 参数值，为 null 或 undefined 时删除该参数 */
+    set_query (key: string, value: string | null) {
+        let url = new URL(location.href)
+        
+        if (value === null || value === undefined)
+            url.searchParams.delete(key)
+        else
+            url.searchParams.set(key, value)
+        
+        history.replaceState(null, '', url)
+    }
+    
+    
     async recompile_and_refresh () {
         await request('http://localhost:8432/api/recompile')
         location.reload()

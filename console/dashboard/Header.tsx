@@ -151,17 +151,13 @@ export function Header () {
     
     function on_preview () {
         dashboard.set_editing(false)
-        const url_obj = new URL(location.href)
-        url_obj.searchParams.set('preview', '1')
-        window.history.replaceState(null, null, url_obj.href)
+        model.set_query('preview', '1')
     }
     
     
     function on_edit () { 
         dashboard.set_editing(true)
-        const url_obj = new URL(location.href)
-        url_obj.searchParams.delete('preview')
-        window.history.replaceState(null, null, url_obj.href)
+        model.set_query('preview', null)
     }
     
     
@@ -212,15 +208,10 @@ export function Header () {
             
             <Tooltip title='返回 Dashboard 管理界面'>
                 <Button className='action' onClick={() => { 
-                                                        dashboard.set({ config: null })
-                                                        model.set({  sider: true, header: true })
-                                                        const url_params = new URLSearchParams(location.search)
-                                                        url_params.delete('dashboard')
-                                                        let url = new URL(location.href)
-                                                        url.search = url_params.toString()
-                                                        history.replaceState({ }, '', url) 
-                                                    
-                                                    }}><HomeOutlined /></Button>
+                    dashboard.set({ config: null })
+                    model.set_query('dashboard', null)
+                    model.set({ sider: true, header: true })
+                }}><HomeOutlined /></Button>
             </Tooltip>
             
             <Tooltip title='新增'>

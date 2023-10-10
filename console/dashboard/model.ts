@@ -188,11 +188,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             }
         })()
         
-        const url_params = new URLSearchParams(location.search)
-        url_params.set('dashboard', String(config.id))
-        let url = new URL(location.href)
-        url.search = url_params.toString()
-        history.replaceState({ }, '', url)
+        model.set_query('dashboard', String(config.id))
         
         this.set({
             config: config_,
