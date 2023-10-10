@@ -45,15 +45,10 @@ export function OrderBook (props: IProps) {
             
             return entry
         }
-        
         for (let item of data_source) {
             data.push(...formatData(item.bidmdEntryPrice, item.bidmdEntrySize, convertDateFormat(item.sendingTime), true))
             data.push(...formatData(item.offermdEntryPrice, item.offermdEntrySize, convertDateFormat(item.sendingTime), false))
         }
-      
-        // 图表最多展示数据量
-        if (data.length > 1000)
-            data = data.slice(data.length - 1000)
         
       
       return {
