@@ -174,8 +174,8 @@ export function unsubscribe_variable (data_source: DataSource, variable_name: st
     if (variable) 
         variable.deps.delete(data_source.id)
     else {
-        tmp_deps.get(variable_name).delete(data_source.id)
-        if (!tmp_deps.get(variable_name).size)
+        tmp_deps.get(variable_name)?.delete(data_source.id)
+        if (tmp_deps.get(variable_name) && !tmp_deps.get(variable_name).size)
             tmp_deps.delete(variable_name)
     }
         
