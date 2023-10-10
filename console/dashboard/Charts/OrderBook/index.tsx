@@ -1,5 +1,3 @@
-import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
-import { AxisFormFields, SeriesFormFields } from '../../ChartFormFields/BasicChartFields.js'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { type Widget } from '../../model.js'
@@ -7,7 +5,7 @@ import { useMemo } from 'react'
 import { type IOrderBookConfig, type IChartConfig } from '../../type.js'
 import { to_chart_data } from '../../utils.js'
 import { DdbType } from 'dolphindb/browser.js'
-import { OrderFormFields } from '../../ChartFormFields/OrderBookField.js'
+import { OrderFormFields, BasicFormFields } from '../../ChartFormFields/OrderBookField.js'
 
 
 
@@ -20,7 +18,7 @@ interface IProps {
 export function OrderBook (props: IProps) {
     const { widget, data_source } = props
     
-    let { title, with_tooltip, time_rate } = widget.config as unknown as IChartConfig & IOrderBookConfig
+    let { title, with_tooltip, time_rate, title_size, with_legend } = widget.config as unknown as IChartConfig & IOrderBookConfig
     
     // 样式调整先写死，后面再改
     const convert_order_config = useMemo(() => {
@@ -45,15 +43,10 @@ export function OrderBook (props: IProps) {
             
             return entry
         }
-        
         for (let item of data_source) {
             data.push(...formatData(item.bidmdEntryPrice, item.bidmdEntrySize, convertDateFormat(item.sendingTime), true))
             data.push(...formatData(item.offermdEntryPrice, item.offermdEntrySize, convertDateFormat(item.sendingTime), false))
         }
-      
-        // 图表最多展示数据量
-        if (data.length > 1000)
-            data = data.slice(data.length - 1000)
         
       
       return {
@@ -61,10 +54,11 @@ export function OrderBook (props: IProps) {
           text: title,
           textStyle: {
               color: '#e6e6e6',
+              fontSize: title_size,
           }
         },
         legend: {
-          show: false
+          show: with_legend
         },
         tooltip: {
           show: with_tooltip,
@@ -84,10 +78,6 @@ export function OrderBook (props: IProps) {
         yAxis: {
           type: 'value',
           scale: true,
-        //   minorTick: {
-        //     splitNumber: 100
-        //   },
-        //   minInterval: 0.001
             axisLabel: {
                 formatter: params => {
                     return (params / time_rate).toFixed(2)
@@ -119,7 +109,7 @@ export function OrderBook (props: IProps) {
           }
         ]
       }
-    }, [title, with_tooltip, time_rate, data_source]) 
+    }, [title, with_tooltip, time_rate, data_source, title_size, with_legend]) 
     
     
     return  <ReactEChartsCore
