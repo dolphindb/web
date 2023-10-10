@@ -21,7 +21,7 @@ import { Header } from './Header.js'
 
 
 import config from './chart.config.json' assert { type: 'json' }
-import { CloudUploadOutlined, FileOutlined, ShareAltOutlined } from '@ant-design/icons'
+import { CloudUploadOutlined, FileOutlined, PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/modal'
 
 echarts.registerTheme('my-theme', config.theme)
@@ -218,7 +218,7 @@ export function DashBoard () {
                         title={() => <div className='title'>
                                         <h2>{t('数据面板')}</h2>
                                         <div className='toolbar'>
-                                            <Button icon={<FileOutlined />} onClick={() => { add_open()
+                                            <Button icon={<PlusCircleOutlined />} onClick={() => { add_open()
                                                                                              set_new_dashboard_name(String(genid()).slice(0, 4)) }}>{t('新增')}</Button>
                                              <Upload
                                                 showUploadList={false}
@@ -235,7 +235,7 @@ export function DashBoard () {
                                                                                 return false
                                                 }}
                                             >
-                                                <Button icon={<CloudUploadOutlined />} >{t('导入')}</Button>
+                                                <Button icon={<UploadOutlined />} >{t('导入')}</Button>
                                             </Upload>
                                             <Button icon={<ShareAltOutlined />} >{t('分享')}</Button>
                                         </div>

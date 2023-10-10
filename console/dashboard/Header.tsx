@@ -2,7 +2,7 @@ import './Header.sass'
 
 import { useEffect, useState } from 'react'
 import { Button, Input, Modal, Select, Tag, Tooltip, Upload } from 'antd'
-import { CloudUploadOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, ShareAltOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
+import { DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, ShareAltOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -278,7 +278,7 @@ export function Header () {
                     }}
                 >
                     <Button className='action'>
-                        <CloudUploadOutlined />
+                        <UploadOutlined />
                     </Button>
                 </Upload>
             </Tooltip>
