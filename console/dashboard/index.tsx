@@ -5,13 +5,14 @@ import './index.sass'
 
 import { useEffect, useRef, useState } from 'react'
 
-import { App, ConfigProvider, theme, Table, type TableColumnType, Button } from 'antd'
+import { App, ConfigProvider, theme, Table, type TableColumnType, Button, Modal, Input, Upload } from 'antd'
 
 import * as echarts from 'echarts'
 
 import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
-import { dashboard } from './model.js'
+import { type DashBoardConfig, dashboard } from './model.js'
+import { genid } from 'xshell/utils.browser.js'
 
 import { Sider } from './Sider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
@@ -21,9 +22,14 @@ import { Header } from './Header.js'
 
 import config from './chart.config.json' assert { type: 'json' }
 import { CloudUploadOutlined, FileOutlined, ShareAltOutlined } from '@ant-design/icons'
+import { use_modal } from 'react-object-model/modal'
 
 echarts.registerTheme('my-theme', config.theme)
 
+interface DashBoardDataType {
+    key: React.Key
+    name: string
+}
 
 /** 基于 GridStack.js 开发的拖拽图表可视化面板  
     https://gridstackjs.com/
@@ -39,7 +45,16 @@ export function DashBoard () {
     
     const { configs, config } = dashboard.use([ 'configs', 'config'])
     
-    model.set({ header: !config, sider: !config })
+    const [selected_dashboards, set_selected_dashboards] = useState([ ])
+    const [current_dashboard, set_current_dashboard] = useState(null)
+    const [new_dashboard_name, set_new_dashboard_name] = useState('')
+    const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
+    const { visible: add_visible, open: add_open, close: add_close } = use_modal()
+    const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
+    
+    useEffect(() => {
+        model.set({ header: !config, sider: !config })
+    }, [ config])
     
     useEffect(() => {
         (async () => {
@@ -52,42 +67,165 @@ export function DashBoard () {
         })()
     }, [ ])
     
-    function handle_delete (dashboard_id: number) {
-        console.log(dashboard_id)
+    
+    async function handle_add () {
+        try {
+            if (!new_dashboard_name) {
+                dashboard.message.error(t('dashboard 名称不允许为空'))
+                return 
+            }
+            
+            if (configs?.find(({ name }) => name === new_dashboard_name)) {
+                dashboard.message.error(t('名称重复，请重新输入'))
+                return 
+            }
+            
+            /** 待接口更新后修改 */
+            const new_dashboard = dashboard.generate_new_config(new_dashboard_name)
+            dashboard.set({ configs: configs ? [...configs, new_dashboard] : [new_dashboard] }) 
+            
+            await dashboard.save_configs_to_server()
+            
+            model.message.success(t('添加成功'))
+        } catch (error) {
+            model.show_error({ error })
+            throw error
+        }
+        add_close()
     }
     
-    function handle_edit (dashboard_id: number) {
-        console.log(dashboard_id)
+    
+    async function handle_edit () {
+        try {
+            if (!edit_dashboard_name) {
+                dashboard.message.error(t('dashboard 名称不允许为空'))
+                return 
+            }
+            
+            if (configs.find(({ id, name }) => id !== current_dashboard.id && name === edit_dashboard_name)) {
+                dashboard.message.error(t('名称重复，请重新输入'))
+                return
+            }
+            const index = configs.findIndex(({ id }) => id === current_dashboard.id)
+            
+            dashboard.set({ configs: configs.toSpliced(index, 1, { ...current_dashboard, name: edit_dashboard_name, }) })
+            
+            await dashboard.save_configs_to_server()
+            model.message.success(t('修改成功'))
+            
+            edit_close()
+        } catch (error) {
+            model.show_error({ error })
+            throw error
+        }
     }
     
-    function handle_export (dashboard_id: number) {
-        console.log(dashboard_id)
+    async function handle_delete (dashboard_id: number) {
+        try {
+            if (!configs.length) {
+                dashboard.message.error(t('当前 dashboard 列表为空'))
+                return
+            }
+            
+            dashboard.set({ configs: configs.filter(({ id }) => id !== dashboard_id) })
+            
+            await dashboard.save_configs_to_server()
+            
+            model.message.success(t('删除成功'))
+        } catch (error) {
+            model.show_error({ error })
+            throw error
+        }
     }
+    
     
     return  !config ?
-                <Table
-                    columns={[{ title: t('名称'), dataIndex: 'name', key: 'name', 
-                                    render: ( text, record ) => <a onClick={() => { 
-                                        dashboard.update_config(configs.find(({ id }) => id === record.key))
-                                }}>{text}</a>, 
-                            },
-                            { title: t('删除'), dataIndex: '', key: 'delete', render: ({ key }) => <a onClick={() => { handle_delete(key) }}>Delete</a>, },
-                            { title: t('修改'), dataIndex: '', key: 'edit', render: ({ key }) => <a onClick={() => { handle_edit(key) }}>Edit</a>, },
-                            { title: t('导出'), dataIndex: '', key: 'export', render: ({ key }) => <a onClick={() => { handle_export(key) }}>Export</a>, },]}
-                            
-                    dataSource={configs?.map(({ id, name }) => ({
-                        key: id,
-                        name
-                    }))}
-                    title={() => <div className='title'>
-                        <h2>{t('Dashboard 管理')}</h2>
-                        <div className='toolbar'>
-                            <Button icon={<FileOutlined />} className='action'>{t('新增')}</Button>
-                            <Button icon={<CloudUploadOutlined />} className='action'>{t('导入')}</Button>
-                            <Button icon={<ShareAltOutlined />} className='action'>{t('分享')}</Button>
-                        </div>
-                    </div>}
-                />
+                <>  
+                    <Modal open={add_visible}
+                        maskClosable={false}
+                        onCancel={add_close}
+                        onOk={handle_add}
+                        closeIcon={false}
+                        title={t('请输入 dashboard 的名称')}>
+                                <Input value={new_dashboard_name}
+                                    onChange={event => { set_new_dashboard_name(event.target.value) }}
+                                    />
+                    </Modal>
+                    
+                    <Modal open={edit_visible}
+                        maskClosable={false}
+                        onCancel={edit_close}
+                        onOk={handle_edit}
+                        closeIcon={false}
+                        title={t('请输入新的 dashboard 名称')}>
+                        <Input value={edit_dashboard_name} onChange={event => { set_edit_dashboard_name(event.target.value) }}/>
+                    </Modal>
+                    <Table
+                        rowSelection={{
+                            onChange: (selectedRowKeys: React.Key[]) => {
+                                set_selected_dashboards(selectedRowKeys)
+                            }
+                        }}
+                        columns={[{ title: t('名称'), dataIndex: 'name', key: 'name', 
+                                        render: ( text, record ) => <a onClick={() => { 
+                                                                        dashboard.update_config(configs.find(({ id }) => id === record.key))
+                                                                    }}>{text}</a>, 
+                                },
+                                { title: t('删除'), dataIndex: '', key: 'delete', render: ({ key }) => <a onClick={() => { handle_delete(key) }}>Delete</a>, },
+                                { title: t('修改'), dataIndex: '', key: 'edit', render: ({ key }) => <a
+                                                                                                        className='action' 
+                                                                                                        onClick={() => {
+                                                                                                            let current_row_config = configs.find(({ id }) => id === key)
+                                                                                                            set_current_dashboard(current_row_config) 
+                                                                                                            edit_open()
+                                                                                                            set_edit_dashboard_name(current_row_config?.name) 
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        Edit
+                                                                                                    </a> },
+                                { title: t('导出'), dataIndex: '', key: 'export', render: ({ key }) => <a onClick={async () => {
+                                                                                            try {
+                                                                                                const config = configs.find(({ id }) => id === key)
+                                                                                                let a = document.createElement('a')
+                                                                                                a.download = `dashboard.${config.id}.json`
+                                                                                                a.href = URL.createObjectURL(
+                                                                                                    new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
+                                                                                                )
+                                                                                                
+                                                                                                    document.body.appendChild(a)
+                                                                                                    a.click()
+                                                                                                    document.body.removeChild(a)
+                                                                                                } catch (error) {
+                                                                                                    model.show_error({ error })
+                                                                                                }
+                                                                                        }}>Export</a>, },]}
+                                
+                        dataSource={configs?.map(({ id, name }) => ({
+                            key: id,
+                            name
+                        }))}
+                        title={() => <div className='title'>
+                                        <h2>{t('Dashboard 管理')}</h2>
+                                        <div className='toolbar'>
+                                            <Button icon={<FileOutlined />} onClick={() => { add_open()
+                                                                                             set_new_dashboard_name(String(genid()).slice(0, 4)) }} className='action'>{t('新增')}</Button>
+                                             <Upload
+                                                showUploadList={false}
+                                                beforeUpload={async file => {
+                                                    dashboard.set(
+                                                        { configs: [...configs, JSON.parse(await file.text()) as DashBoardConfig] }
+                                                    )
+                                                    
+                                                    return false
+                                                }}
+                                            >
+                                                <Button icon={<CloudUploadOutlined />} className='action'>{t('导入')}</Button>
+                                            </Upload>
+                                            <Button icon={<ShareAltOutlined />} className='action'>{t('分享')}</Button>
+                                        </div>
+                                    </div>}
+                    />
+                </>
                     : 
                 <ConfigProvider
                     theme={{

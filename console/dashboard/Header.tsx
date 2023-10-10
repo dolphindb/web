@@ -39,112 +39,6 @@ interface DashboardOption {
 }
 
 
-export async function save_config (config: DashBoardConfig, widgets: Widget[]) {
-    await dashboard.update_config({
-        ...config,
-        datasources: await export_data_sources(),
-        variables: await export_variables(),
-        canvas: {
-            widgets: widgets.map(widget => get_widget_config(widget))
-        }
-    })
-}
-
-export async function handle_add (new_dashboard_name: string, configs: DashBoardConfig[], close: () => {}) {
-    try {
-        if (!new_dashboard_name) {
-            dashboard.message.error(t('dashboard 名称不允许为空'))
-            return 
-        }
-        
-        if (configs.find(({ name }) => name === new_dashboard_name)) {
-            dashboard.message.error(t('名称重复，请重新输入'))
-            return 
-        }
-        
-        await dashboard.update_config(dashboard.generate_new_config(new_dashboard_name))
-        
-        await dashboard.save_configs_to_server()
-        
-        dashboard.message.success(t('添加成功'))
-    } catch (error) {
-        model.show_error({ error })
-        throw error
-    }
-    close()
-}
-
-
-async function handle_edit (edit_dashboard_name: string, configs: DashBoardConfig[], config: DashBoardConfig, close: () => {}) {
-    try {
-        if (!edit_dashboard_name) {
-            dashboard.message.error(t('dashboard 名称不允许为空'))
-            return 
-        }
-        
-        if (configs.find(({ id, name }) => id !== config.id && name === edit_dashboard_name)) {
-            dashboard.message.error(t('名称重复，请重新输入'))
-            return
-        }
-        
-        await dashboard.update_config({
-            ...config,
-            name: edit_dashboard_name,
-        })
-        
-        await dashboard.save_configs_to_server()
-        dashboard.message.success(t('修改成功'))
-        
-        close()
-    } catch (error) {
-        model.show_error({ error })
-        throw error
-    }
-}
-
-async function handle_delete (configs: DashBoardConfig[], config: DashBoardConfig) {
-    try {
-        if (!configs.length) {
-            dashboard.message.error(t('当前 dashboard 列表为空'))
-            return
-        }
-        
-        await dashboard.update_config(config, true)
-        
-        await dashboard.save_configs_to_server()
-        
-        dashboard.message.success(t('删除成功'))
-    } catch (error) {
-        model.show_error({ error })
-        throw error
-    }
-}
-
-
-async function handle_export (config: DashBoardConfig, widgets: Widget[]) {
-    try {
-        await save_config(config, widgets)
-        
-        let a = document.createElement('a')
-        a.download = `dashboard.${config.id}.json`
-        a.href = URL.createObjectURL(
-            new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
-        )
-        
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-    } catch (error) {
-        model.show_error({ error })
-    }
-}
-
-// to do
-async function handle_share (configs: DashBoardConfig[], receivers: string[]) {
-    
-}
-
-
 export function Header () {
     const { editing, widgets, configs, config } = dashboard.use(['editing', 'widgets', 'configs', 'config'])
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
@@ -308,8 +202,17 @@ export function Header () {
                 <Input value={edit_dashboard_name} onChange={event => { set_edit_dashboard_name(event.target.value) }}/>
             </Modal>
             
-            <Tooltip title='返回交互编程'>
-                <Button className='action' onClick={() => { model.set({ view: 'shell', sider: true, header: true }) }}><HomeOutlined /></Button>
+            <Tooltip title='返回 Dashboard 管理界面'>
+                <Button className='action' onClick={() => { 
+                                                        dashboard.set({ config: null })
+                                                        model.set({  sider: true, header: true })
+                                                        const url_params = new URLSearchParams(location.search)
+                                                        url_params.delete('dashboard')
+                                                        let url = new URL(location.href)
+                                                        url.search = url_params.toString()
+                                                        history.replaceState({ }, '', url) 
+                                                    
+                                                    }}><HomeOutlined /></Button>
             </Tooltip>
             
             <Tooltip title='新增'>

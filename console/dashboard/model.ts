@@ -160,7 +160,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    /** 传入 _delete === true 时表示删除传入的 config */
+    
+    /** 传入 _delete === true 时表示删除传入的 config, 传入 null 代表清空当前的config，返回到 dashboard 管理界面 */
     async update_config (config: DashBoardConfig, _delete = false) {
         const { config: config_, configs } = (() => {
             if (_delete) {
@@ -366,7 +367,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         // this.configs = JSON.parse(data)
         this.set({ configs: JSON.parse(data) })
-        
+        console.log(this.configs)
         const current_config_id = new URLSearchParams(location.search).get('dashboard')
         
         if (current_config_id) {
@@ -381,8 +382,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 将配置持久化保存到服务器 */
     async save_configs_to_server () {
-        console.log('dashboard_configs:', JSON.stringify(this.configs))
-        await model.ddb.call<DdbVoid>('set_dashboard_configs', [JSON.stringify(this.configs)])
+        await model.ddb.call<DdbVoid>('set_dashboard_configs', [JSON.stringify({ configs: this.configs })])
     }
     
     async share (dashboard_ids: number[], receivers: string[]) {
