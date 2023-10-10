@@ -15,7 +15,7 @@ interface IProps extends TableProps<any> {
     data_source: any[]
 }
 
-function format_value (val, decimal_places = 2) { 
+function format_value (val, decimal_places = 4) { 
     if (isNaN(Number(val)))
         return val
     else
