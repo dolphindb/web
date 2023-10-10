@@ -77,7 +77,7 @@ export function Header () {
                 return 
             }
             
-            if (configs.find(({ name }) => name === new_dashboard_name)) {
+            if (configs?.find(({ name }) => name === new_dashboard_name)) {
                 dashboard.message.error(t('名称重复，请重新输入'))
                 return 
             }

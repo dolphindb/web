@@ -171,7 +171,7 @@ class DashBoardModel extends Model<DashBoardModel> {
                     configs,
                 }
             } else {
-                let index = this.configs.findIndex(c => c.id === config.id)
+                let index = this.configs?.findIndex(c => c.id === config.id)
                 
                 return {
                     config,
@@ -179,7 +179,7 @@ class DashBoardModel extends Model<DashBoardModel> {
                     configs: index === -1 ?
                         [...this.configs, config]
                     :
-                        this.configs.toSpliced(index, 1, config),
+                        this.configs ?  this.configs.toSpliced(index, 1, config) : [config],
                 }
             }
         })()
