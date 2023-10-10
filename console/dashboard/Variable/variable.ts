@@ -2,7 +2,7 @@ import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
 
 import { dashboard } from '../model.js'
-import { type DataSource, execute, data_sources } from '../DataSource/date-source.js'
+import { type DataSource, execute } from '../DataSource/date-source.js'
 
 
 export type ExportVariable = {
@@ -52,6 +52,8 @@ export class Variables extends Model<Variables>  {
         super()
     }
 }
+
+const tmp_deps = new Map<string, Set<string>>()
 
 
 export type VariablePropertyType = string | string[] | OptionType[]
@@ -117,13 +119,12 @@ export function delete_variable (variable_id: string): number {
 export function create_variable  () {
     const id = String(genid())
     const name = `var_${id.slice(0, 4)}`
-    const display_name = name
-    const deps = new Set<string>()
+    const display_name = name 
     
-    get_deps(name).forEach(dep => deps.add(dep))
-    
-    const variable = new Variable(id, name, display_name, deps)
+    const variable = new Variable(id, name, display_name, tmp_deps.get(name) || new Set<string>())
     variables.set({ [id]: { ...variable }, variable_infos: [{ id, name }, ...variables.variable_infos] })
+    
+    tmp_deps.delete(name)
     return { id, name, display_name }
 }
 
@@ -142,10 +143,12 @@ export function rename_variable (id: string, new_name: string) {
     else if (variable.deps.size)
         throw new Error('此变量已被数据源引用无法修改名称')
     else {
-        const new_deps = new Set<string>()
-        get_deps(new_name).forEach(dep => new_deps.add(dep))
         variables.variable_infos[find_variable_index(id, 'id')].name = new_name
-        variables.set({ [id]: { ...variables[id], name: new_name, deps: new_deps }, variable_infos: [...variables.variable_infos] })
+        variables.set({ 
+            [id]: { ...variables[id], name: new_name, deps: tmp_deps.get(new_name) || new Set<string>() }, 
+            variable_infos: [...variables.variable_infos] 
+        })
+        tmp_deps.delete(new_name)
     }     
 }
 
@@ -155,6 +158,11 @@ export async function subscribe_variable (data_source: DataSource, variable_name
     
     if (variable) 
         variable.deps.add(data_source.id)
+    else if (tmp_deps.has(variable_name)) 
+        tmp_deps.get(variable_name).add(data_source.id)
+    else 
+        tmp_deps.set(variable_name, new Set<string>(data_source.id))
+    
     
     data_source.variables.add(variable_name)
 }
@@ -165,20 +173,13 @@ export function unsubscribe_variable (data_source: DataSource, variable_name: st
     
     if (variable) 
         variable.deps.delete(data_source.id)
-    
+    else {
+        tmp_deps.get(variable_name).delete(data_source.id)
+        if (!tmp_deps.get(variable_name).size)
+            tmp_deps.delete(variable_name)
+    }
+        
     data_source.variables.delete(variable_name) 
-}
-
-
-function get_deps (name: string): string[] {
-    const deps = [ ]
-    data_sources.forEach(data_source => {
-        data_source.variables.forEach(variable => {
-            if (variable === name)
-                deps.push(data_source.id)
-        })
-    })
-    return deps
 }
 
 
@@ -198,6 +199,8 @@ export async function import_variables (_variables: ExportVariable[]) {
         delete variables[variable_info.id]
     })
     variables.variable_infos = [ ]
+    
+    tmp_deps.clear()
     
     for (let variable of _variables) {
         const import_variable = new Variable(variable.id, variable.name, variable.display_name, new Set(variable.deps))
