@@ -168,49 +168,53 @@ export function DashBoard () {
                                 set_selected_dashboards(selectedRowKeys)
                             }
                         }}
-                        columns={[{ title: t('名称'), dataIndex: 'name', key: 'name', 
+                        columns={[{ title: t('名称'), dataIndex: 'name', key: 'name', width: '70%',
                                         render: ( text, record ) => <a onClick={() => { 
-                                                                        dashboard.update_config(configs.find(({ id }) => id === record.key))
+                                                                        const config = configs.find(({ id }) => id === record.key)
+                                                                        dashboard.set({ config, editing: config.owned })
+                                                                      
                                                                     }}>{text}</a>, 
                                 },
-                                { title: t('操作'), dataIndex: '', key: 'delete', 
-                                    render: ({ key }) => <div className='action' >
-                                        <a  onClick={() => { handle_delete(key) }}>{t('删除')}</a>
-                                        <a
-                                            onClick={() => {
-                                                let current_row_config = configs.find(({ id }) => id === key)
-                                                set_current_dashboard(current_row_config) 
-                                                edit_open()
-                                                set_edit_dashboard_name(current_row_config?.name) 
-                                            }}
-                                            >
-                                                {t('修改名称')}
-                                        </a>
-                                        <a 
-                                            onClick={async () => {
-                                                try {
-                                                    const config = configs.find(({ id }) => id === key)
-                                                    let a = document.createElement('a')
-                                                    a.download = `dashboard.${config.id}.json`
-                                                    a.href = URL.createObjectURL(
-                                                        new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
-                                                    )
-                                                    
-                                                        document.body.appendChild(a)
-                                                        a.click()
-                                                        document.body.removeChild(a)
-                                                    } catch (error) {
-                                                        model.show_error({ error })
-                                                    }
-                                            }}>{t('导出')}</a> 
-                                            </div>, },]}
+                                { title: t('操作'), dataIndex: '', key: 'delete',
+                                    render: ({ key }) => 
+                                        <div className='action' >
+                                            <a  onClick={() => { handle_delete(key) }}>{t('删除')}</a>
+                                            <a
+                                                onClick={() => {
+                                                    let current_row_config = configs.find(({ id }) => id === key)
+                                                    set_current_dashboard(current_row_config) 
+                                                    edit_open()
+                                                    set_edit_dashboard_name(current_row_config?.name) 
+                                                }}
+                                                >
+                                                    {t('修改名称')}
+                                            </a>
+                                            <a 
+                                                onClick={async () => {
+                                                    try {
+                                                        const config = configs.find(({ id }) => id === key)
+                                                        let a = document.createElement('a')
+                                                        a.download = `dashboard.${config.id}.json`
+                                                        a.href = URL.createObjectURL(
+                                                            new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
+                                                        )
+                                                        
+                                                            document.body.appendChild(a)
+                                                            a.click()
+                                                            document.body.removeChild(a)
+                                                        } catch (error) {
+                                                            model.show_error({ error })
+                                                        }
+                                                }}>{t('导出')}</a> 
+                                        </div>, },]}
                                 
                         dataSource={configs?.map(({ id, name }) => ({
                             key: id,
                             name
                         }))}
+                        pagination={false}
                         title={() => <div className='title'>
-                                        <h2>{t('Dashboard 管理')}</h2>
+                                        <h2>{t('数据面板')}</h2>
                                         <div className='toolbar'>
                                             <Button icon={<FileOutlined />} onClick={() => { add_open()
                                                                                              set_new_dashboard_name(String(genid()).slice(0, 4)) }}>{t('新增')}</Button>
