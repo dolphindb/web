@@ -21,7 +21,6 @@ import { type Monaco } from '../shell/Editor/index.js'
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType } from './DataSource/date-source.js'
 import { type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
-import { type DdbArrayVectorValue, type DdbVectorAny } from 'dolphindb'
 
 
 export class DashBoardModel extends Model<DashBoardModel> {
@@ -365,10 +364,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
         let data = ((await model.ddb.call<DdbObj>('get_dashboard_configs')).value) as Array<string> || [ ]
         // this.configs = JSON.parse(data)
         this.set({ configs: data.map(config => JSON.parse(config)) })
-        const current_config_id = new URLSearchParams(location.search).get('dashboard')
         
-        if (current_config_id) {
-            const config = this.configs.find(({ id }) =>  String(id) === current_config_id)
+        const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
+        
+        if (dashboard) {
+            const config = this.configs.find(({ id }) =>  id === dashboard)
             if (config)
                 await this.update_config(config)
             else
