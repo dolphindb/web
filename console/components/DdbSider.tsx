@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
 
-import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
+import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined } from '@ant-design/icons'
 
 import { isNil, omitBy } from 'lodash'
 
@@ -110,7 +110,7 @@ export function DdbSider () {
                 },
                 ... model.dev ? [{
                        key: 'test',
-                       icon: <MenuIcon view='test' />,
+                       icon: <ExperimentOutlined />,
                        label: 'test'
                 }] : [ ],
                 {
