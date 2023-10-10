@@ -233,6 +233,10 @@ export function unsubscribe_data_source (widget_option: Widget) {
 
 export async function execute (source_id: string) {
     const data_source = get_data_source(source_id)
+    
+    if (!data_source.id)
+        return
+    
     try {
         const { type, result } = await dashboard.execute(parse_code(data_source))
                 
@@ -260,10 +264,9 @@ export async function execute (source_id: string) {
             //     console.log(widget_id, 'render', data_source.data)
             // })
         }
-            
-        
         else 
-            throw new Error(result as string)    
+            throw new Error(result as string)   
+         
     } catch (error) {
         dashboard.message.error(error.message)
         data_source.set({
