@@ -155,13 +155,14 @@ export function rename_variable (id: string, new_name: string) {
 
 export async function subscribe_variable (data_source: DataSource, variable_name: string) {
     const variable = find_variable_by_name(variable_name)
+    const tmp_dep = tmp_deps.get(variable_name)
     
     if (variable) 
         variable.deps.add(data_source.id)
-    else if (tmp_deps.has(variable_name)) 
-        tmp_deps.get(variable_name).add(data_source.id)
+    else if (tmp_dep)
+        tmp_dep.add(data_source.id)
     else 
-        tmp_deps.set(variable_name, new Set<string>(data_source.id))
+        tmp_deps.set(variable_name, new Set<string>([data_source.id]))
     
     
     data_source.variables.add(variable_name)
@@ -170,12 +171,13 @@ export async function subscribe_variable (data_source: DataSource, variable_name
 
 export function unsubscribe_variable (data_source: DataSource, variable_name: string) {
     const variable = find_variable_by_name(variable_name)
+    const tmp_dep = tmp_deps.get(variable_name)
     
     if (variable) 
         variable.deps.delete(data_source.id)
-    else {
-        tmp_deps.get(variable_name)?.delete(data_source.id)
-        if (tmp_deps.get(variable_name) && !tmp_deps.get(variable_name).size)
+    else if (tmp_dep) {
+        tmp_dep.delete(data_source.id)
+        if (!tmp_dep.size)
             tmp_deps.delete(variable_name)
     }
         
