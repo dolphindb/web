@@ -52,8 +52,6 @@ export function DashBoard () {
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     
-    console.log('configs', configs)
-    
     useEffect(() => {
         model.set({ header: !config, sider: !config })
     }, [ config])
@@ -140,7 +138,6 @@ export function DashBoard () {
         }
     }
     
-    
     return  !config ?
                 <>  
                     <Modal open={add_visible}
@@ -173,34 +170,37 @@ export function DashBoard () {
                                                                         dashboard.update_config(configs.find(({ id }) => id === record.key))
                                                                     }}>{text}</a>, 
                                 },
-                                { title: t('删除'), dataIndex: '', key: 'delete', render: ({ key }) => <a onClick={() => { handle_delete(key) }}>Delete</a>, },
-                                { title: t('修改'), dataIndex: '', key: 'edit', render: ({ key }) => <a
-                                                                                                        className='action' 
-                                                                                                        onClick={() => {
-                                                                                                            let current_row_config = configs.find(({ id }) => id === key)
-                                                                                                            set_current_dashboard(current_row_config) 
-                                                                                                            edit_open()
-                                                                                                            set_edit_dashboard_name(current_row_config?.name) 
-                                                                                                        }}
-                                                                                                    >
-                                                                                                        Edit
-                                                                                                    </a> },
-                                { title: t('导出'), dataIndex: '', key: 'export', render: ({ key }) => <a onClick={async () => {
-                                                                                            try {
-                                                                                                const config = configs.find(({ id }) => id === key)
-                                                                                                let a = document.createElement('a')
-                                                                                                a.download = `dashboard.${config.id}.json`
-                                                                                                a.href = URL.createObjectURL(
-                                                                                                    new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
-                                                                                                )
-                                                                                                
-                                                                                                    document.body.appendChild(a)
-                                                                                                    a.click()
-                                                                                                    document.body.removeChild(a)
-                                                                                                } catch (error) {
-                                                                                                    model.show_error({ error })
-                                                                                                }
-                                                                                        }}>Export</a>, },]}
+                                { title: t('操作'), dataIndex: '', key: 'delete', render: ({ key }) => <div className='action' >
+                                                                                                        <a  onClick={() => { handle_delete(key) }}>{t('删除')}</a>
+                                                                                                        <a
+                                                                                                            onClick={() => {
+                                                                                                                let current_row_config = configs.find(({ id }) => id === key)
+                                                                                                                set_current_dashboard(current_row_config) 
+                                                                                                                edit_open()
+                                                                                                                set_edit_dashboard_name(current_row_config?.name) 
+                                                                                                            }}
+                                                                                                            >
+                                                                                                                {t('修改名称')}
+                                                                                                        </a>
+                                                                                                        <a 
+                                                                                                            onClick={async () => {
+                                                                                                            try {
+                                                                                                                const config = configs.find(({ id }) => id === key)
+                                                                                                                let a = document.createElement('a')
+                                                                                                                a.download = `dashboard.${config.id}.json`
+                                                                                                                a.href = URL.createObjectURL(
+                                                                                                                    new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
+                                                                                                                )
+                                                                                                                
+                                                                                                                    document.body.appendChild(a)
+                                                                                                                    a.click()
+                                                                                                                    document.body.removeChild(a)
+                                                                                                                } catch (error) {
+                                                                                                                    model.show_error({ error })
+                                                                                                                }
+                                                                                                        }}>{t('导出')}</a> 
+                                
+                                                                                                        </div>, },]}
                                 
                         dataSource={configs?.map(({ id, name }) => ({
                             key: id,
@@ -210,7 +210,7 @@ export function DashBoard () {
                                         <h2>{t('Dashboard 管理')}</h2>
                                         <div className='toolbar'>
                                             <Button icon={<FileOutlined />} onClick={() => { add_open()
-                                                                                             set_new_dashboard_name(String(genid()).slice(0, 4)) }} className='action'>{t('新增')}</Button>
+                                                                                             set_new_dashboard_name(String(genid()).slice(0, 4)) }}>{t('新增')}</Button>
                                              <Upload
                                                 showUploadList={false}
                                                 beforeUpload={async file => {
@@ -226,9 +226,9 @@ export function DashBoard () {
                                                                                 return false
                                                 }}
                                             >
-                                                <Button icon={<CloudUploadOutlined />} className='action'>{t('导入')}</Button>
+                                                <Button icon={<CloudUploadOutlined />} >{t('导入')}</Button>
                                             </Upload>
-                                            <Button icon={<ShareAltOutlined />} className='action'>{t('分享')}</Button>
+                                            <Button icon={<ShareAltOutlined />} >{t('分享')}</Button>
                                         </div>
                                     </div>}
                     />
