@@ -17,13 +17,14 @@ $blue: rgb(22, 104, 220)
     width: 100%
     
     .switcher
-        width: 160px
+        width: 200px
         height: 100%
         
+        
+        
         .ant-select-selection-placeholder, .ant-select-selection-item
-            display: flex
-            align-items: center
             color: $font_color
+            
     
     .actions
         display: flex
@@ -78,3 +79,15 @@ $blue: rgb(22, 104, 220)
         gap: 12px
         
     
+    
+.dashboard-options-label
+    display: flex
+    justify-content: space-between
+    align-items: center
+    .status-tag
+        border-radius: 4px
+    &-name
+        max-width: 80%
+        overflow: hidden
+        text-overflow: ellipsis
+        white-space: nowrap
