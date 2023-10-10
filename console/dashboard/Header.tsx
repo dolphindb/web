@@ -1,6 +1,6 @@
 import './Header.sass'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, Input, Modal, Select, Tooltip, Upload } from 'antd'
 import { CloudUploadOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, ShareAltOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
 
@@ -45,6 +45,11 @@ export function Header () {
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
+    
+    useEffect(() => { 
+        if (new URLSearchParams(location.search).get('mode') === 'create')
+            add_open()
+    }, [ ])
     
     async function save_config () {
         await dashboard.update_config({
