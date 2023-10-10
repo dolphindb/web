@@ -1,7 +1,7 @@
 import './Header.sass'
 
 import { useEffect, useState } from 'react'
-import { Button, Input, Modal, Select, Tooltip, Upload } from 'antd'
+import { Button, Input, Modal, Select, Tag, Tooltip, Upload } from 'antd'
 import { CloudUploadOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, ShareAltOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
@@ -16,6 +16,7 @@ import { DataSourceConfig } from './DataSource/DataSourceConfig.js'
 import { export_data_sources } from './DataSource/date-source.js'
 import { VariableConfig } from './Variable/VariableConfig.js'
 import { export_variables } from './Variable/variable.js'
+import cn from 'classnames'
 
 
 function get_widget_config (widget: Widget) {
@@ -35,7 +36,7 @@ function get_widget_config (widget: Widget) {
 interface DashboardOption {
     key: number
     value: string
-    label: string
+    label: string | JSX.Element
 }
 
 
@@ -165,24 +166,27 @@ export function Header () {
         <Select
             className='switcher'
             placeholder='选择 dashboard'
-            onChange={(value: string, option: DashboardOption) => {
+            onChange={(_, option: DashboardOption) => {
+                const current_dashboard = configs.find(({ id }) => id === option.key)
                 dashboard.update_config(
-                    configs.find(({ id }) => id === option.key)
+                    current_dashboard
                 )
+                if (current_dashboard.owned)
+                    on_edit()
+                else
+                    on_preview()
             }}
             // defaultValue={ config?.name || new_dashboard_name}
             value={config?.name}
             bordered={false}
-            options={configs?.map(({ id, name }) => ({
+            options={configs?.map(({ id, name, owned }) => ({
                 key: id,
                 value: name,
-                label: name
+                label: <div className='dashboard-options-label'>
+                    <span className={cn({ 'dashboard-options-label-name': !owned })}>{name}</span>
+                    {!owned && <Tag color='processing' className='status-tag' >{t('他人分享')}</Tag> }
+                </div>
             }))}
-            // options={[
-            //     { value: 'dashboard1', label: 'dashboard1' },
-            //     { value: 'dashboard2', label: 'dashboard2' },
-            //     { value: 'dashboard3', label: 'dashboard3' },
-            // ]}
         />
         
         { editing && <div className='actions'>
@@ -296,7 +300,8 @@ export function Header () {
             { model.dev && <CompileAndRefresh /> }
         </div> }
         
-        <div className='modes'>
+        {
+            config.owned && <div className='modes'>
             <span
                 className={`right-editormode-editor ${editing ? 'editormode-selected' : ''}`}
                 onClick={on_edit}
@@ -311,6 +316,8 @@ export function Header () {
                 <EyeOutlined /> 预览
             </span>
         </div>
+        
+        }
         
         <div className='padding' />
         
