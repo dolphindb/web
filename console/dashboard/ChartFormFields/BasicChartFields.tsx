@@ -144,16 +144,17 @@ function Series (props: { col_names: string[] }) {
                 <Collapse
                     size='small'
                     className='series-collapse'
-                    items={items} /> 
-                <Button
-                    className='add-series-btn'
-                    type='dashed'
-                    block
-                    onClick={() => { add() }}
-                    icon={<PlusCircleOutlined />}
-                >
-                    {t('增加数据列')}
-                </Button> 
+                    items={items}
+                /> 
+                    <Button
+                        className='add-series-btn'
+                        type='dashed'
+                        block
+                        onClick={() => { add() }}
+                        icon={<PlusCircleOutlined />}
+                    >
+                        {t('增加数据列')}
+                    </Button> 
             </>
         }}
     </Form.List>
