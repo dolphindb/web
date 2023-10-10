@@ -54,11 +54,14 @@ export function Header () {
     async function save_config () {
         await dashboard.update_config({
             ...config,
-            datasources: await export_data_sources(),
-            variables: await export_variables(),
-            canvas: {
-                widgets: widgets.map(widget => get_widget_config(widget))
+            data: {
+                datasources: await export_data_sources(),
+                variables: await export_variables(),
+                canvas: {
+                    widgets: widgets.map(widget => get_widget_config(widget))
+                }
             }
+            
         })
     }
     

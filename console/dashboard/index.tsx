@@ -52,6 +52,9 @@ export function DashBoard () {
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     
+    // const params = new URLSearchParams(location.search)
+    
+    
     useEffect(() => {
         model.set({ header: !config, sider: !config })
     }, [ config])

@@ -83,11 +83,14 @@ export class DashBoardModel extends Model<DashBoardModel> {
             const new_dashboard_config = {
                 id: genid(),
                 name: 'dashboard_0',
-                datasources: [ ],
-                variables: [ ],
-                canvas: {
-                    widgets: [ ],
+                data: {
+                    datasources: [ ],
+                    variables: [ ],
+                    canvas: {
+                        widgets: [ ],
+                    }
                 }
+               
             }
             this.set({ config: new_dashboard_config, 
                        configs: [new_dashboard_config],
@@ -197,11 +200,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
             
             configs,
             
-            variables: await import_variables(config_.variables),
+            variables: await import_variables(config_.data.variables),
             
-            data_sources: await import_data_sources(config_.datasources),
+            data_sources: await import_data_sources(config_.data.datasources),
             
-            widgets: config_.canvas.widgets.map(widget => ({
+            widgets: config_.data.canvas.widgets.map(widget => ({
                 ...widget,
                 ref: createRef()
             })) as any,
@@ -218,11 +221,14 @@ export class DashBoardModel extends Model<DashBoardModel> {
         return {
             id,
             name: name || String(id).slice(0, 4),
-            datasources: [ ],
-            variables: [ ],
-            canvas: {
-                widgets: [ ],
+            data: {
+                datasources: [ ],
+                variables: [ ],
+                canvas: {
+                    widgets: [ ],
+                }
             }
+           
         }
     }
     
@@ -363,8 +369,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
         let data = ((await model.ddb.call<DdbObj>('get_dashboard_configs')).value) as Array<string> || [ ]
-        // this.configs = JSON.parse(data)
-        this.set({ configs: data.map(config => JSON.parse(config)) })
+        const configs_ = data.map(config => JSON.parse(config)) 
+        console.log('configs_', configs_.map(c => ({ ...c, data: JSON.parse(c.data) })))
+        this.set({ configs: configs_.map(c => ({ ...c, data: JSON.parse(c.data) })) })
         const current_config_id = new URLSearchParams(location.search).get('dashboard')
         
         if (current_config_id) {
@@ -379,8 +386,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 将配置持久化保存到服务器 */
     async save_configs_to_server () {
-        const params = JSON.stringify({ configs: this.configs })
-        console.log('params', params)
+        const params = JSON.stringify({ configs: this.configs.map(config => ({ ...config, data: JSON.stringify(config.data) })) })
+        // const params = JSON.stringify({ configs: this.configs })
         await model.ddb.eval<DdbVoid>(`set_dashboard_configs(${params})`, { urgent: true })
     }
     
@@ -410,16 +417,20 @@ export interface DashBoardConfig {
     /** 当前用户是否有所有权, 被分享时 owned 为 false */
     owned?: boolean
     
-    /** 数据源配置 */
-    datasources: ExportDataSource[]
-    
-    /** 变量配置 */
-    variables: ExportVariable[]
-    
-    /** 画布配置 */
-    canvas: {
-        widgets: any[]
+    data: {
+         /** 数据源配置 */
+        datasources: ExportDataSource[]
+        
+        /** 变量配置 */
+        variables: ExportVariable[]
+        
+        /** 画布配置 */
+        canvas: {
+            widgets: any[]
+        }
     }
+    
+   
 }
 
 
