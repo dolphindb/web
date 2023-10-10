@@ -2,7 +2,7 @@ import './Header.sass'
 
 import { useState } from 'react'
 import { Button, Input, Modal, Select, Tooltip, Upload } from 'antd'
-import { CloudUploadOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
+import { CloudUploadOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, ShareAltOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -202,8 +202,17 @@ export function Header () {
                 <Input value={edit_dashboard_name} onChange={event => { set_edit_dashboard_name(event.target.value) }}/>
             </Modal>
             
-            <Tooltip title='返回交互编程'>
-                <Button className='action' onClick={() => { model.set({ view: 'shell', sider: true, header: true }) }}><HomeOutlined /></Button>
+            <Tooltip title='返回 Dashboard 管理界面'>
+                <Button className='action' onClick={() => { 
+                                                        dashboard.set({ config: null })
+                                                        model.set({  sider: true, header: true })
+                                                        const url_params = new URLSearchParams(location.search)
+                                                        url_params.delete('dashboard')
+                                                        let url = new URL(location.href)
+                                                        url.search = url_params.toString()
+                                                        history.replaceState({ }, '', url) 
+                                                    
+                                                    }}><HomeOutlined /></Button>
             </Tooltip>
             
             <Tooltip title='新增'>
@@ -270,7 +279,9 @@ export function Header () {
                     </Button>
                 </Upload>
             </Tooltip>
-            
+            <Tooltip title={t('分享')}>
+                <Button className='action'><ShareAltOutlined/></Button>
+            </Tooltip>
             <Tooltip title='删除'>
                 <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
             </Tooltip>

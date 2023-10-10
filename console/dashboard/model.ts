@@ -21,9 +21,10 @@ import { type Monaco } from '../shell/Editor/index.js'
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType } from './DataSource/date-source.js'
 import { type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
+import { type DdbArrayVectorValue, type DdbVectorAny } from 'dolphindb'
 
 
-class DashBoardModel extends Model<DashBoardModel> {
+export class DashBoardModel extends Model<DashBoardModel> {
     /** 所有 dashboard 的配置 */
     configs: DashBoardConfig[]
     
@@ -160,7 +161,8 @@ class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    /** 传入 _delete === true 时表示删除传入的 config */
+    
+    /** 传入 _delete === true 时表示删除传入的 config, 传入 null 代表清空当前的config，返回到 dashboard 管理界面 */
     async update_config (config: DashBoardConfig, _delete = false) {
         const { config: config_, configs } = (() => {
             if (_delete) {
@@ -360,31 +362,34 @@ class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
-        let data = (await model.ddb.call<DdbStringObj | DdbBlob>('get_dashboard_configs')).value || '[]'
-        if (typeof data !== 'string') 
-            data = new TextDecoder().decode(data)
-        
-        this.configs = JSON.parse(data)
-        
+        let data = ((await model.ddb.call<DdbObj>('get_dashboard_configs')).value) as Array<string> || [ ]
+        // this.configs = JSON.parse(data)
+        this.set({ configs: data.map(config => JSON.parse(config)) })
         const current_config_id = new URLSearchParams(location.search).get('dashboard')
         
-        const config = this.configs.find(({ id }) => !current_config_id || String(id) === current_config_id)
-        if (config)
-            await this.update_config(config)
-        else
-            this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
+        if (current_config_id) {
+            const config = this.configs.find(({ id }) =>  String(id) === current_config_id)
+            if (config)
+                await this.update_config(config)
+            else
+                this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
+        } 
     }
     
     
     /** 将配置持久化保存到服务器 */
     async save_configs_to_server () {
-        console.log('dashboard_configs:', JSON.stringify(this.configs))
-        await model.ddb.call<DdbVoid>('set_dashboard_configs', [JSON.stringify(this.configs)])
+        const params = JSON.stringify({ configs: this.configs })
+        console.log('params', params)
+        await model.ddb.eval<DdbVoid>(`set_dashboard_configs(${params})`, { urgent: true })
     }
     
-    
     async share (dashboard_ids: number[], receivers: string[]) {
-        
+        /** 
+        将 dashboard_ids 数组中的 dashboard 分享给 receivers 数组中的每一位用户，
+        并存储到每一位 receiver 的 dashboard 数组中， 在后续调用 get_configs 拉取 receiver 的 dashboard 时，
+        需要将分享过来的 dashboard 一起返回，并且将 owner 的值设置为 false
+        */
     }
     
     

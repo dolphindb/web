@@ -86,8 +86,8 @@ export function DdbSider () {
                 if (key === 'factor')
                     return
                 
-                if (key === 'dashboard')
-                    model.set({ header: false, sider: false })
+                // if (key === 'dashboard')
+                //     model.set({ header: false, sider: false })
                 
                 model.set({ view: key as DdbModel['view'] })
             }}
