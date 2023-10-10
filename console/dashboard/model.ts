@@ -367,7 +367,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         console.log(data)
         
         const configs_ = data.map(config => JSON.parse(config)) 
-        this.set({ configs: configs_.map(c => ({ ...c, data: JSON.parse(c.data) })) })
+        this.set({ configs: configs_.map(c => ({ ...c, data: JSON.parse(c.data), owned: true })) })
         console.log(this.configs)
         const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
         

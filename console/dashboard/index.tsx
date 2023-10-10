@@ -171,8 +171,10 @@ export function DashBoard () {
                         columns={[{ title: t('名称'), dataIndex: 'name', key: 'name', width: '70%',
                                         render: ( text, record ) => <a onClick={() => { 
                                                                         const config = configs.find(({ id }) => id === record.key)
-                                                                        dashboard.set({ config, editing: config.owned })
-                                                                      
+                                                                        dashboard.set({ config })
+                                                                        // if (config.owned) 
+                                                                        //     model.set_query('preview', '1')
+                                                                        
                                                                     }}>{text}</a>, 
                                 },
                                 { title: t('操作'), dataIndex: '', key: 'delete',
