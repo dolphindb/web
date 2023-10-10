@@ -21,6 +21,7 @@ import { type Monaco } from '../shell/Editor/index.js'
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType } from './DataSource/date-source.js'
 import { type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
+import { type DdbArrayVectorValue, type DdbVectorAny } from 'dolphindb'
 
 
 export class DashBoardModel extends Model<DashBoardModel> {
@@ -361,13 +362,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
-        let data = (await model.ddb.call<DdbStringObj | DdbBlob>('get_dashboard_configs')).value || '[]'
-        if (typeof data !== 'string') 
-            data = new TextDecoder().decode(data)
-        
+        let data = ((await model.ddb.call<DdbObj>('get_dashboard_configs')).value) as Array<string> || [ ]
         // this.configs = JSON.parse(data)
-        this.set({ configs: JSON.parse(data) })
-        console.log(this.configs)
+        this.set({ configs: data.map(config => JSON.parse(config)) })
         const current_config_id = new URLSearchParams(location.search).get('dashboard')
         
         if (current_config_id) {
@@ -382,7 +379,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 将配置持久化保存到服务器 */
     async save_configs_to_server () {
-        await model.ddb.call<DdbVoid>('set_dashboard_configs', [JSON.stringify({ configs: this.configs })])
+        const params = JSON.stringify({ configs: this.configs })
+        console.log('params', params)
+        await model.ddb.eval<DdbVoid>(`set_dashboard_configs(${params})`, { urgent: true })
     }
     
     async share (dashboard_ids: number[], receivers: string[]) {

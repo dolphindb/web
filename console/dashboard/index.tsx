@@ -52,6 +52,8 @@ export function DashBoard () {
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     
+    console.log('configs', configs)
+    
     useEffect(() => {
         model.set({ header: !config, sider: !config })
     }, [ config])
@@ -212,11 +214,16 @@ export function DashBoard () {
                                              <Upload
                                                 showUploadList={false}
                                                 beforeUpload={async file => {
-                                                    dashboard.set(
-                                                        { configs: [...configs, JSON.parse(await file.text()) as DashBoardConfig] }
-                                                    )
-                                                    
-                                                    return false
+                                                                                dashboard.set(
+                                                                                    { configs: [...configs, JSON.parse(await file.text()) as DashBoardConfig] }
+                                                                                )
+                                                                                try {
+                                                                                    await dashboard.save_configs_to_server()
+                                                                                } catch (error) {
+                                                                                    model.show_error({ error })
+                                                                                    throw error    
+                                                                                }
+                                                                                return false
                                                 }}
                                             >
                                                 <Button icon={<CloudUploadOutlined />} className='action'>{t('导入')}</Button>

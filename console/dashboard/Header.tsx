@@ -2,7 +2,7 @@ import './Header.sass'
 
 import { useState } from 'react'
 import { Button, Input, Modal, Select, Tooltip, Upload } from 'antd'
-import { CloudUploadOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
+import { CloudUploadOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, ShareAltOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -279,7 +279,9 @@ export function Header () {
                     </Button>
                 </Upload>
             </Tooltip>
-            
+            <Tooltip title={t('分享')}>
+                <Button className='action'><ShareAltOutlined/></Button>
+            </Tooltip>
             <Tooltip title='删除'>
                 <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
             </Tooltip>
