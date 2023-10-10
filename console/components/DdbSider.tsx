@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
 
-import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
+import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined } from '@ant-design/icons'
 
 import { isNil, omitBy } from 'lodash'
 
@@ -108,11 +108,6 @@ export function DdbSider () {
                     icon: <MenuIcon view='shell' />,
                     label: t('交互编程'),
                 },
-                ... model.dev ? [{
-                       key: 'test',
-                       icon: <MenuIcon view='test' />,
-                       label: 'test'
-                }] : [ ],
                 {
                     key: 'job',
                     icon: <MenuIcon view='job' />,
@@ -131,8 +126,13 @@ export function DdbSider () {
                 {
                     key: 'dashboard',
                     icon: <MenuIcon view='dashboard' />,
-                    label: t('DashBoard'),
+                    label: t('数据面板'),
                 },
+                ... model.dev ? [{
+                       key: 'test',
+                       icon: <ExperimentOutlined />,
+                       label: '测试模块'
+                }] : [ ],
             ]}
         />
     </Layout.Sider>
