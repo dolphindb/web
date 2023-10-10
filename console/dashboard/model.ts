@@ -369,9 +369,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     async get_configs () {
         let data = ((await model.ddb.call<DdbObj>('get_dashboard_configs')).value) as Array<string> || [ ]
         const configs_ = data.map(config => JSON.parse(config)) 
-        console.log('configs_', configs_.map(c => ({ ...c, data: JSON.parse(c.data) })))
         this.set({ configs: configs_.map(c => ({ ...c, data: JSON.parse(c.data) })) })
-        const current_config_id = new URLSearchParams(location.search).get('dashboard')
         
         const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
         
