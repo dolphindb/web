@@ -161,8 +161,10 @@ export function delete_data_source (key: string): number {
         dashboard.message.error('当前数据源已被图表绑定无法删除')
     else {
         const delete_index = find_data_source_index(key)
-        while (data_source.variables.size) 
-            unsubscribe_variable(data_source, data_source.deps[0])
+        
+        for (let variable_name of data_source.variables) 
+            unsubscribe_variable(data_source, variable_name)
+            
         data_sources.splice(delete_index, 1)
         return delete_index
     }
@@ -231,6 +233,10 @@ export function unsubscribe_data_source (widget_option: Widget) {
 
 export async function execute (source_id: string) {
     const data_source = get_data_source(source_id)
+    
+    if (!data_source.id)
+        return
+    
     try {
         const { type, result } = await dashboard.execute(parse_code(data_source))
                 
@@ -258,10 +264,9 @@ export async function execute (source_id: string) {
             //     console.log(widget_id, 'render', data_source.data)
             // })
         }
-            
-        
         else 
-            throw new Error(result as string)    
+            throw new Error(result as string)   
+         
     } catch (error) {
         dashboard.message.error(error.message)
         data_source.set({
