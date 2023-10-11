@@ -658,6 +658,7 @@ export function StreamingTable ({
     password,
     ctx,
     options,
+    on_error,
 }: {
     url: string
     table: string
@@ -665,6 +666,7 @@ export function StreamingTable ({
     password?: string
     ctx: Context
     options?: InspectOptions
+    on_error? (error: Error): void
 }) {
     let rddb = useRef<DDB>()
     
@@ -700,72 +702,58 @@ export function StreamingTable ({
     
     
     useEffect(() => {
-        let ddb = rddb.current = new DDB(url, {
-            autologin: Boolean(username),
-            username,
-            password,
-            streaming: {
-                table,
-                handler (message) {
-                    console.log(message)
-                    
-                    const { error } = message
-                    
-                    if (error) {
-                        console.error(error)
-                        return
+        try {
+            let ddb = rddb.current = new DDB(url, {
+                autologin: Boolean(username),
+                username,
+                password,
+                streaming: {
+                    table,
+                    handler (message) {
+                        console.log(message)
+                        
+                        const { error } = message
+                        
+                        if (error) {
+                            console.error(error)
+                            return
+                        }
+                        
+                        const time = new Date().getTime()
+                        
+                        rreceived.current += message.rows
+                        
+                        // 冻结或者未到更新时间
+                        if (rrate.current === -1 || time - rlast.current < rrate.current)
+                            return
+                        
+                        rmessage.current = message
+                        rlast.current = time
+                        rerender({ })
                     }
-                    
-                    const time = new Date().getTime()
-                    
-                    rreceived.current += message.rows
-                    
-                    // 冻结或者未到更新时间
-                    if (rrate.current === -1 || time - rlast.current < rrate.current)
-                        return
-                    
-                    rmessage.current = message
-                    rlast.current = time
-                    rerender({ })
                 }
-            }
-        })
-        
-        let ddbapi = rddbapi.current = new DDB(url)
-        
-        
-        ;(async () => {
-            // LOCAL: 创建流表
-            await ddbapi.eval(
-                'try {\n' +
-                "    if (!defined('prices', SHARED)) {\n" +
-                '        share(\n' +
-                '            streamTable(\n' +
-                '                10000:0,\n' +
-                "                ['time', 'stock', 'price'],\n" +
-                '                [TIMESTAMP, SYMBOL, DOUBLE]\n' +
-                '            ),\n' +
-                "            'prices'\n" +
-                '        )\n' +
-                "        print('prices 流表创建成功')\n" +
-                '    } else\n' +
-                "        print('prices 流表已存在')\n" +
-                '} catch (error) {\n' +
-                "    print('prices 流表创建失败')\n" +
-                '    print(error)\n' +
-                '}\n'
-            )
+            })
             
-            // 开始订阅
-            await ddb.connect()
+            let ddbapi = rddbapi.current = new DDB(url)
             
-            // 插入一条数据以获取 message，才能显示出下面的表格
-            await append_data(1)
             
-            rerender({ })
-        })()
-        
-        return () => { ddb.disconnect() }
+            ;(async () => {
+                try {
+                    // 开始订阅
+                    await ddb.connect()
+                    
+                    rerender({ })
+                } catch (error) {
+                    on_error?.(error)
+                    throw error
+                }
+            })()
+            
+            return () => { ddb.disconnect() }
+        } catch (error) {
+            on_error?.(error)
+            throw error
+        }
     }, [ ])
     
     
