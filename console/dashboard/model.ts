@@ -363,12 +363,13 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
+    
         let data = ((await model.ddb.call<DdbObj>('get_dashboard_configs')).value) as Array<string> || [ ]
         console.log(data)
         
         const configs_ = data.map(config => JSON.parse(config)) 
+        /** owned 待后端更新后修改 */
         this.set({ configs: configs_.map(c => ({ ...c, data: JSON.parse(c.data), owned: true })) })
-        console.log(this.configs)
         const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
         
         if (dashboard) {
@@ -385,6 +386,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     async save_configs_to_server () {
         const params = JSON.stringify({ configs: this.configs.map(config => ({ ...config, data: JSON.stringify(config.data) })) })
         // const params = JSON.stringify({ configs: this.configs })
+        console.log('save configs:', this.configs)
         await model.ddb.eval<DdbVoid>(`set_dashboard_configs(${params})`, { urgent: true })
     }
     

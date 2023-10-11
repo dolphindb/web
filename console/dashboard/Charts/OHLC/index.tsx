@@ -24,14 +24,14 @@ type COL_MAP = {
 }
 
 function splitData (rowData: any[], col_name: COL_MAP) {
-    const { time, open, high, low, close, value, trades } = col_name
+    const { time, open, close, low,  high,  value, trades } = col_name
     let categoryData = [ ]
     let values = [ ]
     let volumes = [ ]
     let lines = [ ]
     for (let i = 0;  i < rowData.length;  i++) {
         categoryData.push(rowData[i][time])
-        values.push([rowData[i][open], rowData[i][high], rowData[i][low], rowData[i][close]])
+        values.push([rowData[i][open], rowData[i][close], rowData[i][low], rowData[i][high]])
         volumes.push([i, rowData[i][trades], rowData[i][open] > rowData[i][high] ? 1 : -1])
         lines.push(rowData[i][value])
     }
@@ -50,15 +50,14 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
             splitData(data_source, {
                 time: xAxis.col_name,
                 open: series[0].open as string,
-                high: series[0].high as string,
-                low: series[0].low as string,
                 close: series[0].close as string,
+                low: series[0].low as string,
+                high: series[0].high as string,
                 value: series[0].value as string,
                 trades: series[1].col_name as string
             }),
         [data_source, xAxis.col_name, series]
     )
-    
     const [kColor = '#fd1050', kColor0 = '#0cf49b', line_name = '折线', limit_name = '阈值'] = useMemo(() => 
             [ series[0].kcolor, series[0].kcolor0, series[0].line_name, series[0].limit_name], 
     [series[0]])
@@ -171,8 +170,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     boundaryGap: false,
                     axisLine: { onZero: false },
                     splitLine: { show: false },
-                    min: 'dataMin',
-                    max: 'dataMax',
+                 
                     axisPointer: {
                         z: 100
                     }
@@ -188,8 +186,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     // axisTick: { show: false },
                     // splitLine: { show: false },
                     // axisLabel: { show: false },
-                    min: 'dataMin',
-                    max: 'dataMax'
+                   
                 }
             ],
             yAxis: [
