@@ -4,7 +4,7 @@ import { Model } from 'react-object-model'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { DdbForm, type DdbVoid, type DdbObj, type DdbStringObj, type DdbValue, type DdbBlob } from 'dolphindb/browser.js'
+import { DdbForm, type DdbVoid, type DdbObj, type DdbValue } from 'dolphindb/browser.js'
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
@@ -76,25 +76,27 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
-        
         await this.get_configs()
+        
         if (!this.config) {
+            const id = genid()
             const new_dashboard_config = {
-                id: genid(),
-                name: 'dashboard_0',
+                id,
+                name: String(id).slice(0, 4),
                 data: {
                     datasources: [ ],
                     variables: [ ],
                     canvas: {
-                        widgets: [ ],
+                        widgets: [ ]
                     }
                 }
-               
             }
-            this.set({ config: new_dashboard_config, 
-                       configs: [new_dashboard_config],
-                     })
+            this.set({
+                config: new_dashboard_config,
+                configs: [new_dashboard_config]
+            })
         }
+        
         let grid = GridStack.init({
             acceptWidgets: true,
             float: true,
@@ -158,10 +160,10 @@ export class DashBoardModel extends Model<DashBoardModel> {
             grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
         })
         
-        GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })        
+        GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
+        
         this.set({ grid, widget: null })
     }
-    
     
     
     /** 传入 _delete === true 时表示删除传入的 config, 传入 null 代表清空当前的config，返回到 dashboard 管理界面 */
@@ -370,7 +372,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
-    
         let data = ((await model.ddb.call('get_dashboard_configs'))).to_dict() 
         let configs_ = [ ]
         const data_obj = Object.entries(data)
