@@ -171,6 +171,7 @@ export function DashBoard () {
                                                                         model.set_query('dashboard', String(config.id))
                                                                         // if (config.owned) 
                                                                         //     model.set_query('preview', '1')
+                                                                        model.set({ header: false, sider: false })
                                                                         
                                                                     }}>{text}</a>, 
                                 },
