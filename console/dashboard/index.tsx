@@ -15,17 +15,13 @@ import { Sider } from './Sider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 import { Header } from './Header.js'
-
+import { Overview } from './Overview.js'
 
 import config from './chart.config.json' assert { type: 'json' }
-import { Management } from './Management/index.js'
+
 
 echarts.registerTheme('my-theme', config.theme)
 
-interface DashBoardDataType {
-    key: React.Key
-    name: string
-}
 
 /** 基于 GridStack.js 开发的拖拽图表可视化面板  
     https://gridstackjs.com/
@@ -38,27 +34,26 @@ interface DashBoardDataType {
     通过 GridStack.on('dropped', ...) 监听用户从外部添加拖拽 widget 到 GridStack 的事件  
     通过 GridStack.on('change', ...) 响应 GridStack 中 widget 的位置或尺寸变化的事件 */
 export function DashBoard () {
-    
-    return  !new URLSearchParams(location.search).has('dashboard') ?
-                <Management/>
-                    : 
-                <ConfigProvider
-                    theme={{
-                        hashed: false,
-                        token: {
-                            borderRadius: 0,
-                            motion: false,
-                            colorBgContainer: 'rgb(40, 40, 40)',
-                            colorBgElevated: '#555555',
-                            colorInfoActive: 'rgb(64, 147, 211)'
-                        },
-                        algorithm: theme.darkAlgorithm
-                    }}
-                >
-                    <App className='app'>
-                        <MainLayout />
-                    </App>
-                </ConfigProvider>
+    return new URLSearchParams(location.search).has('dashboard') ?
+        <ConfigProvider
+            theme={{
+                hashed: false,
+                token: {
+                    borderRadius: 0,
+                    motion: false,
+                    colorBgContainer: 'rgb(40, 40, 40)',
+                    colorBgElevated: '#555555',
+                    colorInfoActive: 'rgb(64, 147, 211)'
+                },
+                algorithm: theme.darkAlgorithm
+            }}
+        >
+            <App className='app'>
+                <MainLayout />
+            </App>
+        </ConfigProvider>
+    :
+        <Overview/>
 }
 
 
@@ -130,5 +125,4 @@ function MainLayout () {
         </div>
     </div>
 }
-
 
