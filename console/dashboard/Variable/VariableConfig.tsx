@@ -87,7 +87,7 @@ export function VariableConfig () {
             open={visible}
             onCancel={handle_close} 
             maskClosable={false}
-            maskStyle={{ backgroundColor: 'rgba(84,84,84,0.5)' }}
+            styles={{ mask: { backgroundColor: 'rgba(84,84,84,0.5)' } }}
             afterOpenChange={() => {
                 set_current_variable(cloneDeep(variables[variable_infos[0]?.id]))
             }}
