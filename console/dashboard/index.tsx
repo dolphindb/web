@@ -172,6 +172,7 @@ export function DashBoard () {
                                         render: ( text, record ) => <a onClick={() => { 
                                                                         const config = configs.find(({ id }) => id === record.key)
                                                                         dashboard.set({ config })
+                                                                        model.set_query('dashboard', String(config.id))
                                                                         // if (config.owned) 
                                                                         //     model.set_query('preview', '1')
                                                                         
