@@ -21,17 +21,21 @@ export function OrderBook (props: IProps) {
     
     let { title, with_tooltip, time_rate, title_size, with_legend } = widget.config as unknown as IChartConfig & IOrderBookConfig
     
-    // 如果数据格式不匹配，则直接返回
-    if (!data_source[0]?.sendingTime && !data_source[0]?.bidmdEntryPrice && !data_source[0]?.bidmdEntrySize) {
-      dashboard.message.error(t('数据格式不正确'))
-      return <></>
-    }
-    
     // 样式调整先写死，后面再改
     const convert_order_config = useMemo(() => {
         let data = [ ]
+        
+        // time_rate 作用解释， 由于 echarts heatmap 的每个小块默认展示一个单位长度的 y 轴高度（未找到可以改动此属性的 option，找到了应该就可以去掉该属性）
+        // 但订单图数据常为浮点数，且数据浮动不大，因此会造成多个大面积重叠，导致图的展示效果不好
+        // 所以，在数据上乘以一个 time_rate 作为图表的展示数值，在 y 轴和 tooltip 再 ÷ 回来显示数值，可较好的实现图的展示效果
+        // time_rate 越大，每个块的高度越高
         if (!time_rate) 
             time_rate = 100
+          
+        // 如果数据格式不匹配，则直接返回
+        if (!data_source[0]?.sendingTime && !data_source[0]?.bidmdEntryPrice && !data_source[0]?.bidmdEntrySize)
+            return [ ]
+        
         
         function formatData (price, size, sendingTime, is_buy) {
             let entry = [ ]
@@ -71,7 +75,10 @@ export function OrderBook (props: IProps) {
           show: with_tooltip,
           position: 'top',
           formatter: params => {
-            return `${params.data[0]}  ${(params.data[1] / time_rate).toFixed(4)}  ${params.data[2]}  ${params.data[3]}`
+            return `${params.data[0]}
+            ${(params.data[1] / time_rate).toFixed(4)}
+            ${params.data[2]}
+            ${params.data[3]}`
           }
         },
         grid: {
@@ -120,13 +127,12 @@ export function OrderBook (props: IProps) {
           }
         ]
       }
-    }, [title, with_tooltip, time_rate, data_source, title_size, with_legend]) 
+    }, [title, with_tooltip, time_rate, data_source, title_size, with_legend])   
     
     // 如果数据格式不匹配，则直接返回
-    if (!data_source[0]?.sendingTime && !data_source[0]?.bidmdEntryPrice && !data_source[0]?.bidmdEntrySize) {
-      dashboard.message.error(t('数据格式不正确'))
-      return
-    }
+    if (!data_source[0]?.sendingTime && !data_source[0]?.bidmdEntryPrice && !data_source[0]?.bidmdEntrySize)
+        return
+    
     
     return  <ReactEChartsCore
                 echarts={echarts}

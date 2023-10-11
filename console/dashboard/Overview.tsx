@@ -168,15 +168,11 @@ export function Overview () {
                         title: t('名称'),
                         dataIndex: 'name',
                         key: 'name',
-                        width: '70%',
                         render: (text, record) => <a
                                 onClick={() => {
                                     const config = configs.find(({ id }) => id === record.key)
                                     dashboard.set({ config })
                                     model.set_query('dashboard', String(config.id))
-                                    model.set({ header: false, sider: false })
-                                    // if (config.owned)
-                                    //     model.set_query('preview', '1')
                                     model.set({ header: false, sider: false })
                                 }}
                             >
@@ -187,6 +183,7 @@ export function Overview () {
                         title: t('操作'),
                         dataIndex: '',
                         key: 'delete',
+                        width: '200px',
                         render: ({ key }) => <div className='action'>
                                 <a
                                     onClick={() => {
@@ -246,7 +243,8 @@ export function Overview () {
                             <Upload
                                 showUploadList={false}
                                 beforeUpload={async file => {
-                                    dashboard.set({ configs: [...configs, JSON.parse(await file.text()) as DashBoardConfig] })
+                                    const import_config = JSON.parse(await file.text()) as DashBoardConfig
+                                    dashboard.set({ configs: [...configs.filter(({ id }) => id !== import_config.id), import_config ] })
                                     try {
                                         await dashboard.save_configs_to_server()
                                     } catch (error) {
