@@ -179,6 +179,7 @@ export function DashBoard () {
                                                                         model.set({ header: false, sider: false })
                                                                         // if (config.owned) 
                                                                         //     model.set_query('preview', '1')
+                                                                        model.set({ header: false, sider: false })
                                                                         
                                                                     }}>{text}</a>, 
                                 },
