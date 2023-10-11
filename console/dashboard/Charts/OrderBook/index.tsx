@@ -129,6 +129,11 @@ export function OrderBook (props: IProps) {
       }
     }, [title, with_tooltip, time_rate, data_source, title_size, with_legend])   
     
+    // 如果数据格式不匹配，则直接返回
+    if (!data_source[0]?.sendingTime && !data_source[0]?.bidmdEntryPrice && !data_source[0]?.bidmdEntrySize)
+        return
+    
+    
     return  <ReactEChartsCore
                 echarts={echarts}
                 notMerge
