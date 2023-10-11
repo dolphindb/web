@@ -1,11 +1,12 @@
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
-import { type Widget } from '../../model.js'
+import { type Widget, dashboard } from '../../model.js'
 import { useMemo } from 'react'
 import { type IOrderBookConfig, type IChartConfig } from '../../type.js'
 import { to_chart_data } from '../../utils.js'
 import { DdbType } from 'dolphindb/browser.js'
 import { OrderFormFields, BasicFormFields } from '../../ChartFormFields/OrderBookField.js'
+import { t } from '../../../../i18n/index.js'
 
 
 
@@ -20,6 +21,12 @@ export function OrderBook (props: IProps) {
     
     let { title, with_tooltip, time_rate, title_size, with_legend } = widget.config as unknown as IChartConfig & IOrderBookConfig
     
+    // 如果数据格式不匹配，则直接返回
+    if (!data_source[0]?.sendingTime && !data_source[0]?.bidmdEntryPrice && !data_source[0]?.bidmdEntrySize) {
+      dashboard.message.error(t('数据格式不正确'))
+      return <></>
+    }
+    
     // 样式调整先写死，后面再改
     const convert_order_config = useMemo(() => {
         let data = [ ]
@@ -32,13 +39,13 @@ export function OrderBook (props: IProps) {
                 for (let i = 0;  i < price.data.length && i < 10;  i++)
                     // 去除空值
                     if (to_chart_data(price.data[i], DdbType.double) && to_chart_data(size.data[i], DdbType.long))
-                        entry.push([sendingTime, price.data[i] < 0 ? 100 * time_rate : price.data[i] * time_rate, to_chart_data(size.data[i], DdbType.long), size.data[i]])
+                        entry.push([sendingTime, price.data[i] * time_rate, to_chart_data(size.data[i], DdbType.long), is_buy ? `bmd[${i}]` : `omd[${i}]`, size.data[i]])
             // 对 size 排序，确认颜色深浅
             entry.sort((a, b) => {
-                return a[3] > b[3] ? 1 : 0 
+                return a[4] > b[4] ? 1 : 0 
             })
             entry.forEach((item, index) => {
-                item[3] = is_buy ? index + 1 : -index - 1
+                item[4] = is_buy ? index + 1 : -index - 1
             })
             
             return entry
@@ -64,7 +71,7 @@ export function OrderBook (props: IProps) {
           show: with_tooltip,
           position: 'top',
           formatter: params => {
-            return `${params.data[0]}  ${params.data[1] / time_rate}  ${params.data[2]}`
+            return `${params.data[0]}  ${(params.data[1] / time_rate).toFixed(4)}  ${params.data[2]}  ${params.data[3]}`
           }
         },
         grid: {
@@ -100,6 +107,10 @@ export function OrderBook (props: IProps) {
             name: 'Punch Card',
             type: 'heatmap',
             data: data,
+            encode: {
+              x: 0,
+              y: 1,
+            },
             emphasis: {
               itemStyle: {
                 shadowBlur: 10,
@@ -111,6 +122,11 @@ export function OrderBook (props: IProps) {
       }
     }, [title, with_tooltip, time_rate, data_source, title_size, with_legend]) 
     
+    // 如果数据格式不匹配，则直接返回
+    if (!data_source[0]?.sendingTime && !data_source[0]?.bidmdEntryPrice && !data_source[0]?.bidmdEntrySize) {
+      dashboard.message.error(t('数据格式不正确'))
+      return
+    }
     
     return  <ReactEChartsCore
                 echarts={echarts}
@@ -133,12 +149,12 @@ export function OrderConfigForm (props: { col_names: string[] } ) {
 
 
 function convertDateFormat (dateString: string) {
-  const parts = dateString.split(/[\s.:-]/)
-  const year = parts[0]
-  const month = parts[1].padStart(2, '0')
-  const day = parts[2].padStart(2, '0')
+  // const parts = dateString.split(/[\s.:-]/)
+  // const year = parts[0]
+  // const month = parts[1].padStart(2, '0')
+  // const day = parts[2].padStart(2, '0')
   const time = dateString.split(' ')[1]
   
-  return `${year}-${month}-${day} ${time}`
+  return `${time}`
 }
 

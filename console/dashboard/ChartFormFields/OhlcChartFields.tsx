@@ -140,7 +140,7 @@ function YAxis ({ col_names, initial_values }: { col_names: string[], initial_va
 function Series (props: { col_names: string[] }) { 
     const { col_names } = props
     
-    const series = useMemo(() => [{ name: '', key: 0, selected_cols: [ 'open', 'high', 'low', 'close', 'value', 'limit'] }, 
+    const series = useMemo(() => [{ name: '', key: 0, selected_cols: [ 'open', 'close', 'low', 'high', 'value', 'limit'] }, 
                                   { name: '', key: 1 }], [ ])
     
     return <Form.List name='series' initialValue={series}>
