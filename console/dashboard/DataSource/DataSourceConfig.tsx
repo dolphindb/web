@@ -101,7 +101,7 @@ export function DataSourceConfig (props: IProps, ref) {
             open={visible}
             onCancel={handle_close} 
             maskClosable={false}
-            maskStyle={{ backgroundColor: 'rgba(84,84,84,0.5)' }}
+            styles={{ mask: { backgroundColor: 'rgba(84,84,84,0.5)' } }}
             afterOpenChange={() => {
                 set_current_data_source(cloneDeep(data_sources[widget?.source_id ? find_data_source_index(widget.source_id) : 0]))
             }}
