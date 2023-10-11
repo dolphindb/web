@@ -301,7 +301,7 @@ export function Header () {
         </div> }
         
         {
-            config.owned && <div className='modes'>
+            config?.owned && <div className='modes'>
             <span
                 className={`right-editormode-editor ${editing ? 'editormode-selected' : ''}`}
                 onClick={on_edit}
