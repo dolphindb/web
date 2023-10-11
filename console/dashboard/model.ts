@@ -371,9 +371,10 @@ export class DashBoardModel extends Model<DashBoardModel> {
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
     
-        let data = ((await model.ddb.call('get_dashboard_configs'))) 
+        let data = ((await model.ddb.call('get_dashboard_configs'))).to_dict() 
         let configs_ = [ ]
-        for (let [key, configs] of Object.entries(data.to_dict())) 
+        const data_obj = Object.entries(data)
+        for (let [key, configs] of data_obj) 
             for (let config of configs.value as string[]) 
                 configs_.push({ ...JSON.parse(config), owned: key === 'owned' })
          
