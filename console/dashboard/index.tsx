@@ -66,6 +66,13 @@ export function DashBoard () {
         })()
     }, [ ])
     
+    useEffect(() => {
+        if (params.get('create') === '1') {
+            add_open()
+            set_new_dashboard_name(String(genid()).slice(0, 4))
+        }
+    }, [ ])
+    
     
     async function handle_add () {
         try {
@@ -169,6 +176,7 @@ export function DashBoard () {
                                                                         const config = configs.find(({ id }) => id === record.key)
                                                                         dashboard.set({ config })
                                                                         model.set_query('dashboard', String(config.id))
+                                                                        model.set({ header: false, sider: false })
                                                                         // if (config.owned) 
                                                                         //     model.set_query('preview', '1')
                                                                         
@@ -216,7 +224,7 @@ export function DashBoard () {
                                         <h2>{t('数据面板')}</h2>
                                         <div className='toolbar'>
                                             <Button icon={<PlusCircleOutlined />} onClick={() => { add_open()
-                                                                                             set_new_dashboard_name(String(genid()).slice(0, 4)) }}>{t('新增')}</Button>
+                                                                                                   set_new_dashboard_name(String(genid()).slice(0, 4)) }}>{t('新增')}</Button>
                                              <Upload
                                                 showUploadList={false}
                                                 beforeUpload={async file => {
