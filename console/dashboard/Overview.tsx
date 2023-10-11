@@ -168,7 +168,6 @@ export function Overview () {
                         title: t('名称'),
                         dataIndex: 'name',
                         key: 'name',
-                        width: '70%',
                         render: (text, record) => <a
                                 onClick={() => {
                                     const config = configs.find(({ id }) => id === record.key)
@@ -187,6 +186,7 @@ export function Overview () {
                         title: t('操作'),
                         dataIndex: '',
                         key: 'delete',
+                        width: '200px',
                         render: ({ key }) => <div className='action'>
                                 <a
                                     onClick={() => {
