@@ -75,7 +75,10 @@ export function OrderBook (props: IProps) {
           show: with_tooltip,
           position: 'top',
           formatter: params => {
-            return `${params.data[0]}  ${(params.data[1] / time_rate).toFixed(4)}  ${params.data[2]}  ${params.data[3]}`
+            return `${params.data[0]}
+            ${(params.data[1] / time_rate).toFixed(4)}
+            ${params.data[2]}
+            ${params.data[3]}`
           }
         },
         grid: {
@@ -124,13 +127,7 @@ export function OrderBook (props: IProps) {
           }
         ]
       }
-    }, [title, with_tooltip, time_rate, data_source, title_size, with_legend]) 
-    
-    // 如果数据格式不匹配，则直接返回
-    if (!data_source[0]?.sendingTime && !data_source[0]?.bidmdEntryPrice && !data_source[0]?.bidmdEntrySize) {
-      dashboard.message.error(t('数据格式不正确'))
-      return
-    }
+    }, [title, with_tooltip, time_rate, data_source, title_size, with_legend])   
     
     return  <ReactEChartsCore
                 echarts={echarts}
