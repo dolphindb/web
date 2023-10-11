@@ -22,6 +22,7 @@ export function Overview () {
     const [current_dashboard, set_current_dashboard] = useState(null)
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
+    
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     
@@ -36,6 +37,17 @@ export function Overview () {
             }
         })()
     }, [ ])
+    
+    // useEffect(() => {
+    //     (async () => {
+    //         try {
+    //           await dashboard.get_users()
+    //         } catch (error) {
+    //             model.show_error({ error })
+    //         }
+    //     })()
+    // }, [ ])
+    
     
     useEffect(() => {
         if (params.get('create') === '1') {
@@ -113,7 +125,7 @@ export function Overview () {
         }
     }
     
-    return <div className='dashboard-manage'>
+    return <div className='dashboard-overview'>
             <Modal
                 open={add_visible}
                 maskClosable={false}

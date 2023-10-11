@@ -360,16 +360,27 @@ export class DashBoardModel extends Model<DashBoardModel> {
             }
     }
     
+    /** 获取分享的用户列表 */
+    async get_users () {
+        let users = ((await model.ddb.call<DdbObj>('get_users_to_share()')).value)
+        console.log('users', users)
+        return users
+    }
+    
     
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
     
-        let data = ((await model.ddb.call<DdbObj>('get_dashboard_configs')).value) as Array<string> || [ ]
-        console.log(data)
-        
-        const configs_ = data.map(config => JSON.parse(config)) 
+        let data = ((await model.ddb.call('get_dashboard_configs'))) 
+        let configs_ = [ ]
+        for (let [key, configs] of Object.entries(data.to_dict())) 
+            for (let config of configs.value as string[]) 
+                configs_.push({ ...JSON.parse(config), owned: key === 'owned' })
+         
+        // console.log('configs_', configs_.map(config => ({ ...config, data: JSON.parse(config.data) })))
+        // const configs_ = data.map(config => JSON.parse(config)) 
         /** owned 待后端更新后修改 */
-        this.set({ configs: configs_.map(c => ({ ...c, data: JSON.parse(c.data), owned: true })) })
+        this.set({ configs: configs_.map(config => ({ ...config, data: JSON.parse(config.data) })) })
         const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
         
         if (dashboard) {
@@ -386,7 +397,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     async save_configs_to_server () {
         const params = JSON.stringify({ configs: this.configs.map(config => ({ ...config, data: JSON.stringify(config.data) })) })
         // const params = JSON.stringify({ configs: this.configs })
-        console.log('save configs:', this.configs)
+        console.log(`set_dashboard_configs(${params})`)
         await model.ddb.eval<DdbVoid>(`set_dashboard_configs(${params})`, { urgent: true })
     }
     
