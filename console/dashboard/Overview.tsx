@@ -246,7 +246,8 @@ export function Overview () {
                             <Upload
                                 showUploadList={false}
                                 beforeUpload={async file => {
-                                    dashboard.set({ configs: [...configs, JSON.parse(await file.text()) as DashBoardConfig] })
+                                    const import_config = JSON.parse(await file.text()) as DashBoardConfig
+                                    dashboard.set({ configs: [...configs.filter(({ id }) => id !== import_config.id), import_config ] })
                                     try {
                                         await dashboard.save_configs_to_server()
                                     } catch (error) {
