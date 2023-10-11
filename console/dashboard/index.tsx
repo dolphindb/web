@@ -56,10 +56,6 @@ export function DashBoard () {
     
     
     useEffect(() => {
-        model.set({ header: !config, sider: !config })
-    }, [ config])
-    
-    useEffect(() => {
         (async () => {
             try {
                 await dashboard.get_configs()
