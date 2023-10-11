@@ -174,9 +174,6 @@ export function Overview () {
                                     dashboard.set({ config })
                                     model.set_query('dashboard', String(config.id))
                                     model.set({ header: false, sider: false })
-                                    // if (config.owned)
-                                    //     model.set_query('preview', '1')
-                                    model.set({ header: false, sider: false })
                                 }}
                             >
                                 {text}
