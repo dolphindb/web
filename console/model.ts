@@ -131,6 +131,10 @@ export class DdbModel extends Model<DdbModel> {
         this.cdn = location.hostname === 'cdn.dolphindb.cn' || params.get('cdn') === '1'
         this.verbose = params.get('verbose') === '1'
         
+        // cdn 或开发模式下，浏览器误跳转到 https 链接，自动跳转回 http
+        if (location.protocol === 'https:' && (this.dev || this.cdn) && params.get('https') !== '1')
+            location.protocol = 'http:'
+        
         const port = params.get('port') || location.port
         
         this.ddb = new DDB(
@@ -157,10 +161,6 @@ export class DdbModel extends Model<DdbModel> {
         this.sider = params.get('sider') !== '0' && (view !== 'dashboard' || !dashboard)
         this.code_template = params.get('code-template') === '1'
         this.redirection = params.get('redirection') as PageViews
-        
-        // cdn 或开发模式下，浏览器误跳转到 https 链接，自动跳转回来
-        if (location.protocol === 'https:' && (this.dev || this.cdn) && params.get('https') !== '1')
-            location.protocol = 'http:'
     }
     
     
