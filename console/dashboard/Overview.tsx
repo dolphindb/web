@@ -31,9 +31,6 @@ export function Overview () {
     useEffect(() => {
         (async () => {
             try {
-                // 此时父组件 const { view } = model.use(['view']) 对应的 effect 还未执行
-                await delay(0)
-                
                 if (!model.logined) {
                     model.goto_login()
                     return
