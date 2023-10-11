@@ -12,7 +12,7 @@ export function Test () {
     return <div className='result page'>
         <StreamingTable
             ctx='page'
-            table='migStream' 
+            table={new URLSearchParams(location.search).get('streaming-table') || 'prices'}
             url={url}
             username={username}
             password={password}
