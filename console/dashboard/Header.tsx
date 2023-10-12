@@ -71,7 +71,7 @@ export function Header () {
         try {
             await save_config()
             await dashboard.save_configs_to_server()
-            dashboard.message.success(t('dashboard 保存成功'))
+            dashboard.message.success(t('数据面板保存成功'))
         } catch (error) {
             model.show_error({ error })
             throw error
@@ -82,7 +82,7 @@ export function Header () {
     async function handle_add () {
         try {
             if (!new_dashboard_name) {
-                dashboard.message.error(t('dashboard 名称不允许为空'))
+                dashboard.message.error(t('数据面板名称不允许为空'))
                 return 
             }
             
@@ -107,7 +107,7 @@ export function Header () {
     async function handle_edit () {
         try {
             if (!edit_dashboard_name) {
-                dashboard.message.error(t('dashboard 名称不允许为空'))
+                dashboard.message.error(t('数据面板名称不允许为空'))
                 return 
             }
             
@@ -135,7 +135,7 @@ export function Header () {
     async function handle_delete () {
         try {
             if (!configs.length) {
-                dashboard.message.error(t('当前 dashboard 列表为空'))
+                dashboard.message.error(t('当前数据面板列表为空'))
                 return
             }
             
@@ -195,7 +195,7 @@ export function Header () {
                    onCancel={add_close}
                    onOk={handle_add}
                    closeIcon={false}
-                   title={t('请输入 dashboard 的名称')}>
+                   title={t('请输入数据面板的名称')}>
                 <Input value={new_dashboard_name}
                        onChange={event => { set_new_dashboard_name(event.target.value) }}
                        />
@@ -206,11 +206,11 @@ export function Header () {
                    onCancel={edit_close}
                    onOk={handle_edit}
                    closeIcon={false}
-                   title={t('请输入新的 dashboard 名称')}>
+                   title={t('请输入新的数据面板名称')}>
                 <Input value={edit_dashboard_name} onChange={event => { set_edit_dashboard_name(event.target.value) }}/>
             </Modal>
             
-            <Tooltip title='返回 Dashboard 管理界面'>
+            <Tooltip title='返回'>
                 <Button className='action' onClick={() => { 
                     dashboard.set({ config: null })
                     model.set_query('dashboard', null)

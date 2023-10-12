@@ -88,15 +88,26 @@ export function OrderBook (props: IProps) {
         xAxis: {
           type: 'category',
           splitNumber: 3,
+          // 坐标轴
+          axisLine: {
+            show: true
+          }
         },
         yAxis: {
           type: 'value',
           scale: true,
-            axisLabel: {
-                formatter: params => {
-                    return (params / time_rate).toFixed(2)
-                }
-            }
+          // 坐标轴在 grid 区域中的分隔线。
+          splitLine: {
+            show: false
+          },
+          axisLabel: {
+              formatter: params => {
+                  return (params / time_rate).toFixed(2)
+              }
+          },
+          axisLine: {
+            show: true
+          }
         },
         visualMap: {
           min: -10,

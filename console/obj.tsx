@@ -658,6 +658,7 @@ export function StreamingTable ({
     password,
     ctx,
     options,
+    on_error,
 }: {
     url: string
     table: string
@@ -665,6 +666,7 @@ export function StreamingTable ({
     password?: string
     ctx: Context
     options?: InspectOptions
+    on_error? (error: Error): void
 }) {
     let rddb = useRef<DDB>()
     
@@ -700,72 +702,79 @@ export function StreamingTable ({
     
     
     useEffect(() => {
-        let ddb = rddb.current = new DDB(url, {
-            autologin: Boolean(username),
-            username,
-            password,
-            streaming: {
-                table,
-                handler (message) {
-                    console.log(message)
-                    
-                    const { error } = message
-                    
-                    if (error) {
-                        console.error(error)
-                        return
+        try {
+            let ddb = rddb.current = new DDB(url, {
+                autologin: Boolean(username),
+                username,
+                password,
+                streaming: {
+                    table,
+                    handler (message) {
+                        console.log(message)
+                        
+                        const { error } = message
+                        
+                        if (error) {
+                            console.error(error)
+                            return
+                        }
+                        
+                        const time = new Date().getTime()
+                        
+                        rreceived.current += message.rows
+                        
+                        // 冻结或者未到更新时间
+                        if (rrate.current === -1 || time - rlast.current < rrate.current)
+                            return
+                        
+                        rmessage.current = message
+                        rlast.current = time
+                        rerender({ })
                     }
-                    
-                    const time = new Date().getTime()
-                    
-                    rreceived.current += message.rows
-                    
-                    // 冻结或者未到更新时间
-                    if (rrate.current === -1 || time - rlast.current < rrate.current)
-                        return
-                    
-                    rmessage.current = message
-                    rlast.current = time
-                    rerender({ })
                 }
-            }
-        })
-        
-        let ddbapi = rddbapi.current = new DDB(url)
-        
-        
-        ;(async () => {
-            // LOCAL: 创建流表
-            await ddbapi.eval(
-                'try {\n' +
-                "    if (!defined('prices', SHARED)) {\n" +
-                '        share(\n' +
-                '            streamTable(\n' +
-                '                10000:0,\n' +
-                "                ['time', 'stock', 'price'],\n" +
-                '                [TIMESTAMP, SYMBOL, DOUBLE]\n' +
-                '            ),\n' +
-                "            'prices'\n" +
-                '        )\n' +
-                "        print('prices 流表创建成功')\n" +
-                '    } else\n' +
-                "        print('prices 流表已存在')\n" +
-                '} catch (error) {\n' +
-                "    print('prices 流表创建失败')\n" +
-                '    print(error)\n' +
-                '}\n'
-            )
+            })
             
-            // 开始订阅
-            await ddb.connect()
+            let ddbapi = rddbapi.current = new DDB(url)
             
-            // 插入一条数据以获取 message，才能显示出下面的表格
-            await append_data(1)
             
-            rerender({ })
-        })()
-        
-        return () => { ddb.disconnect() }
+            ;(async () => {
+                try {
+                    // LOCAL: 创建流表
+                    await ddbapi.eval(
+                        'try {\n' +
+                        "    if (!defined('prices', SHARED)) {\n" +
+                        '        share(\n' +
+                        '            streamTable(\n' +
+                        '                10000:0,\n' +
+                        "                ['time', 'stock', 'price'],\n" +
+                        '                [TIMESTAMP, SYMBOL, DOUBLE]\n' +
+                        '            ),\n' +
+                        "            'prices'\n" +
+                        '        )\n' +
+                        "        print('prices 流表创建成功')\n" +
+                        '    } else\n' +
+                        "        print('prices 流表已存在')\n" +
+                        '} catch (error) {\n' +
+                        "    print('prices 流表创建失败')\n" +
+                        '    print(error)\n' +
+                        '}\n'
+                    )
+                    
+                    // 开始订阅
+                    await ddb.connect()
+                    
+                    rerender({ })
+                } catch (error) {
+                    on_error?.(error)
+                    throw error
+                }
+            })()
+            
+            return () => { ddb.disconnect() }
+        } catch (error) {
+            on_error?.(error)
+            throw error
+        }
     }, [ ])
     
     
@@ -790,8 +799,105 @@ export function StreamingTable ({
     }, [rauto_append.current])
     
     
+    function StreamingTableActions () {
+        return <div className='actions'>
+            <div><Button onClick={async () => {
+                rlast.current = 0
+                await append_data()
+            }}>向流表中添加三条数据</Button></div>
+            
+            <div><Button onClick={async () => {
+                rlast.current = 0
+                await append_data(1)
+            }}>向流表中添加一条数据</Button></div>
+            
+            <div><Button onClick={async () => {
+                rlast.current = 0
+                rappended.current += 2000 * 5
+                
+                await rddbapi.current.eval(
+                    'n = 2000\n' +
+                    '\n' +
+                    'for (i in 0..4)\n' +
+                    '    append!(\n' +
+                    '        prices,\n' +
+                    '        table([\n' +
+                    '            (now() + 0..(n-1)) as time,\n' +
+                    "            take(['MSFT', 'FUTU'], n) as stock,\n" +
+                    '            (0..(n-1) \\ 10) as price\n' +
+                    '        ])\n' +
+                    '    )\n'
+                )
+            }}>测试插入 2000 条数据 5 次</Button></div>
+            
+            <div><Button onClick={async () => {
+                rlast.current = 0
+                rappended.current += 1_0000 * 10
+                
+                await rddbapi.current.eval(
+                    'n = 10000\n' +
+                    '\n' +
+                    'for (i in 0..9)\n' +
+                    '    append!(\n' +
+                    '        prices,\n' +
+                    '        table([\n' +
+                    '            (now() + 0..(n-1)) as time,\n' +
+                    "            take(['MSFT', 'FUTU'], n) as stock,\n" +
+                    '            (0..(n-1) \\ 10) as price\n' +
+                    '        ])\n' +
+                    '    )\n'
+                )
+            }}>测试插入 1_0000 条数据 10 次</Button></div>
+            
+            <div><Button onClick={async () => {
+                rlast.current = 0
+                rappended.current += 10_0000 * 10
+                
+                await rddbapi.current.eval(
+                    'n = 100000\n' +
+                    '\n' +
+                    'for (i in 0..9)\n' +
+                    '    append!(\n' +
+                    '        prices,\n' +
+                    '        table([\n' +
+                    '            (now() + 0..(n-1)) as time,\n' +
+                    "            take(['MSFT', 'FUTU'], n) as stock,\n" +
+                    '            (0..(n-1) \\ 10) as price\n' +
+                    '        ])\n' +
+                    '    )\n'
+                )
+            }}>测试插入 10_0000 条数据 10 次</Button></div>
+            
+            <div><Button onClick={async () => {
+                rlast.current = 0
+                rappended.current += 2000
+                await rddbapi.current.eval(
+                    'n = 2000\n' +
+                    'for (i in 0..(n-1))\n' +
+                    "    insert into prices values (now(), 'MSFT', rand(100, 1)[0])\n"
+                )
+            }}>测试添加一条数据 2000 次</Button></div>
+            
+            <div>应添加行数: {rappended.current}</div>
+            <div>实际的行数: {rreceived.current}</div>
+            <div>上面两个应该相等</div>
+            
+            <div style={{ margin: '10px 0px' }}>
+                自动添加数据: <Switch onChange={checked => {
+                    rauto_append.current = checked
+                    rerender({ })
+                }}/>
+            </div>
+            
+            <div>接收到推送的 message 之后，才会在下面显示出表格</div>
+        </div>
+    }
+    
+    
     if (!rddb.current || !rddbapi.current || !rmessage.current)
-        return null
+        return <div>
+            <StreamingTableActions />
+        </div>
     
     
     const { current: message } = rmessage
@@ -835,94 +941,7 @@ export function StreamingTable ({
     
     
     return <div>
-        <div><Button onClick={async () => {
-            rlast.current = 0
-            await append_data()
-        }}>向流表中添加三条数据</Button></div>
-        
-        <div><Button onClick={async () => {
-            rlast.current = 0
-            await append_data(1)
-        }}>向流表中添加一条数据</Button></div>
-        
-        <div><Button onClick={async () => {
-            rlast.current = 0
-            rappended.current += 2000 * 5
-            
-            await rddbapi.current.eval(
-                'n = 2000\n' +
-                '\n' +
-                'for (i in 0..4)\n' +
-                '    append!(\n' +
-                '        prices,\n' +
-                '        table([\n' +
-                '            (now() + 0..(n-1)) as time,\n' +
-                "            take(['MSFT', 'FUTU'], n) as stock,\n" +
-                '            (0..(n-1) \\ 10) as price\n' +
-                '        ])\n' +
-                '    )\n'
-            )
-        }}>测试插入 2000 条数据 5 次</Button></div>
-        
-        <div><Button onClick={async () => {
-            rlast.current = 0
-            rappended.current += 1_0000 * 10
-            
-            await rddbapi.current.eval(
-                'n = 10000\n' +
-                '\n' +
-                'for (i in 0..9)\n' +
-                '    append!(\n' +
-                '        prices,\n' +
-                '        table([\n' +
-                '            (now() + 0..(n-1)) as time,\n' +
-                "            take(['MSFT', 'FUTU'], n) as stock,\n" +
-                '            (0..(n-1) \\ 10) as price\n' +
-                '        ])\n' +
-                '    )\n'
-            )
-        }}>测试插入 1_0000 条数据 10 次</Button></div>
-        
-        <div><Button onClick={async () => {
-            rlast.current = 0
-            rappended.current += 10_0000 * 10
-            
-            await rddbapi.current.eval(
-                'n = 100000\n' +
-                '\n' +
-                'for (i in 0..9)\n' +
-                '    append!(\n' +
-                '        prices,\n' +
-                '        table([\n' +
-                '            (now() + 0..(n-1)) as time,\n' +
-                "            take(['MSFT', 'FUTU'], n) as stock,\n" +
-                '            (0..(n-1) \\ 10) as price\n' +
-                '        ])\n' +
-                '    )\n'
-            )
-        }}>测试插入 10_0000 条数据 10 次</Button></div>
-        
-        <div><Button onClick={async () => {
-            rlast.current = 0
-            rappended.current += 2000
-            await rddbapi.current.eval(
-                'n = 2000\n' +
-                'for (i in 0..(n-1))\n' +
-                "    insert into prices values (now(), 'MSFT', rand(100, 1)[0])\n"
-            )
-        }}>测试添加一条数据 2000 次</Button></div>
-        
-        <div>应添加行数: {rappended.current}</div>
-        <div>实际的行数: {rreceived.current}</div>
-        <div>上面两个应该相等</div>
-        
-        <div style={{ margin: '10px 0px' }}>
-            自动添加数据: <Switch onChange={checked => {
-                rauto_append.current = checked
-                rerender({ })
-            }}/>
-        </div>
-        
+        <StreamingTableActions />
         
         <div className='table'>
             <AntTable

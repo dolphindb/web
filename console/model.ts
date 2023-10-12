@@ -131,6 +131,10 @@ export class DdbModel extends Model<DdbModel> {
         this.cdn = location.hostname === 'cdn.dolphindb.cn' || params.get('cdn') === '1'
         this.verbose = params.get('verbose') === '1'
         
+        // cdn 或开发模式下，浏览器误跳转到 https 链接，自动跳转回 http
+        if (location.protocol === 'https:' && (this.dev || this.cdn) && params.get('https') !== '1')
+            location.protocol = 'http:'
+        
         const port = params.get('port') || location.port
         
         this.ddb = new DDB(
@@ -180,13 +184,11 @@ export class DdbModel extends Model<DdbModel> {
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                if (this.dev) 
-                    try {
-                        await this.login_by_password('admin', '123456')
-                    } catch {
-                        console.log(t('使用 admin 账号密码登录失败'))
-                    }
-                
+                try {
+                    await this.login_by_password('admin', '123456')
+                } catch {
+                    console.log(t('使用默认 admin 账号密码登录失败'))
+                }
             }
         
         await this.get_cluster_perf(true)

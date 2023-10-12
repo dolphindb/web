@@ -7,7 +7,7 @@ import { PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-desig
 
 
 import { use_modal } from 'react-object-model/modal.js'
-import { genid } from 'xshell/utils.browser.js'
+import { delay, genid } from 'xshell/utils.browser.js'
 
 import { model } from '../model.js'
 import { t } from '../../i18n/index.js'
@@ -32,9 +32,15 @@ export function Overview () {
     useEffect(() => {
         (async () => {
             try {
+                if (!model.logined) {
+                    model.goto_login()
+                    return
+                }
+                
                 await dashboard.get_configs()
             } catch (error) {
                 model.show_error({ error })
+                throw error
             }
         })()
     }, [ ])

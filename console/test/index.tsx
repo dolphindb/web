@@ -12,10 +12,13 @@ export function Test () {
     return <div className='result page'>
         <StreamingTable
             ctx='page'
-            table='prices' 
+            table={new URLSearchParams(location.search).get('streaming-table') || 'prices'}
             url={url}
             username={username}
             password={password}
+            on_error={error => {
+                model.show_error({ error })
+            }}
         />
         {/* <StreamingTest /> */}
     </div>
