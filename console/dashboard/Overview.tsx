@@ -202,31 +202,9 @@ export function Overview () {
                     {
                         title: t('操作'),
                         dataIndex: '',
-                        key: 'delete',
-                        width: '200px',
+                        key: 'actions',
+                        width: 240,
                         render: ({ key }) => <div className='action'>
-                                <a
-                                    onClick={async () => {
-                                        try {
-                                            if (!configs.length) {
-                                                dashboard.message.error(t('当前 dashboard 列表为空'))
-                                                return
-                                            }
-                                            
-                                            dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
-                                            
-                                            await dashboard.save_configs_to_server()
-                                            
-                                            model.message.success(t('删除成功'))
-                                        } catch (error) {
-                                            model.show_error({ error })
-                                            throw error
-                                        }
-                                    }}
-                                >
-                                    {t('删除')}
-                                </a>
-                                
                                 <a
                                     onClick={() => {
                                         let current_row_config = configs.find(({ id }) => id === key)
@@ -256,12 +234,29 @@ export function Overview () {
                                 >
                                     {t('导出')}
                                 </a>
+                                
                                 <Popconfirm
-                                    title='删除 Dashboard'
-                                    description={`确定删除 ${configs.find(({ id }) => id === key).name} 吗`}
-                                    onConfirm={async () => handle_delete(key)}
-                                    okText='Yes'
-                                    cancelText='No'
+                                    title='删除'
+                                    description={`确定删除 ${configs.find(({ id }) => id === key).name} 吗？`}
+                                    onConfirm={async () => {
+                                        try {
+                                            if (!configs.length) {
+                                                dashboard.message.error(t('当前 dashboard 列表为空'))
+                                                return
+                                            }
+                                            
+                                            dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
+                                            
+                                            await dashboard.save_configs_to_server()
+                                            
+                                            model.message.success(t('删除成功'))
+                                        } catch (error) {
+                                            model.show_error({ error })
+                                            throw error
+                                        }
+                                    }}
+                                    okText={t('确认删除')}
+                                    cancelText={t('取消')}
                                 >
                                      <a  className='delete'>
                                         {t('删除')}
