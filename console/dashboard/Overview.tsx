@@ -2,7 +2,7 @@ import './Overview.sass'
 
 import { useEffect, useState } from 'react'
 
-import { Button, Input, Modal, Table, Upload } from 'antd'
+import { Button, Input, Modal, Table, Upload, Popconfirm } from 'antd'
 import { PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
 
 
@@ -16,15 +16,16 @@ import { type DashBoardConfig, dashboard } from './model.js'
 
 
 export function Overview () {
-    const { configs, config } = dashboard.use(['configs', 'config'])
-    
-    const [selected_dashboards, set_selected_dashboards] = useState([ ])
+    const { configs, config, users_to_share } = dashboard.use(['configs', 'config', 'users_to_share'])
+    const [selected_dashboard_ids, set_selected_dashboard_ids] = useState([ ])
+    const [selected_users, set_selected_users] = useState([ ])
     const [current_dashboard, set_current_dashboard] = useState(null)
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
     
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
+    const { visible: share_visible, open: share_open, close: share_close } = use_modal()
     
     const params = new URLSearchParams(location.search)
     
@@ -38,15 +39,15 @@ export function Overview () {
         })()
     }, [ ])
     
-    // useEffect(() => {
-    //     (async () => {
-    //         try {
-    //           await dashboard.get_users()
-    //         } catch (error) {
-    //             model.show_error({ error })
-    //         }
-    //     })()
-    // }, [ ])
+    useEffect(() => {
+        (async () => {
+            try {
+              await dashboard.get_users()
+            } catch (error) {
+                model.show_error({ error })
+            }
+        })()
+    }, [ ])
     
     
     useEffect(() => {
@@ -68,10 +69,10 @@ export function Overview () {
                 return
             }
             
-            /** 待接口更新后修改 */
             const new_dashboard = dashboard.generate_new_config(new_dashboard_name)
-            dashboard.set({ configs: configs ? [...configs, new_dashboard] : [new_dashboard] })
-            
+            dashboard.set({ configs: configs ? [...configs, new_dashboard] : [new_dashboard], config: new_dashboard })
+            model.set_query('dashboard', String(new_dashboard.id))
+            model.set({ header: false, sider: false })
             await dashboard.save_configs_to_server()
             
             model.message.success(t('添加成功'))
@@ -113,7 +114,6 @@ export function Overview () {
                 dashboard.message.error(t('当前 dashboard 列表为空'))
                 return
             }
-            
             dashboard.set({ configs: configs.filter(({ id }) => id !== dashboard_id) })
             
             await dashboard.save_configs_to_server()
@@ -124,6 +124,17 @@ export function Overview () {
             throw error
         }
     }
+    
+    async function handle_share () {
+        console.log('selected', selected_dashboard_ids, selected_users)
+        try {
+            dashboard.share(selected_dashboard_ids, selected_users)
+        } catch (error) {
+            model.show_error({ error })
+            throw error
+        }
+    }
+    
     
     return <div className='dashboard-overview'>
             <Modal
@@ -157,10 +168,34 @@ export function Overview () {
                     }}
                 />
             </Modal>
+            
+            <Modal
+                open={share_visible}
+                maskClosable={false}
+                onCancel={share_close}
+                onOk={handle_share}
+                closeIcon={false}
+                title={t('请选择需要分享的用户')}
+            >
+                <Table
+                    rowSelection={{
+                        onChange: (selectedRowKeys: React.Key[]) => {
+                            set_selected_users(selectedRowKeys)
+                        }
+                    }} 
+                    columns={[{ title: t('用户名'), dataIndex: 'user_name', key: 'user_name' }]}
+                    dataSource={users_to_share?.map(user => ({
+                                        key: user,
+                                        user_name: user
+                                        }))}
+                    pagination={false}
+                    />
+            </Modal>
+            
             <Table
                 rowSelection={{
                     onChange: (selectedRowKeys: React.Key[]) => {
-                        set_selected_dashboards(selectedRowKeys)
+                        set_selected_dashboard_ids(selectedRowKeys)
                     }
                 }}
                 columns={[
@@ -185,13 +220,6 @@ export function Overview () {
                         key: 'delete',
                         width: '200px',
                         render: ({ key }) => <div className='action'>
-                                <a
-                                    onClick={() => {
-                                        handle_delete(key)
-                                    }}
-                                >
-                                    {t('删除')}
-                                </a>
                                 <a
                                     onClick={() => {
                                         let current_row_config = configs.find(({ id }) => id === key)
@@ -220,6 +248,17 @@ export function Overview () {
                                 >
                                     {t('导出')}
                                 </a>
+                                <Popconfirm
+                                    title='删除 Dashboard'
+                                    description={`确定删除 ${configs.find(({ id }) => id === key).name} 吗`}
+                                    onConfirm={async () => handle_delete(key)}
+                                    okText='Yes'
+                                    cancelText='No'
+                                >
+                                     <a  className='delete'>
+                                        {t('删除')}
+                                    </a>
+                                </Popconfirm>
                             </div>
                     }
                 ]}
@@ -238,7 +277,7 @@ export function Overview () {
                                     set_new_dashboard_name(String(genid()).slice(0, 4))
                                 }}
                             >
-                                {t('新增')}
+                                {t('新建')}
                             </Button>
                             <Upload
                                 showUploadList={false}
@@ -256,7 +295,7 @@ export function Overview () {
                             >
                                 <Button icon={<UploadOutlined />}>{t('导入')}</Button>
                             </Upload>
-                            <Button icon={<ShareAltOutlined />}>{t('分享')}</Button>
+                            <Button icon={<ShareAltOutlined />} onClick={share_open}>{t('分享')}</Button>
                         </div>
                     </div>}
             />
