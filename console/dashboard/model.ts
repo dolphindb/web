@@ -4,7 +4,7 @@ import { Model } from 'react-object-model'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { DdbForm, type DdbVoid, type DdbObj, type DdbValue } from 'dolphindb/browser.js'
+import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbVectorString } from 'dolphindb/browser.js'
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
@@ -30,6 +30,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
     /** 当前 dashboard 配置 */
     config: DashBoardConfig
     
+    /** 可分享的用户 */
+    users_to_share: string[]
     
     /** GridStack.init 创建的 gridstack 实例 */
     grid: GridStack
@@ -364,27 +366,18 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 获取分享的用户列表 */
     async get_users () {
-        let users = ((await model.ddb.call<DdbObj>('get_users_to_share()')).value)
-        console.log('users', users)
-        return users
+        let users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
+        this.set({ users_to_share: users })
     }
     
     
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
-        let data = ((await model.ddb.call('get_dashboard_configs'))).to_dict() 
-        let configs_ = [ ]
-        const data_obj = Object.entries(data)
-        for (let [key, configs] of data_obj) 
-            for (let config of configs.value as string[]) 
-                configs_.push({ ...JSON.parse(config), owned: key === 'owned' })
-         
-        // console.log('configs_', configs_.map(config => ({ ...config, data: JSON.parse(config.data) })))
-        // const configs_ = data.map(config => JSON.parse(config)) 
-        /** owned 待后端更新后修改 */
-        this.set({ configs: configs_.map(config => ({ ...config, data: JSON.parse(config.data) })) })
-        const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
+        let data = ((await model.ddb.call('get_dashboard_configs'))).to_rows() 
         
+        this.set({ configs: data.map(config => ({ ...config, id: Number(config.id), data: JSON.parse(config.data) }) as DashBoardConfig) })
+        const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
+        console.log('configs:', this.configs)
         if (dashboard) {
             const config = this.configs.find(({ id }) =>  id === dashboard)
             if (config)
@@ -397,9 +390,10 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 将配置持久化保存到服务器 */
     async save_configs_to_server () {
-        const params = JSON.stringify({ configs: this.configs.map(config => ({ ...config, data: JSON.stringify(config.data) })) })
+        const params = JSON.stringify({ configs: this.configs.map(config => 
+                ({ ...config, data: JSON.stringify(config.data) })) })
         // const params = JSON.stringify({ configs: this.configs })
-        console.log(`set_dashboard_configs(${params})`)
+        
         await model.ddb.eval<DdbVoid>(`set_dashboard_configs(${params})`, { urgent: true })
     }
     
@@ -409,8 +403,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
         并存储到每一位 receiver 的 dashboard 数组中， 在后续调用 get_configs 拉取 receiver 的 dashboard 时，
         需要将分享过来的 dashboard 一起返回，并且将 owner 的值设置为 false
         */
+       await model.ddb.call<DdbVoid>('share_dashboard_configs',
+            [new DdbVectorLong(dashboard_ids), new DdbVectorString(receivers)], { urgent: true })
     }
-    
     
     show_error (options: ErrorOptions) {
         show_error(this.modal, options)

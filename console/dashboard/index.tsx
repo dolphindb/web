@@ -34,6 +34,7 @@ echarts.registerTheme('my-theme', config.theme)
     通过 GridStack.on('dropped', ...) 监听用户从外部添加拖拽 widget 到 GridStack 的事件  
     通过 GridStack.on('change', ...) 响应 GridStack 中 widget 的位置或尺寸变化的事件 */
 export function DashBoard () {
+    const config = dashboard.use(['config'])
     return new URLSearchParams(location.search).has('dashboard') ?
         <ConfigProvider
             theme={{
