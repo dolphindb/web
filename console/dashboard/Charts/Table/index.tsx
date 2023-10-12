@@ -72,7 +72,7 @@ export function DBTable (props: IProps) {
         
         return selected_cols
             .map((col: string) => {
-                const { width = 200, threshold } = col_properties.find(item => item.col === col)
+                const { width = 200, threshold } = col_properties?.find(item => item.col === col) ?? { }
                 
                 const col_config = {
                     dataIndex: col,

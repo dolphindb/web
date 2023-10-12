@@ -21,6 +21,8 @@ export function BasicTableFields ({ col_names }: { col_names: string[] } ) {
                     <Select mode='multiple' options={convert_list_to_options(col_names)} />
                 </Form.Item>
                 
+                <Divider />
+                
                 <FormDependencies dependencies={['show_cols']}>
                     {value => {
                         const { show_cols = [ ] } = value
@@ -43,6 +45,8 @@ export function BasicTableFields ({ col_names }: { col_names: string[] } ) {
                                     {fields.length < show_cols.length && <Button type='dashed' icon={<PlusCircleOutlined />} block onClick={() => { add() }}>{t('增加映射')}</Button>}
                                 </>}
                             </Form.List>
+                            
+                            <Divider />
                             
                             <div className='value-format-wrapper'>
                                 <Form.Item label={t('数值格式化')} name='need_value_format' initialValue={false}>
