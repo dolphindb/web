@@ -134,7 +134,9 @@ export function Overview () {
     async function handle_share () {
         console.log('selected', selected_dashboard_ids, selected_users)
         try {
-            dashboard.share(selected_dashboard_ids, selected_users)
+            await dashboard.share(selected_dashboard_ids, selected_users)
+            model.message.success(t('分享成功'))
+            share_close()
         } catch (error) {
             model.show_error({ error })
             throw error

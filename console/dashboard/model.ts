@@ -373,17 +373,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
-        let data = ((await model.ddb.call('get_dashboard_configs'))).to_dict() 
-        let configs_ = [ ]
-        const data_obj = Object.entries(data)
-        for (let [key, configs] of data_obj) 
-            for (let config of configs.value as string[]) 
-                configs_.push({ ...JSON.parse(config), owned: key === 'owned' })
-         
-        // console.log('configs_', configs_.map(config => ({ ...config, data: JSON.parse(config.data) })))
-        // const configs_ = data.map(config => JSON.parse(config)) 
-        /** owned 待后端更新后修改 */
-        this.set({ configs: configs_.map(config => ({ ...config, data: JSON.parse(config.data) })) })
+        let data = ((await model.ddb.call('get_dashboard_configs'))).to_rows() 
+        
+        this.set({ configs: data.map(config => ({ ...config, id: Number(config.id), data: JSON.parse(config.data) }) as DashBoardConfig) })
         const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
         console.log('configs:', this.configs)
         if (dashboard) {
