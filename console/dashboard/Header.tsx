@@ -270,11 +270,16 @@ export function Header () {
                 <Upload
                     showUploadList={false}
                     beforeUpload={async file => {
-                        dashboard.update_config(
-                            JSON.parse(await file.text()) as DashBoardConfig
-                        )
-                        
-                        return false
+                        try {
+                            dashboard.update_config(
+                                JSON.parse(await file.text()) as DashBoardConfig
+                            )
+                            
+                            return false
+                        } catch (error) {
+                            dashboard.show_error({ error })
+                            throw error
+                        }
                     }}
                 >
                     <Button className='action'>
