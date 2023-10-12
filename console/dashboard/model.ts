@@ -377,7 +377,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         this.set({ configs: data.map(config => ({ ...config, id: Number(config.id), data: JSON.parse(config.data) }) as DashBoardConfig) })
         const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
-        console.log('configs:', this.configs)
         if (dashboard) {
             const config = this.configs.find(({ id }) =>  id === dashboard)
             if (config)

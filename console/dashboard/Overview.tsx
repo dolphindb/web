@@ -191,7 +191,7 @@ export function Overview () {
                         render: (text, record) => <a
                                 onClick={() => {
                                     const config = configs.find(({ id }) => id === record.key)
-                                    dashboard.set({ config })
+                                    dashboard.set({ config, editing: false })
                                     model.set_query('dashboard', String(config.id))
                                     model.set({ header: false, sider: false })
                                 }}
