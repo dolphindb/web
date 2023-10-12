@@ -238,6 +238,11 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     
     
     return {
+        grid: {
+            containLabel: true,
+            left: 0,
+            bottom: 0
+        },
         legend: {
             show: with_legend,
             textStyle: {
