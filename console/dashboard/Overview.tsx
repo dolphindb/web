@@ -20,6 +20,7 @@ export function Overview () {
     const [selected_dashboard_ids, set_selected_dashboard_ids] = useState([ ])
     const [selected_users, set_selected_users] = useState<string[]>([ ])
     const [current_dashboard, set_current_dashboard] = useState(null)
+    const [new_dashboard_id, set_new_dashboard_id] = useState<number>()
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
     
@@ -58,8 +59,10 @@ export function Overview () {
     
     useEffect(() => {
         if (params.get('create') === '1') {
+            const new_id = genid()
+            set_new_dashboard_id(new_id)                
+            set_new_dashboard_name(String(new_id).slice(0, 4))
             creator.open()
-            set_new_dashboard_name(String(genid()).slice(0, 4))
         }
     }, [ ])
     
@@ -82,7 +85,7 @@ export function Overview () {
                         }
                         
                         /** 待接口更新后修改 */
-                        const new_dashboard = dashboard.generate_new_config(new_dashboard_name)
+                        const new_dashboard = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
                         dashboard.set({ configs: configs ? [...configs, new_dashboard] : [new_dashboard] })
                         
                         model.set_query('dashboard', String(new_dashboard.id))
@@ -273,7 +276,9 @@ export function Overview () {
                             <Button
                                 icon={<PlusCircleOutlined />}
                                 onClick={() => {
-                                    set_new_dashboard_name(String(genid()).slice(0, 4))
+                                    const new_id = genid()
+                                    set_new_dashboard_id(new_id)                
+                                    set_new_dashboard_name(String(new_id).slice(0, 4))
                                     creator.open()
                                 }}
                             >

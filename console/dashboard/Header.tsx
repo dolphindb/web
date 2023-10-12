@@ -42,6 +42,7 @@ interface DashboardOption {
 
 export function Header () {
     const { editing, widgets, configs, config } = dashboard.use(['editing', 'widgets', 'configs', 'config'])
+    const [new_dashboard_id, set_new_dashboard_id] = useState<number>()
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
@@ -91,7 +92,7 @@ export function Header () {
                 return 
             }
             
-            await dashboard.update_config(dashboard.generate_new_config(new_dashboard_name))
+            await dashboard.update_config(dashboard.generate_new_config(new_dashboard_id, new_dashboard_name))
             
             await dashboard.save_configs_to_server()
             
@@ -222,8 +223,10 @@ export function Header () {
                 <Button
                     className='action'
                     onClick={() => {
+                        const new_id = genid()
+                        set_new_dashboard_id(new_id)                
+                        set_new_dashboard_name(String(new_id).slice(0, 4))
                         add_open()
-                        set_new_dashboard_name(String(genid()).slice(0, 4))
                     }}
                 >
                     <FileOutlined />
