@@ -50,16 +50,16 @@ export function DashBoard () {
             }}
         >
             <App className='app'>
-                <MainLayout />
+                <DashboardInstance />
             </App>
         </ConfigProvider>
     :
-        <Overview/>
+        <Overview />
 }
 
 
-function MainLayout () {
-    const { widgets, editing, config, widget } = dashboard.use(['widgets', 'editing', 'config', 'widget'])
+function DashboardInstance () {
+    const { widgets, editing } = dashboard.use(['widgets', 'editing'])
     
     /** div ref, 用于创建 GridStack  */
     let rdiv = useRef<HTMLDivElement>()
