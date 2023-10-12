@@ -1,3 +1,5 @@
+import './index.scss'
+
 import { Checkbox, type PaginationProps, Table, type TableProps, Empty } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 import { genid } from 'xshell/utils.browser.js'
@@ -7,7 +9,9 @@ import { BasicTableFields } from '../../ChartFormFields/BasicTableFields.js'
 import { type Widget } from '../../model.js'
 import { type ITableConfig } from '../../type.js'
 
-import './index.scss'
+import cn from 'classnames'
+import { type ColumnsType } from 'antd/es/table'
+import { isNumber } from 'lodash'
 
 
 interface IProps extends TableProps<any> { 
@@ -20,6 +24,28 @@ function format_value (val, decimal_places = 4) {
         return val
     else
         return parseFloat(Number(val).toFixed(decimal_places))
+}
+
+function get_cell_color (val, threshold, total) { 
+    if (isNumber(val) && isNumber(threshold)) { 
+        const low_to_threshold_list = total.filter(item => item < threshold).sort()
+        const low_to_threshold_min = low_to_threshold_list[0]
+    
+        const high_to_threshold_list = total.filter(item => item >= threshold).sort()
+        const high_to_threshold_max = high_to_threshold_list.pop()
+        
+        if (val >= threshold) {
+            const transparency = ((val - threshold) / (high_to_threshold_max - threshold)) * 0.9 + 0.1
+            return `rgba(255,0,0,${transparency})`
+        }
+        else { 
+            const transparency = 1 - ((threshold - val) / (threshold - low_to_threshold_min)) * 0.9 + 0.1
+            return `rgba(13,114,1,${transparency})`
+        }
+    
+    }
+    else
+        return null
 }
 
 
@@ -41,23 +67,36 @@ export function DBTable (props: IProps) {
         }))
     }, [config])
     
-    const columns = useMemo(() => {
-        const { col_mappings, value_format } = config
+    const columns = useMemo<ColumnsType<any>>(() => {
+        const { col_mappings, value_format, col_properties } = config
+        
         return selected_cols
             .map((col: string) => {
+                const { width = 200, threshold } = col_properties.find(item => item.col === col)
+                
                 const col_config = {
                     dataIndex: col,
+                    width,
                     title: col_mappings.find(item => item?.original_col === col)?.mapping_name?.trim() || col,
                     key: col,
-                    render: (_, record) => typeof record[col] === 'number' ? record[col] : record[col] || '-'
+                    ellipsis: true,
+                    onCell: record => { 
+                        return {
+                            style: { backgroundColor: get_cell_color(record[col], threshold, data_source.map(item => item[col])) }
+                        }
+                    },
+                    render: val => typeof val === 'number' ? val : val || '-' 
                 }
                 
                 if (value_format?.cols?.includes(col))
-                    return { ...col_config, render: val => format_value(val, value_format?.decimal_places) }
+                    return {
+                        ...col_config,
+                        render: val => format_value(val, value_format?.decimal_places)
+                    }
                 return col_config
+               
             })
-    }, [config, selected_cols])
-    
+    }, [config, selected_cols, data_source])
     
     const pagination = useMemo<PaginationProps | false>(() => { 
         if (!config.pagination.show)
@@ -72,7 +111,7 @@ export function DBTable (props: IProps) {
                 showSizeChanger: true,
                 showQuickJumper: true
             }
-    }, [config])
+    }, [config, data_source])
     
     
     return <div className='dashboard-table-wrapper'>
