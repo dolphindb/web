@@ -59,14 +59,19 @@ export interface IChartConfig {
     series: ISeriesConfig[]
 }
 
-export interface ITableConfig { 
+export interface ITableConfig {
     title?: string
     title_size?: number
     bordered: boolean
     show_cols: string[]
-    col_mappings: { 
+    col_mappings: {
         original_col: string
         mapping_name: string
+    }[]
+    col_properties: {
+        col: string
+        width?: number
+        threshold?: number
     }[]
     pagination: {
         show: boolean

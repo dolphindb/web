@@ -1,12 +1,13 @@
 import './index.scss'
 
-import { Button, Collapse, Form, Input, InputNumber, Select, Space } from 'antd'
+import { Button, Collapse, Divider, Form, Input, InputNumber, Select, Space } from 'antd'
 
 import { t } from '../../../i18n/index.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { convert_list_to_options } from '../utils.js'
+import { type CollapseProps } from 'antd/lib'
 
 
 export function BasicTableFields ({ col_names }: { col_names: string[] } ) {
@@ -62,6 +63,31 @@ export function BasicTableFields ({ col_names }: { col_names: string[] } ) {
                                     } }
                                 </FormDependencies>
                             </div>
+                            
+                            <Divider />
+                            
+                            <div className='col-mapping-title'>{t('列属性')}</div>
+                            <Form.List name='col_properties' initialValue={col_names.map(item => ({ col: item }))}>
+                                {fields => { 
+                                    const items: CollapseProps['items'] = fields.map(field => ({
+                                        key: field.name,
+                                        label: col_names[field.name],
+                                        children: <>
+                                            <Form.Item name={[field.name, 'col']} hidden>
+                                                <Input />
+                                            </Form.Item>
+                                            <Form.Item label={t('列宽')} name={[field.name, 'width']}>
+                                                <InputNumber addonAfter='px'/>
+                                            </Form.Item>
+                                            <Form.Item label={t('阈值')} tooltip={t('数值列可设置阈值，设置之后后超过阈值的数值展示为红色，低于阈值则展示为绿色，非数值列不生效')} name={[field.name, 'threshold']}>
+                                                <InputNumber />
+                                            </Form.Item>
+                                        </>,
+                                        forceRender: true
+                                    }))
+                                    return <Collapse items={items} size='small'/>
+                                }}
+                            </Form.List>
                         </>
                     }}
                 </FormDependencies>
