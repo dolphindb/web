@@ -9,9 +9,9 @@ import { BasicTableFields } from '../../ChartFormFields/BasicTableFields.js'
 import { type Widget } from '../../model.js'
 import { type ITableConfig } from '../../type.js'
 
-import cn from 'classnames'
 import { type ColumnsType } from 'antd/es/table'
 import { isNumber } from 'lodash'
+import { safe_json_parse } from '../../utils.js'
 
 
 interface IProps extends TableProps<any> { 
@@ -19,11 +19,19 @@ interface IProps extends TableProps<any> {
     data_source: any[]
 }
 
-function format_value (val, decimal_places = 4) { 
-    if (isNaN(Number(val)))
-        return val
-    else
+
+
+function format_value (val: any, decimal_places = 4) {
+    if (typeof val === 'number' || !isNaN(Number(val)))
         return parseFloat(Number(val).toFixed(decimal_places))
+    else if (typeof val === 'string') { 
+        const arr = safe_json_parse(val)
+        if (Array.isArray(arr))
+            return JSON.stringify(arr.map(item => format_value(item, decimal_places)))
+        return val
+    }
+    else 
+        return val
 }
 
 function get_cell_color (val, threshold, total) { 
@@ -51,52 +59,51 @@ function get_cell_color (val, threshold, total) {
 
 export function DBTable (props: IProps) {
     const { widget, data_source = [ ], ...otherProps } = props
+    const [selected_cols, set_select_cols] = useState([ ])
     
     const config = widget.config as ITableConfig
     
-    const [selected_cols, set_select_cols] = useState([ ])
+    const show_cols = useMemo(() => config.col_properties.filter(item => item.show), [config.col_properties])
     
-    
-    useEffect(() => { set_select_cols(config.show_cols) }, [config])
+    useEffect(() => { set_select_cols(show_cols?.map(item => item.col)) }, [show_cols])
     
     const radio_group_options = useMemo(() => {
-        return config.show_cols?.map(col => ({
-            label: config.col_mappings.find(item => item?.original_col === col)?.mapping_name?.trim() || col,
-            value: col,
-            key: col
+        return show_cols?.map(col => ({
+            label: col.display_name || col.col,
+            value: col.col,
+            key: col.col
         }))
-    }, [config])
+    }, [show_cols])
     
     const columns = useMemo<ColumnsType<any>>(() => {
-        const { col_mappings, value_format, col_properties } = config
-        
         return selected_cols
-            .map((col: string) => {
-                const { width = 200, threshold } = col_properties?.find(item => item.col === col) ?? { }
+            .map(col_name => show_cols.find(item => item.col === col_name))
+            .map(col => {
+                const { col: name, width = 200, threshold, display_name, with_value_format, decimal_places } = col ?? { }
                 
                 const col_config = {
-                    dataIndex: col,
+                    dataIndex: name,
                     width,
-                    title: col_mappings.find(item => item?.original_col === col)?.mapping_name?.trim() || col,
-                    key: col,
+                    title: display_name || name,
+                    key: name,
                     ellipsis: true,
                     onCell: record => { 
                         return {
-                            style: { backgroundColor: get_cell_color(record[col], threshold, data_source.map(item => item[col])) }
+                            style: { backgroundColor: get_cell_color(record[name], threshold, data_source.map(item => item[col.col])) }
                         }
                     },
                     render: val => typeof val === 'number' ? val : val || '-' 
                 }
                 
-                if (value_format?.cols?.includes(col))
+                if (with_value_format)
                     return {
                         ...col_config,
-                        render: val => format_value(val, value_format?.decimal_places)
+                        render: val => format_value(val, decimal_places)
                     }
                 return col_config
                
             })
-    }, [config, selected_cols, data_source])
+    }, [config, selected_cols, data_source, show_cols])
     
     const pagination = useMemo<PaginationProps | false>(() => { 
         if (!config.pagination.show)
@@ -115,13 +122,20 @@ export function DBTable (props: IProps) {
     
     
     return <div className='dashboard-table-wrapper'>
-        {config.title && <h2 style={{ fontSize: config.title_size || 18 }} className='table-title'>{config.title}</h2>}
+        {
+            config.title && <h2
+                style={{ fontSize: config.title_size }}
+                className='table-title'
+            >
+                {config.title}
+            </h2>
+        }
         
-        {config.need_select_cols && <Checkbox.Group
+        { config.need_select_cols && <Checkbox.Group
             onChange={ val => { set_select_cols(val) }  }
             value={selected_cols}
             options={radio_group_options}
-            className='table-radio-group' />}
+            className='table-radio-group' /> }
         
         {
             selected_cols?.length ?

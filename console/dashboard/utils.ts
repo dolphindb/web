@@ -304,3 +304,12 @@ export function to_chart_data (data: DdbValue, datatype: DdbType) {
             return Number(data)
     }
 }
+
+
+export function safe_json_parse (val) { 
+    try {
+        return JSON.parse(val)
+    } catch (e) { 
+        return val
+    }
+}
