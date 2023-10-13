@@ -70,7 +70,6 @@ export function Overview () {
     return <div className='dashboard-overview'>
             <Modal
                 open={creator.visible}
-                maskClosable={false}
                 onCancel={creator.close}
                 onOk={async () => {
                     try {
@@ -102,7 +101,6 @@ export function Overview () {
                     
                     creator.close()
                 }}
-                closeIcon={false}
                 title={t('请输入 dashboard 的名称')}
             >
                 <Input
@@ -115,7 +113,6 @@ export function Overview () {
             
             <Modal
                 open={editor.visible}
-                maskClosable={false}
                 onCancel={editor.close}
                 onOk={async () => {
                     try {
@@ -141,7 +138,6 @@ export function Overview () {
                         throw error
                     }
                 }}
-                closeIcon={false}
                 title={t('请输入新的 dashboard 名称')}
             >
                 <Input
@@ -154,7 +150,6 @@ export function Overview () {
             
             <Modal
                 open={sharor.visible}
-                maskClosable={false}
                 onCancel={sharor.close}
                 onOk={async () => {
                     try {
@@ -166,7 +161,6 @@ export function Overview () {
                         throw error
                     }
                 }}
-                closeIcon={false}
                 title={t('请选择需要分享的用户')}
             >
                 <Table
