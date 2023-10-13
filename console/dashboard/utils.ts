@@ -12,6 +12,14 @@ import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import dayjs from 'dayjs'
 import { get_variable_value, subscribe_variable } from './Variable/variable.js'
 
+export function format_time (time: string, format: string) { 
+    try {
+        return dayjs(time).format(format)
+    } catch (e) { 
+        return time
+    }
+}
+
 function formatter (type, value, le, index?, values?) {
     switch (type) {
         case DdbType.bool: {
@@ -168,8 +176,9 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     
     function convert_axis (axis: AxisConfig, index?: number) {
         let data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
-        if (axis.type === AxisType.TIME)  
-            data = data.map(item => dayjs(item).format('YYYY-MM-DD HH:mm:ss'))
+        
+        if (axis.time_format)  
+            data = data.map(item => format_time(item, axis.time_format))
         
         return {
             show: true,
@@ -212,7 +221,6 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             name: series.name,
             symbol: 'none',
             stack: series.stack,
-            stackStrategy: series.stack_strategy,
             // 防止删除yAxis导致渲染失败
             yAxisIndex: yAxis[series.yAxisIndex] ?  series.yAxisIndex : 0,
             data,

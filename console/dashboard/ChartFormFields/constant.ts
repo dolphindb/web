@@ -1,7 +1,7 @@
 import { t } from '../../../i18n/index.js'
 import { WidgetChartType, WidgetType } from '../model.js'
 
-import { AxisType, ILineType, IStackStrategy, MarkPresetType, Position } from './type.js'
+import { AxisType, ILineType, ITimeFormat, MarkPresetType, Position } from './type.js'
 
 export const axis_type_options = [{
     label: t('数据轴'),
@@ -59,11 +59,6 @@ export const line_type_options = [
 ]
 
 
-export const stack_strategy_options = Object.keys(IStackStrategy).map(item => ({
-    label: item,
-    value: item
-}))
-
 export const chart_type_options = [
     {
         label: WidgetType.BAR,
@@ -73,4 +68,27 @@ export const chart_type_options = [
         label: WidgetType.LINE,
         value:  WidgetChartType.LINE
     }
+]
+
+
+
+
+export const format_time_options = [
+    {
+        label: t('精确到日期'),
+        value: ITimeFormat.DATE, 
+    },
+    {
+        label: t('精确到小时'),
+        value: ITimeFormat.HOUR,
+    },
+    {
+        label: t('精确到分钟'),
+        value: ITimeFormat.MINUTE,
+    },
+    {
+        label: t('精确到秒'),
+        value: ITimeFormat.SECOND
+    }
+    
 ]

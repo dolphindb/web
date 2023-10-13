@@ -11,7 +11,7 @@ import { type ITableConfig } from '../../type.js'
 
 import { type ColumnsType } from 'antd/es/table'
 import { isNumber } from 'lodash'
-import { safe_json_parse } from '../../utils.js'
+import { format_time, safe_json_parse } from '../../utils.js'
 
 
 interface IProps extends TableProps<any> { 
@@ -22,12 +22,17 @@ interface IProps extends TableProps<any> {
 
 
 function format_value (val: any, decimal_places = 4) {
-    if (typeof val === 'number' || !isNaN(Number(val)))
-        return parseFloat(Number(val).toFixed(decimal_places))
+    if (typeof val === 'number' || !isNaN(Number(val))) { 
+        // 0 不需要格式化
+        if (Number(val) === 0)
+            return 0
+        return val.toFixed(decimal_places)
+    }
+        
     else if (typeof val === 'string') { 
         const arr = safe_json_parse(val)
         if (Array.isArray(arr))
-            return JSON.stringify(arr.map(item => format_value(item, decimal_places)))
+            return JSON.stringify(arr.map(item => format_value(item, decimal_places))).replace(/\"/g, '')
         return val
     }
     else 
@@ -63,7 +68,7 @@ export function DBTable (props: IProps) {
     
     const config = widget.config as ITableConfig
     
-    const show_cols = useMemo(() => config.col_properties.filter(item => item.show), [config.col_properties])
+    const show_cols = useMemo(() => config?.col_properties?.filter(item => item?.show) ?? [ ], [config.col_properties])
     
     useEffect(() => { set_select_cols(show_cols?.map(item => item.col)) }, [show_cols])
     
@@ -79,7 +84,7 @@ export function DBTable (props: IProps) {
         return selected_cols
             .map(col_name => show_cols.find(item => item.col === col_name))
             .map(col => {
-                const { col: name, width = 200, threshold, display_name, with_value_format, decimal_places } = col ?? { }
+                const { col: name, width = 200, threshold, display_name, with_value_format, decimal_places, time_format } = col ?? { }
                 
                 const col_config = {
                     dataIndex: name,
@@ -89,11 +94,18 @@ export function DBTable (props: IProps) {
                     ellipsis: true,
                     onCell: record => { 
                         return {
-                            style: { backgroundColor: get_cell_color(record[name], threshold, data_source.map(item => item[col.col])) }
+                            style: { backgroundColor: get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])) }
                         }
                     },
                     render: val => typeof val === 'number' ? val : val || '-' 
                 }
+                
+                if (time_format)  
+                    return {
+                        ...col_config,
+                        render: val => format_time(val, time_format)
+                    }
+                
                 
                 if (with_value_format)
                     return {
@@ -103,7 +115,7 @@ export function DBTable (props: IProps) {
                 return col_config
                
             })
-    }, [config, selected_cols, data_source, show_cols])
+    }, [ selected_cols, data_source, show_cols])
     
     const pagination = useMemo<PaginationProps | false>(() => { 
         if (!config.pagination.show)

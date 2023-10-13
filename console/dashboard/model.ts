@@ -220,6 +220,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         return {
             id,
             name: name || String(id_).slice(0, 4),
+            owned: true,
             data: {
                 datasources: [ ],
                 variables: [ ],
@@ -378,6 +379,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         this.set({ configs: data.map(config => ({ ...config, id: Number(config.id), data: JSON.parse(config.data) }) as DashBoardConfig) })
         const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
+        console.log(dashboard, this.configs, '测试')
         if (dashboard) {
             const config = this.configs.find(({ id }) =>  id === dashboard)
             if (config)
