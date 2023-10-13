@@ -21,17 +21,22 @@ export function DBDescriptions (props: IProps) {
     
     const config = useMemo(() => widget.config as IDescriptionsConfig, [widget.config])
     
-    
     const items = useMemo<DescriptionsProps['items']>(() => { 
         return data_source.map((item, idx) => {
-            const color = config.value_colors.find(color => color?.col === item[config.label_col])?.color 
+            let color = '#fff'
+            if (config.threshold)
+                color = item[config.value_col] > config.threshold ? 'red' : 'green'
+            color = config.value_colors.find(color => color?.col === item[config.label_col])?.color ?? color
+            
             return {
                 key: idx,
                 label: item[config.label_col],
                 children: item[config.value_col],
+                labelStyle: { fontSize: config.label_font_size },
                 contentStyle: {
                     fontWeight: 500,
-                    color
+                    color,
+                    fontSize: config.value_font_size
                 }
             }
             
@@ -57,6 +62,18 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
         </Form.Item>
         <Form.Item name='value_col' label='值列' initialValue={col_names[0]}>
             <Select options={convert_list_to_options(col_names)} />
+        </Form.Item>
+        
+        <Form.Item name='threshold' label='阈值' tooltip='自定义颜色优先级高于阈值色'>
+            <InputNumber />
+        </Form.Item>
+        
+        <Form.Item name='label_font_size' label='标签字号'>
+            <InputNumber addonAfter='px'/>
+        </Form.Item>
+        
+        <Form.Item name='value_font_size' label='值字号'>
+            <InputNumber addonAfter='px'/>
         </Form.Item>
         
         <Form.Item name='column_num' label='每行展示数量' initialValue={4}>

@@ -21,22 +21,29 @@ interface IProps extends TableProps<any> {
 
 
 
-function format_value (val: any, decimal_places = 4) {
+function format_value (val: any, decimal_places = 4, is_thousandth_place) {
+    let value = val
     if (typeof val === 'number' || !isNaN(Number(val))) { 
         // 0 不需要格式化
         if (Number(val) === 0)
             return 0
-        return val.toFixed(decimal_places)
+        value =  val.toFixed(decimal_places)
     }
         
     else if (typeof val === 'string') { 
         const arr = safe_json_parse(val)
         if (Array.isArray(arr))
-            return JSON.stringify(arr.map(item => format_value(item, decimal_places))).replace(/\"/g, '')
-        return val
+            value =  JSON.stringify(arr.map(item => format_value(item, decimal_places, is_thousandth_place))).replace(/\"/g, '')
     }
-    else 
-        return val
+    
+    if (is_thousandth_place) { 
+        console.log(is_thousandth_place, value)
+         value = value.replace(/\B(?=(\d{3})+(?=\.))/g, ',')
+    }
+       
+    
+    return value
+        
 }
 
 function get_cell_color (val, threshold, total) { 
@@ -84,7 +91,7 @@ export function DBTable (props: IProps) {
         return selected_cols
             .map(col_name => show_cols.find(item => item.col === col_name))
             .map(col => {
-                const { col: name, width = 200, threshold, display_name, with_value_format, decimal_places, time_format } = col ?? { }
+                const { col: name, width = 200, threshold, display_name, with_value_format, decimal_places, time_format, is_thousandth_place } = col ?? { }
                 
                 const col_config = {
                     dataIndex: name,
@@ -110,7 +117,7 @@ export function DBTable (props: IProps) {
                 if (with_value_format)
                     return {
                         ...col_config,
-                        render: val => format_value(val, decimal_places)
+                        render: val => format_value(val, decimal_places, is_thousandth_place)
                     }
                 return col_config
                
