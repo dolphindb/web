@@ -24,7 +24,7 @@ export function DBDescriptions (props: IProps) {
     const items = useMemo<DescriptionsProps['items']>(() => { 
         return data_source.map((item, idx) => {
             let color = '#fff'
-            if (config.threshold)
+            if (config.threshold || config.threshold === 0)
                 color = item[config.value_col] > config.threshold ? 'red' : 'green'
             color = config.value_colors.find(color => color?.col === item[config.label_col])?.color ?? color
             
