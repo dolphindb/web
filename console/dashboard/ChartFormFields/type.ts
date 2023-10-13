@@ -45,9 +45,9 @@ export enum ILineType {
 }
 
 
-export enum IStackStrategy { 
-    SAMESIGN = 'samesign',
-    ALL = 'all',
-    POSITIVE = 'positive',
-    NEGATIVE = 'negative'
+export enum ITimeFormat { 
+    DATE = 'YYYY-MM-DD',
+    HOUR = 'YYYY-MM-DD HH',
+    MINUTE = 'YYYY-MM-DD HH:mm',
+    SECOND = 'YYYY-MM-DD HH:mm:ss'
 }

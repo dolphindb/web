@@ -10,7 +10,7 @@ import { FormDependencies } from '../../components/formily/FormDependcies/index.
 import { AxisType, type IAxisItem, ILineType, type IYAxisItemValue } from './type.js'
 
 
-import { axis_position_options, axis_type_options, chart_type_options, line_type_options, mark_line_options, mark_point_options, stack_strategy_options } from './constant.js'
+import { axis_position_options, axis_type_options, chart_type_options, format_time_options, line_type_options, mark_line_options, mark_point_options } from './constant.js'
 import { WidgetChartType, dashboard } from '../model.js'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 
@@ -47,10 +47,18 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                             <InputNumber />
                         </Form.Item>
                     case AxisType.TIME:
-                    case AxisType.CATEGORY:
-                        return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
-                            <Select options={convert_list_to_options(col_names)} />
+                        <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
+                            <Select options={format_time_options} />
                         </Form.Item>
+                    case AxisType.CATEGORY:
+                        return <>
+                            <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
+                                <Select options={convert_list_to_options(col_names)} />
+                            </Form.Item>
+                            <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
+                                <Select options={format_time_options} />
+                            </Form.Item>
+                        </>
                     default: 
                         return null
                 }

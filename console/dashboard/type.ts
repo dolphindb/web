@@ -1,14 +1,18 @@
-import { type AxisType, type ILineType, type IStackStrategy, type Position } from './ChartFormFields/type.js'
+import { type ITimeFormat, type AxisType, type ILineType, type Position } from './ChartFormFields/type.js'
 
 export interface AxisConfig { 
     name: string
     type: AxisType
     // 时间轴与类目轴特有
     col_name: string
+    time_format?: string
+    
+    
     position?: Position
     offset?: number
     // 对数轴特有
     log_base?: number
+    
 }
 
 export interface ISeriesConfig {
@@ -21,7 +25,6 @@ export interface ISeriesConfig {
     line_type: ILineType
     // 柱状图是否堆叠
     stack?: string
-    stack_strategy?: IStackStrategy
     
     // 颜色
     color?: string
@@ -59,27 +62,24 @@ export interface IChartConfig {
     series: ISeriesConfig[]
 }
 
+export interface IColProperty { 
+    col: string
+    width?: number
+    threshold?: number
+    show: boolean
+    with_value_format: boolean
+    decimal_places?: number
+    display_name?: string
+    time_format?: ITimeFormat
+}
 export interface ITableConfig {
     title?: string
     title_size?: number
     bordered: boolean
-    show_cols: string[]
-    col_mappings: {
-        original_col: string
-        mapping_name: string
-    }[]
-    col_properties: {
-        col: string
-        width?: number
-        threshold?: number
-    }[]
+    col_properties: IColProperty[]
     pagination: {
         show: boolean
         pagesize: number
-    }
-    value_format?: {
-        cols: string[]
-        decimal_places: number
     }
     need_select_cols: boolean
 }

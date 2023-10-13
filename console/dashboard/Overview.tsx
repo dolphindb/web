@@ -70,7 +70,6 @@ export function Overview () {
     return <div className='dashboard-overview'>
             <Modal
                 open={creator.visible}
-                maskClosable={false}
                 onCancel={creator.close}
                 onOk={async () => {
                     try {
@@ -86,6 +85,7 @@ export function Overview () {
                         
                         /** 待接口更新后修改 */
                         const new_dashboard = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
+                        console.log(configs ? [...configs, new_dashboard] : [new_dashboard], 'new_dashboard')
                         dashboard.set({ configs: configs ? [...configs, new_dashboard] : [new_dashboard] })
                         await dashboard.save_configs_to_server()
                         model.set_query('dashboard', String(new_dashboard.id))
@@ -98,7 +98,6 @@ export function Overview () {
                     
                     creator.close()
                 }}
-                closeIcon={false}
                 title={t('请输入 dashboard 的名称')}
             >
                 <Input
@@ -111,7 +110,6 @@ export function Overview () {
             
             <Modal
                 open={editor.visible}
-                maskClosable={false}
                 onCancel={editor.close}
                 onOk={async () => {
                     try {
@@ -137,7 +135,6 @@ export function Overview () {
                         throw error
                     }
                 }}
-                closeIcon={false}
                 title={t('请输入新的 dashboard 名称')}
             >
                 <Input
@@ -150,7 +147,6 @@ export function Overview () {
             
             <Modal
                 open={sharor.visible}
-                maskClosable={false}
                 onCancel={sharor.close}
                 onOk={async () => {
                     try {
@@ -162,7 +158,6 @@ export function Overview () {
                         throw error
                     }
                 }}
-                closeIcon={false}
                 title={t('请选择需要分享的用户')}
             >
                 <Table
