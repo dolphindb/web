@@ -123,9 +123,9 @@ export function default_value_in_select (
         : select_list[0].value
 }
 
-export function parse_code (data_source: DataSource): string {
+export function parse_code (data_source: DataSource, type: 'code' | 'filter_condition' | 'extra_filter_condition'): string {
     try {
-        let code = data_source.code.replace(/\{\{(.*?)\}\}/g, function (match, variable) {
+        let code = data_source[type].replace(/\{\{(.*?)\}\}/g, function (match, variable) {
             subscribe_variable(data_source, variable)
             return get_variable_value(variable.trim())
         })

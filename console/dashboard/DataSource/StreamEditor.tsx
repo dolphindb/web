@@ -64,8 +64,8 @@ export function StreamEditor ({
             }  else 
                 change_current_data_source_property('stream_table', '', false)
                 
-            if (dashboard.editor)
-                dashboard.editor?.setValue(current_data_source.code)
+            if (dashboard.filter_editor)
+                dashboard.filter_editor?.setValue(current_data_source.code)
             
             if (current_data_source.mode === get_data_source(current_data_source.id).mode)
                 change_no_save_flag(false)
@@ -126,7 +126,7 @@ export function StreamEditor ({
                         />
                     </div>
                     <div className='streameditor-main-right'>
-                        <div className='preview' style={{ height: current_data_source.filter ? '60%' : '100%' }}>
+                        <div className='preview' style={{ height: current_data_source.filter ? '40%' : '100%' }}>
                             <div className='preview-config'>
                                 <div className='preview-config-tag'>
                                     {`列名预览（共${current_data_source.cols.length}列）：`}
@@ -160,44 +160,64 @@ export function StreamEditor ({
                             </div>
                         </div>
                         {current_data_source.filter
-                            ? <div className='streameditor-main-right-filter'>
-                                <div className='streameditor-main-right-filter-top'>
-                                    <div className='streameditor-main-right-filter-top-mode'>
-                                        过滤条件：
-                                        <Popover 
-                                            content={(
-                                                <div>
-                                                    <p>值过滤：一个向量。</p>
-                                                    <p>范围过滤：一个数据对。范围包含下限值，但不包括上限值。</p>
-                                                    <p>
-                                                        哈希过滤：一个元组。第一个元素表示 bucket 的个数；第二个元素是一个标量或数据对，
-                                                        <br />
-                                                        其中标量表示 bucket 的索引（从0开始），数据对表示 bucket 的索引范围（包含下限值，
-                                                        <br />
-                                                        但不包括上限值）。
-                                                    </p>
-                                                </div>
-                                            )} 
-                                        >
-                                            <QuestionCircleOutlined className='streameditor-main-right-filter-top-mode-icon'/>
-                                        </Popover>
+                            ? <>
+                                <div className='streameditor-main-right-filter'>
+                                    <div className='streameditor-main-right-filter-top'>
+                                        <div className='streameditor-main-right-filter-top-mode'>
+                                            过滤条件：
+                                            <Popover 
+                                                content={(
+                                                    <div>
+                                                        <p>值过滤：一个向量。</p>
+                                                        <p>范围过滤：一个数据对。范围包含下限值，但不包括上限值。</p>
+                                                        <p>
+                                                            哈希过滤：一个元组。第一个元素表示 bucket 的个数；第二个元素是一个标量或数据对，
+                                                            <br />
+                                                            其中标量表示 bucket 的索引（从0开始），数据对表示 bucket 的索引范围（包含下限值，
+                                                            <br />
+                                                            但不包括上限值）。
+                                                        </p>
+                                                    </div>
+                                                )} 
+                                            >
+                                                <QuestionCircleOutlined className='streameditor-main-right-filter-top-mode-icon'/>
+                                            </Popover>
+                                        </div>
+                                        <div className='streameditor-main-right-filter-top-col'>
+                                            {stream_filter_col ? ('当前过滤列为:' + stream_filter_col) : '当前流表无过滤列'}
+                                        </div>
                                     </div>
-                                    <div className='streameditor-main-right-filter-top-col'>
-                                        {stream_filter_col ? ('当前过滤列为:' + stream_filter_col) : '当前流表无过滤列'}
+                                    <div className='streameditor-main-right-filter-main'>
+                                        <Editor
+                                            enter_completion
+                                            on_mount={(editor, monaco) => {
+                                                editor?.setValue(get_data_source(current_data_source.id).filter_condition || '')
+                                                dashboard.set({ filter_editor: editor, monaco })
+                                            }}
+                                            on_change={() => { change_no_save_flag(true) }}
+                                            theme='dark'
+                                        />
                                     </div>
                                 </div>
-                                <div className='streameditor-main-right-filter-main'>
-                                    <Editor
-                                        enter_completion
-                                        on_mount={(editor, monaco) => {
-                                            editor?.setValue(get_data_source(current_data_source.id).filter_condition || '')
-                                            dashboard.set({ editor, monaco })
-                                        }}
-                                        on_change={() => { change_no_save_flag(true) }}
-                                        theme='dark'
-                                    />
+                                <div className='streameditor-main-right-filter'>
+                                    <div className='streameditor-main-right-filter-top'>
+                                        <div className='streameditor-main-right-filter-top-mode'>
+                                            额外过滤条件：
+                                        </div>
+                                    </div>
+                                    <div className='streameditor-main-right-filter-main'>
+                                        <Editor
+                                            enter_completion
+                                            on_mount={(editor, monaco) => {
+                                                editor?.setValue(get_data_source(current_data_source.id).extra_filter_condition || '')
+                                                dashboard.set({ extra_filter_editor: editor, monaco })
+                                            }}
+                                            on_change={() => { change_no_save_flag(true) }}
+                                            theme='dark'
+                                        />
+                                    </div>
                                 </div>
-                            </div>
+                            </>
                             : <></>
                         }
                     </div>        

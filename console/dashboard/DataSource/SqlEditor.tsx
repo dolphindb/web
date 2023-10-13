@@ -27,8 +27,8 @@ export function SqlEditor ({
     const { result } = dashboard.use(['result'])
     
     useEffect(() => {
-        if (dashboard.editor)
-            dashboard.editor?.setValue(current_data_source.code)
+        if (dashboard.sql_editor)
+            dashboard.sql_editor?.setValue(current_data_source.code)
         
         if (current_data_source.mode === get_data_source(current_data_source.id).mode)
             change_no_save_flag(false)
@@ -41,7 +41,7 @@ export function SqlEditor ({
                     enter_completion
                     on_mount={(editor, monaco) => {
                         editor?.setValue(get_data_source(current_data_source.id).code)
-                        dashboard.set({ editor, monaco })
+                        dashboard.set({ sql_editor: editor, monaco })
                     }}
                     on_change={() => { change_no_save_flag(true) }}
                     theme='dark'
