@@ -59,6 +59,15 @@ export interface IChartConfig {
     series: ISeriesConfig[]
 }
 
+export interface IColProperty { 
+    col: string
+    width?: number
+    threshold?: number
+    show: boolean
+    with_value_format: boolean
+    decimal_places?: number
+    display_name?: string
+}
 export interface ITableConfig {
     title?: string
     title_size?: number
@@ -68,11 +77,7 @@ export interface ITableConfig {
         original_col: string
         mapping_name: string
     }[]
-    col_properties: {
-        col: string
-        width?: number
-        threshold?: number
-    }[]
+    col_properties: IColProperty[]
     pagination: {
         show: boolean
         pagesize: number

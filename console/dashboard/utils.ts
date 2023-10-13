@@ -238,6 +238,11 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     
     
     return {
+        grid: {
+            containLabel: true,
+            left: 0,
+            bottom: 0
+        },
         legend: {
             show: with_legend,
             textStyle: {
@@ -297,5 +302,14 @@ export function to_chart_data (data: DdbValue, datatype: DdbType) {
             
         default:
             return Number(data)
+    }
+}
+
+
+export function safe_json_parse (val) { 
+    try {
+        return JSON.parse(val)
+    } catch (e) { 
+        return val
     }
 }
