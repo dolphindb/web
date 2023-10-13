@@ -15,7 +15,7 @@ import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
 import { t } from '../../i18n/index.js'
-import { model, show_error, type ErrorOptions } from '../model.js'
+import { model, show_error, type ErrorOptions, storage_keys } from '../model.js'
 import { type Monaco } from '../shell/Editor/index.js'
 
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType } from './DataSource/date-source.js'
@@ -373,10 +373,12 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
-        let data = ((await model.ddb.call('get_dashboard_configs'))).to_rows() 
-        console.log('data:', data)
+        // let data = ((await model.ddb.call('get_dashboard_configs'))).to_rows() 
+        let config = JSON.parse(localStorage.getItem(storage_keys.dashboards))
+        // console.log('configs:', config)
         
-        this.set({ configs: data.map(config => ({ ...config, id: Number(config.id), data: JSON.parse(config.data) }) as DashBoardConfig) })
+        this.set({ config })
+        // this.set({ configs: data.map(config => ({ ...config, id: Number(config.id), data: JSON.parse(config.data) }) as DashBoardConfig) })
         const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
         if (dashboard) {
             const config = this.configs.find(({ id }) =>  id === dashboard)
@@ -390,11 +392,13 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 将配置持久化保存到服务器 */
     async save_configs_to_server () {
-        const params = JSON.stringify({ configs: this.configs.map(config => 
-                ({ ...config, data: JSON.stringify(config.data) })) })
-        // const params = JSON.stringify({ configs: this.configs })
-        
-        await model.ddb.eval<DdbVoid>(`set_dashboard_configs(${params})`, { urgent: true })
+        console.log('configs', this.configs)
+        // 暂时保存到浏览器
+        localStorage.setItem(storage_keys.dashboards, JSON.stringify(this.configs))
+        // const params = JSON.stringify({ configs: this.configs.map(config => 
+        //         ({ ...config, data: JSON.stringify(config.data) })) })
+        // // const params = JSON.stringify({ configs: this.configs })
+        // await model.ddb.eval<DdbVoid>(`set_dashboard_configs(${params})`, { urgent: true })
     }
     
     async share (dashboard_ids: number[], receivers: string[]) {
