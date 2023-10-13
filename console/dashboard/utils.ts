@@ -2,7 +2,6 @@ import { type NamePath } from 'antd/es/form/interface'
 import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format } from 'dolphindb'
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
 import { isNil } from 'lodash'
-import { assert } from 'xshell/utils.browser.js'
 
 import { type Widget } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
@@ -77,19 +76,24 @@ function formatter (type, value, le, index?, values?) {
 }
 
 export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
-    assert(obj.form === DdbForm.table, t('form 必须是 DdbForm.table, 否则不能 to_rows'))
-    let rows = new Array()
-    let start = obj.rows - max_line
-    let le = obj.le
-    for (let i = start >= 0 ? start : 0;  i < obj.rows;  i++) {
-        let row = { }
-        for (let j = 0;  j < obj.cols;  j++) {
-            const { type, name, value: values } = obj.value[j] // column
-            row[name] = formatter(type, values[i], le, i, values)
-        }
-        rows.push(row)
+    switch (obj.form) {
+        case DdbForm.table:
+            let rows = new Array()
+            let start = obj.rows - max_line
+            let le = obj.le
+            for (let i = start >= 0 ? start : 0;  i < obj.rows;  i++) {
+                let row = { }
+                for (let j = 0;  j < obj.cols;  j++) {
+                    const { type, name, value: values } = obj.value[j] // column
+                    row[name] = formatter(type, values[i], le, i, values)
+                }
+                rows.push(row)
+            }
+            return rows
+        default:
+            throw new Error('form 必须是 DdbForm.table')
     }
-    return rows
+    
 }
 
 export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols: string[]): Array<{}> {

@@ -119,7 +119,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                 const { type, result } = await dashboard.execute(parsed_code)
                 
                 if (type === 'success') {
-                    if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) {
+                    if (typeof result === 'object' && result.data) {
                         // 暂时只支持table
                         new_data_source.data = sql_formatter(result.data as unknown as DdbObj<DdbValue>, new_data_source.max_line)
                         new_data_source.cols = get_cols(result.data as unknown as DdbObj<DdbValue>)
