@@ -17,14 +17,14 @@ dependencies:
     specifier: ^1.2.5
     version: 1.2.5(react-dom@18.2.0)(react@18.2.0)
   '@ant-design/pro-layout':
-    specifier: ^7.17.7
-    version: 7.17.7(antd@5.10.0)(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^7.17.8
+    version: 7.17.8(antd@5.10.0)(react-dom@18.2.0)(react@18.2.0)
   '@ebay/nice-modal-react':
     specifier: ^1.2.13
     version: 1.2.13(react-dom@18.2.0)(react@18.2.0)
   '@formily/antd-v5':
-    specifier: 1.1.6
-    version: 1.1.6(@types/react-dom@18.2.13)(@types/react@18.2.28)(antd@5.10.0)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.2.2)
+    specifier: 1.1.7
+    version: 1.1.7(@types/react-dom@18.2.13)(@types/react@18.2.28)(antd@5.10.0)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.2.2)
   '@formily/core':
     specifier: ^2.2.29
     version: 2.2.29
@@ -50,8 +50,8 @@ dependencies:
     specifier: ^1.11.10
     version: 1.11.10
   dolphindb:
-    specifier: ^2.0.1025
-    version: 2.0.1025(react-dom@18.2.0)
+    specifier: ^2.0.1026
+    version: 2.0.1026(react-dom@18.2.0)
   echarts:
     specifier: ^5.4.3
     version: 5.4.3(patch_hash=uvtishkmh4xmae7fi25qxvc26u)
@@ -72,7 +72,7 @@ dependencies:
     version: 4.17.21
   monaco-dolphindb:
     specifier: 0.0.13
-    version: 0.0.13(dolphindb@2.0.1025)(monaco-editor@0.44.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0)
+    version: 0.0.13(dolphindb@2.0.1026)(monaco-editor@0.44.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0)
   monaco-editor:
     specifier: ^0.44.0
     version: 0.44.0
@@ -127,8 +127,8 @@ devDependencies:
     specifier: ^4.14.199
     version: 4.14.199
   '@types/node':
-    specifier: ^20.8.4
-    version: 20.8.4
+    specifier: ^20.8.5
+    version: 20.8.5
   '@types/react':
     specifier: ^18.2.28
     version: 18.2.28
@@ -163,17 +163,17 @@ devDependencies:
     specifier: ^4.0.2
     version: 4.0.2(webpack@5.88.2)
   rc-table:
-    specifier: ^7.35.1
-    version: 7.35.1(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^7.35.2
+    version: 7.35.2(react-dom@18.2.0)(react@18.2.0)
   react:
     specifier: ^18.2.0
     version: 18.2.0
   sass:
-    specifier: ^1.69.2
-    version: 1.69.2
+    specifier: ^1.69.3
+    version: 1.69.3
   sass-loader:
     specifier: ^13.3.2
-    version: 13.3.2(sass@1.69.2)(webpack@5.88.2)
+    version: 13.3.2(sass@1.69.3)(webpack@5.88.2)
   source-map-loader:
     specifier: ^4.0.1
     version: 4.0.1(webpack@5.88.2)
@@ -263,8 +263,8 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@ant-design/pro-layout@7.17.7(antd@5.10.0)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-BTAC12mKWsImM2jKKteuL9dpozF5IL1txlWUoaG0sB6ihtDicc+5OOGtLHmhOiJZvJsZqpCfBaV311cmGJkctQ==}
+  /@ant-design/pro-layout@7.17.8(antd@5.10.0)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-VZ6j8MVu6N03h/07JpJtx0HuV6WeSmubvmcNwTAnZGE9sWl3CRmqQZ22zefwnETjW01hN40IrJR06wh5HWl5IQ==}
     peerDependencies:
       antd: '>=4.23.0 || >=5.0.0'
       react: '>=17.0.0'
@@ -272,7 +272,7 @@ packages:
     dependencies:
       '@ant-design/icons': 5.2.6(react-dom@18.2.0)(react@18.2.0)
       '@ant-design/pro-provider': 2.13.1(antd@5.10.0)(react-dom@18.2.0)(react@18.2.0)
-      '@ant-design/pro-utils': 2.14.7(antd@5.10.0)(react-dom@18.2.0)(react@18.2.0)
+      '@ant-design/pro-utils': 2.14.8(antd@5.10.0)(react-dom@18.2.0)(react@18.2.0)
       '@babel/runtime': 7.22.6
       '@umijs/route-utils': 4.0.1
       '@umijs/use-params': 1.0.9(react@18.2.0)
@@ -306,8 +306,8 @@ packages:
       swr: 2.0.3(react@18.2.0)
     dev: false
 
-  /@ant-design/pro-utils@2.14.7(antd@5.10.0)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-ilLo4IdFfJzlAtVinSsLweo6gU7+G0U1ykCRASwQ4pTFRKK7CHamsZaXZ2LCBvPqyKgt8Mc5wvrR8z0E+cZaPA==}
+  /@ant-design/pro-utils@2.14.8(antd@5.10.0)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-eGMQo3WrFtn5Av2b1zsSfHHMxmdlyRh2RWD3yRjK9RB8Yfn2lp1OMh+q7ODEUDEcGxPsS63+kOV+YUVmUR8jtw==}
     peerDependencies:
       antd: '>=4.23.0 || >=5.0.0'
       react: '>=17.0.0'
@@ -2045,8 +2045,8 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /@formily/antd-v5@1.1.6(@types/react-dom@18.2.13)(@types/react@18.2.28)(antd@5.10.0)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.2.2):
-    resolution: {integrity: sha512-KmGCI1/Q1weuTERp2oDMjAgrZTRaSW5A9nss4mmnKk+AsX9HvtK71PZbDAr14BnKMSsPfr3pbAPr4N04z5/yzw==}
+  /@formily/antd-v5@1.1.7(@types/react-dom@18.2.13)(@types/react@18.2.28)(antd@5.10.0)(react-dom@18.2.0)(react-is@16.13.1)(react@18.2.0)(typescript@5.2.2):
+    resolution: {integrity: sha512-AWKtn4w3+sSasWyypmuYjXW5RMxp3Lc9UKjAUUtyhjD928SvFlF7kJI0IhMODQDuZLR5tbRtFic/sYopJK3v7w==}
     engines: {npm: '>=3.0.0'}
     peerDependencies:
       '@types/react': '>=16.8.0 || >=17.0.0'
@@ -2580,20 +2580,20 @@ packages:
   /@types/accepts@1.3.5:
     resolution: {integrity: sha512-jOdnI/3qTpHABjM5cx1Hc0sKsPoYCp+DP/GJRGtDlPd7fiV9oXGGIcjW/ZOxLIvjGz8MA+uMZI9metHlgqbgwQ==}
     dependencies:
-      '@types/node': 20.8.4
+      '@types/node': 20.8.5
     dev: true
 
   /@types/body-parser@1.19.2:
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 20.8.4
+      '@types/node': 20.8.5
     dev: true
 
   /@types/connect@3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 20.8.4
+      '@types/node': 20.8.5
     dev: true
 
   /@types/content-disposition@0.5.5:
@@ -2606,7 +2606,7 @@ packages:
       '@types/connect': 3.4.35
       '@types/express': 4.17.17
       '@types/keygrip': 1.0.2
-      '@types/node': 20.8.4
+      '@types/node': 20.8.5
     dev: true
 
   /@types/d3-timer@2.0.1:
@@ -2641,7 +2641,7 @@ packages:
   /@types/express-serve-static-core@4.17.33:
     resolution: {integrity: sha512-TPBqmR/HRYI3eC2E5hmiivIzv+bidAfXofM+sbonAGvyDhySGw9/PQZFt2BLOrjUUR++4eJVpx6KnLQK1Fk9tA==}
     dependencies:
-      '@types/node': 20.8.4
+      '@types/node': 20.8.5
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
     dev: true
@@ -2699,7 +2699,7 @@ packages:
       '@types/http-errors': 2.0.1
       '@types/keygrip': 1.0.2
       '@types/koa-compose': 3.2.5
-      '@types/node': 20.8.4
+      '@types/node': 20.8.5
     dev: true
 
   /@types/lodash@4.14.199:
@@ -2713,11 +2713,11 @@ packages:
   /@types/node-sass@4.11.3:
     resolution: {integrity: sha512-wXPCn3t9uu5rR4zXNSLasZHQMuRzUKBsdi4MsgT8uq4Lp1gQQo+T2G23tGj4SSgDHeNBle6vGseZtM2XV/X9bw==}
     dependencies:
-      '@types/node': 20.8.4
+      '@types/node': 20.8.5
     dev: true
 
-  /@types/node@20.8.4:
-    resolution: {integrity: sha512-ZVPnqU58giiCjSxjVUESDtdPk4QR5WQhhINbc9UBrKLU68MX5BF6kbQzTrkwbolyr0X8ChBpXfavr5mZFKZQ5A==}
+  /@types/node@20.8.5:
+    resolution: {integrity: sha512-SPlobFgbidfIeOYlzXiEjSYeIJiOCthv+9tSQVpvk4PAdIIc+2SmjNVzWXk9t0Y7dl73Zdf+OgXKHX9XtkqUpw==}
     dependencies:
       undici-types: 5.25.3
 
@@ -2753,10 +2753,10 @@ packages:
   /@types/sass-loader@8.0.6:
     resolution: {integrity: sha512-IhUYL6DhlWDKvWrChKsQJFId7qnD4AT9Q+Dy95LyYHqz0pyVkq7VenZjdY8L5tCID80lOahrvmCG24WACgHrsw==}
     dependencies:
-      '@types/node': 20.8.4
+      '@types/node': 20.8.5
       '@types/node-sass': 4.11.3
       '@types/webpack': 4.41.33
-      sass: 1.69.2
+      sass: 1.69.3
     dev: true
 
   /@types/scheduler@0.16.2:
@@ -2770,7 +2770,7 @@ packages:
     resolution: {integrity: sha512-z5xyF6uh8CbjAu9760KDKsH2FcDxZ2tFCsA4HIMWE6IkiYMXfVoa+4f9KX+FN0ZLsaMw1WNG2ETLA6N+/YA+cg==}
     dependencies:
       '@types/mime': 3.0.1
-      '@types/node': 20.8.4
+      '@types/node': 20.8.5
     dev: true
 
   /@types/source-list-map@0.1.2:
@@ -2790,7 +2790,7 @@ packages:
   /@types/webpack-bundle-analyzer@4.6.1:
     resolution: {integrity: sha512-MQ9GBzu8N7bsjmE9xtWe9JUrRUsPljKxS8fd5EdSIU/x+/U0Ga8f0OsVJZTX1yWF87xZSt0Ai1Iaiwi+Gq+ugA==}
     dependencies:
-      '@types/node': 20.8.4
+      '@types/node': 20.8.5
       tapable: 2.2.1
       webpack: 5.88.2
     transitivePeerDependencies:
@@ -2803,7 +2803,7 @@ packages:
   /@types/webpack-sources@3.2.0:
     resolution: {integrity: sha512-Ft7YH3lEVRQ6ls8k4Ff1oB4jN6oy/XmU6tQISKdhfh+1mR+viZFphS6WL0IrtDOzvefmJg5a0s7ZQoRXwqTEFg==}
     dependencies:
-      '@types/node': 20.8.4
+      '@types/node': 20.8.5
       '@types/source-list-map': 0.1.2
       source-map: 0.7.4
     dev: true
@@ -2811,7 +2811,7 @@ packages:
   /@types/webpack@4.41.33:
     resolution: {integrity: sha512-PPajH64Ft2vWevkerISMtnZ8rTs4YmRbs+23c402J0INmxDKCrhZNvwZYtzx96gY2wAtXdrK1BS2fiC8MlLr3g==}
     dependencies:
-      '@types/node': 20.8.4
+      '@types/node': 20.8.5
       '@types/tapable': 1.0.8
       '@types/uglify-js': 3.17.1
       '@types/webpack-sources': 3.2.0
@@ -2822,7 +2822,7 @@ packages:
   /@types/ws@8.5.5:
     resolution: {integrity: sha512-lwhs8hktwxSjf9UaZ9tG5M03PGogvFaH8gUgLNbN9HKIg0dvv6q+gkSuJ8HN4/VbyxkuLzCjlN7GquQ0gUJfIg==}
     dependencies:
-      '@types/node': 20.8.4
+      '@types/node': 20.8.5
     dev: false
 
   /@typescript-eslint/eslint-plugin@6.7.5(@typescript-eslint/parser@6.7.5)(eslint@8.51.0)(typescript@5.2.2):
@@ -4068,8 +4068,8 @@ packages:
       esutils: 2.0.3
     dev: true
 
-  /dolphindb@2.0.1025(react-dom@18.2.0):
-    resolution: {integrity: sha512-9qGMZi2YZIzG+4xfMmSCCJDqV9EfoOB9QYjDXQmd2I3+WvaVbwtck3hupy18izNcQ5wpoq/EWk/RxTR6JFStGw==}
+  /dolphindb@2.0.1026(react-dom@18.2.0):
+    resolution: {integrity: sha512-vZOKFc9Kfs5juOD2lO9WE7dciUWSpdSir8b0VLPhYGh+bcxfpvJtkId3Gqk0LkaKQu2yvQ9V0W99IDBdf5XofQ==}
     engines: {node: '>=20.6.1'}
     dependencies:
       dayjs: 1.11.10
@@ -4378,7 +4378,7 @@ packages:
     dependencies:
       '@types/eslint': 8.44.2
       '@types/estree': 1.0.1
-      '@types/node': 20.8.4
+      '@types/node': 20.8.5
       '@typescript-eslint/utils': 6.7.2(eslint@8.51.0)(typescript@5.2.2)
     transitivePeerDependencies:
       - eslint
@@ -5234,7 +5234,7 @@ packages:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 20.8.4
+      '@types/node': 20.8.5
       merge-stream: 2.0.0
       supports-color: 8.1.1
     dev: true
@@ -5559,7 +5559,7 @@ packages:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
     dev: false
 
-  /monaco-dolphindb@0.0.13(dolphindb@2.0.1025)(monaco-editor@0.44.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0):
+  /monaco-dolphindb@0.0.13(dolphindb@2.0.1026)(monaco-editor@0.44.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0):
     resolution: {integrity: sha512-UT2MCln8yS4dGC9KgzAXVCgU0Y2uI/JzcVsbYm1Xu3MT8GzCxjRFoZz88hcCD97ndICuvFfb0MSm8mq1u7SsVw==}
     peerDependencies:
       dolphindb: ^2.0.976
@@ -5567,7 +5567,7 @@ packages:
       vscode-oniguruma: ^1.7.0
       vscode-textmate: ^9.0.0
     dependencies:
-      dolphindb: 2.0.1025(react-dom@18.2.0)
+      dolphindb: 2.0.1026(react-dom@18.2.0)
       monaco-editor: 0.44.0
       vscode-oniguruma: 2.0.1
       vscode-textmate: 9.0.0
@@ -6392,8 +6392,8 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /rc-table@7.35.1(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-GRgEayVvZ1S2s23iN/zRvJVMxcmSAXzKTQys+hH0GycWmdIeQmZnGBbO/8Wku3FLSPgWi2OSyV0UegwIl1JFrQ==}
+  /rc-table@7.35.2(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-ZLIZdAEdfen21FI21xt2LDg9chQ7gc5Lpy4nkjWKPDgmQMnH0KJ8JQQzrd3zrEN16xzjiVdHHvRmi1RU8BtgYg==}
     engines: {node: '>=8.x'}
     peerDependencies:
       react: '>=16.9.0'
@@ -6854,7 +6854,7 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /sass-loader@13.3.2(sass@1.69.2)(webpack@5.88.2):
+  /sass-loader@13.3.2(sass@1.69.3)(webpack@5.88.2):
     resolution: {integrity: sha512-CQbKl57kdEv+KDLquhC+gE3pXt74LEAzm+tzywcA0/aHZuub8wTErbjAoNI57rPUWRYRNC5WUnNl8eGJNbDdwg==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
@@ -6874,12 +6874,12 @@ packages:
         optional: true
     dependencies:
       neo-async: 2.6.2
-      sass: 1.69.2
+      sass: 1.69.3
       webpack: 5.88.2
     dev: true
 
-  /sass@1.69.2:
-    resolution: {integrity: sha512-48lDtG/9OuSQZ9oNmJMUXI2QdCakAWrAGjpX/Fy6j4Og8dEAyE598x5GqCqnHkwV7+I5w8DJpqjm581q5HNh3w==}
+  /sass@1.69.3:
+    resolution: {integrity: sha512-X99+a2iGdXkdWn1akFPs0ZmelUzyAQfvqYc2P/MPTrJRuIRoTffGzT9W9nFqG00S+c8hXzVmgxhUuHFdrwxkhQ==}
     engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
