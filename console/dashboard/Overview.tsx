@@ -85,7 +85,6 @@ export function Overview () {
                         
                         /** 待接口更新后修改 */
                         const new_dashboard = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
-                        console.log(configs ? [...configs, new_dashboard] : [new_dashboard], 'new_dashboard')
                         dashboard.set({ configs: configs ? [...configs, new_dashboard] : [new_dashboard] })
                         
                         model.set_query('dashboard', String(new_dashboard.id))

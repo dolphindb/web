@@ -73,22 +73,7 @@ export const chart_type_options = [
 
 
 
-export const format_time_options = [
-    {
-        label: t('精确到日期'),
-        value: ITimeFormat.DATE, 
-    },
-    {
-        label: t('精确到小时'),
-        value: ITimeFormat.HOUR,
-    },
-    {
-        label: t('精确到分钟'),
-        value: ITimeFormat.MINUTE,
-    },
-    {
-        label: t('精确到秒'),
-        value: ITimeFormat.SECOND
-    }
-    
-]
+export const format_time_options = Object.values(ITimeFormat).map(val => ({
+    label: val,
+    value: val
+}))
