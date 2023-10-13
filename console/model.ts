@@ -28,6 +28,7 @@ export const storage_keys = {
     minimap: 'ddb.editor.minimap',
     enter_completion: 'ddb.editor.enter_completion',
     sql: 'ddb.sql',
+    dashboards: 'ddb.dashboards'
 } as const
 
 const username_guest = 'guest' as const
