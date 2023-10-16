@@ -46,8 +46,13 @@ export enum ILineType {
 
 
 export enum ITimeFormat { 
+    HOUR = 'HH',
+    MINUTE = 'HH:mm',
+    SECOND = 'HH:mm:ss',
+    
     DATE = 'YYYY-MM-DD',
-    HOUR = 'YYYY-MM-DD HH',
-    MINUTE = 'YYYY-MM-DD HH:mm',
-    SECOND = 'YYYY-MM-DD HH:mm:ss'
+    DATE_HOUR = 'YYYY-MM-DD HH时',
+    DATE_MINUTE = 'YYYY-MM-DD HH:mm',
+    DATE_SECOND = 'YYYY-MM-DD HH:mm:ss',
+   
 }

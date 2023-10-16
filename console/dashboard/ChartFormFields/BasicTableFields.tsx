@@ -40,13 +40,19 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                             <Form.Item label={t('数值格式化')} name={[field.name, 'with_value_format']} initialValue={false}>
                                 <BoolRadioGroup />
                             </Form.Item>
+                            
                             <FormDependencies dependencies={[['col_properties', field.name, 'with_value_format' ]]}>
                                 {value => { 
                                     const { col_properties = [ ] } = value
                                     if (col_properties[field.name]?.with_value_format)
-                                        return <Form.Item label={t('小数位数')} name={[field.name, 'decimal_places']}>
-                                            <InputNumber  />
-                                        </Form.Item>
+                                        return <>
+                                            <Form.Item label={t('小数位数')} name={[field.name, 'decimal_places']}>
+                                                <InputNumber  />
+                                            </Form.Item>
+                                            <Form.Item label='是否千分位' name={ [field.name, 'is_thousandth_place']} initialValue={false}>
+                                                <BoolRadioGroup />
+                                            </Form.Item>
+                                        </>
                                     else
                                         return null
                                 } }
