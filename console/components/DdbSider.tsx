@@ -127,7 +127,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='dashboard' />,
                     label: t('数据面板'),
                 },
-                ... model.dev ? [{
+                ... model.dev || model.cdn ? [{
                        key: 'test',
                        icon: <ExperimentOutlined className='icon-menu' />,
                        label: '测试模块'

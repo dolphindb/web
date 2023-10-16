@@ -381,6 +381,22 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
+    async delete_dashboard_configs (dashboard_config_ids: number[]) {
+        
+    }
+    
+    
+    async update_dashboard_config (config: DashBoardConfig) {
+        
+    }
+    
+    
+    /** 根据 id 获取 DashboardConfig */
+    async get_dashboard_config (id: number) {
+        
+    }
+    
+    
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
         // let data = ((await model.ddb.call('get_dashboard_configs'))).to_rows() 
@@ -400,7 +416,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     /** 将配置持久化保存到服务器 */
-    async save_configs_to_server () {
+    async save_configs_to_local () {
         // 暂时保存到浏览器
         localStorage.setItem(storage_keys.dashboards, JSON.stringify(this.configs))
         // const params = JSON.stringify({ configs: this.configs.map(config => 

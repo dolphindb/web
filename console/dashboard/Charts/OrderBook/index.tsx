@@ -1,7 +1,7 @@
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { type Widget, dashboard } from '../../model.js'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { type IOrderBookConfig, type IChartConfig } from '../../type.js'
 import { to_chart_data } from '../../utils.js'
 import { DdbType } from 'dolphindb/browser.js'
@@ -19,8 +19,16 @@ interface IProps {
 export function OrderBook (props: IProps) {
     const { widget, data_source } = props
     
-    let { title, with_tooltip, time_rate, title_size, with_legend } = widget.config as unknown as IChartConfig & IOrderBookConfig
+    let { title, with_tooltip, time_rate, title_size, with_legend, with_split_line } = widget.config as unknown as IChartConfig & IOrderBookConfig
     
+    /** 记录每一次流数据的长度， 然后处理时， 可以不需要处理以前的已经发过来的流数据 */
+    // let data_length = useRef(0)
+    
+    
+    // 如果数据格式不匹配，则直接返回
+    if (!data_source[0]?.sendingTime && !data_source[0]?.bidmdEntryPrice && !data_source[0]?.bidmdEntrySize)
+        return
+      
     // 样式调整先写死，后面再改
     const convert_order_config = useMemo(() => {
         let data = [ ]
@@ -31,12 +39,8 @@ export function OrderBook (props: IProps) {
         // time_rate 越大，每个块的高度越高
         if (!time_rate) 
             time_rate = 100
-          
-        // 如果数据格式不匹配，则直接返回
-        if (!data_source[0]?.sendingTime && !data_source[0]?.bidmdEntryPrice && !data_source[0]?.bidmdEntrySize)
-            return [ ]
         
-        
+        // 处理数据
         function formatData (price, size, sendingTime, is_buy) {
             let entry = [ ]
             if (price && size)
@@ -98,7 +102,7 @@ export function OrderBook (props: IProps) {
           scale: true,
           // 坐标轴在 grid 区域中的分隔线。
           splitLine: {
-            show: false
+            show: with_split_line
           },
           axisLabel: {
               formatter: params => {
@@ -138,11 +142,8 @@ export function OrderBook (props: IProps) {
           }
         ]
       }
-    }, [title, with_tooltip, time_rate, data_source, title_size, with_legend])   
+    }, [title, with_tooltip, time_rate, data_source, title_size, with_legend, with_split_line])   
     
-    // 如果数据格式不匹配，则直接返回
-    if (!data_source[0]?.sendingTime && !data_source[0]?.bidmdEntryPrice && !data_source[0]?.bidmdEntrySize)
-        return
     
     
     return  <ReactEChartsCore

@@ -13,7 +13,6 @@ import { model } from '../model.js'
 import { t } from '../../i18n/index.js'
 
 import { type DashBoardConfig, dashboard } from './model.js'
-import { log } from 'console'
 
 
 export function Overview () {
@@ -87,7 +86,7 @@ export function Overview () {
                         /** 待接口更新后修改 */
                         const new_dashboard = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
                         dashboard.set({ configs: configs ? [...configs, new_dashboard] : [new_dashboard] })
-                        await dashboard.save_configs_to_server()
+                        await dashboard.save_configs_to_local()
                         model.set_query('dashboard', String(new_dashboard.id))
                         model.set({ header: false, sider: false })
                         model.message.success(t('添加成功'))
@@ -126,7 +125,7 @@ export function Overview () {
                         
                         dashboard.set({ configs: configs.toSpliced(index, 1, { ...current_dashboard, name: edit_dashboard_name }) })
                         
-                        await dashboard.save_configs_to_server()
+                        await dashboard.save_configs_to_local()
                         model.message.success(t('修改成功'))
                         
                         editor.close()
@@ -242,7 +241,7 @@ export function Overview () {
                                             
                                             dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
                                             
-                                            await dashboard.save_configs_to_server()
+                                            await dashboard.save_configs_to_local()
                                             
                                             model.message.success(t('删除成功'))
                                         } catch (error) {
@@ -288,7 +287,7 @@ export function Overview () {
                                             ]
                                         })
                                         
-                                        await dashboard.save_configs_to_server()
+                                        await dashboard.save_configs_to_local()
                                     } catch (error) {
                                         model.show_error({ error })
                                         throw error
