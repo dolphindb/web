@@ -693,8 +693,6 @@ export function StreamingTable ({
     }
     
     let rlast = useRef<number>(0)
-        
-    const [filter_url, set_filter_url] = useState('')
     
     let [, rerender] = useState({ })
     
@@ -705,16 +703,17 @@ export function StreamingTable ({
     const [page_index, set_page_index] = useState(0)
     
     
-    function creat_ddb (filter_url = '') {
+    useEffect(() => {
         try {
-            rddb.current?.disconnect()
             let ddb = rddb.current = new DDB(url, {
                 autologin: Boolean(username),
                 username,
                 password,
                 streaming: {
                     table,
-                    filters: { expression: filter_url },
+                    filters: {
+                        expression: 'price > 1'
+                    },
                     handler (message) {
                         console.log(message)
                         
@@ -775,15 +774,12 @@ export function StreamingTable ({
                     throw error
                 }
             })()
+            
             return () => { ddb.disconnect() }
         } catch (error) {
             on_error?.(error)
             throw error
         }
-    }
-    
-    useEffect(() => {
-        creat_ddb()
     }, [ ])
     
     
@@ -897,18 +893,6 @@ export function StreamingTable ({
                     rerender({ })
                 }}/>
             </div>
-            
-            <Search
-                placeholder='过滤条件'
-                allowClear
-                defaultValue={filter_url}
-                style={{ width: '300px' }}
-                enterButton='保存'
-                onSearch={value => { 
-                    set_filter_url(value) 
-                    creat_ddb(value)
-                }}
-            />
             
             <div>接收到推送的 message 之后，才会在下面显示出表格</div>
         </div>
