@@ -36,9 +36,9 @@ export type ExportDataSource = {
     /** stream 模式专用 */
     stream_table: string
     /** stream 模式专用 */
-    filter_condition: string
+    filter_column: string
     /** stream 模式专用 */
-    extra_filter_condition: string
+    filter_expression: string
     /** stream 模式专用 */
     node: string
     /** stream 模式专用 */
@@ -71,9 +71,9 @@ export class DataSource extends Model<DataSource>  {
     /** stream 模式专用 */
     stream_table = ''
     /** stream 模式专用 */
-    filter_condition = ''    
+    filter_column = ''    
     /** stream 模式专用 */
-    extra_filter_condition = ''
+    filter_expression = ''
     /** stream 模式专用 */
     node = ''
     /** stream 模式专用 */
@@ -97,7 +97,7 @@ export function get_data_source (id: string): DataSource {
     return data_sources[find_data_source_index(id)] || new DataSource('', '')
 }
 
-export async function save_data_source ( new_data_source: DataSource, code?: string, filter_condition?: string, extra_filter_condition?: string ) {
+export async function save_data_source ( new_data_source: DataSource, code?: string, filter_column?: string, filter_expression?: string ) {
     const id = new_data_source.id
     const data_source = get_data_source(id)
     const deps = new_data_source.deps
@@ -113,8 +113,8 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
     new_data_source.ddb = null
     
     new_data_source.code = code || dashboard.sql_editor?.getValue() || ''
-    new_data_source.filter_condition = filter_condition || dashboard.filter_editor?.getValue() || ''
-    new_data_source.extra_filter_condition = extra_filter_condition || dashboard.extra_filter_editor?.getValue() || ''
+    new_data_source.filter_column = filter_column || dashboard.filter_column_editor?.getValue() || ''
+    new_data_source.filter_expression = filter_expression || dashboard.filter_expression_editor?.getValue() || ''
       
     switch (new_data_source.mode) {
         case 'sql':
@@ -413,7 +413,7 @@ export async function import_data_sources (_data_sources: ExportDataSource[]) {
         const import_data_source = new DataSource(data_source.id, data_source.name)
         Object.assign(import_data_source, data_source, { deps: new Set(data_source.deps), variables: new Set(data_source.variables) })
         data_sources.push(import_data_source)
-        await save_data_source(import_data_source, import_data_source.code, import_data_source.filter_condition, import_data_source.extra_filter_condition)
+        await save_data_source(import_data_source, import_data_source.code, import_data_source.filter_column, import_data_source.filter_expression)
     }
     
     return data_sources

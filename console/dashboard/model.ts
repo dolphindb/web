@@ -63,9 +63,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     sql_editor: monacoapi.editor.IStandaloneCodeEditor
     
-    filter_editor: monacoapi.editor.IStandaloneCodeEditor
+    filter_column_editor: monacoapi.editor.IStandaloneCodeEditor
     
-    extra_filter_editor: monacoapi.editor.IStandaloneCodeEditor
+    filter_expression_editor: monacoapi.editor.IStandaloneCodeEditor
     
     result: Result
     

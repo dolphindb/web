@@ -64,8 +64,11 @@ export function StreamEditor ({
             }  else 
                 change_current_data_source_property('stream_table', '', false)
                 
-            if (dashboard.filter_editor)
-                dashboard.filter_editor?.setValue(current_data_source.code)
+            if (dashboard.filter_column_editor)
+                dashboard.filter_column_editor.setValue(current_data_source.filter_column)
+            
+            if (dashboard.filter_expression_editor)
+                dashboard.filter_column_editor.setValue(current_data_source.filter_expression)
             
             if (current_data_source.mode === get_data_source(current_data_source.id).mode)
                 change_no_save_flag(false)
@@ -164,7 +167,7 @@ export function StreamEditor ({
                                 <div className='streameditor-main-right-filter'>
                                     <div className='streameditor-main-right-filter-top'>
                                         <div className='streameditor-main-right-filter-top-mode'>
-                                            过滤条件：
+                                            列过滤：
                                             <Popover 
                                                 content={(
                                                     <div>
@@ -191,8 +194,8 @@ export function StreamEditor ({
                                         <Editor
                                             enter_completion
                                             on_mount={(editor, monaco) => {
-                                                editor?.setValue(get_data_source(current_data_source.id).filter_condition || '')
-                                                dashboard.set({ filter_editor: editor, monaco })
+                                                editor?.setValue(get_data_source(current_data_source.id).filter_column || '')
+                                                dashboard.set({ filter_column_editor: editor, monaco })
                                             }}
                                             on_change={() => { change_no_save_flag(true) }}
                                             theme='dark'
@@ -202,15 +205,15 @@ export function StreamEditor ({
                                 <div className='streameditor-main-right-filter'>
                                     <div className='streameditor-main-right-filter-top'>
                                         <div className='streameditor-main-right-filter-top-mode'>
-                                            额外过滤条件：
+                                            表达式过滤：
                                         </div>
                                     </div>
                                     <div className='streameditor-main-right-filter-main'>
                                         <Editor
                                             enter_completion
                                             on_mount={(editor, monaco) => {
-                                                editor?.setValue(get_data_source(current_data_source.id).extra_filter_condition || '')
-                                                dashboard.set({ extra_filter_editor: editor, monaco })
+                                                editor?.setValue(get_data_source(current_data_source.id).filter_expression || '')
+                                                dashboard.set({ filter_expression_editor: editor, monaco })
                                             }}
                                             on_change={() => { change_no_save_flag(true) }}
                                             theme='dark'
