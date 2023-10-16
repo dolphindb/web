@@ -372,6 +372,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
+    async add_dashboard_config (config: DashBoardConfig) {
+        
+    }
+    
+    
     /** 从服务器获取 dashboard 配置 */
     async get_configs () {
         // let data = ((await model.ddb.call('get_dashboard_configs'))).to_rows() 
@@ -498,7 +503,7 @@ export enum WidgetChartType {
     // HEAT = 'HEAT'
     TEXT = 'TEXT',
     DESCRIPTIONS = 'DESCRIPTIONS',
-    EDITOR = 'Editor'
+    EDITOR = 'EDITOR'
 }
 
 
