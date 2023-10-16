@@ -707,6 +707,7 @@ export function StreamingTable ({
     
     function creat_ddb (filter_url = '') {
         try {
+            rddb.current?.disconnect()
             let ddb = rddb.current = new DDB(url, {
                 autologin: Boolean(username),
                 username,

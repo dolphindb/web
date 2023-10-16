@@ -1,10 +1,10 @@
 import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
 
-import { type Widget, dashboard } from '../model.js'
+import { type Widget, dashboard, type Result } from '../model.js'
 import { sql_formatter, get_cols, stream_formatter, parse_code } from '../utils.js'
 import { model } from '../../model.js'
-import { DDB, DdbForm, type DdbObj, type DdbValue } from 'dolphindb'
+import { DDB, DdbForm, type DdbObj, type DdbValue } from 'dolphindb/browser.js'
 import { cloneDeep } from 'lodash'
 import { unsubscribe_variable } from '../Variable/variable.js'
 
@@ -326,6 +326,7 @@ async function subscribe_stream (source_id: string) {
     const { ddb: { username, password } } = model
     
     try {
+        const { result } = await dashboard.execute(parse_code(data_source, 'filter_column'))
         const stream_connection = new DDB(
             (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + data_source.ip,
             {
@@ -335,7 +336,7 @@ async function subscribe_stream (source_id: string) {
                 streaming: {
                     table: data_source.stream_table,
                     filters: {
-                        // column: parse_code(data_source, 'filter_column'),
+                        column: (result as Result).data,
                         expression: parse_code(data_source, 'filter_expression')
                     },
                     handler (message) {
