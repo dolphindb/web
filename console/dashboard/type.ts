@@ -71,6 +71,7 @@ export interface IColProperty {
     decimal_places?: number
     display_name?: string
     time_format?: ITimeFormat
+    is_thousandth_place?: boolean
 }
 export interface ITableConfig {
     title?: string
@@ -96,10 +97,19 @@ export interface IDescriptionsConfig {
     label_col: string
     value_col: string
     column_num?: number
-    value_colors: Array<{
-        col: string
+    
+    label_font_size?: number
+    value_font_size?: number
+    
+    col_properties: Array<{
+        name: string
         color: string
+        threshold?: number
+        decimal_places?: number
+        is_thousandth_place?: boolean
+        time_format?: string
     }>
+    
 }
 
 

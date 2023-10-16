@@ -24,7 +24,7 @@ export function Chart (props: IProps) {
                 className='dashboard-line-chart'
                 theme='my-theme'
         />
-}
+} 
 
 
 export function ChartConfigForm (props: { col_names: string[] } ) {

@@ -28,3 +28,12 @@
         padding-bottom: 0px;
     }
 }
+
+.description-setting-form {
+    .ant-form-item{
+        margin-bottom: 8px;
+        &:last-child {
+            margin-bottom: 0px;
+        }
+    }
+}
