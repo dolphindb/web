@@ -61,7 +61,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     monaco: Monaco
     
-    editor: monacoapi.editor.IStandaloneCodeEditor
+    sql_editor: monacoapi.editor.IStandaloneCodeEditor
+    
+    filter_column_editor: monacoapi.editor.IStandaloneCodeEditor
+    
+    filter_expression_editor: monacoapi.editor.IStandaloneCodeEditor
     
     result: Result
     
@@ -300,7 +304,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async eval (code = this.editor.getValue()) {
+    async eval (code = this.sql_editor.getValue()) {
         this.set({ executing: true })
         
         try {
