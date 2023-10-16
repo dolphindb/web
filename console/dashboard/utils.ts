@@ -328,27 +328,28 @@ export function safe_json_parse (val) {
 }
 
 
-export function format_number (val: any, decimal_places = 4, is_thousandth_place) {
+export function format_number (val: any, decimal_places, is_thousandth_place) {
     let value = val
-    if (typeof val === 'number' || !isNaN(Number(val))) { 
-        // 0 不需要格式化
-        if (Number(val) === 0)
-            return 0
-        value =  val.toFixed(decimal_places)
-    }
+    try {
+        if ((typeof val === 'number' || !isNaN(Number(val))) && typeof decimal_places === 'number') {
+            // 0 不需要格式化
+            if (Number(val) === 0)
+                return 0
+            value = val.toFixed(decimal_places)
+        }
+            
+        else if (typeof val === 'string') {
+            const arr = safe_json_parse(val)
+            if (Array.isArray(arr))
+                value = JSON.stringify(arr.map(item => format_number(item, decimal_places, is_thousandth_place))).replace(/\"/g, '')
+        }
+        if (is_thousandth_place)
+            if (value.toString().includes('.'))
+                value = value.toString().replace(/\B(?=(\d{3})+(?=\.))/g, ',')
+            else
+                value = value.toString().replace(/\B(?=(\d{3})+$)/g, ',')
         
-    else if (typeof val === 'string') { 
-        const arr = safe_json_parse(val)
-        if (Array.isArray(arr))
-            value =  JSON.stringify(arr.map(item => format_number(item, decimal_places, is_thousandth_place))).replace(/\"/g, '')
-    }
-    
-    if (is_thousandth_place) 
-        if (value.includes('.'))
-            value = value.replace(/\B(?=(\d{3})+(?=\.))/g, ',')
-        else
-            value = value.replace(/\B(?=(\d{3})+$)/g, ',')
-    
-        return value
+    } catch { }
+    return value
         
 }

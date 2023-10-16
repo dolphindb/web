@@ -105,6 +105,9 @@ export interface IDescriptionsConfig {
         name: string
         color: string
         threshold?: number
+        decimal_places?: number
+        is_thousandth_place?: boolean
+        time_format?: string
     }>
     
 }
