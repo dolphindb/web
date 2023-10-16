@@ -324,36 +324,40 @@ async function subscribe_stream (source_id: string) {
     unsubscribe_stream(source_id)
     
     const { ddb: { username, password } } = model
-    const stream_connection = new DDB(
-        (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + data_source.ip,
-        {
-            autologin: Boolean(username),
-            username,
-            password,
-            streaming: {
-                table: data_source.stream_table,
-                handler (message) {
-                    const { error } = message
-                    if (error)
-                        dashboard.message.error(error.message)
-                    else {
-                        data_source.data.push(...stream_formatter(message.data, data_source.max_line, data_source.cols))
-                        if (data_source.data.length > data_source.max_line)
-                            data_source.data = data_source.data.splice(data_source.data.length - data_source.max_line)
-                        data_source.set({
-                            data: [...data_source.data]
-                        }) 
-                    }   
-                }
-            }
-        }
-    )
     
     try {
+        const stream_connection = new DDB(
+            (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + data_source.ip,
+            {
+                autologin: Boolean(username),
+                username,
+                password,
+                streaming: {
+                    table: data_source.stream_table,
+                    filters: {
+                        // column: parse_code(data_source, 'filter_column'),
+                        expression: parse_code(data_source, 'filter_expression')
+                    },
+                    handler (message) {
+                        const { error } = message
+                        if (error)
+                            dashboard.message.error(error.message)
+                        else {
+                            data_source.data.push(...stream_formatter(message.data, data_source.max_line, data_source.cols))
+                            if (data_source.data.length > data_source.max_line)
+                                data_source.data = data_source.data.splice(data_source.data.length - data_source.max_line)
+                            data_source.set({
+                                data: [...data_source.data]
+                            }) 
+                        }   
+                    }
+                }
+            }
+        )
         await stream_connection.connect()
         data_source.ddb = stream_connection
     } catch (error) {
-        dashboard.show_error({ error })
+        dashboard.message.error(error.message)
         throw error
     }
 }
