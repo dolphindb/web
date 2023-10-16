@@ -61,7 +61,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     monaco: Monaco
     
-    editor: monacoapi.editor.IStandaloneCodeEditor
+    sql_editor: monacoapi.editor.IStandaloneCodeEditor
+    
+    filter_column_editor: monacoapi.editor.IStandaloneCodeEditor
+    
+    filter_expression_editor: monacoapi.editor.IStandaloneCodeEditor
     
     result: Result
     
@@ -300,7 +304,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async eval (code = this.editor.getValue()) {
+    async eval (code = this.sql_editor.getValue()) {
         this.set({ executing: true })
         
         try {
@@ -369,6 +373,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
     async get_users () {
         let users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
         this.set({ users_to_share: users })
+    }
+    
+    
+    async add_dashboard_config (config: DashBoardConfig) {
+        
     }
     
     
@@ -498,7 +507,7 @@ export enum WidgetChartType {
     // HEAT = 'HEAT'
     TEXT = 'TEXT',
     DESCRIPTIONS = 'DESCRIPTIONS',
-    EDITOR = 'Editor'
+    EDITOR = 'EDITOR'
 }
 
 
