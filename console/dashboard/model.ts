@@ -19,7 +19,7 @@ import { model, show_error, type ErrorOptions, storage_keys } from '../model.js'
 import { type Monaco } from '../shell/Editor/index.js'
 
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType } from './DataSource/date-source.js'
-import { type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig } from './type.js'
+import { type IEditorConfig, type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 
 
@@ -459,7 +459,7 @@ export interface Widget extends GridStackNode {
     update_graph?: (data: DataType) => void
     
     /** 图表配置 */
-    config?: (IChartConfig | ITableConfig | ITextConfig | IDescriptionsConfig) & {
+    config?: (IChartConfig | ITableConfig | ITextConfig | IEditorConfig) & {
         variable_ids: string[]
     }
 }
@@ -479,7 +479,8 @@ export enum WidgetType {
     // STRIP = '带图',
     // HEAT = '热力图',
     TEXT = '富文本',
-    DESCRIPTIONS = '描述表'
+    DESCRIPTIONS = '描述表',
+    EDITOR = '编辑器'
 }
 
 export enum WidgetChartType { 
@@ -496,7 +497,8 @@ export enum WidgetChartType {
     // STRIP = 'STRIP',
     // HEAT = 'HEAT'
     TEXT = 'TEXT',
-    DESCRIPTIONS = 'DESCRIPTIONS'
+    DESCRIPTIONS = 'DESCRIPTIONS',
+    EDITOR = 'Editor'
 }
 
 

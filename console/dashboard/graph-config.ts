@@ -7,6 +7,7 @@ import { DBTable, DBTableConfigForm } from './Charts/Table/index.js'
 import { DBDescriptions, DBDescriptionsForm } from './Charts/Descriptions/index.js'
 import { Pie, PieConfigForm } from './Charts/PIE/index.js'
 import { OrderBook, OrderConfigForm } from './Charts/OrderBook/index.js'
+import { DashboardEditor as Editor, EditorConfigForm } from './Charts/DashboardEditor/index.js'
 
 type GraphConfig =  { 
     [key in WidgetChartType]: {
@@ -50,5 +51,9 @@ export const graph_config: GraphConfig =  {
     [WidgetChartType.PIE]: {
         component: Pie,
         config: PieConfigForm
+    },
+    [WidgetChartType.EDITOR]: {
+        component: Editor,
+        config: EditorConfigForm
     },
 }
