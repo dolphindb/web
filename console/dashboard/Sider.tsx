@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, FundOutlined, HeatMapOutlined, LineChartOutlined, PieChartOutlined, TableOutlined } from '@ant-design/icons'
+import { BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, FundOutlined, HeatMapOutlined, LineChartOutlined, PieChartOutlined, TableOutlined, CodeOutlined } from '@ant-design/icons'
 
 import { WidgetType } from './model.js'
 
@@ -13,13 +13,14 @@ const icons = {
     [WidgetType.TABLE]: <TableOutlined className='icon'/>,
     [WidgetType.TEXT]: <FileTextOutlined className='icon' />,
     [WidgetType.MIX]: <FundOutlined className='icon' />,
-    [WidgetType.DESCRIPTIONS]: <BarsOutlined className='icon'/>
+    [WidgetType.DESCRIPTIONS]: <BarsOutlined className='icon'/>,
+    [WidgetType.EDITOR]: <CodeOutlined className='icon'/>
 }
 
 
 export function Sider ({ visible }: { visible: boolean }) {
     const [collapsed, set_collapsed] = useState(false)
-    
+    console.log('Wiget', WidgetType)
     return <div className={`sider ${collapsed ? 'collapsed' : ''} ${visible ? '' : 'hidden'}`}>
         <div className='graph-items'>
             {Object.entries(WidgetType).map(([key, value]) =>

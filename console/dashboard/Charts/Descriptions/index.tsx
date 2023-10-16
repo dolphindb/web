@@ -19,7 +19,7 @@ interface IProps {
 export function DBDescriptions (props: IProps) {
     const { data_source = [ ], widget } = props
     
-    const config = useMemo(() => widget.config as IDescriptionsConfig, [widget.config])
+    const config = useMemo(() => widget.config as unknown as IDescriptionsConfig, [widget.config])
     
     const items = useMemo<DescriptionsProps['items']>(() => { 
         return data_source.map((item, idx) => {

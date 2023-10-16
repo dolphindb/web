@@ -110,3 +110,11 @@ export interface IDescriptionsConfig {
 export interface IOrderBookConfig {
     time_rate: number
 }
+
+
+export interface IEditorConfig {
+    title: string
+    code: string
+    button_text: string
+}
+
