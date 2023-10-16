@@ -68,7 +68,6 @@ export function DBDescriptions (props: IProps) {
 }
 
 export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_names: string[], data_source?: any[] }) { 
-    console.log(col_names, data_source, 'data')
     
     const ColSetting = <div className='description-setting-form'>
         <Form.Item name='label_col' label='标签列' initialValue={col_names[0]}>
