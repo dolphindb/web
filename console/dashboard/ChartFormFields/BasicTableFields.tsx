@@ -3,7 +3,6 @@ import './index.scss'
 import { Collapse, Form, Input, InputNumber, Select } from 'antd'
 
 import { t } from '../../../i18n/index.js'
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { type CollapseProps } from 'antd/lib'
 import { format_time_options } from './constant.js'
@@ -37,26 +36,13 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                             <Form.Item label={t('时间格式化')} name={ [field.name, 'time_format']}>
                                 <Select options={format_time_options} allowClear/>
                             </Form.Item>
-                            <Form.Item label={t('数值格式化')} name={[field.name, 'with_value_format']} initialValue={false}>
+                            
+                            <Form.Item label={t('小数位数')} name={[field.name, 'decimal_places']}>
+                                <InputNumber min={0} />
+                            </Form.Item>
+                            <Form.Item label='是否千分位' name={ [field.name, 'is_thousandth_place']} initialValue={false}>
                                 <BoolRadioGroup />
                             </Form.Item>
-                            
-                            <FormDependencies dependencies={[['col_properties', field.name, 'with_value_format' ]]}>
-                                {value => { 
-                                    const { col_properties = [ ] } = value
-                                    if (col_properties[field.name]?.with_value_format)
-                                        return <>
-                                            <Form.Item label={t('小数位数')} name={[field.name, 'decimal_places']} initialValue={4}>
-                                                <InputNumber />
-                                            </Form.Item>
-                                            <Form.Item label='是否千分位' name={ [field.name, 'is_thousandth_place']} initialValue={false}>
-                                                <BoolRadioGroup />
-                                            </Form.Item>
-                                        </>
-                                    else
-                                        return null
-                                } }
-                            </FormDependencies>
                             <Form.Item label={t('展示列名')} name={[field.name, 'display_name']}>
                                 <Input />
                             </Form.Item>

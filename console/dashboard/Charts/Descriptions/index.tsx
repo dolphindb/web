@@ -1,8 +1,8 @@
 import './index.scss'
 
-import { Collapse, Descriptions, type DescriptionsProps, Divider, Form, InputNumber, Select, Space, type CollapseProps, Input } from 'antd'
+import { Collapse, Descriptions, type DescriptionsProps, Form, InputNumber, Select, type CollapseProps, Input } from 'antd'
 import { type Widget } from '../../model.js'
-import { convert_list_to_options } from '../../utils.js'
+import { convert_list_to_options, format_number, format_time } from '../../utils.js'
 
 
 import { useMemo } from 'react'
@@ -10,6 +10,10 @@ import { type IDescriptionsConfig } from '../../type.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
+import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
+import { format_time_options } from '../../ChartFormFields/constant.js'
+import { t } from '../../../../i18n/index.js'
+
 
 interface IProps { 
     widget: Widget
@@ -24,16 +28,22 @@ export function DBDescriptions (props: IProps) {
     const items = useMemo<DescriptionsProps['items']>(() => { 
         const { col_properties } = config
         return data_source.map((item, idx) => {
-            const { color: custom_color, threshold } = col_properties?.[idx] ?? { }
+            const { color: custom_color, threshold, time_format, decimal_places, is_thousandth_place } = col_properties?.[idx] ?? { }
             let color = '#fff'
             if (threshold || threshold === 0)
                 color = item[config.value_col] > threshold ? 'red' : 'green'
             color = custom_color ?? color
- 
+            
+            let value = item[config.value_col]
+            if (time_format)
+                value = format_time(value, time_format)
+            else
+                value = format_number(value, decimal_places, is_thousandth_place)
+            
             return {
                 key: idx,
                 label: item[config.label_col],
-                children: item[config.value_col],
+                children: value,
                 labelStyle: { fontSize: config.label_font_size },
                 contentStyle: {
                     fontWeight: 500,
@@ -58,6 +68,8 @@ export function DBDescriptions (props: IProps) {
 }
 
 export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_names: string[], data_source?: any[] }) { 
+    console.log(col_names, data_source, 'data')
+    
     const ColSetting = <div className='description-setting-form'>
         <Form.Item name='label_col' label='标签列' initialValue={col_names[0]}>
             <Select options={convert_list_to_options(col_names)} />
@@ -73,6 +85,8 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
         <Form.Item name='value_font_size' label='值字号'>
             <InputNumber addonAfter='px'/>
         </Form.Item>
+        
+        
         
         <Form.Item name='column_num' label='每行展示数量' initialValue={4}>
             <InputNumber />
@@ -95,12 +109,23 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
                                 <Form.Item name={[field.name, 'label']} hidden>
                                     <Input />
                                 </Form.Item>
-                                <Form.Item name={[field.name, 'threshold']} label='阈值'>
-                                    <InputNumber />
-                                </Form.Item>
                                 <Form.Item name={[field.name, 'color']} label='值颜色'>
                                     <StringColorPicker />
                                 </Form.Item>
+                                <Form.Item name={[field.name, 'threshold']} label='阈值'>
+                                    <InputNumber />
+                                </Form.Item>
+                                <Form.Item label={t('时间格式化')} name={ [field.name, 'time_format']}>
+                                    <Select options={format_time_options} allowClear/>
+                                </Form.Item>
+                            
+                                <Form.Item label={t('小数位数')} name={[field.name, 'decimal_places']} >
+                                    <InputNumber min={0} />
+                                </Form.Item>
+                                <Form.Item label='是否千分位' name={ [field.name, 'is_thousandth_place']} initialValue={false}>
+                                    <BoolRadioGroup />
+                                </Form.Item>
+                               
                             </>,
                         }))
                         

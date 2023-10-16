@@ -50,6 +50,7 @@ export function DBTable (props: IProps) {
     
     const show_cols = useMemo(() => config?.col_properties?.filter(item => item?.show) ?? [ ], [config.col_properties])
     
+    
     useEffect(() => { set_select_cols(show_cols?.map(item => item.col)) }, [show_cols])
     
     const radio_group_options = useMemo(() => {
@@ -64,7 +65,7 @@ export function DBTable (props: IProps) {
         return selected_cols
             .map(col_name => show_cols.find(item => item.col === col_name))
             .map(col => {
-                const { col: name, width = 200, threshold, display_name, with_value_format, decimal_places, time_format, is_thousandth_place } = col ?? { }
+                const { col: name, width = 200, threshold, display_name, decimal_places, time_format, is_thousandth_place } = col ?? { }
                 
                 const col_config = {
                     dataIndex: name,
@@ -77,7 +78,7 @@ export function DBTable (props: IProps) {
                             style: { backgroundColor: get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])) }
                         }
                     },
-                    render: val => typeof val === 'number' ? val : val || '-' 
+                    render: val => typeof val === 'number' ? format_number(val, decimal_places, is_thousandth_place) : val || '-' 
                 }
                 
                 if (time_format)  
@@ -86,12 +87,6 @@ export function DBTable (props: IProps) {
                         render: val => format_time(val, time_format)
                     }
                 
-                
-                if (with_value_format)
-                    return {
-                        ...col_config,
-                        render: val => format_number(val, decimal_places, is_thousandth_place)
-                    }
                 return col_config
                
             })
