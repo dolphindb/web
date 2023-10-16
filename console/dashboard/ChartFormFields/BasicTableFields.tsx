@@ -6,6 +6,7 @@ import { t } from '../../../i18n/index.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { type CollapseProps } from 'antd/lib'
 import { format_time_options } from './constant.js'
+import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 
 
 export function BasicTableFields ({ col_names }: { col_names: string[] }) {
@@ -27,12 +28,20 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                             <Form.Item label={t('是否展示')} name={[field.name, 'show']} initialValue>
                                 <BoolRadioGroup />
                             </Form.Item>
+                            <Form.Item label={t('展示列名')} name={[field.name, 'display_name']}>
+                                <Input />
+                            </Form.Item>
                             <Form.Item label={t('列宽')} name={[field.name, 'width']}>
                                 <InputNumber addonAfter='px'/>
                             </Form.Item>
                             <Form.Item label={t('阈值')} tooltip={t('数值列可设置阈值，设置之后后超过阈值的数值展示为红色，低于阈值则展示为绿色，非数值列不生效')} name={[field.name, 'threshold']}>
                                 <InputNumber />
                             </Form.Item>
+                            
+                            <Form.Item label='字体颜色' name={[field.name, 'color']}>
+                                <StringColorPicker />
+                            </Form.Item>
+                            
                             <Form.Item label={t('时间格式化')} name={[field.name, 'time_format']}>
                                 <Select options={format_time_options} allowClear/>
                             </Form.Item>
@@ -43,9 +52,7 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                             <Form.Item label='是否千分位' name={ [field.name, 'is_thousandth_place']} initialValue={false}>
                                 <BoolRadioGroup />
                             </Form.Item>
-                            <Form.Item label={t('展示列名')} name={[field.name, 'display_name']}>
-                                <Input />
-                            </Form.Item>
+                            
                             
                         </div>,
                         forceRender: true

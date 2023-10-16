@@ -67,11 +67,13 @@ export interface IColProperty {
     width?: number
     threshold?: number
     show: boolean
+    color?: string
     with_value_format: boolean
     decimal_places?: number
     display_name?: string
     time_format?: ITimeFormat
     is_thousandth_place?: boolean
+    
 }
 export interface ITableConfig {
     title?: string

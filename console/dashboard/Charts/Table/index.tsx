@@ -65,7 +65,7 @@ export function DBTable (props: IProps) {
         return selected_cols
             .map(col_name => show_cols.find(item => item.col === col_name))
             .map(col => {
-                const { col: name, width = 200, threshold, display_name, decimal_places, time_format, is_thousandth_place } = col ?? { }
+                const { col: name, width = 200, threshold, display_name, decimal_places, time_format, is_thousandth_place, color } = col ?? { }
                 
                 const col_config = {
                     dataIndex: name,
@@ -75,7 +75,10 @@ export function DBTable (props: IProps) {
                     ellipsis: true,
                     onCell: record => { 
                         return {
-                            style: { backgroundColor: get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])) }
+                            style: {
+                                backgroundColor: get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])),
+                                color
+                            }
                         }
                     },
                     render: val => typeof val === 'number' ? format_number(val, decimal_places, is_thousandth_place) : val || '-' 
