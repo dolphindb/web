@@ -358,7 +358,6 @@ async function subscribe_stream (source_id: string) {
         data_source.ddb = stream_connection
     } catch (error) {
         dashboard.message.error(error.message)
-        throw error
     }
 }
 
