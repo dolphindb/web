@@ -97,13 +97,16 @@ export interface IDescriptionsConfig {
     label_col: string
     value_col: string
     column_num?: number
-    threshold?: number
+    
     label_font_size?: number
     value_font_size?: number
-    value_colors: Array<{
-        col: string
+    
+    col_properties: Array<{
+        name: string
         color: string
+        threshold?: number
     }>
+    
 }
 
 

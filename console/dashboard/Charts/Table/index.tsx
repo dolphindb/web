@@ -11,39 +11,12 @@ import { type ITableConfig } from '../../type.js'
 
 import { type ColumnsType } from 'antd/es/table'
 import { isNumber } from 'lodash'
-import { format_time, safe_json_parse } from '../../utils.js'
+import { format_number, format_time, safe_json_parse } from '../../utils.js'
 
 
 interface IProps extends TableProps<any> { 
     widget: Widget
     data_source: any[]
-}
-
-
-
-function format_value (val: any, decimal_places = 4, is_thousandth_place) {
-    let value = val
-    if (typeof val === 'number' || !isNaN(Number(val))) { 
-        // 0 不需要格式化
-        if (Number(val) === 0)
-            return 0
-        value =  val.toFixed(decimal_places)
-    }
-        
-    else if (typeof val === 'string') { 
-        const arr = safe_json_parse(val)
-        if (Array.isArray(arr))
-            value =  JSON.stringify(arr.map(item => format_value(item, decimal_places, is_thousandth_place))).replace(/\"/g, '')
-    }
-    
-    if (is_thousandth_place) { 
-        console.log(is_thousandth_place, value)
-         value = value.replace(/\B(?=(\d{3})+(?=\.))/g, ',')
-    }
-       
-    
-    return value
-        
 }
 
 function get_cell_color (val, threshold, total) { 
@@ -117,7 +90,7 @@ export function DBTable (props: IProps) {
                 if (with_value_format)
                     return {
                         ...col_config,
-                        render: val => format_value(val, decimal_places, is_thousandth_place)
+                        render: val => format_number(val, decimal_places, is_thousandth_place)
                     }
                 return col_config
                

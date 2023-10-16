@@ -11,6 +11,7 @@ import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import dayjs from 'dayjs'
 import { get_variable_value, subscribe_variable } from './Variable/variable.js'
 
+
 export function format_time (time: string, format: string) { 
     try {
         return dayjs(time).format(format)
@@ -324,4 +325,30 @@ export function safe_json_parse (val) {
     } catch (e) { 
         return val
     }
+}
+
+
+export function format_number (val: any, decimal_places = 4, is_thousandth_place) {
+    let value = val
+    if (typeof val === 'number' || !isNaN(Number(val))) { 
+        // 0 不需要格式化
+        if (Number(val) === 0)
+            return 0
+        value =  val.toFixed(decimal_places)
+    }
+        
+    else if (typeof val === 'string') { 
+        const arr = safe_json_parse(val)
+        if (Array.isArray(arr))
+            value =  JSON.stringify(arr.map(item => format_number(item, decimal_places, is_thousandth_place))).replace(/\"/g, '')
+    }
+    
+    if (is_thousandth_place) 
+        if (value.includes('.'))
+            value = value.replace(/\B(?=(\d{3})+(?=\.))/g, ',')
+        else
+            value = value.replace(/\B(?=(\d{3})+$)/g, ',')
+    
+        return value
+        
 }

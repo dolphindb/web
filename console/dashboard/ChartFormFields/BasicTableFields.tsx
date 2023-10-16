@@ -21,7 +21,7 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                     const items: CollapseProps['items'] = fields.map(field => ({
                         key: field.name,
                         label: col_names[field.name],
-                        children: <>
+                        children: <div className='axis-wrapper'>
                             <Form.Item name={[field.name, 'col']} hidden>
                                 <Input />
                             </Form.Item>
@@ -46,8 +46,8 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                                     const { col_properties = [ ] } = value
                                     if (col_properties[field.name]?.with_value_format)
                                         return <>
-                                            <Form.Item label={t('小数位数')} name={[field.name, 'decimal_places']}>
-                                                <InputNumber  />
+                                            <Form.Item label={t('小数位数')} name={[field.name, 'decimal_places']} initialValue={4}>
+                                                <InputNumber />
                                             </Form.Item>
                                             <Form.Item label='是否千分位' name={ [field.name, 'is_thousandth_place']} initialValue={false}>
                                                 <BoolRadioGroup />
@@ -61,7 +61,7 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                                 <Input />
                             </Form.Item>
                             
-                        </>,
+                        </div>,
                         forceRender: true
                     }))
                     return <Collapse items={items} size='small'/>
@@ -72,9 +72,11 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
             key: 'pagination',
             label: t('分页设置'),
             forceRender: true,
-            children: <Form.Item name={['pagination', 'show']} label={t('需要分页')} initialValue >
-                <BoolRadioGroup />
-            </Form.Item>,
+            children: <div className='axis-wrapper'>
+                <Form.Item name={['pagination', 'show']} label={t('需要分页')} initialValue >
+                    <BoolRadioGroup />
+                </Form.Item>
+            </div>,
             
         }
     ]} />
