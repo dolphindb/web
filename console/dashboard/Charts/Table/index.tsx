@@ -11,7 +11,7 @@ import { type ITableConfig } from '../../type.js'
 
 import { type ColumnsType } from 'antd/es/table'
 import { isNumber } from 'lodash'
-import { format_number, format_time, safe_json_parse } from '../../utils.js'
+import { format_number, format_time } from '../../utils.js'
 
 
 interface IProps extends TableProps<any> { 
@@ -46,7 +46,9 @@ export function DBTable (props: IProps) {
     const { widget, data_source = [ ], ...otherProps } = props
     const [selected_cols, set_select_cols] = useState([ ])
     
-    const config = widget.config as ITableConfig
+    console.log('data_source', data_source)
+    
+    const config = useMemo(() => widget.config as ITableConfig, [widget.config])
     
     const show_cols = useMemo(() => config?.col_properties?.filter(item => item?.show) ?? [ ], [config.col_properties])
     
@@ -134,7 +136,7 @@ export function DBTable (props: IProps) {
                     bordered={config.bordered}
                     scroll={{ x: '100%' }}
                     columns={columns}
-                    dataSource={data_source}
+                    dataSource={config.is_reverse ? data_source.reverse() : data_source}
                     pagination={pagination}
                     rowKey={() => genid()}
                     {...otherProps}
