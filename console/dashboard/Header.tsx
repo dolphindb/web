@@ -2,7 +2,7 @@ import './Header.sass'
 
 import { useEffect, useState } from 'react'
 import { Button, Input, Modal, Select, Tag, Tooltip, Upload } from 'antd'
-import { DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, ShareAltOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
+import { DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, ShareAltOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -229,7 +229,7 @@ export function Header () {
                         add_open()
                     }}
                 >
-                    <FileOutlined />
+                    <FileAddOutlined />
                 </Button>
             </Tooltip>
             

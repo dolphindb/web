@@ -33,7 +33,7 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                             <Form.Item label={t('阈值')} tooltip={t('数值列可设置阈值，设置之后后超过阈值的数值展示为红色，低于阈值则展示为绿色，非数值列不生效')} name={[field.name, 'threshold']}>
                                 <InputNumber />
                             </Form.Item>
-                            <Form.Item label={t('时间格式化')} name={ [field.name, 'time_format']}>
+                            <Form.Item label={t('时间格式化')} name={[field.name, 'time_format']}>
                                 <Select options={format_time_options} allowClear/>
                             </Form.Item>
                             
