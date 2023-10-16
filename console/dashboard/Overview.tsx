@@ -13,6 +13,7 @@ import { model } from '../model.js'
 import { t } from '../../i18n/index.js'
 
 import { type DashBoardConfig, dashboard } from './model.js'
+import { log } from 'console'
 
 
 export function Overview () {
