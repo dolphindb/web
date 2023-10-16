@@ -54,8 +54,8 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                                 <BoolRadioGroup />
                             </Form.Item>
                             
-                            <Form.Item label="对齐方式" name={[field.name, 'align']} initialValue={"left"}>
-                                <Select options={convert_list_to_options(["left", 'center', 'right'])} />
+                            <Form.Item label='对齐方式' name={[field.name, 'align']} initialValue='left'>
+                                <Select options={convert_list_to_options(['left', 'center', 'right'])} />
                             </Form.Item>
                             
                             

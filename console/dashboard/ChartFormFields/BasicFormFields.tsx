@@ -28,6 +28,10 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' | 'descript
                 }))} />
             </Form.Item>
             
+            <Form.Item name='is_reverse' label='是否倒序展示' tooltip='流数据开启此功能可将最新的数据插入到表格头部' initialValue={false}>
+                <BoolRadioGroup />
+            </Form.Item>
+            
             {type === 'chart' && <>
                 <Form.Item name='with_legend' label={t('图例')} initialValue>
                     <BoolRadioGroup />

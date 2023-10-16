@@ -348,7 +348,6 @@ export function format_number (val: any, decimal_places, is_thousandth_place) {
                 value = value.toString().replace(/\B(?=(\d{3})+(?=\.))/g, ',')
             else
                 value = value.toString().replace(/\B(?=(\d{3})+$)/g, ',')
-        
     } catch { }
     return value
         

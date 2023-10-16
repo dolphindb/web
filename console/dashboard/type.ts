@@ -86,6 +86,7 @@ export interface ITableConfig {
         pagesize: number
     }
     need_select_cols: boolean
+    is_reverse?: boolean
 }
 
 
