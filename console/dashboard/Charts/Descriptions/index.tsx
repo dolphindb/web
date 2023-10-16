@@ -1,15 +1,19 @@
 import './index.scss'
 
-import { Button, Collapse, Descriptions, type DescriptionsProps, Divider, Form, InputNumber, Select, Space } from 'antd'
+import { Collapse, Descriptions, type DescriptionsProps, Form, InputNumber, Select, type CollapseProps, Input } from 'antd'
 import { type Widget } from '../../model.js'
-import { convert_list_to_options } from '../../utils.js'
-import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { convert_list_to_options, format_number, format_time } from '../../utils.js'
+
 
 import { useMemo } from 'react'
 import { type IDescriptionsConfig } from '../../type.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
+import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
+import { format_time_options } from '../../ChartFormFields/constant.js'
+import { t } from '../../../../i18n/index.js'
+
 
 interface IProps { 
     widget: Widget
@@ -22,20 +26,28 @@ export function DBDescriptions (props: IProps) {
     const config = useMemo(() => widget.config as unknown as IDescriptionsConfig, [widget.config])
     
     const items = useMemo<DescriptionsProps['items']>(() => { 
+        const { col_properties } = config
         return data_source.map((item, idx) => {
+            const { color: custom_color, threshold, time_format, decimal_places, is_thousandth_place } = col_properties?.[idx] ?? { }
             let color = '#fff'
-            if (config.threshold || config.threshold === 0)
-                color = item[config.value_col] > config.threshold ? 'red' : 'green'
-            color = config.value_colors.find(color => color?.col === item[config.label_col])?.color ?? color
+            if (threshold || threshold === 0)
+                color = item[config.value_col] > threshold ? 'red' : 'green'
+            color = custom_color ?? color
+            
+            let value = item[config.value_col]
+            if (time_format)
+                value = format_time(value, time_format)
+            else
+                value = format_number(value, decimal_places, is_thousandth_place)
             
             return {
                 key: idx,
                 label: item[config.label_col],
-                children: item[config.value_col],
+                children: value,
                 labelStyle: { fontSize: config.label_font_size },
                 contentStyle: {
                     fontWeight: 500,
-                    color,
+                    color: color,
                     fontSize: config.value_font_size
                 }
             }
@@ -56,16 +68,14 @@ export function DBDescriptions (props: IProps) {
 }
 
 export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_names: string[], data_source?: any[] }) { 
-    const ColSetting = <>
+    console.log(col_names, data_source, 'data')
+    
+    const ColSetting = <div className='description-setting-form'>
         <Form.Item name='label_col' label='标签列' initialValue={col_names[0]}>
             <Select options={convert_list_to_options(col_names)} />
         </Form.Item>
         <Form.Item name='value_col' label='值列' initialValue={col_names[0]}>
             <Select options={convert_list_to_options(col_names)} />
-        </Form.Item>
-        
-        <Form.Item name='threshold' label='阈值' tooltip='自定义颜色优先级高于阈值色'>
-            <InputNumber />
         </Form.Item>
         
         <Form.Item name='label_font_size' label='标签字号'>
@@ -76,38 +86,55 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
             <InputNumber addonAfter='px'/>
         </Form.Item>
         
+        
+        
         <Form.Item name='column_num' label='每行展示数量' initialValue={4}>
             <InputNumber />
         </Form.Item>
         
-        <Divider />
-        
-        <div className='value-color-values'>值颜色配置</div>
         <FormDependencies dependencies={['label_col']}>
             {({ label_col }) => { 
-                return <Form.List name='value_colors' initialValue={[{ }]}>
-                    {(fields, { add, remove }) => <>
-                        {
-                            fields.map(field =>
-                                <Space key={field.name} className='color-item'>
-                                    <Form.Item name={[field.name, 'col']} label='标签列'>
-                                        <Select options={convert_list_to_options(data_source.map(item => item[label_col]))} />
-                                    </Form.Item>
-                                    <Form.Item name={[field.name, 'color']}>
-                                        <StringColorPicker />
-                                    </Form.Item>
-                                    <DeleteOutlined className='color-item-delete-icon' onClick={() => { remove(field.name) }}/>
-                            </Space>)
-                        }
+        
+                if (!label_col)
+                    return null
+                return <Form.List name='col_properties' initialValue={data_source.map(item => ({ label: item[label_col] }))}>
+                    {fields => { 
+                        const labels = data_source.map(item => (item[label_col]))
                         
-                        <Button block type='dashed' icon={<PlusCircleOutlined />} onClick={() => { add() }}>增加颜色配置</Button>
-                    
-                    </>}
+                        const items: CollapseProps['items'] = fields.map((field, idx) => ({
+                            key: idx,
+                            label: labels[field.name],
+                            forceRender: true,
+                            children: <>
+                                <Form.Item name={[field.name, 'label']} hidden>
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item name={[field.name, 'color']} label='值颜色'>
+                                    <StringColorPicker />
+                                </Form.Item>
+                                <Form.Item name={[field.name, 'threshold']} label='阈值'>
+                                    <InputNumber />
+                                </Form.Item>
+                                <Form.Item label={t('时间格式化')} name={ [field.name, 'time_format']}>
+                                    <Select options={format_time_options} allowClear/>
+                                </Form.Item>
+                            
+                                <Form.Item label={t('小数位数')} name={[field.name, 'decimal_places']} >
+                                    <InputNumber min={0} />
+                                </Form.Item>
+                                <Form.Item label='是否千分位' name={ [field.name, 'is_thousandth_place']} initialValue={false}>
+                                    <BoolRadioGroup />
+                                </Form.Item>
+                               
+                            </>,
+                        }))
+                        
+                        return <Collapse items={items} size='small'/>
+                    }}
                 </Form.List>
             } }
-            
         </FormDependencies>
-    </>
+    </div>
     
     return <>
         <BasicFormFields type='description'/>

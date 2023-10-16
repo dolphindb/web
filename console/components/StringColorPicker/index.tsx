@@ -18,6 +18,7 @@ export function StringColorPicker (props: IProps) {
         defaultValue={null}
         format='hex'
         defaultFormat='hex'
+        allowClear
         {...others}
         onChange={on_color_change}
     />

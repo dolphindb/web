@@ -11,39 +11,12 @@ import { type ITableConfig } from '../../type.js'
 
 import { type ColumnsType } from 'antd/es/table'
 import { isNumber } from 'lodash'
-import { format_time, safe_json_parse } from '../../utils.js'
+import { format_number, format_time, safe_json_parse } from '../../utils.js'
 
 
 interface IProps extends TableProps<any> { 
     widget: Widget
     data_source: any[]
-}
-
-
-
-function format_value (val: any, decimal_places = 4, is_thousandth_place) {
-    let value = val
-    if (typeof val === 'number' || !isNaN(Number(val))) { 
-        // 0 不需要格式化
-        if (Number(val) === 0)
-            return 0
-        value =  val.toFixed(decimal_places)
-    }
-        
-    else if (typeof val === 'string') { 
-        const arr = safe_json_parse(val)
-        if (Array.isArray(arr))
-            value =  JSON.stringify(arr.map(item => format_value(item, decimal_places, is_thousandth_place))).replace(/\"/g, '')
-    }
-    
-    if (is_thousandth_place) { 
-        console.log(is_thousandth_place, value)
-         value = value.replace(/\B(?=(\d{3})+(?=\.))/g, ',')
-    }
-       
-    
-    return value
-        
 }
 
 function get_cell_color (val, threshold, total) { 
@@ -77,6 +50,7 @@ export function DBTable (props: IProps) {
     
     const show_cols = useMemo(() => config?.col_properties?.filter(item => item?.show) ?? [ ], [config.col_properties])
     
+    
     useEffect(() => { set_select_cols(show_cols?.map(item => item.col)) }, [show_cols])
     
     const radio_group_options = useMemo(() => {
@@ -91,7 +65,7 @@ export function DBTable (props: IProps) {
         return selected_cols
             .map(col_name => show_cols.find(item => item.col === col_name))
             .map(col => {
-                const { col: name, width = 200, threshold, display_name, with_value_format, decimal_places, time_format, is_thousandth_place } = col ?? { }
+                const { col: name, width = 200, threshold, display_name, decimal_places, time_format, is_thousandth_place } = col ?? { }
                 
                 const col_config = {
                     dataIndex: name,
@@ -104,7 +78,7 @@ export function DBTable (props: IProps) {
                             style: { backgroundColor: get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])) }
                         }
                     },
-                    render: val => typeof val === 'number' ? val : val || '-' 
+                    render: val => typeof val === 'number' ? format_number(val, decimal_places, is_thousandth_place) : val || '-' 
                 }
                 
                 if (time_format)  
@@ -113,12 +87,6 @@ export function DBTable (props: IProps) {
                         render: val => format_time(val, time_format)
                     }
                 
-                
-                if (with_value_format)
-                    return {
-                        ...col_config,
-                        render: val => format_value(val, decimal_places, is_thousandth_place)
-                    }
                 return col_config
                
             })
