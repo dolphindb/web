@@ -86,6 +86,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             await this.get_configs_from_local()
         else
             await this.get_dashboard_configs()
+        console.log('configs:', this.configs)
         if (!this.config) {
             const id = genid()
             const new_dashboard_config = {
