@@ -1,11 +1,11 @@
 import './index.scss'
 
-import { Collapse, Descriptions, type DescriptionsProps, Form, InputNumber, Select, type CollapseProps, Input } from 'antd'
+import { Collapse, Descriptions, type DescriptionsProps, Form, InputNumber, Select, type CollapseProps, Input, Checkbox } from 'antd'
 import { type Widget } from '../../model.js'
 import { convert_list_to_options, format_number, format_time } from '../../utils.js'
 
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { type IDescriptionsConfig } from '../../type.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
@@ -25,9 +25,11 @@ export function DBDescriptions (props: IProps) {
     
     const config = useMemo(() => widget.config as unknown as IDescriptionsConfig, [widget.config])
     
+    const [selected_cols, set_selected_cols] = useState(data_source.map(item => item[config.label_col]))
+    
     const items = useMemo<DescriptionsProps['items']>(() => { 
         const { col_properties } = config
-        return data_source.map((item, idx) => {
+        return data_source.filter(item => selected_cols.includes(item[config.label_col])).map((item, idx) => {
             const { color: custom_color, threshold, time_format, decimal_places, is_thousandth_place } = col_properties?.[idx] ?? { }
             let color = '#fff'
             if (threshold || threshold === 0)
@@ -53,18 +55,26 @@ export function DBDescriptions (props: IProps) {
             }
             
         })
-    }, [config, data_source])
+    }, [config, data_source, selected_cols])
     
     
+    return <>
     
-    return <Descriptions
-        colon={false}
-        className='my-descriptions'
-        layout='vertical'
-        title={<div style={{ fontSize: config.title_size }}>{config.title}</div>}
-        items={items}
-        column={config.column_num}
-    />
+        {  config.with_select && <Checkbox.Group
+            onChange={ val => { set_selected_cols(val) }  }
+            value={selected_cols}
+            options={convert_list_to_options(data_source.map(item => item[config.label_col]))}
+            className='table-radio-group' /> }
+        
+        <Descriptions
+            colon={false}
+            className='my-descriptions'
+            layout='vertical'
+            title={<div style={{ fontSize: config.title_size }}>{config.title}</div>}
+            items={items}
+            column={config.column_num}
+        />
+    </>
 }
 
 export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_names: string[], data_source?: any[] }) { 
@@ -90,6 +100,11 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
         <Form.Item name='column_num' label='每行展示数量' initialValue={4}>
             <InputNumber />
         </Form.Item>
+        
+        <Form.Item name='with_select' label='可选展示列' initialValue={false}>
+            <BoolRadioGroup />
+        </Form.Item>
+            
         
         <FormDependencies dependencies={['label_col']}>
             {({ label_col }) => { 

@@ -106,6 +106,8 @@ export interface IDescriptionsConfig {
     label_font_size?: number
     value_font_size?: number
     
+    with_select?: boolean
+    
     col_properties: Array<{
         name: string
         color: string
