@@ -49,7 +49,7 @@ export function Header () {
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     
     async function save_config () {
-        await dashboard.update_config({
+        const updated_config = {
             ...config,
             data: {
                 datasources: await export_data_sources(),
@@ -59,15 +59,16 @@ export function Header () {
                 }
             }
             
-        })
+        }
+        await dashboard.update_config(updated_config)
+        return updated_config
     }
     
     
     async function handle_save () {
         try {
-            await save_config()
-            
-            await dashboard.update_dashboard_config(config)
+            const updated_config = await save_config()
+            await dashboard.update_dashboard_config(updated_config)
             dashboard.message.success(t('数据面板保存成功'))
         } catch (error) {
             model.show_error({ error })
@@ -121,7 +122,7 @@ export function Header () {
             }
             
             await dashboard.update_config(updated_config)
-            
+            await dashboard.update_dashboard_config(updated_config)
             // await dashboard.save_configs_to_local()
             dashboard.message.success(t('修改成功'))
             

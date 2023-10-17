@@ -46,8 +46,6 @@ export function DBTable (props: IProps) {
     const { widget, data_source = [ ], ...otherProps } = props
     const [selected_cols, set_select_cols] = useState([ ])
     
-    console.log('data_source', data_source)
-    
     const config = useMemo(() => widget.config as ITableConfig, [widget.config])
     
     const show_cols = useMemo(() => config?.col_properties?.filter(item => item?.show) ?? [ ], [config.col_properties])
@@ -84,7 +82,7 @@ export function DBTable (props: IProps) {
                             }
                         }
                     },
-                    render: val => typeof val === 'number' ? format_number(val, decimal_places, is_thousandth_place) : val || '-' 
+                    render: val => (decimal_places || is_thousandth_place) ? format_number(val, decimal_places, is_thousandth_place) : val ?? '-'
                 }
                 
                 if (time_format)  
@@ -94,6 +92,7 @@ export function DBTable (props: IProps) {
                     }
                 
                 return col_config
+                
                
             })
     }, [ selected_cols, data_source, show_cols])

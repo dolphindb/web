@@ -4,7 +4,7 @@ import { Model } from 'react-object-model'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbVectorString } from 'dolphindb/browser.js'
+import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbVectorString, DdbLong } from 'dolphindb/browser.js'
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
@@ -82,11 +82,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
-        if (new URLSearchParams(location.search).get('local') === '1')
-            await this.get_configs_from_local()
-        else
+        try {
             await this.get_dashboard_configs()
-        console.log('configs', this.configs)
+        } catch (error) {
+            await this.get_configs_from_local()
+        }
         if (!this.config) {
             const id = genid()
             const new_dashboard_config = {
@@ -292,6 +292,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         })
     }
     
+    
     update_widget (widget: Widget) {
         if (this.widgets.find(({ id }) => id === widget.id)) { 
             Object.assign(this.widgets.find(({ id }) => id === widget.id), widget)
@@ -372,6 +373,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             }
     }
     
+    
     /** 获取分享的用户列表 */
     async get_users_to_share () {
         let users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
@@ -380,36 +382,47 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     async add_dashboard_config (config: DashBoardConfig) {
-        this.save_configs_to_local()
+        await this.save_configs_to_local()
         const params = JSON.stringify(
-                ({ ...config, data: JSON.stringify(config.data) })) 
-        await model.ddb.eval<DdbVoid>(`add_dashboard_config(${params})`, { urgent: true })
+                ({ ...config, data: JSON.stringify(config.data) }))
+        try {
+            await model.ddb.eval<DdbVoid>(`add_dashboard_config(${params})`, { urgent: true })
+        } catch (error) {
+            console.log('add dashboard error:', error)
+        } 
     }
     
     
     async delete_dashboard_configs (dashboard_config_ids: number[]) {
-        this.save_configs_to_local()
-        await model.ddb.call<DdbVoid>('delete_dashboard_configs', [new DdbVectorLong(dashboard_config_ids)], { urgent: true })
+        await this.save_configs_to_local()
+        try {
+            await model.ddb.call<DdbVoid>('delete_dashboard_configs', [new DdbVectorLong(dashboard_config_ids)], { urgent: true })
+        } catch (error) {
+            console.log('delete dashboard error:', error)
+        }
     }
     
     
     async update_dashboard_config (config: DashBoardConfig) {
-        this.save_configs_to_local()
+        await this.save_configs_to_local()
         const params = JSON.stringify(
             ({ ...config, data: JSON.stringify(config.data) })) 
-        await model.ddb.eval<DdbVoid>(`update_dashboard_config(${params})`, { urgent: true })
+        try {
+            await model.ddb.eval<DdbVoid>(`update_dashboard_config(${params})`, { urgent: true })
+        } catch (error) {
+            console.log('update dashboard error:', error)
+        }
     }
     
     
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number) {
-        return model.ddb.call('get_dashboard_config', [String(id)], { urgent: true })
+        return model.ddb.call('get_dashboard_config', [new DdbLong(BigInt(id))], { urgent: true })
     }
     
     
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
-        
         const data = await (await model.ddb.call<DdbVoid>('get_dashboard_configs', [ ], { urgent: true })).to_rows()
         this.set({ configs: data.map(cfg => ({ ...cfg, id: Number(cfg.id), data: JSON.parse(cfg.data) }) as DashBoardConfig) })
         const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))

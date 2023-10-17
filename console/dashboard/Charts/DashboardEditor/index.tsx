@@ -8,7 +8,6 @@ import { EditorFields } from '../../ChartFormFields/EditorFields.js'
 import { type IEditorConfig } from '../../type.js'
 
 export function DashboardEditor ({ widget }: { widget: Widget }) {
-    const { editing } = dashboard.use(['editing'])
     const { title, button_text } = widget.config as IEditorConfig
     const [ code, set_code ] = useState('')
     

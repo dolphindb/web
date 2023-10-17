@@ -37,13 +37,10 @@ export function Overview () {
                     model.goto_login()
                     return
                 }
-                if (params.get('local') === '1') 
-                    await dashboard.get_configs_from_local()
-                else
-                    await dashboard.get_dashboard_configs()
+                await dashboard.get_dashboard_configs()
             } catch (error) {
-                model.show_error({ error })
-                throw error
+                await dashboard.get_configs_from_local()
+            
             }
         })()
     }, [ ])
