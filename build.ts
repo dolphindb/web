@@ -72,10 +72,10 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
     const fpd_monaco_maps = `${fpd_out}min-maps/vs/`
     
     
-    await fmkdir(fpd_vendors)
+    await fmkdir(fpd_vendors, { print: verbose })
     
     if (monaco)
-        await fmkdir(fpd_monaco)
+        await fmkdir(fpd_monaco, { print: verbose })
     
     await Promise.all([
         ... [
