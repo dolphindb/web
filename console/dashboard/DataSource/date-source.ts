@@ -127,8 +127,8 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                 if (type === 'success') {
                     if (typeof result === 'object' && result.data) {
                         // 暂时只支持table
-                        new_data_source.data = sql_formatter(result.data as unknown as DdbObj<DdbValue>, new_data_source.max_line)
-                        new_data_source.cols = get_cols(result.data as unknown as DdbObj<DdbValue>)
+                        new_data_source.data = sql_formatter(result.data, new_data_source.max_line)
+                        new_data_source.cols = get_cols(result.data)
                     }
                 } else 
                     throw new Error(result as string)
@@ -157,7 +157,6 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
     //     dep.forEach((widget_id: string) => {
     //         console.log(widget_id, 'render', new_data_source.data)
     //     })
-    console.log(data_sources)
     
     if (code === undefined)
         dashboard.message.success(`${data_source.name} 保存成功！`)
@@ -326,6 +325,16 @@ async function subscribe_stream (source_id: string) {
     const { ddb: { username, password } } = model
     
     try {
+        let column: DdbObj<DdbValue>
+        if (data_source.filter_column) {
+            const { type, result } = await dashboard.execute(parse_code(data_source, 'filter_column'))
+            if (type === 'success') {
+                if (typeof result === 'object' && result.data) 
+                    column = result.data
+            } else 
+                throw new Error(result as string)
+        }
+            
         const stream_connection = new DDB(
             (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + data_source.ip,
             {
@@ -336,9 +345,7 @@ async function subscribe_stream (source_id: string) {
                     table: data_source.stream_table,
                     filters: data_source.filter
                         ? {
-                            column: data_source.filter_column
-                                ? ((await dashboard.execute(parse_code(data_source, 'filter_column'))).result as Result).data
-                                : undefined,
+                            column,
                             expression: parse_code(data_source, 'filter_expression')
                         }
                         : { },
