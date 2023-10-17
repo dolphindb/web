@@ -84,7 +84,7 @@ export function DBTable (props: IProps) {
                             }
                         }
                     },
-                    render: val => typeof val === 'number' ? format_number(val, decimal_places, is_thousandth_place) : val || '-' 
+                    render: val => (decimal_places || is_thousandth_place) ? format_number(val, decimal_places, is_thousandth_place) : val ?? '-'
                 }
                 
                 if (time_format)  
@@ -94,6 +94,7 @@ export function DBTable (props: IProps) {
                     }
                 
                 return col_config
+                
                
             })
     }, [ selected_cols, data_source, show_cols])
