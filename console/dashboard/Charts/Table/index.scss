@@ -7,6 +7,16 @@
     display: flex;
     flex-direction: column;
     
+    .ant-table-wrapper .ant-table-thead th.ant-table-column-sort {
+        background: #313131;
+    }
+    
+    
+    td.ant-table-column-sort {
+        background: none;
+    }
+    
+    
     .ant-table-content {
         &::-webkit-scrollbar-track-piece {
             background-color: #474747 !important;

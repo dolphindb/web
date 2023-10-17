@@ -43,6 +43,10 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                                 <StringColorPicker />
                             </Form.Item>
                             
+                            <Form.Item label='背景颜色' name={[field.name, 'background_color']}>
+                                <StringColorPicker />
+                            </Form.Item>
+                            
                             <Form.Item label={t('时间格式化')} name={[field.name, 'time_format']}>
                                 <Select options={format_time_options} allowClear/>
                             </Form.Item>
@@ -56,6 +60,9 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                             
                             <Form.Item label='对齐方式' name={[field.name, 'align']} initialValue='left'>
                                 <Select options={convert_list_to_options(['left', 'center', 'right'])} />
+                            </Form.Item>
+                            <Form.Item label='是否排序' name={ [field.name, 'sort']} initialValue={false}>
+                                <BoolRadioGroup />
                             </Form.Item>
                             
                             
