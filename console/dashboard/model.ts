@@ -308,7 +308,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async eval (code = this.sql_editor.getValue()) {
+    async eval (code = this.sql_editor.getValue(), preview = false) {
         this.set({ executing: true })
         
         try {
@@ -319,26 +319,25 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 console.log('=>', ddbobj.toString())
             
             if (
-                ddbobj.form === DdbForm.chart ||
+                (ddbobj.form === DdbForm.chart ||
                 ddbobj.form === DdbForm.dict ||
                 ddbobj.form === DdbForm.matrix ||
                 ddbobj.form === DdbForm.set ||
                 ddbobj.form === DdbForm.table ||
-                ddbobj.form === DdbForm.vector
-            )
+                ddbobj.form === DdbForm.vector) && preview
+            )     
                 this.set({
                     result: {
                         type: 'object',
                         data:  ddbobj
                     },
-                })
-            else if (ddbobj.form === DdbForm.scalar)
-                return ddbobj.value
-                
+                }) 
+            return ddbobj   
         } catch (error) {
-            this.set({
-                result: null,
-            })
+            if (preview)
+                this.set({
+                    result: null,
+                })
             throw error
         } finally {
             this.set({ executing: false })
@@ -346,9 +345,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async execute (code?: string): Promise<{
+    async execute (code = this.sql_editor.getValue(), preview = false): Promise<{
         type: 'success' | 'error'
-        result: string | Result
+        result: string | DdbObj<DdbValue>
     }> {
         if (dashboard.executing) {
             this.message.warning(t('当前连接正在执行作业，请等待'))
@@ -360,10 +359,10 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         else 
             try {
-                await this.eval(code)
+                const result = await this.eval(code, preview)
                 return {
                     type: 'success',
-                    result: this.result
+                    result: result
                 }
             } catch (error) {
                 return {
