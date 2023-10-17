@@ -82,8 +82,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
-        await this.get_configs()
-        
+        if (new URLSearchParams(location.search).get('local') === '1')
+            await this.get_configs_from_local()
+        else
+            await this.get_dashboard_configs()
+        console.log('configs', this.configs)
         if (!this.config) {
             const id = genid()
             const new_dashboard_config = {
@@ -370,40 +373,45 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     /** 获取分享的用户列表 */
-    async get_users () {
+    async get_users_to_share () {
         let users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
         this.set({ users_to_share: users })
     }
     
     
     async add_dashboard_config (config: DashBoardConfig) {
-        
+        this.save_configs_to_local()
+        const params = JSON.stringify(
+                ({ ...config, data: JSON.stringify(config.data) })) 
+        await model.ddb.eval<DdbVoid>(`add_dashboard_config(${params})`, { urgent: true })
     }
     
     
     async delete_dashboard_configs (dashboard_config_ids: number[]) {
-        
+        this.save_configs_to_local()
+        await model.ddb.call<DdbVoid>('delete_dashboard_configs', [new DdbVectorLong(dashboard_config_ids)], { urgent: true })
     }
     
     
     async update_dashboard_config (config: DashBoardConfig) {
-        
+        this.save_configs_to_local()
+        const params = JSON.stringify(
+            ({ ...config, data: JSON.stringify(config.data) })) 
+        await model.ddb.eval<DdbVoid>(`update_dashboard_config(${params})`, { urgent: true })
     }
     
     
-    /** 根据 id 获取 DashboardConfig */
+    /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number) {
-        
+        return model.ddb.call('get_dashboard_config', [String(id)], { urgent: true })
     }
     
     
     /** 从服务器获取 dashboard 配置 */
-    async get_configs () {
-        // let data = ((await model.ddb.call('get_dashboard_configs'))).to_rows() 
-        let configs = JSON.parse(localStorage.getItem(storage_keys.dashboards)) || [ ]
+    async get_dashboard_configs () {
         
-        this.set({ configs })
-        // this.set({ configs: data.map(config => ({ ...config, id: Number(config.id), data: JSON.parse(config.data) }) as DashBoardConfig) })
+        const data = await (await model.ddb.call<DdbVoid>('get_dashboard_configs', [ ], { urgent: true })).to_rows()
+        this.set({ configs: data.map(cfg => ({ ...cfg, id: Number(cfg.id), data: JSON.parse(cfg.data) }) as DashBoardConfig) })
         const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
         if (dashboard) {
             const config = this.configs.find(({ id }) =>  id === dashboard)
@@ -415,14 +423,25 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    /** 将配置持久化保存到服务器 */
+    /** 从浏览器获取 dashboard 配置 */
+    async get_configs_from_local () {
+        let configs = JSON.parse(localStorage.getItem(storage_keys.dashboards)) || [ ]
+        
+        this.set({ configs })
+        const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
+        if (dashboard) {
+            const config = this.configs.find(({ id }) =>  id === dashboard)
+            if (config)
+                await this.update_config(config)
+            else
+                this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
+        } 
+    }
+    
+    
+    /** 将配置持久化保存到浏览器 */
     async save_configs_to_local () {
-        // 暂时保存到浏览器
         localStorage.setItem(storage_keys.dashboards, JSON.stringify(this.configs))
-        // const params = JSON.stringify({ configs: this.configs.map(config => 
-        //         ({ ...config, data: JSON.stringify(config.data) })) })
-        // // const params = JSON.stringify({ configs: this.configs })
-        // await model.ddb.eval<DdbVoid>(`set_dashboard_configs(${params})`, { urgent: true })
     }
     
     async share (dashboard_ids: number[], receivers: string[]) {
@@ -464,8 +483,6 @@ export interface DashBoardConfig {
             widgets: any[]
         }
     }
-    
-   
 }
 
 

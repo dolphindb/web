@@ -66,7 +66,8 @@ export function Header () {
     async function handle_save () {
         try {
             await save_config()
-            await dashboard.save_configs_to_local()
+            
+            await dashboard.update_dashboard_config(config)
             dashboard.message.success(t('数据面板保存成功'))
         } catch (error) {
             model.show_error({ error })
@@ -87,9 +88,11 @@ export function Header () {
                 return 
             }
             
-            await dashboard.update_config(dashboard.generate_new_config(new_dashboard_id, new_dashboard_name))
+            const new_dashboard_config = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
             
-            await dashboard.save_configs_to_local()
+            await dashboard.update_config(new_dashboard_config)
+            
+            await dashboard.add_dashboard_config(new_dashboard_config)
             
             dashboard.message.success(t('添加成功'))
         } catch (error) {
@@ -112,12 +115,14 @@ export function Header () {
                 return
             }
             
-            await dashboard.update_config({
+            const updated_config = {
                 ...config,
                 name: edit_dashboard_name,
-            })
+            }
             
-            await dashboard.save_configs_to_local()
+            await dashboard.update_config(updated_config)
+            
+            // await dashboard.save_configs_to_local()
             dashboard.message.success(t('修改成功'))
             
             edit_close()
@@ -135,9 +140,11 @@ export function Header () {
                 return
             }
             
+            await dashboard.delete_dashboard_configs([config.id])
+            
             await dashboard.update_config(config, true)
             
-            await dashboard.save_configs_to_local()
+            // await dashboard.save_configs_to_local()
             
             dashboard.message.success(t('删除成功'))
         } catch (error) {
