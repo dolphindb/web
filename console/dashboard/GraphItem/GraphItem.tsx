@@ -23,7 +23,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     const { variable_ids = [ ] } = widget.config
     
     const { data = [ ] } = data_source_node.use(['data'])
-    console.log('type:', widget.type, graph_config[widget.type])
+    
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     
     return <div className='graph-item-wrapper'>

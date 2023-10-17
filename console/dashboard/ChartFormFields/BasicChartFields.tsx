@@ -43,9 +43,14 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                 const type = list_name ? value[list_name]?.find(item => item)?.type : value?.[name_path]?.type
                 switch (type) { 
                     case AxisType.LOG:
-                        return <Form.Item name={concat_name_path(name_path, 'log_base')} label={t('底数')} initialValue={10}>
-                            <InputNumber />
-                        </Form.Item>
+                        return <>
+                            <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
+                                <Select options={convert_list_to_options(col_names)} allowClear/>
+                            </Form.Item>
+                            <Form.Item name={concat_name_path(name_path, 'log_base')} label={t('底数')} initialValue={10}>
+                                <InputNumber />
+                            </Form.Item>
+                        </>
                     case AxisType.TIME:
                         <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
                             <Select options={format_time_options} />
@@ -53,7 +58,7 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                     case AxisType.CATEGORY:
                         return <>
                             <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
-                                <Select options={convert_list_to_options(col_names)} />
+                                <Select options={convert_list_to_options(col_names)} allowClear/>
                             </Form.Item>
                             <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
                                 <Select options={format_time_options} />

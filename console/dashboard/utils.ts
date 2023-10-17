@@ -184,7 +184,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         
         if (axis.time_format)  
             data = data.map(item => format_time(item, axis.time_format))
-        
+            
         return {
             show: true,
             name: axis.name,
@@ -221,6 +221,12 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         
         if (xAxis.type === AxisType.TIME)  
             data = data_source.map(item => [dayjs(item?.[xAxis.col_name]).format('YYYY-MM-DD HH:mm:ss'), item?.[series.col_name]])
+        
+        if (xAxis.type === AxisType.VALUE || xAxis.type === AxisType.LOG)  
+            data  = data_source.map(item => [item[xAxis.col_name], item[series.col_name]])
+        
+           
+        
         return {
             type: series.type?.toLowerCase(),
             name: series.name,
@@ -337,7 +343,6 @@ export function format_number (val: any, decimal_places, is_thousandth_place) {
                 return 0
             value = val.toFixed(decimal_places)
         }
-            
         else if (typeof val === 'string') {
             const arr = safe_json_parse(val)
             if (Array.isArray(arr))
@@ -349,6 +354,7 @@ export function format_number (val: any, decimal_places, is_thousandth_place) {
             else
                 value = value.toString().replace(/\B(?=(\d{3})+$)/g, ',')
     } catch { }
+    
     return value
         
 }

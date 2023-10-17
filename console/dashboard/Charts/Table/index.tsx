@@ -92,8 +92,6 @@ export function DBTable (props: IProps) {
                     }
                 
                 return col_config
-                
-               
             })
     }, [ selected_cols, data_source, show_cols])
     
