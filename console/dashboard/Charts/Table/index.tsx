@@ -46,8 +46,6 @@ export function DBTable (props: IProps) {
     const { widget, data_source = [ ], ...otherProps } = props
     const [selected_cols, set_select_cols] = useState([ ])
     
-    console.log('data_source', data_source)
-    
     const config = useMemo(() => widget.config as ITableConfig, [widget.config])
     
     const show_cols = useMemo(() => config?.col_properties?.filter(item => item?.show) ?? [ ], [config.col_properties])
