@@ -66,7 +66,6 @@ export function Header () {
     async function handle_save () {
         try {
             await save_config()
-            
             await dashboard.update_dashboard_config(config)
             dashboard.message.success(t('数据面板保存成功'))
         } catch (error) {

@@ -381,7 +381,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     async add_dashboard_config (config: DashBoardConfig) {
-        this.save_configs_to_local()
+        await this.save_configs_to_local()
         const params = JSON.stringify(
                 ({ ...config, data: JSON.stringify(config.data) })) 
         await model.ddb.eval<DdbVoid>(`add_dashboard_config(${params})`, { urgent: true })
@@ -389,13 +389,13 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     async delete_dashboard_configs (dashboard_config_ids: number[]) {
-        this.save_configs_to_local()
+        await this.save_configs_to_local()
         await model.ddb.call<DdbVoid>('delete_dashboard_configs', [new DdbVectorLong(dashboard_config_ids)], { urgent: true })
     }
     
     
     async update_dashboard_config (config: DashBoardConfig) {
-        this.save_configs_to_local()
+        await this.save_configs_to_local()
         const params = JSON.stringify(
             ({ ...config, data: JSON.stringify(config.data) })) 
         await model.ddb.eval<DdbVoid>(`update_dashboard_config(${params})`, { urgent: true })
