@@ -4,7 +4,7 @@ import { Model } from 'react-object-model'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbVectorString } from 'dolphindb/browser.js'
+import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbVectorString, DdbLong } from 'dolphindb/browser.js'
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
@@ -86,7 +86,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
             await this.get_configs_from_local()
         else
             await this.get_dashboard_configs()
-        console.log('configs', this.configs)
         if (!this.config) {
             const id = genid()
             const new_dashboard_config = {
@@ -292,6 +291,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         })
     }
     
+    
     update_widget (widget: Widget) {
         if (this.widgets.find(({ id }) => id === widget.id)) { 
             Object.assign(this.widgets.find(({ id }) => id === widget.id), widget)
@@ -372,6 +372,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             }
     }
     
+    
     /** 获取分享的用户列表 */
     async get_users_to_share () {
         let users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
@@ -403,7 +404,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number) {
-        return model.ddb.call('get_dashboard_config', [String(id)], { urgent: true })
+        return model.ddb.call('get_dashboard_config', [new DdbLong(BigInt(id))], { urgent: true })
     }
     
     
