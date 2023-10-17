@@ -82,11 +82,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
-        if (new URLSearchParams(location.search).get('local') === '1')
-            await this.get_configs_from_local()
-        else
+        try {
             await this.get_dashboard_configs()
-        console.log('configs:', this.configs)
+        } catch (error) {
+            await this.get_configs_from_local()
+        }
         if (!this.config) {
             const id = genid()
             const new_dashboard_config = {
