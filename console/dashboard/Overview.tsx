@@ -37,8 +37,10 @@ export function Overview () {
                     model.goto_login()
                     return
                 }
-                
-                await dashboard.get_configs()
+                if (params.get('local') === '1') 
+                    await dashboard.get_configs_from_local()
+                else
+                    await dashboard.get_dashboard_configs()
             } catch (error) {
                 model.show_error({ error })
                 throw error
@@ -49,7 +51,7 @@ export function Overview () {
     useEffect(() => {
         (async () => {
             try {
-              await dashboard.get_users()
+              await dashboard.get_users_to_share()
             } catch (error) {
                 model.show_error({ error })
             }
@@ -86,7 +88,9 @@ export function Overview () {
                         /** 待接口更新后修改 */
                         const new_dashboard = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
                         dashboard.set({ configs: configs ? [...configs, new_dashboard] : [new_dashboard] })
-                        await dashboard.save_configs_to_local()
+                        
+                        await dashboard.add_dashboard_config(new_dashboard)
+                        
                         model.set_query('dashboard', String(new_dashboard.id))
                         model.set({ header: false, sider: false })
                         model.message.success(t('添加成功'))
@@ -122,10 +126,10 @@ export function Overview () {
                             return
                         }
                         const index = configs.findIndex(({ id }) => id === current_dashboard.id)
+                        const updated_config = { ...current_dashboard, name: edit_dashboard_name }
+                        dashboard.set({ configs: configs.toSpliced(index, 1, updated_config) })
                         
-                        dashboard.set({ configs: configs.toSpliced(index, 1, { ...current_dashboard, name: edit_dashboard_name }) })
-                        
-                        await dashboard.save_configs_to_local()
+                        dashboard.update_dashboard_config(updated_config)
                         model.message.success(t('修改成功'))
                         
                         editor.close()
@@ -241,7 +245,8 @@ export function Overview () {
                                             
                                             dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
                                             
-                                            await dashboard.save_configs_to_local()
+                                            await dashboard.delete_dashboard_configs([key])
+                                            // await dashboard.save_configs_to_local()
                                             
                                             model.message.success(t('删除成功'))
                                         } catch (error) {
@@ -287,7 +292,7 @@ export function Overview () {
                                             ]
                                         })
                                         
-                                        await dashboard.save_configs_to_local()
+                                        await dashboard.add_dashboard_config(import_config)
                                     } catch (error) {
                                         model.show_error({ error })
                                         throw error

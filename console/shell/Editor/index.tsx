@@ -76,7 +76,6 @@ export function Editor ({
         [minimap, enter_completion, readonly, options]
     )
     
-    
     return <MonacoDolphinDBEditor
             dolphinDBLanguageOptions={{
                 docs: `docs.${ language === 'zh' ? 'zh' : 'en' }.json`,
