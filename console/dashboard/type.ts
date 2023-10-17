@@ -73,6 +73,7 @@ export interface IColProperty {
     display_name?: string
     time_format?: ITimeFormat
     is_thousandth_place?: boolean
+    align?: 'left' | 'center' | 'right'
     
 }
 export interface ITableConfig {
@@ -85,6 +86,7 @@ export interface ITableConfig {
         pagesize: number
     }
     need_select_cols: boolean
+    is_reverse?: boolean
 }
 
 

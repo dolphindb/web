@@ -133,8 +133,10 @@ export class DdbModel extends Model<DdbModel> {
         this.verbose = params.get('verbose') === '1'
         
         // cdn 或开发模式下，浏览器误跳转到 https 链接，自动跳转回 http
-        if (location.protocol === 'https:' && (this.dev || this.cdn) && params.get('https') !== '1')
+        if (location.protocol === 'https:' && (this.dev || this.cdn) && params.get('https') !== '1') {
+            alert('请将地址栏中的链接改为 http:// 开头')
             location.protocol = 'http:'
+        }
         
         const port = params.get('port') || location.port
         

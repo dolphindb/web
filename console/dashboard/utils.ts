@@ -1,5 +1,5 @@
 import { type NamePath } from 'antd/es/form/interface'
-import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format } from 'dolphindb'
+import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format } from 'dolphindb/browser.js'
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
 import { isNil } from 'lodash'
 
@@ -348,7 +348,6 @@ export function format_number (val: any, decimal_places, is_thousandth_place) {
                 value = value.toString().replace(/\B(?=(\d{3})+(?=\.))/g, ',')
             else
                 value = value.toString().replace(/\B(?=(\d{3})+$)/g, ',')
-        
     } catch { }
     return value
         

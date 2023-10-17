@@ -32,6 +32,9 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
             <Form.Item name='with_tooltip' label={t('提示框')} initialValue>
                 <BoolRadioGroup />
             </Form.Item>
+            <Form.Item name='with_split_line' label={t('Y 轴分割线')} initialValue={false}>
+                <BoolRadioGroup />
+            </Form.Item>
         </div>
     }, [ type, variable_infos ])
     

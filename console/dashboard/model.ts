@@ -544,4 +544,4 @@ export enum WidgetChartType {
 }
 
 
-type Result = { type: 'object', data: DdbObj<DdbValue> } | null
+export type Result = { type: 'object', data: DdbObj<DdbValue> } | null

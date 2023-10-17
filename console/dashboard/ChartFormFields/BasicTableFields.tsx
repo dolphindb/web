@@ -7,6 +7,7 @@ import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { type CollapseProps } from 'antd/lib'
 import { format_time_options } from './constant.js'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
+import { convert_list_to_options } from '../utils.js'
 
 
 export function BasicTableFields ({ col_names }: { col_names: string[] }) {
@@ -49,8 +50,12 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                             <Form.Item label={t('小数位数')} name={[field.name, 'decimal_places']}>
                                 <InputNumber min={0} />
                             </Form.Item>
-                            <Form.Item label='是否千分位' name={ [field.name, 'is_thousandth_place']} initialValue={false}>
+                            <Form.Item label='是否千分位' name={[field.name, 'is_thousandth_place']} initialValue={false}>
                                 <BoolRadioGroup />
+                            </Form.Item>
+                            
+                            <Form.Item label='对齐方式' name={[field.name, 'align']} initialValue='left'>
+                                <Select options={convert_list_to_options(['left', 'center', 'right'])} />
                             </Form.Item>
                             
                             
