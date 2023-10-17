@@ -384,14 +384,22 @@ export class DashBoardModel extends Model<DashBoardModel> {
     async add_dashboard_config (config: DashBoardConfig) {
         await this.save_configs_to_local()
         const params = JSON.stringify(
-                ({ ...config, data: JSON.stringify(config.data) })) 
-        await model.ddb.eval<DdbVoid>(`add_dashboard_config(${params})`, { urgent: true })
+                ({ ...config, data: JSON.stringify(config.data) }))
+        try {
+            await model.ddb.eval<DdbVoid>(`add_dashboard_config(${params})`, { urgent: true })
+        } catch (error) {
+            console.log('add dashboard error:', error)
+        } 
     }
     
     
     async delete_dashboard_configs (dashboard_config_ids: number[]) {
         await this.save_configs_to_local()
-        await model.ddb.call<DdbVoid>('delete_dashboard_configs', [new DdbVectorLong(dashboard_config_ids)], { urgent: true })
+        try {
+            await model.ddb.call<DdbVoid>('delete_dashboard_configs', [new DdbVectorLong(dashboard_config_ids)], { urgent: true })
+        } catch (error) {
+            console.log('delete dashboard error:', error)
+        }
     }
     
     
@@ -399,7 +407,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
         await this.save_configs_to_local()
         const params = JSON.stringify(
             ({ ...config, data: JSON.stringify(config.data) })) 
-        await model.ddb.eval<DdbVoid>(`update_dashboard_config(${params})`, { urgent: true })
+        try {
+            await model.ddb.eval<DdbVoid>(`update_dashboard_config(${params})`, { urgent: true })
+        } catch (error) {
+            console.log('update dashboard error:', error)
+        }
     }
     
     
@@ -411,7 +423,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
-        
         const data = await (await model.ddb.call<DdbVoid>('get_dashboard_configs', [ ], { urgent: true })).to_rows()
         this.set({ configs: data.map(cfg => ({ ...cfg, id: Number(cfg.id), data: JSON.parse(cfg.data) }) as DashBoardConfig) })
         const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
