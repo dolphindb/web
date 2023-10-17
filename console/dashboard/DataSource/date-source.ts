@@ -326,7 +326,6 @@ async function subscribe_stream (source_id: string) {
     const { ddb: { username, password } } = model
     
     try {
-        const { result } = await dashboard.execute(parse_code(data_source, 'filter_column'))
         const stream_connection = new DDB(
             (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + data_source.ip,
             {
@@ -335,10 +334,14 @@ async function subscribe_stream (source_id: string) {
                 password,
                 streaming: {
                     table: data_source.stream_table,
-                    filters: {
-                        column: (result as Result).data,
-                        expression: parse_code(data_source, 'filter_expression')
-                    },
+                    filters: data_source.filter
+                        ? {
+                            column: data_source.filter_column
+                                ? ((await dashboard.execute(parse_code(data_source, 'filter_column'))).result as Result).data
+                                : undefined,
+                            expression: parse_code(data_source, 'filter_expression')
+                        }
+                        : { },
                     handler (message) {
                         const { error } = message
                         if (error)
