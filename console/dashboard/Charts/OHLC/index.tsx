@@ -8,6 +8,7 @@ import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 
 import './index.sass'
+import { format_time } from '../../utils.js'
 
 
 // const kBorderColor = '#fd1050'
@@ -21,10 +22,11 @@ type COL_MAP = {
     close: string
     value: string
     trades: string
+    time_format?: string
 }
 
 function splitData (rowData: any[], col_name: COL_MAP) {
-    const { time, open, close, low,  high,  value, trades } = col_name
+    const { time, open, close, low,  high,  value, trades, time_format } = col_name
     let categoryData = [ ]
     let values = [ ]
     let volumes = [ ]
@@ -35,6 +37,9 @@ function splitData (rowData: any[], col_name: COL_MAP) {
         volumes.push([i, rowData[i][trades], rowData[i][open] > rowData[i][high] ? 1 : -1])
         lines.push(rowData[i][value])
     }
+    if (time_format)
+        categoryData = categoryData.map(item => format_time(item, time_format))
+    
     return {
         categoryData,
         values,
@@ -45,6 +50,7 @@ function splitData (rowData: any[], col_name: COL_MAP) {
 
 export function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const { title, title_size, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
+   
     const data = useMemo(
         () =>
             splitData(data_source, {
@@ -54,7 +60,8 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 low: series[0].low as string,
                 high: series[0].high as string,
                 value: series[0].value as string,
-                trades: series[1].col_name as string
+                trades: series[1].col_name as string,
+                time_format: xAxis.time_format || ''
             }),
         [data_source, xAxis.col_name, series]
     )

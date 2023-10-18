@@ -9,6 +9,7 @@ import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { useMemo } from 'react'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 import { variables } from '../Variable/variable.js'
+import { format_time_options } from './constant.js'
 
 
 
@@ -80,9 +81,9 @@ function AxisItem (props: IAxisItem) {
         <Form.Item
             name={concat_name_path(name_path, 'type')}
             label={t('类型')}
-            initialValue='category'
+            initialValue='time'
             tooltip={t('数值轴，适用于连续数据\n类目轴，适用于离散的类目数据\n时间轴，适用于连续的时序数据\n对数轴，适用于对数数据')}>
-            <Select disabled options={axis_type_options}  />
+            <Select options={axis_type_options}  />
         </Form.Item>
         <Form.Item name={concat_name_path(name_path, 'name')} label={t('名称')} initialValue={ initial_values?.name ?? t('名称')}>
             <Input />
@@ -106,6 +107,9 @@ function AxisItem (props: IAxisItem) {
                 }
             } }
         </FormDependencies>
+        <Form.Item label={t('时间格式化')} name={concat_name_path(name_path, 'time_format')}>
+            <Select options={format_time_options} allowClear/>
+        </Form.Item>
     </>
 }
 
