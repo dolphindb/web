@@ -7,6 +7,9 @@ import { to_chart_data } from '../../utils.js'
 import { DdbType } from 'dolphindb/browser.js'
 import { OrderFormFields, BasicFormFields } from '../../ChartFormFields/OrderBookField.js'
 import { t } from '../../../../i18n/index.js'
+import {
+  type EChartsOption,
+} from 'echarts/types/dist/shared'
 
 
 
@@ -30,7 +33,7 @@ export function OrderBook (props: IProps) {
         return
       
     // 样式调整先写死，后面再改
-    const convert_order_config = useMemo(() => {
+    const convert_order_config = useMemo((): EChartsOption => {
         let data = [ ]
         
         // time_rate 作用解释， 由于 echarts heatmap 的每个小块默认展示一个单位长度的 y 轴高度（未找到可以改动此属性的 option，找到了应该就可以去掉该属性）
@@ -91,7 +94,6 @@ export function OrderBook (props: IProps) {
         },
         xAxis: {
           type: 'category',
-          splitNumber: 3,
           // 坐标轴
           axisLine: {
             show: true
