@@ -155,13 +155,13 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
             },
             grid: [
                 {
-                    left: '10%',
-                    right: '10%',
+                    left: 50,
+                    right: 50,
                     height: '50%'
                 },
                 {
-                    left: '10%',
-                    right: '10%',
+                    left: 50,
+                    right: 50,
                     bottom: '22%',
                     height: '15%'
                 }
