@@ -65,7 +65,7 @@ export function DBTable (props: IProps) {
         return selected_cols
             .map(col_name => show_cols.find(item => item.col === col_name))
             .map(col => {
-                const { col: name, width = 200, threshold, display_name, decimal_places, time_format, is_thousandth_place, color, align = 'left' } = col ?? { }
+                const { col: name, width = 200, threshold, display_name, decimal_places, time_format, is_thousandth_place, color, align = 'left', background_color } = col ?? { }
                 
                 const col_config = {
                     dataIndex: name,
@@ -74,15 +74,15 @@ export function DBTable (props: IProps) {
                     key: name,
                     ellipsis: true,
                     align,
-                    onCell: record => { 
+                    onCell: record => {
                         return {
                             style: {
-                                backgroundColor: get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])),
+                                backgroundColor: get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])) ?? background_color,
                                 color
                             }
                         }
                     },
-                    render: val => (decimal_places || is_thousandth_place) ? format_number(val, decimal_places, is_thousandth_place) : val ?? '-'
+                    render: val => (decimal_places === 0 || decimal_places || is_thousandth_place) ? format_number(val, decimal_places, is_thousandth_place) : val ?? '-'
                 }
                 
                 if (time_format)  
@@ -106,7 +106,8 @@ export function DBTable (props: IProps) {
                 pageSizeOptions: [5, 10, 15, 20],
                 size: 'small',
                 showSizeChanger: true,
-                showQuickJumper: true
+                showQuickJumper: true,
+                hideOnSinglePage: true
             }
     }, [config, data_source])
     

@@ -20,7 +20,8 @@ export function format_time (time: string, format: string) {
     }
 }
 
-function formatter (type, value, le, index?, values?) {
+function formatter (type: DdbType, values, le: boolean, index: number) {
+    const value = values[index]
     switch (type) {
         case DdbType.bool: {
             return value === nulls.int8 ?
@@ -86,7 +87,7 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{
                 let row = { }
                 for (let j = 0;  j < obj.cols;  j++) {
                     const { type, name, value: values } = obj.value[j] // column
-                    row[name] = formatter(type, values[i], le, i, values)
+                    row[name] = formatter(type, values, le, i)
                 }
                 rows.push(row)
             }
@@ -104,7 +105,7 @@ export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols:
         let row = { }
         for (let j in cols) {
             const { type, le } = obj.value[j]
-            row[cols[j]] = formatter(type, obj.value[j].value[i], le)
+            row[cols[j]] = formatter(type, obj.value[j].value, le, i)
         }    
         rows.push(row)
     }
@@ -294,7 +295,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
 }
 
 
-export function convert_list_to_options (list: string[]) { 
+export function convert_list_to_options (list: (string | number)[]) { 
     return list.map(item => ({
         label: item,
         value: item,
