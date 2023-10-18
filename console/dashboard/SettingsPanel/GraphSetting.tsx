@@ -14,8 +14,8 @@ export function GraphSetting () {
     
     const on_reset_config = useCallback(() => { 
         form.resetFields()
-            dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
-    }, [widget])
+        dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
+    }, [widget.id])
     
     useEffect(() => {
         if (!widget.id)
