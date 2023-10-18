@@ -175,10 +175,9 @@ export function Header () {
                 dashboard.update_config(
                     current_dashboard
                 )
-                if (current_dashboard.owned)
-                    on_edit()
-                else
+                if (!current_dashboard.owned)
                     on_preview()
+                    
             }}
             // defaultValue={ config?.name || new_dashboard_name}
             value={config?.name}

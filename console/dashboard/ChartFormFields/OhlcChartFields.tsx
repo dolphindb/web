@@ -154,7 +154,7 @@ function Series (props: { col_names: string[] }) {
                                         <Form.Item key={col} name={[field.name, col]} label={col} initialValue={col !== 'limit' ? col_names?.[0] : 0} >
                                             {
                                                 col !== 'limit' ?
-                                                        <Select options={convert_list_to_options(col_names)} />
+                                                        <Select options={convert_list_to_options(col_names)} allowClear/>
                                                               :
                                                         <InputNumber />
                                                         

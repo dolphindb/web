@@ -128,10 +128,11 @@ export function default_value_in_select (
         : select_list[0].value
 }
 
-export function parse_code (data_source: DataSource, type: 'code' | 'filter_column' | 'filter_expression'): string {
+export function parse_code (code: string, data_source?: DataSource): string {
     try {
-        let code = data_source[type].replace(/\{\{(.*?)\}\}/g, function (match, variable) {
-            subscribe_variable(data_source, variable)
+        code = code.replace(/\{\{(.*?)\}\}/g, function (match, variable) {
+            if (data_source)
+                subscribe_variable(data_source, variable)
             return get_variable_value(variable.trim())
         })
         return code

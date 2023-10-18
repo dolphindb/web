@@ -121,14 +121,14 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
             try {
                 new_data_source.cols.length = 0
                 
-                const parsed_code = parse_code(new_data_source, 'code')
+                const parsed_code = parse_code(new_data_source.code, new_data_source)
                 const { type, result } = await dashboard.execute(parsed_code)
                 
                 if (type === 'success') {
-                    if (typeof result === 'object' && result.data) {
+                    if (typeof result === 'object' && result) {
                         // 暂时只支持table
-                        new_data_source.data = sql_formatter(result.data, new_data_source.max_line)
-                        new_data_source.cols = get_cols(result.data)
+                        new_data_source.data = sql_formatter(result, new_data_source.max_line)
+                        new_data_source.cols = get_cols(result)
                     }
                 } else 
                     throw new Error(result as string)
@@ -247,14 +247,14 @@ export async function execute (source_id: string) {
     switch (data_source.mode) {
         case 'sql':
             try {
-                const { type, result } = await dashboard.execute(parse_code(data_source, 'code'))
+                const { type, result } = await dashboard.execute(parse_code(data_source.code, data_source))
                         
                 if (type === 'success') {
                     // 暂时只支持table
-                    if (typeof result === 'object' && result.data && result.data.form === DdbForm.table) 
+                    if (typeof result === 'object' && result && result.form === DdbForm.table) 
                         data_source.set({
-                            data: sql_formatter(result.data as unknown as DdbObj<DdbValue>, data_source.max_line),
-                            cols: get_cols(result.data as unknown as DdbObj<DdbValue>),
+                            data: sql_formatter(result, data_source.max_line),
+                            cols: get_cols(result),
                             error_message: ''
                         })    
                     else
@@ -327,10 +327,10 @@ async function subscribe_stream (source_id: string) {
     try {
         let column: DdbObj<DdbValue>
         if (data_source.filter_column) {
-            const { type, result } = await dashboard.execute(parse_code(data_source, 'filter_column'))
+            const { type, result } = await dashboard.execute(parse_code(data_source.filter_column, data_source))
             if (type === 'success') {
-                if (typeof result === 'object' && result.data) 
-                    column = result.data
+                if (typeof result === 'object' && result) 
+                    column = result
             } else 
                 throw new Error(result as string)
         }
@@ -346,7 +346,7 @@ async function subscribe_stream (source_id: string) {
                     filters: data_source.filter
                         ? {
                             column,
-                            expression: parse_code(data_source, 'filter_expression')
+                            expression: parse_code(data_source.filter_expression, data_source)
                         }
                         : { },
                     handler (message) {
@@ -385,20 +385,26 @@ function unsubscribe_stream (source_id: string) {
 
 
 export async function get_stream_tables (): Promise<string[]> {
-    await dashboard.eval('exec name from objs(true) where type="REALTIME"')
-    return dashboard.result.data.value as string[]
+    try {
+        return (await dashboard.eval('exec name from objs(true) where type="REALTIME"')).value as string[]
+    } catch (error) {
+        return [ ]
+    }
 }
 
 
 export async function get_stream_cols (table: string): Promise<string[]> {
-    await dashboard.eval(`select name from schema(${table})['colDefs']`)
-    return dashboard.result.data.value[0].value
+    try {
+        return (await dashboard.eval(`select name from schema(${table})['colDefs']`)).value[0].value
+    } catch (error) {
+        return [ ]
+    }
 }
 
 
 export async function get_stream_filter_col (table: string): Promise<string> {
     try {
-        return await dashboard.eval(`getStreamTableFilterColumn(${table})`) as string
+        return (await dashboard.eval(`getStreamTableFilterColumn(${table})`)).value as string
     } catch (error) {
         return ''
     }

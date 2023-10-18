@@ -4,7 +4,7 @@ import { Model } from 'react-object-model'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbVectorString, DdbLong } from 'dolphindb/browser.js'
+import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbVectorString, DdbLong, DdbDict } from 'dolphindb/browser.js'
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
@@ -308,7 +308,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async eval (code = this.sql_editor.getValue()) {
+    async eval (code = this.sql_editor.getValue(), preview = false) {
         this.set({ executing: true })
         
         try {
@@ -319,26 +319,25 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 console.log('=>', ddbobj.toString())
             
             if (
-                ddbobj.form === DdbForm.chart ||
+                (ddbobj.form === DdbForm.chart ||
                 ddbobj.form === DdbForm.dict ||
                 ddbobj.form === DdbForm.matrix ||
                 ddbobj.form === DdbForm.set ||
                 ddbobj.form === DdbForm.table ||
-                ddbobj.form === DdbForm.vector
-            )
+                ddbobj.form === DdbForm.vector) && preview
+            )     
                 this.set({
                     result: {
                         type: 'object',
                         data:  ddbobj
                     },
-                })
-            else if (ddbobj.form === DdbForm.scalar)
-                return ddbobj.value
-                
+                }) 
+            return ddbobj   
         } catch (error) {
-            this.set({
-                result: null,
-            })
+            if (preview)
+                this.set({
+                    result: null,
+                })
             throw error
         } finally {
             this.set({ executing: false })
@@ -346,9 +345,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async execute (code?: string): Promise<{
+    async execute (code = this.sql_editor.getValue(), preview = false): Promise<{
         type: 'success' | 'error'
-        result: string | Result
+        result: string | DdbObj<DdbValue>
     }> {
         if (dashboard.executing) {
             this.message.warning(t('当前连接正在执行作业，请等待'))
@@ -360,10 +359,10 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         else 
             try {
-                await this.eval(code)
+                const result = await this.eval(code, preview)
                 return {
                     type: 'success',
-                    result: this.result
+                    result: result
                 }
             } catch (error) {
                 return {
@@ -376,17 +375,23 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 获取分享的用户列表 */
     async get_users_to_share () {
-        let users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
-        this.set({ users_to_share: users })
+        try {
+            let users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
+            this.set({ users_to_share: users })
+        } catch (error) {
+            console.log('get_users_to_share error:', error)
+            this.set({ users_to_share: [ ] })
+        }
+        
     }
     
     
     async add_dashboard_config (config: DashBoardConfig) {
         await this.save_configs_to_local()
-        const params = JSON.stringify(
-                ({ ...config, data: JSON.stringify(config.data) }))
+        const params = new DdbDict(
+                ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) }))
         try {
-            await model.ddb.eval<DdbVoid>(`add_dashboard_config(${params})`, { urgent: true })
+            await model.ddb.call<DdbVoid>('add_dashboard_config', [params], { urgent: true })
         } catch (error) {
             console.log('add dashboard error:', error)
         } 
@@ -405,10 +410,10 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     async update_dashboard_config (config: DashBoardConfig) {
         await this.save_configs_to_local()
-        const params = JSON.stringify(
-            ({ ...config, data: JSON.stringify(config.data) })) 
+        const params = new DdbDict(
+            ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
         try {
-            await model.ddb.eval<DdbVoid>(`update_dashboard_config(${params})`, { urgent: true })
+            await model.ddb.call<DdbVoid>('update_dashboard_config', [params], { urgent: true })
         } catch (error) {
             console.log('update dashboard error:', error)
         }
