@@ -138,7 +138,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                     dashboard.message.error(error.message)
             } finally {
                 data_source.set({ ...new_data_source })
-            
+                
                 if (deps.size && !new_data_source.error_message && new_data_source.auto_refresh) 
                     create_interval(id) 
             }
@@ -273,7 +273,7 @@ export async function execute (source_id: string) {
                     //     console.log(widget_id, 'render', data_source.data)
                     // })
                 }
-                else 
+                else if (type === 'error')
                     throw new Error(result as string)   
                  
             } catch (error) {
@@ -299,7 +299,7 @@ function create_interval (source_id: string) {
         delete_interval(source_id)
             
         const interval_id = setInterval(async () => {
-              await execute(source_id)  
+            await execute(source_id)  
         }, data_source.interval * 1000)
         
         data_source.timer = interval_id
@@ -440,5 +440,18 @@ export async function import_data_sources (_data_sources: ExportDataSource[]) {
     return data_sources
 }
 
+
+export function clear_data_sources () {
+    data_sources.map(data_source => {
+        switch (data_source.mode) {
+            case 'sql':
+                delete_interval(data_source.id)
+                break
+            case 'stream':
+                unsubscribe_stream(data_source.id)
+                break
+        }
+    })
+}
 
 export let data_sources: DataSource[] = [ ]
