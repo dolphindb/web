@@ -4,7 +4,7 @@ import { Model } from 'react-object-model'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbVectorString, DdbLong } from 'dolphindb/browser.js'
+import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbVectorString, DdbLong, DdbDict } from 'dolphindb/browser.js'
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
@@ -375,17 +375,23 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 获取分享的用户列表 */
     async get_users_to_share () {
-        let users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
-        this.set({ users_to_share: users })
+        try {
+            let users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
+            this.set({ users_to_share: users })
+        } catch (error) {
+            console.log('get_users_to_share error:', error)
+            this.set({ users_to_share: [ ] })
+        }
+        
     }
     
     
     async add_dashboard_config (config: DashBoardConfig) {
         await this.save_configs_to_local()
-        const params = JSON.stringify(
-                ({ ...config, data: JSON.stringify(config.data) }))
+        const params = new DdbDict(
+                ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) }))
         try {
-            await model.ddb.eval<DdbVoid>(`add_dashboard_config(${params})`, { urgent: true })
+            await model.ddb.call<DdbVoid>('add_dashboard_config', [params], { urgent: true })
         } catch (error) {
             console.log('add dashboard error:', error)
         } 
@@ -404,10 +410,10 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     async update_dashboard_config (config: DashBoardConfig) {
         await this.save_configs_to_local()
-        const params = JSON.stringify(
-            ({ ...config, data: JSON.stringify(config.data) })) 
+        const params = new DdbDict(
+            ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
         try {
-            await model.ddb.eval<DdbVoid>(`update_dashboard_config(${params})`, { urgent: true })
+            await model.ddb.call<DdbVoid>('update_dashboard_config', [params], { urgent: true })
         } catch (error) {
             console.log('update dashboard error:', error)
         }
@@ -515,6 +521,8 @@ export interface Widget extends GridStackNode {
     /** 图表配置 */
     config?: (IChartConfig | ITableConfig | ITextConfig | IEditorConfig) & {
         variable_ids: string[]
+        abandon_scroll?: boolean
+        variable_cols?: number
     }
 }
 

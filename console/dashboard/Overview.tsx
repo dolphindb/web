@@ -243,7 +243,6 @@ export function Overview () {
                                             dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
                                             
                                             await dashboard.delete_dashboard_configs([key])
-                                            // await dashboard.save_configs_to_local()
                                             
                                             model.message.success(t('删除成功'))
                                         } catch (error) {

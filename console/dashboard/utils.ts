@@ -295,7 +295,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
 }
 
 
-export function convert_list_to_options (list: string[]) { 
+export function convert_list_to_options (list: (string | number)[]) { 
     return list.map(item => ({
         label: item,
         value: item,

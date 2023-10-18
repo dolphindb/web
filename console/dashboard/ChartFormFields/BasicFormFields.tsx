@@ -6,6 +6,7 @@ import { t } from '../../../i18n/index.js'
 import { useMemo } from 'react'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { variables } from '../Variable/variable.js'
+import { convert_list_to_options } from '../utils.js'
 
 export function BasicFormFields ({ type }: { type: 'chart' | 'table' | 'description' }) { 
     
@@ -28,7 +29,15 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' | 'descript
                 }))} />
             </Form.Item>
             
+            <Form.Item  name='variable_cols' label='每行变量数' initialValue={3}>
+                <Select options={convert_list_to_options([2, 3, 4, 6, 8, 12])} allowClear />
+            </Form.Item>
+            
             <Form.Item name='is_reverse' label='是否倒序展示' tooltip='流数据开启此功能可将最新的数据插入到表格头部' initialValue={false}>
+                <BoolRadioGroup />
+            </Form.Item>
+            
+            <Form.Item name='abandon_scroll' label='禁止滚动' >
                 <BoolRadioGroup />
             </Form.Item>
             

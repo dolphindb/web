@@ -106,7 +106,8 @@ export function DBTable (props: IProps) {
                 pageSizeOptions: [5, 10, 15, 20],
                 size: 'small',
                 showSizeChanger: true,
-                showQuickJumper: true
+                showQuickJumper: true,
+                hideOnSinglePage: true
             }
     }, [config, data_source])
     
