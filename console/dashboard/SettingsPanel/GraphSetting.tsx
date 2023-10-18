@@ -1,8 +1,9 @@
-import { Form } from 'antd'
+import { Button, Form, Popconfirm, Typography } from 'antd'
 import { useCallback, useEffect, useMemo } from 'react'
 import { graph_config } from '../graph-config.js'
 import { dashboard } from '../model.js'
 import { get_data_source } from '../DataSource/date-source.js'
+import { UndoOutlined } from '@ant-design/icons'
 
 export function GraphSetting () { 
     const { widget } = dashboard.use(['widget'])
@@ -11,6 +12,10 @@ export function GraphSetting () {
     
     const [form] = Form.useForm()
     
+    const on_reset_config = useCallback(() => { 
+        form.resetFields()
+            dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
+    }, [widget])
     
     useEffect(() => {
         if (!widget.id)
@@ -21,12 +26,12 @@ export function GraphSetting () {
             form.setFieldsValue(widget.config)
         }
         // 未设置config的时候需要重置表单，将表单的初始值作为图的config
-        else { 
-            form.resetFields()
-            dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
-        }
+        else
+            on_reset_config()
            
-    }, [ widget.id ])
+    }, [widget.id, on_reset_config])
+    
+    
     
     
     const on_form_change = useCallback((_, values) => { 
@@ -38,7 +43,8 @@ export function GraphSetting () {
     const ConfigFormFields = useMemo(() => graph_config[widget.type]?.config, [widget.type])
     
    
-    return ConfigFormFields && <Form
+    return ConfigFormFields && <>
+        <Form
             onValuesChange={on_form_change}
             form={form}
             labelCol={{ span: 8 }}
@@ -48,4 +54,12 @@ export function GraphSetting () {
         >
             <ConfigFormFields col_names={cols} data_source={data_source} />
         </Form>
+        
+        <Popconfirm title='重置配置？' description='当切换数据源或者更新数据源表结构之后需要重置配置' onConfirm={on_reset_config}>
+            <Button icon={<UndoOutlined />} className='reset-config-btn'>
+                重置配置
+            </Button>
+        </Popconfirm>
+        
+    </>
 }

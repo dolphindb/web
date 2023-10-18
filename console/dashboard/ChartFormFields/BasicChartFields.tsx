@@ -42,6 +42,10 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
             {value => {
                 const type = list_name ? value[list_name]?.find(item => item)?.type : value?.[name_path]?.type
                 switch (type) { 
+                    case AxisType.VALUE:
+                        return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
+                            <Select options={convert_list_to_options(col_names)} allowClear/>
+                        </Form.Item>
                     case AxisType.LOG:
                         return <>
                             <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >

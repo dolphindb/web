@@ -1,3 +1,5 @@
+import './index.scss'
+
 import { useMemo } from 'react'
 
 import { AppstoreOutlined } from '@ant-design/icons'
@@ -16,6 +18,7 @@ import { dashboard } from '../model.js'
 export function SettingsPanel (props: { hidden: boolean }) {
     const { hidden } = props    
     const { widget } = dashboard.use(['widget'])
+    
     
     const tab_items = useMemo<TabsProps['items']>(() => [
         // {
