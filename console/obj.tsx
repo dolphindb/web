@@ -1,6 +1,6 @@
 import './obj.sass'
 
-import { useEffect, useRef, useState, type default as React, type FC, type MutableRefObject } from 'react'
+import { useEffect, useRef, useState, type default as React, type FC, type MutableRefObject, useCallback } from 'react'
 
 import {
     Pagination,
@@ -11,6 +11,8 @@ import {
     Switch,
     Select, type SelectProps,
     type TableColumnType,
+    Input,
+    Form,
 } from 'antd'
 
 import { default as Icon, CaretRightOutlined, PauseOutlined } from '@ant-design/icons'
@@ -655,7 +657,6 @@ function Table ({
 
 export function StreamingTable ({
     url,
-    table,
     username,
     password,
     ctx,
@@ -663,7 +664,6 @@ export function StreamingTable ({
     on_error,
 }: {
     url: string
-    table: string
     username?: string
     password?: string
     ctx: Context
@@ -694,6 +694,8 @@ export function StreamingTable ({
     
     let rlast = useRef<number>(0)
     
+    const [stream_table, set_stream_table] = useState(new URLSearchParams(location.search).get('streaming-table') || 'prices')
+    
     let [, rerender] = useState({ })
     
     const [page_size, set_page_size] = useState(
@@ -703,17 +705,22 @@ export function StreamingTable ({
     const [page_index, set_page_index] = useState(0)
     
     
-    useEffect(() => {
+    async function creat_ddb (stream_table = '', filter_col = '', filter_url = '') {
         try {
+            let ddbapi = rddbapi.current = new DDB(url)
+            
+            let column: DdbObj<DdbValue>
+            if (filter_col) 
+                column = await ddbapi.eval(filter_col)
+            
+            rddb.current?.disconnect()
             let ddb = rddb.current = new DDB(url, {
                 autologin: Boolean(username),
                 username,
                 password,
                 streaming: {
-                    table,
-                    filters: {
-                        expression: 'price > 1'
-                    },
+                    table: stream_table,
+                    filters: { column, expression: filter_url },
                     handler (message) {
                         console.log(message)
                         
@@ -739,9 +746,6 @@ export function StreamingTable ({
                 }
             })
             
-            let ddbapi = rddbapi.current = new DDB(url)
-            
-            
             ;(async () => {
                 try {
                     // LOCAL: 创建流表
@@ -756,6 +760,7 @@ export function StreamingTable ({
                         '            ),\n' +
                         "            'prices'\n" +
                         '        )\n' +
+                        "       setStreamTableFilterColumn(prices, 'stock')\n" +
                         "        print('prices 流表创建成功')\n" +
                         '    } else\n' +
                         "        print('prices 流表已存在')\n" +
@@ -767,19 +772,22 @@ export function StreamingTable ({
                     
                     // 开始订阅
                     await ddb.connect()
-                    
+                    rmessage.current = null
                     rerender({ })
                 } catch (error) {
                     on_error?.(error)
                     throw error
                 }
             })()
-            
             return () => { ddb.disconnect() }
         } catch (error) {
             on_error?.(error)
             throw error
         }
+    }
+    
+    useEffect(() => {
+        creat_ddb(stream_table)
     }, [ ])
     
     
@@ -804,7 +812,13 @@ export function StreamingTable ({
     }, [rauto_append.current])
     
     
-    function StreamingTableActions () {
+    const StreamingTableActions = useCallback(function () {
+        type FieldType = {
+            table?: string
+            column?: string
+            expression?: string
+          }
+          
         return <div className='actions'>
             <div><Button onClick={async () => {
                 rlast.current = 0
@@ -894,9 +908,56 @@ export function StreamingTable ({
                 }}/>
             </div>
             
+            <Form
+                name='流表配置表单'
+                labelAlign='left'
+                labelCol={{ span: 4 }}
+                wrapperCol={{ span: 10 }}
+                style={{ maxWidth: 500 }}
+                initialValues={{ table: stream_table }}
+                onFinish={values => { 
+                    set_stream_table(values.table)
+                    creat_ddb(values.table, values.column, values.expression)
+                }}
+                autoComplete='off'
+            >
+                <Form.Item<FieldType>
+                    label='流表名称'
+                    name='table'
+                >
+                <Input 
+                    placeholder='流表名称'
+                />
+                </Form.Item>
+                
+                <Form.Item<FieldType>
+                    label='列过滤'
+                    name='column'
+                >
+                <Input 
+                    placeholder='列过滤'
+                />
+                </Form.Item>
+                
+                <Form.Item<FieldType>
+                    label='表达式过滤'
+                    name='expression'
+                >
+                <Input 
+                    placeholder='表达式过滤'
+                />
+                </Form.Item>
+                
+                <Form.Item wrapperCol={{ offset: 11, span: 16 }}>
+                    <Button type='primary' htmlType='submit'>
+                        保存
+                    </Button>
+                </Form.Item>
+            </Form>
+            
             <div>接收到推送的 message 之后，才会在下面显示出表格</div>
         </div>
-    }
+    }, [ ])
     
     
     if (!rddb.current || !rddbapi.current || !rmessage.current)
@@ -973,7 +1034,7 @@ export function StreamingTable ({
             <div className='info'>
                 <span className='desc'>{rreceived.current} {t('行')} {cols.length} {t('列')}{ message.window.offset > 0 ? ` ${message.window.offset} ${t('偏移')}` : '' }</span>{' '}
                 <span className='type'>{t('的流表')}</span>
-                <span className='name'>{table}</span>
+                <span className='name'>{stream_table}</span>
             </div>
             
             <Pagination
