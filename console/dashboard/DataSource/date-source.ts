@@ -124,14 +124,20 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                 const parsed_code = parse_code(new_data_source.code, new_data_source)
                 const { type, result } = await dashboard.execute(parsed_code)
                 
-                if (type === 'success') {
-                    if (typeof result === 'object' && result) {
-                        // 暂时只支持table
-                        new_data_source.data = sql_formatter(result, new_data_source.max_line)
-                        new_data_source.cols = get_cols(result)
-                    }
-                } else if (type === 'error')
-                    throw new Error(result as string)
+                switch (type) {
+                    case 'success':
+                        if (typeof result === 'object' && result) {
+                            // 暂时只支持table
+                            new_data_source.data = sql_formatter(result, new_data_source.max_line)
+                            new_data_source.cols = get_cols(result)
+                        }
+                        break
+                    case 'warn':
+                        dashboard.message.warning(result as string)
+                        break
+                    case 'error':
+                        throw new Error(result as string)
+                }
             } catch (error) {
                 new_data_source.error_message = error.message
                 if (code === undefined)
