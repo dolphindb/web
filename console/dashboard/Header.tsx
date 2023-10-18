@@ -13,7 +13,7 @@ import { CompileAndRefresh } from '../components/CompileAndRefresh.js'
 
 import { type Widget, dashboard, type DashBoardConfig } from './model.js'
 import { DataSourceConfig } from './DataSource/DataSourceConfig.js'
-import { export_data_sources } from './DataSource/date-source.js'
+import { clear_data_sources, export_data_sources } from './DataSource/date-source.js'
 import { VariableConfig } from './Variable/VariableConfig.js'
 import { export_variables } from './Variable/variable.js'
 import cn from 'classnames'
@@ -141,6 +141,8 @@ export function Header () {
                 return
             }
             
+            clear_data_sources()
+            
             await dashboard.delete_dashboard_configs([config.id])
             
             await dashboard.update_config(config, true)
@@ -172,6 +174,7 @@ export function Header () {
             placeholder='选择 dashboard'
             onChange={(_, option: DashboardOption) => {
                 const current_dashboard = configs.find(({ id }) => id === option.key)
+                clear_data_sources()
                 dashboard.update_config(
                     current_dashboard
                 )
@@ -215,6 +218,7 @@ export function Header () {
             
             <Tooltip title='返回'>
                 <Button className='action' onClick={() => { 
+                    clear_data_sources()
                     dashboard.set({ config: null })
                     model.set_query('dashboard', null)
                     model.set({ sider: true, header: true })
