@@ -521,6 +521,8 @@ export interface Widget extends GridStackNode {
     /** 图表配置 */
     config?: (IChartConfig | ITableConfig | ITextConfig | IEditorConfig) & {
         variable_ids: string[]
+        abandon_scroll?: boolean
+        variable_cols?: number
     }
 }
 
