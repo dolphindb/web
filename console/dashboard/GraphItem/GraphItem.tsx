@@ -20,15 +20,17 @@ import { VariableForm } from './VariableForm.js'
 function GraphComponent ({ widget }: { widget: Widget }) {
     
     const data_source_node = get_data_source(widget.source_id)
-    const { variable_ids = [ ] } = widget.config
+    const { variable_ids = [ ], variable_cols } = widget.config
     
     const { data = [ ] } = data_source_node.use(['data'])
     
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     
     return <div className='graph-item-wrapper'>
-        <VariableForm ids={variable_ids} />
-        <div className='graph-component'>
+        <VariableForm ids={variable_ids} cols={variable_cols} />
+        <div className={cn('graph-component', {
+            'graph-item-wrapper-abandon-scroll': widget.config.abandon_scroll
+        }) }>
             <Component data_source={data} widget={widget} />
         </div>
     </div>

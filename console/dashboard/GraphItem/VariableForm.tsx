@@ -1,4 +1,4 @@
-import { Form, Input, Radio, Space } from 'antd'
+import { Col, Form, Input, Radio, Row, Space } from 'antd'
 import { useCallback, useEffect } from 'react'
 
 import { type Variable, variables, update_variable_value } from '../Variable/variable.js'
@@ -6,6 +6,7 @@ import { StringDatePicker } from '../../components/StringDatePicker/index.js'
 
 interface IProps { 
     ids: string[]
+    cols: number
 }
 
 
@@ -41,7 +42,7 @@ function ControlField ({ variable }: { variable: Variable }) {
 
 
 export function VariableForm (props: IProps) {
-    const { ids } = props
+    const { ids, cols = 3 } = props
     
     const [form] = Form.useForm()
     
@@ -55,9 +56,9 @@ export function VariableForm (props: IProps) {
     }, [ ])
     
     
-    return <Form form={form} onValuesChange={on_variables_change}>
-        <Space size='large'>
-            {ids.map(id => variables_obj[id]).filter(Boolean).map(item => <ControlField variable={item} key={item?.id} />)}
-        </Space>
+    return <Form form={form} onValuesChange={on_variables_change} className='variable-form'>
+        <Row gutter={[24, 0]}>
+            {ids.map(id => variables_obj[id]).filter(Boolean).map(item => <Col span={24 / cols} ><ControlField variable={item} key={item?.id} /></Col>) }
+        </Row>
     </Form>
 }
