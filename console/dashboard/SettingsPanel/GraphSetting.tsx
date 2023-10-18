@@ -11,6 +11,7 @@ export function GraphSetting () {
     
     const [form] = Form.useForm()
     
+    
     useEffect(() => {
         if (!widget.id)
             return

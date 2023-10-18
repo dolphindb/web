@@ -5,7 +5,7 @@ import { type Widget } from '../../model.js'
 import { convert_list_to_options, format_number, format_time } from '../../utils.js'
 
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { type IDescriptionsConfig } from '../../type.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
@@ -22,14 +22,22 @@ interface IProps {
 
 export function DBDescriptions (props: IProps) {
     const { data_source = [ ], widget } = props
-    
     const config = useMemo(() => widget.config as unknown as IDescriptionsConfig, [widget.config])
     
-    const [selected_cols, set_selected_cols] = useState(data_source.map(item => item[config.label_col]))
+    const [selected_cols, set_selected_cols] = useState<any[]>()
+    
+    useEffect(() => { 
+        if (config.with_select && (!selected_cols || selected_cols?.length === 0))
+            set_selected_cols(data_source.map(item => item[config.label_col]))
+    }, [data_source, config.label_col, config.with_select])
+    
     
     const items = useMemo<DescriptionsProps['items']>(() => { 
         const { col_properties } = config
-        return data_source.filter(item => selected_cols.includes(item[config.label_col])).map((item, idx) => {
+        let show_items = data_source
+        if (config.with_select)
+            show_items = data_source.filter(item => selected_cols.includes(item[config.label_col]))
+        return show_items.map((item, idx) => {
             const { color: custom_color, threshold, time_format, decimal_places, is_thousandth_place } = col_properties?.[idx] ?? { }
             let color = '#fff'
             if (threshold || threshold === 0)
@@ -78,7 +86,7 @@ export function DBDescriptions (props: IProps) {
 }
 
 export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_names: string[], data_source?: any[] }) { 
-    
+
     const ColSetting = <div className='description-setting-form'>
         <Form.Item name='label_col' label='标签列' initialValue={col_names[0]}>
             <Select options={convert_list_to_options(col_names)} />
@@ -108,7 +116,6 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
         
         <FormDependencies dependencies={['label_col']}>
             {({ label_col }) => { 
-        
                 if (!label_col)
                     return null
                 return <Form.List name='col_properties' initialValue={data_source.map(item => ({ label: item[label_col] }))}>

@@ -74,7 +74,7 @@ export function DBTable (props: IProps) {
                     key: name,
                     ellipsis: true,
                     align,
-                    onCell: record => { 
+                    onCell: record => {
                         return {
                             style: {
                                 backgroundColor: get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])),
@@ -82,7 +82,7 @@ export function DBTable (props: IProps) {
                             }
                         }
                     },
-                    render: val => (decimal_places || is_thousandth_place) ? format_number(val, decimal_places, is_thousandth_place) : val ?? '-'
+                    render: val => (decimal_places === 0 || decimal_places || is_thousandth_place) ? format_number(val, decimal_places, is_thousandth_place) : val ?? '-'
                 }
                 
                 if (time_format)  

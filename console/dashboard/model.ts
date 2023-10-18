@@ -523,6 +523,7 @@ export interface Widget extends GridStackNode {
         variable_ids: string[]
         abandon_scroll?: boolean
         variable_cols?: number
+        with_search_btn?: boolean
     }
 }
 
