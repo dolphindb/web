@@ -375,8 +375,14 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 获取分享的用户列表 */
     async get_users_to_share () {
-        let users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
-        this.set({ users_to_share: users })
+        try {
+            let users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
+            this.set({ users_to_share: users })
+        } catch (error) {
+            console.log('get_users_to_share error:', error)
+            this.set({ users_to_share: [ ] })
+        }
+        
     }
     
     
