@@ -130,7 +130,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                         new_data_source.data = sql_formatter(result, new_data_source.max_line)
                         new_data_source.cols = get_cols(result)
                     }
-                } else 
+                } else if (type === 'error')
                     throw new Error(result as string)
             } catch (error) {
                 new_data_source.error_message = error.message
@@ -248,7 +248,7 @@ export async function execute (source_id: string) {
         case 'sql':
             try {
                 const { type, result } = await dashboard.execute(parse_code(data_source.code, data_source))
-                        
+                
                 if (type === 'success') {
                     // 暂时只支持table
                     if (typeof result === 'object' && result && result.form === DdbForm.table) 
@@ -256,7 +256,7 @@ export async function execute (source_id: string) {
                             data: sql_formatter(result, data_source.max_line),
                             cols: get_cols(result),
                             error_message: ''
-                        })    
+                        })        
                     else
                         data_source.set({
                             data: [ ],
