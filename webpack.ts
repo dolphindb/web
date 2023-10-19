@@ -220,6 +220,11 @@ export let webpack = {
                     extensionAlias: {
                         '.js': ['.js', '.ts', '.tsx']
                     },
+                    
+                    // LOCAL: 启用后在项目中使用本地 javascript-api 中的 browser.ts (仅这个文件，不包括 browser.ts 中用相对路径导入的间接依赖)
+                    // alias: {
+                    //     'dolphindb/browser.js': 'D:/2/ddb/api/js/browser.ts'
+                    // },
                 },
                 
                 plugins: [
