@@ -26,7 +26,6 @@ export function OrderBook (props: IProps) {
     /** 记录每一次流数据的长度， 然后处理时， 可以不需要处理以前的已经发过来的流数据 */
     // let data_length = useRef(0)
     
-    
     // 如果数据格式不匹配，则直接返回
     if (!data_source[0]?.sendingTime && !data_source[0]?.bidmdEntryPrice && !data_source[0]?.bidmdEntrySize)
         return
@@ -35,7 +34,7 @@ export function OrderBook (props: IProps) {
     const convert_order_config = useMemo((): EChartsOption => {
         let data = [ ]
         
-        // time_rate 作用解释， 由于 echarts heatmap 的每个小块默认展示一个单位长度的 y 轴高度（未找到可以改动此属性的 option，找到了应该就可以去掉该属性）
+        // time_rate 作用解释， 由于 echarts heatmap 的每个小块高度默认展示一个 y 轴单位长度（未找到可以改动此属性的 option，找到了应该就可以去掉该属性）
         // 但订单图数据常为浮点数，且数据浮动不大，因此会造成多个大面积重叠，导致图的展示效果不好
         // 所以，在数据上乘以一个 time_rate 作为图表的展示数值，在 y 轴和 tooltip 再 ÷ 回来显示数值，可较好的实现图的展示效果
         // time_rate 越大，每个块的高度越高
@@ -127,7 +126,7 @@ export function OrderBook (props: IProps) {
         },
         series: [
           {   
-            name: 'Punch Card',
+            name: 'Order Book',
             type: 'heatmap',
             data: data,
             encode: {

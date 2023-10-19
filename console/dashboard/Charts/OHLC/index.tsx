@@ -8,7 +8,7 @@ import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 
 import './index.sass'
-import { format_time } from '../../utils.js'
+import { format_time, parse_text } from '../../utils.js'
 
 
 // const kBorderColor = '#fd1050'
@@ -72,7 +72,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
         () => ({
             animation: false,
             title: {
-                text: title,
+                text: parse_text(title),
                 textStyle: {
                     color: '#e6e6e6',
                     fontSize: title_size || 18,
