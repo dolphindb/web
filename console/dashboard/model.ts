@@ -432,16 +432,20 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
-        const data = await (await model.ddb.call<DdbVoid>('get_dashboard_configs', [ ], { urgent: true })).to_rows()
-        this.set({ configs: data.map(cfg => ({ ...cfg, id: Number(cfg.id), data: JSON.parse(cfg.data) }) as DashBoardConfig) })
-        const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
-        if (dashboard) {
-            const config = this.configs.find(({ id }) =>  id === dashboard)
-            if (config)
-                await this.update_config(config)
-            else
-                this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
-        } 
+        if (new URLSearchParams(location.search).get('local') === '1') 
+            await this.get_configs_from_local()
+        else {
+            const data = await (await model.ddb.call<DdbVoid>('get_dashboard_configs', [ ], { urgent: true })).to_rows()
+            this.set({ configs: data.map(cfg => ({ ...cfg, id: Number(cfg.id), data: JSON.parse(cfg.data) }) as DashBoardConfig) })
+            const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
+            if (dashboard) {
+                const config = this.configs.find(({ id }) =>  id === dashboard)
+                if (config)
+                    await this.update_config(config)
+                else
+                    this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
+            }  
+        }
     }
     
     
