@@ -46,7 +46,6 @@ export function StreamEditor ({
     
     useEffect(() => {
         (async () => {
-            tree_ref.current?.scrollTo({ key: current_data_source.stream_table })
             // 获取数据库流表
             const table = await get_stream_tables()
             if (table.length)   {
@@ -74,6 +73,10 @@ export function StreamEditor ({
                 change_no_save_flag(false)
         })()
     }, [ current_data_source.id ])
+    
+    useEffect(() => {
+        tree_ref.current?.scrollTo({ key: current_data_source.stream_table })
+    }, [stream_tables])
     
     useEffect(() => {
         (async () => {
