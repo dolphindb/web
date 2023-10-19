@@ -10,20 +10,9 @@ import { type Widget, dashboard } from '../../model.js'
 import { type ITextConfig } from '../../type.js'
 import { EditOutlined } from '@ant-design/icons'
 import cn from 'classnames'
-import { find_variable_by_name, variables } from '../../Variable/variable.js'
+import {  variables } from '../../Variable/variable.js'
+import { parse_text } from '../../utils.js'
 
-
-export function parse_code (code: string): string {
-    code = code.replace(/\{\{(.*?)\}\}/g, function (match, variable) {
-        return get_variable_value(variable.trim())
-    })
-    return code
-}
-
-export function get_variable_value (variable_name: string): string {
-    const variable = find_variable_by_name(variable_name)
-    return variable?.value || `{{${variable_name}}}`
-}
 
 export function RichText ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const [display_text, set_display_text] = useState((widget.config as ITextConfig).value || '')
@@ -55,7 +44,7 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
     )
     const { editing, widget: current } = dashboard.use(['editing', 'widget'])
     
-    let template_text = parse_code(display_text)
+    let template_text = parse_text(display_text)
     
     return <>
             <Modal

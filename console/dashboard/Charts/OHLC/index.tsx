@@ -103,6 +103,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 // textStyle: {
                 //     color: '#e6e6e6'
                 // },
+                // alwaysShowContent: true,
                 position: function (pos, params, el, elRect, size) {
                     
                     if (pos[0] < size.viewSize[0] / 2)

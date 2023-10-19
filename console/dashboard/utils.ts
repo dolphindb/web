@@ -9,7 +9,7 @@ import { type DataSource } from './DataSource/date-source.js'
 import { t } from '../../i18n/index.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import dayjs from 'dayjs'
-import { get_variable_value, subscribe_variable } from './Variable/variable.js'
+import { find_variable_by_name, get_variable_value, subscribe_variable } from './Variable/variable.js'
 
 
 export function format_time (time: string, format: string) { 
@@ -126,6 +126,15 @@ export function default_value_in_select (
         ? data_source_node[key] 
         : select_list[0].value
 }
+
+export function parse_text (code: string): string {
+    code = code.replace(/\{\{(.*?)\}\}/g, function (match, variable) {
+        const variable_ = find_variable_by_name(variable.trim())
+        return variable_?.value || `{{${variable.trim()}}}`
+    })
+    return code
+}
+
 
 export function parse_code (code: string, data_source?: DataSource): string {
     try {
