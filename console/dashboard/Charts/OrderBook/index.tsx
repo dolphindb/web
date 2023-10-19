@@ -15,7 +15,7 @@ import {
 
 interface IProps { 
     widget: Widget
-    data_source: any[]
+    data_source: OrderBookData[]
 }
 
 
@@ -178,3 +178,37 @@ function convertDateFormat (dateString: string) {
   return `${time}`
 }
 
+interface OrderBookData {
+  bondCodeVal: string
+  createTime: string
+  marketDepth: string
+  mdBookType: string
+  messageId: string
+  messageSource: string
+  msgSeqNum: string
+  msgType: string
+  bidmdEntryPrice: any
+  offermdEntryPrice: any
+  bidmdEntrySize: any
+  offermdEntrySize: any
+  bidsettlType: any
+  offersettlType: any
+  bidyield: any
+  offeryield: any
+  bid1yieldType: string
+  offer1yieldType: string
+  bid2yieldType: string
+  offer2yieldType: string
+  bid3yieldType: string
+  offer3yieldType: string
+  bid4yieldType: string
+  offer4yieldType: string
+  bid5yieldType: string
+  offer5yieldType: string
+  bid6yieldType: string
+  offer6yieldType: string
+  securityID: string
+  senderCompID: string
+  senderSubID: string
+  sendingTime: string
+}
