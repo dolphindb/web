@@ -71,8 +71,8 @@ dependencies:
     specifier: ^4.17.21
     version: 4.17.21
   monaco-dolphindb:
-    specifier: 0.0.13
-    version: 0.0.13(dolphindb@2.0.1031)(monaco-editor@0.44.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0)
+    specifier: 0.0.15
+    version: 0.0.15(dolphindb@2.0.1031)(monaco-editor@0.44.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0)
   monaco-editor:
     specifier: ^0.44.0
     version: 0.44.0
@@ -3677,7 +3677,7 @@ packages:
       normalize-path: 3.0.0
       readdirp: 3.6.0
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
     dev: true
 
   /chrome-trace-event@1.0.3:
@@ -4634,8 +4634,8 @@ packages:
   /fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
 
-  /fsevents@2.3.2:
-    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+  /fsevents@2.3.3:
+    resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
     requiresBuild: true
@@ -5565,8 +5565,8 @@ packages:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
     dev: false
 
-  /monaco-dolphindb@0.0.13(dolphindb@2.0.1031)(monaco-editor@0.44.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0):
-    resolution: {integrity: sha512-UT2MCln8yS4dGC9KgzAXVCgU0Y2uI/JzcVsbYm1Xu3MT8GzCxjRFoZz88hcCD97ndICuvFfb0MSm8mq1u7SsVw==}
+  /monaco-dolphindb@0.0.15(dolphindb@2.0.1031)(monaco-editor@0.44.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0):
+    resolution: {integrity: sha512-IjhCYQy7rSr7iHSZG5YOVkiFbx0RoilnYKjiVTNzPvrkZVzJ3uqiMT6OKAt8r4MYFJB6iSwlqpxoNNBACwy8TA==}
     peerDependencies:
       dolphindb: ^2.0.976
       monaco-editor: ^0.39.0
@@ -7558,7 +7558,7 @@ packages:
     dev: false
 
   /uglify-to-browserify@1.0.2:
-    resolution: {integrity: sha512-vb2s1lYx2xBtUgy+ta+b2J/GLVUR+wmpINwHePmPRhOsIVCG2wDzKJ0n14GslH1BifsqVzSOwQhRaCAsZ/nI4Q==}
+    resolution: {integrity: sha1-bgkk1r2mta/jSeOabWMoUKD4grc=}
     requiresBuild: true
     dev: false
     optional: true
