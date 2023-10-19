@@ -5,7 +5,8 @@ import { AxisFormFields, SeriesFormFields } from '../../ChartFormFields/BasicCha
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { type Widget } from '../../model.js'
-import { convert_chart_config } from '../../utils.js'
+import { convert_chart_config, parse_text } from '../../utils.js'
+import { useMemo } from 'react'
 
 
 
@@ -16,12 +17,24 @@ interface IProps {
 
 
 export function Chart (props: IProps) {
-    const { widget, data_source } = props    
+    const { widget, data_source } = props 
+    
+    const options = useMemo(() => { 
+        const opt = convert_chart_config(widget, data_source)
+        console.log(opt.title.text, parse_text(opt.title.text ?? ''), 'title')
+        return {
+            ...opt,
+            title: {
+                ...opt.title,
+                text: parse_text(opt.title.text ?? '')
+            }
+        }
+    }, [ widget.config, data_source ])
     
     return  <ReactEChartsCore
                 echarts={echarts}
                 notMerge
-                option={convert_chart_config(widget, data_source)}
+                option={options}
                 className='dashboard-line-chart'
                 theme='my-theme'
         />
