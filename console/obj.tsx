@@ -760,7 +760,7 @@ export function StreamingTable ({
                         '            ),\n' +
                         "            'prices'\n" +
                         '        )\n' +
-                        "       setStreamTableFilterColumn(prices, 'stock')\n" +
+                        "        setStreamTableFilterColumn(objByName('prices'), 'stock')\n" +
                         "        print('prices 流表创建成功')\n" +
                         '    } else\n' +
                         "        print('prices 流表已存在')\n" +
