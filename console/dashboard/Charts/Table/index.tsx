@@ -81,7 +81,7 @@ export function DBTable (props: IProps) {
                             style: {
                                 backgroundColor: get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])) ?? background_color,
                                 color,
-                                border: config.bordered ? '0.3px solid black' : null
+                                border: config.bordered ? '1px solid black' : null
                             }
                         }
                     },
