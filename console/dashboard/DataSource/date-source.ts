@@ -52,7 +52,7 @@ export class DataSource extends Model<DataSource>  {
     id: string
     name: string
     mode = 'sql'
-    max_line = 1000
+    max_line = null
     data: DataType = [ ]
     cols: string[] = [ ]
     deps: Set<string> = new Set()
@@ -364,7 +364,7 @@ async function subscribe_stream (source_id: string) {
                         else {
                             
                             data_source.data.push(...stream_formatter(message.data, data_source.max_line, data_source.cols))
-                            if (data_source.data.length > data_source.max_line)
+                            if (data_source.max_line && data_source.data.length > data_source.max_line)
                                 data_source.data = data_source.data.splice(data_source.data.length - data_source.max_line)
                             data_source.set({
                                 data: [...data_source.data]

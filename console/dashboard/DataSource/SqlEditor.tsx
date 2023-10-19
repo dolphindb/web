@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 
-import { CloseOutlined } from '@ant-design/icons'
-import { InputNumber, Switch } from 'antd'
+import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import { InputNumber, Popover, Switch } from 'antd'
 
 import { Editor } from '../../shell/Editor/index.js'
 import { DataView } from '../../shell/DataView.js'
@@ -107,10 +107,18 @@ export function SqlEditor ({
                         className='sqlconfig-right-maxline-input' 
                         value={current_data_source.max_line}
                         onChange={value => { 
-                            if (value !== null)
-                                change_current_data_source_property('max_line', Math.ceil(value)) 
+                            change_current_data_source_property('max_line', value ? Math.ceil(value) : value) 
                         }}
                     />
+                    <Popover 
+                        content={(
+                            <div>
+                                若该值为空则表示不对最大行数进行限制
+                            </div>
+                        )} 
+                    >
+                        <QuestionCircleOutlined className='sqlconfig-right-icon'/>
+                    </Popover>
                 </div>
             </div>
         </div>

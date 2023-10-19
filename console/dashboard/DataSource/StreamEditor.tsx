@@ -305,10 +305,18 @@ export function StreamEditor ({
                             className='sqlconfig-right-maxline-input' 
                             value={current_data_source.max_line}
                             onChange={value => { 
-                                if (value !== null)
-                                    change_current_data_source_property('max_line', Math.ceil(value)) 
+                                change_current_data_source_property('max_line', value ? Math.ceil(value) : value) 
                             }}
                         />
+                        <Popover 
+                            content={(
+                                <div>
+                                    若该值为空则表示不对最大行数进行限制
+                                </div>
+                            )} 
+                        >
+                            <QuestionCircleOutlined className='streamconfig-right-icon'/>
+                        </Popover>
                     </div>
                 </div>
         </div>
