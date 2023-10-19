@@ -59,10 +59,10 @@ export function Header () {
                 canvas: {
                     widgets: widgets.map(widget => get_widget_config(widget))
                 }
-            }
+            }  
             
         }
-        await dashboard.update_config(updated_config)
+        // await dashboard.update_config(updated_config)
         return updated_config
     }
     

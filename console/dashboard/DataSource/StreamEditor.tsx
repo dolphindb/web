@@ -67,7 +67,7 @@ export function StreamEditor ({
                 dashboard.filter_column_editor.setValue(current_data_source.filter_column)
             
             if (dashboard.filter_expression_editor)
-                dashboard.filter_column_editor.setValue(current_data_source.filter_expression)
+                dashboard.filter_expression_editor.setValue(current_data_source.filter_expression)
             
             if (current_data_source.mode === get_data_source(current_data_source.id).mode)
                 change_no_save_flag(false)
