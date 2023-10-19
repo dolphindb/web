@@ -10,7 +10,7 @@ export function Test () {
     const { ddb: { url, username, password } } = model
     
     return <div className='result page'>
-        <StreamingTable
+        {/* <StreamingTable
             ctx='page'
             url={url}
             username={username}
@@ -18,7 +18,7 @@ export function Test () {
             on_error={error => {
                 model.show_error({ error })
             }}
-        />
+        /> */}
         {/* <StreamingTest /> */}
     </div>
 }

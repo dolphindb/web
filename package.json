@@ -70,7 +70,7 @@
         "gridstack": "^9.4.0",
         "js-cookie": "^3.0.5",
         "lodash": "^4.17.21",
-        "monaco-dolphindb": "0.0.15",
+        "monaco-dolphindb": "0.0.17",
         "monaco-editor": "^0.44.0",
         "re-resizable": "^6.9.11",
         "react-dom": "^18.2.0",
