@@ -80,7 +80,7 @@ export function Log () {
                     className='log-login-interceptor'
                     title={t('登录后可查看当前节点日志')}
                     extra={
-                        <Button type='primary' onClick={() => model.goto_login()}>
+                        <Button type='primary' onClick={() => { model.goto_login() }}>
                             {t('去登录')}
                         </Button>
                     }

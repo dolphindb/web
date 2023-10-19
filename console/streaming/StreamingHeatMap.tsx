@@ -1,10 +1,10 @@
 import { Card, Col, Row, Statistic } from 'antd'
-import { formati, StreamingMessage } from 'dolphindb/browser.js'
+import { formati, type StreamingMessage } from 'dolphindb/browser.js'
 import React, { useMemo } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { use_streaming } from './hooks/use-streaming.js'
-import StreamingError from './StreamingError.js'
-import { ErrorType, HeatMapConfigType } from './types.js'
+import { StreamingError } from './StreamingError.js'
+import { type ErrorType, type HeatMapConfigType } from './types.js'
 
 const colors = [
     'rgb(237, 218, 158)',
@@ -27,7 +27,7 @@ const colors = [
     @param sort 可选，DESC降序，ASC升序，不填则不排序
     @param column 可选，默认为3，每行展示数量
     @returns JSX */
-export default function StreamingHeatMap ({
+export function StreamingHeatMap ({
     config: { table, properties, max: MAX, min: MIN, sort, column, username, password, url },
     onError
 }: {

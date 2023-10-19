@@ -1,12 +1,12 @@
 import { Switch } from 'antd'
-import { StreamingMessage, formati } from 'dolphindb/browser.js'
+import { type StreamingMessage, formati } from 'dolphindb/browser.js'
 import * as echarts from 'echarts'
-import { EChartsType } from 'echarts'
+import { type EChartsType } from 'echarts'
 import React, { useMemo } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { use_streaming } from './hooks/use-streaming.js'
-import StreamingError from './StreamingError.js'
-import { ErrorType, SortBarConfigType } from './types.js'
+import { StreamingError } from './StreamingError.js'
+import { type ErrorType, type SortBarConfigType } from './types.js'
 
 /** 
     @param table 表名
@@ -15,7 +15,7 @@ import { ErrorType, SortBarConfigType } from './types.js'
     @param height 容器高度px
     @param sort 排序方式（可选）
     @returns JSX */
-export default function StreamingSortBar ({
+export function StreamingSortBar ({
     config: { url, table, properties, sort, username, password, animationDuration, height, width },
     onError
 }: {
@@ -166,7 +166,7 @@ export default function StreamingSortBar ({
     }
     return <>
             <StreamingError error={error} />
-            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => setDrawing(checked)} />
+            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => { setDrawing(checked) }} />
             <div ref={container} style={{ width: width || '100%', height: height || '100%' }} />
         </>
 }

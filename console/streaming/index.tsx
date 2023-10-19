@@ -11,7 +11,7 @@ import * as echarts from 'echarts'
 
 import { DDB, formati, type StreamingMessage } from 'dolphindb/browser.js'
 
-import { EChartsType } from 'echarts'
+import { type EChartsType } from 'echarts'
 export type Context = 'page' | 'webview' | 'window' | 'embed'
 
 interface ErrorType {
@@ -215,7 +215,7 @@ export function StreamingLine ({
                 formatter: params => {
                     return `${time_variable}: ${dayjs(Number(params[0].data[time_variable])).format('YYYY/MM/DD HH:mm:ss')} <br /> \
                     ${
-                        properties.length == 1
+                        properties.length === 1
                             ? `${properties[0]}: ${params[0].data[properties[0]]}`
                             : properties.reduce((prev, val) => {
                                   return `${prev}: ${params[0].data[prev]} <br /> ${val}: ${params[0].data[val]}`
@@ -347,7 +347,7 @@ export function StreamingLine ({
     
     return <>
             <StreamingError error={error} />
-            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => setDrawing(checked)} />
+            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => { setDrawing(checked) }} />
             <div id={`line_container_${TIMESTAMP}`} style={{ width: '100%', height: '100%' }} />
             <span
                 style={{
@@ -713,7 +713,7 @@ export function StreamingSortBar ({
     }
     return <>
             <StreamingError error={error} />
-            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => setDrawing(checked)} />
+            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => { setDrawing(checked) }} />
             <div id={`sort_bar_container_${TIMESTAMP}`} style={{ width: '100%', height: '100%' }} />
         </>
 }
@@ -932,7 +932,7 @@ export function StreamingKLine ({
     
     return <>
             <StreamingError error={error} />
-            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => setDrawing(checked)} />
+            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => { setDrawing(checked) }} />
             <div id={`k_line_container_${TIMESTAMP}`} style={{ width: '100%', height: '100%' }} />
             {`已装填数据条数：${pres_data.length}`}
         </>
@@ -1162,7 +1162,7 @@ export function StreamingScatter ({
     
     return <>
             <StreamingError error={error} />
-            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => setDrawing(checked)} />
+            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => { setDrawing(checked) }} />
             <div id={`scatter_container_${TIMESTAMP}`} style={{ width: '100%', height: '100%' }} />
             {`已装填数据条数：${pres_data.length}`}
         </>

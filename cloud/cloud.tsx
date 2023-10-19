@@ -201,7 +201,7 @@ function InfoTab () {
 }
 
 // 把json里面值为 undefined, null, { }的键全部去掉
-const removeEmptyProperties = obj => {
+function removeEmptyProperties (obj) {
     for (const propName in obj) 
         if (obj[propName] === null || obj[propName] === undefined || (typeof obj[propName] === 'object' && Object.keys(obj[propName]).length === 0)) 
             delete obj[propName]
@@ -305,9 +305,9 @@ function Clusters () {
                     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) =>
                        <Input
                             autoFocus
-                            value={selectedKeys[0]}
+                            value={selectedKeys[0] as any}
                             placeholder={t('输入关键字搜索集群名称')}
-                            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [ ])}
+                            onChange={e => { setSelectedKeys(e.target.value ? [e.target.value] : [ ]) }}
                             onPressEnter={() => {
                                 confirm()
                             }}
@@ -775,7 +775,7 @@ function CreateClusterPanel ({
             versions_with_jit.add(version)
     }
   
-    const onSubmit = async () => {
+    async function onSubmit () {
     
         let values = await form.validateFields()
         
@@ -812,7 +812,7 @@ function CreateClusterPanel ({
         await model.get_clusters(queries)
     }
     
-    const onReset = () => {
+    function onReset () {
         form.resetFields()
     }
     function create_validate_limit_function (node_type: 'controller' | 'datanode' | 'computenode', limitField: 'cpu' | 'memory', is_lowerLimit: boolean) {
@@ -1718,7 +1718,7 @@ function ClusterConfigs ({
         dolphindb_config: [ ]
     })
     
-    const onConfigChange = (newItem: Partial<ClusterConfigItem> & { name: string }, type: ConfigType) => {
+    function onConfigChange (newItem: Partial<ClusterConfigItem> & { name: string }, type: ConfigType) {
         const name_dict = {
             cluster: 'cluster_config',
             controller: 'controller_config',
@@ -1766,7 +1766,7 @@ function ClusterConfigs ({
         })
     }
     
-    const fetchClusterConfig = async function () {
+    async function fetchClusterConfig () {
         const config = await model.get_cluster_config(cluster)
         setConfig(config)
         console.log(`cluster ${cluster.namespace}/${cluster.name} config:`, config)
@@ -1775,7 +1775,7 @@ function ClusterConfigs ({
     const [resetPopVisible, setResetPopVisible] = useState<boolean>(false)
     const [submitPopVisible, setSubmitPopVisible] = useState<boolean>(false)
     
-    const onResetConfirm = () => {
+    function onResetConfirm () {
         try {
             fetchClusterConfig()
             model.message.success(t('参数重置成功'))
@@ -1787,7 +1787,7 @@ function ClusterConfigs ({
         }
     }
     
-    const onSubmitConfirm = async () => {
+    async function onSubmitConfirm () {
         console.log(editedConfig)
         
         try {
@@ -1892,7 +1892,7 @@ function ConfigEditableList ({
     
     const isEditing = (record: ClusterConfigItem) => record.name === editingName
     
-    const edit = (record: ClusterConfigItem) => {
+    function edit (record: ClusterConfigItem) {
         if (record.type !== 'bool') 
             form.setFieldsValue({ value: record.value })
          else 
@@ -1901,12 +1901,12 @@ function ConfigEditableList ({
         setEditingName(record.name)
     }
     
-    const cancel = () => {
+    function cancel () {
         setEditingName('')
     }
     
     /** 注意：每一次save都把所有类型字段自动转换为string，如需往子组件传值需要重新转换类型 */
-    const save = async (name: string) => {
+    async function save (name: string) {
         try {
             const row = (await form.validateFields()) as Partial<ClusterConfigItem>
             const config = {
@@ -1989,7 +1989,7 @@ function ConfigEditableList ({
                         </Typography.Link>
                     </span>
                 ) : (
-                    <Typography.Link disabled={editingName !== ''} onClick={() => edit(record)}>
+                    <Typography.Link disabled={editingName !== ''} onClick={() => { edit(record) }}>
                       {t('编辑参数')}
                     </Typography.Link>
                   )
@@ -2050,7 +2050,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     children: React.ReactNode
 }
 
-const EditableCell: React.FC<EditableCellProps> = ({
+function EditableCell ({
     editing,
     dataIndex,
     title,
@@ -2059,7 +2059,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     index,
     children,
     ...restProps
-  }) => {
+  }) {
   
     return <td {...restProps}>
         {editing ? 
@@ -2464,7 +2464,7 @@ function SourceKeyModal ( { sourcekey_modaol_open, set_sourcekey_modal_open, ref
     </Modal>
 }
 
-const GiProcess = (str: string | number) => {
+function GiProcess (str: string | number) {
     if (typeof str === 'number') {
         const temp = str.toString(10)
         return temp.endsWith('Gi') ? temp : temp + 'Gi'
@@ -2472,7 +2472,7 @@ const GiProcess = (str: string | number) => {
     return str.endsWith('Gi') ? str : str + 'Gi'
 }
 
-const DashboardForOneName: FC<{ open: boolean, name: string, onCancel: () => void, type: 'backups' | 'restores' }> = props => {
+function DashboardForOneName (props) {
     const { cluster } = model.use(['cluster'])
     const { namespace } = cluster
     // @ts-ignore
@@ -2639,7 +2639,7 @@ const status_translations = {
     restore: restore_status_translations
 }
 
-const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_key' }) => {
+function BackupListOfNamespace (props: { tag: 'backups' | 'restores' | 'source_key' }) {
     const [sourcekey_modal_open, set_sourcekey_modal_open] = useState(false) 
     
     const [fetched_list_of_namesace, set_isntances_list_of_namespace] = useState<ListOfBackups>(undefined)
@@ -2675,35 +2675,35 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
     
     const [selected_remote_type, set_selected_remote_type] = useState<string>()
     
-    const refresh_source_key = async () => {
+    async function refresh_source_key () {
         const data = await request_json_with_error_handling('/v1/dolphindbs/backups/config')
         const fetched_source_keys = Object.keys(data)
         set_SourceKeys(fetched_source_keys)
     }
     
-    const refresh_source_key_detail = async () => {
+    async function refresh_source_key_detail () {
         const data = await request_json_with_error_handling('/v1/dolphindbs/backups/config')
         set_source_key_detail(data)
         
     }
     
-    const refresh_selectable_storage_class = async () => {
+    async function refresh_selectable_storage_class () {
         const fetched_storage_class = (await request_json_with_error_handling('/v1/storageclasses')).items.map(x => x.name)
         set_storage_class(fetched_storage_class.sort().reverse())
     }
     
-    const refresh_instances_list_of_namespace = async () => {
+    async function refresh_instances_list_of_namespace () {
         const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups`) as ListOfBackups
         set_isntances_list_of_namespace(data)
     }
     
-    const refresh_content_of_restore_modal = async instance_name => {
+    async function refresh_content_of_restore_modal (instance_name) {
         const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/backups/${instance_name}`)
         data.from = instance_name
         set_content_of_restore_modal(data)
     }
     
-    const refresh_selectable_names = async namespace => {
+    async function refresh_selectable_names (namespace) {
         const data = await request_json_with_error_handling(`/v1/dolphindbs/?namespace=${namespace}`) as { items: { name, namespace }[] }
         set_selectable_names(data.items.map(x => x.name))
     }
@@ -3164,7 +3164,7 @@ const BackupListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_ke
     
 }
 
-const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_key' }) => {
+function RestoreListOfNamespace (props: { tag: 'backups' | 'restores' | 'source_key' }) {
 
     const [fetched_restore_list_of_namesace, set_restore_isntances_list_of_namespace] = useState<ListOfRestores>()
     
@@ -3174,7 +3174,7 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
     
     const [name_of_current_opened_detail, set_name_of_current_opened_detail] = useState('')
     
-    const refresh_restore_instances_list_of_namespace = async () => {
+    async function refresh_restore_instances_list_of_namespace () {
         const data = await request_json_with_error_handling(`/v1/dolphindbs/${model.cluster.namespace}/${model.cluster.name}/restores`) as ListOfRestores
         set_restore_isntances_list_of_namespace(data)
     }
@@ -3277,7 +3277,7 @@ const RestoreListOfNamespace = (props: { tag: 'backups' | 'restores' | 'source_k
     </div>
 }
 
-const SourceKeyPanel = ({ single_sourceKey_detail }: { single_sourceKey_detail:  SourceKeyDetail[string] })  => {
+function SourceKeyPanel ({ single_sourceKey_detail }: { single_sourceKey_detail:  SourceKeyDetail[string] }) {
     // @ts-ignore
     const { type, endpoint, provider, region, access_key, secret_access_key, path } = single_sourceKey_detail
     if (!single_sourceKey_detail)
@@ -3364,7 +3364,7 @@ const SourceKeyPanel = ({ single_sourceKey_detail }: { single_sourceKey_detail: 
     </>
 }
 
-const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) => {
+function SourceKeyList (props: { tag: 'backups' | 'restores' | 'source_key' }) {
     const [source_key_detail, set_source_key_detail] = useState<SourceKeyDetail>()
     
     const [refresher, set_refresher] = useState(0)
@@ -3376,7 +3376,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
     const [source_key_detail_modal_open, set_source_key_detail_modal_open] = useState(false)
     
     
-    const refresh_source_key_detail = async () => {
+    async function refresh_source_key_detail () {
         const data = await request_json_with_error_handling('/v1/dolphindbs/backups/config')
         set_source_key_detail(data)
         
@@ -3488,7 +3488,7 @@ const SourceKeyList = (props: { tag: 'backups' | 'restores' | 'source_key' }) =>
     </div>
 }
 
-const request_json_with_error_handling = async (url: string, options?: RequestOptions) => {
+async function request_json_with_error_handling (url: string, options?: RequestOptions) {
     try {
         return await request_json(url, options)
     } catch (error) {
@@ -3510,7 +3510,7 @@ function useInterval (callback, delay) {
         }
         
         let id = setInterval(tick, delay)
-        return () => clearInterval(id)
+        return () => { clearInterval(id) }
     }, [delay])
 }
 

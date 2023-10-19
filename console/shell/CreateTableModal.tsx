@@ -2,8 +2,8 @@ import './CreateTableModal.scss'
 
 import { default as React, useCallback, useContext, useMemo, useState } from 'react'
 import NiceModal from '@ebay/nice-modal-react'
-import { Button, Modal, Result, SelectProps, Spin } from 'antd'
-import { createForm, Field } from '@formily/core'
+import { Button, Modal, Result, type SelectProps, Spin } from 'antd'
+import { createForm, type Field } from '@formily/core'
 import {
     Form,
     FormButtonGroup,
@@ -11,11 +11,11 @@ import {
 } from '@formily/antd-v5'
 import { mapKeys } from 'lodash'
 
-import { DdbType, DdbObj } from 'dolphindb/browser.js'
+import { DdbType, type DdbObj } from 'dolphindb/browser.js'
 
 import { t } from '../../i18n/index.js'
 import { type Database } from './Databases.js'
-import { DDBTypeNames, SUPPORT_SORT_COLUMN_TYPES } from '../constants/column-data-types.js'
+import { type DDBTypeNames, SUPPORT_SORT_COLUMN_TYPES } from '../constants/column-data-types.js'
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 import { model } from '../model.js'
 import { generateDDBDataTypeLiteral, isDDBTemporalType } from '../utils/ddb-data-types.js'
@@ -131,7 +131,7 @@ function CreateTableModalPreviewCode () {
         </div>
         <div className='create-table-preview-code-action'>
             <Button onClick={steps.prev}>{t('上一步')}</Button>
-            <Button type='primary' onClick={() => steps.next(code)}>
+            <Button type='primary' onClick={() => { steps.next(code) }}>
                 {t('执行')}
             </Button>
         </div>
@@ -224,7 +224,7 @@ const DDB_COLUMN_COMPRESS_METHODS_SELECT_OPTIONS: SelectProps['options'] = [
 const COLUMNS_REACTION_FULLFILL_EXPRESSION =
     '{{ $deps.columns?.filter(col => col.name).map(column => ({ label: column.name, value: column.name })) || []  }}'
     
-const getPartitionSchemeDescription = ({ schema, typeName, columnType }: IPartition) => {
+function getPartitionSchemeDescription ({ schema, typeName, columnType }: IPartition) {
     let schemaType = ''
     
     if (columnType) 

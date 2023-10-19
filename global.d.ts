@@ -33,11 +33,17 @@ declare module '*.txt' {
     export default text
 }
 
+declare module '*.sass' {
+    const classes: { readonly [key: string]: string }
+    export default classes
+}
+
 interface Window {
     Terminal: typeof import('xterm').Terminal
     
     model?: import('react-object-model').Model<any>
     shell?: import('react-object-model').Model<any>
+    dashboard?: import('react-object-model').Model<any>
 }
 
 declare const BUILD_TIME: string

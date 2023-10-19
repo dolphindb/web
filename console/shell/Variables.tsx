@@ -8,7 +8,7 @@ import { default as Icon, MinusSquareOutlined } from '@ant-design/icons'
 
 import {
     DdbForm,
-    DdbObj,
+    type DdbObj,
     DdbType,
     format,
     formati,
