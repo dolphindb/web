@@ -361,8 +361,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 type: 'warn',
                 result: '当时连接正在执行作业，无返回结果'
             }
-        
-        
         else 
             try {
                 const result = await this.eval(code, preview)
