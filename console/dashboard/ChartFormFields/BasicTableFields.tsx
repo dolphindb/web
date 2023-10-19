@@ -61,9 +61,9 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                             <Form.Item label='对齐方式' name={[field.name, 'align']} initialValue='left'>
                                 <Select options={convert_list_to_options(['left', 'center', 'right'])} />
                             </Form.Item>
-                            <Form.Item label='是否排序' name={ [field.name, 'sort']} initialValue={false}>
+                            {/* <Form.Item label='是否排序' name={ [field.name, 'sort']} initialValue={false}>
                                 <BoolRadioGroup />
-                            </Form.Item>
+                            </Form.Item> */}
                             
                             
                         </div>,
