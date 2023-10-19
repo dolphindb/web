@@ -451,7 +451,8 @@ export async function import_data_sources (_data_sources: ExportDataSource[]) {
 
 
 export function clear_data_sources () {
-    data_sources.map(data_source => {
+    dashboard.executing = false
+    data_sources.forEach(data_source => {
         switch (data_source.mode) {
             case 'sql':
                 delete_interval(data_source.id)

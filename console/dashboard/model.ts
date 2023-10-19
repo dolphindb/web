@@ -18,7 +18,7 @@ import { t } from '../../i18n/index.js'
 import { model, show_error, type ErrorOptions, storage_keys } from '../model.js'
 import { type Monaco } from '../shell/Editor/index.js'
 
-import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType } from './DataSource/date-source.js'
+import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 
@@ -245,6 +245,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     dispose () {
+        clear_data_sources()
         console.log('dispose')
         this.grid.destroy()
         this.grid = null

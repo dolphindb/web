@@ -10,30 +10,27 @@ import { type Widget, dashboard } from '../../model.js'
 import { type ITextConfig } from '../../type.js'
 import { EditOutlined } from '@ant-design/icons'
 import cn from 'classnames'
+import { find_variable_by_name, variables } from '../../Variable/variable.js'
 
 
-function replace_variables (origin_string: string, variables: object) {
-    const regex = /{{(.*?)}}/g
-    let match = null
-    let replaced_string = origin_string
-    
-    while ((match = regex.exec(origin_string)) !== null) {
-        const full_match = match[0] // 完整的匹配，例如 "{{name}}"
-        const variable_name = match[1].trim() // 提取变量名，例如 "name"
-        const variable_value = variables[variable_name]
-        
-        // 如果找到变量值，则替换，否则保留原始字符串
-        if (variable_value !== undefined)
-            replaced_string = replaced_string.replace(full_match, variable_value)
-    }
-    
-    return replaced_string
+export function parse_code (code: string): string {
+    code = code.replace(/\{\{(.*?)\}\}/g, function (match, variable) {
+        return get_variable_value(variable.trim())
+    })
+    return code
+}
+
+export function get_variable_value (variable_name: string): string {
+    const variable = find_variable_by_name(variable_name)
+    return variable?.value || `{{${variable_name}}}`
 }
 
 export function RichText ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const [display_text, set_display_text] = useState((widget.config as ITextConfig).value || '')
     const [edit_text, set_edit_text] = useState(display_text)
     const { visible, open, close } = use_modal()
+    const variable_obj = variables.use()
+    
     const toolbar_options = useMemo(
         () => [
             ['bold', 'italic', 'underline', 'strike'], // toggled buttons
@@ -58,12 +55,7 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
     )
     const { editing, widget: current } = dashboard.use(['editing', 'widget'])
     
-    const variables = {
-        name: 'rick',
-        age: 18
-    }
-    
-    const template_text = useMemo(() => replace_variables(display_text, variables), [display_text])
+    let template_text = parse_code(display_text)
     
     return <>
             <Modal
