@@ -55,15 +55,7 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
     )
     const { editing, widget: current } = dashboard.use(['editing', 'widget'])
     
-    let template_text = display_text
-    
-    try {
-        template_text = parse_code(display_text)
-    } catch (error) {
-        console.log(error)
-        dashboard.message.error(error.message)
-    }
-    
+    let template_text = parse_code(display_text)
     
     return <>
             <Modal
