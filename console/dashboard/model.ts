@@ -147,7 +147,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         // 响应 GridStack 中 widget 的位置或尺寸变化的事件
         grid.on('change', (event: Event, widgets: GridStackNode[]) => {
-            console.log('修改 widget 大小或位置:', widgets)
+            // console.log('修改 widget 大小或位置:', widgets)
             
             if (widgets?.length)
                 for (const widget of widgets)
@@ -155,8 +155,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
                         this.widgets.find(({ id }) => id === widget.id), 
                         widget
                     )
-            else
-                console.log('gridstack change 时 widgets 为空')
+            else {
+                // console.log('gridstack change 时 widgets 为空')
+            }
         })
         
         // grid.on('resize', () => {

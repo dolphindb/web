@@ -103,12 +103,19 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 // textStyle: {
                 //     color: '#e6e6e6'
                 // },
+                // alwaysShowContent: true,
                 position: function (pos, params, el, elRect, size) {
-                    const obj = {
-                        top: 10
-                    }
-                    obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30
-                    return obj
+                    
+                    if (pos[0] < size.viewSize[0] / 2)
+                        return {   
+                            top: 10,
+                            left: pos[0] + 10
+                        }
+                    else
+                        return {   
+                            top: 10,
+                            right: size.viewSize[0] - pos[0] - 10
+                        } 
                 }
             },
             axisPointer: {
