@@ -375,6 +375,7 @@ async function subscribe_stream (source_id: string) {
             }
         )
         await stream_connection.connect()
+        data_source.set({ data: [ ] })
         data_source.ddb = stream_connection
     } catch (error) {
         dashboard.message.error(error.message)
