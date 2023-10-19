@@ -76,6 +76,9 @@ export function OrderFormFields () {
             <Form.Item label={t('倍率')} name='time_rate' initialValue={100}>
                 <Input type='number'/>
             </Form.Item>
+            <Form.Item label={t('行情数据档数')} name='market_data_files_num' initialValue={10}>
+                <Input type='number'/>
+            </Form.Item>
         </>
     }, [ ])
     return <Collapse items={[
