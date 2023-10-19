@@ -12,6 +12,7 @@ import { type ITableConfig } from '../../type.js'
 import { type ColumnsType } from 'antd/es/table'
 import { isNumber } from 'lodash'
 import { format_number, format_time } from '../../utils.js'
+import classNames from 'classnames'
 
 
 interface IProps extends TableProps<any> { 
@@ -21,18 +22,19 @@ interface IProps extends TableProps<any> {
 
 function get_cell_color (val, threshold, total) { 
     if (isNumber(val) && isNumber(threshold)) { 
-        const low_to_threshold_list = total.filter(item => item < threshold).sort()
+        const low_to_threshold_list = total.filter(item => item < threshold).sort((a, b) => a - b)
         const low_to_threshold_min = low_to_threshold_list[0]
     
-        const high_to_threshold_list = total.filter(item => item >= threshold).sort()
+        const high_to_threshold_list = total.filter(item => item >= threshold).sort((a, b) => a - b)
         const high_to_threshold_max = high_to_threshold_list.pop()
         
+        
         if (val >= threshold) {
-            const transparency = ((val - threshold) / (high_to_threshold_max - threshold)) * 0.9 + 0.1
+            const transparency = ((val - threshold) / (high_to_threshold_max - threshold)) * 0.8 + 0.2
             return `rgba(255,0,0,${transparency})`
         }
         else { 
-            const transparency = 1 - ((threshold - val) / (threshold - low_to_threshold_min)) * 0.9 + 0.1
+            const transparency = ((threshold - val) / (threshold - low_to_threshold_min)) * 0.8 + 0.2
             return `rgba(13,114,1,${transparency})`
         }
     
@@ -78,7 +80,8 @@ export function DBTable (props: IProps) {
                         return {
                             style: {
                                 backgroundColor: get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])) ?? background_color,
-                                color
+                                color,
+                                border: config.bordered ? '0.3px solid black' : null
                             }
                         }
                     },
@@ -93,7 +96,7 @@ export function DBTable (props: IProps) {
                 
                 return col_config
             })
-    }, [ selected_cols, data_source, show_cols])
+    }, [ selected_cols, data_source, show_cols, config])
     
     const pagination = useMemo<PaginationProps | false>(() => { 
         if (!config.pagination.show)
@@ -137,6 +140,9 @@ export function DBTable (props: IProps) {
                     dataSource={config.is_reverse ? data_source.reverse() : data_source}
                     pagination={pagination}
                     rowKey={() => genid()}
+                    rowClassName={classNames({
+                        'table-row-with-border': config.bordered
+                    })}
                     {...otherProps}
                 />
             :
