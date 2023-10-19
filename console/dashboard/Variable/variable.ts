@@ -164,7 +164,6 @@ export async function subscribe_variable (data_source: DataSource, variable_name
     else 
         tmp_deps.set(variable_name, new Set<string>([data_source.id]))
     
-    
     data_source.variables.add(variable_name)
 }
 

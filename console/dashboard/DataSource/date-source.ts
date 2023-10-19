@@ -256,7 +256,6 @@ export async function execute (source_id: string) {
         case 'sql':
             try {
                 const { type, result } = await dashboard.execute(parse_code(data_source.code, data_source))
-                
                 if (type === 'success') {
                     // 暂时只支持table
                     if (typeof result === 'object' && result && result.form === DdbForm.table) 
