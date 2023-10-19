@@ -54,6 +54,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     /** 编辑、预览状态切换 */
     editing = (new URLSearchParams(location.search)).get('preview') !== '1'
     
+    /** 切换状态 */
+    loading = false
+    
     // gridstack 仅支持 12 列以下的，大于 12 列需要手动添加 css 代码，详见 gridstack 的 readme.md
     // 目前本项目仅支持仅支持 <= 12
     maxcols = 12
@@ -177,6 +180,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 传入 _delete === true 时表示删除传入的 config, 传入 null 代表清空当前的config，返回到 dashboard 管理界面 */
     async update_config (config: DashBoardConfig, _delete = false) {
+        this.set({ loading: true })
         const { config: config_, configs } = (() => {
             if (_delete) {
                 const configs = this.configs.filter(c => c.id !== config.id)
@@ -217,7 +221,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             
             widget: null,
         })
-        
+        this.set({ loading: false })
         console.log(t('dashboard 配置加载成功'))
     }
     

@@ -5,7 +5,7 @@ import './index.sass'
 
 import { useEffect, useRef } from 'react'
 
-import { App, ConfigProvider, theme } from 'antd'
+import { App, ConfigProvider, Spin, theme } from 'antd'
 
 import * as echarts from 'echarts'
 
@@ -34,6 +34,7 @@ echarts.registerTheme('my-theme', config.theme)
     通过 GridStack.on('dropped', ...) 监听用户从外部添加拖拽 widget 到 GridStack 的事件  
     通过 GridStack.on('change', ...) 响应 GridStack 中 widget 的位置或尺寸变化的事件 */
 export function DashBoard () {
+    const { loading } = dashboard.use(['loading'])
     
     return new URLSearchParams(location.search).has('dashboard') ?
         <ConfigProvider
@@ -50,7 +51,9 @@ export function DashBoard () {
             }}
         >
             <App className='app'>
-                <DashboardInstance />
+                <Spin spinning={loading} delay={500} size='large'>
+                    <DashboardInstance />
+                </Spin>
             </App>
         </ConfigProvider>
     :

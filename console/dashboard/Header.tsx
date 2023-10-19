@@ -48,6 +48,8 @@ export function Header () {
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     
+    
+    
     async function save_config () {
         const updated_config = {
             ...config,
@@ -172,10 +174,10 @@ export function Header () {
         <Select
             className='switcher'
             placeholder='选择 dashboard'
-            onChange={(_, option: DashboardOption) => {
+            onChange={async (_, option: DashboardOption) => {
                 const current_dashboard = configs.find(({ id }) => id === option.key)
                 clear_data_sources()
-                dashboard.update_config(
+                await dashboard.update_config(
                     current_dashboard
                 )
                 if (!current_dashboard.owned)
