@@ -46,7 +46,6 @@ export function StreamEditor ({
     
     useEffect(() => {
         (async () => {
-            tree_ref.current?.scrollTo({ key: current_data_source.stream_table })
             // 获取数据库流表
             const table = await get_stream_tables()
             if (table.length)   {
@@ -74,6 +73,10 @@ export function StreamEditor ({
                 change_no_save_flag(false)
         })()
     }, [ current_data_source.id ])
+    
+    useEffect(() => {
+        tree_ref.current?.scrollTo({ key: current_data_source.stream_table })
+    }, [stream_tables])
     
     useEffect(() => {
         (async () => {
@@ -305,10 +308,18 @@ export function StreamEditor ({
                             className='sqlconfig-right-maxline-input' 
                             value={current_data_source.max_line}
                             onChange={value => { 
-                                if (value !== null)
-                                    change_current_data_source_property('max_line', Math.ceil(value)) 
+                                change_current_data_source_property('max_line', value ? Math.ceil(value) : value) 
                             }}
                         />
+                        <Popover 
+                            content={(
+                                <div>
+                                    若该值为空则表示不对最大行数进行限制
+                                </div>
+                            )} 
+                        >
+                            <QuestionCircleOutlined className='streamconfig-right-icon'/>
+                        </Popover>
                     </div>
                 </div>
         </div>

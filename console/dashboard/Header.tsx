@@ -19,7 +19,7 @@ import { export_variables } from './Variable/variable.js'
 import cn from 'classnames'
 
 
-function get_widget_config (widget: Widget) {
+export function get_widget_config (widget: Widget) {
     return  {
         id: widget.id,
         w: widget.w,

@@ -81,9 +81,8 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{
     switch (obj.form) {
         case DdbForm.table:
             let rows = new Array()
-            let start = obj.rows - max_line
             let le = obj.le
-            for (let i = start >= 0 ? start : 0;  i < obj.rows;  i++) {
+            for (let i = (max_line && obj.rows > max_line) ? obj.rows - max_line : 0;  i < obj.rows;  i++) {
                 let row = { }
                 for (let j = 0;  j < obj.cols;  j++) {
                     const { type, name, value: values } = obj.value[j] // column
@@ -100,8 +99,7 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{
 
 export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols: string[]): Array<{}> {
     let rows = new Array()
-    let start = obj.value[0].rows - max_line
-    for (let i = start >= 0 ? start : 0;  i < obj.value[0].rows;  i++) {
+    for (let i = (max_line && obj.value[0].rows > max_line) ? obj.value[0].rows - max_line : 0;  i < obj.value[0].rows;  i++) {
         let row = { }
         for (let j in cols) {
             const { type, le } = obj.value[j]
