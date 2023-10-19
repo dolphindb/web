@@ -24,7 +24,7 @@ export function DBDescriptions (props: IProps) {
     const { data_source = [ ], widget } = props
     const config = useMemo(() => widget.config as unknown as IDescriptionsConfig, [widget.config])
     
-    const [selected_cols, set_selected_cols] = useState<any[]>()
+    const [selected_cols, set_selected_cols] = useState<any[]>([ ])
     
     useEffect(() => { 
         if (config.with_select && (!selected_cols || selected_cols?.length === 0))
@@ -35,8 +35,10 @@ export function DBDescriptions (props: IProps) {
     const items = useMemo<DescriptionsProps['items']>(() => { 
         const { col_properties } = config
         let show_items = data_source
+  
         if (config.with_select)
-            show_items = data_source.filter(item => selected_cols.includes(item[config.label_col]))
+            show_items = data_source?.filter(item => selected_cols?.includes(item[config.label_col]))
+       
         return show_items.map((item, idx) => {
             const { color: custom_color, threshold, time_format, decimal_places, is_thousandth_place } = col_properties?.[idx] ?? { }
             let color = '#fff'
