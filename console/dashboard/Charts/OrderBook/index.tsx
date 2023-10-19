@@ -6,7 +6,6 @@ import { type IOrderBookConfig, type IChartConfig } from '../../type.js'
 import { to_chart_data } from '../../utils.js'
 import { DdbType } from 'dolphindb/browser.js'
 import { OrderFormFields, BasicFormFields } from '../../ChartFormFields/OrderBookField.js'
-import { t } from '../../../../i18n/index.js'
 import {
   type EChartsOption,
 } from 'echarts/types/dist/shared'
@@ -22,7 +21,7 @@ interface IProps {
 export function OrderBook (props: IProps) {
     const { widget, data_source } = props
     
-    let { title, with_tooltip, time_rate, title_size, with_legend, with_split_line } = widget.config as unknown as IChartConfig & IOrderBookConfig
+    let { title, with_tooltip, time_rate, title_size, with_legend, with_split_line, market_data_files_num } = widget.config as unknown as IChartConfig & IOrderBookConfig
     
     /** 记录每一次流数据的长度， 然后处理时， 可以不需要处理以前的已经发过来的流数据 */
     // let data_length = useRef(0)
@@ -47,7 +46,7 @@ export function OrderBook (props: IProps) {
         function formatData (price, size, sendingTime, is_buy) {
             let entry = [ ]
             if (price && size)
-                for (let i = 0;  i < price.data.length && i < 10;  i++)
+                for (let i = 0;  i < price.data.length && i < market_data_files_num;  i++)
                     // 去除空值
                     if (to_chart_data(price.data[i], DdbType.double) && to_chart_data(size.data[i], DdbType.long))
                         entry.push([sendingTime, price.data[i] * time_rate, to_chart_data(size.data[i], DdbType.long), is_buy ? `bmd[${i}]` : `omd[${i}]`, size.data[i]])
@@ -144,7 +143,7 @@ export function OrderBook (props: IProps) {
           }
         ]
       }
-    }, [title, with_tooltip, time_rate, data_source, title_size, with_legend, with_split_line])   
+    }, [title, with_tooltip, time_rate, data_source, title_size, with_legend, with_split_line, market_data_files_num])   
     
     
     

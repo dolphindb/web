@@ -122,6 +122,7 @@ export interface IDescriptionsConfig {
 
 export interface IOrderBookConfig {
     time_rate: number
+    market_data_files_num: number
 }
 
 
