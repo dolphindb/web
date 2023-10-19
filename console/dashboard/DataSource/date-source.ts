@@ -133,8 +133,10 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                         }
                         break
                     case 'warn':
-                        dashboard.message.warning(result as string)
-                        break
+                        if (code === undefined) {
+                            dashboard.message.warning(result as string)
+                            break
+                        }   
                     case 'error':
                         throw new Error(result as string)
                 }
