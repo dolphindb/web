@@ -51,16 +51,12 @@ export function VariableForm (props: IProps) {
     const variables_obj =  variables.use()
     
     const on_variables_change = useCallback((changed_values: any) => { 
-        Object.entries(changed_values).forEach(([key, value]) => { 
-            update_variable_value(key, value as string)
-        })
+        update_variable_value(changed_values)
     }, [ ])
     
     const on_search = useCallback(() => { 
         const values = form.getFieldsValue()
-        Object.entries(values).forEach(([key, value]) => { 
-            update_variable_value(key, value as string)
-        })
+        update_variable_value(values)
     }, [ ])
     
     return !!ids.length && <div className='variable-wrapper'>

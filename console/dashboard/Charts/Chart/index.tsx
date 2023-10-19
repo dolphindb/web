@@ -21,7 +21,7 @@ export function Chart (props: IProps) {
     
     const options = useMemo(() => { 
         const opt = convert_chart_config(widget, data_source)
-        console.log(opt.title.text, parse_text(opt.title.text ?? ''), 'title')
+        
         return {
             ...opt,
             title: {

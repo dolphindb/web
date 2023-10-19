@@ -72,11 +72,15 @@ export function find_variable_by_name (variable_name: string): Variable {
 }
 
 
-export async function update_variable_value (variable_id: string, value: string) {
-    variables.set({ [variable_id]: { ...variables[variable_id], value } })
+export async function update_variable_value (change_variables: {})  {
+    const data_sources = new Set()
+    Object.entries(change_variables).forEach(([variable_id, value]) => { 
+        variables.set({ [variable_id]: { ...variables[variable_id], value } })
+        variables[variable_id].deps.forEach(data_source => data_sources.add(data_source))
+    })
     
-    for (let source_id of variables[variable_id].deps)
-        await execute(source_id)
+    for (let source_id of Array.from(data_sources))
+        await execute(source_id as string)
 }
 
 
