@@ -20,7 +20,6 @@ const icons = {
 
 export function Sider ({ visible }: { visible: boolean }) {
     const [collapsed, set_collapsed] = useState(false)
-    console.log('Wiget', WidgetType)
     return <div className={`sider ${collapsed ? 'collapsed' : ''} ${visible ? '' : 'hidden'}`}>
         <div className='graph-items'>
             {Object.entries(WidgetType).map(([key, value]) =>
