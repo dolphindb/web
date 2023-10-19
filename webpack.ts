@@ -16,7 +16,7 @@ import { fexists, Lock } from 'xshell'
 
 
 /** LOCAL: 启用后在项目中使用本地 javascript-api 中的 browser.ts，修改后刷新 web 自动生效，调试非常方便
-    (仅这个文件，不包括 browser.ts 中用相对路径导入的间接依赖)   
+    (仅这个文件，不包括 browser.ts 中用相对路径导入的间接依赖，间接依赖需要手动编译为 .js 才生效)   
     修改 fp_api 的值后需要重启 devserver */
 const fp_api = ''
 // const fp_api = 'D:/2/ddb/api/js/browser.ts'
