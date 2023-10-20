@@ -1,4 +1,4 @@
-import { Button, Dropdown, type ButtonProps } from 'antd'
+import { Button, Dropdown } from 'antd'
 import { t } from '../../i18n/index.js'
 import { useMemo } from 'react'
 import { SelectOutlined } from '@ant-design/icons'
@@ -10,9 +10,7 @@ function get_href (hostname: string, port: string) {
     return url.toString()
 }
 
-export function HostChangeBtn (props: ButtonProps) {
-    
-    
+export function HostChangeBtn () {
     const items = useMemo(() => [ 
         {
             label: <a href={get_href('192.168.0.200', '20023')}>邹杨集群.数据节点</a>,
