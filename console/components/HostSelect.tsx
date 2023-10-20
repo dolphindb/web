@@ -10,8 +10,8 @@ function get_current_host () {
 
 export function HostSelect () {
     
-    const on_select = useCallback(val => { 
-        const [hostname, port] = val.split(':')
+    const on_select = useCallback((host: string) => { 
+        const [hostname, port] = host.split(':')
         model.set_query('hostname', hostname)
         model.set_query('port', port)
         location.reload()
