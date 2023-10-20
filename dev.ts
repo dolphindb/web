@@ -250,6 +250,10 @@ const info =
     'http://localhost:8432/console/?hostname=192.168.0.200&port=20023\n'.blue.underline +
     'http://localhost:8432/console/?hostname=192.168.0.200&port=20000\n'.blue.underline +
     'http://localhost:8432/console/?hostname=115.239.209.123&port=8892\n'.blue.underline +
+    'http://localhost:8432/console/?hostname=192.168.100.45&port=8666\n'.blue.underline +
+    'http://localhost:8432/console/?hostname=115.239.209.123&port=8878\n'.blue.underline +
+    'http://localhost:8432/console/?hostname=115.239.209.123&port=8868\n'.blue.underline +
+    'http://localhost:8432/console/?hostname=192.168.0.177&port=8848\n'.blue.underline +
     'http://localhost:8432/console/?hostname=115.239.209.123&port=8810\n'.blue.underline +
     'http://localhost:8432/console/?hostname=127.0.0.1&port=8848\n'.blue.underline +
     '\n' +

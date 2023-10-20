@@ -3,15 +3,9 @@ import './job.sass'
 import { useEffect, useState } from 'react'
 
 import {
-    Button,
-    Input,
-    Popconfirm, 
-    Table,
-    Typography,
-    Tooltip,
-    type TablePaginationConfig,
+    Button, Input, Popconfirm, Table, Typography, Tooltip, Spin,
+    type TablePaginationConfig, type TableColumnType
 } from 'antd'
-import type { ColumnType } from 'antd/lib/table/index.js'
 import { ReloadOutlined } from '@ant-design/icons'
 
 import { type DdbObj, nulls, format, DdbType } from 'dolphindb/browser.js'
@@ -69,13 +63,15 @@ export function Job () {
     }
     
     if (!cjobs || !rjobs || !sjobs)
-        return null
+        return <div className='spin-container'>
+            <Spin size='large' delay={300}/>
+        </div>
     
     const cjob_rows = filter_job_rows(cjobs.to_rows(), query)
         .sort((l, r) => 
             -Number(l.receiveTime - r.receiveTime))
     
-    const cjob_cols: ColumnType<Record<string, any>>[] = cjobs.to_cols()
+    const cjob_cols: TableColumnType<Record<string, any>>[] = cjobs.to_cols()
     
     const gjobs = group_cjob_rows_by_rootid(cjob_rows)
     
@@ -139,7 +135,7 @@ export function Job () {
                 }
                 dataSource={gjob_rows}
                 rowKey='rootJobId'
-                pagination={pagination}
+                pagination={gjob_rows.length > pagination.defaultPageSize && pagination }
                 expandable={{
                     expandedRowRender: gjob => 
                         <Table
@@ -171,7 +167,7 @@ export function Job () {
                     translate_columns(
                         add_status_col(
                             append_action_col(
-                                rjobs.to_cols() as ColumnType<Record<string, any>>[],
+                                rjobs.to_cols() as TableColumnType<Record<string, any>>[],
                                 'stop',
                                 async job => {
                                     await model.cancel_job(job)
@@ -183,7 +179,7 @@ export function Job () {
                 }
                 dataSource={rjob_rows}
                 rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
-                pagination={pagination}
+                pagination={rjob_rows.length > pagination.defaultPageSize && pagination }
             />
         </div>
         
@@ -208,7 +204,7 @@ export function Job () {
                 }
                 dataSource={sjob_rows}
                 rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
-                pagination={pagination}
+                pagination={ sjob_rows.length > pagination.defaultCurrent && pagination }
             />
         </div>
     </>
@@ -268,7 +264,7 @@ const column_names = {
     queue: t('队列')
 }
 
-function translate_columns (cols: ColumnType<DdbJob>[]): ColumnType<DdbJob>[] {
+function translate_columns (cols: DdbJobColumn[]): DdbJobColumn[] {
     return cols.map(item => 
         ({ ...item, title: column_names[item.title as string] || item.title }))
 }
@@ -297,7 +293,7 @@ function group_cjob_rows_by_rootid (cjobs: DdbJob[]) {
 
 
 function fix_scols (sjobs: DdbObj<DdbObj[]>) {
-    const cols: ColumnType<Record<string, any>>[] = sjobs.to_cols()
+    const cols: TableColumnType<Record<string, any>>[] = sjobs.to_cols()
     
     const index = cols.findIndex(col => col.title === 'node')
     
@@ -307,8 +303,9 @@ function fix_scols (sjobs: DdbObj<DdbObj[]>) {
     return [cols[index], ...cols.slice(0, index), ...cols.slice(index + 1, cols.length)]
 }
 
+
 function append_action_col (
-    cols: ColumnType<DdbJob>[],
+    cols: DdbJobColumn[],
     type: 'stop' | 'delete',
     action: (record: DdbJob) => any
 ) {
@@ -344,18 +341,16 @@ function append_action_col (
 }
 
 
-/**
-    异步作业更清晰的展示作业状态（根据 receivedTime, startTime, endTime 展示），增加 status 列，放到 jobDesc 后面
+/** 异步作业更清晰的展示作业状态（根据 receivedTime, startTime, endTime 展示），增加 status 列，放到 jobDesc 后面
     - 如果无 startTime 说明还未开始 -> 排队中 (queuing) 黑色
     - 如果有 endTime 说明已完成 -> 已完成 (completed)  绿色 success
     - 有 startTime 无 endTime -> 执行中 (running)  黄色 warning
-    - 有 errorMsg -> 出错了 (error)  红色 danger
- */
-function add_status_col (cols: ColumnType<DdbJob>[]) {
+    - 有 errorMsg -> 出错了 (error)  红色 danger */
+function add_status_col (cols: DdbJobColumn[]) {
     const i_priority = cols.findIndex(col => 
         col.title === 'priority')
     
-    const col_status: ColumnType<DdbJob> = {
+    const col_status: DdbJobColumn = {
         title: 'status',
         key: 'status',
         width: language === 'zh' ? '80px' : '100px',
@@ -369,11 +364,11 @@ function add_status_col (cols: ColumnType<DdbJob>[]) {
 }
 
 
-function add_progress_col (cols: ColumnType<DdbJob>[]) {
+function add_progress_col (cols: DdbJobColumn[]) {
     const i_priority = cols.findIndex(col => 
         col.title === 'priority')
     
-    const col_progress: ColumnType<DdbJob> = {
+    const col_progress: DdbJobColumn = {
         title: 'progress',
         key: 'progress',
         render: (value, job) => 
@@ -424,4 +419,7 @@ function compute_status_info (job: DdbJob) {
     
     return job
 }
+
+
+type DdbJobColumn = TableColumnType<DdbJob>
 
