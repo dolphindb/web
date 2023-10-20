@@ -268,7 +268,7 @@ export async function execute (source_id: string, queue = true) {
                             })
                             
                         if (data_source.deps.size && !data_source.timer && data_source.auto_refresh) 
-                            create_interval(data_source) 
+                            create_interval(data_source)
                         
                         break
                     case 'error':

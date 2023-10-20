@@ -20,6 +20,18 @@ export function format_time (time: string, format: string) {
     }
 }
 
+
+function format_decimal (type: DdbType, values, index: number): string {
+    const { scale, data } = values
+    const x = data[index]
+    if (is_decimal_null_value(type, x))
+        return ''
+    const s = String(x < 0 ? -x : x).padStart(scale, '0')
+    const str = (x < 0 ? '-' : '') + (scale ? `${s.slice(0, -scale) || '0'}.${s.slice(-scale)}` : s)
+    return str
+}
+
+
 function formatter (type: DdbType, values, le: boolean, index: number) {
     const value = values[index]
     switch (type) {
@@ -63,9 +75,11 @@ function formatter (type: DdbType, values, le: boolean, index: number) {
         case DdbType.double:
             return value === nulls.double ? null : value
         case DdbType.decimal32:
+            return format_decimal(type, values, index)
         case DdbType.decimal64:
+            return format_decimal(type, values, index)
         case DdbType.decimal128:
-            return is_decimal_null_value(type, value) ? null : value
+            return format_decimal(type, values, index)
         case DdbType.ipaddr:
             return values.subarray(16 * index, 16 * (index + 1))
         case DdbType.symbol_extended: {

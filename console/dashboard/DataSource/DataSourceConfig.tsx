@@ -44,7 +44,7 @@ export function DataSourceConfig (props: IProps, ref) {
     
     const [show_preview, set_show_preview] = useState(false) 
     const [current_data_source, set_current_data_source] = useState(null)
-    const [connecting, set_connecting] = useState(false)
+    const [saving, set_saving] = useState(false)
     
     const no_save_flag = useRef(false)
     
@@ -77,13 +77,15 @@ export function DataSourceConfig (props: IProps, ref) {
     }, [current_data_source])
     
     const handle_close = useCallback(async () => {
+        if (saving)
+            return
         if (no_save_flag.current && await modal.confirm(save_confirm_config) ) {
             await handle_save()
             no_save_flag.current = false
         }    
         close()
         set_show_preview(false)
-    }, [no_save_flag.current, handle_save])
+    }, [no_save_flag.current, handle_save, saving])
     
     return <>
         <Button
@@ -121,9 +123,9 @@ export function DataSourceConfig (props: IProps, ref) {
                         预览
                     </Button>
                     : <div key='preview' />,
-                    <Button key='save' type='primary' loading={connecting} onClick={async () => {
+                    <Button key='save' type='primary' loading={saving} onClick={async () => {
                         try {
-                            set_connecting(true)
+                            set_saving(true)
                             await handle_save()
                             if (widget) {
                                 if (!widget.source_id || widget.source_id !== current_data_source.id) {
@@ -134,7 +136,7 @@ export function DataSourceConfig (props: IProps, ref) {
                                 set_show_preview(false)
                             } 
                         } finally {
-                            set_connecting(false)
+                            set_saving(false)
                         }
                     }}>
                         {widget ? '应用' : '保存'}
@@ -149,6 +151,7 @@ export function DataSourceConfig (props: IProps, ref) {
             {contextHolder}
             <div className='data-source-config-main'>
                 <DataSourceList
+                    saving={saving}
                     current_data_source={current_data_source}
                     no_save_flag={no_save_flag}
                     save_confirm={() => modal.confirm(save_confirm_config) }
