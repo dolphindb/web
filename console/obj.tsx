@@ -706,95 +706,12 @@ export function StreamingTable ({
     const [page_index, set_page_index] = useState(0)
     
     
-    function subscribe (table: string, column_filter?: string, expression_filter?: string) {
-        try {
-            let ddbapi = rddbapi.current = new DDB(url)
-            
+    // 有可能会资源泄露，sddb 在 unmount 时还没有，后面才被赋值
+    useEffect(() => 
+        () => {
             rsddb.current?.disconnect()
-            
-            let sddb: DDB
-            
-            ;(async () => {
-                sddb = rsddb.current = new DDB(url, {
-                    autologin: Boolean(username),
-                    username,
-                    password,
-                    streaming: {
-                        table,
-                        filters: {
-                            ... column_filter ? { column: await ddbapi.eval(column_filter) } : { },
-                            expression: expression_filter
-                        },
-                        handler (message) {
-                            console.log(message)
-                            
-                            const { error } = message
-                            
-                            if (error) {
-                                console.error(error)
-                                return
-                            }
-                            
-                            const time = new Date().getTime()
-                            
-                            rreceived.current += message.rows
-                            
-                            // 冻结或者未到更新时间
-                            if (rrate.current === -1 || time - rlast.current < rrate.current)
-                                return
-                            
-                            rmessage.current = message
-                            rlast.current = time
-                            rerender({ })
-                        }
-                    }
-                })
-            })()
-            
-            if (table === 'prices')
-                (async () => {
-                    try {
-                        await ddbapi.eval(
-                            'try {\n' +
-                            "    if (!defined('prices', SHARED)) {\n" +
-                            '        share(\n' +
-                            '            streamTable(\n' +
-                            '                10000:0,\n' +
-                            "                ['time', 'stock', 'price'],\n" +
-                            '                [TIMESTAMP, SYMBOL, DOUBLE]\n' +
-                            '            ),\n' +
-                            "            'prices'\n" +
-                            '        )\n' +
-                            "        setStreamTableFilterColumn(objByName('prices'), 'stock')\n" +
-                            "        print('prices 流表创建成功')\n" +
-                            '    } else\n' +
-                            "        print('prices 流表已存在')\n" +
-                            '} catch (error) {\n' +
-                            "    print('prices 流表创建失败')\n" +
-                            '    print(error)\n' +
-                            '}\n'
-                        )
-                        
-                        // 开始订阅
-                        await sddb.connect()
-                        rmessage.current = null
-                        rerender({ })
-                    } catch (error) {
-                        on_error?.(error)
-                        throw error
-                    }
-                })()
-            
-            // 有可能会资源泄露，sddb 在 unmount 时还没有，后面才被赋值
-            return () => { sddb?.disconnect() }
-        } catch (error) {
-            on_error?.(error)
-            throw error
+            rddbapi.current?.disconnect()
         }
-    }
-    
-    useEffect(() =>
-        subscribe(table)
     , [ ])
     
     
@@ -826,35 +743,124 @@ export function StreamingTable ({
             expression?: string
         }
         
+        const label_span = 3
+        const wrapper_span = 24 - label_span
+        
         return <div className='actions'>
-            <Form
+            <Form<Fields>
+                className='form'
                 name='流表配置表单'
-                labelAlign='left'
-                labelCol={{ span: 4 }}
-                wrapperCol={{ span: 10 }}
-                style={{ maxWidth: 500 }}
+                labelCol={{ span: label_span }}
+                wrapperCol={{ span: wrapper_span }}
                 initialValues={{ table: table }}
-                onFinish={values => {
-                    set_table(values.table)
-                    subscribe(values.table, values.column, values.expression)
+                onFinish={async ({ table, column, expression }) => {
+                    set_table(table)
+                    
+                    try {
+                        let ddbapi = rddbapi.current = new DDB(url)
+                        
+                        rsddb.current?.disconnect()
+                        
+                        let sddb: DDB
+                        
+                        ;(async () => {
+                            try {
+                                sddb = rsddb.current = new DDB(url, {
+                                    autologin: Boolean(username),
+                                    username,
+                                    password,
+                                    streaming: {
+                                        table,
+                                        filters: {
+                                            ... column ? { column: await ddbapi.eval(column) } : { },
+                                            expression: expression
+                                        },
+                                        handler (message) {
+                                            console.log(message)
+                                            
+                                            const { error } = message
+                                            
+                                            if (error) {
+                                                console.error(error)
+                                                return
+                                            }
+                                            
+                                            const time = new Date().getTime()
+                                            
+                                            rreceived.current += message.rows
+                                            
+                                            // 冻结或者未到更新时间
+                                            if (rrate.current === -1 || time - rlast.current < rrate.current)
+                                                return
+                                            
+                                            rmessage.current = message
+                                            rlast.current = time
+                                            rerender({ })
+                                        }
+                                    }
+                                })
+                            } catch (error) {
+                                on_error?.(error)
+                                throw error
+                            }
+                        })()
+                        
+                        
+                        if (table === 'prices')
+                            (async () => {
+                                try {
+                                    await ddbapi.eval(
+                                        'try {\n' +
+                                        "    if (!defined('prices', SHARED)) {\n" +
+                                        '        share(\n' +
+                                        '            streamTable(\n' +
+                                        '                10000:0,\n' +
+                                        "                ['time', 'stock', 'price'],\n" +
+                                        '                [TIMESTAMP, SYMBOL, DOUBLE]\n' +
+                                        '            ),\n' +
+                                        "            'prices'\n" +
+                                        '        )\n' +
+                                        "        setStreamTableFilterColumn(objByName('prices'), 'stock')\n" +
+                                        "        print('prices 流表创建成功')\n" +
+                                        '    } else\n' +
+                                        "        print('prices 流表已存在')\n" +
+                                        '} catch (error) {\n' +
+                                        "    print('prices 流表创建失败')\n" +
+                                        '    print(error)\n' +
+                                        '}\n'
+                                    )
+                                    
+                                    // 开始订阅
+                                    await sddb.connect()
+                                    rmessage.current = null
+                                    rerender({ })
+                                } catch (error) {
+                                    on_error?.(error)
+                                    throw error
+                                }
+                            })()
+                    } catch (error) {
+                        on_error?.(error)
+                        throw error
+                    }
                 }}
                 autoComplete='off'
             >
                 <Form.Item<Fields> label='流表名称' name='table'>
-                    <Input placeholder='流表名称' />
+                    <Input placeholder='prices' />
                 </Form.Item>
                 
                 <Form.Item<Fields> label='列过滤' name='column'>
-                    <Input placeholder='列过滤'/>
+                    <Input placeholder="['MSFT']" />
                 </Form.Item>
                 
                 <Form.Item<Fields> label='表达式过滤' name='expression'>
-                    <Input placeholder='表达式过滤'/>
+                    <Input placeholder='price > 190'/>
                 </Form.Item>
                 
-                <Form.Item wrapperCol={{ offset: 11, span: 16 }}>
-                    <Button type='primary' htmlType='submit'>
-                        保存
+                <Form.Item wrapperCol={{ offset: label_span, span: wrapper_span }}>
+                    <Button className='subscribe-button' type='primary' htmlType='submit'>
+                        开始订阅
                     </Button>
                 </Form.Item>
             </Form>
@@ -941,7 +947,7 @@ export function StreamingTable ({
                 <div>实际的行数: {rreceived.current}</div>
                 <div>上面两个应该相等</div>
                 
-                <div style={{ margin: '10px 0px' }}>
+                <div>
                     自动添加数据: <Switch onChange={checked => {
                         rauto_append.current = checked
                         rerender({ })
@@ -955,7 +961,7 @@ export function StreamingTable ({
     
     
     if (!rsddb.current || !rddbapi.current || !rmessage.current)
-        return <div>
+        return <div className='streaming-table'>
             <StreamingTableActions />
         </div>
     
@@ -977,30 +983,35 @@ export function StreamingTable ({
     async function append_data (n = 3) {
         rappended.current += n
         
-        await rddbapi.current.eval(
-            n === 3 ?
-                'append!(\n' +
-                '    prices,\n' +
-                '    table([\n' +
-                '        [now(), timestamp(now() + 10), timestamp(now() + 20)] as time,\n' +
-                "        ['MSFT', 'FUTU', 'MSFT'] as stock,\n" +
-                '        [1.0, 2.0, 3.0] as price\n' +
-                '    ])\n' +
-                ')\n'
-            :
-                'append!(\n' +
-                '    prices,\n' +
-                '    table([\n' +
-                '        [now()] as time,\n' +
-                "        ['MSFT'] as stock,\n" +
-                '        [1.0] as price\n' +
-                '    ])\n' +
-                ')\n'
-        )
+        try {
+            await rddbapi.current.eval(
+                n === 3 ?
+                    'append!(\n' +
+                    '    prices,\n' +
+                    '    table([\n' +
+                    '        [now(), timestamp(now() + 10), timestamp(now() + 20)] as time,\n' +
+                    "        ['MSFT', 'FUTU', 'MSFT'] as stock,\n" +
+                    '        [1.0, 2.0, 3.0] as price\n' +
+                    '    ])\n' +
+                    ')\n'
+                :
+                    'append!(\n' +
+                    '    prices,\n' +
+                    '    table([\n' +
+                    '        [now()] as time,\n' +
+                    "        ['MSFT'] as stock,\n" +
+                    '        [1.0] as price\n' +
+                    '    ])\n' +
+                    ')\n'
+            )
+        } catch (error) {
+            on_error?.(error)
+            throw error
+        }
     }
     
     
-    return <div>
+    return <div className='streaming-table'>
         <StreamingTableActions />
         
         <div className='table'>
