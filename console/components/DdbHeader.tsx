@@ -13,10 +13,9 @@ import { License } from './License.js'
 import { Status } from './Status.js'
 import { Settings } from './Settings.js'
 import { CompileAndRefresh } from './CompileAndRefresh.js'
-
-import SvgArrowDown from './icons/arrow.down.icon.svg'
 import { HostSelect } from './HostSelect.js'
 
+import SvgArrowDown from './icons/arrow.down.icon.svg'
 
 
 export function DdbHeader () {
