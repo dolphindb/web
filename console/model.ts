@@ -11,8 +11,8 @@ import { strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
-    DDB, SqlStandard, DdbFunctionType, DdbVectorString, DdbObj, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, DdbStringObj, type DdbDictObj, type DdbVectorStringObj
+    DDB, SqlStandard, DdbFunctionType, DdbVectorString, type DdbObj, DdbInt, DdbLong, type InspectOptions,
+    DdbDatabaseError, type DdbStringObj, type DdbDictObj, type DdbVectorStringObj
 } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
@@ -28,11 +28,12 @@ export const storage_keys = {
     minimap: 'ddb.editor.minimap',
     enter_completion: 'ddb.editor.enter_completion',
     sql: 'ddb.sql',
+    dashboards: 'ddb.dashboards'
 } as const
 
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor'  | 'computing'
+export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing'
 
 
 export class DdbModel extends Model<DdbModel> {
@@ -107,6 +108,9 @@ export class DdbModel extends Model<DdbModel> {
     /** 是否显示顶部导航栏，传 header=0 时隐藏，便于嵌入 web 页面 */
     header: boolean
     
+    /** 是否显示侧边栏, 传 sider=0 时隐藏 */
+    sider: boolean
+    
     /** 是否在代码为空时设置代码模板 */
     code_template: boolean
     
@@ -129,6 +133,12 @@ export class DdbModel extends Model<DdbModel> {
         this.cdn = location.hostname === 'cdn.dolphindb.cn' || params.get('cdn') === '1'
         this.verbose = params.get('verbose') === '1'
         
+        // cdn 或开发模式下，浏览器误跳转到 https 链接，自动跳转回 http
+        if (location.protocol === 'https:' && (this.dev || this.cdn) && params.get('https') !== '1') {
+            alert('请将地址栏中的链接改为 http:// 开头')
+            location.protocol = 'http:'
+        }
+        
         const port = params.get('port') || location.port
         
         this.ddb = new DDB(
@@ -148,7 +158,11 @@ export class DdbModel extends Model<DdbModel> {
             }
         )
         
-        this.header = params.get('header') !== '0'
+        const view = params.get('view')
+        const dashboard = params.get('dashboard')
+        
+        this.header = params.get('header') !== '0' && (view !== 'dashboard' || !dashboard)
+        this.sider = params.get('sider') !== '0' && (view !== 'dashboard' || !dashboard)
         this.code_template = params.get('code-template') === '1'
         this.redirection = params.get('redirection') as PageViews
     }
@@ -174,13 +188,11 @@ export class DdbModel extends Model<DdbModel> {
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                if (this.dev) 
-                    try {
-                        await this.login_by_password('admin', '123456')
-                    } catch {
-                        console.log(t('使用 admin 账号密码登录失败'))
-                    }
-                
+                try {
+                    await this.login_by_password('admin', '123456')
+                } catch {
+                    console.log(t('使用默认 admin 账号密码登录失败'))
+                }
             }
         
         await this.get_cluster_perf(true)
@@ -533,7 +545,7 @@ export class DdbModel extends Model<DdbModel> {
         const hosts = [...node.publicName.split(';').map(name => name.trim()), node.host]
         
         // 匹配当前域名/IP 和 hosts 中域名/IP 的相似度，动态规划最长公共子串
-        const calc_host_score = (hostname: string) => {
+        function calc_host_score (hostname: string) {
             let maxlen = 0 // 最长公共子串的长度
             // 初始化 dp 数组
             let dp: number[][] = new Array(hostname.length + 1)
@@ -712,46 +724,8 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    show_error ({ error, title, content }: { error?: Error, title?: string, content?: string }) {
-        console.log(error)
-        
-        this.modal.error({
-            className: 'modal-error',
-            title: title || error?.message,
-            content: (() => {
-                if (content)
-                    return content
-                    
-                if (error) {
-                    let s = ''
-                    
-                    if (error instanceof DdbDatabaseError) {
-                        const { type, options } = error
-                        switch (type) {
-                            case 'script':
-                                s += t('运行以下脚本时出错:\n') +
-                                    error.options.script + '\n'
-                                break
-                            
-                            case 'function':
-                                s += t('调用 {{func}} 函数时出错，参数为:\n', { func: error.options.func }) +
-                                    options.args.map(arg => arg.toString())
-                                        .join_lines()
-                                break
-                        }
-                    }
-                    
-                    s += t('调用栈:\n') +
-                        error.stack
-                    
-                    if (error.cause)
-                        s += '\n' + (error.cause as Error).stack
-                    
-                    return s
-                }
-            })(),
-            width: 1000,
-        })
+    show_error (options: ErrorOptions) {
+        show_error(this.modal, options)
     }
     
     
@@ -799,6 +773,21 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
+    /** 设置 url 上的 query 参数
+        - key: 参数名
+        - value: 参数值，为 null 或 undefined 时删除该参数 */
+    set_query (key: string, value: string | null) {
+        let url = new URL(location.href)
+        
+        if (value === null || value === undefined)
+            url.searchParams.delete(key)
+        else
+            url.searchParams.set(key, value)
+        
+        history.replaceState(null, '', url)
+    }
+    
+    
     async recompile_and_refresh () {
         await request('http://localhost:8432/api/recompile')
         location.reload()
@@ -812,6 +801,56 @@ export enum NodeType {
     controller = 2,
     single = 3,
     computing = 4,
+}
+
+
+export interface ErrorOptions {
+    error?: Error
+    title?: string
+    content?: string
+}
+
+
+export function show_error (modal: DdbModel['modal'], { title, error, content }: ErrorOptions) {
+    console.log(error)
+    
+    modal.error({
+        className: 'modal-error',
+        title: title || error?.message,
+        content: (() => {
+            if (content)
+                return content
+                
+            if (error) {
+                let s = ''
+                
+                if (error instanceof DdbDatabaseError) {
+                    const { type, options } = error
+                    switch (type) {
+                        case 'script':
+                            s += t('运行以下脚本时出错:\n') +
+                                error.options.script + '\n'
+                            break
+                        
+                        case 'function':
+                            s += t('调用 {{func}} 函数时出错，参数为:\n', { func: error.options.func }) +
+                                options.args.map(arg => arg.toString())
+                                    .join_lines()
+                            break
+                    }
+                }
+                
+                s += t('调用栈:\n') +
+                    error.stack
+                
+                if (error.cause)
+                    s += '\n' + (error.cause as Error).stack
+                
+                return s
+            }
+        })(),
+        width: 1000,
+    })
 }
 
 

@@ -8,6 +8,8 @@ import { webpack, fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd
 import { build_bundle, fpd_pre_bundle_dist } from './pre-bundle/index.js'
 
 
+const verbose = false
+
 if (process.argv.includes('cloud')) {
     await fdelete(fpd_out_cloud)
     await fmkdir(fpd_out_cloud)
@@ -31,7 +33,7 @@ if (process.argv.includes('cloud')) {
     await fmkdir(fpd_out_console)
     
     await Promise.all([
-        fcopy(`${fpd_root}src/`, fpd_out_console),
+        fcopy(`${fpd_root}src/`, fpd_out_console, { print: verbose }),
         
         ... [
             'index.html', 'window.html', 'ddb.svg',
@@ -40,15 +42,15 @@ if (process.argv.includes('cloud')) {
             'overview/icons/data-background.svg',
             'overview/icons/computing-background.svg',
         ].map(async fname => 
-            fcopy(fpd_src_console + fname, fpd_out_console + fname)),
+            fcopy(fpd_src_console + fname, fpd_out_console + fname, { print: verbose })),
         
         ... ['README.md', 'README.zh.md', 'LICENSE.txt'].map(async fname => 
-            fcopy(fpd_root + fname, fpd_out_console + fname)),
+            fcopy(fpd_root + fname, fpd_out_console + fname, { print: verbose })),
         
         copy_vendors(fpd_out_console, true),
         
         ... ['zh', 'en'].map(async language =>
-            fcopy(`${fpd_node_modules}dolphindb/docs.${language}.json`, `${fpd_out_console}docs.${language}.json`)
+            fcopy(`${fpd_node_modules}dolphindb/docs.${language}.json`, `${fpd_out_console}docs.${language}.json`, { print: verbose })
         ),
         
         (async () => {
@@ -70,10 +72,10 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
     const fpd_monaco_maps = `${fpd_out}min-maps/vs/`
     
     
-    await fmkdir(fpd_vendors)
+    await fmkdir(fpd_vendors, { print: verbose })
     
     if (monaco)
-        await fmkdir(fpd_monaco)
+        await fmkdir(fpd_monaco, { print: verbose })
     
     await Promise.all([
         ... [
@@ -90,9 +92,9 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
             '@ant-design/icons/dist/index.umd.min.js',
             '@ant-design/plots/dist/plots.min.js',
             '@ant-design/plots/dist/plots.min.js.map',
-            'echarts/dist/echarts.min.js',
+            'echarts/dist/echarts.js',
         ].map(async fp =>
-            fcopy(`${fpd_node_modules}${fp}`, `${fpd_vendors}${fp}`)
+            fcopy(`${fpd_node_modules}${fp}`, `${fpd_vendors}${fp}`, { print: verbose })
         ),
         
         ... monaco ?
@@ -114,7 +116,8 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
             ].map(async fp =>
                 fcopy(
                     `${fpd_node_modules}monaco-editor/${ fp.endsWith('.map') ? 'min-maps' : 'min' }/vs/${fp}`,
-                    `${ fp.endsWith('.map') ? fpd_monaco_maps : fpd_monaco }${fp}`
+                    `${ fp.endsWith('.map') ? fpd_monaco_maps : fpd_monaco }${fp}`,
+                    { print: verbose }
                 )
             )
         :
@@ -126,5 +129,5 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
 async function copy_pre_bundle (fpd_out: string) {
     const fpd_pre_bundle_out = `${fpd_out}pre-bundle/`
     if (fpd_pre_bundle_out !== fpd_pre_bundle_dist)
-        await fcopy(fpd_pre_bundle_dist, fpd_pre_bundle_out)
+        await fcopy(fpd_pre_bundle_dist, fpd_pre_bundle_out, { print: verbose })
 }

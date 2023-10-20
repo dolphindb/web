@@ -8,7 +8,7 @@ import {
 } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 
-import { DdbObj, nulls, format, DdbType } from 'dolphindb/browser.js'
+import { type DdbObj, nulls, format, DdbType } from 'dolphindb/browser.js'
 
 import { language, t } from '../i18n/index.js'
 import { model, type DdbJob } from './model.js'

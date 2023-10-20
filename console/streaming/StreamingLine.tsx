@@ -1,11 +1,11 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
-import { ErrorType, LineConfigType, LineNodeType } from './types.js'
+import { type ErrorType, type LineConfigType, type LineNodeType } from './types.js'
 import { DDB, formati, type StreamingMessage } from 'dolphindb/browser.js'
 import { use_streaming } from './hooks/use-streaming.js'
-import { EChartsType } from 'echarts'
+import { type EChartsType } from 'echarts'
 import * as echarts from 'echarts'
 import dayjs from 'dayjs'
-import StreamingError from './StreamingError.js'
+import { StreamingError } from './StreamingError.js'
 import { Switch } from 'antd'
 import './index.sass'
 
@@ -16,7 +16,7 @@ import './index.sass'
     @param duration 期间ms
     @param height 容器高度px
     @returns JSX */
-export default function StreamingLine ({
+export function StreamingLine ({
     config: { url, table, time_variable, properties, duration, username, password, height, width },
     onError
 }: {
@@ -41,7 +41,7 @@ export default function StreamingLine ({
                 formatter: params => {
                     return `${time_variable}: ${dayjs(Number(params[0].data[time_variable])).format('YYYY/MM/DD HH:mm:ss')} <br /> \
                     ${
-                        properties.length == 1
+                        properties.length === 1
                             ? `${properties[0]}: ${params[0].data[properties[0]]}`
                             : properties.reduce((prev, val) => {
                                   return `${prev}: ${params[0].data[prev]} <br /> ${val}: ${params[0].data[val]}`
@@ -209,7 +209,7 @@ export default function StreamingLine ({
     
     return <>
             <StreamingError error={error} />
-            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => setDrawing(checked)} />
+            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => { setDrawing(checked) }} />
             <div ref={container} style={{ width: width || '100%', height: height || '100%' }} />
             <span className='line_span'>{`已装填数据条数：${pres_data.length}`}</span>
         </>

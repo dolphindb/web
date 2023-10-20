@@ -1,11 +1,11 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
-import { ErrorType, KLineConfigType, KLineNodeType } from './types.js'
+import { type ErrorType, type KLineConfigType, type KLineNodeType } from './types.js'
 import { type StreamingMessage } from 'dolphindb/browser.js'
 import { use_streaming } from './hooks/use-streaming.js'
-import { EChartsType } from 'echarts'
+import { type EChartsType } from 'echarts'
 import * as echarts from 'echarts'
 import dayjs from 'dayjs'
-import StreamingError from './StreamingError.js'
+import { StreamingError } from './StreamingError.js'
 import { Switch } from 'antd'
 import './index.sass'
 
@@ -18,7 +18,7 @@ import './index.sass'
     @param maximum_price_variable 最高价
     @param minimum_price_variable 最低价
     @returns JSX */
-export default function StreamingKLine ({
+export function StreamingKLine ({
     config: {
         url,
         table,
@@ -240,7 +240,7 @@ export default function StreamingKLine ({
     
     return <>
             <StreamingError error={error} />
-            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => setDrawing(checked)} />
+            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => { setDrawing(checked) }} />
             <div ref={container} style={{ width: width || '100%', height: height || '100%' }} />
             <span className='line_span'>{`已装填数据条数：${pres_data.length}`}</span>
         </>

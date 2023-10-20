@@ -1,5 +1,5 @@
-import { SelectProps } from 'antd'
-import { DdbType } from 'dolphindb/browser.js'
+import { type SelectProps } from 'antd'
+import { type DdbType } from 'dolphindb/browser.js'
 
 export type DDBTypeNames = Uppercase<keyof typeof DdbType>
 

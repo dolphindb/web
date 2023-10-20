@@ -46,6 +46,7 @@ export function Editor ({
     on_mount,
     on_change,
     options,
+    theme = 'light'
 }: {
     readonly?: boolean
     default_value?: string
@@ -55,6 +56,7 @@ export function Editor ({
     on_mount?: OnMount
     on_change?: OnChange
     options?: monacoapi.editor.IStandaloneEditorConstructionOptions
+    theme?: 'light' | 'dark'
 }) {
     const finalOptions = useMemo<monacoapi.editor.IStandaloneEditorConstructionOptions>(() => ({
             fontSize: 16,
@@ -76,12 +78,15 @@ export function Editor ({
     return <MonacoDolphinDBEditor
             dolphinDBLanguageOptions={{
                 docs: `docs.${ language === 'zh' ? 'zh' : 'en' }.json`,
-                language: language === 'zh' ? 'zh' : 'en'
+                language: language === 'zh' ? 'zh' : 'en',
+                theme
             }}
             
-            wrapperProps={{ className: 'monaco-editor-container' }}
+            wrapperProps={{ className: `monaco-editor-container ${theme}` }}
             
             value={value}
+            
+            theme={theme === 'light' ? 'vs' : 'vs-dark'}
             
             defaultValue={default_value}
             

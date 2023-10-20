@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { ReactNode, useState, useEffect, type JSX } from 'react'
+import { type ReactNode, useState, useEffect, type JSX } from 'react'
 
 import { Layout, Button, Modal, Tooltip, Progress, Tag, Checkbox, Popconfirm } from 'antd'
 const { Header } = Layout
@@ -13,7 +13,7 @@ import { delay } from 'xshell/utils.browser.js'
 
 import { t, language } from '../../i18n/index.js'
 
-import { NodeType, DdbNodeState, DdbNode, model } from '../model.js'
+import { NodeType, DdbNodeState, type DdbNode, model } from '../model.js'
 
 
 import SvgRefresh from './icons/refresh.icon.svg'
@@ -147,11 +147,11 @@ export function Overview () {
                         </Tooltip>
                     </div>
                     
-                    <div className={language === 'zh' ? 'icon-expand-area' : 'icon-expand-area-en'} onClick={() =>  setExpandedNodes(nodes.filter(node => node.mode === NodeType.agent))}>
+                    <div className={language === 'zh' ? 'icon-expand-area' : 'icon-expand-area-en'} onClick={() =>  { setExpandedNodes(nodes.filter(node => node.mode === NodeType.agent)) }}>
                         <Button type='text' block icon={<Icon className='icon-expand' component={SvgExpand} />}>{t('全部展开')}</Button>
                     </div>
                     
-                    <div className={language === 'zh' ? 'icon-collapse-area' : 'icon-collapse-area-en'} onClick={() => setExpandedNodes(nodes)}>
+                    <div className={language === 'zh' ? 'icon-collapse-area' : 'icon-collapse-area-en'} onClick={() => { setExpandedNodes(nodes) }}>
                         <Button type='text' block icon={<Icon className='icon-collapse' component={SvgCollapse} />}>{t('全部折叠')}</Button>
                     </div>
                 </div>
@@ -311,7 +311,7 @@ function Nodes ({
                         selectedNodes={selectedNodes}
                         setSelectedNodes={setSelectedNodes}
                         expanded={expandedNodes.some(item => item.name === node.name)}
-                        switchFold={(node: DdbNode) => switchFold(node)}
+                        switchFold={(node: DdbNode) => { switchFold(node) }}
                     />)
             }
         </div>
@@ -424,7 +424,7 @@ function Node ({
                             <Checkbox
                                 disabled={node.mode === NodeType.controller || node.mode === NodeType.agent}
                                 checked={selectedNodes.some(node => node.mode === type && node.name === name)}
-                                onChange={() => handeChange()}
+                                onChange={() => { handeChange() }}
                             />
                         </Tooltip>
                     </div>
@@ -432,7 +432,7 @@ function Node ({
                         <div className='node-name'>{name}</div>
                         {isLeader && <Tag className='leader-tag' color='#FFF' >leader</Tag> }
                     </div>
-                    <div className='node-click' onClick={() => switchFold(node)} />
+                    <div className='node-click' onClick={() => { switchFold(node) }} />
                     <NodeSite node={node}/>
                     <div className={node_statuses[state]}><span>{state ? t('运行中') : t('未启动')}</span></div>
                 </div>

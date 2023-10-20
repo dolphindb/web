@@ -1,5 +1,3 @@
-import { default as React } from 'react'
-
 import { DdbForm } from 'dolphindb/browser.js'
 
 import { Obj } from '../obj.js'

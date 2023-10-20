@@ -1,13 +1,13 @@
 import { Switch } from 'antd'
 import dayjs from 'dayjs'
-import { StreamingMessage, formati, DDB } from 'dolphindb/browser.js'
-import { EChartsType } from 'echarts'
+import { type StreamingMessage, formati, DDB } from 'dolphindb/browser.js'
+import { type EChartsType } from 'echarts'
 import * as echarts from 'echarts'
 import React, { useId, useMemo } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { use_streaming } from './hooks/use-streaming.js'
-import StreamingError from './StreamingError.js'
-import { ErrorType, ScatterConfigType } from './types.js'
+import { StreamingError } from './StreamingError.js'
+import { type ErrorType, type ScatterConfigType } from './types.js'
 
 /** 
     @param table 表名
@@ -18,7 +18,7 @@ import { ErrorType, ScatterConfigType } from './types.js'
     @param x_type x轴数据类型（number，string，timestramp）
     @param y_type y轴数据类型（number，string）
     @returns JSX */
-export default function StreamingScatter ({
+export function StreamingScatter ({
     config: { url, table, username, password, x_variable, y_variable, size_variable, color_variable, height, width, x_type, y_type },
     onError
 }: {
@@ -246,7 +246,7 @@ export default function StreamingScatter ({
     
     return <>
             <StreamingError error={error} />
-            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => setDrawing(checked)} />
+            <Switch checkedChildren='开始绘制' unCheckedChildren='停止绘制' defaultChecked onChange={(checked: boolean) => { setDrawing(checked) }} />
             <div ref={container} style={{ width: width || '100%', height: height || '100%' }} />
             {`已装填数据条数：${pres_data.length}`}
         </>
