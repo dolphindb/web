@@ -15,6 +15,7 @@ import { Settings } from './Settings.js'
 import { CompileAndRefresh } from './CompileAndRefresh.js'
 
 import SvgArrowDown from './icons/arrow.down.icon.svg'
+import { HostChangeBtn } from './HostChangeBtn.js'
 
 
 export function DdbHeader () {
@@ -28,7 +29,7 @@ export function DdbHeader () {
     
     return <>
         <img className='logo' src='./ddb.svg' />
-        
+        {(model.dev || model.cdn) && <HostChangeBtn />}
         { model.dev && <CompileAndRefresh /> }
         
         <div className='padding' />
