@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react'
+import { type Dispatch, type ReactNode, type SetStateAction, useEffect, useState } from 'react'
 
 import { Button, Tabs, Table, Tooltip, Typography, Spin, Result, type TableColumnType, Input, Modal, List } from 'antd'
 
@@ -8,7 +8,7 @@ import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined } from '@ant-de
 
 import type { SortOrder } from 'antd/es/table/interface.js'
 
-import { DDB, DdbObj } from 'dolphindb/browser.js'
+import { type DDB, type DdbObj } from 'dolphindb/browser.js'
 
 import { model, NodeType } from '../model.js'
 import { computing } from './model.js'
@@ -63,7 +63,7 @@ export function Computing () {
             className='interceptor'
             title={t('登录后可查看当前节点流计算状态')}
             extra={
-                <Button type='primary' onClick={() => model.goto_login()}>
+                <Button type='primary' onClick={() => { model.goto_login() }}>
                     {t('去登录')}
                 </Button>
             }
@@ -120,7 +120,7 @@ export function Computing () {
             for (let key of Object.keys(leading_cols.engine))
                 new_row[key] = row.hasOwnProperty(key) ? row[key] : ''
             
-            for (let key of Object.keys(expanded_cols.engine[engineType]))
+            for (let key of Object.keys(expanded_cols.engine[engineType] || { }))
                 new_row[key] = row.hasOwnProperty(key) ? row[key] : '' 
                 
             new_row = Object.assign(new_row, { engineType })
@@ -518,7 +518,7 @@ function sort_col (cols: TableColumnType<Record<string, any>>[], type: string) {
 function translate_order_col (cols: TableColumnType<Record<string, any>>[], is_sub_workers: boolean) {
     const i_depth_col = cols.findIndex(({ dataIndex }) => dataIndex === (is_sub_workers ? 'queueDepth' : 'memoryUsed'))
     const i_last_err_msg_col = cols.findIndex(({ dataIndex }) => dataIndex === 'lastErrMsg')
-    const msg_order_function = (a: Record<string, any>, b: Record<string, any>) => {
+    function msg_order_function (a: Record<string, any>, b: Record<string, any>) {
         return a.order && !b.order ? 1 : b.order && !a.order ? -1 : 0
     }
     cols[i_depth_col] = {
@@ -619,7 +619,7 @@ function add_details_col (cols: TableColumnType<Record<string, any>>[]) {
 function add_details_row (table: Record<string, any>[]) {
     return table.map(row => {
         const { engineType } = row
-        const detailed_keys = Object.keys(!engineType ? expanded_cols.subWorkers : expanded_cols.engine[engineType])
+        const detailed_keys = Object.keys((!engineType ? expanded_cols.subWorkers : expanded_cols.engine[engineType]) || { })
         const dict = !engineType ? expanded_cols.subWorkers : expanded_cols.engine[engineType]
         const info = () => model.modal.info({
             title: !engineType ? row.topic : row.name,
@@ -669,7 +669,7 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
 function DetailInfo ({ text, type }: { text: string, type: string }) {
     if (!text)
         return
-    const error = () => {
+    function error () {
         model.modal.info({
             title: type === 'error' ? t('错误详细信息') : t('共享流数据表'),
             content: text,
@@ -731,7 +731,7 @@ function DeleteModal ({
                                           close() }}>
                     <Input placeholder={t('请输入 \'YES\' 以确认该操作')}
                            value={input_value} 
-                           onChange={({ target: { value } }) => set_input_value(value)}
+                           onChange={({ target: { value } }) => { set_input_value(value) }}
                         />
         </Modal>
         <Button className='title-button' disabled={!selected.length} onClick={open}>
@@ -784,7 +784,7 @@ function StateTable ({
                 refresher
                     ? {
                         type: 'checkbox',
-                        onChange: (selected_keys: React.Key[]) => set_selected(selected_keys as string[])
+                        onChange: (selected_keys: React.Key[]) => { set_selected(selected_keys as string[]) }
                     }
                     : null
             }
