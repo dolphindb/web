@@ -124,8 +124,7 @@ export function DataSourceConfig (props: IProps, ref) {
                     <Button key='save' type='primary' loading={current_data_source?.mode === 'stream' && connecting} onClick={async () => {
                         try {
                             set_connecting(true)
-                            if (no_save_flag.current)
-                                await handle_save()
+                            await handle_save()
                             if (widget) {
                                 if (!widget.source_id || widget.source_id !== current_data_source.id) {
                                     await subscribe_data_source(widget, current_data_source.id)
