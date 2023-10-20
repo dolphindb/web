@@ -12,7 +12,7 @@ export function InsertVariableBtn (props: IProps) {
     const { on_insert, ...others } = props
     
     
-    const { variable_infos } = variables.use(['variable_infos'])
+    const { variable_infos = [ ] } = variables.use(['variable_infos'])
     
     const items = useMemo<MenuProps['items']>(() => { 
         return variable_infos.map(item => ({
@@ -21,7 +21,7 @@ export function InsertVariableBtn (props: IProps) {
         }))
     }, [variable_infos, on_insert])
     
-    return <Dropdown trigger={['hover']} menu={{ items }} overlayClassName='variable-dropdown'>
+    return !!variable_infos?.length && <Dropdown trigger={['hover']} menu={{ items }} overlayClassName='variable-dropdown'>
         <Button onMouseDown={e => { e.preventDefault() }} {...others} icon={<PlusSquareOutlined />}>插入变量</Button>
     </Dropdown>
     
