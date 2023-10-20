@@ -183,7 +183,9 @@ export let webpack = {
                     {
                         'web/index.js': './console/index.tsx',
                         'web/window.js': './console/window.tsx',
-                        'web.cloud/index.js': './cloud/index.tsx'
+                        
+                        // 目前停止开发了
+                        // 'web.cloud/index.js': './cloud/index.tsx'
                     },
                 
                 
