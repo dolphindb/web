@@ -328,7 +328,7 @@ export function StreamEditor ({
                     }
             </div>
             
-            <InsertVariableBtn on_insert={on_monaco_insert} />
+            { current_data_source.filter && <InsertVariableBtn on_insert={on_monaco_insert} /> }
             
                 <div className='streamconfig-right'>
                     <div>
