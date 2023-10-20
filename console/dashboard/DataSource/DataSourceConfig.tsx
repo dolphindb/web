@@ -113,7 +113,7 @@ export function DataSourceConfig (props: IProps, ref) {
                         key='preview' 
                         onClick={
                             async () => {
-                                const { type, result } = await dashboard.execute(parse_code(dashboard.sql_editor.getValue()), true)
+                                const { type, result } = await dashboard.execute(parse_code(dashboard.sql_editor.getValue()), true, true)
                                 change_current_data_source_property('error_message', type === 'success' ? '' : result as string, false)
                                 set_show_preview(true)
                             }
@@ -121,7 +121,7 @@ export function DataSourceConfig (props: IProps, ref) {
                         预览
                     </Button>
                     : <div key='preview' />,
-                    <Button key='save' type='primary' loading={current_data_source?.mode === 'stream' && connecting} onClick={async () => {
+                    <Button key='save' type='primary' loading={connecting} onClick={async () => {
                         try {
                             set_connecting(true)
                             await handle_save()
