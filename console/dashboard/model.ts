@@ -351,11 +351,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async execute (code = this.sql_editor.getValue(), preview = false): Promise<{
+    async execute (code = this.sql_editor.getValue(), queue = true, preview = false): Promise<{
         type: 'success' | 'error' | 'warn'
         result: string | DdbObj<DdbValue>
     }> {
-        if (dashboard.executing) 
+        if (dashboard.executing && !queue) 
             // this.message.warning(t('当前连接正在执行作业，请等待'))
             return {
                 type: 'warn',

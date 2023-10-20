@@ -241,7 +241,7 @@ export function unsubscribe_data_source (widget_option: Widget) {
 }
 
 
-export async function execute (source_id: string) {
+export async function execute (source_id: string, queue = true) {
     const data_source = get_data_source(source_id)
     
     if (!data_source.id)
@@ -250,7 +250,7 @@ export async function execute (source_id: string) {
     switch (data_source.mode) {
         case 'sql':
             try {
-                const { type, result } = await dashboard.execute(parse_code(data_source.code, data_source))
+                const { type, result } = await dashboard.execute(parse_code(data_source.code, data_source), queue)
                 switch (type) {
                     case 'success':
                         // 暂时只支持table
@@ -296,7 +296,7 @@ function create_interval (data_source: DataSource) {
         delete_interval(data_source)
             
         const interval_id = setInterval(async () => {
-            await execute(data_source.id)  
+            await execute(data_source.id, false)  
         }, data_source.interval * 1000)
         
         data_source.timer = interval_id
@@ -435,7 +435,6 @@ export async function import_data_sources (_data_sources: ExportDataSource[]) {
 
 
 export function clear_data_sources () {
-    dashboard.executing = false
     data_sources.forEach(data_source => {
         switch (data_source.mode) {
             case 'sql':
