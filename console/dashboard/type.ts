@@ -75,7 +75,7 @@ export interface IColProperty {
     time_format?: ITimeFormat
     is_thousandth_place?: boolean
     align?: 'left' | 'center' | 'right'
-    sort?: 'ascend' | 'descend'
+    sort?: boolean
 }
 export interface ITableConfig {
     title?: string

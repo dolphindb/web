@@ -305,14 +305,14 @@ export function Header () {
                 <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
             </Tooltip>
             
-            <Tooltip title='刷新'>
+            {/* <Tooltip title='刷新'>
                 <Button className='action' onClick={() => { dashboard.message.error(t('功能还未实现')) }}><SyncOutlined /></Button>
             </Tooltip>
             
             <Tooltip title='暂停流数据接收'>
                 <Button className='action' onClick={() => { dashboard.message.error(t('功能还未实现')) }}><PauseOutlined /></Button>
             </Tooltip>
-            
+             */}
             { model.dev && <CompileAndRefresh /> }
         </div> }
         

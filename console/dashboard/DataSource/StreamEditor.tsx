@@ -16,6 +16,10 @@ import {
 import { dashboard } from '../model.js'
 import { NodeType, model } from '../../model.js'
 import { default_value_in_select } from '../utils.js'
+import { InsertVariableBtn } from './InsertVariableBtn.js'
+import { type editor } from 'monaco-editor'
+import { useMonacoInsert } from '../hooks/useMonacoInsert.js'
+
 
 type PropsType = { 
     current_data_source: DataSource
@@ -29,6 +33,8 @@ export function StreamEditor ({
     change_current_data_source_property
  }: PropsType) {
     const nodes = model.use(['nodes']).nodes.filter(node => node.mode === NodeType.data || node.mode === NodeType.single)
+    const { filter_column_editor, filter_expression_editor } = dashboard.use(['filter_column_editor', 'filter_expression_editor'])
+    
     const node_list = nodes.map(node => {
         return {
             value: node.name,
@@ -41,8 +47,30 @@ export function StreamEditor ({
     const [stream_filter_col, set_stream_filter_col] = useState('')
     const [ip_list, set_ip_list] = useState<{ label: string, value: string }[]>([ ])
     const [ip_select, set_ip_select] = useState(true)
+    const [cur_focus_editor, set_cur_focus_editor] = useState<editor.IStandaloneCodeEditor>()
     
+    const { on_monaco_insert } = useMonacoInsert(cur_focus_editor)
     const tree_ref = useRef(null)
+    
+    const stream_editor_ref = useRef<HTMLDivElement>()
+    
+    useEffect(() => { 
+        // 监听点击事件，获取当前激活的编辑器
+        function on_click () { 
+            if (filter_column_editor?.hasTextFocus())
+                set_cur_focus_editor(filter_column_editor)
+            else if (filter_expression_editor?.hasTextFocus())
+                set_cur_focus_editor(filter_expression_editor)
+            else
+                set_cur_focus_editor(null)
+        }
+        stream_editor_ref.current.addEventListener('click', on_click)
+        
+        return () => { stream_editor_ref?.current?.removeEventListener('click', on_click) }
+    }, [filter_column_editor, filter_expression_editor])
+    
+    
+    
     
     useEffect(() => {
         (async () => {
@@ -111,7 +139,7 @@ export function StreamEditor ({
     }, [current_data_source.node])
     
     return <>
-        <div className='streameditor'>
+        <div className='streameditor' ref={stream_editor_ref}>
             {stream_tables.length
                 ? <div className='streameditor-main'>
                     <div className='streameditor-main-left'>
@@ -298,7 +326,10 @@ export function StreamEditor ({
                         </div>
                         : <></>
                     }
-                </div>
+            </div>
+            
+            { current_data_source.filter && <InsertVariableBtn on_insert={on_monaco_insert} /> }
+            
                 <div className='streamconfig-right'>
                     <div>
                         最大行数：

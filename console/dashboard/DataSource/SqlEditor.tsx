@@ -8,6 +8,8 @@ import { DataView } from '../../shell/DataView.js'
 
 import { dashboard } from '../model.js'
 import { type DataSource, type DataSourcePropertyType, get_data_source } from './date-source.js'
+import { InsertVariableBtn } from './InsertVariableBtn.js'
+import { useMonacoInsert } from '../hooks/useMonacoInsert.js'
 
 type PropsType = { 
     show_preview: boolean
@@ -24,7 +26,9 @@ export function SqlEditor ({
         close_preview,
     }: PropsType) 
 { 
-    const { result } = dashboard.use(['result'])
+    const { result, sql_editor } = dashboard.use(['result', 'sql_editor'])
+    
+    const { on_monaco_insert } = useMonacoInsert(sql_editor)
     
     useEffect(() => {
         if (dashboard.sql_editor)
@@ -32,7 +36,7 @@ export function SqlEditor ({
         
         if (current_data_source.mode === get_data_source(current_data_source.id).mode)
             change_no_save_flag(false)
-    }, [ current_data_source.id ])
+    }, [current_data_source.id])
     
     return <>
         <div className='sqleditor'>
@@ -98,6 +102,9 @@ export function SqlEditor ({
                     : <></>
                 }
             </div>
+            
+            <InsertVariableBtn on_insert={on_monaco_insert}/>
+            
             <div className='sqlconfig-right'>
                 <div>
                     最大行数：
