@@ -30,6 +30,7 @@ import { Test } from './test/index.js'
 import { Job } from './job.js'
 import { Log } from './log.js'
 import { Computing } from './computing/index.js'
+import { DashBoard } from './dashboard/index.js'
 
 
 createRoot(
@@ -122,7 +123,8 @@ const views = {
     test: Test,
     job: Job,
     log: Log,
-    computing: Computing
+    computing: Computing,
+    dashboard: DashBoard
 }
 
 

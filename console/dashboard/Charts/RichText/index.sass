@@ -1,0 +1,72 @@
+.quill
+    height: 95% 
+    .ql-toolbar .ql-stroke
+        fill: none
+        stroke: #d7d7d7
+
+    .ql-toolbar .ql-fill
+        fill: #d7d7d7
+        stroke: none
+    
+    .ql-toolbar .ql-picker
+        color: #d7d7d7
+    
+    .ql-container
+        height: 90%
+        background-color: inherit
+        font-size: 16px
+        
+    .ql-picker-options
+        background-color: #282828
+ 
+.rich-text
+    width: 60% !important
+    height: 600px
+    .ant-modal-content
+        height: 100%
+        .ant-modal-body
+            height: 95%
+        .ant-modal-footer
+            margin: 0
+
+    .ant-modal-close
+        top: 30px
+        inset-inline-end: 30px
+        
+.rich-text-container
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
+    border: none !important 
+    .edit-rich-text
+        display: none
+    
+.empty-area,.display-area
+    width: 100%
+    height: 100%    
+    color: #fff
+        
+.empty-area
+    display: flex
+    justify-content: center
+    align-items: center
+    
+.display-area
+    background-color: #282828
+    font-size:16px
+
+
+.grid-stack-item
+    &:hover
+        .edit-rich-text-hover
+            cursor: pointer
+            font-size: 14px
+            color: #fff
+            display: block
+            position: absolute
+            top: -7px
+            right: 128px
+        
+        .edit-rich-text-icon
+            margin-right: 4px 

@@ -1,0 +1,259 @@
+$canvas_back_color: rgb(40, 40, 40)
+$font_color: rgb(215, 215, 215)
+$blue: rgb(22, 104, 220)
+$border_color: #333333
+    
+.data-source
+    .ant-modal-content
+        background-color: $canvas_back_color
+        .ant-modal-title
+            background-color: $canvas_back_color
+
+.data-source-config-trigger-navigation   
+    cursor: pointer
+    
+    .data-source-config-trigger-navigation-icon
+        margin-right: 5px
+
+.data-source-config-main
+    width: 100%
+    height: 500px
+    color: $font_color
+    display: flex
+
+    .config-data-source-list
+        width: 200px
+        border-right: 1px solid $border_color
+        display: flex
+        flex-direction: column
+        
+        .data-source-list-top
+            padding-right: 10px
+            height: 45px
+            display: flex
+            align-items: center
+            justify-content: space-between
+            
+            .data-source-list-top-item
+                cursor: pointer
+                
+                .data-source-list-top-item-icon
+                    margin-right: 2px
+            
+        .data-source-list-bottom
+            flex: 1
+            padding-right: 10px
+            
+            .data-source-list-bottom-menu
+                height: 100%
+                
+                .bottom-menu-rename-input
+                    width: 150px
+                
+                .ant-tree-switcher-noop
+                    display: none
+                    
+                .ant-tree-node-content-wrapper
+                    height: 40px
+                    padding-left: 10px
+                    display: flex
+                    align-items: center
+        
+    .config-right
+        flex: 1
+        display: flex
+        flex-direction: column
+        overflow: auto
+        
+        .config-right-top
+            height: 10%
+            padding-left: 20px
+            
+        .sqleditor
+            height: 83%
+            padding: 8px 16px
+            
+            // .sqleditor-main
+            //     border: 1px solid $border_color
+                
+        .streameditor
+            height: 83%
+            padding: 8px 16px
+            
+            .streameditor-no-table
+                height: 100%
+                border: 1px solid $border_color
+                padding: 3px 0 0 10px
+            
+            .streameditor-main
+                display: flex
+                height: 100%
+                border: 1px solid $border_color
+                
+                .streameditor-main-left
+                    width: 20%
+                    border-right: 1px solid $border_color
+                    
+                    .streameditor-main-left-menu
+                        height: 100%
+                        padding: 3px
+
+                        .ant-tree-switcher-noop
+                            display: none
+                            
+                        .ant-tree-node-content-wrapper
+                            height: 40px
+                            padding-left: 5px
+                            display: flex
+                            align-items: center
+                
+                .streameditor-main-right
+                    width: 80%
+                    padding: 3px 15px 15px 15px
+                    
+                    .streameditor-main-right-filter
+                        height: 30%
+                            
+                        .streameditor-main-right-filter-top
+                            display: flex
+                            justify-content: space-between
+                            padding: 3px 0px
+                            margin-top: 5px
+                                
+                            .streameditor-main-right-filter-top-mode-icon
+                                color: #666666
+                                margin-left: 10px
+                                cursor: pointer 
+                    
+                        .streameditor-main-right-filter-main
+                            flex: 1
+                            height: 80%
+                            border: 1px solid $border_color
+                            overflow: hidden
+                        
+        .preview
+                display: flex
+                flex-direction: column
+                height: 60%
+                    
+                .preview-config
+                    display: flex
+                    justify-content: space-between
+                    padding: 3px 0
+                    
+                    .preview-config-close
+                        cursor: pointer
+                    
+                .preview-main
+                    flex: 1
+                    border: 1px solid $border_color
+                    overflow: auto
+                    
+                    .ant-table
+                        background-color: $canvas_back_color !important
+                        
+                        .ant-table-cell
+                            background-color: $canvas_back_color !important
+                            color: $font_color !important
+                            border-color: $border_color !important
+                            
+                    .info
+                        color: #b7b5b5db !important
+                        
+                    .ant-pagination
+                        .ant-pagination-item a
+                            color: $font_color !important
+                            
+                        .ant-pagination-item-link
+                            color: $font_color !important
+                            
+                        .ant-pagination-item-active
+                            background-color: #3f3f3f !important
+                            border: 0px
+                            font-weight: bold
+                            
+                        .ant-pagination-item-link-icon
+                            color: $font_color !important
+                        
+                        .ant-pagination-disabled svg
+                            color: #5f5f5f !important
+                        
+                        .ant-pagination-options
+                            color: $font_color !important
+                            display: inline-block !important
+                            
+                        input
+                            background-color: #3f3f3f !important
+                            color: $font_color !important
+                    
+                    .preview-main-error
+                        color: red
+                        padding: 5px 10px
+    
+        .sqlconfig
+            height: 7%
+            padding: 0 16px
+            display: flex
+            justify-content: space-between
+            align-items: center
+            
+            .sqlconfig-left
+                display: flex
+                
+                .sqlconfig-left-refresh
+                    margin-right: 20px
+                
+                .sqlconfig-left-intervals-input
+                    width: 70px
+                    margin-right: 5px
+            
+            .sqlconfig-right-maxline-input
+                width: 70px
+                
+            .sqlconfig-right-icon
+                color: #666666
+                margin-left: 10px
+                cursor: pointer 
+                
+        .streamconfig
+            height: 7%
+            padding: 0 16px
+            display: flex
+            justify-content: space-between
+            align-items: center
+            
+            .streamconfig-left
+                display: flex
+                
+                .streamconfig-left-node-select
+                    width: 100px
+                    margin-right: 15px
+                
+                .streamconfig-left-ip
+                    display: flex
+                    margin-right: 15px
+                    
+                    .streamconfig-left-ip-select
+                        width: 180px
+                    
+                    .streamconfig-left-ip-manualinput
+                        display: flex
+                        
+                        .streamconfig-left-ip-manualinput-input
+                            width: 180px
+                            margin-right: 7px
+                            
+                        .streamconfig-left-ip-manualinput-icon
+                            color: #d9d9d9
+                            cursor: pointer
+                
+            .streamconfig-right
+                display: flex
+                
+                .streamconfig-right-input
+                    width: 70px
+                    
+                .streamconfig-right-icon
+                    color: #666666
+                    margin-left: 10px
+                    cursor: pointer 

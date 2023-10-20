@@ -1,0 +1,39 @@
+.color-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    
+    
+    .ant-space-item:first-child {
+        width: 80%;
+    }
+    .color-item-delete-icon {
+        cursor: pointer;
+        margin-bottom: 8px;
+    }
+    .ant-form-item {
+        margin-bottom: 8px;
+    }
+}
+
+.value-color-values {
+    margin-bottom: 12px;
+}
+
+.my-descriptions {
+    height: 100%;
+    overflow: auto;
+    background-color: #282828;
+    &.ant-descriptions .ant-descriptions-row >th, .ant-descriptions .ant-descriptions-row >td {
+        padding-bottom: 0px;
+    }
+}
+
+.description-setting-form {
+    .ant-form-item{
+        margin-bottom: 8px;
+        &:last-child {
+            margin-bottom: 0px;
+        }
+    }
+}
