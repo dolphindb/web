@@ -92,15 +92,16 @@ export function get_variable_value (variable_name: string): string {
 
 
 
-export async function save_variable ( new_variable: Variable, message = true) {
+export async function save_variable ( new_variable: Variable, is_import = false) {
     const id = new_variable.id
     
     variables.set({ [id]: { ...new_variable, deps: variables[id].deps } })
-    for (let source_id of variables[id].deps)
-        await execute(source_id)
     
-    if (message)
+    if (!is_import) {
+        for (let source_id of variables[id].deps)
+            await execute(source_id)
         dashboard.message.success(`${new_variable.name} 保存成功！`)
+    }
 }
 
 
@@ -211,7 +212,7 @@ export async function import_variables (_variables: ExportVariable[]) {
         Object.assign(import_variable, variable, { deps: import_variable.deps })
         variables[variable.id] = import_variable
         variables.variable_infos.push({ id: variable.id, name: variable.name })
-        await save_variable(import_variable, false)
+        await save_variable(import_variable, true)
     }
     return variables.variable_infos.map(variable_info => variables[variable_info.id])
 }
