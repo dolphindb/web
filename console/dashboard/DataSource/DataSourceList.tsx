@@ -7,6 +7,7 @@ import { create_data_source, data_sources, delete_data_source, rename_data_sourc
 
 
 type PropsType = {
+    saving: Boolean
     current_data_source: DataSource
     no_save_flag: MutableRefObject<boolean>
     save_confirm: () => {
@@ -27,6 +28,7 @@ type MenuItemType = {
 }
 
 export function DataSourceList ({
+    saving,
     current_data_source,
     no_save_flag,
     save_confirm,
@@ -143,6 +145,8 @@ export function DataSourceList ({
                             selectedKeys={[current_select]}
                             className='data-source-list-bottom-menu'
                             onSelect={async key => {
+                                if (saving)
+                                    return
                                 if (key.length) {
                                     if (no_save_flag.current && (await save_confirm()))
                                         await handle_save()
