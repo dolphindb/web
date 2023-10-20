@@ -19,10 +19,7 @@ import { default as Icon, CaretRightOutlined, PauseOutlined } from '@ant-design/
 
 import { Line, Pie, Bar, Column, Scatter, Area, DualAxes, Histogram, Stock } from '@ant-design/plots'
 
-import Search from 'antd/es/input/Search'
-
 import { genid, seq } from 'xshell/utils.browser.js'
-
 
 import {
     DDB,
