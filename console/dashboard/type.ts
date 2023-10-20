@@ -7,6 +7,8 @@ export interface AxisConfig {
     col_name: string
     time_format?: string
     
+    with_zero?: boolean
+    
     
     position?: Position
     offset?: number

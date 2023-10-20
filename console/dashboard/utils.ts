@@ -210,7 +210,9 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             position: axis.position,
             offset: axis.offset,
             alignTicks: true,
-            id: index
+            id: index,
+            scale: !axis.with_zero ?? false,
+            
         }
     }
     

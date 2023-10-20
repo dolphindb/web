@@ -13,6 +13,7 @@ import { AxisType, type IAxisItem, ILineType, type IYAxisItemValue } from './typ
 import { axis_position_options, axis_type_options, chart_type_options, format_time_options, line_type_options, mark_line_options, mark_point_options } from './constant.js'
 import { WidgetChartType, dashboard } from '../model.js'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
+import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 
 
 
@@ -43,9 +44,15 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                 const type = list_name ? value[list_name]?.find(item => item)?.type : value?.[name_path]?.type
                 switch (type) { 
                     case AxisType.VALUE:
-                        return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
-                            <Select options={convert_list_to_options(col_names)} allowClear/>
-                        </Form.Item>
+                        return <>
+                            <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
+                                <Select options={convert_list_to_options(col_names)} allowClear/>
+                            </Form.Item>
+                            <Form.Item name={concat_name_path(name_path, 'with_zero')} label='强制包含零刻度' initialValue={false}>
+                                <BoolRadioGroup />
+                            </Form.Item>
+                        
+                        </>
                     case AxisType.LOG:
                         return <>
                             <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
