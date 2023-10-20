@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { Editor as MonacoEditor, loader, type OnChange, type OnMount } from '@monaco-editor/react'
 
@@ -16,7 +16,7 @@ import { loadWASM } from 'vscode-oniguruma'
 import { t, language } from '../../../i18n/index.js'
 
 import { model } from '../../model.js'
-import type { IRawTheme } from 'vscode-textmate/release/theme'
+
 
 // 在 React DevTool 中显示的组件名字
 MonacoEditor.displayName = 'MonacoEditor'
