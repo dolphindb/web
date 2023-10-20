@@ -1,11 +1,11 @@
 import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
+import { DDB, type DdbObj, type DdbValue } from 'dolphindb/browser.js'
+import { cloneDeep } from 'lodash'
 
-import { type Widget, dashboard, type Result } from '../model.js'
+import { type Widget, dashboard } from '../model.js'
 import { sql_formatter, get_cols, stream_formatter, parse_code } from '../utils.js'
 import { model } from '../../model.js'
-import { DDB, DdbForm, type DdbObj, type DdbValue } from 'dolphindb/browser.js'
-import { cloneDeep } from 'lodash'
 import { unsubscribe_variable } from '../Variable/variable.js'
 
 
@@ -51,8 +51,8 @@ export type ExportDataSource = {
 export class DataSource extends Model<DataSource>  {
     id: string
     name: string
-    mode = 'sql'
-    max_line = null
+    mode: 'sql' | 'stream' = 'sql'
+    max_line: number = null
     data: DataType = [ ]
     cols: string[] = [ ]
     deps: Set<string> = new Set()
@@ -89,12 +89,12 @@ export class DataSource extends Model<DataSource>  {
 }
 
 
-export function find_data_source_index (key: string): number {
-    return data_sources.findIndex(data_source => data_source.id === key)
+export function find_data_source_index (source_id: string): number {
+    return data_sources.findIndex(data_source => data_source.id === source_id)
 } 
 
-export function get_data_source (id: string): DataSource {
-    return data_sources[find_data_source_index(id)] || new DataSource('', '')
+export function get_data_source (source_id: string): DataSource {
+    return data_sources[find_data_source_index(source_id)] || new DataSource('', '')
 }
 
 export async function save_data_source ( new_data_source: DataSource, code?: string, filter_column?: string, filter_expression?: string ) {
@@ -102,10 +102,10 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
     const data_source = get_data_source(id)
     const deps = new_data_source.deps
     
-    delete_interval(id)
-    unsubscribe_stream(id)
+    delete_interval(data_source)
+    unsubscribe_stream(data_source)
     
-    Array.from(data_source.variables).forEach(dep => { unsubscribe_variable(data_source, dep) }) 
+    data_source.variables.forEach(variable_name => { unsubscribe_variable(data_source, variable_name) })
         
     new_data_source.data.length = 0
     new_data_source.error_message = ''
@@ -119,7 +119,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
     switch (new_data_source.mode) {
         case 'sql':
             try {
-                new_data_source.cols.length = 0
+                new_data_source.cols = [ ]
                 
                 const parsed_code = parse_code(new_data_source.code, new_data_source)
                 const { type, result } = await dashboard.execute(parsed_code)
@@ -148,7 +148,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                 data_source.set({ ...new_data_source })
                 
                 if (deps.size && !new_data_source.error_message && new_data_source.auto_refresh) 
-                    create_interval(id) 
+                    create_interval(data_source) 
             }
             
             break
@@ -156,30 +156,22 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
             data_source.set({ ...new_data_source })
             
             if (deps.size) 
-                await subscribe_stream(id) 
+                await subscribe_stream(data_source) 
             
             break
     }
-    // 仅测试用
-    // if (dep && dep.length && !new_data_source.error_message ) 
-    //     dep.forEach((widget_id: string) => {
-    //         console.log(widget_id, 'render', new_data_source.data)
-    //     })
     
     if (code === undefined)
         dashboard.message.success(`${data_source.name} 保存成功！`)
 }
 
-export function delete_data_source (key: string): number {
-    const data_source = get_data_source(key)
+export function delete_data_source (source_id: string): number {
+    const data_source = get_data_source(source_id)
     if (data_source.deps.size)
         dashboard.message.error('当前数据源已被图表绑定无法删除')
     else {
-        const delete_index = find_data_source_index(key)
-        
-        for (let variable_name of data_source.variables) 
-            unsubscribe_variable(data_source, variable_name)
-            
+        const delete_index = find_data_source_index(source_id)
+        data_source.variables.forEach(variable_name => { unsubscribe_variable(data_source, variable_name) })   
         data_sources.splice(delete_index, 1)
         return delete_index
     }
@@ -193,8 +185,8 @@ export function create_data_source  (): { id: string, name: string } {
 }
 
 
-export function rename_data_source (key: string, new_name: string) {
-    const data_source = get_data_source(key)
+export function rename_data_source (source_id: string, new_name: string) {
+    const data_source = get_data_source(source_id)
     
     if (new_name === data_source.name)
         return
@@ -223,16 +215,13 @@ export async function subscribe_data_source (widget_option: Widget, source_id: s
         switch (data_source.mode) {
             case 'sql':
                 if (data_source.auto_refresh && !data_source.timer)
-                    create_interval(source_id)
+                    create_interval(data_source)
                 break
             case 'stream':
                 if (!data_source.ddb)
-                    await subscribe_stream(source_id)
+                    await subscribe_stream(data_source)
                 break
         }
-        
-        // 仅测试用
-        // console.log(widget_option.id, 'render', data_source.data)      
 }
 
 
@@ -240,11 +229,17 @@ export function unsubscribe_data_source (widget_option: Widget) {
     const source_id = widget_option.source_id
     const data_source = get_data_source(source_id)
     data_source.deps.delete(widget_option.id)
-    if (!data_source.deps.size) {
-        delete_interval(source_id)
-        unsubscribe_stream(source_id)
-    }   
+    if (!data_source.deps.size) 
+        switch (data_source.mode) {
+            case 'sql':
+                delete_interval(data_source)
+                break
+            case 'stream':
+                unsubscribe_stream(data_source)
+                break
+        }  
 }
+
 
 export async function execute (source_id: string) {
     const data_source = get_data_source(source_id)
@@ -256,33 +251,29 @@ export async function execute (source_id: string) {
         case 'sql':
             try {
                 const { type, result } = await dashboard.execute(parse_code(data_source.code, data_source))
-                if (type === 'success') {
-                    // 暂时只支持table
-                    if (typeof result === 'object' && result && result.form === DdbForm.table) 
-                        data_source.set({
-                            data: sql_formatter(result, data_source.max_line),
-                            cols: get_cols(result),
-                            error_message: ''
-                        })        
-                    else
-                        data_source.set({
-                            data: [ ],
-                            cols: [ ],
-                            error_message: ''
-                        })
-                    
-                    if (data_source.deps.size && !data_source.timer && data_source.auto_refresh) 
-                        create_interval(data_source.id) 
-                    
-                    // 仅测试用
-                    // console.log('')
-                    // data_source.deps.forEach((widget_id: string) => {
-                    //     console.log(widget_id, 'render', data_source.data)
-                    // })
+                switch (type) {
+                    case 'success':
+                        // 暂时只支持table
+                        if (typeof result === 'object' && result)
+                            data_source.set({
+                                data: sql_formatter(result, data_source.max_line),
+                                cols: get_cols(result),
+                                error_message: ''
+                            })        
+                        else
+                            data_source.set({
+                                data: [ ],
+                                cols: [ ],
+                                error_message: ''
+                            })
+                            
+                        if (data_source.deps.size && !data_source.timer && data_source.auto_refresh) 
+                            create_interval(data_source) 
+                        
+                        break
+                    case 'error':
+                        throw new Error(result as string) 
                 }
-                else if (type === 'error')
-                    throw new Error(result as string)   
-                 
             } catch (error) {
                 dashboard.message.error(error.message)
                 data_source.set({
@@ -290,23 +281,22 @@ export async function execute (source_id: string) {
                     cols: [ ],
                     error_message: error.message
                 })
-                delete_interval(source_id)
+                delete_interval(data_source)
             } finally {
                 break
             }
         case 'stream':
             if (data_source.deps.size) 
-                await subscribe_stream(source_id)
+                await subscribe_stream(data_source)
     }
 }
 
-function create_interval (source_id: string) {
-    const data_source = get_data_source(source_id)
+function create_interval (data_source: DataSource) {
     if (data_source.auto_refresh) {
-        delete_interval(source_id)
+        delete_interval(data_source)
             
         const interval_id = setInterval(async () => {
-            await execute(source_id)  
+            await execute(data_source.id)  
         }, data_source.interval * 1000)
         
         data_source.timer = interval_id
@@ -314,8 +304,7 @@ function create_interval (source_id: string) {
 }
 
 
-function delete_interval (source_id: string) {
-    const data_source = get_data_source(source_id)
+function delete_interval (data_source: DataSource) {
     const interval = data_source.timer
     if (interval) {
         clearInterval(interval)
@@ -324,10 +313,8 @@ function delete_interval (source_id: string) {
 }
 
 
-async function subscribe_stream (source_id: string) {
-    const data_source = get_data_source(source_id)
-    
-    unsubscribe_stream(source_id)
+async function subscribe_stream (data_source: DataSource) {
+    unsubscribe_stream(data_source)
     
     const { ddb: { username, password } } = model
     
@@ -374,16 +361,14 @@ async function subscribe_stream (source_id: string) {
             }
         )
         await stream_connection.connect()
-        data_source.set({ data: [ ] })
-        data_source.ddb = stream_connection
+        data_source.set({ data: [ ], cols: await get_stream_cols(data_source.stream_table), ddb: stream_connection })
     } catch (error) {
         dashboard.message.error(error.message)
     }
 }
 
 
-function unsubscribe_stream (source_id: string) {
-    const data_source = get_data_source(source_id)
+function unsubscribe_stream (data_source: DataSource) {
     const stream_connection = data_source.ddb
     if (stream_connection) {
         stream_connection.disconnect()
@@ -454,10 +439,10 @@ export function clear_data_sources () {
     data_sources.forEach(data_source => {
         switch (data_source.mode) {
             case 'sql':
-                delete_interval(data_source.id)
+                delete_interval(data_source)
                 break
             case 'stream':
-                unsubscribe_stream(data_source.id)
+                unsubscribe_stream(data_source)
                 break
         }
     })
