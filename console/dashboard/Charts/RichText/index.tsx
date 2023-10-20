@@ -12,6 +12,9 @@ import { EditOutlined } from '@ant-design/icons'
 import cn from 'classnames'
 import {  variables } from '../../Variable/variable.js'
 import { parse_text } from '../../utils.js'
+import { useRef } from 'react'
+import { useCallback } from 'react'
+import { InsertVariableBtn } from '../../DataSource/InsertVariableBtn.js'
 
 
 export function RichText ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
@@ -19,6 +22,8 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
     const [edit_text, set_edit_text] = useState(display_text)
     const { visible, open, close } = use_modal()
     const variable_obj = variables.use()
+    
+    const quill_ref = useRef<any>()
     
     const toolbar_options = useMemo(
         () => [
@@ -46,6 +51,17 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
     
     let template_text = parse_text(display_text)
     
+    const on_insert = useCallback((content: string) => { 
+        if (quill_ref?.current) { 
+            const editor = quill_ref?.current?.getEditor?.()
+        
+            const cursorPosition = editor?.getSelection()?.index
+            
+            editor?.insertText(cursorPosition, content)
+            editor?.setSelection(cursorPosition + content.length)
+        }
+    }, [ ])
+    
     return <>
             <Modal
                 open={visible}
@@ -60,8 +76,10 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
                     close()
                 }}
                 className='rich-text'
-            >
+        >
+                <InsertVariableBtn className='rich-text-insert-btn' on_insert={on_insert} />
                 <ReactQuill
+                    ref={quill_ref}
                     theme='snow'
                     value={edit_text}
                     onChange={set_edit_text}
