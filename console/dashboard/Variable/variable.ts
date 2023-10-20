@@ -4,7 +4,6 @@ import { genid } from 'xshell/utils.browser.js'
 import { dashboard } from '../model.js'
 import { type DataSource, execute } from '../DataSource/date-source.js'
 
-
 export type ExportVariable = {
     id: string
     
@@ -53,12 +52,11 @@ export class Variables extends Model<Variables>  {
     }
 }
 
-const tmp_deps = new Map<string, Set<string>>()
-
-
 export type VariablePropertyType = string | string[] | OptionType[]
 
 export type OptionType = { label: string, value: string, key: string }
+
+const tmp_deps = new Map<string, Set<string>>()
 
 
 export function find_variable_index (key: string, type: 'id' | 'name'): number {
@@ -73,13 +71,13 @@ export function find_variable_by_name (variable_name: string): Variable {
 
 
 export async function update_variable_value (change_variables: {})  {
-    const data_sources = new Set()
+    const data_sources = new Set<string>()
     Object.entries(change_variables).forEach(([variable_id, value]) => { 
         variables.set({ [variable_id]: { ...variables[variable_id], value } })
-        variables[variable_id].deps.forEach(data_source => data_sources.add(data_source))
+        variables[variable_id].deps.forEach((data_source: string) => data_sources.add(data_source))
     })
     
-    for (let source_id of Array.from(data_sources))
+    for (let source_id of data_sources)
         await execute(source_id as string)
 }
 
@@ -122,14 +120,15 @@ export function delete_variable (variable_id: string): number {
 
 export function create_variable  () {
     const id = String(genid())
-    const name = `var_${id.slice(0, 4)}`
-    const display_name = name 
+    const name = `var_${id.slice(0, 4)}` 
     
-    const variable = new Variable(id, name, display_name, tmp_deps.get(name) || new Set<string>())
-    variables.set({ [id]: { ...variable }, variable_infos: [{ id, name }, ...variables.variable_infos] })
+    variables.set({ 
+        [id]: { ...new Variable(id, name, name, tmp_deps.get(name) || new Set<string>()) }, 
+        variable_infos: [{ id, name }, ...variables.variable_infos] 
+    })
     
     tmp_deps.delete(name)
-    return { id, name, display_name }
+    return { id, name, display_name: name }
 }
 
 
