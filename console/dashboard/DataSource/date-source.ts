@@ -145,15 +145,15 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                 if (code === undefined)
                     dashboard.message.error(error.message)
             } finally {
-                data_source.set({ ...new_data_source })
+                data_source.set({ ...new_data_source, timer: data_source.timer })
                 
-                if (deps.size && !new_data_source.error_message && new_data_source.auto_refresh) 
+                if (deps.size && !data_source.error_message && data_source.auto_refresh && data_source.timer) 
                     create_interval(data_source) 
             }
             
             break
         case 'stream':   
-            data_source.set({ ...new_data_source })
+            data_source.set({ ...new_data_source, auto_refresh: false })
             
             if (deps.size) 
                 await subscribe_stream(data_source) 
