@@ -383,3 +383,20 @@ export function format_number (val: any, decimal_places, is_thousandth_place) {
     return value
         
 }
+
+
+export async function loadStyles (url: string) {
+    const links = document.querySelectorAll('link[rel="stylesheet"]')
+    for (const link of Array.from(links))
+        if (link.getAttribute('href') === url)
+            return
+  
+    return new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        link.onload = resolve
+        link.onerror = reject
+        document.head.appendChild(link)
+    })
+}

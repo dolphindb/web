@@ -21,6 +21,7 @@ import { type Monaco } from '../shell/Editor/index.js'
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
+import { loadStyles } from './utils.js'
 
 
 export class DashBoardModel extends Model<DashBoardModel> {
@@ -125,7 +126,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         grid.enableResize(this.editing)
         
         // 响应用户从外部添加新 widget 到 GridStack 的事件
-        grid.on('dropped', (event: Event, old_node: GridStackNode, node: GridStackNode) => {
+        grid.on('dropped', async (event: Event, old_node: GridStackNode, node: GridStackNode) => {
             // old_widget 为 undefined
             
             const widget: Widget = {
@@ -140,6 +141,12 @@ export class DashBoardModel extends Model<DashBoardModel> {
             
             console.log('拖拽释放，添加 widget:', widget)
             
+            if (widget.type === 'TEXT') {
+                await import('react-quill')
+                await loadStyles('./vendors/react-quill/dist/quill.snow.css')
+                await loadStyles('./vendors/react-quill/dist/quill.core.css')
+            }
+                
             this.add_widget(widget)
             
             grid.removeWidget(node.el)
