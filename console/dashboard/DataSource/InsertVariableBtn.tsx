@@ -16,7 +16,12 @@ export function InsertVariableBtn (props: IProps) {
     
     const items = useMemo<MenuProps['items']>(() => { 
         return variable_infos.map(item => ({
-            label: <a onMouseDown={e => { e.preventDefault() }} onClick={() => { on_insert?.(`{{${item.name}}}`) }}>{item.name}</a>,
+            label: <a onMouseDown={e => { e.preventDefault() }} onClick={e => {
+                e.preventDefault()
+                try {
+                    on_insert?.(`{{${item.name}}}`)
+                } catch { }
+            }}>{item.name}</a>,
             key: item.id
         }))
     }, [variable_infos, on_insert])

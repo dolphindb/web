@@ -2,7 +2,7 @@ import './index.scss'
 
 import { Collapse, Descriptions, type DescriptionsProps, Form, InputNumber, Select, type CollapseProps, Input, Checkbox } from 'antd'
 import { type Widget } from '../../model.js'
-import { convert_list_to_options, format_number, format_time } from '../../utils.js'
+import { convert_list_to_options, format_number, format_time, parse_text } from '../../utils.js'
 
 
 import { useMemo } from 'react'
@@ -24,20 +24,9 @@ export function DBDescriptions (props: IProps) {
     const { data_source = [ ], widget } = props
     const config = useMemo(() => widget.config as unknown as IDescriptionsConfig, [widget.config])
     
-    // const [selected_cols, set_selected_cols] = useState<any[]>([ ])
-    
-    // useEffect(() => { 
-    //     if (config.with_select && (!selected_cols || selected_cols?.length === 0))
-    //         set_selected_cols(data_source.map(item => item[config.label_col]))
-    // }, [data_source, config.label_col, config.with_select])
-    
     
     const items = useMemo<DescriptionsProps['items']>(() => { 
         const { col_properties } = config
-        // let show_items = data_source
-  
-        // if (config.with_select)
-        //     show_items = data_source?.filter(item => selected_cols?.includes(item[config.label_col]))
        
         return data_source.map((item, idx) => {
             const { color: custom_color, threshold, time_format, decimal_places, is_thousandth_place } = col_properties?.[idx] ?? { }
@@ -80,7 +69,7 @@ export function DBDescriptions (props: IProps) {
             colon={false}
             className='my-descriptions'
             layout='vertical'
-            title={<div style={{ fontSize: config.title_size }}>{config.title}</div>}
+            title={<div style={{ fontSize: config.title_size }}>{parse_text(config.title ?? '')}</div>}
             items={items}
             column={config.column_num}
         />
@@ -110,12 +99,6 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
         <Form.Item name='column_num' label='每行展示数量' initialValue={4}>
             <InputNumber />
         </Form.Item>
-        {/*     
-            <Form.Item name='with_select' label='可选展示列' initialValue={false}>
-                <BoolRadioGroup />
-            </Form.Item>
-        */}
-        
         <FormDependencies dependencies={['label_col']}>
             {({ label_col }) => { 
                 if (!label_col)

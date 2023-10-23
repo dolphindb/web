@@ -11,7 +11,7 @@ import { type ITableConfig } from '../../type.js'
 
 import { type ColumnsType } from 'antd/es/table'
 import { isNumber } from 'lodash'
-import { format_number, format_time } from '../../utils.js'
+import { format_number, format_time, parse_text } from '../../utils.js'
 import classNames from 'classnames'
 
 
@@ -122,7 +122,7 @@ export function DBTable (props: IProps) {
                 style={{ fontSize: config.title_size }}
                 className='table-title'
             >
-                {config.title}
+                {parse_text(config.title)}
             </h2>
         }
         

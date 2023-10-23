@@ -3,7 +3,7 @@ import * as echarts from 'echarts'
 import { type Widget, dashboard } from '../../model.js'
 import { useMemo, useRef } from 'react'
 import { type IOrderBookConfig, type IChartConfig } from '../../type.js'
-import { to_chart_data } from '../../utils.js'
+import { parse_text, to_chart_data } from '../../utils.js'
 import { DdbType } from 'dolphindb/browser.js'
 import { OrderFormFields, BasicFormFields } from '../../ChartFormFields/OrderBookField.js'
 import {
@@ -67,7 +67,7 @@ export function OrderBook (props: IProps) {
       
       return {
         title: {
-          text: title,
+          text: parse_text(title ?? ''),
           textStyle: {
               color: '#e6e6e6',
               fontSize: title_size,
