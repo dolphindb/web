@@ -9,7 +9,7 @@ import { variables } from '../Variable/variable.js'
 import { convert_list_to_options } from '../utils.js'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 
-export function BasicFormFields ({ type }: { type: 'chart' | 'table' | 'description' }) { 
+export function BasicFormFields ({ type }: { type?: 'chart' | 'table' | 'description' }) { 
     
     const { variable_infos } = variables.use(['variable_infos'])
     

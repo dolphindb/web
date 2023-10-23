@@ -8,6 +8,7 @@ import { DBDescriptions, DBDescriptionsForm } from './Charts/Descriptions/index.
 import { Pie, PieConfigForm } from './Charts/PIE/index.js'
 import { OrderBook, OrderConfigForm } from './Charts/OrderBook/index.js'
 import { DashboardEditor as Editor, EditorConfigForm } from './Charts/DashboardEditor/index.js'
+import { Gauge, GaugeConfigForm } from './Charts/Gauge/index.js'
 
 type GraphConfig =  { 
     [key in WidgetChartType]: {
@@ -56,4 +57,8 @@ export const graph_config: GraphConfig =  {
         component: Editor,
         config: EditorConfigForm
     },
+    [WidgetChartType.GAUGE]: {
+        component: Gauge,
+        config: GaugeConfigForm
+    }
 }

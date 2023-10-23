@@ -134,3 +134,37 @@ export interface IEditorConfig {
     button_text: string
 }
 
+
+
+export interface IGaugeConfig { 
+    title?: string
+    max: number
+    min: number
+    title_size?: number
+    
+    axis_setting: Array<{
+        threshold: number
+        color: string
+    }>
+    
+    
+    data_setting: Array<
+        {
+            col: string
+            name: string
+            color: string
+            title: {
+                level: number
+                vertical: number
+            }
+            
+            value: {
+                level: number
+                vertical: number
+            }
+            
+        }
+    >
+    
+    
+}
