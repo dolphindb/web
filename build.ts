@@ -93,6 +93,12 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
             '@ant-design/plots/dist/plots.min.js',
             '@ant-design/plots/dist/plots.min.js.map',
             'echarts/dist/echarts.js',
+            'gridstack/dist/gridstack-all.js',
+            'gridstack/dist/gridstack.min.css',
+            // 'gridstack/dist/gridstack-extra.css', // 行列数为1-11时需要
+            'react-quill/dist/react-quill.js',
+            'react-quill/dist/quill.snow.css',
+            'react-quill/dist/quill.core.css'
         ].map(async fp =>
             fcopy(`${fpd_node_modules}${fp}`, `${fpd_vendors}${fp}`, { print: verbose })
         ),

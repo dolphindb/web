@@ -1,8 +1,6 @@
 import { Button, Modal } from 'antd'
 import React, { useMemo, useState } from 'react'
 import ReactQuill from 'react-quill'
-import 'react-quill/dist/quill.snow.css'
-import 'react-quill/dist/quill.core.css'
 import { use_modal } from 'react-object-model/modal'
 import { t } from '../../../../i18n/index.js'
 import './index.sass'
