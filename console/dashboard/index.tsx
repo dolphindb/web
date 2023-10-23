@@ -1,5 +1,3 @@
-import 'gridstack/dist/gridstack.css'
-import 'gridstack/dist/gridstack-extra.css'
 import './index.sass'
 
 
