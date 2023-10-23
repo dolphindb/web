@@ -38,7 +38,6 @@ export function Gauge (props: IProps) {
             },
             series: [{
                 type: 'gauge',
-                // clockwise: false,s
                 
                 title: {
                     fontSize: 14,
