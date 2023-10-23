@@ -19,7 +19,7 @@ import { model, show_error, type ErrorOptions, storage_keys } from '../model.js'
 import { type Monaco } from '../shell/Editor/index.js'
 
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
-import { type IEditorConfig, type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig } from './type.js'
+import { type IEditorConfig, type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig, type IGaugeConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 
 
@@ -527,7 +527,7 @@ export interface Widget extends GridStackNode {
     update_graph?: (data: DataType) => void
     
     /** 图表配置 */
-    config?: (IChartConfig | ITableConfig | ITextConfig | IEditorConfig) & {
+    config?: (IChartConfig | ITableConfig | ITextConfig | IEditorConfig | IGaugeConfig) & {
         variable_ids: string[]
         abandon_scroll?: boolean
         variable_cols?: number
@@ -551,7 +551,8 @@ export enum WidgetType {
     // HEAT = '热力图',
     TEXT = '富文本',
     DESCRIPTIONS = '描述表',
-    EDITOR = '编辑器'
+    EDITOR = '编辑器',
+    GAUGE = '仪表盘'
 }
 
 export enum WidgetChartType { 
@@ -569,7 +570,8 @@ export enum WidgetChartType {
     // HEAT = 'HEAT'
     TEXT = 'TEXT',
     DESCRIPTIONS = 'DESCRIPTIONS',
-    EDITOR = 'EDITOR'
+    EDITOR = 'EDITOR',
+    GAUGE = 'GAUGE'
 }
 
 

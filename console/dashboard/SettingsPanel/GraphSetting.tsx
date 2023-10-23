@@ -48,7 +48,7 @@ export function GraphSetting () {
         <Form
             onValuesChange={on_form_change}
             form={form}
-            labelCol={{ span: 8 }}
+            labelCol={{ span: 10 }}
             labelAlign='left'
             colon={false}
             className='graph-setting-form'

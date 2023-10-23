@@ -8,7 +8,10 @@
     flex-direction: column;
     
     .ant-table-wrapper {
-        overflow-y: auto;
+       
+        tbody {
+            overflow: auto;
+        }
         
         &::-webkit-scrollbar-track-piece {
             background-color: #474747 !important;
