@@ -93,6 +93,10 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
             '@ant-design/plots/dist/plots.min.js',
             '@ant-design/plots/dist/plots.min.js.map',
             'echarts/dist/echarts.js',
+            'gridstack/dist/gridstack-all.js',
+            'gridstack/dist/gridstack.min.css',
+            'react-quill/dist/react-quill.js',
+            'react-quill/dist/quill.snow.css'
         ].map(async fp =>
             fcopy(`${fpd_node_modules}${fp}`, `${fpd_vendors}${fp}`, { print: verbose })
         ),
