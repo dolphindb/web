@@ -61,7 +61,7 @@ function formatter (type: DdbType, values, le: boolean, index: number) {
         case DdbType.datehour:
             return value === nulls.int32 ? null : format(type, value, le)
         case DdbType.long:
-            return value === nulls.int64 ? null : format(type, value, le)
+            return value === nulls.int64 ? null : String(value)
         case DdbType.timestamp:
             return format(type, value, le)
         case DdbType.nanotime:
