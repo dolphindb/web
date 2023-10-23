@@ -216,6 +216,7 @@ export let webpack = {
                     '@ant-design/icons': 'icons',
                     '@ant-design/plots': 'Plots',
                     echarts: 'echarts',
+                    gridstack: 'gridstack',
                     'react-quill': 'react-quill',
                     '@formily/core': ['module ./pre-bundle/formily.js', 'Core'],
                     '@formily/react': ['module ./pre-bundle/formily.js', 'React'],
