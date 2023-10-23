@@ -385,7 +385,7 @@ export function format_number (val: any, decimal_places, is_thousandth_place) {
 }
 
 
-export async function loadStyles (url: string) {
+export async function load_styles (url: string) {
     const links = document.querySelectorAll('link[rel="stylesheet"]')
     for (const link of Array.from(links))
         if (link.getAttribute('href') === url)
