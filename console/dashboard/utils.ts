@@ -6,7 +6,6 @@ import { isNil } from 'lodash'
 import { type Widget } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
 import { type DataSource } from './DataSource/date-source.js'
-import { t } from '../../i18n/index.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import dayjs from 'dayjs'
 import { find_variable_by_name, get_variable_value, subscribe_variable } from './Variable/variable.js'
@@ -284,7 +283,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     return {
         grid: {
             containLabel: true,
-            left: 0,
+            left: 15,
             bottom: 0
         },
         legend: {
@@ -304,7 +303,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             }
         },
         title: {
-            text: title,
+            text: parse_text(title ?? ''),
             textStyle: {
                 color: '#e6e6e6',
                 fontSize: title_size || 18,

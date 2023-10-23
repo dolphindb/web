@@ -6,6 +6,7 @@ import { type Widget } from '../../model.js'
 
 import { BasicFormFields, SeriesFormFields } from '../../ChartFormFields/PieChartFields.js'
 import { type IChartConfig } from '../../type.js'
+import { parse_text } from '../../utils.js'
 
 const radius = {
     1: [[0, '70%']],
@@ -33,7 +34,7 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                     borderColor: '#333'
                 },
                 title: {
-                    text: title,
+                    text: parse_text(title ?? ''),
                     textStyle: {
                         color: '#e6e6e6',
                         fontSize: title_size,

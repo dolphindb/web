@@ -11,7 +11,7 @@ import { convert_list_to_options } from '../utils.js'
 
 
 export function BasicTableFields ({ col_names }: { col_names: string[] }) {
-    
+    const form = Form.useFormInstance()
     return <Collapse items={[
         {
             key: 'col',
@@ -21,9 +21,9 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                 {fields => { 
                     const items: CollapseProps['items'] = fields.map(field => ({
                         key: field.name,
-                        label: col_names[field.name],
+                        label: form.getFieldValue('col_properties')?.[field.name]?.col ?? col_names[field.name],
                         children: <div className='axis-wrapper'>
-                            <Form.Item name={[field.name, 'col']} hidden>
+                            <Form.Item name={[field.name, 'col']} initialValue={col_names[field.name]} label='数据列'>
                                 <Input />
                             </Form.Item>
                             <Form.Item label={t('是否展示')} name={[field.name, 'show']} initialValue>

@@ -75,8 +75,8 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
                 }}
                 className='rich-text'
         >
-                <InsertVariableBtn className='rich-text-insert-btn' on_insert={on_insert} />
-                <ReactQuill
+            <InsertVariableBtn className='rich-text-insert-btn' on_insert={on_insert} />    
+            <ReactQuill
                     ref={quill_ref}
                     theme='snow'
                     value={edit_text}
@@ -85,6 +85,7 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
                         toolbar: toolbar_options
                     }}
                 />
+               
             </Modal>
             {display_text === '' ? (
                 <div className='empty-area'>

@@ -12,6 +12,7 @@ export function GraphSetting () {
     
     const [form] = Form.useForm()
     
+    
     const on_reset_config = useCallback(() => { 
         form.resetFields()
         dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
@@ -55,11 +56,16 @@ export function GraphSetting () {
             <ConfigFormFields col_names={cols} data_source={data_source} />
         </Form>
         
-        <Popconfirm title='重置配置？' description='当切换数据源或者更新数据源表结构之后需要重置配置' onConfirm={on_reset_config}>
+        <Popconfirm title='确定要重置配置吗？' onConfirm={on_reset_config}>
             <Button icon={<UndoOutlined />} className='reset-config-btn'>
                 重置配置
             </Button>
         </Popconfirm>
+        <div>
+            <Typography.Text type='secondary'>
+                配置表单与数据源结构相关，如修改数据源结构，建议重置表单以适应最新结构
+            </Typography.Text>
+        </div>
         
     </>
 }
