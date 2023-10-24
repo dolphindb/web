@@ -263,7 +263,7 @@ export function Header () {
                         await save_config()
                         
                         let a = document.createElement('a')
-                        a.download = `dashboard.${config.id}.json`
+                        a.download = `dashboard.${config.name}.json`
                         a.href = URL.createObjectURL(
                             new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
                         )
