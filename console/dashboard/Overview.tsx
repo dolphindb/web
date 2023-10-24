@@ -80,7 +80,6 @@ export function Overview () {
                         
                         model.set_query('dashboard', String(new_dashboard.id))
                         model.set({ header: false, sider: false })
-                        model.message.success(t('添加成功'))
                     } catch (error) {
                         model.show_error({ error })
                         throw error
