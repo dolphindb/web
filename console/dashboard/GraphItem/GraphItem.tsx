@@ -3,7 +3,7 @@ import './index.scss'
 import { CloseOutlined } from '@ant-design/icons'
 
 
-import { WidgetType, dashboard } from '../model.js'
+import { WidgetChartType, WidgetType, dashboard } from '../model.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import { useMemo } from 'react'
 import { type Widget } from '../model.js'
@@ -27,7 +27,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     
     return <div className='graph-item-wrapper'>
-        <VariableForm ids={variable_ids} cols={variable_cols} with_search_btn={with_search_btn} />
+        {(widget.type !==  WidgetChartType.VARIABLE) && <VariableForm ids={variable_ids} cols={variable_cols} with_search_btn={with_search_btn} /> }
         <div className={cn('graph-component', {
             'graph-item-wrapper-abandon-scroll': widget.config.abandon_scroll
         }) }>
