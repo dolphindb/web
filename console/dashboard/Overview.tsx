@@ -45,16 +45,6 @@ export function Overview () {
         })()
     }, [ ])
     
-    useEffect(() => {
-        (async () => {
-            try {
-              await dashboard.get_users_to_share()
-            } catch (error) {
-                model.show_error({ error })
-            }
-        })()
-    }, [ ])
-    
     
     useEffect(() => {
         if (params.get('create') === '1') {
@@ -149,6 +139,14 @@ export function Overview () {
                 open={sharor.visible}
                 onCancel={sharor.close}
                 onOk={async () => {
+                    if (!selected_dashboard_ids.length) {
+                        model.message.error(t('请选择想要分享的 dashboard'))
+                        return
+                    }
+                    if (!selected_users.length) {
+                        model.message.error(t('请选择想要分享的用户'))
+                        return
+                    }
                     try {
                         await dashboard.share(selected_dashboard_ids, selected_users)
                         model.message.success(t('分享成功'))
@@ -299,7 +297,17 @@ export function Overview () {
                                 <Button icon={<UploadOutlined />}>{t('导入')}</Button>
                             </Upload>
                             
-                            <Button icon={<ShareAltOutlined />} onClick={sharor.open}>{t('分享')}</Button>
+                            <Button icon={<ShareAltOutlined />} 
+                                    onClick={async () => {
+                                                try {
+                                                    await dashboard.get_users_to_share()
+                                                    sharor.open()
+                                                } catch (error) {
+                                                    model.show_error({ error })
+                                                    throw error
+                                                } }}>
+                                    {t('分享')}
+                            </Button>
                         </div>
                     </div>}
             />
