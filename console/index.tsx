@@ -6,7 +6,10 @@ import './index.sass'
 
 import { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
+
 import NiceModal from '@ebay/nice-modal-react'
+
+import cn from 'classnames'
 
 import { Layout, ConfigProvider, App } from 'antd'
 import zh from 'antd/es/locale/zh_CN.js'
@@ -31,7 +34,6 @@ import { Job } from './job.js'
 import { Log } from './log.js'
 import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
-import cn from 'classnames'
 
 
 createRoot(
@@ -137,11 +139,7 @@ function DdbContent () {
     if (!View)
         return null
     
-    return <div className={cn({
-        'view-card': true,
-        [view]: true,
-        'white-pagination': view !== 'dashboard'
-    })}>
+    return <div className={cn('view-card', view, { 'white-pagination': view !== 'dashboard' })}>
         <View />
     </div>
 }
