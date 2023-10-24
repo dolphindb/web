@@ -776,8 +776,6 @@ export function StreamingTable ({
                                             expression: expression
                                         },
                                         handler (message) {
-                                            console.log(message)
-                                            
                                             const { error } = message
                                             
                                             if (error) {
