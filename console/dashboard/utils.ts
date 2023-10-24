@@ -390,9 +390,9 @@ export async function load_styles (url: string) {
     for (const link of Array.from(links))
         if (link.getAttribute('href') === url)
             return
-  
+    
     return new Promise((resolve, reject) => {
-        const link = document.createElement('link')
+        let link = document.createElement('link')
         link.rel = 'stylesheet'
         link.href = url
         link.onload = resolve
