@@ -122,11 +122,13 @@ export function OptionList ({
             title: '标签',
             dataIndex: 'label',
             editable: true,
+            width: 300,
         },
         {
             title: '值',
             dataIndex: 'value',
             editable: true,
+            width: 300
         },
         {
             title: '操作',

@@ -78,9 +78,9 @@ export function BasicFormFields ({ type }: { type?: 'chart' | 'table' | 'descrip
                     <BoolRadioGroup />
                 </Form.Item>
                 
-                <Form.Item tooltip='启用此选项之后，会在表格内层滚动' name='abandon_scroll' label='禁止滚动' initialValue={false} >
+                {/* <Form.Item tooltip='启用此选项之后，会在表格内层滚动' name='abandon_scroll' label='禁止滚动' initialValue={false} >
                     <BoolRadioGroup />
-                </Form.Item>
+                </Form.Item> */}
             </>}
         </div>
     }, [ type, variable_infos ])

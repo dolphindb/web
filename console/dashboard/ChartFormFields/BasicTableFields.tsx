@@ -23,8 +23,8 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                         key: field.name,
                         label: form.getFieldValue('col_properties')?.[field.name]?.col ?? col_names[field.name],
                         children: <div className='axis-wrapper'>
-                            <Form.Item name={[field.name, 'col']} initialValue={col_names[field.name]} label='数据列'>
-                                <Input />
+                            <Form.Item name={[field.name, 'col']} initialValue={col_names[field.name]} label='数据列' >
+                                <Input disabled/>
                             </Form.Item>
                             <Form.Item label={t('是否展示')} name={[field.name, 'show']} initialValue>
                                 <BoolRadioGroup />
