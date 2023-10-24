@@ -4,11 +4,13 @@ import { useCallback, useEffect } from 'react'
 import { type Variable, variables, update_variable_value } from '../Variable/variable.js'
 import { StringDatePicker } from '../../components/StringDatePicker/index.js'
 import { SearchOutlined } from '@ant-design/icons'
+import classNames from 'classnames'
 
 interface IProps { 
     ids: string[]
     cols: number
     with_search_btn: boolean
+    className?: string
 }
 
 
@@ -44,7 +46,7 @@ function ControlField ({ variable }: { variable: Variable }) {
 
 
 export function VariableForm (props: IProps) {
-    const { ids = [ ], cols = 3, with_search_btn } = props
+    const { ids = [ ], cols = 3, with_search_btn, className } = props
     
     const [form] = Form.useForm()
     
@@ -59,10 +61,10 @@ export function VariableForm (props: IProps) {
         update_variable_value(values)
     }, [ ])
     
-    return !!ids.length && <div className='variable-wrapper'>
+    return !!ids.length && <div className={classNames('variable-wrapper', { [className]: true })}>
         <Form form={form} className='variable-form' onValuesChange={!with_search_btn && on_variables_change} labelCol={{ span: 6 }} labelAlign='left'>
             <Row gutter={[24, 16]}>
-                {ids.map(id => variables_obj[id]).filter(Boolean).map(item => <Col span={24 / cols} ><ControlField variable={item} key={item?.id} /></Col>) }
+                {ids.map(id => variables_obj[id]).filter(Boolean).map(item => <Col span={24 / cols} key={item?.id}><ControlField variable={item} key={item?.id} /></Col>) }
             </Row>
         </Form>
         {

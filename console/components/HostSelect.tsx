@@ -7,11 +7,11 @@ export function HostSelect () {
         size='small'
         options={[
             {
-                label: '测试集群.数据节点',
+                label: '测试数据节点',
                 value: '192.168.0.200:20023'
             },
             {
-                label: '测试集群.控制节点',
+                label: '测试控制节点',
                 value: '192.168.0.200:20000'
             },
             {

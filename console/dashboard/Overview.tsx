@@ -39,18 +39,9 @@ export function Overview () {
                 }
                 await dashboard.get_dashboard_configs()
             } catch (error) {
+                dashboard.set({ backend: false })
                 await dashboard.get_configs_from_local()
             
-            }
-        })()
-    }, [ ])
-    
-    useEffect(() => {
-        (async () => {
-            try {
-              await dashboard.get_users_to_share()
-            } catch (error) {
-                model.show_error({ error })
             }
         })()
     }, [ ])
@@ -90,7 +81,6 @@ export function Overview () {
                         
                         model.set_query('dashboard', String(new_dashboard.id))
                         model.set({ header: false, sider: false })
-                        model.message.success(t('添加成功'))
                     } catch (error) {
                         model.show_error({ error })
                         throw error
@@ -149,6 +139,16 @@ export function Overview () {
                 open={sharor.visible}
                 onCancel={sharor.close}
                 onOk={async () => {
+                    if (!selected_dashboard_ids.length) {
+                        model.message.warning(t('请选择想要分享的 dashboard'))
+                        return
+                    }
+                    
+                    if (!selected_users.length) {
+                        model.message.warning(t('请选择想要分享的用户'))
+                        return
+                    }
+                    
                     try {
                         await dashboard.share(selected_dashboard_ids, selected_users)
                         model.message.success(t('分享成功'))
@@ -216,7 +216,7 @@ export function Overview () {
                                         try {
                                             const config = configs.find(({ id }) => id === key)
                                             let a = document.createElement('a')
-                                            a.download = `dashboard.${config.id}.json`
+                                            a.download = `dashboard.${config.name}.json`
                                             a.href = URL.createObjectURL(new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }))
                                             
                                             document.body.appendChild(a)
@@ -299,7 +299,20 @@ export function Overview () {
                                 <Button icon={<UploadOutlined />}>{t('导入')}</Button>
                             </Upload>
                             
-                            <Button icon={<ShareAltOutlined />} onClick={sharor.open}>{t('分享')}</Button>
+                            <Button
+                                icon={<ShareAltOutlined />}
+                                onClick={async () => {
+                                    try {
+                                        await dashboard.get_users_to_share()
+                                        sharor.open()
+                                    } catch (error) {
+                                        model.show_error({ error })
+                                        throw error
+                                    }
+                                }}
+                            >
+                                {t('分享')}
+                            </Button>
                         </div>
                     </div>}
             />

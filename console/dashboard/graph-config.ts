@@ -9,6 +9,7 @@ import { Pie, PieConfigForm } from './Charts/PIE/index.js'
 import { OrderBook, OrderConfigForm } from './Charts/OrderBook/index.js'
 import { DashboardEditor as Editor, EditorConfigForm } from './Charts/DashboardEditor/index.js'
 import { Gauge, GaugeConfigForm } from './Charts/Gauge/index.js'
+import { Variables, VariablesConfigForm } from './Charts/Variables/index.js'
 
 type GraphConfig =  { 
     [key in WidgetChartType]: {
@@ -60,5 +61,9 @@ export const graph_config: GraphConfig =  {
     [WidgetChartType.GAUGE]: {
         component: Gauge,
         config: GaugeConfigForm
+    },
+    [WidgetChartType.VARIABLE]: {
+        component: Variables,
+        config: VariablesConfigForm
     }
 }

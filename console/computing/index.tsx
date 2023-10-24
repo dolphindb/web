@@ -45,7 +45,8 @@ export function Computing () {
                 await get_streaming_engine_stat()
                 await get_streaming_table_stat()
             } catch (error) {
-                model.show_error(error)
+                model.show_error({ error })
+                throw error
             }
         })()
     }, [ ])
