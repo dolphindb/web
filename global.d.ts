@@ -39,8 +39,6 @@ declare module '*.sass' {
 }
 
 interface Window {
-    Terminal: typeof import('xterm').Terminal
-    
     model?: import('react-object-model').Model<any>
     shell?: import('react-object-model').Model<any>
     dashboard?: import('react-object-model').Model<any>
