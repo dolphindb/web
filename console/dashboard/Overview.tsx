@@ -39,6 +39,7 @@ export function Overview () {
                 }
                 await dashboard.get_dashboard_configs()
             } catch (error) {
+                dashboard.set({ backend: false })
                 await dashboard.get_configs_from_local()
             
             }
