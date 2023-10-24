@@ -17,6 +17,7 @@ import { clear_data_sources, export_data_sources } from './DataSource/date-sourc
 import { VariableConfig } from './Variable/VariableConfig.js'
 import { export_variables } from './Variable/variable.js'
 import cn from 'classnames'
+import { HostSelect } from '../components/HostSelect.js'
 
 
 export function get_widget_config (widget: Widget) {
@@ -313,7 +314,12 @@ export function Header () {
                 <Button className='action' onClick={() => { dashboard.message.error(t('功能还未实现')) }}><PauseOutlined /></Button>
             </Tooltip>
              */}
-            { model.dev && <CompileAndRefresh /> }
+            
+            {(model.dev || model.cdn ) && <HostSelect />}
+            
+            {model.dev && <CompileAndRefresh />}
+            
+           
         </div> }
         
         {

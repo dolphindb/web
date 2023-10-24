@@ -61,7 +61,7 @@ export function GraphSetting () {
                 重置配置
             </Button>
         </Popconfirm>
-        <div>
+        <div className='reset-tip'>
             <Typography.Text type='secondary'>
                 配置表单与数据源结构相关，如修改数据源结构，建议重置表单以适应最新结构
             </Typography.Text>

@@ -560,7 +560,8 @@ export enum WidgetType {
     TEXT = '富文本',
     DESCRIPTIONS = '描述表',
     EDITOR = '编辑器',
-    GAUGE = '仪表盘'
+    GAUGE = '仪表盘',
+    VARIABLE = '变量'
 }
 
 export enum WidgetChartType { 
@@ -579,7 +580,8 @@ export enum WidgetChartType {
     TEXT = 'TEXT',
     DESCRIPTIONS = 'DESCRIPTIONS',
     EDITOR = 'EDITOR',
-    GAUGE = 'GAUGE'
+    GAUGE = 'GAUGE',
+    VARIABLE = 'VARIABLE'
 }
 
 
