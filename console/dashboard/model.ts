@@ -32,7 +32,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     config: DashBoardConfig
     
     /** 可分享的用户 */
-    users_to_share: string[]
+    users_to_share: string[] = [ ]
     
     /** GridStack.init 创建的 gridstack 实例 */
     grid: GridStack
@@ -75,6 +75,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     executing = false
     
+    /** 从 server 拉取 configs 失败后设为 false，后续不再与 server 进行交互 */
+    backend = true
     
     // console/model.js 对应黑色主题的版本
     message: MessageInstance
@@ -89,6 +91,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         try {
             await this.get_dashboard_configs()
         } catch (error) {
+            this.set({ backend: false })
             await this.get_configs_from_local()
         }
         if (!this.config) {
@@ -387,60 +390,54 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 获取分享的用户列表 */
     async get_users_to_share () {
-        try {
-            let users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
+        if (this.backend) {
+            const users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
             this.set({ users_to_share: users })
-        } catch (error) {
-            console.log('get_users_to_share error:', error)
-            this.set({ users_to_share: [ ] })
         }
+        
         
     }
     
     
     async add_dashboard_config (config: DashBoardConfig) {
         await this.save_configs_to_local()
-        const params = new DdbDict(
+        if (this.backend) {
+            const params = new DdbDict(
                 ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) }))
-        try {
             await model.ddb.call<DdbVoid>('add_dashboard_config', [params], { urgent: true })
-        } catch (error) {
-            console.log('add dashboard error:', error)
-        } 
+        }
+        
     }
     
     
     async delete_dashboard_configs (dashboard_config_ids: number[]) {
         await this.save_configs_to_local()
-        try {
+        if (this.backend)
             await model.ddb.call<DdbVoid>('delete_dashboard_configs', [new DdbVectorLong(dashboard_config_ids)], { urgent: true })
-        } catch (error) {
-            console.log('delete dashboard error:', error)
-        }
+            
     }
     
     
     async update_dashboard_config (config: DashBoardConfig) {
         await this.save_configs_to_local()
-        const params = new DdbDict(
-            ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
-        try {
+        if (this.backend) {
+            const params = new DdbDict(
+                ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
             await model.ddb.call<DdbVoid>('update_dashboard_config', [params], { urgent: true })
-        } catch (error) {
-            console.log('update dashboard error:', error)
         }
+      
     }
     
     
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number) {
-        return model.ddb.call('get_dashboard_config', [new DdbLong(BigInt(id))], { urgent: true })
+        return this.backend ?  model.ddb.call('get_dashboard_config', [new DdbLong(BigInt(id))], { urgent: true }) : null
     }
     
     
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
-        if (new URLSearchParams(location.search).get('local') === '1') 
+        if (new URLSearchParams(location.search).get('local') === '1' || !this.backend) 
             await this.get_configs_from_local()
         else {
             const data = await (await model.ddb.call<DdbVoid>('get_dashboard_configs', [ ], { urgent: true })).to_rows()
