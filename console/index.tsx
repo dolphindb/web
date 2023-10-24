@@ -31,6 +31,7 @@ import { Job } from './job.js'
 import { Log } from './log.js'
 import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
+import cn from 'classnames'
 
 
 createRoot(
@@ -136,7 +137,11 @@ function DdbContent () {
     if (!View)
         return null
     
-    return <div className={`view-card ${view}`}>
+    return <div className={cn({
+        'view-card': true,
+        [view]: true,
+        'white-pagination': view !== 'dashboard'
+    })}>
         <View />
     </div>
 }
