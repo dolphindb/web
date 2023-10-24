@@ -142,10 +142,12 @@ export function Overview () {
                         model.message.error(t('请选择想要分享的 dashboard'))
                         return
                     }
+                    
                     if (!selected_users.length) {
                         model.message.error(t('请选择想要分享的用户'))
                         return
                     }
+                    
                     try {
                         await dashboard.share(selected_dashboard_ids, selected_users)
                         model.message.success(t('分享成功'))
@@ -296,16 +298,19 @@ export function Overview () {
                                 <Button icon={<UploadOutlined />}>{t('导入')}</Button>
                             </Upload>
                             
-                            <Button icon={<ShareAltOutlined />} 
-                                    onClick={async () => {
-                                                try {
-                                                    await dashboard.get_users_to_share()
-                                                    sharor.open()
-                                                } catch (error) {
-                                                    model.show_error({ error })
-                                                    throw error
-                                                } }}>
-                                    {t('分享')}
+                            <Button
+                                icon={<ShareAltOutlined />}
+                                onClick={async () => {
+                                    try {
+                                        await dashboard.get_users_to_share()
+                                        sharor.open()
+                                    } catch (error) {
+                                        model.show_error({ error })
+                                        throw error
+                                    }
+                                }}
+                            >
+                                {t('分享')}
                             </Button>
                         </div>
                     </div>}

@@ -141,13 +141,13 @@ export class DashBoardModel extends Model<DashBoardModel> {
             
             console.log('拖拽释放，添加 widget:', widget)
             
-            if (widget.type === 'TEXT') 
+            if (widget.type === 'TEXT')
                 await Promise.all([
                     import('react-quill'),
                     load_styles('./vendors/react-quill/dist/quill.snow.css'),
                     load_styles('./vendors/react-quill/dist/quill.core.css')
                 ])
-                
+            
             this.add_widget(widget)
             
             grid.removeWidget(node.el)
@@ -560,7 +560,8 @@ export enum WidgetType {
     TEXT = '富文本',
     DESCRIPTIONS = '描述表',
     EDITOR = '编辑器',
-    GAUGE = '仪表盘'
+    GAUGE = '仪表盘',
+    VARIABLE = '变量'
 }
 
 export enum WidgetChartType { 
@@ -579,7 +580,8 @@ export enum WidgetChartType {
     TEXT = 'TEXT',
     DESCRIPTIONS = 'DESCRIPTIONS',
     EDITOR = 'EDITOR',
-    GAUGE = 'GAUGE'
+    GAUGE = 'GAUGE',
+    VARIABLE = 'VARIABLE'
 }
 
 

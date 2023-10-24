@@ -135,8 +135,7 @@ export interface IEditorConfig {
 }
 
 
-
-export interface IGaugeConfig { 
+export interface IGaugeConfig {
     title?: string
     max: number
     min: number
@@ -147,24 +146,19 @@ export interface IGaugeConfig {
         color: string
     }>
     
-    
-    data_setting: Array<
-        {
-            col: string
-            name: string
-            color: string
-            title: {
-                level: number
-                vertical: number
-            }
-            
-            value: {
-                level: number
-                vertical: number
-            }
-            
+    data_setting: Array<{
+        col: string
+        name: string
+        color: string
+        title: {
+            level: number
+            vertical: number
         }
-    >
-    
-    
+        
+        value: {
+            level: number
+            vertical: number
+        }
+    }>
 }
+
