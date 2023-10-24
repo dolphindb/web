@@ -140,12 +140,12 @@ export function Overview () {
                 onCancel={sharor.close}
                 onOk={async () => {
                     if (!selected_dashboard_ids.length) {
-                        model.message.error(t('请选择想要分享的 dashboard'))
+                        model.message.warning(t('请选择想要分享的 dashboard'))
                         return
                     }
                     
                     if (!selected_users.length) {
-                        model.message.error(t('请选择想要分享的用户'))
+                        model.message.warning(t('请选择想要分享的用户'))
                         return
                     }
                     
