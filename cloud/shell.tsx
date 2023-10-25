@@ -10,10 +10,7 @@ const { Title } = Typography
 
 import { PageHeader } from '@ant-design/pro-layout'
 
-// import { Terminal } from 'xterm'
-declare global {
-    var Terminal: typeof import('xterm').Terminal
-}
+import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import { WebglAddon } from 'xterm-addon-webgl'
 // import { WebLinksAddon } from 'xterm-addon-web-links'

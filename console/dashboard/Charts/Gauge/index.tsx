@@ -66,12 +66,13 @@ export function Gauge (props: IProps) {
                 })),
                 detail: {
                     valueAnimation: true,
-                    width: 40,
+                    width: 60,
                     height: 14,
-                    fontSize: 14,
+                    fontSize: 16,
+                    fontWeight: 500,
                     color: '#fff',
                     backgroundColor: 'inherit',
-                    borderRadius: 3,
+                    borderRadius: 4,
                 },
             }]
         }
@@ -96,14 +97,16 @@ export function GaugeConfigForm (props: { col_names: string[] } ) {
                 key: 'data',
                 label: '数据配置',
                 forceRender: true,
-                children: <div className='data-setting-wrapper'>
+            children: <div className='data-setting-wrapper'>
+                    <Form.Item name='min' label='最小范围'>
+                        <InputNumber />
+                    </Form.Item>
+                
                     <Form.Item name='max' label='最大范围'>
                         <InputNumber />
                     </Form.Item>
                     
-                    <Form.Item name='min' label='最小范围'>
-                        <InputNumber />
-                    </Form.Item>
+                   
                     
                     <Form.List name='data_setting' initialValue={[{ }]}>
                         {(fields, { add, remove }) => {

@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 
 import { debounce } from 'lodash'
 
+import type { Terminal } from 'xterm'
 import type { FitAddon } from 'xterm-addon-fit'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
@@ -39,7 +40,7 @@ type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjR
 
 
 class ShellModel extends Model<ShellModel> {
-    term: import('xterm').Terminal
+    term: Terminal
     
     fit_addon: FitAddon
     
