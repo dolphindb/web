@@ -34,46 +34,6 @@ function format_decimal (type: DdbType, values, index: number): string {
 function formatter (type: DdbType, values, le: boolean, index: number) {
     const value = values[index]
     switch (type) {
-        case DdbType.bool: {
-            return value === nulls.int8 ?
-                null
-                :
-                    Boolean(value)
-        }
-        case DdbType.char:
-            return value === nulls.int8 ? null : value
-        case DdbType.short:
-            return value === nulls.int16 ? null : value
-        case DdbType.int:
-            return value
-        case DdbType.date:
-            return format(type, value, le)
-        case DdbType.month:
-            return format(type, value, le)
-        case DdbType.time:
-            return format(type, value, le)
-        case DdbType.minute:
-            return format(type, value, le)
-        case DdbType.second:
-            return format(type, value, le)
-        case DdbType.datetime:
-            return format(type, value, le)
-        case DdbType.datehour:
-            return value === nulls.int32 ? null : format(type, value, le)
-        case DdbType.long:
-            return value === nulls.int64 ? null : String(value)
-        case DdbType.timestamp:
-            return format(type, value, le)
-        case DdbType.nanotime:
-            return format(type, value, le)
-        case DdbType.nanotimestamp:
-            return value === nulls.int64 ? null : format(type, value, le)
-        case DdbType.int128:
-            return value === nulls.int128 ? null : value
-        case DdbType.float:
-            return value === nulls.float32 ? null : value
-        case DdbType.double:
-            return value === nulls.double ? null : value
         case DdbType.decimal32:
             return format_decimal(type, values, index)
         case DdbType.decimal64:
@@ -82,6 +42,8 @@ function formatter (type: DdbType, values, le: boolean, index: number) {
             return format_decimal(type, values, index)
         case DdbType.ipaddr:
             return values.subarray(16 * index, 16 * (index + 1))
+        case DdbType.long:
+            return String(value)
         case DdbType.symbol_extended: {
             const { base, data } = values
             return base[data[index]]
@@ -113,14 +75,32 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{
 
 export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols: string[]): Array<{}> {
     let rows = new Array()
+    let array_vectors = { }
     for (let i = (max_line && obj.value[0].rows > max_line) ? obj.value[0].rows - max_line : 0;  i < obj.value[0].rows;  i++) {
         let row = { }
         for (let j in cols) {
             const { type, le } = obj.value[j]
-            row[cols[j]] = formatter(type, obj.value[j].value, le, i)
+            if (type >= 64 && type < 128)
+                array_vectors[cols[j]] = obj.value[j]
+            else
+                row[cols[j]] = formatter(type, obj.value[j].value, le, i)
         }    
         rows.push(row)
     }
+    
+   for (let key in array_vectors) {
+        const array_vector = array_vectors[key]
+        let offset = 0
+        array_vector.value[0].lengths.forEach((length: number, index: number) => {
+            let arr = [ ]
+            for (let i = offset;  i < offset + length;  i++) 
+                arr.push(formatter(array_vector.type - 64, array_vector.value[0].data, array_vector.le, i))
+                 
+            offset += length
+            rows[index][key] = JSON.stringify(arr).replaceAll('"', '')
+        })
+    }
+    
     return rows
 }
 
@@ -203,7 +183,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     
     
     function convert_axis (axis: AxisConfig, index?: number) {
-        // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
+// 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
         let data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
         
         if (axis.time_format)  
@@ -227,7 +207,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             alignTicks: true,
             id: index,
             scale: !axis.with_zero ?? false,
-        }
+                    }
     }
     
     function convert_series (series: ISeriesConfig) { 
@@ -244,16 +224,16 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         
         let data = data_source.map(item => item?.[series.col_name])
         
-        // 时间轴情况下，series为二维数组，且每项的第一个值为 x轴对应的值，第二个值为 y轴对应的值，并且需要对时间进行格式化处理
+// 时间轴情况下，series为二维数组，且每项的第一个值为 x轴对应的值，第二个值为 y轴对应的值，并且需要对时间进行格式化处理
         if (xAxis.type === AxisType.TIME)  
             data = data_source.map(item => [dayjs(item?.[xAxis.col_name]).format('YYYY-MM-DD HH:mm:ss'), item?.[series.col_name]])
         
         
         // x 轴和 y 轴均为数据轴或者对数轴的情况下，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
-        if ([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) 
+        if ([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type))  
             data  = data_source.map(item => [item[xAxis.col_name], item[series.col_name]])
         
-        return {
+                   return {
             type: series.type?.toLowerCase(),
             name: series.name,
             symbol: 'none',
