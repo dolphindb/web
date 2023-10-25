@@ -1,5 +1,8 @@
 import './index.sass'
 
+import 'gridstack/dist/gridstack.css'
+// 行列数为 1 - 11 时需要
+// import 'gridstack/dist/gridstack-extra.css'
 
 import { useEffect, useRef } from 'react'
 

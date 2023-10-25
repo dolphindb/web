@@ -9,6 +9,7 @@ import { type DataSource } from './DataSource/date-source.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import dayjs from 'dayjs'
 import { find_variable_by_name, get_variable_value, subscribe_variable } from './Variable/variable.js'
+import { Axis } from 'echarts'
 
 
 export function format_time (time: string, format: string) { 
@@ -203,6 +204,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     
     
     function convert_axis (axis: AxisConfig, index?: number) {
+        // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
         let data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
         
         if (axis.time_format)  
@@ -226,7 +228,6 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             alignTicks: true,
             id: index,
             scale: !axis.with_zero ?? false,
-            
         }
     }
     
@@ -244,13 +245,14 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         
         let data = data_source.map(item => item?.[series.col_name])
         
+        // 时间轴情况下，series为二维数组，且每项的第一个值为 x轴对应的值，第二个值为 y轴对应的值，并且需要对时间进行格式化处理
         if (xAxis.type === AxisType.TIME)  
             data = data_source.map(item => [dayjs(item?.[xAxis.col_name]).format('YYYY-MM-DD HH:mm:ss'), item?.[series.col_name]])
         
-        if (xAxis.type === AxisType.VALUE || xAxis.type === AxisType.LOG)  
-            data  = data_source.map(item => [item[xAxis.col_name], item[series.col_name]])
         
-           
+        // x 轴和 y 轴均为数据轴或者对数轴的情况下，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
+        if ([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) 
+            data  = data_source.map(item => [item[xAxis.col_name], item[series.col_name]])
         
         return {
             type: series.type?.toLowerCase(),
@@ -386,8 +388,7 @@ export function format_number (val: any, decimal_places, is_thousandth_place) {
 
 
 export async function load_styles (url: string) {
-    const links = document.querySelectorAll('link[rel="stylesheet"]')
-    for (const link of Array.from(links))
+    for (const link of Array.from(document.querySelectorAll('link[rel="stylesheet"]')))
         if (link.getAttribute('href') === url)
             return
     
