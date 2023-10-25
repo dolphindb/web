@@ -49,8 +49,6 @@ export function Header () {
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     
-    
-    
     async function save_config () {
         const updated_config = {
             ...config,
@@ -71,6 +69,7 @@ export function Header () {
     async function handle_save () {
         try {
             const updated_config = await save_config()
+            await dashboard.update_config(updated_config)
             await dashboard.update_dashboard_config(updated_config)
             dashboard.message.success(t('数据面板保存成功'))
         } catch (error) {
