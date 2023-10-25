@@ -194,7 +194,7 @@ function YAxis ({ col_names, initial_values }: { col_names: string[], initial_va
 function Series (props: { col_names: string[] }) { 
     const { col_names } = props
     
-    const series = useMemo(() => [{ name: '', key: 0, selected_cols: [ 'open', 'close', 'low', 'high', 'limit'] }, 
+    const series = useMemo(() => [{ name: '', key: 0, selected_cols: [ 'open', 'close', 'lowest', 'highest'] }, 
                                   { name: '', key: 1 }], [ ])
     
     return <Form.List name='series' initialValue={series}>
@@ -250,10 +250,6 @@ function Series (props: { col_names: string[] }) {
                           index <= 1 ?   
                           (series[index]?.selected_cols ? 
                                 <>
-                                    <Form.Item name={[field.name, 'limit_name']} label='阈值线名称' initialValue={ t('阈值') }>
-                                        <Input />
-                                    </Form.Item>
-                                    
                                     <Form.Item name={[field.name, 'kcolor']} label='k 线颜色（涨）'>
                                         <StringColorPicker />
                                     </Form.Item>
