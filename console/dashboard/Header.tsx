@@ -197,27 +197,7 @@ export function Header () {
             }))}
         />
         
-        { editing && <div className='actions'>
-            <Modal open={add_visible}
-                   maskClosable={false}
-                   onCancel={add_close}
-                   onOk={handle_add}
-                   closeIcon={false}
-                   title={t('请输入数据面板的名称')}>
-                <Input value={new_dashboard_name}
-                       onChange={event => { set_new_dashboard_name(event.target.value) }}
-                       />
-            </Modal>
-            
-            <Modal open={edit_visible}
-                   maskClosable={false}
-                   onCancel={edit_close}
-                   onOk={handle_edit}
-                   closeIcon={false}
-                   title={t('请输入新的数据面板名称')}>
-                <Input value={edit_dashboard_name} onChange={event => { set_edit_dashboard_name(event.target.value) }}/>
-            </Modal>
-            
+        <div className='actions'>
             <Tooltip title='返回'>
                 <Button className='action' onClick={() => { 
                     clear_data_sources()
@@ -226,85 +206,108 @@ export function Header () {
                     model.set({ sider: true, header: true })
                 }}><HomeOutlined /></Button>
             </Tooltip>
+            {editing && <>
+                <Modal open={add_visible}
+                    maskClosable={false}
+                    onCancel={add_close}
+                    onOk={handle_add}
+                    closeIcon={false}
+                    title={t('请输入数据面板的名称')}>
+                    <Input value={new_dashboard_name}
+                        onChange={event => { set_new_dashboard_name(event.target.value) }}
+                        />
+                </Modal>
             
-            <Tooltip title='新增'>
-                <Button
-                    className='action'
-                    onClick={() => {
-                        const new_id = genid()
-                        set_new_dashboard_id(new_id)                
-                        set_new_dashboard_name(String(new_id).slice(0, 4))
-                        add_open()
-                    }}
-                >
-                    <FileAddOutlined />
-                </Button>
-            </Tooltip>
+                <Modal open={edit_visible}
+                    maskClosable={false}
+                    onCancel={edit_close}
+                    onOk={handle_edit}
+                    closeIcon={false}
+                    title={t('请输入新的数据面板名称')}>
+                    <Input value={edit_dashboard_name} onChange={event => { set_edit_dashboard_name(event.target.value) }}/>
+                </Modal>
+                <Tooltip title='新增'>
+                    <Button
+                        className='action'
+                        onClick={() => {
+                            const new_id = genid()
+                            set_new_dashboard_id(new_id)                
+                            set_new_dashboard_name(String(new_id).slice(0, 4))
+                            add_open()
+                        }}
+                    >
+                        <FileAddOutlined />
+                    </Button>
+                </Tooltip>
             
-            <Tooltip title='修改'>
-                <Button
-                    className='action' 
-                    onClick={() => { 
-                        edit_open()
-                        set_edit_dashboard_name(config?.name) 
-                    }}
-                >
-                    <EditOutlined />
-                </Button>
-            </Tooltip>
+                <Tooltip title='修改'>
+                    <Button
+                        className='action' 
+                        onClick={() => { 
+                            edit_open()
+                            set_edit_dashboard_name(config?.name) 
+                        }}
+                    >
+                        <EditOutlined />
+                    </Button>
+                </Tooltip>
             
-            <Tooltip title='保存'>
-                <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
-            </Tooltip>
+                <Tooltip title='保存'>
+                    <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
+                </Tooltip>
             
-            <Tooltip title={t('导出')}>
-                <Button className='action' onClick={async () => {
-                    try {
-                        await save_config()
-                        
-                        let a = document.createElement('a')
-                        a.download = `dashboard.${config.name}.json`
-                        a.href = URL.createObjectURL(
-                            new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
-                        )
-                        
-                        document.body.appendChild(a)
-                        a.click()
-                        document.body.removeChild(a)
-                    } catch (error) {
-                        model.show_error({ error })
-                    }
-                }}><DownloadOutlined /></Button>
-            </Tooltip>
-            
-            <Tooltip title={t('导入')}>
-                <Upload
-                    showUploadList={false}
-                    beforeUpload={async file => {
+                <Tooltip title={t('导出')}>
+                    <Button className='action' onClick={async () => {
                         try {
-                            dashboard.update_config(
-                                JSON.parse(await file.text()) as DashBoardConfig
+                            await save_config()
+                            
+                            let a = document.createElement('a')
+                            a.download = `dashboard.${config.name}.json`
+                            a.href = URL.createObjectURL(
+                                new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
                             )
                             
-                            return false
+                            document.body.appendChild(a)
+                            a.click()
+                            document.body.removeChild(a)
                         } catch (error) {
-                            dashboard.show_error({ error })
-                            throw error
+                            model.show_error({ error })
                         }
-                    }}
-                >
-                    <Button className='action'>
-                        <UploadOutlined />
-                    </Button>
-                </Upload>
-            </Tooltip>
-            <Tooltip title={t('分享')}>
-                <Button className='action'><ShareAltOutlined/></Button>
-            </Tooltip>
-            <Tooltip title='删除'>
-                <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
-            </Tooltip>
+                    }}><DownloadOutlined /></Button>
+                </Tooltip>
             
+                <Tooltip title={t('导入')}>
+                    <Upload
+                        showUploadList={false}
+                        beforeUpload={async file => {
+                            try {
+                                dashboard.update_config(
+                                    JSON.parse(await file.text()) as DashBoardConfig
+                                )
+                                
+                                return false
+                            } catch (error) {
+                                dashboard.show_error({ error })
+                                throw error
+                            }
+                        }}
+                    >
+                        <Button className='action'>
+                            <UploadOutlined />
+                        </Button>
+                    </Upload>
+                </Tooltip>
+                <Tooltip title={t('分享')}>
+                    <Button className='action'><ShareAltOutlined/></Button>
+                </Tooltip>
+                <Tooltip title='删除'>
+                    <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
+                </Tooltip>
+                {(model.dev || model.cdn ) && <HostSelect />}
+            
+                {model.dev && <CompileAndRefresh />}
+            </>
+            }
             {/* <Tooltip title='刷新'>
                 <Button className='action' onClick={() => { dashboard.message.error(t('功能还未实现')) }}><SyncOutlined /></Button>
             </Tooltip>
@@ -314,12 +317,9 @@ export function Header () {
             </Tooltip>
              */}
             
-            {(model.dev || model.cdn ) && <HostSelect />}
-            
-            {model.dev && <CompileAndRefresh />}
-            
            
-        </div> }
+           
+        </div>
         
         {
             config?.owned && <div className='modes'>

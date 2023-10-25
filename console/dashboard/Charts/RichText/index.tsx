@@ -1,25 +1,33 @@
-import { Button, Modal } from 'antd'
-import React, { useMemo, useState } from 'react'
-import ReactQuill from 'react-quill'
-import { use_modal } from 'react-object-model/modal'
-import { t } from '../../../../i18n/index.js'
 import './index.sass'
+import 'react-quill/dist/quill.core.css'
+import 'react-quill/dist/quill.snow.css'
+
+import { Button, Modal } from 'antd'
+import { EditOutlined } from '@ant-design/icons'
+import { useMemo, useState, useRef, useCallback, useEffect } from 'react'
+import cn from 'classnames'
+
+import { use_modal } from 'react-object-model/modal.js'
+
+import { t } from '../../../../i18n/index.js'
 import { type Widget, dashboard } from '../../model.js'
 import { type ITextConfig } from '../../type.js'
-import { EditOutlined } from '@ant-design/icons'
-import cn from 'classnames'
-import {  variables } from '../../Variable/variable.js'
+import { variables } from '../../Variable/variable.js'
 import { parse_text } from '../../utils.js'
-import { useRef } from 'react'
-import { useCallback } from 'react'
 import { InsertVariableBtn } from '../../DataSource/InsertVariableBtn.js'
 
+
+let ReactQuill: typeof import('react-quill')
 
 export function RichText ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const [display_text, set_display_text] = useState((widget.config as ITextConfig).value || '')
     const [edit_text, set_edit_text] = useState(display_text)
+    
+    const [quill_loaded, set_quill_loaded] = useState(Boolean(ReactQuill))
+    
     const { visible, open, close } = use_modal()
-    const variable_obj = variables.use()
+    
+    variables.use()
     
     const quill_ref = useRef<any>()
     
@@ -45,14 +53,13 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
         ],
         [ ]
     )
+    
     const { editing, widget: current } = dashboard.use(['editing', 'widget'])
     
-    let template_text = parse_text(display_text)
-    
-    const on_insert = useCallback((content: string) => { 
-        if (quill_ref?.current) { 
+    const on_insert = useCallback((content: string) => {
+        if (quill_ref?.current) {
             const editor = quill_ref?.current?.getEditor?.()
-        
+            
             const cursorPosition = editor?.getSelection()?.index
             
             editor?.insertText(cursorPosition, content)
@@ -60,23 +67,41 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
         }
     }, [ ])
     
+    
+    useEffect(() => {
+        (async () => {
+            if (!quill_loaded) {
+                // @ts-ignore
+                if (window.define?.amd)
+                    // @ts-ignore
+                    window.define.amd = false
+                
+                ;({ default: ReactQuill } = await import('react-quill'))
+                set_quill_loaded(true)
+            }
+        })()
+    }, [ ])
+    
+    
     return <>
-            <Modal
-                open={visible}
-                onCancel={() => {
-                    set_edit_text(display_text)
-                    close()
-                }}
-                okText={t('保存')}
-                onOk={() => {
-                    set_display_text(edit_text)
-                    dashboard.update_widget( { ...widget, config: { variable_ids: [ ], value: edit_text } } )
-                    close()
-                }}
-                className='rich-text'
+        <Modal
+            open={visible}
+            onCancel={() => {
+                set_edit_text(display_text)
+                close()
+            }}
+            okText={t('保存')}
+            onOk={() => {
+                set_display_text(edit_text)
+                dashboard.update_widget({ ...widget, config: { variable_ids: [ ], value: edit_text } })
+                close()
+            }}
+            className='rich-text'
         >
-            <InsertVariableBtn className='rich-text-insert-btn' on_insert={on_insert} />    
-            <ReactQuill
+            <InsertVariableBtn className='rich-text-insert-btn' on_insert={on_insert} />
+            
+            { quill_loaded ? 
+                <ReactQuill
                     ref={quill_ref}
                     theme='snow'
                     value={edit_text}
@@ -85,26 +110,29 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
                         toolbar: toolbar_options
                     }}
                 />
-               
-            </Modal>
-            {display_text === '' ? (
-                <div className='empty-area'>
-                    <Button onClick={editing && open}>{t('添加文本')}</Button>
+            :
+                <div>{t('正在加载 ReactQuill')} ···</div>
+            }
+        </Modal>
+        
+        { display_text === '' ?
+            <div className='empty-area'>
+                {editing && <Button onClick={open}>{t('添加文本')}</Button>}
+            </div>
+        :
+            <div className='ql-container ql-snow rich-text-container'>
+                <div
+                    className={cn({
+                        'edit-rich-text': true,
+                        'edit-rich-text-hover': widget.id === current?.id && editing
+                    })}
+                    {... editing ? { onClick: open } : { } }
+                >
+                    <EditOutlined className='edit-rich-text-icon' />
+                    编辑文本
                 </div>
-            ) : (
-                <div className='ql-container ql-snow rich-text-container'>
-                    <div
-                        className={cn({
-                            'edit-rich-text': true,
-                            'edit-rich-text-hover': widget.id === current?.id && editing,
-                        })}
-                        onClick={editing && open}
-                    >
-                        <EditOutlined className='edit-rich-text-icon' />
-                        编辑文本
-                    </div>
-                    <div dangerouslySetInnerHTML={{ __html: template_text }} className='display-area ql-editor' />
-                </div>
-            )}
-        </>
+                <div className='display-area ql-editor' dangerouslySetInnerHTML={{ __html: parse_text(display_text) }} />
+            </div>
+        }
+    </>
 }

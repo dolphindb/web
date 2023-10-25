@@ -27,21 +27,16 @@ export interface ISeriesConfig {
     line_type: ILineType
     // 柱状图是否堆叠
     stack?: string
+    end_label?: boolean
     
     // 颜色
     color?: string
     
     // OHLC 特殊列
     open?: string
-    high?: string
-    low?: string
     close?: string
-    value?: string
-    limit?: string
-    line_color?: string
-    limit_color?: string
-    line_name?: string
-    limit_name?: string
+    highest?: string
+    lowest?: string
     kcolor?: string
     kcolor0?: string
     
