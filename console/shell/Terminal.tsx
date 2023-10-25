@@ -2,6 +2,7 @@ import 'xterm/css/xterm.css'
 
 import { useEffect, useRef, useState } from 'react'
 
+import { Terminal as XTermTerminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import { WebglAddon } from 'xterm-addon-webgl'
 import { WebLinksAddon } from 'xterm-addon-web-links'
@@ -53,7 +54,7 @@ export function Terminal () {
         
         ;(async () => {
             // --- init term
-            let term = shell.term = new window.Terminal({
+            let term = shell.term = new XTermTerminal({
                 fontFamily: 'MyFont, Menlo, Ubuntu Mono, Consolas, Dejavu Sans Mono, Noto Sans Mono, PingFangSC, Microsoft YaHei, monospace',
                 fontSize: 16,
                 

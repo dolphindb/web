@@ -206,17 +206,27 @@ export let webpack = {
                 
                 externalsType: 'global',
                 
+                // 以 react: 'React', 为例，含义为
+                // 取全局变量 window.React 的值作为 import { useState } from 'react' 中 { ... } 这部分的结果，再解构里面的 useState 属性
                 externals: {
                     react: 'React',
                     'react-dom': 'ReactDOM',
                     lodash: '_',
-                    xterm: 'Terminal',
+                    
+                    // import { Terminal } from 'xterm'
+                    // 实际上 Terminal 直接暴露在了 window 上，而不是 window.Terminal.Terminal
+                    xterm: 'window',
+                    
                     antd: 'antd',
                     dayjs: 'dayjs',
                     '@ant-design/icons': 'icons',
                     '@ant-design/plots': 'Plots',
                     echarts: 'echarts',
-                    gridstack: 'GridStack',
+                    
+                    // import { GridStack } from 'gridstack'
+                    // 实际上 GridStack 直接暴露在了 window 上，而不是 window.GridStack.GridStack
+                    gridstack: 'window',
+                    
                     'react-quill': 'ReactQuill',
                     '@formily/core': ['module ./pre-bundle/formily.js', 'Core'],
                     '@formily/react': ['module ./pre-bundle/formily.js', 'React'],
