@@ -1,16 +1,37 @@
-import { Button, Col, Form, Input, Radio, Row, Space } from 'antd'
+import { Button, Col, Form, Input, Radio, Row, Select, type SelectProps, Space } from 'antd'
 import { useCallback, useEffect } from 'react'
 
 import { type Variable, variables, update_variable_value } from '../Variable/variable.js'
 import { StringDatePicker } from '../../components/StringDatePicker/index.js'
 import { SearchOutlined } from '@ant-design/icons'
 import classNames from 'classnames'
+import { safe_json_parse } from '../utils.js'
 
 interface IProps { 
     ids: string[]
     cols: number
     with_search_btn: boolean
     className?: string
+}
+
+interface IStringMultiSelectProps { 
+    value?: string
+    onChange?: (val: string) => void
+    options: SelectProps['options']
+}
+
+function StringMultiSelect (props: IStringMultiSelectProps) {
+    const { options, onChange, value } = props
+    
+    const on_change = useCallback(val => { 
+        onChange(JSON.stringify(val))
+    }, [ ])
+    
+    return <Select
+        mode='multiple'
+        options={options}
+        value={safe_json_parse(value)}
+        onChange={on_change} />
 }
 
 
@@ -28,6 +49,10 @@ function ControlField ({ variable }: { variable: Variable }) {
         case 'date':
             return <Form.Item name={id} label={display_name}>
                 <StringDatePicker />
+            </Form.Item>
+        case 'multi_select':
+            return <Form.Item name={id} label={display_name}>
+               <StringMultiSelect options={options}/>
             </Form.Item>
         case 'select':
             return <Form.Item name={id} label={display_name}>
