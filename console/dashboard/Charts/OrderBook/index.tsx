@@ -45,7 +45,7 @@ export function OrderBook (props: IProps) {
         function formatData (price, size, sendingTime, is_buy) {
             let entry = [ ]
             if (price && size)
-                for (let i = 0;  i < price.data.length && i < market_data_files_num;  i++)
+                for (let i = 0;  i < (price.data.length || 0) && i < market_data_files_num;  i++)
                     // 去除空值
                     if (to_chart_data(price.data[i], DdbType.double) && to_chart_data(size.data[i], DdbType.long))
                         entry.push([sendingTime, price.data[i] * time_rate, to_chart_data(size.data[i], DdbType.long), is_buy ? `bmd[${i}]` : `omd[${i}]`, size.data[i]])
