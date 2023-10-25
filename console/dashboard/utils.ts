@@ -204,10 +204,8 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     
     
     function convert_axis (axis: AxisConfig, index?: number) {
-        let data = [ ]
-        
-        if ([AxisType.TIME, AxisType.CATEGORY].includes(axis.type))
-            data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
+        // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
+        let data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
         
         if (axis.time_format)  
             data = data.map(item => format_time(item, axis.time_format))
@@ -247,6 +245,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         
         let data = data_source.map(item => item?.[series.col_name])
         
+        // 时间轴情况下，series为二维数组，且每项的第一个值为 x轴对应的值，第二个值为 y轴对应的值，并且需要对时间进行格式化处理
         if (xAxis.type === AxisType.TIME)  
             data = data_source.map(item => [dayjs(item?.[xAxis.col_name]).format('YYYY-MM-DD HH:mm:ss'), item?.[series.col_name]])
         
@@ -254,8 +253,6 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         // x 轴和 y 轴均为数据轴或者对数轴的情况下，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
         if ([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) 
             data  = data_source.map(item => [item[xAxis.col_name], item[series.col_name]])
-        
-           
         
         return {
             type: series.type?.toLowerCase(),
