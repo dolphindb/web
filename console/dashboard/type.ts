@@ -34,15 +34,9 @@ export interface ISeriesConfig {
     
     // OHLC 特殊列
     open?: string
-    high?: string
-    low?: string
     close?: string
-    value?: string
-    limit?: string
-    line_color?: string
-    limit_color?: string
-    line_name?: string
-    limit_name?: string
+    highest?: string
+    lowest?: string
     kcolor?: string
     kcolor0?: string
     

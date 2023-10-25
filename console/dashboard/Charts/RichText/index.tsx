@@ -1,4 +1,6 @@
 import './index.sass'
+import 'react-quill/dist/quill.core.css'
+import 'react-quill/dist/quill.snow.css'
 
 import { Button, Modal } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
@@ -69,7 +71,12 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
     useEffect(() => {
         (async () => {
             if (!quill_loaded) {
-                ({ default: ReactQuill } = await import('react-quill'))
+                // @ts-ignore
+                if (window.define?.amd)
+                    // @ts-ignore
+                    window.define.amd = false
+                
+                ;({ default: ReactQuill } = await import('react-quill'))
                 set_quill_loaded(true)
             }
         })()
@@ -110,7 +117,7 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
         
         { display_text === '' ?
             <div className='empty-area'>
-                <Button {... editing ? { onClick: open } : { } }>{t('添加文本')}</Button>
+                {editing && <Button onClick={open}>{t('添加文本')}</Button>}
             </div>
         :
             <div className='ql-container ql-snow rich-text-container'>
