@@ -87,6 +87,8 @@ function Series (props: { col_names: string[] }) {
     const { col_names } = props
     const { widget: { type } } = dashboard.use(['widget'])
     
+    const series = Form.useWatch('series')
+    
     return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: '数据列 1', yAxisIndex: 0, type: type === WidgetChartType.MIX ? WidgetChartType.LINE : type, color: null }]}>
         {(fields, { add, remove }) => { 
             const items = fields.map(field => { 
@@ -160,7 +162,7 @@ function Series (props: { col_names: string[] }) {
                     key: field.name,
                     children,
                     label: <div className='series-collapse-label'>
-                        {`数据列 ${field.name + 1}`}
+                        { series?.[field.name]?.name || `数据列 ${field.name + 1}` }
                         {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />}
                     </div>,
                     forceRender: true
@@ -200,6 +202,8 @@ export function YAxis (props: { col_names: string[], initial_values?: IYAxisItem
         }
     ]), [col_names])
     
+    const yAxis = Form.useWatch('yAxis')
+    
     return <Form.List name='yAxis' initialValue={initial_values || default_initial_values}>
         {(fields, { add, remove }) => {
             const items = fields.map(field => {
@@ -221,7 +225,8 @@ export function YAxis (props: { col_names: string[], initial_values?: IYAxisItem
                     children,
                     key: field.name,
                     label: <div className='yaxis-collapse-label'>
-                        {`Y 轴 ${field.name + 1}`}
+                        {/* {`Y 轴 ${field.name + 1}`} */}
+                        {yAxis?.[field.name]?.name || `Y 轴 ${field.name + 1}` }
                         {
                             fields.length > 1 &&
                             <DeleteOutlined

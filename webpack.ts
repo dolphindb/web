@@ -227,6 +227,8 @@ export let webpack = {
                     // 实际上 GridStack 直接暴露在了 window 上，而不是 window.GridStack.GridStack
                     gridstack: 'window',
                     
+                    // await import('react-quill') 时，会先通过在 head 中增加 <script> 标签的方式加载脚本，
+                    // 之后取 window.ReactQuill 作为 import 的返回值
                     'react-quill': ['script ./vendors/react-quill/dist/react-quill.js', 'ReactQuill'],
                     
                     '@formily/core': ['module ./pre-bundle/formily.js', 'Core'],
