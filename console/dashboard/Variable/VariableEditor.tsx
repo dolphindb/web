@@ -4,6 +4,7 @@ import { DatePicker, Input, Select } from 'antd'
 
 import { type Variable, type VariablePropertyType } from './variable.js'
 import { OptionList } from './OptionList.js'
+import { safe_json_parse } from '../utils.js'
 
 type PropsType = { 
     current_variable: Variable
@@ -22,6 +23,14 @@ export function VariableEditor ({
                     className='variable-editor-main-value-control'
                     value={current_variable.value}
                     onChange={value => { change_current_variable_property('value', value) }}
+                    options={current_variable.options}
+                />,
+        multi_select: <Select
+                    size='small'
+                    mode='multiple'
+                    className='variable-editor-main-value-control'
+                    value={safe_json_parse(current_variable.value)}
+                    onChange={value => { change_current_variable_property('value', JSON.stringify(value)) }}
                     options={current_variable.options}
                 />,
         text: <Input 
@@ -65,12 +74,16 @@ export function VariableEditor ({
                         size='small'
                         onChange={(value: string) => { 
                             change_current_variable_property('mode', value) 
-                            change_current_variable_property('value', '')
+                            change_current_variable_property('value', value === 'multi_select' ? '[]' : '')
                         }}
                         options={[
                             {
-                                label: '选择项',
+                                label: '单选',
                                 value: 'select',
+                            },
+                            {
+                                label: '多选',
+                                value: 'multi_select',
                             },
                             {
                                 label: '自由文本',
@@ -87,7 +100,7 @@ export function VariableEditor ({
                     变量值：
                     {value_editor[current_variable.mode]}
                 </div>
-                {current_variable.mode === 'select'
+                {current_variable.mode === 'select' || current_variable.mode === 'multi_select'
                     ? <OptionList
                         current_variable={current_variable}
                         change_current_variable_property={change_current_variable_property}
