@@ -227,7 +227,8 @@ export let webpack = {
                     // 实际上 GridStack 直接暴露在了 window 上，而不是 window.GridStack.GridStack
                     gridstack: 'window',
                     
-                    'react-quill': 'ReactQuill',
+                    'react-quill': [`script ./vendors/react-quill/dist/react-quill${ production ? '.min' : '' }.js`, 'ReactQuill'],
+                    
                     '@formily/core': ['module ./pre-bundle/formily.js', 'Core'],
                     '@formily/react': ['module ./pre-bundle/formily.js', 'React'],
                     '@formily/antd-v5': ['module ./pre-bundle/formily.js', 'AntdV5'],
@@ -253,6 +254,12 @@ export let webpack = {
                     new Webpack.DefinePlugin({
                         BUILD_TIME: dayjs().format('YYYY.MM.DD HH:mm:ss').quote()
                     }),
+                    
+                    // 使用 IgnorePlugin 能够不打包，但是一旦导入就会报错
+                    // new Webpack.IgnorePlugin({
+                    //     checkResource: (resource, context) => 
+                    //         resource.startsWith('./vendors/') && !context.fp.startsWith(fpd_node_modules) ,
+                    // }),
                     
                     ... await (async () => {
                         if (production) {

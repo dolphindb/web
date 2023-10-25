@@ -21,7 +21,6 @@ import { type Monaco } from '../shell/Editor/index.js'
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig, type IGaugeConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
-import { load_styles } from './utils.js'
 
 
 export class DashBoardModel extends Model<DashBoardModel> {
@@ -142,14 +141,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 type: node.el.dataset.type as keyof typeof WidgetType,
             }
             
-            console.log('拖拽释放，添加 widget:', widget)
-            
-            if (widget.type === 'TEXT')
-                await Promise.all([
-                    import('react-quill'),
-                    load_styles('./vendors/react-quill/dist/quill.snow.css'),
-                    load_styles('./vendors/react-quill/dist/quill.core.css')
-                ])
+            // console.log('拖拽释放，添加 widget:', widget)
             
             this.add_widget(widget)
             

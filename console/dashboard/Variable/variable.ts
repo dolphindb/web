@@ -45,16 +45,19 @@ export class Variable  {
     }
 }
 
-export class Variables extends Model<Variables>  {
-    variable_infos: Array<{ id: string, name: string }> = [ ]
-    constructor () {
-        super()
-    }
+export class Variables extends Model<Variables> {
+    variable_infos: { id: string, name: string }[] = [ ]
 }
 
 export type VariablePropertyType = string | string[] | OptionType[]
 
-export type OptionType = { label: string, value: string, key: string }
+
+export interface OptionType {
+    label: string
+    value: string
+    key: string
+}
+
 
 const tmp_deps = new Map<string, Set<string>>()
 
