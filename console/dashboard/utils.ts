@@ -367,7 +367,7 @@ export function safe_json_parse (val) {
 export function format_number (val: any, decimal_places, is_thousandth_place) {
     let value = val
     try {
-        if ((typeof val === 'number' || !isNaN(Number(val))) && typeof decimal_places === 'number') {
+        if (!isNaN(Number(val)) && typeof decimal_places === 'number') {
             // 0 不需要格式化
             if (Number(val) === 0)
                 return 0
