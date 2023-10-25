@@ -63,7 +63,7 @@ export function OptionList ({
                 const values = await form.validateFields()
                 
                 toggleEdit()
-                change_current_variable_property('value', '')
+                change_current_variable_property('value', current_variable.mode === 'multi_select' ? '[]' : '')
                 handleSave({ ...record, ...values })
             } catch (errInfo) {
                 console.log('Save failed:', errInfo)

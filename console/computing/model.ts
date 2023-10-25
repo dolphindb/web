@@ -22,9 +22,17 @@ class ComputingModel extends Model<ComputingModel> {
             '    if(getConfigure("persistenceDir") == NULL){\n' +
             '        return NULL\n' +
             '    }else{\n' +
-            '        tableNames = exec filename from files(getConfigure("persistenceDir")+"/") where filename != "persistOffset"\n' +
             '        shareNames = exec name from objs(true) where type="REALTIME" and shared=true\n' +
-            '        return tableNames[tableNames in shareNames]\n' +
+            '        res = array(STRING, 0)\n' +
+            '        for(tbName in shareNames){\n' +
+            '            try{\n' +
+            '                getPersistenceMeta(objByName(tbName))\n' +
+            '            }catch(ex){\n' +
+            '                continue\n' +
+            '            }\n' +
+            '            res.append!(tbName)\n' +
+            '        }\n' +
+            '        return res\n' +
             '    }\n' +
             '}\n', { urgent: true })
     } 

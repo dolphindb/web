@@ -9,6 +9,7 @@ import { type DataSource } from './DataSource/date-source.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import dayjs from 'dayjs'
 import { find_variable_by_name, get_variable_value, subscribe_variable } from './Variable/variable.js'
+import { Axis } from 'echarts'
 
 
 export function format_time (time: string, format: string) { 
@@ -203,7 +204,10 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     
     
     function convert_axis (axis: AxisConfig, index?: number) {
-        let data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
+        let data = [ ]
+        
+        if ([AxisType.TIME, AxisType.CATEGORY].includes(axis.type))
+            data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
         
         if (axis.time_format)  
             data = data.map(item => format_time(item, axis.time_format))
@@ -226,7 +230,6 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             alignTicks: true,
             id: index,
             scale: !axis.with_zero ?? false,
-            
         }
     }
     
@@ -247,7 +250,9 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         if (xAxis.type === AxisType.TIME)  
             data = data_source.map(item => [dayjs(item?.[xAxis.col_name]).format('YYYY-MM-DD HH:mm:ss'), item?.[series.col_name]])
         
-        if (xAxis.type === AxisType.VALUE || xAxis.type === AxisType.LOG)  
+        
+        // x 轴和 y 轴均为数据轴或者对数轴的情况下，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
+        if ([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) 
             data  = data_source.map(item => [item[xAxis.col_name], item[series.col_name]])
         
            

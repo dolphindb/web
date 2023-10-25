@@ -1,17 +1,17 @@
-import { Form, Select, Input, Collapse, Divider, InputNumber, Space } from 'antd'
+import { Form, Select, Input, Collapse, Divider, InputNumber, Space, Button } from 'antd'
 import { t } from '../../../i18n/index.js'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-import { AxisType, type IAxisItem, type IYAxisItemValue, Position } from './type.js'
+import { AxisType, type IAxisItem, type IYAxisItemValue, Position, ILineType } from './type.js'
 
 import './index.scss'
-import { concat_name_path, convert_list_to_options } from '../utils.js'
+import { concat_name_path, convert_list_to_options, convert_chart_config } from '../utils.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { useMemo } from 'react'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 import { variables } from '../Variable/variable.js'
-import { format_time_options } from './constant.js'
-
-
+import { chart_type_options, format_time_options, line_type_options, mark_line_options, mark_point_options } from './constant.js'
+import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { WidgetChartType } from '../model.js'
 
 interface IProps { 
     col_names: string[]
@@ -136,27 +136,57 @@ function AxisItem (props: IAxisItem) {
 
 // 多y轴
 function YAxis ({ col_names, initial_values }: { col_names: string[], initial_values?: IYAxisItemValue[] }) { 
-    return <Form.List name='yAxis' initialValue={initial_values}>
-        {fields =>      
-            <>
-                {
-                    fields.map((field, index) => {
-                        return <div key={field.name}>
-                                <div className='axis-wrapper'>
-                                    <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis' />
-                                    <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>
-                                        <Select options={axis_position_options} />
-                                    </Form.Item>
-                                    <Form.Item name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
-                                        <InputNumber />
-                                    </Form.Item>
-                                </div>
-                            { index < fields.length - 1 &&  <Divider className='divider'/> }
+    // const { col_names, initial_values } = props
+    
+    const default_initial_values = useMemo(() => ([
+        {
+            type: AxisType.VALUE,
+            name: t('名称'),
+            col_name: col_names[0],
+            position: 'left',
+            offset: 0
+        }
+    ]), [col_names])
+    
+    
+    return <Form.List name='yAxis' initialValue={initial_values || default_initial_values}>
+        {(fields, { add, remove }) => {
+            const items = fields.map((field, index) => {
+                const children = <div className='field-wrapper' key={field.name}>
+                    <Space>
+                        <div className='axis-wrapper'>
+                            <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis'/>
+                            <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>
+                                <Select options={axis_position_options} />
+                            </Form.Item>
+                            <Form.Item tooltip='Y 轴相对于左右默认位置的偏移' name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
+                                <InputNumber />
+                            </Form.Item>
                         </div>
-                    })
-                }
+                    </Space>
+                </div>
                     
-            </>}
+                return {
+                    children,
+                    key: field.name,
+                    label: <div className='yaxis-collapse-label'>
+                        {`Y 轴 ${field.name + 1}`}
+                        {
+                            index >= 2 &&
+                            <DeleteOutlined
+                                className='delete-icon'
+                                onClick={() => { remove(field.name) }}
+                            />
+                        }
+                    </div>,
+                    forceRender: true,
+                }
+            })
+            
+            return <div className='yasix-collapse-wrapper'>
+                <Collapse items={items} size='small'/>
+            </div>
+         }}
     </Form.List>
 }
 
@@ -164,82 +194,147 @@ function YAxis ({ col_names, initial_values }: { col_names: string[], initial_va
 function Series (props: { col_names: string[] }) { 
     const { col_names } = props
     
-    const series = useMemo(() => [{ name: '', key: 0, selected_cols: [ 'open', 'close', 'low', 'high', 'value', 'limit'] }, 
+    const series = useMemo(() => [{ name: '', key: 0, selected_cols: [ 'open', 'close', 'low', 'high', 'limit'] }, 
                                   { name: '', key: 1 }], [ ])
     
     return <Form.List name='series' initialValue={series}>
-        {fields => <>
-            {
-                fields.map((field, index) => { 
-                    return <div key={ field.name }>
-                            <div className='axis-wrapper'>
-                                {series[index]?.selected_cols ?
-                                    series[index].selected_cols.map(col => 
-                                        <Form.Item key={col} name={[field.name, col]} label={col} initialValue={col !== 'limit' ? col_names?.[0] : 0} >
-                                            {
-                                                col !== 'limit' ?
-                                                        <Select options={convert_list_to_options(col_names)} allowClear/>
-                                                              :
-                                                        <InputNumber />
-                                                        
-                                            }
+             {(fields, { add, remove }) => { 
+            const items = fields.map((field, index) => { 
+                const children = 
+                    <div className='field-wrapper'>
+                        {index <= 1 ?  (series[index]?.selected_cols ?
+                                        series[index].selected_cols.map(col => 
+                                            <Form.Item key={col} name={[field.name, col]} label={col} initialValue={col !== 'limit' ? col_names?.[0] : 0} >
+                                                {
+                                                    col !== 'limit' ?
+                                                            <Select options={convert_list_to_options(col_names)} allowClear/>
+                                                                :
+                                                            <InputNumber />
+                                                            
+                                                }
+                                            </Form.Item>) 
+                                                                :
+                                        <Form.Item name={[field.name, 'col_name']} label={t('交易量')} initialValue={col_names?.[0]} >
+                                            <Select options={convert_list_to_options(col_names)} />
                                         </Form.Item>) 
-                                                            :
-                                    <Form.Item name={[field.name, 'col_name']} label={t('交易量')} initialValue={col_names?.[0]} >
-                                        <Select options={convert_list_to_options(col_names)} />
+                                    : 
+                                        <>
+                                            <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
+                                                <Select options={col_names.map(item => ({ label: item, value: item })) } />
+                                            </Form.Item>
+                                            <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={`数据列 ${field.key + 1}`}> 
+                                                <Input />
+                                            </Form.Item>
+                                            <Form.Item name={[field.name, 'type']} label={t('类型')} initialValue={WidgetChartType.LINE} >
+                                                <Select options={chart_type_options} disabled />
+                                            </Form.Item>
+                                        </>
+                        }
+                        
+                        
+                        {/* 数据关联的y轴选择 */}
+                        <FormDependencies dependencies={['yAxis']}>
+                            { value => {
+                                const { yAxis } = value
+                                const options = yAxis.map((item, idx) => ({
+                                    value: idx,
+                                    label: item?.name
+                                }))
+                                return <Form.Item name={[field.name, 'yAxisIndex']} label={t('关联 Y 轴')} initialValue={0}>
+                                    <Select options={options} />
+                                </Form.Item>
+                            } }
+                        </FormDependencies>
+                        
+                        {
+                          index <= 1 ?   
+                          (series[index]?.selected_cols ? 
+                                <>
+                                    <Form.Item name={[field.name, 'limit_name']} label='阈值线名称' initialValue={ t('阈值') }>
+                                        <Input />
                                     </Form.Item>
-                                }
-                                {/* 数据关联的y轴选择 */}
-                                <FormDependencies dependencies={['yAxis']}>
-                                    {value => {
-                                        const { yAxis } = value
-                                        const options = yAxis.map((item, idx) => ({
-                                            value: idx,
-                                            label: item?.name
-                                        }))
-                                        return <Form.Item name={[field.name, 'yAxisIndex']} label={t('关联 Y 轴')} initialValue={field.key}>
-                                            <Select options={options} />
-                                    </Form.Item>
-                                    } }
-                                </FormDependencies>
-                                
-                                {
-                                    series[index]?.selected_cols &&  
-                                    <>
-                                         <Form.Item name={[field.name, 'line_name']} label='折线名称' initialValue={ t('折线') }>
-                                            <Input />
-                                        </Form.Item>
-                                        
-                                        <Form.Item name={[field.name, 'limit_name']} label='阈值线名称' initialValue={ t('阈值') }>
-                                            <Input />
-                                        </Form.Item>
-                                        
-                                        <Form.Item name={[field.name, 'kcolor']} label='k 线颜色（涨）'>
-                                            <StringColorPicker />
-                                        </Form.Item>
-                                       
-                                        <Form.Item name={[field.name, 'kcolor0']} label='k 线颜色（跌）'>
-                                            <StringColorPicker />
-                                        </Form.Item>
                                     
-                                        <Form.Item name={[field.name, 'line_color']} label='折线颜色'>
-                                            <StringColorPicker />
-                                        </Form.Item>
-                                       
-                                        <Form.Item name={[field.name, 'limit_color']} label='阈值颜色'>
-                                            <StringColorPicker />
-                                        </Form.Item>
-                                        
-                                       
-                                    </>
+                                    <Form.Item name={[field.name, 'kcolor']} label='k 线颜色（涨）'>
+                                        <StringColorPicker />
+                                    </Form.Item>
+                                    
+                                    <Form.Item name={[field.name, 'kcolor0']} label='k 线颜色（跌）'>
+                                        <StringColorPicker />
+                                    </Form.Item>
+                                </> :  
+                                <></>) :
+                                <>
+                                    <Form.Item name={[field.name, 'color']} label='线条颜色' initialValue={null}>
+                                        <StringColorPicker />
+                                    </Form.Item>
+                                    
+                                    <Form.Item name={[field.name, 'mark_point']} label='标记点'>
+                                        <Select options={mark_point_options} mode='multiple'/>
+                                    </Form.Item>
+                                    
+                                    <Form.Item label={t('水平线')} name={[field.name, 'mark_line']}>
+                                        <Select options={mark_line_options} mode='tags' />
+                                    </Form.Item>
+                                </>
+                        }
+                        
+                        
+                        
+                       
+                        {/* 仅折线图可选择线类型 */}
+                        
+                        <FormDependencies dependencies={[['series', field.name, 'type']]}>
+                            {({ series }) => { 
+                                const { type: seriesType } = series.find(item => !!item)
+                                { /**
+                                    柱状图可以选择是否堆叠展示 
+                                    折线图可以选择线类型
+                                 */ 
                                 }
-                            </div>
-                        { index < fields.length - 1 && <Divider className='divider'/> }
+                                if (seriesType === WidgetChartType.BAR)
+                                    return <Form.Item tooltip={t('同个类目轴上系列配置相同的 stack 值可以堆叠放置')} label={t('堆叠值')} name={[field.name, 'stack']}>
+                                        <Input />
+                                    </Form.Item>
+                                else if (seriesType === WidgetChartType.LINE)
+                                    return <Form.Item label={t('线类型')} name={[field.name, 'line_type']} initialValue={ILineType.SOLID}>
+                                        <Select options={line_type_options} />
+                                    </Form.Item>
+                                else
+                                    return null
+                            } }
+                        </FormDependencies>
                     </div>
-                })
-            }
-        </>}
-    </Form.List>
+                 return {
+                    key: field.name,
+                    children,
+                    label: <div className='series-collapse-label'>
+                        {`数据列 ${field.name + 1}`}
+                        {index >= 2 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />}
+                    </div>,
+                    forceRender: true
+                }
+            })
+            
+            return <>
+                <Collapse
+                    size='small'
+                    className='series-collapse'
+                    items={items}
+                /> 
+                    <Button
+                        className='add-series-btn'
+                        type='dashed'
+                        block
+                        onClick={() => { add() }}
+                        icon={<PlusCircleOutlined />}
+                    >
+                        {t('增加数据列')}
+                    </Button> 
+            </>
+        }}
+        </Form.List>
+        
+        { }
 }
 
 
@@ -250,8 +345,8 @@ export function OhlcFormFields (props: IProps) {
         () => [
             { type: AxisType.TIME, name: '' },
             [
-                { type: AxisType.VALUE, name: '', position: Position.LEFT },
-                { type: AxisType.VALUE, name: '', position: Position.RIGHT }
+                { type: AxisType.VALUE, name: 'k 线', position: Position.LEFT },
+                { type: AxisType.VALUE, name: '交易量', position: Position.RIGHT }
             ]
         ],
         [ ]

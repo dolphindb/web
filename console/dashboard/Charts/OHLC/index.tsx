@@ -3,16 +3,13 @@ import * as echarts from 'echarts'
 import { useMemo } from 'react'
 
 import { type Widget } from '../../model.js'
-import { type IChartConfig } from '../../type.js'
+import { type ISeriesConfig, type IChartConfig } from '../../type.js'
 import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 
 import './index.sass'
 import { format_time, parse_text } from '../../utils.js'
-
-
-// const kBorderColor = '#fd1050'
-// const kBorderColor0 = '#0cf49b'
+import {  MarkPresetType } from '../../ChartFormFields/type.js'
 
 type COL_MAP = {
     time: string
@@ -20,13 +17,12 @@ type COL_MAP = {
     high: string
     low: string
     close: string
-    value: string
     trades: string
     time_format?: string
 }
 
 function splitData (rowData: any[], col_name: COL_MAP) {
-    const { time, open, close, low,  high,  value, trades, time_format } = col_name
+    const { time, open, close, low,  high, trades, time_format } = col_name
     let categoryData = [ ]
     let values = [ ]
     let volumes = [ ]
@@ -35,7 +31,6 @@ function splitData (rowData: any[], col_name: COL_MAP) {
         categoryData.push(rowData[i][time])
         values.push([rowData[i][open], rowData[i][close], rowData[i][low], rowData[i][high]])
         volumes.push([i, rowData[i][trades], rowData[i][open] > rowData[i][close] ? 1 : -1])
-        lines.push(rowData[i][value])
     }
     if (time_format)
         categoryData = categoryData.map(item => format_time(item, time_format))
@@ -48,9 +43,63 @@ function splitData (rowData: any[], col_name: COL_MAP) {
     }
 }
 
+
+
 export function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const { title, title_size, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
    
+    function convert_series (series: ISeriesConfig) { 
+        let mark_line_data = series?.mark_line?.map(item => { 
+            if (item in MarkPresetType)
+                return {
+                    type: item,
+                    name: item
+                }
+            else
+                return { yAxis: item }
+        }) || [ ]
+        
+        
+        let data = data_source.map(item => item?.[series?.col_name])
+        // console.log('col', series.col_name, data)
+        // if (xAxis.type === AxisType.TIME)  
+        //     data = data_source.map(item => [dayjs(item?.[xAxis.col_name]).format('YYYY-MM-DD HH:mm:ss'), item?.[series.col_name]])
+        
+        // if (xAxis.type === AxisType.VALUE || xAxis.type === AxisType.LOG)  
+        //     data  = data_source.map(item => [item[xAxis.col_name], item[series.col_name]])
+        
+           
+        
+        return {
+            type: series?.type?.toLowerCase(),
+            name: series?.name,
+            symbol: 'none',
+            stack: series?.stack,
+            // 防止删除yAxis导致渲染失败
+            yAxisIndex: yAxis[series?.yAxisIndex] ?  series?.yAxisIndex : 0,
+            data,
+            markPoint: {
+                data: series?.mark_point?.map(item => ({
+                    type: item,
+                    name: item
+                }))
+            }, 
+            itemStyle: {
+                color: series?.color,
+            },
+            markLine: {
+                symbol: ['none', 'none'],
+                data: mark_line_data
+            },
+            lineStyle: {
+                type: series?.line_type,
+                color: series?.color
+            }
+        }
+    }
+    
+    const lines = series.slice(2).map(serie => convert_series(serie))
+    
     const data = useMemo(
         () =>
             splitData(data_source, {
@@ -59,14 +108,13 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 close: series[0].close as string,
                 low: series[0].low as string,
                 high: series[0].high as string,
-                value: series[0].value as string,
                 trades: series[1].col_name as string,
                 time_format: xAxis.time_format || ''
             }),
         [data_source, xAxis.col_name, series]
     )
-    const [kColor = '#fd1050', kColor0 = '#0cf49b', line_name = '折线', limit_name = '阈值'] = useMemo(() => 
-            [ series[0].kcolor, series[0].kcolor0, series[0].line_name, series[0].limit_name], 
+    const [kColor = '#fd1050', kColor0 = '#0cf49b', limit_name = '阈值'] = useMemo(() => 
+            [ series[0].kcolor, series[0].kcolor0, series[0].limit_name], 
     [series[0]])
     const option = useMemo(
         () => ({
@@ -81,7 +129,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
             legend: {
                 top: 10,
                 left: 'center',
-                data: [line_name, limit_name],
+                data: [limit_name, ...series.slice(2).map(s => s?.name || '')],
                 textStyle: {
                     color: '#e6e6e6'
                 }
@@ -179,7 +227,6 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     show: false,
                     name: xAxis.name,
                     data: data.categoryData,
-                    // data: data.categoryData,
                     
                     boundaryGap: false,
                     axisLine: { onZero: false },
@@ -277,16 +324,6 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 },
                 {
                     type: 'line',
-                    name: line_name,
-                    
-                    data: data.lines,
-                    symbol: 'none',
-                    itemStyle: {
-                        color: series[0].line_color || '#54d2d2',
-                    },
-                },
-                {
-                    type: 'line',
                     name: limit_name,
                     symbol: 'none',
                     data: new Array(data.categoryData.length).fill(series[0].limit),
@@ -304,7 +341,8 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     itemStyle: {
                         color: ({ value }) => (value[2] === -1 ? kColor : kColor0)
                     }
-                }
+                },
+                ...lines
             ]
         }),
         [title, with_tooltip, data, xAxis, yAxis, x_datazoom, y_datazoom]
