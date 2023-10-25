@@ -51,7 +51,6 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                             <Form.Item name={concat_name_path(name_path, 'with_zero')} label='强制包含零刻度' initialValue={false}>
                                 <BoolRadioGroup />
                             </Form.Item>
-                        
                         </>
                     case AxisType.LOG:
                         return <>
@@ -124,6 +123,10 @@ function Series (props: { col_names: string[] }) {
                         
                         <Form.Item name={[field.name, 'mark_point']} label='标记点'>
                             <Select options={mark_point_options} mode='multiple'/>
+                        </Form.Item>
+                        
+                        <Form.Item name={[field.name, 'end_label']} label='展示端标签' initialValue={false}>
+                            <BoolRadioGroup />
                         </Form.Item>
                         
                         <Form.Item label={t('水平线')} name={[field.name, 'mark_line']}>
