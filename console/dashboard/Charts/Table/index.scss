@@ -1,6 +1,6 @@
 .dashboard-table-wrapper {
     background-color: #282828;
-    overflow: auto;
+    // overflow: auto;
     font-size: 12px;
     height: 100%;
     
@@ -8,11 +8,10 @@
     flex-direction: column;
     
     .ant-table-wrapper {
-       
-        tbody {
-            overflow: auto;
-        }
         
+        overflow-y: auto;
+        
+      
         &::-webkit-scrollbar-track-piece {
             background-color: #474747 !important;
         }
