@@ -198,8 +198,19 @@ export function Overview () {
                         title: t('操作'),
                         dataIndex: '',
                         key: 'actions',
-                        width: 240,
+                        width: 300,
                         render: ({ key }) => <div className='action'>
+                                <a
+                                    onClick={() => {
+                                        let config = configs.find(({ id }) => id === key)
+                                        dashboard.set({ config, editing: true })
+                                        model.set_query('dashboard', String(config.id))
+                                        model.set({ header: false, sider: false })
+                                    }}
+                                >
+                                    {t('编辑')}
+                                </a>
+                            
                                 <a
                                     onClick={() => {
                                         let current_row_config = configs.find(({ id }) => id === key)

@@ -117,7 +117,7 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
         
         { display_text === '' ?
             <div className='empty-area'>
-                <Button {... editing ? { onClick: open } : { } }>{t('添加文本')}</Button>
+                {editing && <Button onClick={open}>{t('添加文本')}</Button>}
             </div>
         :
             <div className='ql-container ql-snow rich-text-container'>

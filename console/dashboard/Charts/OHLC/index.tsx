@@ -106,15 +106,15 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 time: xAxis.col_name,
                 open: series[0].open as string,
                 close: series[0].close as string,
-                low: series[0].low as string,
-                high: series[0].high as string,
+                low: series[0].lowest as string,
+                high: series[0].highest as string,
                 trades: series[1].col_name as string,
                 time_format: xAxis.time_format || ''
             }),
         [data_source, xAxis.col_name, series]
     )
-    const [kColor = '#fd1050', kColor0 = '#0cf49b', limit_name = '阈值'] = useMemo(() => 
-            [ series[0].kcolor, series[0].kcolor0, series[0].limit_name], 
+    const [kColor = '#fd1050', kColor0 = '#0cf49b'] = useMemo(() => 
+            [ series[0].kcolor, series[0].kcolor0], 
     [series[0]])
     const option = useMemo(
         () => ({
@@ -129,7 +129,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
             legend: {
                 top: 10,
                 left: 'center',
-                data: [limit_name, ...series.slice(2).map(s => s?.name || '')],
+                data: series.slice(2).map(s => s?.name || ''),
                 textStyle: {
                     color: '#e6e6e6'
                 }
@@ -322,16 +322,6 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                         borderColor0: undefined
                     }
                 },
-                {
-                    type: 'line',
-                    name: limit_name,
-                    symbol: 'none',
-                    data: new Array(data.categoryData.length).fill(series[0].limit),
-                    itemStyle: {
-                        color: series[0].limit_color || '#1f7ed2',
-                    }
-                },
-                
                 {
                     name: 'trades',
                     type: 'bar',
