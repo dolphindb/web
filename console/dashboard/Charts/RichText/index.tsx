@@ -1,4 +1,6 @@
 import './index.sass'
+import 'react-quill/dist/quill.core.css'
+import 'react-quill/dist/quill.snow.css'
 
 import { Button, Modal } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
@@ -69,7 +71,12 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
     useEffect(() => {
         (async () => {
             if (!quill_loaded) {
-                ({ default: ReactQuill } = await import('react-quill'))
+                // @ts-ignore
+                if (window.define?.amd)
+                    // @ts-ignore
+                    window.define.amd = false
+                
+                ;({ default: ReactQuill } = await import('react-quill'))
                 set_quill_loaded(true)
             }
         })()
