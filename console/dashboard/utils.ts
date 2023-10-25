@@ -9,7 +9,6 @@ import { type DataSource } from './DataSource/date-source.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import dayjs from 'dayjs'
 import { find_variable_by_name, get_variable_value, subscribe_variable } from './Variable/variable.js'
-import { Axis } from 'echarts'
 
 
 export function format_time (time: string, format: string) { 
@@ -259,6 +258,10 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             name: series.name,
             symbol: 'none',
             stack: series.stack,
+            endLabel: {
+                show: series.end_label,
+                formatter: series.name
+            },
             // 防止删除yAxis导致渲染失败
             yAxisIndex: yAxis[series.yAxisIndex] ?  series.yAxisIndex : 0,
             data,
