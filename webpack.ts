@@ -227,7 +227,7 @@ export let webpack = {
                     // 实际上 GridStack 直接暴露在了 window 上，而不是 window.GridStack.GridStack
                     gridstack: 'window',
                     
-                    'react-quill': [`script ./vendors/react-quill/dist/react-quill${ production ? '.min' : '' }.js`, 'ReactQuill'],
+                    'react-quill': ['script ./vendors/react-quill/dist/react-quill.js', 'ReactQuill'],
                     
                     '@formily/core': ['module ./pre-bundle/formily.js', 'Core'],
                     '@formily/react': ['module ./pre-bundle/formily.js', 'React'],
