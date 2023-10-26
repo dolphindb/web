@@ -563,7 +563,8 @@ export enum WidgetType {
     EDITOR = '编辑器',
     GAUGE = '仪表盘',
     RADAR = '雷达图',
-    VARIABLE = '变量'
+    VARIABLE = '变量',
+    SCATTER = '散点图'
 }
 
 export enum WidgetChartType { 
@@ -584,7 +585,8 @@ export enum WidgetChartType {
     EDITOR = 'EDITOR',
     GAUGE = 'GAUGE',
     RADAR = 'RADAR',
-    VARIABLE = 'VARIABLE'
+    VARIABLE = 'VARIABLE',
+    SCATTER = 'SCATTER'
 }
 
 

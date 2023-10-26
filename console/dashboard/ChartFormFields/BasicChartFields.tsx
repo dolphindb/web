@@ -119,16 +119,12 @@ function Series (props: { col_names: string[] }) {
                             } }
                         </FormDependencies>
                         
-                        <Form.Item name={[field.name, 'color']} label='线条颜色' initialValue={null}>
+                        <Form.Item name={[field.name, 'color']} label='颜色' initialValue={null}>
                             <StringColorPicker />
                         </Form.Item>
                         
                         <Form.Item name={[field.name, 'mark_point']} label='标记点'>
                             <Select options={mark_point_options} mode='multiple'/>
-                        </Form.Item>
-                        
-                        <Form.Item name={[field.name, 'end_label']} label='展示端标签' initialValue={false}>
-                            <BoolRadioGroup />
                         </Form.Item>
                         
                         <Form.Item label={t('水平线')} name={[field.name, 'mark_line']}>
@@ -145,13 +141,27 @@ function Series (props: { col_names: string[] }) {
                                  */ 
                                 }
                                 if (seriesType === WidgetChartType.BAR)
-                                    return <Form.Item tooltip={t('同个类目轴上系列配置相同的 stack 值可以堆叠放置')} label={t('堆叠值')} name={[field.name, 'stack']}>
+                                    return <Form.Item tooltip={t('同个类目轴上为数据列配置相同的堆叠值可以堆叠放置')} label={t('堆叠值')} name={[field.name, 'stack']}>
                                         <Input />
                                     </Form.Item>
                                 else if (seriesType === WidgetChartType.LINE)
-                                    return <Form.Item label={t('线类型')} name={[field.name, 'line_type']} initialValue={ILineType.SOLID}>
-                                        <Select options={line_type_options} />
-                                    </Form.Item>
+                                    return <>
+                                        <Form.Item label={t('线类型')} name={[field.name, 'line_type']} initialValue={ILineType.SOLID}>
+                                            <Select options={line_type_options} />
+                                        </Form.Item>
+                                        <Form.Item name={[field.name, 'end_label']} label='展示端标签' initialValue={false}>
+                                            <BoolRadioGroup />
+                                        </Form.Item>
+                                    </>
+                                else if (seriesType === WidgetChartType.SCATTER)
+                                    return <>
+                                        <Form.Item label='散点大小' name={[field.name, 'symbol_size']} initialValue={10}>
+                                            <InputNumber min={1} />
+                                        </Form.Item>
+                                        <Form.Item label='散点标记' name={[field.name, 'symbol']} initialValue='circle'>
+                                            <Select options={convert_list_to_options(['circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow']) } />
+                                        </Form.Item>
+                                    </>
                                 else
                                     return null
                             } }
@@ -163,7 +173,7 @@ function Series (props: { col_names: string[] }) {
                     children,
                     label: <div className='series-collapse-label'>
                         { series?.[field.name]?.name || `数据列 ${field.name + 1}` }
-                        {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />}
+                        { fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} /> }
                     </div>,
                     forceRender: true
                 }
