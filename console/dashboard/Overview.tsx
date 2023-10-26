@@ -293,12 +293,6 @@ export function Overview () {
                                 beforeUpload={async file => {
                                     try {
                                         const import_config = JSON.parse(await file.text()) as DashBoardConfig
-                                        dashboard.set({
-                                            configs: [
-                                                ...configs.filter(({ id }) => id !== import_config.id), import_config
-                                            ]
-                                        })
-                                        
                                         await dashboard.add_dashboard_config(import_config)
                                     } catch (error) {
                                         model.show_error({ error })
