@@ -11,27 +11,37 @@ import { parse_text } from '../../utils.js'
 
 export function Radar ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const { title, title_size = 18, with_tooltip, with_legend, series, labels } = widget.config as IChartConfig
+    console.log(data_source)
     console.log(widget.config)
     const option = useMemo(
         () => {
-            const _labels = [ ]
-            const datas = data_source.map(data => {
+            const legends = [ ]
+            const indicators = [ ]
+            const datas = [ ]
+            data_source.forEach((data, index) => {
                 const label = data[labels[0].col_name]
-                _labels.push(label) 
-                return {
-                    value: series.map(serie => data[serie?.col_name]),
-                    name: label
-                }        
+                const values = [ ]
+                legends.push(label) 
+                series.forEach(serie => {
+                    values.push(data[serie?.col_name])
+                    if (index === 0)
+                        indicators.push({ name: serie?.col_name, max: serie?.max })
+                })  
+                datas.push({ value: values, name: label })     
             })
+            
             const res = {
                 legend: {
                     show: with_legend,
-                    data: _labels
+                    textStyle: {
+                        color: '#e6e6e6'
+                    },
+                    data: legends
                 },
                 tooltip: {
                     show: with_tooltip,
                     // 与图形类型相关，一期先写死
-                    trigger: 'axis',
+                    trigger: 'item',
                     backgroundColor: '#1D1D1D',
                     borderColor: '#333'
                 },
@@ -43,7 +53,7 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
                     }
                 },
                 radar: {
-                    indicator: series.map(serie => ({ name: serie?.col_name, max: serie?.max })),
+                    indicator: indicators,
                 },
                 series: [
                     {
