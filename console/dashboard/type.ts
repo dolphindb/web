@@ -40,6 +40,9 @@ export interface ISeriesConfig {
     kcolor?: string
     kcolor0?: string
     
+    // PIE
+    value?: string
+    
 }
 
 export interface IChartConfig {
