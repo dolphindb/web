@@ -24,6 +24,8 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     
     const { data = [ ] } = data_source_node.use(['data'])
     
+    console.log(data, 'data')
+    
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     
     return <div className='graph-item-wrapper'>
