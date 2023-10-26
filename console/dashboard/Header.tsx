@@ -69,8 +69,6 @@ export function Header () {
     async function handle_save () {
         try {
             const updated_config = await save_config()
-            // await dashboard.update_config(updated_config)
-            console.log('updated', updated_config)
             await dashboard.update_dashboard_config(updated_config)
             dashboard.message.success(t('数据面板保存成功'))
         } catch (error) {
@@ -95,9 +93,8 @@ export function Header () {
             const new_dashboard_config = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
             
             // await dashboard.update_config(new_dashboard_config)
-            
             await dashboard.add_dashboard_config(new_dashboard_config)
-            
+            dashboard.render_with_config(new_dashboard_config)
             dashboard.message.success(t('添加成功'))
         } catch (error) {
             model.show_error({ error })
