@@ -76,7 +76,6 @@ export function Overview () {
                         
                         /** 待接口更新后修改 */
                         const new_dashboard = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
-                        dashboard.set({ configs: configs ? [...configs, new_dashboard] : [new_dashboard] })
                         
                         await dashboard.add_dashboard_config(new_dashboard)
                         
