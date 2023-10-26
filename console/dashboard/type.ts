@@ -29,6 +29,9 @@ export interface ISeriesConfig {
     stack?: string
     end_label?: boolean
     
+    symbol?: string
+    symbol_size?: number
+    
     // 颜色
     color?: string
     

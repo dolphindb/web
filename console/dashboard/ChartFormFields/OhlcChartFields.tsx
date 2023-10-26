@@ -288,7 +288,7 @@ function Series (props: { col_names: string[] }) {
                                  */ 
                                 }
                                 if (seriesType === WidgetChartType.BAR)
-                                    return <Form.Item tooltip={t('同个类目轴上系列配置相同的 stack 值可以堆叠放置')} label={t('堆叠值')} name={[field.name, 'stack']}>
+                                    return <Form.Item tooltip={t('同个类目轴上为数据列配置相同的堆叠值可以堆叠放置')} label={t('堆叠值')} name={[field.name, 'stack']}>
                                         <Input />
                                     </Form.Item>
                                 else if (seriesType === WidgetChartType.LINE)

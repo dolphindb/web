@@ -2036,7 +2036,7 @@
     "堆叠值": {
         "en": "Stack value"
     },
-    "同个类目轴上系列配置相同的 stack 值可以堆叠放置": {
+    "同个类目轴上为数据列配置相同的堆叠值可以堆叠放置": {
         "en": "Series configurations with the same stack value on the same category axis can be stacked."
     },
     "关联变量": {

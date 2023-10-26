@@ -10,6 +10,7 @@ import { OrderBook, OrderConfigForm } from './Charts/OrderBook/index.js'
 import { DashboardEditor as Editor, EditorConfigForm } from './Charts/DashboardEditor/index.js'
 import { Gauge, GaugeConfigForm } from './Charts/Gauge/index.js'
 import { Variables, VariablesConfigForm } from './Charts/Variables/index.js'
+import { Scatter, ScatterConfigForm } from './Charts/Scatter/index.js'
 
 type GraphConfig =  { 
     [key in WidgetChartType]: {
@@ -65,5 +66,9 @@ export const graph_config: GraphConfig =  {
     [WidgetChartType.VARIABLE]: {
         component: Variables,
         config: VariablesConfigForm
+    },
+    [WidgetChartType.SCATTER]: {
+        component: Scatter,
+        config: ScatterConfigForm
     }
 }

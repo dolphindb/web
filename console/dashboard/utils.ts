@@ -3,7 +3,7 @@ import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format } from 'dol
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
 import { isNil } from 'lodash'
 
-import { type Widget } from './model.js'
+import { WidgetChartType, type Widget } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
 import { type DataSource } from './DataSource/date-source.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
@@ -105,6 +105,8 @@ function formatter (type: DdbType, values, le: boolean, index: number) {
             return format_decimal(type, values, index)
         case DdbType.ipaddr:
             return values.subarray(16 * index, 16 * (index + 1))
+        case DdbType.long:
+            return String(value)
         case DdbType.symbol_extended: {
             const { base, data } = values
             return base[data[index]]
@@ -211,7 +213,7 @@ export function concat_name_path (...paths: NamePath[]): NamePath {
 }
 
 export function convert_chart_config (widget: Widget, data_source: any[]) {
-    const { config, type } = widget
+    const { config } = widget
     
     const { title, title_size, with_legend, with_tooltip, with_split_line, xAxis, series, yAxis, x_datazoom, y_datazoom } = config as IChartConfig
     
@@ -244,7 +246,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     
     
     function convert_axis (axis: AxisConfig, index?: number) {
-// 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
+    // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
         let data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
         
         if (axis.time_format)  
@@ -268,7 +270,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             alignTicks: true,
             id: index,
             scale: !axis.with_zero ?? false,
-                    }
+        }
     }
     
     function convert_series (series: ISeriesConfig) { 
@@ -285,19 +287,21 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         
         let data = data_source.map(item => item?.[series.col_name])
         
-// 时间轴情况下，series为二维数组，且每项的第一个值为 x轴对应的值，第二个值为 y轴对应的值，并且需要对时间进行格式化处理
+        // 时间轴情况下，series为二维数组，且每项的第一个值为 x轴对应的值，第二个值为 y轴对应的值，并且需要对时间进行格式化处理
         if (xAxis.type === AxisType.TIME)  
             data = data_source.map(item => [dayjs(item?.[xAxis.col_name]).format('YYYY-MM-DD HH:mm:ss'), item?.[series.col_name]])
         
+        // x 轴和 y 轴均为数据轴或者对数轴的情况下或者散点图，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
+        if (([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) || series.type === WidgetChartType.SCATTER)  
+            data  = data_source.map(item => [xAxis.time_format ? dayjs(item[xAxis.col_name]).format(xAxis.time_format) : item[xAxis.col_name], item[series.col_name]])
         
-        // x 轴和 y 轴均为数据轴或者对数轴的情况下，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
-        if ([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type))  
-            data  = data_source.map(item => [item[xAxis.col_name], item[series.col_name]])
-        
-                   return {
+            
+       
+        return {
             type: series.type?.toLowerCase(),
             name: series.name,
-            symbol: 'none',
+            symbol: series?.symbol || 'none',
+            symbolSize: series.symbol_size,
             stack: series.stack,
             endLabel: {
                 show: series.end_label,
