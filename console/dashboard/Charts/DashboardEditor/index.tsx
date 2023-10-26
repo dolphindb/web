@@ -19,7 +19,7 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
             const new_widget = { ...get_widget_config(widget), config: { ...widget.config, code } }
             const index = config.data.canvas.widgets.findIndex(({ id }) => id === widget.id)
             const new_config = { ...config, data: { ...config.data, canvas: { widgets: config.data.canvas.widgets.toSpliced(index, 1, new_widget) } } }
-            await dashboard.update_config(new_config)
+            // await dashboard.update_config(new_config)
             await dashboard.update_dashboard_config(new_config)
         } catch (error) {
             dashboard.show_error({ error })
