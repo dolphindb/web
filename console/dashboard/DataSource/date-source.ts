@@ -131,12 +131,9 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                             new_data_source.data = sql_formatter(result, new_data_source.max_line)
                             new_data_source.cols = get_cols(result)
                         }
-                        break
-                    case 'warn':
-                        if (code === undefined) {
-                            dashboard.message.warning(result as string)
-                            break
-                        }   
+                        if (code === undefined)
+                            dashboard.message.success(`${data_source.name} 保存成功！`)
+                        break  
                     case 'error':
                         throw new Error(result as string)
                 }
@@ -147,8 +144,14 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
             } finally {
                 data_source.set({ ...new_data_source, timer: data_source.timer })
                 
-                if (deps.size && !data_source.error_message && data_source.auto_refresh && !data_source.timer) 
-                    create_interval(data_source) 
+                if (deps.size && !data_source.error_message && data_source.auto_refresh) 
+                    if (code === undefined)
+                        create_interval(data_source) 
+                    else 
+                        // 尽可能避免加载后开启轮询的时间间隔过短
+                        setTimeout(() => {
+                            create_interval(data_source)
+                        }, Math.floor(Math.random() * 1000 * Math.min(data_source.interval, 3)))                       
             }
             
             break
@@ -158,11 +161,10 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
             if (deps.size) 
                 await subscribe_stream(data_source) 
             
+            if (code === undefined)
+                dashboard.message.success(`${data_source.name} 保存成功！`)
             break
     }
-    
-    if (code === undefined)
-        dashboard.message.success(`${data_source.name} 保存成功！`)
 }
 
 export function delete_data_source (source_id: string): number {
@@ -251,6 +253,7 @@ export async function execute (source_id: string, queue = true) {
         case 'sql':
             try {
                 const { type, result } = await dashboard.execute(parse_code(data_source.code, data_source), queue)
+                console.log(type, data_source.name)
                 switch (type) {
                     case 'success':
                         // 暂时只支持table
@@ -364,6 +367,7 @@ async function subscribe_stream (data_source: DataSource) {
         data_source.set({ data: [ ], cols: await get_stream_cols(data_source.stream_table), ddb: stream_connection })
     } catch (error) {
         dashboard.message.error(error.message)
+        return error
     }
 }
 
