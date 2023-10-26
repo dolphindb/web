@@ -51,7 +51,6 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                             <Form.Item name={concat_name_path(name_path, 'with_zero')} label='强制包含零刻度' initialValue={false}>
                                 <BoolRadioGroup />
                             </Form.Item>
-                        
                         </>
                     case AxisType.LOG:
                         return <>
@@ -87,6 +86,8 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
 function Series (props: { col_names: string[] }) { 
     const { col_names } = props
     const { widget: { type } } = dashboard.use(['widget'])
+    
+    const series = Form.useWatch('series')
     
     return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: '数据列 1', yAxisIndex: 0, type: type === WidgetChartType.MIX ? WidgetChartType.LINE : type, color: null }]}>
         {(fields, { add, remove }) => { 
@@ -126,6 +127,10 @@ function Series (props: { col_names: string[] }) {
                             <Select options={mark_point_options} mode='multiple'/>
                         </Form.Item>
                         
+                        <Form.Item name={[field.name, 'end_label']} label='展示端标签' initialValue={false}>
+                            <BoolRadioGroup />
+                        </Form.Item>
+                        
                         <Form.Item label={t('水平线')} name={[field.name, 'mark_line']}>
                             <Select options={mark_line_options} mode='tags' />
                         </Form.Item>
@@ -157,7 +162,7 @@ function Series (props: { col_names: string[] }) {
                     key: field.name,
                     children,
                     label: <div className='series-collapse-label'>
-                        {`数据列 ${field.name + 1}`}
+                        { series?.[field.name]?.name || `数据列 ${field.name + 1}` }
                         {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />}
                     </div>,
                     forceRender: true
@@ -197,6 +202,8 @@ export function YAxis (props: { col_names: string[], initial_values?: IYAxisItem
         }
     ]), [col_names])
     
+    const yAxis = Form.useWatch('yAxis')
+    
     return <Form.List name='yAxis' initialValue={initial_values || default_initial_values}>
         {(fields, { add, remove }) => {
             const items = fields.map(field => {
@@ -218,7 +225,8 @@ export function YAxis (props: { col_names: string[], initial_values?: IYAxisItem
                     children,
                     key: field.name,
                     label: <div className='yaxis-collapse-label'>
-                        {`Y 轴 ${field.name + 1}`}
+                        {/* {`Y 轴 ${field.name + 1}`} */}
+                        {yAxis?.[field.name]?.name || `Y 轴 ${field.name + 1}` }
                         {
                             fields.length > 1 &&
                             <DeleteOutlined

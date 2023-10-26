@@ -27,6 +27,7 @@ export interface ISeriesConfig {
     line_type: ILineType
     // 柱状图是否堆叠
     stack?: string
+    end_label?: boolean
     
     // 颜色
     color?: string

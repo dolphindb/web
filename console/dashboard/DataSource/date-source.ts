@@ -147,7 +147,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
             } finally {
                 data_source.set({ ...new_data_source, timer: data_source.timer })
                 
-                if (deps.size && !data_source.error_message && data_source.auto_refresh && data_source.timer) 
+                if (deps.size && !data_source.error_message && data_source.auto_refresh && !data_source.timer) 
                     create_interval(data_source) 
             }
             

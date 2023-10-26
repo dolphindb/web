@@ -105,8 +105,7 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
             'gridstack/dist/gridstack-all.js',
             'gridstack/dist/gridstack-all.js.map',
             
-            'react-quill/dist/react-quill.min.js',
-            'react-quill/dist/react-quill.min.js.map',
+            'react-quill/dist/react-quill.js',
         ].map(async fp =>
             fcopy(`${fpd_node_modules}${fp}`, `${fpd_vendors}${fp}`, { print: verbose })
         ),
