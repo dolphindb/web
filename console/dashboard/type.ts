@@ -43,9 +43,8 @@ export interface ISeriesConfig {
     kcolor?: string
     kcolor0?: string
     
-    // PIE
-    value?: string
-    
+    // 雷达图 特殊列
+    max?: number
 }
 
 export interface IChartConfig {
@@ -62,6 +61,7 @@ export interface IChartConfig {
     with_data_filter: boolean
     xAxis: AxisConfig
     yAxis: AxisConfig[]
+    labels?: ISeriesConfig[]
     series: ISeriesConfig[]
 }
 

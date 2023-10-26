@@ -68,7 +68,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
 function Series (props: { col_names: string[] }) { 
     const { col_names } = props
     
-    return <Form.List name='series' initialValue={[{ value: col_names[0], name: col_names[0] }]}>
+    return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: col_names[0] }]}>
         {(fields, { add, remove }) => <>
             {
                 fields.map((field, index) => { 
@@ -76,7 +76,7 @@ function Series (props: { col_names: string[] }) {
                             <div className='field-wrapper'>
                                 <Space>
                                     <div className='axis-wrapper'>
-                                        <Form.Item name={[field.name, 'value']} label={t('数据列')} >
+                                        <Form.Item name={[field.name, 'col_name']} label={t('数据列')} >
                                             <Select options={col_names.map(item => ({ label: item, value: item }))} />
                                         </Form.Item>
                                         <Form.Item name={[field.name, 'name']} label={t('名称')}>
@@ -92,7 +92,7 @@ function Series (props: { col_names: string[] }) {
             } 
             {
                 fields.length < 3
-                    ? <Button type='dashed' block onClick={() => { add() } } icon={<PlusCircleOutlined />}>增加环</Button>
+                    ? <Button type='dashed' block onClick={() => { add({ col_name: col_names[0], name: col_names[0] }) } } icon={<PlusCircleOutlined />}>增加环</Button>
                     : <></>
             }
         </>}

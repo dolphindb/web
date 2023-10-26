@@ -46,7 +46,7 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                         radius: radius[series.length][index],
                         data: data_source.map(data => {
                             return {
-                                value: data[serie?.value],
+                                value: data[serie?.col_name],
                                 name: data[serie?.name]
                             }
                         }),

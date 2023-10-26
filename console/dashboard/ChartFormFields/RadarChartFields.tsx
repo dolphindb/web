@@ -65,10 +65,48 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
 }
 
 
+function Labels (props: { col_names: string[] }) { 
+    const { col_names } = props
+    
+    return <Form.List name='labels' initialValue={[{ col_name: col_names[0] }]}>
+        {(fields, { add }) => <>
+            {
+                fields.map((field, index) => { 
+                    return <div key={field.name}>
+                            <div className='field-wrapper'>
+                                <Space>
+                                    <div className='axis-wrapper'>
+                                        <Form.Item name={[field.name, 'col_name']} label={t('数据列')} >
+                                            <Select options={col_names.map(item => ({ label: item, value: item }))} />
+                                        </Form.Item>
+                                    </div>
+                                </Space>
+                            </div>
+                        </div>
+                })
+            } 
+        </>}
+    </Form.List>
+}
+
+
+export function LabelsFormFields (props: { col_names: string[] }) {
+    const { col_names } = props
+    return <Collapse items={[
+        {
+            key: 'labels',
+            label: t('标签列'),
+            children: <Labels col_names={col_names} />,
+            forceRender: true,
+        }
+    ]} />
+}
+
+
 function Series (props: { col_names: string[] }) { 
     const { col_names } = props
     
-    return <Form.List name='series' initialValue={[{ value: col_names[0], name: col_names[0] }]}>
+    return <Form.List name='series' initialValue={[{ col_name: col_names[0], max: null }]}>
         {(fields, { add, remove }) => <>
             {
                 fields.map((field, index) => { 
@@ -76,11 +114,11 @@ function Series (props: { col_names: string[] }) {
                             <div className='field-wrapper'>
                                 <Space>
                                     <div className='axis-wrapper'>
-                                        <Form.Item name={[field.name, 'value']} label={t('数据列')} >
+                                        <Form.Item name={[field.name, 'col_name']} label={t('数据列')} >
                                             <Select options={col_names.map(item => ({ label: item, value: item }))} />
                                         </Form.Item>
-                                        <Form.Item name={[field.name, 'name']} label={t('名称')}>
-                                            <Select options={col_names.map(item => ({ label: item, value: item }))} />
+                                        <Form.Item name={[field.name, 'name']} label={t('最大值')}>
+                                            <InputNumber />
                                         </Form.Item>
                                     </div>
                                     {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) } } />}
@@ -90,11 +128,7 @@ function Series (props: { col_names: string[] }) {
                         </div>
                 })
             } 
-            {
-                fields.length < 3
-                    ? <Button type='dashed' block onClick={() => { add() } } icon={<PlusCircleOutlined />}>增加环</Button>
-                    : <></>
-            }
+            <Button type='dashed' block onClick={() => { add({ col_name: col_names[0], max: null }) } } icon={<PlusCircleOutlined />}>增加列</Button>
         </>}
     </Form.List>
 }
@@ -105,11 +139,10 @@ export function SeriesFormFields (props: { col_names: string[] }) {
     return <Collapse items={[
         {
             key: 'series',
-            label: t('数据环'),
+            label: t('数据列'),
             children: <Series col_names={col_names} />,
             forceRender: true,
         }
     ]} />
 }
-
 
