@@ -69,7 +69,8 @@ export function Header () {
     async function handle_save () {
         try {
             const updated_config = await save_config()
-            await dashboard.update_config(updated_config)
+            // await dashboard.update_config(updated_config)
+            console.log('updated', updated_config)
             await dashboard.update_dashboard_config(updated_config)
             dashboard.message.success(t('数据面板保存成功'))
         } catch (error) {
@@ -93,7 +94,7 @@ export function Header () {
             
             const new_dashboard_config = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
             
-            await dashboard.update_config(new_dashboard_config)
+            // await dashboard.update_config(new_dashboard_config)
             
             await dashboard.add_dashboard_config(new_dashboard_config)
             
@@ -123,7 +124,7 @@ export function Header () {
                 name: edit_dashboard_name,
             }
             
-            await dashboard.update_config(updated_config)
+            // await dashboard.update_config(updated_config)
             await dashboard.update_dashboard_config(updated_config)
             // await dashboard.save_configs_to_local()
             dashboard.message.success(t('修改成功'))
@@ -147,7 +148,7 @@ export function Header () {
             
             await dashboard.delete_dashboard_configs([config.id])
             
-            await dashboard.update_config(config, true)
+            // await dashboard.update_config(config, true)
             
             // await dashboard.save_configs_to_local()
             
@@ -177,9 +178,11 @@ export function Header () {
             onChange={async (_, option: DashboardOption) => {
                 const current_dashboard = configs.find(({ id }) => id === option.key)
                 clear_data_sources()
-                await dashboard.update_config(
-                    current_dashboard
-                )
+                // await dashboard.update_config(
+                //     current_dashboard
+                // )
+                dashboard.render_with_config(current_dashboard)
+                model.set_query('dashboard', String(current_dashboard.id))
                 if (!current_dashboard.owned)
                     on_preview()
                     
@@ -281,7 +284,7 @@ export function Header () {
                         showUploadList={false}
                         beforeUpload={async file => {
                             try {
-                                dashboard.update_config(
+                                await dashboard.add_dashboard_config(
                                     JSON.parse(await file.text()) as DashBoardConfig
                                 )
                                 

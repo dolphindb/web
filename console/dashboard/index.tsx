@@ -63,14 +63,13 @@ export function DashBoard () {
 
 
 function DashboardInstance () {
-    const { widgets, editing } = dashboard.use(['widgets', 'editing'])
-    
+    const { widgets, config, editing } = dashboard.use(['widgets', 'config', 'editing'])
     /** div ref, 用于创建 GridStack  */
     let rdiv = useRef<HTMLDivElement>()
     
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
     Object.assign(dashboard, App.useApp())
-    
+    console.log(widgets, 'render')
     
     useEffect(() => {
         (async () => {

@@ -74,9 +74,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     executing = false
     
-    /** 从 server 拉取 configs 失败后设为 false，后续不再与 server 进行交互 */
-    backend = true
-    
     // console/model.js 对应黑色主题的版本
     message: MessageInstance
     
@@ -87,11 +84,17 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
+        // try {
+        //     await this.get_dashboard_configs()
+        // } catch (error) {
+        //     this.set({ backend: false })
+        //     await this.get_configs_from_local()
+        // }
         try {
             await this.get_dashboard_configs()
         } catch (error) {
-            this.set({ backend: false })
-            await this.get_configs_from_local()
+            this.show_error({ error })
+            throw error
         }
         if (!this.config) {
             const id = genid()
@@ -183,58 +186,57 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     /** 传入 _delete === true 时表示删除传入的 config, 传入 null 代表清空当前的config，返回到 dashboard 管理界面 */
-    async update_config (config: DashBoardConfig, _delete = false) {
-        this.set({ loading: true })
-        const { config: config_, configs } = (() => {
-            if (_delete) {
-                const configs = this.configs.filter(c => c.id !== config.id)
+    // async update_config (config: DashBoardConfig, _delete = false) {
+    //     this.set({ loading: true })
+    //     const { config: config_, configs } = (() => {
+    //         if (_delete) {
+    //             const configs = this.configs.filter(c => c.id !== config.id)
                 
-                return {
-                    config: configs[0] || this.generate_new_config(),
-                    configs,
-                }
-            } else {
-                let index = this.configs?.findIndex(c => c.id === config.id)
+    //             return {
+    //                 config: configs[0] || this.generate_new_config(),
+    //                 configs,
+    //             }
+    //         } else {
+    //             let index = this.configs?.findIndex(c => c.id === config.id)
                 
-                return {
-                    config,
+    //             return {
+    //                 config,
                     
-                    configs: index === -1 ?
-                        [...this.configs, config]
-                    :
-                        this.configs ?  this.configs.toSpliced(index, 1, config) : [config],
-                }
-            }
-        })()
+    //                 configs: index === -1 ?
+    //                     [...this.configs, config]
+    //                 :
+    //                     this.configs ?  this.configs.toSpliced(index, 1, config) : [config],
+    //             }
+    //         }
+    //     })()
         
-        model.set_query('dashboard', String(config.id))
+    //     model.set_query('dashboard', String(config.id))
         
-        this.set({
-            config: config_,
+    //     this.set({
+    //         config: config_,
             
-            configs,
+    //         configs,
             
-            variables: await import_variables(config_.data.variables),
+    //         variables: await import_variables(config_.data.variables),
             
-            data_sources: await import_data_sources(config_.data.datasources),
+    //         data_sources: await import_data_sources(config_.data.datasources),
             
-            widgets: config_.data.canvas.widgets.map(widget => ({
-                ...widget,
-                ref: createRef()
-            })) as any,
+    //         widgets: config_.data.canvas.widgets.map(widget => ({
+    //             ...widget,
+    //             ref: createRef()
+    //         })) as any,
             
-            widget: null,
-        })
-        this.set({ loading: false })
-        console.log(t('dashboard 配置加载成功'))
-    }
+    //         widget: null,
+    //     })
+    //     this.set({ loading: false })
+    //     console.log(t('dashboard 配置加载成功'))
+    // }
     
     
-    generate_new_config (id?: number, name?: string) {
-        const id_ = id || genid()
+    generate_new_config (id: number, name: string) {
         return {
             id,
-            name: name || String(id_).slice(0, 4),
+            name,
             owned: true,
             data: {
                 datasources: [ ],
@@ -243,7 +245,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
                     widgets: [ ],
                 }
             }
-           
         }
     }
     
@@ -382,66 +383,106 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 获取分享的用户列表 */
     async get_users_to_share () {
-        if (this.backend) {
-            const users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
-            this.set({ users_to_share: users })
-        }
-        
-        
+        // if (this.backend) {
+        //     const users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
+        //     this.set({ users_to_share: users })
+        // }
+        const users = ((await model.ddb.call<DdbObj>('get_users_to_share')).value) as string[]
+        this.set({ users_to_share: users })
     }
     
     
     async add_dashboard_config (config: DashBoardConfig) {
-        await this.save_configs_to_local()
-        if (this.backend) {
-            const params = new DdbDict(
-                ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) }))
-            await model.ddb.call<DdbVoid>('add_dashboard_config', [params], { urgent: true })
-        }
-        
+        // await this.save_configs_to_local()
+        // if (this.backend) {
+        //     const params = new DdbDict(
+        //         ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) }))
+        //     await model.ddb.call<DdbVoid>('add_dashboard_config', [params], { urgent: true })
+        // }
+        this.set({ configs: [...this.configs, config], config })
+        const params = new DdbDict(
+            ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) }))
+        await model.ddb.call<DdbVoid>('add_dashboard_config', [params], { urgent: true })
     }
     
     
     async delete_dashboard_configs (dashboard_config_ids: number[]) {
-        await this.save_configs_to_local()
-        if (this.backend)
-            await model.ddb.call<DdbVoid>('delete_dashboard_configs', [new DdbVectorLong(dashboard_config_ids)], { urgent: true })
-            
+        // await this.save_configs_to_local()
+        // if (this.backend)
+        //     await model.ddb.call<DdbVoid>('delete_dashboard_configs', [new DdbVectorLong(dashboard_config_ids)], { urgent: true })
+        const delete_ids = new Set(dashboard_config_ids)
+        const filtered_configs = this.configs.filter(({ id }) => !delete_ids.has(id))
+        this.set({ configs: filtered_configs, config: filtered_configs[0] })   
+        await model.ddb.call<DdbVoid>('delete_dashboard_configs', [new DdbVectorLong(dashboard_config_ids)], { urgent: true })
     }
     
     
     async update_dashboard_config (config: DashBoardConfig) {
-        await this.save_configs_to_local()
-        if (this.backend) {
-            const params = new DdbDict(
-                ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
-            await model.ddb.call<DdbVoid>('update_dashboard_config', [params], { urgent: true })
-        }
-      
+        // await this.save_configs_to_local()
+        // if (this.backend) {
+        //     const params = new DdbDict(
+        //         ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
+        //     await model.ddb.call<DdbVoid>('update_dashboard_config', [params], { urgent: true })
+        // }
+        const index = this.configs.findIndex(({ id }) => id === config.id)
+        this.set({ configs: this.configs.toSpliced(index, 1, config), config })
+        console.log('data', config.data)
+        const params = new DdbDict(
+            ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
+        await model.ddb.call<DdbVoid>('update_dashboard_config', [params], { urgent: true })
     }
     
     
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number) {
-        return this.backend ?  model.ddb.call('get_dashboard_config', [new DdbLong(BigInt(id))], { urgent: true }) : null
+        // return this.backend ?  model.ddb.call('get_dashboard_config', [new DdbLong(BigInt(id))], { urgent: true }) : null
+        return model.ddb.call('get_dashboard_config', [new DdbLong(BigInt(id))], { urgent: true })
     }
     
     
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
-        if (new URLSearchParams(location.search).get('local') === '1' || !this.backend) 
-            await this.get_configs_from_local()
-        else {
-            const data = await (await model.ddb.call<DdbVoid>('get_dashboard_configs', [ ], { urgent: true })).to_rows()
-            this.set({ configs: data.map(cfg => ({ ...cfg, id: Number(cfg.id), data: JSON.parse(cfg.data) }) as DashBoardConfig) })
-            const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
-            if (dashboard) {
-                const config = this.configs.find(({ id }) =>  id === dashboard)
-                if (config)
-                    await this.update_config(config)
-                else
-                    this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
-            }  
+        // if (new URLSearchParams(location.search).get('local') === '1' || !this.backend) 
+        //     await this.get_configs_from_local()
+        // else {
+        //     const data = await (await model.ddb.call<DdbVoid>('get_dashboard_configs', [ ], { urgent: true })).to_rows()
+        //     this.set({ configs: data.map(cfg => ({ ...cfg, id: Number(cfg.id), data: JSON.parse(cfg.data) }) as DashBoardConfig) })
+        //     const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
+        //     if (dashboard) {
+        //         const config = this.configs.find(({ id }) =>  id === dashboard)
+        //         if (config)
+        //             await this.update_config(config)
+        //         else
+        //             this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
+        //     }  
+        // }
+        const data = (await model.ddb.call<DdbVoid>('get_dashboard_configs', [ ], { urgent: true })).to_rows()
+        const configs =  data.map(cfg => ({ ...cfg, id: Number(cfg.id), data: JSON.parse(cfg.data) }) as DashBoardConfig) 
+        this.set({ configs })
+        const dashboard_id = Number(new URLSearchParams(location.search).get('dashboard'))
+        if (dashboard_id) {
+            const config = configs.find(({ id }) =>  id === dashboard_id)
+            console.log('config:', JSON.stringify(config))
+            if (config)
+                await this.render_with_config(config)
+                // this.set({
+                //             config: config_,
+                            
+                //             configs,
+                            
+                //             variables: await import_variables(config_.data.variables),
+                            
+                //             data_sources: await import_data_sources(config_.data.datasources),
+                            
+                //             widgets: config_.data.canvas.widgets.map(widget => ({
+                //                 ...widget,
+                //                 ref: createRef()
+                //             })) as any,
+                            
+                //             widget: null,
+                //         })
+            else
+                this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
         }
     }
     
@@ -455,10 +496,30 @@ export class DashBoardModel extends Model<DashBoardModel> {
         if (dashboard) {
             const config = this.configs.find(({ id }) =>  id === dashboard)
             if (config)
-                await this.update_config(config)
+                this.set({ config })
             else
                 this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
         } 
+    }
+    
+    
+    async render_with_config (config: DashBoardConfig) {
+        this.set({ loading: true })
+        this.set({ config,
+                            
+            variables: await import_variables(config.data.variables),
+         
+            data_sources: await import_data_sources(config.data.datasources),
+            
+            widgets: config.data.canvas.widgets.map(widget => ({
+                 ...widget,
+                 ref: createRef()
+                 })) as any,
+         
+            widget: null,
+            
+         })
+        this.set({ loading: false })
     }
     
     

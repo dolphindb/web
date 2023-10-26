@@ -3,7 +3,7 @@ import './Overview.sass'
 import { useEffect, useState } from 'react'
 
 import { Button, Input, Modal, Table, Upload, Popconfirm } from 'antd'
-import { PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
+import { DownloadOutlined, PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
 
 
 import { use_modal } from 'react-object-model/modal.js'
@@ -39,9 +39,10 @@ export function Overview () {
                 }
                 await dashboard.get_dashboard_configs()
             } catch (error) {
-                dashboard.set({ backend: false })
-                await dashboard.get_configs_from_local()
-            
+                // dashboard.set({ backend: false })
+                // await dashboard.get_configs_from_local()
+                model.show_error({ error })
+                throw error
             }
         })()
     }, [ ])
