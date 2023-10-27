@@ -106,30 +106,55 @@ export function LabelsFormFields (props: { col_names: string[] }) {
 function Series (props: { col_names: string[] }) { 
     const { col_names } = props
     
+    const series = Form.useWatch('series')
+    
     return <Form.List name='series' initialValue={[{ col_name: col_names[0], max: null }]}>
-        {(fields, { add, remove }) => <>
+        {(fields, { add, remove }) => 
             {
-                fields.map((field, index) => { 
-                    return <div key={field.name}>
-                            <div className='field-wrapper'>
-                                <Space>
-                                    <div className='axis-wrapper'>
-                                        <Form.Item name={[field.name, 'col_name']} label={t('数据列')} >
-                                            <Select options={col_names.map(item => ({ label: item, value: item }))} />
-                                        </Form.Item>
-                                        <Form.Item name={[field.name, 'name']} label={t('最大值')}>
-                                            <InputNumber />
-                                        </Form.Item>
-                                    </div>
-                                    {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) } } />}
-                                </Space>
-                            </div>
-                            {index < fields.length - 1 && <Divider className='divider' />}
+                const items = fields.map((field, index) => { 
+                    const children = <div className='field-wrapper' key={field.name}>
+                            <Space>
+                                <div className='axis-wrapper'>
+                                    <Form.Item name={[field.name, 'col_name']} label={t('数据列')} >
+                                        <Select options={col_names.map(item => ({ label: item, value: item }))} />
+                                    </Form.Item>
+                                    <Form.Item name={[field.name, 'name']} label={t('最大值')}>
+                                        <InputNumber />
+                                    </Form.Item>
+                                </div>
+                            </Space>
                         </div>
+                    return {
+                        children,
+                        key: field.name,
+                        label: <div className='yaxis-collapse-label'>
+                            {/* {`数据列 ${field.name + 1}`} */}
+                            {series?.[field.name]?.name || `数据列 ${field.name + 1}` }
+                            {
+                                fields.length > 1 &&
+                                <DeleteOutlined
+                                    className='delete-icon'
+                                    onClick={() => { remove(field.name) }}
+                                />
+                            }
+                        </div>,
+                        forceRender: true,
+                    }
                 })
+                return <div className='yasix-collapse-wrapper'>
+                    <Collapse items={items} size='small'/>
+                    <Button
+                        className='add-yaxis-btn'
+                        type='dashed'
+                        block
+                        onClick={() => { add() }}
+                        icon={<PlusCircleOutlined />}
+                    >
+                        {t('增加数据列')}
+                    </Button>
+                </div>
             } 
-            <Button type='dashed' block onClick={() => { add({ col_name: col_names[0], max: null }) } } icon={<PlusCircleOutlined />}>增加列</Button>
-        </>}
+        }
     </Form.List>
 }
 

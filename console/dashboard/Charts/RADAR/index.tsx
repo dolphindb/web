@@ -11,8 +11,6 @@ import { parse_text } from '../../utils.js'
 
 export function Radar ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const { title, title_size = 18, with_tooltip, with_legend, series, labels } = widget.config as IChartConfig
-    console.log(data_source)
-    console.log(widget.config)
     const option = useMemo(
         () => {
             const legends = [ ]
@@ -21,7 +19,7 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
             data_source.forEach((data, index) => {
                 const label = data[labels[0].col_name]
                 const values = [ ]
-                legends.push(label) 
+                legends.push(label || '') 
                 series.forEach(serie => {
                     values.push(data[serie?.col_name])
                     if (index === 0)
@@ -30,7 +28,7 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
                 datas.push({ value: values, name: label })     
             })
             
-            const res = {
+            return {
                 legend: {
                     show: with_legend,
                     textStyle: {
@@ -62,8 +60,6 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
                     }
                 ]
             }
-            console.log(res)
-            return res
         },
         [title, with_tooltip, with_legend, series, title_size, labels, data_source]
     )

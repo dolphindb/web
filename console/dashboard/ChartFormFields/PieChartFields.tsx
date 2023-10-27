@@ -68,34 +68,57 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
 function Series (props: { col_names: string[] }) { 
     const { col_names } = props
     
+    const series = Form.useWatch('series')
+    
     return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: col_names[0] }]}>
-        {(fields, { add, remove }) => <>
-            {
-                fields.map((field, index) => { 
-                    return <div key={field.name}>
-                            <div className='field-wrapper'>
-                                <Space>
-                                    <div className='axis-wrapper'>
-                                        <Form.Item name={[field.name, 'col_name']} label={t('数据列')} >
-                                            <Select options={col_names.map(item => ({ label: item, value: item }))} />
-                                        </Form.Item>
-                                        <Form.Item name={[field.name, 'name']} label={t('名称')}>
-                                            <Select options={col_names.map(item => ({ label: item, value: item }))} />
-                                        </Form.Item>
-                                    </div>
-                                    {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) } } />}
-                                </Space>
-                            </div>
-                            {index < fields.length - 1 && <Divider className='divider' />}
+        {(fields, { add, remove }) =>
+            { const items = fields.map((field, index) => { 
+                const children = <div className='field-wrapper' key={field.name}>
+                    <Space>
+                        <div className='axis-wrapper'>
+                            <Form.Item name={[field.name, 'col_name']} label={t('数据列')} >
+                                <Select options={col_names.map(item => ({ label: item, value: item }))} />
+                            </Form.Item>
+                            <Form.Item name={[field.name, 'name']} label={t('名称')}>
+                                <Select options={col_names.map(item => ({ label: item, value: item }))} />
+                            </Form.Item>
                         </div>
-                })
-            } 
-            {
-                fields.length < 3
-                    ? <Button type='dashed' block onClick={() => { add({ col_name: col_names[0], name: col_names[0] }) } } icon={<PlusCircleOutlined />}>增加环</Button>
-                    : <></>
+                        {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) } } />}
+                    </Space>
+                </div>
+                
+                return {
+                    children,
+                    key: field.name,
+                    label: <div className='yaxis-collapse-label'>
+                        {/* {`数据环 ${field.name + 1}`} */}
+                        {series?.[field.name]?.name || `数据环 ${field.name + 1}` }
+                        {
+                            fields.length > 1 &&
+                            <DeleteOutlined
+                                className='delete-icon'
+                                onClick={() => { remove(field.name) }}
+                            />
+                        }
+                    </div>,
+                    forceRender: true,
+                }
+            })
+            return <div className='yasix-collapse-wrapper'>
+                    <Collapse items={items} size='small'/>
+                    {fields.length < 3
+                    ? <Button 
+                        type='dashed' 
+                        className='add-yaxis-btn'
+                        block onClick={() => { add({ col_name: col_names[0], name: col_names[0] }) } } 
+                        icon={<PlusCircleOutlined />}
+                    >
+                        增加环
+                    </Button>
+                    : <></>}
+                </div> 
             }
-        </>}
+        }
     </Form.List>
 }
 
