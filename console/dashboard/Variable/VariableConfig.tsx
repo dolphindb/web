@@ -97,8 +97,7 @@ export function VariableConfig () {
                         key='save' 
                         type='primary' 
                         onClick={async () => {
-                            if (no_save_flag.current)
-                                await handle_save()
+                            await handle_save()
                         } 
                     }>
                         保存

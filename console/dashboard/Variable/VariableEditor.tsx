@@ -6,7 +6,7 @@ import { type Variable, type VariablePropertyType } from './variable.js'
 import { OptionList } from './OptionList.js'
 import { safe_json_parse } from '../utils.js'
 
-type PropsType = { 
+interface PropsType { 
     current_variable: Variable
     change_no_save_flag: (value: boolean) => void
     change_current_variable_property: (key: string, value: VariablePropertyType, save_confirm?: boolean) => void
@@ -62,7 +62,7 @@ export function VariableEditor ({
                         value={current_variable.display_name}
                         onChange={event => {
                             if (event !== null)
-                                change_current_variable_property('display_name', event.target.value) 
+                                change_current_variable_property('display_name', event.target.value.trim()) 
                         }}
                     />
                 </div>

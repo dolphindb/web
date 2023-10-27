@@ -21,13 +21,15 @@ import { type editor } from 'monaco-editor'
 import { useMonacoInsert } from '../hooks/useMonacoInsert.js'
 
 
-type PropsType = { 
+interface PropsType  { 
+    loading: boolean
     current_data_source: DataSource
     change_no_save_flag: (value: boolean) => void
     change_current_data_source_property: (key: string, value: DataSourcePropertyType, save_confirm?: boolean) => void
 }
   
 export function StreamEditor ({ 
+    loading,
     current_data_source,
     change_no_save_flag,
     change_current_data_source_property
@@ -152,7 +154,7 @@ export function StreamEditor ({
                             className='streameditor-main-left-menu'
                             treeData={stream_tables}
                             onSelect={async key => { 
-                                if (key.length) {
+                                if (!loading && key.length) {
                                     change_current_data_source_property('stream_table', String(key[0]))
                                     set_current_stream(String(key[0]))
                                 }
@@ -223,6 +225,7 @@ export function StreamEditor ({
                                     </div>
                                     <div className='streameditor-main-right-filter-main'>
                                         <Editor
+                                            readonly={loading}
                                             enter_completion
                                             on_mount={(editor, monaco) => {
                                                 editor?.setValue(get_data_source(current_data_source.id).filter_column || '')
@@ -241,6 +244,7 @@ export function StreamEditor ({
                                     </div>
                                     <div className='streameditor-main-right-filter-main'>
                                         <Editor
+                                            readonly={loading}
                                             enter_completion
                                             on_mount={(editor, monaco) => {
                                                 editor?.setValue(get_data_source(current_data_source.id).filter_expression || '')
@@ -264,6 +268,7 @@ export function StreamEditor ({
                     <div>
                         节点：
                         <Select
+                            disabled={loading}
                             defaultValue={default_value_in_select(current_data_source, 'node', node_list) }
                             className='streamconfig-left-node-select'
                             size='small'
@@ -275,6 +280,7 @@ export function StreamEditor ({
                         IP：
                         {ip_select
                             ? <Select
+                                disabled={loading}
                                 value={current_data_source.ip}
                                 className='streamconfig-left-ip-select'
                                 size='small'
@@ -293,6 +299,7 @@ export function StreamEditor ({
                             />
                             : <div  className='streamconfig-left-ip-manualinput'>
                                 <Input 
+                                    disabled={loading}
                                     size='small' 
                                     className='streamconfig-left-ip-manualinput-input'
                                     value={current_data_source.ip}
@@ -317,6 +324,7 @@ export function StreamEditor ({
                         ? <div>
                             过滤：
                             <Switch 
+                                disabled={loading}
                                 size='small' 
                                 checked={current_data_source.filter }
                                 onChange={(checked: boolean) => {
@@ -334,6 +342,7 @@ export function StreamEditor ({
                     <div>
                         最大行数：
                         <InputNumber 
+                            disabled={loading}
                             size='small' 
                             min={1}
                             className='sqlconfig-right-maxline-input' 

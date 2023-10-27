@@ -6,7 +6,7 @@ import { dashboard } from '../model.js'
 import { create_variable, delete_variable, rename_variable, type Variable, type VariablePropertyType, variables } from './variable.js'
 
 
-type PropsType = {
+interface PropsType {
     current_variable: Variable
     no_save_flag: MutableRefObject<boolean>
     save_confirm: () => {
@@ -20,7 +20,7 @@ type PropsType = {
     change_current_variable_property: (key: string, value: VariablePropertyType, save_confirm?: boolean) => void
 }
 
-type MenuItemType = {
+interface MenuItemType {
     key: string
     icon: ReactNode
     title: ReactNode

@@ -44,7 +44,7 @@ export function DataSourceConfig (props: IProps, ref) {
     
     const [show_preview, set_show_preview] = useState(false) 
     const [current_data_source, set_current_data_source] = useState(null)
-    const [saving, set_saving] = useState(false)
+    const [loading, set_loading] = useState('')
     
     const no_save_flag = useRef(false)
     
@@ -77,7 +77,7 @@ export function DataSourceConfig (props: IProps, ref) {
     }, [current_data_source])
     
     const handle_close = useCallback(async () => {
-        if (saving)
+        if (loading)
             return
         if (no_save_flag.current && await modal.confirm(save_confirm_config) ) {
             await handle_save()
@@ -85,7 +85,7 @@ export function DataSourceConfig (props: IProps, ref) {
         }    
         close()
         set_show_preview(false)
-    }, [no_save_flag.current, handle_save, saving])
+    }, [no_save_flag.current, handle_save, loading])
     
     return <>
         <Button
@@ -113,19 +113,29 @@ export function DataSourceConfig (props: IProps, ref) {
                     current_data_source?.mode === 'sql'
                     ? <Button 
                         key='preview' 
+                        loading={loading === 'preview'}
                         onClick={
                             async () => {
-                                const { type, result } = await dashboard.execute(parse_code(dashboard.sql_editor.getValue()), true, true)
-                                change_current_data_source_property('error_message', type === 'success' ? '' : result as string, false)
-                                set_show_preview(true)
+                                if (loading)
+                                    return
+                                try {
+                                    set_loading('preview')
+                                    const { type, result } = await dashboard.execute(parse_code(dashboard.sql_editor.getValue()), true, true)
+                                    change_current_data_source_property('error_message', type === 'success' ? '' : result as string, false)
+                                    set_show_preview(true)
+                                } finally {
+                                    set_loading('')
+                                }
                             }
                         }>
                         预览
                     </Button>
                     : <div key='preview' />,
-                    <Button key='save' type='primary' loading={saving} onClick={async () => {
+                    <Button key='save' type='primary' loading={loading === 'save'} onClick={async () => {
                         try {
-                            set_saving(true)
+                            if (loading)
+                                return
+                            set_loading('save')
                             await handle_save()
                             if (widget) {
                                 if (!widget.source_id || widget.source_id !== current_data_source.id) {
@@ -136,7 +146,7 @@ export function DataSourceConfig (props: IProps, ref) {
                                 set_show_preview(false)
                             } 
                         } finally {
-                            set_saving(false)
+                            set_loading('')
                         }
                     }}>
                         {widget ? '应用' : '保存'}
@@ -151,7 +161,7 @@ export function DataSourceConfig (props: IProps, ref) {
             {contextHolder}
             <div className='data-source-config-main'>
                 <DataSourceList
-                    saving={saving}
+                    loading={loading !== ''}
                     current_data_source={current_data_source}
                     no_save_flag={no_save_flag}
                     save_confirm={() => modal.confirm(save_confirm_config) }
@@ -169,16 +179,19 @@ export function DataSourceConfig (props: IProps, ref) {
                                     {
                                         label: 'DolphinDB 脚本 / SQL',
                                         key: 'sql',
+                                        disabled: loading !== ''
                                     },
                                     {
                                         label: '流数据',
-                                        key: 'stream'
+                                        key: 'stream',
+                                        disabled: loading !== ''
                                     }
                                 ]} 
                             />
                         </div>
                         {current_data_source.mode === 'sql'
                             ? <SqlEditor 
+                                loading={loading !== ''}
                                 show_preview={show_preview} 
                                 current_data_source={current_data_source}
                                 close_preview={() =>  { set_show_preview(false) } } 
@@ -186,6 +199,7 @@ export function DataSourceConfig (props: IProps, ref) {
                                 change_current_data_source_property={change_current_data_source_property}
                             />
                             : <StreamEditor 
+                                loading={loading !== ''}
                                 current_data_source={current_data_source} 
                                 change_no_save_flag={(value: boolean) => no_save_flag.current = value}
                                 change_current_data_source_property={change_current_data_source_property}
