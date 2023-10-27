@@ -44,6 +44,9 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                     return {
                         type: 'pie',
                         radius: radius[series.length][index],
+                        label: {
+                            color: '#ffffff'
+                        },
                         data: data_source.map(data => {
                             return {
                                 value: data[serie?.col_name],
