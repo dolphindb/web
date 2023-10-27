@@ -753,19 +753,20 @@ export function StreamingTable ({
                 labelCol={{ span: label_span }}
                 wrapperCol={{ span: wrapper_span }}
                 initialValues={{ table: table }}
+                autoComplete='off'
                 onFinish={async ({ table, column, expression }) => {
                     set_table(table)
                     
                     try {
+                        rddbapi.current?.disconnect()
+                        
                         let ddbapi = rddbapi.current = new DDB(url)
                         
                         rsddb.current?.disconnect()
                         
-                        let sddb: DDB
-                        
                         ;(async () => {
                             try {
-                                sddb = rsddb.current = new DDB(url, {
+                                let sddb = rsddb.current = new DDB(url, {
                                     autologin: Boolean(username),
                                     username,
                                     password,
@@ -797,6 +798,13 @@ export function StreamingTable ({
                                         }
                                     }
                                 })
+                                
+                                rmessage.current = null
+                                
+                                // 开始订阅
+                                await sddb.connect()
+                                
+                                rerender({ })
                             } catch (error) {
                                 on_error?.(error)
                                 throw error
@@ -804,6 +812,7 @@ export function StreamingTable ({
                         })()
                         
                         
+                        // 对于 prices 表开始推数据
                         if (table === 'prices')
                             (async () => {
                                 try {
@@ -827,11 +836,6 @@ export function StreamingTable ({
                                         '    print(error)\n' +
                                         '}\n'
                                     )
-                                    
-                                    // 开始订阅
-                                    await sddb.connect()
-                                    rmessage.current = null
-                                    rerender({ })
                                 } catch (error) {
                                     on_error?.(error)
                                     throw error
@@ -842,7 +846,6 @@ export function StreamingTable ({
                         throw error
                     }
                 }}
-                autoComplete='off'
             >
                 <Form.Item<Fields> label='流表名称' name='table'>
                     <Input placeholder='prices' />
