@@ -11,7 +11,8 @@ import { type DataSource, type DataSourcePropertyType, get_data_source } from '.
 import { InsertVariableBtn } from './InsertVariableBtn.js'
 import { useMonacoInsert } from '../hooks/useMonacoInsert.js'
 
-type PropsType = { 
+interface PropsType { 
+    loading: boolean
     show_preview: boolean
     current_data_source: DataSource
     close_preview: () => void 
@@ -19,6 +20,7 @@ type PropsType = {
     change_current_data_source_property: (key: string, value: DataSourcePropertyType, save_confirm?: boolean) => void
 }
 export function SqlEditor ({ 
+        loading,
         current_data_source, 
         show_preview,
         change_current_data_source_property,
@@ -42,6 +44,7 @@ export function SqlEditor ({
         <div className='sqleditor'>
             <div className='sqleditor-main' style={{  height: (show_preview ? '40%' : '100%') }}>
                 <Editor 
+                    readonly={loading}
                     enter_completion
                     on_mount={(editor, monaco) => {
                         editor?.setValue(get_data_source(current_data_source.id).code)
@@ -77,6 +80,7 @@ export function SqlEditor ({
                 <div className='sqlconfig-left-refresh'>
                     自动刷新：
                     <Switch 
+                        disabled={loading}
                         size='small' 
                         checked={current_data_source.auto_refresh }
                         onChange={(checked: boolean) => {
@@ -88,6 +92,7 @@ export function SqlEditor ({
                     ? <div>
                         间隔时间：
                         <InputNumber 
+                            disabled={loading}
                             size='small' 
                             min={0.001}
                             className='sqlconfig-left-intervals-input'
@@ -109,6 +114,7 @@ export function SqlEditor ({
                 <div>
                     最大行数：
                     <InputNumber 
+                        disabled={loading}
                         size='small' 
                         min={1}
                         className='sqlconfig-right-maxline-input' 
