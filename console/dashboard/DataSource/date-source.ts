@@ -190,6 +190,8 @@ export function create_data_source  (): { id: string, name: string } {
 export function rename_data_source (source_id: string, new_name: string) {
     const data_source = get_data_source(source_id)
     
+    new_name = new_name.trim()
+    
     if (new_name === data_source.name)
         return
     else if (data_sources.findIndex(data_source => data_source.name === new_name) !== -1) 
