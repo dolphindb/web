@@ -247,7 +247,7 @@ export let webpack = {
                     
                     ... fp_api ? {
                         alias: {
-                            'dolphindb/browser.js': 'D:/2/ddb/api/js/browser.ts'
+                            'dolphindb/browser.js': fp_api
                         },
                     } : { },
                 },
