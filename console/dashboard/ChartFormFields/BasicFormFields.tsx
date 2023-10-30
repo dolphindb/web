@@ -98,6 +98,7 @@ export function BasicFormFields ({ type }: { type?: 'chart' | 'table' | 'descrip
             key: 'variable',
             label: t('变量设置'),
             children: VariableSetting, 
+            forceRender: true
         }
     ]} />
 }
