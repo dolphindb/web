@@ -22,6 +22,7 @@ export interface IAxisItem {
     name_path?: NamePath
     col_names: string[]
     list_name?: string
+    col?: boolean
     initial_values?: {
         type?: AxisType
         name?: string

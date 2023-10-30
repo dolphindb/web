@@ -248,9 +248,6 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     function convert_axis (axis: AxisConfig, index?: number) {
     // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
         let data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
-        
-        if (axis.time_format)  
-            data = data.map(item => format_time(item, axis.time_format))
             
         return {
             show: true,
@@ -263,6 +260,15 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                     type: 'dashed',
                     color: '#6E6F7A'
                 }
+            },
+            axisLabel: {
+                formatter: value => { 
+                    if (axis.time_format)
+                        return format_time(value, axis.time_format)
+                    else
+                        return value
+                }
+                
             },
             logBase: axis.log_base || 10,
             position: axis.position,
@@ -293,10 +299,8 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         
         // x 轴和 y 轴均为数据轴或者对数轴的情况下或者散点图，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
         if (([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) || series.type === WidgetChartType.SCATTER)  
-            data  = data_source.map(item => [xAxis.time_format ? dayjs(item[xAxis.col_name]).format(xAxis.time_format) : item[xAxis.col_name], item[series.col_name]])
+            data  = data_source.map(item => [item[xAxis.col_name], item[series.col_name]])
         
-            
-       
         return {
             type: series.type?.toLowerCase(),
             name: series.name,
@@ -307,6 +311,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 show: series.end_label,
                 formatter: series.name
             },
+            
             // 防止删除yAxis导致渲染失败
             yAxisIndex: yAxis[series.yAxisIndex] ?  series.yAxisIndex : 0,
             data,
@@ -361,7 +366,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             }
         },
         xAxis: convert_axis(xAxis),
-        yAxis: yAxis.filter(item => !!item).map(convert_axis),
+        yAxis: Array.isArray(yAxis) ? yAxis.filter(item => !!item).map(convert_axis) : convert_axis(yAxis),
         series: series.filter(item => !!item).map(convert_series),
         dataZoom: convert_data_zoom(x_datazoom, y_datazoom)
     }
