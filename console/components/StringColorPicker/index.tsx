@@ -21,6 +21,7 @@ export function StringColorPicker (props: IProps) {
         allowClear
         {...others}
         onChange={on_color_change}
+        onClear={() => { onChange(null) }}
     />
 }
 

@@ -132,6 +132,8 @@ export interface IDescriptionsConfig {
         name: string
         color: string
         threshold?: number
+        high_to_threshold_color?: string
+        low_to_threshold_color?: string
         decimal_places?: number
         is_thousandth_place?: boolean
         time_format?: string

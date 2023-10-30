@@ -27,7 +27,9 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     
-    return <div className='graph-item-wrapper'>
+    return <div className={cn('graph-item-wrapper', {
+        'editor-component-wrapper': widget.type === WidgetChartType.EDITOR
+    }) }>
         {(widget.type !==  WidgetChartType.VARIABLE) && <VariableForm ids={variable_ids} cols={variable_cols} with_search_btn={with_search_btn} /> }
         <div className={cn('graph-component', {
             'graph-item-wrapper-abandon-scroll': widget.config.abandon_scroll
