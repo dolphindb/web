@@ -342,6 +342,10 @@ export class DashBoardModel extends Model<DashBoardModel> {
                         data:  ddbobj
                     },
                 }) 
+            else if (preview)
+                this.set({
+                    result: null,
+                })
             return ddbobj   
         } catch (error) {
             if (preview)
