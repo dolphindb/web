@@ -145,6 +145,8 @@ export function Header () {
             clear_data_sources()
             
             await dashboard.delete_dashboard_configs([config.id])
+            const filtered_configs = configs.filter(({ id }) => id !== config.id)
+            model.set_query('dashboard', String(filtered_configs[0].id))
             
             // await dashboard.update_config(config, true)
             
