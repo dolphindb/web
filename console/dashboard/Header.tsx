@@ -94,7 +94,8 @@ export function Header () {
             
             // await dashboard.update_config(new_dashboard_config)
             await dashboard.add_dashboard_config(new_dashboard_config)
-            dashboard.render_with_config(new_dashboard_config)
+            await dashboard.render_with_config(new_dashboard_config)
+            model.set_query('dashboard', String(new_dashboard_id))
             dashboard.message.success(t('添加成功'))
         } catch (error) {
             model.show_error({ error })
@@ -286,6 +287,7 @@ export function Header () {
                                     await dashboard.update_dashboard_config(import_config)
                                 else
                                     await dashboard.add_dashboard_config(import_config)
+                                model.set_query('dashboard', String(import_config.id))
                                 return false
                             } catch (error) {
                                 dashboard.show_error({ error })
