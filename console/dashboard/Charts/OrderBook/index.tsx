@@ -39,7 +39,7 @@ export function OrderBook (props: IProps) {
         console.log(data_source)
         
         // time_rate 作用解释， 由于 echarts heatmap 的每个小块高度默认展示一个 y 轴单位长度（未找到可以改动此属性的 option，找到了应该就可以去掉该属性）
-        // 但订单图数据常为浮点数，且数据浮动不大，因此会造成多个大面积重叠，导致图的展示效果不好
+        // 但订单图数据常为浮点数，且数据浮动不大，因此会造成多个小块大面积重叠，导致图的展示效果不好
         // 所以，在数据上乘以一个 time_rate 作为图表的展示数值，在 y 轴和 tooltip 再 ÷ 回来显示数值，可较好的实现图的展示效果
         // time_rate 越大，每个块的高度越高
         if (!time_rate) 
@@ -63,13 +63,16 @@ export function OrderBook (props: IProps) {
             
             return entry
         }
+        
         for (let item of data_source) {
+            // 由于 arrayvector 改动后被转成了字符串，所以需要先进行 parse 处理
             let bid = formatData(JSON.parse(item.bidmdEntryPrice), JSON.parse(item.bidmdEntrySize), convertDateFormat(item.sendingTime), true)
             orderbook_data.push(...bid)
             
             let omd = formatData(JSON.parse(item.offermdEntryPrice), JSON.parse(item.offermdEntrySize), convertDateFormat(item.sendingTime), false)
             orderbook_data.push(...omd)
             
+            // 柱状图数据及曲线数据
             if (omd.length && bid.length) {
               bar_data.push([convertDateFormat(item.sendingTime), 100])
               line_data.push([convertDateFormat(item.sendingTime), JSON.parse(item.bidmdEntryPrice)[0] * time_rate])
@@ -77,157 +80,162 @@ export function OrderBook (props: IProps) {
         }
         
       
-        console.log(bar_data)
-        console.log(orderbook_data)
-        console.log(line_data)
+        // console.log(bar_data)
+        // console.log(orderbook_data)
+        // console.log(line_data)
         
         
-      return {
-        title: {
-          text: parse_text(title ?? ''),
-          textStyle: {
-              color: '#e6e6e6',
-              fontSize: title_size,
-          }
-        },
-        legend: {
-          show: with_legend
-        },
-        tooltip: {
-          show: with_tooltip,
-          position: 'top',
-          formatter: params => {
-            return `${params.data[0]}
-            ${(params.data[1] / time_rate).toFixed(4)}
-            ${params.data[2]}
-            ${params.data[3]}`
-          }
-        },
-        grid: [{
-          height: '50%',
-          top: '10%'
-        },
-        {
-          height: '30%',
-          bottom: '10%'
-        }],
-        
-        xAxis: [{
-          type: 'category',
-          // 坐标轴
-          axisLine: {
-            show: false
-          },
-          axisTick: {
-            show: false
-          },
-          axisLabel: {
-            show: false,
-          },
-        },
-        {
-          gridIndex: 1,
-          type: 'category',
-          // 坐标轴
-          axisLine: {
-            show: true
-        }
-        }],
-        yAxis: [
-          {
-            position: 'left',
-            type: 'value',
-            scale: true,
-            // 坐标轴在 grid 区域中的分隔线。
-            splitLine: {
-              show: with_split_line
-            },
-            axisLabel: {
-                formatter: params => {
-                    return (params / time_rate).toFixed(2)
+        return {
+            title: {
+                text: parse_text(title ?? ''),
+                textStyle: {
+                    color: '#e6e6e6',
+                    fontSize: title_size,
                 }
             },
-            axisLine: {
-              show: true
-            }
-          },
-          {
-            gridIndex: 1,
-            position: 'left',
-            type: 'value',
-            scale: true,
-            // 坐标轴在 grid 区域中的分隔线。
-            splitLine: {
-              show: with_split_line
+            legend: {
+                show: with_legend
             },
-            axisLine: {
-              show: true
-            }
-          },
-        ],
-        visualMap: {
-          min: -10,
-          max: 10,
-          calculable: true,
-          orient: 'horizontal',
-          left: 'center',
-          bottom: '0%',
-          inRange: {
-            color: ['rgba(57,117,198,0.6)', 'rgba(255,255,255,0.6)', 'rgba(255,0,0,0.6)']
-          }
-        },
-        series: [
-          {   
-            name: 'Order Book',
-            type: 'heatmap',
-            data: orderbook_data,
-            encode: {
-              x: 0,
-              y: 1,
+            tooltip: {
+                show: with_tooltip,
+                position: 'top',
+                formatter: params => {
+                    return `${params.data[0]}
+                    ${(params.data[1] / time_rate).toFixed(4)}
+                    ${params.data[2]}
+                    ${params.data[3]}`
+                }
             },
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowColor: 'rgba(0, 0, 0, 0.5)'
-              }
+            grid: [
+                // 热力图    
+                {
+                    height: '50%',
+                    top: '10%'
+                },
+                // 柱状图
+                {
+                    height: '30%',
+                    bottom: '10%'
+                }
+            ],
+            
+            xAxis: [{
+                type: 'category',
+                // 坐标轴
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLabel: {
+                    show: false,
+                },
             },
-            xAxisIndex: 0,
-            yAxisIndex: 0
-          },
-          {   
-            name: 'Line',
-            type: 'line',
-            data: line_data,
-            encode: {
-              x: 0,
-              y: 1,
+            {
+                gridIndex: 1,
+                type: 'category',
+                // 坐标轴
+                axisLine: {
+                    show: true
+                }
+            }],
+            yAxis: [
+                {
+                    position: 'left',
+                    type: 'value',
+                    scale: true,
+                    // 坐标轴在 grid 区域中的分隔线。
+                    splitLine: {
+                    show: with_split_line
+                    },
+                    axisLabel: {
+                        formatter: params => {
+                            return (params / time_rate).toFixed(2)
+                        }
+                    },
+                    axisLine: {
+                    show: true
+                    }
+                },
+                {
+                    gridIndex: 1,
+                    position: 'left',
+                    type: 'value',
+                    scale: true,
+                    // 坐标轴在 grid 区域中的分隔线。
+                    splitLine: {
+                    show: with_split_line
+                    },
+                    axisLine: {
+                    show: true
+                    }
+                },
+            ],
+            visualMap: {
+                min: -10,
+                max: 10,
+                calculable: true,
+                orient: 'horizontal',
+                left: 'center',
+                bottom: '0%',
+                inRange: {
+                    color: ['rgba(57,117,198,0.6)', 'rgba(255,255,255,0.6)', 'rgba(255,0,0,0.6)']
+                }
             },
-            smooth: true,
-            xAxisIndex: 0,
-            yAxisIndex: 0
-          },
-          {   
-            name: 'Bar',
-            type: 'bar',
-            data: bar_data,
-            backgroundStyle: {
-              color: 'rgba(180, 180, 180, 0.2)'
-            },
-            encode: {
-              x: 0,
-              y: 1,
-            },
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowColor: 'rgba(0, 0, 0, 0.5)'
-              }
-            },
-            xAxisIndex: 1,
-            yAxisIndex: 1
-          }
-        ]
-      }
+            series: [
+                {   
+                    name: 'Order Book',
+                    type: 'heatmap',
+                    data: orderbook_data,
+                    encode: {
+                    x: 0,
+                    y: 1,
+                    },
+                    emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                    },
+                    xAxisIndex: 0,
+                    yAxisIndex: 0
+                },
+                {   
+                    name: 'Line',
+                    type: 'line',
+                    data: line_data,
+                    encode: {
+                    x: 0,
+                    y: 1,
+                    },
+                    smooth: true,
+                    xAxisIndex: 0,
+                    yAxisIndex: 0
+                },
+                {   
+                    name: 'Bar',
+                    type: 'bar',
+                    data: bar_data,
+                    backgroundStyle: {
+                    color: 'rgba(180, 180, 180, 0.2)'
+                    },
+                    encode: {
+                    x: 0,
+                    y: 1,
+                    },
+                    emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                    },
+                    // 选择 gird 中下方的图
+                    xAxisIndex: 1,
+                    yAxisIndex: 1
+                }
+            ]
+        }
     }, [title, with_tooltip, time_rate, data_source, title_size, with_legend, with_split_line, market_data_files_num])   
     
     
@@ -253,46 +261,46 @@ export function OrderConfigForm (props: { col_names: string[] } ) {
 
 
 function convertDateFormat (dateString: string) {
-  // const parts = dateString.split(/[\s.:-]/)
-  // const year = parts[0]
-  // const month = parts[1].padStart(2, '0')
-  // const day = parts[2].padStart(2, '0')
-  const time = dateString.split(' ')[1]
-  
-  return `${time}`
+    // const parts = dateString.split(/[\s.:-]/)
+    // const year = parts[0]
+    // const month = parts[1].padStart(2, '0')
+    // const day = parts[2].padStart(2, '0')
+    const time = dateString.split(' ')[1]
+    
+    return `${time}`
 }
 
 interface OrderBookData {
-  bondCodeVal: string
-  createTime: string
-  marketDepth: string
-  mdBookType: string
-  messageId: string
-  messageSource: string
-  msgSeqNum: string
-  msgType: string
-  bidmdEntryPrice: any
-  offermdEntryPrice: any
-  bidmdEntrySize: any
-  offermdEntrySize: any
-  bidsettlType: any
-  offersettlType: any
-  bidyield: any
-  offeryield: any
-  bid1yieldType: string
-  offer1yieldType: string
-  bid2yieldType: string
-  offer2yieldType: string
-  bid3yieldType: string
-  offer3yieldType: string
-  bid4yieldType: string
-  offer4yieldType: string
-  bid5yieldType: string
-  offer5yieldType: string
-  bid6yieldType: string
-  offer6yieldType: string
-  securityID: string
-  senderCompID: string
-  senderSubID: string
-  sendingTime: string
+    bondCodeVal: string
+    createTime: string
+    marketDepth: string
+    mdBookType: string
+    messageId: string
+    messageSource: string
+    msgSeqNum: string
+    msgType: string
+    bidmdEntryPrice: any
+    offermdEntryPrice: any
+    bidmdEntrySize: any
+    offermdEntrySize: any
+    bidsettlType: any
+    offersettlType: any
+    bidyield: any
+    offeryield: any
+    bid1yieldType: string
+    offer1yieldType: string
+    bid2yieldType: string
+    offer2yieldType: string
+    bid3yieldType: string
+    offer3yieldType: string
+    bid4yieldType: string
+    offer4yieldType: string
+    bid5yieldType: string
+    offer5yieldType: string
+    bid6yieldType: string
+    offer6yieldType: string
+    securityID: string
+    senderCompID: string
+    senderSubID: string
+    sendingTime: string
 }
