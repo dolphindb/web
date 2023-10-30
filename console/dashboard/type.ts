@@ -29,6 +29,13 @@ export interface ISeriesConfig {
     stack?: string
     end_label?: boolean
     
+    // 阈值与配色
+    threshold?: {
+        value?: number
+        low_color?: string
+        high_color?: string
+    }
+    
     in_range?: {
         color: {
             low: string

@@ -19,7 +19,7 @@ interface IProps {
 export function Chart (props: IProps) {
     const { widget, data_source } = props 
     
-    return  <ReactEChartsCore
+    return <ReactEChartsCore
                 echarts={echarts}
                 notMerge
                 option={convert_chart_config(widget, data_source)}

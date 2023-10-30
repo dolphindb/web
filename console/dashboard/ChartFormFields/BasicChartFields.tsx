@@ -143,10 +143,39 @@ function Series (props: { col_names: string[], single?: boolean }) {
                                     折线图可以选择线类型
                                  */ 
                                 }
-                                if (seriesType === WidgetChartType.BAR)
-                                    return <Form.Item tooltip={t('同个类目轴上为数据列配置相同的堆叠值可以堆叠放置')} label={t('堆叠值')} name={[field.name, 'stack']}>
-                                        <Input />
+                                
+                                const ThresholdSelect = <>
+                                    <Form.Item name={[field.name, 'threshold', 'value']} label='阈值'>
+                                        <InputNumber />
                                     </Form.Item>
+                                    <FormDependencies dependencies={[['series', field.name, 'threshold', 'value']]}>
+                                        {({ series }) => { 
+                                            const { threshold } = series?.[field.name] || { }
+                                            if (isNaN(threshold?.value))
+                                                return null
+                                                
+                                            return <>
+                                                <Form.Item label='低于阈值配色' name={[field.name, 'threshold', 'low_color']}>
+                                                    <StringColorPicker />
+                                                </Form.Item>
+                                                <Form.Item label='高于阈值配色' name={[field.name, 'threshold', 'high_color']} >
+                                                    <StringColorPicker />
+                                                </Form.Item>
+                                            </>
+                                        } }
+                                        
+                                    </FormDependencies>
+                                
+                                </>
+                                
+                                if (seriesType === WidgetChartType.BAR)
+                                    return <>
+                                        <Form.Item tooltip={t('同个类目轴上为数据列配置相同的堆叠值可以堆叠放置')} label={t('堆叠值')} name={[field.name, 'stack']}>
+                                            <Input />
+                                        </Form.Item>
+                                        {ThresholdSelect}
+                                    
+                                    </>
                                 else if (seriesType === WidgetChartType.LINE)
                                     return <>
                                         <Form.Item label={t('线类型')} name={[field.name, 'line_type']} initialValue={ILineType.SOLID}>
