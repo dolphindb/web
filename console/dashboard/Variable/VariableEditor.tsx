@@ -6,6 +6,8 @@ import { type Variable, type VariablePropertyType } from './variable.js'
 import { OptionList } from './OptionList.js'
 import { safe_json_parse } from '../utils.js'
 
+const { TextArea } = Input
+
 interface PropsType { 
     current_variable: Variable
     change_no_save_flag: (value: boolean) => void
@@ -33,9 +35,10 @@ export function VariableEditor ({
                     onChange={value => { change_current_variable_property('value', JSON.stringify(value)) }}
                     options={current_variable.options}
                 />,
-        text: <Input 
+        text: <TextArea 
                     size='small' 
-                    className='variable-editor-main-value-control'
+                    rows={18}
+                    className='variable-editor-main-value-control-text'
                     value={current_variable.value}
                     onChange={event => {
                         change_current_variable_property('value', event.target.value) 

@@ -293,7 +293,7 @@ export function Overview () {
                                 beforeUpload={async file => {
                                     try {
                                         const import_config = JSON.parse(await file.text()) as DashBoardConfig
-                                        if (configs.findIndex(c => c.id === import_config.id))
+                                        if (configs.findIndex(c => c.id === import_config.id) !== -1)
                                             await dashboard.update_dashboard_config(import_config)
                                         else
                                             await dashboard.add_dashboard_config(import_config)
