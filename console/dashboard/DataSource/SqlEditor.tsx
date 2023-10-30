@@ -27,13 +27,17 @@ export function SqlEditor ({
         change_no_save_flag,  
         close_preview,
     }: PropsType) 
-{ 
+{     
     const { result, sql_editor } = dashboard.use(['result', 'sql_editor'])
     
     const { on_monaco_insert } = useMonacoInsert(sql_editor)
     
     useEffect(() => {
-        if (dashboard.sql_editor)
+        dashboard.sql_editor?.updateOptions({ readOnly: loading })
+    })
+    
+    useEffect(() => {
+        if (dashboard.sql_editor) 
             dashboard.sql_editor?.setValue(current_data_source.code)
         
         if (current_data_source.mode === get_data_source(current_data_source.id).mode)

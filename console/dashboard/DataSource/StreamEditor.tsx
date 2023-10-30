@@ -71,8 +71,10 @@ export function StreamEditor ({
         return () => { stream_editor_ref?.current?.removeEventListener('click', on_click) }
     }, [filter_column_editor, filter_expression_editor])
     
-    
-    
+    useEffect(() => {
+        dashboard.filter_column_editor?.updateOptions({ readOnly: loading })
+        dashboard.filter_expression_editor?.updateOptions({ readOnly: loading })
+    })
     
     useEffect(() => {
         (async () => {

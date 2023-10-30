@@ -41,7 +41,10 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
                     // 与图形类型相关，一期先写死
                     trigger: 'item',
                     backgroundColor: '#1D1D1D',
-                    borderColor: '#333'
+                    borderColor: '#333',
+                    textStyle: {
+                        color: '#F5F5F5'
+                    },
                 },
                 title: {
                     text: parse_text(title ?? ''),
