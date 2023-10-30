@@ -273,7 +273,7 @@ export function Header () {
                         } catch (error) {
                             model.show_error({ error })
                         }
-                    }}><DownloadOutlined /></Button>
+                    }}><UploadOutlined /></Button>
                 </Tooltip>
             
                 <Tooltip title={t('导入')}>
@@ -293,7 +293,7 @@ export function Header () {
                         }}
                     >
                         <Button className='action'>
-                            <UploadOutlined />
+                            <DownloadOutlined />
                         </Button>
                     </Upload>
                 </Tooltip>
