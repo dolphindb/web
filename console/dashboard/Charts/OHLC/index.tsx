@@ -210,14 +210,14 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
             },
             grid: [
                 {   
-                    containLabel: true,
-                    left: 10,
+                    // containLabel: true,
+                    left: 70,
                     right: 50,
                     height: '50%'
                 },
                 {
                     // containLabel: true,
-                    left: 50,
+                    left: 70,
                     right: 50,
                     bottom: '22%',
                     height: '15%'
