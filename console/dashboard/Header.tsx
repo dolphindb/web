@@ -273,7 +273,7 @@ export function Header () {
                         } catch (error) {
                             model.show_error({ error })
                         }
-                    }}><DownloadOutlined /></Button>
+                    }}><UploadOutlined /></Button>
                 </Tooltip>
             
                 <Tooltip title={t('导入')}>
@@ -281,10 +281,11 @@ export function Header () {
                         showUploadList={false}
                         beforeUpload={async file => {
                             try {
-                                await dashboard.add_dashboard_config(
-                                    JSON.parse(await file.text()) as DashBoardConfig
-                                )
-                                
+                                const import_config = JSON.parse(await file.text()) as DashBoardConfig
+                                if (configs.findIndex(c => c.id === import_config.id) !== -1)
+                                    await dashboard.update_dashboard_config(import_config)
+                                else
+                                    await dashboard.add_dashboard_config(import_config)
                                 return false
                             } catch (error) {
                                 dashboard.show_error({ error })
@@ -293,7 +294,7 @@ export function Header () {
                         }}
                     >
                         <Button className='action'>
-                            <UploadOutlined />
+                            <DownloadOutlined />
                         </Button>
                     </Upload>
                 </Tooltip>

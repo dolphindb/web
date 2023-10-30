@@ -393,6 +393,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         const params = new DdbDict(
             ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) }))
         await model.ddb.call<DdbVoid>('dashboard_add_config', [params], { urgent: true })
+        await this.render_with_config(config)
     }
     
     
@@ -400,8 +401,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
         const delete_ids = new Set(dashboard_config_ids)
         const filtered_configs = this.configs.filter(({ id }) => !delete_ids.has(id))
         this.set({ configs: filtered_configs, config: filtered_configs[0] })
-        this.render_with_config(filtered_configs[0])   
         await model.ddb.call<DdbVoid>('dashboard_delete_configs', [new DdbVectorLong(dashboard_config_ids)], { urgent: true })
+        await this.render_with_config(filtered_configs[0])   
     }
     
     
