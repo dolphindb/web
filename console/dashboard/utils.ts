@@ -9,11 +9,12 @@ import { type DataSource } from './DataSource/date-source.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import dayjs from 'dayjs'
 import { find_variable_by_name, get_variable_value, subscribe_variable } from './Variable/variable.js'
+import { type } from 'os'
 
 
 export function format_time (time: string, format: string) { 
     try {
-        return dayjs(time).format(format)
+        return dayjs(time).format(format || 'YYYY-MM-DD HH:mm:ss')
     } catch (e) { 
         return time
     }
@@ -246,14 +247,15 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     
     
     function convert_axis (axis: AxisConfig, index?: number) {
-    // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
-        let data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
-            
-        return {
+        let data = undefined
+        // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
+        if (axis.type === AxisType.CATEGORY)
+            data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
+        
+        const axis_config =  {
             show: true,
             name: axis.name,
             type: axis.type,
-            data,
             splitLine: {
                 show: with_split_line,
                 lineStyle: {
@@ -262,12 +264,12 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 }
             },
             axisLabel: {
-                formatter: value => { 
+                formatter: axis.type === AxisType.CATEGORY && (value => { 
                     if (axis.time_format)
                         return format_time(value, axis.time_format)
                     else
                         return value
-                }
+                })
                 
             },
             logBase: axis.log_base || 10,
@@ -277,6 +279,11 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             id: index,
             scale: !axis.with_zero ?? false,
         }
+        
+        if (axis.type === AxisType.CATEGORY)
+            return { ...axis_config, data }
+        else
+            return axis_config
     }
     
     function convert_series (series: ISeriesConfig) { 
@@ -295,8 +302,8 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         
         // 时间轴情况下，series为二维数组，且每项的第一个值为 x轴对应的值，第二个值为 y轴对应的值，并且需要对时间进行格式化处理
         if (xAxis.type === AxisType.TIME)  
-            data = data_source.map(item => [dayjs(item?.[xAxis.col_name]).format('YYYY-MM-DD HH:mm:ss'), item?.[series.col_name]])
-        
+            data = data_source.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
+            
         // x 轴和 y 轴均为数据轴或者对数轴的情况下或者散点图，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
         if (([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) || series.type === WidgetChartType.SCATTER)  
             data  = data_source.map(item => [item[xAxis.col_name], item[series.col_name]])
