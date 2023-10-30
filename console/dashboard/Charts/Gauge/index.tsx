@@ -66,12 +66,10 @@ export function Gauge (props: IProps) {
                 })),
                 detail: {
                     valueAnimation: true,
-                    width: 60,
                     height: 14,
-                    fontSize: 16,
+                    fontSize: 18,
                     fontWeight: 500,
-                    color: '#fff',
-                    backgroundColor: 'inherit',
+                    color: 'inherit',
                     borderRadius: 4,
                 },
             }]
