@@ -9,7 +9,7 @@ type EditableTableProps = Parameters<typeof Table>[0]
 
 type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>
 
-type PropsType = {
+interface PropsType {
     current_variable: Variable
     change_current_variable_property: (key: string, value: VariablePropertyType, save_confirm?: boolean) => void
     change_no_save_flag: (value: boolean) => void

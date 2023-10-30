@@ -753,26 +753,53 @@ export function StreamingTable ({
                 labelCol={{ span: label_span }}
                 wrapperCol={{ span: wrapper_span }}
                 initialValues={{ table: table }}
+                autoComplete='off'
                 onFinish={async ({ table, column, expression }) => {
                     set_table(table)
                     
                     try {
-                        let ddbapi = rddbapi.current = new DDB(url)
+                        rddbapi.current?.disconnect()
                         
                         rsddb.current?.disconnect()
                         
-                        let sddb: DDB
+                        rmessage.current = null
+                        
                         
                         ;(async () => {
                             try {
-                                sddb = rsddb.current = new DDB(url, {
+                                let apiddb = rddbapi.current = new DDB(url)
+                                
+                                if (table === 'prices')
+                                    await apiddb.eval(
+                                        'try {\n' +
+                                        "    if (!defined('prices', SHARED)) {\n" +
+                                        '        share(\n' +
+                                        '            streamTable(\n' +
+                                        '                10000:0,\n' +
+                                        "                ['time', 'stock', 'price'],\n" +
+                                        '                [TIMESTAMP, SYMBOL, DOUBLE]\n' +
+                                        '            ),\n' +
+                                        "            'prices'\n" +
+                                        '        )\n' +
+                                        "        setStreamTableFilterColumn(objByName('prices'), 'stock')\n" +
+                                        "        print('prices 流表创建成功')\n" +
+                                        '    } else\n' +
+                                        "        print('prices 流表已存在')\n" +
+                                        '} catch (error) {\n' +
+                                        "    print('prices 流表创建失败')\n" +
+                                        '    print(error)\n' +
+                                        '}\n'
+                                    )
+                                
+                                
+                                let sddb = rsddb.current = new DDB(url, {
                                     autologin: Boolean(username),
                                     username,
                                     password,
                                     streaming: {
                                         table,
                                         filters: {
-                                            ... column ? { column: await ddbapi.eval(column) } : { },
+                                            ... column ? { column: await apiddb.eval(column) } : { },
                                             expression: expression
                                         },
                                         handler (message) {
@@ -797,52 +824,21 @@ export function StreamingTable ({
                                         }
                                     }
                                 })
+                                
+                                // 开始订阅
+                                await sddb.connect()
+                                
+                                rerender({ })
                             } catch (error) {
                                 on_error?.(error)
                                 throw error
                             }
                         })()
-                        
-                        
-                        if (table === 'prices')
-                            (async () => {
-                                try {
-                                    await ddbapi.eval(
-                                        'try {\n' +
-                                        "    if (!defined('prices', SHARED)) {\n" +
-                                        '        share(\n' +
-                                        '            streamTable(\n' +
-                                        '                10000:0,\n' +
-                                        "                ['time', 'stock', 'price'],\n" +
-                                        '                [TIMESTAMP, SYMBOL, DOUBLE]\n' +
-                                        '            ),\n' +
-                                        "            'prices'\n" +
-                                        '        )\n' +
-                                        "        setStreamTableFilterColumn(objByName('prices'), 'stock')\n" +
-                                        "        print('prices 流表创建成功')\n" +
-                                        '    } else\n' +
-                                        "        print('prices 流表已存在')\n" +
-                                        '} catch (error) {\n' +
-                                        "    print('prices 流表创建失败')\n" +
-                                        '    print(error)\n' +
-                                        '}\n'
-                                    )
-                                    
-                                    // 开始订阅
-                                    await sddb.connect()
-                                    rmessage.current = null
-                                    rerender({ })
-                                } catch (error) {
-                                    on_error?.(error)
-                                    throw error
-                                }
-                            })()
                     } catch (error) {
                         on_error?.(error)
                         throw error
                     }
                 }}
-                autoComplete='off'
             >
                 <Form.Item<Fields> label='流表名称' name='table'>
                     <Input placeholder='prices' />

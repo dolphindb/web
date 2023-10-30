@@ -138,6 +138,8 @@ export function create_variable  () {
 
 export function rename_variable (id: string, new_name: string) {
     const variable = variables[id]
+      
+    new_name = new_name.trim()
     
     if (new_name === variable.name)
         return

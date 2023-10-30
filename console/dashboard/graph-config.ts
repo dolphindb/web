@@ -6,6 +6,7 @@ import { Chart, ChartConfigForm } from './Charts/Chart/index.js'
 import { DBTable, DBTableConfigForm } from './Charts/Table/index.js'
 import { DBDescriptions, DBDescriptionsForm } from './Charts/Descriptions/index.js'
 import { Pie, PieConfigForm } from './Charts/PIE/index.js'
+import { Radar, RadarConfigForm } from './Charts/RADAR/index.js'
 import { OrderBook, OrderConfigForm } from './Charts/OrderBook/index.js'
 import { DashboardEditor as Editor, EditorConfigForm } from './Charts/DashboardEditor/index.js'
 import { Gauge, GaugeConfigForm } from './Charts/Gauge/index.js'
@@ -63,6 +64,10 @@ export const graph_config: GraphConfig =  {
     [WidgetChartType.GAUGE]: {
         component: Gauge,
         config: GaugeConfigForm
+    },
+    [WidgetChartType.RADAR]: {
+        component: Radar,
+        config: RadarConfigForm
     },
     [WidgetChartType.VARIABLE]: {
         component: Variables,

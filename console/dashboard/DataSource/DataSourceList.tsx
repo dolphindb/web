@@ -6,8 +6,8 @@ import { dashboard } from '../model.js'
 import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType } from './date-source.js'
 
 
-type PropsType = {
-    saving: Boolean
+interface PropsType {
+    loading: Boolean
     current_data_source: DataSource
     no_save_flag: MutableRefObject<boolean>
     save_confirm: () => {
@@ -21,14 +21,14 @@ type PropsType = {
     change_current_data_source_property: (key: string, value: DataSourcePropertyType, save_confirm?: boolean) => void
 }
 
-type MenuItemType = {
+interface MenuItemType {
     key: string
     icon: ReactNode
     title: ReactNode
 }
 
 export function DataSourceList ({
-    saving,
+    loading,
     current_data_source,
     no_save_flag,
     save_confirm,
@@ -83,6 +83,8 @@ export function DataSourceList ({
                     <div
                         className='data-source-list-top-item'
                         onClick={async () => {
+                            if (loading)
+                                return
                             if (no_save_flag.current && (await save_confirm()))
                                 await handle_save()
                             no_save_flag.current = false
@@ -107,6 +109,8 @@ export function DataSourceList ({
                     <div
                         className='data-source-list-top-item'
                         onClick={() => {
+                            if (loading)
+                                return
                             if (current_data_source)
                                 rename_data_source_handler(menu_items, current_select, current_data_source.name)
                         }}
@@ -117,6 +121,8 @@ export function DataSourceList ({
                     <div
                         className='data-source-list-top-item'
                         onClick={() => {
+                            if (loading)
+                                return
                             const delete_index = delete_data_source(current_data_source.id)
                             if (delete_index >= 0) {
                                 menu_items.splice(delete_index, 1)
@@ -145,7 +151,7 @@ export function DataSourceList ({
                             selectedKeys={[current_select]}
                             className='data-source-list-bottom-menu'
                             onSelect={async key => {
-                                if (saving)
+                                if (loading)
                                     return
                                 if (key.length) {
                                     if (no_save_flag.current && (await save_confirm()))

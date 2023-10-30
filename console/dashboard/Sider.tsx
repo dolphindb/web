@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, FundOutlined, HeatMapOutlined, LineChartOutlined, PieChartOutlined, TableOutlined, CodeOutlined, CompassOutlined, FunctionOutlined, DotChartOutlined } from '@ant-design/icons'
+import { BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, FundOutlined, HeatMapOutlined, LineChartOutlined, PieChartOutlined, TableOutlined, CodeOutlined, CompassOutlined, FunctionOutlined, DotChartOutlined,  RadarChartOutlined } from '@ant-design/icons'
 
 import { WidgetType } from './model.js'
 
@@ -16,7 +16,8 @@ const icons = {
     [WidgetType.DESCRIPTIONS]: <BarsOutlined className='icon'/>,
     [WidgetType.EDITOR]: <CodeOutlined className='icon' />,
     [WidgetType.GAUGE]: <CompassOutlined className='icon' />,
-    [WidgetType.VARIABLE]: <FunctionOutlined className='icon' />,
+    [WidgetType.RADAR]: <RadarChartOutlined className='icon' />,
+    [WidgetType.VARIABLE]: <FunctionOutlined className='icon'/>,
     [WidgetType.SCATTER]: <DotChartOutlined className='icon'/>
 }
 

@@ -65,59 +65,95 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
 }
 
 
+function Labels (props: { col_names: string[] }) { 
+    const { col_names } = props
+    
+    return <Form.List name='labels' initialValue={[{ col_name: col_names[0] }]}>
+        {(fields, { add }) => <>
+            {
+                fields.map((field, index) => { 
+                    return <div key={field.name}>
+                            <div className='field-wrapper'>
+                                <Space>
+                                    <div className='axis-wrapper'>
+                                        <Form.Item name={[field.name, 'col_name']} label={t('数据列')} >
+                                            <Select options={col_names.map(item => ({ label: item, value: item }))} />
+                                        </Form.Item>
+                                    </div>
+                                </Space>
+                            </div>
+                        </div>
+                })
+            } 
+        </>}
+    </Form.List>
+}
+
+
+export function LabelsFormFields (props: { col_names: string[] }) {
+    const { col_names } = props
+    return <Collapse items={[
+        {
+            key: 'labels',
+            label: t('标签列'),
+            children: <Labels col_names={col_names} />,
+            forceRender: true,
+        }
+    ]} />
+}
+
+
 function Series (props: { col_names: string[] }) { 
     const { col_names } = props
     
     const series = Form.useWatch('series')
     
-    return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: col_names[0] }]}>
-        {(fields, { add, remove }) =>
-            { const items = fields.map((field, index) => { 
-                const children = <div className='field-wrapper' key={field.name}>
-                    <Space>
-                        <div className='axis-wrapper'>
-                            <Form.Item name={[field.name, 'col_name']} label={t('数据列')} >
-                                <Select options={col_names.map(item => ({ label: item, value: item }))} />
-                            </Form.Item>
-                            <Form.Item name={[field.name, 'name']} label={t('名称')}>
-                                <Select options={col_names.map(item => ({ label: item, value: item }))} />
-                            </Form.Item>
+    return <Form.List name='series' initialValue={[{ col_name: col_names[0], max: null }]}>
+        {(fields, { add, remove }) => 
+            {
+                const items = fields.map((field, index) => { 
+                    const children = <div className='field-wrapper' key={field.name}>
+                            <Space>
+                                <div className='axis-wrapper'>
+                                    <Form.Item name={[field.name, 'col_name']} label={t('数据列')} >
+                                        <Select options={col_names.map(item => ({ label: item, value: item }))} />
+                                    </Form.Item>
+                                    <Form.Item name={[field.name, 'name']} label={t('最大值')}>
+                                        <InputNumber />
+                                    </Form.Item>
+                                </div>
+                            </Space>
                         </div>
-                        {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) } } />}
-                    </Space>
-                </div>
-                
-                return {
-                    children,
-                    key: field.name,
-                    label: <div className='yaxis-collapse-label'>
-                        {/* {`数据环 ${field.name + 1}`} */}
-                        {series?.[field.name]?.name || `数据环 ${field.name + 1}` }
-                        {
-                            fields.length > 1 &&
-                            <DeleteOutlined
-                                className='delete-icon'
-                                onClick={() => { remove(field.name) }}
-                            />
-                        }
-                    </div>,
-                    forceRender: true,
-                }
-            })
-            return <div className='yasix-collapse-wrapper'>
+                    return {
+                        children,
+                        key: field.name,
+                        label: <div className='yaxis-collapse-label'>
+                            {/* {`数据列 ${field.name + 1}`} */}
+                            {series?.[field.name]?.name || `数据列 ${field.name + 1}` }
+                            {
+                                fields.length > 1 &&
+                                <DeleteOutlined
+                                    className='delete-icon'
+                                    onClick={() => { remove(field.name) }}
+                                />
+                            }
+                        </div>,
+                        forceRender: true,
+                    }
+                })
+                return <div className='yasix-collapse-wrapper'>
                     <Collapse items={items} size='small'/>
-                    {fields.length < 3
-                    ? <Button 
-                        type='dashed' 
+                    <Button
                         className='add-yaxis-btn'
-                        block onClick={() => { add({ col_name: col_names[0], name: col_names[0] }) } } 
+                        type='dashed'
+                        block
+                        onClick={() => { add() }}
                         icon={<PlusCircleOutlined />}
                     >
-                        增加环
+                        {t('增加数据列')}
                     </Button>
-                    : <></>}
-                </div> 
-            }
+                </div>
+            } 
         }
     </Form.List>
 }
@@ -128,11 +164,10 @@ export function SeriesFormFields (props: { col_names: string[] }) {
     return <Collapse items={[
         {
             key: 'series',
-            label: t('数据环'),
+            label: t('数据列'),
             children: <Series col_names={col_names} />,
             forceRender: true,
         }
     ]} />
 }
-
 
