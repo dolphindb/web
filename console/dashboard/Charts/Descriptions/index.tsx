@@ -29,11 +29,11 @@ export function DBDescriptions (props: IProps) {
         const { col_properties } = widget.config as unknown as IDescriptionsConfig
         return data_source.map((item, idx) => {
             const { color: custom_color, threshold, time_format, decimal_places, is_thousandth_place, high_to_threshold_color = 'red', low_to_threshold_color = 'green' } = col_properties?.[idx] ?? { }
-            let color = '#fff'
+            let color = null
             if (isNumber(threshold))
                 color = item[config.value_col] > threshold ? high_to_threshold_color : low_to_threshold_color
             
-            color = color ?? custom_color
+            color = color || custom_color || '#fff'
             
             let value = item[config.value_col]
             if (time_format)

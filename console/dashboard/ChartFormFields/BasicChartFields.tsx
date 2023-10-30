@@ -26,9 +26,9 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
             tooltip={<>
                 {t('数值轴，适用于连续数据')}
                 <br />
-                {t('类目轴，适用于离散的类目数据')}
-                <br />
-                {t('时间轴，适用于连续的时序数据')}
+                {t('类目轴，适用于离散的类目数据，或者时序数据')}
+                {/* <br />
+                {t('时间轴，适用于连续的时序数据')} */}
                 <br />
                 {t('对数轴，适用于对数数据')}
             </>}
