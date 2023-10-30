@@ -121,18 +121,26 @@ export function StreamEditor ({
     
     useEffect(() => {
         const node = nodes.filter(node => node.name === default_value_in_select(current_data_source, 'node', node_list))[0]
+        
+        const closest_node_host = model.find_closest_node_host(node)
         const new_ip_list = [
             {
+                value: closest_node_host + ':' + node.port,
+                label: closest_node_host + ':' + node.port
+            }
+        ]
+        if (node.host !== closest_node_host)
+            new_ip_list.push({
                 value: node.host + ':' + node.port,
                 label: node.host + ':' + node.port
-            },
-            ...node.publicName.split((/,|;/)).map(item => {
-                return {
+            })
+        node.publicName.split((/,|;/)).forEach(item => {
+            if (item !== closest_node_host)
+                new_ip_list.push({
                     value: item + ':' + node.port,
                     label: item + ':' + node.port
-                }
-            })
-        ]
+                })
+        })
         set_ip_list(new_ip_list)
         
         const new_ip_select = !current_data_source.ip || (new_ip_list.filter(item => item.value === current_data_source.ip).length !== 0)

@@ -119,8 +119,6 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
     switch (new_data_source.mode) {
         case 'sql':
             try {
-                new_data_source.cols = [ ]
-                
                 const parsed_code = parse_code(new_data_source.code, new_data_source)
                 const { type, result } = await dashboard.execute(parsed_code)
                 
@@ -139,6 +137,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                 }
             } catch (error) {
                 new_data_source.error_message = error.message
+                new_data_source.cols = [ ]
                 if (code === undefined)
                     dashboard.message.error(error.message)
             } finally {
