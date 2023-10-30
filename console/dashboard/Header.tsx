@@ -80,7 +80,7 @@ export function Header () {
     
     async function handle_add () {
         try {
-            if (!new_dashboard_name) {
+            if (!new_dashboard_name.trim()) {
                 dashboard.message.error(t('数据面板名称不允许为空'))
                 return 
             }
@@ -94,7 +94,8 @@ export function Header () {
             
             // await dashboard.update_config(new_dashboard_config)
             await dashboard.add_dashboard_config(new_dashboard_config)
-            dashboard.render_with_config(new_dashboard_config)
+            await dashboard.render_with_config(new_dashboard_config)
+            model.set_query('dashboard', String(new_dashboard_id))
             dashboard.message.success(t('添加成功'))
         } catch (error) {
             model.show_error({ error })
@@ -144,6 +145,8 @@ export function Header () {
             clear_data_sources()
             
             await dashboard.delete_dashboard_configs([config.id])
+            const filtered_configs = configs.filter(({ id }) => id !== config.id)
+            model.set_query('dashboard', String(filtered_configs[0].id))
             
             // await dashboard.update_config(config, true)
             
@@ -273,7 +276,7 @@ export function Header () {
                         } catch (error) {
                             model.show_error({ error })
                         }
-                    }}><DownloadOutlined /></Button>
+                    }}><UploadOutlined /></Button>
                 </Tooltip>
             
                 <Tooltip title={t('导入')}>
@@ -281,10 +284,12 @@ export function Header () {
                         showUploadList={false}
                         beforeUpload={async file => {
                             try {
-                                await dashboard.add_dashboard_config(
-                                    JSON.parse(await file.text()) as DashBoardConfig
-                                )
-                                
+                                const import_config = JSON.parse(await file.text()) as DashBoardConfig
+                                if (configs.findIndex(c => c.id === import_config.id) !== -1)
+                                    await dashboard.update_dashboard_config(import_config)
+                                else
+                                    await dashboard.add_dashboard_config(import_config)
+                                model.set_query('dashboard', String(import_config.id))
                                 return false
                             } catch (error) {
                                 dashboard.show_error({ error })
@@ -293,7 +298,7 @@ export function Header () {
                         }}
                     >
                         <Button className='action'>
-                            <UploadOutlined />
+                            <DownloadOutlined />
                         </Button>
                     </Upload>
                 </Tooltip>

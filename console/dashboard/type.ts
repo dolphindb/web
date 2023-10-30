@@ -29,6 +29,13 @@ export interface ISeriesConfig {
     stack?: string
     end_label?: boolean
     
+    in_range?: {
+        color: {
+            low: string
+            high: string
+        }
+    }
+    
     symbol?: string
     symbol_size?: number
     
@@ -65,6 +72,9 @@ export interface IChartConfig {
     series: ISeriesConfig[]
 }
 
+export interface IHeatMapChartConfig extends Omit<IChartConfig, 'yAxis'> { 
+    yAxis: AxisConfig
+}
 export interface IColProperty { 
     col: string
     width?: number

@@ -3,7 +3,7 @@ import './Overview.sass'
 import { useEffect, useState } from 'react'
 
 import { Button, Input, Modal, Table, Upload, Popconfirm } from 'antd'
-import { DownloadOutlined, PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
+import { PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
 
 
 import { use_modal } from 'react-object-model/modal.js'
@@ -64,13 +64,13 @@ export function Overview () {
                 onCancel={creator.close}
                 onOk={async () => {
                     try {
-                        if (!new_dashboard_name) {
-                            dashboard.message.error(t('dashboard 名称不允许为空'))
+                        if (!new_dashboard_name.trim()) {
+                            model.message.error(t('dashboard 名称不允许为空'))
                             return
                         }
                         
                         if (configs?.find(({ name }) => name === new_dashboard_name)) {
-                            dashboard.message.error(t('名称重复，请重新输入'))
+                            model.message.error(t('名称重复，请重新输入'))
                             return
                         }
                         
@@ -104,12 +104,12 @@ export function Overview () {
                 onOk={async () => {
                     try {
                         if (!edit_dashboard_name) {
-                            dashboard.message.error(t('dashboard 名称不允许为空'))
+                            model.message.error(t('dashboard 名称不允许为空'))
                             return
                         }
                         
                         if (configs.find(({ id, name }) => id !== current_dashboard.id && name === edit_dashboard_name)) {
-                            dashboard.message.error(t('名称重复，请重新输入'))
+                            model.message.error(t('名称重复，请重新输入'))
                             return
                         }
                         const index = configs.findIndex(({ id }) => id === current_dashboard.id)
@@ -293,7 +293,10 @@ export function Overview () {
                                 beforeUpload={async file => {
                                     try {
                                         const import_config = JSON.parse(await file.text()) as DashBoardConfig
-                                        await dashboard.add_dashboard_config(import_config)
+                                        if (configs.findIndex(c => c.id === import_config.id))
+                                            await dashboard.update_dashboard_config(import_config)
+                                        else
+                                            await dashboard.add_dashboard_config(import_config)
                                     } catch (error) {
                                         model.show_error({ error })
                                         throw error

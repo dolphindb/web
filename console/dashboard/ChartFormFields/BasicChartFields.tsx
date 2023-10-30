@@ -16,8 +16,8 @@ import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 
 
-
-export function AxisItem ({ name_path, col_names = [ ], list_name, initial_values }: IAxisItem) { 
+// col 表示是否需要选择坐标列，x轴必须选择坐标列
+export function AxisItem ({ name_path, col_names = [ ], list_name, initial_values, col }: IAxisItem) { 
     return <>
         <Form.Item
             label={t('类型')}
@@ -45,9 +45,9 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                 switch (type) { 
                     case AxisType.VALUE:
                         return <>
-                            <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
+                            { col && <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
                                 <Select options={convert_list_to_options(col_names)} allowClear/>
-                            </Form.Item>
+                            </Form.Item> }
                             <Form.Item name={concat_name_path(name_path, 'with_zero')} label='强制包含零刻度' initialValue={false}>
                                 <BoolRadioGroup />
                             </Form.Item>
@@ -83,8 +83,8 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
 }
 
 
-function Series (props: { col_names: string[] }) { 
-    const { col_names } = props
+function Series (props: { col_names: string[], single?: boolean }) { 
+    const { col_names, single = false } = props
     const { widget: { type } } = dashboard.use(['widget'])
     
     const series = Form.useWatch('series')
@@ -101,9 +101,16 @@ function Series (props: { col_names: string[] }) {
                             <Input />
                         </Form.Item>
                         
-                        <Form.Item name={[field.name, 'type']} label={t('类型')} initialValue={type === WidgetChartType.MIX ? WidgetChartType.LINE : type}>
-                            <Select options={chart_type_options} disabled={type !== WidgetChartType.MIX} />
-                        </Form.Item>
+                        {type !== WidgetChartType.HEATMAP && <>
+                            <Form.Item name={[field.name, 'type']} label={t('类型')} initialValue={type === WidgetChartType.MIX ? WidgetChartType.LINE : type}>
+                                <Select options={chart_type_options} disabled={type !== WidgetChartType.MIX} />
+                            </Form.Item>
+                            <Form.Item name={[field.name, 'color']} label='颜色' initialValue={null}>
+                                <StringColorPicker />
+                            </Form.Item>
+                        </>}
+                        
+                       
                         
                         {/* 数据关联的y轴选择 */}
                         <FormDependencies dependencies={['yAxis']}>
@@ -118,10 +125,6 @@ function Series (props: { col_names: string[] }) {
                                 </Form.Item>
                             } }
                         </FormDependencies>
-                        
-                        <Form.Item name={[field.name, 'color']} label='颜色' initialValue={null}>
-                            <StringColorPicker />
-                        </Form.Item>
                         
                         <Form.Item name={[field.name, 'mark_point']} label='标记点'>
                             <Select options={mark_point_options} mode='multiple'/>
@@ -162,6 +165,16 @@ function Series (props: { col_names: string[] }) {
                                             <Select options={convert_list_to_options(['circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow']) } />
                                         </Form.Item>
                                     </>
+                                else if (seriesType === WidgetChartType.HEATMAP)
+                                    return <>
+                                        <Form.Item label='阴暗色' name={[field.name, 'in_range', 'color', 'low']} initialValue='#EBE1E1'>
+                                            <StringColorPicker />
+                                        </Form.Item>
+                                        <Form.Item label='明亮色' name={[field.name, 'in_range', 'color', 'high']} initialValue='#983430'>
+                                            <StringColorPicker />
+                                        </Form.Item>
+                                    
+                                    </>
                                 else
                                     return null
                             } }
@@ -185,7 +198,8 @@ function Series (props: { col_names: string[] }) {
                     className='series-collapse'
                     items={items}
                 /> 
-                    <Button
+                {
+                    !single && <Button
                         className='add-series-btn'
                         type='dashed'
                         block
@@ -193,14 +207,15 @@ function Series (props: { col_names: string[] }) {
                         icon={<PlusCircleOutlined />}
                     >
                         {t('增加数据列')}
-                    </Button> 
+                    </Button>  
+                }
             </>
         }}
     </Form.List>
 }
 
-export function YAxis (props: { col_names: string[], initial_values?: IYAxisItemValue[] } ) {
-    const { col_names, initial_values } = props
+export function YAxis (props: { col_names: string[], initial_values?: IYAxisItemValue[], single?: boolean } ) {
+    const { col_names, initial_values, single } = props
     
     const default_initial_values = useMemo(() => ([
         {
@@ -251,44 +266,46 @@ export function YAxis (props: { col_names: string[], initial_values?: IYAxisItem
             
             return <div className='yasix-collapse-wrapper'>
                 <Collapse items={items} size='small'/>
-                <Button
-                    className='add-yaxis-btn'
-                    type='dashed'
-                    block
-                    onClick={() => { add() }}
-                    icon={<PlusCircleOutlined />}
-                >
-                    {t('增加 Y 轴')}
-                </Button>
+                {
+                    !single && <Button
+                        className='add-yaxis-btn'
+                        type='dashed'
+                        block
+                        onClick={() => { add() }}
+                        icon={<PlusCircleOutlined />}
+                    >
+                        {t('增加 Y 轴')}
+                    </Button>
+                }
             </div>
          }}
     </Form.List>
 }
 
-export function AxisFormFields ({ col_names = [ ] }: { col_names: string[] }) {
+export function AxisFormFields ({ col_names = [ ], single = false }: { col_names: string[], single?: boolean }) {
     return <Collapse items={[{
         key: 'x_axis',
         label: t('X 轴属性'),
-        children: <div className='axis-wrapper'><AxisItem name_path='xAxis' col_names={col_names} /></div>,
+        children: <div className='axis-wrapper'><AxisItem col name_path='xAxis' col_names={col_names} /></div>,
         forceRender: true,
     },
     {
         key: 'y_axis',
         label: t('Y 轴属性'),
-        children: <YAxis col_names={col_names} />,
+        children: <YAxis col_names={col_names} single={single} />,
         forceRender: true,
     }
     ]} />
 }
 
 
-export function SeriesFormFields (props: { col_names: string[] }) {
-    const { col_names } = props
+export function SeriesFormFields (props: { col_names: string[], single?: boolean }) {
+    const { col_names, single = false } = props
     return <Collapse items={[
         {
             key: 'series',
             label: t('数据列'),
-            children: <Series col_names={col_names} />,
+            children: <Series col_names={col_names} single={single} />,
             forceRender: true,
         }
     ]} />

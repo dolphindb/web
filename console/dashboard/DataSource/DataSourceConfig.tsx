@@ -140,8 +140,10 @@ export function DataSourceConfig (props: IProps, ref) {
                             if (widget) {
                                 if (!widget.source_id || widget.source_id !== current_data_source.id) {
                                     await subscribe_data_source(widget, current_data_source.id)
+                                    console.log(111)
                                     dashboard.update_widget({ ...widget, source_id: current_data_source.id })
                                 }
+                                console.log(222)
                                 close()
                                 set_show_preview(false)
                             } 
