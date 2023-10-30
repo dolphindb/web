@@ -31,7 +31,10 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                     // 与图形类型相关，一期先写死
                     trigger: 'item',
                     backgroundColor: '#1D1D1D',
-                    borderColor: '#333'
+                    borderColor: '#333',
+                    textStyle: {
+                        color: '#F5F5F5'
+                    },
                 },
                 title: {
                     text: parse_text(title ?? ''),
@@ -45,7 +48,7 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                         type: 'pie',
                         radius: radius[series.length][index],
                         label: {
-                            color: '#ffffff'
+                            color: '#F5F5F5'
                         },
                         data: data_source.map(data => {
                             return {
