@@ -48,8 +48,9 @@ export function Header () {
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
+    const { visible: save_visible, open: save_open, close: save_close } = use_modal()
     
-    async function save_config () {
+    async function get_latest_config () {
         const updated_config = {
             ...config,
             data: {
@@ -65,10 +66,28 @@ export function Header () {
         return updated_config
     }
     
+    /** 生成可以比较的 config */
+    function exact_config (config: DashBoardConfig) {
+        return { ...config, 
+                 data: { 
+                        ...config.data, 
+                        datasources: config.data.datasources.map(ds => ({ 
+                                ...ds, 
+                                cols: [ ], 
+                                deps: [ ],
+                                error_message: '' })),
+                        variables: config.data.variables.map(va => ({
+                                ...va,
+                                deps: [ ]
+                        })) 
+                    } 
+                }
+    }
+    
     
     async function handle_save () {
         try {
-            const updated_config = await save_config()
+            const updated_config = await get_latest_config()
             await dashboard.update_dashboard_config(updated_config)
             dashboard.message.success(t('数据面板保存成功'))
         } catch (error) {
@@ -159,6 +178,14 @@ export function Header () {
         }
     }
     
+    
+    function return_to_overview () {
+        clear_data_sources()
+        dashboard.set({ config: null })
+        model.set_query('dashboard', null)
+        model.set({ sider: true, header: true })
+    }
+    
     function on_preview () {
         dashboard.set_editing(false)
         model.set_query('preview', '1')
@@ -202,11 +229,14 @@ export function Header () {
         
         <div className='actions'>
             <Tooltip title='返回'>
-                <Button className='action' onClick={() => { 
-                    clear_data_sources()
-                    dashboard.set({ config: null })
-                    model.set_query('dashboard', null)
-                    model.set({ sider: true, header: true })
+                <Button className='action' onClick={async () => { 
+                    const latest_config = exact_config(await get_latest_config())
+                    const server_config = exact_config(await dashboard.get_dashboard_config(config.id) as DashBoardConfig)
+                    if (JSON.stringify(latest_config) === JSON.stringify(server_config)) 
+                        return_to_overview()
+                    else
+                        save_open()
+                    
                 }}><HomeOutlined /></Button>
             </Tooltip>
             {editing && <>
@@ -229,6 +259,20 @@ export function Header () {
                     title={t('请输入新的数据面板名称')}>
                     <Input value={edit_dashboard_name} onChange={event => { set_edit_dashboard_name(event.target.value) }}/>
                 </Modal>
+                
+                <Modal open={save_visible}
+                    maskClosable={false}
+                    onCancel={return_to_overview}
+                    onOk={async () => { 
+                        await handle_save()
+                        save_close()
+                        return_to_overview()                                    
+                    }}
+                    okText={t('保存')}
+                    cancelText={t('不保存')}
+                    closeIcon={false}
+                    title={t('当前数据面板未保存，是否需要保存')} />
+                
                 <Tooltip title='新增'>
                     <Button
                         className='action'
@@ -262,7 +306,7 @@ export function Header () {
                 <Tooltip title={t('导出')}>
                     <Button className='action' onClick={async () => {
                         try {
-                            await save_config()
+                            await get_latest_config()
                             
                             let a = document.createElement('a')
                             a.download = `dashboard.${config.name}.json`
