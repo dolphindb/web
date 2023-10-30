@@ -417,7 +417,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number) {
-        return model.ddb.call('dashboard_get_config', [new DdbLong(BigInt(id))], { urgent: true })
+        const data = (await model.ddb.call('dashboard_get_config', [new DdbLong(BigInt(id))], { urgent: true })).to_rows()
+        return data.length ? { ...data[0], id: Number(data[0].id), data: JSON.parse(data[0].data) } : null
     }
     
     
