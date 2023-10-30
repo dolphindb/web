@@ -29,10 +29,14 @@ export function OrderBook (props: IProps) {
     // 如果数据格式不匹配，则直接返回
     if (!data_source[0]?.sendingTime && !data_source[0]?.bidmdEntryPrice && !data_source[0]?.bidmdEntrySize)
         return
-      
+    
     // 样式调整先写死，后面再改
     const convert_order_config = useMemo((): EChartsOption => {
-        let data = [ ]
+        let orderbook_data = [ ]
+        let bar_data = [ ]
+        let line_data = [ ]
+        
+        console.log(data_source)
         
         // time_rate 作用解释， 由于 echarts heatmap 的每个小块高度默认展示一个 y 轴单位长度（未找到可以改动此属性的 option，找到了应该就可以去掉该属性）
         // 但订单图数据常为浮点数，且数据浮动不大，因此会造成多个大面积重叠，导致图的展示效果不好
@@ -44,11 +48,11 @@ export function OrderBook (props: IProps) {
         // 处理数据
         function formatData (price, size, sendingTime, is_buy) {
             let entry = [ ]
-            if (price.data && size.data)
-                for (let i = 0;  i < (price.data?.length || 0) && i < market_data_files_num;  i++)
+            if (price && size)
+                for (let i = 0;  i < (price.length || 0) && i < market_data_files_num;  i++)
                     // 去除空值
-                    if (to_chart_data(price.data[i], DdbType.double) && to_chart_data(size.data[i], DdbType.long))
-                        entry.push([sendingTime, price.data[i] * time_rate, to_chart_data(size.data[i], DdbType.long), is_buy ? `bmd[${i}]` : `omd[${i}]`, size.data[i]])
+                    if (to_chart_data(price[i], DdbType.double) && to_chart_data(size[i], DdbType.long))
+                        entry.push([sendingTime, price[i] * time_rate, to_chart_data(size[i], DdbType.long), is_buy ? `bmd[${i}]` : `omd[${i}]`, size[i]])
             // 对 size 排序，确认颜色深浅
             entry.sort((a, b) => {
                 return a[4] > b[4] ? 1 : 0 
@@ -60,11 +64,24 @@ export function OrderBook (props: IProps) {
             return entry
         }
         for (let item of data_source) {
-            data.push(...formatData(item.bidmdEntryPrice, item.bidmdEntrySize, convertDateFormat(item.sendingTime), true))
-            data.push(...formatData(item.offermdEntryPrice, item.offermdEntrySize, convertDateFormat(item.sendingTime), false))
+            let bid = formatData(JSON.parse(item.bidmdEntryPrice), JSON.parse(item.bidmdEntrySize), convertDateFormat(item.sendingTime), true)
+            orderbook_data.push(...bid)
+            
+            let omd = formatData(JSON.parse(item.offermdEntryPrice), JSON.parse(item.offermdEntrySize), convertDateFormat(item.sendingTime), false)
+            orderbook_data.push(...omd)
+            
+            if (omd.length && bid.length) {
+              bar_data.push([convertDateFormat(item.sendingTime), 100])
+              line_data.push([convertDateFormat(item.sendingTime), JSON.parse(item.bidmdEntryPrice)[0] * time_rate])
+            }
         }
         
       
+        console.log(bar_data)
+        console.log(orderbook_data)
+        console.log(line_data)
+        
+        
       return {
         title: {
           text: parse_text(title ?? ''),
@@ -86,33 +103,68 @@ export function OrderBook (props: IProps) {
             ${params.data[3]}`
           }
         },
-        grid: {
-          height: '70%',
+        grid: [{
+          height: '50%',
           top: '10%'
         },
-        xAxis: {
+        {
+          height: '30%',
+          bottom: '10%'
+        }],
+        
+        xAxis: [{
+          type: 'category',
+          // 坐标轴
+          axisLine: {
+            show: false
+          },
+          axisTick: {
+            show: false
+          },
+          axisLabel: {
+            show: false,
+          },
+        },
+        {
+          gridIndex: 1,
           type: 'category',
           // 坐标轴
           axisLine: {
             show: true
-          }
-        },
-        yAxis: {
-          type: 'value',
-          scale: true,
-          // 坐标轴在 grid 区域中的分隔线。
-          splitLine: {
-            show: with_split_line
+        }
+        }],
+        yAxis: [
+          {
+            position: 'left',
+            type: 'value',
+            scale: true,
+            // 坐标轴在 grid 区域中的分隔线。
+            splitLine: {
+              show: with_split_line
+            },
+            axisLabel: {
+                formatter: params => {
+                    return (params / time_rate).toFixed(2)
+                }
+            },
+            axisLine: {
+              show: true
+            }
           },
-          axisLabel: {
-              formatter: params => {
-                  return (params / time_rate).toFixed(2)
-              }
+          {
+            gridIndex: 1,
+            position: 'left',
+            type: 'value',
+            scale: true,
+            // 坐标轴在 grid 区域中的分隔线。
+            splitLine: {
+              show: with_split_line
+            },
+            axisLine: {
+              show: true
+            }
           },
-          axisLine: {
-            show: true
-          }
-        },
+        ],
         visualMap: {
           min: -10,
           max: 10,
@@ -128,7 +180,7 @@ export function OrderBook (props: IProps) {
           {   
             name: 'Order Book',
             type: 'heatmap',
-            data: data,
+            data: orderbook_data,
             encode: {
               x: 0,
               y: 1,
@@ -138,7 +190,41 @@ export function OrderBook (props: IProps) {
                 shadowBlur: 10,
                 shadowColor: 'rgba(0, 0, 0, 0.5)'
               }
-            }
+            },
+            xAxisIndex: 0,
+            yAxisIndex: 0
+          },
+          {   
+            name: 'Line',
+            type: 'line',
+            data: line_data,
+            encode: {
+              x: 0,
+              y: 1,
+            },
+            smooth: true,
+            xAxisIndex: 0,
+            yAxisIndex: 0
+          },
+          {   
+            name: 'Bar',
+            type: 'bar',
+            data: bar_data,
+            backgroundStyle: {
+              color: 'rgba(180, 180, 180, 0.2)'
+            },
+            encode: {
+              x: 0,
+              y: 1,
+            },
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            },
+            xAxisIndex: 1,
+            yAxisIndex: 1
           }
         ]
       }
