@@ -80,7 +80,7 @@ export function Header () {
     
     async function handle_add () {
         try {
-            if (!new_dashboard_name) {
+            if (!new_dashboard_name.trim()) {
                 dashboard.message.error(t('数据面板名称不允许为空'))
                 return 
             }

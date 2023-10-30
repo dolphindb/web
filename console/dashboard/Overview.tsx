@@ -3,7 +3,7 @@ import './Overview.sass'
 import { useEffect, useState } from 'react'
 
 import { Button, Input, Modal, Table, Upload, Popconfirm } from 'antd'
-import { DownloadOutlined, PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
+import { PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
 
 
 import { use_modal } from 'react-object-model/modal.js'
@@ -64,7 +64,7 @@ export function Overview () {
                 onCancel={creator.close}
                 onOk={async () => {
                     try {
-                        if (!new_dashboard_name) {
+                        if (!new_dashboard_name.trim()) {
                             dashboard.message.error(t('dashboard 名称不允许为空'))
                             return
                         }
