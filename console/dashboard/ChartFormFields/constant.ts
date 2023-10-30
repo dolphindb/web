@@ -12,10 +12,6 @@ export const axis_type_options = [{
     value: AxisType.CATEGORY
 },
 {
-    label: t('时间轴'),
-    value: AxisType.TIME
-},
-{
     label: t('对数'),
     value: AxisType.LOG
 }]
