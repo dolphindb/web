@@ -140,7 +140,7 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
                                 
                                 return <>
                                     <Collapse items={items.slice(10 * (page - 1), page * 10)} size='small' />
-                                    <Pagination showSizeChanger={false} size='small' total={items.length} onChange={page => { setPage(page) }}/>
+                                    <Pagination className='description-pagination' showSizeChanger={false} size='small' total={items.length} onChange={page => { setPage(page) }}/>
                                 </>
                             }}
                         </Form.List>

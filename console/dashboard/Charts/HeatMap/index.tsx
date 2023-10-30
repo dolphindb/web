@@ -59,8 +59,6 @@ export function HeatMap (props: IProps) {
          }
     }, [widget.config, data_source])
     
-    console.log(options, 'options')
-    
     return <ReactEChartsCore
         echarts={echarts}
         notMerge
