@@ -281,10 +281,11 @@ export function Header () {
                         showUploadList={false}
                         beforeUpload={async file => {
                             try {
-                                await dashboard.add_dashboard_config(
-                                    JSON.parse(await file.text()) as DashBoardConfig
-                                )
-                                
+                                const import_config = JSON.parse(await file.text()) as DashBoardConfig
+                                if (configs.findIndex(c => c.id === import_config.id) !== -1)
+                                    await dashboard.update_dashboard_config(import_config)
+                                else
+                                    await dashboard.add_dashboard_config(import_config)
                                 return false
                             } catch (error) {
                                 dashboard.show_error({ error })
