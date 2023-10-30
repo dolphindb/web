@@ -55,7 +55,7 @@ function format_decimal (type: DdbType, values, index: number): string {
 // }
 
 
-function formatter (type: DdbType, values, le: boolean, index: number) {
+function formatter (type: DdbType, values, le: boolean, index: number, options = { }) {
     const value = values[index]
     switch (type) {
         case DdbType.bool: {
@@ -105,7 +105,12 @@ function formatter (type: DdbType, values, le: boolean, index: number) {
         case DdbType.decimal128:
             return format_decimal(type, values, index)
         case DdbType.ipaddr:
-            return values.subarray(16 * index, 16 * (index + 1))
+            return format(
+                type,
+                (values as Uint8Array).subarray(16 * index, 16 * (index + 1)),
+                le,
+                options
+            )
         case DdbType.long:
             return String(value)
         case DdbType.symbol_extended: {
@@ -132,7 +137,7 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{
             }
             return rows
         default:
-            throw new Error('form 必须是 DdbForm.table')
+            throw new Error('返回结果必须是table')
     }
     
 }
