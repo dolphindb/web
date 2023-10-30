@@ -65,12 +65,12 @@ export function Overview () {
                 onOk={async () => {
                     try {
                         if (!new_dashboard_name.trim()) {
-                            dashboard.message.error(t('dashboard 名称不允许为空'))
+                            model.message.error(t('dashboard 名称不允许为空'))
                             return
                         }
                         
                         if (configs?.find(({ name }) => name === new_dashboard_name)) {
-                            dashboard.message.error(t('名称重复，请重新输入'))
+                            model.message.error(t('名称重复，请重新输入'))
                             return
                         }
                         
@@ -104,12 +104,12 @@ export function Overview () {
                 onOk={async () => {
                     try {
                         if (!edit_dashboard_name) {
-                            dashboard.message.error(t('dashboard 名称不允许为空'))
+                            model.message.error(t('dashboard 名称不允许为空'))
                             return
                         }
                         
                         if (configs.find(({ id, name }) => id !== current_dashboard.id && name === edit_dashboard_name)) {
-                            dashboard.message.error(t('名称重复，请重新输入'))
+                            model.message.error(t('名称重复，请重新输入'))
                             return
                         }
                         const index = configs.findIndex(({ id }) => id === current_dashboard.id)
