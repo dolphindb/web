@@ -416,6 +416,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         const params = new DdbDict(
             ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
         await model.ddb.call<DdbVoid>('dashboard_update_config', [params], { urgent: true })
+        await this.render_with_config(config)
     }
     
     
