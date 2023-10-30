@@ -1,7 +1,7 @@
 import { type NamePath } from 'antd/es/form/interface'
 import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format } from 'dolphindb/browser.js'
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
-import { isNil } from 'lodash'
+import { isNil, isNumber } from 'lodash'
 
 import { WidgetChartType, type Widget } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
@@ -312,6 +312,14 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         // x 轴和 y 轴均为数据轴或者对数轴的情况下或者散点图，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
         if (([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) || series.type === WidgetChartType.SCATTER)  
             data  = data_source.map(item => [item[xAxis.col_name], item[series.col_name]])
+        
+        if (isNumber(series.threshold?.value))  
+            data = data.map(item => ({
+                value: item,
+                itemStyle: {
+                    color: item > series.threshold.value ? series.threshold?.low_color : series.threshold?.high_color
+                }
+            }))
         
         return {
             type: series.type?.toLowerCase(),
