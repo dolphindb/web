@@ -25,6 +25,8 @@ const fp_api = ''
 export const fpd_root = fileURLToPath(import.meta.url).fdir
 
 export const ramdisk = fexists('T:/TEMP/', { print: false })
+export const ci = process.argv.includes('--ci')
+
 export const fpd_ramdisk_root = 'T:/2/ddb/web/'
 
 export const fpd_node_modules = `${fpd_root}node_modules/`
@@ -32,7 +34,7 @@ export const fpd_node_modules = `${fpd_root}node_modules/`
 export const fpd_src_console = `${fpd_root}console/`
 export const fpd_src_cloud = `${fpd_root}cloud/`
 
-export const fpd_out = ramdisk ? fpd_ramdisk_root : fpd_root
+export const fpd_out = !ci && ramdisk ? fpd_ramdisk_root : fpd_root
 export const fpd_out_console = `${fpd_out}web/`
 export const fpd_out_cloud = `${fpd_out}web.cloud/`
 
@@ -305,11 +307,11 @@ export let webpack = {
                             :
                                 'web',
                     
-                    ... ramdisk ? {
+                    ... !ci && ramdisk ? {
                         cacheDirectory: `${fpd_ramdisk_root}webpack/`,
                         compression: false
                     } : {
-                        compression: 'brotli',
+                        compression: ci ? false : 'brotli',
                     }
                 }
             })
