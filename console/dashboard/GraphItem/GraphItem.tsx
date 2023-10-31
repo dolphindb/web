@@ -28,7 +28,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     
     return <div className={cn('graph-item-wrapper', {
-        'editor-component-wrapper': widget.type === WidgetChartType.EDITOR
+        'overflow-visible-wrapper': widget.type === WidgetChartType.EDITOR || widget.type === WidgetChartType.OHLC
     }) }>
         {(widget.type !==  WidgetChartType.VARIABLE) && <VariableForm ids={variable_ids} cols={variable_cols} with_search_btn={with_search_btn} /> }
         <div className={cn('graph-component', {
