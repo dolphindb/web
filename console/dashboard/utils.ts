@@ -31,7 +31,7 @@ function format_decimal (type: DdbType, values, index: number): string {
 }
 
 function format_unit8 (type: DdbType, values, le: boolean, index: number, length: number, options = { }) {
-    return format(type, (values as Uint8Array).subarray(length * index, length * (index + 1)), le, options) || 'null'
+    return format(type, (values as Uint8Array).subarray(length * index, length * (index + 1)), le, options)
 }
 
 
@@ -102,7 +102,7 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{
                             array.push(formatter(type, value[0].data, le, i))
                          
                     offset += length
-                    rows[index][key] = '[' + array.map(item => item === void 0 ? 'null' : item).join(',') + ']'
+                    rows[index][key] = '[' + array.map(item => item).join(',') + ']'
                 })
             }
             
@@ -147,7 +147,7 @@ export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols:
                     array.push(formatter(type, value[0].data, le, i))
                  
             offset += length
-            rows[index][key] = '[' + array.map(item => item === void 0 ? 'null' : item).join(',') + ']'
+            rows[index][key] = '[' + array.map(item => item).join(',') + ']'
         })
     }
     return rows
