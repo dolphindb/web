@@ -35,7 +35,7 @@ function format_unit8 (type: DdbType, values, le: boolean, index: number, length
 }
 
 
-function formatter (type: DdbType, values, le: boolean, index: number, options = { }) {
+function formatter (type: DdbType, values, le: boolean, index: number, options = { nullstr: false }) {
     const value = values[index]
     switch (type) {
         case DdbType.long:
@@ -62,7 +62,7 @@ function formatter (type: DdbType, values, le: boolean, index: number, options =
             return base[data[index]]
         }
         default:
-            return format(type, value, le)
+            return format(type, value, le, options)
     }
 }
 
