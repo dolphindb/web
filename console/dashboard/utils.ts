@@ -24,7 +24,7 @@ function format_decimal (type: DdbType, values, index: number): string {
     const { scale, data } = values
     const x = data[index]
     if (is_decimal_null_value(type, x))
-        return ''
+        return 'null'
     const s = String(x < 0 ? -x : x).padStart(scale, '0')
     const str = (x < 0 ? '-' : '') + (scale ? `${s.slice(0, -scale) || '0'}.${s.slice(-scale)}` : s)
     return str
@@ -39,7 +39,7 @@ function formatter (type: DdbType, values, le: boolean, index: number, options =
     const value = values[index]
     switch (type) {
         case DdbType.long:
-            return value === nulls.int64 ? null : String(value)
+            return value === nulls.int64 ? 'null' : String(value)
             
         case DdbType.decimal32:
             return format_decimal(type, values, index)
@@ -67,20 +67,45 @@ function formatter (type: DdbType, values, le: boolean, index: number, options =
 }
 
 export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
-    console.log(obj)
     switch (obj.form) {
         case DdbForm.table:
+            const array_vectors = { }
             let rows = new Array()
             let le = obj.le
             for (let i = (max_line && obj.rows > max_line) ? obj.rows - max_line : 0;  i < obj.rows;  i++) {
                 let row = { }
                 for (let j = 0;  j < obj.cols;  j++) {
                     const { type, name, value: values } = obj.value[j] // column
-                    row[name] = formatter(type, values, le, i)
+                    if (type >= 64 && type < 128)
+                        array_vectors[name] = obj.value[j]
+                    else
+                        row[name] = formatter(type, values, le, i)
                 }
                 rows.push(row)
             }
-            console.log(rows)
+            
+            for (let key in array_vectors) {
+                const array_vector = array_vectors[key]
+                const type = array_vector.type - 64
+                const value = array_vector.value
+                let offset = 0
+                
+                value[0].lengths.forEach((length: number, index: number) => {
+                    let array = [ ]
+                    
+                    for (let i = offset;  i < offset + length;  i++) 
+                        if (type === DdbType.decimal32 || type === DdbType.decimal64 || type === DdbType.decimal128) {
+                            value[0].scale = value.scale
+                            array.push(formatter(type, value[0], le, i))
+                        } 
+                        else
+                            array.push(formatter(type, value[0].data, le, i))
+                         
+                    offset += length
+                    rows[index][key] = '[' + array.map(item => item).join(',') + ']'
+                })
+            }
+            
             return rows
         default:
             throw new Error('返回结果必须是table')
@@ -103,19 +128,28 @@ export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols:
         rows.push(row)
     }
     
-   for (let key in array_vectors) {
+    for (let key in array_vectors) {
         const array_vector = array_vectors[key]
+        const type = array_vector.type - 64
+        const value = array_vector.value
+        const le = value.le
         let offset = 0
-        array_vector.value[0].lengths.forEach((length: number, index: number) => {
-            let arr = [ ]
+        
+        value[0].lengths.forEach((length: number, index: number) => {
+            let array = [ ]
+            
             for (let i = offset;  i < offset + length;  i++) 
-                arr.push(formatter(array_vector.type - 64, array_vector.value[0].data, array_vector.le, i))
+                if (type === DdbType.decimal32 || type === DdbType.decimal64 || type === DdbType.decimal128) {
+                    value[0].scale = value.scale
+                    array.push(formatter(type, value[0], le, i))
+                } 
+                else
+                    array.push(formatter(type, value[0].data, le, i))
                  
             offset += length
-            rows[index][key] = JSON.stringify(arr).replaceAll('"', '')
+            rows[index][key] = '[' + array.map(item => item).join(',') + ']'
         })
     }
-    
     return rows
 }
 

@@ -30,7 +30,7 @@ function splitData (rowData: any[], col_name: COL_MAP) {
     for (let i = 0;  i < rowData.length;  i++) {
         categoryData.push(rowData[i][time])
         values.push([rowData[i][open], rowData[i][close], rowData[i][low], rowData[i][high]])
-        volumes.push([i, rowData[i][trades], rowData[i][open] > rowData[i][close] ? 1 : -1])
+        volumes.push([i, rowData[i][trades], Number(rowData[i][open]) > Number(rowData[i][close]) ? 1 : -1])
     }
     if (time_format)
         categoryData = categoryData.map(item => format_time(item, time_format))

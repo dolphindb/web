@@ -9,7 +9,7 @@ import { OrderFormFields, BasicFormFields } from '../../ChartFormFields/OrderBoo
 import {
   type EChartsOption,
 } from 'echarts/types/dist/shared'
-import { type OrderBookData, convert_order_book_config, convertDateFormat, type OrderBookTradeData } from './config.js'
+import { type OrderBookData, convert_order_book_config, convertDateFormat, type OrderBookTradeData, parsePrice } from './config.js'
 
 
 
@@ -36,7 +36,6 @@ export function OrderBook (props: IProps) {
         let orderbook_data = [ ]
         let bar_data = [ ]
         let line_data = [ ]
-        console.log(data_source)
         
         
         // time_rate 作用解释， 由于 echarts heatmap 的每个小块高度默认展示一个 y 轴单位长度（未找到可以改动此属性的 option，找到了应该就可以去掉该属性）
@@ -52,7 +51,7 @@ export function OrderBook (props: IProps) {
             if (price && size)
                 for (let i = 0;  i < (price.length || 0) && i < market_data_files_num;  i++)
                     // 去除空值
-                    if (to_chart_data(price[i], DdbType.double) && to_chart_data(size[i], DdbType.long))
+                    if (price[i] && to_chart_data(size[i], DdbType.long))
                         // 数据解释: 第一项时间，作为 x 轴；第二项价格，作为 y 轴； 第三栏交易量，tooltip 展示； 第四栏价格档位，tooltip 展示；第五栏交易量，用于排序展示块的颜色深浅
                         entry.push([sendingTime, price[i] * time_rate, to_chart_data(size[i], DdbType.long), is_buy ? `bmd[${i}]` : `omd[${i}]`, size[i]])
             // 对 size 排序，确认颜色深浅
@@ -68,15 +67,16 @@ export function OrderBook (props: IProps) {
         
         for (let item of data_source) {
             // 由于 arrayvector 改动后被转成了字符串，所以需要先进行 parse 处理
-            let bid = formatData(JSON.parse(item.bidmdEntryPrice), JSON.parse(item.bidmdEntrySize), convertDateFormat(item.sendingTime), true)
+            let bid = formatData(parsePrice(item.bidmdEntryPrice), JSON.parse(item.bidmdEntrySize), convertDateFormat(item.sendingTime), true)
             orderbook_data.push(...bid)
             
-            let omd = formatData(JSON.parse(item.offermdEntryPrice), JSON.parse(item.offermdEntrySize), convertDateFormat(item.sendingTime), false)
+            let omd = formatData(parsePrice(item.offermdEntryPrice), JSON.parse(item.offermdEntrySize), convertDateFormat(item.sendingTime), false)
             orderbook_data.push(...omd)
             
             // 柱状图数据及曲线数据
-            
-            bar_data.push([convertDateFormat(item.sendingTime), item.volume || 0])
+            // 如果订单图有数据, 这里柱状图的数据必须 push , 因为柱状图和订单图共用一个 x 轴，订单图的 x 轴实际上是被隐藏了的
+            if (bid.length && omd.length)
+                bar_data.push([convertDateFormat(item.sendingTime), item.volume || 0])
                 
             
             
