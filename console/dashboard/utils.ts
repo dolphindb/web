@@ -31,73 +31,17 @@ function format_decimal (type: DdbType, values, index: number): string {
     return str
 }
 
-
-// function formatter (type: DdbType, values, le: boolean, index: number) {
-//     const value = values[index]
-//     switch (type) {
-//         case DdbType.decimal32:
-//             return format_decimal(type, values, index)
-//         case DdbType.decimal64:
-//             return format_decimal(type, values, index)
-//         case DdbType.decimal128:
-//             return format_decimal(type, values, index)
-//         case DdbType.ipaddr:
-//             return values.subarray(16 * index, 16 * (index + 1))
-//         case DdbType.long:
-//             return String(value)
-//         case DdbType.symbol_extended: {
-//             const { base, data } = values
-//             return base[data[index]]
-//         }
-//         default:
-//             return format(type, value, le)
-//     }
-// }
+function format_unit8 (type: DdbType, values, le: boolean, index: number, length: number, options = { }) {
+    return format(type, (values as Uint8Array).subarray(length * index, length * (index + 1)), le, options)
+}
 
 
 function formatter (type: DdbType, values, le: boolean, index: number, options = { }) {
     const value = values[index]
     switch (type) {
-        case DdbType.bool: {
-            return value === nulls.int8 ?
-                null
-                :
-                    Boolean(value)
-        }
-        case DdbType.char:
-            return value === nulls.int8 ? null : value
-        case DdbType.short:
-            return value === nulls.int16 ? null : value
-        case DdbType.int:
-            return value
-        case DdbType.date:
-            return format(type, value, le)
-        case DdbType.month:
-            return format(type, value, le)
-        case DdbType.time:
-            return format(type, value, le)
-        case DdbType.minute:
-            return format(type, value, le)
-        case DdbType.second:
-            return format(type, value, le)
-        case DdbType.datetime:
-            return format(type, value, le)
-        case DdbType.datehour:
-            return value === nulls.int32 ? null : format(type, value, le)
         case DdbType.long:
             return value === nulls.int64 ? null : String(value)
-        case DdbType.timestamp:
-            return format(type, value, le)
-        case DdbType.nanotime:
-            return format(type, value, le)
-        case DdbType.nanotimestamp:
-            return value === nulls.int64 ? null : format(type, value, le)
-        case DdbType.int128:
-            return value === nulls.int128 ? null : value
-        case DdbType.float:
-            return value === nulls.float32 ? null : value
-        case DdbType.double:
-            return value === nulls.double ? null : value
+            
         case DdbType.decimal32:
             return format_decimal(type, values, index)
         case DdbType.decimal64:
@@ -105,14 +49,15 @@ function formatter (type: DdbType, values, le: boolean, index: number, options =
         case DdbType.decimal128:
             return format_decimal(type, values, index)
         case DdbType.ipaddr:
-            return format(
-                type,
-                (values as Uint8Array).subarray(16 * index, 16 * (index + 1)),
-                le,
-                options
-            )
-        case DdbType.long:
-            return String(value)
+            return format_unit8(type, values, le, index, 16, options)
+        case DdbType.point:
+            return format_unit8(type, values, le, index, 2, options)
+        case DdbType.int128:
+            return format_unit8(type, values, le, index, 16, options)
+        case DdbType.uuid:
+            return format_unit8(type, values, le, index, 16, options)
+        case DdbType.complex:
+            return format_unit8(type, values, le, index, 2, options)
         case DdbType.symbol_extended: {
             const { base, data } = values
             return base[data[index]]
@@ -123,6 +68,7 @@ function formatter (type: DdbType, values, le: boolean, index: number, options =
 }
 
 export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
+    console.log(obj)
     switch (obj.form) {
         case DdbForm.table:
             let rows = new Array()
@@ -135,6 +81,7 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{
                 }
                 rows.push(row)
             }
+            console.log(rows)
             return rows
         default:
             throw new Error('返回结果必须是table')

@@ -142,9 +142,11 @@ export interface IDescriptionsConfig {
 }
 
 
-export interface IOrderBookConfig {
+export interface IOrderBookConfig extends Pick<IChartConfig, 'title' | 'title_size' | 'with_tooltip' | 'with_split_line' | 'with_legend'> {
     time_rate: number
     market_data_files_num: number
+    bar_color: string
+    line_color: string
 }
 
 

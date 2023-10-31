@@ -19,7 +19,7 @@ import { model, show_error, type ErrorOptions, storage_keys } from '../model.js'
 import { type Monaco } from '../shell/Editor/index.js'
 
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
-import { type IEditorConfig, type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig } from './type.js'
+import { type IEditorConfig, type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 
 
@@ -416,6 +416,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         const params = new DdbDict(
             ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
         await model.ddb.call<DdbVoid>('dashboard_update_config', [params], { urgent: true })
+        await this.render_with_config(config)
     }
     
     
@@ -542,7 +543,7 @@ export interface Widget extends GridStackNode {
     update_graph?: (data: DataType) => void
     
     /** 图表配置 */
-    config?: (IHeatMapChartConfig | IChartConfig | ITableConfig | ITextConfig | IEditorConfig | IGaugeConfig) & {
+    config?: (IHeatMapChartConfig | IChartConfig | ITableConfig | ITextConfig | IEditorConfig | IGaugeConfig | IOrderBookConfig) & {
         variable_ids: string[]
         abandon_scroll?: boolean
         variable_cols?: number

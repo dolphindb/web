@@ -1,27 +1,28 @@
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
-import { type Widget, dashboard } from '../../model.js'
-import { useMemo, useRef } from 'react'
+import { type Widget } from '../../model.js'
+import { useMemo } from 'react'
 import { type IOrderBookConfig, type IChartConfig } from '../../type.js'
-import { parse_text, to_chart_data } from '../../utils.js'
+import { to_chart_data } from '../../utils.js'
 import { DdbType } from 'dolphindb/browser.js'
 import { OrderFormFields, BasicFormFields } from '../../ChartFormFields/OrderBookField.js'
 import {
   type EChartsOption,
 } from 'echarts/types/dist/shared'
+import { type OrderBookData, convert_order_book_config, convertDateFormat, type OrderBookTradeData } from './config.js'
 
 
 
 interface IProps { 
     widget: Widget
-    data_source: OrderBookData[]
+    data_source: OrderBookTradeData[]
 }
 
 
 export function OrderBook (props: IProps) {
     const { widget, data_source } = props
     
-    let { title, with_tooltip, time_rate, title_size, with_legend, with_split_line, market_data_files_num } = widget.config as unknown as IChartConfig & IOrderBookConfig
+    let { time_rate, market_data_files_num } = widget.config as IOrderBookConfig
     
     /** 记录每一次流数据的长度， 然后处理时， 可以不需要处理以前的已经发过来的流数据 */
     // let data_length = useRef(0)
@@ -35,8 +36,8 @@ export function OrderBook (props: IProps) {
         let orderbook_data = [ ]
         let bar_data = [ ]
         let line_data = [ ]
-        
         console.log(data_source)
+        
         
         // time_rate 作用解释， 由于 echarts heatmap 的每个小块高度默认展示一个 y 轴单位长度（未找到可以改动此属性的 option，找到了应该就可以去掉该属性）
         // 但订单图数据常为浮点数，且数据浮动不大，因此会造成多个小块大面积重叠，导致图的展示效果不好
@@ -52,6 +53,7 @@ export function OrderBook (props: IProps) {
                 for (let i = 0;  i < (price.length || 0) && i < market_data_files_num;  i++)
                     // 去除空值
                     if (to_chart_data(price[i], DdbType.double) && to_chart_data(size[i], DdbType.long))
+                        // 数据解释: 第一项时间，作为 x 轴；第二项价格，作为 y 轴； 第三栏交易量，tooltip 展示； 第四栏价格档位，tooltip 展示；第五栏交易量，用于排序展示块的颜色深浅
                         entry.push([sendingTime, price[i] * time_rate, to_chart_data(size[i], DdbType.long), is_buy ? `bmd[${i}]` : `omd[${i}]`, size[i]])
             // 对 size 排序，确认颜色深浅
             entry.sort((a, b) => {
@@ -73,10 +75,14 @@ export function OrderBook (props: IProps) {
             orderbook_data.push(...omd)
             
             // 柱状图数据及曲线数据
-            if (omd.length && bid.length) {
-              bar_data.push([convertDateFormat(item.sendingTime), 100])
-              line_data.push([convertDateFormat(item.sendingTime), JSON.parse(item.bidmdEntryPrice)[0] * time_rate])
-            }
+            
+            bar_data.push([convertDateFormat(item.sendingTime), item.volume || 0])
+                
+            
+            
+            if (item.upToDatePrice) 
+                line_data.push([convertDateFormat(item.sendingTime), item.upToDatePrice * time_rate])
+            
         }
         
       
@@ -85,158 +91,8 @@ export function OrderBook (props: IProps) {
         // console.log(line_data)
         
         
-        return {
-            title: {
-                text: parse_text(title ?? ''),
-                textStyle: {
-                    color: '#e6e6e6',
-                    fontSize: title_size,
-                }
-            },
-            legend: {
-                show: with_legend
-            },
-            tooltip: {
-                show: with_tooltip,
-                position: 'top',
-                formatter: params => {
-                    return `${params.data[0]}
-                    ${(params.data[1] / time_rate).toFixed(4)}
-                    ${params.data[2]}
-                    ${params.data[3]}`
-                }
-            },
-            grid: [
-                // 热力图    
-                {
-                    height: '50%',
-                    top: '10%'
-                },
-                // 柱状图
-                {
-                    height: '30%',
-                    bottom: '10%'
-                }
-            ],
-            
-            xAxis: [{
-                type: 'category',
-                // 坐标轴
-                axisLine: {
-                    show: false
-                },
-                axisTick: {
-                    show: false
-                },
-                axisLabel: {
-                    show: false,
-                },
-            },
-            {
-                gridIndex: 1,
-                type: 'category',
-                // 坐标轴
-                axisLine: {
-                    show: true
-                }
-            }],
-            yAxis: [
-                {
-                    position: 'left',
-                    type: 'value',
-                    scale: true,
-                    // 坐标轴在 grid 区域中的分隔线。
-                    splitLine: {
-                    show: with_split_line
-                    },
-                    axisLabel: {
-                        formatter: params => {
-                            return (params / time_rate).toFixed(2)
-                        }
-                    },
-                    axisLine: {
-                    show: true
-                    }
-                },
-                {
-                    gridIndex: 1,
-                    position: 'left',
-                    type: 'value',
-                    scale: true,
-                    // 坐标轴在 grid 区域中的分隔线。
-                    splitLine: {
-                    show: with_split_line
-                    },
-                    axisLine: {
-                    show: true
-                    }
-                },
-            ],
-            visualMap: {
-                min: -10,
-                max: 10,
-                calculable: true,
-                orient: 'horizontal',
-                left: 'center',
-                bottom: '0%',
-                inRange: {
-                    color: ['rgba(57,117,198,0.6)', 'rgba(255,255,255,0.6)', 'rgba(255,0,0,0.6)']
-                }
-            },
-            series: [
-                {   
-                    name: 'Order Book',
-                    type: 'heatmap',
-                    data: orderbook_data,
-                    encode: {
-                    x: 0,
-                    y: 1,
-                    },
-                    emphasis: {
-                    itemStyle: {
-                        shadowBlur: 10,
-                        shadowColor: 'rgba(0, 0, 0, 0.5)'
-                    }
-                    },
-                    xAxisIndex: 0,
-                    yAxisIndex: 0
-                },
-                {   
-                    name: 'Line',
-                    type: 'line',
-                    data: line_data,
-                    encode: {
-                    x: 0,
-                    y: 1,
-                    },
-                    smooth: true,
-                    xAxisIndex: 0,
-                    yAxisIndex: 0
-                },
-                {   
-                    name: 'Bar',
-                    type: 'bar',
-                    data: bar_data,
-                    backgroundStyle: {
-                    color: 'rgba(180, 180, 180, 0.2)'
-                    },
-                    encode: {
-                    x: 0,
-                    y: 1,
-                    },
-                    emphasis: {
-                    itemStyle: {
-                        shadowBlur: 10,
-                        shadowColor: 'rgba(0, 0, 0, 0.5)'
-                    }
-                    },
-                    // 选择 gird 中下方的图
-                    xAxisIndex: 1,
-                    yAxisIndex: 1
-                }
-            ]
-        }
-    }, [title, with_tooltip, time_rate, data_source, title_size, with_legend, with_split_line, market_data_files_num])   
+        return convert_order_book_config(widget.config as unknown as IChartConfig & IOrderBookConfig, orderbook_data, line_data, bar_data)
+    }, [data_source, widget.config])   
     
     
     
@@ -260,47 +116,6 @@ export function OrderConfigForm (props: { col_names: string[] } ) {
 }
 
 
-function convertDateFormat (dateString: string) {
-    // const parts = dateString.split(/[\s.:-]/)
-    // const year = parts[0]
-    // const month = parts[1].padStart(2, '0')
-    // const day = parts[2].padStart(2, '0')
-    const time = dateString.split(' ')[1]
-    
-    return `${time}`
-}
 
-interface OrderBookData {
-    bondCodeVal: string
-    createTime: string
-    marketDepth: string
-    mdBookType: string
-    messageId: string
-    messageSource: string
-    msgSeqNum: string
-    msgType: string
-    bidmdEntryPrice: any
-    offermdEntryPrice: any
-    bidmdEntrySize: any
-    offermdEntrySize: any
-    bidsettlType: any
-    offersettlType: any
-    bidyield: any
-    offeryield: any
-    bid1yieldType: string
-    offer1yieldType: string
-    bid2yieldType: string
-    offer2yieldType: string
-    bid3yieldType: string
-    offer3yieldType: string
-    bid4yieldType: string
-    offer4yieldType: string
-    bid5yieldType: string
-    offer5yieldType: string
-    bid6yieldType: string
-    offer6yieldType: string
-    securityID: string
-    senderCompID: string
-    senderSubID: string
-    sendingTime: string
-}
+
+
