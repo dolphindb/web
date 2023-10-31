@@ -91,7 +91,10 @@ export function StreamEditor ({
                 if (!table.includes(current_data_source.stream_table)) {
                     change_current_data_source_property('stream_table', table[0], false) 
                     set_current_stream(table[0])
-                }
+                } 
+                else 
+                    set_current_stream(current_data_source.stream_table)
+                
             }  else 
                 change_current_data_source_property('stream_table', '', false)
                 
