@@ -89,12 +89,14 @@ function Series (props: { col_names: string[], single?: boolean }) {
     
     const series = Form.useWatch('series')
     
+    const is_heat_map = type === WidgetChartType.HEATMAP
+    
     return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: '数据列 1', yAxisIndex: 0, type: type === WidgetChartType.MIX ? WidgetChartType.LINE : type, color: null }]}>
         {(fields, { add, remove }) => { 
             const items = fields.map(field => { 
                 const children = 
                     <div className='field-wrapper'>
-                        <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
+                        <Form.Item name={[field.name, 'col_name']} label={type === WidgetChartType.HEATMAP ? '热力值列' : t('数据列')} initialValue={col_names?.[0]} >
                             <Select options={col_names.map(item => ({ label: item, value: item })) } />
                         </Form.Item>
                         <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={`数据列 ${field.key + 1}`}> 
@@ -113,26 +115,28 @@ function Series (props: { col_names: string[], single?: boolean }) {
                        
                         
                         {/* 数据关联的y轴选择 */}
-                        <FormDependencies dependencies={['yAxis']}>
+                        {!is_heat_map && <FormDependencies dependencies={['yAxis']}>
                             { value => {
-                                const { yAxis } = value
+                                const { yAxis, series } = value
                                 const options = yAxis.map((item, idx) => ({
                                     value: idx,
                                     label: item?.name
                                 }))
-                                return <Form.Item name={[field.name, 'yAxisIndex']} label={t('关联 Y 轴')} initialValue={0}>
+                                return <Form.Item hidden={is_heat_map} name={[field.name, 'yAxisIndex']} label={t('关联 Y 轴')} initialValue={0}>
                                     <Select options={options} />
                                 </Form.Item>
                             } }
-                        </FormDependencies>
+                        </FormDependencies> }
                         
-                        <Form.Item name={[field.name, 'mark_point']} label='标记点'>
-                            <Select options={mark_point_options} mode='multiple'/>
-                        </Form.Item>
-                        
-                        <Form.Item label={t('水平线')} name={[field.name, 'mark_line']}>
-                            <Select options={mark_line_options} mode='tags' />
-                        </Form.Item>
+                        { !is_heat_map && <>
+                            <Form.Item name={[field.name, 'mark_point']} label='标记点'>
+                                <Select options={mark_point_options} mode='multiple'/>
+                            </Form.Item>
+                            
+                            <Form.Item label={t('水平线')} name={[field.name, 'mark_line']}>
+                                <Select options={mark_line_options} mode='tags' />
+                            </Form.Item>
+                        </> }
                         {/* 仅折线图可选择线类型 */}
                         
                         <FormDependencies dependencies={[['series', field.name, 'type']]}>
@@ -202,10 +206,10 @@ function Series (props: { col_names: string[], single?: boolean }) {
                                         <Form.Item label='明亮色' name={[field.name, 'in_range', 'color', 'high']} initialValue='#983430'>
                                             <StringColorPicker />
                                         </Form.Item>
-                                        <Form.Item label='最大值' name={[field.name, 'max']}>
+                                        <Form.Item label='最小值' name={[field.name, 'min']}>
                                             <InputNumber />
                                         </Form.Item>
-                                        <Form.Item label='最小值' name={[field.name, 'min']}>
+                                        <Form.Item label='最大值' name={[field.name, 'max']}>
                                             <InputNumber />
                                         </Form.Item>
                                         <Form.Item label='展示标签' name={[field.name, 'with_label']} initialValue={false}>

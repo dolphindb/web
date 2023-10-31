@@ -21,7 +21,7 @@ export function HeatMap (props: IProps) {
         const { xAxis, yAxis, series } = widget.config as IChartConfig
         
         const { col_name, in_range, max = 0, min = 0, with_label } = series[0]
-        console.log(min, max, 'max')
+        
         const opt = convert_chart_config(widget, data_source)
         
         return {
@@ -51,7 +51,7 @@ export function HeatMap (props: IProps) {
                     color: [in_range?.color?.low || '#EBE1E1', in_range?.color?.high || '#983430'] 
                 }
             },
-            series: opt.series.map((item, idx) => ({
+            series: opt.series.map(item => ({
                 ...item,
                 data: data_source.map(data => {
                     // @ts-ignore
