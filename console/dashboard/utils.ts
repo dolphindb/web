@@ -317,7 +317,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             data = data.map(item => ({
                 value: item,
                 itemStyle: {
-                    color: item > series.threshold.value ? series.threshold?.low_color : series.threshold?.high_color
+                    color: item > series.threshold.value ? series.threshold?.high_color : series.threshold?.low_color
                 }
             }))
         
@@ -359,8 +359,8 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     return {
         grid: {
             containLabel: true,
-            left: 15,
-            bottom: 0
+            left: 30,
+            bottom: 10
         },
         legend: {
             show: with_legend,
