@@ -3,7 +3,7 @@ import './index.scss'
 import { CloseOutlined } from '@ant-design/icons'
 
 
-import { WidgetChartType, WidgetType, dashboard } from '../model.js'
+import { WidgetChartType, WidgetType, WidgetTypeWithoutDatasource, dashboard } from '../model.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import { useMemo } from 'react'
 import { type Widget } from '../model.js'
@@ -20,7 +20,6 @@ import { VariableForm } from './VariableForm.js'
 function GraphComponent ({ widget }: { widget: Widget }) {
     
     const data_source_node = get_data_source(widget.source_id)
-    const { variable_ids = [ ], variable_cols, with_search_btn } = widget.config
     
     const { data = [ ] } = data_source_node.use(['data'])
     
@@ -30,9 +29,9 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     return <div className={cn('graph-item-wrapper', {
         'overflow-visible-wrapper': widget.type === WidgetChartType.EDITOR || widget.type === WidgetChartType.OHLC
     }) }>
-        {(widget.type !==  WidgetChartType.VARIABLE) && <VariableForm ids={variable_ids} cols={variable_cols} with_search_btn={with_search_btn} /> }
+        {(widget.type !==  WidgetChartType.VARIABLE && widget.config) && <VariableForm ids={widget.config.variable_ids} cols={widget.config.variable_cols} with_search_btn={widget.config.with_search_btn} /> }
         <div className={cn('graph-component', {
-            'graph-item-wrapper-abandon-scroll': widget.config.abandon_scroll
+            'graph-item-wrapper-abandon-scroll': widget.config?.abandon_scroll
         }) }>
             <Component data_source={data} widget={widget} />
         </div>
@@ -62,7 +61,7 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
             <CloseOutlined className='delete-graph-icon' onClick={() => { dashboard.delete_widget(widget) }}/>
         </div> }
         {
-            widget.source_id && widget.config ? 
+            (widget.config && widget.source_id) ||  WidgetTypeWithoutDatasource.includes(widget.type) ? 
                 <GraphComponent widget={widget} />
             :
                 <div className='graph-content'>

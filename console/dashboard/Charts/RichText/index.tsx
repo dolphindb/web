@@ -20,7 +20,7 @@ import { InsertVariableBtn } from '../../DataSource/InsertVariableBtn.js'
 let ReactQuill: typeof import('react-quill')
 
 export function RichText ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
-    const [display_text, set_display_text] = useState((widget.config as ITextConfig).value || '')
+    const [display_text, set_display_text] = useState((widget.config as ITextConfig)?.value || '')
     const [edit_text, set_edit_text] = useState(display_text)
     
     const [quill_loaded, set_quill_loaded] = useState(Boolean(ReactQuill))
