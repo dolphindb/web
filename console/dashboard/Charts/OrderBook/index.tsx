@@ -36,7 +36,6 @@ export function OrderBook (props: IProps) {
         let orderbook_data = [ ]
         let bar_data = [ ]
         let line_data = [ ]
-        console.log(data_source)
         
         
         // time_rate 作用解释， 由于 echarts heatmap 的每个小块高度默认展示一个 y 轴单位长度（未找到可以改动此属性的 option，找到了应该就可以去掉该属性）
