@@ -102,7 +102,7 @@ export function convert_order_book_config (config: IOrderBookConfig, orderbook_d
             left: 'center',
             bottom: '0%',
             inRange: {
-                color: ['rgba(57,117,198,0.6)', 'rgba(255,255,255,0.6)', 'rgba(255,0,0,0.6)']
+                color: ['rgba(255,0,0,0.6)', 'rgba(255,255,255,0.6)', 'rgba(57,117,198,0.6)']
             },
             // 设置 visualMap 仅对 orderbook 生效，不然会影响柱状图和曲线颜色
             seriesIndex: 0
