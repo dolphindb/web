@@ -170,6 +170,9 @@ export function convertDateFormat (dateString: string) {
 }
 
 export function parsePrice (dataString: string) {
+    if (dataString.length < 3) 
+        return [ ]
+    
     const data = dataString.slice(1, dataString.length - 2)
     const arr = data.split(',')
     return arr.map(item => {

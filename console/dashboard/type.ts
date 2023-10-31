@@ -9,6 +9,8 @@ export interface AxisConfig {
     
     with_zero?: boolean
     
+    data?: any[]
+    
     
     position?: Position
     offset?: number
@@ -29,6 +31,7 @@ export interface ISeriesConfig {
     stack?: string
     end_label?: boolean
     
+    
     // 阈值与配色
     threshold?: {
         value?: number
@@ -36,12 +39,16 @@ export interface ISeriesConfig {
         high_color?: string
     }
     
+    /** 热力图特有 */
+    min?: number
+    with_label?: boolean
     in_range?: {
         color: {
             low: string
             high: string
         }
     }
+    
     
     symbol?: string
     symbol_size?: number

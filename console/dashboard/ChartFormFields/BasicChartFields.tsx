@@ -202,7 +202,15 @@ function Series (props: { col_names: string[], single?: boolean }) {
                                         <Form.Item label='明亮色' name={[field.name, 'in_range', 'color', 'high']} initialValue='#983430'>
                                             <StringColorPicker />
                                         </Form.Item>
-                                    
+                                        <Form.Item label='最大值' name={[field.name, 'max']}>
+                                            <InputNumber />
+                                        </Form.Item>
+                                        <Form.Item label='最小值' name={[field.name, 'min']}>
+                                            <InputNumber />
+                                        </Form.Item>
+                                        <Form.Item label='展示标签' name={[field.name, 'with_label']} initialValue={false}>
+                                            <BoolRadioGroup />
+                                        </Form.Item>
                                     </>
                                 else
                                     return null
