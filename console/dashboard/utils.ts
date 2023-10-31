@@ -1,7 +1,7 @@
 import { type NamePath } from 'antd/es/form/interface'
 import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format } from 'dolphindb/browser.js'
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
-import { isNil, isNumber } from 'lodash'
+import { isNil, isNumber, uniq } from 'lodash'
 
 import { WidgetChartType, type Widget } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
@@ -9,7 +9,6 @@ import { type DataSource } from './DataSource/date-source.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import dayjs from 'dayjs'
 import { find_variable_by_name, get_variable_value, subscribe_variable } from './Variable/variable.js'
-import { type } from 'os'
 
 
 export function format_time (time: string, format: string) { 
@@ -233,7 +232,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         }
         
         if (axis.type === AxisType.CATEGORY)
-            return { ...axis_config, data }
+            return { ...axis_config, data: uniq(data || [ ]) }
         else
             return axis_config
     }
@@ -306,13 +305,15 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     return {
         grid: {
             containLabel: true,
-            left: 30,
+            left: 40,
             bottom: 10
         },
         legend: {
             show: with_legend,
+            top: 25,
+            left: 120,
             textStyle: {
-                color: '#e6e6e6'
+                color: '#e6e6e6',
             }
         },
         tooltip: {
