@@ -30,6 +30,10 @@ export function HeatMap (props: IProps) {
                 ...opt.grid,
                 bottom: '20%'
             },
+            tooltip: {
+                ...opt.tooltip,
+                trigger: 'item',
+            },
             legend: {
                 show: false
             },
