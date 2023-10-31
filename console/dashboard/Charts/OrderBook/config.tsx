@@ -169,6 +169,14 @@ export function convertDateFormat (dateString: string) {
     return `${time}`
 }
 
+export function parsePrice (dataString: string) {
+    const data = dataString.slice(1, dataString.length - 2)
+    const arr = data.split(',')
+    return arr.map(item => {
+        return item !== '' ? item : null
+    })
+}
+
 export interface OrderBookTradeData {
     bondCodeVal: string
     createTime: string
