@@ -53,7 +53,7 @@ export function HeatMap (props: IProps) {
                     // @ts-ignore
                     const x = opt.xAxis?.data?.indexOf(data[xAxis?.col_name])
                     const y = opt.yAxis[0]?.data?.indexOf(data[yAxis[0]?.col_name])
-                    return [x, y, data[col_name].replaceAll(',', '')]
+                    return [x, y, data[col_name]?.replaceAll(',', '')]
                 }),
                 label: {
                     show: with_label
