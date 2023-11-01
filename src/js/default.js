@@ -289,8 +289,10 @@ function LoadTable(nodeList) {
                 if (rowObject.state === 1) {
                     //return '<font style="color:green">running</font>';
                     return "<img style='margin: 0 auto;display:block' title='running' src='images/running.png' />"
-                } else {
-                    return "<img style='margin: 0 autodisplay:block' title='stopped' src='images/stopped.png' />";
+                } else if (rowObject.state === 2) { 
+                    return "<img style='margin: 0 auto;display:block' title='waiting' src='images/waiting.svg' />"
+                }else {
+                    return "<img style='margin: 0 auto;display:block' title='stopped' src='images/stopped.png' />";
                 }
             }
         }, {
