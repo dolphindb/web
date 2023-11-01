@@ -63,7 +63,7 @@ export function DashBoard () {
 
 
 function DashboardInstance () {
-    const { widgets, config, editing } = dashboard.use(['widgets', 'config', 'editing'])
+    const { widgets, widget, config, editing } = dashboard.use(['widgets', 'widget', 'config', 'editing'])
     /** div ref, 用于创建 GridStack  */
     let rdiv = useRef<HTMLDivElement>()
     
@@ -125,7 +125,7 @@ function DashboardInstance () {
                 </div>
             </div>
             
-            <SettingsPanel hidden={!editing}/>
+            <SettingsPanel hidden={!editing || widget?.type === 'TEXT'}/>
         </div>
     </div>
 }

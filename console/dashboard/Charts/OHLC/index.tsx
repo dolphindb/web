@@ -193,21 +193,21 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
             //     colorAlpha: 0.1
             //   }
             // },
-            visualMap: {
-                show: false,
-                seriesIndex: 5,
-                dimension: 2,
-                pieces: [
-                    {
-                        value: 1,
-                        color: kColor
-                    },
-                    {
-                        value: -1,
-                        color: kColor0
-                    }
-                ]
-            },
+            // visualMap: {
+            //     show: false,
+            //     seriesIndex: 5,
+            //     dimension: 2,
+            //     pieces: [
+            //         {
+            //             value: 1,
+            //             color: kColor
+            //         },
+            //         {
+            //             value: -1,
+            //             color: kColor0
+            //         }
+            //     ]
+            // },
             grid: [
                 {   
                     // containLabel: true,

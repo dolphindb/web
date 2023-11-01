@@ -11,8 +11,8 @@ import { debounce } from 'lodash'
 
 export function DashboardEditor ({ widget }: { widget: Widget }) {
     const { config } = dashboard.use(['config'])
-    const { title, button_text, code: saved_code } = widget.config as IEditorConfig
-    const [ code, set_code ] = useState(saved_code)
+    // const { title = 'editor', button_text = 'run', code: saved_code = '' } = widget?.config as IEditorConfig
+    const [ code, set_code ] = useState((widget?.config as IEditorConfig)?.code || '')
     
     async function save (code: string) {
         try {
@@ -30,7 +30,7 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
     const save_debounced = debounce(save, 500, { leading: false, trailing: true })
     
     return <div className='editor-container'>
-        <h2>{title}</h2>
+        <h2>{(widget?.config as IEditorConfig)?.title || 'editor'}</h2>
         <div className='editor'>
             <Editor enter_completion value={code} on_change={async code => {
                 set_code(code)
@@ -45,7 +45,7 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
                     } catch (error) {
                         dashboard.show_error({ error })
                     }
-                }}>{button_text}</Button>
+                }}>{(widget?.config as IEditorConfig)?.button_text || 'run'}</Button>
    
     </div>
 }
