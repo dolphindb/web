@@ -1,7 +1,7 @@
 import './index.scss'
 
 import { useMemo } from 'react'
-import { Form, Select, Input, Collapse, Button, Space, Divider, InputNumber } from 'antd'
+import { Form, Select, Input, Collapse, Button, Space, InputNumber } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 import { t } from '../../../i18n/index.js'
@@ -76,7 +76,7 @@ function Labels (props: { col_names: string[] }) {
                             <div className='field-wrapper'>
                                 <Space>
                                     <div className='axis-wrapper'>
-                                        <Form.Item name={[field.name, 'col_name']} label={t('数据列')} >
+                                        <Form.Item name={[field.name, 'col_name']} label={t('标签列')} >
                                             <Select options={col_names.map(item => ({ label: item, value: item }))} />
                                         </Form.Item>
                                     </div>
@@ -118,7 +118,7 @@ function Series (props: { col_names: string[] }) {
                                     <Form.Item name={[field.name, 'col_name']} label={t('数据列')} >
                                         <Select options={col_names.map(item => ({ label: item, value: item }))} />
                                     </Form.Item>
-                                    <Form.Item name={[field.name, 'name']} label={t('最大值')}>
+                                    <Form.Item name={[field.name, 'max']} label={t('最大值')}>
                                         <InputNumber />
                                     </Form.Item>
                                 </div>

@@ -35,12 +35,9 @@ function format_unit8 (type: DdbType, values, le: boolean, index: number, length
 }
 
 
-function formatter (type: DdbType, values, le: boolean, index: number, options = { nullstr: true }) {
+function formatter (type: DdbType, values, le: boolean, index: number, options = { nullstr: true, grouping: false }) {
     const value = values[index]
-    switch (type) {
-        case DdbType.long:
-            return value === nulls.int64 ? 'null' : String(value)
-            
+    switch (type) {   
         case DdbType.decimal32:
             return format_decimal(type, values, index)
         case DdbType.decimal64:
