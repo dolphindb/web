@@ -174,6 +174,7 @@ export function Overview () {
             
             <Table
                 rowSelection={{
+                    selectedRowKeys: selected_dashboard_ids,
                     onChange: (selectedRowKeys: React.Key[]) => {
                         set_selected_dashboard_ids(selectedRowKeys)
                     }
@@ -254,7 +255,7 @@ export function Overview () {
                                             dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
                                             
                                             await dashboard.delete_dashboard_configs([key])
-                                            
+                                            set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
                                             model.message.success(t('删除成功'))
                                         } catch (error) {
                                             model.show_error({ error })
@@ -289,10 +290,13 @@ export function Overview () {
                             </Button>
                             
                             <Upload
+                                multiple
                                 showUploadList={false}
                                 beforeUpload={async file => {
                                     try {
                                         const import_config = JSON.parse(await file.text()) as DashBoardConfig
+                                        console.log(selected_dashboard_ids)
+                                        
                                         if (configs.findIndex(c => c.id === import_config.id) !== -1)
                                             await dashboard.update_dashboard_config(import_config)
                                         else
