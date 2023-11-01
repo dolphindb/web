@@ -1,7 +1,7 @@
 import { type NamePath } from 'antd/es/form/interface'
 import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format } from 'dolphindb/browser.js'
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
-import { isNil, isNumber } from 'lodash'
+import { isNil, isNumber, uniq } from 'lodash'
 
 import { WidgetChartType, type Widget } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
@@ -31,11 +31,11 @@ function format_decimal (type: DdbType, values, index: number): string {
 }
 
 function format_unit8 (type: DdbType, values, le: boolean, index: number, length: number, options = { }) {
-    return format(type, (values as Uint8Array).subarray(length * index, length * (index + 1)), le, options) || 'null'
+    return format(type, (values as Uint8Array).subarray(length * index, length * (index + 1)), le, options)
 }
 
 
-function formatter (type: DdbType, values, le: boolean, index: number, options = { }) {
+function formatter (type: DdbType, values, le: boolean, index: number, options = { nullstr: true }) {
     const value = values[index]
     switch (type) {
         case DdbType.long:
@@ -62,7 +62,7 @@ function formatter (type: DdbType, values, le: boolean, index: number, options =
             return base[data[index]]
         }
         default:
-            return format(type, value, le)
+            return format(type, value, le, options)
     }
 }
 
@@ -102,7 +102,7 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{
                             array.push(formatter(type, value[0].data, le, i))
                          
                     offset += length
-                    rows[index][key] = '[' + array.map(item => item === void 0 ? 'null' : item).join(',') + ']'
+                    rows[index][key] = '[' + array.map(item => item).join(',') + ']'
                 })
             }
             
@@ -147,7 +147,7 @@ export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols:
                     array.push(formatter(type, value[0].data, le, i))
                  
             offset += length
-            rows[index][key] = '[' + array.map(item => item === void 0 ? 'null' : item).join(',') + ']'
+            rows[index][key] = '[' + array.map(item => item).join(',') + ']'
         })
     }
     return rows
@@ -266,7 +266,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         }
         
         if (axis.type === AxisType.CATEGORY)
-            return { ...axis_config, data }
+            return { ...axis_config, data: uniq(data || [ ]) }
         else
             return axis_config
     }
@@ -339,13 +339,15 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     return {
         grid: {
             containLabel: true,
-            left: 30,
+            left: 40,
             bottom: 10
         },
         legend: {
             show: with_legend,
+            top: 25,
+            left: 120,
             textStyle: {
-                color: '#e6e6e6'
+                color: '#e6e6e6',
             }
         },
         tooltip: {

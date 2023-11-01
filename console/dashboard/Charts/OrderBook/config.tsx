@@ -102,7 +102,7 @@ export function convert_order_book_config (config: IOrderBookConfig, orderbook_d
             left: 'center',
             bottom: '0%',
             inRange: {
-                color: ['rgba(57,117,198,0.6)', 'rgba(255,255,255,0.6)', 'rgba(255,0,0,0.6)']
+                color: ['rgba(255,0,0,0.6)', 'rgba(255,255,255,0.6)', 'rgba(57,117,198,0.6)']
             },
             // 设置 visualMap 仅对 orderbook 生效，不然会影响柱状图和曲线颜色
             seriesIndex: 0
@@ -167,6 +167,17 @@ export function convertDateFormat (dateString: string) {
     const time = dateString.split(' ')[1]
     
     return `${time}`
+}
+
+export function parsePrice (dataString: string) {
+    if (dataString.length < 3) 
+        return [ ]
+    
+    const data = dataString.slice(1, dataString.length - 2)
+    const arr = data.split(',')
+    return arr.map(item => {
+        return item !== '' ? item : null
+    })
 }
 
 export interface OrderBookTradeData {
