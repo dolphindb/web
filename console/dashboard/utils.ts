@@ -1,5 +1,5 @@
 import { type NamePath } from 'antd/es/form/interface'
-import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format } from 'dolphindb/browser.js'
+import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type InspectOptions } from 'dolphindb/browser.js'
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
 import { isNil, isNumber, uniq } from 'lodash'
 
@@ -20,30 +20,30 @@ export function format_time (time: string, format: string) {
 }
 
 
-function format_decimal (type: DdbType, values, index: number): string {
+function format_decimal (type: DdbType, values, index: number, options: InspectOptions): string {
     const { scale, data } = values
     const x = data[index]
     if (is_decimal_null_value(type, x))
-        return 'null'
+        return options.nullstr ? 'null' : ''
     const s = String(x < 0 ? -x : x).padStart(scale, '0')
     const str = (x < 0 ? '-' : '') + (scale ? `${s.slice(0, -scale) || '0'}.${s.slice(-scale)}` : s)
     return str
 }
 
-function format_unit8 (type: DdbType, values, le: boolean, index: number, length: number, options = { }) {
+function format_unit8 (type: DdbType, values, le: boolean, index: number, length: number, options: InspectOptions) {
     return format(type, (values as Uint8Array).subarray(length * index, length * (index + 1)), le, options)
 }
 
 
-function formatter (type: DdbType, values, le: boolean, index: number, options = { nullstr: true, grouping: false }) {
+function formatter (type: DdbType, values, le: boolean, index: number, options = { nullstr: false, grouping: false }) {
     const value = values[index]
     switch (type) {   
         case DdbType.decimal32:
-            return format_decimal(type, values, index)
+            return format_decimal(type, values, index, options)
         case DdbType.decimal64:
-            return format_decimal(type, values, index)
+            return format_decimal(type, values, index, options)
         case DdbType.decimal128:
-            return format_decimal(type, values, index)
+            return format_decimal(type, values, index, options)
         case DdbType.ipaddr:
             return format_unit8(type, values, le, index, 16, options)
         case DdbType.point:
@@ -93,10 +93,10 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{
                     for (let i = offset;  i < offset + length;  i++) 
                         if (type === DdbType.decimal32 || type === DdbType.decimal64 || type === DdbType.decimal128) {
                             value[0].scale = value.scale
-                            array.push(formatter(type, value[0], le, i))
+                            array.push(formatter(type, value[0], le, i, { nullstr: true, grouping: false }))
                         } 
                         else
-                            array.push(formatter(type, value[0].data, le, i))
+                            array.push(formatter(type, value[0].data, le, i, { nullstr: true, grouping: false }))
                          
                     offset += length
                     rows[index][key] = '[' + array.map(item => item).join(',') + ']'
@@ -138,10 +138,10 @@ export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols:
             for (let i = offset;  i < offset + length;  i++) 
                 if (type === DdbType.decimal32 || type === DdbType.decimal64 || type === DdbType.decimal128) {
                     value[0].scale = value.scale
-                    array.push(formatter(type, value[0], le, i))
+                    array.push(formatter(type, value[0], le, i, { nullstr: true, grouping: false }))
                 } 
                 else
-                    array.push(formatter(type, value[0].data, le, i))
+                    array.push(formatter(type, value[0].data, le, i, { nullstr: true, grouping: false }))
                  
             offset += length
             rows[index][key] = '[' + array.map(item => item).join(',') + ']'
@@ -342,7 +342,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         legend: {
             show: with_legend,
             top: 25,
-            left: 120,
+            left: 160,
             textStyle: {
                 color: '#e6e6e6',
             }

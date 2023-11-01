@@ -42,6 +42,7 @@ export function HostSelect () {
             
             url.searchParams.set('hostname', hostname)
             url.searchParams.set('port', port)
+            url.searchParams.delete('dashboard')
             
             location.href = url.toString()
         }}
