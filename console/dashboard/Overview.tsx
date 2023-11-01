@@ -1,9 +1,9 @@
 import './Overview.sass'
 
 import { useEffect, useState } from 'react'
-
+import JSZip from 'jszip'
 import { Button, Input, Modal, Table, Upload, Popconfirm } from 'antd'
-import { PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
+import { DownloadOutlined, PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
 
 
 import { use_modal } from 'react-object-model/modal.js'
@@ -308,6 +308,31 @@ export function Overview () {
                             </Upload>
                             
                             <Button
+                                icon={<DownloadOutlined />}
+                                onClick={async () => {
+                                    try {
+                                        const zip = new JSZip()
+                                        for (let config_id of selected_dashboard_ids) {
+                                            const config = configs.find(({ id }) => id === config_id)
+                                            zip.file(`dashboard.${config.name}.json`, new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }))
+                                        }
+                                        zip.generateAsync({ type: 'blob' }).then(blob => {
+                                            let a = document.createElement('a')
+                                            a.download = `${model.username}.dashboards.zip`
+                                            a.href =  URL.createObjectURL(blob)
+                                            document.body.appendChild(a)
+                                            a.click()
+                                            document.body.removeChild(a)
+                                        })
+                                    } catch (error) {
+                                        model.show_error({ error })
+                                    }
+                                }}
+                            >
+                                {t('导出')}
+                            </Button>
+                            
+                            <Button
                                 icon={<ShareAltOutlined />}
                                 onClick={async () => {
                                     try {
@@ -321,6 +346,8 @@ export function Overview () {
                             >
                                 {t('分享')}
                             </Button>
+                            
+                            
                         </div>
                     </div>}
             />
