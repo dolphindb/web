@@ -21,15 +21,16 @@ interface IProps extends TableProps<any> {
 }
 
 function get_cell_color (val, threshold, total) { 
-    if (isNumber(val) && isNumber(threshold)) { 
-        const low_to_threshold_list = total.filter(item => item < threshold).sort((a, b) => a - b)
+    
+    if (isNumber(Number(val)) && isNumber(threshold)) { 
+        const low_to_threshold_list = total.map(Number).filter(item => item < threshold).sort((a, b) => a - b)
         const low_to_threshold_min = low_to_threshold_list[0]
     
-        const high_to_threshold_list = total.filter(item => item >= threshold).sort((a, b) => a - b)
+        const high_to_threshold_list = total.map(Number).filter(item => item >= threshold).sort((a, b) => a - b)
         const high_to_threshold_max = high_to_threshold_list.pop()
         
         
-        if (val >= threshold) {
+        if (Number(val) >= threshold) {
             const transparency = ((val - threshold) / (high_to_threshold_max - threshold)) * 0.8 + 0.2
             return `rgba(255,0,0,${transparency})`
         }
@@ -68,7 +69,7 @@ export function DBTable (props: IProps) {
             .map(col_name => show_cols.find(item => item.col === col_name))
             .map(col => {
                 const { col: name, width = 200, threshold, display_name, decimal_places, time_format, is_thousandth_place, color, align = 'left', background_color, sort } = col ?? { }
-                
+                console.log(threshold, 'threshold')
                 const col_config = {
                     dataIndex: name,
                     width,
@@ -80,7 +81,7 @@ export function DBTable (props: IProps) {
                     onCell: record => {
                         return {
                             style: {
-                                backgroundColor: get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])) ?? background_color,
+                                backgroundColor: isNumber(threshold) ? get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])) : background_color,
                                 color,
                                 border: config.bordered ? '1px solid black' : null
                             }

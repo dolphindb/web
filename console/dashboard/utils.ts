@@ -342,7 +342,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         legend: {
             show: with_legend,
             top: 25,
-            left: 120,
+            left: 160,
             textStyle: {
                 color: '#e6e6e6',
             }

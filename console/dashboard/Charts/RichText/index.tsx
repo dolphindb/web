@@ -70,7 +70,7 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
     
     useEffect(() => {
         (async () => {
-            if (!quill_loaded) {
+            if (visible && !quill_loaded) {
                 // @ts-ignore
                 if (window.define?.amd)
                     // @ts-ignore
@@ -80,7 +80,7 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
                 set_quill_loaded(true)
             }
         })()
-    }, [ ])
+    }, [ visible])
     
     
     return <>
