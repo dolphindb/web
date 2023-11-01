@@ -50,7 +50,7 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
         { editing && <div className='delete-graph'>
             {/* 选中时 hover 且当前有数据源时才能修改数据源 */}
             {
-                widget.id === current?.id && widget.source_id &&
+                widget.id === current?.id && widget.source_id && !WidgetTypeWithoutDatasource.includes(widget.type) &&
                 <DataSourceConfig
                     className='edit-data-source-btn'
                     type='link'
