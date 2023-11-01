@@ -26,8 +26,6 @@ export function SettingsPanel (props: { hidden: boolean }) {
             return <GraphSetting />
     }, [widget])
     
-    console.log('setting', setting)
-    
     return <div className={cn('dashboard-settings-panel', { hidden })}>
         { setting }
     </div>
