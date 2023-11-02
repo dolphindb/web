@@ -72,7 +72,7 @@ const UpSelect: FC<SelectProps> & { Option: typeof Select.Option } = Object.assi
 )
 
 
-export type Context = 'page' | 'webview' | 'window' | 'embed'
+export type Context = 'page' | 'webview' | 'window' | 'embed' | 'dashboard'
 
 export interface Remote {
     /** 调用 remote 中的 func, 只适用于最简单的一元 rpc (请求, 响应) */
