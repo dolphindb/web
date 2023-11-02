@@ -27,6 +27,7 @@ export function Overview () {
     let creator = use_modal()
     let editor = use_modal()
     let sharor = use_modal()
+    let deletor = use_modal()
     
     const params = new URLSearchParams(location.search)
     
@@ -126,6 +127,10 @@ export function Overview () {
                             model.message.error(t('dashboard 名称不允许为空'))
                             return
                         }
+                        if (edit_dashboard_name.includes('/') || edit_dashboard_name.includes('\\')) {
+                            model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
+                            return
+                        }
                         
                         if (configs.find(({ id, name }) => id !== current_dashboard.id && name === edit_dashboard_name)) {
                             model.message.error(t('名称重复，请重新输入'))
@@ -153,6 +158,22 @@ export function Overview () {
                     }}
                 />
             </Modal>
+            
+            <Modal
+                open={deletor.visible}
+                onCancel={deletor.close}
+                onOk={async () => {
+                        try {
+                            await dashboard.delete_dashboard_configs(selected_dashboard_ids, false)
+                            set_selected_dashboard_ids([ ])
+                            deletor.close()
+                        } catch (error) {
+                            model.show_error({ error })
+                        }
+                    }
+                }
+                title={t(`确认删除选中的 ${selected_dashboard_ids.length} 个数据面板吗？`)}
+             />
             
             <Modal
                 open={sharor.visible}
@@ -353,17 +374,13 @@ export function Overview () {
                             
                             <Button
                                 icon={<DeleteOutlined />}
-                                onClick={async () => {
-                                        if (!selected_dashboard_ids || !selected_dashboard_ids.length) 
-                                            model.message.error(t('请至少选中一个面板后再删除'))
-                                        
-                                        try {
-                                            await dashboard.delete_dashboard_configs(selected_dashboard_ids, false)
-                                        } catch (error) {
-                                            model.show_error({ error })
-                                        }
-                                    }
-                                }
+                                onClick={() => {
+                                    if (!selected_dashboard_ids || !selected_dashboard_ids.length) {
+                                    model.message.error(t('请至少选中一个数据面板后再删除'))
+                                        return
+                                    } 
+                                    deletor.open()
+                                }}
                             >
                                 {t('批量删除')}
                             </Button>
