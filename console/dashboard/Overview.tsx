@@ -1,9 +1,9 @@
 import './Overview.sass'
 
 import { useEffect, useState } from 'react'
-import JSZip from 'jszip'
 import { Button, Input, Modal, Table, Upload, Popconfirm } from 'antd'
-import { DownloadOutlined, PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
+import { DeleteOutlined, DownloadOutlined, PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
+import { downloadZip } from 'client-zip'
 
 
 import { use_modal } from 'react-object-model/modal.js'
@@ -57,6 +57,21 @@ export function Overview () {
         }
     }, [ ])
     
+    async function single_file_export (config_id: number) {
+        try {
+            const config = configs.find(({ id }) => id === config_id)
+            let a = document.createElement('a')
+            a.download = `dashboard.${config.name}.json`
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }))
+            
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+        } catch (error) {
+            model.show_error({ error })
+        }
+    }
+    
     
     return <div className='dashboard-overview'>
             <Modal
@@ -68,6 +83,10 @@ export function Overview () {
                             model.message.error(t('dashboard 名称不允许为空'))
                             return
                         }
+                        if (new_dashboard_name.includes('/') || new_dashboard_name.includes('\\')) {
+                            model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
+                            return
+                        }
                         
                         if (configs?.find(({ name }) => name === new_dashboard_name)) {
                             model.message.error(t('名称重复，请重新输入'))
@@ -77,7 +96,7 @@ export function Overview () {
                         /** 待接口更新后修改 */
                         const new_dashboard = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
                         
-                        await dashboard.add_dashboard_config(new_dashboard)
+                        await dashboard.add_dashboard_config(new_dashboard, false)
                         
                         model.set_query('dashboard', String(new_dashboard.id))
                         model.set({ header: false, sider: false })
@@ -116,7 +135,7 @@ export function Overview () {
                         const updated_config = { ...current_dashboard, name: edit_dashboard_name }
                         dashboard.set({ configs: configs.toSpliced(index, 1, updated_config) })
                         
-                        dashboard.update_dashboard_config(updated_config)
+                        dashboard.update_dashboard_config(updated_config, false)
                         model.message.success(t('修改成功'))
                         
                         editor.close()
@@ -224,20 +243,7 @@ export function Overview () {
                                 </a>
                                 
                                 <a
-                                    onClick={async () => {
-                                        try {
-                                            const config = configs.find(({ id }) => id === key)
-                                            let a = document.createElement('a')
-                                            a.download = `dashboard.${config.name}.json`
-                                            a.href = URL.createObjectURL(new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }))
-                                            
-                                            document.body.appendChild(a)
-                                            a.click()
-                                            document.body.removeChild(a)
-                                        } catch (error) {
-                                            model.show_error({ error })
-                                        }
-                                    }}
+                                    onClick={async () => single_file_export(key)}
                                 >
                                     {t('导出')}
                                 </a>
@@ -254,7 +260,7 @@ export function Overview () {
                                             
                                             dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
                                             
-                                            await dashboard.delete_dashboard_configs([key])
+                                            await dashboard.delete_dashboard_configs([key], false)
                                             set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
                                             model.message.success(t('删除成功'))
                                         } catch (error) {
@@ -295,12 +301,12 @@ export function Overview () {
                                 beforeUpload={async file => {
                                     try {
                                         const import_config = JSON.parse(await file.text()) as DashBoardConfig
-                                        console.log(selected_dashboard_ids)
                                         
                                         if (configs.findIndex(c => c.id === import_config.id) !== -1)
-                                            await dashboard.update_dashboard_config(import_config)
+                                            await dashboard.update_dashboard_config(import_config, false)
                                         else
-                                            await dashboard.add_dashboard_config(import_config)
+                                            await dashboard.add_dashboard_config(import_config, false)
+                                        model.message.success(`${import_config.name}导入成功`)
                                     } catch (error) {
                                         model.show_error({ error })
                                         throw error
@@ -308,32 +314,58 @@ export function Overview () {
                                     return false
                                 }}
                             >
-                                <Button icon={<DownloadOutlined />}>{t('导入')}</Button>
+                                <Button icon={<DownloadOutlined />}>{t('批量导入')}</Button>
                             </Upload>
                             
                             <Button
                                 icon={<UploadOutlined />}
                                 onClick={async () => {
+                                    if (selected_dashboard_ids && !selected_dashboard_ids.length) {
+                                        model.message.error(t('请选择至少一个面板进行导出'))
+                                        return
+                                    }
+                                        
+                                    if (selected_dashboard_ids.length === 1) {
+                                        single_file_export(selected_dashboard_ids[0])
+                                        return
+                                    }
                                     try {
-                                        const zip = new JSZip()
+                                        const files = [ ]
                                         for (let config_id of selected_dashboard_ids) {
                                             const config = configs.find(({ id }) => id === config_id)
-                                            zip.file(`dashboard.${config.name}.json`, new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }))
+                                            files.push({ name: `dashboard.${config.name}.json`, lastModified: new Date(), input: new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }) })
                                         }
-                                        zip.generateAsync({ type: 'blob' }).then(blob => {
-                                            let a = document.createElement('a')
-                                            a.download = `${model.username}.dashboards.zip`
-                                            a.href =  URL.createObjectURL(blob)
-                                            document.body.appendChild(a)
-                                            a.click()
-                                            document.body.removeChild(a)
-                                        })
+                                        const zip = await downloadZip(files).blob()
+                                        let a = document.createElement('a')
+                                        a.download = `${model.username}.dashboards.zip`
+                                        a.href =  URL.createObjectURL(zip)
+                                        document.body.appendChild(a)
+                                        a.click()
+                                        document.body.removeChild(a)
+                
                                     } catch (error) {
                                         model.show_error({ error })
                                     }
                                 }}
                             >
-                                {t('导出')}
+                                {t('批量导出')}
+                            </Button>
+                            
+                            <Button
+                                icon={<DeleteOutlined />}
+                                onClick={async () => {
+                                        if (!selected_dashboard_ids || !selected_dashboard_ids.length) 
+                                            model.message.error(t('请至少选中一个面板后再删除'))
+                                        
+                                        try {
+                                            await dashboard.delete_dashboard_configs(selected_dashboard_ids, false)
+                                        } catch (error) {
+                                            model.show_error({ error })
+                                        }
+                                    }
+                                }
+                            >
+                                {t('批量删除')}
                             </Button>
                             
                             <Button
