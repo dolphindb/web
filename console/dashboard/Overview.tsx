@@ -1,9 +1,9 @@
 import './Overview.sass'
 
 import { useEffect, useState } from 'react'
-import JSZip from 'jszip'
 import { Button, Input, Modal, Table, Upload, Popconfirm } from 'antd'
 import { DownloadOutlined, PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
+import { downloadZip } from 'client-zip'
 
 
 import { use_modal } from 'react-object-model/modal.js'
@@ -56,6 +56,21 @@ export function Overview () {
             creator.open()
         }
     }, [ ])
+    
+    async function single_file_export (config_id: number) {
+        try {
+            const config = configs.find(({ id }) => id === config_id)
+            let a = document.createElement('a')
+            a.download = `dashboard.${config.name}.json`
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }))
+            
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+        } catch (error) {
+            model.show_error({ error })
+        }
+    }
     
     
     return <div className='dashboard-overview'>
@@ -224,20 +239,7 @@ export function Overview () {
                                 </a>
                                 
                                 <a
-                                    onClick={async () => {
-                                        try {
-                                            const config = configs.find(({ id }) => id === key)
-                                            let a = document.createElement('a')
-                                            a.download = `dashboard.${config.name}.json`
-                                            a.href = URL.createObjectURL(new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }))
-                                            
-                                            document.body.appendChild(a)
-                                            a.click()
-                                            document.body.removeChild(a)
-                                        } catch (error) {
-                                            model.show_error({ error })
-                                        }
-                                    }}
+                                    onClick={async () => single_file_export(key)}
                                 >
                                     {t('导出')}
                                 </a>
@@ -295,7 +297,6 @@ export function Overview () {
                                 beforeUpload={async file => {
                                     try {
                                         const import_config = JSON.parse(await file.text()) as DashBoardConfig
-                                        console.log(selected_dashboard_ids)
                                         
                                         if (configs.findIndex(c => c.id === import_config.id) !== -1)
                                             await dashboard.update_dashboard_config(import_config)
@@ -314,20 +315,26 @@ export function Overview () {
                             <Button
                                 icon={<DownloadOutlined />}
                                 onClick={async () => {
+                                    if (selected_dashboard_ids && !selected_dashboard_ids.length)
+                                        return
+                                    if (selected_dashboard_ids.length === 1) {
+                                        single_file_export(selected_dashboard_ids[0])
+                                        return
+                                    }
                                     try {
-                                        const zip = new JSZip()
+                                        const files = [ ]
                                         for (let config_id of selected_dashboard_ids) {
                                             const config = configs.find(({ id }) => id === config_id)
-                                            zip.file(`dashboard.${config.name}.json`, new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }))
+                                            files.push({ name: `dashboard.${config.name}.json`, lastModified: new Date(), input: new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }) })
                                         }
-                                        zip.generateAsync({ type: 'blob' }).then(blob => {
-                                            let a = document.createElement('a')
-                                            a.download = `${model.username}.dashboards.zip`
-                                            a.href =  URL.createObjectURL(blob)
-                                            document.body.appendChild(a)
-                                            a.click()
-                                            document.body.removeChild(a)
-                                        })
+                                        const zip = await downloadZip(files).blob()
+                                        let a = document.createElement('a')
+                                        a.download = `${model.username}.dashboards.zip`
+                                        a.href =  URL.createObjectURL(zip)
+                                        document.body.appendChild(a)
+                                        a.click()
+                                        document.body.removeChild(a)
+                
                                     } catch (error) {
                                         model.show_error({ error })
                                     }
