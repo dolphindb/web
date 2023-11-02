@@ -6,7 +6,7 @@ import 'gridstack/dist/gridstack.css'
 
 import { useEffect, useRef } from 'react'
 
-import { App, ConfigProvider, Spin, theme } from 'antd'
+import { App, ConfigProvider, Result, Spin, theme } from 'antd'
 
 import * as echarts from 'echarts'
 
@@ -19,6 +19,9 @@ import { Header } from './Header.js'
 import { Overview } from './Overview.js'
 
 import config from './chart.config.json' assert { type: 'json' }
+import { NodeType, model } from '../model.js'
+import { t } from '../../i18n/index.js'
+
 
 
 echarts.registerTheme('my-theme', config.theme)
@@ -36,6 +39,15 @@ echarts.registerTheme('my-theme', config.theme)
     通过 GridStack.on('change', ...) 响应 GridStack 中 widget 的位置或尺寸变化的事件 */
 export function DashBoard () {
     const { loading } = dashboard.use(['loading'])
+    
+    const { node_type } = model.use(['node_type'])
+    
+    if (node_type === NodeType.controller)
+        return <Result
+            status='warning'
+            className='interceptor'
+            title={t('控制节点不支持数据面板，请跳转到数据节点或计算节点查看。')}
+        />
     
     return new URLSearchParams(location.search).has('dashboard') ?
         <ConfigProvider
