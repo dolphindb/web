@@ -44,10 +44,10 @@ export function DashBoard () {
     
     if (node_type === NodeType.controller)
         return <Result
-        status='warning'
-        className='interceptor'
-        title={t('控制节点不支持数据面板，请跳转到数据节点或计算节点查看。')}
-    />
+            status='warning'
+            className='interceptor'
+            title={t('控制节点不支持数据面板，请跳转到数据节点或计算节点查看。')}
+        />
     
     return new URLSearchParams(location.search).has('dashboard') ?
         <ConfigProvider
