@@ -2,7 +2,7 @@ import './Overview.sass'
 
 import { useEffect, useState } from 'react'
 import { Button, Input, Modal, Table, Upload, Popconfirm } from 'antd'
-import { DownloadOutlined, PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
+import { DeleteOutlined, DownloadOutlined, PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
 import { downloadZip } from 'client-zip'
 
 
@@ -314,14 +314,17 @@ export function Overview () {
                                     return false
                                 }}
                             >
-                                <Button icon={<DownloadOutlined />}>{t('导入')}</Button>
+                                <Button icon={<DownloadOutlined />}>{t('批量导入')}</Button>
                             </Upload>
                             
                             <Button
                                 icon={<UploadOutlined />}
                                 onClick={async () => {
-                                    if (selected_dashboard_ids && !selected_dashboard_ids.length)
+                                    if (selected_dashboard_ids && !selected_dashboard_ids.length) {
+                                        model.message.error(t('请选择至少一个面板进行导出'))
                                         return
+                                    }
+                                        
                                     if (selected_dashboard_ids.length === 1) {
                                         single_file_export(selected_dashboard_ids[0])
                                         return
@@ -345,7 +348,24 @@ export function Overview () {
                                     }
                                 }}
                             >
-                                {t('导出')}
+                                {t('批量导出')}
+                            </Button>
+                            
+                            <Button
+                                icon={<DeleteOutlined />}
+                                onClick={async () => {
+                                        if (!selected_dashboard_ids || !selected_dashboard_ids.length) 
+                                            model.message.error(t('请至少选中一个面板后再删除'))
+                                        
+                                        try {
+                                            await dashboard.delete_dashboard_configs(selected_dashboard_ids, false)
+                                        } catch (error) {
+                                            model.show_error({ error })
+                                        }
+                                    }
+                                }
+                            >
+                                {t('批量删除')}
                             </Button>
                             
                             <Button
