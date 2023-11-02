@@ -367,7 +367,7 @@ async function subscribe_stream (data_source: DataSource) {
         await stream_connection.connect()
         data_source.set({ data: [ ], cols: await get_stream_cols(data_source.stream_table), ddb: stream_connection })
     } catch (error) {
-        dashboard.message.error(error.message)
+        dashboard.message.error(`无法订阅到流数据表 ${data_source.stream_table}`)
         return error
     }
 }

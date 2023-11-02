@@ -309,11 +309,11 @@ export function Overview () {
                                     return false
                                 }}
                             >
-                                <Button icon={<UploadOutlined />}>{t('导入')}</Button>
+                                <Button icon={<DownloadOutlined />}>{t('导入')}</Button>
                             </Upload>
                             
                             <Button
-                                icon={<DownloadOutlined />}
+                                icon={<UploadOutlined />}
                                 onClick={async () => {
                                     if (selected_dashboard_ids && !selected_dashboard_ids.length)
                                         return

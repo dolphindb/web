@@ -287,7 +287,7 @@ export function Header () {
                     </Button>
                 </Tooltip>
             
-                <Tooltip title='修改'>
+                <Tooltip title='修改名称'>
                     <Button
                         className='action' 
                         onClick={() => { 
