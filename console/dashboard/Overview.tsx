@@ -83,6 +83,10 @@ export function Overview () {
                             model.message.error(t('dashboard 名称不允许为空'))
                             return
                         }
+                        if (new_dashboard_name.includes('/') || new_dashboard_name.includes('\\')) {
+                            model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
+                            return
+                        }
                         
                         if (configs?.find(({ name }) => name === new_dashboard_name)) {
                             model.message.error(t('名称重复，请重新输入'))
@@ -92,7 +96,7 @@ export function Overview () {
                         /** 待接口更新后修改 */
                         const new_dashboard = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
                         
-                        await dashboard.add_dashboard_config(new_dashboard)
+                        await dashboard.add_dashboard_config(new_dashboard, false)
                         
                         model.set_query('dashboard', String(new_dashboard.id))
                         model.set({ header: false, sider: false })
@@ -131,7 +135,7 @@ export function Overview () {
                         const updated_config = { ...current_dashboard, name: edit_dashboard_name }
                         dashboard.set({ configs: configs.toSpliced(index, 1, updated_config) })
                         
-                        dashboard.update_dashboard_config(updated_config)
+                        dashboard.update_dashboard_config(updated_config, false)
                         model.message.success(t('修改成功'))
                         
                         editor.close()
@@ -256,7 +260,7 @@ export function Overview () {
                                             
                                             dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
                                             
-                                            await dashboard.delete_dashboard_configs([key])
+                                            await dashboard.delete_dashboard_configs([key], false)
                                             set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
                                             model.message.success(t('删除成功'))
                                         } catch (error) {

@@ -103,6 +103,10 @@ export function Header () {
                 dashboard.message.error(t('数据面板名称不允许为空'))
                 return 
             }
+            if (new_dashboard_name.includes('/') || new_dashboard_name.includes('\\')) {
+                model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
+                return
+            }
             
             if (configs?.find(({ name }) => name === new_dashboard_name)) {
                 dashboard.message.error(t('名称重复，请重新输入'))
