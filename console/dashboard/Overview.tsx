@@ -306,7 +306,7 @@ export function Overview () {
                                             await dashboard.update_dashboard_config(import_config, false)
                                         else
                                             await dashboard.add_dashboard_config(import_config, false)
-                                        model.message.success('导入成功')
+                                        model.message.success(`${import_config.name}导入成功`)
                                     } catch (error) {
                                         model.show_error({ error })
                                         throw error
