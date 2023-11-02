@@ -166,6 +166,7 @@ export function Overview () {
                         try {
                             await dashboard.delete_dashboard_configs(selected_dashboard_ids, false)
                             set_selected_dashboard_ids([ ])
+                            model.message.success(t('删除成功'))
                             deletor.close()
                         } catch (error) {
                             model.show_error({ error })
