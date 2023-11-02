@@ -1,9 +1,9 @@
 import './Overview.sass'
 
 import { useEffect, useState } from 'react'
-
+import JSZip from 'jszip'
 import { Button, Input, Modal, Table, Upload, Popconfirm } from 'antd'
-import { PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
+import { DownloadOutlined, PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
 
 
 import { use_modal } from 'react-object-model/modal.js'
@@ -174,6 +174,7 @@ export function Overview () {
             
             <Table
                 rowSelection={{
+                    selectedRowKeys: selected_dashboard_ids,
                     onChange: (selectedRowKeys: React.Key[]) => {
                         set_selected_dashboard_ids(selectedRowKeys)
                     }
@@ -254,7 +255,7 @@ export function Overview () {
                                             dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
                                             
                                             await dashboard.delete_dashboard_configs([key])
-                                            
+                                            set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
                                             model.message.success(t('删除成功'))
                                         } catch (error) {
                                             model.show_error({ error })
@@ -289,10 +290,13 @@ export function Overview () {
                             </Button>
                             
                             <Upload
+                                multiple
                                 showUploadList={false}
                                 beforeUpload={async file => {
                                     try {
                                         const import_config = JSON.parse(await file.text()) as DashBoardConfig
+                                        console.log(selected_dashboard_ids)
+                                        
                                         if (configs.findIndex(c => c.id === import_config.id) !== -1)
                                             await dashboard.update_dashboard_config(import_config)
                                         else
@@ -308,6 +312,31 @@ export function Overview () {
                             </Upload>
                             
                             <Button
+                                icon={<DownloadOutlined />}
+                                onClick={async () => {
+                                    try {
+                                        const zip = new JSZip()
+                                        for (let config_id of selected_dashboard_ids) {
+                                            const config = configs.find(({ id }) => id === config_id)
+                                            zip.file(`dashboard.${config.name}.json`, new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }))
+                                        }
+                                        zip.generateAsync({ type: 'blob' }).then(blob => {
+                                            let a = document.createElement('a')
+                                            a.download = `${model.username}.dashboards.zip`
+                                            a.href =  URL.createObjectURL(blob)
+                                            document.body.appendChild(a)
+                                            a.click()
+                                            document.body.removeChild(a)
+                                        })
+                                    } catch (error) {
+                                        model.show_error({ error })
+                                    }
+                                }}
+                            >
+                                {t('导出')}
+                            </Button>
+                            
+                            <Button
                                 icon={<ShareAltOutlined />}
                                 onClick={async () => {
                                     try {
@@ -321,6 +350,8 @@ export function Overview () {
                             >
                                 {t('分享')}
                             </Button>
+                            
+                            
                         </div>
                     </div>}
             />
