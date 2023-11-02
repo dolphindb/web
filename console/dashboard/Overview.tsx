@@ -303,9 +303,10 @@ export function Overview () {
                                         const import_config = JSON.parse(await file.text()) as DashBoardConfig
                                         
                                         if (configs.findIndex(c => c.id === import_config.id) !== -1)
-                                            await dashboard.update_dashboard_config(import_config)
+                                            await dashboard.update_dashboard_config(import_config, false)
                                         else
-                                            await dashboard.add_dashboard_config(import_config)
+                                            await dashboard.add_dashboard_config(import_config, false)
+                                        model.message.success('导入成功')
                                     } catch (error) {
                                         model.show_error({ error })
                                         throw error
