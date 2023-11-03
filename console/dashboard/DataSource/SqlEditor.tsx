@@ -4,7 +4,7 @@ import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { InputNumber, Popover, Switch } from 'antd'
 
 import { Editor } from '../../shell/Editor/index.js'
-import { DataView } from '../../shell/DataView.js'
+import { DataView } from './DataView.js'
 
 import { dashboard } from '../model.js'
 import { type DataSource, type DataSourcePropertyType, get_data_source } from './date-source.js'
@@ -71,7 +71,7 @@ export function SqlEditor ({
                     </div>
                     <div className='preview-main'>
                         {result?.data
-                            ? <DataView dashboard/>
+                            ? <DataView/>
                             : <div className='preview-main-error'>{current_data_source.error_message }</div> 
                         }
                     </div>
