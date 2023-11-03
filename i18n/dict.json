@@ -2036,11 +2036,376 @@
     "堆叠值": {
         "en": "Stack value"
     },
-    "同个类目轴上系列配置相同的 stack 值可以堆叠放置": {
+    "同个类目轴上为数据列配置相同的堆叠值可以堆叠放置": {
         "en": "Series configurations with the same stack value on the same category axis can be stacked."
     },
     "关联变量": {
         "en": "Associated variables"
+    },
+    "实时计算": {
+        "en": "Computing"
+    },
+    "流计算发布订阅状态": {
+        "en": "Stream Computing Publish And Subscribe Status"
+    },
+    "流引擎状态": {
+        "en": "Streaming Engines Status"
+    },
+    "流表状态": {
+        "en": "Stream Tables Status"
+    },
+    "刷新成功": {
+        "en": " refresh successfully"
+    },
+    "订阅线程状态": {
+        "en": "Subscriber Thread State"
+    },
+    "表 SubWorkers 监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。": {
+        "en": "The table SubWorkers monitors the state of worker threads of subscribing nodes. Worker thread status information will be displayed by topic."
+    },
+    "表 PubTables 监控流数据表状态。每一行表示一个流数据表的信息。": {
+        "en": "Stream data table status"
+    },
+    "订阅状态": {
+        "en": "subscriber status"
+    },
+    "表 SubConns 监控本地订阅节点和订阅节点之间的连接状态。": {
+        "en": "The table SubConns monitors the connection status between the local subscribing node and subscribing nodes."
+    },
+    "发布状态": {
+        "en": "Publisher Status"
+    },
+    "表 PubConns 监控本地发布节点和它的所有订阅节点之间的连接状态。": {
+        "en": "The table PubConns monitors the connection status between the local publishing node and all its subscribing nodes."
+    },
+    "持久化线程状态": {
+        "en": "Persistent Thread State"
+    },
+    "表 PersistWorkers 监控负责持久化流数据表的工作线程的状态。": {
+        "en": "Table PersistWorkers monitors the status of worker threads responsible for persisting streaming data tables."
+    },
+    "持久化共享流表状态": {
+        "en": "Persistent Shared Stream Table State"
+    },
+    "表 PersistenceMeta 返回启用了持久化的共享流数据表的元数据。": {
+        "en": "Table PersistenceMeta returns the metadata of a shared stream data table with persistence enabled."
+    },
+    "非持久化共享流表状态": {
+        "en": "Non-persistent Shared Stream Table State"
+    },
+    "表 sharedStreamingTableStat 返回未启用持久化的共享流数据表的元数据。": {
+        "en": "The table sharedStreamingTableStat returns the metadata of the shared streaming table that does not enable persistence."
+    },
+    "表 EngineStat 返回流计算引擎的状态。": {
+        "en": "The table EngineStat returns the status of the stream computing engine."
+    },
+    "批量取消订阅": {
+        "en": "batch unsubscribe"
+    },
+    "确认取消订阅选中的流数据表吗？": {
+        "en": "Are you sure to unsubscribe the selected stream data table?"
+    },
+    "批量删除": {
+        "en": "batch deletion"
+    },
+    "确认删除选中的引擎吗？": {
+        "en": "Are you sure you want to delete the selected engine?"
+    },
+    "确认删除选中的持久化共享数据流表吗？": {
+        "en": "Are you sure to delete the selected persistent shared data flow table?"
+    },
+    "确认删除选中的共享流数据表吗？": {
+        "en": "Are you sure to delete the selected shared stream data table?"
+    },
+    "线程 ID": {
+        "en": "Worker ID"
+    },
+    "订阅主题": {
+        "en": "Topic"
+    },
+    "订阅队列深度": {
+        "en": "Queue Depth"
+    },
+    "订阅队列深度上限": {
+        "en": "Queue Depth Limit"
+    },
+    "最近处理失败的错误信息": {
+        "en": "Last Error Message"
+    },
+    "最近处理失败的时刻": {
+        "en": "Last Failed Timestamp"
+    },
+    "处理失败的消息总数": {
+        "en": "Failed Message Count"
+    },
+    "已处理消息数": {
+        "en": "Processed Message Count"
+    },
+    "最近消息 ID": {
+        "en": "Last Message ID"
+    },
+    "最近处理失败的消息 ID": {
+        "en": "Last Failed Message ID"
+    },
+    "共享流数据表": {
+        "en": "Table Name"
+    },
+    "订阅节点": {
+        "en": "Subscriber"
+    },
+    "最近消息的偏移量": {
+        "en": "Message Offset"
+    },
+    "订阅任务": {
+        "en": "Actions"
+    },
+    "发布队列深度上限": {
+        "en": "Queue Depth Limit"
+    },
+    "发布队列深度": {
+        "en": "Queue Depth"
+    },
+    "发布节点": {
+        "en": "Publisher"
+    },
+    "接收消息总量": {
+        "en": "Cumulative Message Count"
+    },
+    "接收消息平均延迟": {
+        "en": "Average Message Latency"
+    },
+    "最近消息的延迟": {
+        "en": "Last Message Latency"
+    },
+    "最近消息的接收时刻": {
+        "en": "Last Update"
+    },
+    "总行数": {
+        "en": "Total Rows"
+    },
+    "内存中行数": {
+        "en": "Number of Rows in Memory"
+    },
+    "内存中偏移量": {
+        "en": "Offset in Memory"
+    },
+    "磁盘中行数": {
+        "en": "Number of Rows on Disk"
+    },
+    "磁盘中偏移量": {
+        "en": "Offset on Disk"
+    },
+    "是否异步持久化": {
+        "en": "Whether to Persist Asynchronously"
+    },
+    "保留时间": {
+        "en": "Retention Minutes"
+    },
+    "是否压缩": {
+        "en": "Compress"
+    },
+    "持久化路径": {
+        "en": "Persistence Dir"
+    },
+    "持久化线程": {
+        "en": "Persistence Worker"
+    },
+    "Raft 组": {
+        "en": "Raft Group"
+    },
+    "Raft 日志序号": {
+        "en": "Last Log Seq"
+    },
+    "行数": {
+        "en": "Number of Rows"
+    },
+    "列数": {
+        "en": "Number of Columns"
+    },
+    "字节数": {
+        "en": "Bytes"
+    },
+    "引擎名": {
+        "en": "Engine Name"
+    },
+    "引擎类型": {
+        "en": "Engine Type"
+    },
+    "最近错误信息": {
+        "en": "Last Error Message"
+    },
+    "分组数": {
+        "en": "Number of Groups"
+    },
+    "行数（单表）": {
+        "en": "Number of Rows (Single Table)"
+    },
+    "行数（左表）": {
+        "en": "Number of Rows (Left Table)"
+    },
+    "行数（右表）": {
+        "en": "Number of Rows (Right Table)"
+    },
+    "内存清理阈值": {
+        "en": "Memory Cleanup Threshold"
+    },
+    "指标数量": {
+        "en": "Number of Indicators"
+    },
+    "指标源码": {
+        "en": "Indicator Source Code"
+    },
+    "用户": {
+        "en": "User"
+    },
+    "窗口长度": {
+        "en": "Window Length"
+    },
+    "步长": {
+        "en": "Step Size"
+    },
+    "是否使用系统时间": {
+        "en": "Whether to Use System Time"
+    },
+    "快照目录": {
+        "en": "Snapshot Directory"
+    },
+    "快照间隔": {
+        "en": "Snapshot Interval"
+    },
+    "快照 ID": {
+        "en": "Snapshot ID"
+    },
+    "快照时间戳": {
+        "en": "Snapshot Timestamp"
+    },
+    "触发方式": {
+        "en": "Trigger"
+    },
+    "触发间隔": {
+        "en": "Trigger Interval"
+    },
+    "时间间隔": {
+        "en": "Time Interval"
+    },
+    "等待时间间隔": {
+        "en": "Waitting Time Interval"
+    },
+    "过滤条件": {
+        "en": "Filter Condition"
+    },
+    "0 为绿色，1-10000 为橙色，10000 以上为红色。": {
+        "en": "0 is green, 1-10000 is orange, and above 10000 is red."
+    },
+    "取消订阅成功": {
+        "en": "Successfully unsubscribed"
+    },
+    "引擎删除成功": {
+        "en": "Engine deleted successfully"
+    },
+    "流数据表删除成功": {
+        "en": "Stream data table deleted successfully"
+    },
+    "流数据表状态": {
+        "en": "Streaming tables status"
+    },
+    "最近消息延迟": {
+        "en": "last message latency"
+    },
+    "最近消息接收时刻": {
+        "en": "last message received time"
+    },
+    "登录后可查看当前节点流计算状态": {
+        "en": "After logging in, you can view the current node stream computing status"
+    },
+    "队列深度": {
+        "en": "Queue Depth"
+    },
+    "队列深度上限": {
+        "en": "Queue Depth Limit"
+    },
+    "最近错误时刻": {
+        "en": "Latest Error Timestamp"
+    },
+    "失败消息总数": {
+        "en": "Number of Failed Messages"
+    },
+    "最近错误消息 ID": {
+        "en": "Latest Error Message ID"
+    },
+    "最近接收时刻": {
+        "en": "Receive Average Latency"
+    },
+    "错误详细信息": {
+        "en": "error details"
+    },
+    "详细": {
+        "en": "details"
+    },
+    "接收平均延迟": {
+        "en": "receive average latency"
+    },
+    "流计算监控": {
+        "en": "Stream Computing Monitoring"
+    },
+    "流计算引擎状态": {
+        "en": "Stream Computing Engine Status"
+    },
+    "监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。": {
+        "en": "Monitor the status of the worker threads of subscribing nodes. Worker thread status information will be displayed according to topic."
+    },
+    "监控本地发布节点和它的所有订阅节点之间的连接状态。": {
+        "en": "Monitors the connection status between the local publishing node and all its subscribing nodes."
+    },
+    "监控负责持久化流数据表的工作线程的状态。": {
+        "en": "Monitor the status of the worker thread responsible for persisting the streaming data table."
+    },
+    "监控启用了持久化的共享流数据表的元数据。": {
+        "en": "Monitor metadata for shared streaming data tables with persistence enabled."
+    },
+    "监控未启用持久化的共享流数据表的元数据。": {
+        "en": "Monitor metadata for shared streaming data tables that do not have persistence enabled."
+    },
+    "监控流计算引擎的状态。": {
+        "en": "Monitor the status of the stream computing engine."
+    },
+    "流数据表": {
+        "en": "Streaming table"
+    },
+    "取消订阅": {
+        "en": " unsubscribe"
+    },
+    "引擎": {
+        "en": "engine"
+    },
+    "持久化共享数据流表": {
+        "en": "Persistent Shared Streaming Table"
+    },
+    "共享数据流表": {
+        "en": "Shared Streaming Table"
+    },
+    "最近处理消息 ID": {
+        "en": "Recently processed message ID"
+    },
+    "条": {
+        "en": "piece"
+    },
+    "毫秒": {
+        "en": "millisecond"
+    },
+    "更多信息": {
+        "en": "More info"
+    },
+    "点击查看": {
+        "en": "click to view"
+    },
+    "请输入 'YES' 以确认该操作": {
+        "en": "Please enter 'YES' to confirm this action"
+    },
+    "控制节点不支持流数据的发布订阅，请跳转到数据节点或计算节点查看流数据状态。": {
+        "en": "The control node does not support publishing and subscription of streaming data. Please jump to the data node or computing node to view the streaming data status."
+    },
+    "批量": {
+        "en": "batch"
     }
-    
 }

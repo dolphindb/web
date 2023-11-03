@@ -1,6 +1,6 @@
 import { default as Webpack, type Stats } from 'webpack'
 
-import { base_config, fpd_out_console, fpd_ramdisk_root, fpd_root, ramdisk } from '../webpack.js'
+import { base_config, fpd_out_console, fpd_ramdisk_root, fpd_root, ramdisk, ci } from '../webpack.js'
 
 export const fpd_pre_bundle = `${fpd_root}pre-bundle/`
 
@@ -54,11 +54,11 @@ export async function build_bundle ({ entry, production }: IOptions) {
         cache: {
             type: 'filesystem',
             
-            ... ramdisk ? {
+            ... !ci && ramdisk ? {
                 cacheDirectory: `${fpd_ramdisk_root}webpack/`,
                 compression: false
             } : {
-                compression: 'brotli',
+                compression: ci ? false : 'brotli',
             }
         }
     })

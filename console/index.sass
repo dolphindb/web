@@ -52,8 +52,9 @@ html, body
         
         z-index: 10
         
+        align-items: center
+        
         .refresh-button
-            margin-top: 8px
             margin-left: 16px
             background-color: #f2f2f2
         
@@ -221,13 +222,6 @@ html, body
                 
                 background-color: #ffffff
 
-.ant-dropdown
-    .login
-        align-items: flex-start
-    
-    .ant-dropdown-menu
-        background-color: #fafafa
-    
 .head-bar-info
     .ant-card
         box-shadow: unset
@@ -343,6 +337,22 @@ html, body
             margin-top: 4px
             color: #000000
 
+
+.host-select.ant-select
+    margin-left: 24px
+    
+    .ant-select-selector
+        background-color: transparent !important
+
+
+// ------------ antd 样式覆写
+.ant-dropdown
+    .login
+        align-items: flex-start
+    
+    .ant-dropdown-menu
+        background-color: #fafafa
+
 .ant-message
     z-index: 1031
 
@@ -368,94 +378,93 @@ html, body
         white-space: break-spaces
         
 .ant-pagination-item-active
-    border: 0px !important
-
-// 分页样式
-.ant-pagination
-    margin-left: 10px
+    border-color: transparent !important
     
-    flex-shrink: 0
-    
-    .ant-pagination-item a
-        color: $color !important
-    
-    .ant-pagination-item-active
-        background-color: $background-color !important
-        border: 0px
-        font-weight: bold
+.white-pagination
+    .ant-pagination
+        margin-left: 10px
         
-        a
-            margin-top: 1px
-            color: $line-number-active-foreground-color !important
-    
-    .ant-pagination-item-ellipsis
-        color: $color !important
-    
-    .ant-pagination-item-link
-        color: $font-color !important
-    
-    .ant-pagination-item-link-icon
-        color: $font-color !important
-    
-    .ant-pagination-disabled svg
-        color: $color !important
-    
-    .ant-pagination-options
-        color: $font-color !important
-        display: inline-block !important
+        flex-shrink: 0
         
-        input
-            background-color: $input-background-color !important
-            color: $input-foreground-color !important
-    
-        .ant-select
-            color: $font-color
+        .ant-pagination-item a
+            color: $color !important
+        
+        .ant-pagination-item-active
+            background-color: $background-color !important
+            border: 0px
+            font-weight: bold
             
-            .ant-select-selector
-                background-color: $background-color !important
-                border-color: $background-color !important
+            a
+                margin-top: 1px
+                color: $line-number-active-foreground-color !important
+        
+        .ant-pagination-item-ellipsis
+            color: $color !important
+        
+        .ant-pagination-item-link
+            color: $font-color !important
+        
+        .ant-pagination-item-link-icon
+            color: $font-color !important
+        
+        .ant-pagination-disabled svg
+            color: $color !important
+        
+        .ant-pagination-options
+            color: $font-color !important
+            display: inline-block !important
             
-            .ant-select-arrow
-                color: $font-color !important
-            
-            .ant-select-dropdown
-                background-color: $dropdown-background-color !important
-                color: $dropdown-foreground-color !important
-                border: 1px solid $dropdown-border-color !important
-            
-            .ant-select-item 
-                color: $dropdown-foreground-color !important
-            
-            .ant-select-item-option-active
-                background-color: $dropdown-active-background-color !important
-            
-            .ant-select-item-option-selected
-                background-color: $dropdown-selected-background-color !important
-                color: $font-color !important
-            
-            .ant-select-selection-item
-                color: $font-color !important
-
-        .ant-select:not(.ant-select-disabled):hover .ant-select-selector
-            border-color: #707070
-
-        .ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector
-            box-shadow: unset
-            
-        .ant-select-single.ant-select-open .ant-select-selection-item
-            color: $font-color
-            
-        .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
-            background-color: $dropdown-selected-background-color !important
-            
-        .ant-pagination-options-quick-jumper
             input
-                border-color: $border-color
-            
-            input:hover
-                border-color: #707070
+                background-color: $input-background-color !important
+                color: $input-foreground-color !important
+        
+            .ant-select
+                color: $font-color
                 
-            input:focus, input-focused
+                .ant-select-selector
+                    background-color: $background-color !important
+                    border-color: $background-color !important
+                
+                .ant-select-arrow
+                    color: $font-color !important
+                
+                .ant-select-dropdown
+                    background-color: $dropdown-background-color !important
+                    color: $dropdown-foreground-color !important
+                    border: 1px solid $dropdown-border-color !important
+                
+                .ant-select-item 
+                    color: $dropdown-foreground-color !important
+                
+                .ant-select-item-option-active
+                    background-color: $dropdown-active-background-color !important
+                
+                .ant-select-item-option-selected
+                    background-color: $dropdown-selected-background-color !important
+                    color: $font-color !important
+                
+                .ant-select-selection-item
+                    color: $font-color !important
+
+            .ant-select:not(.ant-select-disabled):hover .ant-select-selector
                 border-color: #707070
+
+            .ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector
                 box-shadow: unset
-            
+                
+            .ant-select-single.ant-select-open .ant-select-selection-item
+                color: $font-color
+                
+            .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+                background-color: $dropdown-selected-background-color !important
+                
+            .ant-pagination-options-quick-jumper
+                input
+                    border-color: $border-color
+                
+                input:hover
+                    border-color: #707070
+                    
+                input:focus, input-focused
+                    border-color: #707070
+                    box-shadow: unset

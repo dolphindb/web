@@ -25,6 +25,8 @@ const fp_api = ''
 export const fpd_root = fileURLToPath(import.meta.url).fdir
 
 export const ramdisk = fexists('T:/TEMP/', { print: false })
+export const ci = process.argv.includes('--ci')
+
 export const fpd_ramdisk_root = 'T:/2/ddb/web/'
 
 export const fpd_node_modules = `${fpd_root}node_modules/`
@@ -32,7 +34,7 @@ export const fpd_node_modules = `${fpd_root}node_modules/`
 export const fpd_src_console = `${fpd_root}console/`
 export const fpd_src_cloud = `${fpd_root}cloud/`
 
-export const fpd_out = ramdisk ? fpd_ramdisk_root : fpd_root
+export const fpd_out = !ci && ramdisk ? fpd_ramdisk_root : fpd_root
 export const fpd_out_console = `${fpd_out}web/`
 export const fpd_out_cloud = `${fpd_out}web.cloud/`
 
@@ -183,7 +185,9 @@ export let webpack = {
                     {
                         'web/index.js': './console/index.tsx',
                         'web/window.js': './console/window.tsx',
-                        'web.cloud/index.js': './cloud/index.tsx'
+                        
+                        // 目前停止开发了
+                        // 'web.cloud/index.js': './cloud/index.tsx'
                     },
                 
                 
@@ -204,16 +208,31 @@ export let webpack = {
                 
                 externalsType: 'global',
                 
+                // 以 react: 'React', 为例，含义为
+                // 取全局变量 window.React 的值作为 import { useState } from 'react' 中 { ... } 这部分的结果，再解构里面的 useState 属性
                 externals: {
                     react: 'React',
                     'react-dom': 'ReactDOM',
                     lodash: '_',
-                    xterm: 'Terminal',
+                    
+                    // import { Terminal } from 'xterm'
+                    // 实际上 Terminal 直接暴露在了 window 上，而不是 window.Terminal.Terminal
+                    xterm: 'window',
+                    
                     antd: 'antd',
                     dayjs: 'dayjs',
                     '@ant-design/icons': 'icons',
                     '@ant-design/plots': 'Plots',
                     echarts: 'echarts',
+                    
+                    // import { GridStack } from 'gridstack'
+                    // 实际上 GridStack 直接暴露在了 window 上，而不是 window.GridStack.GridStack
+                    gridstack: 'window',
+                    
+                    // await import('react-quill') 时，会先通过在 head 中增加 <script> 标签的方式加载脚本，
+                    // 之后取 window.ReactQuill 作为 import 的返回值
+                    'react-quill': ['script ./vendors/react-quill/dist/react-quill.js', 'ReactQuill'],
+                    
                     '@formily/core': ['module ./pre-bundle/formily.js', 'Core'],
                     '@formily/react': ['module ./pre-bundle/formily.js', 'React'],
                     '@formily/antd-v5': ['module ./pre-bundle/formily.js', 'AntdV5'],
@@ -230,7 +249,7 @@ export let webpack = {
                     
                     ... fp_api ? {
                         alias: {
-                            'dolphindb/browser.js': 'D:/2/ddb/api/js/browser.ts'
+                            'dolphindb/browser.js': fp_api
                         },
                     } : { },
                 },
@@ -239,6 +258,12 @@ export let webpack = {
                     new Webpack.DefinePlugin({
                         BUILD_TIME: dayjs().format('YYYY.MM.DD HH:mm:ss').quote()
                     }),
+                    
+                    // 使用 IgnorePlugin 能够不打包，但是一旦导入就会报错
+                    // new Webpack.IgnorePlugin({
+                    //     checkResource: (resource, context) => 
+                    //         resource.startsWith('./vendors/') && !context.fp.startsWith(fpd_node_modules) ,
+                    // }),
                     
                     ... await (async () => {
                         if (production) {
@@ -282,11 +307,11 @@ export let webpack = {
                             :
                                 'web',
                     
-                    ... ramdisk ? {
+                    ... !ci && ramdisk ? {
                         cacheDirectory: `${fpd_ramdisk_root}webpack/`,
                         compression: false
                     } : {
-                        compression: 'brotli',
+                        compression: ci ? false : 'brotli',
                     }
                 }
             })
