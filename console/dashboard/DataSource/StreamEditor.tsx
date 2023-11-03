@@ -18,7 +18,7 @@ import { NodeType, model } from '../../model.js'
 import { default_value_in_select } from '../utils.js'
 import { InsertVariableBtn } from './InsertVariableBtn.js'
 import { type editor } from 'monaco-editor'
-import { useMonacoInsert } from '../hooks/useMonacoInsert.js'
+import { use_monaco_insert } from '../../utils/hooks/use-monaco-insert.js'
 
 
 interface PropsType  { 
@@ -51,7 +51,7 @@ export function StreamEditor ({
     const [ip_select, set_ip_select] = useState(true)
     const [cur_focus_editor, set_cur_focus_editor] = useState<editor.IStandaloneCodeEditor>()
     
-    const { on_monaco_insert } = useMonacoInsert(cur_focus_editor)
+    const { on_monaco_insert } = use_monaco_insert(cur_focus_editor)
     const tree_ref = useRef(null)
     
     const stream_editor_ref = useRef<HTMLDivElement>()

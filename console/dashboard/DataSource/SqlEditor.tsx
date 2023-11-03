@@ -9,7 +9,7 @@ import { DataView } from '../../shell/DataView.js'
 import { dashboard } from '../model.js'
 import { type DataSource, type DataSourcePropertyType, get_data_source } from './date-source.js'
 import { InsertVariableBtn } from './InsertVariableBtn.js'
-import { useMonacoInsert } from '../hooks/useMonacoInsert.js'
+import { use_monaco_insert } from '../../utils/hooks/use-monaco-insert.js'
 
 interface PropsType { 
     loading: boolean
@@ -30,7 +30,7 @@ export function SqlEditor ({
 {     
     const { result, sql_editor } = dashboard.use(['result', 'sql_editor'])
     
-    const { on_monaco_insert } = useMonacoInsert(sql_editor)
+    const { on_monaco_insert } = use_monaco_insert(sql_editor)
     
     useEffect(() => {
         dashboard.sql_editor?.updateOptions({ readOnly: loading })
