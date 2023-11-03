@@ -13,6 +13,7 @@ import { License } from './License.js'
 import { Status } from './Status.js'
 import { Settings } from './Settings.js'
 import { CompileAndRefresh } from './CompileAndRefresh.js'
+import { HostSelect } from './HostSelect.js'
 
 import SvgArrowDown from './icons/arrow.down.icon.svg'
 
@@ -28,7 +29,7 @@ export function DdbHeader () {
     
     return <>
         <img className='logo' src='./ddb.svg' />
-        
+        {(model.dev || model.cdn) && <HostSelect />}
         { model.dev && <CompileAndRefresh /> }
         
         <div className='padding' />
