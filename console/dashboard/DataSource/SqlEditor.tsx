@@ -34,7 +34,7 @@ export function SqlEditor ({
     
     useEffect(() => {
         dashboard.sql_editor?.updateOptions({ readOnly: loading })
-    })
+    }, [loading])
     
     useEffect(() => {
         if (dashboard.sql_editor) 

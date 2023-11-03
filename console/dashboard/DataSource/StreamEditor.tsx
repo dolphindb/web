@@ -74,7 +74,7 @@ export function StreamEditor ({
     useEffect(() => {
         dashboard.filter_column_editor?.updateOptions({ readOnly: loading })
         dashboard.filter_expression_editor?.updateOptions({ readOnly: loading })
-    })
+    }, [loading])
     
     useEffect(() => {
         (async () => {
