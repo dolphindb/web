@@ -121,11 +121,11 @@ export function DdbSider () {
                     label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
                 }] : [ ],
                 ... model.dev || model.cdn ? [
-                    {
-                        key: 'dashboard',
-                        icon: <MenuIcon view='dashboard' />,
-                        label: t('数据面板'),
-                    },
+                    // {
+                    //     key: 'dashboard',
+                    //     icon: <MenuIcon view='dashboard' />,
+                    //     label: t('数据面板'),
+                    // },
                     {
                         key: 'test',
                         icon: <ExperimentOutlined className='icon-menu' />,
