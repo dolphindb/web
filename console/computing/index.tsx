@@ -306,27 +306,33 @@ const cols_width = {
 const header_text = {
     subWorkers: {
         title: t('订阅线程状态'),
-        tip: t('getStreamingStat().subWorkers')
+        tip: t('监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。'),
+        func: 'getStreamingStat().subWorkers'
     },
     pubConns: {
         title: t('发布状态'),
-        tip: t('getStreamingStat().pubConns')
+        tip: t('监控本地发布节点和它的所有订阅节点之间的连接状态。'),
+        func: 'getStreamingStat().pubConns'
     },
     persistWorkers: {
         title: t('持久化线程状态'),
-        tip: t('getStreamingStat().persistWorkers')
+        tip: t('监控负责持久化流数据表的工作线程的状态。'),
+        func: 'getStreamingStat().persistWorkers'
     },
     persistenceMeta: {
         title: t('持久化共享流表状态'),
-        tip: t('objs()')
+        tip: t('监控启用了持久化的共享流数据表的元数据。'),
+        func: 'objs()'
     },
     sharedStreamingTableStat: {
         title: t('非持久化共享流表状态'),
-        tip: t('objs()')
+        tip: t('监控未启用持久化的共享流数据表的元数据。'),
+        func: 'objs()'
     },
     engine: {
         title: t('流引擎状态'),
-        tip: t('getStreamEngineStat()')
+        tip: t('监控流计算引擎的状态。'),
+        func: 'getStreamEngineStat()'
     }
 }
 
@@ -768,11 +774,11 @@ function StateTable ({
                                               selected={selected}
                                               set_selected={set_selected}
                                               refresher={refresher}/>}
-                <Tooltip title={header_text[table_name].tip}>
-                <span className='table-name'>
-                    {header_text[table_name].title}
-                </span>
-                </Tooltip>
+                <Tooltip title={header_text[table_name].func}>
+                    <span className='table-name'>
+                        {header_text[table_name].title}
+                    </span>
+                </Tooltip>                              
                 <Tooltip title={header_text[table_name].tip}>
                     <QuestionCircleOutlined />
                 </Tooltip>
