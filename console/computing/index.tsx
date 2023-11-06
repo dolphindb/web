@@ -633,7 +633,7 @@ function add_details_row (table: Record<string, any>[]) {
         const info = () => model.modal.info({
             title: !engineType ? row.topic : row.name,
             className: 'show-more-modal',
-            content: <List dataSource={detailed_keys.map(key => { return `${dict[key]}: ${(!row[key] || row[key] === -1 || row[key] === -1n) ? '' : row[key]}` })} 
+            content: <List dataSource={detailed_keys.map(key => { return `${dict[key]}: ${(row[key] === -1 || row[key] === -1n) ? '' : row[key]}` })} 
                            renderItem={item => <List.Item>{item}</List.Item>}
                            split={false}/>
         })
