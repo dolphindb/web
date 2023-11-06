@@ -120,15 +120,16 @@ export function Computing () {
             let new_row = { }
             
             for (let key of Object.keys(leading_cols.engine))
-                new_row[key] = row.hasOwnProperty(key) ? row[key] : ''
+                new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : row[key]) : ''
             
             for (let key of Object.keys(expanded_cols.engine[engineType] || { }))
-                new_row[key] = row.hasOwnProperty(key) ? row[key] : '' 
+                new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : row[key]) : '' 
                 
             new_row = Object.assign(new_row, { engineType })
             
             streaming_engine_rows.push(new_row)
         }
+        
     
     return  <Tabs
                 activeKey={tab_key}
