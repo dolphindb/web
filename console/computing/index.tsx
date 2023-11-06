@@ -160,10 +160,11 @@ export function Computing () {
                                                 ),
                                              'subWorkers')), 'subWorkers')
                                         }
-                                    rows={add_details_row(
-                                            add_unit(
-                                                handle_ellipsis_col(
-                                                    add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'), 'subWorkers'))}
+                                    rows={handle_null(
+                                            add_details_row(
+                                                add_unit(
+                                                    handle_ellipsis_col(
+                                                        add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'), 'subWorkers')))}
                                     min_width={1420}
                                     default_page_size={10}
                                     refresher={get_streaming_pub_sub_stat}
@@ -194,11 +195,12 @@ export function Computing () {
                                                 translate_order_col(
                                                     set_col_ellipsis(
                                                         translate_format_col(streaming_engine_cols, 'memoryUsed'), 'metrics'), false)), 'engine')}
-                                    rows={add_details_row(
-                                            add_unit(
-                                                translate_byte_row(
-                                                    handle_ellipsis_col(
-                                                        add_key(streaming_engine_rows), 'lastErrMsg'), 'memoryUsed'), 'engine'))}
+                                    rows={handle_null(
+                                            add_details_row(
+                                                add_unit(
+                                                    translate_byte_row(
+                                                        handle_ellipsis_col(
+                                                            add_key(streaming_engine_rows), 'lastErrMsg'), 'memoryUsed'), 'engine')))}
                                     min_width={1530}
                                     separated={false}
                                     default_page_size={20}
@@ -227,11 +229,11 @@ export function Computing () {
                                     cols={render_col_title(
                                             sort_col(
                                                 set_col_width(persistent_table_stat.to_cols(), 'persistenceMeta'), 'persistenceMeta'), 'persistenceMeta')}
-                                    rows={add_key(persistent_table_stat.to_rows())}
+                                    rows={handle_null(add_key(persistent_table_stat.to_rows()))}
                                     min_width={1500}
                                     refresher={get_streaming_table_stat}
                                 />
-                                {streaming_stat.persistWorkers && (
+                                {/* {streaming_stat.persistWorkers && (
                                     <StateTable
                                         type='persistWorkers'
                                         cols={render_col_title(
@@ -239,7 +241,7 @@ export function Computing () {
                                         rows={add_key(streaming_stat.persistWorkers.to_rows())} 
                                         separated={false}  
                                     />
-                                )}
+                                )} */}
                                 
                             </div>
                         )
@@ -631,11 +633,21 @@ function add_details_row (table: Record<string, any>[]) {
         const info = () => model.modal.info({
             title: !engineType ? row.topic : row.name,
             className: 'show-more-modal',
-            content: <List dataSource={detailed_keys.map(key => `${dict[key]}: ${row[key] || ''}`)} 
+            content: <List dataSource={detailed_keys.map(key => { return `${dict[key]}: ${(!row[key] || row[key] === -1 || row[key] === -1n) ? '' : row[key]}` })} 
                            renderItem={item => <List.Item>{item}</List.Item>}
                            split={false}/>
         })
-        return { ...row, details: <a onClick={info}>{t('点击查看')}</a> }
+        return { ...row, details: dict && <a onClick={info}>{t('点击查看')}</a> }
+    })
+}
+
+/** 将表里的 -1 转成真正的 null */
+function handle_null (table: Record<string, any>[]) {
+    return table.map(row => {
+        for (let key in row) 
+            row[key] = (row[key] === -1 || row[key] === -1n ) ? null : row[key]
+         
+        return row
     })
 }
 
