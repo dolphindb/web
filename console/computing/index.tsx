@@ -324,12 +324,12 @@ const header_text = {
     persistenceMeta: {
         title: t('持久化共享流表状态'),
         tip: t('监控启用了持久化的共享流数据表的元数据。'),
-        func: 'objs()'
+        func: 'objs(true)'
     },
     sharedStreamingTableStat: {
         title: t('非持久化共享流表状态'),
         tip: t('监控未启用持久化的共享流数据表的元数据。'),
-        func: 'objs()'
+        func: 'objs(true)'
     },
     engine: {
         title: t('流引擎状态'),
