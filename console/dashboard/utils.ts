@@ -339,7 +339,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     return {
         grid: {
             containLabel: true,
-            left: 40,
+            left: 50,
             bottom: 10
         },
         legend: {
