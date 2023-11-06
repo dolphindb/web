@@ -105,8 +105,11 @@ function AxisItem (props: IAxisItem) {
             tooltip={t('数值轴，适用于连续数据\n类目轴，适用于离散的类目数据或者时序数据\n对数轴，适用于对数数据')}>
             <Select options={axis_type_options}  />
         </Form.Item>
-        <Form.Item name={concat_name_path(name_path, 'name')} label={t('名称')} initialValue={ initial_values?.name ?? t('名称')}>
+        <Form.Item name={concat_name_path(name_path, 'name')} label={t('名称')} initialValue={initial_values?.name ?? t('名称')}>
             <Input />
+        </Form.Item>
+        <Form.Item name={concat_name_path(name_path, 'fontsize')} label='字号' initialValue={12}>
+            <InputNumber addonAfter='px' />
         </Form.Item>
         {/* 类目轴从col_name中获取data */}
         <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'type')]}>

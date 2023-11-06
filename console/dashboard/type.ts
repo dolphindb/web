@@ -2,6 +2,7 @@ import { type ITimeFormat, type AxisType, type ILineType, type Position } from '
 
 export interface AxisConfig { 
     name: string
+    fontsize?: number
     type: AxisType
     // 时间轴与类目轴特有
     col_name: string
@@ -169,6 +170,8 @@ export interface IGaugeConfig {
     max: number
     min: number
     title_size?: number
+    label_size?: number
+    value_size?: number
     
     axis_setting: Array<{
         threshold: number
