@@ -299,7 +299,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 {
                     type: 'inside',
                     xAxisIndex: [0, 1],
-                    start: 20,
+                    start: 0,
                     end: 100
                 },
                 {
@@ -307,7 +307,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     xAxisIndex: [0, 1],
                     type: 'slider',
                     top: '86%',
-                    start: 20,
+                    start: 0,
                     end: 100,
                     height: 20
                 },
