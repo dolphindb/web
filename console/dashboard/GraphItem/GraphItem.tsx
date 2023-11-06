@@ -15,7 +15,16 @@ import { t } from '../../../i18n/index.js'
 import cn from 'classnames'
 import { VariableForm } from './VariableForm.js'
 
-
+function get_padding (padding: { left: number, right: number, top: number, bottom: number }) { 
+    if (!padding)
+        padding = {
+            left: 12,
+            right: 12,
+            top: 12,
+            bottom: 12
+        }
+    return `${padding.top ?? 0}px ${padding.right ?? 0}px ${padding.bottom ?? 0}px ${padding.left ?? 0}px`
+}
 
 function GraphComponent ({ widget }: { widget: Widget }) {
     
@@ -26,7 +35,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     
-    return <div className={cn('graph-item-wrapper', {
+    return <div style={{ padding: get_padding(widget.config?.padding) } } className={cn('graph-item-wrapper', {
         'overflow-visible-wrapper': widget.type === WidgetChartType.EDITOR || widget.type === WidgetChartType.OHLC
     }) }>
         {(widget.type !==  WidgetChartType.VARIABLE && widget.config) && <VariableForm ids={widget.config.variable_ids} cols={widget.config.variable_cols} with_search_btn={widget.config.with_search_btn} /> }

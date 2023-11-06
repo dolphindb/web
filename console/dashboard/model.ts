@@ -551,6 +551,12 @@ export interface Widget extends GridStackNode {
         abandon_scroll?: boolean
         variable_cols?: number
         with_search_btn?: boolean
+        padding?: {
+            left: number
+            right: number
+            top: number
+            bottom: number
+        }
     }
 }
 

@@ -24,6 +24,25 @@ export function BasicFormFields ({ type }: { type?: 'chart' | 'table' | 'descrip
             </Form.Item>
             
             
+            <Form.Item name={['padding', 'top']} label='上内边距' initialValue={12}>
+                <InputNumber addonAfter='px'/>
+            </Form.Item>
+            
+            <Form.Item name={['padding', 'bottom']} label='下内边距' initialValue={12}>
+                <InputNumber addonAfter='px'/>
+            </Form.Item>
+            
+            
+            
+            <Form.Item name={['padding', 'left']} label='左内边距' initialValue={12}>
+                <InputNumber addonAfter='px'/>
+            </Form.Item>
+            
+            <Form.Item name={['padding', 'right']} label='左内边距' initialValue={12}>
+                <InputNumber addonAfter='px'/>
+            </Form.Item>
+            
+            
             {type === 'chart' && <>
                 <Form.Item name='with_legend' label={t('图例')} initialValue>
                     <BoolRadioGroup />
@@ -93,7 +112,7 @@ export function BasicFormFields ({ type }: { type?: 'chart' | 'table' | 'descrip
             label: t('基本属性'),
             children: FormFields,
             forceRender: true
-    },
+        },
         {
             key: 'variable',
             label: t('变量设置'),
