@@ -38,6 +38,9 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
         <Form.Item label={t('名称')} name={concat_name_path(name_path, 'name')} initialValue={ initial_values?.name ?? t('名称')}>
             <Input />
         </Form.Item>
+        <Form.Item label='字号' name={ concat_name_path(name_path, 'fontsize')} initialValue={12}>
+            <InputNumber addonAfter='px'/>
+        </Form.Item>
         {/* 类目轴从 col_name 中获取 data */}
         <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'type')]}>
             {value => {

@@ -8,10 +8,10 @@ import { concat_name_path, convert_list_to_options, convert_chart_config } from 
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { useMemo } from 'react'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
-import { variables } from '../Variable/variable.js'
 import { chart_type_options, format_time_options, line_type_options, mark_line_options, mark_point_options } from './constant.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { WidgetChartType } from '../model.js'
+import { PaddingSetting, VariableSetting } from './BasicFormFields.js'
 
 interface IProps { 
     col_names: string[]
@@ -41,57 +41,37 @@ const axis_position_options = [
 
 export function BasicFormFields () { 
     
-    const { variable_infos } = variables.use(['variable_infos'])
-    
-    return <Collapse items={[{
-        key: 'basic',
-        label: t('基本属性'),
-        children: <div className='axis-wrapper'>
-        <Form.Item name='title' label={ t('标题') } initialValue={ t('标题') }>
-            <Input />
-        </Form.Item>
-        <Form.Item name='title_size' label='标题字号'>
-            <InputNumber addonAfter='px'/>
-        </Form.Item>
-            
-        <Form.Item name='variable_ids' label={t('关联变量')}>
-            <Select mode='multiple' options={variable_infos.map(variable_info => ({
-                label: variable_info.name,
-                value: variable_info.id
-            }))} />
-        </Form.Item>
-        
-        <FormDependencies dependencies={['variable_ids']}>
-            {
-                ({ variable_ids }) => { 
-                    if (!variable_ids?.length)
-                        return null
-                    return <>
-                        <Form.Item  name='variable_cols' label='每行变量数' initialValue={3}>
-                            <Select options={convert_list_to_options([1, 2, 3, 4, 6, 8, 12])} allowClear />
-                        </Form.Item>
-                        <Form.Item name='with_search_btn' label='查询按钮' initialValue={false} tooltip='不展示查询按钮的情况，表单更新即会进行查询，在变量设置较多的情况下，建议使用查询按钮，点击之后再运行数据源代码'>
-                            <BoolRadioGroup />
-                        </Form.Item>
-                    
-                    </>
-                }
-            }
-        </FormDependencies>    
-            
-            
-        <Form.Item name='with_tooltip' label={t('提示框')} initialValue>
-            <BoolRadioGroup />
-        </Form.Item>
-        <Form.Item name='x_datazoom' label={t('X 轴缩略轴')} initialValue>
-            <BoolRadioGroup />
-        </Form.Item>
-        <Form.Item name='y_datazoom' label={t('Y 轴缩略轴')} initialValue={false}>
-            <BoolRadioGroup />
-        </Form.Item>
-    </div>,
-        forceRender: true
-     }]} />
+    return <Collapse
+        items={[{
+            key: 'basic',
+            label: t('基本属性'),
+            children: <div className='axis-wrapper'>
+                <Form.Item name='title' label={ t('标题') } initialValue={ t('标题') }>
+                    <Input />
+                </Form.Item>
+                <Form.Item name='title_size' label='标题字号'>
+                    <InputNumber addonAfter='px'/>
+                </Form.Item>
+                
+                <PaddingSetting />
+                <Form.Item name='with_tooltip' label={t('提示框')} initialValue>
+                    <BoolRadioGroup />
+                </Form.Item>
+                <Form.Item name='x_datazoom' label={t('X 轴缩略轴')} initialValue>
+                    <BoolRadioGroup />
+                </Form.Item>
+                <Form.Item name='y_datazoom' label={t('Y 轴缩略轴')} initialValue={false}>
+                    <BoolRadioGroup />
+                </Form.Item>
+            </div>,
+            forceRender: true
+        },
+        {
+            key: 'variable',
+            label: t('变量设置'),
+            children: <VariableSetting />, 
+            forceRender: true
+        }]} />
 }
 
 function AxisItem (props: IAxisItem) { 
@@ -105,8 +85,11 @@ function AxisItem (props: IAxisItem) {
             tooltip={t('数值轴，适用于连续数据\n类目轴，适用于离散的类目数据或者时序数据\n对数轴，适用于对数数据')}>
             <Select options={axis_type_options}  />
         </Form.Item>
-        <Form.Item name={concat_name_path(name_path, 'name')} label={t('名称')} initialValue={ initial_values?.name ?? t('名称')}>
+        <Form.Item name={concat_name_path(name_path, 'name')} label={t('名称')} initialValue={initial_values?.name ?? t('名称')}>
             <Input />
+        </Form.Item>
+        <Form.Item name={concat_name_path(name_path, 'fontsize')} label='字号' initialValue={12}>
+            <InputNumber addonAfter='px' />
         </Form.Item>
         {/* 类目轴从col_name中获取data */}
         <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'type')]}>

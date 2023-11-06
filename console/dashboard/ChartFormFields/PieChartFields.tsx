@@ -10,6 +10,7 @@ import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { variables } from '../Variable/variable.js'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { convert_list_to_options } from '../utils.js'
+import { PaddingSetting, VariableSetting } from './BasicFormFields.js'
 
 export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) { 
     const { variable_infos } = variables.use(['variable_infos'])
@@ -22,30 +23,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
             <Form.Item name='title_size' label='标题字号' initialValue={18}>
                 <InputNumber addonAfter='px' />
             </Form.Item>
-            <Form.Item name='variable_ids' label={t('关联变量')}>
-                <Select mode='multiple' options={variable_infos.map(variable_info => ({
-                    label: variable_info.name,
-                    value: variable_info.id
-                }))} />
-            </Form.Item>
-            
-            <FormDependencies dependencies={['variable_ids']}>
-            {
-                ({ variable_ids }) => { 
-                    if (!variable_ids?.length)
-                        return null
-                    return <>
-                        <Form.Item  name='variable_cols' label='每行变量数' initialValue={3}>
-                            <Select options={convert_list_to_options([2, 3, 4, 6, 8, 12])} allowClear />
-                        </Form.Item>
-                        <Form.Item name='with_search_btn' label='查询按钮' initialValue={false} tooltip='不展示查询按钮的情况，表单更新即会进行查询，在变量设置较多的情况下，建议使用查询按钮，点击之后再运行数据源代码'>
-                            <BoolRadioGroup />
-                        </Form.Item>
-                    
-                    </>
-                }
-            }
-        </FormDependencies> 
+            <PaddingSetting />
             
             <Form.Item name='with_legend' label={t('图例')} initialValue>
                 <BoolRadioGroup />
@@ -61,7 +39,12 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
         label: t('基本属性'),
         children: FormFields,
         forceRender: true
-     }]} />
+     }, {
+        key: 'variable',
+        label: t('变量设置'),
+        children: <VariableSetting />, 
+        forceRender: true
+    }]} />
 }
 
 

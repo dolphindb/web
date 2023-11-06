@@ -25,10 +25,11 @@ export function Gauge (props: IProps) {
     const config = useMemo(() => widget.config as IGaugeConfig, [widget.config])
     
     const options = useMemo<echarts.EChartsCoreOption>(() => { 
-        const { title, title_size, max, min, data_setting, axis_setting } = config
+        const { title, title_size, max, min, data_setting, label_size, value_size } = config
         
         return {
             backgroundColor: '#282828',
+            // 标题
             title: {
                 text: parse_text(title ?? ''),
                 textStyle: {
@@ -40,7 +41,7 @@ export function Gauge (props: IProps) {
                 type: 'gauge',
                 
                 title: {
-                    fontSize: 14,
+                    fontSize: label_size ?? 16,
                     color: '#fff',
                 },
                 min,
@@ -61,16 +62,15 @@ export function Gauge (props: IProps) {
                         offsetCenter: [`${item?.value?.level}%`, `${item?.value?.vertical}%`]
                     },
                     itemStyle: {
-                        color: item.color 
+                        color: item.color,
                     }
                 })),
                 detail: {
                     valueAnimation: true,
                     height: 14,
-                    fontSize: 18,
+                    fontSize: value_size ?? 18,
                     fontWeight: 500,
                     color: 'inherit',
-                    borderRadius: 4,
                 },
             }]
         }
@@ -104,7 +104,13 @@ export function GaugeConfigForm (props: { col_names: string[] } ) {
                         <InputNumber />
                     </Form.Item>
                     
-                   
+                    <Form.Item label='label 字号' name='label_size' initialValue={16}>
+                        <InputNumber addonAfter='px'/>
+                    </Form.Item>
+                    
+                    <Form.Item label='value 字号' name='value_size' initialValue={18}>
+                        <InputNumber addonAfter='px'/>
+                    </Form.Item>
                     
                     <Form.List name='data_setting' initialValue={[{ }]}>
                         {(fields, { add, remove }) => {
@@ -151,35 +157,6 @@ export function GaugeConfigForm (props: { col_names: string[] } ) {
                     </Form.List>
                 </div>,
             },
-            // {   
-            //     key: 'axis',
-            //     label: '轴线设置',
-            //     forceRender: true,
-            //     children: <>
-            //         <Form.List name='axis_setting' initialValue={[{ }]}>
-            //             {(fields, { add, remove }) => <>
-            //                 {fields.map(field => <div className='gauge-axis-setting-wrapper'>
-            //                     <Form.Item name={[field.name, 'threshold']} label='区间' tooltip='该值代表整根轴线的百分比，需要在0-1之间'>
-            //                         <InputNumber max={1} min={0} />
-            //                     </Form.Item>
-            //                     <Form.Item name={[field.name, 'color']} label='颜色'>
-            //                         <StringColorPicker />
-            //                     </Form.Item>
-                                
-            //                     <DeleteOutlined className='gauge-axis-delete-icon' onClick={() => { remove(field.name) } } />
-                            
-                            
-            //                 </div>)}
-                            
-            //                 <Button onClick={() => { add() }} type='dashed' block icon={<PlusCircleOutlined />}>增加轴线区间设置</Button>
-                        
-                        
-            //             </>}
-            //         </Form.List>
-                
-            //     </>
-                
-            // }
         ]} />
     </>
 }

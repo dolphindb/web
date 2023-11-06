@@ -10,8 +10,9 @@ import { Radar, RadarConfigForm } from './Charts/Radar/index.js'
 import { OrderBook, OrderConfigForm } from './Charts/OrderBook/index.js'
 import { DashboardEditor as Editor, EditorConfigForm } from './Charts/DashboardEditor/index.js'
 import { Gauge, GaugeConfigForm } from './Charts/Gauge/index.js'
-import { Variables, VariablesConfigForm } from './Charts/Variables/index.js'
+import { Variables } from './Charts/Variables/index.js'
 import { HeatMap, HeatMapConfigForm } from './Charts/HeatMap/index.js'
+import { BasicFormFields } from './ChartFormFields/BasicFormFields.js'
 
 
 type GraphConfig =  { 
@@ -71,7 +72,7 @@ export const graph_config: GraphConfig =  {
     },
     [WidgetChartType.VARIABLE]: {
         component: Variables,
-        config: VariablesConfigForm
+        config: BasicFormFields
     },
     [WidgetChartType.SCATTER]: {
         component: Chart,

@@ -19,6 +19,7 @@ import SvgPublish from './icons/publish.icon.svg'
 import SvgEngine from './icons/engine.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 import { use_modal } from 'react-object-model/modal'
+import { DdbInt } from 'dolphindb'
 
 
 export function Computing () {
@@ -119,15 +120,16 @@ export function Computing () {
             let new_row = { }
             
             for (let key of Object.keys(leading_cols.engine))
-                new_row[key] = row.hasOwnProperty(key) ? row[key] : ''
+                new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : row[key]) : ''
             
             for (let key of Object.keys(expanded_cols.engine[engineType] || { }))
-                new_row[key] = row.hasOwnProperty(key) ? row[key] : '' 
+                new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : row[key]) : '' 
                 
             new_row = Object.assign(new_row, { engineType })
             
             streaming_engine_rows.push(new_row)
         }
+        
     
     return  <Tabs
                 activeKey={tab_key}
@@ -160,10 +162,11 @@ export function Computing () {
                                                 ),
                                              'subWorkers')), 'subWorkers')
                                         }
-                                    rows={add_details_row(
-                                            add_unit(
-                                                handle_ellipsis_col(
-                                                    add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'), 'subWorkers'))}
+                                    rows={handle_null(
+                                            add_details_row(
+                                                add_unit(
+                                                    handle_ellipsis_col(
+                                                        add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'), 'subWorkers')))}
                                     min_width={1420}
                                     default_page_size={10}
                                     refresher={get_streaming_pub_sub_stat}
@@ -194,11 +197,12 @@ export function Computing () {
                                                 translate_order_col(
                                                     set_col_ellipsis(
                                                         translate_format_col(streaming_engine_cols, 'memoryUsed'), 'metrics'), false)), 'engine')}
-                                    rows={add_details_row(
-                                            add_unit(
-                                                translate_byte_row(
-                                                    handle_ellipsis_col(
-                                                        add_key(streaming_engine_rows), 'lastErrMsg'), 'memoryUsed'), 'engine'))}
+                                    rows={handle_null(
+                                            add_details_row(
+                                                add_unit(
+                                                    translate_byte_row(
+                                                        handle_ellipsis_col(
+                                                            add_key(streaming_engine_rows), 'lastErrMsg'), 'memoryUsed'), 'engine')))}
                                     min_width={1530}
                                     separated={false}
                                     default_page_size={20}
@@ -227,11 +231,11 @@ export function Computing () {
                                     cols={render_col_title(
                                             sort_col(
                                                 set_col_width(persistent_table_stat.to_cols(), 'persistenceMeta'), 'persistenceMeta'), 'persistenceMeta')}
-                                    rows={add_key(persistent_table_stat.to_rows())}
+                                    rows={handle_null(add_key(persistent_table_stat.to_rows()))}
                                     min_width={1500}
                                     refresher={get_streaming_table_stat}
                                 />
-                                {streaming_stat.persistWorkers && (
+                                {/* {streaming_stat.persistWorkers && (
                                     <StateTable
                                         type='persistWorkers'
                                         cols={render_col_title(
@@ -239,7 +243,7 @@ export function Computing () {
                                         rows={add_key(streaming_stat.persistWorkers.to_rows())} 
                                         separated={false}  
                                     />
-                                )}
+                                )} */}
                                 
                             </div>
                         )
@@ -306,27 +310,33 @@ const cols_width = {
 const header_text = {
     subWorkers: {
         title: t('订阅线程状态'),
-        tip: t('监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。')
+        tip: t('监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。'),
+        func: 'getStreamingStat().subWorkers'
     },
     pubConns: {
         title: t('发布状态'),
-        tip: t('监控本地发布节点和它的所有订阅节点之间的连接状态。')
+        tip: t('监控本地发布节点和它的所有订阅节点之间的连接状态。'),
+        func: 'getStreamingStat().pubConns'
     },
     persistWorkers: {
         title: t('持久化线程状态'),
-        tip: t('监控负责持久化流数据表的工作线程的状态。')
+        tip: t('监控负责持久化流数据表的工作线程的状态。'),
+        func: 'getStreamingStat().persistWorkers'
     },
     persistenceMeta: {
         title: t('持久化共享流表状态'),
-        tip: t('监控启用了持久化的共享流数据表的元数据。')
+        tip: t('监控启用了持久化的共享流数据表的元数据。'),
+        func: 'objs(true)'
     },
     sharedStreamingTableStat: {
         title: t('非持久化共享流表状态'),
-        tip: t('监控未启用持久化的共享流数据表的元数据。')
+        tip: t('监控未启用持久化的共享流数据表的元数据。'),
+        func: 'objs(true)'
     },
     engine: {
         title: t('流引擎状态'),
-        tip: t('监控流计算引擎的状态。')
+        tip: t('监控流计算引擎的状态。'),
+        func: 'getStreamEngineStat()'
     }
 }
 
@@ -625,11 +635,21 @@ function add_details_row (table: Record<string, any>[]) {
         const info = () => model.modal.info({
             title: !engineType ? row.topic : row.name,
             className: 'show-more-modal',
-            content: <List dataSource={detailed_keys.map(key => `${dict[key]}: ${row[key] || ''}`)} 
+            content: <List dataSource={detailed_keys.map(key => { return `${dict[key]}: ${(row[key] === -1 || row[key] === -1n) ? '' : row[key]}` })} 
                            renderItem={item => <List.Item>{item}</List.Item>}
                            split={false}/>
         })
-        return { ...row, details: <a onClick={info}>{t('点击查看')}</a> }
+        return { ...row, details: dict && <a onClick={info}>{t('点击查看')}</a> }
+    })
+}
+
+/** 将表里的 -1 转成真正的 null */
+function handle_null (table: Record<string, any>[]) {
+    return table.map(row => {
+        for (let key in row) 
+            row[key] = (row[key] === -1 || row[key] === -1n ) ? null : row[key]
+         
+        return row
     })
 }
 
@@ -640,7 +660,11 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
             try {
                 await Promise.all(selected.map(async pub_table => { 
                     const pub_table_arr = pub_table.split('/')
-                    ddb.eval(`unsubscribeTable(,'${pub_table_arr[1]}','${pub_table_arr[2]}')`, { urgent: true }) }))
+                    const [ip, port] = pub_table_arr[0].split(':')
+                    // const ddb_port = new DdbInt(Number(port))
+                    ddb.eval(`h=xdb('${ip}',${port})\n` +
+                             `unsubscribeTable(h,'${pub_table_arr[1]}','${pub_table_arr[2]}')`, 
+                             { urgent: true }) }))
                 model.message.success(t('取消订阅成功'))
             } catch (error) {
                 model.show_error({ error })
@@ -768,9 +792,11 @@ function StateTable ({
                                               selected={selected}
                                               set_selected={set_selected}
                                               refresher={refresher}/>}
-                <span className='table-name'>
-                    {header_text[table_name].title}
-                </span>
+                <Tooltip title={header_text[table_name].func}>
+                    <span className='table-name'>
+                        {header_text[table_name].title}
+                    </span>
+                </Tooltip>                              
                 <Tooltip title={header_text[table_name].tip}>
                     <QuestionCircleOutlined />
                 </Tooltip>

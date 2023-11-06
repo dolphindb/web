@@ -260,6 +260,9 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             alignTicks: true,
             id: index,
             scale: !axis.with_zero ?? false,
+            nameTextStyle: {
+                fontSize: axis.fontsize ?? 12
+            }
         }
         
         if (axis.type === AxisType.CATEGORY)
@@ -336,7 +339,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     return {
         grid: {
             containLabel: true,
-            left: 40,
+            left: 10,
             bottom: 10
         },
         legend: {

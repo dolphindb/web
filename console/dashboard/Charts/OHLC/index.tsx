@@ -233,7 +233,9 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     boundaryGap: false,
                     axisLine: { onZero: false },
                     splitLine: { show: false },
-                 
+                    nameTextStyle: {
+                        fontSize: xAxis?.fontsize ?? 12
+                    },
                     axisPointer: {
                         z: 100
                     }
@@ -243,6 +245,9 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     gridIndex: 1,
                     name: xAxis.name,
                     data: data.categoryData,
+                    nameTextStyle: {
+                        fontSize: xAxis?.fontsize ?? 12
+                    },
                     // data: data.categoryData,
                     boundaryGap: false,
                     // axisLine: { onZero: false },
@@ -266,7 +271,8 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                         }
                     },
                     nameTextStyle: {
-                        padding: [0, 50, 0, 0]
+                        padding: [0, 50, 0, 0],
+                        fontSize: yAxis[0]?.fontsize ?? 12,
                     },
                     name: yAxis[0].name,
                     position: yAxis[0].position,
@@ -277,7 +283,8 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     gridIndex: 1,
                     splitNumber: 2,
                     nameTextStyle: {
-                        padding: [0, 0, 0, 50]
+                        padding: [0, 0, 0, 50],
+                        fontSize: yAxis[1]?.fontsize ?? 12,
                     },
                     name: yAxis[1].name,
                     position: yAxis[1].position,
@@ -292,7 +299,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 {
                     type: 'inside',
                     xAxisIndex: [0, 1],
-                    start: 20,
+                    start: 0,
                     end: 100
                 },
                 {
@@ -300,7 +307,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     xAxisIndex: [0, 1],
                     type: 'slider',
                     top: '86%',
-                    start: 20,
+                    start: 0,
                     end: 100,
                     height: 20
                 },
