@@ -19,6 +19,7 @@ import SvgPublish from './icons/publish.icon.svg'
 import SvgEngine from './icons/engine.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 import { use_modal } from 'react-object-model/modal'
+import { DdbInt } from 'dolphindb'
 
 
 export function Computing () {
@@ -658,7 +659,11 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
             try {
                 await Promise.all(selected.map(async pub_table => { 
                     const pub_table_arr = pub_table.split('/')
-                    ddb.eval(`unsubscribeTable(,'${pub_table_arr[1]}','${pub_table_arr[2]}')`, { urgent: true }) }))
+                    const [ip, port] = pub_table_arr[0].split(':')
+                    // const ddb_port = new DdbInt(Number(port))
+                    ddb.eval(`h=xdb('${ip}',${port})\n` +
+                             `unsubscribeTable(h,'${pub_table_arr[1]}','${pub_table_arr[2]}')`, 
+                             { urgent: true }) }))
                 model.message.success(t('取消订阅成功'))
             } catch (error) {
                 model.show_error({ error })
