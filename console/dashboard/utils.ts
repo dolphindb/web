@@ -5,7 +5,7 @@ import { isNil, isNumber, uniq } from 'lodash'
 
 import { WidgetChartType, type Widget, dashboard } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
-import { type DataSource } from './DataSource/date-source.js'
+import { subscribe_data_source, type DataSource } from './DataSource/date-source.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import dayjs from 'dayjs'
 import { find_variable_by_name, get_variable_value, subscribe_variable } from './Variable/variable.js'
@@ -481,7 +481,7 @@ export async function copy_widget (widget: Widget) {
 }
 
 
-export function paste_widget (e) { 
+export async function paste_widget (e) { 
     const paste_widget = safe_json_parse((e.clipboardData).getData('text'))
     if (paste_widget?.type) { 
         const paste_widget_el = {
@@ -490,5 +490,6 @@ export function paste_widget (e) {
             id: genid(),
         }
         dashboard.add_widget(paste_widget_el)
+        await subscribe_data_source(paste_widget, paste_widget.source_id)
     }
 }
