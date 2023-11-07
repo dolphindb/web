@@ -487,7 +487,7 @@ export async function paste_widget (e) {
         const paste_widget_el = {
             ...paste_widget,
             ref: createRef(),
-            id: genid(),
+            id: String(genid()),
         }
         dashboard.add_widget(paste_widget_el)
         await subscribe_data_source(paste_widget, paste_widget.source_id)
