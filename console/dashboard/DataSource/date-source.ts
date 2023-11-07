@@ -23,6 +23,7 @@ export type ExportDataSource = {
     deps: string[]
     variables: string[]
     error_message: string
+    ddb: string
     /** sql 模式专用 */
     auto_refresh: boolean
     /** sql 模式专用 */
@@ -43,8 +44,6 @@ export type ExportDataSource = {
     node: string
     /** stream 模式专用 */
     ip: string
-    /** stream 模式专用 */
-    ddb: string
 }
 
 
@@ -58,6 +57,7 @@ export class DataSource extends Model<DataSource>  {
     deps: Set<string> = new Set()
     variables: Set<string> = new Set()
     error_message = ''
+    ddb: DDB
     /** sql 模式专用 */
     auto_refresh = false
     /** sql 模式专用 */
@@ -78,8 +78,6 @@ export class DataSource extends Model<DataSource>  {
     node = ''
     /** stream 模式专用 */
     ip = ''
-    /** stream 模式专用 */
-    ddb: DDB
     
     constructor (id: string, name: string) {
         super()
@@ -144,13 +142,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                 data_source.set({ ...new_data_source, timer: data_source.timer })
                 
                 if (deps.size && !data_source.error_message && data_source.auto_refresh) 
-                    if (code === undefined)
-                        create_interval(data_source) 
-                    else 
-                        // 尽可能避免加载后开启轮询的时间间隔过短
-                        setTimeout(() => {
-                            create_interval(data_source)
-                        }, Math.floor(Math.random() * 1000 * Math.min(data_source.interval, 3)))                       
+                    await create_interval(data_source)                    
             }
             
             break
@@ -218,7 +210,7 @@ export async function subscribe_data_source (widget_option: Widget, source_id: s
         switch (data_source.mode) {
             case 'sql':
                 if (data_source.auto_refresh && !data_source.timer)
-                    create_interval(data_source)
+                    await create_interval(data_source)
                 break
             case 'stream':
                 if (!data_source.ddb)
@@ -244,7 +236,7 @@ export function unsubscribe_data_source (widget_option: Widget) {
 }
 
 
-export async function execute (source_id: string, queue = true) {
+export async function execute (source_id: string) {
     const data_source = get_data_source(source_id)
     
     if (!data_source.id)
@@ -253,8 +245,8 @@ export async function execute (source_id: string, queue = true) {
     switch (data_source.mode) {
         case 'sql':
             try {
-                const { type, result } = await dashboard.execute(parse_code(data_source.code, data_source), queue)
-                console.log(type, data_source.name)
+                const { type, result } = await dashboard.execute(parse_code(data_source.code, data_source), data_source.ddb || model.ddb)
+                // console.log(type, data_source.name)
                 switch (type) {
                     case 'success':
                         // 暂时只支持table
@@ -272,7 +264,7 @@ export async function execute (source_id: string, queue = true) {
                             })
                             
                         if (data_source.deps.size && !data_source.timer && data_source.auto_refresh) 
-                            create_interval(data_source)
+                            await create_interval(data_source)
                         
                         break
                     case 'error':
@@ -295,25 +287,55 @@ export async function execute (source_id: string, queue = true) {
     }
 }
 
-function create_interval (data_source: DataSource) {
-    if (data_source.auto_refresh) {
-        delete_interval(data_source)
+async function create_interval (data_source: DataSource) {
+    try {
+        if (data_source.auto_refresh) {
+            delete_interval(data_source)
             
-        const interval_id = setInterval(async () => {
-            await execute(data_source.id, false)  
-        }, data_source.interval * 1000)
-        
-        data_source.timer = interval_id
+            const params = new URLSearchParams(location.search)
+            const port = params.get('port') || location.port
+            const sql_connection = new DDB(
+                (model.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
+                    '://' +
+                    (params.get('hostname') || location.hostname) +
+                    
+                    // 一般 location.port 可能是空字符串
+                    (port ? `:${port}` : '') +
+                    
+                    // 检测 ddb 是否通过 nginx 代理，部署在子路径下
+                    (location.pathname === '/dolphindb/' ? '/dolphindb/' : ''),
+                {
+                    autologin: true,
+                    verbose: model.verbose,
+                    sql: model.sql
+                }
+            )
+            await sql_connection.connect()
+                
+            const interval_id = setInterval(async () => {
+                await execute(data_source.id)  
+            }, data_source.interval * 1000)
+            
+            data_source.set({ timer: interval_id, ddb: sql_connection })
+        }
+    } catch (error) {
+        dashboard.message.error(`${data_source.name} 轮询启动失败`)
+        return error
     }
 }
 
 
 function delete_interval (data_source: DataSource) {
     const interval = data_source.timer
+    const sql_connection = data_source.ddb
     if (interval) {
         clearInterval(interval)
         data_source.timer = null
-    }     
+    } 
+    if (sql_connection) {
+        sql_connection.disconnect()
+        data_source.ddb = null
+    }    
 }
 
 

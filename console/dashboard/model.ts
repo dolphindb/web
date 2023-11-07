@@ -72,8 +72,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     result: Result
     
-    executing = false
-    
     // console/model.js 对应黑色主题的版本
     message: MessageInstance
     
@@ -318,11 +316,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async eval (code = this.sql_editor.getValue(), preview = false) {
-        this.set({ executing: true })
-        
+    async eval (code = this.sql_editor.getValue(), ddb = model.ddb, preview = false) {
         try {
-            let ddbobj = await model.ddb.eval(
+            let ddbobj = await ddb.eval(
                 code.replaceAll('\r\n', '\n')
             )
             if (model.verbose)
@@ -353,35 +349,26 @@ export class DashBoardModel extends Model<DashBoardModel> {
                     result: null,
                 })
             throw error
-        } finally {
-            this.set({ executing: false })
         }
     }
     
     
-    async execute (code = this.sql_editor.getValue(), queue = true, preview = false): Promise<{
-        type: 'success' | 'error' | 'warn'
+    async execute (code = this.sql_editor.getValue(), ddb = model.ddb, preview = false): Promise<{
+        type: 'success' | 'error'
         result: string | DdbObj<DdbValue>
     }> {
-        if (dashboard.executing && !queue) 
-            // this.message.warning(t('当前连接正在执行作业，请等待'))
+        try {
+            const result = await this.eval(code, ddb, preview)
             return {
-                type: 'warn',
-                result: '当时连接正在执行作业，无返回结果'
+                type: 'success',
+                result: result
             }
-        else 
-            try {
-                const result = await this.eval(code, preview)
-                return {
-                    type: 'success',
-                    result: result
-                }
-            } catch (error) {
-                return {
-                    type: 'error',
-                    result: error.message
-                }
+        } catch (error) {
+            return {
+                type: 'error',
+                result: error.message
             }
+        }
     }
     
     
