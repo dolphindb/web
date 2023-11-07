@@ -1,11 +1,11 @@
 import './index.scss'
 
-import { CloseOutlined } from '@ant-design/icons'
+import { CloseOutlined, CopyOutlined } from '@ant-design/icons'
 
 
 import { WidgetChartType, WidgetType, WidgetTypeWithoutDatasource, dashboard } from '../model.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { type Widget } from '../model.js'
 import { graph_config } from '../graph-config.js'
 
@@ -14,6 +14,8 @@ import { get_data_source } from '../DataSource/date-source.js'
 import { t } from '../../../i18n/index.js' 
 import cn from 'classnames'
 import { VariableForm } from './VariableForm.js'
+import { Button } from 'antd'
+import { copy_widget } from '../utils.js'
 
 function get_padding (padding: { left: number, right: number, top: number, bottom: number }) { 
     if (!padding)
@@ -50,7 +52,19 @@ function GraphComponent ({ widget }: { widget: Widget }) {
 
 export function GraphItem  ({ widget }: { widget: Widget }) {
     const { widget: current, editing } = dashboard.use(['widget', 'editing'])
-  
+    
+    useEffect(() => { 
+        async function copy () { 
+            await copy_widget(widget)
+        }
+        
+        // 仅当前 widget 为选中状态才进行监听
+        if (current?.id === widget?.id)
+            window.addEventListener('copy', copy)
+        
+        return () => { window.removeEventListener?.('copy', copy) }
+    }, [current, widget])
+    
     // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动
     // 根据 id 判断当前选中的节点，防止因为对象引用地址不同导致的判断错误
     return <div className={cn('grid-stack-item-content', {
@@ -66,6 +80,11 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
                     widget={current}
                     text={t('编辑数据源')}
                 />
+            }
+            {
+                (widget?.id === current?.id) && <Button icon={<CopyOutlined />} className='edit-data-source-btn' type='link' onClick={ () => { copy_widget(widget) }}  >
+                    {t('复制') }
+                </Button>
             }
             <CloseOutlined className='delete-graph-icon' onClick={() => { dashboard.delete_widget(widget) }}/>
         </div> }
