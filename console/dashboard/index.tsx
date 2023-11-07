@@ -21,7 +21,7 @@ import { Overview } from './Overview.js'
 import config from './chart.config.json' assert { type: 'json' }
 import { NodeType, model } from '../model.js'
 import { t } from '../../i18n/index.js'
-
+import { paste_widget } from './utils.js'
 
 
 echarts.registerTheme('my-theme', config.theme)
@@ -82,6 +82,12 @@ function DashboardInstance () {
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
     Object.assign(dashboard, App.useApp())
     console.log(widgets, 'render')
+    
+    // 监听 ctrl v事件，复制组件
+    useEffect(() => { 
+        window.addEventListener('paste', paste_widget)
+        return () => { window.removeEventListener('paste', paste_widget) }
+    }, [ ])
     
     useEffect(() => {
         (async () => {

@@ -3,12 +3,14 @@ import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type Inspe
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
 import { isNil, isNumber, uniq } from 'lodash'
 
-import { WidgetChartType, type Widget } from './model.js'
+import { WidgetChartType, type Widget, dashboard } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
 import { type DataSource } from './DataSource/date-source.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import dayjs from 'dayjs'
 import { find_variable_by_name, get_variable_value, subscribe_variable } from './Variable/variable.js'
+import { createRef } from 'react'
+import { genid } from 'xshell/utils.browser.js'
 
 
 export function format_time (time: string, format: string) { 
@@ -455,4 +457,38 @@ export async function load_styles (url: string) {
         link.onerror = reject
         document.head.appendChild(link)
     })
+}
+
+
+export async function copy_widget (widget: Widget) { 
+    if (!widget)
+        return
+    const copy_text = JSON.stringify({
+        config: widget.config,
+        type: widget.type,
+        source_id: widget.source_id,
+        x: widget.x,
+        y: widget.y,
+        w: widget.w,
+        h: widget.h
+    })
+    try {
+        await navigator.clipboard.writeText(copy_text)
+        dashboard.message.success('复制成功')
+     } catch (e) {
+        dashboard.message.error('复制失败')
+     }
+}
+
+
+export function paste_widget (e) { 
+    const paste_widget = safe_json_parse((e.clipboardData).getData('text'))
+    if (paste_widget?.type) { 
+        const paste_widget_el = {
+            ...paste_widget,
+            ref: createRef(),
+            id: genid(),
+        }
+        dashboard.add_widget(paste_widget_el)
+    }
 }
