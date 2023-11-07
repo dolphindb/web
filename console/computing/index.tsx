@@ -795,7 +795,6 @@ function StateTable ({
     refresher?: () => Promise<void>
 }) {
     const [selected, set_selected] = useState<string[]>([ ])
-    
     /** 渲染表头 */
     function render_table_header (table_name: string, button_props?: ButtonProps) {    
         return <>
@@ -822,6 +821,7 @@ function StateTable ({
                 refresher
                     ? {
                         type: 'checkbox',
+                        selectedRowKeys: selected,
                         onChange: (selected_keys: React.Key[]) => { set_selected(selected_keys as string[]) }
                     }
                     : null
