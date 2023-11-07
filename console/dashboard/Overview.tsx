@@ -305,7 +305,8 @@ export function Overview () {
                 title={() => <div className='title'>
                         <h2>{t('数据面板')}</h2>
                         <div className='toolbar'>
-                            <Button
+                        <Button
+                                type='primary'
                                 icon={<PlusCircleOutlined />}
                                 onClick={() => {
                                     const new_id = genid()
@@ -374,19 +375,6 @@ export function Overview () {
                             </Button>
                             
                             <Button
-                                icon={<DeleteOutlined />}
-                                onClick={() => {
-                                    if (!selected_dashboard_ids || !selected_dashboard_ids.length) {
-                                    model.message.error(t('请至少选中一个数据面板后再删除'))
-                                        return
-                                    } 
-                                    deletor.open()
-                                }}
-                            >
-                                {t('批量删除')}
-                            </Button>
-                            
-                            <Button
                                 icon={<ShareAltOutlined />}
                                 onClick={async () => {
                                     try {
@@ -399,6 +387,20 @@ export function Overview () {
                                 }}
                             >
                                 {t('分享')}
+                            </Button>
+                        
+                            <Button
+                                danger
+                                icon={<DeleteOutlined />}
+                                onClick={() => {
+                                    if (!selected_dashboard_ids || !selected_dashboard_ids.length) {
+                                    model.message.error(t('请至少选中一个数据面板后再删除'))
+                                        return
+                                    } 
+                                    deletor.open()
+                                }}
+                            >
+                                {t('批量删除')}
                             </Button>
                             
                             

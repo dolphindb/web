@@ -4,6 +4,7 @@ import { BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, Do
 import { WidgetType } from './model.js'
 
 
+
 const icons = {
     [WidgetType.BAR]: <BarChartOutlined className='icon'/>,
     [WidgetType.LINE]: <LineChartOutlined className='icon'/>,

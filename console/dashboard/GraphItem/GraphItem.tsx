@@ -17,7 +17,7 @@ import { VariableForm } from './VariableForm.js'
 import { Button } from 'antd'
 import { copy_widget } from '../utils.js'
 
-function get_padding (padding: { left: number, right: number, top: number, bottom: number }) { 
+function get_padding_style (padding: { left: number, right: number, top: number, bottom: number }) { 
     if (!padding)
         padding = {
             left: 12,
@@ -34,13 +34,24 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     
     const { data = [ ] } = data_source_node.use(['data'])
     
-    
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     
-    return <div style={{ padding: get_padding(widget.config?.padding) } } className={cn('graph-item-wrapper', {
-        'overflow-visible-wrapper': widget.type === WidgetChartType.EDITOR || widget.type === WidgetChartType.OHLC
-    }) }>
-        {(widget.type !==  WidgetChartType.VARIABLE && widget.config) && <VariableForm ids={widget.config.variable_ids} cols={widget.config.variable_cols} with_search_btn={widget.config.with_search_btn} /> }
+    return <div
+            style={{ padding: get_padding_style(widget.config?.padding) }}
+            className={cn('graph-item-wrapper', {
+                'overflow-visible-wrapper': widget.type === WidgetChartType.EDITOR || widget.type === WidgetChartType.OHLC
+            })}
+        >
+        
+        {
+            (widget.type !== WidgetChartType.VARIABLE && widget.config) &&
+            <VariableForm
+                ids={widget.config.variable_ids}
+                cols={widget.config.variable_cols}
+                with_search_btn={widget.config.with_search_btn}
+            />
+        }
+        
         <div className={cn('graph-component', {
             'graph-item-wrapper-abandon-scroll': widget.config?.abandon_scroll
         }) }>
@@ -53,27 +64,31 @@ function GraphComponent ({ widget }: { widget: Widget }) {
 export function GraphItem  ({ widget }: { widget: Widget }) {
     const { widget: current, editing } = dashboard.use(['widget', 'editing'])
     
+    // 是否为选中状态
+    const is_active = useMemo(() => current?.id === widget?.id, [widget, current])
+    
+    const ref = useRef<HTMLDivElement>()
+    
     useEffect(() => { 
         async function copy () { 
             await copy_widget(widget)
         }
-        
         // 仅当前 widget 为选中状态才进行监听
-        if (current?.id === widget?.id)
-            window.addEventListener('copy', copy)
+        if (is_active && ref.current)
+            ref?.current?.addEventListener('copy', copy)
+        return () => { ref?.current?.addEventListener('copy', copy) }
         
-        return () => { window.removeEventListener?.('copy', copy) }
-    }, [current, widget])
+    }, [is_active])
     
     // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动
-    // 根据 id 判断当前选中的节点，防止因为对象引用地址不同导致的判断错误
-    return <div className={cn('grid-stack-item-content', {
-        'grid-stack-item-active': widget.id === current?.id && editing
+    return <div
+        ref={ref}
+        className={cn('grid-stack-item-content', {
+        'grid-stack-item-active': is_active && editing
     })}>
         { editing && <div className='delete-graph'>
-            {/* 选中时 hover 且当前有数据源时才能修改数据源 */}
             {
-                widget.id === current?.id && widget.source_id && !WidgetTypeWithoutDatasource.includes(widget.type) &&
+                is_active && !WidgetTypeWithoutDatasource.includes(widget.type) &&
                 <DataSourceConfig
                     className='edit-data-source-btn'
                     type='link'
@@ -82,14 +97,14 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
                 />
             }
             {
-                (widget?.id === current?.id) && <Button icon={<CopyOutlined />} className='edit-data-source-btn' type='link' onClick={ () => { copy_widget(widget) }}  >
+                is_active && <Button icon={<CopyOutlined />} className='edit-data-source-btn' type='link' onClick={ () => { copy_widget(widget) }}  >
                     {t('复制') }
                 </Button>
             }
             <CloseOutlined className='delete-graph-icon' onClick={() => { dashboard.delete_widget(widget) }}/>
         </div> }
         {
-            (widget.config && widget.source_id) ||  WidgetTypeWithoutDatasource.includes(widget.type) ? 
+            (widget.config && widget.source_id) || WidgetTypeWithoutDatasource.includes(widget.type) ? 
                 <GraphComponent widget={widget} />
             :
                 <div className='graph-content'>
