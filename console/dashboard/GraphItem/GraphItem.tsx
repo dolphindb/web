@@ -5,7 +5,7 @@ import { CloseOutlined, CopyOutlined } from '@ant-design/icons'
 
 import { WidgetChartType, WidgetType, WidgetTypeWithoutDatasource, dashboard } from '../model.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { type Widget } from '../model.js'
 import { graph_config } from '../graph-config.js'
 
@@ -67,19 +67,23 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
     // 是否为选中状态
     const is_active = useMemo(() => current?.id === widget?.id, [widget, current])
     
+    const ref = useRef<HTMLDivElement>()
+    
     useEffect(() => { 
         async function copy () { 
             await copy_widget(widget)
         }
         // 仅当前 widget 为选中状态才进行监听
-        if (is_active)
-            window.addEventListener('copy', copy)
+        if (is_active && ref.current)
+            ref?.current?.addEventListener('copy', copy)
+        return () => { ref?.current?.addEventListener('copy', copy) }
         
-        return () => { window.removeEventListener?.('copy', copy) }
     }, [is_active])
     
     // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动
-    return <div className={cn('grid-stack-item-content', {
+    return <div
+        ref={ref}
+        className={cn('grid-stack-item-content', {
         'grid-stack-item-active': is_active && editing
     })}>
         { editing && <div className='delete-graph'>

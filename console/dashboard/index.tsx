@@ -108,7 +108,7 @@ function DashboardInstance () {
     }, [widgets])
     
     
-    return <div className='dashboard'>
+    return <div className='dashboard' >
         <div className='dashboard-header'>
             <Header />
         </div>
