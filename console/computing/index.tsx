@@ -635,15 +635,15 @@ function add_details_row (table: Record<string, any>[]) {
         const info = () => model.modal.info({
             title: !engineType ? row.topic : row.name,
             className: 'show-more-modal',
-            content: <List dataSource={detailed_keys.map(key => { return `${dict[key]}: ${(row[key] === -1 || row[key] === -1n) ? '' : row[key]}` })} 
+            content: <List dataSource={detailed_keys.map(key => { return `${dict[key]}: ${(row[key] === -1 || row[key] === -1n || row[key] === null) ? '' : row[key]}` })} 
                            renderItem={item => <List.Item>{item}</List.Item>}
                            split={false}/>
         })
-        return { ...row, details: dict && <a onClick={info}>{t('点击查看')}</a> }
+        return { ...row, details: dict ? <a onClick={info}>{t('点击查看')}</a> : '--' }
     })
 }
 
-/** 将表里的 -1 转成真正的 null */
+/** 将表里的 -1 转成真正的 null,null 转为空 */
 function handle_null (table: Record<string, any>[]) {
     return table.map(row => {
         for (let key in row) 
