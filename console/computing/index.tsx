@@ -19,7 +19,6 @@ import SvgPublish from './icons/publish.icon.svg'
 import SvgEngine from './icons/engine.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 import { use_modal } from 'react-object-model/modal'
-import { DdbInt } from 'dolphindb'
 
 
 export function Computing () {
@@ -114,14 +113,17 @@ export function Computing () {
     }))
     
     let streaming_engine_rows = [ ]
-    console.log('origin_streaming_engine_stat', origin_streaming_engine_stat)
     for (let engineType of Object.keys(origin_streaming_engine_stat))
         for (let row of origin_streaming_engine_stat[engineType].to_rows()) {
             let new_row = { }
             
-            for (let key of Object.keys(leading_cols.engine))
-                new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : row[key]) : '--'
+            // 特殊的三种引擎类型，内存使用为 memoryInUsed
+            if (special_engine_type.has(engineType)) 
+                row.memoryUsed = row.memoryInUsed
             
+            for (let key of Object.keys(leading_cols.engine)) 
+                new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : row[key]) : '--'
+                
             for (let key of Object.keys(expanded_cols.engine[engineType] || { }))
                 new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : (row[key] === null ? '' : row[key]) ) : '' 
                 
@@ -272,6 +274,10 @@ interface ButtonProps {
     selected: string[]
     refresher: () => Promise<void>
 }
+
+const special_engine_type = new Set(['NarrowReactiveStreamEngine', 
+                                     'ReactiveStreamEngine', 
+                                     'DualOwnershipReactiveStreamEngine'])
 
 const cols_width = {
     subWorkers: {
