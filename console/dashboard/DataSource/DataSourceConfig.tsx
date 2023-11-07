@@ -22,6 +22,7 @@ import { data_sources,
     type DataSourcePropertyType,
 } from './date-source.js'
 import { parse_code } from '../utils.js'
+import { model } from '../../model.js'
 
 const save_confirm_config = {
     cancelText: '不保存',
@@ -120,7 +121,7 @@ export function DataSourceConfig (props: IProps, ref) {
                                     return
                                 try {
                                     set_loading('preview')
-                                    const { type, result } = await dashboard.execute(parse_code(dashboard.sql_editor.getValue()), true, true)
+                                    const { type, result } = await dashboard.execute(parse_code(dashboard.sql_editor.getValue()), model.ddb, true)
                                     change_current_data_source_property('error_message', type === 'success' ? '' : result as string, false)
                                     set_show_preview(true)
                                 } finally {
