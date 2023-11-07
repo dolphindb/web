@@ -19,6 +19,7 @@ import SvgPublish from './icons/publish.icon.svg'
 import SvgEngine from './icons/engine.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 import { use_modal } from 'react-object-model/modal'
+import { DdbInt } from 'dolphindb'
 
 
 export function Computing () {
@@ -113,21 +114,22 @@ export function Computing () {
     }))
     
     let streaming_engine_rows = [ ]
-    
+    console.log('origin_streaming_engine_stat', origin_streaming_engine_stat)
     for (let engineType of Object.keys(origin_streaming_engine_stat))
         for (let row of origin_streaming_engine_stat[engineType].to_rows()) {
             let new_row = { }
             
             for (let key of Object.keys(leading_cols.engine))
-                new_row[key] = row.hasOwnProperty(key) ? row[key] : ''
+                new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : row[key]) : '--'
             
             for (let key of Object.keys(expanded_cols.engine[engineType] || { }))
-                new_row[key] = row.hasOwnProperty(key) ? row[key] : '' 
+                new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : row[key]) : '' 
                 
             new_row = Object.assign(new_row, { engineType })
             
             streaming_engine_rows.push(new_row)
         }
+        
     
     return  <Tabs
                 activeKey={tab_key}
@@ -324,12 +326,12 @@ const header_text = {
     persistenceMeta: {
         title: t('持久化共享流表状态'),
         tip: t('监控启用了持久化的共享流数据表的元数据。'),
-        func: 'objs()'
+        func: 'objs(true)'
     },
     sharedStreamingTableStat: {
         title: t('非持久化共享流表状态'),
         tip: t('监控未启用持久化的共享流数据表的元数据。'),
-        func: 'objs()'
+        func: 'objs(true)'
     },
     engine: {
         title: t('流引擎状态'),
@@ -563,7 +565,7 @@ function translate_format_col (cols: TableColumnType<Record<string, any>>[], col
 
 /** 处理 byte */
 function translate_byte_row (table: Record<string, any>[], col_name: string) {
-    return table.map(row => ({ ...row, origin_bytes: row[col_name], [col_name]: Number(row[col_name]).to_fsize_str() }))
+    return table.map(row => ({ ...row, origin_bytes: row[col_name], [col_name]: row[col_name] === '--' ? row[col_name] : Number(row[col_name]).to_fsize_str() }))
 }
 
 /** 翻译列名，添加 tooltip */
@@ -633,7 +635,7 @@ function add_details_row (table: Record<string, any>[]) {
         const info = () => model.modal.info({
             title: !engineType ? row.topic : row.name,
             className: 'show-more-modal',
-            content: <List dataSource={detailed_keys.map(key => { return `${dict[key]}: ${(!row[key] || row[key] === -1 || row[key] === -1n) ? '' : row[key]}` })} 
+            content: <List dataSource={detailed_keys.map(key => { return `${dict[key]}: ${(row[key] === -1 || row[key] === -1n) ? '' : row[key]}` })} 
                            renderItem={item => <List.Item>{item}</List.Item>}
                            split={false}/>
         })
@@ -657,8 +659,17 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
         case 'subWorkers':
             try {
                 await Promise.all(selected.map(async pub_table => { 
-                    const pub_table_arr = pub_table.split('/')
-                    ddb.eval(`unsubscribeTable(,'${pub_table_arr[1]}','${pub_table_arr[2]}')`, { urgent: true }) }))
+                        const pub_table_arr = pub_table.split('/')
+                        const [ip, port] = pub_table_arr[0].split(':')
+                
+                        const script = (ip === model.node.host && Number(port) === model.node.port) 
+                                                ? 
+                                            `unsubscribeTable(,'${pub_table_arr[1]}','${pub_table_arr[2]}')`
+                                                : 
+                                            `h=xdb('${ip}',${port})\n` +
+                                            `unsubscribeTable(h,'${pub_table_arr[1]}','${pub_table_arr[2]}')`
+                        ddb.eval(script, { urgent: true })
+                    }))
                 model.message.success(t('取消订阅成功'))
             } catch (error) {
                 model.show_error({ error })
