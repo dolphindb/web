@@ -1,10 +1,10 @@
-import { Form, Select, Input, Collapse, Divider, InputNumber, Space, Button } from 'antd'
+import './index.scss'
+
+import { Form, Select, Input, Collapse, InputNumber, Space, Button } from 'antd'
 import { t } from '../../../i18n/index.js'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { AxisType, type IAxisItem, type IYAxisItemValue, Position, ILineType } from './type.js'
-
-import './index.scss'
-import { concat_name_path, convert_list_to_options, convert_chart_config } from '../utils.js'
+import { concat_name_path, convert_list_to_options } from '../utils.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { useMemo } from 'react'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
@@ -17,22 +17,23 @@ interface IProps {
     col_names: string[]
 }
 
-const axis_type_options = [{
-    label: t('数据轴'),
-    value: 'value'
-},
-{
-    label: t('类目轴'),
-    value: 'category'
-},
-{
-    label: t('时间轴'),
-    value: 'time'
-},
-{
-    label: t('对数'),
-    value: 'log'
-}]
+const axis_type_options = [
+    {
+        label: t('数据轴'),
+        value: 'value'
+    },
+    {
+        label: t('类目轴'),
+        value: 'category'
+    },
+    {
+        label: t('时间轴'),
+        value: 'time'
+    },
+    {
+        label: t('对数'),
+        value: 'log'
+    }]
 
 const axis_position_options = [
     { value: 'left', label: t('左侧') },

@@ -39,7 +39,6 @@ export function Gauge (props: IProps) {
             },
             series: [{
                 type: 'gauge',
-                
                 title: {
                     fontSize: label_size ?? 16,
                     color: '#fff',
@@ -92,70 +91,70 @@ export function GaugeConfigForm (props: { col_names: string[] } ) {
     return <>
         <BasicFormFields />
         <Collapse items={[{
-                key: 'data',
-                label: '数据配置',
-                forceRender: true,
+            key: 'data',
+            label: '数据配置',
+            forceRender: true,
             children: <div className='data-setting-wrapper'>
-                    <Form.Item name='min' label='最小范围'>
-                        <InputNumber />
-                    </Form.Item>
+                <Form.Item name='min' label='最小范围'>
+                    <InputNumber />
+                </Form.Item>
+            
+                <Form.Item name='max' label='最大范围'>
+                    <InputNumber />
+                </Form.Item>
                 
-                    <Form.Item name='max' label='最大范围'>
-                        <InputNumber />
-                    </Form.Item>
-                    
-                    <Form.Item label='label 字号' name='label_size' initialValue={16}>
-                        <InputNumber addonAfter='px'/>
-                    </Form.Item>
-                    
-                    <Form.Item label='value 字号' name='value_size' initialValue={18}>
-                        <InputNumber addonAfter='px'/>
-                    </Form.Item>
-                    
-                    <Form.List name='data_setting' initialValue={[{ }]}>
-                        {(fields, { add, remove }) => {
-                            
-                            const items = fields.map(field => { 
-                                return {
-                                    key: field.name,
-                                    label: <div className='data-setting-label'>{`数据列 ${field.name + 1}`} <DeleteOutlined onClick={() => { remove(field.name) }} /></div>,
-                                    forceRender: true,
-                                    children: <>
-                                        <Form.Item name={[field.name, 'col']} label='数据列'>
-                                            <Select options={convert_list_to_options(col_names)} />
-                                        </Form.Item>
-                                        
-                                        <Form.Item name={[field.name, 'name']} label='名称'>
-                                            <Input />
-                                        </Form.Item>
-                                        
-                                        <Form.Item name={[field.name, 'color']} label='指针颜色'>
-                                            <StringColorPicker />
-                                        </Form.Item>
-                                        
-                                        <Form.Item tooltip='仪表盘标题相对于仪表盘中心的水平偏移位置，相对于仪表盘半径的百分比' name={[field.name, 'title', 'level']} label='标题水平偏移' initialValue={0}>
-                                            <InputNumber addonAfter='%'/>
-                                        </Form.Item>
-                                        <Form.Item tooltip='仪表盘标题相对于仪表盘中心的垂直偏移位置，相对于仪表盘半径的百分比' name={[field.name, 'title', 'vertical']} label='标题垂直偏移' initialValue={40}>
-                                            <InputNumber addonAfter='%'/>
-                                        </Form.Item>
+                <Form.Item label='label 字号' name='label_size' initialValue={16}>
+                    <InputNumber addonAfter='px'/>
+                </Form.Item>
+                
+                <Form.Item label='value 字号' name='value_size' initialValue={18}>
+                    <InputNumber addonAfter='px'/>
+                </Form.Item>
+                
+                <Form.List name='data_setting' initialValue={[{ }]}>
+                    {(fields, { add, remove }) => {
+                        
+                        const items = fields.map(field => { 
+                            return {
+                                key: field.name,
+                                label: <div className='data-setting-label'>{`数据列 ${field.name + 1}`} <DeleteOutlined onClick={() => { remove(field.name) }} /></div>,
+                                forceRender: true,
+                                children: <>
+                                    <Form.Item name={[field.name, 'col']} label='数据列'>
+                                        <Select options={convert_list_to_options(col_names)} />
+                                    </Form.Item>
                                     
-                                        <Form.Item tooltip='仪表盘标题相对于仪表盘中心的水平偏移位置，相对于仪表盘半径的百分比' name={[field.name, 'value', 'level']} label='数值水平偏移' initialValue={0}>
-                                            <InputNumber addonAfter='%'/>
-                                        </Form.Item>
-                                        <Form.Item tooltip='仪表盘标题相对于仪表盘中心的垂直偏移位置，相对于仪表盘半径的百分比' name={[field.name, 'value', 'vertical']} label='数值垂直偏移' initialValue={60}>
-                                            <InputNumber addonAfter='%'/>
-                                        </Form.Item>
-                                    </>
-                                }
-                            })
-                            return <>
-                                <Collapse size='small' items={items} />
-                                <Button className='add-data-setting-btn' type='dashed' block icon={<PlusCircleOutlined />} onClick={() => { add() }}>增加数据列</Button>
-                            </>
-                        }}
-                    </Form.List>
-                </div>,
+                                    <Form.Item name={[field.name, 'name']} label='名称'>
+                                        <Input />
+                                    </Form.Item>
+                                    
+                                    <Form.Item name={[field.name, 'color']} label='指针颜色'>
+                                        <StringColorPicker />
+                                    </Form.Item>
+                                    
+                                    <Form.Item tooltip='仪表盘标题相对于仪表盘中心的水平偏移位置，相对于仪表盘半径的百分比' name={[field.name, 'title', 'level']} label='标题水平偏移' initialValue={0}>
+                                        <InputNumber addonAfter='%'/>
+                                    </Form.Item>
+                                    <Form.Item tooltip='仪表盘标题相对于仪表盘中心的垂直偏移位置，相对于仪表盘半径的百分比' name={[field.name, 'title', 'vertical']} label='标题垂直偏移' initialValue={40}>
+                                        <InputNumber addonAfter='%'/>
+                                    </Form.Item>
+                                
+                                    <Form.Item tooltip='仪表盘标题相对于仪表盘中心的水平偏移位置，相对于仪表盘半径的百分比' name={[field.name, 'value', 'level']} label='数值水平偏移' initialValue={0}>
+                                        <InputNumber addonAfter='%'/>
+                                    </Form.Item>
+                                    <Form.Item tooltip='仪表盘标题相对于仪表盘中心的垂直偏移位置，相对于仪表盘半径的百分比' name={[field.name, 'value', 'vertical']} label='数值垂直偏移' initialValue={60}>
+                                        <InputNumber addonAfter='%'/>
+                                    </Form.Item>
+                                </>
+                            }
+                        })
+                        return <>
+                            <Collapse size='small' items={items} />
+                            <Button className='add-data-setting-btn' type='dashed' block icon={<PlusCircleOutlined />} onClick={() => { add() }}>增加数据列</Button>
+                        </>
+                    }}
+                </Form.List>
+            </div>,
             },
         ]} />
     </>

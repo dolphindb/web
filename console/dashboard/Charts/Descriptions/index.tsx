@@ -24,7 +24,7 @@ interface IProps {
 export function DBDescriptions (props: IProps) {
     const { data_source = [ ], widget } = props
     const config = useMemo(() => widget.config as unknown as IDescriptionsConfig, [widget.config])
-    // console.log(config, 'config')
+    
     const items = useMemo<DescriptionsProps['items']>(() => { 
         const { col_properties } = widget.config as unknown as IDescriptionsConfig
         return data_source.map((item, idx) => {
@@ -33,6 +33,7 @@ export function DBDescriptions (props: IProps) {
             if (isNumber(threshold))
                 color = item[config.value_col] > threshold ? high_to_threshold_color : low_to_threshold_color
             
+            // 阈值颜色优先级高于自定义颜色高于默认颜色
             color = color || custom_color || '#fff'
             
             let value = item[config.value_col]
