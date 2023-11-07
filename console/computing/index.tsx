@@ -19,7 +19,6 @@ import SvgPublish from './icons/publish.icon.svg'
 import SvgEngine from './icons/engine.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 import { use_modal } from 'react-object-model/modal'
-import { DdbInt } from 'dolphindb'
 
 
 export function Computing () {
@@ -114,16 +113,19 @@ export function Computing () {
     }))
     
     let streaming_engine_rows = [ ]
-    console.log('origin_streaming_engine_stat', origin_streaming_engine_stat)
     for (let engineType of Object.keys(origin_streaming_engine_stat))
         for (let row of origin_streaming_engine_stat[engineType].to_rows()) {
             let new_row = { }
             
-            for (let key of Object.keys(leading_cols.engine))
-                new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : row[key]) : '--'
+            // 特殊的三种引擎类型，内存使用为 memoryInUsed
+            if (special_engine_type.has(engineType)) 
+                row.memoryUsed = row.memoryInUsed
             
+            for (let key of Object.keys(leading_cols.engine)) 
+                new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : row[key]) : '--'
+                
             for (let key of Object.keys(expanded_cols.engine[engineType] || { }))
-                new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : row[key]) : '' 
+                new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : (row[key] === null ? '' : row[key]) ) : '' 
                 
             new_row = Object.assign(new_row, { engineType })
             
@@ -272,6 +274,10 @@ interface ButtonProps {
     selected: string[]
     refresher: () => Promise<void>
 }
+
+const special_engine_type = new Set(['NarrowReactiveStreamEngine', 
+                                     'ReactiveStreamEngine', 
+                                     'DualOwnershipReactiveStreamEngine'])
 
 const cols_width = {
     subWorkers: {
@@ -635,15 +641,15 @@ function add_details_row (table: Record<string, any>[]) {
         const info = () => model.modal.info({
             title: !engineType ? row.topic : row.name,
             className: 'show-more-modal',
-            content: <List dataSource={detailed_keys.map(key => { return `${dict[key]}: ${(row[key] === -1 || row[key] === -1n) ? '' : row[key]}` })} 
+            content: <List dataSource={detailed_keys.map(key => { return `${dict[key]}: ${(row[key] === -1 || row[key] === -1n || row[key] === null) ? '' : row[key]}` })} 
                            renderItem={item => <List.Item>{item}</List.Item>}
                            split={false}/>
         })
-        return { ...row, details: dict && <a onClick={info}>{t('点击查看')}</a> }
+        return { ...row, details: dict ? <a onClick={info}>{t('点击查看')}</a> : '--' }
     })
 }
 
-/** 将表里的 -1 转成真正的 null */
+/** 将表里的 -1 转成真正的 null,null 转为空 */
 function handle_null (table: Record<string, any>[]) {
     return table.map(row => {
         for (let key in row) 
