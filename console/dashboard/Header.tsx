@@ -232,17 +232,32 @@ export function Header () {
         />
         
         <div className='actions'>
-            <Tooltip title='返回'>
+            <Tooltip title='返回主界面'>
                 <Button className='action' onClick={async () => { 
-                    const latest_config = exact_config(await get_latest_config())
-                    const server_config = exact_config(await dashboard.get_dashboard_config(config.id) as DashBoardConfig)
-                    if (JSON.stringify(latest_config) === JSON.stringify(server_config)) 
-                        return_to_overview()
-                    else
-                        save_open()
+                    // const latest_config = exact_config(await get_latest_config())
+                    // const server_config = exact_config(await dashboard.get_dashboard_config(config.id) as DashBoardConfig)
+                    // if (JSON.stringify(latest_config) === JSON.stringify(server_config)) 
+                    //     return_to_overview()
+                    // else
+                    save_open()
                     
                 }}><HomeOutlined /></Button>
             </Tooltip>
+            
+            
+            <Modal open={save_visible}
+                maskClosable={false}
+                onCancel={return_to_overview}
+                onOk={async () => { 
+                    await handle_save()
+                    save_close()
+                    return_to_overview()                                    
+                }}
+                okText={t('保存')}
+                cancelText={t('不保存')}
+                closeIcon={false}
+                title={t('离开此界面您当前更改会丢失，是否需要保存当前更改')} />
+            
             {editing && <>
                 <Modal open={add_visible}
                     maskClosable={false}
@@ -263,19 +278,6 @@ export function Header () {
                     title={t('请输入新的数据面板名称')}>
                     <Input value={edit_dashboard_name} onChange={event => { set_edit_dashboard_name(event.target.value) }}/>
                 </Modal>
-                
-                <Modal open={save_visible}
-                    maskClosable={false}
-                    onCancel={return_to_overview}
-                    onOk={async () => { 
-                        await handle_save()
-                        save_close()
-                        return_to_overview()                                    
-                    }}
-                    okText={t('保存')}
-                    cancelText={t('不保存')}
-                    closeIcon={false}
-                    title={t('当前数据面板未保存，是否需要保存')} />
                 
                 <Tooltip title='新增'>
                     <Button
