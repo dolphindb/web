@@ -8,7 +8,7 @@ import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined } from '@ant-de
 
 import type { SortOrder } from 'antd/es/table/interface.js'
 
-import { type DDB, type DdbObj } from 'dolphindb/browser.js'
+import { type DDB } from 'dolphindb/browser.js'
 
 import { model, NodeType } from '../model.js'
 import { computing } from './model.js'
@@ -111,8 +111,7 @@ export function Computing () {
             for (let key of Object.keys(expanded_cols.engine[engineType] || { }))
                 new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : (row[key] === null ? '' : row[key]) ) : '' 
                 
-            new_row = Object.assign(new_row, { engineType })
-            
+            new_row = { ...new_row, engineType }
             
             streaming_engine_rows.push(new_row)
         }
@@ -222,7 +221,14 @@ export function Computing () {
                                     min_width={1500}
                                     refresher={computing.get_streaming_table_stat}
                                 />
-                                
+                                {streaming_stat.persistWorkers && (
+                                    <StateTable
+                                        type='persistWorkers'
+                                        cols={render_col_title(
+                                                set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), 'persistWorkers')}
+                                        rows={add_key(streaming_stat.persistWorkers.to_rows())} 
+                                        separated  
+                                    />)}
                             </div>
                         )
                     }
@@ -462,6 +468,12 @@ const expanded_cols = {
         AsofJoinEngine: {
             useSystemTime: t('是否使用系统时间'),
             delayedTime: t('等待时间间隔')
+        },
+        DualOwnershipReactiveStreamEngine: {
+            snapshotDir: t('快照目录'),
+            snapshotInterval: t('快照间隔'),
+            snapshotMsgId: t('快照 ID'),
+            snapshotTimestamp: t('快照时间戳')
         },
         StreamFilter: {
             filters: t('过滤条件')
