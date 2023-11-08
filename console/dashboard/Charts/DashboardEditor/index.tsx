@@ -3,7 +3,7 @@ import { Editor } from '../../../shell/Editor/index.js'
 import { Button } from 'antd'
 
 import './index.sass'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { EditorFields } from '../../ChartFormFields/EditorFields.js'
 import { type IEditorConfig } from '../../type.js'
 import { get_widget_config } from '../../Header.js'
@@ -27,7 +27,7 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
         }
     }
     
-    const save_debounced = debounce(save, 500, { leading: false, trailing: true })
+    const save_debounced = useMemo(() => debounce(save, 2000, { leading: false, trailing: true }), [ ]) 
     
     return <div className='editor-container'>
         <h2>{(widget?.config as IEditorConfig)?.title || 'editor'}</h2>
