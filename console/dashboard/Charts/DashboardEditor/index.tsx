@@ -11,7 +11,6 @@ import { debounce } from 'lodash'
 
 export function DashboardEditor ({ widget }: { widget: Widget }) {
     const { config } = dashboard.use(['config'])
-    // const { title = 'editor', button_text = 'run', code: saved_code = '' } = widget?.config as IEditorConfig
     const [ code, set_code ] = useState((widget?.config as IEditorConfig)?.code || '')
     
     async function save (code: string) {
@@ -19,15 +18,14 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
             const new_widget = { ...get_widget_config(widget), config: { ...widget.config, code } }
             const index = config.data.canvas.widgets.findIndex(({ id }) => id === widget.id)
             const new_config = { ...config, data: { ...config.data, canvas: { widgets: config.data.canvas.widgets.toSpliced(index, 1, new_widget) } } }
-            // await dashboard.update_config(new_config)
-            await dashboard.update_dashboard_config(new_config)
+            await dashboard.update_dashboard_config(new_config, false)
         } catch (error) {
             dashboard.show_error({ error })
             throw error
         }
     }
     
-    const save_debounced = useMemo(() => debounce(save, 2000, { leading: false, trailing: true }), [ ]) 
+    const save_debounced = useMemo(() => debounce(save, 1000, { leading: false, trailing: true }), [ ]) 
     
     return <div className='editor-container'>
         <h2>{(widget?.config as IEditorConfig)?.title || 'editor'}</h2>
