@@ -228,7 +228,7 @@ export function Computing () {
                                         cols={render_col_title(
                                                 set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), 'persistWorkers')}
                                         rows={add_key(streaming_stat.persistWorkers.to_rows())} 
-                                        separated={false}  
+                                        separated  
                                     />)}
                             </div>
                         )
