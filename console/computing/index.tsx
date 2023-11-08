@@ -22,17 +22,15 @@ import { use_modal } from 'react-object-model/modal'
 
 
 export function Computing () {
-    const [streaming_stat, set_streaming_stat] = useState<Record<string, DdbObj>>()
-    
-    const [origin_streaming_engine_stat, set_origin_streaming_engine_stat] = useState<Record<string, DdbObj>>()
-    
-    const [persistent_table_stat, set_persistent_table_stat] = useState<DdbObj>()
-    
-    const [shared_table_stat, set_shared_table_stat] = useState<DdbObj>()
-    
+    const { streaming_stat, 
+            origin_streaming_engine_stat, 
+            persistent_table_stat, 
+            shared_table_stat 
+         } = computing.use(['streaming_stat', 'origin_streaming_engine_stat', 'persistent_table_stat', 'shared_table_stat'])
+   
     const [tab_key, set_tab_key] = useState<string>('streaming_pub_sub_stat')
     
-    const { ddb, logined, node_type } = model.use(['ddb', 'logined', 'node_type'])
+    const { logined, node_type } = model.use(['logined', 'node_type'])
     
     useEffect(() => {
         if (!logined || node_type === NodeType.controller)
@@ -41,9 +39,9 @@ export function Computing () {
             try {
                 if (!computing.inited)
                     await computing.init()
-                await get_streaming_pub_sub_stat()
-                await get_streaming_engine_stat()
-                await get_streaming_table_stat()
+                await computing.get_streaming_pub_sub_stat()
+                await computing.get_streaming_engine_stat()
+                await computing.get_streaming_table_stat()
             } catch (error) {
                 model.show_error({ error })
                 throw error
@@ -73,30 +71,16 @@ export function Computing () {
     const tab_content = {
         streaming_pub_sub_stat: {
             title: t('流计算发布订阅状态'),
-            refresher: get_streaming_pub_sub_stat
+            refresher: computing.get_streaming_pub_sub_stat
         },
         streaming_engine_stat: {
             title: t('流计算引擎状态'),
-            refresher: get_streaming_engine_stat
+            refresher: computing.get_streaming_engine_stat
         },
         streaming_table_stat: {
             title: t('流数据表状态'),
-            refresher: get_streaming_table_stat
+            refresher: computing.get_streaming_table_stat
         }
-    }
-    
-    /** 处理流计算引擎状态，给每一个引擎添加 engineType 字段，合并所有类型的引擎 */
-    async function get_streaming_pub_sub_stat () {
-        set_streaming_stat((await ddb.call<DdbObj<DdbObj[]>>('getStreamingStat', [ ], { urgent: true })).to_dict())
-    }
-    
-    async function get_streaming_engine_stat () {
-        set_origin_streaming_engine_stat((await ddb.call<DdbObj<DdbObj[]>>('getStreamEngineStat', [ ], { urgent: true })).to_dict())
-    }
-    
-    async function get_streaming_table_stat () {
-        set_persistent_table_stat(await ddb.call<DdbObj<DdbObj[]>>('get_persistence_stat', [ ], { urgent: true }))
-        set_shared_table_stat(await ddb.call<DdbObj<DdbObj[]>>('get_shared_table_stat', [ ], { urgent: true }))
     }
     
     if (!streaming_stat || !origin_streaming_engine_stat || !persistent_table_stat || !shared_table_stat)
@@ -128,6 +112,7 @@ export function Computing () {
                 new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : (row[key] === null ? '' : row[key]) ) : '' 
                 
             new_row = Object.assign(new_row, { engineType })
+            
             
             streaming_engine_rows.push(new_row)
         }
@@ -171,7 +156,7 @@ export function Computing () {
                                                         add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'), 'subWorkers')))}
                                     min_width={1420}
                                     default_page_size={10}
-                                    refresher={get_streaming_pub_sub_stat}
+                                    refresher={computing.get_streaming_pub_sub_stat}
                                 />
                                 
                                 <StateTable
@@ -208,7 +193,7 @@ export function Computing () {
                                     min_width={1530}
                                     separated={false}
                                     default_page_size={20}
-                                    refresher={get_streaming_engine_stat}
+                                    refresher={computing.get_streaming_engine_stat}
                                 />
                             </div>
                         )
@@ -226,7 +211,7 @@ export function Computing () {
                                             translate_format_col(shared_table_stat.to_cols(), 'bytes'), 'sharedStreamingTableStat')}
                                     rows={translate_byte_row(
                                             add_key(shared_table_stat.to_rows()), 'bytes')}
-                                    refresher={get_streaming_table_stat}
+                                    refresher={computing.get_streaming_table_stat}
                                 />
                                 <StateTable
                                     type='persistenceMeta'
@@ -235,17 +220,8 @@ export function Computing () {
                                                 set_col_width(persistent_table_stat.to_cols(), 'persistenceMeta'), 'persistenceMeta'), 'persistenceMeta')}
                                     rows={handle_null(add_key(persistent_table_stat.to_rows()))}
                                     min_width={1500}
-                                    refresher={get_streaming_table_stat}
+                                    refresher={computing.get_streaming_table_stat}
                                 />
-                                {/* {streaming_stat.persistWorkers && (
-                                    <StateTable
-                                        type='persistWorkers'
-                                        cols={render_col_title(
-                                                set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), 'persistWorkers')}
-                                        rows={add_key(streaming_stat.persistWorkers.to_rows())} 
-                                        separated={false}  
-                                    />
-                                )} */}
                                 
                             </div>
                         )
@@ -256,7 +232,7 @@ export function Computing () {
                         icon={<ReloadOutlined />}
                         onClick={async () => {
                             try {
-                                await tab_content[tab_key].refresher()
+                                await tab_content[tab_key].refresher.bind(computing)()
                                 model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
                             } catch (error) {
                                 model.show_error(error)
@@ -289,9 +265,9 @@ const cols_width = {
         details: 80
     },
     engine: {
-        name: 100,
-        engineType: 160,
-        lastErrMsg: 180,
+        name: 120,
+        engineType: 200,
+        lastErrMsg: 150,
         numGroups: 80,
         metrics: 120,
         status: 100,
@@ -554,10 +530,11 @@ function translate_order_col (cols: TableColumnType<Record<string, any>>[], is_s
 function add_key (table: Record<string, any>, key_index = 0) {
     const { title = '' } = table
     return table.map(row => {
-        return { ...row, key: title === 'pubConns' ? 
-                                                row.client + row.tables
-                                                   : 
-                                                Object.values(row)[key_index] }
+        return { ...row, key: title === 'pubConns' 
+                                    ? 
+                                row.client + row.tables
+                                    : 
+                                Object.values(row)[key_index] }
     })
 }
 
@@ -660,20 +637,23 @@ function handle_null (table: Record<string, any>[]) {
 }
 
 /** 统一处理删除 */
-async function handle_delete (type: string, selected: string[], ddb: DDB, refresher: () => Promise<void>) {
+async function handle_delete (type: string, selected: string[], ddb: DDB, refresher: () => Promise<void>, raftGroups?: string[]) {
     switch (type) {
         case 'subWorkers':
             try {
-                await Promise.all(selected.map(async pub_table => { 
+                await Promise.all(selected.map(async (pub_table, idx) => {
                         const pub_table_arr = pub_table.split('/')
                         const [ip, port] = pub_table_arr[0].split(':')
-                
-                        const script = (ip === model.node.host && Number(port) === model.node.port) 
-                                                ? 
-                                            `unsubscribeTable(,'${pub_table_arr[1]}','${pub_table_arr[2]}')`
-                                                : 
-                                            `h=xdb('${ip}',${port})\n` +
-                                            `unsubscribeTable(h,'${pub_table_arr[1]}','${pub_table_arr[2]}')`
+                        let script = ''
+                        if (raftGroups[idx]) 
+                            script = `rpc('${model.get_controller_alias()}','unsubscribeTable','${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
+                        else 
+                            script = (ip === model.node.host && Number(port) === model.node.port) 
+                                                    ? 
+                                                `unsubscribeTable(,'${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
+                                                    : 
+                                                `h=xdb('${ip}',${port})\n` +
+                                                `unsubscribeTable(h,'${pub_table_arr[1]}','${pub_table_arr[2] || ''}')`
                         ddb.eval(script, { urgent: true })
                     }))
                 model.message.success(t('取消订阅成功'))
@@ -698,7 +678,7 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
                 model.show_error({ error })
             }
     }
-    await refresher()
+    await refresher.bind(computing)()
 }
 
 
@@ -746,22 +726,37 @@ function DeleteModal ({
     const [input_value, set_input_value] = useState<string>('')
     const { visible, open, close } = use_modal()
     const { ddb } = model.use(['ddb'])
+    const { streaming_stat } = computing.use(['streaming_stat'])
     return <>
         <Modal  className='delete-modal'
-                title={<div className='delete-warning-title'><WarningOutlined />
-                    <span>{`确认${button_text[table_name].action}选中的 `}
+                title={
+                    <div className='delete-warning-title'><WarningOutlined />
+                        <span>
+                            {`确认${button_text[table_name].action}选中的 `}
                                 <Tooltip title={selected.map(name => <p key={name}>{name}</p>)}>
                                     <span className='selected-number'>{selected.length}</span>
                                 </Tooltip>
-                            {` 个${button_text[table_name].title}吗？`}</span>
-                </div>}
+                            {` 个${button_text[table_name].title}吗？`}
+                            </span>
+                    </div>}
                 open={visible}
-                onCancel={() => { set_input_value('')
-                                  close() }}
+                onCancel={() => { 
+                            set_input_value('')
+                            close() 
+                        }}
                 cancelButtonProps={{ className: 'hidden' }}
                 okText={button_text[table_name].action}
-                okButtonProps={{ disabled: input_value !== 'YES', className: input_value !== 'YES' ? 'disable-button' : 'normal-button' }}
-                onOk={async () => { await handle_delete(table_name, selected, ddb, refresher)
+                okButtonProps={{ disabled: input_value !== 'YES', 
+                                 className: input_value !== 'YES' ? 'disable-button' : 'normal-button' }}
+                onOk={async () => { await handle_delete(table_name, 
+                                                        selected, 
+                                                        ddb, 
+                                                        refresher, 
+                                                        (table_name === 'subWorkers' 
+                                                            ? 
+                                                        selected.map(row_name => streaming_stat.subWorkers.to_rows().find(({ topic }) => topic === row_name).raftGroup)
+                                                            : 
+                                                        [ ]))
                                           set_input_value('')
                                           set_selected([ ])
                                           close() }}>
@@ -798,18 +793,19 @@ function StateTable ({
     /** 渲染表头 */
     function render_table_header (table_name: string, button_props?: ButtonProps) {    
         return <>
-                {button_props && <DeleteModal table_name={table_name}
-                                              selected={selected}
-                                              set_selected={set_selected}
-                                              refresher={refresher}/>}
-                <Tooltip title={header_text[table_name].func}>
-                    <span className='table-name'>
-                        {header_text[table_name].title}
-                    </span>
-                </Tooltip>                              
-                <Tooltip title={header_text[table_name].tip}>
-                    <QuestionCircleOutlined />
-                </Tooltip>
+                {button_props && 
+                    <DeleteModal table_name={table_name}
+                                 selected={selected}
+                                 set_selected={set_selected}
+                                 refresher={refresher}/>}
+                    <Tooltip title={header_text[table_name].func}>
+                        <span className='table-name'>
+                            {header_text[table_name].title}
+                        </span>
+                    </Tooltip>                              
+                    <Tooltip title={header_text[table_name].tip}>
+                        <QuestionCircleOutlined />
+                    </Tooltip>
             </>
     }
     
@@ -819,12 +815,13 @@ function StateTable ({
             tableLayout='fixed'
             rowSelection={
                 refresher
-                    ? {
+                        ? 
+                    {
                         type: 'checkbox',
                         selectedRowKeys: selected,
                         onChange: (selected_keys: React.Key[]) => { set_selected(selected_keys as string[]) }
                     }
-                    : null
+                        : null
             }
             columns={cols}
             dataSource={rows}
@@ -841,15 +838,17 @@ function StateTable ({
                         : null
                 )
             }
-            pagination={ rows.length > default_page_size ? 
-                                                    {
-                                                        defaultPageSize: default_page_size,
-                                                        pageSizeOptions: ['5', '10', '20', '50', '100'],
-                                                        size: 'small',
-                                                        showSizeChanger: true,
-                                                        showQuickJumper: true
-                                                    } 
-                                                        : false}
+            pagination={ rows.length > default_page_size 
+                                ? 
+                            {
+                                defaultPageSize: default_page_size,
+                                pageSizeOptions: ['5', '10', '20', '50', '100'],
+                                size: 'small',
+                                showSizeChanger: true,
+                                showQuickJumper: true
+                            } 
+                                : 
+                            false}
             scroll={{ x: min_width }}                                        
         />
         {(rows.length <= default_page_size && separated) && <div className='separater'/>}
