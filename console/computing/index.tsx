@@ -222,7 +222,14 @@ export function Computing () {
                                     min_width={1500}
                                     refresher={computing.get_streaming_table_stat}
                                 />
-                                
+                                {streaming_stat.persistWorkers && (
+                                    <StateTable
+                                        type='persistWorkers'
+                                        cols={render_col_title(
+                                                set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), 'persistWorkers')}
+                                        rows={add_key(streaming_stat.persistWorkers.to_rows())} 
+                                        separated={false}  
+                                    />)}
                             </div>
                         )
                     }
