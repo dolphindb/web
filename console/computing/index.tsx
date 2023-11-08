@@ -111,8 +111,7 @@ export function Computing () {
             for (let key of Object.keys(expanded_cols.engine[engineType] || { }))
                 new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : (row[key] === null ? '' : row[key]) ) : '' 
                 
-            new_row = Object.assign(new_row, { engineType })
-            
+            new_row = { ...new_row, engineType }
             
             streaming_engine_rows.push(new_row)
         }
