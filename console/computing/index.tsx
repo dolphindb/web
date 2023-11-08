@@ -113,6 +113,7 @@ export function Computing () {
                 
             new_row = Object.assign(new_row, { engineType })
             
+            
             streaming_engine_rows.push(new_row)
         }
         
@@ -264,9 +265,9 @@ const cols_width = {
         details: 80
     },
     engine: {
-        name: 100,
-        engineType: 160,
-        lastErrMsg: 180,
+        name: 120,
+        engineType: 200,
+        lastErrMsg: 150,
         numGroups: 80,
         metrics: 120,
         status: 100,
@@ -637,26 +638,23 @@ function handle_null (table: Record<string, any>[]) {
 
 /** 统一处理删除 */
 async function handle_delete (type: string, selected: string[], ddb: DDB, refresher: () => Promise<void>, raftGroups?: string[]) {
-    console.log(raftGroups)
-    
     switch (type) {
         case 'subWorkers':
             try {
                 await Promise.all(selected.map(async (pub_table, idx) => {
-                            const pub_table_arr = pub_table.split('/')
-                            const [ip, port] = pub_table_arr[0].split(':')
-                            let script = ''
-                            if (raftGroups[idx]) 
-                                script = `rpc('${model.get_controller_alias()}','unsubscribeTable','${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
-                            else 
-                                script = (ip === model.node.host && Number(port) === model.node.port) 
-                                                        ? 
-                                                    `unsubscribeTable(,'${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
-                                                        : 
-                                                    `h=xdb('${ip}',${port})\n` +
-                                                    `unsubscribeTable(h,'${pub_table_arr[1]}','${pub_table_arr[2] || ''}')`
-                            ddb.eval(script, { urgent: true })
-                            
+                        const pub_table_arr = pub_table.split('/')
+                        const [ip, port] = pub_table_arr[0].split(':')
+                        let script = ''
+                        if (raftGroups[idx]) 
+                            script = `rpc('${model.get_controller_alias()}','unsubscribeTable','${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
+                        else 
+                            script = (ip === model.node.host && Number(port) === model.node.port) 
+                                                    ? 
+                                                `unsubscribeTable(,'${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
+                                                    : 
+                                                `h=xdb('${ip}',${port})\n` +
+                                                `unsubscribeTable(h,'${pub_table_arr[1]}','${pub_table_arr[2] || ''}')`
+                        ddb.eval(script, { urgent: true })
                     }))
                 model.message.success(t('取消订阅成功'))
             } catch (error) {
@@ -742,16 +740,23 @@ function DeleteModal ({
                             </span>
                     </div>}
                 open={visible}
-                onCancel={() => { set_input_value('')
-                                  close() }}
+                onCancel={() => { 
+                            set_input_value('')
+                            close() 
+                        }}
                 cancelButtonProps={{ className: 'hidden' }}
                 okText={button_text[table_name].action}
-                okButtonProps={{ disabled: input_value !== 'YES', className: input_value !== 'YES' ? 'disable-button' : 'normal-button' }}
-                onOk={async () => { await handle_delete(table_name, selected, ddb, refresher, 
-                                                            (table_name === 'subWorkers' 
-                                                                ? 
-                                                            selected.map(row_name => streaming_stat.subWorkers.to_rows().find(({ topic }) => topic === row_name).raftGroup)
-                                                                : [ ]))
+                okButtonProps={{ disabled: input_value !== 'YES', 
+                                 className: input_value !== 'YES' ? 'disable-button' : 'normal-button' }}
+                onOk={async () => { await handle_delete(table_name, 
+                                                        selected, 
+                                                        ddb, 
+                                                        refresher, 
+                                                        (table_name === 'subWorkers' 
+                                                            ? 
+                                                        selected.map(row_name => streaming_stat.subWorkers.to_rows().find(({ topic }) => topic === row_name).raftGroup)
+                                                            : 
+                                                        [ ]))
                                           set_input_value('')
                                           set_selected([ ])
                                           close() }}>
