@@ -463,6 +463,7 @@ export async function load_styles (url: string) {
 export async function copy_widget (widget: Widget) { 
     if (!widget)
         return
+    // 不直接 JSON.stringify(widget) 是因为会报错循环引用
     const copy_text = JSON.stringify({
         config: widget.config,
         type: widget.type,
@@ -477,7 +478,7 @@ export async function copy_widget (widget: Widget) {
         dashboard.message.success('复制成功')
      } catch (e) {
         dashboard.message.error('复制失败')
-     }
+    }
 }
 
 
