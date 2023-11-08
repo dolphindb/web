@@ -11,6 +11,7 @@ import dayjs from 'dayjs'
 import { find_variable_by_name, get_variable_value, subscribe_variable } from './Variable/variable.js'
 import { createRef } from 'react'
 import { genid } from 'xshell/utils.browser.js'
+import copy from 'copy-to-clipboard'
 
 
 export function format_time (time: string, format: string) { 
@@ -474,7 +475,7 @@ export async function copy_widget (widget: Widget) {
         h: widget.h
     })
     try {
-        await navigator.clipboard.writeText(copy_text)
+        copy(copy_text)
         dashboard.message.success('复制成功')
      } catch (e) {
         dashboard.message.error('复制失败')
