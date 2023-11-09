@@ -103,7 +103,6 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
                         return <Form.List name='col_properties' initialValue={data_source.map(item => ({ label: item[label_col] }))}>
                             {fields => { 
                                 const labels = data_source.map(item => (item[label_col]))
-                                console.log(labels, 'labels')
                                 const items: CollapseProps['items'] = fields.map((field, idx) => ({
                                     key: idx,
                                     label: labels[field.name],
