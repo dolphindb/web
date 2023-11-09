@@ -1,9 +1,18 @@
 import { Model } from 'react-object-model'
 import { model } from '../model.js'
+import { type DdbObj } from 'dolphindb/browser.js'
 
 class ComputingModel extends Model<ComputingModel> {
+    
     inited = false
     
+    streaming_stat: Record<string, DdbObj>
+    
+    origin_streaming_engine_stat: Record<string, DdbObj>
+    
+    persistent_table_stat: DdbObj
+    
+    shared_table_stat: DdbObj
     
     async init () {
         await Promise.all([
@@ -15,6 +24,19 @@ class ComputingModel extends Model<ComputingModel> {
         this.set({ inited: true })
     }
     
+     /** 处理流计算引擎状态，给每一个引擎添加 engineType 字段，合并所有类型的引擎 */
+    async get_streaming_pub_sub_stat () {
+        this.set({ streaming_stat: (await model.ddb.call('getStreamingStat', [ ], { urgent: true })).to_dict() })
+    }
+    
+    async get_streaming_engine_stat () {
+        this.set({ origin_streaming_engine_stat: (await model.ddb.call('getStreamEngineStat', [ ], { urgent: true })).to_dict() })
+    }
+    
+    async get_streaming_table_stat () {
+        this.set({ persistent_table_stat: await model.ddb.call('get_persistence_stat', [ ], { urgent: true }) })
+        this.set({ shared_table_stat: await model.ddb.call('get_shared_table_stat', [ ], { urgent: true }) }) 
+    }
     
     async def_get_persistence_table_names () {
         await model.ddb.eval(

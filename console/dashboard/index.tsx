@@ -81,7 +81,6 @@ function DashboardInstance () {
     
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
     Object.assign(dashboard, App.useApp())
-    console.log(widgets, 'render')
     
     // 监听 ctrl v事件，复制组件
     useEffect(() => { 

@@ -5,12 +5,13 @@ import { isNil, isNumber, uniq } from 'lodash'
 
 import { WidgetChartType, type Widget, dashboard } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
-import { type DataSource } from './DataSource/date-source.js'
+import { subscribe_data_source, type DataSource } from './DataSource/date-source.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import dayjs from 'dayjs'
 import { find_variable_by_name, get_variable_value, subscribe_variable } from './Variable/variable.js'
 import { createRef } from 'react'
 import { genid } from 'xshell/utils.browser.js'
+import copy from 'copy-to-clipboard'
 
 
 export function format_time (time: string, format: string) { 
@@ -463,6 +464,7 @@ export async function load_styles (url: string) {
 export async function copy_widget (widget: Widget) { 
     if (!widget)
         return
+    // 不直接 JSON.stringify(widget) 是因为会报错循环引用
     const copy_text = JSON.stringify({
         config: widget.config,
         type: widget.type,
@@ -473,22 +475,23 @@ export async function copy_widget (widget: Widget) {
         h: widget.h
     })
     try {
-        await navigator.clipboard.writeText(copy_text)
+        copy(copy_text)
         dashboard.message.success('复制成功')
      } catch (e) {
         dashboard.message.error('复制失败')
-     }
+    }
 }
 
 
-export function paste_widget (e) { 
+export async function paste_widget (e) { 
     const paste_widget = safe_json_parse((e.clipboardData).getData('text'))
     if (paste_widget?.type) { 
         const paste_widget_el = {
             ...paste_widget,
             ref: createRef(),
-            id: genid(),
+            id: String(genid()),
         }
         dashboard.add_widget(paste_widget_el)
+        await subscribe_data_source(paste_widget, paste_widget.source_id)
     }
 }
