@@ -75,7 +75,7 @@ export class DataSource extends Model<DataSource>  {
     /** stream 模式专用 */
     filter_expression = ''
     /** stream 模式专用 */
-    node = ''
+    node = null
     /** stream 模式专用 */
     ip = ''
     

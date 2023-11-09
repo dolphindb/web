@@ -37,18 +37,20 @@ export function StreamEditor ({
     const nodes = model.use(['nodes']).nodes.filter(node => node.mode === NodeType.data || node.mode === NodeType.single)
     const { filter_column_editor, filter_expression_editor } = dashboard.use(['filter_column_editor', 'filter_expression_editor'])
     
-    const node_list = nodes.map(node => {
-        return {
-            value: node.name,
-            label: node.name
-        }
-    })
+    const node_list = [
+        ...nodes.map(node => {
+            return {
+                value: node.name,
+                label: node.name
+            }
+        }),
+        { value: '', label: '自定义' }
+    ]
     
     const [stream_tables, set_stream_tables] = useState<MenuProps['items']>([ ])
     const [current_stream, set_current_stream] = useState(current_data_source?.stream_table || '')
     const [stream_filter_col, set_stream_filter_col] = useState('')
     const [ip_list, set_ip_list] = useState<{ label: string, value: string }[]>([ ])
-    const [ip_select, set_ip_select] = useState(true)
     const [cur_focus_editor, set_cur_focus_editor] = useState<editor.IStandaloneCodeEditor>()
     
     const { on_monaco_insert } = use_monaco_insert(cur_focus_editor)
@@ -123,7 +125,11 @@ export function StreamEditor ({
     }, [current_data_source.stream_table])
     
     useEffect(() => {
-        const node = nodes.filter(node => node.name === default_value_in_select(current_data_source, 'node', node_list))[0]
+        if (current_data_source.node === '')
+            return
+        
+        current_data_source.node = default_value_in_select(current_data_source, 'node', node_list)
+        const node = nodes.filter(node => node.name === current_data_source.node)[0]
         
         const closest_node_host = model.find_closest_node_host(node)
         const new_ip_list = [
@@ -146,11 +152,7 @@ export function StreamEditor ({
         })
         set_ip_list(new_ip_list)
         
-        const new_ip_select = !current_data_source.ip || (new_ip_list.filter(item => item.value === current_data_source.ip).length !== 0)
-        if (new_ip_select)
-            change_current_data_source_property('ip', default_value_in_select(current_data_source, 'ip', new_ip_list))
-        
-        set_ip_select(new_ip_select)
+        change_current_data_source_property('ip', default_value_in_select(current_data_source, 'ip', new_ip_list))
     }, [current_data_source.node])
     
     return <>
@@ -282,7 +284,7 @@ export function StreamEditor ({
                         节点：
                         <Select
                             disabled={loading}
-                            defaultValue={default_value_in_select(current_data_source, 'node', node_list) }
+                            value={ current_data_source.node }
                             className='streamconfig-left-node-select'
                             size='small'
                             onChange={(value: string) => { change_current_data_source_property('node', value) }}
@@ -291,27 +293,18 @@ export function StreamEditor ({
                     </div>
                     <div className='streamconfig-left-ip'>
                         IP：
-                        {ip_select
+                        {current_data_source.node
                             ? <Select
                                 disabled={loading}
                                 value={current_data_source.ip}
                                 className='streamconfig-left-ip-select'
                                 size='small'
-                                onChange={(value: string) => {
-                                    if (value === 'customize') {
-                                        set_ip_select(false)
-                                        return
-                                    } 
-                                    else 
-                                        change_current_data_source_property('ip', value)
-                                }}
-                                options={[
-                                    ...ip_list,
-                                    { value: 'customize', label: '自定义' }
-                                ]}
+                                onChange={(value: string) => { change_current_data_source_property('ip', value) }}
+                                options={ip_list}
                             />
                             : <div  className='streamconfig-left-ip-manualinput'>
                                 <Input 
+                                    autoFocus
                                     disabled={loading}
                                     size='small' 
                                     className='streamconfig-left-ip-manualinput-input'
@@ -319,15 +312,6 @@ export function StreamEditor ({
                                     onChange={event => { 
                                         if (event !== null)
                                             change_current_data_source_property('ip', event.target.value) 
-                                    }}
-                                />
-                                <CloseOutlined 
-                                    className='streamconfig-left-ip-manualinput-icon' 
-                                    onClick={() => { 
-                                        set_ip_select(true) 
-                                        const new_ip = default_value_in_select(current_data_source, 'ip', ip_list)
-                                        if (new_ip !== current_data_source.ip)
-                                            change_current_data_source_property('ip', new_ip)
                                     }}
                                 />
                             </div>
