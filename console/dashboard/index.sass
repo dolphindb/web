@@ -68,15 +68,16 @@ $border_color: #333333
                 
                 .grid-stack-item:hover
                     .delete-graph
-                        // width: 100%
+                        width: 100%
                         height: 40px
                         display: block
                         position: absolute
-                        right: 3px
-                        top: 0
+                        text-align: end
+                        padding: 0 12px
                         color: $font_color
                         z-index: 999
-                        background-color: rgba(80,80,80,0.2)
+                        &.with-edit-btn
+                            background-color: rgba(80,80,80,0.2)
                     .drag-icon
                         width: 10px
                         height: 10px

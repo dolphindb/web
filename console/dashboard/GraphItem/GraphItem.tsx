@@ -75,7 +75,9 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
         className={cn('grid-stack-item-content', {
         'grid-stack-item-active': is_active && editing
     })}>
-        { editing && <div className='delete-graph'>
+        {editing && <div className={cn('delete-graph', {
+            'with-edit-btn': is_active
+        }) }>
             {
                 is_active && !WidgetTypeWithoutDatasource.includes(widget.type) &&
                 <DataSourceConfig
