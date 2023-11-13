@@ -16,6 +16,7 @@ import cn from 'classnames'
 import { VariableForm } from './VariableForm.js'
 import { Button } from 'antd'
 import { copy_widget } from '../utils.js'
+import { workerData } from 'worker_threads'
 
 function get_padding_style (padding: { left: number, right: number, top: number, bottom: number }) { 
     if (!padding)
@@ -64,6 +65,8 @@ function GraphComponent ({ widget }: { widget: Widget }) {
 export function GraphItem  ({ widget }: { widget: Widget }) {
     const { widget: current, editing } = dashboard.use(['widget', 'editing'])
     
+    console.log(widget.source_id, 'id')
+    
     // 是否为选中状态
     const is_active = useMemo(() => current?.id === widget?.id, [widget, current])
     
@@ -79,7 +82,7 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
             'with-edit-btn': is_active
         }) }>
             {
-                is_active && !WidgetTypeWithoutDatasource.includes(widget.type) &&
+                is_active && !WidgetTypeWithoutDatasource.includes(widget.type) && widget.source_id &&
                 <DataSourceConfig
                     className='edit-data-source-btn'
                     type='link'
