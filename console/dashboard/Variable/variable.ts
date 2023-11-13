@@ -143,8 +143,6 @@ export function rename_variable (id: string, new_name: string) {
     
     if (new_name === variable.name)
         return
-    else if (find_variable_index(new_name, 'name') !== -1)
-        throw new Error('该变量名已存在')
     else if (new_name.length > 10)
         throw new Error('变量名长度不能大于10')
     else if (new_name.length === 0)
