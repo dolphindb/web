@@ -420,7 +420,12 @@ export class DashBoardModel extends Model<DashBoardModel> {
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
         const data = (await model.ddb.call<DdbVoid>('dashboard_get_configs', [ ], { urgent: true })).to_rows()
-        const configs =  data.map(cfg => ({ ...cfg, id: Number(cfg.id), data: JSON.parse(cfg.data) }) as DashBoardConfig) 
+        const configs =  data.map(cfg => ({ ...cfg, 
+                                            id: Number(cfg.id), 
+                                            data: JSON.parse(typeof cfg.data === 'string' ? 
+                                                                                    JSON.parse(cfg.data)
+                                                                                        : 
+                                                                                    new TextDecoder().decode(cfg.data) ) }) as DashBoardConfig) 
         this.set({ configs })
         const dashboard_id = Number(new URLSearchParams(location.search).get('dashboard'))
         if (dashboard_id) {
