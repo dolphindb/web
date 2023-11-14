@@ -185,6 +185,8 @@ export function rename_data_source (source_id: string, new_name: string) {
     
     if (new_name === data_source.name)
         return
+    else if (data_sources.findIndex(data_source => data_source.name === new_name) !== -1) 
+        throw new Error('该数据源名已存在')
     else if (new_name.length > 10)
         throw new Error('数据源名长度不能大于10')
     else if (new_name.length === 0)
