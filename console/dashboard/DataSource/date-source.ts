@@ -5,7 +5,7 @@ import { cloneDeep } from 'lodash'
 
 import { type Widget, dashboard } from '../model.js'
 import { sql_formatter, get_cols, stream_formatter, parse_code } from '../utils.js'
-import { model } from '../../model.js'
+import { model, storage_keys } from '../../model.js'
 import { unsubscribe_variable } from '../Variable/variable.js'
 
 
@@ -223,6 +223,10 @@ export async function subscribe_data_source (widget_option: Widget, source_id: s
 export function unsubscribe_data_source (widget_option: Widget) {
     const source_id = widget_option.source_id
     const data_source = get_data_source(source_id)
+    
+    if (data_source.id === '')
+        return
+    
     data_source.deps.delete(widget_option.id)
     if (!data_source.deps.size) 
         switch (data_source.mode) {
@@ -305,12 +309,20 @@ async function create_interval (data_source: DataSource) {
                     // 检测 ddb 是否通过 nginx 代理，部署在子路径下
                     (location.pathname === '/dolphindb/' ? '/dolphindb/' : ''),
                 {
-                    autologin: true,
+                    autologin: false,
                     verbose: model.verbose,
                     sql: model.sql
                 }
             )
+            
             await sql_connection.connect()
+            const ticket = localStorage.getItem(storage_keys.ticket)
+            if (ticket)
+                await sql_connection.call('authenticateByTicket', [ticket], { urgent: true })
+            else {
+                const { ddb: { username, password } } = model
+                await sql_connection.call('login', [username, password], { urgent: true })
+            }
                 
             const interval_id = setInterval(async () => {
                 await execute(data_source.id)  
@@ -342,8 +354,6 @@ function delete_interval (data_source: DataSource) {
 async function subscribe_stream (data_source: DataSource) {
     unsubscribe_stream(data_source)
     
-    const { ddb: { username, password } } = model
-    
     try {
         let column: DdbObj<DdbValue>
         if (data_source.filter_column) {
@@ -358,9 +368,6 @@ async function subscribe_stream (data_source: DataSource) {
         const stream_connection = new DDB(
             (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + data_source.ip,
             {
-                autologin: Boolean(username),
-                username,
-                password,
                 streaming: {
                     table: data_source.stream_table,
                     filters: data_source.filter

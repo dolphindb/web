@@ -114,7 +114,7 @@ export function Overview () {
                     
                     creator.close()
                 }}
-                title={t('请输入 dashboard 的名称')}
+                title={t('请输入新数据面板的名称')}
             >
                 <Input
                     value={new_dashboard_name}
