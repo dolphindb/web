@@ -107,7 +107,7 @@ export function DataSourceConfig (props: IProps, ref) {
             maskClosable={false}
             styles={{ mask: { backgroundColor: 'rgba(84,84,84,0.5)' } }}
             afterOpenChange={() => {
-                set_current_data_source(cloneDeep(data_sources[widget?.source_id ? find_data_source_index(widget.source_id) : 0]))
+                set_current_data_source(cloneDeep(data_sources[Math.max(widget?.source_id ? find_data_source_index(widget.source_id) : 0, 0)]))
             }}
             footer={
                 [
