@@ -828,6 +828,9 @@ export function StreamingTable ({
                                 // 开始订阅
                                 await sddb.connect()
                                 
+                                rappended.current = 0
+                                rreceived.current = 0
+                     
                                 rerender({ })
                             } catch (error) {
                                 on_error?.(error)
