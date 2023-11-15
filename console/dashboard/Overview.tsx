@@ -1,7 +1,7 @@
 import './Overview.sass'
 
 import { useEffect, useState } from 'react'
-import { Button, Input, Modal, Table, Upload, Popconfirm } from 'antd'
+import { Button, Input, Modal, Table, Upload, Popconfirm, Spin } from 'antd'
 import { DeleteOutlined, DownloadOutlined, PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
 import { downloadZip } from 'client-zip'
 
@@ -57,6 +57,12 @@ export function Overview () {
             creator.open()
         }
     }, [ ])
+    
+    
+    if (!configs)
+        return <div className='spin-container'>
+            <Spin size='large' delay={300}/>
+        </div>
     
     async function single_file_export (config_id: number) {
         try {
