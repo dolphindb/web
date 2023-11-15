@@ -54,7 +54,7 @@ export function PaddingSetting () {
                 <InputNumber addonAfter='px'/>
             </Form.Item>
             
-            <Form.Item name={['padding', 'right']} label='左内边距' initialValue={12}>
+            <Form.Item name={['padding', 'right']} label='右内边距' initialValue={12}>
                 <InputNumber addonAfter='px'/>
             </Form.Item>
     </>

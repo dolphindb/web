@@ -1,9 +1,9 @@
 import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState } from 'react'
 import { Input, Tree } from 'antd'
-import { DeleteOutlined, EditOutlined, FileOutlined, ToolOutlined } from '@ant-design/icons'
+import { CopyOutlined, DeleteOutlined, EditOutlined, FileOutlined, ToolOutlined } from '@ant-design/icons'
 
 import { dashboard } from '../model.js'
-import { create_variable, delete_variable, rename_variable, type Variable, type VariablePropertyType, variables } from './variable.js'
+import { create_variable, delete_variable, rename_variable, type Variable, type VariablePropertyType, variables, copy_variables, paste_variables } from './variable.js'
 
 
 interface PropsType {
@@ -34,7 +34,7 @@ export function VariableList ({
     change_current_variable,
     change_current_variable_property
 }: PropsType) {
-    const { variable_infos } = variables.use(['variable_infos'])
+    const { variable_infos } = variables
     const [current_select, set_current_select] = useState(current_variable?.id || '')
     const [menu_items, set_menu_items] = useState(
         variable_infos.map((variable_info: { id: string, name: string }): MenuItemType => (
@@ -47,6 +47,32 @@ export function VariableList ({
     )
     
     const tree_ref = useRef(null)
+    
+    // 监听 ctrl v事件，复制组件
+    useEffect(() => { 
+        async function paste_handler (event) {
+            try {
+                await paste_variables(event)
+                set_menu_items(
+                    variables.variable_infos.map((variable_info: { id: string, name: string }): MenuItemType => (
+                        {
+                            key: variable_info.id,
+                            icon: createElement(ToolOutlined),
+                            title: variable_info.name
+                        }
+                    ))
+                )
+                const id = variables.variable_infos[0].id
+                change_current_variable(id)
+                set_current_select(id)
+            } catch (error) {
+                dashboard.message.error(error.message)
+            }
+        }
+        
+        window.addEventListener('paste', paste_handler)
+        return () => { window.removeEventListener('paste', paste_handler) }
+    }, [ ])
     
     useEffect(() => {
         set_current_select(current_variable?.id)
@@ -132,6 +158,16 @@ export function VariableList ({
                     >
                         <DeleteOutlined className='variable-list-top-item-icon' />
                         删除
+                    </div>
+                    <div
+                        className='variable-list-top-item'
+                        onClick={() => {
+                            if (current_variable)
+                                copy_variables([current_variable.id])
+                        }}
+                    >
+                        <CopyOutlined className='variable-list-top-item-icon' />
+                        复制
                     </div>
                 </div>
                 { current_variable ? <div className='variable-list-bottom'>
