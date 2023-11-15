@@ -461,7 +461,7 @@ export async function load_styles (url: string) {
 }
 
 
-export async function copy_widget (widget: Widget) { 
+export function copy_widget (widget: Widget) { 
     if (!widget)
         return
     // 不直接 JSON.stringify(widget) 是因为会报错循环引用

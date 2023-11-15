@@ -1,8 +1,10 @@
 import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
+import copy from 'copy-to-clipboard'
 
 import { dashboard } from '../model.js'
 import { type DataSource, execute } from '../DataSource/date-source.js'
+import { safe_json_parse } from '../utils.js'
 
 export type ExportVariable = {
     id: string
@@ -37,7 +39,7 @@ export class Variable  {
     options: OptionType[] = [ ]
     
     
-    constructor (id: string, name: string, display_name: string, deps: Set<string>) {
+    constructor (id: string, name: string, display_name: string, deps = new Set<string>()) {
         this.id = id
         this.name = name
         this.display_name = display_name
@@ -198,7 +200,7 @@ export async function export_variables (): Promise<ExportVariable[]> {
         const variable = variables[variable_info.id]
         return {
             ...variable,
-            deps: Array.from(variable.deps)
+            deps: [ ]
         }
     })
 } 
@@ -213,13 +215,57 @@ export async function import_variables (_variables: ExportVariable[]) {
     tmp_deps.clear()
     
     for (let variable of _variables) {
-        const import_variable = new Variable(variable.id, variable.name, variable.display_name, new Set(variable.deps))
+        const import_variable = new Variable(variable.id, variable.name, variable.display_name)
         Object.assign(import_variable, variable, { deps: import_variable.deps })
         variables[variable.id] = import_variable
         variables.variable_infos.push({ id: variable.id, name: variable.name })
         await save_variable(import_variable, true)
     }
     return variables.variable_infos.map(variable_info => variables[variable_info.id])
+}
+
+
+export function get_copy_infos (variable_ids: string[]) {
+    return variable_ids.map(variable_id => ({
+        ...variables[variable_id],
+        deps: [ ]
+    }))
+}
+
+
+export function copy_variables (variable_ids: string[]) {
+    try {
+        copy(JSON.stringify({ variables: get_copy_infos(variable_ids) }))
+        dashboard.message.success('复制成功')
+     } catch (e) {
+        dashboard.message.error('复制失败')
+    }
+}
+
+
+export async function paste_variables (event) { 
+    const _variables = safe_json_parse((event.clipboardData).getData('text')).variables
+    
+    if (!_variables)
+        return
+    
+    // 先校验有无重名变量
+    _variables.forEach(variable => {
+        const name = variable.name
+        if (find_variable_index(name, 'name') !== -1)
+            throw new Error(`变量 ${name} 已存在，请修改变量名后重新复制`)
+    })
+    
+    for (let variable of _variables) {
+        const { id, name, display_name } = variable
+        const parste_variable = new Variable(id, name, display_name, tmp_deps.get(name) || new Set<string>())
+        Object.assign(parste_variable, variable, { deps: parste_variable.deps })
+        variables.set({ 
+            [id]: parste_variable, 
+            variable_infos: [{ id, name }, ...variables.variable_infos] 
+        })
+        await save_variable(parste_variable)
+    }
 }
 
 export const variables = new Variables()
