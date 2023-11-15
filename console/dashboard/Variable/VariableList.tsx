@@ -161,9 +161,13 @@ export function VariableList ({
                     </div>
                     <div
                         className='variable-list-top-item'
-                        onClick={() => {
-                            if (current_variable)
-                                copy_variables([current_variable.id])
+                        onClick={async () => {
+                            if (!current_variable)
+                                return
+                            if (no_save_flag.current && (await save_confirm()))
+                                await handle_save()
+                            no_save_flag.current = false
+                            copy_variables([current_variable.id])
                         }}
                     >
                         <CopyOutlined className='variable-list-top-item-icon' />

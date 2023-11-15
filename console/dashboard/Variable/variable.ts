@@ -168,30 +168,30 @@ export async function subscribe_variable (data_source: DataSource, variable_name
     const variable = find_variable_by_name(variable_name)
     const tmp_dep = tmp_deps.get(variable_name)
     
-    if (variable) 
+    if (variable) {
         variable.deps.add(data_source.id)
+        data_source.variables.add(variable.id)
+    }    
     else if (tmp_dep)
         tmp_dep.add(data_source.id)
     else 
         tmp_deps.set(variable_name, new Set<string>([data_source.id]))
-    
-    data_source.variables.add(variable_name)
 }
 
 
-export function unsubscribe_variable (data_source: DataSource, variable_name: string) {
-    const variable = find_variable_by_name(variable_name)
-    const tmp_dep = tmp_deps.get(variable_name)
+export function unsubscribe_variable (data_source: DataSource, variable_id: string) {
+    const variable = variables[variable_id]
+    const tmp_dep = tmp_deps.get(variable.name)
     
     if (variable) 
         variable.deps.delete(data_source.id)
     else if (tmp_dep) {
         tmp_dep.delete(data_source.id)
         if (!tmp_dep.size)
-            tmp_deps.delete(variable_name)
+            tmp_deps.delete(variable.name)
     }
         
-    data_source.variables.delete(variable_name) 
+    data_source.variables.delete(variable.id) 
 }
 
 
@@ -225,17 +225,19 @@ export async function import_variables (_variables: ExportVariable[]) {
 }
 
 
-export function get_copy_infos (variable_ids: string[]) {
-    return variable_ids.map(variable_id => ({
-        ...variables[variable_id],
-        deps: [ ]
-    }))
+export function get_variable_copy_infos (variable_ids: string[]) {
+    return {
+        variables: variable_ids.map(variable_id => ({
+            ...variables[variable_id],
+            deps: [ ]
+        }))
+    }
 }
 
 
 export function copy_variables (variable_ids: string[]) {
     try {
-        copy(JSON.stringify({ variables: get_copy_infos(variable_ids) }))
+        copy(JSON.stringify( get_variable_copy_infos(variable_ids)))
         dashboard.message.success('复制成功')
      } catch (e) {
         dashboard.message.error('复制失败')
@@ -244,17 +246,21 @@ export function copy_variables (variable_ids: string[]) {
 
 
 export async function paste_variables (event) { 
-    const _variables = safe_json_parse((event.clipboardData).getData('text')).variables
+    const { variables: _variables } = safe_json_parse((event.clipboardData).getData('text'))
     
     if (!_variables)
         return
     
-    // 先校验有无重名变量
-    _variables.forEach(variable => {
-        const name = variable.name
-        if (find_variable_index(name, 'name') !== -1)
+    // 先校验，id 相同的不粘贴,重名且 id 不同的报错
+    for (let i = 0;  i < _variables.length;  ) {
+        const { id, name } = _variables[i]
+        if (variables[id])
+            _variables.splice(i, 1)
+        else if (find_variable_index(name, 'name') !== -1) 
             throw new Error(`变量 ${name} 已存在，请修改变量名后重新复制`)
-    })
+        else
+            i++  
+    }
     
     for (let variable of _variables) {
         const { id, name, display_name } = variable
@@ -264,7 +270,7 @@ export async function paste_variables (event) {
             [id]: parste_variable, 
             variable_infos: [{ id, name }, ...variables.variable_infos] 
         })
-        await save_variable(parste_variable)
+        await save_variable(parste_variable, true)
     }
 }
 

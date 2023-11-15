@@ -2,11 +2,12 @@ import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
 import { DDB, type DdbObj, type DdbValue } from 'dolphindb/browser.js'
 import { cloneDeep } from 'lodash'
+import copy from 'copy-to-clipboard'
 
 import { type Widget, dashboard } from '../model.js'
-import { sql_formatter, get_cols, stream_formatter, parse_code } from '../utils.js'
+import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse } from '../utils.js'
 import { model, storage_keys } from '../../model.js'
-import { unsubscribe_variable } from '../Variable/variable.js'
+import { get_variable_copy_infos, paste_variables, unsubscribe_variable } from '../Variable/variable.js'
 
 
 export type DataType = { }[]
@@ -103,7 +104,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
     delete_interval(data_source)
     unsubscribe_stream(data_source)
     
-    data_source.variables.forEach(variable_name => { unsubscribe_variable(data_source, variable_name) })
+    data_source.variables.forEach(variable_id => { unsubscribe_variable(data_source, variable_id) })
         
     new_data_source.data.length = 0
     new_data_source.error_message = ''
@@ -146,14 +147,23 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
             }
             
             break
-        case 'stream':   
-            data_source.set({ ...new_data_source, auto_refresh: false })
-            
-            if (deps.size) 
-                await subscribe_stream(data_source) 
-            
-            if (code === undefined)
-                dashboard.message.success(`${data_source.name} 保存成功！`)
+        case 'stream':
+            try {
+                data_source.set({ ...new_data_source, auto_refresh: false, cols: await get_stream_cols(data_source.stream_table) })
+                
+                if (deps.size) 
+                    await subscribe_stream(data_source) 
+                else {
+                    // 订阅一下变量
+                    parse_code(data_source.filter_column, data_source)
+                    parse_code(data_source.filter_expression, data_source)
+                }
+                
+                if (code === undefined)
+                    dashboard.message.success(`${data_source.name} 保存成功！`)
+            } catch (error) {
+                dashboard.message.error(error.message)
+            }
             break
     }
 }
@@ -164,7 +174,7 @@ export function delete_data_source (source_id: string): number {
         dashboard.message.error('当前数据源已被图表绑定无法删除')
     else {
         const delete_index = find_data_source_index(source_id)
-        data_source.variables.forEach(variable_name => { unsubscribe_variable(data_source, variable_name) })   
+        data_source.variables.forEach(variable_id => { unsubscribe_variable(data_source, variable_id) })   
         data_sources.splice(delete_index, 1)
         return delete_index
     }
@@ -185,8 +195,6 @@ export function rename_data_source (source_id: string, new_name: string) {
     
     if (new_name === data_source.name)
         return
-    else if (data_sources.findIndex(data_source => data_source.name === new_name) !== -1) 
-        throw new Error('该数据源名已存在')
     else if (new_name.length > 10)
         throw new Error('数据源名长度不能大于10')
     else if (new_name.length === 0)
@@ -355,6 +363,7 @@ async function subscribe_stream (data_source: DataSource) {
     unsubscribe_stream(data_source)
     
     try {
+        const { ddb: { username, password } } = model
         let column: DdbObj<DdbValue>
         if (data_source.filter_column) {
             const { type, result } = await dashboard.execute(parse_code(data_source.filter_column, data_source))
@@ -368,6 +377,8 @@ async function subscribe_stream (data_source: DataSource) {
         const stream_connection = new DDB(
             (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + data_source.ip,
             {
+                username,
+                password,
                 streaming: {
                     table: data_source.stream_table,
                     filters: data_source.filter
@@ -445,9 +456,10 @@ export async function export_data_sources (): Promise<ExportDataSource[]> {
                 ...data_source, 
                 timer: null,
                 ddb: null,
+                cols: [ ],
                 data: [ ],
-                deps: Array.from(data_source.deps),
-                variables: Array.from(data_source.variables)
+                deps: [ ],
+                variables: [ ]
             }
         }
     )
@@ -459,7 +471,7 @@ export async function import_data_sources (_data_sources: ExportDataSource[]) {
     
     for (let data_source of _data_sources) {
         const import_data_source = new DataSource(data_source.id, data_source.name)
-        Object.assign(import_data_source, data_source, { deps: new Set(data_source.deps), variables: new Set(data_source.variables) })
+        Object.assign(import_data_source, data_source, { deps: import_data_source.deps, variables: import_data_source.variables })
         data_sources.push(import_data_source)
         await save_data_source(import_data_source, import_data_source.code, import_data_source.filter_column, import_data_source.filter_expression)
     }
@@ -479,6 +491,49 @@ export function clear_data_sources () {
                 break
         }
     })
+}
+
+
+export function get_data_source_copy_infos (source_id: string) {
+    const data_source = get_data_source(source_id)
+    return { 
+        data_source: {
+            ...data_source, 
+            timer: null,
+            ddb: null,
+            cols: [ ],
+            data: [ ],
+            deps: [ ],
+            variables: [ ]
+        },
+        ...get_variable_copy_infos(Array.from(data_source.variables))
+    }
+}
+
+
+export function copy_data_source (source_id: string) {
+    try {
+        console.log(get_data_source_copy_infos(source_id))
+        copy(JSON.stringify(get_data_source_copy_infos(source_id)))
+        dashboard.message.success('复制成功')
+     } catch (e) {
+        dashboard.message.error('复制失败')
+    }
+}
+
+
+export async function paste_data_source (event) { 
+    await paste_variables(event)
+    
+    let { data_source: _data_source } = safe_json_parse((event.clipboardData).getData('text'))
+    
+    if (!_data_source || find_data_source_index(_data_source.id) !== -1)
+        return
+    
+    const import_data_source = new DataSource(String(genid()), _data_source.name)
+    Object.assign(import_data_source, _data_source, { deps: import_data_source.deps, variables: import_data_source.variables })
+    data_sources.unshift(import_data_source)
+    await save_data_source(import_data_source, import_data_source.code, import_data_source.filter_column, import_data_source.filter_expression)
 }
 
 export let data_sources: DataSource[] = [ ]

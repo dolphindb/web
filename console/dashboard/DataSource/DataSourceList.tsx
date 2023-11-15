@@ -1,9 +1,9 @@
 import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState } from 'react'
 import { Input, Tree } from 'antd'
-import { DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
+import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 
 import { dashboard } from '../model.js'
-import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType } from './date-source.js'
+import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType, copy_data_source, paste_data_source } from './date-source.js'
 
 
 interface PropsType {
@@ -48,6 +48,32 @@ export function DataSourceList ({
     )
     
     const tree_ref = useRef(null)
+    
+    // 监听 ctrl v事件，复制组件
+    useEffect(() => { 
+        async function paste_handler (event) {
+            try {
+                await paste_data_source(event)
+                set_menu_items(
+                    data_sources.map((data_source: DataSource): MenuItemType => {
+                        return {
+                            key: String(data_source.id),
+                            icon: createElement(DatabaseOutlined),
+                            title: data_source.name
+                        }
+                    })
+                )
+                const id = data_sources[0].id
+                change_current_data_source(id)
+                set_current_select(id)
+            } catch (error) {
+                dashboard.message.error(error.message)
+            }
+        }
+        
+        window.addEventListener('paste', paste_handler)
+        return () => { window.removeEventListener('paste', paste_handler) }
+    }, [ ])
     
     useEffect(() => {
         set_current_select(current_data_source?.id)
@@ -139,6 +165,20 @@ export function DataSourceList ({
                     >
                         <DeleteOutlined className='data-source-list-top-item-icon' />
                         删除
+                    </div>
+                    <div
+                        className='data-source-list-top-item'
+                        onClick={async () => {
+                            if (!current_data_source)
+                                return
+                            if (no_save_flag.current && (await save_confirm()))
+                                await handle_save()
+                            no_save_flag.current = false
+                            copy_data_source(current_data_source.id)
+                        }}
+                    >
+                        <CopyOutlined className='variable-list-top-item-icon' />
+                        复制
                     </div>
                 </div>
                 { current_data_source ? <div className='data-source-list-bottom'>
