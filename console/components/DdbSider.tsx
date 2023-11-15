@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
 
-import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined } from '@ant-design/icons'
+import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
 
 import { isNil, omitBy } from 'lodash'
 
@@ -19,6 +19,7 @@ import SvgJob from '../job.icon.svg'
 import SvgLog from '../log.icon.svg'
 import SvgFactor from '../factor.icon.svg'
 import SvgComputing from '../computing/icons/computing.icon.svg'
+import SvgTools from '../icons/tools.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -32,6 +33,7 @@ const svgs = {
     log: SvgLog,
     factor: SvgFactor,
     computing: SvgComputing,
+    tools: SvgTools
 }
 
 function MenuIcon ({ view }: { view: DdbModel['view'] }) {
@@ -56,7 +58,7 @@ export function DdbSider () {
     )
     
     return <Layout.Sider
-        width={120}
+        width={150}
         className='sider'
         theme='light'
         collapsible
@@ -133,6 +135,15 @@ export function DdbSider () {
                     key: 'dashboard',
                     icon: <MenuIcon view='dashboard' />,
                     label: t('数据面板'),
+                },
+                {
+                    key: 'tools',
+                    icon: <MenuIcon view='tools' />,
+                    label: t('运维工具'),
+                    children: [{
+                        key: 'guide',
+                        label: '库表创建引导'
+                    }]
                 },
                 ... model.dev || model.cdn ? [
                     {

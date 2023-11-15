@@ -1,0 +1,54 @@
+.schema-wrapper {
+    h3 {
+        margin-top: 0px;
+    }
+    border-radius: 8px;
+    background-color: #EFEFEF;
+    padding: 16px;
+    margin-bottom: 24px;
+    
+    .schema-item {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        .delete-icon {
+            color: #D71818;
+            cursor: pointer;
+        }
+        .ant-form-item {
+            width: 45%;
+            margin-bottom: 0px;
+        }
+    }
+}
+
+
+.button-group {
+    display: flex;
+    justify-content: end;
+    margin-top: 24px;
+}
+
+.code-view-wrapper {
+    width: 1000px;
+    margin-top: 32px;
+   
+    
+    .readonly-editor {
+        position: relative;
+    
+        .copy-btn {
+            position: absolute;
+            border-radius: 4px;
+            top: 12px;
+            right: 32px;
+            z-index: 1000;
+        }
+        
+        border: 1px solid #D9D9D9;
+        width: 1000px;
+        height: 600px;
+    }
+}
