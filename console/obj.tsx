@@ -248,7 +248,7 @@ function build_tree_data (
         
         let valueobj = dict_value.value[i]
         
-        if (valueobj instanceof DdbObj)
+        if (valueobj && Object.getPrototypeOf(valueobj)?.constructor.name === 'DdbObj')
             if (valueobj.form === DdbForm.dict)
                 return {
                     title: `${key}: `,
@@ -763,6 +763,9 @@ export function StreamingTable ({
                         rsddb.current?.disconnect()
                         
                         rmessage.current = null
+                        
+                        rappended.current = 0
+                        rreceived.current = 0
                         
                         
                         ;(async () => {

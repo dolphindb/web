@@ -17,6 +17,7 @@ import SvgShell from '../shell/index.icon.svg'
 import SvgJob from '../job.icon.svg'
 import SvgLog from '../log.icon.svg'
 import SvgFactor from '../factor.icon.svg'
+import SvgComputing from '../computing/icons/computing.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -27,7 +28,8 @@ const svgs = {
     shell: SvgShell,
     job: SvgJob,
     log: SvgLog,
-    factor: SvgFactor
+    factor: SvgFactor,
+    computing: SvgComputing,
 }
 
 function MenuIcon ({ view }: { view: DdbModel['view'] }) {
@@ -109,6 +111,11 @@ export function DdbSider () {
                     key: 'job',
                     icon: <MenuIcon view='job' />,
                     label: t('作业管理'),
+                },
+                {
+                    key: 'computing',
+                    icon: <MenuIcon view='computing' />,
+                    label: t('流计算监控'),
                 },
                 {
                     key: 'log',
