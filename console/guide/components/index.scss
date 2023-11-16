@@ -52,3 +52,22 @@
         height: 600px;
     }
 }
+
+.json-upload {
+    .ant-upload {
+        width: 100% !important;
+        
+        .upload-icon {
+            color:#8E9AF9;
+            svg {
+                width: 48px;
+                height: 48px;
+            }
+        }
+        
+        .upload-tip {
+            margin-top: 12px;
+            font-size: 12px;
+        }
+    }
+}

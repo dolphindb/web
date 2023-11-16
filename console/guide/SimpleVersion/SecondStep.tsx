@@ -1,29 +1,34 @@
 import './index.scss'
 
 import { Button, Form, Select, Space } from 'antd'
-import { type BasicInfoFormValues } from '../type.js'
+import { type SimpleInfos, type BasicInfoFormValues } from '../type.js'
 import { useCallback } from 'react'
 import { model } from '../../model.js'
+import NiceModal from '@ebay/nice-modal-react'
+import { DownloadConfigModal } from '../components/DownloadConfigModal.js'
 
 interface IProps { 
     max: number
-    basic_info: BasicInfoFormValues
+    info: SimpleInfos
     set_code: (code: string) => void
-    go_back: () => void
+    back: () => void
+    go: (info: SimpleInfos) => void
 }
 
 export function SecondStep (props: IProps) {
 
-    const { max = 3, basic_info, go_back, set_code } = props
+    const { max = 3, info, back, set_code, go } = props
     const [form] = Form.useForm()
     
     const generate = useCallback(async () => { 
-        const params = { ...basic_info, ...form.getFieldsValue() }
+        const values = form.getFieldsValue()
+        const params = { ...info.first, ...values }
         const data = await model.ddb.call('createDB', [JSON.stringify(params)])
         // @ts-ignore
         set_code(data.code)
-    }, [basic_info])
-  
+        go({ second: values })
+    }, [info, go])
+    
     return <Form form={form} onFinish={generate} labelAlign='left' className='simple-version-form' labelCol={{ span: 6 }} wrapperCol={{ span: 18 }}>
         <Form.Item
             help={<>
@@ -50,12 +55,12 @@ export function SecondStep (props: IProps) {
                 }
             ]}
         >
-            <Select mode='multiple' options={basic_info.schema.map(item => ({ label: item.colName, value: item.colName }))} />
+            <Select mode='multiple' options={info?.first?.schema?.map(item => ({ label: item.colName, value: item.colName }))} />
         </Form.Item>
         
         <Form.Item className='btn-group'>
             <Space>
-                <Button className='go-back-btn' onClick={go_back}>上一步</Button>
+                <Button className='go-back-btn' onClick={back}>上一步</Button>
                 <Button type='primary' htmlType='submit'>生成脚本</Button>
             </Space>
         </Form.Item>

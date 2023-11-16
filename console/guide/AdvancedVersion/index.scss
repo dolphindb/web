@@ -1,0 +1,54 @@
+.advanced-version-wrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    .guide-step {
+        width: 400px;
+        margin: 32px 0px;
+    }
+    
+    .advanced-step-panel {
+        width: 800px;
+    }
+    
+    .ant-input-number {
+        width: 100%;
+    }
+    
+    .sort-cols-wrapper {
+        h3 {
+            margin-top: 0px;
+        }
+        background-color: #EFEFEF;
+        border-radius: 8px;
+        padding: 16px;
+        
+        .sort-col-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            .delete-icon {
+                color: #D71818;
+            }
+            .ant-form-item {
+                width: 30%;
+                margin-bottom: 0px;
+            }
+            
+        }
+       
+    }
+}
+
+.btn-group {
+    display: flex;
+    flex-direction: end;
+}
+
+.other-sortkey-tip {
+    display: inline-block;
+    margin-bottom: 24px;
+}

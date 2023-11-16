@@ -2,9 +2,11 @@ import { Radio, Tabs, type TabsProps } from 'antd'
 import { useMemo, useState } from 'react'
 import { GuideType } from './type.js'
 import { SimpleVersion } from './SimpleVersion/index.js'
+import { AdvancedVersion } from './AdvancedVersion/index.js'
 
 const VersionMap = {
-    [GuideType.SIMPLE]: <SimpleVersion />
+    [GuideType.SIMPLE]: <SimpleVersion />,
+    [GuideType.ADVANCED]: <AdvancedVersion />
 }
 
 export function CreateGuide () { 
