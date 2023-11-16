@@ -117,8 +117,10 @@ export function StreamEditor ({
     
     useEffect(() => {
         (async () => {
-            if (current_data_source.stream_table) 
-                set_stream_filter_col(await get_stream_filter_col(current_stream))         
+            if (current_data_source.stream_table) {
+                set_stream_filter_col(await get_stream_filter_col(current_stream))
+                change_current_data_source_property('cols', await get_stream_cols(current_stream), false)
+            }         
         })()
     }, [current_data_source.stream_table])
     
