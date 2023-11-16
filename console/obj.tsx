@@ -248,7 +248,7 @@ function build_tree_data (
         
         let valueobj = dict_value.value[i]
         
-        if (Object.getPrototypeOf(valueobj).constructor.name === 'DdbObj')
+        if (valueobj && Object.getPrototypeOf(valueobj)?.constructor.name === 'DdbObj')
             if (valueobj.form === DdbForm.dict)
                 return {
                     title: `${key}: `,
@@ -764,6 +764,9 @@ export function StreamingTable ({
                         
                         rmessage.current = null
                         
+                        rappended.current = 0
+                        rreceived.current = 0
+                        
                         
                         ;(async () => {
                             try {
@@ -827,9 +830,6 @@ export function StreamingTable ({
                                 
                                 // 开始订阅
                                 await sddb.connect()
-                                
-                                rappended.current = 0
-                                rreceived.current = 0
                      
                                 rerender({ })
                             } catch (error) {
