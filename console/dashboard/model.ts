@@ -30,8 +30,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
     /** 当前 dashboard 配置 */
     config: DashBoardConfig
     
-    /** 可分享的用户 */
-    users_to_share: string[] = [ ]
+    /** 所有用户 */
+    users: string[] = [ ]
     
     /** GridStack.init 创建的 gridstack 实例 */
     grid: GridStack
@@ -375,7 +375,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     /** 获取分享的用户列表 */
     async get_users_to_share () {
         const users = ((await model.ddb.call<DdbObj>('dashboard_get_users_to_share')).value) as string[]
-        this.set({ users_to_share: users })
+        this.set({ users: users })
     }
     
     
@@ -430,8 +430,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
         const dashboard_id = Number(new URLSearchParams(location.search).get('dashboard'))
         if (dashboard_id) {
             const config = configs.find(({ id }) =>  id === dashboard_id)
-            if (config)
+            if (config) {
+                this.set({ config })
                 await this.render_with_config(config)
+            }
+                
             else
                 this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
         }

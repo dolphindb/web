@@ -18,6 +18,7 @@ import { VariableConfig } from './Variable/VariableConfig.js'
 import { export_variables } from './Variable/variable.js'
 import cn from 'classnames'
 import { HostSelect } from '../components/HostSelect.js'
+import { Share } from './Share/Share.js'
 
 
 export function get_widget_config (widget: Widget) {
@@ -353,7 +354,7 @@ export function Header () {
                     </Upload>
                 </Tooltip>
                 <Tooltip title={t('分享')}>
-                    <Button className='action'><ShareAltOutlined/></Button>
+                    <Share dashboard_ids={[String(dashboard.config?.id)]} trigger_type='icon' />
                 </Tooltip>
                 <Tooltip title='删除'>
                     <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>

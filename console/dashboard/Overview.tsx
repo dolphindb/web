@@ -13,12 +13,12 @@ import { model } from '../model.js'
 import { t } from '../../i18n/index.js'
 
 import { type DashBoardConfig, dashboard } from './model.js'
+import { Share } from './Share/Share.js'
 
 
 export function Overview () {
-    const { configs, config, users_to_share } = dashboard.use(['configs', 'config', 'users_to_share'])
+    const { configs } = dashboard.use(['configs'])
     const [selected_dashboard_ids, set_selected_dashboard_ids] = useState([ ])
-    const [selected_users, set_selected_users] = useState<string[]>([ ])
     const [current_dashboard, set_current_dashboard] = useState(null)
     const [new_dashboard_id, set_new_dashboard_id] = useState<number>()
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
@@ -182,43 +182,6 @@ export function Overview () {
                 title={t(`确认删除选中的 ${selected_dashboard_ids.length} 个数据面板吗？`)}
              />
             
-            <Modal
-                open={sharor.visible}
-                onCancel={sharor.close}
-                onOk={async () => {
-                    if (!selected_dashboard_ids.length) {
-                        model.message.warning(t('请选择想要分享的 dashboard'))
-                        return
-                    }
-                    
-                    if (!selected_users.length) {
-                        model.message.warning(t('请选择想要分享的用户'))
-                        return
-                    }
-                    
-                    try {
-                        await dashboard.share(selected_dashboard_ids, selected_users)
-                        model.message.success(t('分享成功'))
-                        sharor.close()
-                    } catch (error) {
-                        model.show_error({ error })
-                        throw error
-                    }
-                }}
-                title={t('请选择需要分享的用户')}
-            >
-                <Table
-                    rowSelection={{
-                        onChange: (selecteds: React.Key[]) => {
-                            set_selected_users(selecteds as string[])
-                        }
-                    }}
-                    columns={[{ title: t('用户名'), dataIndex: 'user_name', key: 'user_name' }]}
-                    dataSource={users_to_share?.map(user => ({ key: user, user_name: user }))}
-                    pagination={false}
-                />
-            </Modal>
-            
             <Table
                 rowSelection={{
                     selectedRowKeys: selected_dashboard_ids,
@@ -246,7 +209,7 @@ export function Overview () {
                         title: t('操作'),
                         dataIndex: '',
                         key: 'actions',
-                        width: 300,
+                        width: 350,
                         render: ({ key }) => <div className='action'>
                                 <a
                                     onClick={() => {
@@ -258,6 +221,8 @@ export function Overview () {
                                 >
                                     {t('编辑')}
                                 </a>
+                                
+                                <Share dashboard_ids={[key]} trigger_type='text'/>
                             
                                 <a
                                     onClick={() => {
@@ -380,20 +345,10 @@ export function Overview () {
                                 {t('批量导出')}
                             </Button>
                             
-                            <Button
-                                icon={<ShareAltOutlined />}
-                                onClick={async () => {
-                                    try {
-                                        await dashboard.get_users_to_share()
-                                        sharor.open()
-                                    } catch (error) {
-                                        model.show_error({ error })
-                                        throw error
-                                    }
-                                }}
-                            >
-                                {t('分享')}
-                            </Button>
+                            <Share
+                                dashboard_ids={selected_dashboard_ids}
+                                trigger_type='button'
+                             />
                         
                             <Button
                                 danger
