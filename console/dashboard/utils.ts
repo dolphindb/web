@@ -8,7 +8,7 @@ import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.j
 import { subscribe_data_source, type DataSource } from './DataSource/date-source.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import dayjs from 'dayjs'
-import { find_variable_by_name, get_variable_value, subscribe_variable } from './Variable/variable.js'
+import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
 import { createRef } from 'react'
 import { genid } from 'xshell/utils.browser.js'
 import copy from 'copy-to-clipboard'
@@ -466,13 +466,16 @@ export function copy_widget (widget: Widget) {
         return
     // 不直接 JSON.stringify(widget) 是因为会报错循环引用
     const copy_text = JSON.stringify({
-        config: widget.config,
-        type: widget.type,
-        source_id: widget.source_id,
-        x: widget.x,
-        y: widget.y,
-        w: widget.w,
-        h: widget.h
+        widget: {
+            config: widget.config,
+            type: widget.type,
+            source_id: widget.source_id,
+            x: widget.x,
+            y: widget.y,
+            w: widget.w,
+            h: widget.h
+        },
+        ...get_variable_copy_infos(Array.from(widget.config.variable_ids))
     })
     try {
         copy(copy_text)
@@ -483,9 +486,15 @@ export function copy_widget (widget: Widget) {
 }
 
 
-export async function paste_widget (e) { 
-    const paste_widget = safe_json_parse((e.clipboardData).getData('text'))
-    if (paste_widget?.type) { 
+export async function paste_widget (event) { 
+    try {
+        const paste_widget = safe_json_parse((event.clipboardData).getData('text')).widget
+        
+        if (!paste_widget)
+            return
+        
+        await paste_variables(event, true)
+        
         const paste_widget_el = {
             ...paste_widget,
             ref: createRef(),
@@ -493,5 +502,7 @@ export async function paste_widget (e) {
         }
         dashboard.add_widget(paste_widget_el)
         await subscribe_data_source(paste_widget, paste_widget.source_id)
+    } catch (error) {
+        dashboard.message.error(error.message)
     }
 }

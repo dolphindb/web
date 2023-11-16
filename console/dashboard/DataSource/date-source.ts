@@ -195,6 +195,8 @@ export function rename_data_source (source_id: string, new_name: string) {
     
     if (new_name === data_source.name)
         return
+    else if (data_sources.findIndex(data_source => data_source.name === new_name) !== -1) 
+        throw new Error('该数据源名已存在')
     else if (new_name.length > 10)
         throw new Error('数据源名长度不能大于10')
     else if (new_name.length === 0)
@@ -513,7 +515,6 @@ export function get_data_source_copy_infos (source_id: string) {
 
 export function copy_data_source (source_id: string) {
     try {
-        console.log(get_data_source_copy_infos(source_id))
         copy(JSON.stringify(get_data_source_copy_infos(source_id)))
         dashboard.message.success('复制成功')
      } catch (e) {
@@ -523,14 +524,18 @@ export function copy_data_source (source_id: string) {
 
 
 export async function paste_data_source (event) { 
-    await paste_variables(event)
+    const { data_source: _data_source } = safe_json_parse((event.clipboardData).getData('text'))
     
-    let { data_source: _data_source } = safe_json_parse((event.clipboardData).getData('text'))
-    
-    if (!_data_source || find_data_source_index(_data_source.id) !== -1)
+    // 先校验，重名不粘贴，不重名且 id 不同的直接粘贴，不重名但 id 相同的重新生成 id 后粘贴
+    if (!_data_source || data_sources.findIndex(data_source => data_source.name === _data_source.name) !== -1)
         return
     
-    const import_data_source = new DataSource(String(genid()), _data_source.name)
+    if (find_data_source_index(_data_source.id) !== -1)
+        _data_source.id = String(genid())
+    
+    await paste_variables(event)
+        
+    const import_data_source = new DataSource(_data_source.id, _data_source.name)
     Object.assign(import_data_source, _data_source, { deps: import_data_source.deps, variables: import_data_source.variables })
     data_sources.unshift(import_data_source)
     await save_data_source(import_data_source, import_data_source.code, import_data_source.filter_column, import_data_source.filter_expression)

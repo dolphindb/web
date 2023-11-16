@@ -244,22 +244,28 @@ export function copy_variables (variable_ids: string[]) {
     }
 }
 
-
-export async function paste_variables (event) { 
+/** widget 表示是否是粘贴 widget 时附带粘贴变量 */
+export async function paste_variables (event, widget = false) { 
     const { variables: _variables } = safe_json_parse((event.clipboardData).getData('text'))
     
     if (!_variables)
         return
     
-    // 先校验，id 相同的不粘贴,重名且 id 不同的报错
-    for (let i = 0;  i < _variables.length;  ) {
+    // 先校验，重名不粘贴，不重名且 id 不同的直接粘贴，不重名但 id 相同的重新生成 id 后粘贴
+    for (let i = 0;  i < _variables.length;  i++  ) {
         const { id, name } = _variables[i]
-        if (variables[id])
-            _variables.splice(i, 1)
-        else if (find_variable_index(name, 'name') !== -1) 
-            throw new Error(`变量 ${name} 已存在，请修改变量名后重新复制`)
-        else
-            i++  
+        if (find_variable_index(name, 'name') !== -1) 
+            if (widget)
+                throw new Error('变量冲突，复制失败')
+            else {
+                _variables.splice(i, 1)
+                i--
+            }   
+        else if (variables[id]) 
+            if (widget)
+                throw new Error('变量冲突，复制失败')
+            else 
+                _variables[i].id = String(genid())
     }
     
     for (let variable of _variables) {
