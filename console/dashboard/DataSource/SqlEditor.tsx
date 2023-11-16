@@ -65,8 +65,8 @@ export function SqlEditor ({
                             数据预览
                         </div>
                         <div className='preview-config-close' onClick={close_preview}>
+                            关闭{' '}
                             <CloseOutlined/>
-                            关闭
                         </div>
                     </div>
                     <div className='preview-main'>
