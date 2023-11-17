@@ -65,7 +65,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
 export function GraphItem  ({ widget }: { widget: Widget }) {
     const { widget: current, editing } = dashboard.use(['widget', 'editing'])
     
-    console.log(widget.source_id, 'id')
+    // console.log(widget.source_id, 'id')
     
     // 是否为选中状态
     const is_active = useMemo(() => current?.id === widget?.id, [widget, current])
