@@ -23,7 +23,7 @@ import { data_sources,
 } from './date-source.js'
 import { parse_code } from '../utils.js'
 import { model } from '../../model.js'
-import { t } from '../../../i18n'
+import { t } from '../../../i18n/index.js'
 
 const save_confirm_config = {
     cancelText: '不保存',
