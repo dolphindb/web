@@ -1947,7 +1947,7 @@
         "en": "Numerical axis, suitable for continuous data"
     },
     "类目轴，适用于离散的类目数据": {
-        "en":"Category axis, suitable for discrete category data"
+        "en": "Category axis, suitable for discrete category data"
     },
     "时间轴，适用于连续的时序数据": {
         "en": "Time axis, suitable for continuous time series data"
