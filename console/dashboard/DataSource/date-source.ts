@@ -8,6 +8,7 @@ import { type Widget, dashboard } from '../model.js'
 import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse } from '../utils.js'
 import { model, storage_keys } from '../../model.js'
 import { get_variable_copy_infos, paste_variables, unsubscribe_variable } from '../Variable/variable.js'
+import { t } from '../../../i18n/index.js'
 
 
 export type DataType = { }[]
@@ -129,7 +130,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                             new_data_source.cols = get_cols(result)
                         }
                         if (code === undefined)
-                            dashboard.message.success(`${data_source.name} 保存成功！`)
+                            dashboard.message.success(`${data_source.name} ${t('保存成功')}`)
                         break  
                     case 'error':
                         throw new Error(result as string)
@@ -160,7 +161,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                 }
                 
                 if (code === undefined)
-                    dashboard.message.success(`${data_source.name} 保存成功！`)
+                    dashboard.message.success(`${data_source.name} ${t('保存成功')}`)
             } catch (error) {
                 dashboard.message.error(error.message)
             }
@@ -171,7 +172,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
 export function delete_data_source (source_id: string): number {
     const data_source = get_data_source(source_id)
     if (data_source.deps.size)
-        dashboard.message.error('当前数据源已被图表绑定无法删除')
+        dashboard.message.error(t('当前数据源已被图表绑定无法删除'))
     else {
         const delete_index = find_data_source_index(source_id)
         data_source.variables.forEach(variable_id => { unsubscribe_variable(data_source, variable_id) })   
@@ -182,7 +183,7 @@ export function delete_data_source (source_id: string): number {
 
 export function create_data_source  (): { id: string, name: string } {
     const id = String(genid())
-    const name = `数据源 ${id.slice(0, 4)}`
+    const name = `${t('数据源')} ${id.slice(0, 4)}`
     data_sources.unshift(new DataSource(id, name))
     return { id, name }
 }
@@ -196,11 +197,11 @@ export function rename_data_source (source_id: string, new_name: string) {
     if (new_name === data_source.name)
         return
     else if (data_sources.findIndex(data_source => data_source.name === new_name) !== -1) 
-        throw new Error('该数据源名已存在')
+        throw new Error(t('该数据源名已存在'))
     else if (new_name.length > 10)
-        throw new Error('数据源名长度不能大于10')
+        throw new Error(t('数据源名长度不能大于10'))
     else if (new_name.length === 0)
-        throw new Error('数据源名不能为空')
+        throw new Error(t('数据源名不能为空'))
     else
         data_source.name = new_name
 }
@@ -215,7 +216,7 @@ export async function subscribe_data_source (widget_option: Widget, source_id: s
     data_source.deps.add(widget_option.id)
     
     if (data_source.error_message) 
-        dashboard.message.error('当前数据源存在错误')
+        dashboard.message.error(t('当前数据源存在错误'))
     else   
         switch (data_source.mode) {
             case 'sql':
@@ -341,7 +342,7 @@ async function create_interval (data_source: DataSource) {
             data_source.set({ timer: interval_id, ddb: sql_connection })
         }
     } catch (error) {
-        dashboard.message.error(`${data_source.name} 轮询启动失败`)
+        dashboard.message.error(`${data_source.name} ${t('轮询启动失败')}`)
         return error
     }
 }
@@ -409,7 +410,7 @@ async function subscribe_stream (data_source: DataSource) {
         await stream_connection.connect()
         data_source.set({ data: [ ], cols: await get_stream_cols(data_source.stream_table), ddb: stream_connection })
     } catch (error) {
-        dashboard.message.error(`无法订阅到流数据表 ${data_source.stream_table}`)
+        dashboard.message.error(`${t('无法订阅到流数据表')} ${data_source.stream_table}`)
         return error
     }
 }
@@ -516,9 +517,9 @@ export function get_data_source_copy_infos (source_id: string) {
 export function copy_data_source (source_id: string) {
     try {
         copy(JSON.stringify(get_data_source_copy_infos(source_id)))
-        dashboard.message.success('复制成功')
+        dashboard.message.success(t('复制成功'))
      } catch (e) {
-        dashboard.message.error('复制失败')
+        dashboard.message.error(t('复制失败'))
     }
 }
 
