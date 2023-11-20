@@ -3,6 +3,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     
     .guide-step {
         width: 400px;
@@ -51,4 +52,10 @@
 .other-sortkey-tip {
     display: inline-block;
     margin-bottom: 24px;
+}
+
+.apply-config-wrapper{
+    width: 800px;
+    text-align: end;
+    margin-bottom: 16px;
 }

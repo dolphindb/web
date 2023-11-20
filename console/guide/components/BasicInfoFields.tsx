@@ -2,6 +2,7 @@ import './index.scss'
 import { Form, Input, InputNumber, Radio, Select, type SelectProps } from 'antd'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { SchemaList } from './SchemaList.js'
+import { GuideType } from '../type.js'
 
 
 const CUSTOM_VALUE = 7
@@ -17,8 +18,16 @@ const DAILY_INCREASE_NUM_OPTIONS: SelectProps['options'] = [
     { label: '自定义', value: CUSTOM_VALUE }
 ]
 
+interface IProps { 
+    type: GuideType
+}
 
-export function BasicInfoFields () {
+export function BasicInfoFields (props: IProps) {
+    const { type = GuideType.SIMPLE } = props
+    /** 简易版：
+          非时序数据，无测点数和常用筛选列
+          常用筛选列最大选四个，无推荐 */
+    
     return <>
         <Form.Item
             label='库名'
@@ -91,11 +100,11 @@ export function BasicInfoFields () {
             } }
         </FormDependencies>
         
-        {/* 测点数 */}
-        <FormDependencies dependencies={['isFreqIncrease', 'totalNum']}>
-            {({ totalNum, isFreqIncrease }) => {
+        {/* 测点数 简易版与进阶版下，只有时序数据才需要测点数 */}
+        <FormDependencies dependencies={['isFreqIncrease']}>
+            {({ isFreqIncrease }) => {
                 // 时序数据情况下，或者数据总量大于100w 展示测点数
-                if (totalNum?.gap === 1 || totalNum?.custom >= 1000000 || isFreqIncrease)
+                if (isFreqIncrease)
                     return <Form.Item label='测点数' name='pointNum' rules={[{ required: true, message: '请输入测点数' }]}>
                         <InputNumber placeholder='请输入测点数'/>
                     </Form.Item>
@@ -105,5 +114,33 @@ export function BasicInfoFields () {
         </FormDependencies>
         
         <SchemaList />
+        
+        {
+            type === GuideType.SIMPLE && <FormDependencies dependencies={['isFreqIncrease', 'totalNum', 'schema']}>
+                {({ isFreqIncrease, totalNum, schema }) => { 
+                    // 时序数据，或者非时序数据，但是数据总量大于100w需要选常用筛选列
+                    if (isFreqIncrease || totalNum.gap === 1 || totalNum.custom > 1000000)
+                        return <Form.Item
+                            name='sortColumn'
+                            label='常用筛选列'
+                            rules={[
+                                {
+                                    required: true,
+                                    message: '请选择常用筛选列'
+                                },
+                                {
+                                    validator: async (_, value) => { 
+                                        if (value.length > 4)
+                                            return new Error('最多只能选择 4 个常用筛选列')
+                                    }
+                                }
+                            ]}
+                        >
+                            <Select placeholder='请选择常用筛选列' options={schema.filter(item => item?.colName).map(item => ({ label: item.colName, value: item.colName }))} />
+                        </Form.Item>
+                } }
+                
+            </FormDependencies>
+        }
     </>
 }

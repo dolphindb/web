@@ -33,7 +33,7 @@ const svgs = {
     log: SvgLog,
     factor: SvgFactor,
     computing: SvgComputing,
-    tools: SvgTools
+    tools: SvgTools,
 }
 
 function MenuIcon ({ view }: { view: DdbModel['view'] }) {

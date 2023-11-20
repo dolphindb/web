@@ -1,33 +1,39 @@
-import { CloudUploadOutlined } from '@ant-design/icons'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Modal, Typography, Upload } from 'antd'
+import { Form, Modal } from 'antd'
+import { useCallback } from 'react'
+import { safe_json_parse } from '../../dashboard/utils.js'
+import { UploadFileField } from './UploadFileField.js'
 
 interface IProps { 
-    apply: () => void
+    apply: (info: any) => void
 }
 
 export const UploadConfigModal = NiceModal.create((props: IProps) => { 
     const { apply } = props
+    const [form] = Form.useForm()
     
     const modal = useModal()
+    
+    const on_apply = useCallback(async () => {
+        try {
+            await form.validateFields()
+            const { file } = form.getFieldsValue()
+            const config = safe_json_parse(await file.file.text())
+            console.log(config, 'config')
+            apply(config)
+            modal.hide()
+        } catch { }
+     }, [ apply ])
     
     return <Modal
         title='应用配置'
         open={modal.visible}
         onCancel={async () => modal.hide()}
         afterClose={() => { modal.remove() }}
+        onOk={on_apply}
     >
-        <Upload.Dragger
-            accept='application/json'
-            maxCount={1}
-            listType='picture-card'
-            className='json-upload'
-        >
-            <div>
-                <CloudUploadOutlined className='upload-icon' />
-                <div>点击或将文件拖拽到此区域</div>
-                <Typography.Text className='upload-tip' type='secondary'>仅支持导入JSON文件</Typography.Text>
-            </div>
-        </Upload.Dragger>
+        <Form form={form}>
+            <UploadFileField accept='application/json' tip='仅支持上传JSON文件'/>
+        </Form>
     </Modal>
 })

@@ -2,7 +2,6 @@ import './index.scss'
 
 import { Button, Popconfirm, Space, Tooltip, message } from 'antd'
 import { Editor } from '../../shell/Editor/index.js'
-import { useBoolean } from 'ahooks'
 import { useCallback } from 'react'
 import { model } from '../../model.js'
 import { CopyOutlined } from '@ant-design/icons'
@@ -18,10 +17,20 @@ interface IProps {
 
 export function CodeViewStep (props: IProps) {
     const { code = 'xxxx', back, config } = props
-    const [open, { setTrue, setFalse } ] = useBoolean(false)
-    
+   
     const execute_code = useCallback(async () => { 
-        await model.ddb.eval(code)
+        try {
+            await model.ddb.eval(code)
+            setTimeout(() => { 
+                model.set_query('view', 'guide-result')
+                model.set({ view: 'guide-result-success' })
+            }, 1000)
+        } catch (e) { 
+            sessionStorage.setItem('create_error', e)
+            model.set_query('view', 'guide-result-fail')
+            model.set({ view: 'guide-result-fail' })            
+        }
+        
     }, [code])
     
     
@@ -47,8 +56,8 @@ export function CodeViewStep (props: IProps) {
             <Space>
                 <Button onClick={on_download}>导出表单配置</Button>
                 <Button onClick={back}>上一步</Button>
-                <Popconfirm open={open} title='确认要执行当前建库脚本吗？' onCancel={setFalse} onConfirm={execute_code}>
-                    <Button type='primary' onClick={setTrue}>立即执行</Button>
+                <Popconfirm title='确认要执行当前建库脚本吗？' onConfirm={execute_code}>
+                    <Button type='primary'>立即执行</Button>
                 </Popconfirm>
             </Space>
         </div>

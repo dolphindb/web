@@ -1,6 +1,6 @@
 import { Button, Form } from 'antd'
 import { BasicInfoFields } from '../components/BasicInfoFields.js'
-import { type RecommendInfo, type BasicInfoFormValues, type SecondStepInfo, type AdvancedInfos } from '../type.js'
+import { type RecommendInfo, type BasicInfoFormValues, type SecondStepInfo, type AdvancedInfos, GuideType } from '../type.js'
 import { useCallback, useEffect } from 'react'
 import { model } from '../../model.js'
 
@@ -23,7 +23,12 @@ export function AdvancedFirstStep (props: IProps) {
             set_recommend_info?.({ otherSortKeys: { show: false } })
         else
             set_recommend_info?.({ otherSortKeys: { show: true } })
-     }, [isFreqIncrease, totalNum, set_recommend_info])
+    }, [isFreqIncrease, totalNum, set_recommend_info])
+    
+    useEffect(() => { 
+        if (info?.first)
+            form.setFieldsValue(info.first)
+    }, [info?.first])
     
     
     const on_submit = useCallback(async () => { 
@@ -63,9 +68,8 @@ export function AdvancedFirstStep (props: IProps) {
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 18 }}
         onFinish={on_submit}
-        initialValues={info?.first}
     >
-        <BasicInfoFields />
+        <BasicInfoFields type={GuideType.ADVANCED} />
         <Form.Item className='btn-group'>
             <Button htmlType='submit' type='primary'>下一步</Button>
         </Form.Item>

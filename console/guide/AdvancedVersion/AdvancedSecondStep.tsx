@@ -1,7 +1,7 @@
 import './index.scss'
 import { Button, Form, Radio, Select, Space, Typography } from 'antd'
 import { type RecommendInfo, type BasicInfoFormValues, type SecondStepInfo, type AdvancedInfos } from '../type.js'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { model } from '../../model.js'
 import { CommonSortCols } from './CommonSortCols.js'
@@ -34,7 +34,12 @@ export function AdvancedSecondStep (props: IProps) {
     
     const col_options = useMemo(() =>
         info.first?.schema?.map(item => ({ label: item.colName, value: item.colName })),
-    [info])
+        [info])
+    
+    useEffect(() => { 
+        if (info?.second)
+            form.setFieldsValue(info.second)
+    }, [info?.second])
     
     
     const on_submit = useCallback(async () => { 
@@ -59,7 +64,6 @@ export function AdvancedSecondStep (props: IProps) {
         labelAlign='left'
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 18 }}
-        initialValues={info?.second}
     >
         <Form.Item label='分区列' name='partitionColumn' initialValue={recommend_info?.partitionCols?.cols ?? [ ]} rules={[{ required: true, message: '请选择分区列' }]}>
             <Select mode='multiple' options={col_options} placeholder='请选择分区列'/>
