@@ -12,7 +12,7 @@ import { genid } from 'xshell/utils.browser.js'
 import { model } from '../model.js'
 import { t } from '../../i18n/index.js'
 
-import { type DashBoardConfig, dashboard } from './model.js'
+import { type DashBoardConfig, dashboard, DashboardPermission } from './model.js'
 import { Share } from './Share/Share.js'
 
 
@@ -211,63 +211,72 @@ export function Overview () {
                         key: 'actions',
                         width: 350,
                         render: ({ key }) => <div className='action'>
-                                <a
-                                    onClick={() => {
-                                        let config = configs.find(({ id }) => id === key)
-                                        dashboard.set({ config, editing: true })
-                                        model.set_query('dashboard', String(config.id))
-                                        model.set({ header: false, sider: false })
-                                    }}
-                                >
-                                    {t('编辑')}
-                                </a>
-                                
-                                <Share dashboard_ids={[key]} trigger_type='text'/>
-                            
-                                <a
-                                    onClick={() => {
-                                        let current_row_config = configs.find(({ id }) => id === key)
-                                        set_current_dashboard(current_row_config)
-                                        editor.open()
-                                        set_edit_dashboard_name(current_row_config?.name)
-                                    }}
-                                >
-                                    {t('修改名称')}
-                                </a>
-                                
-                                <a
-                                    onClick={async () => single_file_export(key)}
-                                >
-                                    {t('导出')}
-                                </a>
-                                
-                                <Popconfirm
-                                    title='删除'
-                                    description={`确定删除 ${configs.find(({ id }) => id === key).name} 吗？`}
-                                    onConfirm={async () => {
-                                        try {
-                                            if (!configs.length) {
-                                                dashboard.message.error(t('当前 dashboard 列表为空'))
-                                                return
-                                            }
+                                {
+                                    configs.find(({ id }) => id === key).permission !== DashboardPermission.view
+                                        ? <>
+                                            <a
+                                                onClick={() => {
+                                                    let config = configs.find(({ id }) => id === key)
+                                                    dashboard.set({ config, editing: true })
+                                                    model.set_query('dashboard', String(config.id))
+                                                    model.set({ header: false, sider: false })
+                                                }}
+                                            >
+                                                {t('编辑')}
+                                            </a>
                                             
-                                            dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
-                                            
-                                            await dashboard.delete_dashboard_configs([key], false)
-                                            set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
-                                            model.message.success(t('删除成功'))
-                                        } catch (error) {
-                                            model.show_error({ error })
-                                            throw error
-                                        }
-                                    }}
-                                    okText={t('确认删除')}
-                                    cancelText={t('取消')}
-                                >
-                                     <a  className='delete'>
-                                        {t('删除')}
-                                    </a>
-                                </Popconfirm>
+                                            <a
+                                                onClick={async () => single_file_export(key)}
+                                            >
+                                                {t('导出')}
+                                            </a>
+                                        </>
+                                        : <></>
+                                }
+                                {
+                                    configs.find(({ id }) => id === key).permission === DashboardPermission.own
+                                        ? <>
+                                            <Share dashboard_ids={[key]} trigger_type='text'/>
+                                            <a
+                                                onClick={() => {
+                                                    let current_row_config = configs.find(({ id }) => id === key)
+                                                    set_current_dashboard(current_row_config)
+                                                    editor.open()
+                                                    set_edit_dashboard_name(current_row_config?.name)
+                                                }}
+                                            >
+                                                {t('修改名称')}
+                                            </a>
+                                            <Popconfirm
+                                                title='删除'
+                                                description={`确定删除 ${configs.find(({ id }) => id === key).name} 吗？`}
+                                                onConfirm={async () => {
+                                                    try {
+                                                        if (!configs.length) {
+                                                            dashboard.message.error(t('当前 dashboard 列表为空'))
+                                                            return
+                                                        }
+                                                        
+                                                        dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
+                                                        
+                                                        await dashboard.delete_dashboard_configs([key], false)
+                                                        set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
+                                                        model.message.success(t('删除成功'))
+                                                    } catch (error) {
+                                                        model.show_error({ error })
+                                                        throw error
+                                                    }
+                                                }}
+                                                okText={t('确认删除')}
+                                                cancelText={t('取消')}
+                                            >
+                                                <a  className='delete'>
+                                                    {t('删除')}
+                                                </a>
+                                            </Popconfirm>
+                                        </>
+                                        : <></> 
+                                }
                             </div>
                     }
                 ]}
