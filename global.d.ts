@@ -33,6 +33,11 @@ declare module '*.txt' {
     export default text
 }
 
+declare module '*.dos' {
+    const text: string
+    export default text
+}
+
 declare module '*.sass' {
     const classes: { readonly [key: string]: string }
     export default classes

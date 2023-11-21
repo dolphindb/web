@@ -110,7 +110,7 @@ export const base_config: Webpack.Configuration = {
                 ]
             },
             {
-                test: /\.txt$/,
+                test: /\.(txt|dos)$/,
                 type: 'asset/source',
             }
         ],
