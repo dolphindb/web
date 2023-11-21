@@ -14,6 +14,7 @@ import { t } from '../../i18n/index.js'
 
 import { type DashBoardConfig, dashboard, DashboardPermission } from './model.js'
 import { Share } from './Share/Share.js'
+import backend from './backend.dos'
 
 
 export function Overview () {
@@ -38,6 +39,9 @@ export function Overview () {
                     model.goto_login()
                     return
                 }
+                
+                await model.ddb.eval(backend)
+                
                 await dashboard.get_dashboard_configs()
             } catch (error) {
                 // dashboard.set({ backend: false })
