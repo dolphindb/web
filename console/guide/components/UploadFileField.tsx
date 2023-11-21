@@ -26,7 +26,18 @@ export function UploadFileField (props: IProps) {
         set_file(null)
     }, [ ])
     
-    return <Form.Item wrapperCol={{ span: 24 }} className='upload-file-form-item' name='file' rules={[{ required: true, message: '请上传文件' }]}>
+    return <Form.Item
+        wrapperCol={{ span: 24 }}
+        className='upload-file-form-item'
+        name='file'
+        rules={[{ required: true, message: '请上传文件' }]}
+        valuePropName='file'
+        getValueFromEvent={e => { 
+            if (Array.isArray(e))
+                return e[0]
+            return e
+        }}
+        >
         {
             file ? 
                 <div className='preview-file'>

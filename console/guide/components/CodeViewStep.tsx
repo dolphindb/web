@@ -8,27 +8,25 @@ import { CopyOutlined } from '@ant-design/icons'
 import copy from 'copy-to-clipboard'
 import NiceModal from '@ebay/nice-modal-react'
 import { DownloadConfigModal } from './DownloadConfigModal.js'
+import { ExecuteResult, type SimpleInfos } from '../type.js'
 
 interface IProps { 
     code: string
     back: () => void
     config: any
+    go: (infos: { info?: SimpleInfos, generate_code?: string, result?: ExecuteResult }) => void
 }
 
 export function CodeViewStep (props: IProps) {
-    const { code = 'xxxx', back, config } = props
+    const { code, back, config, go } = props
    
     const execute_code = useCallback(async () => { 
         try {
             await model.ddb.eval(code)
-            setTimeout(() => { 
-                model.set_query('view', 'guide-result')
-                model.set({ view: 'guide-result-success' })
-            }, 1000)
+            go({ result: ExecuteResult.SUCCESS } )
         } catch (e) { 
             sessionStorage.setItem('create_error', e)
-            model.set_query('view', 'guide-result-fail')
-            model.set({ view: 'guide-result-fail' })            
+            go({ result: ExecuteResult.FAILED })         
         }
         
     }, [code])

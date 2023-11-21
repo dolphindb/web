@@ -3,50 +3,69 @@ import './index.scss'
 import { CloudUploadOutlined, DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { Button, Form, Input, Modal, Radio, Select, Typography, message } from 'antd'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-import { useCallback } from 'react'
-import { useBoolean } from 'ahooks'
+import { useCallback, useState } from 'react'
 import { UploadFileField } from './UploadFileField.js'
-import { model } from '../../model.js'
+import { request } from '../utils.js'
+import { type BasicInfoFormValues } from '../type.js'
+import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
 const DATA_TYP_LIST = ['BOOL', 'CHAR', 'SHORT', 'INT', 'FLOAT', 'DOUBLE', 'LONG',
 'TIME', 'MINUTE', 'SECOND', 'DATE', 'DATEHOUR', 'DATETIME', 'TIMESTAMP',
 'NANOTIMESTAMP', 'SYMBOL', 'STRING', 'BLOB', 'DECIMAL32(S)', 'DECIMAL64(S)', 'DECIMAL128(S)']
 
 interface ISchemaUploadModal { 
-    open: boolean
     on_apply: (values) => void
-    on_cancel: () => void
 }
 
-export function SchemaUploadModal (props: ISchemaUploadModal) {
+export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) => {
     
-    const { open, on_apply, on_cancel } = props
+    const { on_apply } = props
     const [form] = Form.useForm()
     
+    const modal = useModal()
+    const [loading, set_loading] = useState(false)
+    
     const on_submit = useCallback(async () => { 
+        set_loading(true)
         try {
             await form.validateFields()
-            const { delimiter, file_path, file: { file }, upload_type } = form.getFieldsValue()
+            const { delimiter, file_path, file, upload_type } = form.getFieldsValue()
+            let params = { 
+                type: upload_type,
+                content: { }
+            }
             if (upload_type === 0) {
                 // 本地上传
-                const { value } = await model.ddb.eval('getHomeDir()')
-                console.log(file, 'file')
-                const content = file.text()
-                const path = value + '/' + file.name
-                await model.ddb.eval(`saveTextFile(${content}, ${path})`)
-                const { value: schema } = await model.ddb.call('getSchema', [JSON.stringify({ delimiter, filePath: path })])
-                on_apply(schema)
-            } else { 
+                const content = (await file.file.text())?.split('\n')?.slice(0, 100)?.join('\n')
+                params.content = {
+                    fileName: file.file.name,
+                    fileContent: content,
+                    delimiter,
+                }
+            } else  
                 // 服务器上传
-                const { value: schema } = await model.ddb.call('getSchema', [JSON.stringify({ delimiter, filePath: file_path })])
-                on_apply(schema)
-            }
+                params.content = {
+                    filePath: file_path,
+                    delimiter
+                }
+            const schema = await request<BasicInfoFormValues['schema']>('getSchema', params)
+            on_apply(schema)
+            set_loading(false)
+            modal.hide()
         } catch (e) {
             message.error(e)
          }
-    }, [ ])
+    }, [ on_apply ])
     
-    return <Modal onCancel={on_cancel} open={open} title='导入文件' onOk={on_submit}>
+    return <Modal
+        onCancel={modal.hide}
+        open={modal.visible}
+        title='导入文件'
+        onOk={on_submit}
+        okButtonProps={{ loading }}
+        destroyOnClose
+        afterClose={modal.remove}
+    >
         <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} labelAlign='left'>
             <Form.Item label='导入方式' name='upload_type' initialValue={0}>
                 <Radio.Group>
@@ -74,16 +93,19 @@ export function SchemaUploadModal (props: ISchemaUploadModal) {
         </Form>
     </Modal>
     
-}
+})
 
 export function SchemaList () { 
     
-    const [open, { setTrue, setFalse }] = useBoolean() 
     const form = Form.useFormInstance()
     
     const on_apply = useCallback(schema => {
         form.setFieldValue('schema', schema)
-     }, [ ])
+    }, [ ])
+    
+    const on_upload = useCallback(() => { 
+        NiceModal.show(SchemaUploadModal, { on_apply })
+    }, [on_apply])
     
     return <div className='schema-wrapper'>
         <h4>列配置</h4>
@@ -104,13 +126,11 @@ export function SchemaList () {
         </Form.List>
     
         <div className='upload-schema-wrapper'>
-            <Typography.Link onClick={setTrue}>
+            <Typography.Link onClick={on_upload}>
                 <CloudUploadOutlined className='upload-schema-icon'/>
                 导入文件
             </Typography.Link>
         </div>
-        
-        <SchemaUploadModal open={open} on_cancel={setFalse} on_apply={ on_apply } />
         
     </div>
 }

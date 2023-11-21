@@ -1,19 +1,22 @@
 import './index.scss'
 import { Steps, Typography } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
-import { type SimpleInfos } from '../type.js'
+import { ExecuteResult, type SimpleInfos } from '../type.js'
 import { CodeViewStep } from '../components/CodeViewStep.js'
 import { SimpleFirstStep } from './SimpleFirstStep.js'
 import NiceModal from '@ebay/nice-modal-react'
 import { UploadConfigModal } from '../components/UploadConfigModal.js'
+import { GuideFailResultPage } from '../components/GuideFailResultPage.js'
+import { GuideSuccessResultPage } from '../components/GuideSuccessResultPage.js'
 
 
 
 export function SimpleVersion () {
     const [current_step, set_current_step] = useState(0)
-    const [code, set_code] = useState('xxx')
+    const [code, set_code] = useState('')
     
     const [info, set_info] = useState<SimpleInfos>()
+    const [result, set_result] = useState<ExecuteResult>(ExecuteResult.SUCCESS)
     
     
     const back = useCallback(() => { 
@@ -21,14 +24,20 @@ export function SimpleVersion () {
     }, [current_step])
     
     
-    const go = useCallback((info: SimpleInfos, code?: string) => { 
+    const go = useCallback((infos: { info?: SimpleInfos, generate_code?: string, result?: ExecuteResult }) => { 
+        const { info, generate_code, result = ExecuteResult.SUCCESS } = infos
         set_current_step(current_step + 1)
-        set_info(prev => ({ ...prev, ...info }))
-        set_code(code)
+        if (info)
+            set_info(prev => ({ ...prev, ...info }))
+        if (generate_code)
+            set_code(generate_code)
+        set_result(result)
     }, [current_step])
     
+    
+    
     const on_apply_config = useCallback(() => { 
-        NiceModal.show(UploadConfigModal, { apply: info => { set_info(info) } })
+        NiceModal.show(UploadConfigModal, { apply: info => { set_info(prev => ({ ...prev, ...info })) } })
     }, [ ])
     
     const views = useMemo(() => {
@@ -41,13 +50,19 @@ export function SimpleVersion () {
                 />
             },
             {
-            
                 title: '脚本预览',
                 children: <CodeViewStep
                     config={info}
                     code={code}
                     back={back}
+                    go={go}
                 />
+            },
+            {
+                title: '执行结果',
+                children: result === ExecuteResult.FAILED
+                    ? <GuideFailResultPage  back={back}/>
+                    : <GuideSuccessResultPage  back={back}/>
             }
         ]
         return steps
@@ -57,7 +72,7 @@ export function SimpleVersion () {
     return <div className='simple-version-wrapper'>
         <Steps current={current_step} className='guide-step' size='small' items={views}/>
         {
-            (current_step !== views.length - 1) && <div className='apply-config-wrapper'>
+            (current_step === 0) && <div className='apply-config-wrapper'>
             <Typography.Link onClick={on_apply_config} >应用配置</Typography.Link>
         </div>
         }

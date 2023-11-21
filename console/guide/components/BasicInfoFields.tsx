@@ -3,6 +3,9 @@ import { Form, Input, InputNumber, Radio, Select, type SelectProps } from 'antd'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { SchemaList } from './SchemaList.js'
 import { GuideType } from '../type.js'
+import { model } from '../../model.js'
+import { throttle } from 'lodash'
+import { request } from '../utils.js'
 
 
 const CUSTOM_VALUE = 7
@@ -34,14 +37,13 @@ export function BasicInfoFields (props: IProps) {
             name='dbName'
             rules={[
                 { required: true, message: '请输入库名' },
-                // {
-                //     validator: throttle(async (_, value) => { 
-                //         const data = await model.ddb.call('checkDatabase', [JSON.stringify({ dbName: value })])
-                //         // @ts-ignore
-                //         if (data.isExist)  
-                //             throw new Error('已有同名库，请修改库名')
-                //     }, 500)
-                // }
+                {
+                    validator: throttle(async (_, val) => { 
+                        const res = await request<{ isExist: 0 | 1 }>('checkDatabase', { dbName: 'dfs://' + val })
+                        if (res.isExist)  
+                            return Promise.reject(new Error('已有同名库，请修改库名')) 
+                    }, 500)
+                }
             ]}>
             <Input placeholder='请输入库名'/>
         </Form.Item>
@@ -121,6 +123,7 @@ export function BasicInfoFields (props: IProps) {
                     // 时序数据，或者非时序数据，但是数据总量大于100w需要选常用筛选列
                     if (isFreqIncrease || totalNum.gap === 1 || totalNum.custom > 1000000)
                         return <Form.Item
+                            tooltip='请选择查询时常用于数据筛选过滤的列。越重要的过滤条件，在过滤列中的位置越靠前。一般情况下第一个常用过滤列为时间列，第二个常用过滤列为设备id列。'
                             name='sortColumn'
                             label='常用筛选列'
                             rules={[
@@ -136,7 +139,7 @@ export function BasicInfoFields (props: IProps) {
                                 }
                             ]}
                         >
-                            <Select placeholder='请选择常用筛选列' options={schema.filter(item => item?.colName).map(item => ({ label: item.colName, value: item.colName }))} />
+                            <Select placeholder='请选择常用筛选列' mode='multiple' options={schema.filter(item => item?.colName).map(item => ({ label: item.colName, value: item.colName }))} />
                         </Form.Item>
                 } }
                 

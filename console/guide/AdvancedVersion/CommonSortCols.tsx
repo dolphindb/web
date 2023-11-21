@@ -12,7 +12,7 @@ interface IProps {
 }
 
 export function CommonSortCols (props: IProps) {
-    const { max, initial_value, col_options, mode = 'common' } = props
+    const { initial_value, col_options, mode = 'common' } = props
     
     return <div className='sort-cols-wrapper'>
         <h3>常用筛选列</h3>
@@ -26,7 +26,7 @@ export function CommonSortCols (props: IProps) {
                         <Form.Item label='唯一值数量' name='uniqueValueNum' rules={[{ required: true, message: '请填入唯一值数量' }] } labelCol={{ span: 10 }} wrapperCol={{ span: 14 }}>
                             <InputNumber/>
                         </Form.Item>
-                        <Form.Item label='降维桶数' name='hashMapNum' labelCol={{ span: 10 }} wrapperCol={{ span: 14 }}>
+                        <Form.Item label='降维桶数' name='hashMapNum' labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} initialValue={0}>
                             <InputNumber />
                         </Form.Item>
                         { mode === 'common' && fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) } } /> }

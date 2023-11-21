@@ -35,7 +35,6 @@ import { Log } from './log.js'
 import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
 import { CreateGuide } from './guide/index.js'
-import { GuideFailResultPage, GuideSuccessResultPage } from './guide/GuideResultPage/index.js'
 
 
 createRoot(
@@ -131,8 +130,6 @@ const views = {
     computing: Computing,
     dashboard: DashBoard,
     guide: CreateGuide,
-    'guide-result-success': GuideSuccessResultPage,
-    'guide-result-fail': GuideFailResultPage
 }
 
 

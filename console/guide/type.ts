@@ -5,15 +5,11 @@ export enum GuideType {
 
 
 export interface RecommendInfo { 
-    otherSortKeys: {
-        show: boolean
-        max?: number
-    }
-    // 高阶特有，分区列
-    partitionCols?: {
-        num: number
-        cols: string[]
-    }
+    hasAdvancedInfo: boolean
+    // 筛选列文案
+    otherSortKeysTip?: string
+    // 分区列文案
+    partitionColsTip?: string
 }
 
 export interface BasicInfoFormValues { 
@@ -77,4 +73,26 @@ export interface SimpleInfos {
 export interface AdvancedInfos { 
     first?: BasicInfoFormValues
     second?: SecondStepInfo
+}
+
+
+export enum ExecuteResult { 
+    FAILED,
+    SUCCESS
+}
+
+
+export interface IAdvancedCreateDBResp { 
+    // 常用筛选列是否通过校验
+    isValid: 0 | 1
+    // 常用筛选列
+    recommendOtherSortKey?: Array<{
+        // 列名
+        colName: string
+        // 唯一值数量
+        uniqueValueNum: number
+        // 降维桶数
+        hashMapNum: number
+    }>
+    code: string
 }

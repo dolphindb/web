@@ -15,13 +15,15 @@ export const UploadConfigModal = NiceModal.create((props: IProps) => {
     const modal = useModal()
     
     const on_apply = useCallback(async () => {
+        console.log('kkk')
         try {
             await form.validateFields()
             const { file } = form.getFieldsValue()
+            console.log(file, 'file')
             const config = safe_json_parse(await file.file.text())
             console.log(config, 'config')
             apply(config)
-            modal.hide()
+            await modal.hide()
         } catch { }
      }, [ apply ])
     
