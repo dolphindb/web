@@ -89,6 +89,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         //     await this.get_configs_from_local()
         // }
         try {
+            await model.ddb.call<DdbVoid>('dashboard_check_access', [ ], { urgent: true })
             await this.get_dashboard_configs()
         } catch (error) {
             this.show_error({ error })
@@ -374,14 +375,14 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     /** 获取分享的用户列表 */
-    async get_users_to_share () {
-        const users = ((await model.ddb.call<DdbObj>('dashboard_get_users_to_share')).value) as string[]
+    async get_user_list () {
+        const users = ((await model.ddb.call<DdbObj>('dashboard_get_user_list')).value) as string[]
         this.set({ users: users })
     }
     
     
     async add_dashboard_config (config: DashBoardConfig, render: boolean = true) {
-        this.set({ configs: [...this.configs, config], config })
+        this.set({ configs: [config, ...this.configs], config })
         const { id, name, permission, data } = config
         const params = new DdbDict(
             ({ id: new DdbLong(BigInt(id)), name, permission: new DdbInt(permission), data: JSON.stringify(data) }))
@@ -395,7 +396,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         const delete_ids = new Set(dashboard_config_ids)
         const filtered_configs = this.configs.filter(({ id }) => !delete_ids.has(id))
         this.set({ configs: filtered_configs, config: filtered_configs[0] })
-        await model.ddb.call<DdbVoid>('dashboard_delete_configs', [new DdbVectorLong(dashboard_config_ids)], { urgent: true })
+        await model.ddb.call<DdbVoid>('dashboard_delete_configs', [new DdbDict({ ids: new DdbVectorLong(dashboard_config_ids) })], { urgent: true })
         if (filtered_configs.length && render)
             await this.render_with_config(filtered_configs[0])   
     }
@@ -412,6 +413,21 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
+    async rename_dashboard (dashboard_id: number, new_name: string) {
+        try {
+            await model.ddb.call<DdbVoid>('dashboard_rename_config', [new DdbDict({ id: new DdbLong(BigInt(dashboard_id)), name: new_name })], { urgent: true })
+        
+            const index = this.configs.findIndex(({ id }) => id === dashboard_id)
+            const config = this.configs[index]
+            config.name = new_name
+            this.set({ configs: this.configs.toSpliced(index, 1, config), config })
+            await this.render_with_config(config)
+        } catch (error) {
+            this.show_error(error)
+        }
+    }
+    
+    
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number) {
         const data = (await model.ddb.call('dashboard_get_config', [new DdbLong(BigInt(id))], { urgent: true })).to_rows()
@@ -421,7 +437,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
-        const data = (await model.ddb.call<DdbVoid>('dashboard_get_configs', [ ], { urgent: true })).to_rows()
+        const data = (await model.ddb.call<DdbVoid>('dashboard_get_config_list', [ ], { urgent: true })).to_rows()
         const configs =  data.map(cfg => ({ ...cfg, 
                                             id: Number(cfg.id), 
                                             data: JSON.parse(typeof cfg.data === 'string' ? 
@@ -486,14 +502,13 @@ export class DashBoardModel extends Model<DashBoardModel> {
     //     localStorage.setItem(storage_keys.dashboards, JSON.stringify(this.configs))
     // }
     
-    async share (dashboard_ids: number[], receivers: string[]) {
-        /** 
-        将 dashboard_ids 数组中的 dashboard 分享给 receivers 数组中的每一位用户，
-        并存储到每一位 receiver 的 dashboard 数组中， 在后续调用 get_configs 拉取 receiver 的 dashboard 时，
-        需要将分享过来的 dashboard 一起返回，并且将 owner 的值设置为 false
-        */
+    async share (dashboard_ids: number[], viewers: string[], editors: string[]) {
        await model.ddb.call<DdbVoid>('dashboard_share_configs',
-            [new DdbVectorLong(dashboard_ids), new DdbVectorString(receivers)], { urgent: true })
+            [new DdbDict({ 
+                ids: new DdbVectorLong(dashboard_ids), 
+                viewers: new DdbVectorString(viewers), 
+                editors: new DdbVectorString(editors) 
+            })], { urgent: true })
     }
     
     show_error (options: ErrorOptions) {

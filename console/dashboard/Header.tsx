@@ -147,7 +147,7 @@ export function Header () {
             }
             
             // await dashboard.update_config(updated_config)
-            await dashboard.update_dashboard_config(updated_config)
+            await dashboard.rename_dashboard(config.id, edit_dashboard_name)
             // await dashboard.save_configs_to_local()
             dashboard.message.success(t('修改成功'))
             
@@ -294,18 +294,6 @@ export function Header () {
                     </Button>
                 </Tooltip>
             
-                <Tooltip title='修改名称'>
-                    <Button
-                        className='action' 
-                        onClick={() => { 
-                            edit_open()
-                            set_edit_dashboard_name(config?.name) 
-                        }}
-                    >
-                        <EditOutlined />
-                    </Button>
-                </Tooltip>
-            
                 <Tooltip title='保存'>
                     <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
                 </Tooltip>
@@ -360,8 +348,19 @@ export function Header () {
                 {
                     dashboard.config?.permission === DashboardPermission.own 
                         ? <>
+                            <Tooltip title='修改名称'>
+                                <Button
+                                    className='action' 
+                                    onClick={() => { 
+                                        edit_open()
+                                        set_edit_dashboard_name(config?.name) 
+                                    }}
+                                >
+                                    <EditOutlined />
+                                </Button>
+                            </Tooltip>
                             <Tooltip title={t('分享')}>
-                                <Share dashboard_ids={[String(dashboard.config?.id)]} trigger_type='icon' />
+                                <Share dashboard_ids={[dashboard.config?.id]} trigger_type='icon' />
                             </Tooltip>
                             <Tooltip title='删除'>
                                 <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
