@@ -4,7 +4,7 @@ import { Model } from 'react-object-model'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbVectorString, DdbLong, DdbDict } from 'dolphindb/browser.js'
+import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbVectorString, DdbLong, DdbDict, DdbInt } from 'dolphindb/browser.js'
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
@@ -99,6 +99,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             const new_dashboard_config = {
                 id,
                 name: String(id).slice(0, 4),
+                permission: DashboardPermission.own,
                 data: {
                     datasources: [ ],
                     variables: [ ],
@@ -235,7 +236,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         return {
             id,
             name,
-            owned: true,
+            permission: DashboardPermission.own,
             data: {
                 datasources: [ ],
                 variables: [ ],
@@ -381,8 +382,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     async add_dashboard_config (config: DashBoardConfig, render: boolean = true) {
         this.set({ configs: [...this.configs, config], config })
+        const { id, name, permission, data } = config
         const params = new DdbDict(
-            ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) }))
+            ({ id: new DdbLong(BigInt(id)), name, permission: new DdbInt(permission), data: JSON.stringify(data) }))
         await model.ddb.call<DdbVoid>('dashboard_add_config', [params], { urgent: true })
         if (render)
             await this.render_with_config(config)
@@ -403,8 +405,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
         const index = this.configs.findIndex(({ id }) => id === config.id)
         this.set({ configs: this.configs.toSpliced(index, 1, config), config })
         const params = new DdbDict(
-            ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
-        await model.ddb.call<DdbVoid>('dashboard_update_config', [params], { urgent: true })
+            ({ id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
+        await model.ddb.call<DdbVoid>('dashboard_edit_config', [params], { urgent: true })
         if (render)
             await this.render_with_config(config)
     }
@@ -509,7 +511,7 @@ export interface DashBoardConfig {
     name: string
     
     /** 当前用户是否有所有权, 被分享时 owned 为 false */
-    owned?: boolean
+    permission: DashboardPermission
     
     data: {
          /** 数据源配置 */
@@ -600,6 +602,12 @@ export enum WidgetChartType {
     VARIABLE = 'VARIABLE',
     SCATTER = 'SCATTER',
     HEATMAP = 'HEATMAP'
+}
+
+export enum DashboardPermission {
+    own = 0,
+    edit = 1,
+    view = 2
 }
 
 export const WidgetTypeWithoutDatasource = ['TEXT', 'EDITOR']

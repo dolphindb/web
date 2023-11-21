@@ -4,6 +4,7 @@ import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutli
 
 import { dashboard } from '../model.js'
 import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType, copy_data_source, paste_data_source } from './date-source.js'
+import { t } from '../../../i18n/index.js'
 
 
 interface PropsType {
@@ -130,7 +131,7 @@ export function DataSourceList ({
                         }}
                     >
                         <FileOutlined className='data-source-list-top-item-icon' />
-                        新建
+                        {t('新建')}
                     </div>
                     <div
                         className='data-source-list-top-item'
@@ -142,7 +143,7 @@ export function DataSourceList ({
                         }}
                     >
                         <EditOutlined className='data-source-list-top-item-icon' />
-                        重命名
+                        {t('重命名')}
                     </div>
                     <div
                         className='data-source-list-top-item'
@@ -164,7 +165,7 @@ export function DataSourceList ({
                         }}
                     >
                         <DeleteOutlined className='data-source-list-top-item-icon' />
-                        删除
+                        {t('删除')}
                     </div>
                     <div
                         className='data-source-list-top-item'
@@ -178,7 +179,7 @@ export function DataSourceList ({
                         }}
                     >
                         <CopyOutlined className='variable-list-top-item-icon' />
-                        复制
+                        {t('复制')}
                     </div>
                 </div>
                 { current_data_source ? <div className='data-source-list-bottom'>

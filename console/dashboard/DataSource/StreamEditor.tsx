@@ -1,7 +1,7 @@
 import { createElement, useEffect, useRef, useState } from 'react'
 
 import { Input, Popover, Select, Tree, type MenuProps, InputNumber, Switch, Table } from 'antd'
-import { CloseOutlined, QuestionCircleOutlined, TableOutlined } from '@ant-design/icons'
+import { QuestionCircleOutlined, TableOutlined } from '@ant-design/icons'
 
 import { Editor } from '../../shell/Editor/index.js'
 
@@ -19,6 +19,7 @@ import { default_value_in_select } from '../utils.js'
 import { InsertVariableBtn } from './InsertVariableBtn.js'
 import { type editor } from 'monaco-editor'
 import { use_monaco_insert } from '../../utils/hooks/use-monaco-insert.js'
+import { t } from '../../../i18n/index.js'
 
 
 interface PropsType  { 
@@ -44,7 +45,7 @@ export function StreamEditor ({
                 label: node.name
             }
         }),
-        { value: '', label: '自定义' }
+        { value: '', label: t('自定义') }
     ]
     
     const [stream_tables, set_stream_tables] = useState<MenuProps['items']>([ ])
@@ -180,7 +181,7 @@ export function StreamEditor ({
                         <div className='preview' style={{ height: current_data_source.filter ? '40%' : '100%' }}>
                             <div className='preview-config'>
                                 <div className='preview-config-tag'>
-                                    {`列名预览（共${current_data_source.cols.length}列）：`}
+                                    {t('列名预览（共{{length}}列）：', { length: current_data_source.cols.length })}
                                 </div>
                             </div>
                             <div className='preview-main'>
@@ -215,19 +216,11 @@ export function StreamEditor ({
                                 <div className='streameditor-main-right-filter'>
                                     <div className='streameditor-main-right-filter-top'>
                                         <div className='streameditor-main-right-filter-top-mode'>
-                                            列过滤：
+                                            {t('列过滤') + '：'}
                                             <Popover 
                                                 content={(
                                                     <div>
-                                                        <p>值过滤：一个向量。</p>
-                                                        <p>范围过滤：一个数据对。范围包含下限值，但不包括上限值。</p>
-                                                        <p>
-                                                            哈希过滤：一个元组。第一个元素表示 bucket 的个数；第二个元素是一个标量或数据对，
-                                                            <br />
-                                                            其中标量表示 bucket 的索引（从0开始），数据对表示 bucket 的索引范围（包含下限值，
-                                                            <br />
-                                                            但不包括上限值）。
-                                                        </p>
+                                                        <p>{t('值过滤、范围过滤、哈希过滤')}</p>
                                                     </div>
                                                 )} 
                                             >
@@ -235,7 +228,7 @@ export function StreamEditor ({
                                             </Popover>
                                         </div>
                                         <div className='streameditor-main-right-filter-top-col'>
-                                            {stream_filter_col ? ('当前过滤列为:' + stream_filter_col) : '当前流表无过滤列'}
+                                            {stream_filter_col ? (t('当前过滤列为:') + stream_filter_col) : t('当前流表无过滤列')}
                                         </div>
                                     </div>
                                     <div className='streameditor-main-right-filter-main'>
@@ -254,7 +247,7 @@ export function StreamEditor ({
                                 <div className='streameditor-main-right-filter'>
                                     <div className='streameditor-main-right-filter-top'>
                                         <div className='streameditor-main-right-filter-top-mode'>
-                                            表达式过滤：
+                                            {t('表达式过滤') + '：'}
                                         </div>
                                     </div>
                                     <div className='streameditor-main-right-filter-main'>
@@ -275,13 +268,13 @@ export function StreamEditor ({
                         }
                     </div>        
                 </div>
-                : <div className='streameditor-no-table'>无可用流表</div>
+                : <div className='streameditor-no-table'>{t('无可用流表')}</div>
             }
         </div>
         <div className='streamconfig'>
                 <div className='streamconfig-left'>
                     <div>
-                        节点：
+                        {t('节点') + '：'}
                         <Select
                             disabled={loading}
                             value={ current_data_source.node }
@@ -319,7 +312,7 @@ export function StreamEditor ({
                     </div>
                     {stream_tables.length
                         ? <div>
-                            过滤：
+                            {t('过滤') + '：'}
                             <Switch 
                                 disabled={loading}
                                 size='small' 
@@ -337,7 +330,7 @@ export function StreamEditor ({
             
                 <div className='streamconfig-right'>
                     <div>
-                        最大行数：
+                        {t('最大行数') + '：'}
                         <InputNumber 
                             disabled={loading}
                             size='small' 
@@ -351,7 +344,7 @@ export function StreamEditor ({
                         <Popover 
                             content={(
                                 <div>
-                                    若该值为空则表示不对最大行数进行限制
+                                    {t('若该值为空则表示不对最大行数进行限制')}
                                 </div>
                             )} 
                         >
