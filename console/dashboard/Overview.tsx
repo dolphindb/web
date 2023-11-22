@@ -12,8 +12,9 @@ import { genid } from 'xshell/utils.browser.js'
 import { model } from '../model.js'
 import { t } from '../../i18n/index.js'
 
-import { type DashBoardConfig, dashboard } from './model.js'
+import { type DashBoardConfig, dashboard, DashboardPermission } from './model.js'
 import { Share } from './Share/Share.js'
+import backend from './backend.dos'
 
 
 export function Overview () {
@@ -38,6 +39,9 @@ export function Overview () {
                     model.goto_login()
                     return
                 }
+                
+                await model.ddb.eval(backend)
+                
                 await dashboard.get_dashboard_configs()
             } catch (error) {
                 // dashboard.set({ backend: false })
@@ -138,15 +142,12 @@ export function Overview () {
                             return
                         }
                         
-                        if (configs.find(({ id, name }) => id !== current_dashboard.id && name === edit_dashboard_name)) {
+                        if (configs.find(({ id, name, permission }) => id !== current_dashboard.id && name === edit_dashboard_name && permission === DashboardPermission.own)) {
                             model.message.error(t('名称重复，请重新输入'))
                             return
                         }
-                        const index = configs.findIndex(({ id }) => id === current_dashboard.id)
-                        const updated_config = { ...current_dashboard, name: edit_dashboard_name }
-                        dashboard.set({ configs: configs.toSpliced(index, 1, updated_config) })
                         
-                        dashboard.update_dashboard_config(updated_config, false)
+                        await dashboard.rename_dashboard(current_dashboard.id, edit_dashboard_name)
                         model.message.success(t('修改成功'))
                         
                         editor.close()
@@ -210,68 +211,77 @@ export function Overview () {
                         dataIndex: '',
                         key: 'actions',
                         width: 350,
-                        render: ({ key }) => <div className='action'>
-                                <a
-                                    onClick={() => {
-                                        let config = configs.find(({ id }) => id === key)
-                                        dashboard.set({ config, editing: true })
-                                        model.set_query('dashboard', String(config.id))
-                                        model.set({ header: false, sider: false })
-                                    }}
-                                >
-                                    {t('编辑')}
-                                </a>
-                                
-                                <Share dashboard_ids={[key]} trigger_type='text'/>
-                            
-                                <a
-                                    onClick={() => {
-                                        let current_row_config = configs.find(({ id }) => id === key)
-                                        set_current_dashboard(current_row_config)
-                                        editor.open()
-                                        set_edit_dashboard_name(current_row_config?.name)
-                                    }}
-                                >
-                                    {t('修改名称')}
-                                </a>
-                                
-                                <a
-                                    onClick={async () => single_file_export(key)}
-                                >
-                                    {t('导出')}
-                                </a>
-                                
-                                <Popconfirm
-                                    title='删除'
-                                    description={`确定删除 ${configs.find(({ id }) => id === key).name} 吗？`}
-                                    onConfirm={async () => {
-                                        try {
-                                            if (!configs.length) {
-                                                dashboard.message.error(t('当前 dashboard 列表为空'))
-                                                return
-                                            }
-                                            
-                                            dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
-                                            
-                                            await dashboard.delete_dashboard_configs([key], false)
-                                            set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
-                                            model.message.success(t('删除成功'))
-                                        } catch (error) {
-                                            model.show_error({ error })
-                                            throw error
-                                        }
-                                    }}
-                                    okText={t('确认删除')}
-                                    cancelText={t('取消')}
-                                >
-                                     <a  className='delete'>
-                                        {t('删除')}
-                                    </a>
-                                </Popconfirm>
-                            </div>
+                        render: ({ key, permission }) => <div className='action'>
+                            {
+                                permission !== DashboardPermission.view
+                                    ? <>
+                                        <a
+                                            onClick={() => {
+                                                let config = configs.find(({ id }) => id === key)
+                                                dashboard.set({ config, editing: true })
+                                                model.set_query('dashboard', String(config.id))
+                                                model.set({ header: false, sider: false })
+                                            }}
+                                        >
+                                            {t('编辑')}
+                                        </a>
+                                        
+                                        <a
+                                            onClick={async () => single_file_export(key)}
+                                        >
+                                            {t('导出')}
+                                        </a>
+                                    </>
+                                    : <></>
+                            }
+                            {
+                                permission === DashboardPermission.own
+                                    ? <>
+                                        <a
+                                            onClick={() => {
+                                                let current_row_config = configs.find(({ id }) => id === key)
+                                                set_current_dashboard(current_row_config)
+                                                editor.open()
+                                                set_edit_dashboard_name(current_row_config?.name)
+                                            }}
+                                        >
+                                            {t('修改名称')}
+                                        </a>
+                                        <Share dashboard_ids={[key]} trigger_type='text'/>
+                                        <Popconfirm
+                                            title='删除'
+                                            description={`确定删除 ${configs.find(({ id }) => id === key).name} 吗？`}
+                                            onConfirm={async () => {
+                                                try {
+                                                    if (!configs.length) {
+                                                        dashboard.message.error(t('当前 dashboard 列表为空'))
+                                                        return
+                                                    }
+                                                    
+                                                    dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
+                                                    
+                                                    await dashboard.delete_dashboard_configs([key], false)
+                                                    set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
+                                                    model.message.success(t('删除成功'))
+                                                } catch (error) {
+                                                    model.show_error({ error })
+                                                    throw error
+                                                }
+                                            }}
+                                            okText={t('确认删除')}
+                                            cancelText={t('取消')}
+                                        >
+                                            <a  className='delete'>
+                                                {t('删除')}
+                                            </a>
+                                        </Popconfirm>
+                                    </>
+                                    : <></> 
+                            }
+                        </div>
                     }
                 ]}
-                dataSource={configs?.map(({ id, name }) => ({ key: id, name }))}
+                dataSource={configs?.map(({ id, name, permission }) => ({ key: id, name, permission }))}
                 pagination={false}
                 title={() => <div className='title'>
                         <h2>{t('数据面板')}</h2>

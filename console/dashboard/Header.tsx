@@ -2,7 +2,7 @@ import './Header.sass'
 
 import { useState } from 'react'
 import { Button, Input, Modal, Select, Tag, Tooltip, Upload } from 'antd'
-import { DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, PauseOutlined, PlusCircleOutlined, SaveOutlined, ShareAltOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons'
+import { DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, RollbackOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -11,7 +11,7 @@ import { model } from '../model.js'
 import { t } from '../../i18n/index.js'
 import { CompileAndRefresh } from '../components/CompileAndRefresh.js'
 
-import { type Widget, dashboard, type DashBoardConfig } from './model.js'
+import { type Widget, dashboard, type DashBoardConfig, DashboardPermission } from './model.js'
 import { DataSourceConfig } from './DataSource/DataSourceConfig.js'
 import { clear_data_sources, export_data_sources } from './DataSource/date-source.js'
 import { VariableConfig } from './Variable/VariableConfig.js'
@@ -147,7 +147,7 @@ export function Header () {
             }
             
             // await dashboard.update_config(updated_config)
-            await dashboard.update_dashboard_config(updated_config)
+            await dashboard.rename_dashboard(config.id, edit_dashboard_name)
             // await dashboard.save_configs_to_local()
             dashboard.message.success(t('修改成功'))
             
@@ -215,19 +215,19 @@ export function Header () {
                 // )
                 dashboard.render_with_config(current_dashboard)
                 model.set_query('dashboard', String(current_dashboard.id))
-                if (!current_dashboard.owned)
+                if (current_dashboard.permission === DashboardPermission.view)
                     on_preview()
                     
             }}
             // defaultValue={ config?.name || new_dashboard_name}
             value={config?.name}
             bordered={false}
-            options={configs?.map(({ id, name, owned }) => ({
+            options={configs?.map(({ id, name, permission }) => ({
                 key: id,
                 value: name,
                 label: <div className='dashboard-options-label'>
-                    <span className={cn({ 'dashboard-options-label-name': !owned })}>{name}</span>
-                    {!owned && <Tag color='processing' className='status-tag' >{t('他人分享')}</Tag> }
+                    <span className={cn({ 'dashboard-options-label-name': permission })}>{name}</span>
+                    {permission !== DashboardPermission.own && <Tag color='processing' className='status-tag' >{permission === DashboardPermission.edit ? t('仅编辑') : t('仅预览')}</Tag> }
                 </div>
             }))}
         />
@@ -294,41 +294,33 @@ export function Header () {
                     </Button>
                 </Tooltip>
             
-                <Tooltip title='修改名称'>
-                    <Button
-                        className='action' 
-                        onClick={() => { 
-                            edit_open()
-                            set_edit_dashboard_name(config?.name) 
-                        }}
-                    >
-                        <EditOutlined />
-                    </Button>
-                </Tooltip>
-            
                 <Tooltip title='保存'>
                     <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
                 </Tooltip>
             
-                <Tooltip title={t('导出')}>
-                    <Button className='action' onClick={async () => {
-                        try {
-                            await get_latest_config()
-                            
-                            let a = document.createElement('a')
-                            a.download = `dashboard.${config.name}.json`
-                            a.href = URL.createObjectURL(
-                                new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
-                            )
-                            
-                            document.body.appendChild(a)
-                            a.click()
-                            document.body.removeChild(a)
-                        } catch (error) {
-                            model.show_error({ error })
-                        }
-                    }}><UploadOutlined /></Button>
-                </Tooltip>
+                {
+                    dashboard.config?.permission !== DashboardPermission.view
+                        ? <Tooltip title={t('导出')}>
+                            <Button className='action' onClick={async () => {
+                                try {
+                                    await get_latest_config()
+                                    
+                                    let a = document.createElement('a')
+                                    a.download = `dashboard.${config.name}.json`
+                                    a.href = URL.createObjectURL(
+                                        new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
+                                    )
+                                    
+                                    document.body.appendChild(a)
+                                    a.click()
+                                    document.body.removeChild(a)
+                                } catch (error) {
+                                    model.show_error({ error })
+                                }
+                            }}><UploadOutlined /></Button>
+                        </Tooltip>
+                        : <></>
+                }
             
                 <Tooltip title={t('导入')}>
                     <Upload
@@ -353,12 +345,31 @@ export function Header () {
                         </Button>
                     </Upload>
                 </Tooltip>
-                <Tooltip title={t('分享')}>
-                    <Share dashboard_ids={[String(dashboard.config?.id)]} trigger_type='icon' />
-                </Tooltip>
-                <Tooltip title='删除'>
-                    <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
-                </Tooltip>
+                {
+                    dashboard.config?.permission === DashboardPermission.own 
+                        ? <>
+                            <Tooltip title='修改名称'>
+                                <Button
+                                    className='action' 
+                                    onClick={() => { 
+                                        edit_open()
+                                        set_edit_dashboard_name(config?.name) 
+                                    }}
+                                >
+                                    <EditOutlined />
+                                </Button>
+                            </Tooltip>
+                            <Tooltip title={t('分享')}>
+                                <Share dashboard_ids={[dashboard.config?.id]} trigger_type='icon' />
+                            </Tooltip>
+                            <Tooltip title='删除'>
+                                <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
+                            </Tooltip>
+                        </> 
+                        : <Tooltip title='撤销'>
+                            <Button className='action' onClick={() => { console.log('撤销') }}><RollbackOutlined /></Button>
+                        </Tooltip>
+                }
                 {(model.dev || model.cdn ) && <HostSelect />}
             
                 {model.dev && <CompileAndRefresh />}
@@ -378,7 +389,7 @@ export function Header () {
         </div>
         
         {
-            config?.owned && <div className='modes'>
+            config?.permission !== DashboardPermission.view && <div className='modes'>
             <span
                 className={`right-editormode-editor ${editing ? 'editormode-selected' : ''}`}
                 onClick={on_edit}

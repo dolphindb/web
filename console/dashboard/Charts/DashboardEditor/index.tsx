@@ -37,7 +37,7 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
         </div>
         <Button onClick={async () => {
                     try {
-                        const { type, result } = await dashboard.execute(code)
+                        const { type, result } = await dashboard.execute_code(code)
                         if (type === 'error')
                             throw new Error(result as string) 
                     } catch (error) {

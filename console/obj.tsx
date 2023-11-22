@@ -809,8 +809,8 @@ export function StreamingTable ({
                                             const { error } = message
                                             
                                             if (error) {
-                                                console.error(error)
-                                                return
+                                                on_error?.(error)
+                                                throw error
                                             }
                                             
                                             const time = new Date().getTime()
