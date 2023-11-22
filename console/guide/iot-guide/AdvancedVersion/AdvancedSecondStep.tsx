@@ -2,11 +2,11 @@ import './index.scss'
 import { Button, Form, Radio, Select, Space, Typography } from 'antd'
 import { type RecommendInfo, type SecondStepInfo, type AdvancedInfos, type ExecuteResult, type IAdvancedCreateDBResp } from '../type.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { CommonSortCols } from './CommonSortCols.js'
 import NiceModal from '@ebay/nice-modal-react'
 import { RecommendModal } from './RecommendModal.js'
-import { request } from '../utils.js'
+import { request } from '../../utils.js'
 
 interface IProps { 
     info: AdvancedInfos
@@ -105,7 +105,7 @@ export function AdvancedSecondStep (props: IProps) {
             </Radio.Group>
         </Form.Item>
         
-        <Form.Item
+        {/* <Form.Item
             label='常用查询时间跨度'
             name='commQueryDuration'
             initialValue='daily'
@@ -116,7 +116,7 @@ export function AdvancedSecondStep (props: IProps) {
                 <Radio value='daily'>天</Radio>
                 <Radio value='month'>月</Radio>
             </Radio.Group>
-        </Form.Item>
+        </Form.Item> */}
         
         <Form.Item label='分区列' name='partitionColumn' rules={[{ required: true, message: '请选择分区列' }]}>
             <Select mode='multiple' options={col_options} placeholder='请选择分区列'/>

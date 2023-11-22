@@ -2,8 +2,7 @@ import './index.scss'
 import { Form, Input, InputNumber, Radio, Select, type SelectProps } from 'antd'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { SchemaList } from './SchemaList.js'
-import { GuideType } from '../type.js'
-import { model } from '../../model.js'
+import { GuideType } from '../iot-guide/type.js'
 import { throttle } from 'lodash'
 import { request } from '../utils.js'
 
@@ -45,7 +44,7 @@ export function BasicInfoFields (props: IProps) {
                     }, 500)
                 }
             ]}>
-            <Input placeholder='请输入库名'/>
+            <Input addonBefore='dfs://' placeholder='请输入库名'/>
         </Form.Item>
         
         <Form.Item label='表名' name='tbName' rules={[{ required: true, message: '请输入表名' }]}>

@@ -140,10 +140,16 @@ export function DdbSider () {
                     key: 'tools',
                     icon: <MenuIcon view='tools' />,
                     label: t('运维工具'),
-                    children: [{
-                        key: 'guide',
-                        label: '库表创建引导'
-                    }]
+                    children: [
+                        {
+                            key: 'iot-guide',
+                            label: '物联网库表创建引导'
+                        },
+                        {
+                            key: 'finance-guide',
+                            label: '金融库表创建引导'
+                        }
+                    ]
                 },
                 ... model.dev || model.cdn ? [
                     {

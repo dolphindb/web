@@ -5,11 +5,11 @@ import { useCallback, useMemo, useState } from 'react'
 import { type RecommendInfo, type AdvancedInfos, ExecuteResult } from '../type.js'
 import { AdvancedFirstStep } from './AdvancedFirstStep.js'
 import { AdvancedSecondStep } from './AdvancedSecondStep.js'
-import { CodeViewStep } from '../components/CodeViewStep.js'
+import { CodeViewStep } from '../../components/CodeViewStep.js'
 import NiceModal from '@ebay/nice-modal-react'
-import { UploadConfigModal } from '../components/UploadConfigModal.js'
-import { GuideFailResultPage } from '../components/GuideFailResultPage.js'
-import { GuideSuccessResultPage } from '../components/GuideSuccessResultPage.js'
+import { UploadConfigModal } from '../../components/UploadConfigModal.js'
+import { GuideFailResultPage } from '../../components/GuideFailResultPage.js'
+import { GuideSuccessResultPage } from '../../components/GuideSuccessResultPage.js'
 
 export function AdvancedVersion () {
     const [current_step, set_current_step] = useState(0)
@@ -72,7 +72,7 @@ export function AdvancedVersion () {
         if (!recommend_info.hasAdvancedInfo)
             default_steps.splice(1, 1)
         return default_steps
-    }, [go, back, recommend_info, info])
+    }, [go, back, recommend_info, info, result])
     
     
     return <div className='advanced-version-wrapper'>

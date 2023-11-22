@@ -56,7 +56,7 @@ export interface SecondStepInfo {
         hashMapNum: number
     }>
     // 常用查询时间跨度
-    commQueryDuration: CommonQueryDuration
+    // commQueryDuration: CommonQueryDuration
     keepDuplicates: KeepDuplicates
 }
 

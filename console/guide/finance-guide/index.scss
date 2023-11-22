@@ -1,0 +1,29 @@
+.finance-guide-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    .apply-config-btn-wrapper {
+        width: 800px;
+        text-align: end;
+        margin-bottom: 16px;
+    }
+    
+    .finance-guide-steps {
+        width: 600px;
+        margin: 32px 0px;
+    }
+    .finance-guide-content {
+        width: 800px;
+    }
+    
+    .ant-input-number {
+        width: 100%;
+    }
+    
+    .btn-group {
+        display: flex;
+        justify-content: end;
+    }
+}

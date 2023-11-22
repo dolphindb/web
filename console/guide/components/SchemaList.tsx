@@ -6,8 +6,8 @@ import { FormDependencies } from '../../components/formily/FormDependcies/index.
 import { useCallback, useState } from 'react'
 import { UploadFileField } from './UploadFileField.js'
 import { request } from '../utils.js'
-import { type BasicInfoFormValues } from '../type.js'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
+import { type BasicInfoFormValues } from '../iot-guide/type.js'
 
 const DATA_TYP_LIST = ['BOOL', 'CHAR', 'SHORT', 'INT', 'FLOAT', 'DOUBLE', 'LONG',
 'TIME', 'MINUTE', 'SECOND', 'DATE', 'DATEHOUR', 'DATETIME', 'TIMESTAMP',
@@ -50,11 +50,13 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
                 }
             const schema = await request<BasicInfoFormValues['schema']>('getSchema', params)
             on_apply(schema)
-            set_loading(false)
+            modal.resolve()
             modal.hide()
         } catch (e) {
-            message.error(e)
-         }
+            console.error(e)
+            message.error(JSON.stringify(e))
+        }
+        set_loading(false)
     }, [ on_apply ])
     
     return <Modal

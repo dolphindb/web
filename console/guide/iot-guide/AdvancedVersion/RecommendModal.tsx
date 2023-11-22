@@ -1,6 +1,6 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Button, Modal } from 'antd'
-import { type SecondStepInfo } from '../type.js'
+import { type SecondStepInfo } from '../../../type.js'
 import { CommonSortCols } from './CommonSortCols.js'
 import { type SelectProps } from 'antd/lib'
 import { useCallback } from 'react'

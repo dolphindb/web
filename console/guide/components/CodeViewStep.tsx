@@ -8,13 +8,13 @@ import { CopyOutlined } from '@ant-design/icons'
 import copy from 'copy-to-clipboard'
 import NiceModal from '@ebay/nice-modal-react'
 import { DownloadConfigModal } from './DownloadConfigModal.js'
-import { ExecuteResult, type SimpleInfos } from '../type.js'
+import { ExecuteResult, type SimpleInfos } from '../iot-guide/type.js'
 
 interface IProps { 
     code: string
     back: () => void
     config: any
-    go: (infos: { info?: SimpleInfos, generate_code?: string, result?: ExecuteResult }) => void
+    go: (infos: any) => void
 }
 
 export function CodeViewStep (props: IProps) {

@@ -14,7 +14,7 @@ export function GuideSuccessResultPage (props: IProps) {
     const { back } = props
     
     const on_create_again = useCallback(() => { 
-        model.set({ view: 'guide' })
+        model.set({ view: 'iot-guide' })
         model.set_query('view', 'guide')
     }, [ ])
     
