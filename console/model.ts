@@ -33,7 +33,7 @@ export const storage_keys = {
 
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing'
+export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing' | 'access' | 'user' | 'group'
 
 
 export class DdbModel extends Model<DdbModel> {
