@@ -65,13 +65,7 @@ function MainLayout () {
     Object.assign(model, App.useApp())
     
     useEffect(() => {
-        (async () => {
-            try {
-                await model.init()
-            } catch (error) {
-                model.show_error({ error })
-            }
-        })()
+        model.execute(async () => model.init())
     }, [ ])
     
     useEffect(() => {
@@ -87,11 +81,7 @@ function MainLayout () {
                     !alt
                 ) {
                     event.preventDefault()
-                    try {
-                        model.recompile_and_refresh()
-                    } catch (error) {
-                        model.show_error({ error })
-                    }
+                    await model.execute(async () => model.recompile_and_refresh())
                 }
             }
             

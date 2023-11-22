@@ -185,6 +185,32 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
+    /** 执行 action，遇到错误时弹窗提示 
+        - action: 需要弹框展示执行错误的函数
+        - options?:
+            - throw?: `true` 默认会继续向上抛出错误，如果不需要向上继续抛出
+            - print?: `!throw` 在控制台中打印错误 */
+    async execute (action: Function, { throw: _throw = true, print }: { throw?: boolean, print?: boolean } = { }) {
+        try {
+            await action()
+        } catch (error) {
+            if (print ?? !_throw)
+                console.error(error)
+            
+            this.show_error({ error })
+            
+            if (_throw)
+                throw error
+        }
+    }
+    
+    
+    show_error (options: ErrorOptions) {
+        show_error(this.modal, options)
+    }
+    
+    
+    
     /** 传入 _delete === true 时表示删除传入的 config, 传入 null 代表清空当前的config，返回到 dashboard 管理界面 */
     // async update_config (config: DashBoardConfig, _delete = false) {
     //     this.set({ loading: true })
@@ -355,7 +381,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async execute (code = this.sql_editor.getValue(), ddb = model.ddb, preview = false): Promise<{
+    async execute_code (code = this.sql_editor.getValue(), ddb = model.ddb, preview = false): Promise<{
         type: 'success' | 'error'
         result: string | DdbObj<DdbValue>
     }> {
@@ -509,10 +535,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 viewers: new DdbVectorString(viewers), 
                 editors: new DdbVectorString(editors) 
             })], { urgent: true })
-    }
-    
-    show_error (options: ErrorOptions) {
-        show_error(this.modal, options)
     }
 }
 

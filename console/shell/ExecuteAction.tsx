@@ -17,13 +17,8 @@ export function ExecuteAction () {
         cancelText={t('不要取消')}
         disabled={!executing}
         onConfirm={async () => {
-            try {
-                await model.ddb.cancel()
-                model.message.success(t('取消作业指令发送成功'))
-            } catch (error) {
-                model.show_error({ error })
-                throw error
-            }
+            await model.execute(async () => model.ddb.cancel())
+            model.message.success(t('取消作业指令发送成功'))
         }}
     >
         <span

@@ -120,7 +120,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
         case 'sql':
             try {
                 const parsed_code = parse_code(new_data_source.code, new_data_source)
-                const { type, result } = await dashboard.execute(parsed_code)
+                const { type, result } = await dashboard.execute_code(parsed_code)
                 
                 switch (type) {
                     case 'success':
@@ -260,7 +260,7 @@ export async function execute (source_id: string) {
     switch (data_source.mode) {
         case 'sql':
             try {
-                const { type, result } = await dashboard.execute(parse_code(data_source.code, data_source), data_source.ddb || model.ddb)
+                const { type, result } = await dashboard.execute_code(parse_code(data_source.code, data_source), data_source.ddb || model.ddb)
                 // console.log(type, data_source.name)
                 switch (type) {
                     case 'success':
@@ -369,7 +369,7 @@ async function subscribe_stream (data_source: DataSource) {
         const { ddb: { username, password } } = model
         let column: DdbObj<DdbValue>
         if (data_source.filter_column) {
-            const { type, result } = await dashboard.execute(parse_code(data_source.filter_column, data_source))
+            const { type, result } = await dashboard.execute_code(parse_code(data_source.filter_column, data_source))
             if (type === 'success') {
                 if (typeof result === 'object' && result) 
                     column = result
