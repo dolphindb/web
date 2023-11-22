@@ -236,7 +236,8 @@ export class DdbModel extends Model<DdbModel> {
         - action: 需要弹框展示执行错误的函数
         - options?:
             - throw?: `true` 默认会继续向上抛出错误，如果不需要向上继续抛出
-            - print?: `!throw` 在控制台中打印错误 */
+            - print?: `!throw` 在控制台中打印错误
+        @example await model.execute(async () => model.xxx()) */
     async execute (action: Function, { throw: _throw = true, print }: { throw?: boolean, print?: boolean } = { }) {
         try {
             await action()
