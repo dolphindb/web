@@ -5,10 +5,11 @@ import { Button, Modal, Radio, Table } from 'antd'
 import { useCallback, useState } from 'react'
 import { use_modal } from 'react-object-model/modal'
 
-import { dashboard } from '../model.js'
+import { DashboardPermission, dashboard } from '../model.js'
 import { t } from '../../../i18n/index.js'
 import { model } from '../../model.js'
 import { DdbLong, DdbDict } from 'dolphindb/browser'
+import { parse_error } from '../utils.js'
 
 interface IProps {
     dashboard_ids: number[]
@@ -53,8 +54,8 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
             maskClosable={false}
             styles={{ mask: { backgroundColor: 'rgba(84,84,84,0.5)' } }}
             afterOpenChange={async () => {
-                if (dashboard_ids.length === 1)
-                    try {
+                if (trigger_type !== 'button')
+                    await model.execute(async () => {
                         const data = 
                             (
                                 await model.ddb.call(
@@ -65,23 +66,32 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
                             ).value[1].value
                         set_viewers(new Set(data[0].value))
                         set_editors(new Set(data[1].value))
-                    } catch (error) {
-                        dashboard.show_error({ error })
-                    }
-            }}
-            onOk={async () => {
-                if (!dashboard_ids.length) {
-                    model.message.warning(t('请选择想要分享的 dashboard'))
-                    return
+                   })
+                else {
+                    set_viewers(new Set())
+                    set_editors(new Set())
                 }
                 
+            }}
+            onOk={async () => {
                 try {
+                    if (!dashboard_ids.length) {
+                        model.message.warning(t('请选择想要分享的 dashboard'))
+                        return
+                    }
+                    
+                    dashboard_ids.forEach(dashboard_id => {
+                        const config = dashboard.configs.find(config => config.id = dashboard_id)
+                        if (config?.permission !== DashboardPermission.own)
+                            throw new Error(t('您没有分享 {{name}} 的权限', { name: config.name })) 
+                    })
+                    
+                    
                     await dashboard.share(dashboard_ids, Array.from(viewers), Array.from(editors))
                     model.message.success(t('分享成功'))
                     close()
                 } catch (error) {
-                    model.show_error({ error })
-                    throw error
+                    model.show_error({ error: parse_error(error) })
                 }
             }}
             title={t('请选择需要分享的用户')}
@@ -119,7 +129,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
                                             set_viewers(new_viewers)
                                             set_editors(new_editors)
                                         }}
-                                        defaultValue={editors.has(key) ? 'editor' : (viewers.has(key) ? 'view' : 'none')}
+                                        value={editors.has(key) ? 'editor' : (viewers.has(key) ? 'view' : 'none')}
                                     >
                                     <Radio value='none'>{t('无')}</Radio>
                                     <Radio value='view'>{t('预览')}</Radio>

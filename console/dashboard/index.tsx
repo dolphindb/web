@@ -10,7 +10,7 @@ import { App, ConfigProvider, Result, Spin, theme } from 'antd'
 
 import * as echarts from 'echarts'
 
-import { dashboard } from './model.js'
+import { DashboardPermission, dashboard } from './model.js'
 
 import { Sider } from './Sider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
@@ -105,6 +105,14 @@ function DashboardInstance () {
     useEffect(() => {
         dashboard.render_widgets()
     }, [widgets])
+    
+    useEffect(() => {
+        const params = new URLSearchParams(location.search)
+        if (config?.permission === DashboardPermission.view && !params.has('preview', '1')) {
+            params.append('preview', '1')
+            location.search = params.toString()
+        }
+    }, [config])
     
     
     return <div className='dashboard' >

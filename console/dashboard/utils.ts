@@ -2,16 +2,18 @@ import { type NamePath } from 'antd/es/form/interface'
 import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type InspectOptions } from 'dolphindb/browser.js'
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
 import { isNil, isNumber, uniq } from 'lodash'
+import { createRef } from 'react'
+import { genid } from 'xshell/utils.browser.js'
+import copy from 'copy-to-clipboard'
+import dayjs from 'dayjs'
 
 import { WidgetChartType, type Widget, dashboard } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
 import { subscribe_data_source, type DataSource } from './DataSource/date-source.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
-import dayjs from 'dayjs'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
-import { createRef } from 'react'
-import { genid } from 'xshell/utils.browser.js'
-import copy from 'copy-to-clipboard'
+import { error_message } from './error-message.js'
+import { t } from '../../i18n/index.js'
 
 
 export function format_time (time: string, format: string) { 
@@ -505,4 +507,20 @@ export async function paste_widget (event) {
     } catch (error) {
         dashboard.message.error(error.message)
     }
+}
+
+
+export function parse_error (error: Error) {
+    const DDB_ERROR_JSON_PATTERN = /^{.*"code": "(.*)".*}$/
+    const lastArrowIndex = error.message.lastIndexOf('=>')
+    const errorMsgStartIndex = lastArrowIndex === -1 ? 0 : lastArrowIndex + 3
+    const textErrorMsg = error.message.slice(errorMsgStartIndex)
+  
+    const jsonErrorMsg = DDB_ERROR_JSON_PATTERN.exec(textErrorMsg)
+  
+    if (!jsonErrorMsg)
+        return error
+    
+    const jsonError = JSON.parse(jsonErrorMsg[0])
+    return new Error(t(error_message[jsonError.code], { variables: jsonError.variables }))
 }

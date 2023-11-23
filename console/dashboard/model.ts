@@ -19,7 +19,7 @@ import { model, show_error, type ErrorOptions, storage_keys } from '../model.js'
 import { type Monaco } from '../shell/Editor/index.js'
 
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
-import { type IEditorConfig, type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
+import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 
 
@@ -441,7 +441,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     async rename_dashboard (dashboard_id: number, new_name: string) {
-        try {
+        await model.execute(async () => {
             await model.ddb.call<DdbVoid>('dashboard_rename_config', [new DdbDict({ id: new DdbLong(BigInt(dashboard_id)), name: new_name })], { urgent: true })
         
             const index = this.configs.findIndex(({ id }) => id === dashboard_id)
@@ -449,9 +449,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             config.name = new_name
             this.set({ configs: this.configs.toSpliced(index, 1, config), config })
             await this.render_with_config(config)
-        } catch (error) {
-            this.show_error(error)
-        }
+        })
     }
     
     
@@ -536,6 +534,10 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 viewers: new DdbVectorString(viewers), 
                 editors: new DdbVectorString(editors) 
             })], { urgent: true })
+    }
+    
+    async revoke (id: number) {
+        await model.ddb.call<DdbVoid>('dashboard_revoke_permission', [new DdbDict({ id: new DdbLong(BigInt(id)) })], { urgent: true })
     }
 }
 

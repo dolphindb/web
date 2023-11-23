@@ -87,14 +87,11 @@ export function Header () {
     
     
     async function handle_save () {
-        try {
+        await model.execute(async () => {
             const updated_config = await get_latest_config()
             await dashboard.update_dashboard_config(updated_config)
             dashboard.message.success(t('数据面板保存成功'))
-        } catch (error) {
-            model.show_error({ error })
-            throw error
-        }
+        })
     }
     
     
@@ -158,9 +155,9 @@ export function Header () {
         }
     }
     
-    
-    async function handle_delete () {
-        try {
+    /** 删除和撤销的回调 */
+    async function handle_destroy (revoke = false) {
+        await model.execute(async () => {
             if (!configs.length) {
                 dashboard.message.error(t('当前数据面板列表为空'))
                 return
@@ -168,7 +165,11 @@ export function Header () {
             
             clear_data_sources()
             
-            await dashboard.delete_dashboard_configs([config.id])
+            if (revoke)
+                await dashboard.revoke(config.id)
+            else
+                await dashboard.delete_dashboard_configs([config.id])
+            
             const filtered_configs = configs.filter(({ id }) => id !== config.id)
             model.set_query('dashboard', String(filtered_configs[0].id))
             
@@ -176,11 +177,8 @@ export function Header () {
             
             // await dashboard.save_configs_to_local()
             
-            dashboard.message.success(t('删除成功'))
-        } catch (error) {
-            model.show_error({ error })
-            throw error
-        }
+            dashboard.message.success(revoke ? t('撤销成功') : t('删除成功'))
+        })
     }
     
     
@@ -240,7 +238,10 @@ export function Header () {
                     // if (JSON.stringify(latest_config) === JSON.stringify(server_config)) 
                     //     return_to_overview()
                     // else
-                    save_open()
+                    if (config.permission === DashboardPermission.view)
+                        return_to_overview()
+                    else
+                        save_open()
                     
                 }}><HomeOutlined /></Button>
             </Tooltip>
@@ -363,11 +364,11 @@ export function Header () {
                                 <Share dashboard_ids={[dashboard.config?.id]} trigger_type='icon' />
                             </Tooltip>
                             <Tooltip title='删除'>
-                                <Button className='action' onClick={handle_delete}><DeleteOutlined /></Button>
+                                <Button className='action' onClick={async () => { handle_destroy() }}><DeleteOutlined /></Button>
                             </Tooltip>
                         </> 
                         : <Tooltip title='撤销'>
-                            <Button className='action' onClick={() => { console.log('撤销') }}><RollbackOutlined /></Button>
+                            <Button className='action' onClick={async () => { handle_destroy(true) }}><RollbackOutlined /></Button>
                         </Tooltip>
                 }
                 {(model.dev || model.cdn ) && <HostSelect />}

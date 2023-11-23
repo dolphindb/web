@@ -1,9 +1,10 @@
 import './Overview.sass'
 
 import { useEffect, useState } from 'react'
-import { Button, Input, Modal, Table, Upload, Popconfirm, Spin } from 'antd'
-import { DeleteOutlined, DownloadOutlined, PlusCircleOutlined, ShareAltOutlined, UploadOutlined } from '@ant-design/icons'
+import { Button, Input, Modal, Table, Upload, Popconfirm, Spin, Tag } from 'antd'
+import { DeleteOutlined, DownloadOutlined, PlusCircleOutlined, UploadOutlined } from '@ant-design/icons'
 import { downloadZip } from 'client-zip'
+import cn from 'classnames'
 
 
 import { use_modal } from 'react-object-model/modal.js'
@@ -27,7 +28,6 @@ export function Overview () {
     
     let creator = use_modal()
     let editor = use_modal()
-    let sharor = use_modal()
     let deletor = use_modal()
     
     const params = new URLSearchParams(location.search)
@@ -40,7 +40,7 @@ export function Overview () {
                     return
                 }
                 
-                await model.ddb.eval(backend)
+                // await model.ddb.eval(backend)
                 
                 await dashboard.get_dashboard_configs()
             } catch (error) {
@@ -69,7 +69,7 @@ export function Overview () {
         </div>
     
     async function single_file_export (config_id: number) {
-        try {
+        await model.execute(() => {
             const config = configs.find(({ id }) => id === config_id)
             let a = document.createElement('a')
             a.download = `dashboard.${config.name}.json`
@@ -78,9 +78,7 @@ export function Overview () {
             document.body.appendChild(a)
             a.click()
             document.body.removeChild(a)
-        } catch (error) {
-            model.show_error({ error })
-        }
+        })
     }
     
     
@@ -171,6 +169,12 @@ export function Overview () {
                 onCancel={deletor.close}
                 onOk={async () => {
                         try {
+                            selected_dashboard_ids.forEach(dashboard_id => {
+                                const config = dashboard.configs.find(config => config.id = dashboard_id)
+                                if (config?.permission !== DashboardPermission.own)
+                                    throw new Error(t('您没有删除 {{name}} 的权限', { name: config.name })) 
+                            })
+                            
                             await dashboard.delete_dashboard_configs(selected_dashboard_ids, false)
                             set_selected_dashboard_ids([ ])
                             model.message.success(t('删除成功'))
@@ -195,15 +199,33 @@ export function Overview () {
                         title: t('名称'),
                         dataIndex: 'name',
                         key: 'name',
-                        render: (text, record) => <a
+                        filters: [
+                            {
+                                text: t('拥有'),
+                                value: DashboardPermission.own
+                            },
+                            {
+                                text: t('仅编辑'),
+                                value: DashboardPermission.edit
+                            },
+                            {
+                                text: t('仅预览'),
+                                value: DashboardPermission.view
+                            }
+                        ],
+                        onFilter: (value, { permission }) => permission === value,
+                        render: (text, { key, name, permission }) => <a
                                 onClick={() => {
-                                    const config = configs.find(({ id }) => id === record.key)
+                                    const config = configs.find(({ id }) => id === key)
                                     dashboard.set({ config, editing: false })
                                     model.set_query('dashboard', String(config.id))
                                     model.set({ header: false, sider: false })
                                 }}
                             >
-                                {text}
+                                <div className='dashboard-cell-tag'>
+                                    <span className={cn({ 'dashboard-cell-tag-name': permission })}>{name}</span>
+                                    {permission !== DashboardPermission.own && <Tag color='processing' className='status-tag' >{permission === DashboardPermission.edit ? t('仅编辑') : t('仅预览')}</Tag> }
+                                </div>
                             </a>
                     },
                     {
@@ -276,7 +298,35 @@ export function Overview () {
                                             </a>
                                         </Popconfirm>
                                     </>
-                                    : <></> 
+                                    : <>
+                                        <Popconfirm
+                                            title='撤销'
+                                            description={`确定撤销 ${configs.find(({ id }) => id === key).name} 的权限吗？`}
+                                            onConfirm={async () => {
+                                                try {
+                                                    if (!configs.length) {
+                                                        dashboard.message.error(t('当前 dashboard 列表为空'))
+                                                        return
+                                                    }
+                                                    
+                                                    dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
+                                                    
+                                                    await dashboard.revoke(key)
+                                                    set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
+                                                    model.message.success(t('撤销成功'))
+                                                } catch (error) {
+                                                    model.show_error({ error })
+                                                    throw error
+                                                }
+                                            }}
+                                            okText={t('确认撤销')}
+                                            cancelText={t('取消')}
+                                        >
+                                            <a  className='delete'>
+                                                {t('撤销')}
+                                            </a>
+                                        </Popconfirm>
+                                    </> 
                             }
                         </div>
                     }
@@ -333,10 +383,15 @@ export function Overview () {
                                         single_file_export(selected_dashboard_ids[0])
                                         return
                                     }
-                                    try {
+                                    
+                                    await model.execute(async () => {
                                         const files = [ ]
                                         for (let config_id of selected_dashboard_ids) {
                                             const config = configs.find(({ id }) => id === config_id)
+                                            
+                                            if (config.permission === DashboardPermission.view)
+                                                throw new Error(t('您没有导出 {{name}} 的权限', { name: config.name }))
+                                            
                                             files.push({ name: `dashboard.${config.name}.json`, lastModified: new Date(), input: new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }) })
                                         }
                                         const zip = await downloadZip(files).blob()
@@ -346,10 +401,7 @@ export function Overview () {
                                         document.body.appendChild(a)
                                         a.click()
                                         document.body.removeChild(a)
-                
-                                    } catch (error) {
-                                        model.show_error({ error })
-                                    }
+                                    })
                                 }}
                             >
                                 {t('批量导出')}
