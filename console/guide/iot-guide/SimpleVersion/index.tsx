@@ -11,7 +11,6 @@ import { GuideSuccessResultPage } from '../../components/GuideSuccessResultPage.
 import { model } from '../../../model.js'
 
 
-
 export function SimpleVersion () {
     const [current_step, set_current_step] = useState(0)
     const [code, set_code] = useState('')
@@ -42,8 +41,8 @@ export function SimpleVersion () {
     }, [ ])
     
     const on_create_again = useCallback(() => { 
-        model.set({ view: 'iot-guide' })
-        model.set_query('view', 'iot-guide')
+        set_current_step(0)
+        set_info({ })
     }, [ ])
     
     const views = useMemo(() => {

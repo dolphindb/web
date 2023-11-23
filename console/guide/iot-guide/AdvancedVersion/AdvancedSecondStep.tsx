@@ -91,9 +91,9 @@ export function AdvancedSecondStep (props: IProps) {
         </Form.Item>
         
         <Form.Item
-            help={recommend_info.partitionInfo?.context}
             label='分区列'
             name='partitionColumn'
+            extra={recommend_info.partitionInfo?.context}
             rules={[
                 { required: true, message: '请选择分区列' },
                 {
@@ -101,8 +101,8 @@ export function AdvancedSecondStep (props: IProps) {
                         if (cols.length !== recommend_info.partitionInfo.partitionNum)  
                             return Promise.reject('您选择的分区列个数与推荐个数不一致，请修改')
                         
-                        const first_col_type = info?.first?.schema.find(item => item.colName === cols[0]).dataType
-                        const second_col_type = info?.first?.schema.find(item => item.colName === cols[1]).dataType
+                        const first_col_type = info?.first?.schema.find(item => item.colName === cols?.[0])?.dataType
+                        const second_col_type = info?.first?.schema.find(item => item.colName === cols?.[1])?.dataType
                         
                         if (!['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(first_col_type))
                             return Promise.reject('第一个常用筛选列需为时间列')

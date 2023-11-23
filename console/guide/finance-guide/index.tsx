@@ -31,8 +31,8 @@ export function FinanceGuide () {
     }, [current_step])
     
     const on_create_again = useCallback(() => { 
-        model.set({ view: 'finance-guide' })
-        model.set_query('view', 'finance-guide')
+        set_current_step(0)
+        set_info({ })
     }, [ ])
     
     const steps = useMemo(() => [ 

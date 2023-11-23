@@ -14,12 +14,6 @@ interface IProps {
 export function GuideSuccessResultPage (props: IProps) { 
     const { back, on_create_again } = props
     
-    // const on_create_again = useCallback(() => { 
-    //     model.set({ view: 'iot-guide' })
-    //     model.set_query('view', 'guide')
-    // }, [ ])
-    
-    
     return <div className='guide-result-page'>
         <CheckCircleFilled className='success-icon'/>
         <div className='result-title'>您的库表已创建成功！</div>

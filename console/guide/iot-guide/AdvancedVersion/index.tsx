@@ -37,8 +37,9 @@ export function AdvancedVersion () {
     }, [ ])
     
     const on_create_again = useCallback(() => { 
-        model.set({ view: 'iot-guide' })
-        model.set_query('view', 'iot-guide')
+        set_current_step(0)
+        set_info({ })
+        set_recommend_info({ hasAdvancedInfo: true })
     }, [ ])
     
     const views = useMemo(() => { 
