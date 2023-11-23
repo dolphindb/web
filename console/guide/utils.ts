@@ -4,6 +4,6 @@ import { model } from '../model.js'
 export async function request<T> (func: string, params: any) { 
     console.log(`执行脚本：${func}('${JSON.stringify(params)}')`)
     const res = await model.ddb.call(func, [JSON.stringify(params)])
-    console.log('res:' + res)
-    return safe_json_parse(res.value) as T
+    console.log('res: ', safe_json_parse(res.value))
+    return safe_json_parse(res.value) 
 }

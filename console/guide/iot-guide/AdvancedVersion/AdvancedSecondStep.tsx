@@ -4,15 +4,13 @@ import { type RecommendInfo, type SecondStepInfo, type AdvancedInfos, type Execu
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { CommonSortCols } from './CommonSortCols.js'
-import NiceModal from '@ebay/nice-modal-react'
-import { RecommendModal } from './RecommendModal.js'
 import { request } from '../../utils.js'
 
 interface IProps { 
     info: AdvancedInfos
     recommend_info: RecommendInfo
     back: () => void
-    go:  (infos: { info: AdvancedInfos, code?: string, result?: ExecuteResult }) => void
+    go:  (infos: AdvancedInfos & { result?: ExecuteResult }) => void
 }
 
 const keep_duplicates_options = [
@@ -35,35 +33,22 @@ export function AdvancedSecondStep (props: IProps) {
     const [form] = Form.useForm<SecondStepInfo>()
     const [loading, set_loading] = useState(false)
     
+    
     const col_options = useMemo(() =>
         info.first?.schema?.map(item => ({ label: item.colName, value: item.colName })),
-        [info])
+    [info?.first?.schema])
     
     useEffect(() => { 
         if (info?.second)
             form.setFieldsValue(info.second)
     }, [info?.second])
     
-    const on_submit = useCallback(async () => { 
+    const on_submit = useCallback(async values => { 
         set_loading(true)
-        const form_values = form.getFieldsValue()
-        const { isValid, recommendOtherSortKey, code } = await request<IAdvancedCreateDBResp>('createDB2', { ...info.first, ...form_values })
-    
-        if (isValid) 
-            go({ info: { second: form_values }, code })
-         else
-            NiceModal.show(RecommendModal, {
-                col_options,
-                recommended_sort_keys: recommendOtherSortKey,
-                on_apply_recommend: () => {
-                    form.setFieldValue('otherSortKeys', recommendOtherSortKey)
-                },
-                on_apply_mine: () => { 
-                    go({ info: { second: form_values }, code })
-                }
-            })
+        const code = await request<IAdvancedCreateDBResp>('DBMSIOT_createDB2', { ...info.first, ...values })
+        go({ code,  second: values })
         set_loading(false)
-    }, [col_options])
+    }, [col_options, go])
     
     
     return <Form
@@ -105,20 +90,28 @@ export function AdvancedSecondStep (props: IProps) {
             </Radio.Group>
         </Form.Item>
         
-        {/* <Form.Item
-            label='常用查询时间跨度'
-            name='commQueryDuration'
-            initialValue='daily'
-            tooltip='在您的范围查询、分组过滤查询中，您最常用的时间跨度以什么为单位？'
+        <Form.Item
+            help={recommend_info.partitionInfo?.context}
+            label='分区列'
+            name='partitionColumn'
+            rules={[
+                { required: true, message: '请选择分区列' },
+                {
+                    validator: async (_, cols) => { 
+                        if (cols.length !== recommend_info.partitionInfo.partitionNum)  
+                            return Promise.reject('您选择的分区列个数与推荐个数不一致，请修改')
+                        
+                        const first_col_type = info?.first?.schema.find(item => item.colName === cols[0]).dataType
+                        const second_col_type = info?.first?.schema.find(item => item.colName === cols[1]).dataType
+                        
+                        if (!['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(first_col_type))
+                            return Promise.reject('第一个常用筛选列需为时间列')
+                        if (!['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING'].includes(second_col_type))
+                            return Promise.reject('第二个常用筛选列的数据类型需为以下 CHAR、SHORT、INT、SYMBOL、STRING 五种数据类型的一种')
+                    }
+                }
+            ]}
         >
-            <Radio.Group>
-                <Radio value='hour'>小时</Radio>
-                <Radio value='daily'>天</Radio>
-                <Radio value='month'>月</Radio>
-            </Radio.Group>
-        </Form.Item> */}
-        
-        <Form.Item label='分区列' name='partitionColumn' rules={[{ required: true, message: '请选择分区列' }]}>
             <Select mode='multiple' options={col_options} placeholder='请选择分区列'/>
         </Form.Item>
        
@@ -126,9 +119,9 @@ export function AdvancedSecondStep (props: IProps) {
             {({ engine }) => {
                 if (engine === 'TSDB')
                     return <> 
-                        <CommonSortCols col_options={col_options ?? [ ]} mode='common'/>
+                        <CommonSortCols col_options={col_options ?? [ ]} mode='common' />
                         <Typography.Text className='other-sortkey-tip' type='secondary'>
-                            除时间列和设备id列外，请选择查询时常用于过滤筛选的列，结合您上述提供的信息
+                            {recommend_info.sortColumnInfo?.context}
                         </Typography.Text>
                 
                         <Form.Item name='keepDuplicates' label='重复数据保留策略' rules={[{ required: true, message: '请选择重复数据保留策略' }]} initialValue={0}>

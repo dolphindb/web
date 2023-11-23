@@ -25,7 +25,8 @@ export const UploadConfigModal = NiceModal.create((props: IProps) => {
      }, [ apply ])
     
     return <Modal
-        title='应用配置'
+        width={640}
+        title='导入配置'
         open={modal.visible}
         onCancel={async () => modal.hide()}
         afterClose={() => { modal.remove() }}

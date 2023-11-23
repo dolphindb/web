@@ -1,22 +1,24 @@
+export const CUSTOM = -1
+
 export const DAILY_INCREASE_DATA_OPTIONS = [
     {
         label: '0-1万',
         value: 0
     },
     {
-        label: '1-10万',
+        label: '1万-10万',
         value: 1
     },
     {
-        label: '10-100万',
+        label: '10万-100万',
         value: 2
     },
     {
-        label: '100-1000万',
+        label: '100万-1000万',
         value: 3
     },
     {
-        label: '1000-1亿',
+        label: '1000万-1亿',
         value: 4
     },
     {
@@ -37,6 +39,6 @@ export const DAILY_INCREASE_DATA_OPTIONS = [
     },
     {
         label: '自定义',
-        value: 9
+        value: CUSTOM
     }
 ]

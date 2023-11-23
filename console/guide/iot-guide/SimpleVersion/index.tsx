@@ -8,6 +8,7 @@ import NiceModal from '@ebay/nice-modal-react'
 import { UploadConfigModal } from '../../components/UploadConfigModal.js'
 import { GuideFailResultPage } from '../../components/GuideFailResultPage.js'
 import { GuideSuccessResultPage } from '../../components/GuideSuccessResultPage.js'
+import { model } from '../../../model.js'
 
 
 
@@ -40,6 +41,11 @@ export function SimpleVersion () {
         NiceModal.show(UploadConfigModal, { apply: info => { set_info(prev => ({ ...prev, ...info })) } })
     }, [ ])
     
+    const on_create_again = useCallback(() => { 
+        model.set({ view: 'iot-guide' })
+        model.set_query('view', 'iot-guide')
+    }, [ ])
+    
     const views = useMemo(() => {
         const steps = [
             {
@@ -61,19 +67,19 @@ export function SimpleVersion () {
             {
                 title: '执行结果',
                 children: result === ExecuteResult.FAILED
-                    ? <GuideFailResultPage  back={back}/>
-                    : <GuideSuccessResultPage  back={back}/>
+                    ? <GuideFailResultPage on_create_again={on_create_again} back={back}/>
+                    : <GuideSuccessResultPage on_create_again={on_create_again} back={back}/>
             }
         ]
         return steps
-    }, [current_step, info, result])
+    }, [current_step, info, result, on_create_again])
     
     
     return <div className='simple-version-wrapper'>
         <Steps current={current_step} className='guide-step' size='small' items={views}/>
         {
             (current_step === 0) && <div className='apply-config-wrapper'>
-            <Typography.Link onClick={on_apply_config} >应用配置</Typography.Link>
+            <Typography.Link onClick={on_apply_config} >导入配置</Typography.Link>
         </div>
         }
         {views[current_step].children}

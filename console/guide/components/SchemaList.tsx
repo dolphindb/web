@@ -9,7 +9,7 @@ import { request } from '../utils.js'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { type BasicInfoFormValues } from '../iot-guide/type.js'
 
-const DATA_TYP_LIST = ['BOOL', 'CHAR', 'SHORT', 'INT', 'FLOAT', 'DOUBLE', 'LONG',
+const DATA_TYPE_LIST = ['BOOL', 'CHAR', 'SHORT', 'INT', 'FLOAT', 'DOUBLE', 'LONG',
 'TIME', 'MINUTE', 'SECOND', 'DATE', 'DATEHOUR', 'DATETIME', 'TIMESTAMP',
 'NANOTIMESTAMP', 'SYMBOL', 'STRING', 'BLOB', 'DECIMAL32(S)', 'DECIMAL64(S)', 'DECIMAL128(S)']
 
@@ -48,7 +48,7 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
                     filePath: file_path,
                     delimiter
                 }
-            const schema = await request<BasicInfoFormValues['schema']>('getSchema', params)
+            const schema = await request<BasicInfoFormValues['schema']>('DBMSIOT_getSchema', params)
             on_apply(schema)
             modal.resolve()
             modal.hide()
@@ -60,6 +60,7 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
     }, [ on_apply ])
     
     return <Modal
+        width={640}
         onCancel={modal.hide}
         open={modal.visible}
         title='导入文件'
@@ -118,7 +119,7 @@ export function SchemaList () {
                         <Input />
                     </Form.Item>
                     <Form.Item label='数据类型' name={[field.name, 'dataType']} rules={[{ required: true, message: '请选择数据类型' }]}>
-                        <Select options={DATA_TYP_LIST.map(item => ({ label: item, value: item }))} />
+                        <Select options={DATA_TYPE_LIST.map(item => ({ label: item, value: item }))} />
                     </Form.Item>
                     {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }}/> }
                 </div>)}

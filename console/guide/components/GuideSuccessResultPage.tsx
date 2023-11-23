@@ -7,16 +7,17 @@ import { model } from '../../model.js'
 
 interface IProps { 
     back: () => void
+    on_create_again: () => void
 }
 
 
 export function GuideSuccessResultPage (props: IProps) { 
-    const { back } = props
+    const { back, on_create_again } = props
     
-    const on_create_again = useCallback(() => { 
-        model.set({ view: 'iot-guide' })
-        model.set_query('view', 'guide')
-    }, [ ])
+    // const on_create_again = useCallback(() => { 
+    //     model.set({ view: 'iot-guide' })
+    //     model.set_query('view', 'guide')
+    // }, [ ])
     
     
     return <div className='guide-result-page'>

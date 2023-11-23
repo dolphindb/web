@@ -1,4 +1,5 @@
 import './index.scss'
+
 import { Form, Input, InputNumber, Radio, Select, type SelectProps } from 'antd'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { SchemaList } from './SchemaList.js'
@@ -6,8 +7,7 @@ import { GuideType } from '../iot-guide/type.js'
 import { throttle } from 'lodash'
 import { request } from '../utils.js'
 
-
-const CUSTOM_VALUE = 7
+const CUSTOM_VALUE = -1
 
 const DAILY_INCREASE_NUM_OPTIONS: SelectProps['options'] = [
     { label: '0-10万', value: 0 },
@@ -24,6 +24,7 @@ interface IProps {
     type: GuideType
 }
 
+
 export function BasicInfoFields (props: IProps) {
     const { type = GuideType.SIMPLE } = props
     /** 简易版：
@@ -38,10 +39,10 @@ export function BasicInfoFields (props: IProps) {
                 { required: true, message: '请输入库名' },
                 {
                     validator: throttle(async (_, val) => { 
-                        const res = await request<{ isExist: 0 | 1 }>('checkDatabase', { dbName: 'dfs://' + val })
+                        const res = await request<{ isExist: 0 | 1 }>('DBMSIOT_checkDatabase', { dbName: val })
                         if (res.isExist)  
                             return Promise.reject(new Error('已有同名库，请修改库名')) 
-                    }, 500)
+                    }, 300)
                 }
             ]}>
             <Input addonBefore='dfs://' placeholder='请输入库名'/>
@@ -118,11 +119,11 @@ export function BasicInfoFields (props: IProps) {
         
         {
             type === GuideType.SIMPLE && <FormDependencies dependencies={['isFreqIncrease', 'totalNum', 'schema']}>
-                {({ isFreqIncrease, totalNum, schema }) => { 
+                {({ isFreqIncrease, totalNum, schema }) => {
                     // 时序数据，或者非时序数据，但是数据总量大于100w需要选常用筛选列
                     if (isFreqIncrease || totalNum.gap === 1 || totalNum.custom > 1000000)
                         return <Form.Item
-                            tooltip='请选择查询时常用于数据筛选过滤的列。越重要的过滤条件，在过滤列中的位置越靠前。一般情况下第一个常用过滤列为时间列，第二个常用过滤列为设备id列。'
+                            tooltip='请选择查询时常作为筛选条件的列。越重要的过滤条件，在过筛选列中的位置越靠前。推荐选择2-4个常用筛选列，建议第一个过滤列为时间列，第二个过滤列为设备编号列。'
                             name='sortColumn'
                             label='常用筛选列'
                             rules={[
@@ -131,9 +132,22 @@ export function BasicInfoFields (props: IProps) {
                                     message: '请选择常用筛选列'
                                 },
                                 {
-                                    validator: async (_, value) => { 
+                                    validator: async (_, value) => {
+                                        
+                                        const first_col_type = schema?.find(item => item.colName === value[0])?.dataType
+                                        const second_col_type = schema?.find(item => item.colName === value?.[1])?.dataType
+                                        
+                                        if (first_col_type && !['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(first_col_type))
+                                            return Promise.reject('第一个常用筛选列需为时间列')
+                                        if (second_col_type && !['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING'].includes(second_col_type))
+                                            return Promise.reject('第二个常用筛选列的数据类型需为以下 CHAR、SHORT、INT、SYMBOL、STRING 五种数据类型的一种')
+                                        
+                                        if (value.length < 2)
+                                            return Promise.reject(new Error('至少选择 2 个常用筛选列'))
+                                        
                                         if (value.length > 4)
-                                            return new Error('最多只能选择 4 个常用筛选列')
+                                            return Promise.reject(new Error('最多只能选择 4 个常用筛选列'))
+                                            
                                     }
                                 }
                             ]}

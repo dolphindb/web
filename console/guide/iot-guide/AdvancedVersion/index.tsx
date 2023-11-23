@@ -10,13 +10,13 @@ import NiceModal from '@ebay/nice-modal-react'
 import { UploadConfigModal } from '../../components/UploadConfigModal.js'
 import { GuideFailResultPage } from '../../components/GuideFailResultPage.js'
 import { GuideSuccessResultPage } from '../../components/GuideSuccessResultPage.js'
+import { model } from '../../../model.js'
 
 export function AdvancedVersion () {
     const [current_step, set_current_step] = useState(0)
     const [recommend_info, set_recommend_info] = useState<RecommendInfo>({ hasAdvancedInfo: true })
     
     const [info, set_info] = useState<AdvancedInfos>()
-    const [code, set_code] = useState('')
     
     const [result, set_result] = useState<ExecuteResult>(ExecuteResult.SUCCESS)
     
@@ -24,11 +24,9 @@ export function AdvancedVersion () {
         set_current_step(current_step - 1)
     }, [current_step])
     
-    const go = useCallback((infos: { info: AdvancedInfos, code?: string, result?: ExecuteResult }) => {
-        const { info, code, result } = infos
+    const go = useCallback((infos: AdvancedInfos & { result?: ExecuteResult }) => {
+        const { result, ...info } = infos
         set_info(prev => ({ ...prev, ...info }))
-        if (code)
-            set_code(code)
         set_current_step(current_step + 1)
         set_result(result)
     }, [current_step])
@@ -36,6 +34,11 @@ export function AdvancedVersion () {
             
     const on_apply_config = useCallback(() => { 
         NiceModal.show(UploadConfigModal, { apply: info => { set_info(info) } })
+    }, [ ])
+    
+    const on_create_again = useCallback(() => { 
+        model.set({ view: 'iot-guide' })
+        model.set_query('view', 'iot-guide')
     }, [ ])
     
     const views = useMemo(() => { 
@@ -60,13 +63,18 @@ export function AdvancedVersion () {
             },
             {
                 title: '脚本预览',
-                children: <CodeViewStep go={go} config={info} code={code} back={back} />
+                children: <CodeViewStep
+                    go={go}
+                    config={info}
+                    code={info?.code}
+                    back={back}
+                />
             },
             {
                 title: '执行结果',
                 children: result === ExecuteResult.FAILED
-                    ? <GuideFailResultPage  back={back}/>
-                    : <GuideSuccessResultPage  back={back}/>
+                    ? <GuideFailResultPage on_create_again={on_create_again}  back={back}/>
+                    : <GuideSuccessResultPage on_create_again={on_create_again}  back={back}/>
             }
         ]
         if (!recommend_info.hasAdvancedInfo)
@@ -77,9 +85,11 @@ export function AdvancedVersion () {
     
     return <div className='advanced-version-wrapper'>
         <Steps current={current_step} className='guide-step' items={views} size='small'/>
-        <div className='apply-config-wrapper'>
-            <Typography.Link onClick={on_apply_config} >应用配置</Typography.Link>
-        </div>
+        {
+            (current_step === 0) && <div className='apply-config-wrapper'>
+                <Typography.Link onClick={on_apply_config} >导入配置</Typography.Link>
+            </div>
+        }
         <div className='advanced-step-panel'>
             {views[current_step].children}
         </div>

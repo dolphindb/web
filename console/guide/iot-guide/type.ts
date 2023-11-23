@@ -3,13 +3,20 @@ export enum GuideType {
     ADVANCED = 'advanced'
 }
 
+export interface ServerRecommendInfo { 
+    partitionInfo?: {
+        context: string
+        partitionNum: number
+    }
+    sortColumnInfo?: {
+        context: string
+        maxOtherSortKeyNum: number
+    }
+    
+}
 
-export interface RecommendInfo { 
+export interface RecommendInfo extends ServerRecommendInfo { 
     hasAdvancedInfo: boolean
-    // 筛选列文案
-    otherSortKeysTip?: string
-    // 分区列文案
-    partitionColsTip?: string
 }
 
 export interface BasicInfoFormValues { 
@@ -73,6 +80,7 @@ export interface SimpleInfos {
 export interface AdvancedInfos { 
     first?: BasicInfoFormValues
     second?: SecondStepInfo
+    code?: string
 }
 
 
@@ -96,3 +104,5 @@ export interface IAdvancedCreateDBResp {
     }>
     code: string
 }
+
+

@@ -1,22 +1,24 @@
 import { Button, Form } from 'antd'
 import { BasicInfoFields } from '../../components/BasicInfoFields.js'
-import { type RecommendInfo, type BasicInfoFormValues, type SecondStepInfo, type AdvancedInfos, GuideType, type ExecuteResult } from '../type.js'
-import { useCallback, useEffect } from 'react'
+import { type RecommendInfo, type BasicInfoFormValues, type SecondStepInfo, type AdvancedInfos, GuideType, type ExecuteResult, type ServerRecommendInfo } from '../type.js'
+import { useCallback, useEffect, useState } from 'react'
 import { request } from '../../utils.js'
 
 interface IProps { 
     info: AdvancedInfos
     set_recommend_info: any
-    go: (infos: { info: AdvancedInfos, code?: string, result?: ExecuteResult }) => void
+    go: (infos: AdvancedInfos & { result?: ExecuteResult }) => void
     recommend_info: RecommendInfo
 }
 
 export function AdvancedFirstStep (props: IProps) { 
     const { info, set_recommend_info, go, recommend_info } = props
     const [form] = Form.useForm<BasicInfoFormValues>()
+    const [loading, set_loading] = useState(false)
     
     const isFreqIncrease = Form.useWatch('isFreqIncrease', form)
     const totalNum = Form.useWatch('totalNum', form)
+    
     
     useEffect(() => {
         // 非时序数据，数据量小于100万
@@ -32,17 +34,17 @@ export function AdvancedFirstStep (props: IProps) {
     }, [info?.first])
     
     
-    const on_submit = useCallback(async () => { 
-        const form_values = form.getFieldsValue()
+    const on_submit = useCallback(async form_values => { 
+        set_loading(true)
         if (!recommend_info.hasAdvancedInfo) {
-            // 直接生成脚本
-            const code = await request<string>('createDB2', form_values)
-            go({ info: { first: form_values }, code })
-        } else { 
-            const res = await request<{ partitionInfo: string, sortColumnInfo: string }>('recommendInfo', form_values)
+            const code = await request<string>('DBMSIOT_createDB2', form_values)
+            go({ first: form_values, code })
+        } else {
+            const res = await request<ServerRecommendInfo>('DBMSIOT_recommendInfo', form_values)
             set_recommend_info(prev => ({ ...prev, ...res }))
-            go({ info: { first: form_values } })
+            go({  first: form_values })
         }
+        set_loading(false)
     }, [go, recommend_info.hasAdvancedInfo])
     
     return <Form
@@ -54,7 +56,7 @@ export function AdvancedFirstStep (props: IProps) {
     >
         <BasicInfoFields type={GuideType.ADVANCED} />
         <Form.Item className='btn-group'>
-            <Button htmlType='submit' type='primary'>{ recommend_info.hasAdvancedInfo ? '下一步' : '生成脚本'}</Button>
+            <Button loading={loading} htmlType='submit' type='primary'>{ recommend_info.hasAdvancedInfo ? '下一步' : '生成脚本'}</Button>
         </Form.Item>
     </Form>
 }

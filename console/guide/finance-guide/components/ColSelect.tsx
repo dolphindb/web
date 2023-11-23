@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
-import { info } from 'sass'
 import { type ITableInfo, type IFinanceInfo } from '../type.js'
 import { request } from '../../utils.js'
 import { Form, Select, Typography } from 'antd'
@@ -62,12 +61,12 @@ export function ColSelect (props: IProps) {
         }}
     </Form.List>
     : <>
-            {show_time_col && <Form.Item label='时间列' name='timeCol' rules={[{ required: true, message: '请选择时间列' }]}>
+            {show_time_col && <Form.Item tooltip='严格按时序增长排列的时间类型列，将按该列对数据进行分区' label='时间列' name='timeCol' rules={[{ required: true, message: '请选择时间列' }]}>
                 <Select placeholder='请选择时间列' options={filter_col_options(['DATE', 'DATETIME', 'TIMESTAMP'])}/>
             </Form.Item>
         }
         {
-            show_hash_col && <Form.Item label='标的列' name='hashCol'>
+            show_hash_col && <Form.Item tooltip='如股票ID、期货品种这样的枚举类型列，将按该列对数据进行分区' label='标的列' name='hashCol'>
                 <Select options={filter_col_options(['SYMBOL', 'STRING'])}/>
             </Form.Item>
         }

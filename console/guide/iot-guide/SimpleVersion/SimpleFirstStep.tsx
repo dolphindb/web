@@ -23,10 +23,9 @@ export function SimpleFirstStep (props: IProps) {
             form.setFieldsValue(info.first)
     }, [info?.first])
     
-    const on_submit = useCallback(async () => { 
+    const on_submit = useCallback(async (values: BasicInfoFormValues) => { 
         set_loading(true)
-        const values = form.getFieldsValue()
-        const code = await request<string>('createDB', values) 
+        const code = await request<string>('DBMSIOT_createDB', values) 
         go({ info: { first: values }, generate_code: code })
         set_loading(false)
     }, [go])
@@ -36,7 +35,7 @@ export function SimpleFirstStep (props: IProps) {
     return <Form onFinish={on_submit} form={form} labelAlign='left' className='simple-version-form' labelCol={{ span: 6 }} wrapperCol={{ span: 18 }}>
         <BasicInfoFields type={GuideType.SIMPLE} />
         <Form.Item className='button-group'>
-            <Button loading={loading} type='primary' htmlType='submit'>下一步</Button>
+            <Button loading={loading} type='primary' htmlType='submit'>生成脚本</Button>
         </Form.Item>
     </Form>
 }

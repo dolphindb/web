@@ -5,13 +5,13 @@
     align-items: center;
     justify-content: center;
     
+    .advanced-step-panel {
+        width: 1000px;
+    }
+    
     .guide-step {
         width: 600px;
         margin: 32px 0px;
-    }
-    
-    .advanced-step-panel {
-        width: 800px;
     }
     
     .ant-input-number {
@@ -19,13 +19,15 @@
     }
     
     .sort-cols-wrapper {
+        margin-top: 40px;
+        background-color: #EFEFEF;
+        border-radius: 8px;
+        padding: 16px;
+        
         h4 {
             margin-top: 0px;
             margin-bottom: 16px;
         }
-        background-color: #EFEFEF;
-        border-radius: 8px;
-        padding: 16px;
         
         .sort-col-item {
             display: flex;
@@ -36,7 +38,7 @@
                 color: #D71818;
             }
             .ant-form-item {
-                width: 30%;
+                width: 45%;
                 margin-bottom: 0px;
             }
             
@@ -55,8 +57,8 @@
     margin-bottom: 24px;
 }
 
-.apply-config-wrapper{
-    width: 800px;
+.apply-config-wrapper {
+    width: 1000px;
     text-align: end;
     margin-bottom: 16px;
 }

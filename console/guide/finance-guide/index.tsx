@@ -11,6 +11,7 @@ import { GuideFailResultPage } from '../components/GuideFailResultPage.js'
 import { GuideSuccessResultPage } from '../components/GuideSuccessResultPage.js'
 import { UploadConfigModal } from '../components/UploadConfigModal.js'
 import NiceModal from '@ebay/nice-modal-react'
+import { model } from '../../model.js'
 
 export function FinanceGuide () {
     
@@ -29,6 +30,11 @@ export function FinanceGuide () {
         set_current_step(current_step - 1)
     }, [current_step])
     
+    const on_create_again = useCallback(() => { 
+        model.set({ view: 'finance-guide' })
+        model.set_query('view', 'finance-guide')
+    }, [ ])
+    
     const steps = useMemo(() => [ 
         {
             title: '建库信息',
@@ -45,10 +51,10 @@ export function FinanceGuide () {
         {
             title: '执行结果',
             children: result === ExecuteResult.SUCCESS
-                ? <GuideFailResultPage back={back} />
-                : <GuideSuccessResultPage  back={back}/>
+                ? <GuideFailResultPage on_create_again={on_create_again} back={back} />
+                : <GuideSuccessResultPage on_create_again={on_create_again}  back={back}/>
         }
-    ], [info, go, back, result])
+    ], [info, go, back, result, on_create_again])
     
     const on_apply_config = useCallback(() => { 
         NiceModal.show(UploadConfigModal, { apply: info => { set_info(prev => ({ ...prev, ...info })) } })
@@ -57,7 +63,7 @@ export function FinanceGuide () {
     return <div className='finance-guide-wrapper'>
         <Steps size='small' className='finance-guide-steps' items={steps} current={current_step} />
         <div className='apply-config-btn-wrapper'>
-            <Typography.Link onClick={on_apply_config}>应用配置</Typography.Link>
+            <Typography.Link onClick={on_apply_config}>导入配置</Typography.Link>
         </div>
         <div className='finance-guide-content'>
             { steps[current_step].children }

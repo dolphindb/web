@@ -1,11 +1,11 @@
 import { Button, Form, Input, InputNumber, Radio, Select } from 'antd'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { ExistDBSelect } from './components/ExistedDBSelect.js'
-import { DAILY_INCREASE_DATA_OPTIONS } from './constant.js'
+import { CUSTOM, DAILY_INCREASE_DATA_OPTIONS } from './constant.js'
 import { type IDatabaseInfo, type IFinanceInfo } from './type.js'
 import { useCallback, useEffect } from 'react'
-
-const CUSTOM = 9
+import { throttle } from 'lodash'
+import { request } from '../utils.js'
 
 interface IProps { 
     info: IFinanceInfo
@@ -50,7 +50,19 @@ export function DatabaseInfo (props: IProps) {
                     </Form.Item>
                 else
                     return <>
-                        <Form.Item label='新建库名' name='name' rules={[{ required: true, message: '请输入新建库名' }]}>
+                        <Form.Item
+                            label='新建库名'
+                            name='name'
+                            rules={[
+                                { required: true, message: '请输入新建库名' },
+                                {
+                                    validator: throttle(async (_, val) => { 
+                                        const res = await request<{ isExist: 0 | 1 }>('DBMSIOT_checkDatabase', { dbName: 'dfs://' + val })
+                                        if (res.isExist)  
+                                            return Promise.reject(new Error('已有同名库，请修改库名')) 
+                                    }, 300)
+                                }
+                            ]}>
                             <Input addonBefore='dfs://' placeholder='请输入库名'/>
                         </Form.Item>
                         <Form.Item label='日增量' name={['dailyTotalNum', 'gap']} rules={[{ required: true, message: '请选择日增量' }]}>
@@ -71,7 +83,6 @@ export function DatabaseInfo (props: IProps) {
                         <FormDependencies dependencies={['dailyTotalNum']}>
                             {value => {
                                 const { dailyTotalNum } = value
-                                console.log(dailyTotalNum, 'dailyTotalNum')
                                 // 日增量小于1w不展示引擎选项
                                 if (dailyTotalNum?.gap === 0 || (dailyTotalNum?.gap === CUSTOM && dailyTotalNum.custom <= 10000)) 
                                     return null
