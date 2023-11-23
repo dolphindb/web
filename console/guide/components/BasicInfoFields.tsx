@@ -52,7 +52,7 @@ export function BasicInfoFields (props: IProps) {
             <Input placeholder='请输入表名'/>
         </Form.Item>
         
-        <Form.Item label='是否为时序数据' name='isFreqIncrease' initialValue={1} tooltip='按时间顺序记录的数据'>
+        <Form.Item label='是否为时序数据' required name='isFreqIncrease' initialValue={1} tooltip='按时间顺序记录的数据'>
             <Radio.Group>
                 <Radio value={1} > 是 </Radio>
                 <Radio value={0} > 否 </Radio>
