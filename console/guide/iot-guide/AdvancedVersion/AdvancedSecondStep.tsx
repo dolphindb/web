@@ -57,6 +57,7 @@ export function AdvancedSecondStep (props: IProps) {
         labelAlign='left'
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 18 }}
+        initialValues={info?.second}
     >
         <Form.Item
             label='存储引擎'
@@ -124,7 +125,23 @@ export function AdvancedSecondStep (props: IProps) {
                             {recommend_info.sortColumnInfo?.context}
                         </Typography.Text>
                 
-                        <Form.Item name='keepDuplicates' label='重复数据保留策略' rules={[{ required: true, message: '请选择重复数据保留策略' }]} initialValue={0}>
+                        <Form.Item
+                            name='keepDuplicates'
+                            label='重复数据保留策略'
+                            rules={[{ required: true, message: '请选择重复数据保留策略' }]}
+                            initialValue={0}
+                            tooltip={<>
+                                在同一个分区内，sortColumns值相同的数据的处理策略，DolphinDB提供了三种策略
+                                <br />
+                                ALL：保留所有数据
+                                <br />
+                                LAST：仅保留最新数据
+                                <br />
+                                FIRST：仅保留第一条数据
+                                <br />
+                                建议选择ALL
+                            </>}
+                        >
                             <Select options={keep_duplicates_options} />
                         </Form.Item>
                     </>

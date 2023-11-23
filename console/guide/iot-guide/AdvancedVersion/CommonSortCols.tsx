@@ -15,7 +15,7 @@ export function CommonSortCols (props: IProps) {
     
     return <div className='sort-cols-wrapper'>
         <h4>常用筛选列</h4>
-        <Form.List name='otherSortKeys' initialValue={[{ }]}>
+        <Form.List name='otherSortKeyInfo' initialValue={[{ }]}>
             {(fields, { add, remove }) => <>
                 {fields.map(field =>
                     <div key={field.name} className='sort-col-item'>

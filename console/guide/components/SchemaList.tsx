@@ -103,7 +103,8 @@ export function SchemaList () {
     const form = Form.useFormInstance()
     
     const on_apply = useCallback(schema => {
-        form.setFieldValue('schema', schema)
+        if (schema)
+            form.setFieldValue('schema', schema)
     }, [ ])
     
     const on_upload = useCallback(() => { 
@@ -116,10 +117,10 @@ export function SchemaList () {
             {(fields, { add, remove }) => <>
                 {fields.map(field => <div className='schema-item' key={field.name}>
                     <Form.Item label='列名' name={[field.name, 'colName']} rules={[{ required: true, message: '请输入列名' }]}>
-                        <Input />
+                        <Input placeholder='请输入列名'/>
                     </Form.Item>
                     <Form.Item label='数据类型' name={[field.name, 'dataType']} rules={[{ required: true, message: '请选择数据类型' }]}>
-                        <Select options={DATA_TYPE_LIST.map(item => ({ label: item, value: item }))} />
+                        <Select options={DATA_TYPE_LIST.map(item => ({ label: item, value: item }))} placeholder='请选择数据类型'/>
                     </Form.Item>
                     {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }}/> }
                 </div>)}

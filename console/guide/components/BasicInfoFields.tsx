@@ -107,7 +107,12 @@ export function BasicInfoFields (props: IProps) {
             {({ isFreqIncrease }) => {
                 // 时序数据情况下，或者数据总量大于100w 展示测点数
                 if (isFreqIncrease)
-                    return <Form.Item label='测点数' name='pointNum' rules={[{ required: true, message: '请输入测点数' }]}>
+                    return <Form.Item
+                        tooltip='以车联网数据采集场景为例说明测点含义。一辆车有发动机、轮胎、油箱等传感器，需要采集发动机、轮胎、油箱等数据，在这个场景中，测点是车辆，而不是传感器。'
+                        label='测点数'
+                        name='pointNum'
+                        rules={[{ required: true, message: '请输入测点数' }]}
+                    >
                         <InputNumber placeholder='请输入测点数'/>
                     </Form.Item>
                 else
@@ -119,7 +124,7 @@ export function BasicInfoFields (props: IProps) {
         
         {
             type === GuideType.SIMPLE && <FormDependencies dependencies={['isFreqIncrease', 'totalNum', 'schema']}>
-                {({ isFreqIncrease, totalNum, schema }) => {
+                {({ isFreqIncrease, totalNum, schema = [ ] }) => {
                     // 时序数据，或者非时序数据，但是数据总量大于100w需要选常用筛选列
                     if (isFreqIncrease || totalNum.gap === 1 || totalNum.custom > 1000000)
                         return <Form.Item
