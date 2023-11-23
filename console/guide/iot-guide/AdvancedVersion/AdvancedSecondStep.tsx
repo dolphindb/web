@@ -45,7 +45,7 @@ export function AdvancedSecondStep (props: IProps) {
     
     const on_submit = useCallback(async values => { 
         set_loading(true)
-        const code = await request<IAdvancedCreateDBResp>('DBMSIOT_createDB2', { ...info.first, ...values })
+        const code = await request<string>('DBMSIOT_createDB2', { ...info.first, ...values })
         go({ code,  second: values })
         set_loading(false)
     }, [col_options, go])
