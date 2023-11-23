@@ -18,7 +18,7 @@ import { t } from '../../i18n/index.js'
 import { model, show_error, type ErrorOptions, storage_keys } from '../model.js'
 import { type Monaco } from '../shell/Editor/index.js'
 
-import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
+import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources, subscribe_data_source } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 
@@ -509,10 +509,14 @@ export class DashBoardModel extends Model<DashBoardModel> {
          
             data_sources: await import_data_sources(config.data.datasources),
             
-            widgets: config.data.canvas.widgets.map(widget => ({
-                 ...widget,
-                 ref: createRef()
-                 })) as any,
+            widgets: config.data.canvas.widgets.map(widget => {
+                const _widget = {
+                    ...widget,
+                    ref: createRef()
+                }
+                subscribe_data_source(_widget, _widget.source_id)
+                return _widget
+            }) as Widget[],
          
             widget: null,
             
