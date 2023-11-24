@@ -89,7 +89,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         //     await this.get_configs_from_local()
         // }
         await dashboard.execute(async () => {
-            await model.ddb.call<DdbVoid>('dashboard_check_access', [ ], { urgent: true })
+            await model.ddb.call<DdbVoid>('dashboard_check_access', [ ])
             await this.get_dashboard_configs()
         })
         if (!this.config) {
@@ -410,7 +410,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         const { id, name, permission, data } = config
         const params = new DdbDict(
             ({ id: new DdbLong(BigInt(id)), name, permission: new DdbInt(permission), data: JSON.stringify(data) }))
-        await model.ddb.call<DdbVoid>('dashboard_add_config', [params], { urgent: true })
+        await model.ddb.call<DdbVoid>('dashboard_add_config', [params])
         if (render)
             await this.render_with_config(config)
     }
@@ -420,7 +420,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         const delete_ids = new Set(dashboard_config_ids)
         const filtered_configs = this.configs.filter(({ id }) => !delete_ids.has(id))
         this.set({ configs: filtered_configs, config: filtered_configs[0] })
-        await model.ddb.call<DdbVoid>('dashboard_delete_configs', [new DdbDict({ ids: new DdbVectorLong(dashboard_config_ids) })], { urgent: true })
+        await model.ddb.call<DdbVoid>('dashboard_delete_configs', [new DdbDict({ ids: new DdbVectorLong(dashboard_config_ids) })])
         if (filtered_configs.length && render)
             await this.render_with_config(filtered_configs[0])   
     }
@@ -431,14 +431,14 @@ export class DashBoardModel extends Model<DashBoardModel> {
         this.set({ configs: this.configs.toSpliced(index, 1, config), config })
         const params = new DdbDict(
             ({ id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
-        await model.ddb.call<DdbVoid>('dashboard_edit_config', [params], { urgent: true })
+        await model.ddb.call<DdbVoid>('dashboard_edit_config', [params])
         if (render)
             await this.render_with_config(config)
     }
     
     
     async rename_dashboard (dashboard_id: number, new_name: string) {
-        await model.ddb.call<DdbVoid>('dashboard_rename_config', [new DdbDict({ id: new DdbLong(BigInt(dashboard_id)), name: new_name })], { urgent: true })
+        await model.ddb.call<DdbVoid>('dashboard_rename_config', [new DdbDict({ id: new DdbLong(BigInt(dashboard_id)), name: new_name })])
     
         const index = this.configs.findIndex(({ id }) => id === dashboard_id)
         const config = this.configs[index]
@@ -450,14 +450,14 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number) {
-        const data = (await model.ddb.call('dashboard_get_config', [new DdbLong(BigInt(id))], { urgent: true })).to_rows()
+        const data = (await model.ddb.call('dashboard_get_config', [new DdbLong(BigInt(id))])).to_rows()
         return data.length ? { ...data[0], id: Number(data[0].id), data: JSON.parse(data[0].data) } : null
     }
     
     
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
-        const data = (await model.ddb.call<DdbVoid>('dashboard_get_config_list', [ ], { urgent: true })).to_rows()
+        const data = (await model.ddb.call<DdbVoid>('dashboard_get_config_list', [ ])).to_rows()
         const configs =  data.map(cfg => ({ ...cfg, 
                                             id: Number(cfg.id), 
                                             data: JSON.parse(typeof cfg.data === 'string' ? 
@@ -531,11 +531,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 ids: new DdbVectorLong(dashboard_ids), 
                 viewers: new DdbVectorString(viewers), 
                 editors: new DdbVectorString(editors) 
-            })], { urgent: true })
+            })])
     }
     
     async revoke (id: number) {
-        await model.ddb.call<DdbVoid>('dashboard_revoke_permission', [new DdbDict({ id: new DdbLong(BigInt(id)) })], { urgent: true })
+        await model.ddb.call<DdbVoid>('dashboard_revoke_permission', [new DdbDict({ id: new DdbLong(BigInt(id)) })])
     }
 }
 
