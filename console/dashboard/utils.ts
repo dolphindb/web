@@ -7,13 +7,14 @@ import { genid } from 'xshell/utils.browser.js'
 import copy from 'copy-to-clipboard'
 import dayjs from 'dayjs'
 
-import { WidgetChartType, type Widget, dashboard } from './model.js'
+import { WidgetChartType, type Widget, dashboard, type DashBoardConfig, DashboardPermission } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
 import { subscribe_data_source, type DataSource } from './DataSource/date-source.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
 import { error_message } from './error-message.js'
 import { t } from '../../i18n/index.js'
+import { model } from '../model.js'
 
 
 export function format_time (time: string, format: string) { 
@@ -523,4 +524,25 @@ export function parse_error (error: Error) {
     
     const jsonError = JSON.parse(jsonErrorMsg[0])
     return new Error(t(error_message[jsonError.code], { variables: jsonError.variables }))
+}
+
+
+export async  function load_config (file)  {
+    await model.execute(async () => {
+        const import_config = JSON.parse(await file.text()) as DashBoardConfig
+        
+        if (dashboard.configs.findIndex(c => c.id === import_config.id) !== -1)
+            await dashboard.update_dashboard_config(import_config, false)
+        else {
+            if (dashboard.configs.find(({ name, permission }) => name === import_config.name && permission === DashboardPermission.own)) {
+                model.message.error(t('已有名为{{name}}的 dashboard 存在，导入失败', { name: import_config.name }))
+                return
+            }
+            import_config.id = genid()
+            import_config.owner = model.username
+            await dashboard.add_dashboard_config(import_config, false)
+        }
+        model.message.success(`${import_config.name}导入成功`)
+    })
+    return false
 }

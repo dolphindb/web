@@ -19,6 +19,7 @@ import { export_variables } from './Variable/variable.js'
 import cn from 'classnames'
 import { HostSelect } from '../components/HostSelect.js'
 import { Share } from './Share/Share.js'
+import { load_config } from './utils.js'
 
 
 export function get_widget_config (widget: Widget) {
@@ -114,7 +115,7 @@ export function Header () {
                 return 
             }
             
-            const new_dashboard_config = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name, model.username)
+            const new_dashboard_config = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
             
             // await dashboard.update_config(new_dashboard_config)
             await dashboard.add_dashboard_config(new_dashboard_config)
@@ -332,7 +333,7 @@ export function Header () {
             
                 {
                     dashboard.config?.permission !== DashboardPermission.view
-                        ? 
+                        &&
                         <>
                         <Tooltip title={t('导出')}>
                             <Button className='action' onClick={async () => 
@@ -360,23 +361,12 @@ export function Header () {
                             }><CopyOutlined /></Button>
                         </Tooltip>
                         </>
-                        : <></>
                 }
             
                 <Tooltip title={t('导入')}>
                     <Upload
                         showUploadList={false}
-                        beforeUpload={async file => 
-                            dashboard.execute(async () => {
-                                const import_config = JSON.parse(await file.text()) as DashBoardConfig
-                                if (configs.findIndex(c => c.id === import_config.id) !== -1)
-                                    await dashboard.update_dashboard_config(import_config)
-                                else
-                                    await dashboard.add_dashboard_config(import_config)
-                                model.set_query('dashboard', String(import_config.id))
-                                return false
-                            })
-                        }
+                        beforeUpload={load_config}
                     >
                         <Button className='action'>
                             <DownloadOutlined />
