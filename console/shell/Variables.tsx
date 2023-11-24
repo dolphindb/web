@@ -409,29 +409,27 @@ function SuffixIcon ({ name }: { name: string }) {
         <Icon
             className='schema-icon'
             component={SvgSchema}
-            onClick={async event => {
-                event.stopPropagation()
-                
-                await model.execute(async () => {
+            onClick={async event => 
+                model.execute(async () => {
+                    event.stopPropagation()
                     await shell.define_load_table_variable_schema()
                     
                     shell.set(
-                        {
-                            result: {
-                                type: 'object',
-                                data: await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
-                                    'load_table_variable_schema',
-                                    [name],
-                                    model.node_type === NodeType.controller ? 
-                                            { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc }
-                                        :
-                                            { }
-                                )
-                            }
+                    {
+                        result: {
+                            type: 'object',
+                            data: await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
+                                'load_table_variable_schema',
+                                [name],
+                                model.node_type === NodeType.controller ? 
+                                        { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc }
+                                    :
+                                        { }
+                            )
                         }
-                    )
-                })
-            }}
+                    }
+                )
+            })}
         />
     </Tooltip>
 }
