@@ -318,15 +318,12 @@ function append_action_col (
                 return <Popconfirm
                     title={ type === 'stop' ? t('确认停止作业') : t('确认删除作业')}
                     onConfirm={async () => {
-                        try {
+                        await model.execute(async () => {
                             await action(job)
                             model.message.success(
                                 type === 'stop' ? t('停止作业指令发送成功') : t('删除作业成功')
                             )
-                        } catch (error) {
-                            model.show_error({ error })
-                            throw error
-                        }
+                        })
                     }}
                 >
                     <Link title={ disabled ? t('作业已完成') : '' } disabled={disabled}>{

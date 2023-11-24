@@ -46,12 +46,7 @@ export function Shell () {
     
     useEffect(() => {
         (async () => {
-            try {
-                await shell.load_dbs()
-            } catch (error) {
-                model.show_error({ error })
-                throw error
-            }
+            await model.execute(async () =>  shell.load_dbs() )
         })()
     }, [ ])
     

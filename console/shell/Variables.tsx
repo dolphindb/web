@@ -412,7 +412,7 @@ function SuffixIcon ({ name }: { name: string }) {
             onClick={async event => {
                 event.stopPropagation()
                 
-                try {
+                await model.execute(async () => {
                     await shell.define_load_table_variable_schema()
                     
                     shell.set(
@@ -430,10 +430,7 @@ function SuffixIcon ({ name }: { name: string }) {
                             }
                         }
                     )
-                } catch (error) {
-                    model.show_error({ error })
-                    throw error
-                }
+                })
             }}
         />
     </Tooltip>

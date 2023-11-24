@@ -8,21 +8,19 @@ import { EditorFields } from '../../ChartFormFields/EditorFields.js'
 import { type IEditorConfig } from '../../type.js'
 import { get_widget_config } from '../../Header.js'
 import { debounce } from 'lodash'
+import { model } from '../../../model.js'
 
 export function DashboardEditor ({ widget }: { widget: Widget }) {
     const { config } = dashboard.use(['config'])
     const [ code, set_code ] = useState((widget?.config as IEditorConfig)?.code || '')
     
     async function save (code: string) {
-        try {
+        await model.execute(async () => {
             const new_widget = { ...get_widget_config(widget), config: { ...widget.config, code } }
             const index = config.data.canvas.widgets.findIndex(({ id }) => id === widget.id)
             const new_config = { ...config, data: { ...config.data, canvas: { widgets: config.data.canvas.widgets.toSpliced(index, 1, new_widget) } } }
             await dashboard.update_dashboard_config(new_config, false)
-        } catch (error) {
-            dashboard.show_error({ error })
-            throw error
-        }
+        })
     }
     
     const save_debounced = useMemo(() => debounce(save, 1000, { leading: false, trailing: true }), [ ]) 
@@ -36,13 +34,11 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
                 }} theme='dark'/>
         </div>
         <Button onClick={async () => {
-                    try {
+                    await model.execute(async () => {
                         const { type, result } = await dashboard.execute_code(code)
                         if (type === 'error')
-                            throw new Error(result as string) 
-                    } catch (error) {
-                        dashboard.show_error({ error })
-                    }
+                            throw new Error(result as string)
+                    })
                 }}>{(widget?.config as IEditorConfig)?.button_text || 'run'}</Button>
    
     </div>

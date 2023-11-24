@@ -90,12 +90,9 @@ function DashboardInstance () {
     
     useEffect(() => {
         (async () => {
-            try {
-                await dashboard.init(rdiv.current)
-            } catch (error) {
-                dashboard.show_error({ error })
-                throw error
-            }
+            await model.execute(async () => 
+                dashboard.init(rdiv.current)
+            )
         })()
         return () => { dashboard.dispose() }
     }, [ ])
