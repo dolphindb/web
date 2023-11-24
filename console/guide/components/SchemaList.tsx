@@ -63,7 +63,7 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
         width={640}
         onCancel={modal.hide}
         open={modal.visible}
-        title='导入表文件'
+        title='导入文件'
         onOk={on_submit}
         okButtonProps={{ loading }}
         destroyOnClose
