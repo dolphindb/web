@@ -88,7 +88,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         //     this.set({ backend: false })
         //     await this.get_configs_from_local()
         // }
-        await model.execute(async () => {
+        await dashboard.execute(async () => {
             await model.ddb.call<DdbVoid>('dashboard_check_access', [ ], { urgent: true })
             await this.get_dashboard_configs()
         })
@@ -438,15 +438,13 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     async rename_dashboard (dashboard_id: number, new_name: string) {
-        await model.execute(async () => {
-            await model.ddb.call<DdbVoid>('dashboard_rename_config', [new DdbDict({ id: new DdbLong(BigInt(dashboard_id)), name: new_name })], { urgent: true })
-        
-            const index = this.configs.findIndex(({ id }) => id === dashboard_id)
-            const config = this.configs[index]
-            config.name = new_name
-            this.set({ configs: this.configs.toSpliced(index, 1, config), config })
-            await this.render_with_config(config)
-        })
+        await model.ddb.call<DdbVoid>('dashboard_rename_config', [new DdbDict({ id: new DdbLong(BigInt(dashboard_id)), name: new_name })], { urgent: true })
+    
+        const index = this.configs.findIndex(({ id }) => id === dashboard_id)
+        const config = this.configs[index]
+        config.name = new_name
+        this.set({ configs: this.configs.toSpliced(index, 1, config), config })
+        await this.render_with_config(config)
     }
     
     
@@ -472,7 +470,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             const config = configs.find(({ id }) =>  id === dashboard_id)
             if (config) {
                 this.set({ config })
-                await model.execute(async () =>  this.render_with_config(config) )
+                await this.render_with_config(config)
             }
                 
             else

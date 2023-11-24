@@ -89,11 +89,7 @@ function DashboardInstance () {
     }, [ ])
     
     useEffect(() => {
-        (async () => {
-            await model.execute(async () => 
-                dashboard.init(rdiv.current)
-            )
-        })()
+        dashboard.execute(async () => dashboard.init(rdiv.current))
         return () => { dashboard.dispose() }
     }, [ ])
     

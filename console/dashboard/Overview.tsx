@@ -33,18 +33,13 @@ export function Overview () {
     const params = new URLSearchParams(location.search)
     
     useEffect(() => {
-        (async () => {
-            
-            await model.execute(async () => {
-                if (!model.logined) {
-                    model.goto_login()
-                    return
-                }
-                
-                
-                await dashboard.get_dashboard_configs()
-            })
-        })()
+        model.execute(async () => {
+            if (!model.logined) {
+                model.goto_login()
+                return
+            }
+            await dashboard.get_dashboard_configs()
+        })
     }, [ ])
     
     
@@ -81,32 +76,32 @@ export function Overview () {
             <Modal
                 open={creator.visible}
                 onCancel={creator.close}
-                onOk={async () => {
-                    await model.execute(async () => {
-                        if (!new_dashboard_name.trim()) {
-                            model.message.error(t('dashboard 名称不允许为空'))
-                            return
-                        }
-                        if (new_dashboard_name.includes('/') || new_dashboard_name.includes('\\')) {
-                            model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
-                            return
-                        }
-                        
-                        if (configs?.find(({ name }) => name === new_dashboard_name)) {
-                            model.message.error(t('名称重复，请重新输入'))
-                            return
-                        }
-                        
-                        /** 待接口更新后修改 */
-                        const new_dashboard = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
-                        
-                        await dashboard.add_dashboard_config(new_dashboard, false)
-                        
-                        model.set_query('dashboard', String(new_dashboard.id))
-                        model.set({ header: false, sider: false })
-                    })
-                    creator.close()
-                }}
+                onOk={async () => 
+                        model.execute(async () => {
+                            if (!new_dashboard_name.trim()) {
+                                model.message.error(t('dashboard 名称不允许为空'))
+                                return
+                            }
+                            if (new_dashboard_name.includes('/') || new_dashboard_name.includes('\\')) {
+                                model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
+                                return
+                            }
+                            
+                            if (configs?.find(({ name }) => name === new_dashboard_name)) {
+                                model.message.error(t('名称重复，请重新输入'))
+                                return
+                            }
+                            
+                            /** 待接口更新后修改 */
+                            const new_dashboard = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
+                            
+                            await dashboard.add_dashboard_config(new_dashboard, false)
+                            
+                            model.set_query('dashboard', String(new_dashboard.id))
+                            model.set({ header: false, sider: false })
+                            creator.close()
+                        })
+                }
                 title={t('请输入新数据面板的名称')}
             >
                 <Input
@@ -120,28 +115,28 @@ export function Overview () {
             <Modal
                 open={editor.visible}
                 onCancel={editor.close}
-                onOk={async () => {
-                    await model.execute(async () => {
-                        if (!edit_dashboard_name) {
-                            model.message.error(t('dashboard 名称不允许为空'))
-                            return
-                        }
-                        if (edit_dashboard_name.includes('/') || edit_dashboard_name.includes('\\')) {
-                            model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
-                            return
-                        }
-                        
-                        if (configs.find(({ id, name, permission }) => id !== current_dashboard.id && name === edit_dashboard_name && permission === DashboardPermission.own)) {
-                            model.message.error(t('名称重复，请重新输入'))
-                            return
-                        }
-                        
-                        await dashboard.rename_dashboard(current_dashboard.id, edit_dashboard_name)
-                        model.message.success(t('修改成功'))
-                        
-                        editor.close()
+                onOk={async () => 
+                        model.execute(async () => {
+                            if (!edit_dashboard_name) {
+                                model.message.error(t('dashboard 名称不允许为空'))
+                                return
+                            }
+                            if (edit_dashboard_name.includes('/') || edit_dashboard_name.includes('\\')) {
+                                model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
+                                return
+                            }
+                            
+                            if (configs.find(({ id, name, permission }) => id !== current_dashboard.id && name === edit_dashboard_name && permission === DashboardPermission.own)) {
+                                model.message.error(t('名称重复，请重新输入'))
+                                return
+                            }
+                            
+                            await dashboard.rename_dashboard(current_dashboard.id, edit_dashboard_name)
+                            model.message.success(t('修改成功'))
+                            
+                            editor.close()
                     })
-                }}
+                }
                 title={t('请输入新的 dashboard 名称')}
             >
                 <Input
@@ -155,8 +150,8 @@ export function Overview () {
             <Modal
                 open={deletor.visible}
                 onCancel={deletor.close}
-                onOk={async () => {
-                        await model.execute(async () => {
+                onOk={async () =>
+                        model.execute(async () => {
                             selected_dashboard_ids.forEach(dashboard_id => {
                                 const config = dashboard.configs.find(config => config.id = dashboard_id)
                                 if (config?.permission !== DashboardPermission.own)
@@ -168,7 +163,6 @@ export function Overview () {
                             model.message.success(t('删除成功'))
                             deletor.close()
                         })
-                    }
                 }
                 title={t(`确认删除选中的 ${selected_dashboard_ids.length} 个数据面板吗？`)}
              />
@@ -259,20 +253,20 @@ export function Overview () {
                                         <Popconfirm
                                             title='删除'
                                             description={`确定删除 ${configs.find(({ id }) => id === key).name} 吗？`}
-                                            onConfirm={async () => {
-                                                await model.execute(async () => {
-                                                    if (!configs.length) {
-                                                        dashboard.message.error(t('当前 dashboard 列表为空'))
-                                                        return
-                                                    }
-                                                    
-                                                    dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
-                                                    
-                                                    await dashboard.delete_dashboard_configs([key], false)
-                                                    set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
-                                                    model.message.success(t('删除成功'))
-                                                })
-                                            }}
+                                            onConfirm={async () =>
+                                                            model.execute(async () => {
+                                                                if (!configs.length) {
+                                                                    dashboard.message.error(t('当前 dashboard 列表为空'))
+                                                                    return
+                                                                }
+                                                                
+                                                                dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
+                                                                
+                                                                await dashboard.delete_dashboard_configs([key], false)
+                                                                set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
+                                                                model.message.success(t('删除成功'))
+                                                            })
+                                            }
                                             okText={t('确认删除')}
                                             cancelText={t('取消')}
                                         >
@@ -285,20 +279,20 @@ export function Overview () {
                                         <Popconfirm
                                             title='撤销'
                                             description={`确定撤销 ${configs.find(({ id }) => id === key).name} 的权限吗？`}
-                                            onConfirm={async () => {
-                                                await model.execute(async () => {
-                                                    if (!configs.length) {
-                                                        dashboard.message.error(t('当前 dashboard 列表为空'))
-                                                        return
-                                                    }
-                                                    
-                                                    dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
-                                                    
-                                                    await dashboard.revoke(key)
-                                                    set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
-                                                    model.message.success(t('撤销成功'))
-                                                })
-                                            }}
+                                            onConfirm={async () => 
+                                                            model.execute(async () => {
+                                                                if (!configs.length) {
+                                                                    dashboard.message.error(t('当前 dashboard 列表为空'))
+                                                                    return
+                                                                }
+                                                                
+                                                                dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
+                                                                
+                                                                await dashboard.revoke(key)
+                                                                set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
+                                                                model.message.success(t('撤销成功'))
+                                                            })
+                                            }
                                             okText={t('确认撤销')}
                                             cancelText={t('取消')}
                                         >
@@ -350,36 +344,35 @@ export function Overview () {
                             
                             <Button
                                 icon={<UploadOutlined />}
-                                onClick={async () => {
-                                    if (selected_dashboard_ids && !selected_dashboard_ids.length) {
-                                        model.message.error(t('请选择至少一个面板进行导出'))
-                                        return
-                                    }
-                                        
-                                    if (selected_dashboard_ids.length === 1) {
-                                        single_file_export(selected_dashboard_ids[0])
-                                        return
-                                    }
-                                    
-                                    await model.execute(async () => {
-                                        const files = [ ]
-                                        for (let config_id of selected_dashboard_ids) {
-                                            const config = configs.find(({ id }) => id === config_id)
-                                            
-                                            if (config.permission === DashboardPermission.view)
-                                                throw new Error(t('您没有导出 {{name}} 的权限', { name: config.name }))
-                                            
-                                            files.push({ name: `dashboard.${config.name}.json`, lastModified: new Date(), input: new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }) })
-                                        }
-                                        const zip = await downloadZip(files).blob()
-                                        let a = document.createElement('a')
-                                        a.download = `${model.username}.dashboards.zip`
-                                        a.href =  URL.createObjectURL(zip)
-                                        document.body.appendChild(a)
-                                        a.click()
-                                        document.body.removeChild(a)
-                                    })
-                                }}
+                                onClick={async () => 
+                                            model.execute(async () => {
+                                                if (selected_dashboard_ids && !selected_dashboard_ids.length) {
+                                                    model.message.error(t('请选择至少一个面板进行导出'))
+                                                    return
+                                                }
+                                                    
+                                                if (selected_dashboard_ids.length === 1) {
+                                                    single_file_export(selected_dashboard_ids[0])
+                                                    return
+                                                }
+                                                const files = [ ]
+                                                for (let config_id of selected_dashboard_ids) {
+                                                    const config = configs.find(({ id }) => id === config_id)
+                                                    
+                                                    if (config.permission === DashboardPermission.view)
+                                                        throw new Error(t('您没有导出 {{name}} 的权限', { name: config.name }))
+                                                    
+                                                    files.push({ name: `dashboard.${config.name}.json`, lastModified: new Date(), input: new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }) })
+                                                }
+                                                const zip = await downloadZip(files).blob()
+                                                let a = document.createElement('a')
+                                                a.download = `${model.username}.dashboards.zip`
+                                                a.href =  URL.createObjectURL(zip)
+                                                document.body.appendChild(a)
+                                                a.click()
+                                                document.body.removeChild(a)
+                                            })
+                                }
                             >
                                 {t('批量导出')}
                             </Button>
