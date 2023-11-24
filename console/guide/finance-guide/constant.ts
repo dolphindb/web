@@ -2,6 +2,10 @@ export const CUSTOM = -1
 
 export const DAILY_INCREASE_DATA_OPTIONS = [
     {
+        label: '自定义',
+        value: CUSTOM
+    },
+    {
         label: '0-1万',
         value: 0
     },
@@ -37,8 +41,4 @@ export const DAILY_INCREASE_DATA_OPTIONS = [
         label: '总数据量小于200万且不新增',
         value: 8
     },
-    {
-        label: '自定义',
-        value: CUSTOM
-    }
 ]

@@ -157,7 +157,7 @@ export function BasicInfoFields (props: IProps) {
                                 }
                             ]}
                         >
-                            <Select placeholder='请选择常用筛选列' mode='multiple' options={schema.filter(item => item?.colName).map(item => ({ label: item.colName, value: item.colName }))} />
+                            <Select showSearch placeholder='请选择常用筛选列' mode='multiple' options={schema.filter(item => item?.colName).map(item => ({ label: item.colName, value: item.colName }))} />
                         </Form.Item>
                 } }
                 

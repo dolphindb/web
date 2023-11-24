@@ -8,7 +8,7 @@ import { request } from '../../utils.js'
 
 
 interface IProps { 
-    go: (infos: { info?: SimpleInfos, generate_code?: string, result?: ExecuteResult }) => void
+    go: (infos: { info?: SimpleInfos, result?: ExecuteResult }) => void
     info: SimpleInfos
 }
 
@@ -26,11 +26,9 @@ export function SimpleFirstStep (props: IProps) {
     const on_submit = useCallback(async (values: BasicInfoFormValues) => { 
         set_loading(true)
         const code = await request<string>('DBMSIOT_createDB', values) 
-        go({ info: { first: values }, generate_code: code })
+        go({ info: { first: values, code } })
         set_loading(false)
     }, [go])
-    
-    
     
     return <Form onFinish={on_submit} form={form} labelAlign='left' className='simple-version-form' labelCol={{ span: 6 }} wrapperCol={{ span: 18 }}>
         <BasicInfoFields type={GuideType.SIMPLE} />

@@ -106,9 +106,9 @@ export function AdvancedSecondStep (props: IProps) {
                         const second_col_type = info?.first?.schema.find(item => item.colName === cols?.[1])?.dataType
                         
                         if (!['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(first_col_type))
-                            return Promise.reject('第一个常用筛选列需为时间列')
+                            return Promise.reject('第一个分区列需为时间列')
                         if (!['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING'].includes(second_col_type))
-                            return Promise.reject('第二个常用筛选列的数据类型需为以下 CHAR、SHORT、INT、SYMBOL、STRING 五种数据类型的一种')
+                            return Promise.reject('第二个分区列的数据类型需为以下 CHAR、SHORT、INT、SYMBOL、STRING 五种数据类型的一种')
                     }
                 }
             ]}

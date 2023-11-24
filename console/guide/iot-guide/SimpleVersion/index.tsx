@@ -12,7 +12,6 @@ import { GuideSuccessResultPage } from '../../components/GuideSuccessResultPage.
 
 export function SimpleVersion () {
     const [current_step, set_current_step] = useState(0)
-    const [code, set_code] = useState('')
     
     const [info, set_info] = useState<SimpleInfos>()
     const [result, set_result] = useState<ExecuteResult>(ExecuteResult.SUCCESS)
@@ -23,13 +22,11 @@ export function SimpleVersion () {
     }, [current_step])
     
     
-    const go = useCallback((infos: { info?: SimpleInfos, generate_code?: string, result?: ExecuteResult }) => { 
-        const { info, generate_code, result = ExecuteResult.SUCCESS } = infos
+    const go = useCallback((infos: { info?: SimpleInfos, result?: ExecuteResult }) => { 
+        const { info, result = ExecuteResult.SUCCESS } = infos
         set_current_step(current_step + 1)
         if (info)
             set_info(prev => ({ ...prev, ...info }))
-        if (generate_code)
-            set_code(generate_code)
         set_result(result)
     }, [current_step])
     
@@ -45,7 +42,7 @@ export function SimpleVersion () {
     }, [ ])
     
     const views = useMemo(() => {
-        const steps = [
+        return [
             {
                 title: '第一步',
                 children: <SimpleFirstStep
@@ -57,7 +54,7 @@ export function SimpleVersion () {
                 title: '脚本预览',
                 children: <CodeViewStep
                     config={info}
-                    code={code}
+                    code={info?.code ?? ''}
                     back={back}
                     go={go}
                 />
@@ -69,8 +66,7 @@ export function SimpleVersion () {
                     : <GuideSuccessResultPage on_create_again={on_create_again} back={back}/>
             }
         ]
-        return steps
-    }, [current_step, info, result, on_create_again])
+    }, [ info, result, on_create_again])
     
     
     return <div className='simple-version-wrapper'>

@@ -1,9 +1,9 @@
 import { Button, Form, Input, Space } from 'antd'
 import { type IFinanceInfo } from './type.js'
 import { SchemaList } from '../components/SchemaList.js'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { request } from '../utils.js'
-import { ColSelect } from './components/ColSelect.js'
+import { PartitionColSelect } from './components/PartitionColSelect.js'
 import { CommonFilterCols } from './components/CommonFilterCols.js'
 
 interface IProps { 
@@ -13,7 +13,6 @@ interface IProps {
 }
 export function TableInfo (props: IProps) {
 
-    
     const { info, go, back } = props
     
     const [form] = Form.useForm()
@@ -30,6 +29,10 @@ export function TableInfo (props: IProps) {
         go({ table: values, code })
     }, [info, go])
     
+    useEffect(() => {
+        form.setFieldsValue(info.table)
+    }, [ info.table ])
+    
     return <Form
         form={form}
         labelAlign='left'
@@ -41,7 +44,7 @@ export function TableInfo (props: IProps) {
             <Input placeholder='请输入表名'/>
         </Form.Item>
         <SchemaList />
-        <ColSelect database={info?.database} schema={schema} />
+        <PartitionColSelect database={info?.database} schema={schema} />
         
         <CommonFilterCols schema={schema}/>
         

@@ -35,7 +35,7 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
                 content: { }
             }
             if (upload_type === 0) {
-                // 本地上传
+                // 本地上传，截取前100行，避免文件内容过大传输失败
                 const content = (await file.file.text())?.split('\n')?.slice(0, 100)?.join('\n')
                 params.content = {
                     fileName: file.file.name,
@@ -63,7 +63,7 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
         width={640}
         onCancel={modal.hide}
         open={modal.visible}
-        title='导入文件'
+        title='导入表文件'
         onOk={on_submit}
         okButtonProps={{ loading }}
         destroyOnClose
@@ -120,7 +120,7 @@ export function SchemaList () {
                         <Input placeholder='请输入列名'/>
                     </Form.Item>
                     <Form.Item label='数据类型' name={[field.name, 'dataType']} rules={[{ required: true, message: '请选择数据类型' }]}>
-                        <Select options={DATA_TYPE_LIST.map(item => ({ label: item, value: item }))} placeholder='请选择数据类型'/>
+                        <Select showSearch options={DATA_TYPE_LIST.map(item => ({ label: item, value: item }))} placeholder='请选择数据类型'/>
                     </Form.Item>
                     {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }}/> }
                 </div>)}
@@ -132,7 +132,7 @@ export function SchemaList () {
         <div className='upload-schema-wrapper'>
             <Typography.Link onClick={on_upload}>
                 <CloudUploadOutlined className='upload-schema-icon'/>
-                导入文件
+                导入表文件
             </Typography.Link>
         </div>
         

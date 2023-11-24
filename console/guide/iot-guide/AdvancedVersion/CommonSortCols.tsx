@@ -26,7 +26,7 @@ export function CommonSortCols (props: IProps) {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 14 }}
                         >
-                            <Select options={col_options} placeholder='请选择列名'/>
+                            <Select showSearch options={col_options} placeholder='请选择列名'/>
                         </Form.Item>
                         <Form.Item
                             label='唯一值数量'

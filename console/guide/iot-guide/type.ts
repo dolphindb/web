@@ -75,6 +75,7 @@ export interface SimpleSecondStepInfo {
 
 export interface SimpleInfos { 
     first?: BasicInfoFormValues
+    code?: string
 }
 
 export interface AdvancedInfos { 

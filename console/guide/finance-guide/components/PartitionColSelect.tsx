@@ -8,7 +8,7 @@ interface IProps {
     schema: ITableInfo['schema']
 }
 
-export function ColSelect (props: IProps) {
+export function PartitionColSelect (props: IProps) {
     
     const { database, schema = [ ] } = props
     
@@ -61,7 +61,8 @@ export function ColSelect (props: IProps) {
         }}
     </Form.List>
     : <>
-            {show_time_col && <Form.Item tooltip='严格按时序增长排列的时间类型列，将按该列对数据进行分区' label='时间列' name='timeCol' rules={[{ required: true, message: '请选择时间列' }]}>
+        {
+            show_time_col && <Form.Item tooltip='严格按时序增长排列的时间类型列，将按该列对数据进行分区' label='时间列' name='timeCol' rules={[{ required: true, message: '请选择时间列' }]}>
                 <Select placeholder='请选择时间列' options={filter_col_options(['DATE', 'DATETIME', 'TIMESTAMP'])}/>
             </Form.Item>
         }
