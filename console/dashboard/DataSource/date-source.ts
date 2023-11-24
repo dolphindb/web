@@ -207,7 +207,7 @@ export function rename_data_source (source_id: string, new_name: string) {
 }
 
 
-export async function subscribe_data_source (widget_option: Widget, source_id: string) {
+export async function subscribe_data_source (widget_option: Widget, source_id: string, message = true) {
     const data_source = get_data_source(source_id)
     
     if (widget_option.source_id && widget_option.source_id !== source_id)
@@ -215,9 +215,10 @@ export async function subscribe_data_source (widget_option: Widget, source_id: s
         
     data_source.deps.add(widget_option.id)
     
-    if (data_source.error_message) 
-        dashboard.message.error(t('当前数据源存在错误'))
-    else   
+    if (data_source.error_message) {
+        if (message) 
+            dashboard.message.error(t('当前数据源存在错误'))
+    } else
         switch (data_source.mode) {
             case 'sql':
                 if (data_source.auto_refresh && !data_source.timer)

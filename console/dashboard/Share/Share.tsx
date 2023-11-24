@@ -5,10 +5,11 @@ import { Button, Modal, Radio, Table } from 'antd'
 import { useCallback, useState } from 'react'
 import { use_modal } from 'react-object-model/modal'
 
-import { dashboard } from '../model.js'
+import { DashboardPermission, dashboard } from '../model.js'
 import { t } from '../../../i18n/index.js'
 import { model } from '../../model.js'
 import { DdbLong, DdbDict } from 'dolphindb/browser'
+import { parse_error } from '../utils.js'
 
 interface IProps {
     dashboard_ids: number[]
@@ -25,13 +26,17 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
     
     const trigger_click_handler = useCallback(async () => {
         try {
+            if (!dashboard_ids.length) {
+                model.message.error(t('请至少选中一个数据面板后再分享'))
+                return
+            }
             await dashboard.get_user_list()
             open()
         } catch (error) {
             dashboard.message.error(error.message)
             throw error
         }
-    }, [ ])
+    }, [dashboard_ids])
     
     const triggers = {
         button: <Button
@@ -53,7 +58,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
             maskClosable={false}
             styles={{ mask: { backgroundColor: 'rgba(84,84,84,0.5)' } }}
             afterOpenChange={async () => {
-                if (dashboard_ids.length === 1)
+                if (trigger_type !== 'button')
                     try {
                         const data = 
                             (
@@ -66,22 +71,33 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
                         set_viewers(new Set(data[0].value))
                         set_editors(new Set(data[1].value))
                     } catch (error) {
-                        dashboard.show_error({ error })
+                        model.show_error({ error: parse_error(error) })
                     }
-            }}
-            onOk={async () => {
-                if (!dashboard_ids.length) {
-                    model.message.warning(t('请选择想要分享的 dashboard'))
-                    return
+                else {
+                    set_viewers(new Set())
+                    set_editors(new Set())
                 }
                 
+            }}
+            onOk={async () => {
                 try {
+                    if (!dashboard_ids.length) {
+                        model.message.warning(t('请选择想要分享的 dashboard'))
+                        return
+                    }
+                    
+                    dashboard_ids.forEach(dashboard_id => {
+                        const config = dashboard.configs.find(config => config.id = dashboard_id)
+                        if (config?.permission !== DashboardPermission.own)
+                            throw new Error(t('您没有分享 {{name}} 的权限', { name: config.name })) 
+                    })
+                    
+                    
                     await dashboard.share(dashboard_ids, Array.from(viewers), Array.from(editors))
                     model.message.success(t('分享成功'))
                     close()
                 } catch (error) {
-                    model.show_error({ error })
-                    throw error
+                    model.show_error({ error: parse_error(error) })
                 }
             }}
             title={t('请选择需要分享的用户')}
@@ -96,7 +112,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
                         title: t('权限'), 
                         dataIndex: 'permission', 
                         key: 'permission',
-                        width: '45%',
+                        width: '50%',
                         render: (text, { key })  => {
                             return <Radio.Group 
                                         onChange={event => { 
@@ -119,10 +135,10 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
                                             set_viewers(new_viewers)
                                             set_editors(new_editors)
                                         }}
-                                        defaultValue={editors.has(key) ? 'editor' : (viewers.has(key) ? 'view' : 'none')}
+                                        value={editors.has(key) ? 'editor' : (viewers.has(key) ? 'view' : 'none')}
                                     >
                                     <Radio value='none'>{t('无')}</Radio>
-                                    <Radio value='view'>{t('预览')}</Radio>
+                                    <Radio value='view'>{t('仅预览')}</Radio>
                                     <Radio value='editor'>{t('编辑')}</Radio>
                                 </Radio.Group>
                         }

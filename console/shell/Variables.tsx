@@ -409,13 +409,12 @@ function SuffixIcon ({ name }: { name: string }) {
         <Icon
             className='schema-icon'
             component={SvgSchema}
-            onClick={async event => {
-                event.stopPropagation()
-                
-                try {
-                    await shell.define_load_table_variable_schema()
-                    
-                    shell.set(
+            onClick={async event => 
+                    model.execute(async () => {
+                        event.stopPropagation()
+                        await shell.define_load_table_variable_schema()
+                        
+                        shell.set(
                         {
                             result: {
                                 type: 'object',
@@ -430,11 +429,8 @@ function SuffixIcon ({ name }: { name: string }) {
                             }
                         }
                     )
-                } catch (error) {
-                    model.show_error({ error })
-                    throw error
-                }
-            }}
+                })
+            }
         />
     </Tooltip>
 }

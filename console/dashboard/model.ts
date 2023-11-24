@@ -18,8 +18,8 @@ import { t } from '../../i18n/index.js'
 import { model, show_error, type ErrorOptions, storage_keys } from '../model.js'
 import { type Monaco } from '../shell/Editor/index.js'
 
-import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
-import { type IEditorConfig, type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
+import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources, subscribe_data_source } from './DataSource/date-source.js'
+import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 
 
@@ -88,13 +88,10 @@ export class DashBoardModel extends Model<DashBoardModel> {
         //     this.set({ backend: false })
         //     await this.get_configs_from_local()
         // }
-        try {
+        await dashboard.execute(async () => {
             await model.ddb.call<DdbVoid>('dashboard_check_access', [ ], { urgent: true })
             await this.get_dashboard_configs()
-        } catch (error) {
-            this.show_error({ error })
-            throw error
-        }
+        })
         if (!this.config) {
             const id = genid()
             const new_dashboard_config = {
@@ -441,17 +438,13 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     async rename_dashboard (dashboard_id: number, new_name: string) {
-        try {
-            await model.ddb.call<DdbVoid>('dashboard_rename_config', [new DdbDict({ id: new DdbLong(BigInt(dashboard_id)), name: new_name })], { urgent: true })
-        
-            const index = this.configs.findIndex(({ id }) => id === dashboard_id)
-            const config = this.configs[index]
-            config.name = new_name
-            this.set({ configs: this.configs.toSpliced(index, 1, config), config })
-            await this.render_with_config(config)
-        } catch (error) {
-            this.show_error(error)
-        }
+        await model.ddb.call<DdbVoid>('dashboard_rename_config', [new DdbDict({ id: new DdbLong(BigInt(dashboard_id)), name: new_name })], { urgent: true })
+    
+        const index = this.configs.findIndex(({ id }) => id === dashboard_id)
+        const config = this.configs[index]
+        config.name = new_name
+        this.set({ configs: this.configs.toSpliced(index, 1, config), config })
+        await this.render_with_config(config)
     }
     
     
@@ -512,14 +505,17 @@ export class DashBoardModel extends Model<DashBoardModel> {
             data_sources: await import_data_sources(config.data.datasources),
             
             widgets: config.data.canvas.widgets.map(widget => ({
-                 ...widget,
-                 ref: createRef()
-                 })) as any,
+                ...widget,
+                ref: createRef()
+                })) as Widget[],
          
             widget: null,
             
          })
-         
+        
+        for (let i in this.widgets) 
+            await subscribe_data_source(this.widgets[i], this.widgets[i].source_id, false)
+        
         this.set({ loading: false })
     }
     
@@ -536,6 +532,10 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 viewers: new DdbVectorString(viewers), 
                 editors: new DdbVectorString(editors) 
             })], { urgent: true })
+    }
+    
+    async revoke (id: number) {
+        await model.ddb.call<DdbVoid>('dashboard_revoke_permission', [new DdbDict({ id: new DdbLong(BigInt(id)) })], { urgent: true })
     }
 }
 

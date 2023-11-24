@@ -42,18 +42,14 @@ export function Computing () {
     useEffect(() => {
         if (!logined || node_type === NodeType.controller)
             return
-        ;(async () => {
-            try {
-                if (!computing.inited)
-                    await computing.init()
-                await computing.get_streaming_pub_sub_stat()
-                await computing.get_streaming_engine_stat()
-                await computing.get_streaming_table_stat()
-            } catch (error) {
-                model.show_error({ error })
-                throw error
-            }
-        })()
+        
+        model.execute(async () => {
+            if (!computing.inited)
+                await computing.init()
+            await computing.get_streaming_pub_sub_stat()
+            await computing.get_streaming_engine_stat()
+            await computing.get_streaming_table_stat()
+        })
     }, [ ])
     
     if (node_type === NodeType.controller)
@@ -259,15 +255,12 @@ export function Computing () {
         tabBarExtraContent={
             <Button
                 icon={<ReloadOutlined />}
-                onClick={async () => {
-                    try {
+                onClick={async () =>
+                    model.execute(async () => {
                         await tab_content[tab_key].refresher.call(computing)
                         model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
-                    } catch (error) {
-                        model.show_error(error)
-                        throw error
-                    }
-                }}
+                    })
+                }
             >
                 {t('刷新')}
             </Button>
@@ -678,9 +671,9 @@ function handle_null (table: Record<string, any>[]) {
 
 /** 统一处理删除 */
 async function handle_delete (type: string, selected: string[], ddb: DDB, refresher: () => Promise<void>, raftGroups?: string[]) {
-    switch (type) {
-        case 'subWorkers':
-            try {
+    await model.execute(async () => {
+        switch (type) {
+            case 'subWorkers':
                 await Promise.all(
                     selected.map(async (pub_table, idx) => {
                         const pub_table_arr = pub_table.split('/')
@@ -697,28 +690,20 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
                     })
                 )
                 model.message.success(t('取消订阅成功'))
-            } catch (error) {
-                model.show_error({ error })
-            }
-            break
-        case 'persistenceMeta':
-        case 'sharedStreamingTableStat':
-            try {
+                break
+            case 'persistenceMeta':
+            case 'sharedStreamingTableStat':
                 await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name], { urgent: true })))
                 model.message.success(t('流数据表删除成功'))
-            } catch (error) {
-                model.show_error({ error })
-            }
-            break
-        case 'engine':
-            try {
+                break
+            case 'engine':
                 await Promise.all(selected.map(async engine_name => ddb.call('dropStreamEngine', [engine_name], { urgent: true })))
                 model.message.success(t('引擎删除成功'))
-            } catch (error) {
-                model.show_error({ error })
-            }
-    }
-    await refresher.bind(computing)()
+                
+        }
+    })
+    
+    await refresher.call(computing)
 }
 
 function DetailInfo ({ text, type }: { text: string, type: string }) {
