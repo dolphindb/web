@@ -504,19 +504,18 @@ export class DashBoardModel extends Model<DashBoardModel> {
          
             data_sources: await import_data_sources(config.data.datasources),
             
-            widgets: config.data.canvas.widgets.map(widget => {
-                const _widget = {
-                    ...widget,
-                    ref: createRef()
-                }
-                subscribe_data_source(_widget, _widget.source_id, false)
-                return _widget
-            }) as Widget[],
+            widgets: config.data.canvas.widgets.map(widget => ({
+                ...widget,
+                ref: createRef()
+                })) as Widget[],
          
             widget: null,
             
          })
-         
+        
+        for (let i in this.widgets) 
+            await subscribe_data_source(this.widgets[i], this.widgets[i].source_id, false)
+        
         this.set({ loading: false })
     }
     

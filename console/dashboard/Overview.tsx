@@ -150,8 +150,8 @@ export function Overview () {
             <Modal
                 open={deletor.visible}
                 onCancel={deletor.close}
-                onOk={async () =>
-                        model.execute(async () => {
+                onOk={async () => {
+                        try {
                             selected_dashboard_ids.forEach(dashboard_id => {
                                 const config = dashboard.configs.find(config => config.id = dashboard_id)
                                 if (config?.permission !== DashboardPermission.own)
@@ -161,8 +161,12 @@ export function Overview () {
                             await dashboard.delete_dashboard_configs(selected_dashboard_ids, false)
                             set_selected_dashboard_ids([ ])
                             model.message.success(t('删除成功'))
+                        } catch (error) {
+                            model.show_error({ error })
+                        } finally {
                             deletor.close()
-                        })
+                        }
+                    }
                 }
                 title={t(`确认删除选中的 ${selected_dashboard_ids.length} 个数据面板吗？`)}
              />
@@ -387,7 +391,7 @@ export function Overview () {
                                 icon={<DeleteOutlined />}
                                 onClick={() => {
                                     if (!selected_dashboard_ids || !selected_dashboard_ids.length) {
-                                    model.message.error(t('请至少选中一个数据面板后再删除'))
+                                        model.message.error(t('请至少选中一个数据面板后再删除'))
                                         return
                                     } 
                                     deletor.open()
