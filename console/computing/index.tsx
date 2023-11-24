@@ -515,13 +515,17 @@ const units = {
     }
 }
 
+const detail_title = {
+    lastErrMsg: t('错误详细信息'),
+    persistenceDir: t('持久化路径')
+}
+
 /** 省略文本内容，提供`详细`按钮，点开后弹出 modal 显示详细信息 */
 function handle_ellipsis_col (table: Record<string, any>[], col_name: string) {
-    const is_error_col = col_name === 'lastErrMsg'
     return table.map(row => {
-        if (is_error_col)
+        if (col_name === 'lastErrMsg')
             row.order = row[col_name]
-        row[col_name] = <DetailInfo text={row[col_name] as string} type={is_error_col ? 'error' : 'info'} />
+        row[col_name] = <DetailInfo text={row[col_name] as string} type={col_name} />
         return row
     })
 }
@@ -719,28 +723,28 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
 function DetailInfo ({ text, type }: { text: string, type: string }) {
     if (!text)
         return
-    function error () {
+    function detail () {
         model.modal.info({
-            title: type === 'error' ? t('错误详细信息') : t('持久化路径'),
+            title: detail_title[type],
             content: text,
             width: '80%'
         })
     }
     return <Typography.Paragraph
-            ellipsis={{
-                rows: 2,
-                expandable: true,
-                symbol: (
-                    <span
-                        onClick={event => {
-                            event.stopPropagation()
-                            error()
-                        }}
-                    >
-                        {t('详细')}
-                    </span>
-                )
-            }}
+                ellipsis={{
+                    rows: 2,
+                    expandable: true,
+                    symbol: (
+                        <span
+                            onClick={event => {
+                                event.stopPropagation()
+                                detail()
+                            }}
+                        >
+                            {t('详细')}
+                        </span>
+                    )
+                }}
         >
             {text}
         </Typography.Paragraph>
