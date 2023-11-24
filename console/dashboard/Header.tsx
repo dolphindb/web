@@ -37,7 +37,7 @@ export function get_widget_config (widget: Widget) {
 
 interface DashboardOption {
     key: number
-    value: string
+    value: number
     label: string | JSX.Element
 }
 
@@ -111,7 +111,7 @@ export function Header () {
                 return 
             }
             
-            const new_dashboard_config = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
+            const new_dashboard_config = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name, model.username)
             
             // await dashboard.update_config(new_dashboard_config)
             await dashboard.add_dashboard_config(new_dashboard_config)
@@ -212,11 +212,11 @@ export function Header () {
                     
             }}
             // defaultValue={ config?.name || new_dashboard_name}
-            value={config?.name}
+            value={config?.id}
             bordered={false}
             options={configs?.map(({ id, name, permission }) => ({
                 key: id,
-                value: name,
+                value: id,
                 label: <div className='dashboard-options-label'>
                     <span className={cn({ 'dashboard-options-label-name': permission })}>{name}</span>
                     {permission !== DashboardPermission.own && <Tag color='processing' className='status-tag' >{permission === DashboardPermission.edit ? t('仅编辑') : t('仅预览')}</Tag> }

@@ -95,13 +95,13 @@ export function Overview () {
                             return
                         }
                         
-                        if (configs?.find(({ name }) => name === new_dashboard_name)) {
+                        if (configs.find(({ name, permission }) => name === new_dashboard_name && permission === DashboardPermission.own)) {
                             model.message.error(t('名称重复，请重新输入'))
                             return
                         }
                         
                         /** 待接口更新后修改 */
-                        const new_dashboard = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
+                        const new_dashboard = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name, model.username)
                         
                         await dashboard.add_dashboard_config(new_dashboard, false)
                         
@@ -206,7 +206,7 @@ export function Overview () {
                             }
                         ],
                         onFilter: (value, { permission }) => permission === value,
-                        render: (text, { key, name, permission }) => <a
+                        render: (text, { key, name, permission, owner }) => <a
                                 onClick={() => {
                                     const config = configs.find(({ id }) => id === key)
                                     dashboard.set({ config, editing: false })
@@ -216,7 +216,16 @@ export function Overview () {
                             >
                                 <div className='dashboard-cell-tag'>
                                     <span className={cn({ 'dashboard-cell-tag-name': permission })}>{name}</span>
-                                    {permission !== DashboardPermission.own && <Tag color='processing' className='status-tag' >{permission === DashboardPermission.edit ? t('仅编辑') : t('仅预览')}</Tag> }
+                                    {permission !== DashboardPermission.own 
+                                        && <>
+                                            <Tag color='processing' className='status-tag' >
+                                                {permission === DashboardPermission.edit ? t('仅编辑') : t('仅预览')}
+                                            </Tag> 
+                                            <Tag color='processing' className='status-tag' >
+                                                {`${t('来源于 ')}${owner}`}
+                                            </Tag> 
+                                        </>
+                                    }
                                 </div>
                             </a>
                     },
@@ -317,7 +326,7 @@ export function Overview () {
                         </div>
                     }
                 ]}
-                dataSource={configs?.map(({ id, name, permission }) => ({ key: id, name, permission }))}
+                dataSource={configs?.map(({ id, name, permission, owner }) => ({ key: id, name, permission, owner }))}
                 pagination={false}
                 title={() => <div className='title'>
                         <h2>{t('数据面板')}</h2>
@@ -344,8 +353,15 @@ export function Overview () {
                                         
                                         if (configs.findIndex(c => c.id === import_config.id) !== -1)
                                             await dashboard.update_dashboard_config(import_config, false)
-                                        else
+                                        else {
+                                            if (configs.find(({ name, permission }) => name === import_config.name && permission === DashboardPermission.own)) {
+                                                model.message.error(t('已有名为{{name}}的 dashboard 存在，导入失败', { name: import_config.name }))
+                                                return
+                                            }
+                                            import_config.id = genid()
+                                            import_config.owner = model.username
                                             await dashboard.add_dashboard_config(import_config, false)
+                                        }
                                         model.message.success(`${import_config.name}导入成功`)
                                     })
                                     return false

@@ -477,7 +477,7 @@ export function copy_widget (widget: Widget) {
             w: widget.w,
             h: widget.h
         },
-        ...get_variable_copy_infos(Array.from(widget.config.variable_ids))
+        ...get_variable_copy_infos(widget.config?.variable_ids || [ ])
     })
     try {
         copy(copy_text)

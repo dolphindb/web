@@ -97,6 +97,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             const new_dashboard_config = {
                 id,
                 name: String(id).slice(0, 4),
+                owner: '',
                 permission: DashboardPermission.own,
                 data: {
                     datasources: [ ],
@@ -257,10 +258,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
     // }
     
     
-    generate_new_config (id: number, name: string) {
+    generate_new_config (id: number, name: string, owner: string) {
         return {
             id,
             name,
+            owner,
             permission: DashboardPermission.own,
             data: {
                 datasources: [ ],
@@ -549,6 +551,8 @@ export interface DashBoardConfig {
     id: number
     
     name: string
+    
+    owner: string
     
     /** 当前用户是否有所有权, 被分享时 owned 为 false */
     permission: DashboardPermission
