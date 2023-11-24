@@ -514,7 +514,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
                     ...widget,
                     ref: createRef()
                 }
-                subscribe_data_source(_widget, _widget.source_id)
+                subscribe_data_source(_widget, _widget.source_id, false)
                 return _widget
             }) as Widget[],
          
