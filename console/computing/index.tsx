@@ -169,7 +169,7 @@ export function Computing () {
                         <StateTable
                             type='pubConns'
                             cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), 'pubConns'), 'queueDepth')}
-                            rows={handle_ellipsis_col(add_key(streaming_stat.pubConns.to_rows()), 'tables')}
+                            rows={add_key(streaming_stat.pubConns.to_rows())}
                             separated={false}
                         />
                     </div>
@@ -233,11 +233,15 @@ export function Computing () {
                         <StateTable
                             type='persistenceMeta'
                             cols={render_col_title(
-                                sort_col(set_col_width(persistent_table_stat.to_cols(), 'persistenceMeta'), 'persistenceMeta'),
+                                    sort_col(
+                                        set_col_width(
+                                            translate_format_col(persistent_table_stat.to_cols(), 'memoryUsed'), 'persistenceMeta'), 'persistenceMeta'),
                                 'persistenceMeta'
                             )}
-                            rows={handle_null(add_key(persistent_table_stat.to_rows()))}
-                            min_width={1500}
+                            rows={handle_null(
+                                    translate_byte_row(
+                                        handle_ellipsis_col(add_key(persistent_table_stat.to_rows()), 'persistenceDir'), 'memoryUsed'))}
+                            min_width={1600}
                             refresher={computing.get_streaming_table_stat}
                         />
                         {streaming_stat.persistWorkers && (
@@ -295,14 +299,17 @@ const cols_width = {
     },
     persistenceMeta: {
         tablename: 150,
+        loaded: 100,
+        columns: 60,
+        memoryUsed: 100,
         lastLogSeqNum: 120,
-        sizeInMemory: 120,
+        sizeInMemory: 100,
         asynWrite: 110,
-        totalSize: 120,
+        totalSize: 90,
         raftGroup: 70,
         compress: 70,
-        sizeOnDisk: 120,
-        retentionMinutes: 120,
+        sizeOnDisk: 100,
+        retentionMinutes: 100,
         memoryOffset: 100,
         hashValue: 90,
         diskOffset: 100
@@ -382,6 +389,9 @@ const leading_cols = {
     },
     persistenceMeta: {
         tablename: t('表名'),
+        loaded: t('加载到内存'),
+        columns: t('列数'),
+        memoryUsed: t('内存大小'),
         totalSize: t('总行数'),
         sizeInMemory: t('内存中行数'),
         memoryOffset: t('内存中偏移量'),
@@ -711,7 +721,7 @@ function DetailInfo ({ text, type }: { text: string, type: string }) {
         return
     function error () {
         model.modal.info({
-            title: type === 'error' ? t('错误详细信息') : t('共享流数据表'),
+            title: type === 'error' ? t('错误详细信息') : t('持久化路径'),
             content: text,
             width: '80%'
         })
