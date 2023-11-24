@@ -25,10 +25,12 @@ export function Overview () {
     const [new_dashboard_id, set_new_dashboard_id] = useState<number>()
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
+    const [copy_dashboard_name, set_copy_dashboard_name] = useState('')
     
     let creator = use_modal()
     let editor = use_modal()
     let deletor = use_modal()
+    let copyor = use_modal()
     
     const params = new URLSearchParams(location.search)
     
@@ -170,6 +172,40 @@ export function Overview () {
                 title={t(`确认删除选中的 ${selected_dashboard_ids.length} 个数据面板吗？`)}
              />
             
+            <Modal
+                open={copyor.visible}
+                onCancel={copyor.close}
+                onOk={async () => 
+                    model.execute(async () => {
+                        if (!copy_dashboard_name) {
+                            model.message.error(t('dashboard 名称不允许为空'))
+                            return
+                        }
+                        if (copy_dashboard_name.includes('/') || copy_dashboard_name.includes('\\')) {
+                            model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
+                            return
+                        }
+                        
+                        if (configs.find(({ name, permission }) => name === copy_dashboard_name && permission === DashboardPermission.own)) {
+                            model.message.error(t('名称重复，请重新输入'))
+                            return
+                        }
+                        const copy_dashboard = dashboard.generate_new_config(genid(), copy_dashboard_name, current_dashboard.data)
+                        await dashboard.add_dashboard_config(copy_dashboard)
+                        model.message.success(t('创建副本成功'))
+                        
+                        copyor.close()
+                })}
+                title={t('请输入 dashboard 副本名称')}
+            >
+                <Input
+                    value={copy_dashboard_name}
+                    onChange={event => {
+                        set_copy_dashboard_name(event.target.value)
+                    }}
+                />
+            </Modal>
+            
             <Table
                 rowSelection={{
                     selectedRowKeys: selected_dashboard_ids,
@@ -215,7 +251,7 @@ export function Overview () {
                         title: t('操作'),
                         dataIndex: '',
                         key: 'actions',
-                        width: 350,
+                        width: 450,
                         render: ({ key, permission }) => <div className='action'>
                             {
                                 permission !== DashboardPermission.view
@@ -236,11 +272,22 @@ export function Overview () {
                                         >
                                             {t('导出')}
                                         </a>
+                                        
+                                        <a
+                                            onClick={() => {
+                                                let config = configs.find(({ id }) => id === key)
+                                                set_current_dashboard(config)
+                                                set_copy_dashboard_name(config.name)
+                                                copyor.open()
+                                            }}
+                                        >
+                                            {t('创建副本')}
+                                        </a>
                                     </>
                                     : <></>
                             }
                             {
-                                permission === DashboardPermission.own
+                                permission === DashboardPermission.own 
                                     ? <>
                                         <a
                                             onClick={() => {
