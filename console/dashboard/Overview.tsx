@@ -386,7 +386,7 @@ export function Overview () {
                             <Upload
                                 multiple
                                 showUploadList={false}
-                                beforeUpload={load_config}
+                                beforeUpload={async file => { load_config(file, 'light') }}
                             >
                                 <Button icon={<DownloadOutlined />}>{t('批量导入')}</Button>
                             </Upload>
