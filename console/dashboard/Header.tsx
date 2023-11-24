@@ -114,7 +114,7 @@ export function Header () {
                 return 
             }
             
-            const new_dashboard_config = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name, model.username)
+            const new_dashboard_config = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
             
             // await dashboard.update_config(new_dashboard_config)
             await dashboard.add_dashboard_config(new_dashboard_config)
