@@ -218,8 +218,7 @@ export async function subscribe_data_source (widget_option: Widget, source_id: s
     if (data_source.error_message) {
         if (message) 
             dashboard.message.error(t('当前数据源存在错误'))
-    }  
-    else
+    } else
         switch (data_source.mode) {
             case 'sql':
                 if (data_source.auto_refresh && !data_source.timer)

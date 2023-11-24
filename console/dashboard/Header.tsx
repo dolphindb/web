@@ -96,7 +96,7 @@ export function Header () {
     
     
     async function handle_add () {
-        try {
+        await model.execute(async () => {
             if (!new_dashboard_name.trim()) {
                 dashboard.message.error(t('数据面板名称不允许为空'))
                 return 
@@ -118,16 +118,13 @@ export function Header () {
             await dashboard.render_with_config(new_dashboard_config)
             model.set_query('dashboard', String(new_dashboard_id))
             dashboard.message.success(t('添加成功'))
-        } catch (error) {
-            model.show_error({ error })
-            throw error
-        }
+        })
         add_close()
     }
     
     
     async function handle_edit () {
-        try {
+        model.execute(async () => {
             if (!edit_dashboard_name) {
                 dashboard.message.error(t('数据面板名称不允许为空'))
                 return 
@@ -149,10 +146,7 @@ export function Header () {
             dashboard.message.success(t('修改成功'))
             
             edit_close()
-        } catch (error) {
-            model.show_error({ error })
-            throw error
-        }
+        })
     }
     
     /** 删除和撤销的回调 */
@@ -303,7 +297,7 @@ export function Header () {
                     dashboard.config?.permission !== DashboardPermission.view
                         ? <Tooltip title={t('导出')}>
                             <Button className='action' onClick={async () => {
-                                try {
+                                await model.execute(async () => {
                                     await get_latest_config()
                                     
                                     let a = document.createElement('a')
@@ -315,9 +309,7 @@ export function Header () {
                                     document.body.appendChild(a)
                                     a.click()
                                     document.body.removeChild(a)
-                                } catch (error) {
-                                    model.show_error({ error })
-                                }
+                                })
                             }}><UploadOutlined /></Button>
                         </Tooltip>
                         : <></>
@@ -327,7 +319,7 @@ export function Header () {
                     <Upload
                         showUploadList={false}
                         beforeUpload={async file => {
-                            try {
+                            await model.execute(async () => {
                                 const import_config = JSON.parse(await file.text()) as DashBoardConfig
                                 if (configs.findIndex(c => c.id === import_config.id) !== -1)
                                     await dashboard.update_dashboard_config(import_config)
@@ -335,10 +327,7 @@ export function Header () {
                                     await dashboard.add_dashboard_config(import_config)
                                 model.set_query('dashboard', String(import_config.id))
                                 return false
-                            } catch (error) {
-                                dashboard.show_error({ error })
-                                throw error
-                            }
+                            })
                         }}
                     >
                         <Button className='action'>

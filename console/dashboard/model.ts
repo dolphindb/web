@@ -88,13 +88,10 @@ export class DashBoardModel extends Model<DashBoardModel> {
         //     this.set({ backend: false })
         //     await this.get_configs_from_local()
         // }
-        try {
+        await model.execute(async () => {
             await model.ddb.call<DdbVoid>('dashboard_check_access', [ ], { urgent: true })
             await this.get_dashboard_configs()
-        } catch (error) {
-            this.show_error({ error })
-            throw error
-        }
+        })
         if (!this.config) {
             const id = genid()
             const new_dashboard_config = {
@@ -475,7 +472,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             const config = configs.find(({ id }) =>  id === dashboard_id)
             if (config) {
                 this.set({ config })
-                await this.render_with_config(config)
+                await model.execute(async () =>  this.render_with_config(config) )
             }
                 
             else
