@@ -26,13 +26,17 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
     
     const trigger_click_handler = useCallback(async () => {
         try {
+            if (!dashboard_ids.length) {
+                model.message.error(t('请至少选中一个数据面板后再分享'))
+                return
+            }
             await dashboard.get_user_list()
             open()
         } catch (error) {
             dashboard.message.error(error.message)
             throw error
         }
-    }, [ ])
+    }, [dashboard_ids])
     
     const triggers = {
         button: <Button
@@ -55,7 +59,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
             styles={{ mask: { backgroundColor: 'rgba(84,84,84,0.5)' } }}
             afterOpenChange={async () => {
                 if (trigger_type !== 'button')
-                    await model.execute(async () => {
+                    try {
                         const data = 
                             (
                                 await model.ddb.call(
@@ -66,7 +70,9 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
                             ).value[1].value
                         set_viewers(new Set(data[0].value))
                         set_editors(new Set(data[1].value))
-                   })
+                    } catch (error) {
+                        model.show_error({ error: parse_error(error) })
+                    }
                 else {
                     set_viewers(new Set())
                     set_editors(new Set())
@@ -106,7 +112,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
                         title: t('权限'), 
                         dataIndex: 'permission', 
                         key: 'permission',
-                        width: '45%',
+                        width: '50%',
                         render: (text, { key })  => {
                             return <Radio.Group 
                                         onChange={event => { 
@@ -132,7 +138,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
                                         value={editors.has(key) ? 'editor' : (viewers.has(key) ? 'view' : 'none')}
                                     >
                                     <Radio value='none'>{t('无')}</Radio>
-                                    <Radio value='view'>{t('预览')}</Radio>
+                                    <Radio value='view'>{t('仅预览')}</Radio>
                                     <Radio value='editor'>{t('编辑')}</Radio>
                                 </Radio.Group>
                         }

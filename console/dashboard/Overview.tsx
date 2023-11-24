@@ -40,6 +40,9 @@ export function Overview () {
                     return
                 }
                 
+                // const data = await model.ddb.call('dashboard_get_version')
+                // console.log(data)
+                
                 // await model.ddb.eval(backend)
                 
                 await dashboard.get_dashboard_configs()
@@ -178,9 +181,10 @@ export function Overview () {
                             await dashboard.delete_dashboard_configs(selected_dashboard_ids, false)
                             set_selected_dashboard_ids([ ])
                             model.message.success(t('删除成功'))
-                            deletor.close()
                         } catch (error) {
                             model.show_error({ error })
+                        } finally {
+                            deletor.close()
                         }
                     }
                 }
@@ -417,7 +421,7 @@ export function Overview () {
                                 icon={<DeleteOutlined />}
                                 onClick={() => {
                                     if (!selected_dashboard_ids || !selected_dashboard_ids.length) {
-                                    model.message.error(t('请至少选中一个数据面板后再删除'))
+                                        model.message.error(t('请至少选中一个数据面板后再删除'))
                                         return
                                     } 
                                     deletor.open()
