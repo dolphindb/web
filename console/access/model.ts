@@ -1,6 +1,6 @@
 import { Model } from 'react-object-model'
 import { model } from '../model.js'
-import { DdbInt, DdbVectorString, DdbVoid } from 'dolphindb/browser.js'
+import { DdbBool, DdbInt, DdbVectorString, DdbVoid } from 'dolphindb/browser.js'
 
 export interface User {
     userId: string
@@ -40,6 +40,8 @@ class AccessModel extends Model<AccessModel> {
     
     databases: Database[] = [ ]
     
+    shared_tables: string[] = [ ]
+    
     stream_tables: string[] = [ ]
     
     function_views: string[] = [ ]
@@ -54,6 +56,7 @@ class AccessModel extends Model<AccessModel> {
         this.get_user_list()
         this.get_group_list()
         this.get_databases_with_tables()
+        this.get_share_tables()
         this.get_stream_tables()
         this.get_function_views()
         this.set({ inited: true })
@@ -155,6 +158,12 @@ class AccessModel extends Model<AccessModel> {
     
     async get_tables (database: string): Promise<string[]> {
         return (await model.ddb.call('getDFSTablesByDatabase', [database], { urgent: true })).value as string[]
+    }
+    
+    
+    async get_share_tables () {
+        const tables =  (await model.ddb.call('objs', [new DdbBool(true)], { urgent: true })).to_rows()
+        this.set({ shared_tables: tables.filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE').map(table => table.name) })
     }
     
     

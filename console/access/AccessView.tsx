@@ -45,6 +45,16 @@ export function AccessView ({
                         <AccessManage category='database'/>
         },
         {
+            key: 'share_table',
+            label: t('共享内存表'),
+            // children: <AccessList accesses={accesses} category='stream'/>
+            children: current.preview ? 
+                        <AccessList category='shared'/>
+                            :
+                        <AccessManage category='shared'/>
+            
+        },
+        {
             key: 'stream',
             label: t('流数据表'),
             // children: <AccessList accesses={accesses} category='stream'/>
@@ -94,6 +104,7 @@ export function AccessView ({
 const ACCESS_TYPE = {
     database: [ 'DB_MANAGE', 'DBOBJ_CREATE', 'DBOBJ_DELETE', 'DB_INSERT', 'DB_UPDATE', 'DB_DELETE', 'DB_READ'],
     table: [ 'TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
+    shared: [ 'TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
     stream: ['TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
     function_view: ['VIEW_EXEC'],
     script: ['SCRIPT_EXEC', 'TEST_EXEC']
@@ -135,14 +146,14 @@ function handle_access (accesses: Record<string, any>, type: string, name: strin
 function AccessList ({ 
     category 
 }: {
-    category: 'database' | 'stream' | 'function_view' | 'script'
+    category: 'database' | 'shared' | 'stream' | 'function_view' | 'script'
 }) {
     
     const [showed_accesses, set_showed_accesses] = useState<Record<string, any>>([ ])
     
     const [search_key, set_search_key] = useState('')
     
-    const { databases, stream_tables, function_views, accesses, current } = access.use(['databases', 'stream_tables', 'function_views', 'accesses', 'current'])
+    const { databases, shared_tables, stream_tables, function_views, accesses, current } = access.use(['databases', 'shared_tables', 'stream_tables', 'function_views', 'accesses', 'current'])
     
     
     useEffect(() => {
@@ -156,6 +167,9 @@ function AccessList ({
                 switch (category) {
                     case 'database':
                         items = databases
+                        break
+                    case 'shared':
+                        items = shared_tables
                         break
                     case 'function_view':
                         items = function_views
@@ -302,13 +316,15 @@ function AccessList ({
 function AccessManage ({ 
     category 
 }: {
-    category: 'database' | 'table' | 'stream' | 'function_view' | 'script'
+    category: 'database' | 'shared' | 'stream' | 'function_view' | 'script'
 }) {
     let creator = use_modal()
     
     const [add_access_form] = Form.useForm()
     
-    const [rule_category, set_rule_category] = useState(category)
+    const [rule_category, set_rule_category] = useState<string>(category)
+    
+    const [search_key, set_search_key] = useState('')
     
     const cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
         [
@@ -339,7 +355,7 @@ function AccessManage ({
         ]
     ), [ ])
     
-    const { databases, stream_tables, function_views, current, accesses } = access.use(['databases', 'stream_tables', 'function_views', 'current', 'accesses'])
+    const { databases, shared_tables, stream_tables, function_views, current, accesses } = access.use(['databases', 'shared_tables', 'stream_tables', 'function_views', 'current', 'accesses'])
     
     const get_accesses = useCallback(() => {
         let tb_rows = [ ]
@@ -373,8 +389,10 @@ function AccessManage ({
                         let objs = v.split(',')
                         if (category === 'database')
                             objs = objs.filter((obj: string) =>  obj.startsWith('dfs:'))
+                        if (category === 'shared')
+                            objs = objs.filter((obj: string) =>  shared_tables.includes(obj))
                         if (category === 'stream')
-                            objs =  objs.filter((obj: string) =>  !obj.startsWith('dfs:'))
+                            objs = objs.filter((obj: string) =>  !obj.startsWith('dfs:') && !shared_tables.includes(obj))
                         const allowed = aces_types.map(aces => aces + '_allowed').includes(k)
                         for (let obj of objs)
                             tb_rows.push({
@@ -404,8 +422,34 @@ function AccessManage ({
     const rows = useMemo(() => {
         if (!accesses)
             return
-        return get_accesses()
+        return get_accesses().filter(row => {
+            const item = (category === 'script' ? 'access' : 'name')
+            return row[item].toLowerCase().includes(search_key.toLowerCase())
+        })
     }, [accesses, category])
+    
+    const options = useMemo(() => {
+        let items = [ ]
+        switch (category) {
+            case 'script':
+                items = ACCESS_TYPE.script
+                break
+            case 'function_view':
+                items = function_views
+                break
+            case 'shared':
+                items = shared_tables
+                break
+            case 'stream':
+                items = stream_tables
+                break
+                
+        }
+        return items.map(opt => ({
+            title: opt,
+            value: opt
+        }))
+    }, [category ])
     
     return <>
             <Modal 
@@ -492,16 +536,7 @@ function AccessManage ({
                                             style={{ width: '300px' }}
                                             placeholder={t('请选择{{category}}', { category: TABLE_NAMES[category] })}
                                             // disabled={!!category}
-                                            options={(category === 'script' ? 
-                                                            ACCESS_TYPE.script
-                                                                        :   
-                                                    category === 'function_view' ? 
-                                                                        function_views 
-                                                                                : 
-                                                                        stream_tables).map(opt => ({
-                                                        title: opt,
-                                                        value: opt
-                                                    }))}
+                                            options={options}
                                         />
                                         }
                                     </Form.Item>
@@ -510,7 +545,7 @@ function AccessManage ({
                                             style={{ width: '200px' }}
                                             placeholder={t('请选择权限')}
                                             disabled={category === 'script'}
-                                            options={ (category !== 'stream' ? ACCESS_TYPE[rule_category] : ['TABLE_WRITE', 'TABLE_READ']).map(db => ({
+                                            options={ (!['shared', 'stream'].includes(category) ? ACCESS_TYPE[rule_category] : ['TABLE_WRITE', 'TABLE_READ']).map(db => ({
                                                 title: db,
                                                 value: db
                                             }))}
@@ -576,6 +611,14 @@ function AccessManage ({
                     <Button onClick={() => { access.set({ current: { ...current, preview: true } }) }}>
                         {t('权限查看')}
                     </Button>
+                    
+                    <Input  
+                        className='search'
+                        value={search_key}
+                        prefix={<SearchOutlined />}
+                        onChange={e => { set_search_key(e.target.value) }} 
+                        placeholder={t('请输入想要搜索的{{category}}', { category: TABLE_NAMES[category] })} 
+                    />
                     
                 </div>
                 </>
