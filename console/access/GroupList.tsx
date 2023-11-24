@@ -3,7 +3,7 @@ import './index.sass'
 import { useEffect, useMemo, useState } from 'react'
 
 import { Button, Form, Input, Modal, Select, Switch, Table,  Popconfirm, Tooltip, type TableColumnType, Transfer } from 'antd'
-import { CheckCircleFilled, CheckCircleOutlined, CloseCircleFilled, CloseCircleOutlined, SearchOutlined } from '@ant-design/icons'
+import { CheckCircleFilled, CheckCircleOutlined, CloseCircleFilled, CloseCircleOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
 
 import { t } from '../../i18n/index.js'
 
@@ -77,7 +77,7 @@ export function GroupList () {
             group_name: group.groupName,
             users:  group.users,
             actions: <div className='actions'>
-                <Button type='primary' 
+                <Button type='link' 
                         onClick={async () => { 
                             editor.open()
                             
@@ -86,13 +86,13 @@ export function GroupList () {
                         }}>
                     {t('成员管理')}
                 </Button>
-                <Button type='primary' 
+                <Button type='link' 
                         onClick={() => { 
                             access.set({ current: { role: 'group', name: group.groupName, preview: false } }) 
                         }}>
                     {t('权限管理')}
                 </Button>
-                <Button type='primary'
+                <Button type='link'
                         onClick={() => { 
                             access.set({ current: { role: 'group', name: group.groupName, preview: true } }) 
                         }}>
@@ -111,7 +111,7 @@ export function GroupList () {
                                     } 
                                 }}
                 >
-                    <Button type='primary' danger>
+                    <Button type='link' danger>
                         {t('删除')}
                     </Button>
                 </Popconfirm>
@@ -164,7 +164,7 @@ export function GroupList () {
                         <Input />
                 </Form.Item>
                 <Form.Item
-                    label={t('用户')}
+                    label={t('成员')}
                     name='users'
                     >
                     <Transfer
@@ -250,10 +250,10 @@ export function GroupList () {
         
         <div className='header'>
             <div className='actions'>
-                <Button type='primary' onClick={creator.open}>
+                <Button type='primary' icon={<PlusOutlined />} onClick={creator.open}>
                     {t('新建组')}
                 </Button>
-                <Button type='primary' danger onClick={deletor.open}>
+                <Button danger icon={<DeleteOutlined />} onClick={deletor.open}>
                     {t('批量删除')}
                 </Button>
             </div>

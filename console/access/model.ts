@@ -9,7 +9,7 @@ export interface User {
     isAdmin?: boolean
 }
 
-export interface database {
+export interface Database {
     name: string
     tables: string[]
 }
@@ -38,7 +38,7 @@ class AccessModel extends Model<AccessModel> {
     
     groups: string[] = [ ]
     
-    databases: database[] = [ ]
+    databases: Database[] = [ ]
     
     stream_tables: string[] = [ ]
     

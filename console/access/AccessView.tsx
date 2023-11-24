@@ -2,7 +2,7 @@ import { Tabs, Table, Button, Input, type TableColumnType, type TabsProps, Modal
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { t } from '../../i18n/index.js'
 
-import { access, type database } from './model.js'
+import { access, type Database } from './model.js'
 import { model } from '../model.js'
 import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined, QuestionCircleFilled, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/modal.js'
@@ -93,7 +93,7 @@ export function AccessView ({
 
 const ACCESS_TYPE = {
     database: [ 'DB_MANAGE', 'DBOBJ_CREATE', 'DBOBJ_DELETE', 'DB_INSERT', 'DB_UPDATE', 'DB_DELETE', 'DB_READ'],
-    table: [ 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
+    table: [ 'TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
     stream: ['TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
     function_view: ['VIEW_EXEC'],
     script: ['SCRIPT_EXEC', 'TEST_EXEC']
@@ -150,7 +150,7 @@ function AccessList ({
             return
         (async () => {
             try {
-                let items: string[] | database[] = [ ]
+                let items: string[] | Database[] = [ ]
                 let tmp_tb_access = [ ]
                 
                 switch (category) {
@@ -211,7 +211,7 @@ function AccessList ({
             key: 'name',
           
         },
-        ... category !== 'script' ? ACCESS_TYPE[category].map(type => ({
+        ... category !== 'script' ? ACCESS_TYPE[category].filter(t => t !== 'TABLE_WRITE').map(type => ({
             title: type,
             dataIndex: type,
             key: type,
@@ -225,7 +225,8 @@ function AccessList ({
     
     
     const rows = useMemo(() => (
-        showed_accesses.
+        showed_accesses.filter(({ name }) =>
+            name.toLowerCase().includes(search_key.toLowerCase())).
                     map(tb_access => ({
                             key:  tb_access.name,
                             name: tb_access.name,
@@ -238,20 +239,21 @@ function AccessList ({
                                     ([key, value]) => [ key, STAT_ICONS[value as string] ])) : 
                                     { stat: STAT_ICONS[tb_access.stat] }
         }))
-    ), [showed_accesses])
+    ), [showed_accesses, search_key])
     
     
     return <Table 
             columns={cols}
             dataSource={rows}
             title={() => <div className='actions'>
+                <h4>{t(`当前 {{role}} : ${current.name}`, { role: current.role })}</h4>
                 
-                <Button type='primary' 
+                <Button  
                         onClick={() => { access.set({ current: null }) }}>
                     {t('返回列表')}
                 </Button>
                 
-                <Button type='primary' onClick={() => { access.set({ current: { ...access.current, preview: false } }) }}>
+                <Button  onClick={() => { access.set({ current: { ...access.current, preview: false } }) }}>
                     {t('权限管理')}
                 </Button>
                 <Input  
@@ -262,7 +264,6 @@ function AccessList ({
                     placeholder={t('请输入想要搜索的{{category}}', { category: TABLE_NAMES[category] })} 
                 />
                 
-                <h2>{t(`当前 {{role}} : ${current.name}`, { role: current.role })}</h2>
             </div>
             }
             expandable={ category === 'database' ? {
@@ -276,7 +277,7 @@ function AccessList ({
                                     key: 'table_name',
                                     
                                 },
-                                ...ACCESS_TYPE.table.map(type => ({
+                                ...ACCESS_TYPE.table.filter(t => t !== 'TABLE_WRITE').map(type => ({
                                     title: type,
                                     dataIndex: type,
                                     key: type,
@@ -301,7 +302,7 @@ function AccessList ({
 function AccessManage ({ 
     category 
 }: {
-    category: 'database' | 'stream' | 'function_view' | 'script'
+    category: 'database' | 'table' | 'stream' | 'function_view' | 'script'
 }) {
     let creator = use_modal()
     
@@ -321,9 +322,6 @@ function AccessManage ({
                 title: '权限',
                 dataIndex: 'access',
                 key: 'access',
-                // width: 300
-                
-              
             },
             {
                 title: '类型',
@@ -350,17 +348,16 @@ function AccessManage ({
                                             :
                                 ACCESS_TYPE[category]
         for (let [k, v] of Object.entries(accesses as Record<string, any>))
-            if (v)
-                if (aces_types.map(aces => category === 'script' ? aces : aces + '_allowed').includes(k)) 
-                    if (category === 'script') 
+            if (v && v !== 'none')
+                if (category === 'script') {
+                    if (aces_types.includes(k))
                         tb_rows.push({
                             key: k,
                             access: k,
                             type: v,
-                            action: <Button type='primary' danger onClick={async () => {
+                            action: <Button type='link' danger onClick={async () => {
                                         try {
                                             await access.revoke(current.name, k)
-                                            console.log(current.name, k)
                                             model.message.success('revoke 成功')
                                             access.set({ accesses: current.role === 'user' ? 
                                                             (await access.get_user_access([current.name]))[0]
@@ -369,63 +366,37 @@ function AccessManage ({
                                         } catch (error) {
                                             model.show_error({ error })
                                         }
-                            }}>Revoke</Button>
-                        })
-                    else {
+                                    }}>Revoke</Button>
+                })
+                }
+                else if (aces_types.map(aces => aces + '_allowed').includes(k) || aces_types.map(aces =>  aces + '_denied').includes(k)) {
                         let objs = v.split(',')
                         if (category === 'database')
                             objs = objs.filter((obj: string) =>  obj.startsWith('dfs:'))
                         if (category === 'stream')
                             objs =  objs.filter((obj: string) =>  !obj.startsWith('dfs:'))
+                        const allowed = aces_types.map(aces => aces + '_allowed').includes(k)
                         for (let obj of objs)
                             tb_rows.push({
-                                key: obj + k,
-                                name: obj,
-                                access: k.slice(0, k.indexOf('_allowed')),
-                                type: 'grant',
-                                action: <Button type='primary' danger onClick={async () => {
-                                    try {
-                                        await access.revoke(current.name, k.slice(0, k.indexOf('_allowed')), obj)
-                                        model.message.success(t('revoke 成功'))
-                                        access.set({ accesses: current.role === 'user' ? 
-                                                        (await access.get_user_access([current.name]))[0]
-                                                                                    :
-                                                        (await access.get_group_access([current.name]))[0] }) 
-                                    } catch (error) {
-                                        model.show_error({ error })
-                                    }
-                                }}>Revoke</Button>
-                        })
+                                    key: obj + k,
+                                    name: obj,
+                                    access: k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')),
+                                    type: allowed ? 'grant' : 'deny',
+                                    action: <Button type='link' danger onClick={async () => {
+                                        try {
+                                            await access.revoke(current.name, k.slice(0, k.indexOf('_allowed')), obj)
+                                            model.message.success(t('revoke 成功'))
+                                            access.set({ accesses: current.role === 'user' ? 
+                                                            (await access.get_user_access([current.name]))[0]
+                                                                                        :
+                                                            (await access.get_group_access([current.name]))[0] }) 
+                                        } catch (error) {
+                                            model.show_error({ error })
+                                        }
+                                    }}>Revoke</Button>
+                            })
                     }
-                 else if (aces_types.map(aces => category === 'script' ? aces : aces + '_denied').includes(k)) {
-                    let objs = v.split(',')
-                    if (category === 'database')
-                        objs = objs.filter((obj: string) =>  obj.startsWith('dfs:'))
-                    if (category === 'stream')
-                        objs =  objs.filter((obj: string) =>  !obj.startsWith('dfs:'))
-                    for (let obj of objs)
-                        tb_rows.push({
-                            key: obj + k,
-                            name: obj,
-                            access: k.slice(0, k.indexOf('_denied')),
-                            type: 'deny',
-                            action: <Button type='primary' danger onClick={async () => {
-                                try {
-                                    await access.revoke(current.name, k.slice(0, k.indexOf('_denied')), obj)
-                                    model.message.success('revoke 成功')
-                                    access.set({ accesses: current.role === 'user' ? 
-                                        (await access.get_user_access([current.name]))[0]
-                                                                    :
-                                        (await access.get_group_access([current.name]))[0] }) 
-                                } catch (error) {
-                                    model.show_error({ error })
-                                }
-                            }}>Revoke</Button>
-                    })
-                 }
-                    
-                    
-                
+                   
         return tb_rows
     }, [ accesses, category])
     
@@ -446,6 +417,7 @@ function AccessManage ({
                 }}
                 onOk={async () => {
                     try {
+                        await add_access_form.validateFields()
                         const accesses = await add_access_form.getFieldValue('add-rules')
                         await Promise.all(accesses.map(async aces => {
                             if (aces.type === 'grant')
@@ -469,6 +441,7 @@ function AccessManage ({
                                             (await access.get_user_access([current.name]))[0]
                                                                         :
                                             (await access.get_group_access([current.name]))[0] }) 
+                        add_access_form.resetFields()
                     } catch (error) {
                         model.show_error({ error })
                     }
@@ -484,7 +457,7 @@ function AccessManage ({
                             {
                                 fields.map((field, idx) => 
                                 <div key={field.key} className='rule-select'>
-                                    <Form.Item name={[field.name, 'obj']}>
+                                    <Form.Item name={[field.name, 'obj']} rules={[{ required: true, message: t('请选择{{category}}', { category: TABLE_NAMES[category] }) }]}>
                                         {category === 'database' ? 
                                         <TreeSelect
                                             style={{ width: '300px' }}
@@ -498,13 +471,13 @@ function AccessManage ({
                                                     }))
                                                 }
                                             ))}
-                                            placeholder={t('请选择数据库/表')}
+                                            placeholder={t('请选择 dfs 数据库/表')}
                                             // defaultValue={database_tree[0]?.title}
                                             onChange={val => {
                                                 if (val.split('/').length === 4) {
-                                                    set_rule_category('stream')
+                                                    set_rule_category('table')
                                                     const value = add_access_form.getFieldValue('add-rules')
-                                                    value[idx].access = ACCESS_TYPE.stream[0]
+                                                    value[idx].access = ACCESS_TYPE.table[0]
                                                     add_access_form.setFieldValue('add-rule', value)
                                                 }
                                                 else {
@@ -532,18 +505,18 @@ function AccessManage ({
                                         />
                                         }
                                     </Form.Item>
-                                    <Form.Item name={[field.name, 'access']}>
+                                    <Form.Item name={[field.name, 'access']} rules={category !== 'script' ? [{ required: true, message: t('请选择权限') }] : [ ]}>
                                          <Select
                                             style={{ width: '200px' }}
                                             placeholder={t('请选择权限')}
                                             disabled={category === 'script'}
-                                            options={ ACCESS_TYPE[rule_category].map(db => ({
+                                            options={ (category !== 'stream' ? ACCESS_TYPE[rule_category] : ['TABLE_WRITE', 'TABLE_READ']).map(db => ({
                                                 title: db,
                                                 value: db
                                             }))}
                                             />
                                     </Form.Item>
-                                    <Form.Item name={[field.name, 'type']}>
+                                    <Form.Item name={[field.name, 'type']} rules={[{ required: true, message: t('请选择权限类型') }]}>
                                         <Select
                                             style={{ width: '200px' }}
                                             placeholder={t('请选择权限类型')}
@@ -591,20 +564,18 @@ function AccessManage ({
             </Modal>
             <Table
                 title={() => <><div className='actions'>
+                    <h4>{t(`当前 {{role}} : ${current.name}`, { role: current.role })}</h4>
                     
-                    <Button type='primary' 
-                        onClick={() => { access.set({ current: null }) }}>
+                    <Button onClick={() => { access.set({ current: null }) }}>
                     {t('返回列表')}
                     </Button>
                     
-                    <Button type='primary' onClick={creator.open}>
+                    <Button onClick={creator.open}>
                         {t('新增权限')}
                     </Button>
-                    <Button type='primary' onClick={() => { access.set({ current: { ...current, preview: true } }) }}>
+                    <Button onClick={() => { access.set({ current: { ...current, preview: true } }) }}>
                         {t('权限查看')}
                     </Button>
-                    
-                    <h2>{t(`当前 {{role}} : ${current.name}`, { role: current.role })}</h2>
                     
                 </div>
                 </>

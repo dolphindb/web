@@ -3,7 +3,7 @@ import './index.sass'
 import { useEffect, useMemo, useState } from 'react'
 
 import { Button, Form, Input, Modal, Select, Switch, Table,  Popconfirm, Tooltip, type TableColumnType } from 'antd'
-import { CheckCircleFilled, CheckCircleOutlined, CloseCircleFilled, CloseCircleOutlined, SearchOutlined } from '@ant-design/icons'
+import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
 
 import { t } from '../../i18n/index.js'
 
@@ -123,24 +123,28 @@ export function UserList () {
                         options={groups.map(group => ({ label: group, value: group }))}
                     />,
             actions: <div className='actions'>
-                <Button type='primary' 
-                        onClick={() => { 
-                            access.set({ current: { role: 'user', name: user_access.userId, preview: false } }) 
-                        }}>
-                    {t('权限管理')}
-                </Button>
-                <Button type='primary'
-                        onClick={() => { 
-                            access.set({ current: { role: 'user', name: user_access.userId, preview: true } }) 
-                        }}>
-                    {t('查看权限')}
-                </Button>
-                <Button type='primary' onClick={() => {
+                <Button type='link'
+                        onClick={() => {
                     editor.open()
                     set_current_user(user_access.userId)
                 }}>
                     {t('重置密码')}
                 </Button>
+                
+                <Button type='link'
+                        onClick={() => { 
+                            access.set({ current: { role: 'user', name: user_access.userId, preview: false } }) 
+                        }}>
+                    {t('权限管理')}
+                </Button>
+                
+                <Button type='link'
+                        onClick={() => { 
+                            access.set({ current: { role: 'user', name: user_access.userId, preview: true } }) 
+                        }}>
+                    {t('查看权限')}
+                </Button>
+                
                 <Popconfirm
                     title={t('删除用户')}
                     description={t('确认删除用户 {{user}} 吗', { user: user_access.userId })}
@@ -154,7 +158,7 @@ export function UserList () {
                                     } 
                                 }}
                 >
-                    <Button type='primary' danger>
+                    <Button type='link' danger>
                         {t('删除')}
                     </Button>
                 </Popconfirm>
@@ -346,10 +350,10 @@ export function UserList () {
         
         <div className='header'>
             <div className='actions'>
-                <Button type='primary' onClick={creator.open}>
+                <Button type='primary' icon={<PlusOutlined/>} onClick={creator.open}>
                     {t('新建用户')}
                 </Button>
-                <Button type='primary' danger onClick={deletor.open}>
+                <Button danger icon={<DeleteOutlined/>} onClick={deletor.open}>
                     {t('批量删除')}
                 </Button>
             </div>
