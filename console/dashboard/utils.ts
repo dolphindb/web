@@ -527,7 +527,8 @@ export function parse_error (error: Error) {
 }
 
 
-export async  function load_config (file)  {
+export async  function load_config (file, theme: 'dark' | 'light')  {
+    const message = theme === 'dark' ? dashboard.message : model.message
     await model.execute(async () => {
         const import_config = JSON.parse(await file.text()) as DashBoardConfig
         
@@ -535,14 +536,14 @@ export async  function load_config (file)  {
             await dashboard.update_dashboard_config(import_config, false)
         else {
             if (dashboard.configs.find(({ name, permission }) => name === import_config.name && permission === DashboardPermission.own)) {
-                model.message.error(t('已有名为{{name}}的 dashboard 存在，导入失败', { name: import_config.name }))
+                message.error(t('已有名为{{name}}的 dashboard 存在，导入失败', { name: import_config.name }))
                 return
             }
             import_config.id = genid()
             import_config.owner = model.username
             await dashboard.add_dashboard_config(import_config, false)
         }
-        model.message.success(`${import_config.name}导入成功`)
+        message.success(`${import_config.name}导入成功`)
     })
     return false
 }

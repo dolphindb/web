@@ -366,7 +366,7 @@ export function Header () {
                 <Tooltip title={t('导入')}>
                     <Upload
                         showUploadList={false}
-                        beforeUpload={load_config}
+                        beforeUpload={async file => { load_config(file, 'dark') }}
                     >
                         <Button className='action'>
                             <DownloadOutlined />
