@@ -42,15 +42,14 @@ export function Computing () {
     useEffect(() => {
         if (!logined || node_type === NodeType.controller)
             return
-        ;(async () => {
-            await model.execute(async () => {
-                if (!computing.inited)
-                    await computing.init()
-                await computing.get_streaming_pub_sub_stat()
-                await computing.get_streaming_engine_stat()
-                await computing.get_streaming_table_stat()
-            })
-        })()
+        
+        model.execute(async () => {
+            if (!computing.inited)
+                await computing.init()
+            await computing.get_streaming_pub_sub_stat()
+            await computing.get_streaming_engine_stat()
+            await computing.get_streaming_table_stat()
+        })
     }, [ ])
     
     if (node_type === NodeType.controller)
@@ -256,13 +255,12 @@ export function Computing () {
         tabBarExtraContent={
             <Button
                 icon={<ReloadOutlined />}
-                onClick={async () => {
-                    await model.execute(async () => {
+                onClick={async () =>
+                    model.execute(async () => {
                         await tab_content[tab_key].refresher.call(computing)
                         model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
                     })
-                    
-                }}
+                }
             >
                 {t('刷新')}
             </Button>
