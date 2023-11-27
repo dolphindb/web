@@ -6,12 +6,12 @@ import { Button, Space, Typography } from 'antd'
 interface IProps { 
     back: () => void
     on_create_again: () => void
+    error_msg?: string
 }
 
 export function GuideFailResultPage (props: IProps) { 
-    const { back, on_create_again } = props
+    const { back, on_create_again, error_msg } = props
     
-    const error_msg = sessionStorage.getItem('create_error')
     
     return <div className='guide-result-page'>
         <CloseCircleFilled className='error-icon' />

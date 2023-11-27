@@ -25,7 +25,7 @@ export function CommonFilterCols (props: IProps) {
         <h4>常用筛选列</h4>
         <Form.List name='filterCols' initialValue={[{ }]}>
             {(fields, { remove, add }) => <>
-                {fields.map(field => <div className='common-filter-col'>
+                {fields.map(field => <div key={field.name} className='common-filter-col'>
                     <Form.Item name={[field.name, 'colName']} label='列名' rules={[{ required: true, message: '请选择列名' }]}>
                         <Select options={filter_col_options} placeholder='请选择列名'/>
                     </Form.Item>
@@ -34,8 +34,7 @@ export function CommonFilterCols (props: IProps) {
                     </Form.Item>
                     {fields.length > 1 && <DeleteOutlined onClick={() => { remove(field.name) }} className='delete-icon'/> }
                 </div>)}
-                { fields.length < 2 && <Button block type='dashed' onClick={() => { add() }} icon={<PlusCircleOutlined />}>增加筛选列</Button>  }
-            
+                { fields.length < 2 && <Button block type='dashed' onClick={() => { add() }} icon={<PlusCircleOutlined />}>增加筛选列</Button> }
             </>}
         </Form.List>
         

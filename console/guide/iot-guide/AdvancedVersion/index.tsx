@@ -19,15 +19,19 @@ export function AdvancedVersion () {
     
     const [result, set_result] = useState<ExecuteResult>(ExecuteResult.SUCCESS)
     
+    const [error_msg, set_error_msg] = useState<string>()
+    
     const back = useCallback(() => {
         set_current_step(current_step - 1)
     }, [current_step])
     
-    const go = useCallback((infos: AdvancedInfos & { result?: ExecuteResult }) => {
+    const go = useCallback((infos: AdvancedInfos & { result?: ExecuteResult, error_msg?: string }) => {
         const { result, ...info } = infos
         set_info(prev => ({ ...prev, ...info }))
         set_current_step(current_step + 1)
         set_result(result)
+        if (error_msg)
+            set_error_msg(error_msg)
     }, [current_step])
     
             
@@ -73,14 +77,15 @@ export function AdvancedVersion () {
             {
                 title: '执行结果',
                 children: result === ExecuteResult.FAILED
-                    ? <GuideFailResultPage on_create_again={on_create_again}  back={back}/>
+                    ? <GuideFailResultPage error_msg={error_msg} on_create_again={on_create_again}  back={back}/>
                     : <GuideSuccessResultPage on_create_again={on_create_again}  back={back}/>
             }
         ]
+        // 没有高阶信息去除第二步
         if (!recommend_info.hasAdvancedInfo)
             default_steps.splice(1, 1)
         return default_steps
-    }, [go, back, recommend_info, info, result])
+    }, [go, back, recommend_info, info, result, error_msg])
     
     
     return <div className='advanced-version-wrapper'>

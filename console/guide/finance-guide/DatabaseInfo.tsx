@@ -57,7 +57,7 @@ export function DatabaseInfo (props: IProps) {
                                 { required: true, message: '请输入新建库名' },
                                 {
                                     validator: throttle(async (_, val) => { 
-                                        const res = await request<{ isExist: 0 | 1 }>('DBMSIOT_checkDatabase', { dbName: 'dfs://' + val })
+                                        const res = await request<{ isExist: 0 | 1 }>('DBMSIOT_checkDatabase', { dbName: val })
                                         if (res.isExist)  
                                             return Promise.reject(new Error('已有同名库，请修改库名')) 
                                     }, 300)

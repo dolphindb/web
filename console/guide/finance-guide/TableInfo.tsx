@@ -20,17 +20,15 @@ export function TableInfo (props: IProps) {
     const schema = Form.useWatch('schema', form)
     
     const on_submit = useCallback(async values => {
-        if (info.database?.isExist)  
-            values = {
-                ...values,
-                partitionCols: values.partitionCols?.map(item => item.colName)
-            }
+        let table_params = { }
+        if (info.database?.isExist)
+            table_params = { ...values, partitionCols: values.partitionCols?.map(item => item.colName) }
         const params = {
             database: info.database,
-            table: values
+            table: table_params
         } 
-        const { code } = await request<{ code: string }>('autoCreateDBTB', params)
-        go({ table: values, code })
+        const { code } = await request<{ code: string[] }>('autoCreateDBTB', params)
+        go({ table: values, code: code[0] })
     }, [info, go])
     
     useEffect(() => {
@@ -48,7 +46,7 @@ export function TableInfo (props: IProps) {
             <Input placeholder='请输入表名'/>
         </Form.Item>
         <SchemaList />
-        <PartitionColSelect database={info?.database} schema={schema} />
+        <PartitionColSelect info={info} schema={schema} />
         
         <CommonFilterCols schema={schema}/>
         

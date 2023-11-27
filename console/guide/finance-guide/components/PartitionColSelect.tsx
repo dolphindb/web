@@ -4,13 +4,13 @@ import { request } from '../../utils.js'
 import { Form, Select } from 'antd'
 
 interface IProps { 
-    database: IFinanceInfo['database']
+    info: IFinanceInfo
     schema: ITableInfo['schema']
 }
 
 export function PartitionColSelect (props: IProps) {
     
-    const { database, schema = [ ] } = props
+    const { info: { database, table }, schema = [ ] } = props
     
     const [partition_info, set_partition_info] = useState<string[][]>([ ])
     const form = Form.useFormInstance()
@@ -47,8 +47,9 @@ export function PartitionColSelect (props: IProps) {
     }, [database])
     
     useEffect(() => { 
-        form.setFieldValue('partitionCols', partition_info.map(item => ({ })) )
-    }, [partition_info])
+        if (partition_info.length && !table.partitionCols)
+            form.setFieldValue('partitionCols', partition_info.map(item => ({ })) )
+    }, [partition_info, database])
     
     return database?.isExist ? <Form.List name='partitionCols'>
         {fields => {
@@ -70,7 +71,7 @@ export function PartitionColSelect (props: IProps) {
             </Form.Item>
         }
         {
-            show_hash_col && <Form.Item tooltip='如股票ID、期货品种这样的枚举类型列，将按该列对数据进行分区' label='标的列' name='hashCol'>
+            show_hash_col && <Form.Item tooltip='如股票ID、期货品种这样的枚举类型列，将按该列对数据进行分区' label='标的列' name='hashCol' rules={[{ required: true, message: '请选择标的列' }]}>
                 <Select options={filter_col_options(['SYMBOL', 'STRING'])}/>
             </Form.Item>
         }

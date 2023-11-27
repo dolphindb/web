@@ -26,7 +26,7 @@ export function CodeViewStep (props: IProps) {
             go({ result: ExecuteResult.SUCCESS } )
         } catch (e) { 
             sessionStorage.setItem('create_error', e)
-            go({ result: ExecuteResult.FAILED })         
+            go({ result: ExecuteResult.FAILED, error_msg: e })         
         }
         
     }, [code])

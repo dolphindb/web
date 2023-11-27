@@ -66,7 +66,7 @@ export function SimpleVersion () {
                     : <GuideSuccessResultPage on_create_again={on_create_again} back={back}/>
             }
         ]
-    }, [ info, result, on_create_again])
+    }, [ info, result, on_create_again, back])
     
     
     return <div className='simple-version-wrapper'>
