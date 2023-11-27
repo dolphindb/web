@@ -4,7 +4,7 @@ import { t } from '../../i18n/index.js'
 
 import { access, type Database } from './model.js'
 import { model } from '../model.js'
-import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined, QuestionCircleFilled, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, MinusCircleFilled, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined, QuestionCircleFilled, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/modal.js'
 
 export function AccessView () {
@@ -120,7 +120,7 @@ type table_access = {
 const STAT_ICONS = {
     allow: <CheckCircleFilled className='green'/>,
     deny: <CloseCircleFilled className='red'/>,
-    none: <MinusCircleOutlined className='gray'/>
+    none: <MinusCircleFilled className='gray'/>
 }
 
 
@@ -251,6 +251,7 @@ function AccessList ({
                     search_key={search_key}
                     set_search_key={set_search_key}/>
             }
+            tableLayout='fixed'
             expandable={ category === 'database' ? {
                 expandedRowRender: db => 
                     <Table
@@ -279,6 +280,7 @@ function AccessList ({
                             }))
                         }
                         pagination={false}
+                        tableLayout='fixed'
                     />
             } : { } }
    />
@@ -344,7 +346,7 @@ function AccessManage ({
                 title: t('操作'),
                 dataIndex: 'action',
                 key: 'action',
-                wdith: 200
+                wdith: 100
             }
         ]
     ), [ ])
@@ -446,23 +448,10 @@ function AccessManage ({
                 onOk={async () => {
                     model.execute(async () => {
                         await add_access_form.validateFields()
-                        const accesses = await add_access_form.getFieldValue('add-rules')
-                        await Promise.all(accesses.map(async aces => {
-                            if (aces.type === 'grant')
-                                 
-                                if (category !== 'script')
-                                    return access.grant(current.name, aces.access, aces.obj)
-                                else
-                                    return access.grant(current.name, aces.obj)
-                                
-                            else if (aces.type === 'deny')
-                                 
-                                if (category !== 'script')
-                                    return access.deny(current.name, aces.access, aces.obj)
-                                else
-                                    return access.deny(current.name, aces.obj)
-                                
-                        }))
+                        const rules = await add_access_form.getFieldValue('add-rules')
+                        await Promise.all(rules.map(async rule => 
+                                access[rule.type](current.name, rule.access,  rule.obj)
+                        ))
                         model.message.success(t('权限赋予成功'))
                         creator.close()
                         access.set({ accesses: current.role === 'user' ? 
@@ -483,7 +472,7 @@ function AccessManage ({
                             {
                                 fields.map((field, idx) => 
                                 <div key={field.key} className='rule-select'>
-                                    <Form.Item name={[field.name, 'obj']} rules={[{ required: true, message: t('请选择{{category}}', { category: TABLE_NAMES[category] }) }]}>
+                                    <Form.Item name={[field.name, category === 'script' ? 'access' : 'obj']} rules={[{ required: true, message: t('请选择{{category}}', { category: TABLE_NAMES[category] }) }]}>
                                         {category === 'database' ? 
                                         <TreeSelect
                                             style={{ width: '300px' }}
@@ -500,18 +489,20 @@ function AccessManage ({
                                             placeholder={t('请选择 dfs 数据库/表')}
                                         /> : 
                                         <Select
-                                            style={{ width: '300px' }}
+                                            style={{ width: category === 'script' ? '520px' : '300px' }}
                                             placeholder={t('请选择{{category}}', { category: TABLE_NAMES[category] })}
                                             // disabled={!!category}
                                             options={options}
                                         />
                                         }
                                     </Form.Item>
-                                    <Form.Item name={[field.name, 'access']} rules={category !== 'script' ? [{ required: true, message: t('请选择权限') }] : [ ]}>
+                                    {
+                                        category !== 'script' && 
+                                        <Form.Item name={[field.name, 'access']} rules={[{ required: true, message: t('请选择权限') }]}>
                                          <Select
                                             style={{ width: '200px' }}
                                             placeholder={t('请选择权限')}
-                                            disabled={category === 'script'}
+                                            // disabled={category === 'script'}
                                             options={access_options}
                                             onFocus={() => {
                                                 let options = [ ]
@@ -535,6 +526,7 @@ function AccessManage ({
                                         
                                             />
                                     </Form.Item>
+                                    }
                                     <Form.Item name={[field.name, 'type']} rules={[{ required: true, message: t('请选择权限类型') }]}>
                                         <Select
                                             style={{ width: '200px' }}
@@ -593,6 +585,7 @@ function AccessManage ({
                 columns={cols}
                 dataSource={rows}
                 tableLayout='fixed'
+                scroll={{ x: '80%' }}
                 />
         </>
 }

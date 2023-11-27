@@ -58,13 +58,14 @@ export function GroupList () {
                 title: t('组内用户'),
                 dataIndex: 'users',
                 key: 'users',
-                width: 'auto',
+                width: '40%',
+                ellipsis: true,
             },
             {
                 title: t('操作'),
                 dataIndex: 'actions',
                 key: 'actions',
-                width: 100
+                width: 200
             }
         ]
     ), [ ])
@@ -169,6 +170,8 @@ export function GroupList () {
                             title: user
                         }))}
                         titles={['组外用户', '组内用户']}
+                        showSearch
+                        filterOption={(val, user) => user.title.includes(val)}
                         targetKeys={target_users}
                         selectedKeys={selected_users}
                         onChange={set_target_users}
@@ -214,6 +217,9 @@ export function GroupList () {
                     title: user
                 }))}
                 titles={['组外用户', '组内用户']}
+                showSearch
+    
+                filterOption={(val, user) => user.title.includes(val)}
                 targetKeys={target_users}
                 selectedKeys={selected_users}
                 onChange={set_target_users}

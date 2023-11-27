@@ -3,7 +3,7 @@ import './index.sass'
 import { useEffect, useMemo, useState } from 'react'
 
 import { Button, Form, Input, Modal, Select, Switch, Table,  Popconfirm, Tooltip, type TableColumnType } from 'antd'
-import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, MinusCircleOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { CheckCircleFilled, CloseCircleFilled, CloseCircleOutlined, DeleteOutlined, MinusCircleFilled, MinusCircleOutlined, PlusOutlined, ReloadOutlined, SearchOutlined, StopFilled, StopOutlined } from '@ant-design/icons'
 
 import { t } from '../../i18n/index.js'
 
@@ -95,7 +95,7 @@ export function UserList () {
             is_admin: user_access.isAdmin ? 
                                 <CheckCircleFilled className='green'/> 
                                     : 
-                                <MinusCircleOutlined className='gray'/>,
+                                <MinusCircleFilled className='gray'/>,
             groups:  <Select
                         mode='tags'
                         className='group-select'
