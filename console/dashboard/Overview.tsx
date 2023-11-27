@@ -15,7 +15,6 @@ import { t } from '../../i18n/index.js'
 
 import { dashboard, DashboardPermission } from './model.js'
 import { Share } from './Share/Share.js'
-import backend from './backend.dos'
 import { load_config } from './utils.js'
 
 

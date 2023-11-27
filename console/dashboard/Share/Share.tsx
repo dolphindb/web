@@ -58,7 +58,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
             maskClosable={false}
             styles={{ mask: { backgroundColor: 'rgba(84,84,84,0.5)' } }}
             afterOpenChange={async () => {
-                if (trigger_type !== 'button')
+                if (dashboard_ids.length === 1)
                     try {
                         const data = 
                             (
@@ -79,28 +79,53 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
                 }
                 
             }}
-            onOk={async () => {
-                try {
-                    if (!dashboard_ids.length) {
-                        model.message.warning(t('请选择想要分享的 dashboard'))
-                        return
-                    }
-                    
-                    dashboard_ids.forEach(dashboard_id => {
-                        const config = dashboard.configs.find(config => config.id = dashboard_id)
-                        if (config?.permission !== DashboardPermission.own)
-                            throw new Error(t('您没有分享 {{name}} 的权限', { name: config.name })) 
-                    })
-                    
-                    
-                    await dashboard.share(dashboard_ids, Array.from(viewers), Array.from(editors))
-                    model.message.success(t('分享成功'))
-                    close()
-                } catch (error) {
-                    model.show_error({ error: parse_error(error) })
-                }
-            }}
             title={t('请选择需要分享的用户')}
+            footer={[
+                <Button key='edit' onClick={() => {
+                    set_editors(new Set(users?.filter(user => user !== model.username)))
+                    set_viewers(new Set())
+                }}>
+                    {t('全部编辑')}
+                </Button>,
+                <Button key='view' onClick={() => {
+                    set_editors(new Set())
+                    set_viewers(new Set(users?.filter(user => user !== model.username)))
+                }}>
+                    {t('全部仅预览')}
+                </Button>,
+                <Button key='none' onClick={() => {
+                    set_editors(new Set())
+                    set_viewers(new Set())
+                }}>
+                    {t('全部无')}
+                </Button>,
+                <Button key='close' onClick={close}>
+                    {t('关闭')}
+                </Button>,
+                <Button key='ok' type='primary' onClick={async () => {
+                    try {
+                        if (!dashboard_ids.length) {
+                            model.message.warning(t('请选择想要分享的 dashboard'))
+                            return
+                        }
+                        
+                        dashboard_ids.forEach(dashboard_id => {
+                            const config = dashboard.configs.find(config => config.id = dashboard_id)
+                            if (config?.permission !== DashboardPermission.own)
+                                throw new Error(t('您没有分享 {{name}} 的权限', { name: config.name })) 
+                        })
+                        
+                        
+                        await dashboard.share(dashboard_ids, Array.from(viewers), Array.from(editors))
+                        model.message.success(t('分享成功'))
+                        close()
+                    } catch (error) {
+                        model.show_error({ error: parse_error(error) })
+                    }
+                }}>
+                    {t('确认')}
+                </Button>
+            ]}
         >   
             <Table
                 className='main'
