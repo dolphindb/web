@@ -13,15 +13,10 @@ export function User () {
     const { current } = access.use(['current'])
     
     useEffect(() => {
-        (async () => {
+        model.execute(async () => { 
             if (!access.inited)
-                try {
-                  await access.init()
-                } catch (error) {
-                    model.show_error({ error })
-                    throw error
-                }
-        })()
+                await access.init() 
+        })
     }, [ ])
     
     useEffect(() => {
@@ -29,7 +24,7 @@ export function User () {
             access.set({ current: null })
      }, [ ])
     
-    return current && current.role === 'user' && current.view ? <AccessView {...current}/> : <UserList/>
+    return current && current.role === 'user' && current.view ? <AccessView/> : <UserList/>
 }
 
 export function Group () {
@@ -37,15 +32,10 @@ export function Group () {
     const { current } = access.use(['current'])
     
     useEffect(() => {
-        (async () => {
+        model.execute(async () => { 
             if (!access.inited)
-                try {
-                  await access.init()
-                } catch (error) {
-                    model.show_error({ error })
-                    throw error
-                }
-        })()
+                await access.init() 
+        })
     }, [ ])
     
     useEffect(() => {
@@ -54,5 +44,5 @@ export function Group () {
     }, [ ])
     
     
-    return current && current.role === 'group' && current.view ? <AccessView {...current}/> : <GroupList/>
+    return current && current.role === 'group' && current.view ? <AccessView/> : <GroupList/>
 }

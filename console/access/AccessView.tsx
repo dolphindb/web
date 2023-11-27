@@ -7,32 +7,24 @@ import { model } from '../model.js'
 import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined, QuestionCircleFilled, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/modal.js'
 
-export function AccessView ({ 
-    role, 
-    name,
-}: {
-    role: 'user' | 'group'
-    name: string
-}) {
+export function AccessView () {
     
     const { current } =  access.use(['current'])
+    
+    const { role, name } = current
      
     const [tab_key, set_tab_key] = useState('database')
     
     const [refresher, set_refresher] = useState({ })
     
     useEffect(() => {
-        (async () => {
-            try {
-                access.set({ accesses: role === 'user' ? 
-                                        (await access.get_user_access([name]))[0]
-                                                    :
-                                        (await access.get_group_access([name]))[0] })
-            } catch (error) {
-                model.show_error({ error })
-            }
-        })()
-    }, [refresher])
+        model.execute(async () =>  { 
+            access.set({ accesses: role === 'user' ? 
+                (await access.get_user_access([name]))[0]
+                    :
+                (await access.get_group_access([name]))[0] }) 
+        })
+    }, [refresher, name])
     
     const tabs: TabsProps['items'] = useMemo(() => ([
         {
@@ -129,7 +121,7 @@ type table_access = {
 const STAT_ICONS = {
     allow: <CheckCircleFilled className='green'/>,
     deny: <CloseCircleFilled className='red'/>,
-    none: <QuestionCircleFilled className='gray'/>
+    none: <MinusCircleOutlined className='gray'/>
 }
 
 
@@ -153,69 +145,63 @@ function AccessList ({
     
     const [search_key, set_search_key] = useState('')
     
-    const { databases, shared_tables, stream_tables, function_views, accesses, current } = access.use(['databases', 'shared_tables', 'stream_tables', 'function_views', 'accesses', 'current'])
-    
+    const { databases, shared_tables, stream_tables, function_views, accesses } = access.use(['databases', 'shared_tables', 'stream_tables', 'function_views', 'accesses'])
     
     useEffect(() => {
         if (!accesses)
             return
-        (async () => {
-            try {
-                let items: string[] | Database[] = [ ]
-                let tmp_tb_access = [ ]
-                
-                switch (category) {
-                    case 'database':
-                        items = databases
-                        break
-                    case 'shared':
-                        items = shared_tables
-                        break
-                    case 'function_view':
-                        items = function_views
-                        break
-                    case 'stream':
-                        items = stream_tables
-                        break
-                    case 'script':
-                        items = ACCESS_TYPE.script
-                        break
-                    
-                    default:
-                        break
-                }
-                for (let item of items) {
-                    const name = typeof item === 'string' ? item : item.name
-                    const tb_ob: table_access  = {
-                        name,
-                        ...category === 'script' ? 
-                                        { stat: accesses[name] } 
-                                                : 
-                        { access: Object.fromEntries(ACCESS_TYPE[category].map(type => {
-                                return handle_access(accesses, type, name)
-                            })) 
-                        },
-                        ... typeof item !== 'string' ?
+        
+        let items: string[] | Database[] = [ ]
+        let tmp_tb_access = [ ]
+        
+        switch (category) {
+            case 'database':
+                items = databases
+                break
+            case 'shared':
+                items = shared_tables
+                break
+            case 'function_view':
+                items = function_views
+                break
+            case 'stream':
+                items = stream_tables
+                break
+            case 'script':
+                items = ACCESS_TYPE.script
+                break
+            
+            default:
+                break
+        }
+        for (let item of items) {
+            const name = typeof item === 'string' ? item : item.name
+            const tb_ob: table_access  = {
+                name,
+                ...category === 'script' ? 
+                                { stat: accesses[name] } 
+                                        : 
+                { access: Object.fromEntries(ACCESS_TYPE[category].map(type => {
+                        return handle_access(accesses, type, name)
+                    })) 
+                },
+                ... typeof item !== 'string' ?
+                    {
+                        tables: item.tables.map(table => (
                             {
-                                tables: item.tables.map(table => (
-                                    {
-                                        name: table,
-                                        access: Object.fromEntries(ACCESS_TYPE.table.map(type => {
-                                            return handle_access(accesses, type, table)
-                                        })),
-                                    }
-                                ))
+                                name: table,
+                                access: Object.fromEntries(ACCESS_TYPE.table.map(type => {
+                                    return handle_access(accesses, type, table)
+                                })),
                             }
-                                                    :   { }
+                        ))
                     }
-                    tmp_tb_access.push(tb_ob)
-                }
-                set_showed_accesses(tmp_tb_access)
-            } catch (error) {
-                model.show_error({ error })
-                throw error
+                                            :   { }
             }
-        })()
+            tmp_tb_access.push(tb_ob)
+        }
+        set_showed_accesses(tmp_tb_access)
+           
     }, [accesses, category, databases, stream_tables, function_views])
     
     const cols: TableColumnType<Record<string, any>>[] = useMemo(() => ([
@@ -259,26 +245,11 @@ function AccessList ({
     return <Table 
             columns={cols}
             dataSource={rows}
-            title={() => <div className='actions'>
-                <h4>{t(`当前 {{role}} : ${current.name}`, { role: current.role })}</h4>
-                
-                <Button  
-                        onClick={() => { access.set({ current: null }) }}>
-                    {t('返回列表')}
-                </Button>
-                
-                <Button  onClick={() => { access.set({ current: { ...access.current, view: 'manage' } }) }}>
-                    {t('权限管理')}
-                </Button>
-                <Input  
-                    className='search'
-                    value={search_key}
-                    prefix={<SearchOutlined />}
-                    onChange={e => { set_search_key(e.target.value) }} 
-                    placeholder={t('请输入想要搜索的{{category}}', { category: TABLE_NAMES[category] })} 
-                />
-                
-            </div>
+            title={() => <AccessHeader 
+                            category={category} 
+                            preview
+                            search_key={search_key}
+                            set_search_key={set_search_key}/>
             }
             expandable={ category === 'database' ? {
                 expandedRowRender: db => 
@@ -417,9 +388,6 @@ function AccessManage ({
                    
         return tb_rows
     }, [ accesses, category])
-    
-    
-    
     
     const rows = useMemo(() => {
         if (!accesses)
@@ -615,32 +583,71 @@ function AccessManage ({
         
             </Modal>
             <Table
-                title={() => <><div className='actions'>
-                    <h4>{t(`当前 {{role}} : ${current.name}`, { role: current.role })}</h4>
-                    
-                    <Button onClick={() => { access.set({ current: null }) }}>
-                    {t('返回列表')}
-                    </Button>
-                    
-                    <Button onClick={creator.open}>
-                        {t('新增权限')}
-                    </Button>
-                    <Button onClick={() => { access.set({ current: { ...current, view: 'preview' } }) }}>
-                        {t('权限查看')}
-                    </Button>
-                    
-                    <Input  
-                        className='search'
-                        value={search_key}
-                        prefix={<SearchOutlined />}
-                        onChange={e => { set_search_key(e.target.value) }} 
-                        placeholder={t('请输入想要搜索的{{category}}', { category: TABLE_NAMES[category] })} 
-                    />
-                    
-                </div>
-                </>
+                title={() => <AccessHeader 
+                    category={category} 
+                    preview={false}
+                    search_key={search_key}
+                    set_search_key={set_search_key}
+                    open={creator.open}/>
                 }
                 columns={cols}
                 dataSource={rows}/>
         </>
+}
+
+function AccessHeader ({
+    category,
+    preview,
+    search_key,
+    set_search_key,
+    open
+}: {
+    preview: boolean
+    category: string
+    search_key: string
+    set_search_key: (str: string) => void
+    open?: () => void
+}) {
+    const { current, users, groups } = access.use(['current', 'users', 'groups'])
+    
+    return <div className='actions'>
+            <h4>
+                {t('当前{{role}} :', { role: current.role === 'user' ? t('用户') : t('组') })}
+                <Select defaultValue={current.name}
+                        bordered={false}
+                        options={(current.role === 'user' ? users : groups).map(t => ({
+                            value: t,
+                            label: t
+                        }))} 
+                        onSelect={item => { access.set({ current: { ...current, name: item } }) }}
+                        />
+            </h4>
+            
+            <Button  
+                onClick={() => { access.set({ current: null }) }}>
+                {t('返回{{role}}列表', { role: current.role === 'user' ? t('用户') : t('组') })}
+            </Button>
+            
+            {preview ? 
+            <Button  
+                onClick={() => { access.set({ current: { ...access.current, view: 'manage' } }) }}>
+                {t('权限管理')}
+            </Button>  : 
+            <>
+                <Button onClick={open}>
+                    {t('新增权限')}
+                </Button>
+                <Button onClick={() => { access.set({ current: { ...current, view: 'preview' } }) }}>
+                    {t('权限查看')}
+                </Button>
+            </> 
+            }
+            <Input  
+                className='search'
+                value={search_key}
+                prefix={<SearchOutlined />}
+                onChange={e => { set_search_key(e.target.value) }} 
+                placeholder={t('请输入想要搜索的{{category}}', { category: TABLE_NAMES[category] })} 
+            />
+        </div>
 }

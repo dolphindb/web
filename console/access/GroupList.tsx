@@ -3,7 +3,7 @@ import './index.sass'
 import { useEffect, useMemo, useState } from 'react'
 
 import { Button, Form, Input, Modal, Table,  Popconfirm, Tooltip, type TableColumnType, Transfer } from 'antd'
-import { DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { DeleteOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 
 import { t } from '../../i18n/index.js'
 
@@ -260,7 +260,9 @@ export function GroupList () {
                 placeholder={t('请输入想要搜索的组')} 
                      />
             </div>
-            <Button type='default' onClick={async () => access.get_group_list()} >{t('刷新')}</Button>
+            <Button type='default'
+                    icon={<ReloadOutlined />}
+                    onClick={async () => access.get_group_list()} >{t('刷新')}</Button>
         </div>
         <Table 
             rowSelection={{

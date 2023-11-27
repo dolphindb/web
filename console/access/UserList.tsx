@@ -3,7 +3,7 @@ import './index.sass'
 import { useEffect, useMemo, useState } from 'react'
 
 import { Button, Form, Input, Modal, Select, Switch, Table,  Popconfirm, Tooltip, type TableColumnType } from 'antd'
-import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, MinusCircleOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 
 import { t } from '../../i18n/index.js'
 
@@ -95,7 +95,7 @@ export function UserList () {
             is_admin: user_access.isAdmin ? 
                                 <CheckCircleFilled className='green'/> 
                                     : 
-                                <CloseCircleFilled className='red'/>,
+                                <MinusCircleOutlined className='gray'/>,
             groups:  <Select
                         mode='tags'
                         className='group-select'
@@ -363,7 +363,9 @@ export function UserList () {
                     placeholder={t('请输入想要搜索的用户')} 
                 />
             </div>
-            <Button type='default' onClick={async () => access.get_user_list()}>{t('刷新')}</Button>
+            <Button type='default'
+                    icon={<ReloadOutlined />}
+                    onClick={async () => access.get_user_list()}>{t('刷新')}</Button>
         </div>
         <Table 
             rowSelection={{
