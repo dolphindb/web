@@ -8,8 +8,7 @@ export function ExistDBSelect (props: SelectProps) {
     const [options, set_options] = useState([ ])
     
     const get_dbs = useCallback(async () => { 
-        const { value } = await model.ddb.eval('getDFSDatabases()')
-        // @ts-ignore
+        const { value } = await model.ddb.eval('getClusterDFSDatabases()') as { value: string[] }
         set_options(value.map(item => ({ label: item, value: item.slice(6) })))
     }, [ ])
     

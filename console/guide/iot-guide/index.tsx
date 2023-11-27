@@ -1,5 +1,5 @@
-import { Radio, Tabs, type TabsProps } from 'antd'
-import { useMemo, useState } from 'react'
+import { Radio } from 'antd'
+import { useState } from 'react'
 import { GuideType } from './type.js'
 import { SimpleVersion } from './SimpleVersion/index.js'
 import { AdvancedVersion } from './AdvancedVersion/index.js'

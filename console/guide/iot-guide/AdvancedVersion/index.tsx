@@ -10,7 +10,6 @@ import NiceModal from '@ebay/nice-modal-react'
 import { UploadConfigModal } from '../../components/UploadConfigModal.js'
 import { GuideFailResultPage } from '../../components/GuideFailResultPage.js'
 import { GuideSuccessResultPage } from '../../components/GuideSuccessResultPage.js'
-import { model } from '../../../model.js'
 
 export function AdvancedVersion () {
     const [current_step, set_current_step] = useState(0)

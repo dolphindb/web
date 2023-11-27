@@ -25,7 +25,7 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
     const modal = useModal()
     const [loading, set_loading] = useState(false)
     
-    const on_submit = useCallback(async () => { 
+    const on_submit = useCallback(async () => {
         set_loading(true)
         try {
             await form.validateFields()
@@ -86,7 +86,7 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
                     if (upload_type === 0)
                         return <UploadFileField accept='text/*' tip='仅支持上传带固定分隔符文本文件，如 csv文件、txt文件，默认分隔符为“,”' />
                     else
-                        // 服务器导入
+                    // 服务器导入
                         return <Form.Item name='file_path' label='文件地址' rules={[{ required: true, message: '请输入文件在服务器的地址' }]}>
                             <Input placeholder='请输入文件在服务器的地址'/>
                         </Form.Item>

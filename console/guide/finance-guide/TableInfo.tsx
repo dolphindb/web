@@ -20,12 +20,16 @@ export function TableInfo (props: IProps) {
     const schema = Form.useWatch('schema', form)
     
     const on_submit = useCallback(async values => {
+        if (info.database?.isExist)  
+            values = {
+                ...values,
+                partitionCols: values.partitionCols?.map(item => item.colName)
+            }
         const params = {
             database: info.database,
-            table: { ...values, partitionCols: values.partitionCols.map(item => item.colName) }
+            table: values
         } 
-        // TODO: 修改接口名称
-        const { code } = await request<{ code: string }>('', params)
+        const { code } = await request<{ code: string }>('autoCreateDBTB', params)
         go({ table: values, code })
     }, [info, go])
     

@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import { type ITableInfo, type IFinanceInfo } from '../type.js'
 import { request } from '../../utils.js'
-import { Form, Select, Typography } from 'antd'
+import { Form, Select } from 'antd'
 
 interface IProps { 
     database: IFinanceInfo['database']
@@ -13,11 +13,12 @@ export function PartitionColSelect (props: IProps) {
     const { database, schema = [ ] } = props
     
     const [partition_info, set_partition_info] = useState<string[][]>([ ])
+    const form = Form.useFormInstance()
     
     const get_partition_info = useCallback(async () => {
         if (database.isExist) {
-            const res = await request<string[]>('', { dbName: database.name })
-            set_partition_info(res.map(item => item.split(',')))
+            const { cols = [ ] } = await request<{ cols: string[] }>('getPartitionColumns', { dbName: database.name })
+            set_partition_info(cols?.map(item => item.split(',')))
         }
     }, [database])
     
@@ -25,12 +26,14 @@ export function PartitionColSelect (props: IProps) {
         get_partition_info()
     }, [ ])
     
+    
+    
     const filter_col_options = useCallback((col_types: string[]) => {
         return schema
-            .filter(item => col_types.includes(item.dataType))
+            .filter(item => col_types?.includes(item.dataType))
             .map(col => ({
-                label: col,
-                value: col
+                label: col.colName,
+                value: col.colName
             }))
     }, [schema])
     
@@ -43,19 +46,19 @@ export function PartitionColSelect (props: IProps) {
         return [3, 4, 5, 6, 7].includes(database.dailyTotalNum?.gap) || (database.dailyTotalNum?.gap === 9 && database.dailyTotalNum?.custom > 1000000)
     }, [database])
     
-    return database?.isExist ? <Form.List name='partitionCols' initialValue={partition_info.map(item => ({ }))}>
+    useEffect(() => { 
+        form.setFieldValue('partitionCols', partition_info.map(item => ({ })) )
+    }, [partition_info])
+    
+    return database?.isExist ? <Form.List name='partitionCols'>
         {fields => {
             return fields.map(field => {
                 const data_types = partition_info[field.name]
                 const options = filter_col_options(data_types)
                 return <>
-                    <Form.Item label={`分区列${field.name + 1}`} name='colName'>
+                    <Form.Item extra={`数据类型为${data_types?.join('/')}`} label={`分区列${field.name + 1}`} name={[field.name, 'colName']}>
                         <Select options={options} />
-                        <Typography.Text type='secondary'>
-                            数据类型为{data_types.join('/')}
-                        </Typography.Text>
                     </Form.Item>
-                    
                 </>
             })
         }}

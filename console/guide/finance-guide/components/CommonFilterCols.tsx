@@ -26,10 +26,10 @@ export function CommonFilterCols (props: IProps) {
         <Form.List name='filterCols' initialValue={[{ }]}>
             {(fields, { remove, add }) => <>
                 {fields.map(field => <div className='common-filter-col'>
-                    <Form.Item name='colName' label='列名' rules={[{ required: true, message: '请选择列名' }]}>
+                    <Form.Item name={[field.name, 'colName']} label='列名' rules={[{ required: true, message: '请选择列名' }]}>
                         <Select options={filter_col_options} placeholder='请选择列名'/>
                     </Form.Item>
-                    <Form.Item name='uniqueNum' label='唯一值数量' rules={[{ required: true, message: '请输入唯一值数量' }]}>
+                    <Form.Item name={[field.name, 'uniqueNum']} label='唯一值数量' rules={[{ required: true, message: '请输入唯一值数量' }]}>
                         <InputNumber placeholder='请输入唯一值数量'/>
                     </Form.Item>
                     {fields.length > 1 && <DeleteOutlined onClick={() => { remove(field.name) }} className='delete-icon'/> }
