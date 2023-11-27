@@ -169,7 +169,7 @@ export function Computing () {
                         <StateTable
                             type='pubConns'
                             cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), 'pubConns'), 'queueDepth')}
-                            rows={handle_ellipsis_col(add_key(streaming_stat.pubConns.to_rows()), 'tables')}
+                            rows={add_key(streaming_stat.pubConns.to_rows())}
                             separated={false}
                         />
                     </div>
@@ -233,11 +233,15 @@ export function Computing () {
                         <StateTable
                             type='persistenceMeta'
                             cols={render_col_title(
-                                sort_col(set_col_width(persistent_table_stat.to_cols(), 'persistenceMeta'), 'persistenceMeta'),
+                                    sort_col(
+                                        set_col_width(
+                                            translate_format_col(persistent_table_stat.to_cols(), 'memoryUsed'), 'persistenceMeta'), 'persistenceMeta'),
                                 'persistenceMeta'
                             )}
-                            rows={handle_null(add_key(persistent_table_stat.to_rows()))}
-                            min_width={1500}
+                            rows={handle_null(
+                                    translate_byte_row(
+                                        handle_ellipsis_col(add_key(persistent_table_stat.to_rows()), 'persistenceDir'), 'memoryUsed'))}
+                            min_width={1600}
                             refresher={computing.get_streaming_table_stat}
                         />
                         {streaming_stat.persistWorkers && (
@@ -295,14 +299,17 @@ const cols_width = {
     },
     persistenceMeta: {
         tablename: 150,
+        loaded: 100,
+        columns: 60,
+        memoryUsed: 100,
         lastLogSeqNum: 120,
-        sizeInMemory: 120,
+        sizeInMemory: 100,
         asynWrite: 110,
-        totalSize: 120,
+        totalSize: 90,
         raftGroup: 70,
         compress: 70,
-        sizeOnDisk: 120,
-        retentionMinutes: 120,
+        sizeOnDisk: 100,
+        retentionMinutes: 100,
         memoryOffset: 100,
         hashValue: 90,
         diskOffset: 100
@@ -328,12 +335,12 @@ const header_text = {
     persistenceMeta: {
         title: t('持久化共享流表状态'),
         tip: t('监控启用了持久化的共享流数据表的元数据。'),
-        func: 'objs(true)'
+        func: 'getStreamTables(1)'
     },
     sharedStreamingTableStat: {
         title: t('非持久化共享流表状态'),
         tip: t('监控未启用持久化的共享流数据表的元数据。'),
-        func: 'objs(true)'
+        func: 'getStreamTables(2)'
     },
     engine: {
         title: t('流引擎状态'),
@@ -382,6 +389,9 @@ const leading_cols = {
     },
     persistenceMeta: {
         tablename: t('表名'),
+        loaded: t('加载到内存'),
+        columns: t('列数'),
+        memoryUsed: t('内存大小'),
         totalSize: t('总行数'),
         sizeInMemory: t('内存中行数'),
         memoryOffset: t('内存中偏移量'),
@@ -505,13 +515,17 @@ const units = {
     }
 }
 
+const detail_title = {
+    lastErrMsg: t('错误详细信息'),
+    persistenceDir: t('持久化路径')
+}
+
 /** 省略文本内容，提供`详细`按钮，点开后弹出 modal 显示详细信息 */
 function handle_ellipsis_col (table: Record<string, any>[], col_name: string) {
-    const is_error_col = col_name === 'lastErrMsg'
     return table.map(row => {
-        if (is_error_col)
+        if (col_name === 'lastErrMsg')
             row.order = row[col_name]
-        row[col_name] = <DetailInfo text={row[col_name] as string} type={is_error_col ? 'error' : 'info'} />
+        row[col_name] = <DetailInfo text={row[col_name] as string} type={col_name} />
         return row
     })
 }
@@ -709,28 +723,28 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
 function DetailInfo ({ text, type }: { text: string, type: string }) {
     if (!text)
         return
-    function error () {
+    function detail () {
         model.modal.info({
-            title: type === 'error' ? t('错误详细信息') : t('共享流数据表'),
+            title: detail_title[type],
             content: text,
             width: '80%'
         })
     }
     return <Typography.Paragraph
-            ellipsis={{
-                rows: 2,
-                expandable: true,
-                symbol: (
-                    <span
-                        onClick={event => {
-                            event.stopPropagation()
-                            error()
-                        }}
-                    >
-                        {t('详细')}
-                    </span>
-                )
-            }}
+                ellipsis={{
+                    rows: 2,
+                    expandable: true,
+                    symbol: (
+                        <span
+                            onClick={event => {
+                                event.stopPropagation()
+                                detail()
+                            }}
+                        >
+                            {t('详细')}
+                        </span>
+                    )
+                }}
         >
             {text}
         </Typography.Paragraph>

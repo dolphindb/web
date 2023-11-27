@@ -2,7 +2,7 @@ import './Header.sass'
 
 import { useState } from 'react'
 import { Button, Input, Modal, Select, Tag, Tooltip, Upload } from 'antd'
-import { DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, RollbackOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
+import { CopyOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, RollbackOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -19,6 +19,7 @@ import { export_variables } from './Variable/variable.js'
 import cn from 'classnames'
 import { HostSelect } from '../components/HostSelect.js'
 import { Share } from './Share/Share.js'
+import { load_config } from './utils.js'
 
 
 export function get_widget_config (widget: Widget) {
@@ -37,7 +38,7 @@ export function get_widget_config (widget: Widget) {
 
 interface DashboardOption {
     key: number
-    value: string
+    value: number
     label: string | JSX.Element
 }
 
@@ -47,9 +48,12 @@ export function Header () {
     const [new_dashboard_id, set_new_dashboard_id] = useState<number>()
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
+    const [copy_dashboard_name, set_copy_dashboard_name] = useState('')
+    
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     const { visible: save_visible, open: save_open, close: save_close } = use_modal()
+    const { visible: copy_visible, open: copy_open, close: copy_close } = use_modal()
     
     async function get_latest_config () {
         const updated_config = {
@@ -68,22 +72,22 @@ export function Header () {
     }
     
     /** 生成可以比较的 config */
-    function exact_config (config: DashBoardConfig) {
-        return { ...config, 
-                 data: { 
-                        ...config.data, 
-                        datasources: config.data.datasources.map(ds => ({ 
-                                ...ds, 
-                                cols: [ ], 
-                                deps: [ ],
-                                error_message: '' })),
-                        variables: config.data.variables.map(va => ({
-                                ...va,
-                                deps: [ ]
-                        })) 
-                    } 
-                }
-    }
+    // function exact_config (config: DashBoardConfig) {
+    //     return { ...config, 
+    //              data: { 
+    //                     ...config.data, 
+    //                     datasources: config.data.datasources.map(ds => ({ 
+    //                             ...ds, 
+    //                             cols: [ ], 
+    //                             deps: [ ],
+    //                             error_message: '' })),
+    //                     variables: config.data.variables.map(va => ({
+    //                             ...va,
+    //                             deps: [ ]
+    //                     })) 
+    //                 } 
+    //             }
+    // }
     
     
     async function handle_save () {
@@ -212,11 +216,11 @@ export function Header () {
                     
             }}
             // defaultValue={ config?.name || new_dashboard_name}
-            value={config?.name}
+            value={config?.id}
             bordered={false}
             options={configs?.map(({ id, name, permission }) => ({
                 key: id,
-                value: name,
+                value: id,
                 label: <div className='dashboard-options-label'>
                     <span className={cn({ 'dashboard-options-label-name': permission })}>{name}</span>
                     {permission !== DashboardPermission.own && <Tag color='processing' className='status-tag' >{permission === DashboardPermission.edit ? t('仅编辑') : t('仅预览')}</Tag> }
@@ -275,6 +279,40 @@ export function Header () {
                     <Input value={edit_dashboard_name} onChange={event => { set_edit_dashboard_name(event.target.value) }}/>
                 </Modal>
                 
+                <Modal
+                    open={copy_visible}
+                    onCancel={copy_close}
+                    onOk={async () => 
+                        model.execute(async () => {
+                            if (!copy_dashboard_name) {
+                                model.message.error(t('dashboard 名称不允许为空'))
+                                return
+                            }
+                            if (copy_dashboard_name.includes('/') || copy_dashboard_name.includes('\\')) {
+                                model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
+                                return
+                            }
+                            
+                            if (configs.find(({ name, permission }) => name === copy_dashboard_name && permission === DashboardPermission.own)) {
+                                model.message.error(t('名称重复，请重新输入'))
+                                return
+                            }
+                            const copy_dashboard = dashboard.generate_new_config(genid(), copy_dashboard_name, config.data)
+                            await dashboard.add_dashboard_config(copy_dashboard)
+                            model.message.success(t('创建副本成功'))
+                            
+                            copy_close()
+                    })}
+                    title={t('请输入 dashboard 副本名称')}
+                >
+                <Input
+                    value={copy_dashboard_name}
+                    onChange={event => {
+                        set_copy_dashboard_name(event.target.value)
+                    }}
+                />
+                </Modal>
+                
                 <Tooltip title='新增'>
                     <Button
                         className='action'
@@ -295,7 +333,9 @@ export function Header () {
             
                 {
                     dashboard.config?.permission !== DashboardPermission.view
-                        ? <Tooltip title={t('导出')}>
+                        &&
+                        <>
+                        <Tooltip title={t('导出')}>
                             <Button className='action' onClick={async () => 
                                 dashboard.execute(async () => {
                                     await get_latest_config()
@@ -312,23 +352,21 @@ export function Header () {
                                 })
                             }><UploadOutlined /></Button>
                         </Tooltip>
-                        : <></>
+                        <Tooltip title={t('创建副本')}>
+                            <Button className='action' onClick={() => {
+                                set_copy_dashboard_name(config.name)
+                                copy_open()    
+                            }
+                                
+                            }><CopyOutlined /></Button>
+                        </Tooltip>
+                        </>
                 }
             
                 <Tooltip title={t('导入')}>
                     <Upload
                         showUploadList={false}
-                        beforeUpload={async file => 
-                            dashboard.execute(async () => {
-                                const import_config = JSON.parse(await file.text()) as DashBoardConfig
-                                if (configs.findIndex(c => c.id === import_config.id) !== -1)
-                                    await dashboard.update_dashboard_config(import_config)
-                                else
-                                    await dashboard.add_dashboard_config(import_config)
-                                model.set_query('dashboard', String(import_config.id))
-                                return false
-                            })
-                        }
+                        beforeUpload={async file => { load_config(file, 'dark') }}
                     >
                         <Button className='action'>
                             <DownloadOutlined />

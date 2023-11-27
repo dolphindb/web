@@ -81,7 +81,7 @@ export function Job () {
             -(l.finishedTasks - r.finishedTasks))
     
     const rjob_rows = filter_job_rows(
-        rjobs.to_rows().map(compute_status_info),
+        handle_ellipsis_col(rjobs.to_rows().map(compute_status_info), [ 'errorMsg']),
         query
     ).sort((l, r) => {
         if (l.status !== r.status) {
@@ -264,9 +264,54 @@ const column_names = {
     queue: t('队列')
 }
 
+const detail_title = {
+    errorMsg: t('错误详细信息'),
+    rootJobId: t('根作业 ID')
+}
+
 function translate_columns (cols: DdbJobColumn[]): DdbJobColumn[] {
     return cols.map(item => 
         ({ ...item, title: column_names[item.title as string] || item.title }))
+}
+
+function handle_ellipsis_col (table: Record<string, any>[], col_names: string[]) {
+    return table.map(row => {
+        for (let col_name of col_names)
+            row[col_name] = <DetailInfo text={row[col_name] as string} type={col_name} />
+        return row
+    })
+}
+
+
+function DetailInfo ({ text, type }: { text: string, type: string }) {
+    if (!text)
+        return
+    function detail () {
+        model.modal.info({
+            title: detail_title[type],
+            content: text,
+            width: '80%'
+        })
+    }
+    return <Typography.Paragraph
+            className='detail'
+            ellipsis={{
+                rows: 2,
+                expandable: true,
+                symbol: (
+                    <span
+                        onClick={event => {
+                            event.stopPropagation()
+                            detail()
+                        }}
+                    >
+                        {t('详细')}
+                    </span>
+                )
+            }}
+        >
+            {text}
+        </Typography.Paragraph>
 }
 
 

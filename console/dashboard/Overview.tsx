@@ -13,9 +13,10 @@ import { genid } from 'xshell/utils.browser.js'
 import { model } from '../model.js'
 import { t } from '../../i18n/index.js'
 
-import { type DashBoardConfig, dashboard, DashboardPermission } from './model.js'
+import { dashboard, DashboardPermission } from './model.js'
 import { Share } from './Share/Share.js'
 import backend from './backend.dos'
+import { load_config } from './utils.js'
 
 
 export function Overview () {
@@ -25,10 +26,12 @@ export function Overview () {
     const [new_dashboard_id, set_new_dashboard_id] = useState<number>()
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
+    const [copy_dashboard_name, set_copy_dashboard_name] = useState('')
     
     let creator = use_modal()
     let editor = use_modal()
     let deletor = use_modal()
+    let copyor = use_modal()
     
     const params = new URLSearchParams(location.search)
     
@@ -87,7 +90,7 @@ export function Overview () {
                             return
                         }
                         
-                        if (configs?.find(({ name }) => name === new_dashboard_name)) {
+                        if (configs.find(({ name, permission }) => name === new_dashboard_name && permission === DashboardPermission.own)) {
                             model.message.error(t('名称重复，请重新输入'))
                             return
                         }
@@ -170,6 +173,40 @@ export function Overview () {
                 title={t(`确认删除选中的 ${selected_dashboard_ids.length} 个数据面板吗？`)}
              />
             
+            <Modal
+                open={copyor.visible}
+                onCancel={copyor.close}
+                onOk={async () => 
+                    model.execute(async () => {
+                        if (!copy_dashboard_name) {
+                            model.message.error(t('dashboard 名称不允许为空'))
+                            return
+                        }
+                        if (copy_dashboard_name.includes('/') || copy_dashboard_name.includes('\\')) {
+                            model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
+                            return
+                        }
+                        
+                        if (configs.find(({ name, permission }) => name === copy_dashboard_name && permission === DashboardPermission.own)) {
+                            model.message.error(t('名称重复，请重新输入'))
+                            return
+                        }
+                        const copy_dashboard = dashboard.generate_new_config(genid(), copy_dashboard_name, current_dashboard.data)
+                        await dashboard.add_dashboard_config(copy_dashboard)
+                        model.message.success(t('创建副本成功'))
+                        
+                        copyor.close()
+                })}
+                title={t('请输入 dashboard 副本名称')}
+            >
+                <Input
+                    value={copy_dashboard_name}
+                    onChange={event => {
+                        set_copy_dashboard_name(event.target.value)
+                    }}
+                />
+            </Modal>
+            
             <Table
                 rowSelection={{
                     selectedRowKeys: selected_dashboard_ids,
@@ -197,7 +234,7 @@ export function Overview () {
                             }
                         ],
                         onFilter: (value, { permission }) => permission === value,
-                        render: (text, { key, name, permission }) => <a
+                        render: (text, { key, name, permission, owner }) => <a
                                 onClick={() => {
                                     const config = configs.find(({ id }) => id === key)
                                     dashboard.set({ config, editing: false })
@@ -207,7 +244,16 @@ export function Overview () {
                             >
                                 <div className='dashboard-cell-tag'>
                                     <span className={cn({ 'dashboard-cell-tag-name': permission })}>{name}</span>
-                                    {permission !== DashboardPermission.own && <Tag color='processing' className='status-tag' >{permission === DashboardPermission.edit ? t('仅编辑') : t('仅预览')}</Tag> }
+                                    {permission !== DashboardPermission.own 
+                                        && <>
+                                            <Tag color='processing' className='status-tag' >
+                                                {permission === DashboardPermission.edit ? t('仅编辑') : t('仅预览')}
+                                            </Tag> 
+                                            <Tag color='processing' className='status-tag' >
+                                                {`${t('来源于 ')}${owner}`}
+                                            </Tag> 
+                                        </>
+                                    }
                                 </div>
                             </a>
                     },
@@ -215,7 +261,7 @@ export function Overview () {
                         title: t('操作'),
                         dataIndex: '',
                         key: 'actions',
-                        width: 350,
+                        width: 450,
                         render: ({ key, permission }) => <div className='action'>
                             {
                                 permission !== DashboardPermission.view
@@ -236,11 +282,22 @@ export function Overview () {
                                         >
                                             {t('导出')}
                                         </a>
+                                        
+                                        <a
+                                            onClick={() => {
+                                                let config = configs.find(({ id }) => id === key)
+                                                set_current_dashboard(config)
+                                                set_copy_dashboard_name(config.name)
+                                                copyor.open()
+                                            }}
+                                        >
+                                            {t('创建副本')}
+                                        </a>
                                     </>
                                     : <></>
                             }
                             {
-                                permission === DashboardPermission.own
+                                permission === DashboardPermission.own 
                                     ? <>
                                         <a
                                             onClick={() => {
@@ -308,7 +365,7 @@ export function Overview () {
                         </div>
                     }
                 ]}
-                dataSource={configs?.map(({ id, name, permission }) => ({ key: id, name, permission }))}
+                dataSource={configs?.map(({ id, name, permission, owner }) => ({ key: id, name, permission, owner }))}
                 pagination={false}
                 title={() => <div className='title'>
                         <h2>{t('数据面板')}</h2>
@@ -329,18 +386,7 @@ export function Overview () {
                             <Upload
                                 multiple
                                 showUploadList={false}
-                                beforeUpload={async file => {
-                                    await model.execute(async () => {
-                                        const import_config = JSON.parse(await file.text()) as DashBoardConfig
-                                        
-                                        if (configs.findIndex(c => c.id === import_config.id) !== -1)
-                                            await dashboard.update_dashboard_config(import_config, false)
-                                        else
-                                            await dashboard.add_dashboard_config(import_config, false)
-                                        model.message.success(`${import_config.name}导入成功`)
-                                    })
-                                    return false
-                                }}
+                                beforeUpload={async file => { load_config(file, 'light') }}
                             >
                                 <Button icon={<DownloadOutlined />}>{t('批量导入')}</Button>
                             </Upload>
