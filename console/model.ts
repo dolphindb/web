@@ -33,7 +33,7 @@ export const storage_keys = {
 
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing'
+export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing' | 'access' | 'user' | 'group'
 
 
 export class DdbModel extends Model<DdbModel> {
@@ -188,11 +188,12 @@ export class DdbModel extends Model<DdbModel> {
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                try {
-                    await this.login_by_password('admin', '123456')
-                } catch {
-                    console.log(t('使用默认 admin 账号密码登录失败'))
-                }
+                if (this.dev)
+                    try {
+                        await this.login_by_password('admin', '123456')
+                    } catch {
+                        console.log(t('使用默认 admin 账号密码登录失败'))
+                    }
             }
         
         await this.get_cluster_perf(true)
