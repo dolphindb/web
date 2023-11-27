@@ -182,8 +182,8 @@ export function DataSourceList ({
                         {t('复制')}
                     </div>
                 </div>
-                { current_data_source ? <div className='data-source-list-bottom'>
-                    {data_sources.length ? (
+                { current_data_source && <div className='data-source-list-bottom'>
+                    {data_sources.length && 
                         <Tree
                             ref={tree_ref}
                             showIcon
@@ -204,10 +204,8 @@ export function DataSourceList ({
                             }}
                             treeData={menu_items}
                         />
-                    ) : (
-                        <></>
-                    )}
-                </div> : <></> }
+                    }
+                </div> }
             </div>
         </>
 }

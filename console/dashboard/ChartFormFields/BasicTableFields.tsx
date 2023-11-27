@@ -23,7 +23,7 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                         key: field.name,
                         label: form.getFieldValue('col_properties')?.[field.name]?.col ?? col_names[field.name],
                         children: <div className='axis-wrapper'>
-                            <Form.Item name={[field.name, 'col']} initialValue={col_names[field.name]} label='数据列' >
+                            <Form.Item name={[field.name, 'col']} initialValue={col_names[field.name]} label={t('数据列')} >
                                 <Input disabled/>
                             </Form.Item>
                             <Form.Item label={t('是否展示')} name={[field.name, 'show']} initialValue>
@@ -39,11 +39,11 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                                 <InputNumber />
                             </Form.Item>
                             
-                            <Form.Item label='字体颜色' name={[field.name, 'color']}>
+                            <Form.Item label={t('字体颜色')} name={[field.name, 'color']}>
                                 <StringColorPicker />
                             </Form.Item>
                             
-                            <Form.Item label='背景颜色' name={[field.name, 'background_color']}>
+                            <Form.Item label={t('背景颜色')} name={[field.name, 'background_color']}>
                                 <StringColorPicker />
                             </Form.Item>
                             
@@ -54,11 +54,11 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                             <Form.Item label={t('小数位数')} name={[field.name, 'decimal_places']}>
                                 <InputNumber min={0} />
                             </Form.Item>
-                            <Form.Item label='是否千分位' name={[field.name, 'is_thousandth_place']} initialValue={false}>
+                            <Form.Item label={t('是否千分位')} name={[field.name, 'is_thousandth_place']} initialValue={false}>
                                 <BoolRadioGroup />
                             </Form.Item>
                             
-                            <Form.Item label='对齐方式' name={[field.name, 'align']} initialValue='left'>
+                            <Form.Item label={t('对齐方式')} name={[field.name, 'align']} initialValue='left'>
                                 <Select options={convert_list_to_options(['left', 'center', 'right'])} />
                             </Form.Item>
                             

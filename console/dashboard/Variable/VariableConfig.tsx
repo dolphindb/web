@@ -17,13 +17,14 @@ import {
     type VariablePropertyType,
     variables,
 } from './variable.js'
+import { t } from '../../../i18n/index.js'
 
 const save_confirm_config = {
-    cancelText: '不保存',
-    okText: '保存',
+    cancelText: t('不保存'),
+    okText: t('保存'),
     style: { top: '250px' },
     maskStyle: { backgroundColor: 'rgba(0,0,0,.2)' },
-    title: '此变量存在未保存的更改。你想保存吗？',   
+    title: t('此变量存在未保存的更改。你想保存吗？'),   
 }
 
 
@@ -77,10 +78,10 @@ export function VariableConfig () {
             icon={<ToolOutlined className='variable-config-trigger-navigation-icon' />}
             onClick={open}
         >
-            变量
+            {t('变量')}
         </Button>
         <Modal 
-            title='配置变量'
+            title={t('配置变量')}
             width='80%' 
             destroyOnClose
             className='variable'
@@ -101,10 +102,10 @@ export function VariableConfig () {
                                 await handle_save()
                         } 
                     }>
-                        保存
+                        {t('保存')}
                     </Button>,
                     <Button key='close' onClick={handle_close}>
-                        关闭
+                        {t('关闭')}
                     </Button>,
                 ]
             }
@@ -120,15 +121,14 @@ export function VariableConfig () {
                     change_current_variable={change_current_variable}
                     change_current_variable_property={change_current_variable_property}
                 />
-                {current_variable
-                    ? <div className='config-right'>
+                {current_variable &&
+                    <div className='config-right'>
                         <VariableEditor
                             current_variable={current_variable}
                             change_no_save_flag={(value: boolean) => no_save_flag.current = value}
                             change_current_variable_property={change_current_variable_property}
                         />
                     </div>
-                    : <></>
                 }
             </div>
         </Modal>

@@ -89,7 +89,7 @@ function AxisItem (props: IAxisItem) {
         <Form.Item name={concat_name_path(name_path, 'name')} label={t('名称')} initialValue={initial_values?.name ?? t('名称')}>
             <Input />
         </Form.Item>
-        <Form.Item name={concat_name_path(name_path, 'fontsize')} label='字号' initialValue={12}>
+        <Form.Item name={concat_name_path(name_path, 'fontsize')} label={t('字号')} initialValue={12}>
             <InputNumber addonAfter='px' />
         </Form.Item>
         {/* 类目轴从col_name中获取data */}
@@ -143,7 +143,7 @@ function YAxis ({ col_names, initial_values }: { col_names: string[], initial_va
                             <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>
                                 <Select options={axis_position_options} />
                             </Form.Item>
-                            <Form.Item tooltip='Y 轴相对于左右默认位置的偏移' name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
+                            <Form.Item tooltip={t('Y 轴相对于左右默认位置的偏移')} name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
                                 <InputNumber />
                             </Form.Item>
                         </div>
@@ -154,7 +154,7 @@ function YAxis ({ col_names, initial_values }: { col_names: string[], initial_va
                     children,
                     key: field.name,
                     label: <div className='yaxis-collapse-label'>
-                        {`Y 轴 ${field.name + 1}`}
+                        {`${t('Y 轴')} ${field.name + 1}`}
                         {
                             index >= 2 &&
                             <DeleteOutlined
@@ -206,7 +206,7 @@ function Series (props: { col_names: string[] }) {
                                             <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
                                                 <Select options={col_names.map(item => ({ label: item, value: item })) } />
                                             </Form.Item>
-                                            <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={`数据列 ${field.key + 1}`}> 
+                                            <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={`${t('数据列')} ${field.key + 1}`}> 
                                                 <Input />
                                             </Form.Item>
                                             <Form.Item name={[field.name, 'type']} label={t('类型')} initialValue={WidgetChartType.LINE} >
@@ -234,21 +234,21 @@ function Series (props: { col_names: string[] }) {
                           index <= 1 ?   
                           (series[index]?.selected_cols ? 
                                 <>
-                                    <Form.Item name={[field.name, 'kcolor']} label='k 线颜色（涨）'>
+                                    <Form.Item name={[field.name, 'kcolor']} label={t('k 线颜色（涨）')}>
                                         <StringColorPicker />
                                     </Form.Item>
                                     
-                                    <Form.Item name={[field.name, 'kcolor0']} label='k 线颜色（跌）'>
+                                    <Form.Item name={[field.name, 'kcolor0']} label={t('k 线颜色（跌）')}>
                                         <StringColorPicker />
                                     </Form.Item>
                                 </> :  
                                 <></>) :
                                 <>
-                                    <Form.Item name={[field.name, 'color']} label='线条颜色' initialValue={null}>
+                                    <Form.Item name={[field.name, 'color']} label={t('线条颜色')} initialValue={null}>
                                         <StringColorPicker />
                                     </Form.Item>
                                     
-                                    <Form.Item name={[field.name, 'mark_point']} label='标记点'>
+                                    <Form.Item name={[field.name, 'mark_point']} label={t('标记点')}>
                                         <Select options={mark_point_options} mode='multiple'/>
                                     </Form.Item>
                                     
@@ -288,7 +288,7 @@ function Series (props: { col_names: string[] }) {
                     key: field.name,
                     children,
                     label: <div className='series-collapse-label'>
-                        {`数据列 ${field.name + 1}`}
+                        {`${t('数据列')} ${field.name + 1}`}
                         {index >= 2 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />}
                     </div>,
                     forceRender: true
@@ -325,8 +325,8 @@ export function OhlcFormFields (props: IProps) {
         () => [
             { type: AxisType.TIME, name: '' },
             [
-                { type: AxisType.VALUE, name: 'k 线', position: Position.LEFT },
-                { type: AxisType.VALUE, name: '交易量', position: Position.RIGHT }
+                { type: AxisType.VALUE, name: t('k 线'), position: Position.LEFT },
+                { type: AxisType.VALUE, name: t('交易量'), position: Position.RIGHT }
             ]
         ],
         [ ]

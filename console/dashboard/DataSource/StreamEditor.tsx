@@ -211,8 +211,8 @@ export function StreamEditor ({
                                 />
                             </div>
                         </div>
-                        {current_data_source.filter
-                            ? <>
+                        {current_data_source.filter &&
+                            <>
                                 <div className='streameditor-main-right-filter'>
                                     <div className='streameditor-main-right-filter-top'>
                                         <div className='streameditor-main-right-filter-top-mode'>
@@ -264,7 +264,6 @@ export function StreamEditor ({
                                     </div>
                                 </div>
                             </>
-                            : <></>
                         }
                     </div>        
                 </div>
@@ -310,8 +309,8 @@ export function StreamEditor ({
                             </div>
                         }
                     </div>
-                    {stream_tables.length
-                        ? <div>
+                    {stream_tables.length &&
+                        <div>
                             {t('过滤') + '：'}
                             <Switch 
                                 disabled={loading}
@@ -322,7 +321,6 @@ export function StreamEditor ({
                                 }} 
                             />
                         </div>
-                        : <></>
                     }
             </div>
             

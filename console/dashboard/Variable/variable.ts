@@ -5,6 +5,7 @@ import copy from 'copy-to-clipboard'
 import { dashboard } from '../model.js'
 import { type DataSource, execute } from '../DataSource/date-source.js'
 import { safe_json_parse } from '../utils.js'
+import { t } from '../../../i18n/index.js'
 
 export type ExportVariable = {
     id: string
@@ -92,7 +93,7 @@ export function get_variable_value (variable_name: string): string {
     if (variable)
         return variable.value
     else
-        throw new Error(`变量 ${variable_name} 不存在`)
+        throw new Error(`${t('变量')} ${variable_name} ${t('不存在')}`)
 }
 
 
@@ -105,7 +106,7 @@ export async function save_variable ( new_variable: Variable, is_import = false)
     if (!is_import) {
         for (let source_id of variables[id].deps)
             await execute(source_id)
-        dashboard.message.success(`${new_variable.name} 保存成功！`)
+        dashboard.message.success(`${new_variable.name} ${('保存成功！')}`)
     }
 }
 
@@ -113,7 +114,7 @@ export async function save_variable ( new_variable: Variable, is_import = false)
 export function delete_variable (variable_id: string): number {
     const variable = variables[variable_id]
     if (variable.deps.size)
-        dashboard.message.error('当前变量已被数据源使用无法删除')
+        dashboard.message.error(t('当前变量已被数据源使用无法删除'))
     else {
         const delete_index = find_variable_index(variable_id, 'id')
         variables.variable_infos.splice(delete_index, 1)
@@ -146,13 +147,13 @@ export function rename_variable (id: string, new_name: string) {
     if (new_name === variable.name)
         return
     else if (find_variable_index(new_name, 'name') !== -1)
-        throw new Error('该变量名已存在')
+        throw new Error(t('该变量名已存在'))
     else if (new_name.length > 10)
-        throw new Error('变量名长度不能大于10')
+        throw new Error(t('变量名长度不能大于10'))
     else if (new_name.length === 0)
-        throw new Error('变量名不能为空')
+        throw new Error(t('变量名不能为空'))
     else if (variable.deps.size)
-        throw new Error('此变量已被数据源引用无法修改名称')
+        throw new Error(t('此变量已被数据源引用无法修改名称'))
     else {
         variables.variable_infos[find_variable_index(id, 'id')].name = new_name
         variables.set({ 
@@ -238,9 +239,9 @@ export function get_variable_copy_infos (variable_ids: string[]) {
 export function copy_variables (variable_ids: string[]) {
     try {
         copy(JSON.stringify( get_variable_copy_infos(variable_ids)))
-        dashboard.message.success('复制成功')
+        dashboard.message.success(t('复制成功'))
      } catch (e) {
-        dashboard.message.error('复制失败')
+        dashboard.message.error(t('复制失败'))
     }
 }
 
@@ -256,14 +257,14 @@ export async function paste_variables (event, widget = false) {
         const { id, name } = _variables[i]
         if (find_variable_index(name, 'name') !== -1) 
             if (widget)
-                throw new Error('变量冲突，复制失败')
+                throw new Error(t('变量冲突，复制失败'))
             else {
                 _variables.splice(i, 1)
                 i--
             }   
         else if (variables[id]) 
             if (widget)
-                throw new Error('变量冲突，复制失败')
+                throw new Error(t('变量冲突，复制失败'))
             else 
                 _variables[i].id = String(genid())
     }
