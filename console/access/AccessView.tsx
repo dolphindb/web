@@ -102,7 +102,6 @@ const ACCESS_TYPE = {
     script: ['SCRIPT_EXEC', 'TEST_EXEC']
 }
 
-
 const TABLE_NAMES = {
     database: t('数据库'),
     stream: t('流表'),
@@ -181,18 +180,18 @@ function AccessList ({
                 ...category === 'script' ? 
                                 { stat: accesses[name] } 
                                         : 
-                { access: Object.fromEntries(ACCESS_TYPE[category].map(type => {
-                        return handle_access(accesses, type, name)
-                    })) 
+                { access: Object.fromEntries(ACCESS_TYPE[category].map(type => 
+                    handle_access(accesses, type, name)
+                )) 
                 },
                 ... typeof item !== 'string' ?
                     {
                         tables: item.tables.map(table => (
                             {
                                 name: table,
-                                access: Object.fromEntries(ACCESS_TYPE.table.map(type => {
-                                    return handle_access(accesses, type, table)
-                                })),
+                                access: Object.fromEntries(ACCESS_TYPE.table.map(type => 
+                                    handle_access(accesses, type, table)
+                                )),
                             }
                         ))
                     }
@@ -245,11 +244,12 @@ function AccessList ({
     return <Table 
             columns={cols}
             dataSource={rows}
-            title={() => <AccessHeader 
-                            category={category} 
-                            preview
-                            search_key={search_key}
-                            set_search_key={set_search_key}/>
+            title={() => 
+                <AccessHeader 
+                    category={category} 
+                    preview
+                    search_key={search_key}
+                    set_search_key={set_search_key}/>
             }
             expandable={ category === 'database' ? {
                 expandedRowRender: db => 
@@ -297,43 +297,65 @@ function AccessManage ({
     
     const [access_options, set_access_options] = useState([ ])
     
+    const aces_types = useMemo(() => (category === 'database' ? 
+        ACCESS_TYPE.database.concat(ACCESS_TYPE.table)
+                    :
+        ACCESS_TYPE[category]).filter(ac => ac !== 'TABLE_WRITE'), 
+    [category])
+    
     const cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
         [
             ...category !== 'script' ?  [{
                 title: '对象',
                 dataIndex: 'name',
                 key: 'name',
-                width: 400
             }] : [ ],
             {
                 title: '权限',
                 dataIndex: 'access',
                 key: 'access',
+                wdith: 300,
+                ...['function_view', 'script'].includes(category) ? { } :
+                { 
+                    filters: aces_types.map(at => ({
+                    text: at,
+                    value: at
+                    })),
+                    filterMultiple: true,
+                    onFilter: (value, record) => record.access === value
+                }
             },
             {
                 title: '类型',
                 dataIndex: 'type',
                 key: 'type',
-                width: 300
-              
+                wdith: 200,
+                ...category === 'script' ? { } :
+                {
+                    filters: ['grant', 'deny'].map(at => ({
+                        text: at,
+                        value: at
+                    })),
+                    filterMultiple: false,
+                    onFilter: (value, record) => record.type === value
+                }
             },
             {
                 title: t('操作'),
                 dataIndex: 'action',
                 key: 'action',
-                width: 300
+                wdith: 200
             }
         ]
     ), [ ])
     
     const { databases, shared_tables, stream_tables, function_views, current, accesses } = access.use(['databases', 'shared_tables', 'stream_tables', 'function_views', 'current', 'accesses'])
     
-    const get_accesses = useCallback(() => {
+    const access_rules = useMemo(() => {
+        if (!accesses)
+            return [ ]
         let tb_rows = [ ]
-        const aces_types = category === 'database' ? 
-                                ACCESS_TYPE.database.concat(ACCESS_TYPE.table)
-                                            :
-                                ACCESS_TYPE[category]
+        
         for (let [k, v] of Object.entries(accesses as Record<string, any>))
             if (v && v !== 'none')
                 if (category === 'script') {
@@ -342,18 +364,16 @@ function AccessManage ({
                             key: k,
                             access: k,
                             type: v,
-                            action: <Button type='link' danger onClick={async () => {
-                                        try {
+                            action: <Button type='link' danger onClick={async () => 
+                                        model.execute(async () => {
                                             await access.revoke(current.name, k)
                                             model.message.success('revoke 成功')
                                             access.set({ accesses: current.role === 'user' ? 
                                                             (await access.get_user_access([current.name]))[0]
                                                                                         :
                                                             (await access.get_group_access([current.name]))[0] }) 
-                                        } catch (error) {
-                                            model.show_error({ error })
-                                        }
-                                    }}>Revoke</Button>
+                                        })
+                                    }>{t('Revoke')}</Button>
                 })
                 }
                 else if (aces_types.map(aces => aces + '_allowed').includes(k) || aces_types.map(aces =>  aces + '_denied').includes(k)) {
@@ -371,32 +391,26 @@ function AccessManage ({
                                     name: obj,
                                     access: k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')),
                                     type: allowed ? 'grant' : 'deny',
-                                    action: <Button type='link' danger onClick={async () => {
-                                        try {
+                                    action: <Button type='link' danger onClick={async () => 
+                                        model.execute(async () => {
                                             await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
                                             model.message.success(t('revoke 成功'))
                                             access.set({ accesses: current.role === 'user' ? 
                                                             (await access.get_user_access([current.name]))[0]
                                                                                         :
                                                             (await access.get_group_access([current.name]))[0] }) 
-                                        } catch (error) {
-                                            model.show_error({ error })
-                                        }
-                                    }}>Revoke</Button>
+                                        })
+                                    }>{t('Revoke')}</Button>
                             })
                     }
-                   
         return tb_rows
     }, [ accesses, category])
     
-    const rows = useMemo(() => {
-        if (!accesses)
-            return
-        return get_accesses().filter(row => {
-            const item = (category === 'script' ? 'access' : 'name')
-            return row[item].toLowerCase().includes(search_key.toLowerCase())
-        })
-    }, [accesses, category])
+    const rows = useMemo(() => 
+        access_rules.filter(row => 
+            row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
+        )
+    , [access_rules, category, search_key])
     
     const options = useMemo(() => {
         let items = [ ]
@@ -430,7 +444,7 @@ function AccessManage ({
                     creator.close()
                 }}
                 onOk={async () => {
-                    try {
+                    model.execute(async () => {
                         await add_access_form.validateFields()
                         const accesses = await add_access_form.getFieldValue('add-rules')
                         await Promise.all(accesses.map(async aces => {
@@ -456,12 +470,10 @@ function AccessManage ({
                                                                         :
                                             (await access.get_group_access([current.name]))[0] }) 
                         add_access_form.resetFields()
-                    } catch (error) {
-                        model.show_error({ error })
-                    }
+                    })
                 }}
                 destroyOnClose
-                title={t('新增规则')}
+                title={t('新增权限')}
             >   
             <Form form={add_access_form}>
                 <Form.List name='add-rules'>
@@ -486,19 +498,6 @@ function AccessManage ({
                                                 }
                                             ))}
                                             placeholder={t('请选择 dfs 数据库/表')}
-                                            // defaultValue={database_tree[0]?.title}
-                                            // onChange={val => {
-                                            //     if (val.split('/').length === 4) {
-                                            //         const value = add_access_form.getFieldValue('add-rules')
-                                            //         value[idx].access = ACCESS_TYPE.table[0]
-                                            //         add_access_form.setFieldValue('add-rule', value)
-                                            //     }
-                                            //     else {
-                                            //         const value = add_access_form.getFieldValue('add-rules')
-                                            //         value[idx].access = ACCESS_TYPE.database[0]
-                                            //         add_access_form.setFieldValue('add-rule', value)
-                                            //     }
-                                            // }}
                                         /> : 
                                         <Select
                                             style={{ width: '300px' }}
@@ -583,15 +582,18 @@ function AccessManage ({
         
             </Modal>
             <Table
-                title={() => <AccessHeader 
-                    category={category} 
-                    preview={false}
-                    search_key={search_key}
-                    set_search_key={set_search_key}
-                    open={creator.open}/>
+                title={() => 
+                    <AccessHeader 
+                        category={category} 
+                        preview={false}
+                        search_key={search_key}
+                        set_search_key={set_search_key}
+                        open={creator.open}/>
                 }
                 columns={cols}
-                dataSource={rows}/>
+                dataSource={rows}
+                tableLayout='fixed'
+                />
         </>
 }
 
@@ -611,17 +613,18 @@ function AccessHeader ({
     const { current, users, groups } = access.use(['current', 'users', 'groups'])
     
     return <div className='actions'>
-            <h4>
-                {t('当前{{role}} :', { role: current.role === 'user' ? t('用户') : t('组') })}
-                <Select defaultValue={current.name}
-                        bordered={false}
-                        options={(current.role === 'user' ? users : groups).map(t => ({
+            <div>
+                {t('当前查看{{role}}:', { role: current.role === 'user' ? t('用户') : t('组') })}
+                <Select 
+                    value={current.name}
+                    bordered={false}
+                    options={(current.role === 'user' ? users : groups).map(t => ({
                             value: t,
                             label: t
-                        }))} 
-                        onSelect={item => { access.set({ current: { ...current, name: item } }) }}
-                        />
-            </h4>
+                    }))} 
+                    onSelect={item => { access.set({ current: { ...current, name: item } }) }}
+                    />
+            </div>
             
             <Button  
                 onClick={() => { access.set({ current: null }) }}>
