@@ -4,24 +4,23 @@ import 'gridstack/dist/gridstack.css'
 // 行列数为 1 - 11 时需要
 // import 'gridstack/dist/gridstack-extra.css'
 
-import { useEffect, useRef } from 'react'
-
-import { App, ConfigProvider, Result, Spin, theme } from 'antd'
-
+import { useEffect, useRef, useState } from 'react'
+import { App, Button, ConfigProvider, Popconfirm, Result, Spin, theme } from 'antd'
 import * as echarts from 'echarts'
+import { DdbVectorString } from 'dolphindb/browser'
 
 import { DashboardPermission, dashboard } from './model.js'
-
 import { Sider } from './Sider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 import { Header } from './Header.js'
 import { Overview } from './Overview.js'
-
 import config from './chart.config.json' assert { type: 'json' }
 import { NodeType, model } from '../model.js'
 import { t } from '../../i18n/index.js'
 import { paste_widget } from './utils.js'
+
+import backend from './backend.dos'
 
 
 echarts.registerTheme('my-theme', config.theme)
@@ -42,35 +41,96 @@ export function DashBoard () {
     
     const { node_type } = model.use(['node_type'])
     
+    const [inited_state, set_inited_state] = useState(0)  // 0表示未查询到结果，1表示没有初始化，2表示已经初始化 
+    
+    const [is_admin, set_is_admin] = useState(false)
+    
     if (node_type === NodeType.controller)
         return <Result
             status='warning'
             className='interceptor'
             title={t('控制节点不支持数据面板，请跳转到数据节点或计算节点查看。')}
         />
+        
+    useEffect(() => {
+        (async () => {
+            try {
+                const version = (await model.ddb.call('dashboard_get_version')).value
+                if (version === '1.0.0')
+                    set_inited_state(2) 
+            } catch (error) {
+                set_is_admin((await model.ddb.call('getUserAccess', [new DdbVectorString([model.username])])).value[2].value[0])
+                set_inited_state(1)
+            }
+        })()
+    }, [ ])
     
-    return new URLSearchParams(location.search).has('dashboard') ?
-        <ConfigProvider
-            theme={{
-                hashed: false,
-                token: {
-                    borderRadius: 0,
-                    motion: false,
-                    colorBgContainer: 'rgb(40, 40, 40)',
-                    colorBgElevated: '#555555',
-                    colorInfoActive: 'rgb(64, 147, 211)'
-                },
-                algorithm: theme.darkAlgorithm
-            }}
-        >
-            <App className='app'>
-                <Spin spinning={loading} delay={500} size='large'>
-                    <DashboardInstance />
-                </Spin>
-            </App>
-        </ConfigProvider>
-    :
-        <Overview />
+    const component = {
+        0: <></>,
+        1: <Init is_admin={is_admin} set_inited_state={set_inited_state}/>,
+        2: (new URLSearchParams(location.search).has('dashboard') ?
+                <ConfigProvider
+                    theme={{
+                        hashed: false,
+                        token: {
+                            borderRadius: 0,
+                            motion: false,
+                            colorBgContainer: 'rgb(40, 40, 40)',
+                            colorBgElevated: '#555555',
+                            colorInfoActive: 'rgb(64, 147, 211)'
+                        },
+                        algorithm: theme.darkAlgorithm
+                    }}
+                >
+                    <App className='app'>
+                        <Spin spinning={loading} delay={500} size='large'>
+                            <DashboardInstance />
+                        </Spin>
+                    </App>
+                </ConfigProvider>
+            :
+                <Overview />)
+    }
+    
+    return component[inited_state]
+}
+
+
+function Init ({ is_admin, set_inited_state }: { is_admin: boolean, set_inited_state }) {
+    return is_admin
+        ? <Result
+            title={t('数据面板功能未初始化，可点击下方按钮初始化数据面板功能。')}
+            subTitle={
+                <>
+                    <p>{t('初始化操作将新增以下数据库表：')}</p>
+                    <p>dfs://dashboardUserDb</p>
+                    <p>dfs://dashboardConfigDb</p>
+                    <p>dfs://dashboardUserShareDb</p>
+                    <p>{t('以及 16 个以 dashboard_ 开头的函数视图（FunctionView）。')}</p>
+                </>
+            }
+            extra={
+                <Popconfirm
+                    title={t('你确定要初始化数据面板功能吗？')}
+                    onConfirm={async () => { 
+                        try {
+                            await model.ddb.eval(backend)
+                            set_inited_state(2)
+                        } catch (error) {
+                            model.show_error(error)
+                        } 
+                    }}
+                    okText={t('确定')}
+                    cancelText={t('取消')}
+                    >
+                    <Button type='primary' size='large'>{t('初始化')}</Button>
+                </Popconfirm>
+            }
+        />
+        : <Result
+            title={t('数据面板功能未初始化，请联系管理员初始化数据面板功能。')}
+        />
+        
 }
 
 
