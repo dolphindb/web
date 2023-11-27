@@ -402,7 +402,7 @@ function AccessManage ({
                                     type: allowed ? 'grant' : 'deny',
                                     action: <Button type='link' danger onClick={async () => {
                                         try {
-                                            await access.revoke(current.name, k.slice(0, k.indexOf('_allowed')), obj)
+                                            await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
                                             model.message.success(t('revoke 成功'))
                                             access.set({ accesses: current.role === 'user' ? 
                                                             (await access.get_user_access([current.name]))[0]
