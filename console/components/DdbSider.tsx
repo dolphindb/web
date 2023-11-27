@@ -19,6 +19,9 @@ import SvgJob from '../job.icon.svg'
 import SvgLog from '../log.icon.svg'
 import SvgFactor from '../factor.icon.svg'
 import SvgComputing from '../computing/icons/computing.icon.svg'
+import SvgAccess from '../access/icons/access.icon.svg'
+import SvgUser from '../access/icons/user.icon.svg'
+import SvgGroup from '../access/icons/group.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -32,7 +35,11 @@ const svgs = {
     log: SvgLog,
     factor: SvgFactor,
     computing: SvgComputing,
+    access: SvgAccess,
+    user: SvgUser,
+    group: SvgGroup
 }
+
 
 function MenuIcon ({ view }: { view: DdbModel['view'] }) {
     return <Icon className='icon-menu' component={svgs[view]} />
@@ -56,7 +63,7 @@ export function DdbSider () {
     )
     
     return <Layout.Sider
-        width={120}
+        width={135}
         className='sider'
         theme='light'
         collapsible
@@ -118,6 +125,23 @@ export function DdbSider () {
                     key: 'computing',
                     icon: <MenuIcon view='computing' />,
                     label: t('流计算监控'),
+                },
+                {
+                    key: 'access',
+                    icon: <MenuIcon view='access' />,
+                    label: t('权限管理'),
+                    children: [
+                        {
+                            key: 'user',
+                            icon: <MenuIcon view='user' />,
+                            label: t('用户管理'),
+                        },
+                        {
+                            key: 'group',
+                            icon: <MenuIcon view='group' />,
+                            label: t('组管理'),
+                        },
+                    ]
                 },
                 {
                     key: 'log',
