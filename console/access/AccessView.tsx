@@ -39,7 +39,7 @@ export function AccessView ({
             key: 'database',
             label: t('分布式数据库'),
             // children:  <AccessList accesses={accesses} category='database'/>
-            children: current.preview ? 
+            children: current.view === 'preview' ? 
                         <AccessList category='database'/>
                             :
                         <AccessManage category='database'/>
@@ -48,7 +48,7 @@ export function AccessView ({
             key: 'share_table',
             label: t('共享内存表'),
             // children: <AccessList accesses={accesses} category='stream'/>
-            children: current.preview ? 
+            children: current.view === 'preview' ? 
                         <AccessList category='shared'/>
                             :
                         <AccessManage category='shared'/>
@@ -58,7 +58,7 @@ export function AccessView ({
             key: 'stream',
             label: t('流数据表'),
             // children: <AccessList accesses={accesses} category='stream'/>
-            children: current.preview ? 
+            children: current.view === 'preview' ? 
                         <AccessList category='stream'/>
                             :
                         <AccessManage category='stream'/>
@@ -68,7 +68,7 @@ export function AccessView ({
             key: 'function_view',
             label: t('函数视图'),
             // children: <AccessList accesses={accesses} category='function_view'/>
-            children: current.preview ? 
+            children: current.view === 'preview' ? 
                         <AccessList category='function_view'/>
                             :
                         <AccessManage category='function_view'/>
@@ -77,13 +77,13 @@ export function AccessView ({
             key: 'script',
             label: t('脚本权限'),
             // children: <AccessList accesses={accesses} category='script'/>
-            children: current.preview ? 
+            children: current.view === 'preview' ? 
                         <AccessList category='script'/>
                             :
                         <AccessManage category='script'/>
             
         }
-    ]), [current.preview])
+    ]), [current.view])
     
     return <Tabs 
                 type='card' 
@@ -267,7 +267,7 @@ function AccessList ({
                     {t('返回列表')}
                 </Button>
                 
-                <Button  onClick={() => { access.set({ current: { ...access.current, preview: false } }) }}>
+                <Button  onClick={() => { access.set({ current: { ...access.current, view: 'manage' } }) }}>
                     {t('权限管理')}
                 </Button>
                 <Input  
@@ -322,9 +322,9 @@ function AccessManage ({
     
     const [add_access_form] = Form.useForm()
     
-    const [rule_category, set_rule_category] = useState<string>(category)
-    
     const [search_key, set_search_key] = useState('')
+    
+    const [access_options, set_access_options] = useState([ ])
     
     const cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
         [
@@ -417,6 +417,8 @@ function AccessManage ({
                    
         return tb_rows
     }, [ accesses, category])
+    
+    
     
     
     const rows = useMemo(() => {
@@ -517,20 +519,18 @@ function AccessManage ({
                                             ))}
                                             placeholder={t('请选择 dfs 数据库/表')}
                                             // defaultValue={database_tree[0]?.title}
-                                            onChange={val => {
-                                                if (val.split('/').length === 4) {
-                                                    set_rule_category('table')
-                                                    const value = add_access_form.getFieldValue('add-rules')
-                                                    value[idx].access = ACCESS_TYPE.table[0]
-                                                    add_access_form.setFieldValue('add-rule', value)
-                                                }
-                                                else {
-                                                    set_rule_category('database')
-                                                    const value = add_access_form.getFieldValue('add-rules')
-                                                    value[idx].access = ACCESS_TYPE.database[0]
-                                                    add_access_form.setFieldValue('add-rule', value)
-                                                }
-                                            }}
+                                            // onChange={val => {
+                                            //     if (val.split('/').length === 4) {
+                                            //         const value = add_access_form.getFieldValue('add-rules')
+                                            //         value[idx].access = ACCESS_TYPE.table[0]
+                                            //         add_access_form.setFieldValue('add-rule', value)
+                                            //     }
+                                            //     else {
+                                            //         const value = add_access_form.getFieldValue('add-rules')
+                                            //         value[idx].access = ACCESS_TYPE.database[0]
+                                            //         add_access_form.setFieldValue('add-rule', value)
+                                            //     }
+                                            // }}
                                         /> : 
                                         <Select
                                             style={{ width: '300px' }}
@@ -545,10 +545,27 @@ function AccessManage ({
                                             style={{ width: '200px' }}
                                             placeholder={t('请选择权限')}
                                             disabled={category === 'script'}
-                                            options={ (!['shared', 'stream'].includes(category) ? ACCESS_TYPE[rule_category] : ['TABLE_WRITE', 'TABLE_READ']).map(db => ({
-                                                title: db,
-                                                value: db
-                                            }))}
+                                            options={access_options}
+                                            onFocus={() => {
+                                                let options = [ ]
+                                                if (category === 'database') {
+                                                    const value = add_access_form.getFieldValue('add-rules')
+                                                    if (value[idx].obj.split('/').length === 4) 
+                                                        options = ACCESS_TYPE.table
+                                                    else
+                                                        options = ACCESS_TYPE.database
+                                                }
+                                                else if (category === 'stream' || category === 'shared') 
+                                                    options = ['TABLE_WRITE', 'TABLE_READ']
+                                                else
+                                                    options = ACCESS_TYPE[category]
+                                                set_access_options(options.map(option => ({
+                                                    title: option,
+                                                    value: option
+                                                })))
+                                                }
+                                            }
+                                        
                                             />
                                     </Form.Item>
                                     <Form.Item name={[field.name, 'type']} rules={[{ required: true, message: t('请选择权限类型') }]}>
@@ -608,7 +625,7 @@ function AccessManage ({
                     <Button onClick={creator.open}>
                         {t('新增权限')}
                     </Button>
-                    <Button onClick={() => { access.set({ current: { ...current, preview: true } }) }}>
+                    <Button onClick={() => { access.set({ current: { ...current, view: 'preview' } }) }}>
                         {t('权限查看')}
                     </Button>
                     

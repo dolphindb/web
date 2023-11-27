@@ -29,7 +29,7 @@ export function User () {
             access.set({ current: null })
      }, [ ])
     
-    return current && current.role === 'user' && current.name ? <AccessView {...current}/> : <UserList/>
+    return current && current.role === 'user' && current.view ? <AccessView {...current}/> : <UserList/>
 }
 
 export function Group () {
@@ -54,5 +54,5 @@ export function Group () {
     }, [ ])
     
     
-    return current && current.role === 'group' && current.name ? <AccessView {...current}/> : <GroupList/>
+    return current && current.role === 'group' && current.view ? <AccessView {...current}/> : <GroupList/>
 }

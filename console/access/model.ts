@@ -103,8 +103,8 @@ class AccessModel extends Model<AccessModel> {
     }
     
     
-    async delete_users (users: string[]) {
-        await model.ddb.call('deleteUser', [new DdbVectorString(users)], { urgent: true })
+    async delete_user (user: string) {
+        await model.ddb.call('deleteUser', [user], { urgent: true })
     }
     
     

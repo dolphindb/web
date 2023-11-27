@@ -23,8 +23,6 @@ export function UserList () {
     
     const [selected_users, set_selected_users] = useState([ ])
     
-    const [current_user, set_current_user] = useState('')
-    
     const [add_user_form] = Form.useForm()
     
     const [reset_password_form] = Form.useForm()
@@ -124,23 +122,23 @@ export function UserList () {
                     />,
             actions: <div className='actions'>
                 <Button type='link'
-                        onClick={() => {
-                    editor.open()
-                    set_current_user(user_access.userId)
+                    onClick={() => {
+                        access.set({ current: { name: user_access.userId } })
+                        editor.open()
                 }}>
                     {t('重置密码')}
                 </Button>
                 
                 <Button type='link'
                         onClick={() => { 
-                            access.set({ current: { role: 'user', name: user_access.userId, preview: false } }) 
+                            access.set({ current: { role: 'user', name: user_access.userId, view: 'manage' } }) 
                         }}>
                     {t('权限管理')}
                 </Button>
                 
                 <Button type='link'
                         onClick={() => { 
-                            access.set({ current: { role: 'user', name: user_access.userId, preview: true } }) 
+                            access.set({ current: { role: 'user', name: user_access.userId, view: 'preview' } }) 
                         }}>
                     {t('查看权限')}
                 </Button>
@@ -150,7 +148,7 @@ export function UserList () {
                     description={t('确认删除用户 {{user}} 吗', { user: user_access.userId })}
                     onConfirm={async () => {
                                     try {
-                                        await access.delete_users([user_access.userId])
+                                        await access.delete_user(user_access.userId)
                                         model.message.success(t('用户删除成功'))
                                         await access.get_user_list()
                                     } catch (error) {
@@ -275,8 +273,9 @@ export function UserList () {
             onCancel={deletor.close}
             onOk={async () => {
                 try {
-                    await access.delete_users(users)
+                    await Promise.all(selected_users.map(async user => access.delete_user(user)))
                     model.message.success(t('用户删除成功'))
+                    set_selected_users([ ])
                     deletor.close()
                     await access.get_user_list()
                 } catch (error) {
@@ -295,7 +294,7 @@ export function UserList () {
             onOk={async () => {
                 try {
                     const { password } = await reset_password_form.validateFields()
-                    await access.reset_password(current_user, password)
+                    await access.reset_password(current?.name, password)
                     reset_password_form.resetFields()
                     model.message.success(t('密码修改成功'))
                     editor.close()
@@ -303,7 +302,7 @@ export function UserList () {
                     model.show_error({ error })
                 }
             }}
-            title={t('重置用户 {{user}} 密码', { user: current_user })}
+            title={t('重置用户 {{user}} 密码', { user: current?.name })}
             onCancel={() => {
                 reset_password_form.resetFields()
                 editor.close()
@@ -356,14 +355,15 @@ export function UserList () {
                 <Button danger icon={<DeleteOutlined/>} onClick={deletor.open}>
                     {t('批量删除')}
                 </Button>
+                <Input  
+                    className='search'
+                    value={search_key}
+                    prefix={<SearchOutlined />}
+                    onChange={e => { set_search_key(e.target.value) }} 
+                    placeholder={t('请输入想要搜索的用户')} 
+                />
             </div>
-            <Input  
-                className='search'
-                value={search_key}
-                prefix={<SearchOutlined />}
-                onChange={e => { set_search_key(e.target.value) }} 
-                placeholder={t('请输入想要搜索的用户')} 
-                     />
+            <Button type='default' onClick={async () => access.get_user_list()}>{t('刷新')}</Button>
         </div>
         <Table 
             rowSelection={{

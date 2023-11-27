@@ -2,8 +2,8 @@ import './index.sass'
 
 import { useEffect, useMemo, useState } from 'react'
 
-import { Button, Form, Input, Modal, Select, Switch, Table,  Popconfirm, Tooltip, type TableColumnType, Transfer } from 'antd'
-import { CheckCircleFilled, CheckCircleOutlined, CloseCircleFilled, CloseCircleOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { Button, Form, Input, Modal, Table,  Popconfirm, Tooltip, type TableColumnType, Transfer } from 'antd'
+import { DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
 
 import { t } from '../../i18n/index.js'
 
@@ -26,8 +26,6 @@ export function GroupList () {
     const [target_users, set_target_users] = useState<string[]>([ ])
     
     const [selected_users, set_selected_users] = useState<string[]>([ ])
-    
-    const [current_group, set_current_group] = useState('')
     
     const [add_group_form] = Form.useForm()
     
@@ -79,22 +77,21 @@ export function GroupList () {
             actions: <div className='actions'>
                 <Button type='link' 
                         onClick={async () => { 
+                            access.set({ current: { name: group.groupName } })
                             editor.open()
-                            
-                            set_current_group(group.groupName)
                             set_target_users(await access.get_users_by_group(group.groupName))
                         }}>
                     {t('成员管理')}
                 </Button>
                 <Button type='link' 
                         onClick={() => { 
-                            access.set({ current: { role: 'group', name: group.groupName, preview: false } }) 
+                            access.set({ current: { role: 'group', name: group.groupName, view: 'manage' } }) 
                         }}>
                     {t('权限管理')}
                 </Button>
                 <Button type='link'
                         onClick={() => { 
-                            access.set({ current: { role: 'group', name: group.groupName, preview: true } }) 
+                            access.set({ current: { role: 'group', name: group.groupName, view: 'preview' } }) 
                         }}>
                     {t('查看权限')}
                 </Button>
@@ -137,7 +134,6 @@ export function GroupList () {
                     creator.close()
                     set_selected_users([ ])
                     set_target_users([ ])
-                    set_current_group('')
                     add_group_form.resetFields()
                     await access.get_group_list()
                 } catch (error) {
@@ -189,22 +185,21 @@ export function GroupList () {
             open={editor.visible}
             onCancel={editor.close}
             destroyOnClose
-            title={t('组 {{group}} 成员管理', { group: current_group })}
+            title={t('组 {{group}} 成员管理', { group: current?.name })}
             onOk={async () => {
                     try {
-                        const origin_users = await access.get_users_by_group(current_group)
+                        const origin_users = await access.get_users_by_group(current?.name)
                         const delete_users = origin_users.filter(u => !target_users.includes(u))
                         const add_users = target_users.filter((u: string) => !origin_users.includes(u))
                         if (delete_users.length || add_users.length) {
-                            await Promise.all([access.delete_group_member(delete_users, current_group),
-                                access.add_group_member(add_users, current_group)                    
+                            await Promise.all([access.delete_group_member(delete_users, current?.name),
+                                access.add_group_member(add_users, current?.name)                    
                             ])
                             model.message.success(t('成员修改成功'))
                         }
                         editor.close()
                         set_selected_users([ ])
                         set_target_users([ ])
-                        set_current_group('')
                         await access.get_group_list()
                     } catch (error) {
                         model.show_error({ error })
@@ -235,6 +230,7 @@ export function GroupList () {
                 try {
                     await Promise.all(selected_groups.map(async group => access.delete_group(group)))
                     model.message.success(t('组删除成功'))
+                    set_selected_groups([ ])
                     deletor.close()
                     await access.get_group_list()
                 } catch (error) {
@@ -256,14 +252,15 @@ export function GroupList () {
                 <Button danger icon={<DeleteOutlined />} onClick={deletor.open}>
                     {t('批量删除')}
                 </Button>
-            </div>
-            <Input  
+                <Input  
                 className='search'
                 value={search_key}
                 prefix={<SearchOutlined />}
                 onChange={e => { set_search_key(e.target.value) }} 
                 placeholder={t('请输入想要搜索的组')} 
                      />
+            </div>
+            <Button type='default' onClick={async () => access.get_group_list()} >{t('刷新')}</Button>
         </div>
         <Table 
             rowSelection={{
