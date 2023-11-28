@@ -113,7 +113,7 @@ export function SchemaList () {
     
     const validator = useCallback(async () => { 
         const schema = form.getFieldValue('schema')
-        const name_list = schema.map(item => item.colName)
+        const name_list = schema.filter(item => !!item.colName).map(item => item.colName)
         if (new Set(name_list).size !== name_list.length)  
             return Promise.reject('已配置该列，请修改')
     }, [ ])
