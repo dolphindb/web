@@ -1,7 +1,7 @@
 import './index.scss'
 import { type ITableInfo } from '../type'
-import { Button, Form, InputNumber, Select } from 'antd'
-import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { Button, Form, InputNumber, Select, Tooltip } from 'antd'
+import { DeleteOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { useCallback, useMemo } from 'react'
 
 interface IProps { 
@@ -33,7 +33,7 @@ export function CommonFilterCols (props: IProps) {
     
     
     return <div className='common-filter-cols-wrapper'>
-        <h4>常用筛选列</h4>
+        <h4>常用筛选列 <Tooltip title='经常用于查询时筛选数据的列，不能是除 INT 外的数值类型'><QuestionCircleOutlined /></Tooltip></h4>
         <Form.List
             name='filterCols'
             initialValue={[{ }]}

@@ -19,12 +19,6 @@ export function DatabaseInfo (props: IProps) {
     
     const [form] = Form.useForm()
     
-    const isExist = Form.useWatch('isExist', form)
-    
-    useEffect(() => { 
-        form.setFieldValue('name', undefined)
-    }, [isExist])
-    
     const on_submit = useCallback((values: IDatabaseInfo) => {
         go({ database: values })
     }, [ ])
@@ -45,8 +39,8 @@ export function DatabaseInfo (props: IProps) {
     >
         <Form.Item label='是否使用现有库' name='isExist' initialValue={1} rules={[{ required: true, message: '请选择是否使用现有库' }]}>
             <Radio.Group>
-                <Radio value={1}>是</Radio>
-                <Radio value={0}>否</Radio>
+                <Radio value={1} onClick={() => { form.setFieldValue('name', undefined) }}>是</Radio>
+                <Radio value={0} onClick={() => { form.setFieldValue('name', undefined) }}>否</Radio>
             </Radio.Group>
         </Form.Item>
         

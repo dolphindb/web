@@ -9,7 +9,7 @@ export function ExistDBSelect (props: SelectProps) {
     
     const get_dbs = useCallback(async () => { 
         const { value } = await model.ddb.eval('getClusterDFSDatabases()') as { value: string[] }
-        set_options(value.map(item => ({ label: item, value: item.slice(6) })))
+        set_options(value.map(item => ({ label: item.slice(6), value: item.slice(6) })))
     }, [ ])
     
     useEffect(() => { 
@@ -17,5 +17,5 @@ export function ExistDBSelect (props: SelectProps) {
     }, [ ])
     
     
-    return <Select placeholder='请选择现有库' optionLabelProp='label' {...props} options={options}/>
+    return <Select placeholder='请选择现有库' {...props} options={options}/>
 }

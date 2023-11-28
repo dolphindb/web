@@ -54,8 +54,8 @@ export function PartitionColSelect (props: IProps) {
             return fields.map(field => {
                 const data_types = partition_info[field.name]
                 const options = filter_col_options(data_types)
-                return <Form.Item key={field.name} extra={`数据类型为${data_types?.join('/')}`} label={`分区列${field.name + 1}`} name={[field.name, 'colName']}>
-                    <Select options={options} />
+                return <Form.Item tooltip='根据已有数据库的分区信息，选择需要作为划分数据依据的列' key={field.name} extra={`数据类型为${data_types?.join('/')}`} label={`分区列${field.name + 1}`} name={[field.name, 'colName']}>
+                    <Select options={options} placeholder='请选择分区列'/>
                 </Form.Item>
                     
             })
