@@ -57,7 +57,7 @@ export function PartitionColSelect (props: IProps) {
                 return <Form.Item
                     tooltip='根据已有数据库的分区信息，选择需要作为划分数据依据的列'
                     key={field.name}
-                    extra={`数据类型为${data_types?.join('/')}`}
+                    extra={`数据类型为 ${data_types?.join('/')}`}
                     label={`分区列${field.name + 1}`} name={[field.name, 'colName']}
                     rules={[{ required: true, message: '请选择分区列' }]}
                 >

@@ -8,10 +8,11 @@ import { UploadFileField } from './UploadFileField.js'
 import { request } from '../utils.js'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { type BasicInfoFormValues } from '../iot-guide/type.js'
+import { model } from '../../model.js'
 
 const DATA_TYPE_LIST = ['BOOL', 'CHAR', 'SHORT', 'INT', 'FLOAT', 'DOUBLE', 'LONG',
 'TIME', 'MINUTE', 'SECOND', 'DATE', 'DATEHOUR', 'DATETIME', 'TIMESTAMP',
-'NANOTIMESTAMP', 'SYMBOL', 'STRING', 'BLOB', 'DECIMAL32(S)', 'DECIMAL64(S)', 'DECIMAL128(S)']
+'NANOTIMESTAMP', 'SYMBOL', 'STRING', 'BLOB', 'DECIMAL32', 'DECIMAL64', 'DECIMAL128']
 
 interface ISchemaUploadModal { 
     on_apply: (values) => void
@@ -27,35 +28,30 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
     
     const on_submit = useCallback(async () => {
         set_loading(true)
-        try {
-            await form.validateFields()
-            const { delimiter, file_path, file, upload_type } = form.getFieldsValue()
-            let params = { 
-                type: upload_type,
-                content: { }
-            }
-            if (upload_type === 0) {
-                // 本地上传，截取前100行，避免文件内容过大传输失败
-                const content = (await file.file.text())?.split('\n')?.slice(0, 100)?.join('\n')
-                params.content = {
-                    fileName: file.file.name,
-                    fileContent: content,
-                    delimiter,
-                }
-            } else  
-                // 服务器上传
-                params.content = {
-                    filePath: file_path,
-                    delimiter
-                }
-            const schema = await request<BasicInfoFormValues['schema']>('DBMSIOT_getSchema', params)
-            on_apply(schema)
-            modal.resolve()
-            modal.hide()
-        } catch (e) {
-            console.error(e)
-            message.error(JSON.stringify(e))
+        await form.validateFields()
+        const { delimiter, file_path, file, upload_type } = form.getFieldsValue()
+        let params = { 
+            type: upload_type,
+            content: { }
         }
+        if (upload_type === 0) {
+            // 本地上传，截取前100行，避免文件内容过大传输失败
+            const content = (await file.file.text())?.split('\n')?.slice(0, 100)?.join('\n')
+            params.content = {
+                fileName: file.file.name,
+                fileContent: content,
+                delimiter,
+            }
+        } else  
+            // 服务器上传
+            params.content = {
+                filePath: file_path,
+                delimiter
+            }
+        const schema = await request<BasicInfoFormValues['schema']>('DBMSIOT_getSchema', params)
+        on_apply(schema)
+        modal.resolve()
+        modal.hide()
         set_loading(false)
     }, [ on_apply ])
     
@@ -64,7 +60,7 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
         onCancel={modal.hide}
         open={modal.visible}
         title='导入文件'
-        onOk={on_submit}
+        onOk={async () => model.execute(on_submit)}
         okButtonProps={{ loading }}
         destroyOnClose
         afterClose={modal.remove}
@@ -113,7 +109,7 @@ export function SchemaList () {
     
     const validator = useCallback(async () => { 
         const schema = form.getFieldValue('schema')
-        const name_list = schema.filter(item => !!item.colName).map(item => item.colName)
+        const name_list = schema.filter(item => !!item?.colName).map(item => item?.colName)
         if (new Set(name_list).size !== name_list.length)  
             return Promise.reject('已配置该列，请修改')
     }, [ ])
