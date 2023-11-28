@@ -8,6 +8,8 @@ import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined } from '@ant-de
 
 import type { SortOrder } from 'antd/es/table/interface.js'
 
+import { use_modal } from 'react-object-model/modal.js'
+
 import { type DDB } from 'dolphindb/browser.js'
 
 import { model, NodeType } from '../model.js'
@@ -18,16 +20,21 @@ import { t } from '../../i18n/index.js'
 import SvgPublish from './icons/publish.icon.svg'
 import SvgEngine from './icons/engine.icon.svg'
 import SvgTable from './icons/table.icon.svg'
-import { use_modal } from 'react-object-model/modal'
 
 
 export function Computing () {
-    const { streaming_stat, 
-            origin_streaming_engine_stat, 
-            persistent_table_stat, 
-            shared_table_stat 
-         } = computing.use(['streaming_stat', 'origin_streaming_engine_stat', 'persistent_table_stat', 'shared_table_stat'])
-   
+    const {
+        streaming_stat, 
+        origin_streaming_engine_stat, 
+        persistent_table_stat, 
+        shared_table_stat
+    } = computing.use([
+        'streaming_stat',
+        'origin_streaming_engine_stat',
+        'persistent_table_stat',
+        'shared_table_stat'
+    ])
+    
     const [tab_key, set_tab_key] = useState<string>('streaming_pub_sub_stat')
     
     const { logined, node_type } = model.use(['logined', 'node_type'])
@@ -35,18 +42,14 @@ export function Computing () {
     useEffect(() => {
         if (!logined || node_type === NodeType.controller)
             return
-        ;(async () => {
-            try {
-                if (!computing.inited)
-                    await computing.init()
-                await computing.get_streaming_pub_sub_stat()
-                await computing.get_streaming_engine_stat()
-                await computing.get_streaming_table_stat()
-            } catch (error) {
-                model.show_error({ error })
-                throw error
-            }
-        })()
+        
+        model.execute(async () => {
+            if (!computing.inited)
+                await computing.init()
+            await computing.get_streaming_pub_sub_stat()
+            await computing.get_streaming_engine_stat()
+            await computing.get_streaming_table_stat()
+        })
     }, [ ])
     
     if (node_type === NodeType.controller)
@@ -85,13 +88,13 @@ export function Computing () {
     
     if (!streaming_stat || !origin_streaming_engine_stat || !persistent_table_stat || !shared_table_stat)
         return <div className='spin-container'>
-            <Spin size='large' delay={300}/>
+            <Spin size='large' delay={300} />
         </div>
     
     const streaming_engine_cols: TableColumnType<Record<string, any>>[] = Object.keys(leading_cols.engine).map(col_name => ({
         title: <Tooltip title={col_name.charAt(0).toUpperCase() + col_name.slice(1)}>
-                    <span className='col-title'>{leading_cols.engine[col_name]}</span>
-                </Tooltip>,
+            <span className='col-title'>{leading_cols.engine[col_name]}</span>
+        </Tooltip>,
         dataIndex: col_name,
         render: value => <span>{value}</span>
     }))
@@ -102,154 +105,171 @@ export function Computing () {
             let new_row = { }
             
             // 特殊的三种引擎类型，内存使用为 memoryInUsed
-            if (special_engine_type.has(engineType)) 
+            if (special_engine_type.has(engineType))
                 row.memoryUsed = row.memoryInUsed
             
-            for (let key of Object.keys(leading_cols.engine)) 
+            for (let key of Object.keys(leading_cols.engine))
                 new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : row[key]) : '--'
                 
             for (let key of Object.keys(expanded_cols.engine[engineType] || { }))
-                new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : (row[key] === null ? '' : row[key]) ) : '' 
+                new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : row[key] === null ? '' : row[key]) : ''
                 
             new_row = { ...new_row, engineType }
             
             streaming_engine_rows.push(new_row)
         }
         
-    
-    return  <Tabs
-                activeKey={tab_key}
-                type='card'
-                onChange={set_tab_key}
-                items={[
-                    {
-                        key: 'streaming_pub_sub_stat',
-                        label:  <label className='tab-header'>
-                                    <div className='tab-icon sm-font'><SvgPublish/></div>{tab_content.streaming_pub_sub_stat.title}
-                                </label>,
-                        children: (
-                            <div className='streaming_pub_sub_stat'>
-                                <StateTable
-                                    type='subWorkers'
-                                    cols={set_col_width(
-                                            add_details_col(
-                                                render_col_title(
-                                                    translate_order_col(
-                                                        set_col_color(
-                                                            sort_col(
-                                                                streaming_stat.subWorkers
-                                                                    .to_cols()
-                                                                    .filter(col => col.title in leading_cols.subWorkers),
-                                                                'subWorkers'
-                                                            ),
-                                                            'queueDepth'
-                                                        ),
-                                                    true
+    return <Tabs
+        activeKey={tab_key}
+        type='card'
+        onChange={set_tab_key}
+        items={[
+            {
+                key: 'streaming_pub_sub_stat',
+                label: (
+                    <label className='tab-header'>
+                        <div className='tab-icon sm-font'>
+                            <SvgPublish />
+                        </div>
+                        {tab_content.streaming_pub_sub_stat.title}
+                    </label>
+                ),
+                children: (
+                    <div className='streaming_pub_sub_stat'>
+                        <StateTable
+                            type='subWorkers'
+                            cols={set_col_width(
+                                add_details_col(
+                                    render_col_title(
+                                        translate_order_col(
+                                            set_col_color(
+                                                sort_col(
+                                                    streaming_stat.subWorkers.to_cols().filter(col => col.title in leading_cols.subWorkers),
+                                                    'subWorkers'
                                                 ),
-                                             'subWorkers')), 'subWorkers')
-                                        }
-                                    rows={handle_null(
-                                            add_details_row(
-                                                add_unit(
-                                                    handle_ellipsis_col(
-                                                        add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'), 'subWorkers')))}
-                                    min_width={1420}
-                                    default_page_size={10}
-                                    refresher={computing.get_streaming_pub_sub_stat}
-                                />
-                                
-                                <StateTable
-                                    type='pubConns'
-                                    cols={set_col_color(
-                                            render_col_title(streaming_stat.pubConns.to_cols(), 'pubConns'), 'queueDepth')}
-                                    rows={handle_ellipsis_col(
-                                            add_key(streaming_stat.pubConns.to_rows()), 'tables')}
-                                    separated={false}         
-                                />
-                            </div>
-                        )
-                    },
-                    {
-                        key: 'streaming_engine_stat',
-                        label:  <label className='tab-header'>
-                                    <div className='tab-icon'><SvgEngine/></div>{tab_content.streaming_engine_stat.title}
-                                </label>,
-                        children: (
-                            <div className='streaming-engine-stat'>
-                                <StateTable
-                                    type='engine'
-                                    cols={set_col_width(
-                                            add_details_col(
-                                                translate_order_col(
-                                                    set_col_ellipsis(
-                                                        translate_format_col(streaming_engine_cols, 'memoryUsed'), 'metrics'), false)), 'engine')}
-                                    rows={handle_null(
-                                            add_details_row(
-                                                add_unit(
-                                                    translate_byte_row(
-                                                        handle_ellipsis_col(
-                                                            add_key(streaming_engine_rows), 'lastErrMsg'), 'memoryUsed'), 'engine')))}
-                                    min_width={1530}
-                                    separated={false}
-                                    default_page_size={20}
-                                    refresher={computing.get_streaming_engine_stat}
-                                />
-                            </div>
-                        )
-                    },
-                    {
-                        key: 'streaming_table_stat',
-                        label:  <label className='tab-header'>
-                                    <div className='tab-icon sm-font'><SvgTable/></div>{tab_content.streaming_table_stat.title}
-                                </label>,
-                        children: (
-                            <div className='persistent-table-stat'>
-                                <StateTable
-                                    type='sharedStreamingTableStat'
-                                    cols={render_col_title(
-                                            translate_format_col(shared_table_stat.to_cols(), 'bytes'), 'sharedStreamingTableStat')}
-                                    rows={translate_byte_row(
-                                            add_key(shared_table_stat.to_rows()), 'bytes')}
-                                    refresher={computing.get_streaming_table_stat}
-                                />
-                                <StateTable
-                                    type='persistenceMeta'
-                                    cols={render_col_title(
-                                            sort_col(
-                                                set_col_width(persistent_table_stat.to_cols(), 'persistenceMeta'), 'persistenceMeta'), 'persistenceMeta')}
-                                    rows={handle_null(add_key(persistent_table_stat.to_rows()))}
-                                    min_width={1500}
-                                    refresher={computing.get_streaming_table_stat}
-                                />
-                                {streaming_stat.persistWorkers && (
-                                    <StateTable
-                                        type='persistWorkers'
-                                        cols={render_col_title(
-                                                set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), 'persistWorkers')}
-                                        rows={add_key(streaming_stat.persistWorkers.to_rows())} 
-                                        separated  
-                                    />)}
-                            </div>
-                        )
-                    }
-                ]}
-                tabBarExtraContent={
-                    <Button
-                        icon={<ReloadOutlined />}
-                        onClick={async () => {
-                            try {
-                                await tab_content[tab_key].refresher.bind(computing)()
-                                model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
-                            } catch (error) {
-                                model.show_error(error)
-                                throw error
-                            }
-                        }}
-                    >
-                        {t('刷新')}
-                    </Button>
+                                                'queueDepth'
+                                            ),
+                                            true
+                                        ),
+                                        'subWorkers'
+                                    )
+                                ),
+                                'subWorkers'
+                            )}
+                            rows={handle_null(
+                                add_details_row(
+                                    add_unit(handle_ellipsis_col(add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'), 'subWorkers')
+                                )
+                            )}
+                            min_width={1420}
+                            default_page_size={10}
+                            refresher={computing.get_streaming_pub_sub_stat}
+                        />
+                        
+                        <StateTable
+                            type='pubConns'
+                            cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), 'pubConns'), 'queueDepth')}
+                            rows={add_key(streaming_stat.pubConns.to_rows())}
+                            separated={false}
+                        />
+                    </div>
+                )
+            },
+            {
+                key: 'streaming_engine_stat',
+                label: (
+                    <label className='tab-header'>
+                        <div className='tab-icon'>
+                            <SvgEngine />
+                        </div>
+                        {tab_content.streaming_engine_stat.title}
+                    </label>
+                ),
+                children: (
+                    <div className='streaming-engine-stat'>
+                        <StateTable
+                            type='engine'
+                            cols={set_col_width(
+                                add_details_col(
+                                    translate_order_col(
+                                        set_col_ellipsis(translate_format_col(streaming_engine_cols, 'memoryUsed'), 'metrics'),
+                                        false
+                                    )
+                                ),
+                                'engine'
+                            )}
+                            rows={handle_null(
+                                add_details_row(
+                                    add_unit(
+                                        translate_byte_row(handle_ellipsis_col(add_key(streaming_engine_rows), 'lastErrMsg'), 'memoryUsed'),
+                                        'engine'
+                                    )
+                                )
+                            )}
+                            min_width={1530}
+                            separated={false}
+                            default_page_size={20}
+                            refresher={computing.get_streaming_engine_stat}
+                        />
+                    </div>
+                )
+            },
+            {
+                key: 'streaming_table_stat',
+                label: <label className='tab-header'>
+                    <div className='tab-icon sm-font'>
+                        <SvgTable />
+                    </div>
+                    {tab_content.streaming_table_stat.title}
+                </label>,
+                children: (
+                    <div className='persistent-table-stat'>
+                        <StateTable
+                            type='sharedStreamingTableStat'
+                            cols={render_col_title(translate_format_col(shared_table_stat.to_cols(), 'bytes'), 'sharedStreamingTableStat')}
+                            rows={translate_byte_row(add_key(shared_table_stat.to_rows()), 'bytes')}
+                            refresher={computing.get_streaming_table_stat}
+                        />
+                        <StateTable
+                            type='persistenceMeta'
+                            cols={render_col_title(
+                                    sort_col(
+                                        set_col_width(
+                                            translate_format_col(persistent_table_stat.to_cols(), 'memoryUsed'), 'persistenceMeta'), 'persistenceMeta'),
+                                'persistenceMeta'
+                            )}
+                            rows={handle_null(
+                                    translate_byte_row(
+                                        handle_ellipsis_col(add_key(persistent_table_stat.to_rows()), 'persistenceDir'), 'memoryUsed'))}
+                            min_width={1600}
+                            refresher={computing.get_streaming_table_stat}
+                        />
+                        {streaming_stat.persistWorkers && (
+                            <StateTable
+                                type='persistWorkers'
+                                cols={render_col_title(set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), 'persistWorkers')}
+                                rows={add_key(streaming_stat.persistWorkers.to_rows())}
+                                separated
+                            />
+                        )}
+                    </div>
+                )
+            }
+        ]}
+        tabBarExtraContent={
+            <Button
+                icon={<ReloadOutlined />}
+                onClick={async () =>
+                    model.execute(async () => {
+                        await tab_content[tab_key].refresher.call(computing)
+                        model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
+                    })
                 }
-            />
+            >
+                {t('刷新')}
+            </Button>
+        }
+    />
 }
 
 interface ButtonProps {
@@ -257,9 +277,7 @@ interface ButtonProps {
     refresher: () => Promise<void>
 }
 
-const special_engine_type = new Set(['NarrowReactiveStreamEngine', 
-                                     'ReactiveStreamEngine', 
-                                     'DualOwnershipReactiveStreamEngine'])
+const special_engine_type = new Set(['NarrowReactiveStreamEngine', 'ReactiveStreamEngine', 'DualOwnershipReactiveStreamEngine'])
 
 const cols_width = {
     subWorkers: {
@@ -281,14 +299,17 @@ const cols_width = {
     },
     persistenceMeta: {
         tablename: 150,
+        loaded: 100,
+        columns: 60,
+        memoryUsed: 100,
         lastLogSeqNum: 120,
-        sizeInMemory: 120,
+        sizeInMemory: 100,
         asynWrite: 110,
-        totalSize: 120,
+        totalSize: 90,
         raftGroup: 70,
         compress: 70,
-        sizeOnDisk: 120,
-        retentionMinutes: 120,
+        sizeOnDisk: 100,
+        retentionMinutes: 100,
         memoryOffset: 100,
         hashValue: 90,
         diskOffset: 100
@@ -314,12 +335,12 @@ const header_text = {
     persistenceMeta: {
         title: t('持久化共享流表状态'),
         tip: t('监控启用了持久化的共享流数据表的元数据。'),
-        func: 'objs(true)'
+        func: 'getStreamTables(1)'
     },
     sharedStreamingTableStat: {
         title: t('非持久化共享流表状态'),
         tip: t('监控未启用持久化的共享流数据表的元数据。'),
-        func: 'objs(true)'
+        func: 'getStreamTables(2)'
     },
     engine: {
         title: t('流引擎状态'),
@@ -331,19 +352,19 @@ const header_text = {
 const button_text = {
     subWorkers: {
         title: t('流数据表'),
-        action: t('取消订阅'),
+        action: t('取消订阅')
     },
     engine: {
         title: t('引擎'),
-        action: t('删除'),
+        action: t('删除')
     },
     persistenceMeta: {
         title: t('持久化共享数据流表'),
-        action: t('删除'),
+        action: t('删除')
     },
     sharedStreamingTableStat: {
         title: t('共享数据流表'),
-        action: t('删除'),
+        action: t('删除')
     }
 }
 
@@ -368,6 +389,9 @@ const leading_cols = {
     },
     persistenceMeta: {
         tablename: t('表名'),
+        loaded: t('加载到内存'),
+        columns: t('列数'),
+        memoryUsed: t('内存大小'),
         totalSize: t('总行数'),
         sizeInMemory: t('内存中行数'),
         memoryOffset: t('内存中偏移量'),
@@ -488,17 +512,20 @@ const units = {
     },
     engine: {
         triggeringInterval: t('毫秒')
-    },
+    }
 }
 
+const detail_title = {
+    lastErrMsg: t('错误详细信息'),
+    persistenceDir: t('持久化路径')
+}
 
 /** 省略文本内容，提供`详细`按钮，点开后弹出 modal 显示详细信息 */
 function handle_ellipsis_col (table: Record<string, any>[], col_name: string) {
-    const is_error_col = col_name === 'lastErrMsg'
     return table.map(row => {
-        if (is_error_col)
+        if (col_name === 'lastErrMsg')
             row.order = row[col_name]
-        row[col_name] = <DetailInfo text={row[col_name] as string} type={is_error_col ? 'error' : 'info'} />
+        row[col_name] = <DetailInfo text={row[col_name] as string} type={col_name} />
         return row
     })
 }
@@ -507,7 +534,7 @@ function handle_ellipsis_col (table: Record<string, any>[], col_name: string) {
 function add_unit (table: Record<string, any>[], table_name: string) {
     const unit_keys = Object.keys(units[table_name])
     return table.map(row => {
-        for (let key of unit_keys) 
+        for (let key of unit_keys)
             row[key] = `${row[key]} ${units[table_name][key]}`
         return row
     })
@@ -515,8 +542,7 @@ function add_unit (table: Record<string, any>[], table_name: string) {
 
 /** 按照主要列（leading_cols）的顺序对表格进行排序 */
 function sort_col (cols: TableColumnType<Record<string, any>>[], type: string) {
-    return Object.keys(leading_cols[type]).map(col_name => 
-                                            cols.find(({ dataIndex }) => dataIndex === col_name))
+    return Object.keys(leading_cols[type]).map(col_name => cols.find(({ dataIndex }) => dataIndex === col_name))
 }
 
 /** 增加排序列，subWorker 的 lastErrMsg 和 queueDepth，engine 的 lastErrMsg 和 memoryUsed  */
@@ -528,10 +554,9 @@ function translate_order_col (cols: TableColumnType<Record<string, any>>[], is_s
     }
     cols[i_depth_col] = {
         ...cols[i_depth_col],
-        sorter: is_sub_workers ? 
-                            (a: Record<string, any>, b: Record<string, any>) => Number(a.queueDepth) - Number(b.queueDepth)
-                               :
-                            (a: Record<string, any>, b: Record<string, any>) => Number(a.origin_bytes) - Number(b.origin_bytes),
+        sorter: is_sub_workers
+            ? (a: Record<string, any>, b: Record<string, any>) => Number(a.queueDepth) - Number(b.queueDepth)
+            : (a: Record<string, any>, b: Record<string, any>) => Number(a.origin_bytes) - Number(b.origin_bytes),
         sortDirections: ['descend' as SortOrder]
     }
     cols[i_last_err_msg_col] = { ...cols[i_last_err_msg_col], sorter: msg_order_function, sortDirections: ['descend' as SortOrder] }
@@ -542,25 +567,26 @@ function translate_order_col (cols: TableColumnType<Record<string, any>>[], is_s
 function add_key (table: Record<string, any>, key_index = 0) {
     const { title = '' } = table
     return table.map(row => {
-        return { ...row, key: title === 'pubConns' 
-                                    ? 
-                                row.client + row.tables
-                                    : 
-                                Object.values(row)[key_index] }
+        return { ...row, key: title === 'pubConns' ? row.client + row.tables : Object.values(row)[key_index] }
     })
 }
 
 /** 这里需要改掉 render，原有的 render 会对数据做 format，导致抛出 NaN  */
 function translate_format_col (cols: TableColumnType<Record<string, any>>[], col_name: string) {
-    return cols.map(col => { 
-                    if (col.dataIndex === col_name)
-                        col.render = value => value
-                    return col })
+    return cols.map(col => {
+        if (col.dataIndex === col_name)
+            col.render = value => value
+        return col
+    })
 }
 
 /** 处理 byte */
 function translate_byte_row (table: Record<string, any>[], col_name: string) {
-    return table.map(row => ({ ...row, origin_bytes: row[col_name], [col_name]: row[col_name] === '--' ? row[col_name] : Number(row[col_name]).to_fsize_str() }))
+    return table.map(row => ({
+        ...row,
+        origin_bytes: row[col_name],
+        [col_name]: row[col_name] === '--' ? row[col_name] : Number(row[col_name]).to_fsize_str()
+    }))
 }
 
 /** 翻译列名，添加 tooltip */
@@ -613,11 +639,13 @@ function set_col_ellipsis (cols: TableColumnType<Record<string, any>>[], col_nam
 
 /** 增加额外信息列 */
 function add_details_col (cols: TableColumnType<Record<string, any>>[]) {
-    return  [...cols, {
-                        title: <span className='col-title'>{t('更多信息')}</span>,
-                        dataIndex: 'details',
-                        render: (value: ReactNode) => value 
-                      }
+    return [
+        ...cols,
+        {
+            title: <span className='col-title'>{t('更多信息')}</span>,
+            dataIndex: 'details',
+            render: (value: ReactNode) => value
+        }
     ]
 }
 
@@ -627,13 +655,20 @@ function add_details_row (table: Record<string, any>[]) {
         const { engineType } = row
         const detailed_keys = Object.keys((!engineType ? expanded_cols.subWorkers : expanded_cols.engine[engineType]) || { })
         const dict = !engineType ? expanded_cols.subWorkers : expanded_cols.engine[engineType]
-        const info = () => model.modal.info({
-            title: !engineType ? row.topic : row.name,
-            className: 'show-more-modal',
-            content: <List dataSource={detailed_keys.map(key => { return `${dict[key]}: ${(row[key] === -1 || row[key] === -1n || row[key] === null) ? '' : row[key]}` })} 
-                           renderItem={item => <List.Item>{item}</List.Item>}
-                           split={false}/>
-        })
+        const info = () =>
+            model.modal.info({
+                title: !engineType ? row.topic : row.name,
+                className: 'computing-show-more-modal',
+                content: (
+                    <List
+                        dataSource={detailed_keys.map(key => {
+                            return `${dict[key]}: ${row[key] === -1 || row[key] === -1n || row[key] === null ? '' : row[key]}`
+                        })}
+                        renderItem={item => <List.Item>{item}</List.Item>}
+                        split={false}
+                    />
+                )
+            })
         return { ...row, details: dict ? <a onClick={info}>{t('点击查看')}</a> : '--' }
     })
 }
@@ -641,65 +676,56 @@ function add_details_row (table: Record<string, any>[]) {
 /** 将表里的 -1 转成真正的 null,null 转为空 */
 function handle_null (table: Record<string, any>[]) {
     return table.map(row => {
-        for (let key in row) 
-            row[key] = (row[key] === -1 || row[key] === -1n ) ? null : row[key]
-         
+        for (let key in row)
+            row[key] = row[key] === -1 || row[key] === -1n ? null : row[key]
+        
         return row
     })
 }
 
 /** 统一处理删除 */
 async function handle_delete (type: string, selected: string[], ddb: DDB, refresher: () => Promise<void>, raftGroups?: string[]) {
-    switch (type) {
-        case 'subWorkers':
-            try {
-                await Promise.all(selected.map(async (pub_table, idx) => {
+    await model.execute(async () => {
+        switch (type) {
+            case 'subWorkers':
+                await Promise.all(
+                    selected.map(async (pub_table, idx) => {
                         const pub_table_arr = pub_table.split('/')
                         const [ip, port] = pub_table_arr[0].split(':')
                         let script = ''
-                        if (raftGroups[idx]) 
+                        if (raftGroups[idx])
                             script = `rpc('${model.get_controller_alias()}','unsubscribeTable','${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
-                        else 
-                            script = (ip === model.node.host && Number(port) === model.node.port) 
-                                                    ? 
-                                                `unsubscribeTable(,'${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
-                                                    : 
-                                                `h=xdb('${ip}',${port})\n` +
-                                                `unsubscribeTable(h,'${pub_table_arr[1]}','${pub_table_arr[2] || ''}')`
+                        else
+                            script =
+                                ip === model.node.host && Number(port) === model.node.port
+                                    ? `unsubscribeTable(,'${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
+                                    : `h=xdb('${ip}',${port})\n` + `unsubscribeTable(h,'${pub_table_arr[1]}','${pub_table_arr[2] || ''}')`
                         ddb.eval(script, { urgent: true })
-                    }))
+                    })
+                )
                 model.message.success(t('取消订阅成功'))
-            } catch (error) {
-                model.show_error({ error })
-            } 
-            break
-        case 'persistenceMeta':
-        case 'sharedStreamingTableStat':
-            try {
-                await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name], { urgent: true })  ))
+                break
+            case 'persistenceMeta':
+            case 'sharedStreamingTableStat':
+                await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name], { urgent: true })))
                 model.message.success(t('流数据表删除成功'))
-            } catch (error) {
-                model.show_error({ error })
-            }
-            break
-        case 'engine':
-            try {
+                break
+            case 'engine':
                 await Promise.all(selected.map(async engine_name => ddb.call('dropStreamEngine', [engine_name], { urgent: true })))
                 model.message.success(t('引擎删除成功'))
-            } catch (error) {
-                model.show_error({ error })
-            }
-    }
-    await refresher.bind(computing)()
+                
+        }
+    })
+    
+    await refresher.call(computing)
 }
-
 
 function DetailInfo ({ text, type }: { text: string, type: string }) {
     if (!text)
         return
-    function error () {
+    function detail () {
         model.modal.info({
-            title: type === 'error' ? t('错误详细信息') : t('共享流数据表'),
+            title: detail_title[type],
             content: text,
             width: '80%'
         })
@@ -712,24 +738,24 @@ function DetailInfo ({ text, type }: { text: string, type: string }) {
                         <span
                             onClick={event => {
                                 event.stopPropagation()
-                                error()
+                                detail()
                             }}
                         >
                             {t('详细')}
                         </span>
                     )
-                }}>
-                {text}
-            </Typography.Paragraph>
+                }}
+        >
+            {text}
+        </Typography.Paragraph>
 }
 
-
-function DeleteModal ({ 
+function DeleteModal ({
     table_name,
-    selected, 
-    set_selected, 
-    refresher,
-}: { 
+    selected,
+    set_selected,
+    refresher
+}: {
     table_name: string
     selected: string[]
     set_selected: Dispatch<SetStateAction<string[]>>
@@ -740,49 +766,58 @@ function DeleteModal ({
     const { ddb } = model.use(['ddb'])
     const { streaming_stat } = computing.use(['streaming_stat'])
     return <>
-        <Modal  className='delete-modal'
+            <Modal
+                className='computing-delete-modal'
                 title={
-                    <div className='delete-warning-title'><WarningOutlined />
+                    <div className='delete-warning-title'>
+                        <WarningOutlined />
                         <span>
                             {`确认${button_text[table_name].action}选中的 `}
-                                <Tooltip title={selected.map(name => <p key={name}>{name}</p>)}>
-                                    <span className='selected-number'>{selected.length}</span>
-                                </Tooltip>
+                            <Tooltip
+                                title={selected.map(name => <p key={name}>{name}</p>)}
+                            >
+                                <span className='selected-number'>{selected.length}</span>
+                            </Tooltip>
                             {` 个${button_text[table_name].title}吗？`}
-                            </span>
-                    </div>}
+                        </span>
+                    </div>
+                }
                 open={visible}
-                onCancel={() => { 
-                            set_input_value('')
-                            close() 
-                        }}
+                onCancel={() => {
+                    set_input_value('')
+                    close()
+                }}
                 cancelButtonProps={{ className: 'hidden' }}
                 okText={button_text[table_name].action}
-                okButtonProps={{ disabled: input_value !== 'YES', 
-                                 className: input_value !== 'YES' ? 'disable-button' : 'normal-button' }}
-                onOk={async () => { await handle_delete(table_name, 
-                                                        selected, 
-                                                        ddb, 
-                                                        refresher, 
-                                                        (table_name === 'subWorkers' 
-                                                            ? 
-                                                        selected.map(row_name => streaming_stat.subWorkers.to_rows().find(({ topic }) => topic === row_name).raftGroup)
-                                                            : 
-                                                        [ ]))
-                                          set_input_value('')
-                                          set_selected([ ])
-                                          close() }}>
-                    <Input placeholder={t('请输入 \'YES\' 以确认该操作')}
-                           value={input_value} 
-                           onChange={({ target: { value } }) => { set_input_value(value) }}
-                        />
-        </Modal>
-        <Button className='title-button' disabled={!selected.length} onClick={open}>
-            {t('批量') + button_text[table_name].action}
-        </Button>
+                okButtonProps={{ disabled: input_value !== 'YES', className: input_value !== 'YES' ? 'disable-button' : 'normal-button' }}
+                onOk={async () => {
+                    await handle_delete(
+                        table_name,
+                        selected,
+                        ddb,
+                        refresher,
+                        table_name === 'subWorkers'
+                            ? selected.map(row_name => streaming_stat.subWorkers.to_rows().find(({ topic }) => topic === row_name).raftGroup)
+                            : [ ]
+                    )
+                    set_input_value('')
+                    set_selected([ ])
+                    close()
+                }}
+            >
+                <Input
+                    placeholder={t("请输入 'YES' 以确认该操作")}
+                    value={input_value}
+                    onChange={({ target: { value } }) => {
+                        set_input_value(value)
+                    }}
+                />
+            </Modal>
+            <Button className='title-button' disabled={!selected.length} onClick={open}>
+                {t('批量') + button_text[table_name].action}
+            </Button>
         </>
 }
-
 
 function StateTable ({
     type,
@@ -791,7 +826,7 @@ function StateTable ({
     min_width,
     separated = true,
     default_page_size = 5,
-    refresher,
+    refresher
 }: {
     type: string
     cols: TableColumnType<Record<string, any>>[]
@@ -802,38 +837,33 @@ function StateTable ({
     refresher?: () => Promise<void>
 }) {
     const [selected, set_selected] = useState<string[]>([ ])
+    
     /** 渲染表头 */
-    function render_table_header (table_name: string, button_props?: ButtonProps) {    
+    function render_table_header (table_name: string, button_props?: ButtonProps) {
         return <>
-                {button_props && 
-                    <DeleteModal table_name={table_name}
-                                 selected={selected}
-                                 set_selected={set_selected}
-                                 refresher={refresher}/>}
-                    <Tooltip title={header_text[table_name].func}>
-                        <span className='table-name'>
-                            {header_text[table_name].title}
-                        </span>
-                    </Tooltip>                              
-                    <Tooltip title={header_text[table_name].tip}>
-                        <QuestionCircleOutlined />
-                    </Tooltip>
+                {button_props && <DeleteModal table_name={table_name} selected={selected} set_selected={set_selected} refresher={refresher} />}
+                <Tooltip title={header_text[table_name].func}>
+                    <span className='table-name'>{header_text[table_name].title}</span>
+                </Tooltip>
+                <Tooltip title={header_text[table_name].tip}>
+                    <QuestionCircleOutlined />
+                </Tooltip>
             </>
     }
-    
     
     return <>
         <Table
             tableLayout='fixed'
             rowSelection={
                 refresher
-                        ? 
-                    {
-                        type: 'checkbox',
-                        selectedRowKeys: selected,
-                        onChange: (selected_keys: React.Key[]) => { set_selected(selected_keys as string[]) }
-                    }
-                        : null
+                    ? {
+                            type: 'checkbox',
+                            selectedRowKeys: selected,
+                            onChange: (selected_keys: React.Key[]) => {
+                                set_selected(selected_keys as string[])
+                            }
+                        }
+                    : null
             }
             columns={cols}
             dataSource={rows}
@@ -844,25 +874,25 @@ function StateTable ({
                     type,
                     refresher
                         ? {
-                            selected,
-                            refresher
-                        }
+                                selected,
+                                refresher
+                            }
                         : null
                 )
             }
-            pagination={ rows.length > default_page_size 
-                                ? 
-                            {
-                                defaultPageSize: default_page_size,
-                                pageSizeOptions: ['5', '10', '20', '50', '100'],
-                                size: 'small',
-                                showSizeChanger: true,
-                                showQuickJumper: true
-                            } 
-                                : 
-                            false}
-            scroll={{ x: min_width }}                                        
+            pagination={
+                rows.length > default_page_size
+                    ? {
+                            defaultPageSize: default_page_size,
+                            pageSizeOptions: ['5', '10', '20', '50', '100'],
+                            size: 'small',
+                            showSizeChanger: true,
+                            showQuickJumper: true
+                        }
+                    : false
+            }
+            scroll={{ x: min_width }}
         />
-        {(rows.length <= default_page_size && separated) && <div className='separater'/>}
+        {rows.length <= default_page_size && separated && <div className='separater' />}
     </>
 }

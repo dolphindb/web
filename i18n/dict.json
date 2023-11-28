@@ -1947,7 +1947,7 @@
         "en": "Numerical axis, suitable for continuous data"
     },
     "类目轴，适用于离散的类目数据": {
-        "en":"Category axis, suitable for discrete category data"
+        "en": "Category axis, suitable for discrete category data"
     },
     "时间轴，适用于连续的时序数据": {
         "en": "Time axis, suitable for continuous time series data"
@@ -2407,5 +2407,29 @@
     },
     "批量": {
         "en": "batch"
+    },
+    "当前配置不存在":{
+        "en": "The current configuration does not exist"
+    },
+    "您无权限查看该配置":{
+        "en": "You do not have permission to view this configuration"
+    },
+    "当前配置与已有配置重名，请改名":{
+        "en":"The current configuration has the same name as the existing configuration, please change the name."
+    },
+    "您无权限编辑该配置":{
+        "en":"You do not have permission to edit this configuration."
+    },
+    "您无权限修改该配置命名":{
+        "en":"You do not have permission to modify the configuration name."
+    },
+    "命名不可为空":{
+        "en":"Name cannot be empty."
+    },
+    "分享名单重复，分享失败":{
+        "en":"The sharing list is duplicated and sharing failed."
+    },
+    "{{variables}} 配置不存在":{
+        "en":"{{variables}} configuration does not exist."
     }
 }

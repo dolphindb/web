@@ -2,16 +2,19 @@ import { type NamePath } from 'antd/es/form/interface'
 import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type InspectOptions } from 'dolphindb/browser.js'
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
 import { isNil, isNumber, uniq } from 'lodash'
-
-import { WidgetChartType, type Widget, dashboard } from './model.js'
-import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
-import { subscribe_data_source, type DataSource } from './DataSource/date-source.js'
-import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
-import dayjs from 'dayjs'
-import { find_variable_by_name, get_variable_value, subscribe_variable } from './Variable/variable.js'
 import { createRef } from 'react'
 import { genid } from 'xshell/utils.browser.js'
 import copy from 'copy-to-clipboard'
+import dayjs from 'dayjs'
+
+import { WidgetChartType, type Widget, dashboard, type DashBoardConfig, DashboardPermission } from './model.js'
+import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
+import { subscribe_data_source, type DataSource } from './DataSource/date-source.js'
+import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
+import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
+import { error_message } from './error-message.js'
+import { t } from '../../i18n/index.js'
+import { model } from '../model.js'
 
 
 export function format_time (time: string, format: string) { 
@@ -461,18 +464,21 @@ export async function load_styles (url: string) {
 }
 
 
-export async function copy_widget (widget: Widget) { 
+export function copy_widget (widget: Widget) { 
     if (!widget)
         return
     // 不直接 JSON.stringify(widget) 是因为会报错循环引用
     const copy_text = JSON.stringify({
-        config: widget.config,
-        type: widget.type,
-        source_id: widget.source_id,
-        x: widget.x,
-        y: widget.y,
-        w: widget.w,
-        h: widget.h
+        widget: {
+            config: widget.config,
+            type: widget.type,
+            source_id: widget.source_id,
+            x: widget.x,
+            y: widget.y,
+            w: widget.w,
+            h: widget.h
+        },
+        ...get_variable_copy_infos(widget.config?.variable_ids || [ ])
     })
     try {
         copy(copy_text)
@@ -483,9 +489,15 @@ export async function copy_widget (widget: Widget) {
 }
 
 
-export async function paste_widget (e) { 
-    const paste_widget = safe_json_parse((e.clipboardData).getData('text'))
-    if (paste_widget?.type) { 
+export async function paste_widget (event) { 
+    try {
+        const paste_widget = safe_json_parse((event.clipboardData).getData('text')).widget
+        
+        if (!paste_widget)
+            return
+        
+        await paste_variables(event, true)
+        
         const paste_widget_el = {
             ...paste_widget,
             ref: createRef(),
@@ -493,5 +505,34 @@ export async function paste_widget (e) {
         }
         dashboard.add_widget(paste_widget_el)
         await subscribe_data_source(paste_widget, paste_widget.source_id)
+    } catch (error) {
+        dashboard.message.error(error.message)
     }
+}
+
+
+export function parse_error (error: Error) {
+    const DDB_ERROR_JSON_PATTERN = /^{.*"code": "(.*)".*}$/
+    const lastArrowIndex = error.message.lastIndexOf('=>')
+    const errorMsgStartIndex = lastArrowIndex === -1 ? 0 : lastArrowIndex + 3
+    const textErrorMsg = error.message.slice(errorMsgStartIndex)
+  
+    const jsonErrorMsg = DDB_ERROR_JSON_PATTERN.exec(textErrorMsg)
+  
+    if (!jsonErrorMsg)
+        return error
+    
+    const jsonError = JSON.parse(jsonErrorMsg[0])
+    return new Error(t(error_message[jsonError.code], { variables: jsonError.variables }))
+}
+
+
+
+export function check_name (new_name: string) {
+    if (!new_name.trim()) 
+        return t('dashboard 名称不允许为空')
+    else if (new_name.includes('/') || new_name.includes('\\')) 
+        return t('dashboard 名称中不允许包含 "/" 或 "\\" ')
+    else if (dashboard.configs.find(({ name, permission }) => name === new_name && permission === DashboardPermission.own)) 
+        return t('名称重复，请重新输入')    
 }

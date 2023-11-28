@@ -36,6 +36,8 @@ import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
 import { CreateGuide } from './guide/iot-guide/index.js'
 import { FinanceGuide } from './guide/finance-guide/index.js'
+import { User } from './access/index.js'
+import { Group } from './access/index.js'
 
 
 createRoot(
@@ -67,13 +69,7 @@ function MainLayout () {
     Object.assign(model, App.useApp())
     
     useEffect(() => {
-        (async () => {
-            try {
-                await model.init()
-            } catch (error) {
-                model.show_error({ error })
-            }
-        })()
+        model.execute(async () => model.init())
     }, [ ])
     
     useEffect(() => {
@@ -89,11 +85,7 @@ function MainLayout () {
                     !alt
                 ) {
                     event.preventDefault()
-                    try {
-                        model.recompile_and_refresh()
-                    } catch (error) {
-                        model.show_error({ error })
-                    }
+                    await model.execute(async () => model.recompile_and_refresh())
                 }
             }
             
@@ -131,7 +123,9 @@ const views = {
     computing: Computing,
     dashboard: DashBoard,
     'iot-guide': CreateGuide,
-    'finance-guide': FinanceGuide
+    'finance-guide': FinanceGuide,
+    user: User,
+    group: Group
 }
 
 

@@ -36,7 +36,7 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
         <Form.Item label={t('名称')} name={concat_name_path(name_path, 'name')} initialValue={ initial_values?.name ?? t('名称')}>
             <Input />
         </Form.Item>
-        <Form.Item label='字号' name={ concat_name_path(name_path, 'fontsize')} initialValue={12}>
+        <Form.Item label={t('字号')} name={ concat_name_path(name_path, 'fontsize')} initialValue={12}>
             <InputNumber addonAfter='px'/>
         </Form.Item>
         {/* 类目轴从 col_name 中获取 data */}
@@ -49,7 +49,7 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                             { col && <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
                                 <Select options={convert_list_to_options(col_names)} allowClear/>
                             </Form.Item> }
-                            <Form.Item name={concat_name_path(name_path, 'with_zero')} label='强制包含零刻度' initialValue={false}>
+                            <Form.Item name={concat_name_path(name_path, 'with_zero')} label={t('强制包含零刻度')} initialValue={false}>
                                 <BoolRadioGroup />
                             </Form.Item>
                         </>
@@ -64,7 +64,7 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                         </>
                     case AxisType.TIME:
                         <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
-                            <Select options={format_time_options} />
+                            <Select options={format_time_options} allowClear/>
                         </Form.Item>
                     case AxisType.CATEGORY:
                         return <>
@@ -72,7 +72,7 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                                 <Select options={convert_list_to_options(col_names)} allowClear/>
                             </Form.Item>
                             <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
-                                <Select options={format_time_options} />
+                                <Select options={format_time_options} allowClear/>
                             </Form.Item>
                         </>
                     default: 
@@ -92,15 +92,15 @@ function Series (props: { col_names: string[], single?: boolean }) {
     
     const is_heat_map = type === WidgetChartType.HEATMAP
     
-    return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: '数据列 1', yAxisIndex: 0, type: type === WidgetChartType.MIX ? WidgetChartType.LINE : type, color: null }]}>
+    return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: t('数据列 1'), yAxisIndex: 0, type: type === WidgetChartType.MIX ? WidgetChartType.LINE : type, color: null }]}>
         {(fields, { add, remove }) => { 
             const items = fields.map(field => { 
                 const children = 
                     <div className='field-wrapper'>
-                        <Form.Item name={[field.name, 'col_name']} label={type === WidgetChartType.HEATMAP ? '热力值列' : t('数据列')} initialValue={col_names?.[0]} >
+                        <Form.Item name={[field.name, 'col_name']} label={type === WidgetChartType.HEATMAP ? t('热力值列') : t('数据列')} initialValue={col_names?.[0]} >
                             <Select options={col_names.map(item => ({ label: item, value: item })) } />
                         </Form.Item>
-                        <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={`数据列 ${field.key + 1}`}> 
+                        <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={`${t('数据列')} ${field.key + 1}`}> 
                             <Input />
                         </Form.Item>
                         
@@ -108,7 +108,7 @@ function Series (props: { col_names: string[], single?: boolean }) {
                             <Form.Item name={[field.name, 'type']} label={t('类型')} initialValue={type === WidgetChartType.MIX ? WidgetChartType.LINE : type}>
                                 <Select options={chart_type_options} disabled={type !== WidgetChartType.MIX} />
                             </Form.Item>
-                            <Form.Item name={[field.name, 'color']} label='颜色' initialValue={null}>
+                            <Form.Item name={[field.name, 'color']} label={t('颜色')} initialValue={null}>
                                 <StringColorPicker />
                             </Form.Item>
                         </>}
@@ -130,7 +130,7 @@ function Series (props: { col_names: string[], single?: boolean }) {
                         </FormDependencies> }
                         
                         { !is_heat_map && <>
-                            <Form.Item name={[field.name, 'mark_point']} label='标记点'>
+                            <Form.Item name={[field.name, 'mark_point']} label={t('标记点')}>
                                 <Select options={mark_point_options} mode='multiple'/>
                             </Form.Item>
                             
@@ -150,7 +150,7 @@ function Series (props: { col_names: string[], single?: boolean }) {
                                 }
                                 
                                 const ThresholdSelect = <>
-                                    <Form.Item name={[field.name, 'threshold', 'value']} label='阈值'>
+                                    <Form.Item name={[field.name, 'threshold', 'value']} label={t('阈值')}>
                                         <InputNumber />
                                     </Form.Item>
                                     <FormDependencies dependencies={[['series', field.name, 'threshold', 'value']]}>
@@ -160,10 +160,10 @@ function Series (props: { col_names: string[], single?: boolean }) {
                                                 return null
                                                 
                                             return <>
-                                                <Form.Item label='低于阈值配色' name={[field.name, 'threshold', 'low_color']}>
+                                                <Form.Item label={t('低于阈值配色')} name={[field.name, 'threshold', 'low_color']}>
                                                     <StringColorPicker />
                                                 </Form.Item>
-                                                <Form.Item label='高于阈值配色' name={[field.name, 'threshold', 'high_color']} >
+                                                <Form.Item label={t('高于阈值配色')} name={[field.name, 'threshold', 'high_color']} >
                                                     <StringColorPicker />
                                                 </Form.Item>
                                             </>
@@ -186,34 +186,34 @@ function Series (props: { col_names: string[], single?: boolean }) {
                                         <Form.Item label={t('线类型')} name={[field.name, 'line_type']} initialValue={ILineType.SOLID}>
                                             <Select options={line_type_options} />
                                         </Form.Item>
-                                        <Form.Item name={[field.name, 'end_label']} label='展示端标签' initialValue={false}>
+                                        <Form.Item name={[field.name, 'end_label']} label={t('展示端标签')} initialValue={false}>
                                             <BoolRadioGroup />
                                         </Form.Item>
                                     </>
                                 else if (seriesType === WidgetChartType.SCATTER)
                                     return <>
-                                        <Form.Item label='散点大小' name={[field.name, 'symbol_size']} initialValue={10}>
+                                        <Form.Item label={t('散点大小')} name={[field.name, 'symbol_size']} initialValue={10}>
                                             <InputNumber min={1} />
                                         </Form.Item>
-                                        <Form.Item label='散点标记' name={[field.name, 'symbol']} initialValue='circle'>
+                                        <Form.Item label={t('散点标记')} name={[field.name, 'symbol']} initialValue='circle'>
                                             <Select options={convert_list_to_options(['circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow']) } />
                                         </Form.Item>
                                     </>
                                 else if (seriesType === WidgetChartType.HEATMAP)
                                     return <>
-                                        <Form.Item label='阴暗色' name={[field.name, 'in_range', 'color', 'low']} initialValue='#EBE1E1'>
+                                        <Form.Item label={t('阴暗色')} name={[field.name, 'in_range', 'color', 'low']} initialValue='#EBE1E1'>
                                             <StringColorPicker />
                                         </Form.Item>
-                                        <Form.Item label='明亮色' name={[field.name, 'in_range', 'color', 'high']} initialValue='#983430'>
+                                        <Form.Item label={t('明亮色')} name={[field.name, 'in_range', 'color', 'high']} initialValue='#983430'>
                                             <StringColorPicker />
                                         </Form.Item>
-                                        <Form.Item label='最小值' name={[field.name, 'min']}>
+                                        <Form.Item label={t('最小值')} name={[field.name, 'min']}>
                                             <InputNumber />
                                         </Form.Item>
-                                        <Form.Item label='最大值' name={[field.name, 'max']}>
+                                        <Form.Item label={t('最大值')} name={[field.name, 'max']}>
                                             <InputNumber />
                                         </Form.Item>
-                                        <Form.Item label='展示标签' name={[field.name, 'with_label']} initialValue={false}>
+                                        <Form.Item label={t('展示标签')} name={[field.name, 'with_label']} initialValue={false}>
                                             <BoolRadioGroup />
                                         </Form.Item>
                                     </>
@@ -227,7 +227,7 @@ function Series (props: { col_names: string[], single?: boolean }) {
                     key: field.name,
                     children,
                     label: <div className='series-collapse-label'>
-                        { series?.[field.name]?.name || `数据列 ${field.name + 1}` }
+                        { series?.[field.name]?.name || `${t('数据列')} ${field.name + 1}` }
                         { fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} /> }
                     </div>,
                     forceRender: true
@@ -281,7 +281,7 @@ export function YAxis (props: { col_names: string[], initial_values?: IYAxisItem
                             <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>
                                 <Select options={axis_position_options} />
                             </Form.Item>
-                            <Form.Item tooltip='Y 轴相对于左右默认位置的偏移' name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
+                            <Form.Item tooltip={t('Y 轴相对于左右默认位置的偏移')} name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
                                 <InputNumber />
                             </Form.Item>
                         </div>
@@ -293,7 +293,7 @@ export function YAxis (props: { col_names: string[], initial_values?: IYAxisItem
                     key: field.name,
                     label: <div className='yaxis-collapse-label'>
                         {/* {`Y 轴 ${field.name + 1}`} */}
-                        {yAxis?.[field.name]?.name || `Y 轴 ${field.name + 1}` }
+                        {yAxis?.[field.name]?.name || `${t('Y 轴')} ${field.name + 1}` }
                         {
                             fields.length > 1 &&
                             <DeleteOutlined

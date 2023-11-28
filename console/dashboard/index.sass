@@ -2,11 +2,14 @@ $canvas_back_color: rgb(40, 40, 40)
 $font_color: rgb(215, 215, 215)
 $blue: rgb(22, 104, 220)
 $border_color: #333333
-
-
+  
+    
 .view-card.dashboard
     height: 100%
-    padding: 0px !important        
+    padding: 0px !important
+    
+    .ant-result
+        padding-top: 150px !important        
     
 .dashboard
     height: 100%
@@ -20,6 +23,9 @@ $border_color: #333333
         flex-direction: row
         min-height: 0px
         
+        // 没有 overflow: hidden 会导致在 hover 最下面一行的 widget 时画布变大 1px （原因未知）从而导致出现滚动条
+        overflow: hidden
+        
         .hidden
             display: none !important
         
@@ -27,9 +33,6 @@ $border_color: #333333
             padding-top: 1px
             flex-grow: 1
             background-color: $canvas_back_color
-            
-            // 没有 overflow: hidden 会导致在 hover 最下面一行的 widget 时画布变大 1px （原因未知）从而导致出现滚动条
-            overflow: hidden
             
             .grid-stack
                 height: 100% !important
@@ -41,7 +44,6 @@ $border_color: #333333
                     
                     height: 100%
                     overflow: hidden
-                    border: 1px solid #282828
                     
                     .delete-graph
                         display: none
@@ -65,6 +67,12 @@ $border_color: #333333
                             border: 2px $blue solid
                             background-color: rgba(255, 255, 255, 0.2)
                             cursor: pointer
+                
+                .grid-stack-item-active
+                    z-index: 100
+                    outline: solid 1px $blue
+                    background-color: #1d1d1d
+                
                 
                 .grid-stack-item:hover
                     .delete-graph
@@ -91,15 +99,11 @@ $border_color: #333333
                         border-bottom: 3px solid $blue
                         border-right: 3px solid $blue
                 
-                .grid-stack-item-active
-                    z-index: 100
-                    border: 1px $blue solid
-                    background-color: #1d1d1d
-                    
+                
                 // 去除原来的拖拽图标
-                .grid-stack-item>.ui-resizable-ne, .grid-stack-item>.ui-resizable-nw, .grid-stack-item>.ui-resizable-se, .grid-stack-item>.ui-resizable-sw
+                .grid-stack-item > .ui-resizable-ne, .grid-stack-item > .ui-resizable-nw, .grid-stack-item > .ui-resizable-se, .grid-stack-item > .ui-resizable-sw
                     background-image: none
-                    
+                
         .sider
             overflow: auto
             width: 100px

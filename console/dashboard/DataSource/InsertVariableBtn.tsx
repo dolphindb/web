@@ -1,8 +1,9 @@
 import { Button, type MenuProps, type ButtonProps, Dropdown } from 'antd'
 import { useMemo } from 'react'
-import { variables } from '../Variable/variable.js'
-
 import { PlusSquareOutlined } from '@ant-design/icons'
+
+import { variables } from '../Variable/variable.js'
+import { t } from '../../../i18n/index.js'
 
 interface IProps extends ButtonProps { 
     on_insert: (val: string) => void
@@ -27,7 +28,7 @@ export function InsertVariableBtn (props: IProps) {
     }, [variable_infos, on_insert])
     
     return !!variable_infos?.length && <Dropdown trigger={['hover']} menu={{ items }} overlayClassName='variable-dropdown'>
-        <Button onMouseDown={e => { e.preventDefault() }} {...others} icon={<PlusSquareOutlined />}>插入变量</Button>
+        <Button onMouseDown={e => { e.preventDefault() }} {...others} icon={<PlusSquareOutlined />}>{t('插入变量')}</Button>
     </Dropdown>
     
 }

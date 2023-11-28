@@ -75,7 +75,7 @@ function Series (props: { col_names: string[] }) {
                     key: field.name,
                     label: <div className='yaxis-collapse-label'>
                         {/* {`数据环 ${field.name + 1}`} */}
-                        {series?.[field.name]?.name || `数据环 ${field.name + 1}` }
+                        {series?.[field.name]?.name || `${t('数据环')} ${field.name + 1}` }
                         {
                             fields.length > 1 &&
                             <DeleteOutlined
@@ -89,16 +89,15 @@ function Series (props: { col_names: string[] }) {
             })
             return <div className='yasix-collapse-wrapper'>
                     <Collapse items={items} size='small'/>
-                    {fields.length < 3
-                    ? <Button 
+                    {(fields.length < 3) &&
+                    <Button 
                         type='dashed' 
                         className='add-yaxis-btn'
                         block onClick={() => { add({ col_name: col_names[0], name: col_names[0] }) } } 
                         icon={<PlusCircleOutlined />}
                     >
-                        增加环
-                    </Button>
-                    : <></>}
+                        {t('增加环')}
+                    </Button>}
                 </div> 
             }
         }

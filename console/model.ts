@@ -33,7 +33,7 @@ export const storage_keys = {
 
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide'
+export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group'
 
 
 export class DdbModel extends Model<DdbModel> {
@@ -188,11 +188,12 @@ export class DdbModel extends Model<DdbModel> {
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                try {
-                    await this.login_by_password('admin', '123456')
-                } catch {
-                    console.log(t('使用默认 admin 账号密码登录失败'))
-                }
+                if (this.dev)
+                    try {
+                        await this.login_by_password('admin', '123456')
+                    } catch {
+                        console.log(t('使用默认 admin 账号密码登录失败'))
+                    }
             }
         
         await this.get_cluster_perf(true)
@@ -214,6 +215,47 @@ export class DdbModel extends Model<DdbModel> {
         this.set({ inited: true })
         
         this.get_version()
+    }
+    
+    
+    /** 设置 url 上的 query 参数
+        - key: 参数名
+        - value: 参数值，为 null 或 undefined 时删除该参数 */
+    set_query (key: string, value: string | null) {
+        let url = new URL(location.href)
+        
+        if (value === null || value === undefined)
+            url.searchParams.delete(key)
+        else
+            url.searchParams.set(key, value)
+        
+        history.replaceState(null, '', url)
+    }
+    
+    
+    /** 执行 action，遇到错误时弹窗提示 
+        - action: 需要弹框展示执行错误的函数
+        - options?:
+            - throw?: `true` 默认会继续向上抛出错误，如果不需要向上继续抛出
+            - print?: `!throw` 在控制台中打印错误
+        @example await model.execute(async () => model.xxx()) */
+    async execute (action: Function, { throw: _throw = true, print }: { throw?: boolean, print?: boolean } = { }) {
+        try {
+            await action()
+        } catch (error) {
+            if (print ?? !_throw)
+                console.error(error)
+            
+            this.show_error({ error })
+            
+            if (_throw)
+                throw error
+        }
+    }
+    
+    
+    show_error (options: ErrorOptions) {
+        show_error(this.modal, options)
     }
     
     
@@ -724,11 +766,6 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    show_error (options: ErrorOptions) {
-        show_error(this.modal, options)
-    }
-    
-    
     navigate_to_node (node: DdbNode, options?: NavigateToOptions) {
         this.navigate_to(node.publicName || node.host, node.port, options)
     }
@@ -773,21 +810,6 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    /** 设置 url 上的 query 参数
-        - key: 参数名
-        - value: 参数值，为 null 或 undefined 时删除该参数 */
-    set_query (key: string, value: string | null) {
-        let url = new URL(location.href)
-        
-        if (value === null || value === undefined)
-            url.searchParams.delete(key)
-        else
-            url.searchParams.set(key, value)
-        
-        history.replaceState(null, '', url)
-    }
-    
-    
     async recompile_and_refresh () {
         await request('http://localhost:8432/api/recompile')
         location.reload()
@@ -812,8 +834,6 @@ export interface ErrorOptions {
 
 
 export function show_error (modal: DdbModel['modal'], { title, error, content }: ErrorOptions) {
-    console.log(error)
-    
     modal.error({
         className: 'modal-error',
         title: title || error?.message,

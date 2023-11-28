@@ -4,6 +4,7 @@ import type { FormInstance } from 'antd/es/form'
 import { genid } from 'xshell/utils.browser.js'
 
 import { type Variable, type VariablePropertyType, type OptionType } from './variable'
+import { t } from '../../../i18n/index.js'
 
 type EditableTableProps = Parameters<typeof Table>[0]
 
@@ -119,23 +120,23 @@ export function OptionList ({
     } 
     const defaultColumns: (ColumnTypes[number] & { editable?: boolean, dataIndex: string })[] = [
         {
-            title: '标签',
+            title: t('标签'),
             dataIndex: 'label',
             editable: true,
             width: 300,
         },
         {
-            title: '值',
+            title: t('值'),
             dataIndex: 'value',
             editable: true,
             width: 300
         },
         {
-            title: '操作',
+            title: t('操作'),
             dataIndex: 'operation',
             render: (_, record: { key: React.Key }) => 
                 current_options.length >= 1 ? (
-                <Popconfirm title='你确定要删除改选项吗？' onConfirm={() => { handleDelete(record.key as string) }}>
+                <Popconfirm title={t('你确定要删除改选项吗？')} onConfirm={() => { handleDelete(record.key as string) }}>
                     <a>Delete</a>
                 </Popconfirm>
                 ) : null    
@@ -190,10 +191,10 @@ export function OptionList ({
     return <div className='variable-editor-main-options'>
                 <div className='variable-editor-main-options-top'>
                     <div className='variable-editor-main-options-top-lable'>
-                        可选项：
+                        {t('可选项：')}
                     </div>
                     <div className='variable-editor-main-options-top-add' onClick={handleAdd}>
-                        + 新增
+                        + {t('新增')}
                     </div>
                 </div>
                 <Table

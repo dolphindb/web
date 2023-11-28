@@ -23,13 +23,14 @@ import { data_sources,
 } from './date-source.js'
 import { parse_code } from '../utils.js'
 import { model } from '../../model.js'
+import { t } from '../../../i18n/index.js'
 
 const save_confirm_config = {
-    cancelText: '不保存',
-    okText: '保存',
+    cancelText: t('不保存'),
+    okText: t('保存'),
     style: { top: '250px' },
     maskStyle: { backgroundColor: 'rgba(0,0,0,.2)' },
-    title: '此数据源存在未保存的更改。你想保存吗？',   
+    title: t('此数据源存在未保存的更改。你想保存吗？'),   
 }
 
 interface IProps extends ButtonProps {
@@ -94,11 +95,11 @@ export function DataSourceConfig (props: IProps, ref) {
             onClick={open}
             {...btn_props}
         >
-            {!widget ? '数据源' : text || '点击填充数据源'}
+            {!widget ? t('数据源') : text || t('点击填充数据源')}
         </Button>
             
         <Modal 
-            title='配置数据源'
+            title={t('配置数据源')}
             width='80%' 
             destroyOnClose
             className='data-source'
@@ -121,7 +122,7 @@ export function DataSourceConfig (props: IProps, ref) {
                                     return
                                 try {
                                     set_loading('preview')
-                                    const { type, result } = await dashboard.execute(parse_code(dashboard.sql_editor.getValue()), model.ddb, true)
+                                    const { type, result } = await dashboard.execute_code(parse_code(dashboard.sql_editor.getValue()), model.ddb, true)
                                     change_current_data_source_property('error_message', type === 'success' ? '' : result as string, false)
                                     set_show_preview(true)
                                 } finally {
@@ -129,7 +130,7 @@ export function DataSourceConfig (props: IProps, ref) {
                                 }
                             }
                         }>
-                        预览
+                        {t('预览')}
                     </Button>
                     : <div key='preview' />,
                     <Button key='save' type='primary' loading={loading === 'save'} onClick={async () => {
@@ -150,10 +151,10 @@ export function DataSourceConfig (props: IProps, ref) {
                             set_loading('')
                         }
                     }}>
-                        {widget ? '应用' : '保存'}
+                        {widget ? t('应用') : t('保存')}
                     </Button>,
                     <Button key='close' onClick={handle_close}>
-                        关闭
+                        {t('关闭')}
                     </Button>,
                 ]
             }
@@ -170,20 +171,20 @@ export function DataSourceConfig (props: IProps, ref) {
                     change_current_data_source={change_current_data_source}
                     change_current_data_source_property={change_current_data_source_property}
                 />
-                {current_data_source
-                    ? <div className='config-right'>
+                {current_data_source &&
+                    <div className='config-right'>
                         <div className='config-right-top'>
                             <Tabs 
                                 onChange={activeKey => { change_current_data_source_property('mode', activeKey) }} 
                                 activeKey={current_data_source.mode} 
                                 items={[
                                     {
-                                        label: 'DolphinDB 脚本 / SQL',
+                                        label: t('DolphinDB 脚本 / SQL'),
                                         key: 'sql',
                                         disabled: loading !== ''
                                     },
                                     {
-                                        label: '流数据',
+                                        label: t('流数据'),
                                         key: 'stream',
                                         disabled: loading !== ''
                                     }
@@ -207,7 +208,6 @@ export function DataSourceConfig (props: IProps, ref) {
                             />
                         }
                     </div>
-                    : <></>
                 }
             </div>
         </Modal>

@@ -10,6 +10,7 @@ import { dashboard } from '../model.js'
 import { type DataSource, type DataSourcePropertyType, get_data_source } from './date-source.js'
 import { InsertVariableBtn } from './InsertVariableBtn.js'
 import { use_monaco_insert } from '../../utils/hooks/use-monaco-insert.js'
+import { t } from '../../../i18n/index.js'
 
 interface PropsType { 
     loading: boolean
@@ -58,15 +59,15 @@ export function SqlEditor ({
                     theme='dark'
                 />
             </div>
-            {show_preview
-                ? <div className='preview'>
+            {show_preview &&
+                <div className='preview'>
                     <div className='preview-config'>
                         <div className='preview-config-tag'>
-                            数据预览
+                            {t('数据预览')}
                         </div>
                         <div className='preview-config-close' onClick={close_preview}>
+                            {t('关闭')}
                             <CloseOutlined/>
-                            关闭
                         </div>
                     </div>
                     <div className='preview-main'>
@@ -76,13 +77,12 @@ export function SqlEditor ({
                         }
                     </div>
                 </div>
-                : <></>
             }
         </div>
         <div className='sqlconfig'>
             <div className='sqlconfig-left'>
                 <div className='sqlconfig-left-refresh'>
-                    自动刷新：
+                    {t('自动刷新') + '：'}
                     <Switch 
                         disabled={loading}
                         size='small' 
@@ -94,7 +94,7 @@ export function SqlEditor ({
                 </div>
                 {current_data_source.auto_refresh 
                     ? <div>
-                        间隔时间：
+                        {t('间隔时间') + '：'}
                         <InputNumber 
                             disabled={loading}
                             size='small' 
@@ -116,7 +116,7 @@ export function SqlEditor ({
             
             <div className='sqlconfig-right'>
                 <div>
-                    最大行数：
+                    {t('最大行数') + '：'}
                     <InputNumber 
                         disabled={loading}
                         size='small' 
@@ -130,7 +130,7 @@ export function SqlEditor ({
                     <Popover 
                         content={(
                             <div>
-                                若该值为空则表示不对最大行数进行限制
+                                {t('若该值为空则表示不对最大行数进行限制')}
                             </div>
                         )} 
                     >

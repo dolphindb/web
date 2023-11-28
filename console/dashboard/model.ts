@@ -4,7 +4,7 @@ import { Model } from 'react-object-model'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbVectorString, DdbLong, DdbDict } from 'dolphindb/browser.js'
+import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbVectorString, DdbLong, DdbDict, DdbInt } from 'dolphindb/browser.js'
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
@@ -18,8 +18,8 @@ import { t } from '../../i18n/index.js'
 import { model, show_error, type ErrorOptions, storage_keys } from '../model.js'
 import { type Monaco } from '../shell/Editor/index.js'
 
-import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
-import { type IEditorConfig, type IChartConfig, type IDescriptionsConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
+import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources, subscribe_data_source } from './DataSource/date-source.js'
+import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 
 
@@ -30,8 +30,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
     /** 当前 dashboard 配置 */
     config: DashBoardConfig
     
-    /** 可分享的用户 */
-    users_to_share: string[] = [ ]
+    /** 所有用户 */
+    users: string[] = [ ]
     
     /** GridStack.init 创建的 gridstack 实例 */
     grid: GridStack
@@ -88,17 +88,17 @@ export class DashBoardModel extends Model<DashBoardModel> {
         //     this.set({ backend: false })
         //     await this.get_configs_from_local()
         // }
-        try {
+        await dashboard.execute(async () => {
+            await model.ddb.call<DdbVoid>('dashboard_check_access', [ ])
             await this.get_dashboard_configs()
-        } catch (error) {
-            this.show_error({ error })
-            throw error
-        }
+        })
         if (!this.config) {
             const id = genid()
             const new_dashboard_config = {
                 id,
                 name: String(id).slice(0, 4),
+                owner: '',
+                permission: DashboardPermission.own,
                 data: {
                     datasources: [ ],
                     variables: [ ],
@@ -183,6 +183,33 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
+    /** 执行 action，遇到错误时弹窗提示 
+        - action: 需要弹框展示执行错误的函数
+        - options?:
+            - throw?: `true` 默认会继续向上抛出错误，如果不需要向上继续抛出
+            - print?: `!throw` 在控制台中打印错误
+        @example await model.execute(async () => model.xxx()) */
+    async execute (action: Function, { throw: _throw = true, print }: { throw?: boolean, print?: boolean } = { }) {
+        try {
+            await action()
+        } catch (error) {
+            if (print ?? !_throw)
+                console.error(error)
+            
+            this.show_error({ error })
+            
+            if (_throw)
+                throw error
+        }
+    }
+    
+    
+    show_error (options: ErrorOptions) {
+        show_error(this.modal, options)
+    }
+    
+    
+    
     /** 传入 _delete === true 时表示删除传入的 config, 传入 null 代表清空当前的config，返回到 dashboard 管理界面 */
     // async update_config (config: DashBoardConfig, _delete = false) {
     //     this.set({ loading: true })
@@ -231,12 +258,13 @@ export class DashBoardModel extends Model<DashBoardModel> {
     // }
     
     
-    generate_new_config (id: number, name: string) {
+    generate_new_config (id: number, name: string, data?: DashboardData) {
         return {
             id,
             name,
-            owned: true,
-            data: {
+            owner: model.username,
+            permission: DashboardPermission.own,
+            data: data ?? {
                 datasources: [ ],
                 variables: [ ],
                 canvas: {
@@ -353,7 +381,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async execute (code = this.sql_editor.getValue(), ddb = model.ddb, preview = false): Promise<{
+    async execute_code (code = this.sql_editor.getValue(), ddb = model.ddb, preview = false): Promise<{
         type: 'success' | 'error'
         result: string | DdbObj<DdbValue>
     }> {
@@ -373,17 +401,18 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     /** 获取分享的用户列表 */
-    async get_users_to_share () {
-        const users = ((await model.ddb.call<DdbObj>('dashboard_get_users_to_share')).value) as string[]
-        this.set({ users_to_share: users })
+    async get_user_list () {
+        const users = ((await model.ddb.call<DdbObj>('dashboard_get_user_list')).value) as string[]
+        this.set({ users: users })
     }
     
     
     async add_dashboard_config (config: DashBoardConfig, render: boolean = true) {
-        this.set({ configs: [...this.configs, config], config })
+        this.set({ configs: [config, ...this.configs], config })
+        const { id, name, permission, data } = config
         const params = new DdbDict(
-            ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) }))
-        await model.ddb.call<DdbVoid>('dashboard_add_config', [params], { urgent: true })
+            ({ id: new DdbLong(BigInt(id)), name, permission: new DdbInt(permission), data: JSON.stringify(data) }))
+        await model.ddb.call<DdbVoid>('dashboard_add_config', [params])
         if (render)
             await this.render_with_config(config)
     }
@@ -393,7 +422,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         const delete_ids = new Set(dashboard_config_ids)
         const filtered_configs = this.configs.filter(({ id }) => !delete_ids.has(id))
         this.set({ configs: filtered_configs, config: filtered_configs[0] })
-        await model.ddb.call<DdbVoid>('dashboard_delete_configs', [new DdbVectorLong(dashboard_config_ids)], { urgent: true })
+        await model.ddb.call<DdbVoid>('dashboard_delete_configs', [new DdbDict({ ids: new DdbVectorLong(dashboard_config_ids) })])
         if (filtered_configs.length && render)
             await this.render_with_config(filtered_configs[0])   
     }
@@ -403,23 +432,34 @@ export class DashBoardModel extends Model<DashBoardModel> {
         const index = this.configs.findIndex(({ id }) => id === config.id)
         this.set({ configs: this.configs.toSpliced(index, 1, config), config })
         const params = new DdbDict(
-            ({ ...config, id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
-        await model.ddb.call<DdbVoid>('dashboard_update_config', [params], { urgent: true })
+            ({ id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
+        await model.ddb.call<DdbVoid>('dashboard_edit_config', [params])
         if (render)
             await this.render_with_config(config)
     }
     
     
+    async rename_dashboard (dashboard_id: number, new_name: string) {
+        await model.ddb.call<DdbVoid>('dashboard_rename_config', [new DdbDict({ id: new DdbLong(BigInt(dashboard_id)), name: new_name })])
+    
+        const index = this.configs.findIndex(({ id }) => id === dashboard_id)
+        const config = this.configs[index]
+        config.name = new_name
+        this.set({ configs: this.configs.toSpliced(index, 1, config), config })
+        await this.render_with_config(config)
+    }
+    
+    
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number) {
-        const data = (await model.ddb.call('dashboard_get_config', [new DdbLong(BigInt(id))], { urgent: true })).to_rows()
+        const data = (await model.ddb.call('dashboard_get_config', [new DdbLong(BigInt(id))])).to_rows()
         return data.length ? { ...data[0], id: Number(data[0].id), data: JSON.parse(data[0].data) } : null
     }
     
     
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
-        const data = (await model.ddb.call<DdbVoid>('dashboard_get_configs', [ ], { urgent: true })).to_rows()
+        const data = (await model.ddb.call<DdbVoid>('dashboard_get_config_list', [ ])).to_rows()
         const configs =  data.map(cfg => ({ ...cfg, 
                                             id: Number(cfg.id), 
                                             data: JSON.parse(typeof cfg.data === 'string' ? 
@@ -430,8 +470,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
         const dashboard_id = Number(new URLSearchParams(location.search).get('dashboard'))
         if (dashboard_id) {
             const config = configs.find(({ id }) =>  id === dashboard_id)
-            if (config)
+            if (config) {
+                this.set({ config })
                 await this.render_with_config(config)
+            }
+                
             else
                 this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
         }
@@ -464,14 +507,18 @@ export class DashBoardModel extends Model<DashBoardModel> {
             data_sources: await import_data_sources(config.data.datasources),
             
             widgets: config.data.canvas.widgets.map(widget => ({
-                 ...widget,
-                 ref: createRef()
-                 })) as any,
+                ...widget,
+                ref: createRef()
+                })) as Widget[],
          
             widget: null,
             
          })
-         
+        
+        for (let i in this.widgets) 
+            await subscribe_data_source(this.widgets[i], this.widgets[i].source_id, false)
+        
+        model.set_query('dashboard', String(config.id))
         this.set({ loading: false })
     }
     
@@ -481,18 +528,17 @@ export class DashBoardModel extends Model<DashBoardModel> {
     //     localStorage.setItem(storage_keys.dashboards, JSON.stringify(this.configs))
     // }
     
-    async share (dashboard_ids: number[], receivers: string[]) {
-        /** 
-        将 dashboard_ids 数组中的 dashboard 分享给 receivers 数组中的每一位用户，
-        并存储到每一位 receiver 的 dashboard 数组中， 在后续调用 get_configs 拉取 receiver 的 dashboard 时，
-        需要将分享过来的 dashboard 一起返回，并且将 owner 的值设置为 false
-        */
+    async share (dashboard_ids: number[], viewers: string[], editors: string[]) {
        await model.ddb.call<DdbVoid>('dashboard_share_configs',
-            [new DdbVectorLong(dashboard_ids), new DdbVectorString(receivers)], { urgent: true })
+            [new DdbDict({ 
+                ids: new DdbVectorLong(dashboard_ids), 
+                viewers: new DdbVectorString(viewers), 
+                editors: new DdbVectorString(editors) 
+            })])
     }
     
-    show_error (options: ErrorOptions) {
-        show_error(this.modal, options)
+    async revoke (id: number) {
+        await model.ddb.call<DdbVoid>('dashboard_revoke_permission', [new DdbDict({ id: new DdbLong(BigInt(id)) })])
     }
 }
 
@@ -505,21 +551,25 @@ export interface DashBoardConfig {
     
     name: string
     
-    /** 当前用户是否有所有权, 被分享时 owned 为 false */
-    owned?: boolean
+    owner: string
     
-    data: {
-         /** 数据源配置 */
-        datasources: ExportDataSource[]
+    /** 当前用户是否有所有权, 被分享时 owned 为 false */
+    permission: DashboardPermission
+    
+    data: DashboardData
+}
+
+export interface DashboardData {
+     /** 数据源配置 */
+     datasources: ExportDataSource[]
         
-        /** 变量配置 */
-        variables: ExportVariable[]
-        
-        /** 画布配置 */
-        canvas: {
-            widgets: any[]
-        }
-    }
+     /** 变量配置 */
+     variables: ExportVariable[]
+     
+     /** 画布配置 */
+     canvas: {
+         widgets: any[]
+     }
 }
 
 
@@ -597,6 +647,12 @@ export enum WidgetChartType {
     VARIABLE = 'VARIABLE',
     SCATTER = 'SCATTER',
     HEATMAP = 'HEATMAP'
+}
+
+export enum DashboardPermission {
+    own = 0,
+    edit = 1,
+    view = 2
 }
 
 export const WidgetTypeWithoutDatasource = ['TEXT', 'EDITOR']
