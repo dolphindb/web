@@ -1,15 +1,12 @@
 import './index.scss'
 
 import { useMemo } from 'react'
-import { Form, Select, Input, Collapse, Button, Space, Divider, InputNumber } from 'antd'
-import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { Form, Input, Collapse, InputNumber } from 'antd'
 
 import { t } from '../../../i18n/index.js'
 
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { variables } from '../Variable/variable.js'
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-import { convert_list_to_options } from '../utils.js'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 import { PaddingSetting, VariableSetting } from './BasicFormFields.js'
 
@@ -21,7 +18,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
             <Form.Item name='title' label={t('标题')} initialValue={t('标题')}>
                 <Input />
             </Form.Item>
-            <Form.Item name='title_size' label='标题字号' initialValue={18}>
+            <Form.Item name='title_size' label={t('标题字号')} initialValue={18}>
                 <InputNumber addonAfter='px' />
             </Form.Item>
             
@@ -57,10 +54,10 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
 export function OrderFormFields () {
     const FormFields = useMemo(() => { 
         return  <>
-            <Form.Item name='bar_color' label='柱状图颜色' initialValue={null}>
+            <Form.Item name='bar_color' label={t('柱状图颜色')} initialValue={null}>
                 <StringColorPicker />
             </Form.Item>
-            <Form.Item name='line_color' label='曲线颜色' initialValue={null}>
+            <Form.Item name='line_color' label={t('曲线颜色')} initialValue={null}>
                 <StringColorPicker />
             </Form.Item>
             <Form.Item label={t('倍率')} name='time_rate' initialValue={100}>

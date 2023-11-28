@@ -59,8 +59,8 @@ export function SqlEditor ({
                     theme='dark'
                 />
             </div>
-            {show_preview
-                ? <div className='preview'>
+            {show_preview &&
+                <div className='preview'>
                     <div className='preview-config'>
                         <div className='preview-config-tag'>
                             {t('数据预览')}
@@ -77,7 +77,6 @@ export function SqlEditor ({
                         }
                     </div>
                 </div>
-                : <></>
             }
         </div>
         <div className='sqlconfig'>

@@ -26,11 +26,11 @@ import { model } from '../../model.js'
 import { t } from '../../../i18n/index.js'
 
 const save_confirm_config = {
-    cancelText: '不保存',
-    okText: '保存',
+    cancelText: t('不保存'),
+    okText: t('保存'),
     style: { top: '250px' },
     maskStyle: { backgroundColor: 'rgba(0,0,0,.2)' },
-    title: '此数据源存在未保存的更改。你想保存吗？',   
+    title: t('此数据源存在未保存的更改。你想保存吗？'),   
 }
 
 interface IProps extends ButtonProps {
@@ -171,8 +171,8 @@ export function DataSourceConfig (props: IProps, ref) {
                     change_current_data_source={change_current_data_source}
                     change_current_data_source_property={change_current_data_source_property}
                 />
-                {current_data_source
-                    ? <div className='config-right'>
+                {current_data_source &&
+                    <div className='config-right'>
                         <div className='config-right-top'>
                             <Tabs 
                                 onChange={activeKey => { change_current_data_source_property('mode', activeKey) }} 
@@ -208,7 +208,6 @@ export function DataSourceConfig (props: IProps, ref) {
                             />
                         }
                     </div>
-                    : <></>
                 }
             </div>
         </Modal>

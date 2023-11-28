@@ -4,6 +4,7 @@ import { CopyOutlined, DeleteOutlined, EditOutlined, FileOutlined, ToolOutlined 
 
 import { dashboard } from '../model.js'
 import { create_variable, delete_variable, rename_variable, type Variable, type VariablePropertyType, variables, copy_variables, paste_variables } from './variable.js'
+import { t } from '../../../i18n/index.js'
 
 
 interface PropsType {
@@ -127,7 +128,7 @@ export function VariableList ({
                         }}
                     >
                         <FileOutlined className='variable-list-top-item-icon' />
-                        新建
+                        {t('新建')}
                     </div>
                     <div
                         className='variable-list-top-item'
@@ -137,7 +138,7 @@ export function VariableList ({
                         }}
                     >
                         <EditOutlined className='variable-list-top-item-icon' />
-                        重命名
+                        {t('重命名')}
                     </div>
                     <div
                         className='variable-list-top-item'
@@ -157,7 +158,7 @@ export function VariableList ({
                         }}
                     >
                         <DeleteOutlined className='variable-list-top-item-icon' />
-                        删除
+                        {t('删除')}
                     </div>
                     <div
                         className='variable-list-top-item'
@@ -171,11 +172,11 @@ export function VariableList ({
                         }}
                     >
                         <CopyOutlined className='variable-list-top-item-icon' />
-                        复制
+                        {t('复制')}
                     </div>
                 </div>
-                { current_variable ? <div className='variable-list-bottom'>
-                    {variable_infos.length ? (
+                { current_variable && <div className='variable-list-bottom'>
+                    {variable_infos.length && 
                         <Tree
                             ref={tree_ref}
                             showIcon
@@ -194,10 +195,8 @@ export function VariableList ({
                             }}
                             treeData={menu_items}
                         />
-                    ) : (
-                        <></>
-                    )}
-                </div> : <></> }
+                    }
+                </div>}
             </div>
         </>
 }

@@ -5,6 +5,7 @@ import { DatePicker, Input, Select } from 'antd'
 import { type Variable, type VariablePropertyType } from './variable.js'
 import { OptionList } from './OptionList.js'
 import { safe_json_parse } from '../utils.js'
+import { t } from '../../../i18n/index.js'
 
 const { TextArea } = Input
 
@@ -58,7 +59,7 @@ export function VariableEditor ({
         <div className='variable-editor'>
             <div className='variable-editor-main'>
                 <div className='variable-editor-main-display-name'>
-                    显示名称：
+                    {t('显示名称：')}
                     <Input 
                         size='small' 
                         className='variable-editor-main-display-name-input'
@@ -70,7 +71,7 @@ export function VariableEditor ({
                     />
                 </div>
                 <div className='variable-editor-main-mode'>
-                    变量类型：
+                    {t('变量类型：')}
                     <Select
                         value={current_variable.mode}
                         className='variable-editor-main-mode-select'
@@ -81,35 +82,34 @@ export function VariableEditor ({
                         }}
                         options={[
                             {
-                                label: '单选',
+                                label: t('单选'),
                                 value: 'select',
                             },
                             {
-                                label: '多选',
+                                label: t('多选'),
                                 value: 'multi_select',
                             },
                             {
-                                label: '自由文本',
+                                label: t('自由文本'),
                                 value: 'text'
                             },
                             {
-                                label: '日期',
+                                label: t('日期'),
                                 value: 'date'
                             }
                         ]}
                     />
                 </div>
                 <div className='variable-editor-main-value'>
-                    变量值：
+                    {t('变量值：')}
                     {value_editor[current_variable.mode]}
                 </div>
-                {current_variable.mode === 'select' || current_variable.mode === 'multi_select'
-                    ? <OptionList
+                {(current_variable.mode === 'select' || current_variable.mode === 'multi_select') &&
+                    <OptionList
                         current_variable={current_variable}
                         change_current_variable_property={change_current_variable_property}
                         change_no_save_flag={change_no_save_flag}
                     />          
-                    : <></>
                 }   
             </div>
         </div>

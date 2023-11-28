@@ -154,7 +154,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                 
                 if (deps.size) 
                     await subscribe_stream(data_source) 
-                else {
+                else if (data_source.filter) {
                     // 订阅一下变量
                     parse_code(data_source.filter_column, data_source)
                     parse_code(data_source.filter_expression, data_source)
