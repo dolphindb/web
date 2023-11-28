@@ -26,8 +26,6 @@ export function PartitionColSelect (props: IProps) {
         get_partition_info()
     }, [ ])
     
-    
-    
     const filter_col_options = useCallback((col_types: string[]) => {
         return schema
             .filter(item => col_types?.includes(item?.dataType))
@@ -56,11 +54,9 @@ export function PartitionColSelect (props: IProps) {
             return fields.map(field => {
                 const data_types = partition_info[field.name]
                 const options = filter_col_options(data_types)
-                return <>
-                    <Form.Item extra={`数据类型为${data_types?.join('/')}`} label={`分区列${field.name + 1}`} name={[field.name, 'colName']}>
-                        <Select options={options} />
-                    </Form.Item>
-                </>
+                return <Form.Item key={field.name} extra={`数据类型为${data_types?.join('/')}`} label={`分区列${field.name + 1}`} name={[field.name, 'colName']}>
+                    <Select options={options} />
+                </Form.Item>
             })
         }}
     </Form.List>

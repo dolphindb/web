@@ -111,12 +111,26 @@ export function SchemaList () {
         NiceModal.show(SchemaUploadModal, { on_apply })
     }, [on_apply])
     
+    const validator = useCallback(async () => { 
+        const schema = form.getFieldValue('schema')
+        const name_list = schema.map(item => item.colName)
+        if (new Set(name_list).size !== name_list.length)  
+            return Promise.reject('已配置该列，请修改')
+    }, [ ])
+    
+    
     return <div className='schema-wrapper'>
         <h4>列配置</h4>
         <Form.List name='schema' initialValue={[{ }]}>
             {(fields, { add, remove }) => <>
                 {fields.map(field => <div className='schema-item' key={field.name}>
-                    <Form.Item label='列名' name={[field.name, 'colName']} rules={[{ required: true, message: '请输入列名' }]}>
+                    <Form.Item
+                        label='列名'
+                        name={[field.name, 'colName']}
+                        rules={[
+                            { required: true, message: '请输入列名' },
+                            { validator }
+                        ]}>
                         <Input placeholder='请输入列名'/>
                     </Form.Item>
                     <Form.Item label='数据类型' name={[field.name, 'dataType']} rules={[{ required: true, message: '请选择数据类型' }]}>

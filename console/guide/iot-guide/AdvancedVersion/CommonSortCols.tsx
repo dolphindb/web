@@ -3,6 +3,7 @@ import './index.scss'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { Button, Form, InputNumber, Select } from 'antd'
 import { type SelectProps } from 'antd/lib'
+import { useCallback } from 'react'
 
 interface IProps {
     mode?: 'common' | 'readonly'
@@ -13,6 +14,15 @@ interface IProps {
 export function CommonSortCols (props: IProps) {
     const { col_options } = props
     
+    const form = Form.useFormInstance()
+    
+    const validator = useCallback(async () => { 
+        const otherSortKeyInfo = form.getFieldValue('otherSortKeyInfo')
+        const name_list = otherSortKeyInfo.map(item => item.colName)
+        if (new Set(name_list).size !== name_list.length)  
+            return Promise.reject('已配置该常用筛选列，请修改')
+    }, [ ])
+    
     return <div className='sort-cols-wrapper'>
         <h4>常用筛选列</h4>
         <Form.List name='otherSortKeyInfo' initialValue={[{ }]}>
@@ -22,7 +32,10 @@ export function CommonSortCols (props: IProps) {
                         <Form.Item
                             label='列名'
                             name={[field.name, 'colName']}
-                            rules={[{ required: true, message: '请选择列名' }]}
+                            rules={[
+                                { required: true, message: '请选择列名' },
+                                { validator }
+                            ]}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 14 }}
                         >
