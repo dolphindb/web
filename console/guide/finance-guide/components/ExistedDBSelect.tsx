@@ -17,5 +17,5 @@ export function ExistDBSelect (props: SelectProps) {
     }, [ ])
     
     
-    return <Select optionLabelProp='label' {...props} options={options}/>
+    return <Select placeholder='请选择现有库' optionLabelProp='label' {...props} options={options}/>
 }

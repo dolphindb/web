@@ -57,6 +57,7 @@ export function PartitionColSelect (props: IProps) {
                 return <Form.Item key={field.name} extra={`数据类型为${data_types?.join('/')}`} label={`分区列${field.name + 1}`} name={[field.name, 'colName']}>
                     <Select options={options} />
                 </Form.Item>
+                    
             })
         }}
     </Form.List>

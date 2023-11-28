@@ -19,6 +19,12 @@ export function DatabaseInfo (props: IProps) {
     
     const [form] = Form.useForm()
     
+    const isExist = Form.useWatch('isExist', form)
+    
+    useEffect(() => { 
+        form.setFieldValue('name', undefined)
+    }, [isExist])
+    
     const on_submit = useCallback((values: IDatabaseInfo) => {
         go({ database: values })
     }, [ ])
@@ -27,6 +33,8 @@ export function DatabaseInfo (props: IProps) {
         if (info?.database)
             form.setFieldsValue(info?.database)
     }, [info?.database])
+    
+    
     
     return <Form
         onFinish={on_submit}
@@ -46,7 +54,7 @@ export function DatabaseInfo (props: IProps) {
             {value => { 
                 if (value.isExist)
                     return <Form.Item label='现有库' name='name' rules={[{ required: true, message: '请选择现有库' }]}>
-                        <ExistDBSelect placeholder='请选择现有库'/>
+                        <ExistDBSelect />
                     </Form.Item>
                 else
                     return <>

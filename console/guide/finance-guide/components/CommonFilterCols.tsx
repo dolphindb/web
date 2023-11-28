@@ -14,19 +14,23 @@ export function CommonFilterCols (props: IProps) {
     const form = Form.useFormInstance()
     
     const timeCol = Form.useWatch('timeCol', form)
+    const partitionCols = Form.useWatch('partitionCols', form) ?? [ ]
     
     const filter_col_options = useMemo(() => {
+        const time_col = timeCol || partitionCols?.filter(Boolean)?.find(item => ['DATE', 'DATETIME', 'TIMESTAMP'].includes(schema?.find(col => col?.colName === item?.colName)?.dataType))?.colName
         return schema
-            .filter(item => !['INT', 'DOUBLE', 'LONG', 'SHORT', 'DECIMAL', 'FLOAT', 'DATETIME'].includes(item?.dataType) && item?.colName !== timeCol)
+            .filter(item => !['DOUBLE', 'LONG', 'SHORT', 'DECIMAL', 'FLOAT', 'DATETIME'].includes(item?.dataType) && item?.colName !== time_col)
             .map(item => ({ label: item?.colName, value: item?.colName }))
-    }, [schema, timeCol])
+    }, [schema, timeCol, partitionCols])
     
     const validator = useCallback(async () => { 
-        const filterCols = form.getFieldValue('filterCols')
-        const name_list = filterCols.map(item => item.colName)
+        const filterCols = form.getFieldValue('filterCols') ?? [ ]
+        const name_list = filterCols.map(item => item?.colName)
         if (new Set(name_list).size !== name_list.length)  
             return Promise.reject('已配置该常用筛选列，请修改')
     }, [ ])
+    
+    
     
     return <div className='common-filter-cols-wrapper'>
         <h4>常用筛选列</h4>
