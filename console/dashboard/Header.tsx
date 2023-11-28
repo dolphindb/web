@@ -1,7 +1,7 @@
 import './Header.sass'
 
 import { useState } from 'react'
-import { Button, Input, Modal, Select, Tag, Tooltip, Upload } from 'antd'
+import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Upload } from 'antd'
 import { CopyOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, RollbackOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
@@ -19,7 +19,8 @@ import { export_variables } from './Variable/variable.js'
 import cn from 'classnames'
 import { HostSelect } from '../components/HostSelect.js'
 import { Share } from './Share/Share.js'
-import { load_config } from './utils.js'
+import { check_name } from './utils.js'
+import { Import } from './Import/Import.js'
 
 
 export function get_widget_config (widget: Widget) {
@@ -101,18 +102,10 @@ export function Header () {
     
     async function handle_add () {
         await dashboard.execute(async () => {
-            if (!new_dashboard_name.trim()) {
-                dashboard.message.error(t('数据面板名称不允许为空'))
-                return 
-            }
-            if (new_dashboard_name.includes('/') || new_dashboard_name.includes('\\')) {
-                model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
+            const check_name_message = check_name(new_dashboard_name)
+            if (check_name_message) {
+                dashboard.message.error(check_name_message)
                 return
-            }
-            
-            if (configs?.find(({ name }) => name === new_dashboard_name)) {
-                dashboard.message.error(t('名称重复，请重新输入'))
-                return 
             }
             
             const new_dashboard_config = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
@@ -120,7 +113,6 @@ export function Header () {
             // await dashboard.update_config(new_dashboard_config)
             await dashboard.add_dashboard_config(new_dashboard_config)
             await dashboard.render_with_config(new_dashboard_config)
-            model.set_query('dashboard', String(new_dashboard_id))
             dashboard.message.success(t('添加成功'))
         })
         add_close()
@@ -129,13 +121,9 @@ export function Header () {
     
     async function handle_edit () {
         await dashboard.execute(async () => {
-            if (!edit_dashboard_name) {
-                dashboard.message.error(t('数据面板名称不允许为空'))
-                return 
-            }
-            
-            if (configs.find(({ id, name }) => id !== config.id && name === edit_dashboard_name)) {
-                dashboard.message.error(t('名称重复，请重新输入'))
+            const check_name_message = check_name(edit_dashboard_name)
+            if (check_name_message) {
+                dashboard.message.error(check_name_message)
                 return
             }
             
@@ -210,7 +198,6 @@ export function Header () {
                 //     current_dashboard
                 // )
                 dashboard.render_with_config(current_dashboard)
-                model.set_query('dashboard', String(current_dashboard.id))
                 if (current_dashboard.permission === DashboardPermission.view)
                     on_preview()
                     
@@ -284,36 +271,29 @@ export function Header () {
                     onCancel={copy_close}
                     onOk={async () => 
                         model.execute(async () => {
-                            if (!copy_dashboard_name) {
-                                model.message.error(t('dashboard 名称不允许为空'))
-                                return
-                            }
-                            if (copy_dashboard_name.includes('/') || copy_dashboard_name.includes('\\')) {
-                                model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
+                            const check_name_message = check_name(copy_dashboard_name)
+                            if (check_name_message) {
+                                dashboard.message.error(check_name_message)
                                 return
                             }
                             
-                            if (configs.find(({ name, permission }) => name === copy_dashboard_name && permission === DashboardPermission.own)) {
-                                model.message.error(t('名称重复，请重新输入'))
-                                return
-                            }
                             const copy_dashboard = dashboard.generate_new_config(genid(), copy_dashboard_name, config.data)
                             await dashboard.add_dashboard_config(copy_dashboard)
-                            model.message.success(t('创建副本成功'))
+                            dashboard.message.success(t('创建副本成功'))
                             
                             copy_close()
                     })}
                     title={t('请输入 dashboard 副本名称')}
                 >
-                <Input
-                    value={copy_dashboard_name}
-                    onChange={event => {
-                        set_copy_dashboard_name(event.target.value)
-                    }}
-                />
+                    <Input
+                        value={copy_dashboard_name}
+                        onChange={event => {
+                            set_copy_dashboard_name(event.target.value)
+                        }}
+                    />
                 </Modal>
                 
-                <Tooltip title='新增'>
+                <Tooltip title={t('新增')}>
                     <Button
                         className='action'
                         onClick={() => {
@@ -327,7 +307,7 @@ export function Header () {
                     </Button>
                 </Tooltip>
             
-                <Tooltip title='保存'>
+                <Tooltip title={t('保存')}>
                     <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
                 </Tooltip>
             
@@ -356,23 +336,14 @@ export function Header () {
                             <Button className='action' onClick={() => {
                                 set_copy_dashboard_name(config.name)
                                 copy_open()    
-                            }
-                                
-                            }><CopyOutlined /></Button>
+                            }}>
+                                <CopyOutlined />
+                            </Button>
                         </Tooltip>
                         </>
                 }
             
-                <Tooltip title={t('导入')}>
-                    <Upload
-                        showUploadList={false}
-                        beforeUpload={async file => { load_config(file, 'dark') }}
-                    >
-                        <Button className='action'>
-                            <DownloadOutlined />
-                        </Button>
-                    </Upload>
-                </Tooltip>
+                <Import type='icon'/>
                 {
                     dashboard.config?.permission === DashboardPermission.own 
                         ? <>
@@ -387,12 +358,20 @@ export function Header () {
                                     <EditOutlined />
                                 </Button>
                             </Tooltip>
-                            <Tooltip title={t('分享')}>
+                            {/* <Tooltip title={t('分享')}>
                                 <Share dashboard_ids={[dashboard.config?.id]} trigger_type='icon' />
-                            </Tooltip>
-                            <Tooltip title='删除'>
-                                <Button className='action' onClick={async () => { handle_destroy() }}><DeleteOutlined /></Button>
-                            </Tooltip>
+                            </Tooltip> */}
+                            <Popconfirm
+                                title='删除'
+                                description={t('确定当前 dashboard 删除吗？')}
+                                onConfirm={async () => { handle_destroy() }}
+                                okText={t('确认删除')}
+                                cancelText={t('取消')}
+                            >
+                                <Tooltip title='删除'>
+                                    <Button className='action'><DeleteOutlined /></Button>
+                                </Tooltip>
+                            </Popconfirm>
                         </> 
                         : <Tooltip title='撤销'>
                             <Button className='action' onClick={async () => { handle_destroy(true) }}><RollbackOutlined /></Button>
