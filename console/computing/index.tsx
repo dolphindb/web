@@ -15,6 +15,8 @@ import { type DDB } from 'dolphindb/browser.js'
 import { model, NodeType } from '../model.js'
 import { computing } from './model.js'
 
+import { TableCellDetail } from '../components/TableCellDetail/index.js'
+
 import { t } from '../../i18n/index.js'
 
 import SvgPublish from './icons/publish.icon.svg'
@@ -525,7 +527,8 @@ function handle_ellipsis_col (table: Record<string, any>[], col_name: string) {
     return table.map(row => {
         if (col_name === 'lastErrMsg')
             row.order = row[col_name]
-        row[col_name] = <DetailInfo text={row[col_name] as string} type={col_name} />
+        // row[col_name] = <DetailInfo text={row[col_name] as string} type={col_name} />
+        row[col_name] = <TableCellDetail content={row[col_name] as string} title={detail_title[col_name]} />
         return row
     })
 }
