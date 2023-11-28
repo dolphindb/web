@@ -1,8 +1,8 @@
 import './Header.sass'
 
 import { useState } from 'react'
-import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Upload } from 'antd'
-import { CopyOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, RollbackOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
+import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, } from 'antd'
+import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, RollbackOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -18,9 +18,9 @@ import { VariableConfig } from './Variable/VariableConfig.js'
 import { export_variables } from './Variable/variable.js'
 import cn from 'classnames'
 import { HostSelect } from '../components/HostSelect.js'
-import { Share } from './Share/Share.js'
 import { check_name } from './utils.js'
 import { Import } from './Import/Import.js'
+import { Share } from './Share/Share.js'
 
 
 export function get_widget_config (widget: Widget) {
@@ -151,9 +151,9 @@ export function Header () {
             
             clear_data_sources()
             
-            if (revoke)
-                await dashboard.revoke(config.id)
-            else
+            // if (revoke)
+            //     await dashboard.revoke(config.id)
+            // else
                 await dashboard.delete_dashboard_configs([config.id])
             
             const filtered_configs = configs.filter(({ id }) => id !== config.id)
@@ -188,32 +188,36 @@ export function Header () {
     
     
     return <div className='dashboard-header'>
-        <Select
-            className='switcher'
-            placeholder='选择 dashboard'
-            onChange={async (_, option: DashboardOption) => {
-                const current_dashboard = configs.find(({ id }) => id === option.key)
-                clear_data_sources()
-                // await dashboard.update_config(
-                //     current_dashboard
-                // )
-                dashboard.render_with_config(current_dashboard)
-                if (current_dashboard.permission === DashboardPermission.view)
-                    on_preview()
-                    
-            }}
-            // defaultValue={ config?.name || new_dashboard_name}
-            value={config?.id}
-            bordered={false}
-            options={configs?.map(({ id, name, permission }) => ({
-                key: id,
-                value: id,
-                label: <div className='dashboard-options-label'>
-                    <span className={cn({ 'dashboard-options-label-name': permission })}>{name}</span>
-                    {permission !== DashboardPermission.own && <Tag color='processing' className='status-tag' >{permission === DashboardPermission.edit ? t('仅编辑') : t('仅预览')}</Tag> }
-                </div>
-            }))}
-        />
+        {
+            config?.permission === DashboardPermission.own
+                ? <Select
+                        className='switcher'
+                        placeholder='选择 dashboard'
+                        onChange={async (_, option: DashboardOption) => {
+                            const current_dashboard = configs.find(({ id }) => id === option.key)
+                            clear_data_sources()
+                            // await dashboard.update_config(
+                            //     current_dashboard
+                            // )
+                            dashboard.render_with_config(current_dashboard)
+                            if (current_dashboard.permission === DashboardPermission.view)
+                                on_preview()
+                                
+                        }}
+                        // defaultValue={ config?.name || new_dashboard_name}
+                        value={config?.id}
+                        bordered={false}
+                        options={configs?.map(({ id, name, permission }) => ({
+                            key: id,
+                            value: id,
+                            label: <div className='dashboard-options-label'>
+                                <span className={cn({ 'dashboard-options-label-name': permission })}>{name}</span>
+                                {permission !== DashboardPermission.own && <Tag color='processing' className='status-tag' >{permission === DashboardPermission.edit ? t('仅编辑') : t('仅预览')}</Tag> }
+                            </div>
+                        }))}
+                    />
+                : <div className='dashboard-share-label'>{config?.name}</div>
+        }
         
         <div className='actions'>
             <Tooltip title='返回主界面'>
@@ -358,9 +362,9 @@ export function Header () {
                                     <EditOutlined />
                                 </Button>
                             </Tooltip>
-                            {/* <Tooltip title={t('分享')}>
+                            <Tooltip title={t('分享')}>
                                 <Share dashboard_ids={[dashboard.config?.id]} trigger_type='icon' />
-                            </Tooltip> */}
+                            </Tooltip>
                             <Popconfirm
                                 title='删除'
                                 description={t('确定当前 dashboard 删除吗？')}
@@ -381,18 +385,7 @@ export function Header () {
             
                 {model.dev && <CompileAndRefresh />}
             </>
-            }
-            {/* <Tooltip title='刷新'>
-                <Button className='action' onClick={() => { dashboard.message.error(t('功能还未实现')) }}><SyncOutlined /></Button>
-            </Tooltip>
-            
-            <Tooltip title='暂停流数据接收'>
-                <Button className='action' onClick={() => { dashboard.message.error(t('功能还未实现')) }}><PauseOutlined /></Button>
-            </Tooltip>
-             */}
-            
-           
-           
+            }  
         </div>
         
         {

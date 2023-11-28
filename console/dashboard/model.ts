@@ -89,7 +89,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
         //     await this.get_configs_from_local()
         // }
         await dashboard.execute(async () => {
-            await model.ddb.call<DdbVoid>('dashboard_check_access', [ ])
             await this.get_dashboard_configs()
         })
         if (!this.config) {
@@ -401,10 +400,10 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     /** 获取分享的用户列表 */
-    async get_user_list () {
-        const users = ((await model.ddb.call<DdbObj>('dashboard_get_user_list')).value) as string[]
-        this.set({ users: users })
-    }
+    // async get_user_list () {
+    //     const users = ((await model.ddb.call<DdbObj>('dashboard_get_user_list')).value) as string[]
+    //     this.set({ users: users })
+    // }
     
     
     async add_dashboard_config (config: DashBoardConfig, render: boolean = true) {
@@ -452,9 +451,14 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number) {
-        const data = (await model.ddb.call('dashboard_get_config', [new DdbLong(BigInt(id))])).to_rows()
-        return data.length ? { ...data[0], id: Number(data[0].id), data: JSON.parse(data[0].data) } : null
-    }
+        const data = (await model.ddb.call('dashboard_get_config', [new DdbDict({ id: new DdbLong(BigInt(id)) })])).to_rows()
+        return data.length ? { ...data[0], 
+                                id: Number(data[0].id), 
+                                data: JSON.parse(JSON.parse(typeof data[0].data === 'string' ? 
+                                                                            data[0].data
+                                                                                : 
+                                                                            new TextDecoder().decode(data[0].data) )) } as DashBoardConfig : null
+}
     
     
     /** 从服务器获取 dashboard 配置 */
@@ -469,13 +473,13 @@ export class DashBoardModel extends Model<DashBoardModel> {
         this.set({ configs })
         const dashboard_id = Number(new URLSearchParams(location.search).get('dashboard'))
         if (dashboard_id) {
-            const config = configs.find(({ id }) =>  id === dashboard_id)
+            const config = configs.find(({ id }) =>  id === dashboard_id) || await this.get_dashboard_config(dashboard_id)
             if (config) {
                 this.set({ config })
                 await this.render_with_config(config)
             }
                 
-            else
+            else 
                 this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
         }
     }
@@ -528,18 +532,18 @@ export class DashBoardModel extends Model<DashBoardModel> {
     //     localStorage.setItem(storage_keys.dashboards, JSON.stringify(this.configs))
     // }
     
-    async share (dashboard_ids: number[], viewers: string[], editors: string[]) {
-       await model.ddb.call<DdbVoid>('dashboard_share_configs',
-            [new DdbDict({ 
-                ids: new DdbVectorLong(dashboard_ids), 
-                viewers: new DdbVectorString(viewers), 
-                editors: new DdbVectorString(editors) 
-            })])
-    }
+    // async share (dashboard_ids: number[], viewers: string[], editors: string[]) {
+    //    await model.ddb.call<DdbVoid>('dashboard_share_configs',
+    //         [new DdbDict({ 
+    //             ids: new DdbVectorLong(dashboard_ids), 
+    //             viewers: new DdbVectorString(viewers), 
+    //             editors: new DdbVectorString(editors) 
+    //         })])
+    // }
     
-    async revoke (id: number) {
-        await model.ddb.call<DdbVoid>('dashboard_revoke_permission', [new DdbDict({ id: new DdbLong(BigInt(id)) })])
-    }
+    // async revoke (id: number) {
+    //     await model.ddb.call<DdbVoid>('dashboard_revoke_permission', [new DdbDict({ id: new DdbLong(BigInt(id)) })])
+    // }
 }
 
 
