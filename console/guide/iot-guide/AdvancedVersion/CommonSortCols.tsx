@@ -43,7 +43,7 @@ export function CommonSortCols (props: IProps) {
                         </Form.Item>
                         <Form.Item
                             label='唯一值数量'
-                            name={[field.name, 'uniqueValueNum']}
+                            name={[field.name, 'uniqueNum']}
                             rules={[{ required: true, message: '请填入唯一值数量' }]}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 14 }}

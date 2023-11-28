@@ -99,7 +99,7 @@ export interface IAdvancedCreateDBResp {
         // 列名
         colName: string
         // 唯一值数量
-        uniqueValueNum: number
+        uniqueNum: number
         // 降维桶数
         hashMapNum: number
     }>
