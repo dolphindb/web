@@ -17,7 +17,7 @@ export function CommonFilterCols (props: IProps) {
     
     const filter_col_options = useMemo(() => {
         return schema
-            .filter(item => !['INT', 'DOUBLE', 'LONG', 'SHORT', 'DECIMAL', 'FLOAT', 'DATETIME'].includes(item.colName) && item.colName !== timeCol)
+            .filter(item => !['INT', 'DOUBLE', 'LONG', 'SHORT', 'DECIMAL', 'FLOAT', 'DATETIME'].includes(item.dataType) && item.colName !== timeCol)
             .map(item => ({ label: item.colName, value: item.colName }))
      }, [schema, timeCol])
     

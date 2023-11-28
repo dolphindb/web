@@ -15,7 +15,7 @@ export function SimpleVersion () {
     
     const [info, set_info] = useState<SimpleInfos>()
     const [result, set_result] = useState<ExecuteResult>(ExecuteResult.SUCCESS)
-    
+    const [error_msg, set_error_msg] = useState<string>()   
     
     const back = useCallback(() => { 
         set_current_step(current_step - 1)

@@ -20,12 +20,12 @@ export function FinanceGuide () {
     const [error_msg, set_error_msg] = useState<string>()
     
     const go = useCallback((info: IFinanceInfo & { result: ExecuteResult, error_msg?: string }) => {
-        const { result, ...others } = info
+        const { result, error_msg, ...others } = info
         set_info(prev => ({ ...prev, ...others }))
         set_result(result)
         set_current_step(current_step + 1)
         if (error_msg)
-            set_error_msg(error_msg)
+            set_error_msg(error_msg.toString())
     }, [current_step])
     
     const back = useCallback(() => { 
@@ -52,7 +52,7 @@ export function FinanceGuide () {
         },
         {
             title: '执行结果',
-            children: result === ExecuteResult.SUCCESS
+            children: result === ExecuteResult.FAILED
                 ? <GuideFailResultPage error_msg={error_msg} on_create_again={on_create_again} back={back} />
                 : <GuideSuccessResultPage on_create_again={on_create_again}  back={back}/>
         }

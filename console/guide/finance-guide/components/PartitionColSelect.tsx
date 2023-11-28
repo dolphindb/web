@@ -30,7 +30,7 @@ export function PartitionColSelect (props: IProps) {
     
     const filter_col_options = useCallback((col_types: string[]) => {
         return schema
-            .filter(item => col_types?.includes(item.dataType))
+            .filter(item => col_types?.includes(item?.dataType))
             .map(col => ({
                 label: col.colName,
                 value: col.colName
@@ -47,7 +47,7 @@ export function PartitionColSelect (props: IProps) {
     }, [database])
     
     useEffect(() => { 
-        if (partition_info.length && !table.partitionCols)
+        if (partition_info.length && !table?.partitionCols)
             form.setFieldValue('partitionCols', partition_info.map(item => ({ })) )
     }, [partition_info, database])
     
@@ -72,7 +72,7 @@ export function PartitionColSelect (props: IProps) {
         }
         {
             show_hash_col && <Form.Item tooltip='如股票ID、期货品种这样的枚举类型列，将按该列对数据进行分区' label='标的列' name='hashCol' rules={[{ required: true, message: '请选择标的列' }]}>
-                <Select options={filter_col_options(['SYMBOL', 'STRING'])}/>
+                <Select options={filter_col_options(['SYMBOL', 'STRING'])} placeholder='请选择标的列'/>
             </Form.Item>
         }
     </>

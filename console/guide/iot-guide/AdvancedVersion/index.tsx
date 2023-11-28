@@ -31,7 +31,7 @@ export function AdvancedVersion () {
         set_current_step(current_step + 1)
         set_result(result)
         if (error_msg)
-            set_error_msg(error_msg)
+            set_error_msg(error_msg.toString())
     }, [current_step])
     
             
