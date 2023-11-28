@@ -15,7 +15,8 @@ import { t } from '../../i18n/index.js'
 
 import { dashboard, DashboardPermission } from './model.js'
 import { Share } from './Share/Share.js'
-import { load_config } from './utils.js'
+import { check_name } from './utils.js'
+import { Import } from './Import/Import.js'
 
 
 export function Overview () {
@@ -80,17 +81,9 @@ export function Overview () {
                 onCancel={creator.close}
                 onOk={async () => 
                     model.execute(async () => {
-                        if (!new_dashboard_name.trim()) {
-                            model.message.error(t('dashboard 名称不允许为空'))
-                            return
-                        }
-                        if (new_dashboard_name.includes('/') || new_dashboard_name.includes('\\')) {
-                            model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
-                            return
-                        }
-                        
-                        if (configs.find(({ name, permission }) => name === new_dashboard_name && permission === DashboardPermission.own)) {
-                            model.message.error(t('名称重复，请重新输入'))
+                        const check_name_message = check_name(new_dashboard_name)
+                        if (check_name_message) {
+                            model.message.error(check_name_message)
                             return
                         }
                         
@@ -119,17 +112,9 @@ export function Overview () {
                 onCancel={editor.close}
                 onOk={async () => 
                     model.execute(async () => {
-                        if (!edit_dashboard_name) {
-                            model.message.error(t('dashboard 名称不允许为空'))
-                            return
-                        }
-                        if (edit_dashboard_name.includes('/') || edit_dashboard_name.includes('\\')) {
-                            model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
-                            return
-                        }
-                        
-                        if (configs.find(({ id, name, permission }) => id !== current_dashboard.id && name === edit_dashboard_name && permission === DashboardPermission.own)) {
-                            model.message.error(t('名称重复，请重新输入'))
+                        const check_name_message = check_name(edit_dashboard_name)
+                        if (check_name_message) {
+                            model.message.error(check_name_message)
                             return
                         }
                         
@@ -177,19 +162,12 @@ export function Overview () {
                 onCancel={copyor.close}
                 onOk={async () => 
                     model.execute(async () => {
-                        if (!copy_dashboard_name) {
-                            model.message.error(t('dashboard 名称不允许为空'))
-                            return
-                        }
-                        if (copy_dashboard_name.includes('/') || copy_dashboard_name.includes('\\')) {
-                            model.message.error(t('dashboard 名称中不允许包含 "/" 或 "\\" '))
+                        const check_name_message = check_name(copy_dashboard_name)
+                        if (check_name_message) {
+                            model.message.error(check_name_message)
                             return
                         }
                         
-                        if (configs.find(({ name, permission }) => name === copy_dashboard_name && permission === DashboardPermission.own)) {
-                            model.message.error(t('名称重复，请重新输入'))
-                            return
-                        }
                         const copy_dashboard = dashboard.generate_new_config(genid(), copy_dashboard_name, current_dashboard.data)
                         await dashboard.add_dashboard_config(copy_dashboard)
                         model.message.success(t('创建副本成功'))
@@ -218,20 +196,20 @@ export function Overview () {
                         title: t('名称'),
                         dataIndex: 'name',
                         key: 'name',
-                        filters: [
-                            {
-                                text: t('拥有'),
-                                value: DashboardPermission.own
-                            },
-                            {
-                                text: t('仅编辑'),
-                                value: DashboardPermission.edit
-                            },
-                            {
-                                text: t('仅预览'),
-                                value: DashboardPermission.view
-                            }
-                        ],
+                        // filters: [
+                        //     {
+                        //         text: t('拥有'),
+                        //         value: DashboardPermission.own
+                        //     },
+                        //     {
+                        //         text: t('仅编辑'),
+                        //         value: DashboardPermission.edit
+                        //     },
+                        //     {
+                        //         text: t('仅预览'),
+                        //         value: DashboardPermission.view
+                        //     }
+                        // ],
                         onFilter: (value, { permission }) => permission === value,
                         render: (text, { key, name, permission, owner }) => <a
                                 onClick={() => {
@@ -308,7 +286,7 @@ export function Overview () {
                                         >
                                             {t('修改名称')}
                                         </a>
-                                        <Share dashboard_ids={[key]} trigger_type='text'/>
+                                        {/* <Share dashboard_ids={[key]} trigger_type='text'/> */}
                                         <Popconfirm
                                             title='删除'
                                             description={`确定删除 ${configs.find(({ id }) => id === key).name} 吗？`}
@@ -382,13 +360,7 @@ export function Overview () {
                                 {t('新建')}
                             </Button>
                             
-                            <Upload
-                                multiple
-                                showUploadList={false}
-                                beforeUpload={async file => { load_config(file, 'light') }}
-                            >
-                                <Button icon={<DownloadOutlined />}>{t('批量导入')}</Button>
-                            </Upload>
+                            <Import type='button'/>
                             
                             <Button
                                 icon={<UploadOutlined />}
@@ -425,10 +397,10 @@ export function Overview () {
                                 {t('批量导出')}
                             </Button>
                             
-                            <Share
+                            {/* <Share
                                 dashboard_ids={selected_dashboard_ids}
                                 trigger_type='button'
-                             />
+                             /> */}
                         
                             <Button
                                 danger
