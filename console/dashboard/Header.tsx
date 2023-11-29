@@ -170,7 +170,7 @@ export function Header () {
     
     function return_to_overview () {
         clear_data_sources()
-        dashboard.set({ config: null })
+        dashboard.set({ config: null, save_confirm: false })
         model.set_query('dashboard', null)
         model.set({ sider: true, header: true })
     }
@@ -183,6 +183,7 @@ export function Header () {
     
     function on_edit () { 
         dashboard.set_editing(true)
+        dashboard.set({ save_confirm: true })
         model.set_query('preview', null)
     }
     
@@ -227,7 +228,7 @@ export function Header () {
                     // if (JSON.stringify(latest_config) === JSON.stringify(server_config)) 
                     //     return_to_overview()
                     // else
-                    if (config.permission === DashboardPermission.view)
+                    if (config.permission === DashboardPermission.view || !dashboard.save_confirm)
                         return_to_overview()
                     else
                         save_open()

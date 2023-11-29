@@ -161,10 +161,11 @@ function DashboardInstance () {
     
     useEffect(() => {
         const params = new URLSearchParams(location.search)
-        if (config?.permission === DashboardPermission.view && !params.has('preview', '1')) {
-            params.append('preview', '1')
-            location.search = params.toString()
-        }
+        if (!params.has('preview', '1')) {
+            if (config?.permission === DashboardPermission.view) 
+                model.set_query('preview', '1')
+            dashboard.set({ save_confirm: true })
+        }    
     }, [config])
     
     
