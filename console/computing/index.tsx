@@ -228,8 +228,8 @@ export function Computing () {
                     <div className='persistent-table-stat'>
                         <StateTable
                             type='sharedStreamingTableStat'
-                            cols={render_col_title(translate_format_col(shared_table_stat.to_cols(), 'bytes'), 'sharedStreamingTableStat')}
-                            rows={translate_byte_row(add_key(shared_table_stat.to_rows()), 'bytes')}
+                            cols={render_col_title(translate_format_col(shared_table_stat.to_cols(), 'memoryUsed'), 'sharedStreamingTableStat')}
+                            rows={translate_byte_row(add_key(shared_table_stat.to_rows()), 'memoryUsed')}
                             refresher={computing.get_streaming_table_stat}
                         />
                         <StateTable
@@ -311,7 +311,7 @@ const cols_width = {
         raftGroup: 70,
         compress: 70,
         sizeOnDisk: 100,
-        retentionMinutes: 100,
+        retentionMinutes: 120,
         memoryOffset: 100,
         hashValue: 90,
         diskOffset: 100
@@ -400,7 +400,7 @@ const leading_cols = {
         sizeOnDisk: t('磁盘中行数'),
         diskOffset: t('磁盘中偏移量'),
         asynWrite: t('是否异步持久化'),
-        retentionMinutes: t('保留时间'),
+        retentionMinutes: t('保留时间（分钟）'),
         compress: t('是否压缩'),
         persistenceDir: t('持久化路径'),
         hashValue: t('持久化线程'),
@@ -417,7 +417,7 @@ const leading_cols = {
         TableName: t('表名'),
         rows: t('行数'),
         columns: t('列数'),
-        bytes: t('字节数')
+        memoryUsed: t('内存大小')
     },
     engine: {
         name: t('引擎名'),
@@ -723,35 +723,6 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
     await refresher.call(computing)
 }
 
-function DetailInfo ({ text, type }: { text: string, type: string }) {
-    if (!text)
-        return
-    function detail () {
-        model.modal.info({
-            title: detail_title[type],
-            content: text,
-            width: '80%'
-        })
-    }
-    return <Typography.Paragraph
-                ellipsis={{
-                    rows: 2,
-                    expandable: true,
-                    symbol: (
-                        <span
-                            onClick={event => {
-                                event.stopPropagation()
-                                detail()
-                            }}
-                        >
-                            {t('详细')}
-                        </span>
-                    )
-                }}
-        >
-            {text}
-        </Typography.Paragraph>
-}
 
 function DeleteModal ({
     table_name,
