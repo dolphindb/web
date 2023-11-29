@@ -4,7 +4,6 @@ import { Form, Input, InputNumber, Radio, Select, type SelectProps } from 'antd'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { SchemaList } from './SchemaList.js'
 import { GuideType } from '../iot-guide/type.js'
-import { throttle } from 'lodash'
 import { request } from '../utils.js'
 
 const CUSTOM_VALUE = -1
@@ -38,11 +37,13 @@ export function BasicInfoFields (props: IProps) {
             rules={[
                 { required: true, message: '请输入库名' },
                 {
-                    validator: throttle(async (_, val) => { 
+                    validator: async (_, val) => { 
                         const res = await request<{ isExist: 0 | 1 }>('DBMSIOT_checkDatabase', { dbName: val })
                         if (res.isExist)  
-                            return Promise.reject(new Error('已有同名库，请修改库名')) 
-                    }, 300)
+                            return Promise.reject('已有同名库，请修改')
+                        else
+                            return Promise.resolve()
+                    }
                 }
             ]}>
             <Input addonBefore='dfs://' placeholder='请输入库名'/>
