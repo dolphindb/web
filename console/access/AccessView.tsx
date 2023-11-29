@@ -369,7 +369,7 @@ function AccessManage ({
                                                                                         :
                                                             (await access.get_group_access([current.name]))[0] }) 
                                         })
-                                    }>{t('Revoke')}</Button>
+                                    }>Revoke</Button>
                 })
                 else if (aces_types.map(aces => aces + '_allowed').includes(k) || aces_types.map(aces =>  aces + '_denied').includes(k)) {
                     let objs = v.split(',')
@@ -395,7 +395,7 @@ function AccessManage ({
                                                                                     :
                                                         (await access.get_group_access([current.name]))[0] }) 
                                     })
-                                }>{t('Revoke')}</Button>
+                                }>Revoke</Button>
                     })
                 }
         return tb_rows
