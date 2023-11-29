@@ -2420,7 +2420,787 @@
     "命名不可为空": {
         "en": "Name cannot be empty"
     },
-    "保留时间（分钟）": {
-        "en": "Retention time (minute)"
+    "分布式数据库": {
+        "en": "distributed database"
+    },
+    "共享内存表": {
+        "en": "shared memory table"
+    },
+    "函数视图": {
+        "en": "function view"
+    },
+    "脚本权限": {
+        "en": "script permissions"
+    },
+    "dfs 表名": {
+        "en": "dfs table name"
+    },
+    "revoke 成功": {
+        "en": "revoke successful"
+    },
+    "权限赋予成功": {
+        "en": "Permission granted successfully"
+    },
+    "新增权限": {
+        "en": "add permissions"
+    },
+    "请选择{{category}}": {
+        "en": "Please choose {{category}}"
+    },
+    "请选择 dfs 数据库/表": {
+        "en": "Please select DFS database/table"
+    },
+    "请选择权限": {
+        "en": "Please select permissions"
+    },
+    "请选择权限类型": {
+        "en": "Please select permission type"
+    },
+    "增加": {
+        "en": "add"
+    },
+    "当前查看{{role}}:": {
+        "en": "currently viewing {{role}}"
+    },
+    "组": {
+        "en": "group"
+    },
+    "返回{{role}}列表": {
+        "en": "return {{role}} list"
+    },
+    "权限管理": {
+        "en": "permission management"
+    },
+    "权限查看": {
+        "en": "permission view"
+    },
+    "请输入想要搜索的{{category}}": {
+        "en": "Please enter the {{category}} you want to search for"
+    },
+    "组名": {
+        "en": "group name"
+    },
+    "组内用户": {
+        "en": "group members"
+    },
+    "成员管理": {
+        "en": "member management"
+    },
+    "查看权限": {
+        "en": "view permissions"
+    },
+    "删除组": {
+        "en": "delete group"
+    },
+    "确认删除组 {{group}} 吗": {
+        "en": "Are you sure to delete group {{group}}"
+    },
+    "组删除成功": {
+        "en": "Group deletion successful"
+    },
+    "新建组": {
+        "en": "create new group"
+    },
+    "组创建成功": {
+        "en": "Group creation successful"
+    },
+    "成员": {
+        "en": "members"
+    },
+    "个": {
+        "en": "individual"
+    },
+    "请输入想查找的用户": {
+        "en": "Please enter the user you want to search for"
+    },
+    "组 {{group}} 成员管理": {
+        "en": "group {{group}} Member Management"
+    },
+    "成员修改成功": {
+        "en": "Member modification successful"
+    },
+    "确认删除选中的 {{num}} 个组吗？": {
+        "en": "Are you sure to delete the {{num}} selected groups?"
+    },
+    "请输入想要搜索的组": {
+        "en": "Please enter the group you want to search for"
+    },
+    "是否管理员": {
+        "en": "is administrator"
+    },
+    "管理员": {
+        "en": "administrator"
+    },
+    "非管理员": {
+        "en": "non-administrator"
+    },
+    "请选择想要添加的组": {
+        "en": "Please select the group you want to add"
+    },
+    "重置密码": {
+        "en": "reset password"
+    },
+    "删除用户": {
+        "en": "delete user"
+    },
+    "确认删除用户 {{user}} 吗": {
+        "en": "Are you sure to delete user {{user}}?"
+    },
+    "用户删除成功": {
+        "en": "User deletion successful"
+    },
+    "新建用户": {
+        "en": "create new user"
+    },
+    "用户创建成功": {
+        "en": "User creation successful"
+    },
+    "密码": {
+        "en": "password"
+    },
+    "确认密码": {
+        "en": "confirm password"
+    },
+    "确认删除选中的 {{num}} 个用户吗？": {
+        "en": "Are you sure to delete the selected {{num}} users?"
+    },
+    "密码修改成功": {
+        "en": "Password reset complete"
+    },
+    "重置用户 {{user}} 密码": {
+        "en": "reset user {{user}} password"
+    },
+    "新密码": {
+        "en": "new password"
+    },
+    "请输入想要搜索的用户": {
+        "en": "Please enter the user you want to search for"
+    },
+    "用户管理": {
+        "en": "user management"
+    },
+    "组管理": {
+        "en": "group management"
+    },
+    "数据面板": {
+        "en": "dashboard"
+    },
+    "加载到内存": {
+        "en": "load into memory"
+    },
+    "内存大小": {
+        "en": "memory size"
+    },
+    "类目轴，适用于离散的类目数据，或者时序数据": {
+        "en": "Category axis, suitable for discrete category data or time series data"
+    },
+    "字号": {
+        "en": "font size"
+    },
+    "强制包含零刻度": {
+        "en": "force include zero scale"
+    },
+    "底数": {
+        "en": "base"
+    },
+    "时间格式化": {
+        "en": "time formatting"
+    },
+    "数据列 1": {
+        "en": "data column 1"
+    },
+    "热力值列": {
+        "en": "heatmap value column"
+    },
+    "颜色": {
+        "en": "color"
+    },
+    "标记点": {
+        "en": "marker points"
+    },
+    "水平线": {
+        "en": "horizontal line"
+    },
+    "阈值": {
+        "en": "threshold"
+    },
+    "低于阈值配色": {
+        "en": "color below threshold"
+    },
+    "高于阈值配色": {
+        "en": "color above threshold"
+    },
+    "线类型": {
+        "en": "line type"
+    },
+    "展示端标签": {
+        "en": "display end labels"
+    },
+    "散点大小": {
+        "en": "scatter plot size"
+    },
+    "散点标记": {
+        "en": "scatter plot marker"
+    },
+    "阴暗色": {
+        "en": "dark color"
+    },
+    "明亮色": {
+        "en": "bright color"
+    },
+    "最小值": {
+        "en": "minimum value"
+    },
+    "最大值": {
+        "en": "maximum value"
+    },
+    "展示标签": {
+        "en": "display labels"
+    },
+    "Y 轴相对于左右默认位置的偏移": {
+        "en": "Y-axis offset relative to default left/right position"
+    },
+    "Y 轴": {
+        "en": "Y-axis"
+    },
+    "X 轴属性": {
+        "en": "X-axis properties"
+    },
+    "Y 轴属性": {
+        "en": "Y-axis properties"
+    },
+    "每行变量数": {
+        "en": "number of variables per row"
+    },
+    "查询按钮": {
+        "en": "query button"
+    },
+    "不展示查询按钮的情况，表单更新即会进行查询，在变量设置较多的情况下，建议使用查询按钮，点击之后再运行数据源代码": {
+        "en": "In cases where the query button is not displayed, the form will be queried upon update. In situations with a large number of variable settings, it is recommended to use the query button and click it before running the data source code."
+    },
+    "上内边距": {
+        "en": "top padding"
+    },
+    "下内边距": {
+        "en": "bottom padding"
+    },
+    "左内边距": {
+        "en": "left padding"
+    },
+    "右内边距": {
+        "en": "right padding"
+    },
+    "标题字号": {
+        "en": "title font size"
+    },
+    "提示框": {
+        "en": "tooltip"
+    },
+    "展示网格线": {
+        "en": "display grid lines"
+    },
+    "展示边框": {
+        "en": "display border"
+    },
+    "展示列选择": {
+        "en": "display column selection"
+    },
+    "倒序展示": {
+        "en": "display in reverse order"
+    },
+    "流数据开启此功能可将最新的数据插入到表格头部": {
+        "en": "Enable this function for streaming data to insert the latest data at the top of the table"
+    },
+    "启用此选项之后，会在表格内层滚动": {
+        "en": "After enabling this option, the table will have inner scrolling"
+    },
+    "禁止滚动": {
+        "en": "Disable scrolling"
+    },
+    "变量设置": {
+        "en": "variable settings"
+    },
+    "是否展示": {
+        "en": "whether to display"
+    },
+    "列宽": {
+        "en": "column width"
+    },
+    "数值列可设置阈值，设置之后后超过阈值的数值展示为红色，低于阈值则展示为绿色，非数值列不生效": {
+        "en": "Numeric columns can have thresholds set. After setting, values exceeding the threshold will be displayed in red, while values below the threshold will be displayed in green. This does not apply to non-numeric columns."
+    },
+    "字体颜色": {
+        "en": "font color"
+    },
+    "背景颜色": {
+        "en": "background color"
+    },
+    "是否千分位": {
+        "en": "whether to display thousands separator"
+    },
+    "对齐方式": {
+        "en": "alignment"
+    },
+    "数据轴": {
+        "en": "data axis"
+    },
+    "类目轴": {
+        "en": "category axis"
+    },
+    "对数": {
+        "en": "logarithmic"
+    },
+    "右侧": {
+        "en": "right side"
+    },
+    "平均值": {
+        "en": "average value"
+    },
+    "实线": {
+        "en": "solid line"
+    },
+    "虚线": {
+        "en": "dashed line"
+    },
+    "点线": {
+        "en": "dotted line"
+    },
+    "运行按钮文字": {
+        "en": "text for the run button"
+    },
+    "按钮文字": {
+        "en": "button text"
+    },
+    "时间轴": {
+        "en": "time axis"
+    },
+    "数值轴，适用于连续数据\n类目轴，适用于离散的类目数据或者时序数据\n对数轴，适用于对数数据": {
+        "en": "Numeric axis, suitable for continuous data\ncategory axis, suitable for discrete category data or time series data\nlogarithmic axis, suitable for logarithmic data"
+    },
+    "交易量": {
+        "en": "trading volume"
+    },
+    "k 线颜色（涨）": {
+        "en": "k-line color (up)"
+    },
+    "k 线颜色（跌）": {
+        "en": "k-line color (down)"
+    },
+    "线条颜色": {
+        "en": "line color"
+    },
+    "k 线": {
+        "en": "k-line"
+    },
+    "Y 轴分割线": {
+        "en": "Y-axis gridline"
+    },
+    "柱状图颜色": {
+        "en": "bar chart color"
+    },
+    "曲线颜色": {
+        "en": "curve color"
+    },
+    "倍率": {
+        "en": "multiplier"
+    },
+    "行情数据档数": {
+        "en": "quotation data level"
+    },
+    "订单图": {
+        "en": "order chart"
+    },
+    "数据环": {
+        "en": "data loop"
+    },
+    "增加环": {
+        "en": "add loop"
+    },
+    "标签列": {
+        "en": "label column"
+    },
+    "正在加载 ReactQuill": {
+        "en": "loading ReactQuill"
+    },
+    "添加文本": {
+        "en": "add text"
+    },
+    "不保存": {
+        "en": "don't save"
+    },
+    "此数据源存在未保存的更改。你想保存吗？": {
+        "en": "There are unsaved changes in this data source. do you want to save?"
+    },
+    "点击填充数据源": {
+        "en": "click to populate data source"
+    },
+    "配置数据源": {
+        "en": "configure data source"
+    },
+    "应用": {
+        "en": "apply"
+    },
+    "关闭": {
+        "en": "close"
+    },
+    "DolphinDB 脚本 / SQL": {
+        "en": "DolphinDB script / SQL"
+    },
+    "流数据": {
+        "en": "streaming data"
+    },
+    "重命名": {
+        "en": "rename"
+    },
+    "保存成功": {
+        "en": "save successful"
+    },
+    "当前数据源已被图表绑定无法删除": {
+        "en": "current data source is bound to a chart and cannot be deleted"
+    },
+    "该数据源名已存在": {
+        "en": "this data source name already exists"
+    },
+    "数据源名长度不能大于10": {
+        "en": "data source name cannot be longer than 10 characters"
+    },
+    "数据源名不能为空": {
+        "en": "data source name cannot be empty"
+    },
+    "当前数据源存在错误": {
+        "en": "current data source has errors"
+    },
+    "轮询启动失败": {
+        "en": "polling failed to start"
+    },
+    "无法订阅到流数据表": {
+        "en": "unable to subscribe to streaming data table"
+    },
+    "复制失败": {
+        "en": "copy failed"
+    },
+    "插入变量": {
+        "en": "insert variable"
+    },
+    "数据预览": {
+        "en": "data preview"
+    },
+    "自动刷新": {
+        "en": "auto refresh"
+    },
+    "间隔时间": {
+        "en": "interval time"
+    },
+    "最大行数": {
+        "en": "maximum row count"
+    },
+    "若该值为空则表示不对最大行数进行限制": {
+        "en": "If this value is empty, it means no maximum row count restriction"
+    },
+    "自定义": {
+        "en": "custom"
+    },
+    "列名预览（共{{length}}列）：": {
+        "en": "column name preview ({{length}} columns):"
+    },
+    "列过滤": {
+        "en": "column filter"
+    },
+    "值过滤、范围过滤、哈希过滤": {
+        "en": "value filter, range filter, hash filter"
+    },
+    "当前过滤列为:": {
+        "en": "current filter column is:"
+    },
+    "当前流表无过滤列": {
+        "en": "current streaming table has no filter columns"
+    },
+    "表达式过滤": {
+        "en": "expression filter"
+    },
+    "无可用流表": {
+        "en": "no available streaming table"
+    },
+    "过滤": {
+        "en": "filter"
+    },
+    "数据面板保存成功": {
+        "en": "dashboard saved successfully"
+    },
+    "修改成功": {
+        "en": "modification successful"
+    },
+    "当前数据面板列表为空": {
+        "en": "current dashboard list is empty"
+    },
+    "撤销成功": {
+        "en": "undo successful"
+    },
+    "删除成功": {
+        "en": "deletion successful"
+    },
+    "选择 dashboard": {
+        "en": "select dashboard"
+    },
+    "仅编辑": {
+        "en": "edit only"
+    },
+    "仅预览": {
+        "en": "preview only"
+    },
+    "返回主界面": {
+        "en": "return to main interface"
+    },
+    "离开此界面您当前更改会丢失，是否需要保存当前更改": {
+        "en": "Leaving this interface will result in the loss of your current changes. do you want to save the changes?"
+    },
+    "请输入数据面板的名称": {
+        "en": "Please enter the name of the dashboard"
+    },
+    "请输入新的数据面板名称": {
+        "en": "Please enter a new name for the dashboard"
+    },
+    "创建副本成功": {
+        "en": "copy created successfully"
+    },
+    "请输入 dashboard 副本名称": {
+        "en": "Please enter the name of the dashboard copy"
+    },
+    "新增": {
+        "en": "add"
+    },
+    "导出": {
+        "en": "export"
+    },
+    "创建副本": {
+        "en": "create copy"
+    },
+    "修改名称": {
+        "en": "modify name"
+    },
+    "分享": {
+        "en": "share"
+    },
+    "确定当前 dashboard 删除吗？": {
+        "en": "Are you sure you want to delete the current dashboard?"
+    },
+    "确认删除": {
+        "en": "confirm deletion"
+    },
+    "撤销": {
+        "en": "undo"
+    },
+    "编辑": {
+        "en": "edit"
+    },
+    "批量导入": {
+        "en": "batch import"
+    },
+    "导入": {
+        "en": "import"
+    },
+    "你确定要导入这 {{length}} 个 dashboard 吗？": {
+        "en": "Are you sure you want to import these {{length}} dashboards?"
+    },
+    "已存在": {
+        "en": "already exists"
+    },
+    "导入成功！": {
+        "en": "Import successful!"
+    },
+    "覆盖": {
+        "en": "overwrite"
+    },
+    "重命名后导入": {
+        "en": "import after renaming"
+    },
+    "控制节点不支持数据面板，请跳转到数据节点或计算节点查看。": {
+        "en": "Control nodes do not support dashboards. Please navigate to data nodes or compute nodes to view."
+    },
+    "数据面板功能未初始化，可点击下方按钮初始化数据面板功能。": {
+        "en": "Dashboard functionality is not initialized. Click the button below to initialize dashboard functionality."
+    },
+    "初始化操作将新增以下数据库表：": {
+        "en": "The initialization operation will add the following database tables:"
+    },
+    "以及 7 个以 dashboard_ 开头的函数视图（FunctionView）。": {
+        "en": "and 7 function views starting with dashboard_."
+    },
+    "你确定要初始化数据面板功能吗？": {
+        "en": "Are you sure you want to initialize dashboard functionality?"
+    },
+    "初始化": {
+        "en": "Initialize"
+    },
+    "数据面板功能未初始化，请联系管理员初始化数据面板功能。": {
+        "en": "Datshboard functionality is not initialized. Please contact the administrator to initialize dashboard functionality."
+    },
+    "dashboard 配置加载成功": {
+        "en": "Dashboard configuration loaded successfully"
+    },
+    "当前 url 所指向的 dashboard 不存在": {
+        "en": "The dashboard pointed to by the current URL does not exist"
+    },
+    "请输入新数据面板的名称": {
+        "en": "Please enter a new name for the dashboard"
+    },
+    "请输入新的 dashboard 名称": {
+        "en": "Please enter a new name for the dashboard"
+    },
+    "您没有删除 {{name}} 的权限": {
+        "en": "you do not have permission to delete {{name}}"
+    },
+    "确认删除选中的 {{length}} 个数据面板吗？": {
+        "en": "Are you sure to delete the {{length}} selected dashboard"
+    },
+    "拥有": {
+        "en": "own"
+    },
+    "来源于 ": {
+        "en": "source from"
+    },
+    "确定删除 {{name}} 吗？": {
+        "en": "Are you sure you want to delete {{name}}?"
+    },
+    "当前 dashboard 列表为空": {
+        "en": "the current dashboard list is empty"
+    },
+    "确认撤销": {
+        "en": "confirm Undo"
+    },
+    "请选择至少一个面板进行导出": {
+        "en": "please select at least one panel to export"
+    },
+    "您没有导出 {{name}} 的权限": {
+        "en": "you do not have permission to export {{name}}"
+    },
+    "批量导出": {
+        "en": "batch export"
+    },
+    "请至少选中一个数据面板后再删除": {
+        "en": "please select at least one dashboard before deleting"
+    },
+    "基础": {
+        "en": "basic"
+    },
+    "画布样式": {
+        "en": "canvas style"
+    },
+    "确定要重置配置吗？": {
+        "en": "Are you sure you want to reset the configuration?"
+    },
+    "重置配置": {
+        "en": "reset configuration"
+    },
+    "配置表单与数据源结构相关，如修改数据源结构，建议重置表单以适应最新结构": {
+        "en": "The configuration form is related to the data source structure. If you modify the data source structure, it is recommended to reset the form to adapt to the latest structure"
+    },
+    "请至少选中一个数据面板后再分享": {
+        "en": "please select at least one dashboard before sharing"
+    },
+    "批量分享": {
+        "en": "batch share"
+    },
+    "请选择需要分享的用户": {
+        "en": "please select the users to share with"
+    },
+    "全部编辑": {
+        "en": "edit all"
+    },
+    "全部仅预览": {
+        "en": "preview only"
+    },
+    "全部无": {
+        "en": "none"
+    },
+    "请选择想要分享的 dashboard": {
+        "en": "please select the dashboard to share"
+    },
+    "您没有分享 {{name}} 的权限": {
+        "en": "You don't have permission to share {{name}}"
+    },
+    "分享成功": {
+        "en": "share successful"
+    },
+    "权限": {
+        "en": "permissions"
+    },
+    "无": {
+        "en": "none"
+    },
+    "dashboard 名称不允许为空": {
+        "en": "dashboard name cannot be empty"
+    },
+    "dashboard 名称中不允许包含 \"/\" 或 \"\\\" ": {
+        "en": "dashboard names are not allowed to contain \"/\" or \"\\\""
+    },
+    "名称重复，请重新输入": {
+        "en": "duplicate name, please enter a different name"
+    },
+    "标签": {
+        "en": "label"
+    },
+    "值": {
+        "en": "value"
+    },
+    "你确定要删除改选项吗？": {
+        "en": "Are you sure you want to delete this option?"
+    },
+    "可选项：": {
+        "en": "options:"
+    },
+    "变量": {
+        "en": "variable"
+    },
+    "不存在": {
+        "en": "does not exist"
+    },
+    "当前变量已被数据源使用无法删除": {
+        "en": "the current variable is being used by a data source and cannot be deleted"
+    },
+    "该变量名已存在": {
+        "en": "variable name already exists"
+    },
+    "变量名长度不能大于10": {
+        "en": "variable name cannot be longer than 10 characters"
+    },
+    "变量名不能为空": {
+        "en": "variable name cannot be empty"
+    },
+    "此变量已被数据源引用无法修改名称": {
+        "en": "this variable is referenced by a data source and cannot have its name modified"
+    },
+    "变量冲突，复制失败": {
+        "en": "variable conflict, copy failed"
+    },
+    "此变量存在未保存的更改。你想保存吗？": {
+        "en": "There are unsaved changes to this variable. Do you want to save them?"
+    },
+    "配置变量": {
+        "en": "configure variable"
+    },
+    "显示名称：": {
+        "en": "display name:"
+    },
+    "变量类型：": {
+        "en": "variable type:"
+    },
+    "单选": {
+        "en": "single select"
+    },
+    "多选": {
+        "en": "multi-select"
+    },
+    "自由文本": {
+        "en": "free text"
+    },
+    "日期": {
+        "en": "date"
+    },
+    "变量值：": {
+        "en": "variable value:"
+    },
+    "使用默认 admin 账号密码登录失败": {
+        "en": "failed to log in using the default admin account password"
     }
 }
