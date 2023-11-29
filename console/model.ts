@@ -360,7 +360,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async is_admin () {
-        this.set({ is_admin: (await this.ddb.call<DdbObj<DdbObj[]>>('getUserAccess', [ ], { urgent: true })).to_rows()[0].isAdmin })
+        this.set({ admin: (await this.ddb.call<DdbObj<DdbObj[]>>('getUserAccess', [ ], { urgent: true })).to_rows()[0].isAdmin })
     }
     
     
