@@ -25,7 +25,7 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
                 data: { ...config.data, canvas: { widgets: config.data.canvas.widgets.toSpliced(index, 1, new_widget) } }
             }
             await dashboard.update_dashboard_config(new_config, false)
-        })
+        }, { json_error: true })
     }
     
     const save_debounced = useMemo(() => debounce(save, 1000, { leading: false, trailing: true }), [ ])
@@ -49,7 +49,7 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
                     const { type, result } = await dashboard.execute_code(code)
                     if (type === 'error')
                         throw new Error(result as string)
-                })
+                }, { json_error: true })
             }
         >
             {(widget?.config as IEditorConfig)?.button_text || 'run'}

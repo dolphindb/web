@@ -12,9 +12,7 @@ import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.j
 import { subscribe_data_source, type DataSource } from './DataSource/date-source.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
-import { error_message } from './error-message.js'
 import { t } from '../../i18n/index.js'
-import { model } from '../model.js'
 
 
 export function format_time (time: string, format: string) { 
@@ -509,23 +507,6 @@ export async function paste_widget (event) {
         dashboard.message.error(error.message)
     }
 }
-
-
-export function parse_error (error: Error) {
-    const DDB_ERROR_JSON_PATTERN = /^{.*"code": "(.*)".*}$/
-    const lastArrowIndex = error.message.lastIndexOf('=>')
-    const errorMsgStartIndex = lastArrowIndex === -1 ? 0 : lastArrowIndex + 3
-    const textErrorMsg = error.message.slice(errorMsgStartIndex)
-  
-    const jsonErrorMsg = DDB_ERROR_JSON_PATTERN.exec(textErrorMsg)
-  
-    if (!jsonErrorMsg)
-        return error
-    
-    const jsonError = JSON.parse(jsonErrorMsg[0])
-    return new Error(t(error_message[jsonError.code], { variables: jsonError.variables }))
-}
-
 
 
 export function check_name (new_name: string) {

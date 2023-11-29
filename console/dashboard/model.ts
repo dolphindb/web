@@ -4,7 +4,7 @@ import { Model } from 'react-object-model'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbVectorString, DdbLong, DdbDict, DdbInt } from 'dolphindb/browser.js'
+import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbLong, DdbDict, DdbInt } from 'dolphindb/browser.js'
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
@@ -21,6 +21,7 @@ import { type Monaco } from '../shell/Editor/index.js'
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources, subscribe_data_source } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
+import { parse_error } from '../utils/ddb-error.js'
 
 
 export class DashBoardModel extends Model<DashBoardModel> {
@@ -90,7 +91,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         // }
         await dashboard.execute(async () => {
             await this.get_dashboard_configs()
-        })
+        }, { json_error: true })
         if (!this.config) {
             const id = genid()
             const new_dashboard_config = {
@@ -187,11 +188,17 @@ export class DashBoardModel extends Model<DashBoardModel> {
         - options?:
             - throw?: `true` 默认会继续向上抛出错误，如果不需要向上继续抛出
             - print?: `!throw` 在控制台中打印错误
+            - json_error?: `true` 会解析 server 返回的错误
         @example await model.execute(async () => model.xxx()) */
-    async execute (action: Function, { throw: _throw = true, print }: { throw?: boolean, print?: boolean } = { }) {
+    async execute (
+        action: Function, 
+        { throw: _throw = true, print, json_error = false }: { throw?: boolean, print?: boolean, json_error?: boolean } = { }) 
+    {
         try {
             await action()
         } catch (error) {
+            error = json_error ? parse_error(error) : error
+            
             if (print ?? !_throw)
                 console.error(error)
             
@@ -611,7 +618,6 @@ export enum WidgetType {
     BAR = '柱状图',
     LINE = '折线图',
     PIE = '饼图',
-    // POINT = '散点图',
     TABLE = '表格',
     OHLC = 'K 线',
     MIX = '混合图',
@@ -619,7 +625,6 @@ export enum WidgetType {
     ORDER = '订单图',
     // NEEDLE = '数值针型图',
     // STRIP = '带图',
-    // HEAT = '热力图',
     TEXT = '富文本',
     DESCRIPTIONS = '描述表',
     EDITOR = '编辑器',
@@ -635,14 +640,12 @@ export enum WidgetChartType {
     LINE = 'LINE',
     MIX = 'MIX',
     PIE = 'PIE',
-    // POINT = 'POINT',
     TABLE = 'TABLE',
     OHLC = 'OHLC',
     // CANDLE = 'CANDLE',
     ORDER = 'ORDER',
     // NEEDLE = 'NEEDLE',
     // STRIP = 'STRIP',
-    // HEAT = 'HEAT'
     TEXT = 'TEXT',
     DESCRIPTIONS = 'DESCRIPTIONS',
     EDITOR = 'EDITOR',

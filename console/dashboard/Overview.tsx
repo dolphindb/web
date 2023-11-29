@@ -42,7 +42,7 @@ export function Overview () {
                 return
             }
             await dashboard.get_dashboard_configs()
-        })
+        }, { json_error: true })
     }, [ ])
     
     
@@ -71,7 +71,7 @@ export function Overview () {
             document.body.appendChild(a)
             a.click()
             document.body.removeChild(a)
-        })
+        }, { json_error: true })
     }
     
     
@@ -95,7 +95,7 @@ export function Overview () {
                         model.set_query('dashboard', String(new_dashboard.id))
                         model.set({ header: false, sider: false })
                         creator.close()
-                    })
+                    }, { json_error: true })
                 }
                 title={t('请输入新数据面板的名称')}
             >
@@ -122,7 +122,7 @@ export function Overview () {
                         model.message.success(t('修改成功'))
                         
                         editor.close()
-                })}
+                }, { json_error: true })}
                 title={t('请输入新的 dashboard 名称')}
             >
                 <Input
@@ -154,7 +154,7 @@ export function Overview () {
                         }
                     }
                 }
-                title={t(`确认删除选中的 ${selected_dashboard_ids.length} 个数据面板吗？`)}
+                title={t('确认删除选中的 {{length}} 个数据面板吗？', { length: selected_dashboard_ids.length })}
              />
             
             <Modal
@@ -173,7 +173,7 @@ export function Overview () {
                         model.message.success(t('创建副本成功'))
                         
                         copyor.close()
-                })}
+                }, { json_error: true })}
                 title={t('请输入 dashboard 副本名称')}
             >
                 <Input
@@ -288,8 +288,8 @@ export function Overview () {
                                         </a>
                                         <Share dashboard_ids={[key]} trigger_type='text'/>
                                         <Popconfirm
-                                            title='删除'
-                                            description={`确定删除 ${configs.find(({ id }) => id === key).name} 吗？`}
+                                            title={t('删除')}
+                                            description={t('确定删除 {{name}} 吗？', { name: configs.find(({ id }) => id === key).name })}
                                             onConfirm={async () =>
                                                 model.execute(async () => {
                                                     if (!configs.length) {
@@ -302,7 +302,7 @@ export function Overview () {
                                                     await dashboard.delete_dashboard_configs([key], false)
                                                     set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
                                                     model.message.success(t('删除成功'))
-                                                })
+                                                }, { json_error: true })
                                             }
                                             okText={t('确认删除')}
                                             cancelText={t('取消')}
@@ -391,7 +391,7 @@ export function Overview () {
                                         document.body.appendChild(a)
                                         a.click()
                                         document.body.removeChild(a)
-                                    })
+                                    }, { json_error: true })
                                 }
                             >
                                 {t('批量导出')}
