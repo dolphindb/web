@@ -68,8 +68,11 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
                         lock.current = new Promise((resolve, reject) => { resolve_lock.current = resolve })
                         await lock.current
                     }  
-                    else 
+                    else {
                         await dashboard.add_dashboard_config(config, type === 'icon')
+                        message.success(`${config.name} ${t('导入成功！')}`)
+                    }
+                        
                 }
             }}
             closeIcon={false}
@@ -96,7 +99,7 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
                             await dashboard.add_dashboard_config(import_config, type === 'icon')
                             import_close()
                             resolve_lock.current()
-                            message.success(t('导入成功！'))
+                            message.success(`${import_config.name} ${t('导入成功！')}`)
                         }, { json_error: true })
                     }}
                 >
@@ -124,14 +127,15 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
             onOk={async () => {
                 const check_name_message = check_name(import_config.name)
                 if (check_name_message) {
-                    dashboard.message.error(check_name_message)
+                    message.error(check_name_message)
                     resolve_lock.current()
                     return
                 }
                 else {
-                    dashboard.add_dashboard_config(import_config, type === 'icon')
+                    await dashboard.add_dashboard_config(import_config, type === 'icon')
                     resolve_lock.current()
                     rename_close()
+                    message.success(`${import_config.name} ${t('导入成功！')}`)
                 }
             }}
             closeIcon={false}
