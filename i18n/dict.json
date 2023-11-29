@@ -2408,16 +2408,19 @@
     "批量": {
         "en": "batch"
     },
-    "当前配置不存在":{
+    "当前配置不存在": {
         "en": "The current configuration does not exist"
     },
-    "配置id重复，无法保存":{
+    "配置id重复，无法保存": {
         "en": "The configuration id is duplicated and cannot be saved"
     },
-    "当前配置与已有配置重名，请改名":{
-        "en":"The current configuration has the same name as the existing configuration, please change the name"
+    "当前配置与已有配置重名，请改名": {
+        "en": "The current configuration has the same name as the existing configuration, please change the name"
     },
-    "命名不可为空":{
-        "en":"Name cannot be empty"
+    "命名不可为空": {
+        "en": "Name cannot be empty"
+    },
+    "保留时间（分钟）": {
+        "en": "Retention time (minute)"
     }
 }
