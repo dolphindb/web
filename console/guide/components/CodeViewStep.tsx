@@ -28,8 +28,7 @@ export function CodeViewStep (props: IProps) {
             console.log('error', e)
             go({ result: ExecuteResult.FAILED, error_msg: e })         
         }
-        
-    }, [code])
+    }, [code, go])
     
     
     const copy_code = useCallback(() => {

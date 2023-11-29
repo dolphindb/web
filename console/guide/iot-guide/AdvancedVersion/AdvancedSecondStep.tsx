@@ -99,7 +99,7 @@ export function AdvancedSecondStep (props: IProps) {
                 { required: true, message: '请选择分区列' },
                 {
                     validator: async (_, cols) => { 
-                        if (cols.length !== recommend_info.partitionInfo.partitionNum)  
+                        if (cols?.length !== recommend_info.partitionInfo.partitionNum)  
                             return Promise.reject('您选择的分区列个数与推荐个数不一致，请修改')
                         
                         const first_col_type = info?.first?.schema.find(item => item.colName === cols?.[0])?.dataType

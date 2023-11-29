@@ -139,18 +139,18 @@ export function BasicInfoFields (props: IProps) {
                                 {
                                     validator: async (_, value) => {
                                         
-                                        const first_col_type = schema?.find(item => item.colName === value[0])?.dataType
-                                        const second_col_type = schema?.find(item => item.colName === value?.[1])?.dataType
+                                        const first_col_type = schema?.find(item => item?.colName === value?.[0])?.dataType
+                                        const second_col_type = schema?.find(item => item?.colName === value?.[1])?.dataType
                                         
                                         if (first_col_type && !['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(first_col_type))
                                             return Promise.reject('第一个常用筛选列需为时间列')
                                         if (second_col_type && !['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING'].includes(second_col_type))
                                             return Promise.reject('第二个常用筛选列的数据类型需为以下 CHAR、SHORT、INT、SYMBOL、STRING 五种数据类型的一种')
                                         
-                                        if (value.length < 2)
+                                        if (value?.length < 2)
                                             return Promise.reject(new Error('至少选择 2 个常用筛选列'))
                                         
-                                        if (value.length > 4)
+                                        if (value?.length > 4)
                                             return Promise.reject(new Error('最多只能选择 4 个常用筛选列'))
                                             
                                     }

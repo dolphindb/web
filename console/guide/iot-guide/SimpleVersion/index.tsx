@@ -22,12 +22,14 @@ export function SimpleVersion () {
     }, [current_step])
     
     
-    const go = useCallback((infos: { info?: SimpleInfos, result?: ExecuteResult }) => { 
-        const { info, result = ExecuteResult.SUCCESS } = infos
+    const go = useCallback((infos: { info?: SimpleInfos, result?: ExecuteResult, error_msg?: any }) => { 
+        const { info, result = ExecuteResult.SUCCESS, error_msg } = infos
         set_current_step(current_step + 1)
+        set_result(result)
         if (info)
             set_info(prev => ({ ...prev, ...info }))
-        set_result(result)
+        if (error_msg)
+            set_error_msg(error_msg.toString())
     }, [current_step])
     
     
@@ -62,11 +64,11 @@ export function SimpleVersion () {
             {
                 title: '执行结果',
                 children: result === ExecuteResult.FAILED
-                    ? <GuideFailResultPage on_create_again={on_create_again} back={back}/>
+                    ? <GuideFailResultPage error_msg={error_msg} on_create_again={on_create_again} back={back}/>
                     : <GuideSuccessResultPage on_create_again={on_create_again} back={back}/>
             }
         ]
-    }, [ info, result, on_create_again, back])
+    }, [ info, result, on_create_again, back, error_msg])
     
     
     return <div className='simple-version-wrapper'>
