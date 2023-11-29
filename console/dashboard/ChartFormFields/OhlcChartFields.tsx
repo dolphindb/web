@@ -55,7 +55,7 @@ export function BasicFormFields () {
                 </Form.Item>
                 
                 <PaddingSetting />
-                <Form.Item name='with_tooltip' label={t('提示框')} initialValue>
+                <Form.Item name='with_tooltip' label={t('气泡提示')} initialValue>
                     <BoolRadioGroup />
                 </Form.Item>
                 <Form.Item name='x_datazoom' label={t('X 轴缩略轴')} initialValue>
