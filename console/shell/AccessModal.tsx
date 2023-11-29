@@ -18,7 +18,7 @@ const ACCESS_TYPE = {
 
 const db_cols: TableColumnType<Record<string, any>>[] = [
     {
-        title: 'type',
+        title: t('类型'),
         dataIndex: 'type',
         key: 'type',
     },
@@ -50,17 +50,35 @@ export const AccessModal = NiceModal.create<Props>(({ database }) => {
     const db_rows = useMemo(() => {
         if (!accesses)
             return
-        let rows = Object.fromEntries(ACCESS_TYPE.database.map(type => ([type, [ ]])))
+        let rows = { 
+            grant: Object.fromEntries(ACCESS_TYPE.database.map(type => ([type, [ ]]))), 
+            deny: Object.fromEntries(ACCESS_TYPE.database.map(type => ([type, [ ]])))
+        }
         for (let type of ACCESS_TYPE.database) 
-            for (let access of accesses) {
-                console.log(type, access, access[type])
-                if (access[type] && access[type].split(',').includes(database.key)) 
-                    rows[type].push(access.userId)
-        } 
+            for (let access of accesses) 
+                if (access[type + '_allowed'] && access[type + '_allowed'].split(',').includes(database.key.slice(0, database.key.length - 1))) 
+                    rows.grant[type].push(access.userId)
+                else if (access[type + '_denied'] && access[type + '_denied'].split(',').includes(database.key.slice(0, database.key.length - 1)))
+                    rows.deny[type].push(access.userId)
                 
-        return [rows]
+        
+        return [
+            {
+                type: 'grant',
+                ...Object.fromEntries(Object.entries(rows.grant).map(([k, v]) => (
+                    [k, v.join(',')]
+                )))
+            },
+            {
+                type: 'deny',
+                ...Object.fromEntries(Object.entries(rows.deny).map(([k, v]) => (
+                    [k, v.join(',')]
+                )))
+            }
+        ]
     }, [accesses])
-    console.log('db_rows', db_rows)
+    
+    console.log(db_rows)
     return <Modal
                 width={1000}
                 open={modal.visible}
