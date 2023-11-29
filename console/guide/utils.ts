@@ -8,5 +8,5 @@ export async function request<T> (func: string, params: any) {
         res = await model.ddb.call(func, [JSON.stringify(params)])
         console.log('res: ', safe_json_parse(res.value))
     })
-    return safe_json_parse(res.value) as T
+    return safe_json_parse(res?.value) as T
 }

@@ -106,6 +106,7 @@ export function DataTypeSelect (props: IDataTypeSelect) {
     
     const [data_type, set_data_type] = useState<string>()
     const [decimal, set_decimal] = useState<number>() 
+    const [limit, set_limit] = useState({ min: 0, max: 9 })
     
     useEffect(() => {
         if (value)
@@ -117,6 +118,17 @@ export function DataTypeSelect (props: IDataTypeSelect) {
             } else  
                 set_data_type(value)
     }, [value])
+    
+    useEffect(() => {
+        if (!data_type?.includes('DECIMAL'))
+            return
+        if (data_type === 'DECIMAL32')
+            set_limit({ min: 0, max: 9 })
+        else if (data_type === 'DECIMAL64')
+            set_limit({ min: 0, max: 18 })
+        else if (data_type === 'DECIMAL128')
+            set_limit({ min: 0, max: 38 })
+    }, [data_type])
     
     useEffect(() => { 
         // 首次渲染不校验
@@ -140,7 +152,7 @@ export function DataTypeSelect (props: IDataTypeSelect) {
                 options={DATA_TYPE_LIST.map(item => ({ label: item, value: item }))}
                 placeholder='请选择数据类型'
             />
-            <InputNumber min={1} value={decimal} onChange={val => { set_decimal(val) }} placeholder='请输入 DECIMAL 精度'/>
+            <InputNumber min={limit.min} max={limit.max} value={decimal} onChange={val => { set_decimal(val) }} placeholder='请输入 DECIMAL 精度'/>
         </Space>
         : <Select
             value={data_type}
@@ -186,8 +198,7 @@ export function SchemaList () {
                         ]}>
                         <Input placeholder='请输入列名'/>
                     </Form.Item>
-                    <Form.Item label='数据类型' name={[field.name, 'dataType']} rules={[{ required: true, message: '请选择数据类型' }]}>
-                        {/* <Select showSearch options={DATA_TYPE_LIST.map(item => ({ label: item, value: item }))} placeholder='请选择数据类型'/> */}
+                    <Form.Item tooltip='请注意，DECIMAL32 精度有效范围是[0, 9]，DECIMAL64 精度有效范围是[0, 18]，DECIMAL128 精度有效范围是[0,38]' label='数据类型' name={[field.name, 'dataType']} rules={[{ required: true, message: '请选择数据类型' }]}>
                         <DataTypeSelect />
                     </Form.Item>
                     {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }}/> }

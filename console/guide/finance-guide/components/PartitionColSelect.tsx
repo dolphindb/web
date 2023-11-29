@@ -1,7 +1,8 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import { type ITableInfo, type IFinanceInfo } from '../type.js'
 import { request } from '../../utils.js'
-import { Form, Select } from 'antd'
+import { Form, Select, Spin } from 'antd'
+import useSWR from 'swr'
 
 interface IProps { 
     info: IFinanceInfo
@@ -15,16 +16,11 @@ export function PartitionColSelect (props: IProps) {
     const [partition_info, set_partition_info] = useState<string[][]>([ ])
     const form = Form.useFormInstance()
     
-    const get_partition_info = useCallback(async () => {
-        if (database.isExist) {
-            const { cols = [ ] } = await request<{ cols: string[] }>('getPartitionColumns', { dbName: database.name })
-            set_partition_info(cols?.map(item => item.split(',')))
-        }
-    }, [database])
-    
-    useEffect(() => {
-        get_partition_info()
-    }, [ ])
+    // 请求分区信息
+    const { isLoading } = useSWR(database.isExist ? 'getPartitionColumns' : null,
+        async () => request<{ cols: string[] }>('getPartitionColumns', { dbName: database.name }),
+        { onSuccess: data =>  { set_partition_info(data?.cols?.map(item => item.split(','))) }
+    })
     
     const filter_col_options = useCallback((col_types: string[]) => {
         return schema
@@ -49,7 +45,8 @@ export function PartitionColSelect (props: IProps) {
             form.setFieldValue('partitionCols', partition_info.map(item => ({ })) )
     }, [partition_info, database])
     
-    return database?.isExist ? <Form.List name='partitionCols'>
+    return database?.isExist ? <Spin spinning={isLoading}>
+        <Form.List name='partitionCols'>
         {fields => {
             return fields.map(field => {
                 const data_types = partition_info[field.name]
@@ -67,6 +64,8 @@ export function PartitionColSelect (props: IProps) {
             })
         }}
     </Form.List>
+        
+    </Spin>
     : <>
         {
             show_time_col && <Form.Item tooltip='严格按时序增长排列的时间类型列，将按该列对数据进行分区' label='时间列' name='timeCol' rules={[{ required: true, message: '请选择时间列' }]}>

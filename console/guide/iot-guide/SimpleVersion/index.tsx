@@ -26,6 +26,7 @@ export function SimpleVersion () {
         const { info, result = ExecuteResult.SUCCESS, error_msg } = infos
         set_current_step(current_step + 1)
         set_result(result)
+        
         if (info)
             set_info(prev => ({ ...prev, ...info }))
         if (error_msg)
