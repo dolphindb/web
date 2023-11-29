@@ -120,7 +120,7 @@ export function Computing () {
             
             streaming_engine_rows.push(new_row)
         }
-        
+    console.log('stat', shared_table_stat.to_cols(), shared_table_stat.to_rows()) 
     return <Tabs
         activeKey={tab_key}
         type='card'
@@ -414,7 +414,7 @@ const leading_cols = {
         tables: t('表名')
     },
     sharedStreamingTableStat: {
-        tableName: t('表名'),
+        TableName: t('表名'),
         rows: t('行数'),
         columns: t('列数'),
         bytes: t('字节数')
