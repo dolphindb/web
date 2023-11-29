@@ -22,6 +22,7 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
     const { visible: confirm_visible, open: confirm_open, close: confirm_close } = use_modal()
     
     const message = type === 'icon' ? dashboard.message : model.message
+    const execute = type === 'icon' ? dashboard.execute : model.execute
     
     const triggers = {
         button: <Upload
@@ -67,8 +68,11 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
                         lock.current = new Promise((resolve, reject) => { resolve_lock.current = resolve })
                         await lock.current
                     }  
-                    else 
-                        await dashboard.add_dashboard_config(import_config, file_list.length === 1)
+                    else {
+                        await dashboard.add_dashboard_config(config, type === 'icon')
+                        message.success(`${config.name} ${t('导入成功！')}`)
+                    }
+                        
                 }
             }}
             closeIcon={false}
@@ -90,13 +94,13 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
                     key='cover'
                     type='primary'
                     onClick={async () => {
-                        await model.execute(async () => {
+                        await execute(async () => {
                             await dashboard.delete_dashboard_configs([repeat_config_id], false)
-                            await dashboard.add_dashboard_config(import_config, file_list.length === 1)
+                            await dashboard.add_dashboard_config(import_config, type === 'icon')
                             import_close()
                             resolve_lock.current()
-                            message.success(t('导入成功！'))
-                        })
+                            message.success(`${import_config.name} ${t('导入成功！')}`)
+                        }, { json_error: true })
                     }}
                 >
                     {t('覆盖')}
@@ -123,14 +127,15 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
             onOk={async () => {
                 const check_name_message = check_name(import_config.name)
                 if (check_name_message) {
-                    dashboard.message.error(check_name_message)
+                    message.error(check_name_message)
                     resolve_lock.current()
                     return
                 }
                 else {
-                    dashboard.add_dashboard_config(import_config, file_list.length === 1)
+                    await dashboard.add_dashboard_config(import_config, type === 'icon')
                     resolve_lock.current()
                     rename_close()
+                    message.success(`${import_config.name} ${t('导入成功！')}`)
                 }
             }}
             closeIcon={false}

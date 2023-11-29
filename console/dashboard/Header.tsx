@@ -1,8 +1,8 @@
 import './Header.sass'
 
 import { useState } from 'react'
-import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Upload } from 'antd'
-import { CopyOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, RollbackOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
+import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, } from 'antd'
+import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, RollbackOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/modal.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -11,16 +11,16 @@ import { model } from '../model.js'
 import { t } from '../../i18n/index.js'
 import { CompileAndRefresh } from '../components/CompileAndRefresh.js'
 
-import { type Widget, dashboard, type DashBoardConfig, DashboardPermission } from './model.js'
+import { type Widget, dashboard, DashboardPermission } from './model.js'
 import { DataSourceConfig } from './DataSource/DataSourceConfig.js'
 import { clear_data_sources, export_data_sources } from './DataSource/date-source.js'
 import { VariableConfig } from './Variable/VariableConfig.js'
 import { export_variables } from './Variable/variable.js'
 import cn from 'classnames'
 import { HostSelect } from '../components/HostSelect.js'
-import { Share } from './Share/Share.js'
 import { check_name } from './utils.js'
 import { Import } from './Import/Import.js'
+import { Share } from './Share/Share.js'
 
 
 export function get_widget_config (widget: Widget) {
@@ -96,7 +96,7 @@ export function Header () {
             const updated_config = await get_latest_config()
             await dashboard.update_dashboard_config(updated_config)
             dashboard.message.success(t('数据面板保存成功'))
-        })
+        }, { json_error: true })
     }
     
     
@@ -114,7 +114,7 @@ export function Header () {
             await dashboard.add_dashboard_config(new_dashboard_config)
             await dashboard.render_with_config(new_dashboard_config)
             dashboard.message.success(t('添加成功'))
-        })
+        }, { json_error: true })
         add_close()
     }
     
@@ -138,7 +138,7 @@ export function Header () {
             dashboard.message.success(t('修改成功'))
             
             edit_close()
-        })
+        }, { json_error: true })
     }
     
     /** 删除和撤销的回调 */
@@ -151,9 +151,9 @@ export function Header () {
             
             clear_data_sources()
             
-            if (revoke)
-                await dashboard.revoke(config.id)
-            else
+            // if (revoke)
+            //     await dashboard.revoke(config.id)
+            // else
                 await dashboard.delete_dashboard_configs([config.id])
             
             const filtered_configs = configs.filter(({ id }) => id !== config.id)
@@ -164,7 +164,7 @@ export function Header () {
             // await dashboard.save_configs_to_local()
             
             dashboard.message.success(revoke ? t('撤销成功') : t('删除成功'))
-        })
+        }, { json_error: true })
     }
     
     
@@ -188,35 +188,39 @@ export function Header () {
     
     
     return <div className='dashboard-header'>
-        <Select
-            className='switcher'
-            placeholder='选择 dashboard'
-            onChange={async (_, option: DashboardOption) => {
-                const current_dashboard = configs.find(({ id }) => id === option.key)
-                clear_data_sources()
-                // await dashboard.update_config(
-                //     current_dashboard
-                // )
-                dashboard.render_with_config(current_dashboard)
-                if (current_dashboard.permission === DashboardPermission.view)
-                    on_preview()
-                    
-            }}
-            // defaultValue={ config?.name || new_dashboard_name}
-            value={config?.id}
-            bordered={false}
-            options={configs?.map(({ id, name, permission }) => ({
-                key: id,
-                value: id,
-                label: <div className='dashboard-options-label'>
-                    <span className={cn({ 'dashboard-options-label-name': permission })}>{name}</span>
-                    {permission !== DashboardPermission.own && <Tag color='processing' className='status-tag' >{permission === DashboardPermission.edit ? t('仅编辑') : t('仅预览')}</Tag> }
-                </div>
-            }))}
-        />
+        {
+            config?.permission === DashboardPermission.own
+                ? <Select
+                        className='switcher'
+                        placeholder={t('选择 dashboard')}
+                        onChange={async (_, option: DashboardOption) => {
+                            const current_dashboard = configs.find(({ id }) => id === option.key)
+                            clear_data_sources()
+                            // await dashboard.update_config(
+                            //     current_dashboard
+                            // )
+                            dashboard.render_with_config(current_dashboard)
+                            if (current_dashboard.permission === DashboardPermission.view)
+                                on_preview()
+                                
+                        }}
+                        // defaultValue={ config?.name || new_dashboard_name}
+                        value={config?.id}
+                        bordered={false}
+                        options={configs?.map(({ id, name, permission }) => ({
+                            key: id,
+                            value: id,
+                            label: <div className='dashboard-options-label'>
+                                <span className={cn({ 'dashboard-options-label-name': permission })}>{name}</span>
+                                {permission !== DashboardPermission.own && <Tag color='processing' className='status-tag' >{permission === DashboardPermission.edit ? t('仅编辑') : t('仅预览')}</Tag> }
+                            </div>
+                        }))}
+                    />
+                : <div className='dashboard-share-label'>{config?.name}</div>
+        }
         
         <div className='actions'>
-            <Tooltip title='返回主界面'>
+            <Tooltip title={t('返回主界面')}>
                 <Button className='action' onClick={async () => { 
                     // const latest_config = exact_config(await get_latest_config())
                     // const server_config = exact_config(await dashboard.get_dashboard_config(config.id) as DashBoardConfig)
@@ -270,19 +274,19 @@ export function Header () {
                     open={copy_visible}
                     onCancel={copy_close}
                     onOk={async () => 
-                        model.execute(async () => {
+                        dashboard.execute(async () => {
                             const check_name_message = check_name(copy_dashboard_name)
                             if (check_name_message) {
                                 dashboard.message.error(check_name_message)
                                 return
                             }
                             
-                            const copy_dashboard = dashboard.generate_new_config(genid(), copy_dashboard_name, config.data)
+                            const copy_dashboard = dashboard.generate_new_config(5605049565005838, copy_dashboard_name, config.data)
                             await dashboard.add_dashboard_config(copy_dashboard)
                             dashboard.message.success(t('创建副本成功'))
                             
                             copy_close()
-                    })}
+                    }, { json_error: true })}
                     title={t('请输入 dashboard 副本名称')}
                 >
                     <Input
@@ -313,33 +317,32 @@ export function Header () {
             
                 {
                     dashboard.config?.permission !== DashboardPermission.view
-                        &&
-                        <>
-                        <Tooltip title={t('导出')}>
-                            <Button className='action' onClick={async () => 
-                                dashboard.execute(async () => {
-                                    await get_latest_config()
-                                    
-                                    let a = document.createElement('a')
-                                    a.download = `dashboard.${config.name}.json`
-                                    a.href = URL.createObjectURL(
-                                        new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
-                                    )
-                                    
-                                    document.body.appendChild(a)
-                                    a.click()
-                                    document.body.removeChild(a)
-                                })
-                            }><UploadOutlined /></Button>
-                        </Tooltip>
-                        <Tooltip title={t('创建副本')}>
-                            <Button className='action' onClick={() => {
-                                set_copy_dashboard_name(config.name)
-                                copy_open()    
-                            }}>
-                                <CopyOutlined />
-                            </Button>
-                        </Tooltip>
+                        && <>
+                            <Tooltip title={t('导出')}>
+                                <Button className='action' onClick={async () => 
+                                    dashboard.execute(async () => {
+                                        await get_latest_config()
+                                        
+                                        let a = document.createElement('a')
+                                        a.download = `dashboard.${config.name}.json`
+                                        a.href = URL.createObjectURL(
+                                            new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
+                                        )
+                                        
+                                        document.body.appendChild(a)
+                                        a.click()
+                                        document.body.removeChild(a)
+                                    }, { json_error: true })
+                                }><UploadOutlined /></Button>
+                            </Tooltip>
+                            <Tooltip title={t('创建副本')}>
+                                <Button className='action' onClick={() => {
+                                    set_copy_dashboard_name(config.name)
+                                    copy_open()    
+                                }}>
+                                    <CopyOutlined />
+                                </Button>
+                            </Tooltip>
                         </>
                 }
             
@@ -347,7 +350,7 @@ export function Header () {
                 {
                     dashboard.config?.permission === DashboardPermission.own 
                         ? <>
-                            <Tooltip title='修改名称'>
+                            <Tooltip title={t('修改名称')}>
                                 <Button
                                     className='action' 
                                     onClick={() => { 
@@ -358,22 +361,22 @@ export function Header () {
                                     <EditOutlined />
                                 </Button>
                             </Tooltip>
-                            {/* <Tooltip title={t('分享')}>
+                            <Tooltip title={t('分享')}>
                                 <Share dashboard_ids={[dashboard.config?.id]} trigger_type='icon' />
-                            </Tooltip> */}
+                            </Tooltip>
                             <Popconfirm
-                                title='删除'
+                                title={t('删除')}
                                 description={t('确定当前 dashboard 删除吗？')}
                                 onConfirm={async () => { handle_destroy() }}
                                 okText={t('确认删除')}
                                 cancelText={t('取消')}
                             >
-                                <Tooltip title='删除'>
+                                <Tooltip title={t('删除')}>
                                     <Button className='action'><DeleteOutlined /></Button>
                                 </Tooltip>
                             </Popconfirm>
                         </> 
-                        : <Tooltip title='撤销'>
+                        : <Tooltip title={t('撤销')}>
                             <Button className='action' onClick={async () => { handle_destroy(true) }}><RollbackOutlined /></Button>
                         </Tooltip>
                 }
@@ -381,18 +384,7 @@ export function Header () {
             
                 {model.dev && <CompileAndRefresh />}
             </>
-            }
-            {/* <Tooltip title='刷新'>
-                <Button className='action' onClick={() => { dashboard.message.error(t('功能还未实现')) }}><SyncOutlined /></Button>
-            </Tooltip>
-            
-            <Tooltip title='暂停流数据接收'>
-                <Button className='action' onClick={() => { dashboard.message.error(t('功能还未实现')) }}><PauseOutlined /></Button>
-            </Tooltip>
-             */}
-            
-           
-           
+            }  
         </div>
         
         {
@@ -401,14 +393,14 @@ export function Header () {
                 className={`right-editormode-editor ${editing ? 'editormode-selected' : ''}`}
                 onClick={on_edit}
             >
-                <EditOutlined /> 编辑
+                <EditOutlined /> {t('编辑')}
             </span>
             <span className='divider'>|</span>
             <span
                 className={`right-editormode-preview ${editing ? '' : 'editormode-selected'} `}
                 onClick={on_preview}
             >
-                <EyeOutlined /> 预览
+                <EyeOutlined /> {t('预览')}
             </span>
         </div>
         

@@ -1,10 +1,10 @@
 import { Tabs, Table, Button, Input, type TableColumnType, type TabsProps, Modal, Form, Select, TreeSelect, Collapse } from 'antd'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { t } from '../../i18n/index.js'
 
 import { access, type Database } from './model.js'
 import { model } from '../model.js'
-import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, MinusCircleFilled, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined, QuestionCircleFilled, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { CheckCircleFilled, CloseCircleFilled, MinusCircleFilled, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined, QuestionCircleFilled, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/modal.js'
 
 export function AccessView () {
@@ -30,7 +30,6 @@ export function AccessView () {
         {
             key: 'database',
             label: t('分布式数据库'),
-            // children:  <AccessList accesses={accesses} category='database'/>
             children: current.view === 'preview' ? 
                         <AccessList category='database'/>
                             :
@@ -39,7 +38,6 @@ export function AccessView () {
         {
             key: 'share_table',
             label: t('共享内存表'),
-            // children: <AccessList accesses={accesses} category='stream'/>
             children: current.view === 'preview' ? 
                         <AccessList category='shared'/>
                             :
@@ -49,7 +47,6 @@ export function AccessView () {
         {
             key: 'stream',
             label: t('流数据表'),
-            // children: <AccessList accesses={accesses} category='stream'/>
             children: current.view === 'preview' ? 
                         <AccessList category='stream'/>
                             :
@@ -59,7 +56,6 @@ export function AccessView () {
         {
             key: 'function_view',
             label: t('函数视图'),
-            // children: <AccessList accesses={accesses} category='function_view'/>
             children: current.view === 'preview' ? 
                         <AccessList category='function_view'/>
                             :
@@ -68,7 +64,6 @@ export function AccessView () {
         }, {
             key: 'script',
             label: t('脚本权限'),
-            // children: <AccessList accesses={accesses} category='script'/>
             children: current.view === 'preview' ? 
                         <AccessList category='script'/>
                             :
@@ -360,9 +355,8 @@ function AccessManage ({
         
         for (let [k, v] of Object.entries(accesses as Record<string, any>))
             if (v && v !== 'none')
-                if (category === 'script') {
-                    if (aces_types.includes(k))
-                        tb_rows.push({
+                if (category === 'script' && aces_types.includes(k))
+                    tb_rows.push({
                             key: k,
                             access: k,
                             type: v,
@@ -377,34 +371,33 @@ function AccessManage ({
                                         })
                                     }>{t('Revoke')}</Button>
                 })
-                }
                 else if (aces_types.map(aces => aces + '_allowed').includes(k) || aces_types.map(aces =>  aces + '_denied').includes(k)) {
-                        let objs = v.split(',')
-                        if (category === 'database')
-                            objs = objs.filter((obj: string) =>  obj.startsWith('dfs:'))
-                        if (category === 'shared')
-                            objs = objs.filter((obj: string) =>  shared_tables.includes(obj))
-                        if (category === 'stream')
-                            objs = objs.filter((obj: string) =>  !obj.startsWith('dfs:') && !shared_tables.includes(obj))
-                        const allowed = aces_types.map(aces => aces + '_allowed').includes(k)
-                        for (let obj of objs)
-                            tb_rows.push({
-                                    key: obj + k,
-                                    name: obj,
-                                    access: k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')),
-                                    type: allowed ? 'grant' : 'deny',
-                                    action: <Button type='link' danger onClick={async () => 
-                                        model.execute(async () => {
-                                            await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
-                                            model.message.success(t('revoke 成功'))
-                                            access.set({ accesses: current.role === 'user' ? 
-                                                            (await access.get_user_access([current.name]))[0]
-                                                                                        :
-                                                            (await access.get_group_access([current.name]))[0] }) 
-                                        })
-                                    }>{t('Revoke')}</Button>
-                            })
-                    }
+                    let objs = v.split(',')
+                    if (category === 'database')
+                        objs = objs.filter((obj: string) =>  obj.startsWith('dfs:'))
+                    if (category === 'shared')
+                        objs = objs.filter((obj: string) =>  shared_tables.includes(obj))
+                    if (category === 'stream')
+                        objs = objs.filter((obj: string) =>  !obj.startsWith('dfs:') && !shared_tables.includes(obj))
+                    const allowed = aces_types.map(aces => aces + '_allowed').includes(k)
+                    for (let obj of objs)
+                        tb_rows.push({
+                                key: obj + k,
+                                name: obj,
+                                access: k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')),
+                                type: allowed ? 'grant' : 'deny',
+                                action: <Button type='link' danger onClick={async () => 
+                                    model.execute(async () => {
+                                        await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
+                                        model.message.success(t('revoke 成功'))
+                                        access.set({ accesses: current.role === 'user' ? 
+                                                        (await access.get_user_access([current.name]))[0]
+                                                                                    :
+                                                        (await access.get_group_access([current.name]))[0] }) 
+                                    })
+                                }>{t('Revoke')}</Button>
+                    })
+                }
         return tb_rows
     }, [ accesses, category])
     
@@ -435,7 +428,7 @@ function AccessManage ({
             title: opt,
             value: opt
         }))
-    }, [category ])
+    }, [category])
     
     return <>
             <Modal 

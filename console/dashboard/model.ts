@@ -4,7 +4,7 @@ import { Model } from 'react-object-model'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbVectorString, DdbLong, DdbDict, DdbInt } from 'dolphindb/browser.js'
+import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbLong, DdbDict, DdbInt } from 'dolphindb/browser.js'
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
@@ -21,6 +21,7 @@ import { type Monaco } from '../shell/Editor/index.js'
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources, subscribe_data_source } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
+import { parse_error } from '../utils/ddb-error.js'
 
 
 export class DashBoardModel extends Model<DashBoardModel> {
@@ -89,9 +90,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
         //     await this.get_configs_from_local()
         // }
         await dashboard.execute(async () => {
-            await model.ddb.call<DdbVoid>('dashboard_check_access', [ ])
             await this.get_dashboard_configs()
-        })
+        }, { json_error: true })
         if (!this.config) {
             const id = genid()
             const new_dashboard_config = {
@@ -188,11 +188,17 @@ export class DashBoardModel extends Model<DashBoardModel> {
         - options?:
             - throw?: `true` 默认会继续向上抛出错误，如果不需要向上继续抛出
             - print?: `!throw` 在控制台中打印错误
+            - json_error?: `true` 会解析 server 返回的错误
         @example await model.execute(async () => model.xxx()) */
-    async execute (action: Function, { throw: _throw = true, print }: { throw?: boolean, print?: boolean } = { }) {
+    async execute (
+        action: Function, 
+        { throw: _throw = true, print, json_error = false }: { throw?: boolean, print?: boolean, json_error?: boolean } = { }) 
+    {
         try {
             await action()
         } catch (error) {
+            error = json_error ? parse_error(error) : error
+            
             if (print ?? !_throw)
                 console.error(error)
             
@@ -401,10 +407,10 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     /** 获取分享的用户列表 */
-    async get_user_list () {
-        const users = ((await model.ddb.call<DdbObj>('dashboard_get_user_list')).value) as string[]
-        this.set({ users: users })
-    }
+    // async get_user_list () {
+    //     const users = ((await model.ddb.call<DdbObj>('dashboard_get_user_list')).value) as string[]
+    //     this.set({ users: users })
+    // }
     
     
     async add_dashboard_config (config: DashBoardConfig, render: boolean = true) {
@@ -452,9 +458,14 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number) {
-        const data = (await model.ddb.call('dashboard_get_config', [new DdbLong(BigInt(id))])).to_rows()
-        return data.length ? { ...data[0], id: Number(data[0].id), data: JSON.parse(data[0].data) } : null
-    }
+        const data = (await model.ddb.call('dashboard_get_config', [new DdbDict({ id: new DdbLong(BigInt(id)) })])).to_rows()
+        return data.length ? { ...data[0], 
+                                id: Number(data[0].id), 
+                                data: JSON.parse(JSON.parse(typeof data[0].data === 'string' ? 
+                                                                            data[0].data
+                                                                                : 
+                                                                            new TextDecoder().decode(data[0].data) )) } as DashBoardConfig : null
+}
     
     
     /** 从服务器获取 dashboard 配置 */
@@ -469,13 +480,13 @@ export class DashBoardModel extends Model<DashBoardModel> {
         this.set({ configs })
         const dashboard_id = Number(new URLSearchParams(location.search).get('dashboard'))
         if (dashboard_id) {
-            const config = configs.find(({ id }) =>  id === dashboard_id)
+            const config = configs.find(({ id }) =>  id === dashboard_id) || await this.get_dashboard_config(dashboard_id)
             if (config) {
                 this.set({ config })
                 await this.render_with_config(config)
             }
                 
-            else
+            else 
                 this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
         }
     }
@@ -528,18 +539,18 @@ export class DashBoardModel extends Model<DashBoardModel> {
     //     localStorage.setItem(storage_keys.dashboards, JSON.stringify(this.configs))
     // }
     
-    async share (dashboard_ids: number[], viewers: string[], editors: string[]) {
-       await model.ddb.call<DdbVoid>('dashboard_share_configs',
-            [new DdbDict({ 
-                ids: new DdbVectorLong(dashboard_ids), 
-                viewers: new DdbVectorString(viewers), 
-                editors: new DdbVectorString(editors) 
-            })])
-    }
+    // async share (dashboard_ids: number[], viewers: string[], editors: string[]) {
+    //    await model.ddb.call<DdbVoid>('dashboard_share_configs',
+    //         [new DdbDict({ 
+    //             ids: new DdbVectorLong(dashboard_ids), 
+    //             viewers: new DdbVectorString(viewers), 
+    //             editors: new DdbVectorString(editors) 
+    //         })])
+    // }
     
-    async revoke (id: number) {
-        await model.ddb.call<DdbVoid>('dashboard_revoke_permission', [new DdbDict({ id: new DdbLong(BigInt(id)) })])
-    }
+    // async revoke (id: number) {
+    //     await model.ddb.call<DdbVoid>('dashboard_revoke_permission', [new DdbDict({ id: new DdbLong(BigInt(id)) })])
+    // }
 }
 
 
@@ -607,7 +618,6 @@ export enum WidgetType {
     BAR = '柱状图',
     LINE = '折线图',
     PIE = '饼图',
-    // POINT = '散点图',
     TABLE = '表格',
     OHLC = 'K 线',
     MIX = '混合图',
@@ -615,7 +625,6 @@ export enum WidgetType {
     ORDER = '订单图',
     // NEEDLE = '数值针型图',
     // STRIP = '带图',
-    // HEAT = '热力图',
     TEXT = '富文本',
     DESCRIPTIONS = '描述表',
     EDITOR = '编辑器',
@@ -631,14 +640,12 @@ export enum WidgetChartType {
     LINE = 'LINE',
     MIX = 'MIX',
     PIE = 'PIE',
-    // POINT = 'POINT',
     TABLE = 'TABLE',
     OHLC = 'OHLC',
     // CANDLE = 'CANDLE',
     ORDER = 'ORDER',
     // NEEDLE = 'NEEDLE',
     // STRIP = 'STRIP',
-    // HEAT = 'HEAT'
     TEXT = 'TEXT',
     DESCRIPTIONS = 'DESCRIPTIONS',
     EDITOR = 'EDITOR',

@@ -15,6 +15,8 @@ import { type DDB } from 'dolphindb/browser.js'
 import { model, NodeType } from '../model.js'
 import { computing } from './model.js'
 
+import { TableCellDetail } from '../components/TableCellDetail/index.js'
+
 import { t } from '../../i18n/index.js'
 
 import SvgPublish from './icons/publish.icon.svg'
@@ -118,7 +120,7 @@ export function Computing () {
             
             streaming_engine_rows.push(new_row)
         }
-        
+    console.log('stat', shared_table_stat.to_cols(), shared_table_stat.to_rows()) 
     return <Tabs
         activeKey={tab_key}
         type='card'
@@ -412,7 +414,7 @@ const leading_cols = {
         tables: t('表名')
     },
     sharedStreamingTableStat: {
-        tableName: t('表名'),
+        TableName: t('表名'),
         rows: t('行数'),
         columns: t('列数'),
         bytes: t('字节数')
@@ -525,7 +527,8 @@ function handle_ellipsis_col (table: Record<string, any>[], col_name: string) {
     return table.map(row => {
         if (col_name === 'lastErrMsg')
             row.order = row[col_name]
-        row[col_name] = <DetailInfo text={row[col_name] as string} type={col_name} />
+        // row[col_name] = <DetailInfo text={row[col_name] as string} type={col_name} />
+        row[col_name] = <TableCellDetail content={row[col_name] as string} title={detail_title[col_name]} />
         return row
     })
 }

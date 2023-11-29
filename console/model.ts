@@ -16,6 +16,7 @@ import {
 } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
+import { parse_error } from './utils/ddb-error.js'
 
 
 export const storage_keys = {
@@ -68,6 +69,8 @@ export class DdbModel extends Model<DdbModel> {
     logined = false
     
     username: string = username_guest
+    
+    admin: boolean = false
     
     node_type: NodeType
     
@@ -238,11 +241,17 @@ export class DdbModel extends Model<DdbModel> {
         - options?:
             - throw?: `true` 默认会继续向上抛出错误，如果不需要向上继续抛出
             - print?: `!throw` 在控制台中打印错误
+            - json_error?: `true` 会解析 server 返回的错误
         @example await model.execute(async () => model.xxx()) */
-    async execute (action: Function, { throw: _throw = true, print }: { throw?: boolean, print?: boolean } = { }) {
+    async execute (
+        action: Function, 
+        { throw: _throw = true, print, json_error = false }: { throw?: boolean, print?: boolean, json_error?: boolean } = { }) 
+    {
         try {
             await action()
         } catch (error) {
+            error = json_error ? parse_error(error) : error
+            
             if (print ?? !_throw)
                 console.error(error)
             
@@ -275,6 +284,7 @@ export class DdbModel extends Model<DdbModel> {
         localStorage.setItem(storage_keys.ticket, ticket)
         
         this.set({ logined: true, username })
+        await this.is_admin()
         console.log(t('{{username}} 使用账号密码登陆成功', { username: this.username }))
     }
     
@@ -291,6 +301,7 @@ export class DdbModel extends Model<DdbModel> {
         try {
             await this.ddb.call('authenticateByTicket', [ticket], { urgent: true })
             this.set({ logined: true, username: last_username })
+            await this.is_admin()
             console.log(t('{{username}} 使用 ticket 登陆成功', { username: last_username }))
         } catch (error) {
             localStorage.removeItem(storage_keys.ticket)
@@ -333,6 +344,7 @@ export class DdbModel extends Model<DdbModel> {
             // 等 server 增加 parseJSON 函数
             const { name: username } = JSON.parse(result.raw)
             this.set({ logined: true, username })
+            await this.is_admin()
             return result
         }
     }
@@ -348,8 +360,14 @@ export class DdbModel extends Model<DdbModel> {
         this.set({
             logined: false,
             username: username_guest,
+            admin: false
         })
         this.goto_login()
+    }
+    
+    
+    async is_admin () {
+        this.set({ admin: (await this.ddb.call<DdbObj<DdbObj[]>>('getUserAccess', [ ], { urgent: true })).to_rows()[0].isAdmin })
     }
     
     

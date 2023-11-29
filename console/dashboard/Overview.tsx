@@ -1,8 +1,8 @@
 import './Overview.sass'
 
 import { useEffect, useState } from 'react'
-import { Button, Input, Modal, Table, Upload, Popconfirm, Spin, Tag } from 'antd'
-import { DeleteOutlined, DownloadOutlined, PlusCircleOutlined, UploadOutlined } from '@ant-design/icons'
+import { Button, Input, Modal, Table, Popconfirm, Spin, Tag } from 'antd'
+import { DeleteOutlined, PlusCircleOutlined, UploadOutlined } from '@ant-design/icons'
 import { downloadZip } from 'client-zip'
 import cn from 'classnames'
 
@@ -14,9 +14,9 @@ import { model } from '../model.js'
 import { t } from '../../i18n/index.js'
 
 import { dashboard, DashboardPermission } from './model.js'
-import { Share } from './Share/Share.js'
 import { check_name } from './utils.js'
 import { Import } from './Import/Import.js'
+import { Share } from './Share/Share.js'
 
 
 export function Overview () {
@@ -42,7 +42,7 @@ export function Overview () {
                 return
             }
             await dashboard.get_dashboard_configs()
-        })
+        }, { json_error: true })
     }, [ ])
     
     
@@ -71,7 +71,7 @@ export function Overview () {
             document.body.appendChild(a)
             a.click()
             document.body.removeChild(a)
-        })
+        }, { json_error: true })
     }
     
     
@@ -95,7 +95,7 @@ export function Overview () {
                         model.set_query('dashboard', String(new_dashboard.id))
                         model.set({ header: false, sider: false })
                         creator.close()
-                    })
+                    }, { json_error: true })
                 }
                 title={t('请输入新数据面板的名称')}
             >
@@ -122,7 +122,7 @@ export function Overview () {
                         model.message.success(t('修改成功'))
                         
                         editor.close()
-                })}
+                }, { json_error: true })}
                 title={t('请输入新的 dashboard 名称')}
             >
                 <Input
@@ -154,7 +154,7 @@ export function Overview () {
                         }
                     }
                 }
-                title={t(`确认删除选中的 ${selected_dashboard_ids.length} 个数据面板吗？`)}
+                title={t('确认删除选中的 {{length}} 个数据面板吗？', { length: selected_dashboard_ids.length })}
              />
             
             <Modal
@@ -173,7 +173,7 @@ export function Overview () {
                         model.message.success(t('创建副本成功'))
                         
                         copyor.close()
-                })}
+                }, { json_error: true })}
                 title={t('请输入 dashboard 副本名称')}
             >
                 <Input
@@ -286,10 +286,10 @@ export function Overview () {
                                         >
                                             {t('修改名称')}
                                         </a>
-                                        {/* <Share dashboard_ids={[key]} trigger_type='text'/> */}
+                                        <Share dashboard_ids={[key]} trigger_type='text'/>
                                         <Popconfirm
-                                            title='删除'
-                                            description={`确定删除 ${configs.find(({ id }) => id === key).name} 吗？`}
+                                            title={t('删除')}
+                                            description={t('确定删除 {{name}} 吗？', { name: configs.find(({ id }) => id === key).name })}
                                             onConfirm={async () =>
                                                 model.execute(async () => {
                                                     if (!configs.length) {
@@ -302,7 +302,7 @@ export function Overview () {
                                                     await dashboard.delete_dashboard_configs([key], false)
                                                     set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
                                                     model.message.success(t('删除成功'))
-                                                })
+                                                }, { json_error: true })
                                             }
                                             okText={t('确认删除')}
                                             cancelText={t('取消')}
@@ -313,7 +313,7 @@ export function Overview () {
                                         </Popconfirm>
                                     </>
                                     : <>
-                                        <Popconfirm
+                                        {/* <Popconfirm
                                             title='撤销'
                                             description={`确定撤销 ${configs.find(({ id }) => id === key).name} 的权限吗？`}
                                             onConfirm={async () => 
@@ -336,7 +336,7 @@ export function Overview () {
                                             <a  className='delete'>
                                                 {t('撤销')}
                                             </a>
-                                        </Popconfirm>
+                                        </Popconfirm> */}
                                     </> 
                             }
                         </div>
@@ -391,16 +391,16 @@ export function Overview () {
                                         document.body.appendChild(a)
                                         a.click()
                                         document.body.removeChild(a)
-                                    })
+                                    }, { json_error: true })
                                 }
                             >
                                 {t('批量导出')}
                             </Button>
                             
-                            {/* <Share
+                            <Share
                                 dashboard_ids={selected_dashboard_ids}
                                 trigger_type='button'
-                             /> */}
+                             />
                         
                             <Button
                                 danger
@@ -414,9 +414,7 @@ export function Overview () {
                                 }}
                             >
                                 {t('批量删除')}
-                            </Button>
-                            
-                            
+                            </Button>    
                         </div>
                     </div>}
             />
