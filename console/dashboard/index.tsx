@@ -97,15 +97,14 @@ export function DashBoard () {
 
 
 function Init ({ is_admin, set_inited_state }: { is_admin: boolean, set_inited_state }) {
-    return is_admin
+    return <div className='init'>
+        {is_admin
         ? <Result
             title={t('数据面板功能未初始化，可点击下方按钮初始化数据面板功能。')}
             subTitle={
                 <>
                     <p>{t('初始化操作将新增以下数据库表：')}</p>
                     <p>dfs://dashboardUserDb</p>
-                    {/* <p>dfs://dashboardConfigDb</p>
-                    <p>dfs://dashboardUserShareDb</p> */}
                     <p>{t('以及 7 个以 dashboard_ 开头的函数视图（FunctionView）。')}</p>
                 </>
             }
@@ -129,7 +128,8 @@ function Init ({ is_admin, set_inited_state }: { is_admin: boolean, set_inited_s
         />
         : <Result
             title={t('数据面板功能未初始化，请联系管理员初始化数据面板功能。')}
-        />
+        />}
+    </div>
         
 }
 
@@ -149,7 +149,7 @@ function DashboardInstance () {
     }, [ ])
     
     useEffect(() => {
-        dashboard.execute(async () => dashboard.init(rdiv.current))
+        dashboard.execute(async () => dashboard.init(rdiv.current), { json_error: true })
         return () => { dashboard.dispose() }
     }, [ ])
     

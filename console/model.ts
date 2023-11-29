@@ -16,6 +16,7 @@ import {
 } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
+import { parse_error } from './utils/ddb-error.js'
 
 
 export const storage_keys = {
@@ -240,11 +241,17 @@ export class DdbModel extends Model<DdbModel> {
         - options?:
             - throw?: `true` 默认会继续向上抛出错误，如果不需要向上继续抛出
             - print?: `!throw` 在控制台中打印错误
+            - json_error?: `true` 会解析 server 返回的错误
         @example await model.execute(async () => model.xxx()) */
-    async execute (action: Function, { throw: _throw = true, print }: { throw?: boolean, print?: boolean } = { }) {
+    async execute (
+        action: Function, 
+        { throw: _throw = true, print, json_error = false }: { throw?: boolean, print?: boolean, json_error?: boolean } = { }) 
+    {
         try {
             await action()
         } catch (error) {
+            error = json_error ? parse_error(error) : error
+            
             if (print ?? !_throw)
                 console.error(error)
             
