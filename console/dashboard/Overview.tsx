@@ -169,7 +169,7 @@ export function Overview () {
                         }
                         
                         const copy_dashboard = dashboard.generate_new_config(genid(), copy_dashboard_name, current_dashboard.data)
-                        await dashboard.add_dashboard_config(copy_dashboard)
+                        await dashboard.add_dashboard_config(copy_dashboard, false)
                         model.message.success(t('创建副本成功'))
                         
                         copyor.close()
@@ -216,6 +216,7 @@ export function Overview () {
                                     const config = configs.find(({ id }) => id === key)
                                     dashboard.set({ config, editing: false })
                                     model.set_query('dashboard', String(config.id))
+                                    model.set_query('preview', '1')
                                     model.set({ header: false, sider: false })
                                 }}
                             >
@@ -241,12 +242,12 @@ export function Overview () {
                         width: 450,
                         render: ({ key, permission }) => <div className='action'>
                             {
-                                permission !== DashboardPermission.view
-                                    ? <>
+                                (permission !== DashboardPermission.view)
+                                    && <>
                                         <a
                                             onClick={() => {
                                                 let config = configs.find(({ id }) => id === key)
-                                                dashboard.set({ config, editing: true })
+                                                dashboard.set({ config, editing: true, save_confirm: true })
                                                 model.set_query('dashboard', String(config.id))
                                                 model.set({ header: false, sider: false })
                                             }}
@@ -271,7 +272,6 @@ export function Overview () {
                                             {t('创建副本')}
                                         </a>
                                     </>
-                                    : <></>
                             }
                             {
                                 permission === DashboardPermission.own 

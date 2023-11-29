@@ -78,7 +78,7 @@ export function BasicFormFields ({ type }: { type?: 'chart' | 'table' | 'descrip
                 <Form.Item name='with_legend' label={t('图例')} initialValue>
                     <BoolRadioGroup />
                 </Form.Item>
-                <Form.Item name='with_tooltip' label={t('提示框')} initialValue>
+                <Form.Item name='with_tooltip' label={t('气泡提示')} initialValue>
                     <BoolRadioGroup />
                 </Form.Item>
                 <Form.Item name='x_datazoom' label={t('X 轴缩略轴')} initialValue={false}>
