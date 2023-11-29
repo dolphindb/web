@@ -228,8 +228,8 @@ export function Computing () {
                     <div className='persistent-table-stat'>
                         <StateTable
                             type='sharedStreamingTableStat'
-                            cols={render_col_title(translate_format_col(shared_table_stat.to_cols(), 'bytes'), 'sharedStreamingTableStat')}
-                            rows={translate_byte_row(add_key(shared_table_stat.to_rows()), 'bytes')}
+                            cols={render_col_title(translate_format_col(shared_table_stat.to_cols(), 'memoryUsed'), 'sharedStreamingTableStat')}
+                            rows={translate_byte_row(add_key(shared_table_stat.to_rows()), 'memoryUsed')}
                             refresher={computing.get_streaming_table_stat}
                         />
                         <StateTable
@@ -723,35 +723,6 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
     await refresher.call(computing)
 }
 
-function DetailInfo ({ text, type }: { text: string, type: string }) {
-    if (!text)
-        return
-    function detail () {
-        model.modal.info({
-            title: detail_title[type],
-            content: text,
-            width: '80%'
-        })
-    }
-    return <Typography.Paragraph
-                ellipsis={{
-                    rows: 2,
-                    expandable: true,
-                    symbol: (
-                        <span
-                            onClick={event => {
-                                event.stopPropagation()
-                                detail()
-                            }}
-                        >
-                            {t('详细')}
-                        </span>
-                    )
-                }}
-        >
-            {text}
-        </Typography.Paragraph>
-}
 
 function DeleteModal ({
     table_name,
