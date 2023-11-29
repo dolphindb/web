@@ -129,7 +129,8 @@ export function BasicInfoFields (props: IProps) {
                     // 时序数据，或者非时序数据，但是数据总量大于100w需要选常用筛选列
                     if (isFreqIncrease || totalNum.gap === 1 || totalNum.custom > 1000000)
                         return <Form.Item
-                            tooltip='请选择查询时常作为筛选条件的列。越重要的过滤条件，在过筛选列中的位置越靠前。推荐选择2-4个常用筛选列，建议第一个过滤列为时间列，第二个过滤列为设备编号列。'
+                            extra='请选择2-4个常用筛选列，且第一个过滤列需为时间列，第二个过滤列需为设备编号列，除时间列外，其余常用筛选列的数据类型需为 CHAR/SHORT/INT/SYMBOL/STRING'
+                            tooltip='常用筛选列是查询时常作为常选条件的列，越重要的过滤条件，在筛选列中的位置越靠前。'
                             name='sortColumn'
                             label='常用筛选列'
                             rules={[
@@ -138,21 +139,24 @@ export function BasicInfoFields (props: IProps) {
                                     message: '请选择常用筛选列'
                                 },
                                 {
-                                    validator: async (_, value) => {
+                                    validator: async (_, value = [ ]) => {
                                         
-                                        const first_col_type = schema?.find(item => item?.colName === value?.[0])?.dataType
-                                        const second_col_type = schema?.find(item => item?.colName === value?.[1])?.dataType
+                                        const types = value.map(item => schema.find(col => col?.colName === item)?.dataType)
                                         
-                                        if (first_col_type && !['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(first_col_type))
+                                        const is_type_valid = type => ['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING'].includes(type)
+                                        
+                                        if (types[0] && !['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(types[0]))
                                             return Promise.reject('第一个常用筛选列需为时间列')
-                                        if (second_col_type && !['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING'].includes(second_col_type))
-                                            return Promise.reject('第二个常用筛选列的数据类型需为以下 CHAR、SHORT、INT、SYMBOL、STRING 五种数据类型的一种')
+                                            
+                                        if (types?.slice(1)?.some(type => !is_type_valid(type)))  
+                                            return Promise.reject('除时间列外，其余常用筛选列的数据类型需为以下 CHAR/SHORT/INT/SYMBOL/STRING')
+                                        
                                         
                                         if (value?.length < 2)
-                                            return Promise.reject(new Error('至少选择 2 个常用筛选列'))
+                                            return Promise.reject('至少选择 2 个常用筛选列')
                                         
                                         if (value?.length > 4)
-                                            return Promise.reject(new Error('最多只能选择 4 个常用筛选列'))
+                                            return Promise.reject('最多只能选择 4 个常用筛选列')
                                             
                                     }
                                 }
