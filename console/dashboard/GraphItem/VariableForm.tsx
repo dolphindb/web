@@ -6,6 +6,7 @@ import { StringDatePicker } from '../../components/StringDatePicker/index.js'
 import { SearchOutlined } from '@ant-design/icons'
 import classNames from 'classnames'
 import { safe_json_parse } from '../utils.js'
+import { t } from '../../../i18n/index.js'
 
 interface IProps { 
     ids: string[]
@@ -94,7 +95,7 @@ export function VariableForm (props: IProps) {
         </Form>
         {
             with_search_btn && <Button type='primary' icon={<SearchOutlined />} onClick={on_search} className='search-btn'>
-                查询
+                {t('查询')}
             </Button> 
         }
     </div>

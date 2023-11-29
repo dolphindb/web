@@ -1,4 +1,5 @@
 import { type CollapseProps, Form, Input, Collapse } from 'antd'
+import { t } from '../../../i18n/index.js'
 
 export function CanvasSetting () {
     interface SettingOptions {
@@ -10,22 +11,22 @@ export function CanvasSetting () {
     const canvas_collapsse: CollapseProps['items'] = [
         {
             key: '1',
-            label: '基础',
+            label: t('基础'),
             children: (
-                <Form.Item<SettingOptions> label='标题' name='title'>
+                <Form.Item<SettingOptions> label={t('标题')} name='title'>
                     <Input />
                 </Form.Item>
             )
         },
         {
             key: '2',
-            label: '画布样式',
+            label: t('画布样式'),
             children: (
                 <div>
-                    <Form.Item<SettingOptions> label='列数' name='column'>
+                    <Form.Item<SettingOptions> label={t('列数')} name='column'>
                         <Input />
                     </Form.Item>
-                    <Form.Item<SettingOptions> label='行数' name='row'>
+                    <Form.Item<SettingOptions> label={t('行数')} name='row'>
                         <Input />
                     </Form.Item>
                 </div>
