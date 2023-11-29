@@ -140,7 +140,7 @@ export function DataTypeSelect (props: IDataTypeSelect) {
                 options={DATA_TYPE_LIST.map(item => ({ label: item, value: item }))}
                 placeholder='请选择数据类型'
             />
-            <InputNumber value={decimal} onChange={val => { set_decimal(val) }} placeholder='请输入 DECIMAL 精度'/>
+            <InputNumber min={1} value={decimal} onChange={val => { set_decimal(val) }} placeholder='请输入 DECIMAL 精度'/>
         </Space>
         : <Select
             value={data_type}
