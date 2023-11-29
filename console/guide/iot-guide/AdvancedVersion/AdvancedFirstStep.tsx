@@ -21,7 +21,7 @@ export function AdvancedFirstStep (props: IProps) {
     
     
     useEffect(() => {
-        // 非时序数据，数据量小于100万
+        // 非时序数据，数据量小于100万，不需要第二步
         if (!isFreqIncrease && (totalNum?.gap === 0 || totalNum?.custom < 1000000))
             set_recommend_info?.({ hasAdvancedInfo: false })
         else

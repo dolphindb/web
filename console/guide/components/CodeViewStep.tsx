@@ -25,7 +25,6 @@ export function CodeViewStep (props: IProps) {
             await model.ddb.eval(code)
             go({ result: ExecuteResult.SUCCESS } )
         } catch (e) { 
-            console.log('error', e)
             go({ result: ExecuteResult.FAILED, error_msg: e })         
         }
     }, [code, go])
