@@ -4,6 +4,7 @@ import { graph_config } from '../graph-config.js'
 import { dashboard } from '../model.js'
 import { get_data_source } from '../DataSource/date-source.js'
 import { UndoOutlined } from '@ant-design/icons'
+import { t } from '../../../i18n/index.js'
 
 export function GraphSetting () { 
     const { widget } = dashboard.use(['widget'])
@@ -56,16 +57,15 @@ export function GraphSetting () {
             <ConfigFormFields col_names={cols} data_source={data_source} />
         </Form>
         
-        <Popconfirm title='确定要重置配置吗？' onConfirm={on_reset_config}>
+        <Popconfirm title={t('确定要重置配置吗？')} onConfirm={on_reset_config}>
             <Button icon={<UndoOutlined />} className='reset-config-btn'>
-                重置配置
+                {t('重置配置')}
             </Button>
         </Popconfirm>
         <div className='reset-tip'>
             <Typography.Text type='secondary'>
-                配置表单与数据源结构相关，如修改数据源结构，建议重置表单以适应最新结构
+                {t('配置表单与数据源结构相关，如修改数据源结构，建议重置表单以适应最新结构')}
             </Typography.Text>
-        </div>
-        
+        </div>  
     </>
 }
