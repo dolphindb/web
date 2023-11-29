@@ -69,7 +69,7 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
                         await lock.current
                     }  
                     else 
-                        await dashboard.add_dashboard_config(import_config, file_list.length === 1)
+                        await dashboard.add_dashboard_config(config, type === 'icon')
                 }
             }}
             closeIcon={false}
@@ -93,7 +93,7 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
                     onClick={async () => {
                         await execute(async () => {
                             await dashboard.delete_dashboard_configs([repeat_config_id], false)
-                            await dashboard.add_dashboard_config(import_config, file_list.length === 1)
+                            await dashboard.add_dashboard_config(import_config, type === 'icon')
                             import_close()
                             resolve_lock.current()
                             message.success(t('导入成功！'))
@@ -129,7 +129,7 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
                     return
                 }
                 else {
-                    dashboard.add_dashboard_config(import_config, file_list.length === 1)
+                    dashboard.add_dashboard_config(import_config, type === 'icon')
                     resolve_lock.current()
                     rename_close()
                 }
