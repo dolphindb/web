@@ -311,7 +311,7 @@ const cols_width = {
         raftGroup: 70,
         compress: 70,
         sizeOnDisk: 100,
-        retentionMinutes: 100,
+        retentionMinutes: 120,
         memoryOffset: 100,
         hashValue: 90,
         diskOffset: 100
@@ -400,7 +400,7 @@ const leading_cols = {
         sizeOnDisk: t('磁盘中行数'),
         diskOffset: t('磁盘中偏移量'),
         asynWrite: t('是否异步持久化'),
-        retentionMinutes: t('保留时间'),
+        retentionMinutes: t('保留时间（分钟）'),
         compress: t('是否压缩'),
         persistenceDir: t('持久化路径'),
         hashValue: t('持久化线程'),
@@ -417,7 +417,7 @@ const leading_cols = {
         TableName: t('表名'),
         rows: t('行数'),
         columns: t('列数'),
-        bytes: t('字节数')
+        memoryUsed: t('内存大小')
     },
     engine: {
         name: t('引擎名'),
