@@ -95,6 +95,7 @@ export function Header () {
         await dashboard.execute(async () => {
             const updated_config = await get_latest_config()
             await dashboard.update_dashboard_config(updated_config)
+            dashboard.set({ save_confirm: false })
             dashboard.message.success(t('数据面板保存成功'))
         }, { json_error: true })
     }
