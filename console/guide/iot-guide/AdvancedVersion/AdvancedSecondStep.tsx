@@ -34,11 +34,12 @@ export function AdvancedSecondStep (props: IProps) {
     const [loading, set_loading] = useState(false)
     
     const partition_col_options = useMemo(() => {
+        const filter_types = info.first.isFreqIncrease ? ['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP', 'CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING'] : ['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING']
         return info.first.schema
-            .filter(item => ['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP', 'CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING']
+            .filter(item => filter_types
             .includes(item.dataType))
             .map(({ colName }) => ({ label: colName, value: colName }))    
-     }, [info.first?.schema])
+     }, [info.first?.schema, info.first.isFreqIncrease])
     
     
     const col_options = useMemo(() =>
