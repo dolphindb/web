@@ -26,7 +26,7 @@ export function AdvancedVersion () {
     }, [current_step])
     
     const go = useCallback((infos: AdvancedInfos & { result?: ExecuteResult, error_msg?: string }) => {
-        const { result, ...info } = infos
+        const { result, error_msg, ...info } = infos
         set_info(prev => ({ ...prev, ...info }))
         set_current_step(current_step + 1)
         set_result(result)

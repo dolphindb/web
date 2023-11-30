@@ -33,6 +33,13 @@ export function AdvancedSecondStep (props: IProps) {
     const [form] = Form.useForm<SecondStepInfo>()
     const [loading, set_loading] = useState(false)
     
+    const partition_col_options = useMemo(() => {
+        return info.first.schema
+            .filter(item => ['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP', 'CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING']
+            .includes(item.dataType))
+            .map(({ colName }) => ({ label: colName, value: colName }))    
+     }, [info.first?.schema])
+    
     
     const col_options = useMemo(() =>
         info.first?.schema?.map(item => ({ label: item.colName, value: item.colName })),
@@ -98,22 +105,25 @@ export function AdvancedSecondStep (props: IProps) {
             rules={[
                 { required: true, message: '请选择分区列' },
                 {
-                    validator: async (_, cols) => { 
+                    validator: async (_, cols = [ ]) => { 
+                        
                         if (cols?.length !== recommend_info.partitionInfo.partitionNum)  
                             return Promise.reject('您选择的分区列个数与推荐个数不一致，请修改')
+                        const types = cols.map(col => info?.first?.schema?.find(item => item.colName === col)?.dataType)
                         
-                        const first_col_type = info?.first?.schema.find(item => item.colName === cols?.[0])?.dataType
-                        const second_col_type = info?.first?.schema.find(item => item.colName === cols?.[1])?.dataType
-                        
-                        if (!['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(first_col_type))
-                            return Promise.reject('第一个分区列需为时间列')
-                        if (!['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING'].includes(second_col_type))
-                            return Promise.reject('第二个分区列的数据类型需为以下 CHAR、SHORT、INT、SYMBOL、STRING 五种数据类型的一种')
+                        if (info.first.isFreqIncrease) {
+                            if (types?.[0] && !['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(types?.[0]))
+                                return Promise.reject('第一个分区列需为时间列')
+                            if (types.slice(1).some(type => !['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING'].includes(type)))
+                                return Promise.reject('除第一列外，其余分区列的数据类型需为 CHAR/SHORT/INT/SYMBOL/STRING')
+                        } else  
+                            if (types.some(type => !['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING'].includes(type)))
+                                return Promise.reject('分区列的数据类型需为 CHAR/SHORT/INT/SYMBOL/STRING')
                     }
                 }
             ]}
         >
-            <Select mode='multiple' options={col_options} placeholder='请选择分区列'/>
+            <Select mode='multiple' options={partition_col_options} placeholder='请选择分区列'/>
         </Form.Item>
        
         <FormDependencies dependencies={['engine']}>
