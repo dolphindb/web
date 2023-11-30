@@ -126,7 +126,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='computing' />,
                     label: t('流计算监控'),
                 },
-                {
+                ...model.node_type !== NodeType.computing && model.admin ? [{
                     key: 'access',
                     icon: <MenuIcon view='access' />,
                     label: t('权限管理'),
@@ -142,7 +142,7 @@ export function DdbSider () {
                             label: t('组管理'),
                         },
                     ]
-                },
+                }] : [ ],
                 {
                     key: 'log',
                     icon: <MenuIcon view='log' />,

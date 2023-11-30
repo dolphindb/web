@@ -17,8 +17,6 @@ export function UserList () {
     
     const [users_info, set_users_info] = useState([ ])
     
-    const [filtered_users, set_filtered_users] = useState([ ])
-    
     const [search_key, set_search_key] = useState('')
     
     const [selected_users, set_selected_users] = useState([ ])
@@ -34,13 +32,6 @@ export function UserList () {
     useEffect(() => {
         model.execute(async () =>  { set_users_info((await access.get_user_access(users))) } )
     }, [users])
-    
-    
-    useEffect(() => {
-        set_filtered_users(
-            users_info.filter(
-                ({ userId }) => userId.toLowerCase().includes(search_key.toLowerCase())))
-    }, [users_info, search_key])
     
     
     const cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
@@ -85,64 +76,6 @@ export function UserList () {
             }
         ]
     ), [users_info ])
-    
-    const rows = useMemo(() => (
-        filtered_users.map(user_access => ({
-            key: user_access.userId,
-            user_name: user_access.userId,
-            is_admin: user_access.isAdmin ? 
-                                <CheckCircleFilled className='green'/> 
-                                    : 
-                                <MinusCircleFilled className='gray'/>,
-            groups:  <Select
-                        mode='tags'
-                        className='group-select'
-                        // allowClear
-                        placeholder={t('请选择想要添加的组')}
-                        defaultValue={user_access.groups ? user_access.groups.split(',') : [ ]}
-                        onDeselect={async group => model.execute(async () => { await access.delete_group_member(user_access.userId, group) })}
-                        onSelect={async group => model.execute(async () => { await access.add_group_member(user_access.userId, group) })}
-                        options={groups.map(group => ({ label: group, value: group }))}
-                    />,
-            actions: <div className='actions'>
-                <Button type='link'
-                    onClick={() => {
-                        access.set({ current: { name: user_access.userId } })
-                        editor.open()
-                }}>
-                    {t('重置密码')}
-                </Button>
-                
-                <Button type='link'
-                        onClick={() => { 
-                            access.set({ current: { role: 'user', name: user_access.userId, view: 'manage' } }) 
-                        }}>
-                    {t('权限管理')}
-                </Button>
-                
-                <Button type='link'
-                        onClick={() => { 
-                            access.set({ current: { role: 'user', name: user_access.userId, view: 'preview' } }) 
-                        }}>
-                    {t('查看权限')}
-                </Button>
-                
-                <Popconfirm
-                    title={t('删除用户')}
-                    description={t('确认删除用户 {{user}} 吗', { user: user_access.userId })}
-                    onConfirm={async () => model.execute(async () => {
-                        await access.delete_user(user_access.userId)
-                        model.message.success(t('用户删除成功'))
-                        await access.get_user_list()
-                    })}
-                >
-                    <Button type='link' danger>
-                        {t('删除')}
-                    </Button>
-                </Popconfirm>
-            </div>
-        }))
-    ), [filtered_users, groups])
     
     return <>
         <Modal 
@@ -331,7 +264,13 @@ export function UserList () {
             </div>
             <Button type='default'
                     icon={<ReloadOutlined />}
-                    onClick={async () => model.execute(async () =>  access.get_user_list() )}>{t('刷新')}</Button>
+                    onClick={async () => model.execute(
+                        async () => {
+                            await access.get_user_list() 
+                            set_users_info((await access.get_user_access(users)))
+                            model.message.success(t('刷新成功'))
+                        })
+                    }>{t('刷新')}</Button>
         </div>
         <Table 
             rowSelection={{
@@ -341,7 +280,65 @@ export function UserList () {
                 }
             }}
             columns={cols}
-            dataSource={rows}
+            dataSource={users_info.filter(
+                ({ userId }) => userId.toLowerCase().includes(search_key.toLowerCase())).map(user_access => ({
+                    key: user_access.userId,
+                    user_name: user_access.userId,
+                    is_admin: user_access.isAdmin ? 
+                                        <CheckCircleFilled className='green'/> 
+                                            : 
+                                        <MinusCircleFilled className='gray'/>,
+                    groups:  <Select
+                                mode='tags'
+                                className='group-select'
+                                // allowClear
+                                key={user_access.groups}
+                                placeholder={t('请选择想要添加的组')}
+                                defaultValue={user_access.groups ? user_access.groups.split(',') : [ ]}
+                                onDeselect={async group => model.execute(async () => { await access.delete_group_member(user_access.userId, group) })}
+                                onSelect={async group => model.execute(async () => { await access.add_group_member(user_access.userId, group) })}
+                                options={groups.map(group => ({ label: group, value: group }))}
+                            />,
+                    actions: <div className='actions'>
+                        <Button type='link'
+                            onClick={() => {
+                                access.set({ current: { name: user_access.userId } })
+                                editor.open()
+                        }}>
+                            {t('重置密码')}
+                        </Button>
+                        
+                        <Button type='link'
+                                onClick={() => { 
+                                    access.set({ current: { role: 'user', name: user_access.userId, view: 'manage' } }) 
+                                }}>
+                            {t('权限管理')}
+                        </Button>
+                        
+                        <Button type='link'
+                                onClick={() => { 
+                                    access.set({ current: { role: 'user', name: user_access.userId, view: 'preview' } }) 
+                                }}>
+                            {t('查看权限')}
+                        </Button>
+                        
+                        <Popconfirm
+                            title={t('删除用户')}
+                            description={t('确认删除用户 {{user}} 吗', { user: user_access.userId })}
+                            onConfirm={async () => model.execute(async () => {
+                                await access.delete_user(user_access.userId)
+                                model.message.success(t('用户删除成功'))
+                                await access.get_user_list()
+                            })}
+                        >
+                            <Button type='link' danger>
+                                {t('删除')}
+                            </Button>
+                        </Popconfirm>
+                    </div>
+                })
+        
+        )}
             />
     </>
 }

@@ -19,8 +19,6 @@ export function GroupList () {
     
     const [groups_info, set_groups_info] = useState([ ])
     
-    const [filtered_groups, set_filtered_groups] = useState([ ])
-    
     const [search_key, set_search_key] = useState('')
     
     const [selected_groups, set_selected_groups] = useState([ ])
@@ -38,14 +36,7 @@ export function GroupList () {
     useEffect(() => {
         model.execute(async () => { set_groups_info((await access.get_group_access(groups))) })    
     } 
-    , [groups])
-    
-    useEffect(() => {
-        set_filtered_groups(
-            groups_info.filter(
-                ({ groupName }) => groupName.toLowerCase().includes(search_key.toLowerCase())))
-    }, [groups_info, search_key])
-    
+    , [groups])  
     
     const cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
         [
@@ -90,48 +81,6 @@ export function GroupList () {
         ]
     ), [ ])
     
-    const rows = useMemo(() => (
-        filtered_groups.map(group => ({
-            key: group.groupName,
-            group_name: group.groupName,
-            users:  group.users,
-            actions: <div className='actions'>
-                <Button type='link' 
-                        onClick={async () => model.execute(async () => { 
-                            access.set({ current: { name: group.groupName } })
-                            editor.open()
-                            set_target_users(await access.get_users_by_group(group.groupName))
-                        })}>
-                    {t('成员管理')}
-                </Button>
-                <Button type='link' 
-                        onClick={() => { 
-                            access.set({ current: { role: 'group', name: group.groupName, view: 'manage' } }) 
-                        }}>
-                    {t('权限管理')}
-                </Button>
-                <Button type='link'
-                        onClick={() => { 
-                            access.set({ current: { role: 'group', name: group.groupName, view: 'preview' } }) 
-                        }}>
-                    {t('查看权限')}
-                </Button>
-                <Popconfirm
-                    title={t('删除组')}
-                    description={t('确认删除组 {{group}} 吗', { group: group.groupName })}
-                    onConfirm={async () => model.execute(async () => {
-                        await access.delete_group(group.groupName)
-                        model.message.success(t('组删除成功'))
-                        await access.get_group_list()
-                    })}
-                >
-                    <Button type='link' danger>
-                        {t('删除')}
-                    </Button>
-                </Popconfirm>
-            </div>
-        }))
-    ), [filtered_groups, groups])
     
     return <>
         <Modal 
@@ -281,7 +230,47 @@ export function GroupList () {
                 }
             }}
             columns={cols}
-            dataSource={rows}
+            dataSource={ groups_info.filter(
+                ({ groupName }) => groupName.toLowerCase().includes(search_key.toLowerCase())).map(group => ({
+                key: group.groupName,
+                group_name: group.groupName,
+                users:  group.users,
+                actions: <div className='actions'>
+                    <Button type='link' 
+                            onClick={async () => model.execute(async () => { 
+                                access.set({ current: { name: group.groupName } })
+                                editor.open()
+                                set_target_users(await access.get_users_by_group(group.groupName))
+                            })}>
+                        {t('成员管理')}
+                    </Button>
+                    <Button type='link' 
+                            onClick={() => { 
+                                access.set({ current: { role: 'group', name: group.groupName, view: 'manage' } }) 
+                            }}>
+                        {t('权限管理')}
+                    </Button>
+                    <Button type='link'
+                            onClick={() => { 
+                                access.set({ current: { role: 'group', name: group.groupName, view: 'preview' } }) 
+                            }}>
+                        {t('查看权限')}
+                    </Button>
+                    <Popconfirm
+                        title={t('删除组')}
+                        description={t('确认删除组 {{group}} 吗', { group: group.groupName })}
+                        onConfirm={async () => model.execute(async () => {
+                            await access.delete_group(group.groupName)
+                            model.message.success(t('组删除成功'))
+                            await access.get_group_list()
+                        })}
+                    >
+                        <Button type='link' danger>
+                            {t('删除')}
+                        </Button>
+                    </Popconfirm>
+                </div>
+            }))}
             tableLayout='fixed'
             // scroll={{ x: '100%' }}
             />
