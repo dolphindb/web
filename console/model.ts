@@ -188,7 +188,7 @@ export class DdbModel extends Model<DdbModel> {
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                if (this.dev)
+                if (this.dev || this.cdn)
                     try {
                         await this.login_by_password('admin', '123456')
                     } catch {

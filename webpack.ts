@@ -39,122 +39,130 @@ export const fpd_out_console = `${fpd_out}web/`
 export const fpd_out_cloud = `${fpd_out}web.cloud/`
 
 
-export const base_config: Webpack.Configuration = {
-    devtool: 'source-map',
-    
-    experiments: {
-        outputModule: true,
-    },
-    
-    target: ['web', 'es2023'],
-    
-    module: {
-        rules: [
-            {
-                test: /\.js$/,
-                enforce: 'pre',
-                use: ['source-map-loader'],
-            },
-            {
-                test: /\.tsx?$/,
-                exclude: /node_modules/,
-                loader: 'ts-loader',
-                // https://github.com/TypeStrong/ts-loader
-                options: {
-                    configFile: `${fpd_root}tsconfig.json`,
-                    onlyCompileBundledFiles: true,
-                    transpileOnly: true,
-                } as Partial<TSLoaderOptions>
-            },
-            {
-                test: /\.s[ac]ss$/,
-                use: [
-                    'style-loader',
-                    {
-                        // https://github.com/webpack-contrib/css-loader
-                        loader: 'css-loader',
-                        options: {
-                            url: false,
+export function get_base_config (production: boolean): Webpack.Configuration {
+    return {
+        mode: production ? 'production' : 'development',
+        
+        devtool: production ? false : 'source-map',
+        
+        experiments: {
+            outputModule: true,
+        },
+        
+        target: ['web', 'es2023'],
+        
+        module: {
+            rules: [
+                // 开发模式才启用 source map loader
+                ... production ?
+                    [ ]
+                :
+                    [{
+                        test: /\.js$/,
+                        enforce: 'pre',
+                        use: ['source-map-loader'],
+                    } as Webpack.RuleSetRule],
+                {
+                    test: /\.tsx?$/,
+                    exclude: /node_modules/,
+                    loader: 'ts-loader',
+                    // https://github.com/TypeStrong/ts-loader
+                    options: {
+                        configFile: `${fpd_root}tsconfig.json`,
+                        onlyCompileBundledFiles: true,
+                        transpileOnly: true,
+                    } as Partial<TSLoaderOptions>
+                },
+                {
+                    test: /\.s[ac]ss$/,
+                    use: [
+                        'style-loader',
+                        {
+                            // https://github.com/webpack-contrib/css-loader
+                            loader: 'css-loader',
+                            options: {
+                                url: false,
+                            }
+                        },
+                        {
+                            // https://webpack.js.org/loaders/sass-loader
+                            loader: 'sass-loader',
+                            options: {
+                                implementation: sass,
+                                // 解决 url(search.png) 打包出错的问题
+                                webpackImporter: false,
+                                sassOptions: {
+                                    indentWidth: 4,
+                                },
+                            } as SassOptions,
                         }
-                    },
-                    {
-                        // https://webpack.js.org/loaders/sass-loader
-                        loader: 'sass-loader',
-                        options: {
-                            implementation: sass,
-                            // 解决 url(search.png) 打包出错的问题
-                            webpackImporter: false,
-                            sassOptions: {
-                                indentWidth: 4,
-                            },
-                        } as SassOptions,
-                    }
-                ]
-            },
-            {
-                test: /\.css$/,
-                use: ['style-loader', 'css-loader']
-            },
-            {
-                oneOf: [
-                    {
-                        test: /\.icon\.svg$/,
-                        issuer: /\.[jt]sx?$/,
-                        loader: '@svgr/webpack',
-                        options: { icon: true }
-                    },
-                    {
-                        test: /\.(svg|ico|png|jpe?g|gif|woff2?|ttf|eot|otf|mp4|webm|ogg|mp3|wav|flac|aac)$/,
-                        type: 'asset/inline',
-                    },
-                ]
-            },
-            {
-                test: /\.txt$/,
-                type: 'asset/source',
-            }
+                    ]
+                },
+                {
+                    test: /\.css$/,
+                    use: ['style-loader', 'css-loader']
+                },
+                {
+                    oneOf: [
+                        {
+                            test: /\.icon\.svg$/,
+                            issuer: /\.[jt]sx?$/,
+                            loader: '@svgr/webpack',
+                            options: { icon: true }
+                        },
+                        {
+                            test: /\.(svg|ico|png|jpe?g|gif|woff2?|ttf|eot|otf|mp4|webm|ogg|mp3|wav|flac|aac)$/,
+                            type: 'asset/inline',
+                        },
+                    ]
+                },
+                {
+                    test: /\.(txt|dos)$/,
+                    type: 'asset/source',
+                }
+            ],
+        },
+        
+        optimization: {
+            minimize: false,
+        },
+        
+        performance: {
+            hints: false,
+        },
+        
+        ignoreWarnings: [
+            /Failed to parse source map/
         ],
-    },
-    
-    optimization: {
-        minimize: false,
-    },
-    
-    performance: {
-        hints: false,
-    },
-    
-    ignoreWarnings: [
-        /Failed to parse source map/
-    ],
-    
-    stats: {
-        colors: true,
         
-        context: fpd_root,
-        
-        entrypoints: false,
-        
-        errors: true,
-        errorDetails: true,
-        
-        hash: false,
-        
-        version: false,
-        
-        timings: true,
-        
-        children: false,
-        
-        assets: true,
-        assetsSpace: 20,
-        
-        modules: false,
-        modulesSpace: 20,
-        
-        cachedAssets: false,
-        cachedModules: false,
-    },
+        stats: {
+            colors: true,
+            
+            context: fpd_root,
+            
+            entrypoints: false,
+            
+            errors: true,
+            errorDetails: true,
+            
+            hash: false,
+            
+            version: false,
+            
+            timings: true,
+            
+            children: false,
+            
+            assets: true,
+            assetsSpace: 20,
+            
+            modules: false,
+            modulesSpace: 20,
+            
+            cachedAssets: false,
+            cachedModules: false,
+        },
+    }
 }
 
 
@@ -165,13 +173,13 @@ export let webpack = {
     
     
     async build ({ production, is_cloud }: { production: boolean, is_cloud?: boolean }) {
+        const base_config = get_base_config(production)
+        
         await this.lcompiler.request(async () => {
             this.lcompiler.resource = Webpack(this.config = {
-                ...base_config,
+                ... base_config,
                 
                 name: 'web',
-                
-                mode: production ? 'production' : 'development',
                 
                 entry: production ?
                     is_cloud ?
