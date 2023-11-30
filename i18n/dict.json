@@ -2100,13 +2100,13 @@
         "en": "The table EngineStat returns the status of the stream computing engine."
     },
     "批量取消订阅": {
-        "en": "batch unsubscribe"
+        "en": "Batch unsubscribe"
     },
     "确认取消订阅选中的流数据表吗？": {
         "en": "Are you sure to unsubscribe the selected stream data table?"
     },
     "批量删除": {
-        "en": "batch deletion"
+        "en": "Batch deletion"
     },
     "确认删除选中的引擎吗？": {
         "en": "Are you sure you want to delete the selected engine?"
@@ -2583,7 +2583,7 @@
         "en": "group management"
     },
     "数据面板": {
-        "en": "dashboard"
+        "en": "Dashboard"
     },
     "加载到内存": {
         "en": "load into memory"
@@ -2808,7 +2808,7 @@
         "en": "quotation data level"
     },
     "订单图": {
-        "en": "order chart"
+        "en": "Order"
     },
     "数据环": {
         "en": "data loop"
@@ -2826,7 +2826,7 @@
         "en": "add text"
     },
     "不保存": {
-        "en": "don't save"
+        "en": "Don't save"
     },
     "此数据源存在未保存的更改。你想保存吗？": {
         "en": "There are unsaved changes in this data source. do you want to save?"
@@ -2841,16 +2841,16 @@
         "en": "apply"
     },
     "关闭": {
-        "en": "close"
+        "en": "Close"
     },
     "DolphinDB 脚本 / SQL": {
         "en": "DolphinDB script / SQL"
     },
     "流数据": {
-        "en": "streaming data"
+        "en": "Streaming"
     },
     "重命名": {
-        "en": "rename"
+        "en": "Rename"
     },
     "保存成功": {
         "en": "save successful"
@@ -2886,13 +2886,13 @@
         "en": "data preview"
     },
     "自动刷新": {
-        "en": "auto refresh"
+        "en": "Auto refresh"
     },
     "间隔时间": {
-        "en": "interval time"
+        "en": "Interval time"
     },
     "最大行数": {
-        "en": "maximum row count"
+        "en": "Maximum row count"
     },
     "若该值为空则表示不对最大行数进行限制": {
         "en": "If this value is empty, it means no maximum row count restriction"
@@ -2904,25 +2904,25 @@
         "en": "column name preview ({{length}} columns):"
     },
     "列过滤": {
-        "en": "column filter"
+        "en": "Column filter"
     },
     "值过滤、范围过滤、哈希过滤": {
         "en": "value filter, range filter, hash filter"
     },
     "当前过滤列为:": {
-        "en": "current filter column is:"
+        "en": "Current filter column is:"
     },
     "当前流表无过滤列": {
-        "en": "current streaming table has no filter columns"
+        "en": "Current streaming table has no filter columns"
     },
     "表达式过滤": {
-        "en": "expression filter"
+        "en": "Expression filter"
     },
     "无可用流表": {
-        "en": "no available streaming table"
+        "en": "No available streaming table"
     },
     "过滤": {
-        "en": "filter"
+        "en": "Filter"
     },
     "数据面板保存成功": {
         "en": "dashboard saved successfully"
@@ -2931,7 +2931,7 @@
         "en": "modification successful"
     },
     "当前数据面板列表为空": {
-        "en": "current dashboard list is empty"
+        "en": "Current dashboard list is empty"
     },
     "撤销成功": {
         "en": "undo successful"
@@ -2949,10 +2949,10 @@
         "en": "preview only"
     },
     "返回主界面": {
-        "en": "return to main interface"
+        "en": "Return to main overview"
     },
     "离开此界面您当前更改会丢失，是否需要保存当前更改": {
-        "en": "Leaving this interface will result in the loss of your current changes. do you want to save the changes?"
+        "en": "Leaving this interface will result in the loss of your current changes. Do you want to save the changes?"
     },
     "请输入数据面板的名称": {
         "en": "Please enter the name of the dashboard"
@@ -2967,19 +2967,19 @@
         "en": "Please enter the name of the dashboard copy"
     },
     "新增": {
-        "en": "add"
+        "en": "Add"
     },
     "导出": {
-        "en": "export"
+        "en": "Export"
     },
     "创建副本": {
-        "en": "create copy"
+        "en": "Create copy"
     },
     "修改名称": {
-        "en": "modify name"
+        "en": "Rename"
     },
     "分享": {
-        "en": "share"
+        "en": "Share"
     },
     "确定当前 dashboard 删除吗？": {
         "en": "Are you sure you want to delete the current dashboard?"
@@ -2991,13 +2991,13 @@
         "en": "undo"
     },
     "编辑": {
-        "en": "edit"
+        "en": "Edit"
     },
     "批量导入": {
-        "en": "batch import"
+        "en": "Batch import"
     },
     "导入": {
-        "en": "import"
+        "en": "Import"
     },
     "你确定要导入这 {{length}} 个 dashboard 吗？": {
         "en": "Are you sure you want to import these {{length}} dashboards?"
@@ -3075,7 +3075,7 @@
         "en": "you do not have permission to export {{name}}"
     },
     "批量导出": {
-        "en": "batch export"
+        "en": "Batch export"
     },
     "请至少选中一个数据面板后再删除": {
         "en": "please select at least one dashboard before deleting"
@@ -3099,7 +3099,7 @@
         "en": "please select at least one dashboard before sharing"
     },
     "批量分享": {
-        "en": "batch share"
+        "en": "Batch share"
     },
     "请选择需要分享的用户": {
         "en": "please select the users to share with"
@@ -3150,7 +3150,7 @@
         "en": "options:"
     },
     "变量": {
-        "en": "variable"
+        "en": "Variable"
     },
     "不存在": {
         "en": "does not exist"
@@ -3202,5 +3202,68 @@
     },
     "使用默认 admin 账号密码登录失败": {
         "en": "failed to log in using the default admin account password"
+    },
+    "柱状图": {
+        "en": "Bar"
+    },
+    "折线图": {
+        "en": "Line"
+    },
+    "饼图": {
+        "en": "Pie"
+    },
+    "K 线": {
+        "en": "OHLC"
+    },
+    "混合图": {
+        "en": "Mix"
+    },
+    "富文本": {
+        "en": "Text"
+    },
+    "描述表": {
+        "en": "Describe"
+    },
+    "编辑器": {
+        "en": "Editor"
+    },
+    "仪表盘": {
+        "en": "Gauge"
+    },
+    "雷达图": {
+        "en": "Radar"
+    },
+    "散点图": {
+        "en": "Scatter"
+    },
+    "热力图": {
+        "en": "Heat"
+    },
+    "保留时间（分钟）": {
+        "en": "retention time (minutes)"
+    },
+    "气泡提示": {
+        "en": "tooltip"
+    },
+    "值列": {
+        "en": "value column"
+    },
+    "标签字号": {
+        "en": "label font size"
+    },
+    "值字号": {
+        "en": "value font size"
+    },
+    "每行展示数量": {
+        "en": "number of items per row"
+    },
+    "值颜色": {
+        "en": "value color"
+    },
+    "列属性": {
+        "en": "column attributes"
+    },
+    "编辑文本": {
+        "en": "Edit text"
     }
 }
