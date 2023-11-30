@@ -2,7 +2,7 @@ import './index.sass'
 
 import { useEffect, useMemo, useState } from 'react'
 
-import { Button, Form, Input, Modal, Table,  Popconfirm, Tooltip, type TableColumnType, Transfer } from 'antd'
+import { Button, Form, Input, Modal, Table,  Popconfirm, Tooltip, type TableColumnType, Transfer, Select, Tag } from 'antd'
 import { DeleteOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 
 import { t } from '../../i18n/index.js'
@@ -10,8 +10,6 @@ import { t } from '../../i18n/index.js'
 import { access } from './model.js'
 import { model } from '../model.js'
 import { use_modal } from 'react-object-model/modal'
-
-const max_num_of_users = 12
 
 export function GroupList () {
     
@@ -38,39 +36,57 @@ export function GroupList () {
     } 
     , [groups])  
     
+    function tagRender (props) {
+        const { label, closable, onClose } = props
+        function onPreventMouseDown (event: React.MouseEvent<HTMLSpanElement>) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        return <Tag
+            color='cyan'
+            onMouseDown={onPreventMouseDown}
+            closable={closable}
+            onClose={onClose}
+            style={{ marginRight: 3 }}
+          >
+            {label}
+          </Tag>
+    }
+    
     const cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
         [
             {
                 title: t('组名'),
                 dataIndex: 'group_name',
                 key: 'group_name',
-                
+                width: 200
             },
             {
                 title: t('组内用户'),
                 dataIndex: 'users',
                 key: 'users',
-                width: 800,
-                ellipsis: {
-                    showTitle: false,
-                },
-                render: users => { 
-                    const users_arr = users.split(',')
-                    return <div>
-                        <span>{users_arr.length > max_num_of_users ? 
-                                <div>
-                                    <span>{users_arr.slice(0, max_num_of_users).join(',') + '...'}</span>
-                                    <Tooltip title={users_arr.slice(max_num_of_users).join(',')}>
-                                        <span className='blue'>
-                                            {'+' + (users_arr.length - max_num_of_users)}
-                                        </span>
-                                    </Tooltip>
-                                </div>
-                                                    : 
-                                users
-                            }</span>
-                </div> 
-                },
+                // // width: 800,
+                // // ellipsis: {
+                // //     showTitle: false,
+                // // },
+                // // render: group_users => { 
+                // //     const users_arr = group_users.split(',')
+                // //     return <div>
+                       
+                //         {/* <span>{users_arr.length > max_num_of_users ? 
+                //                 <div>
+                //                     <span>{users_arr.slice(0, max_num_of_users).join(',') + '...'}</span>
+                //                     <Tooltip title={users_arr.slice(max_num_of_users).join(',')}>
+                //                         <span className='blue'>
+                //                             {'+' + (users_arr.length - max_num_of_users)}
+                //                         </span>
+                //                     </Tooltip>
+                //                 </div>
+                //                                     : 
+                //                 users
+                //             }</span> */}
+                // // </div> 
+                // },
             },
             {
                 title: t('操作'),
@@ -234,7 +250,18 @@ export function GroupList () {
                 ({ groupName }) => groupName.toLowerCase().includes(search_key.toLowerCase())).map(group => ({
                 key: group.groupName,
                 group_name: group.groupName,
-                users:  group.users,
+                users:  <Select
+                    mode='tags'
+                    className='group-select'
+                    // allowClear
+                    tagRender={tagRender}
+                    key={group.users}
+                    placeholder={t('请选择想要添加的用户')}
+                    defaultValue={group.users.split(',')}
+                    onDeselect={async user => model.execute(async () => { await access.delete_group_member(user, group.groupName) })}
+                    onSelect={async user => model.execute(async () => { await access.add_group_member(user, group.groupName) })}
+                    options={users.map(user => ({ label: user, value: user }))}
+                />,
                 actions: <div className='actions'>
                     <Button type='link' 
                             onClick={async () => model.execute(async () => { 
