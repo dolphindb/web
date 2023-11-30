@@ -39,7 +39,7 @@ export function VariableEditor ({
         text: <TextArea 
                     size='small' 
                     rows={18}
-                    className='variable-editor-main-value-control-text'
+                    className='variable-editor-main-value-control'
                     value={current_variable.value}
                     onChange={event => {
                         change_current_variable_property('value', event.target.value) 
