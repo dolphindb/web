@@ -2949,7 +2949,7 @@
         "en": "preview only"
     },
     "返回主界面": {
-        "en": "Return to main overview"
+        "en": "Return to overview"
     },
     "离开此界面您当前更改会丢失，是否需要保存当前更改": {
         "en": "Leaving this interface will result in the loss of your current changes. Do you want to save the changes?"
@@ -3213,7 +3213,7 @@
         "en": "Pie"
     },
     "K 线": {
-        "en": "OHLC"
+        "en": "K-line"
     },
     "混合图": {
         "en": "Mix"

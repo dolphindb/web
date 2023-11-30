@@ -36,7 +36,7 @@ export function Sider ({ visible }: { visible: boolean }) {
                     data-type={key}
                     gs-w={2}
                     gs-h={3}
-                    title={value}
+                    title={t(value)}
                 >
                     {icons[value]}
                     <span className='name'>{collapsed ? '' : t(value)}</span>
