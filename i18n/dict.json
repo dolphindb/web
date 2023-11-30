@@ -1488,7 +1488,7 @@
         "en": "dimension table"
     },
     "表名": {
-        "en": "table name"
+        "en": "Table Name"
     },
     "已存在相同名称的表": {
         "en": "A table with the same name already exists"
@@ -2370,19 +2370,19 @@
         "en": "Monitor the status of the stream computing engine."
     },
     "流数据表": {
-        "en": "Streaming table"
+        "en": "Streaming Tables"
     },
     "取消订阅": {
-        "en": " unsubscribe"
+        "en": " Unsubscribe"
     },
     "引擎": {
-        "en": "engine"
+        "en": "Engines"
     },
     "持久化共享数据流表": {
-        "en": "Persistent Shared Streaming Table"
+        "en": "Persistent Shared Streaming Tables"
     },
     "共享数据流表": {
-        "en": "Shared Streaming Table"
+        "en": "Shared Streaming Tables"
     },
     "最近处理消息 ID": {
         "en": "Recently processed message ID"
@@ -2586,10 +2586,10 @@
         "en": "dashboard"
     },
     "加载到内存": {
-        "en": "load into memory"
+        "en": "Load into Memory"
     },
     "内存大小": {
-        "en": "memory size"
+        "en": "Memory Size"
     },
     "类目轴，适用于离散的类目数据，或者时序数据": {
         "en": "Category axis, suitable for discrete category data or time series data"
@@ -3202,5 +3202,23 @@
     },
     "使用默认 admin 账号密码登录失败": {
         "en": "failed to log in using the default admin account password"
+    },
+    "保留时间（分钟）": {
+        "en": "Retention time (minute)"
+    },
+    "气泡提示": {
+        "en": "poptip"
+    },
+    "查看数据库 {{db_name}} 用户权限": {
+        "en": "View database {{db_name}} user permissions"
+    },
+    "查看用户权限": {
+        "en": "View user permissions"
+    },
+    "确认{{action}}选中的 ": {
+        "en": "Confirm {{action}} Selected "
+    },
+    " 个{{item}}吗?": {
+        "en": " {{item}} ?"
     }
 }
