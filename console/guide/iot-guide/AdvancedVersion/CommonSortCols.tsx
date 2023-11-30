@@ -17,8 +17,8 @@ export function CommonSortCols (props: IProps) {
     const form = Form.useFormInstance()
     
     const validator = useCallback(async () => { 
-        const otherSortKeyInfo = form.getFieldValue('otherSortKeyInfo')
-        const name_list = otherSortKeyInfo.map(item => item.colName)
+        const otherSortKeyInfo = form.getFieldValue('otherSortKeyInfo') ?? [ ]
+        const name_list = otherSortKeyInfo.map(item => item?.colName)
         if (new Set(name_list).size !== name_list.length)  
             return Promise.reject('已配置该常用筛选列，请修改')
     }, [ ])

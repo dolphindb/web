@@ -25,7 +25,7 @@ export function CommonFilterCols (props: IProps) {
     
     const validator = useCallback(async () => { 
         const filterCols = form.getFieldValue('filterCols') ?? [ ]
-        const name_list = filterCols.filter(item => !!item.colName).map(item => item.colName)
+        const name_list = filterCols.filter(item => !!item?.colName).map(item => item.colName)
         if (new Set(name_list).size !== name_list.length)  
             return Promise.reject('已配置该常用筛选列，请修改')
     }, [ ])

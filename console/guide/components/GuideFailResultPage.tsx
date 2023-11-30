@@ -16,7 +16,7 @@ export function GuideFailResultPage (props: IProps) {
     return <div className='guide-result-page'>
         <CloseCircleFilled className='error-icon' />
         <div className='result-title'>创建失败</div>
-        {error_msg && <Typography.Text type='secondary'>错误信息：{error_msg}</Typography.Text>}
+        {error_msg && <Typography.Text type='secondary' className='error-msg'>错误信息：{error_msg}</Typography.Text>}
         <div className='fail-btn-group'>
             <Space>
                 <Button onClick={back}>上一步</Button>

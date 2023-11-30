@@ -3,15 +3,19 @@ import './index.scss'
 import { CloudUploadOutlined, DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { Button, Form, Input, InputNumber, Modal, Radio, Select, Space, Typography, message } from 'antd'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { UploadFileField } from './UploadFileField.js'
 import { request } from '../utils.js'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { type BasicInfoFormValues } from '../iot-guide/type.js'
+import { convert_list_to_options } from '../../dashboard/utils.js'
 
-const DATA_TYPE_LIST = ['BOOL', 'CHAR', 'SHORT', 'INT', 'FLOAT', 'DOUBLE', 'LONG',
+const ITO_DATA_TYPE_LIST = ['BOOL', 'CHAR', 'SHORT', 'INT', 'FLOAT', 'DOUBLE', 'LONG',
 'TIME', 'MINUTE', 'SECOND', 'DATE', 'DATEHOUR', 'DATETIME', 'TIMESTAMP',
-'NANOTIMESTAMP', 'SYMBOL', 'STRING', 'BLOB', 'DECIMAL32', 'DECIMAL64', 'DECIMAL128']
+    'NANOTIMESTAMP', 'SYMBOL', 'STRING', 'BLOB', 'DECIMAL32', 'DECIMAL64', 'DECIMAL128']
+
+const FINANCE_DATA_TYPE_LIST = [...ITO_DATA_TYPE_LIST, 'BOOL[]', 'CHAR[]', 'SHORT[]', 'INT[]', 'FLOAT[]', 'DOUBLE[]', 'LONG[]', 'DATE[]', 'MONTH[]', 'TIME[]',
+'MINUTE[]', 'SECOND[]', 'DATETIME[]', 'TIMESTAMP[]', 'NANOTIME[]', 'NANOTIMESTAMP[]', 'DATEHOUR[]', 'DECIMAL32[]', 'DECIMAL64[]', 'DECIMAL128[]']
 
 interface ISchemaUploadModal { 
     on_apply: (values) => void
@@ -99,10 +103,13 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
 interface IDataTypeSelect {
     value?: string
     onChange?: (val: string) => void
+    with_array_vector: boolean 
  }
 
 export function DataTypeSelect (props: IDataTypeSelect) {
-    const { value, onChange } = props
+    const { value, onChange, with_array_vector } = props
+    
+    const options = useMemo(() => with_array_vector ? convert_list_to_options(FINANCE_DATA_TYPE_LIST) : convert_list_to_options(ITO_DATA_TYPE_LIST), [with_array_vector])
     
     const [data_type, set_data_type] = useState<string>()
     const [decimal, set_decimal] = useState<number>() 
@@ -114,7 +121,7 @@ export function DataTypeSelect (props: IDataTypeSelect) {
                 // 带括号的decimal (1)
                 const decimal_str = value.match(/\((.+?)\)/g)[0]
                 set_decimal(Number(decimal_str.substring(1, decimal_str.length - 1)))
-                set_data_type(value?.split('(')?.[0])
+                set_data_type(value.replace(/\(.*?\)/g, ''))
             } else  
                 set_data_type(value)
     }, [value])
@@ -122,11 +129,11 @@ export function DataTypeSelect (props: IDataTypeSelect) {
     useEffect(() => {
         if (!data_type?.includes('DECIMAL'))
             return
-        if (data_type === 'DECIMAL32')
+        if (data_type.includes('DECIMAL32'))
             set_limit({ min: 0, max: 9 })
-        else if (data_type === 'DECIMAL64')
+        else if (data_type.includes('DECIMAL64'))
             set_limit({ min: 0, max: 18 })
-        else if (data_type === 'DECIMAL128')
+        else if (data_type.includes('DECIMAL128'))
             set_limit({ min: 0, max: 38 })
     }, [data_type])
     
@@ -135,8 +142,11 @@ export function DataTypeSelect (props: IDataTypeSelect) {
         if (data_type === undefined)
             return
         if (data_type?.includes('DECIMAL'))  
-            if (decimal)
-                onChange(`${data_type}(${decimal})`)
+            if (decimal) 
+                if (data_type.includes('[]'))
+                    onChange(`${data_type.replace('[]', '')}(${decimal})[]`)
+                else
+                    onChange(`${data_type}(${decimal})`)
             else
                 onChange(undefined)
         else
@@ -149,7 +159,7 @@ export function DataTypeSelect (props: IDataTypeSelect) {
                 value={data_type}
                 onChange={val => { set_data_type(val) }}
                 showSearch
-                options={DATA_TYPE_LIST.map(item => ({ label: item, value: item }))}
+                options={options}
                 placeholder='请选择数据类型'
             />
             <InputNumber min={limit.min} max={limit.max} value={decimal} onChange={val => { set_decimal(val) }} placeholder='请输入 DECIMAL 精度'/>
@@ -158,12 +168,13 @@ export function DataTypeSelect (props: IDataTypeSelect) {
             value={data_type}
             onChange={val => { set_data_type(val) }}
             showSearch
-            options={DATA_TYPE_LIST.map(item => ({ label: item, value: item }))}
+            options={options}
             placeholder='请选择数据类型'
         />
 }
 
-export function SchemaList () { 
+export function SchemaList (props: { with_array_vector?: boolean }) { 
+    const { with_array_vector } = props
     
     const form = Form.useFormInstance()
     
@@ -199,7 +210,7 @@ export function SchemaList () {
                         <Input placeholder='请输入列名'/>
                     </Form.Item>
                     <Form.Item tooltip='请注意，DECIMAL32 精度有效范围是[0, 9]，DECIMAL64 精度有效范围是[0, 18]，DECIMAL128 精度有效范围是[0,38]' label='数据类型' name={[field.name, 'dataType']} rules={[{ required: true, message: '请选择数据类型' }]}>
-                        <DataTypeSelect />
+                        <DataTypeSelect with_array_vector={with_array_vector} />
                     </Form.Item>
                     {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }}/> }
                 </div>)}

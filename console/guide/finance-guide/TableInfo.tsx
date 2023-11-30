@@ -63,7 +63,7 @@ export function TableInfo (props: IProps) {
         >
             <Input placeholder='请输入表名'/>
         </Form.Item>
-        <SchemaList />
+        <SchemaList with_array_vector={info.database.engine !== 'OLAP'} />
         <PartitionColSelect info={info} schema={schema} />
         
         <CommonFilterCols schema={schema}/>
