@@ -9,6 +9,7 @@ import { request } from '../utils.js'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { type BasicInfoFormValues } from '../iot-guide/type.js'
 import { convert_list_to_options } from '../../dashboard/utils.js'
+import { isNumber } from 'lodash'
 
 const ITO_DATA_TYPE_LIST = ['BOOL', 'CHAR', 'SHORT', 'INT', 'FLOAT', 'DOUBLE', 'LONG',
 'TIME', 'MINUTE', 'SECOND', 'DATE', 'DATEHOUR', 'DATETIME', 'TIMESTAMP',
@@ -142,7 +143,7 @@ export function DataTypeSelect (props: IDataTypeSelect) {
         if (data_type === undefined)
             return
         if (data_type?.includes('DECIMAL'))  
-            if (decimal) 
+            if (isNumber(decimal)) 
                 if (data_type.includes('[]'))
                     onChange(`${data_type.replace('[]', '')}(${decimal})[]`)
                 else
@@ -154,7 +155,7 @@ export function DataTypeSelect (props: IDataTypeSelect) {
     }, [data_type, decimal])
     
     return data_type?.includes('DECIMAL')
-        ? <Space>
+        ? <div className='data-type-wrapper'>
             <Select
                 value={data_type}
                 onChange={val => { set_data_type(val) }}
@@ -163,7 +164,7 @@ export function DataTypeSelect (props: IDataTypeSelect) {
                 placeholder='请选择数据类型'
             />
             <InputNumber min={limit.min} max={limit.max} value={decimal} onChange={val => { set_decimal(val) }} placeholder='请输入 DECIMAL 精度'/>
-        </Space>
+        </div>
         : <Select
             value={data_type}
             onChange={val => { set_data_type(val) }}
