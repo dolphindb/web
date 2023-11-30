@@ -2373,7 +2373,7 @@
         "en": "Streaming Tables"
     },
     "取消订阅": {
-        "en": " Unsubscribe"
+        "en": "Unsubscribe"
     },
     "引擎": {
         "en": "Engines"
@@ -2406,7 +2406,7 @@
         "en": "The control node does not support publishing and subscription of streaming data. Please jump to the data node or computing node to view the streaming data status."
     },
     "批量": {
-        "en": "batch"
+        "en": "Batch "
     },
     "当前配置不存在": {
         "en": "The current configuration does not exist"
