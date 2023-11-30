@@ -746,13 +746,13 @@ function DeleteModal ({
                     <div className='delete-warning-title'>
                         <WarningOutlined />
                         <span>
-                            {`确认${button_text[table_name].action}选中的 `}
+                            {t('确认{{action}}选中的 ', { action: button_text[table_name].action })}
                             <Tooltip
                                 title={selected.map(name => <p key={name}>{name}</p>)}
                             >
                                 <span className='selected-number'>{selected.length}</span>
                             </Tooltip>
-                            {` 个${button_text[table_name].title}吗？`}
+                            {t(' 个{{item}}吗?', { item: button_text[table_name].title })}
                         </span>
                     </div>
                 }
