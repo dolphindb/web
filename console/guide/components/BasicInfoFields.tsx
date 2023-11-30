@@ -127,43 +127,35 @@ export function BasicInfoFields (props: IProps) {
             type === GuideType.SIMPLE && <FormDependencies dependencies={['isFreqIncrease', 'totalNum', 'schema']}>
                 {({ isFreqIncrease, totalNum, schema = [ ] }) => {
                     // 时序数据，或者非时序数据，但是数据总量大于100w需要选常用筛选列
-                    if (isFreqIncrease || totalNum.gap === 1 || totalNum.custom > 1000000)
+                    if (isFreqIncrease || totalNum.gap === 1 || totalNum.custom > 1000000) { 
+                        const options = schema.filter(item => item?.colName && ['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING', 'DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(item.dataType)).map(item => ({ label: item.colName, value: item.colName }))
                         return <Form.Item
-                            extra='请选择2-4个常用筛选列，且第一个过滤列需为时间列，第二个过滤列需为设备编号列，除时间列外，其余常用筛选列的数据类型需为 CHAR/SHORT/INT/SYMBOL/STRING'
-                            tooltip='常用筛选列是查询时常作为常选条件的列，越重要的过滤条件，在筛选列中的位置越靠前。'
-                            name='sortColumn'
-                            label='常用筛选列'
-                            rules={[
-                                {
-                                    required: true,
-                                    message: '请选择常用筛选列'
-                                },
-                                {
-                                    validator: async (_, value = [ ]) => {
+                        extra='请选择2-4个常用筛选列，且第一个过滤列需为时间列，第二个过滤列需为设备编号列，除时间列外，其余常用筛选列的数据类型需为 CHAR/SHORT/INT/SYMBOL/STRING'
+                        tooltip='常用筛选列是查询时常作为常选条件的列，越重要的过滤条件，在筛选列中的位置越靠前。'
+                        name='sortColumn'
+                        label='常用筛选列'
+                        rules={[
+                            {
+                                validator: async (_, value = [ ]) => {
+                                    
+                                    const types = value.map(item => schema.find(col => col?.colName === item)?.dataType)                                    
+                                    if (types[0] && !['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(types[0]))
+                                        return Promise.reject('第一个常用筛选列需为时间列')
                                         
-                                        const types = value.map(item => schema.find(col => col?.colName === item)?.dataType)
+                                    if (value?.length < 2)
+                                        return Promise.reject('至少选择 2 个常用筛选列')
+                                    
+                                    if (value?.length > 4)
+                                        return Promise.reject('最多只能选择 4 个常用筛选列')
                                         
-                                        const is_type_valid = type => ['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING'].includes(type)
-                                        
-                                        if (types[0] && !['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(types[0]))
-                                            return Promise.reject('第一个常用筛选列需为时间列')
-                                            
-                                        if (types?.slice(1)?.some(type => !is_type_valid(type)))  
-                                            return Promise.reject('除时间列外，其余常用筛选列的数据类型需为以下 CHAR/SHORT/INT/SYMBOL/STRING')
-                                        
-                                        
-                                        if (value?.length < 2)
-                                            return Promise.reject('至少选择 2 个常用筛选列')
-                                        
-                                        if (value?.length > 4)
-                                            return Promise.reject('最多只能选择 4 个常用筛选列')
-                                            
-                                    }
                                 }
-                            ]}
-                        >
-                            <Select showSearch placeholder='请选择常用筛选列' mode='multiple' options={schema.filter(item => item?.colName).map(item => ({ label: item.colName, value: item.colName }))} />
-                        </Form.Item>
+                            }
+                        ]}
+                    >
+                        <Select showSearch placeholder='请选择常用筛选列' mode='multiple' options={options} />
+                    </Form.Item>
+                    }
+                    
                 } }
                 
             </FormDependencies>

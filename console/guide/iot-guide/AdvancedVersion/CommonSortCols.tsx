@@ -6,13 +6,13 @@ import { type SelectProps } from 'antd/lib'
 import { useCallback } from 'react'
 
 interface IProps {
-    mode?: 'common' | 'readonly'
     initial_value?: any
     col_options: SelectProps['options']
+    max?: number
 }
 
 export function CommonSortCols (props: IProps) {
-    const { col_options } = props
+    const { col_options, max } = props
     
     const form = Form.useFormInstance()
     
@@ -52,7 +52,7 @@ export function CommonSortCols (props: IProps) {
                         </Form.Item>
                         {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />}
                     </div>)}
-                <Button onClick={() => { add() } } block type='dashed' icon={<PlusCircleOutlined />}>增加筛选列</Button>
+                { fields.length < max && <Button onClick={() => { add() } } block type='dashed' icon={<PlusCircleOutlined />}>增加筛选列</Button>}
             </>}
         </Form.List>
     </div>

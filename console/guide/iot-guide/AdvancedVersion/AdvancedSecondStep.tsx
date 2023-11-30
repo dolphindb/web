@@ -120,7 +120,7 @@ export function AdvancedSecondStep (props: IProps) {
             {({ engine }) => {
                 if (engine === 'TSDB')
                     return <> 
-                        <CommonSortCols col_options={col_options ?? [ ]} mode='common' />
+                        <CommonSortCols col_options={col_options ?? [ ]} max={recommend_info?.sortColumnInfo?.maxOtherSortKeyNum} />
                         <Typography.Text className='other-sortkey-tip' type='secondary'>
                             {recommend_info.sortColumnInfo?.context}
                         </Typography.Text>
