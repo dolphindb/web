@@ -24,7 +24,7 @@ export function AccessView () {
                     :
                 (await access.get_group_access([name]))[0] }) 
         })
-    }, [refresher, name])
+    }, [refresher, role, name])
     
     const tabs: TabsProps['items'] = useMemo(() => ([
         {
@@ -80,7 +80,10 @@ export function AccessView () {
                 tabBarExtraContent={
                     <Button
                         icon={<ReloadOutlined />}
-                        onClick={() => { set_refresher({ }) }}
+                        onClick={() => { 
+                            set_refresher({ })
+                            model.message.success(t('刷新成功'))
+                        }}
                     >
                         {t('刷新')}
                     </Button>
