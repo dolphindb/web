@@ -1,5 +1,5 @@
 import { ShareAltOutlined } from '@ant-design/icons'
-import { Button } from 'antd'
+import { Button, Tooltip } from 'antd'
 import { useCallback } from 'react'
 
 import { dashboard } from '../model.js'
@@ -46,7 +46,10 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
                     {t('批量分享')}
                 </Button>,
         text: <a onClick={trigger_click_handler }>{t('分享')}</a>,
-        icon: <Button className='action' onClick={trigger_click_handler }><ShareAltOutlined/></Button>
+        icon: <Tooltip title={t('分享')}>
+            <Button className='action' onClick={trigger_click_handler }><ShareAltOutlined/></Button>
+        </Tooltip>
+        
     }
     
     return triggers[trigger_type]

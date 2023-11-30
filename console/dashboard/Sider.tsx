@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, FundOutlined, HeatMapOutlined, LineChartOutlined, PieChartOutlined, TableOutlined, CodeOutlined, CompassOutlined, FunctionOutlined, DotChartOutlined,  RadarChartOutlined, WindowsOutlined } from '@ant-design/icons'
 
 import { WidgetType } from './model.js'
+import { t } from '../../i18n/index.js'
 
 
 
@@ -38,7 +39,7 @@ export function Sider ({ visible }: { visible: boolean }) {
                     title={value}
                 >
                     {icons[value]}
-                    <span className='name'>{collapsed ? '' : value}</span>
+                    <span className='name'>{collapsed ? '' : t(value)}</span>
                 </div>)}
         </div>
         <div className='collapser' onClick={() => { set_collapsed(!collapsed) }}>{

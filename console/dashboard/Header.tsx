@@ -362,9 +362,7 @@ export function Header () {
                                     <EditOutlined />
                                 </Button>
                             </Tooltip>
-                            <Tooltip title={t('分享')}>
-                                <Share dashboard_ids={[dashboard.config?.id]} trigger_type='icon' />
-                            </Tooltip>
+                            <Share dashboard_ids={[dashboard.config?.id]} trigger_type='icon' />
                             <Popconfirm
                                 title={t('删除')}
                                 description={t('确定当前 dashboard 删除吗？')}

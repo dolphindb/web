@@ -13,7 +13,7 @@ import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 import { format_time_options } from '../../ChartFormFields/constant.js'
 import { t } from '../../../../i18n/index.js'
-import { isNumber } from 'lodash'
+import { isNumber, tail } from 'lodash'
 
 
 interface IProps { 
@@ -78,22 +78,22 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
         <BasicFormFields type='description'/>
         <Collapse items={[{
             children: <div className='description-setting-form'>
-                <Form.Item name='label_col' label='标签列' initialValue={col_names[0]}>
+                <Form.Item name='label_col' label={t('标签列')} initialValue={col_names[0]}>
                     <Select options={convert_list_to_options(col_names)} />
                 </Form.Item>
-                <Form.Item name='value_col' label='值列' initialValue={col_names[0]}>
+                <Form.Item name='value_col' label={t('值列')} initialValue={col_names[0]}>
                     <Select options={convert_list_to_options(col_names)} />
                 </Form.Item>
                 
-                <Form.Item name='label_font_size' label='标签字号'>
+                <Form.Item name='label_font_size' label={t('标签字号')}>
                     <InputNumber addonAfter='px'/>
                 </Form.Item>
                 
-                <Form.Item name='value_font_size' label='值字号'>
+                <Form.Item name='value_font_size' label={t('值字号')}>
                     <InputNumber addonAfter='px'/>
                 </Form.Item>
                 
-                <Form.Item name='column_num' label='每行展示数量' initialValue={4}>
+                <Form.Item name='column_num' label={t('每行展示数量')} initialValue={4}>
                     <InputNumber />
                 </Form.Item>
                 <FormDependencies dependencies={['label_col']}>
@@ -111,10 +111,10 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
                                         <Form.Item name={[field.name, 'label']} hidden>
                                             <Input />
                                         </Form.Item>
-                                        <Form.Item name={[field.name, 'color']} label='值颜色'>
+                                        <Form.Item name={[field.name, 'color']} label={t('值颜色')}>
                                             <StringColorPicker />
                                         </Form.Item>
-                                        <Form.Item name={[field.name, 'threshold']} label='阈值'>
+                                        <Form.Item name={[field.name, 'threshold']} label={t('阈值')}>
                                             <InputNumber />
                                         </Form.Item>
                                         <FormDependencies dependencies={[['col_properties', field.name, 'threshold']]}>
@@ -123,10 +123,10 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
                                                 if (isNaN(threshold))
                                                     return null
                                                 return <>
-                                                    <Form.Item label='低于阈值配色' name={[field.name, 'low_to_threshold_color']}>
+                                                    <Form.Item label={t('低于阈值配色')} name={[field.name, 'low_to_threshold_color']}>
                                                         <StringColorPicker />
                                                     </Form.Item>
-                                                    <Form.Item label='高于阈值配色' name={[field.name, 'high_to_threshold_color']} >
+                                                    <Form.Item label={t('高于阈值配色')} name={[field.name, 'high_to_threshold_color']} >
                                                         <StringColorPicker />
                                                     </Form.Item>
                                                 </>
@@ -139,7 +139,7 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
                                         <Form.Item label={t('小数位数')} name={[field.name, 'decimal_places']} >
                                             <InputNumber min={0} />
                                         </Form.Item>
-                                        <Form.Item label='是否千分位' name={ [field.name, 'is_thousandth_place']} initialValue={false}>
+                                        <Form.Item label={t('是否千分位')} name={ [field.name, 'is_thousandth_place']} initialValue={false}>
                                             <BoolRadioGroup />
                                         </Form.Item>
                                     
@@ -156,7 +156,7 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
                 </FormDependencies>
             </div>,
             key: 'col',
-            label: '列属性',
+            label: t('列属性'),
             forceRender: true
         }]}/>
     </>

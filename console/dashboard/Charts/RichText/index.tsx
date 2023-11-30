@@ -129,7 +129,7 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
                     {... editing ? { onClick: open } : { } }
                 >
                     <EditOutlined className='edit-rich-text-icon' />
-                    编辑文本
+                    {t('编辑文本')}
                 </div>
                 <div className='display-area ql-editor' dangerouslySetInnerHTML={{ __html: parse_text(display_text) }} />
             </div>
