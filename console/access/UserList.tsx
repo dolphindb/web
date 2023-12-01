@@ -266,7 +266,10 @@ export function UserList () {
                 <Button type='primary' icon={<PlusOutlined/>} onClick={creator.open}>
                     {t('新建用户')}
                 </Button>
-                <Button danger icon={<DeleteOutlined/>} onClick={deletor.open}>
+                <Button danger icon={<DeleteOutlined/>} onClick={() => {
+                    if (selected_users.length)
+                        deletor.open()
+                }}>
                     {t('批量删除')}
                 </Button>
                 <Input  
