@@ -9,7 +9,7 @@ import { use_modal } from 'react-object-model/modal.js'
 
 export function AccessView () {
     
-    const { current } =  access.use(['current'])
+    const { current, users, groups, } =  access.use(['current', 'users', 'groups'])
     
     const { role, name } = current
      
@@ -72,21 +72,38 @@ export function AccessView () {
         }
     ]), [current.view])
     
+    const OperationsSlot: Record<'left' | 'right', React.ReactNode> = {
+        left: <div className='switch-user'>
+                {t('当前查看{{role}}:', { role: current.role === 'user' ? t('用户') : t('组') })}
+                <Select 
+                    value={current.name}
+                    bordered={false}
+                    title=''
+                    options={(current.role === 'user' ? users : groups).map(t => ({
+                            value: t,
+                            label: t
+                    }))} 
+                    onSelect={item => { access.set({ current: { ...current, name: item } }) }}
+                    />
+            </div>,
+        right: <Button
+                    icon={<ReloadOutlined />}
+                    onClick={() => { 
+                        set_refresher({ })
+                        model.message.success(t('刷新成功'))
+                    }}
+                >
+                    {t('刷新')}
+                </Button>
+      }
+    
     return <Tabs 
                 type='card' 
                 items={tabs} 
                 accessKey={tab_key}
                 onChange={set_tab_key}
                 tabBarExtraContent={
-                    <Button
-                        icon={<ReloadOutlined />}
-                        onClick={() => { 
-                            set_refresher({ })
-                            model.message.success(t('刷新成功'))
-                        }}
-                    >
-                        {t('刷新')}
-                    </Button>
+                    OperationsSlot
                 }/>
 }
 
@@ -602,18 +619,6 @@ function AccessHeader ({
     const { current, users, groups } = access.use(['current', 'users', 'groups'])
     
     return <div className='actions'>
-            <div>
-                {t('当前查看{{role}}:', { role: current.role === 'user' ? t('用户') : t('组') })}
-                <Select 
-                    value={current.name}
-                    bordered={false}
-                    options={(current.role === 'user' ? users : groups).map(t => ({
-                            value: t,
-                            label: t
-                    }))} 
-                    onSelect={item => { access.set({ current: { ...current, name: item } }) }}
-                    />
-            </div>
             
             <Button  
                 onClick={() => { access.set({ current: null }) }}>
