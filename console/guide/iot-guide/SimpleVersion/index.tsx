@@ -66,7 +66,7 @@ export function SimpleVersion () {
                 title: '执行结果',
                 children: result === ExecuteResult.FAILED
                     ? <GuideFailResultPage error_msg={error_msg} on_create_again={on_create_again} back={back}/>
-                    : <GuideSuccessResultPage on_create_again={on_create_again} back={back}/>
+                    : <GuideSuccessResultPage name={info?.first?.dbName + ' ' + info?.first?.tbName} on_create_again={on_create_again} back={back}/>
             }
         ]
     }, [ info, result, on_create_again, back, error_msg])

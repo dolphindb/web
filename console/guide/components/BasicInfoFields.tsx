@@ -5,6 +5,7 @@ import { FormDependencies } from '../../components/formily/FormDependcies/index.
 import { SchemaList } from './SchemaList.js'
 import { GuideType } from '../iot-guide/type.js'
 import { request } from '../utils.js'
+import { ENUM_TYPES, TIME_TYPES } from '../constant.js'
 
 const CUSTOM_VALUE = -1
 
@@ -29,6 +30,8 @@ export function BasicInfoFields (props: IProps) {
     /** 简易版：
           非时序数据，无测点数和常用筛选列
           常用筛选列最大选四个，无推荐 */
+    const form = Form.useFormInstance()
+    const is_freq_increase = Form.useWatch('isFreqIncrease', form)
     
     return <>
         <Form.Item
@@ -121,39 +124,44 @@ export function BasicInfoFields (props: IProps) {
             }}
         </FormDependencies>
         
-        <SchemaList />
+        <SchemaList engine='TSDB' mode='ito' is_freq_increase={is_freq_increase}/>
         
         {
             type === GuideType.SIMPLE && <FormDependencies dependencies={['isFreqIncrease', 'totalNum', 'schema']}>
                 {({ isFreqIncrease, totalNum, schema = [ ] }) => {
                     // 时序数据，或者非时序数据，但是数据总量大于100w需要选常用筛选列
                     if (isFreqIncrease || totalNum.gap === 1 || totalNum.custom > 1000000) { 
-                        const options = schema.filter(item => item?.colName && ['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING', 'DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(item.dataType)).map(item => ({ label: item.colName, value: item.colName }))
+                        const options = schema.filter(item => item?.colName && [...TIME_TYPES, ...ENUM_TYPES].includes(item.dataType)).map(item => ({ label: item.colName, value: item.colName }))
                         return <Form.Item
-                        extra='请选择2-4个常用筛选列，且第一个过滤列需为时间列，第二个过滤列需为设备编号列，除时间列外，其余常用筛选列的数据类型需为 CHAR/SHORT/INT/SYMBOL/STRING'
-                        tooltip='常用筛选列是查询时常作为常选条件的列，越重要的过滤条件，在筛选列中的位置越靠前。'
-                        name='sortColumn'
-                        label='常用筛选列'
-                        rules={[
-                            {
-                                validator: async (_, value = [ ]) => {
-                                    
-                                    const types = value.map(item => schema.find(col => col?.colName === item)?.dataType)                                    
-                                    if (types[0] && !['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(types[0]))
-                                        return Promise.reject('第一个常用筛选列需为时间列')
+                            extra='请选择2-4个常用筛选列，时序数据第一列需为时间列，第二列需为设备编号列，非时序数据第一列需为设备编号列'
+                            tooltip='常用筛选列是查询时常作为常选条件的列，越重要的过滤条件，在筛选列中的位置越靠前。'
+                            name='sortColumn'
+                            label='常用筛选列'
+                            required
+                            rules={[
+                                {
+                                    validator: async (_, value = [ ]) => {
+                                        if (!value.length)
+                                            return Promise.reject('请选择常用筛选列')
                                         
-                                    if (value?.length < 2)
-                                        return Promise.reject('至少选择 2 个常用筛选列')
-                                    
-                                    if (value?.length > 4)
-                                        return Promise.reject('最多只能选择 4 个常用筛选列')
+                                        const types = value.map(item => schema.find(col => col?.colName === item)?.dataType)                                    
                                         
+                                        if (is_freq_increase)
+                                            if (types[0] && !['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(types[0]))
+                                                return Promise.reject('第一个常用筛选列需为时间列')
+                                            
+                                        if (value?.length < 2)
+                                            return Promise.reject('至少选择 2 个常用筛选列')
+                                        
+                                        if (value?.length > 4)
+                                            return Promise.reject('最多只能选择 4 个常用筛选列')
+                                            
+                                    }
                                 }
-                            }
-                        ]}
-                    >
-                        <Select showSearch placeholder='请选择常用筛选列' mode='multiple' options={options} />
-                    </Form.Item>
+                            ]}
+                        >
+                            <Select showSearch placeholder='请选择常用筛选列' mode='multiple' options={options} />
+                        </Form.Item>
                     }
                     
                 } }

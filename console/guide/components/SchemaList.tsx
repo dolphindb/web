@@ -1,7 +1,7 @@
 import './index.scss'
 
-import { CloudUploadOutlined, DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
-import { Button, Form, Input, InputNumber, Modal, Radio, Select, Space, Typography, message } from 'antd'
+import { CloudUploadOutlined, DeleteOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import { Alert, Button, Form, Input, InputNumber, Modal, Radio, Select, Space, Tooltip, Typography, message } from 'antd'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { UploadFileField } from './UploadFileField.js'
@@ -9,14 +9,9 @@ import { request } from '../utils.js'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { type BasicInfoFormValues } from '../iot-guide/type.js'
 import { convert_list_to_options } from '../../dashboard/utils.js'
-import { isNumber } from 'lodash'
-
-const ITO_DATA_TYPE_LIST = ['BOOL', 'CHAR', 'SHORT', 'INT', 'FLOAT', 'DOUBLE', 'LONG',
-'TIME', 'MINUTE', 'SECOND', 'DATE', 'DATEHOUR', 'DATETIME', 'TIMESTAMP',
-    'NANOTIMESTAMP', 'SYMBOL', 'STRING', 'BLOB', 'DECIMAL32', 'DECIMAL64', 'DECIMAL128']
-
-const FINANCE_DATA_TYPE_LIST = [...ITO_DATA_TYPE_LIST, 'BOOL[]', 'CHAR[]', 'SHORT[]', 'INT[]', 'FLOAT[]', 'DOUBLE[]', 'LONG[]', 'DATE[]', 'MONTH[]', 'TIME[]',
-'MINUTE[]', 'SECOND[]', 'DATETIME[]', 'TIMESTAMP[]', 'NANOTIME[]', 'NANOTIMESTAMP[]', 'DATEHOUR[]', 'DECIMAL32[]', 'DECIMAL64[]', 'DECIMAL128[]']
+import { countBy, isNumber } from 'lodash'
+import { model } from '../../model.js'
+import { ARRAY_VECTOR_DATA_TYPES, BASIC_DATA_TYPES, ENUM_TYPES, LOW_VERSION_DATA_TYPES, TIME_TYPES } from '../constant.js'
 
 interface ISchemaUploadModal { 
     on_apply: (values) => void
@@ -25,7 +20,12 @@ interface ISchemaUploadModal {
 export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) => {
     
     const { on_apply } = props
-    const [form] = Form.useForm()
+    const [form] = Form.useForm<{
+        delimiter: string
+        file_path: string
+        file: { file: File }
+        upload_type: 0 | 1
+    }>()
     
     const modal = useModal()
     const [loading, set_loading] = useState(false)
@@ -40,8 +40,9 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
                 content: { }
             }
             if (upload_type === 0) {
-                // 本地上传，截取前100行，避免文件内容过大传输失败
-                const content = (await file.file.text())?.split('\n')?.slice(0, 100)?.join('\n')
+                // 本地上传，截取 100kb，避免文件内容过大传输失败
+                const split_file = file.file.slice(0, 1024 * 100)
+                const content = await split_file.text()
                 params.content = {
                     fileName: file.file.name,
                     fileContent: content,
@@ -104,18 +105,35 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
 interface IDataTypeSelect {
     value?: string
     onChange?: (val: string) => void
-    with_array_vector: boolean 
- }
+    mode: 'finance' | 'ito'
+    engine: string
+}
 
 export function DataTypeSelect (props: IDataTypeSelect) {
-    const { value, onChange, with_array_vector } = props
-    
-    const options = useMemo(() => with_array_vector ? convert_list_to_options(FINANCE_DATA_TYPE_LIST) : convert_list_to_options(ITO_DATA_TYPE_LIST), [with_array_vector])
-    
+    const { value, onChange, mode = 'ito', engine = 'TSDB' } = props
+        
     const [data_type, set_data_type] = useState<string>()
     const [decimal, set_decimal] = useState<number>() 
     const [limit, set_limit] = useState({ min: 0, max: 9 })
     
+    const data_types = useMemo(() => {        
+        if (model.version) { 
+            const [first_version, second_version] = model?.version?.split('.')
+            if (Number(first_version) <= 1 && Number(second_version) <= 30)
+                return LOW_VERSION_DATA_TYPES
+        }
+        // OLAP无 BLOB 和 array vector
+        if (engine !== 'TSDB')
+            return BASIC_DATA_TYPES
+        // 物联网场景无 array vector
+        else if (mode === 'ito')
+            return BASIC_DATA_TYPES.concat(['BLOB'])
+        else  
+            return BASIC_DATA_TYPES.concat([...ARRAY_VECTOR_DATA_TYPES, 'BLOB'])
+    }, [mode, engine, model.version])
+    
+    
+    // 解析 value,回填
     useEffect(() => {
         if (value)
             if (value.includes('DECIMAL')) {
@@ -160,7 +178,7 @@ export function DataTypeSelect (props: IDataTypeSelect) {
                 value={data_type}
                 onChange={val => { set_data_type(val) }}
                 showSearch
-                options={options}
+                options={convert_list_to_options(data_types)}
                 placeholder='请选择数据类型'
             />
             <InputNumber min={limit.min} max={limit.max} value={decimal} onChange={val => { set_decimal(val) }} placeholder='请输入 DECIMAL 精度'/>
@@ -169,14 +187,13 @@ export function DataTypeSelect (props: IDataTypeSelect) {
             value={data_type}
             onChange={val => { set_data_type(val) }}
             showSearch
-            options={options}
+            options={convert_list_to_options(data_types)}
             placeholder='请选择数据类型'
         />
 }
 
-export function SchemaList (props: { with_array_vector?: boolean }) { 
-    const { with_array_vector } = props
-    
+export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, is_freq_increase: 0 | 1 }) { 
+    const { is_freq_increase, mode, engine } = props
     const form = Form.useFormInstance()
     
     const on_apply = useCallback(schema => {
@@ -188,44 +205,81 @@ export function SchemaList (props: { with_array_vector?: boolean }) {
         NiceModal.show(SchemaUploadModal, { on_apply })
     }, [on_apply])
     
-    const validator = useCallback(async () => { 
+    const validator = useCallback(async (_, value) => { 
         const schema = form.getFieldValue('schema')
         const name_list = schema.filter(item => !!item?.colName).map(item => item?.colName)
-        if (new Set(name_list).size !== name_list.length)  
+        if (countBy(name_list)?.[value] > 1)  
             return Promise.reject('已配置该列，请修改')
+        else
+            return Promise.resolve()
     }, [ ])
     
+    const validate_schema = useCallback(async (_, schema) => {
+        // 时序数据校验规则：必须包含3列以上，至少有1个时间类型和1个枚举类型（STRING、SYMBOL、INT、SHORT）
+        const types = schema.filter(item => item?.dataType).map(item => item.dataType)
+        if (is_freq_increase) {
+            if (mode === 'ito')
+                if (types.some(type => TIME_TYPES.includes(type)) && types.some(type => ENUM_TYPES.includes(type)))
+                    return Promise.resolve()
+                else  
+                    return Promise.reject(new Error('时序数据的表结构至少有一列时间列与枚举列'))
+            else if (!types.some(type => TIME_TYPES.includes(type)))
+                return Promise.reject('表结构至少包含一列时间列')
+         }
+         else 
+            if (types.some(type => ENUM_TYPES.includes(type)))
+                return Promise.resolve()
+            else
+                return Promise.reject(new Error('非时序数据表结构至少有一列枚举列'))
+     }, [ is_freq_increase ])
     
-    return <div className='schema-wrapper'>
-        <h4>列配置</h4>
-        <Form.List name='schema' initialValue={[{ }]}>
-            {(fields, { add, remove }) => <>
-                {fields.map(field => <div className='schema-item' key={field.name}>
-                    <Form.Item
-                        label='列名'
-                        name={[field.name, 'colName']}
-                        rules={[
-                            { required: true, message: '请输入列名' },
-                            { validator }
-                        ]}>
-                        <Input placeholder='请输入列名'/>
-                    </Form.Item>
-                    <Form.Item tooltip='请注意，DECIMAL32 精度有效范围是[0, 9]，DECIMAL64 精度有效范围是[0, 18]，DECIMAL128 精度有效范围是[0,38]' label='数据类型' name={[field.name, 'dataType']} rules={[{ required: true, message: '请选择数据类型' }]}>
-                        <DataTypeSelect with_array_vector={with_array_vector} />
-                    </Form.Item>
-                    {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }}/> }
-                </div>)}
-                <Button onClick={() => { add() }} type='dashed' block icon={<PlusCircleOutlined />}>增加列配置</Button>
+    return <>
+        <div className='schema-wrapper'>
+            <h4>列配置</h4>
             
-            </>}
-        </Form.List>
+            <Form.List name='schema' initialValue={[{ }, { }, { }]} rules={[{ validator: validate_schema }]}>
+                {(fields, { add, remove }, { errors }) => <>
+                    {fields.map(field => <div className='schema-item' key={field.name}>
+                        <Form.Item
+                            label='列名'
+                            name={[field.name, 'colName']}
+                            rules={[
+                                { required: true, message: '请输入列名' },
+                                { validator }
+                            ]}>
+                            <Input placeholder='请输入列名'/>
+                        </Form.Item>
+                        <Form.Item tooltip='DECIMAL32 精度有效范围是[0, 9]，DECIMAL64 精度有效范围是[0, 18]，DECIMAL128 精度有效范围是[0,38]' labelCol={{ span: 8 }} label='数据类型' name={[field.name, 'dataType']} rules={[{ required: true, message: '请选择数据类型' }]}>
+                            <DataTypeSelect mode={mode} engine={engine} />
+                        </Form.Item>
+                        <Form.Item label='备注' name={[field.name, 'comment']}>
+                            <Input placeholder='请输入备注'/>
+                        </Form.Item>
+                        {fields.length > 3 && <Tooltip title='删除'><DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }}/></Tooltip> }
+                    </div>)}
+                    <Button onClick={() => { add() }} type='dashed' block icon={<PlusCircleOutlined />}>增加列配置</Button>
+                    <Form.ErrorList className='schema-list-error' errors={errors} />
+                </>}
+            </Form.List>
+            
     
-        <div className='upload-schema-wrapper'>
-            <Typography.Link onClick={on_upload}>
-                <CloudUploadOutlined className='upload-schema-icon'/>
-                导入表文件
-            </Typography.Link>
+            <div className='upload-schema-wrapper'>
+                <Typography.Link onClick={on_upload}>
+                    <CloudUploadOutlined className='upload-schema-icon'/>
+                    导入表文件
+                </Typography.Link>
+            </div>
+        
         </div>
         
-    </div>
+        <Typography.Text type='secondary' className='schema-tips'>
+            {
+                mode === 'finance'
+                    ? '请注意，表结构至少需要一列时间列，时间列类型包括DATE、DATETIME、TIMESTAMP'
+                    : '请注意，时序数据的表结构至少需要一列时间列与枚举列，非时序数据表结构至少需要一列枚举列，时间列类型包括DATE、DATETIME、TIMESTAMP，枚举列类型包括STRING、SYMBOL。'
+                    
+            }
+        </Typography.Text>
+        
+    </>
 }

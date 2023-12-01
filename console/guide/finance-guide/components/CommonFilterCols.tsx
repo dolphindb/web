@@ -3,6 +3,7 @@ import { type ITableInfo } from '../type'
 import { Button, Form, InputNumber, Select, Tooltip } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { useCallback, useMemo } from 'react'
+import { countBy } from 'lodash'
 
 interface IProps { 
     schema: ITableInfo['schema']
@@ -23,10 +24,10 @@ export function CommonFilterCols (props: IProps) {
             .map(item => ({ label: item?.colName, value: item?.colName }))
     }, [schema, timeCol, partitionCols])
     
-    const validator = useCallback(async () => { 
+    const validator = useCallback(async (_, value) => { 
         const filterCols = form.getFieldValue('filterCols') ?? [ ]
         const name_list = filterCols.filter(item => !!item?.colName).map(item => item.colName)
-        if (new Set(name_list).size !== name_list.length)  
+        if (countBy(name_list)?.[value] > 1)  
             return Promise.reject('已配置该常用筛选列，请修改')
     }, [ ])
     
@@ -52,7 +53,7 @@ export function CommonFilterCols (props: IProps) {
                     <Form.Item name={[field.name, 'uniqueNum']} label='唯一值数量' rules={[{ required: true, message: '请输入唯一值数量' }]}>
                         <InputNumber placeholder='请输入唯一值数量'/>
                     </Form.Item>
-                    {fields.length > 1 && <DeleteOutlined onClick={() => { remove(field.name) }} className='delete-icon'/> }
+                    {fields.length > 1 && <Tooltip title='删除'><DeleteOutlined onClick={() => { remove(field.name) }} className='delete-icon'/> </Tooltip>}
                 </div>)}
                 { fields.length < 2 && <Button block type='dashed' onClick={() => { add() }} icon={<PlusCircleOutlined />}>增加筛选列</Button> }
             </>}

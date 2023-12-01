@@ -90,7 +90,17 @@ export function DatabaseInfo (props: IProps) {
                                 if (dailyTotalNum?.gap === 0 || (dailyTotalNum?.gap === CUSTOM && dailyTotalNum.custom <= 10000)) 
                                     return null
                                  else 
-                                    return <Form.Item name='engine' label='引擎类型' initialValue='TSDB' rules={[{ required: true, message: '请选择引擎类型' }] }>
+                                    return <Form.Item
+                                        name='engine'
+                                        label='引擎类型'
+                                        initialValue='TSDB'
+                                        tooltip={<>
+                                            存储引擎的选择与业务有关，若您的计算需求常以一定的时间跨度进行，推荐使用 TSDB 存储引擎；若您的查询常用于全量数据的密集计算，推荐使用 OLAP 存储引擎
+                                            <br />
+                                            建议使用 TSDB 存储引擎
+                                        </>}
+                                        rules={[{ required: true, message: '请选择引擎类型' }]}
+                                    >
                                         <Radio.Group>
                                             <Radio value='TSDB'>TSDB</Radio>
                                             <Radio value='OLAP'>OLAP</Radio>

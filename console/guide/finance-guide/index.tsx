@@ -54,7 +54,7 @@ export function FinanceGuide () {
             title: '执行结果',
             children: result === ExecuteResult.FAILED
                 ? <GuideFailResultPage error_msg={error_msg} on_create_again={on_create_again} back={back} />
-                : <GuideSuccessResultPage on_create_again={on_create_again}  back={back}/>
+                : <GuideSuccessResultPage name={info?.database?.name + ' ' + info?.table?.name } on_create_again={on_create_again}  back={back}/>
         }
     ], [info, go, back, result, on_create_again, error_msg])
     

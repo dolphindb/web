@@ -72,9 +72,9 @@ export function AdvancedSecondStep (props: IProps) {
             name='engine'
             initialValue='TSDB'
             tooltip={<>
-                存储引擎的选择与业务有关，若您的计算需求常以一定的时间跨度进行，推荐使用TSDB存储引擎；若您的查询常用于全量数据的密集计算，推荐使用OLAP存储引擎
+                存储引擎的选择与业务有关，若您的计算需求常以一定的时间跨度进行，推荐使用 TSDB 存储引擎；若您的查询常用于全量数据的密集计算，推荐使用 OLAP 存储引擎
                 <br />
-                建议使用TSDB存储引擎
+                建议使用 TSDB 存储引擎
             </>}>
             <Radio.Group>
                 <Radio value='TSDB'>TSDB</Radio>
@@ -85,7 +85,7 @@ export function AdvancedSecondStep (props: IProps) {
         
         <Form.Item
             label='是否允许并发写入同一分区'
-            name='actomic'
+            name='atomic'
             initialValue={0}
             tooltip={<>
                 允许并发写入同一分区，会降低写入速度，且有极小概率导致数据不一致

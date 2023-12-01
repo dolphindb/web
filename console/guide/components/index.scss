@@ -6,7 +6,6 @@
     border-radius: 8px;
     background-color: #EFEFEF;
     padding: 16px;
-    margin-bottom: 24px;
     
     
     .schema-item {
@@ -16,11 +15,11 @@
         align-items: center;
         margin-bottom: 16px;
         .delete-icon {
-            color: #D71818;
+            // color: #D71818;
             cursor: pointer;
         }
         .ant-form-item {
-            width: 45%;
+            width: 30%;
             margin-bottom: 0px;
         }
     }
@@ -101,7 +100,7 @@
     
     .delete-icon {
         cursor: pointer;
-        color: #D71818;
+        // color: #D71818;
     }
 }
 
@@ -131,7 +130,7 @@
     
     .delete-icon {
         cursor: pointer;
-        color:#D71818;
+        // color:#D71818;
     }
 }
 
@@ -192,4 +191,15 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
+}
+
+.schema-list-error {
+    color: red;
+    margin-top: 12px;
+}
+
+.schema-tips {
+    margin-top: 4px;
+    display: inline-block;
+    margin-bottom: 24px;
 }

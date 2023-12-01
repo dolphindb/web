@@ -78,7 +78,7 @@ export function AdvancedVersion () {
                 title: '执行结果',
                 children: result === ExecuteResult.FAILED
                     ? <GuideFailResultPage error_msg={error_msg} on_create_again={on_create_again}  back={back}/>
-                    : <GuideSuccessResultPage on_create_again={on_create_again}  back={back}/>
+                    : <GuideSuccessResultPage name={info?.first?.dbName + ' ' + info?.first?.tbName} on_create_again={on_create_again}  back={back}/>
             }
         ]
         // 没有高阶信息去除第二步

@@ -1,11 +1,12 @@
 import { Button, Form, Input, Space } from 'antd'
 import { type IFinanceInfo } from './type.js'
 import { SchemaList } from '../components/SchemaList.js'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { request } from '../utils.js'
 import { PartitionColSelect } from './components/PartitionColSelect.js'
 import { CommonFilterCols } from './components/CommonFilterCols.js'
 import { model } from '../../model.js'
+import useSWR from 'swr'
 
 interface IProps { 
     info: IFinanceInfo
@@ -13,12 +14,18 @@ interface IProps {
     back: () => void
 }
 export function TableInfo (props: IProps) {
-
     const { info, go, back } = props
+    const [engine, set_engine] = useState(info.database?.engine)
     
     const [form] = Form.useForm()
     
     const schema = Form.useWatch('schema', form)
+    
+    useSWR(
+        info.database?.isExist ? 'database_engine' : null,
+        async () => model.ddb.eval(`database("dfs://${info.database.name}").schema().engineType`),
+        { onSuccess: data => { set_engine(data?.value as ('OLAP' | 'TSDB')) } }
+    )
     
     const on_submit = useCallback(async values => {
         let table_params = { }
@@ -63,7 +70,7 @@ export function TableInfo (props: IProps) {
         >
             <Input placeholder='请输入表名'/>
         </Form.Item>
-        <SchemaList with_array_vector={info.database.engine !== 'OLAP'} />
+        <SchemaList engine={engine} mode='finance' is_freq_increase={1}/>
         <PartitionColSelect info={info} schema={schema} />
         
         <CommonFilterCols schema={schema}/>

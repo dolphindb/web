@@ -1,8 +1,9 @@
 import './index.scss'
 
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
-import { Button, Form, InputNumber, Select } from 'antd'
+import { Button, Form, InputNumber, Select, Tooltip } from 'antd'
 import { type SelectProps } from 'antd/lib'
+import { countBy } from 'lodash'
 import { useCallback } from 'react'
 
 interface IProps {
@@ -16,10 +17,10 @@ export function CommonSortCols (props: IProps) {
     
     const form = Form.useFormInstance()
     
-    const validator = useCallback(async () => { 
+    const validator = useCallback(async (_, value) => { 
         const otherSortKeyInfo = form.getFieldValue('otherSortKeyInfo') ?? [ ]
         const name_list = otherSortKeyInfo.map(item => item?.colName)
-        if (new Set(name_list).size !== name_list.length)  
+        if (countBy(name_list)?.[value] > 1)  
             return Promise.reject('已配置该常用筛选列，请修改')
     }, [ ])
     
@@ -50,7 +51,7 @@ export function CommonSortCols (props: IProps) {
                         >
                             <InputNumber placeholder='请填入唯一值数量'/>
                         </Form.Item>
-                        {fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />}
+                        {fields.length > 1 && <Tooltip title='删除'><DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} /></Tooltip>}
                     </div>)}
                 { fields.length < max && <Button onClick={() => { add() } } block type='dashed' icon={<PlusCircleOutlined />}>增加筛选列</Button>}
             </>}
