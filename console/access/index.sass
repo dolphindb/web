@@ -1,6 +1,6 @@
 .user,.group
     .header
-        margin: 20px 10px
+        margin: 0px 10px 20px 0px
         display: flex
         justify-content: space-between
     
@@ -36,16 +36,37 @@
         .ant-tabs-tab-btn
             font-size: 16px
             
+    .switch-user
+        font-size: 16px
+        font-weight: 600
+        .ant-select-selector
+            width: 150px
+            .ant-select-selection-item
+                font-size:16px
     
+    .ant-table-wrapper .ant-table-title
+        padding-left: 0px
+                
     
         
-.add-user-modal,.edit-user-modal,.add-rule-modal,.add-group-modal,.edit-group-modal
+.add-user-modal,
+.edit-user-modal,
+.add-rule-modal,
+.add-group-modal,
+.edit-group-modal,
+.edit-user-group-modal,
+.edit-confirm-modal
+    .ant-modal-header
+        margin-bottom: 20px
     .ant-modal-footer
         display: flex
         justify-content: center
         column-gap: 20px
         .ant-btn
             width: 80px
+    .blue
+        color: #1776FB
+                
             
 .add-rule-modal
     width: 820px !important
@@ -61,7 +82,7 @@
         .ant-btn
             width: 95% !important
        
-.add-group-modal,.edit-group-modal
+.add-group-modal,.edit-group-modal,.edit-user-group-modal
     width: 600px !important
     .ant-transfer
         margin: 20px 0px
