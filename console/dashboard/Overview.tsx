@@ -97,7 +97,7 @@ export function Overview () {
                         creator.close()
                     }, { json_error: true })
                 }
-                title={t('请输入新数据面板的名称')}
+                title={t('新数据面板')}
             >
                 <Input
                     value={new_dashboard_name}

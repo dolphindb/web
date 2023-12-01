@@ -100,13 +100,12 @@ function Init ({ is_admin, set_inited_state }: { is_admin: boolean, set_inited_s
     return <div className='init'>
         {is_admin
         ? <Result
-            title={t('数据面板功能未初始化，可点击下方按钮初始化数据面板功能。')}
+            title={t('请点击下方按钮完成初始化')}
             subTitle={
                 <>
                     <p>{t('初始化操作将新增以下数据库表：')}</p>
-                    <p>dfs://dashboardConfigDb</p>
                     <p>dfs://dashboardConfigDb/configDtl</p>
-                    <p>{t('以及 7 个以 dashboard_ 开头的函数视图（FunctionView）。')}</p>
+                    <p>{t('以及 9 个以 dashboard_ 开头的函数视图（FunctionView）')}</p>
                 </>
             }
             extra={
@@ -127,7 +126,7 @@ function Init ({ is_admin, set_inited_state }: { is_admin: boolean, set_inited_s
             }
         />
         : <Result
-            title={t('数据面板功能未初始化，请联系管理员初始化数据面板功能。')}
+            title={t('数据面板功能未初始化，请联系管理员初始化数据面板功能')}
         />}
     </div>
         
