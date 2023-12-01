@@ -1,7 +1,7 @@
 import { createElement, useEffect, useRef, useState } from 'react'
-
 import { Input, Popover, Select, Tree, type MenuProps, InputNumber, Switch, Table } from 'antd'
-import { QuestionCircleOutlined, TableOutlined } from '@ant-design/icons'
+import { QuestionCircleOutlined, SearchOutlined, TableOutlined } from '@ant-design/icons'
+import { throttle } from 'lodash'
 
 import { Editor } from '../../shell/Editor/index.js'
 
@@ -56,6 +56,7 @@ export function StreamEditor ({
     
     const { on_monaco_insert } = use_monaco_insert(cur_focus_editor)
     const tree_ref = useRef(null)
+    const tables_ref = useRef(null)
     
     const stream_editor_ref = useRef<HTMLDivElement>()
     
@@ -84,13 +85,14 @@ export function StreamEditor ({
             // 获取数据库流表
             const table = await get_stream_tables()
             if (table.length)   {
-                set_stream_tables(table.map(stream_table => {
-                    return {
-                        key: stream_table,
-                        icon: createElement(TableOutlined),
-                        title: stream_table
-                    }
+                const table_items = table.map(stream_table => ({
+                    key: stream_table,
+                    icon: createElement(TableOutlined),
+                    title: stream_table
                 }))
+                set_stream_tables(table_items)
+                tables_ref.current = table_items
+                
                 if (!table.includes(current_data_source.stream_table)) {
                     change_current_data_source_property('stream_table', table[0], false) 
                     set_current_stream(table[0])
@@ -158,13 +160,22 @@ export function StreamEditor ({
     
     return <>
         <div className='streameditor' ref={stream_editor_ref}>
-            {stream_tables.length
+            {tables_ref.current?.length
                 ? <div className='streameditor-main'>
                     <div className='streameditor-main-left'>
+                        <Input
+                            placeholder={t('请输入要搜索的流表名')}
+                            onChange={throttle(event => { 
+                                set_stream_tables(
+                                    tables_ref.current.filter((stream_table: any) => stream_table.title.indexOf(event.target.value) !== -1)
+                                )
+                            }, 1000)}
+                            suffix={<SearchOutlined />} 
+                        />
                         <Tree
                             ref={tree_ref}
                             showIcon
-                            height={395}
+                            height={360}
                             blockNode
                             selectedKeys={[current_stream]}
                             className='streameditor-main-left-menu'
