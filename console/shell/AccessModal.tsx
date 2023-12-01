@@ -1,3 +1,5 @@
+import './AccessModal.sass'
+
 import NiceModal from '@ebay/nice-modal-react'
 import { type Database } from './Databases.js'
 import { Collapse, Modal, Table, type TableColumnType } from 'antd'
@@ -74,6 +76,7 @@ export const AccessModal = NiceModal.create<Props>(({ database }) => {
         children: <TableAccess tb={tb.key.slice(0, -1)}/>
     }))]
     return <Modal
+                className='access-table'
                 width={1000}
                 open={modal.visible}
                 onCancel={modal.hide}
@@ -119,5 +122,6 @@ function TableAccess ({
     return <Table 
                 columns={cols}
                 dataSource={tb_rows.map(row => ({ ...row, users: row.users.join(',') }))}    
-                pagination={false}/>
+                pagination={false}
+                />
 }
