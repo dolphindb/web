@@ -2,7 +2,7 @@ import './index.sass'
 
 import { useEffect, useMemo, useState } from 'react'
 
-import { Button, Form, Input, Modal, Select, Switch, Table,  Popconfirm, Tooltip, type TableColumnType } from 'antd'
+import { Button, Form, Input, Modal, Select, Switch, Table,  Popconfirm, Tooltip, type TableColumnType, Tag } from 'antd'
 import { CheckCircleFilled, CloseCircleFilled, CloseCircleOutlined, DeleteOutlined, MinusCircleFilled, MinusCircleOutlined, PlusOutlined, ReloadOutlined, SearchOutlined, StopFilled, StopOutlined } from '@ant-design/icons'
 
 import { t } from '../../i18n/index.js'
@@ -33,6 +33,22 @@ export function UserList () {
         model.execute(async () =>  { set_users_info((await access.get_user_access(users))) } )
     }, [users])
     
+    function tagRender (props) {
+        const { label, closable, onClose } = props
+        function onPreventMouseDown (event: React.MouseEvent<HTMLSpanElement>) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        return <Tag
+            color='green'
+            onMouseDown={onPreventMouseDown}
+            closable={closable}
+            onClose={onClose}
+            style={{ marginRight: 3 }}
+          >
+            {label}
+          </Tag>
+    }
     
     const cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
         [
@@ -46,7 +62,7 @@ export function UserList () {
                 title: t('是否管理员'),
                 dataIndex: 'is_admin',
                 key: 'is_admin',
-                width: 200,
+                width: 150,
                 filters: [
                     {
                         text: t('管理员'),
@@ -66,7 +82,6 @@ export function UserList () {
                 title: t('组'),
                 dataIndex: 'groups',
                 key: 'groups',
-                width: 'auto',
             },
             {
                 title: t('操作'),
@@ -293,6 +308,7 @@ export function UserList () {
                                 className='group-select'
                                 // allowClear
                                 key={user_access.groups}
+                                tagRender={tagRender}
                                 placeholder={t('请选择想要添加的组')}
                                 defaultValue={user_access.groups ? user_access.groups.split(',') : [ ]}
                                 onDeselect={async group => model.execute(async () => { await access.delete_group_member(user_access.userId, group) })}
