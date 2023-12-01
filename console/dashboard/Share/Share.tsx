@@ -36,9 +36,9 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
             api.success({
                 message: t('以下内容已复制到剪切板'),
                 style: {
-                    width: 1000
+                    width: 1100
                 },
-                description: <p>{copy_text}</p>,
+                description: copy_text.split('\n').map(item => <p>{item}</p>),
                 placement: 'top',
             })
          } catch (e) {
