@@ -2832,7 +2832,7 @@
         "en": "There are unsaved changes in this data source. do you want to save?"
     },
     "点击填充数据源": {
-        "en": "click to populate data source"
+        "en": "populate data source"
     },
     "配置数据源": {
         "en": "configure data source"
@@ -3017,14 +3017,14 @@
     "控制节点不支持数据面板，请跳转到数据节点或计算节点查看。": {
         "en": "Control nodes do not support dashboards. Please navigate to data nodes or compute nodes to view."
     },
-    "数据面板功能未初始化，可点击下方按钮初始化数据面板功能。": {
-        "en": "Dashboard functionality is not initialized. Click the button below to initialize dashboard functionality."
+    "请点击下方按钮完成初始化": {
+        "en": "Please click the button below to complete initialization"
     },
     "初始化操作将新增以下数据库表：": {
         "en": "The initialization operation will add the following database tables:"
     },
-    "以及 7 个以 dashboard_ 开头的函数视图（FunctionView）。": {
-        "en": "and 7 function views starting with dashboard_."
+    "以及 9 个以 dashboard_ 开头的函数视图（FunctionView）": {
+        "en": "and 9 function views starting with dashboard_"
     },
     "你确定要初始化数据面板功能吗？": {
         "en": "Are you sure you want to initialize dashboard functionality?"
@@ -3032,8 +3032,8 @@
     "初始化": {
         "en": "Initialize"
     },
-    "数据面板功能未初始化，请联系管理员初始化数据面板功能。": {
-        "en": "Datshboard functionality is not initialized. Please contact the administrator to initialize dashboard functionality."
+    "数据面板功能未初始化，请联系管理员初始化数据面板功能": {
+        "en": "Datshboard functionality is not initialized. Please contact the administrator to initialize dashboard functionality"
     },
     "dashboard 配置加载成功": {
         "en": "Dashboard configuration loaded successfully"
@@ -3292,5 +3292,8 @@
     },
     "初始化数据面板成功！": {
         "en": "Dashboard initialization successful!"
+    },
+    "新数据面板": {
+        "en": "New dashboard"
     }
 }

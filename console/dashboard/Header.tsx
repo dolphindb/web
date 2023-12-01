@@ -257,7 +257,7 @@ export function Header () {
                     onCancel={add_close}
                     onOk={handle_add}
                     closeIcon={false}
-                    title={t('请输入新数据面板的名称')}>
+                    title={t('新数据面板')}>
                     <Input 
                         value={new_dashboard_name}
                         placeholder={t('请输入新数据面板的名称')}
