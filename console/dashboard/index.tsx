@@ -104,7 +104,8 @@ function Init ({ is_admin, set_inited_state }: { is_admin: boolean, set_inited_s
             subTitle={
                 <>
                     <p>{t('初始化操作将新增以下数据库表：')}</p>
-                    <p>dfs://dashboardUserDb</p>
+                    <p>dfs://dashboardConfigDb</p>
+                    <p>dfs://dashboardConfigDb/configDtl</p>
                     <p>{t('以及 7 个以 dashboard_ 开头的函数视图（FunctionView）。')}</p>
                 </>
             }
