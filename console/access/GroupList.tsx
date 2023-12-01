@@ -222,7 +222,10 @@ export function GroupList () {
                 <Button type='primary' icon={<PlusOutlined />} onClick={creator.open}>
                     {t('新建组')}
                 </Button>
-                <Button danger icon={<DeleteOutlined />} onClick={deletor.open}>
+                <Button danger icon={<DeleteOutlined />} onClick={() => {
+                    if (selected_groups.length)
+                        deletor.open()
+                }}>
                     {t('批量删除')}
                 </Button>
                 <Input  
@@ -257,7 +260,7 @@ export function GroupList () {
                     tagRender={tagRender}
                     key={group.users}
                     placeholder={t('请选择想要添加的用户')}
-                    defaultValue={group.users.split(',')}
+                    defaultValue={group.users ? group.users.split(',') : [ ]}
                     onDeselect={async user => model.execute(async () => { await access.delete_group_member(user, group.groupName) })}
                     onSelect={async user => model.execute(async () => { await access.add_group_member(user, group.groupName) })}
                     options={users.map(user => ({ label: user, value: user }))}
