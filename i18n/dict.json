@@ -3277,5 +3277,20 @@
     },
     " 个{{item}}吗?": {
         "en": " {{item}} ?"
+    },
+    "请选择想要添加的用户": {
+        "en": "Please select the user you want to add."
+    },
+    "请输入要搜索的流表名": {
+        "en": "Please enter the table name you want to search."
+    },
+    "以下内容已复制到剪切板": {
+        "en": "The following content has been copied to the clipboard."
+    },
+    "已存在，粘贴失败!": {
+        "en": "already exists, paste failed!"
+    },
+    "初始化数据面板成功！": {
+        "en": "Dashboard initialization successful!"
     }
 }

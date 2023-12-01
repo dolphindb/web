@@ -112,12 +112,11 @@ function Init ({ is_admin, set_inited_state }: { is_admin: boolean, set_inited_s
                 <Popconfirm
                     title={t('你确定要初始化数据面板功能吗？')}
                     onConfirm={async () => { 
-                        try {
+                        model.execute(async () => {
                             await model.ddb.eval(backend)
                             set_inited_state(2)
-                        } catch (error) {
-                            model.show_error(error)
-                        } 
+                            model.message.success(t('初始化数据面板成功！'))
+                        }) 
                     }}
                     okText={t('确定')}
                     cancelText={t('取消')}
