@@ -21,6 +21,8 @@ export function GroupList () {
     
     const [selected_groups, set_selected_groups] = useState([ ])
     
+    const [origin_users, set_origin_users] = useState<string[]>([ ])
+    
     const [target_users, set_target_users] = useState<string[]>([ ])
     
     const [selected_users, set_selected_users] = useState<string[]>([ ])
@@ -30,28 +32,12 @@ export function GroupList () {
     let creator = use_modal()
     let editor = use_modal()
     let deletor = use_modal()
+    let confior = use_modal()
     
     useEffect(() => {
         model.execute(async () => { set_groups_info((await access.get_group_access(groups))) })    
     } 
     , [groups])  
-    
-    function tagRender (props) {
-        const { label, closable, onClose } = props
-        function onPreventMouseDown (event: React.MouseEvent<HTMLSpanElement>) {
-          event.preventDefault()
-          event.stopPropagation()
-        }
-        return <Tag
-            color='cyan'
-            onMouseDown={onPreventMouseDown}
-            closable={closable}
-            onClose={onClose}
-            style={{ marginRight: 3 }}
-          >
-            {label}
-          </Tag>
-    }
     
     const cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
         [
@@ -65,28 +51,6 @@ export function GroupList () {
                 title: t('组内用户'),
                 dataIndex: 'users',
                 key: 'users',
-                // // width: 800,
-                // // ellipsis: {
-                // //     showTitle: false,
-                // // },
-                // // render: group_users => { 
-                // //     const users_arr = group_users.split(',')
-                // //     return <div>
-                       
-                //         {/* <span>{users_arr.length > max_num_of_users ? 
-                //                 <div>
-                //                     <span>{users_arr.slice(0, max_num_of_users).join(',') + '...'}</span>
-                //                     <Tooltip title={users_arr.slice(max_num_of_users).join(',')}>
-                //                         <span className='blue'>
-                //                             {'+' + (users_arr.length - max_num_of_users)}
-                //                         </span>
-                //                     </Tooltip>
-                //                 </div>
-                //                                     : 
-                //                 users
-                //             }</span> */}
-                // // </div> 
-                // },
             },
             {
                 title: t('操作'),
@@ -164,23 +128,16 @@ export function GroupList () {
             open={editor.visible}
             onCancel={editor.close}
             destroyOnClose
-            title={t('组 {{group}} 成员管理', { group: current?.name })}
-            onOk={async () => model.execute(async () => {
-                const origin_users = await access.get_users_by_group(current?.name)
-                const delete_users = origin_users.filter(u => !target_users.includes(u))
-                const add_users = target_users.filter((u: string) => !origin_users.includes(u))
-                if (delete_users.length || add_users.length) {
-                    await Promise.all([access.delete_group_member(delete_users, current?.name),
-                        access.add_group_member(add_users, current?.name)                    
-                    ])
-                    model.message.success(t('成员修改成功'))
-                }
-                editor.close()
-                set_selected_users([ ])
-                set_target_users([ ])
-                await access.get_group_list()
-            })}
-            
+            title={<div>
+                {t('组 ')}
+                <span className='blue'>{ current?.name }</span>
+                {t(' 成员管理')}
+                </div> 
+            }
+            onOk={async () => {
+                set_origin_users(await access.get_users_by_group(current?.name))
+                confior.open() 
+            }}
             >
             <Transfer
                 dataSource={users.map(user => ({
@@ -197,6 +154,49 @@ export function GroupList () {
                 onSelectChange={(s, t) => { set_selected_users([...s, ...t]) }}
                 render={item => item.title}
                 />
+        </Modal>
+        
+        <Modal 
+            className='edit-confirm-modal'
+            open={confior.visible}
+            onCancel={confior.close}
+            destroyOnClose
+            title={<div>
+                {t('确认对组 ')}
+                <span className='blue'>{current?.name}</span>
+                {t(' 进行以下改动吗')}
+            </div> 
+            }
+            onOk={async () => model.execute(async () => {
+               
+                const delete_users = origin_users.filter(u => !target_users.includes(u)).filter(group => group !== '')
+                const add_users = target_users.filter((u: string) => !origin_users.includes(u)).filter(group => group !== '')
+                if (delete_users.length || add_users.length) {
+                    await Promise.all([
+                    ...delete_users.length ? [access.delete_group_member(delete_users, current?.name )] : [ ],
+                    ...add_users.length ?  [access.add_group_member(add_users, current?.name )] : [ ]                    
+                    ])
+                    model.message.success(t('组内用户修改成功'))
+                }
+                editor.close()
+                confior.close()
+                set_selected_users([ ])
+                set_target_users([ ])
+                await access.get_group_list()
+            })}
+            
+            >
+            <div>
+                <h4>{t('原有用户:')}</h4>
+                {origin_users.map(group => 
+                    <Tag color='cyan'>{group}</Tag>)}
+                <h4>{t('移入用户:')}</h4>
+                {target_users.filter((u: string) => !origin_users.includes(u)).filter(group => group !== '').map(group => 
+                    <Tag color='green'>{group}</Tag>)}
+                <h4>{t('移出用户:')}</h4>
+                {origin_users.filter(u => !target_users.includes(u)).filter(group => group !== '').map(group => 
+                    <Tag color='red'>{group}</Tag>)}
+            </div>
         </Modal>
         
         <Modal
@@ -253,18 +253,11 @@ export function GroupList () {
                 ({ groupName }) => groupName.toLowerCase().includes(search_key.toLowerCase())).map(group => ({
                 key: group.groupName,
                 group_name: group.groupName,
-                users:  <Select
-                    mode='tags'
-                    className='group-select'
-                    // allowClear
-                    tagRender={tagRender}
-                    key={group.users}
-                    placeholder={t('请选择想要添加的用户')}
-                    defaultValue={group.users ? group.users.split(',') : [ ]}
-                    onDeselect={async user => model.execute(async () => { await access.delete_group_member(user, group.groupName) })}
-                    onSelect={async user => model.execute(async () => { await access.add_group_member(user, group.groupName) })}
-                    options={users.map(user => ({ label: user, value: user }))}
-                />,
+                users:  <div>
+                        {
+                        group.users && group.users.split(',').map((user: string) => <Tag color='cyan'>{user}</Tag>) 
+                        }
+                    </div>,
                 actions: <div className='actions'>
                     <Button type='link' 
                             onClick={async () => model.execute(async () => { 
