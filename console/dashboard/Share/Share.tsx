@@ -14,7 +14,7 @@ interface IProps {
 
 
 export function Share ({ dashboard_ids, trigger_type }: IProps) {
-    const [api, contextHolder] = notification.useNotification()
+    const [api, contextHolder] = notification.useNotification({ maxCount: 1 })
     const message = trigger_type === 'icon' ? dashboard.message : model.message
     
     const trigger_click_handler = useCallback(async () => {

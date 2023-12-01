@@ -3286,5 +3286,11 @@
     },
     "以下内容已复制到剪切板": {
         "en": "The following content has been copied to the clipboard."
+    },
+    "已存在，粘贴失败!": {
+        "en": "already exists, paste failed!"
+    },
+    "初始化数据面板成功！": {
+        "en": "Dashboard initialization successful!"
     }
 }
