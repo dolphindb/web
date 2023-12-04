@@ -4,7 +4,7 @@ import { Button, Form, InputNumber, Select, Tooltip } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { useCallback, useMemo } from 'react'
 import { countBy } from 'lodash'
-import { TIME_TYPES } from '../../constant'
+import { TIME_TYPES } from '../../constant.js'
 
 interface IProps { 
     schema: ITableInfo['schema']
