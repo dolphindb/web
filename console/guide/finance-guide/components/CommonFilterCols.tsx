@@ -4,6 +4,7 @@ import { Button, Form, InputNumber, Select, Tooltip } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { useCallback, useMemo } from 'react'
 import { countBy } from 'lodash'
+import { TIME_TYPES } from '../../constant'
 
 interface IProps { 
     schema: ITableInfo['schema']
@@ -18,7 +19,7 @@ export function CommonFilterCols (props: IProps) {
     const partitionCols = Form.useWatch('partitionCols', form) ?? [ ]
     
     const filter_col_options = useMemo(() => {
-        const time_col = timeCol || partitionCols?.filter(Boolean)?.find(item => ['DATE', 'DATETIME', 'TIMESTAMP'].includes(schema?.find(col => col?.colName === item?.colName)?.dataType))?.colName
+        const time_col = timeCol || partitionCols?.filter(Boolean)?.find(item => TIME_TYPES.includes(schema?.find(col => col?.colName === item?.colName)?.dataType))?.colName
         return schema
             .filter(item => !['DOUBLE', 'LONG', 'SHORT', 'DECIMAL', 'FLOAT', 'DATETIME'].includes(item?.dataType) && item?.colName !== time_col)
             .map(item => ({ label: item?.colName, value: item?.colName }))

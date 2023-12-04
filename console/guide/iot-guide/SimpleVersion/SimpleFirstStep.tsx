@@ -30,7 +30,14 @@ export function SimpleFirstStep (props: IProps) {
         set_loading(false)
     }, [go])
     
-    return <Form onFinish={on_submit} form={form} labelAlign='left' className='simple-version-form' labelCol={{ span: 6 }} wrapperCol={{ span: 18 }}>
+    return <Form
+        onFinish={on_submit}
+        form={form}
+        labelAlign='left'
+        className='simple-version-form'
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+    >
         <BasicInfoFields type={GuideType.SIMPLE} />
         <Form.Item className='button-group'>
             <Button loading={loading} type='primary' htmlType='submit'>生成脚本</Button>

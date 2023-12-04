@@ -1,9 +1,9 @@
 import './index.scss'
 
 import { CloudUploadOutlined, DeleteOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import { Alert, Button, Form, Input, InputNumber, Modal, Radio, Select, Space, Tooltip, Typography, message } from 'antd'
+import { Button, Form, Input, InputNumber, Modal, Radio, Select, Space, Tooltip, Typography, message } from 'antd'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { UploadFileField } from './UploadFileField.js'
 import { request } from '../utils.js'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
@@ -170,7 +170,7 @@ export function DataTypeSelect (props: IDataTypeSelect) {
                 onChange(undefined)
         else
             onChange(data_type)
-    }, [data_type, decimal])
+    }, [data_type, decimal, onChange])
     
     return data_type?.includes('DECIMAL')
         ? <div className='data-type-wrapper'>
@@ -181,7 +181,13 @@ export function DataTypeSelect (props: IDataTypeSelect) {
                 options={convert_list_to_options(data_types)}
                 placeholder='请选择数据类型'
             />
-            <InputNumber min={limit.min} max={limit.max} value={decimal} onChange={val => { set_decimal(val) }} placeholder='请输入 DECIMAL 精度'/>
+            <InputNumber
+                min={limit.min}
+                max={limit.max}
+                value={decimal}
+                onChange={val => { set_decimal(val) }}
+                placeholder='请输入 DECIMAL 精度'
+            />
         </div>
         : <Select
             value={data_type}
@@ -195,6 +201,16 @@ export function DataTypeSelect (props: IDataTypeSelect) {
 export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, is_freq_increase: 0 | 1 }) { 
     const { is_freq_increase, mode, engine } = props
     const form = Form.useFormInstance()
+    const schema = Form.useWatch('schema', form)
+    const init = useRef(false)
+    
+    // 自定义schema校验，首次不校验
+    useEffect(() => {
+        if (init.current)
+            form.validateFields(['schema'])
+        else if (schema)
+            init.current = true
+     }, [ schema ])
     
     const on_apply = useCallback(schema => {
         if (schema)
@@ -231,9 +247,11 @@ export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, is
                 return Promise.resolve()
             else
                 return Promise.reject(new Error('非时序数据表结构至少有一列枚举列'))
-     }, [ is_freq_increase ])
+    }, [is_freq_increase])
     
-    return <>
+    
+    
+    return <>s
         <div className='schema-wrapper'>
             <h4>列配置</h4>
             
@@ -249,7 +267,7 @@ export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, is
                             ]}>
                             <Input placeholder='请输入列名'/>
                         </Form.Item>
-                        <Form.Item tooltip='DECIMAL32 精度有效范围是[0, 9]，DECIMAL64 精度有效范围是[0, 18]，DECIMAL128 精度有效范围是[0,38]' labelCol={{ span: 8 }} label='数据类型' name={[field.name, 'dataType']} rules={[{ required: true, message: '请选择数据类型' }]}>
+                        <Form.Item tooltip='DECIMAL32 精度有效范围是[0, 9]，DECIMAL64 精度有效范围是[0, 18]，DECIMAL128 精度有效范围是[0,38]' labelCol={{ span: 8 }} label='数据类型' name={[field.name, 'dataType']} rules={[{ required: true, message: '请选择数据类型', validateTrigger: 'onChange' }]}>
                             <DataTypeSelect mode={mode} engine={engine} />
                         </Form.Item>
                         <Form.Item label='备注' name={[field.name, 'comment']}>
