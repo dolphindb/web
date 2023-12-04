@@ -138,6 +138,7 @@ export function GroupList () {
                 set_origin_users(await access.get_users_by_group(current?.name))
                 confior.open() 
             }}
+            okText={t('预览修改')}
             >
             <Transfer
                 dataSource={users.map(user => ({
@@ -187,7 +188,7 @@ export function GroupList () {
             
             >
             <div>
-                <h4>{t('原有用户:')}</h4>
+                <h4>{t('原组内用户:')}</h4>
                 {origin_users.map(group => 
                     <Tag color='cyan'>{group}</Tag>)}
                 <h4>{t('移入用户:')}</h4>

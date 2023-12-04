@@ -272,7 +272,7 @@ export function UserList () {
             onOk={async () => {
                 set_origin_groups((await access.get_user_access([current?.name]))[0].groups.split(',').filter(group => group !== ''))
                 confior.open() }}
-            
+            okText={t('预览修改')}
             >
             <Transfer
                 dataSource={groups.map(user => ({
