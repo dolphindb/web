@@ -11,7 +11,7 @@ export function AccessView () {
     
     const { current, users, groups, } =  access.use(['current', 'users', 'groups'])
     
-    const { role, name } = current
+    const { role, name, view } = current
      
     const [tab_key, set_tab_key] = useState('database')
     
@@ -30,7 +30,7 @@ export function AccessView () {
         {
             key: 'database',
             label: t('分布式数据库'),
-            children: current.view === 'preview' ? 
+            children: view === 'preview' ? 
                         <AccessList category='database'/>
                             :
                         <AccessManage category='database'/>
@@ -38,7 +38,7 @@ export function AccessView () {
         {
             key: 'share_table',
             label: t('共享内存表'),
-            children: current.view === 'preview' ? 
+            children: view === 'preview' ? 
                         <AccessList category='shared'/>
                             :
                         <AccessManage category='shared'/>
@@ -47,7 +47,7 @@ export function AccessView () {
         {
             key: 'stream',
             label: t('流数据表'),
-            children: current.view === 'preview' ? 
+            children: view === 'preview' ? 
                         <AccessList category='stream'/>
                             :
                         <AccessManage category='stream'/>
@@ -56,7 +56,7 @@ export function AccessView () {
         {
             key: 'function_view',
             label: t('函数视图'),
-            children: current.view === 'preview' ? 
+            children: view === 'preview' ? 
                         <AccessList category='function_view'/>
                             :
                         <AccessManage category='function_view'/>
@@ -64,22 +64,21 @@ export function AccessView () {
         }, {
             key: 'script',
             label: t('脚本权限'),
-            children: current.view === 'preview' ? 
+            children: view === 'preview' ? 
                         <AccessList category='script'/>
                             :
                         <AccessManage category='script'/>
             
         }
-    ]), [current.view])
+    ]), [view])
     
     const OperationsSlot: Record<'left' | 'right', React.ReactNode> = {
         left: <div className='switch-user'>
-                {t('当前查看{{role}}:', { role: current.role === 'user' ? t('用户') : t('组') })}
+                {t('当前查看{{role}}:', { role: role === 'user' ? t('用户') : t('组') })}
                 <Select 
-                    value={current.name}
+                    value={name}
                     bordered={false}
-                    title=''
-                    options={(current.role === 'user' ? users : groups).map(t => ({
+                    options={(role === 'user' ? users : groups).map(t => ({
                             value: t,
                             label: t
                     }))} 
