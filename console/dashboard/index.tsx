@@ -43,8 +43,6 @@ export function DashBoard () {
     
     const [inited_state, set_inited_state] = useState(0)  // 0表示未查询到结果，1表示没有初始化，2表示已经初始化 
     
-    const [is_admin, set_is_admin] = useState(false)
-    
     if (node_type === NodeType.controller)
         return <Result
             status='warning'
@@ -59,7 +57,6 @@ export function DashBoard () {
                 if (version === '1.0.0')
                     set_inited_state(2) 
             } catch (error) {
-                set_is_admin((await model.ddb.call('getUserAccess', [new DdbVectorString([model.username])])).value[2].value[0])
                 set_inited_state(1)
             }
         })()
@@ -67,7 +64,7 @@ export function DashBoard () {
     
     const component = {
         0: <></>,
-        1: <Init is_admin={is_admin} set_inited_state={set_inited_state}/>,
+        1: <Init is_admin={model.admin} set_inited_state={set_inited_state}/>,
         2: (new URLSearchParams(location.search).has('dashboard') ?
                 <ConfigProvider
                     theme={{
