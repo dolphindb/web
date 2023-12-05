@@ -2419,5 +2419,14 @@
     },
     "命名不可为空":{
         "en":"Name cannot be empty"
+    },
+    "进入查询向导": {
+        "en": "Enter the query guide"
+    },
+    "向导界面": {
+        "en": "Guide interface"
+    },
+    "编辑界面": {
+        "en": "Edit interface"
     }
 }

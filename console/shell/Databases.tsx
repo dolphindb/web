@@ -9,7 +9,7 @@ import { Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber } from '
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined } from '@ant-design/icons'
+import { default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined, FileSearchOutlined } from '@ant-design/icons'
 
 import { assert, delay } from 'xshell/utils.browser.js'
 
@@ -47,6 +47,7 @@ import SvgPartitionFile from './icons/partition-file.icon.svg'
 import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
+import { QueryGuideModal } from './QueryGuide/index.js'
 
 
 enum TableKind {
@@ -839,6 +840,7 @@ export class Database implements DataNode {
                 model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
             )
         }
+        console.log(this.schema, 'schema')
         
         return this.schema
     }
@@ -872,7 +874,7 @@ export class Table implements DataNode {
     
     name: string
     
-    title: string
+    title: React.ReactNode
     
     className = 'table'
     
@@ -895,7 +897,14 @@ export class Table implements DataNode {
         this.self = this
         this.db = db
         this.key = this.path = path
-        this.title = this.name = path.slice(db.path.length, -1)
+        this.name = path.slice(db.path.length, -1)
+        this.title = <div className='table-title'>
+            <span> {path.slice(db.path.length, -1)} </span>
+            <Tooltip title={t('进入查询向导')}>
+                <FileSearchOutlined onClick={async () => NiceModal.show(QueryGuideModal, { database: this.db.path.slice(0, -1), table: this.name }) } className='query-icon'/>
+            </Tooltip>
+        </div>
+       
     }
     
     
@@ -922,7 +931,6 @@ export class Table implements DataNode {
                 model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
             )
         }
-        
         return this.schema
     }
     

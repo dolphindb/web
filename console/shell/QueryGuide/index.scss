@@ -1,0 +1,33 @@
+.query-guide-modal {
+    width: 70% !important;
+    height: 70%;
+    // overflow-y: auto;
+    
+    .col-select-transfer {
+        width: 100%;
+        .ant-transfer-list {
+            width: 45%;
+            height: 220px;
+        }
+        .ant-transfer-operation {
+            width: 10%;
+            align-items: center;
+        }
+    }
+    
+    .query-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        .ant-form-item {
+            width: 30%;
+            margin-bottom: 0px;
+        }
+    }
+}
+
+.add-btn-wrapper {
+    margin-top: 4px;
+    text-align: end;
+}

@@ -6,6 +6,7 @@ interface IProps extends Omit<DatePickerProps, 'onChange' | 'value'> {
     value?: string
     onChange?: (val: string) => void
     submitFormat?: string
+    showTime?: boolean
 }
 
 export function StringDatePicker (props: IProps) { 
