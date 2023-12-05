@@ -1,5 +1,5 @@
-import { Tabs, Table, Button, Input, type TableColumnType, type TabsProps, Modal, Form, Select, TreeSelect, Collapse } from 'antd'
-import { useEffect, useMemo, useState } from 'react'
+import { Tabs, Table, Button, Input, type TableColumnType, type TabsProps, Modal, Form, Select, TreeSelect, Collapse, Radio, Checkbox, Divider } from 'antd'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { t } from '../../i18n/index.js'
 
 import { access, type Database } from './model.js'
@@ -295,6 +295,15 @@ function AccessList ({
    />
 }
 
+
+const access_options = {
+    database: ACCESS_TYPE.database.concat(ACCESS_TYPE.table),
+    shared: ['TABLE_WRITE', 'TABLE_READ'],
+    stream: ['TABLE_WRITE', 'TABLE_READ'],
+    function_view: ACCESS_TYPE.function_view,
+    script: ACCESS_TYPE.script
+}
+
 function AccessManage ({ 
     category 
 }: {
@@ -302,19 +311,32 @@ function AccessManage ({
 }) {
     let creator = use_modal()
     
-    const [add_access_form] = Form.useForm()
+    const { databases, 
+        shared_tables, 
+        stream_tables, 
+        function_views, 
+        current, 
+        accesses } = 
+        access.use(['databases', 
+                    'shared_tables', 
+                    'stream_tables', 
+                    'function_views', 
+                    'current', 
+                    'accesses'])
+                
+    
     
     const [search_key, set_search_key] = useState('')
     
-    const [access_options, set_access_options] = useState([ ])
+    const [add_rule_selected, set_add_rule_selected] = useState({ access: access_options[category][0], type: 'grant', obj: [ ] })
     
-    const aces_types = useMemo(() => (category === 'database' ? 
+    const showed_aces_types = useMemo(() => (category === 'database' ? 
         ACCESS_TYPE.database.concat(ACCESS_TYPE.table)
                     :
         ACCESS_TYPE[category]).filter(ac => ac !== 'TABLE_WRITE'), 
     [category])
     
-    const cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
+    const showed_aces_cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
         [
             ...category !== 'script' ?  [{
                 title: '对象',
@@ -328,7 +350,7 @@ function AccessManage ({
                 wdith: 300,
                 ...['function_view', 'script'].includes(category) ? { } :
                 { 
-                    filters: aces_types.map(at => ({
+                    filters: showed_aces_types.map(at => ({
                         text: at,
                         value: at
                     })),
@@ -360,19 +382,37 @@ function AccessManage ({
         ]
     ), [ ])
     
-    const { databases, 
-            shared_tables, 
-            stream_tables, 
-            function_views, 
-            current, 
-            accesses } = 
-        access.use(['databases', 
-                    'shared_tables', 
-                    'stream_tables', 
-                    'function_views', 
-                    'current', 
-                    'accesses'])
+    const add_access_cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
+        [
+            {
+                title: '权限',
+                dataIndex: 'access',
+                key: 'access',
+                wdith: 300,
+            },
+            {
+                title: '类型',
+                dataIndex: 'type',
+                key: 'type',
+                wdith: 200,
+            },
+            ...category !== 'script' ?  [{
+                title: '对象',
+                dataIndex: 'name',
+                key: 'name',
+            }] : [ ],
+            {
+                title: t('动作'),
+                dataIndex: 'remove',
+                key: 'remove',
+                wdith: 100
+            }
+        ]
+    ), [ ])
     
+    const [add_access_rows, set_add_access_rows] = useState([ ])
+    
+ 
     const access_rules = useMemo(() => {
         if (!accesses)
             return [ ]
@@ -380,7 +420,7 @@ function AccessManage ({
         
         for (let [k, v] of Object.entries(accesses as Record<string, any>))
             if (v && v !== 'none')
-                if (category === 'script' && aces_types.includes(k))
+                if (category === 'script' && showed_aces_types.includes(k))
                     tb_rows.push({
                             key: k,
                             access: k,
@@ -396,7 +436,7 @@ function AccessManage ({
                                         })
                                     }>Revoke</Button>
                 })
-                else if (aces_types.map(aces => aces + '_allowed').includes(k) || aces_types.map(aces =>  aces + '_denied').includes(k)) {
+                else if (showed_aces_types.map(aces => aces + '_allowed').includes(k) || showed_aces_types.map(aces =>  aces + '_denied').includes(k)) {
                     let objs = v.split(',')
                     if (category === 'database')
                         objs = objs.filter((obj: string) =>  obj.startsWith('dfs:'))
@@ -404,7 +444,7 @@ function AccessManage ({
                         objs = objs.filter((obj: string) =>  shared_tables.includes(obj))
                     if (category === 'stream')
                         objs = objs.filter((obj: string) =>  !obj.startsWith('dfs:') && !shared_tables.includes(obj))
-                    const allowed = aces_types.map(aces => aces + '_allowed').includes(k)
+                    const allowed = showed_aces_types.map(aces => aces + '_allowed').includes(k)
                     for (let obj of objs)
                         tb_rows.push({
                                 key: obj + k,
@@ -426,163 +466,204 @@ function AccessManage ({
         return tb_rows
     }, [ accesses, category])
     
-    const options = useMemo(() => {
-        let items = [ ]
-        switch (category) {
-            case 'script':
-                items = ACCESS_TYPE.script
-                break
-            case 'function_view':
-                items = function_views
-                break
-            case 'shared':
-                items = shared_tables
-                break
-            case 'stream':
-                items = stream_tables
-                break
-                
-        }
-        return items.map(opt => ({
-            title: opt,
-            value: opt
-        }))
-    }, [category])
+    let obj_options = [ ]
+    switch (category) {
+        case 'database':
+            obj_options = databases.map(db => db.name)
+            break
+        case 'shared':
+            obj_options = shared_tables
+            break
+        case 'stream':
+            obj_options = stream_tables
+            break
+        case 'function_view':
+            obj_options = function_views
+            break
+        default:
+            break
+    }
     
     return <>
             <Modal 
                 className='add-rule-modal'
                 open={creator.visible}
                 onCancel={() => { 
-                    add_access_form.resetFields()
+                    set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
                     creator.close()
                 }}
                 onOk={async () => {
                     model.execute(async () => {
-                        await add_access_form.validateFields()
-                        const rules = await add_access_form.getFieldValue('add-rules')
-                        await Promise.all(rules.map(async rule => 
-                                access[rule.type](current.name, rule.access,  rule.obj)
+                        console.log(current.name, add_access_rows.map(rule => rule))
+                        await Promise.all(add_access_rows.map(async rule => 
+                                access[rule.type](current.name, rule.access,  rule.name)
                         ))
                         model.message.success(t('权限赋予成功'))
+                        set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
                         creator.close()
                         access.set({ accesses: current.role === 'user' ? 
                                             (await access.get_user_access([current.name]))[0]
                                                                         :
-                                            (await access.get_group_access([current.name]))[0] }) 
-                        add_access_form.resetFields()
+                                            (await access.get_group_access([current.name]))[0] })
+                        set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
                     })
                 }}
                 destroyOnClose
-                title={t('新增权限')}
+                okText={t('确认添加')}
+                okButtonProps={{
+                    disabled: !add_access_rows.length
+                }}
+                title={t('添加权限')}
             >   
-            <Form form={add_access_form}>
-                <Form.List name='add-rules'>
+             <div className='add-rule-container'>
+                <div className='add-rule-header' >
+                    <Radio.Group 
+                        options={['grant', 'deny'].map(tp => ({
+                            label: tp,
+                            value: tp
+                        }))}
+                        value={add_rule_selected.type}
+                        onChange={e => {
+                            const selected = { ...add_rule_selected }
+                            selected.type = e.target.value
+                            set_add_rule_selected(selected)
+                        }}
+                        optionType='button'
+                        buttonStyle='solid'
+                    />
+                    <Select className='access-select'
+                            options={access_options[category].map(ac => ({
+                                label: ac,
+                                value: ac
+                            }))}
+                            value={add_rule_selected.access}
+                            onChange={value => {
+                                const selected = { ...add_rule_selected }
+                                selected.access = value
+                                selected.obj = [ ]
+                                set_add_rule_selected(selected)
+                            }}/>
                     {
-                        (fields, { add, remove }) => {
-                            return <>
-                            {
-                                fields.map((field, idx) => 
-                                <div key={field.key} className='rule-select'>
-                                    <Form.Item name={[field.name, category === 'script' ? 'access' : 'obj']} rules={[{ required: true, message: t('请选择{{category}}', { category: TABLE_NAMES[category] }) }]}>
-                                        {category === 'database' ? 
-                                        <TreeSelect
-                                            style={{ width: '300px' }}
-                                            treeData={databases.filter(({ name }) => name.startsWith('dfs:')).map(db => (
-                                                {
-                                                    title: db.name,
-                                                    value: db.name,
-                                                    children: db.tables.map(tb => ({
-                                                        title: tb,
-                                                        value: tb
-                                                    }))
-                                                }
-                                            ))}
-                                            placeholder={t('请选择 dfs 数据库/表')}
-                                        /> : 
-                                        <Select
-                                            style={{ width: category === 'script' ? '520px' : '300px' }}
-                                            placeholder={t('请选择{{category}}', { category: TABLE_NAMES[category] })}
-                                            // disabled={!!category}
-                                            options={options}
-                                        />
-                                        }
-                                    </Form.Item>
-                                    {
-                                        category !== 'script' && 
-                                        <Form.Item name={[field.name, 'access']} rules={[{ required: true, message: t('请选择权限') }]}>
-                                         <Select
-                                            style={{ width: '200px' }}
-                                            placeholder={t('请选择权限')}
-                                            // disabled={category === 'script'}
-                                            options={access_options}
-                                            onFocus={() => {
-                                                let options = [ ]
-                                                if (category === 'database') {
-                                                    const value = add_access_form.getFieldValue('add-rules')
-                                                    if (value[idx].obj.split('/').length === 4) 
-                                                        options = ACCESS_TYPE.table
-                                                    else
-                                                        options = ACCESS_TYPE.database
-                                                }
-                                                else if (category === 'stream' || category === 'shared') 
-                                                    options = ['TABLE_WRITE', 'TABLE_READ']
-                                                else
-                                                    options = ACCESS_TYPE[category]
-                                                set_access_options(options.map(option => ({
-                                                    title: option,
-                                                    value: option
-                                                })))
-                                                }
-                                            }
-                                        
-                                            />
-                                    </Form.Item>
+                        category === 'database' && 
+                            ACCESS_TYPE.table.includes(add_rule_selected.access) ? 
+                                <TreeSelect
+                                    className='table-select'
+                                    multiple
+                                    maxTagCount='responsive'
+                                    placeholder={t('请选择权限应用范围')}
+                                    treeDefaultExpandAll
+                                    value={add_rule_selected.obj}
+                                    onChange={vals => {
+                                        const selected = { ...add_rule_selected }
+                                        selected.obj = vals
+                                        set_add_rule_selected(selected)
+                                    }}
+                                    dropdownRender={originNode =>
+                                        <div>
+                                            <Checkbox 
+                                                className='check-all'
+                                                checked={add_rule_selected.obj.length === databases.reduce((count, db) => count + db.tables.length, 0)}
+                                                indeterminate={add_rule_selected.obj.length > 0 
+                                                    && add_rule_selected.obj.length < databases.reduce((count, db) => count + db.tables.length, 0)}
+                                                onChange={e => {
+                                                    if (e.target.checked) 
+                                                        set_add_rule_selected({ ...add_rule_selected, obj: databases.map(db => [...db.tables]).flat() })
+                                                     else 
+                                                        set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
+                                                    
+                                                }}
+                                            >
+                                                {t('全选')}
+                                            </Checkbox>
+                                            <Divider className='divider'/>
+                                            {originNode}
+                                        </div>
                                     }
-                                    <Form.Item name={[field.name, 'type']} rules={[{ required: true, message: t('请选择权限类型') }]}>
-                                        <Select
-                                            style={{ width: '200px' }}
-                                            placeholder={t('请选择权限类型')}
-                                            options={[ {
-                                                title: 'grant',
-                                                value: 'grant'
-                                            },
-                                            {
-                                                title: 'deny',
-                                                value: 'deny'
-                                            }
-                                            ]}
-                                            />
-                                    </Form.Item>
-                                    {fields.length > 1 && (
-                                        <MinusCircleOutlined
-                                            className='dynamic-delete-button'
-                                            onClick={() => { remove(field.name) }}
-                                        />
-                                        )}
-                                     
-                                    </div>)
-                            }
-                            
-                            <Form.Item>
-                                <Button
-                                    type='dashed'
-                                    onClick={() => { add() }}
-                                    style={{ width: '60%' }}
-                                    icon={<PlusOutlined />}
-                                >
-                                    {t('增加')}
-                                </Button>
-                                
-                            </Form.Item>
-                            </>
-                        }
-                        
-                       
+                                    treeData={databases.map(db => (
+                                        {
+                                            title: db.name,
+                                            value: db.name,
+                                            selectable: false,
+                                            children: db.tables.map(tb => ({
+                                                title: tb,
+                                                value: tb
+                                            }))
+                                        }
+                                    ))}
+                                /> 
+                                    :
+                                <Select
+                                    className='table-select' 
+                                    mode='multiple'
+                                    maxTagCount='responsive'
+                                    disabled={category === 'script'}
+                                    placeholder={category === 'script' ? t('脚本权限应用范围为全局') : t('请选择权限应用范围')}
+                                    value={add_rule_selected.obj}
+                                    dropdownRender={originNode =>
+                                        <div>
+                                            <Checkbox 
+                                                className='check-all'
+                                                checked={add_rule_selected.obj.length === obj_options.length}
+                                                indeterminate={add_rule_selected.obj.length > 0 
+                                                    && add_rule_selected.obj.length < obj_options.length}
+                                                onChange={e => {
+                                                    if (e.target.checked) 
+                                                        set_add_rule_selected({ ...add_rule_selected, obj: obj_options })
+                                                     else 
+                                                        set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
+                                                    
+                                                }}
+                                            >
+                                                {t('全选')}
+                                            </Checkbox>
+                                            <Divider className='divider'/>
+                                            {originNode}
+                                        </div>
+                                    }
+                                    onChange={vals => {
+                                        const selected = { ...add_rule_selected }
+                                        selected.obj = vals
+                                        set_add_rule_selected(selected)
+                                    }}
+                                    options={obj_options.map(obj => ({
+                                        key: obj,
+                                        label: obj,
+                                        value: obj
+                                    }))}
+                            />
                     }
                     
-                </Form.List>
-            </Form>
+                    <Button type='primary' 
+                            onClick={() => {
+                                const { access, type, obj } = add_rule_selected
+                                const rows = obj.map(oj => ({
+                                    key: access + type + oj,
+                                    access,
+                                    type,
+                                    ...category !== 'script' ? { name: oj } : { },
+                                }))
+                                set_add_access_rows([...add_access_rows, ...rows])
+                    }}>
+                         {t('预添加')}
+                    </Button>
+                </div>
+                <Table 
+                    columns={add_access_cols}
+                    dataSource={add_access_rows.map(row => ({
+                        ...row,
+                        remove: 
+                        <Button
+                            type='text' 
+                            danger
+                            onClick={() => { 
+                            const new_rows = add_access_rows.filter(({ key }) => key !== row.key)
+                            set_add_access_rows(new_rows)
+                         }}>
+                            {t('移除')}
+                        </Button>
+                    }))}
+                    />
+             </div>
         
             </Modal>
             <Table
@@ -594,7 +675,7 @@ function AccessManage ({
                         set_search_key={set_search_key}
                         open={creator.open}/>
                 }
-                columns={cols}
+                columns={showed_aces_cols}
                 dataSource={access_rules.filter(row => 
                     row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
                 )}
@@ -617,7 +698,7 @@ function AccessHeader ({
     set_search_key: (str: string) => void
     open?: () => void
 }) {
-    const { current, users, groups } = access.use(['current', 'users', 'groups'])
+    const { current } = access.use(['current', 'users', 'groups'])
     
     return <div className='actions'>
             

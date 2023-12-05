@@ -35,6 +35,9 @@
         // margin-top: 20px
         .ant-tabs-tab-btn
             font-size: 16px
+    
+    .ant-tabs-top >.ant-tabs-nav
+        margin: 0px
             
     .switch-user
         font-size: 16px
@@ -46,6 +49,9 @@
     
     .ant-table-wrapper .ant-table-title
         padding-left: 0px
+        
+    .ant-table-cell
+        padding: 8px 8px !important
                 
     
         
@@ -68,19 +74,36 @@
         color: #1776FB
                 
             
+// .add-rule-modal
+//     width: 820px !important
+//     .rule-select
+//         display: flex
+//         column-gap: 20px
+//         justify-content: start
+//         align-items: center
+//         margin-bottom: 20px
+//         .ant-form-item
+//             margin: 0px
+//     .ant-form-item-control-input-content 
+//         .ant-btn
+//             width: 95% !important
 .add-rule-modal
-    width: 820px !important
-    .rule-select
-        display: flex
-        column-gap: 20px
-        justify-content: start
-        align-items: center
-        margin-bottom: 20px
-        .ant-form-item
-            margin: 0px
-    .ant-form-item-control-input-content 
-        .ant-btn
-            width: 95% !important
+    width: 900px !important
+    .add-rule-container
+        .add-rule-header
+            display: flex
+            column-gap: 20px
+            margin-bottom: 20px
+            .access-select
+                width: 200px
+            .ant-radio-group
+                display: flex
+            .table-select
+                width: 400px
+                
+    .ant-table-cell
+        padding: 4px 4px !important
+                
        
 .add-group-modal,.edit-group-modal,.edit-user-group-modal
     width: 600px !important
@@ -91,3 +114,9 @@
         .ant-transfer-list
             height: 500px
             width: 240px
+            
+.check-all
+    padding: 5px 12px
+    
+.divider
+    margin-bottom: 0px

@@ -182,6 +182,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async grant (user: string, aces: string, obj?: string) {
+        console.log(user, aces, obj)
         await model.ddb.call('grant', obj ? [ user, new DdbInt(ACCESS_NUM[aces]), obj ] : [user, new DdbInt(ACCESS_NUM[aces])], { urgent: true })
     }
     
