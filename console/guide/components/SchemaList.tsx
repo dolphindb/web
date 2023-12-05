@@ -1,7 +1,7 @@
 import './index.scss'
 
-import { CloudUploadOutlined, DeleteOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import { Button, Form, Input, InputNumber, Modal, Radio, Select, Space, Tooltip, Typography, message } from 'antd'
+import { CloudUploadOutlined, DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { Button, Form, Input, InputNumber, Modal, Radio, Select, Tooltip, Typography } from 'antd'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { UploadFileField } from './UploadFileField.js'
@@ -170,7 +170,7 @@ export function DataTypeSelect (props: IDataTypeSelect) {
                 onChange(undefined)
         else
             onChange(data_type)
-    }, [data_type, decimal, onChange])
+    }, [data_type, decimal])
     
     return data_type?.includes('DECIMAL')
         ? <div className='data-type-wrapper'>
@@ -198,8 +198,8 @@ export function DataTypeSelect (props: IDataTypeSelect) {
         />
 }
 
-export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, is_freq_increase: 0 | 1 }) { 
-    const { is_freq_increase, mode, engine } = props
+export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, need_time_col?: boolean }) { 
+    const { need_time_col = true, mode, engine } = props
     const form = Form.useFormInstance()
     const schema = Form.useWatch('schema', form)
     const init = useRef(false)
@@ -210,7 +210,7 @@ export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, is
             form.validateFields(['schema'])
         else if (schema)
             init.current = true
-     }, [ schema ])
+    }, [ schema ])
     
     const on_apply = useCallback(schema => {
         if (schema)
@@ -222,40 +222,37 @@ export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, is
     }, [on_apply])
     
     const validator = useCallback(async (_, value) => { 
-        const schema = form.getFieldValue('schema')
         const name_list = schema.filter(item => !!item?.colName).map(item => item?.colName)
         if (countBy(name_list)?.[value] > 1)  
             return Promise.reject('已配置该列，请修改')
         else
             return Promise.resolve()
-    }, [ ])
+    }, [schema])
     
-    const validate_schema = useCallback(async (_, schema) => {
-        // 时序数据校验规则：必须包含3列以上，至少有1个时间类型和1个枚举类型（STRING、SYMBOL、INT、SHORT）
-        const types = schema.filter(item => item?.dataType).map(item => item.dataType)
-        if (is_freq_increase) {
-            if (mode === 'ito')
-                if (types.some(type => TIME_TYPES.includes(type)) && types.some(type => ENUM_TYPES.includes(type)))
-                    return Promise.resolve()
-                else  
-                    return Promise.reject(new Error('时序数据的表结构至少有一列时间列与枚举列'))
-            else if (!types.some(type => TIME_TYPES.includes(type)))
-                return Promise.reject('表结构至少包含一列时间列')
-         }
-         else 
-            if (types.some(type => ENUM_TYPES.includes(type)))
+    const validate_schema = useCallback(async (_, values) => {
+        const types = values.filter(item => item?.dataType).map(item => item.dataType)
+        // 物联网场景，且为时序数据或者数据总量大于200w的非时序数据
+        if (mode === 'ito' && need_time_col)  
+            // 物联网场景
+            if (types.some(type => TIME_TYPES.includes(type)) && types.some(type => ENUM_TYPES.includes(type)))
                 return Promise.resolve()
-            else
-                return Promise.reject(new Error('非时序数据表结构至少有一列枚举列'))
-    }, [is_freq_increase])
+            else  
+                return Promise.reject(new Error('时序数据与总数据量大于200万的非时序数据，表结构至少有一列时间列与枚举列'))
+        // 金融场景必须有一列时间列
+        else if (mode === 'finance' && !types.some(type => TIME_TYPES.includes(type)))
+            return Promise.reject('表结构至少包含一列时间列')
+        return Promise.resolve()
+    }, [need_time_col, mode])
     
-    
-    
-    return <>s
+    return <>
         <div className='schema-wrapper'>
             <h4>列配置</h4>
             
-            <Form.List name='schema' initialValue={[{ }, { }, { }]} rules={[{ validator: validate_schema }]}>
+            <Form.List
+                name='schema'
+                initialValue={[{ }, { }, { }]}
+                rules={[{ validator: validate_schema }]}
+            >
                 {(fields, { add, remove }, { errors }) => <>
                     {fields.map(field => <div className='schema-item' key={field.name}>
                         <Form.Item
@@ -275,7 +272,7 @@ export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, is
                         </Form.Item>
                         {fields.length > 3 && <Tooltip title='删除'><DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }}/></Tooltip> }
                     </div>)}
-                    <Button onClick={() => { add() }} type='dashed' block icon={<PlusCircleOutlined />}>增加列配置</Button>
+                    <Button onClick={() => { add({ }) }} type='dashed' block icon={<PlusCircleOutlined />}>增加列配置</Button>
                     <Form.ErrorList className='schema-list-error' errors={errors} />
                 </>}
             </Form.List>
@@ -293,9 +290,8 @@ export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, is
         <Typography.Text type='secondary' className='schema-tips'>
             {
                 mode === 'finance'
-                    ? '请注意，表结构至少需要一列时间列，时间列类型包括DATE、DATETIME、TIMESTAMP'
-                    : '请注意，时序数据的表结构至少需要一列时间列与枚举列，非时序数据表结构至少需要一列枚举列，时间列类型包括DATE、DATETIME、TIMESTAMP，枚举列类型包括STRING、SYMBOL。'
-                    
+                    ?  `请注意，表结构至少需要一列时间列，时间列类型包括${TIME_TYPES.join('、')}`
+                    :  `请注意，时序数据的表结构至少需要一列时间列与枚举列，非时序数据表结构至少需要一列枚举列，时间列类型包括${TIME_TYPES.join('、')}，枚举列类型包括${ENUM_TYPES.join('、')}。`
             }
         </Typography.Text>
         

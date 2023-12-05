@@ -8,12 +8,12 @@ import { useCallback } from 'react'
 
 interface IProps {
     initial_value?: any
-    col_options: SelectProps['options']
+    options: SelectProps['options']
     max?: number
 }
 
 export function CommonSortCols (props: IProps) {
-    const { col_options, max } = props
+    const { options, max } = props
     
     const form = Form.useFormInstance()
     
@@ -40,7 +40,7 @@ export function CommonSortCols (props: IProps) {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 14 }}
                         >
-                            <Select showSearch options={col_options} placeholder='请选择列名'/>
+                            <Select showSearch options={options} placeholder='请选择列名'/>
                         </Form.Item>
                         <Form.Item
                             label='唯一值数量'

@@ -4,6 +4,7 @@ import { request } from '../../utils.js'
 import { Form, Select, Spin } from 'antd'
 import useSWR from 'swr'
 import { ENUM_TYPES, TIME_TYPES } from '../../constant.js'
+import { CUSTOM } from '../constant.js'
 
 interface IProps { 
     info: IFinanceInfo
@@ -38,7 +39,7 @@ export function PartitionColSelect (props: IProps) {
     
     const show_hash_col = useMemo(() => { 
         // 日增量选择【总数据量为小于200万且不新增】【0-1w】【1-10w】【10-100w】的时候不展示标的列
-        return [3, 4, 5, 6, 7].includes(database.dailyTotalNum?.gap) || (database.dailyTotalNum?.gap === 9 && database.dailyTotalNum?.custom > 1000000)
+        return [3, 4, 5, 6, 7].includes(database.dailyTotalNum?.gap) || (database.dailyTotalNum?.gap === CUSTOM && database.dailyTotalNum?.custom > 2000000)
     }, [database])
     
     useEffect(() => { 

@@ -6,6 +6,7 @@ import { SchemaList } from './SchemaList.js'
 import { GuideType } from '../iot-guide/type.js'
 import { request } from '../utils.js'
 import { ENUM_TYPES, TIME_TYPES } from '../constant.js'
+import { useMemo } from 'react'
 
 const CUSTOM_VALUE = -1
 
@@ -32,6 +33,12 @@ export function BasicInfoFields (props: IProps) {
           常用筛选列最大选四个，无推荐 */
     const form = Form.useFormInstance()
     const is_freq_increase = Form.useWatch('isFreqIncrease', form)
+    const total_num = Form.useWatch('totalNum', form) 
+    
+    const need_time_col = useMemo(() => { 
+        // 时序数据或者非时序数据但是数据量大于2000000
+        return is_freq_increase || total_num?.gap === 1 || total_num?.custom > 2000000
+    }, [ is_freq_increase, total_num ])
     
     return <>
         <Form.Item
@@ -86,8 +93,8 @@ export function BasicInfoFields (props: IProps) {
                 return <>
                     <Form.Item label='总数据量' name={['totalNum', 'gap']} initialValue={1} rules={[{ required: true, message: '请选择总数据量' }]}>
                         <Radio.Group>
-                            <Radio value={0}> 0-100万 </Radio>
-                            <Radio value={1}> 100万以上 </Radio>
+                            <Radio value={0}> 0-200万 </Radio>
+                            <Radio value={1}> 200万以上 </Radio>
                             <Radio value={CUSTOM_VALUE}>自定义</Radio>
                         </Radio.Group>
                     </Form.Item>
@@ -124,16 +131,16 @@ export function BasicInfoFields (props: IProps) {
             }}
         </FormDependencies>
         
-        <SchemaList engine='TSDB' mode='ito' is_freq_increase={is_freq_increase}/>
+        <SchemaList engine='TSDB' mode='ito' need_time_col={need_time_col} />
         
         {
             type === GuideType.SIMPLE && <FormDependencies dependencies={['isFreqIncrease', 'totalNum', 'schema']}>
                 {({ isFreqIncrease, totalNum, schema = [ ] }) => {
-                    // 时序数据，或者非时序数据，但是数据总量大于100w需要选常用筛选列
-                    if (isFreqIncrease || totalNum.gap === 1 || totalNum.custom > 1000000) { 
+                    // 时序数据，或者非时序数据，但是数据总量大于200w需要选常用筛选列
+                    if (isFreqIncrease || totalNum.gap === 1 || totalNum.custom > 2000000) { 
                         const options = schema.filter(item => item?.colName && [...TIME_TYPES, ...ENUM_TYPES].includes(item.dataType)).map(item => ({ label: item.colName, value: item.colName }))
                         return <Form.Item
-                            extra='请选择2-4个常用筛选列，时序数据第一列需为时间列，第二列需为设备编号列，非时序数据第一列需为设备编号列'
+                            extra='请选择两个常用筛选列，时序数据或者数据总量大于200万的非时序第一列需为时间列，第二列需为设备编号列，其余情况第一列需为设备编号列'
                             tooltip='常用筛选列是查询时常作为常选条件的列，越重要的过滤条件，在筛选列中的位置越靠前。'
                             name='sortColumn'
                             label='常用筛选列'
@@ -146,16 +153,14 @@ export function BasicInfoFields (props: IProps) {
                                         
                                         const types = value.map(item => schema.find(col => col?.colName === item)?.dataType)                                    
                                         
-                                        if (is_freq_increase)
-                                            if (types[0] && !['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(types[0]))
-                                                return Promise.reject('第一个常用筛选列需为时间列')
-                                            
-                                        if (value?.length < 2)
-                                            return Promise.reject('至少选择 2 个常用筛选列')
+                                        if (types?.[0] && !TIME_TYPES.includes(types[0]))
+                                            return Promise.reject('第一个常用筛选列必须为时间类型（DATE、DATETIME、TIMESTAMP、NANOTIMESTAMP）')
                                         
-                                        if (value?.length > 4)
-                                            return Promise.reject('最多只能选择 4 个常用筛选列')
-                                            
+                                        if (types.length !== 2)
+                                            return Promise.reject('请选择两个常用筛选列')
+                                        
+                                        if (types?.[1] && !ENUM_TYPES.includes(types?.[1]))
+                                            return Promise.reject('第二个常用筛选列必须为枚举类型（CHAR、SYMBOL、STRING）')    
                                     }
                                 }
                             ]}

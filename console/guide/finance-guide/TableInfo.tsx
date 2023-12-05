@@ -70,7 +70,7 @@ export function TableInfo (props: IProps) {
         >
             <Input placeholder='请输入表名'/>
         </Form.Item>
-        <SchemaList engine={engine} mode='finance' is_freq_increase={1}/>
+        <SchemaList engine={engine} mode='finance'/>
         <PartitionColSelect info={info} schema={schema} />
         
         <CommonFilterCols schema={schema}/>

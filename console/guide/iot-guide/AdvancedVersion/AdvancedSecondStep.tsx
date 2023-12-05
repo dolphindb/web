@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { CommonSortCols } from './CommonSortCols.js'
 import { request } from '../../utils.js'
+import { ENUM_TYPES, TIME_TYPES } from '../../constant.js'
 
 interface IProps { 
     info: AdvancedInfos
@@ -34,17 +35,26 @@ export function AdvancedSecondStep (props: IProps) {
     const [loading, set_loading] = useState(false)
     
     const partition_col_options = useMemo(() => {
-        const filter_types = info.first.isFreqIncrease ? ['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP', 'CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING'] : ['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING']
+        // 时序数据只能选时间类型和枚举类型，非时序数据只能选枚举类型
+        const filter_types = info?.first?.isFreqIncrease ? [...TIME_TYPES, ...ENUM_TYPES] : ENUM_TYPES
         return info.first.schema
-            .filter(item => filter_types
-            .includes(item.dataType))
+            .filter(item => filter_types.includes(item.dataType))
             .map(({ colName }) => ({ label: colName, value: colName }))    
-     }, [info.first?.schema, info.first.isFreqIncrease])
+     }, [info.first?.schema, info?.first?.isFreqIncrease])
     
+    // 高阶 常用筛选列只能选择枚举类型
+    const common_sort_options = useMemo(() => { 
+        return info.first.schema
+            .filter(item => ENUM_TYPES.includes(item.dataType))
+            .map(item => ({ label: item.colName, value: item.colName }))
+    }, [info.first.schema])
     
-    const col_options = useMemo(() =>
-        info.first?.schema?.map(item => ({ label: item.colName, value: item.colName })),
-    [info?.first?.schema])
+    // 数据时间列选项
+    const time_options = useMemo(() => { 
+        return info.first.schema
+        .filter(item => TIME_TYPES.includes(item.dataType))
+        .map(item => ({ label: item.colName, value: item.colName }))
+    }, [ info.first.schema ])
     
     useEffect(() => { 
         if (info?.second)
@@ -56,8 +66,7 @@ export function AdvancedSecondStep (props: IProps) {
         const code = await request<string>('DBMSIOT_createDB2', { ...info.first, ...values })
         go({ code,  second: values })
         set_loading(false)
-    }, [col_options, go])
-    
+    }, [go])
     
     return <Form
         form={form}
@@ -99,6 +108,7 @@ export function AdvancedSecondStep (props: IProps) {
             </Radio.Group>
         </Form.Item>
         
+        
         <Form.Item
             label='分区列'
             name='partitionColumn'
@@ -106,36 +116,54 @@ export function AdvancedSecondStep (props: IProps) {
             rules={[
                 { required: true, message: '请选择分区列' },
                 {
-                    validator: async (_, cols = [ ]) => { 
-                        
+                    validator: async (_, cols = [ ]) => {
                         if (cols?.length !== recommend_info.partitionInfo.partitionNum)  
                             return Promise.reject('您选择的分区列个数与推荐个数不一致，请修改')
+                        
                         const types = cols.map(col => info?.first?.schema?.find(item => item.colName === col)?.dataType)
                         
                         if (info.first.isFreqIncrease) {
-                            if (types?.[0] && !['DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME', 'TIMESTAMP', 'NANOTIMESTAMP'].includes(types?.[0]))
-                                return Promise.reject('第一个分区列需为时间列')
-                            if (types.slice(1).some(type => !['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING'].includes(type)))
-                                return Promise.reject('除第一列外，其余分区列的数据类型需为 CHAR/SHORT/INT/SYMBOL/STRING')
+                            // 时序数据 第一列需为时间类型，其余列需为枚举类型
+                            if (types?.[0] && !TIME_TYPES.includes(types?.[0]))
+                                return Promise.reject(`第一个分区列需为时间类型（${TIME_TYPES.join('、')}）`)
+                            if (!types.slice(1).every(type => ENUM_TYPES.includes(type)))
+                                return Promise.reject(`除第一列外，其余分区列的数据类型需为 ${ENUM_TYPES.join('、')}`)
                         } else  
-                            if (types.some(type => !['CHAR', 'SHORT', 'INT', 'SYMBOL', 'STRING'].includes(type)))
-                                return Promise.reject('分区列的数据类型需为 CHAR/SHORT/INT/SYMBOL/STRING')
+                            // 非时序数据，分区列必须为枚举类型
+                            if (types.some(type => !ENUM_TYPES.includes(type)))
+                                return Promise.reject(`分区列的数据类型需为 ${ENUM_TYPES.join('、')}`)
                     }
                 }
             ]}
         >
             <Select mode='multiple' options={partition_col_options} placeholder='请选择分区列'/>
         </Form.Item>
+        
+        <FormDependencies dependencies={['engine']}>
+            {({ engine }) => { 
+                console.log('info', info.first)
+                console.log(engine === 'TSDB', info?.first?.totalNum?.gap === 1 || info?.first?.totalNum?.custom > 2000000)
+                if (engine === 'TSDB' && (info?.first?.totalNum?.gap === 1 || info?.first?.totalNum?.custom > 2000000))
+                    return <Form.Item name='dataTimeCol' label='数据时间列' >
+                        <Select options={time_options} placeholder='请选择数据时间列'/>
+                    </Form.Item>
+                else
+                    return null
+            } }
+        </FormDependencies>
+        
+                           
+        {/* 常用筛选列 */}
+        <CommonSortCols options={common_sort_options ?? [ ]} max={recommend_info?.sortColumnInfo?.maxOtherSortKeyNum} />
+        <Typography.Text className='other-sortkey-tip' type='secondary'>
+            {recommend_info.sortColumnInfo?.context}
+        </Typography.Text>
+        
        
         <FormDependencies dependencies={['engine']}>
             {({ engine }) => {
                 if (engine === 'TSDB')
                     return <> 
-                        <CommonSortCols col_options={col_options ?? [ ]} max={recommend_info?.sortColumnInfo?.maxOtherSortKeyNum} />
-                        <Typography.Text className='other-sortkey-tip' type='secondary'>
-                            {recommend_info.sortColumnInfo?.context}
-                        </Typography.Text>
-                
                         <Form.Item
                             name='keepDuplicates'
                             label='重复数据保留策略'
