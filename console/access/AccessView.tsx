@@ -337,17 +337,27 @@ function AccessManage ({
     [category])
     
     const showed_aces_cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
-        [
-            ...category !== 'script' ?  [{
-                title: '对象',
-                dataIndex: 'name',
-                key: 'name',
-            }] : [ ],
+        [   {
+            title: '类型',
+            dataIndex: 'type',
+            key: 'type',
+            wdith: 100,
+            ...category === 'script' ? { } :
+            {
+                filters: ['grant', 'deny'].map(at => ({
+                    text: at,
+                    value: at
+                })),
+                filterMultiple: false,
+                onFilter: (value, record) => record.type === value
+            }
+            },
+            
             {
                 title: '权限',
                 dataIndex: 'access',
                 key: 'access',
-                wdith: 300,
+                wdith: 200,
                 ...['function_view', 'script'].includes(category) ? { } :
                 { 
                     filters: showed_aces_types.map(at => ({
@@ -358,21 +368,13 @@ function AccessManage ({
                     onFilter: (value, record) => record.access === value
                 }
             },
-            {
-                title: '类型',
-                dataIndex: 'type',
-                key: 'type',
-                wdith: 200,
-                ...category === 'script' ? { } :
-                {
-                    filters: ['grant', 'deny'].map(at => ({
-                        text: at,
-                        value: at
-                    })),
-                    filterMultiple: false,
-                    onFilter: (value, record) => record.type === value
-                }
-            },
+            ...category !== 'script' ?  [{
+                title: '范围',
+                dataIndex: 'name',
+                key: 'name',
+                width: 600
+            }] : [ ],
+            
             {
                 title: t('操作'),
                 dataIndex: 'action',
@@ -383,21 +385,21 @@ function AccessManage ({
     ), [ ])
     
     const add_access_cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
-        [
-            {
-                title: '权限',
-                dataIndex: 'access',
-                key: 'access',
-                wdith: 300,
-            },
+        [   
             {
                 title: '类型',
                 dataIndex: 'type',
                 key: 'type',
                 wdith: 200,
             },
+            {
+                title: '权限',
+                dataIndex: 'access',
+                key: 'access',
+                wdith: 300,
+            },
             ...category !== 'script' ?  [{
-                title: '对象',
+                title: '范围',
                 dataIndex: 'name',
                 key: 'name',
             }] : [ ],
@@ -490,6 +492,7 @@ function AccessManage ({
                 open={creator.visible}
                 onCancel={() => { 
                     set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
+                    set_add_access_rows([ ])
                     creator.close()
                 }}
                 onOk={async () => {
@@ -505,7 +508,6 @@ function AccessManage ({
                                             (await access.get_user_access([current.name]))[0]
                                                                         :
                                             (await access.get_group_access([current.name]))[0] })
-                        set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
                     })
                 }}
                 destroyOnClose
@@ -636,13 +638,19 @@ function AccessManage ({
                     <Button type='primary' 
                             onClick={() => {
                                 const { access, type, obj } = add_rule_selected
-                                const rows = obj.map(oj => ({
+                                const rows = category !== 'script' ? obj.map(oj => ({
                                     key: access + type + oj,
                                     access,
                                     type,
-                                    ...category !== 'script' ? { name: oj } : { },
-                                }))
+                                    name: oj
+                                })) : [{
+                                    key: access + type,
+                                    access,
+                                    type,
+                                }]
                                 set_add_access_rows([...add_access_rows, ...rows])
+                                set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
+                                
                     }}>
                          {t('预添加')}
                     </Button>
@@ -679,8 +687,6 @@ function AccessManage ({
                 dataSource={access_rules.filter(row => 
                     row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
                 )}
-                tableLayout='fixed'
-                scroll={{ x: '80%' }}
                 />
         </>
 }
