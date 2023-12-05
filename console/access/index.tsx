@@ -1,14 +1,12 @@
 import './index.sass'
 
-import { access } from './model.js'
 import { useEffect } from 'react'
+import { access } from './model.js'
 
-import { NodeType, model } from '../model.js'
-import { UserList } from './UserList.js'
+import { model } from '../model.js'
 import { AccessView } from './AccessView.js'
 import { GroupList } from './GroupList.js'
-import { Result } from 'antd'
-import { t } from '../../i18n/index.js'
+import { UserList } from './UserList.js'
 
 export function User () {
    return <Access role='user'/>

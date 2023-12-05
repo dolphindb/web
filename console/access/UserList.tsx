@@ -2,14 +2,14 @@ import './index.sass'
 
 import { useEffect, useMemo, useState } from 'react'
 
-import { Button, Form, Input, Modal, Select, Switch, Table,  Popconfirm, Tooltip, type TableColumnType, Tag, Transfer } from 'antd'
-import { CheckCircleFilled, CloseCircleFilled, CloseCircleOutlined, DeleteOutlined, MinusCircleFilled, MinusCircleOutlined, PlusOutlined, ReloadOutlined, SearchOutlined, StopFilled, StopOutlined } from '@ant-design/icons'
+import { CheckCircleFilled, DeleteOutlined, MinusCircleFilled, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { Button, Form, Input, Modal, Popconfirm, Select, Switch, Table, Tag, Tooltip, Transfer, type TableColumnType } from 'antd'
 
 import { t } from '../../i18n/index.js'
 
-import { access } from './model.js'
-import { model } from '../model.js'
 import { use_modal } from 'react-object-model/modal'
+import { model } from '../model.js'
+import { access } from './model.js'
 
 export function UserList () {
     
