@@ -25,14 +25,18 @@ export function AdvancedVersion () {
         set_current_step(current_step - 1)
     }, [current_step])
     
+    const update_info = useCallback((info: AdvancedInfos) => {
+        set_info(prev => ({ ...prev, ...info }))
+    }, [ ])
+    
     const go = useCallback((infos: AdvancedInfos & { result?: ExecuteResult, error_msg?: string }) => {
         const { result, error_msg, ...info } = infos
-        set_info(prev => ({ ...prev, ...info }))
+        update_info(info)
         set_current_step(current_step + 1)
         set_result(result)
         if (error_msg)
             set_error_msg(error_msg.toString())
-    }, [current_step])
+    }, [current_step, update_info])
     
             
     const on_apply_config = useCallback(() => { 
@@ -44,6 +48,8 @@ export function AdvancedVersion () {
         set_info({ })
         set_recommend_info({ hasAdvancedInfo: true })
     }, [ ])
+    
+    
     
     const views = useMemo(() => { 
         const default_steps = [
@@ -63,6 +69,7 @@ export function AdvancedVersion () {
                     info={info}
                     recommend_info={recommend_info}
                     go={go}
+                    update_info={update_info}
                 />
             },
             {

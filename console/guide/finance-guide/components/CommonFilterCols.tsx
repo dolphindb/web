@@ -19,6 +19,7 @@ export function CommonFilterCols (props: IProps) {
     const partitionCols = Form.useWatch('partitionCols', form) ?? [ ]
     
     const filter_col_options = useMemo(() => {
+        // 获取分区列中第一列为时间类型的列以及时间列，常用筛选列默认会带上这列，需要去除
         const time_col = timeCol || partitionCols?.filter(Boolean)?.find(item => TIME_TYPES.includes(schema?.find(col => col?.colName === item?.colName)?.dataType))?.colName
         return schema
             .filter(item => !['DOUBLE', 'LONG', 'SHORT', 'DECIMAL', 'FLOAT', 'DATETIME'].includes(item?.dataType) && item?.colName !== time_col)
@@ -28,10 +29,13 @@ export function CommonFilterCols (props: IProps) {
     const validator = useCallback(async (_, value) => { 
         const filterCols = form.getFieldValue('filterCols') ?? [ ]
         const name_list = filterCols.filter(item => !!item?.colName).map(item => item.colName)
-        if (countBy(name_list)?.[value] > 1)  
+        if (countBy(name_list)?.[value] > 1)
             return Promise.reject('已配置该常用筛选列，请修改')
-    }, [ ])
-    
+        else  
+            for (let i = 0;  i < name_list.length;  i++)  
+                if (!schema.find(item => item.colName === name_list[i]))
+                    return Promise.reject(`表结构中无 ${name_list[i]} 列，请修改}`)
+    }, [schema])
     
     
     return <div className='common-filter-cols-wrapper'>

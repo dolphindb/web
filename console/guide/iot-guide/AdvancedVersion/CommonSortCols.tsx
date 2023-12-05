@@ -22,7 +22,10 @@ export function CommonSortCols (props: IProps) {
         const name_list = otherSortKeyInfo.map(item => item?.colName)
         if (countBy(name_list)?.[value] > 1)  
             return Promise.reject('已配置该常用筛选列，请修改')
-    }, [ ])
+        for (let i = 0;  i < name_list.length;  i++)  
+            if (!options.find(item => item.value === name_list[i]))
+                return Promise.reject(`表结构中无 ${name_list[i]} 列，请修改`)
+    }, [ options ])
     
     return <div className='sort-cols-wrapper'>
         <h4>常用筛选列</h4>

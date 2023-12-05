@@ -5,6 +5,7 @@ import { Form, Select, Spin } from 'antd'
 import useSWR from 'swr'
 import { ENUM_TYPES, TIME_TYPES } from '../../constant.js'
 import { CUSTOM } from '../constant.js'
+import { validate } from 'webpack'
 
 interface IProps { 
     info: IFinanceInfo
@@ -47,8 +48,20 @@ export function PartitionColSelect (props: IProps) {
             form.setFieldValue('partitionCols', partition_info.map(item => ({ })) )
     }, [partition_info, database])
     
+    const is_col_exist = useCallback(async (values: string[]) => { 
+        for (let col_name of values)
+            if (col_name && !schema.find(item => item.colName === col_name))
+                return Promise.reject(`表结构中无 ${col_name} 列，请修改`)
+    }, [schema])
+    
+    const validate_partition_col = useCallback(async (_, values) => { 
+        return is_col_exist(values.map(item => item.colName))
+    }, [schema])
+    
+    
+    
     return database?.isExist ? <Spin spinning={isLoading}>
-        <Form.List name='partitionCols'>
+        <Form.List name='partitionCols' rules={[{ validator: validate_partition_col }] }>
         {fields => {
             return fields.map(field => {
                 const data_types = partition_info[field.name]
@@ -70,12 +83,26 @@ export function PartitionColSelect (props: IProps) {
     </Spin>
     : <>
         {
-            show_time_col && <Form.Item tooltip='严格按时序增长排列的时间类型列，将按该列对数据进行分区' label='时间列' name='timeCol' rules={[{ required: true, message: '请选择时间列' }]}>
+                show_time_col && <Form.Item
+                    tooltip='严格按时序增长排列的时间类型列，将按该列对数据进行分区'
+                    label='时间列'
+                    name='timeCol'
+                    rules={[
+                        { required: true, message: '请选择时间列' },
+                        { validator: async (_, value) => is_col_exist([value]) }
+                    ]}
+                >
                 <Select placeholder='请选择时间列' options={filter_col_options(TIME_TYPES)}/>
             </Form.Item>
         }
         {
-            show_hash_col && <Form.Item tooltip='如股票ID、期货品种这样的枚举类型列，将按该列对数据进行分区' label='标的列' name='hashCol' rules={[{ required: true, message: '请选择标的列' }]}>
+                show_hash_col && <Form.Item
+                    tooltip='如股票ID、期货品种这样的枚举类型列，将按该列对数据进行分区'
+                    label='标的列' name='hashCol'
+                    rules={[
+                        { required: true, message: '请选择标的列' },
+                        { validator: async (_, value) => is_col_exist([value]) }
+                    ]}>
                 <Select options={filter_col_options(ENUM_TYPES)} placeholder='请选择标的列'/>
             </Form.Item>
         }

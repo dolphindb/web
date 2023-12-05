@@ -11,7 +11,8 @@ interface IProps {
     info: AdvancedInfos
     recommend_info: RecommendInfo
     back: () => void
-    go:  (infos: AdvancedInfos & { result?: ExecuteResult }) => void
+    go: (infos: AdvancedInfos & { result?: ExecuteResult }) => void
+    update_info: (info: AdvancedInfos) => void
 }
 
 const keep_duplicates_options = [
@@ -30,7 +31,7 @@ const keep_duplicates_options = [
 ]
 
 export function AdvancedSecondStep (props: IProps) { 
-    const { info, recommend_info, go, back } = props
+    const { info, recommend_info, go, back, update_info } = props
     const [form] = Form.useForm<SecondStepInfo>()
     const [loading, set_loading] = useState(false)
     
@@ -75,6 +76,7 @@ export function AdvancedSecondStep (props: IProps) {
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 18 }}
         initialValues={info?.second}
+        onValuesChange={(_, values) => { update_info({ second: values }) }}
     >
         <Form.Item
             label='存储引擎'
@@ -120,7 +122,14 @@ export function AdvancedSecondStep (props: IProps) {
                         if (cols?.length !== recommend_info.partitionInfo.partitionNum)  
                             return Promise.reject('您选择的分区列个数与推荐个数不一致，请修改')
                         
-                        const types = cols.map(col => info?.first?.schema?.find(item => item.colName === col)?.dataType)
+                        const types = [ ]
+                        for (let i = 0;  i < cols.length;  i++) { 
+                            const col = info.first.schema.find(item => item.colName === cols[i])
+                            if (col)
+                                types.push(col.dataType)
+                            else
+                                return Promise.reject(`表结构中无 ${cols[i]} 列，请修改`)
+                        }
                         
                         if (info.first.isFreqIncrease) {
                             // 时序数据 第一列需为时间类型，其余列需为枚举类型
@@ -141,8 +150,6 @@ export function AdvancedSecondStep (props: IProps) {
         
         <FormDependencies dependencies={['engine']}>
             {({ engine }) => { 
-                console.log('info', info.first)
-                console.log(engine === 'TSDB', info?.first?.totalNum?.gap === 1 || info?.first?.totalNum?.custom > 2000000)
                 if (engine === 'TSDB' && (info?.first?.totalNum?.gap === 1 || info?.first?.totalNum?.custom > 2000000))
                     return <Form.Item name='dataTimeCol' label='数据时间列' >
                         <Select options={time_options} placeholder='请选择数据时间列'/>

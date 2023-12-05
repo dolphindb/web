@@ -151,7 +151,14 @@ export function BasicInfoFields (props: IProps) {
                                         if (!value.length)
                                             return Promise.reject('请选择常用筛选列')
                                         
-                                        const types = value.map(item => schema.find(col => col?.colName === item)?.dataType)                                    
+                                        let types = [ ]
+                                        for (let i = 0;  i < value.length;  i++) { 
+                                            const col = schema.find(item => item.colName === value[i])
+                                            if (!col)
+                                                return Promise.reject(`表结构中无 ${value[i]} 列，请修改`)
+                                            else
+                                                types.push(col.dataType)
+                                        }                                  
                                         
                                         if (types?.[0] && !TIME_TYPES.includes(types[0]))
                                             return Promise.reject('第一个常用筛选列必须为时间类型（DATE、DATETIME、TIMESTAMP、NANOTIMESTAMP）')
