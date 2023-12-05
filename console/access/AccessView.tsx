@@ -82,7 +82,7 @@ export function AccessView () {
                             value: t,
                             label: t
                     }))} 
-                    onSelect={item => { access.set({ current: { ...current, name: item } }) }}
+                    onSelect={item =>  { access.set({ current: { ...current, name: item } }) } }
                     />
             </div>,
         right: <Button
@@ -237,9 +237,10 @@ function AccessList ({
     ]), [ ])
     
     
-    const rows = useMemo(() => (
-        showed_accesses.filter(({ name }) =>
-            name.toLowerCase().includes(search_key.toLowerCase())).
+    return <Table 
+            columns={cols}
+            dataSource={showed_accesses.filter(({ name }) =>
+                name.toLowerCase().includes(search_key.toLowerCase())).
                     map(tb_access => ({
                             key:  tb_access.name,
                             name: tb_access.name,
@@ -251,13 +252,7 @@ function AccessList ({
                                 Object.fromEntries(Object.entries(tb_access.access).map(
                                     ([key, value]) => [ key, STAT_ICONS[value as string] ])) : 
                                     { stat: STAT_ICONS[tb_access.stat] }
-        }))
-    ), [showed_accesses, search_key])
-    
-    
-    return <Table 
-            columns={cols}
-            dataSource={rows}
+            }))}
             title={() => 
                 <AccessHeader 
                     category={category} 
@@ -334,8 +329,8 @@ function AccessManage ({
                 ...['function_view', 'script'].includes(category) ? { } :
                 { 
                     filters: aces_types.map(at => ({
-                    text: at,
-                    value: at
+                        text: at,
+                        value: at
                     })),
                     filterMultiple: true,
                     onFilter: (value, record) => record.access === value
@@ -365,7 +360,18 @@ function AccessManage ({
         ]
     ), [ ])
     
-    const { databases, shared_tables, stream_tables, function_views, current, accesses } = access.use(['databases', 'shared_tables', 'stream_tables', 'function_views', 'current', 'accesses'])
+    const { databases, 
+            shared_tables, 
+            stream_tables, 
+            function_views, 
+            current, 
+            accesses } = 
+        access.use(['databases', 
+                    'shared_tables', 
+                    'stream_tables', 
+                    'function_views', 
+                    'current', 
+                    'accesses'])
     
     const access_rules = useMemo(() => {
         if (!accesses)
@@ -419,12 +425,6 @@ function AccessManage ({
                 }
         return tb_rows
     }, [ accesses, category])
-    
-    const rows = useMemo(() => 
-        access_rules.filter(row => 
-            row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
-        )
-    , [access_rules, category, search_key])
     
     const options = useMemo(() => {
         let items = [ ]
@@ -595,7 +595,9 @@ function AccessManage ({
                         open={creator.open}/>
                 }
                 columns={cols}
-                dataSource={rows}
+                dataSource={access_rules.filter(row => 
+                    row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
+                )}
                 tableLayout='fixed'
                 scroll={{ x: '80%' }}
                 />

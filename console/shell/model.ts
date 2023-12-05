@@ -591,6 +591,7 @@ class ShellModel extends Model<ShellModel> {
             'def getUserGrant(name) {\n' +
             '    userAccessRow = getUserAccess(getUserList())\n' +
             '    t = table(100:0, `userId`AccessAction, [STRING, SYMBOL])\n' +
+            '    if(rows(userAccessRow)==0)return t\n' +
             '    for(action in `DB_MANAGE`DBOBJ_CREATE`DBOBJ_DELETE`DB_INSERT`DB_UPDATE`DB_DELETE`DB_READ`TABLE_READ`TABLE_INSERT`TABLE_UPDATE`TABLE_DELETE) {\n' +
             '        accItems = userAccessRow[action + "_allowed"].split(",").flatten()\n' +
             '        tablePath = accItems[accItems == name]\n' +
