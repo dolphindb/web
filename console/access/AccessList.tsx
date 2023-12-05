@@ -23,7 +23,7 @@ export const TABLE_NAMES = {
 }
 
 
-export type table_access = {
+export type TABLE_ACCESS = {
     name: string
     access?: object
     stat?: string
@@ -87,7 +87,7 @@ export function AccessList ({
         }
         for (let item of items) {
             const name = typeof item === 'string' ? item : item.name
-            const tb_ob: table_access  = {
+            const tb_ob: TABLE_ACCESS  = {
                 name,
                 ...category === 'script' ? 
                                 { stat: accesses[name] } 

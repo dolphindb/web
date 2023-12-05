@@ -215,6 +215,7 @@ export function AccessManage ({
                         ))
                         model.message.success(t('权限赋予成功'))
                         set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
+                        set_add_access_rows([ ])
                         creator.close()
                         access.set({ accesses: current.role === 'user' ? 
                                             (await access.get_user_access([current.name]))[0]
