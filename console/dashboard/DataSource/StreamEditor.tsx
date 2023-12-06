@@ -161,206 +161,207 @@ export function StreamEditor ({
     return <>
         <div className='streameditor' ref={stream_editor_ref}>
             {tables_ref.current?.length
-                ? <div className='streameditor-main'>
-                    <div className='streameditor-main-left'>
-                        <Input
-                            placeholder={t('请输入要搜索的流表名')}
-                            onChange={throttle(event => { 
-                                set_stream_tables(
-                                    tables_ref.current.filter((stream_table: any) => stream_table.title.indexOf(event.target.value) !== -1)
-                                )
-                            }, 1000)}
-                            suffix={<SearchOutlined />} 
-                        />
-                        <Tree
-                            ref={tree_ref}
-                            showIcon
-                            height={360}
-                            blockNode
-                            selectedKeys={[current_stream]}
-                            className='streameditor-main-left-menu'
-                            treeData={stream_tables}
-                            onSelect={async key => { 
-                                if (!loading && key.length) {
-                                    change_current_data_source_property('stream_table', String(key[0]))
-                                    set_current_stream(String(key[0]))
-                                }
-                            }}
-                        />
-                    </div>
-                    <div className='streameditor-main-right'>
-                        <div className='preview' style={{ height: current_data_source.filter ? '40%' : '100%' }}>
-                            <div className='preview-config'>
-                                <div className='preview-config-tag'>
-                                    {t('列名预览（共{{length}}列）：', { length: current_data_source.cols.length })}
+                ? <>
+                    <div className='streameditor-main'>
+                        <div className='streameditor-main-left'>
+                            <Input
+                                placeholder={t('请输入要搜索的流表名')}
+                                onChange={throttle(event => { 
+                                    set_stream_tables(
+                                        tables_ref.current.filter((stream_table: any) => stream_table.title.indexOf(event.target.value) !== -1)
+                                    )
+                                }, 1000)}
+                                suffix={<SearchOutlined />} 
+                            />
+                            <Tree
+                                ref={tree_ref}
+                                showIcon
+                                height={360}
+                                blockNode
+                                selectedKeys={[current_stream]}
+                                className='streameditor-main-left-menu'
+                                treeData={stream_tables}
+                                onSelect={async key => { 
+                                    if (!loading && key.length) {
+                                        change_current_data_source_property('stream_table', String(key[0]))
+                                        set_current_stream(String(key[0]))
+                                    }
+                                }}
+                            />
+                        </div>
+                        <div className='streameditor-main-right'>
+                            <div className='preview' style={{ height: current_data_source.filter ? '40%' : '100%' }}>
+                                <div className='preview-config'>
+                                    <div className='preview-config-tag'>
+                                        {t('列名预览（共{{length}}列）：', { length: current_data_source.cols.length })}
+                                    </div>
+                                </div>
+                                <div className='preview-main'>
+                                    <Table 
+                                        columns={[
+                                            {
+                                                title: 'Index',
+                                                dataIndex: 'index',
+                                            },
+                                            {
+                                                title: 'Name',
+                                                dataIndex: 'name',
+                                            },
+                                        ]} 
+                                        dataSource={
+                                            current_data_source.cols.map((col, index) => {
+                                                return {
+                                                    key: col,
+                                                    index: index + 1,
+                                                    name: col
+                                                }
+                                            })
+                                        } 
+                                        bordered
+                                        size='small'
+                                        pagination={{ pageSize: 6, position: ['bottomCenter'] }} 
+                                    />
                                 </div>
                             </div>
-                            <div className='preview-main'>
-                                <Table 
-                                    columns={[
-                                        {
-                                            title: 'Index',
-                                            dataIndex: 'index',
-                                        },
-                                        {
-                                            title: 'Name',
-                                            dataIndex: 'name',
-                                        },
-                                    ]} 
-                                    dataSource={
-                                        current_data_source.cols.map((col, index) => {
-                                            return {
-                                                key: col,
-                                                index: index + 1,
-                                                name: col
-                                            }
-                                        })
-                                    } 
-                                    bordered
+                            {current_data_source.filter &&
+                                <>
+                                    <div className='streameditor-main-right-filter'>
+                                        <div className='streameditor-main-right-filter-top'>
+                                            <div className='streameditor-main-right-filter-top-mode'>
+                                                {t('列过滤') + '：'}
+                                                <Popover 
+                                                    content={(
+                                                        <div>
+                                                            <p>{t('值过滤、范围过滤、哈希过滤')}</p>
+                                                        </div>
+                                                    )} 
+                                                >
+                                                    <QuestionCircleOutlined className='streameditor-main-right-filter-top-mode-icon'/>
+                                                </Popover>
+                                            </div>
+                                            <div className='streameditor-main-right-filter-top-col'>
+                                                {stream_filter_col ? (t('当前过滤列为:') + stream_filter_col) : t('当前流表无过滤列')}
+                                            </div>
+                                        </div>
+                                        <div className='streameditor-main-right-filter-main'>
+                                            <Editor
+                                                readonly={loading}
+                                                enter_completion
+                                                on_mount={(editor, monaco) => {
+                                                    editor?.setValue(get_data_source(current_data_source.id).filter_column || '')
+                                                    dashboard.set({ filter_column_editor: editor, monaco })
+                                                }}
+                                                on_change={() => { change_no_save_flag(true) }}
+                                                theme='dark'
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='streameditor-main-right-filter'>
+                                        <div className='streameditor-main-right-filter-top'>
+                                            <div className='streameditor-main-right-filter-top-mode'>
+                                                {t('表达式过滤') + '：'}
+                                            </div>
+                                        </div>
+                                        <div className='streameditor-main-right-filter-main'>
+                                            <Editor
+                                                readonly={loading}
+                                                enter_completion
+                                                on_mount={(editor, monaco) => {
+                                                    editor?.setValue(get_data_source(current_data_source.id).filter_expression || '')
+                                                    dashboard.set({ filter_expression_editor: editor, monaco })
+                                                }}
+                                                on_change={() => { change_no_save_flag(true) }}
+                                                theme='dark'
+                                            />
+                                        </div>
+                                    </div>
+                                </>
+                            }
+                        </div>        
+                    </div>
+                    <div className='streamconfig'>
+                        <div className='streamconfig-left'>
+                            <div>
+                                {t('节点') + '：'}
+                                <Select
+                                    disabled={loading}
+                                    value={ current_data_source.node }
+                                    className='streamconfig-left-node-select'
                                     size='small'
-                                    pagination={{ pageSize: 6, position: ['bottomCenter'] }} 
+                                    onChange={(value: string) => { change_current_data_source_property('node', value) }}
+                                    options={node_list}
                                 />
                             </div>
-                        </div>
-                        {current_data_source.filter &&
-                            <>
-                                <div className='streameditor-main-right-filter'>
-                                    <div className='streameditor-main-right-filter-top'>
-                                        <div className='streameditor-main-right-filter-top-mode'>
-                                            {t('列过滤') + '：'}
-                                            <Popover 
-                                                content={(
-                                                    <div>
-                                                        <p>{t('值过滤、范围过滤、哈希过滤')}</p>
-                                                    </div>
-                                                )} 
-                                            >
-                                                <QuestionCircleOutlined className='streameditor-main-right-filter-top-mode-icon'/>
-                                            </Popover>
-                                        </div>
-                                        <div className='streameditor-main-right-filter-top-col'>
-                                            {stream_filter_col ? (t('当前过滤列为:') + stream_filter_col) : t('当前流表无过滤列')}
-                                        </div>
-                                    </div>
-                                    <div className='streameditor-main-right-filter-main'>
-                                        <Editor
-                                            readonly={loading}
-                                            enter_completion
-                                            on_mount={(editor, monaco) => {
-                                                editor?.setValue(get_data_source(current_data_source.id).filter_column || '')
-                                                dashboard.set({ filter_column_editor: editor, monaco })
+                            <div className='streamconfig-left-ip'>
+                                IP：
+                                {current_data_source.node
+                                    ? <Select
+                                        disabled={loading}
+                                        value={current_data_source.ip}
+                                        className='streamconfig-left-ip-select'
+                                        size='small'
+                                        onChange={(value: string) => { change_current_data_source_property('ip', value) }}
+                                        options={ip_list}
+                                    />
+                                    : <div  className='streamconfig-left-ip-manualinput'>
+                                        <Input 
+                                            autoFocus
+                                            disabled={loading}
+                                            size='small' 
+                                            className='streamconfig-left-ip-manualinput-input'
+                                            value={current_data_source.ip}
+                                            onChange={event => { 
+                                                if (event !== null)
+                                                    change_current_data_source_property('ip', event.target.value) 
                                             }}
-                                            on_change={() => { change_no_save_flag(true) }}
-                                            theme='dark'
                                         />
                                     </div>
+                                }
+                            </div>
+                            {stream_tables.length &&
+                                <div>
+                                    {t('过滤') + '：'}
+                                    <Switch 
+                                        disabled={loading}
+                                        size='small' 
+                                        checked={current_data_source.filter }
+                                        onChange={(checked: boolean) => {
+                                            change_current_data_source_property('filter', checked)
+                                        }} 
+                                    />
                                 </div>
-                                <div className='streameditor-main-right-filter'>
-                                    <div className='streameditor-main-right-filter-top'>
-                                        <div className='streameditor-main-right-filter-top-mode'>
-                                            {t('表达式过滤') + '：'}
-                                        </div>
-                                    </div>
-                                    <div className='streameditor-main-right-filter-main'>
-                                        <Editor
-                                            readonly={loading}
-                                            enter_completion
-                                            on_mount={(editor, monaco) => {
-                                                editor?.setValue(get_data_source(current_data_source.id).filter_expression || '')
-                                                dashboard.set({ filter_expression_editor: editor, monaco })
-                                            }}
-                                            on_change={() => { change_no_save_flag(true) }}
-                                            theme='dark'
-                                        />
-                                    </div>
-                                </div>
-                            </>
-                        }
-                    </div>        
-                </div>
-                : <div className='streameditor-no-table'>{t('无可用流表')}</div>
-            }
-        </div>
-        <div className='streamconfig'>
-                <div className='streamconfig-left'>
-                    <div>
-                        {t('节点') + '：'}
-                        <Select
-                            disabled={loading}
-                            value={ current_data_source.node }
-                            className='streamconfig-left-node-select'
-                            size='small'
-                            onChange={(value: string) => { change_current_data_source_property('node', value) }}
-                            options={node_list}
-                        />
+                            }
                     </div>
-                    <div className='streamconfig-left-ip'>
-                        IP：
-                        {current_data_source.node
-                            ? <Select
-                                disabled={loading}
-                                value={current_data_source.ip}
-                                className='streamconfig-left-ip-select'
-                                size='small'
-                                onChange={(value: string) => { change_current_data_source_property('ip', value) }}
-                                options={ip_list}
-                            />
-                            : <div  className='streamconfig-left-ip-manualinput'>
-                                <Input 
-                                    autoFocus
+                    
+                    { current_data_source.filter && <InsertVariableBtn on_insert={on_monaco_insert} /> }
+                        <div className='streamconfig-right'>
+                            <div>
+                                {t('最大行数') + '：'}
+                                <InputNumber 
                                     disabled={loading}
                                     size='small' 
-                                    className='streamconfig-left-ip-manualinput-input'
-                                    value={current_data_source.ip}
-                                    onChange={event => { 
-                                        if (event !== null)
-                                            change_current_data_source_property('ip', event.target.value) 
+                                    min={1}
+                                    className='sqlconfig-right-maxline-input' 
+                                    value={current_data_source.max_line}
+                                    onChange={value => { 
+                                        change_current_data_source_property('max_line', value ? Math.ceil(value) : value) 
                                     }}
                                 />
+                                <Popover 
+                                    content={(
+                                        <div>
+                                            {t('若该值为空则表示不对最大行数进行限制')}
+                                        </div>
+                                    )} 
+                                >
+                                    <QuestionCircleOutlined className='streamconfig-right-icon'/>
+                                </Popover>
                             </div>
-                        }
-                    </div>
-                    {stream_tables.length &&
-                        <div>
-                            {t('过滤') + '：'}
-                            <Switch 
-                                disabled={loading}
-                                size='small' 
-                                checked={current_data_source.filter }
-                                onChange={(checked: boolean) => {
-                                    change_current_data_source_property('filter', checked)
-                                }} 
-                            />
                         </div>
-                    }
-            </div>
-            
-            { current_data_source.filter && <InsertVariableBtn on_insert={on_monaco_insert} /> }
-            
-                <div className='streamconfig-right'>
-                    <div>
-                        {t('最大行数') + '：'}
-                        <InputNumber 
-                            disabled={loading}
-                            size='small' 
-                            min={1}
-                            className='sqlconfig-right-maxline-input' 
-                            value={current_data_source.max_line}
-                            onChange={value => { 
-                                change_current_data_source_property('max_line', value ? Math.ceil(value) : value) 
-                            }}
-                        />
-                        <Popover 
-                            content={(
-                                <div>
-                                    {t('若该值为空则表示不对最大行数进行限制')}
-                                </div>
-                            )} 
-                        >
-                            <QuestionCircleOutlined className='streamconfig-right-icon'/>
-                        </Popover>
                     </div>
-                </div>
+                </>
+                : <div className='streameditor-no-table'>{t('无可用流表')}</div>
+            }
         </div>
     </> 
 }
