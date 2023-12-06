@@ -1,14 +1,12 @@
 import './index.scss'
 
-import { Button, Popconfirm, Space, Tooltip, message } from 'antd'
-import { Editor } from '../../shell/Editor/index.js'
+import { Button, Popconfirm, Space } from 'antd'
 import { useCallback } from 'react'
 import { model } from '../../model.js'
-import { CopyOutlined } from '@ant-design/icons'
-import copy from 'copy-to-clipboard'
 import NiceModal from '@ebay/nice-modal-react'
 import { DownloadConfigModal } from './DownloadConfigModal.js'
 import { ExecuteResult } from '../iot-guide/type.js'
+import { ReadonlyEditor } from '../../components/ReadonlyEditor/index.js'
 
 interface IProps { 
     code: string
@@ -31,10 +29,6 @@ export function CodeViewStep (props: IProps) {
     }, [code, go])
     
     
-    const copy_code = useCallback(() => {
-        copy(code)
-        message.success('复制成功')
-    }, [code])
     
     const on_download = useCallback(() => { 
         NiceModal.show(DownloadConfigModal, { config })
@@ -42,12 +36,7 @@ export function CodeViewStep (props: IProps) {
     
     
     return <div className='code-view-wrapper'>
-        <div className='readonly-editor'>
-            <Tooltip title='复制代码'>
-                <Button className='copy-btn' icon={<CopyOutlined />} onClick={copy_code} />
-            </Tooltip>
-            <Editor value={code} readonly />
-        </div>
+        <ReadonlyEditor code={code} className='view-code-editor'/>
         
         <div className='button-group'>
             <Space>

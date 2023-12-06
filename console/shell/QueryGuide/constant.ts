@@ -1,6 +1,3 @@
-import { type DatePicker } from 'antd'
-import { StringDatePicker } from '../../components/StringDatePicker/index.js'
-
 export const VALUE_OPERATIONS = [
     {
         label: '等于（=）',
@@ -45,14 +42,6 @@ export const STRING_OPERATIONS = [
     {
         label: '不匹配(not like)',
         value: 8
-    },
-    {
-        label: '包含(in)',
-        value: 9
-    },
-    {
-        label: '不包含(not in)',
-        value: 10
     }
 ]
 

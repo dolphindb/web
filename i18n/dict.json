@@ -2428,5 +2428,20 @@
     },
     "编辑界面": {
         "en": "Edit interface"
+    },
+    "增加查询条件块": {
+        "en": "Add query condition block"
+    },
+    "查询条件": {
+        "en": "Query conditions"
+    },
+    "分区列查询条件": {
+        "en": "Query conditions of Partition columns"
+    },
+    "且满足": {
+        "en": "and satisfied"
+    },
+    "或满足": {
+        "en": "or satisfied"
     }
 }

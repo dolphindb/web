@@ -6,7 +6,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { QueryGuideType } from './type.js'
 import { t } from '../../../i18n/index.js'
 import { QueryGuide } from './QueryGuide.js'
-import { SqlEdit } from './SqlEdit.js'
+import { SqlEditGuide } from './SqlEditGuide.js'
 
 interface IProps { 
     database: string
@@ -15,7 +15,7 @@ interface IProps {
 
 const components = {
     [QueryGuideType.QUERY_GUIDE]: QueryGuide,
-    [QueryGuideType.SQL]: SqlEdit
+    // [QueryGuideType.SQL]: SqlEditGuide
 }
 
 export const QueryGuideModal = NiceModal.create((props: IProps) => {
@@ -29,7 +29,7 @@ export const QueryGuideModal = NiceModal.create((props: IProps) => {
     
     const Component = useMemo(() => components[type], [type])
     
-    return <Modal className='query-guide-modal' open={modal.visible} onCancel={modal.hide} afterClose={modal.remove}>
+    return <Modal footer={null} className='query-guide-modal' open={modal.visible} onCancel={modal.hide} afterClose={modal.remove}>
          <Radio.Group value={type} onChange={change_type}>
             <Radio.Button value={QueryGuideType.QUERY_GUIDE}>{t('向导界面')}</Radio.Button>
             <Radio.Button value={QueryGuideType.SQL}>{t('编辑界面')}</Radio.Button>

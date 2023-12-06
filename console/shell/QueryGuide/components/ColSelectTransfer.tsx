@@ -1,5 +1,5 @@
-import { Transfer, type TransferProps } from 'antd'
-import { type IColumn } from './type.js'
+import { Transfer } from 'antd'
+import { type IColumn } from '../type.js'
 import { useCallback, useMemo, useState } from 'react'
 
 interface IProps {
@@ -23,6 +23,7 @@ export function ColSelectTransfer (props: IProps) {
     
     
     return <Transfer
+        titles={['未选查询列', '已选查询列']}
         className='col-select-transfer'
         showSearch
         onChange={on_value_change}
