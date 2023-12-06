@@ -3295,5 +3295,8 @@
     },
     "新数据面板": {
         "en": "New dashboard"
+    },
+    "提示：初始化后请完善相关配置（详见文档），并重启服务器": {
+        "en": "Tip: After initialization, please complete the relevant configuration (see the documentation for details) and restart the server"
     }
 }
