@@ -529,9 +529,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
             
          })
         
-        for (let i in this.widgets) 
-            await subscribe_data_source(this.widgets[i], this.widgets[i].source_id, false)
-        
         model.set_query('dashboard', String(config.id))
         this.set({ loading: false })
     }
