@@ -94,7 +94,7 @@ export function GroupList () {
                 <Form.Item
                     label={t('组名')}
                     name='group_name'
-                    rules={[{ required: true, message: '请输入组名!' }]}
+                    rules={[{ required: true, message: t('请输入组名') }]}
                     >
                         <Input />
                 </Form.Item>

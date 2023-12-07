@@ -5,16 +5,10 @@ import { use_modal } from 'react-object-model/modal'
 import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 
-import { ACCESS_TYPE, AccessHeader } from './AccessList.js'
 import { access } from './model.js'
+import { ACCESS_TYPE, access_options } from './constant.js'
+import { AccessHeader } from './AccessHeader.js'
 
-const access_options = {
-    database: ACCESS_TYPE.database.concat(ACCESS_TYPE.table),
-    shared: ['TABLE_WRITE', 'TABLE_READ'],
-    stream: ['TABLE_WRITE', 'TABLE_READ'],
-    function_view: ACCESS_TYPE.function_view,
-    script: ACCESS_TYPE.script
-}
 
 export function AccessManage ({ 
     category 

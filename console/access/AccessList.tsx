@@ -1,40 +1,12 @@
-import { CheckCircleFilled, CloseCircleFilled, MinusCircleFilled, SearchOutlined } from '@ant-design/icons'
-import { Button, Input, Table, type TableColumnType } from 'antd'
+import { Table, type TableColumnType } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 
 import { t } from '../../i18n/index.js'
+
 import { access } from './model.js'
+import { ACCESS_TYPE, STAT_ICONS, TABLE_NAMES, type TABLE_ACCESS } from './constant.js'
+import { AccessHeader } from './AccessHeader.js'
 
-
-export const ACCESS_TYPE = {
-    database: [ 'DB_MANAGE', 'DBOBJ_CREATE', 'DBOBJ_DELETE', 'DB_INSERT', 'DB_UPDATE', 'DB_DELETE', 'DB_READ'],
-    table: [ 'TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
-    shared: [ 'TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
-    stream: ['TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
-    function_view: ['VIEW_EXEC'],
-    script: ['SCRIPT_EXEC', 'TEST_EXEC']
-}
-
-export const TABLE_NAMES = {
-    database: t('数据库'),
-    stream: t('流表'),
-    function_view: t('函数视图'),
-    script: t('脚本权限')
-}
-
-
-export type TABLE_ACCESS = {
-    name: string
-    access?: object
-    stat?: string
-}
-
-
-export const STAT_ICONS = {
-    allow: <CheckCircleFilled className='green'/>,
-    deny: <CloseCircleFilled className='red'/>,
-    none: <MinusCircleFilled className='gray'/>
-}
 
 function handle_access (accesses: Record<string, any>, type: string, name: string) {
     if (accesses[type + '_allowed'] && accesses[type + '_allowed'].split(',').includes(name))
@@ -193,48 +165,4 @@ export function AccessList ({
    />
 }
 
-export function AccessHeader ({
-    category,
-    preview,
-    search_key,
-    set_search_key,
-    open
-}: {
-    preview: boolean
-    category: string
-    search_key: string
-    set_search_key: (str: string) => void
-    open?: () => void
-}) {
-    const { current } = access.use(['current', 'users', 'groups'])
-    
-    return <div className='actions'>
-            
-            <Button  
-                onClick={() => { access.set({ current: null }) }}>
-                {t('返回{{role}}列表', { role: current.role === 'user' ? t('用户') : t('组') })}
-            </Button>
-            
-            {preview ? 
-            <Button  
-                onClick={() => { access.set({ current: { ...access.current, view: 'manage' } }) }}>
-                {t('权限管理')}
-            </Button>  : 
-            <>
-                <Button onClick={open}>
-                    {t('新增权限')}
-                </Button>
-                <Button onClick={() => { access.set({ current: { ...current, view: 'preview' } }) }}>
-                    {t('权限查看')}
-                </Button>
-            </> 
-            }
-            <Input  
-                className='search'
-                value={search_key}
-                prefix={<SearchOutlined />}
-                onChange={e => { set_search_key(e.target.value) }} 
-                placeholder={t('请输入想要搜索的{{category}}', { category: TABLE_NAMES[category] })} 
-            />
-        </div>
-}
+
