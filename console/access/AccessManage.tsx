@@ -5,9 +5,9 @@ import { use_modal } from 'react-object-model/modal'
 import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 
-import { access } from './model.js'
-import { ACCESS_TYPE, access_options } from './constant.js'
 import { AccessHeader } from './AccessHeader.js'
+import { ACCESS_TYPE, access_options } from './constant.js'
+import { access } from './model.js'
 
 
 export function AccessManage ({ 
@@ -17,12 +17,14 @@ export function AccessManage ({
 }) {
     let creator = use_modal()
     
-    const { databases, 
-        shared_tables, 
-        stream_tables, 
-        function_views, 
-        current, 
-        accesses } = 
+    const { 
+            databases, 
+            shared_tables, 
+            stream_tables, 
+            function_views, 
+            current, 
+            accesses 
+        } = 
         access.use(['databases', 
                     'shared_tables', 
                     'stream_tables', 
@@ -239,18 +241,19 @@ export function AccessManage ({
                         optionType='button'
                         buttonStyle='solid'
                     />
-                    <Select className='access-select'
-                            options={access_options[category].map(ac => ({
-                                label: ac,
-                                value: ac
-                            }))}
-                            value={add_rule_selected.access}
-                            onChange={value => {
-                                const selected = { ...add_rule_selected }
-                                selected.access = value
-                                selected.obj = [ ]
-                                set_add_rule_selected(selected)
-                            }}/>
+                    <Select 
+                        className='access-select'
+                        options={access_options[category].map(ac => ({
+                            label: ac,
+                            value: ac
+                        }))}
+                        value={add_rule_selected.access}
+                        onChange={value => {
+                            const selected = { ...add_rule_selected }
+                            selected.access = value
+                            selected.obj = [ ]
+                            set_add_rule_selected(selected)
+                        }}/>
                     {
                         category === 'database' && 
                             ACCESS_TYPE.table.includes(add_rule_selected.access) ? 
@@ -370,9 +373,9 @@ export function AccessManage ({
                             type='text' 
                             danger
                             onClick={() => { 
-                            const new_rows = add_access_rows.filter(({ key }) => key !== row.key)
-                            set_add_access_rows(new_rows)
-                         }}>
+                                const new_rows = add_access_rows.filter(({ key }) => key !== row.key)
+                                set_add_access_rows(new_rows)
+                            }}>
                             {t('移除')}
                         </Button>
                     }))}
