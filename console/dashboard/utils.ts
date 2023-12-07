@@ -480,9 +480,9 @@ export function copy_widget (widget: Widget) {
     })
     try {
         copy(copy_text)
-        dashboard.message.success('复制成功')
+        dashboard.message.success(t('复制成功'))
      } catch (e) {
-        dashboard.message.error('复制失败')
+        dashboard.message.error(t('复制失败'))
     }
 }
 

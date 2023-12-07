@@ -24,7 +24,7 @@ if (process.argv.includes('cloud')) {
         ... ['ddb.svg'].map(async fname =>
             fcopy(fpd_src_console + fname, fpd_out_cloud + fname)),
         
-        copy_vendors(fpd_out_cloud, false),
+        copy_vendors(fpd_out_cloud, false, true),
         
         webpack.build({ production: true, is_cloud: true })
     ])
@@ -47,7 +47,7 @@ if (process.argv.includes('cloud')) {
         ... ['README.md', 'README.zh.md', 'LICENSE.txt'].map(async fname => 
             fcopy(fpd_root + fname, fpd_out_console + fname, { print: verbose })),
         
-        copy_vendors(fpd_out_console, true),
+        copy_vendors(fpd_out_console, true, true),
         
         ... ['zh', 'en'].map(async language =>
             fcopy(`${fpd_node_modules}dolphindb/docs.${language}.json`, `${fpd_out_console}docs.${language}.json`, { print: verbose })
@@ -66,7 +66,7 @@ if (process.argv.includes('cloud')) {
 await webpack.close()
 
 
-async function copy_vendors (fpd_out: string, monaco: boolean) {
+async function copy_vendors (fpd_out: string, monaco: boolean, production: boolean) {
     const fpd_vendors = `${fpd_out}vendors/`
     const fpd_monaco = `${fpd_out}vs/`
     const fpd_monaco_maps = `${fpd_out}min-maps/vs/`
@@ -106,7 +106,8 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
             'gridstack/dist/gridstack-all.js.map',
             
             'react-quill/dist/react-quill.js',
-        ].map(async fp =>
+        ].filter(fp => !production || !fp.endsWith('.map'))
+        .map(async fp =>
             fcopy(`${fpd_node_modules}${fp}`, `${fpd_vendors}${fp}`, { print: verbose })
         ),
         
@@ -126,7 +127,8 @@ async function copy_vendors (fpd_out: string, monaco: boolean) {
                 'base/worker/workerMain.js',
                 'base/worker/workerMain.js.map',
                 'base/browser/ui/codicons/codicon/codicon.ttf',
-            ].map(async fp =>
+            ].filter(fp => !production || !fp.endsWith('.map'))
+            .map(async fp =>
                 fcopy(
                     `${fpd_node_modules}monaco-editor/${ fp.endsWith('.map') ? 'min-maps' : 'min' }/vs/${fp}`,
                     `${ fp.endsWith('.map') ? fpd_monaco_maps : fpd_monaco }${fp}`,

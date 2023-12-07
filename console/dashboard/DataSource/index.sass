@@ -74,9 +74,6 @@ $border_color: #333333
         .sqleditor
             height: 83%
             padding: 8px 16px
-            
-            // .sqleditor-main
-            //     border: 1px solid $border_color
                 
         .streameditor
             height: 83%
@@ -84,21 +81,20 @@ $border_color: #333333
             
             .streameditor-no-table
                 height: 100%
-                border: 1px solid $border_color
                 padding: 3px 0 0 10px
             
             .streameditor-main
                 display: flex
                 height: 100%
-                border: 1px solid $border_color
                 
                 .streameditor-main-left
                     width: 20%
-                    border-right: 1px solid $border_color
+                    padding-right:10px 
+                    box-sizing: border-box
                     
                     .streameditor-main-left-menu
                         height: 100%
-                        padding: 3px
+                        padding: 3px 0
 
                         .ant-tree-switcher-noop
                             display: none
@@ -111,7 +107,8 @@ $border_color: #333333
                 
                 .streameditor-main-right
                     width: 80%
-                    padding: 3px 15px 15px 15px
+                    padding: 0 15px 15px 15px
+                    border-left: 1px solid $border_color
                     
                     .streameditor-main-right-filter
                         height: 30%
@@ -141,7 +138,7 @@ $border_color: #333333
                 .preview-config
                     display: flex
                     justify-content: space-between
-                    padding: 5px 0
+                    padding: 0 0 5px 0
                     
                     .preview-config-close
                         cursor: pointer

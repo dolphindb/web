@@ -114,6 +114,8 @@ class AccessModel extends Model<AccessModel> {
     
     // user_names 和 group_names 不能同时为数组
     async add_group_member (users: string[] | string, groups: string[] | string) {
+        if (!users || !groups || !users.length || !groups.length)
+            return
         await model.ddb.call('addGroupMember', 
                             [ 
                                 Array.isArray(users) ? new DdbVectorString(users) : users,
@@ -141,6 +143,8 @@ class AccessModel extends Model<AccessModel> {
     
     // user_names 和 group_names 不能同时为数组
     async delete_group_member (users: string[] | string, groups: string[] | string) {
+        if (!users || !groups || !users.length || !groups.length)
+            return
         await model.ddb.call('deleteGroupMember', 
                             [ 
                                 Array.isArray(users) ? new DdbVectorString(users) : users,
@@ -178,6 +182,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async grant (user: string, aces: string, obj?: string) {
+        console.log(user, aces, obj)
         await model.ddb.call('grant', obj ? [ user, new DdbInt(ACCESS_NUM[aces]), obj ] : [user, new DdbInt(ACCESS_NUM[aces])], { urgent: true })
     }
     

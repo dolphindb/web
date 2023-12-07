@@ -16,7 +16,6 @@ class ComputingModel extends Model<ComputingModel> {
     
     async init () {
         await Promise.all([
-            // this.def_get_persistence_table_names(),
             this.def_get_persistence_stat(),
             this.def_get_shared_table_stat()
         ])
@@ -63,7 +62,7 @@ class ComputingModel extends Model<ComputingModel> {
     async def_get_shared_table_stat () {
         await model.ddb.eval(
             'def get_shared_table_stat () {\n' +
-            '    return select name as TableName, rowsInMemory as rows, columns, memoryUsed as bytes from getStreamTables(2) where shared=true\n' +
+            '    return select name as TableName, rowsInMemory as rows, columns, memoryUsed from getStreamTables(2) where shared=true\n' +
             '}\n', { urgent: true }
         )
     }

@@ -69,6 +69,8 @@ class ShellModel extends Model<ShellModel> {
     
     load_database_schema_defined = false
     
+    get_access_defined = false
+    
     peek_table_defined = false
     
     add_column_defined = false
@@ -579,6 +581,26 @@ class ShellModel extends Model<ShellModel> {
         )
         
         shell.set({ set_column_comment_defined: true })
+    }
+    
+    
+    async define_get_user_grant () {
+        if (this.get_access_defined)
+            return
+        await model.ddb.eval(
+            'def getUserGrant(name) {\n' +
+            '    userAccessRow = getUserAccess(getUserList())\n' +
+            '    t = table(100:0, `userId`AccessAction, [STRING, SYMBOL])\n' +
+            '    if(rows(userAccessRow)==0)return t\n' +
+            '    for(action in `DB_MANAGE`DBOBJ_CREATE`DBOBJ_DELETE`DB_INSERT`DB_UPDATE`DB_DELETE`DB_READ`TABLE_READ`TABLE_INSERT`TABLE_UPDATE`TABLE_DELETE) {\n' +
+            '        accItems = userAccessRow[action + "_allowed"].split(",").flatten()\n' +
+            '        tablePath = accItems[accItems == name]\n' +
+            '        t.tableInsert(take(userAccessRow.userId, tablePath.size()), take(action, tablePath.size()))\n' +
+            '    }\n' +
+            '    return t\n' +
+            '}\n', { urgent: true }
+        )
+        this.set({ get_access_defined: true })
     }
 }
 
