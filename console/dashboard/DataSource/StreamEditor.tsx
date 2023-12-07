@@ -336,7 +336,7 @@ export function StreamEditor ({
                     { current_data_source.filter && <InsertVariableBtn on_insert={on_monaco_insert} /> }
                         <div className='streamconfig-right'>
                             <div>
-                                {t('最大行数') + '：'}
+                                {t('最大展示行数') + '：'}
                                 <InputNumber 
                                     disabled={loading}
                                     size='small' 
@@ -350,7 +350,7 @@ export function StreamEditor ({
                                 <Popover 
                                     content={(
                                         <div>
-                                            {t('若该值为空则表示不对最大行数进行限制')}
+                                            {t('若该值为空则表示不对最大展示行数进行限制')}
                                         </div>
                                     )} 
                                 >
