@@ -43,23 +43,21 @@ function ControlField ({ variable }: { variable: Variable }) {
     const form = Form.useFormInstance()
     
     useEffect(() => { 
-        form.setFieldValue(id, variable_obj[id].value)
+        form.setFieldValue(id, safe_json_parse(variable_obj[id].value))
     }, [variable_obj[id].value, id])
     
     switch (mode) {
         case 'date':
             return <Form.Item name={id} label={display_name}>
-                <StringDatePicker />
+                <StringDatePicker className='data-picker'/>
             </Form.Item>
         case 'multi_select':
             return <Form.Item name={id} label={display_name}>
-               <StringMultiSelect options={options}/>
+               <Select mode='multiple' options={options}/>
             </Form.Item>
         case 'select':
             return <Form.Item name={id} label={display_name}>
-                <Radio.Group>
-                    {options.map(opt => <Radio.Button value={opt.value} key={opt.value}>{opt.label}</Radio.Button>)}
-                </Radio.Group>
+                <Select options={options} />
             </Form.Item>
         case 'text':
             return <Form.Item name={id} label={display_name}>
