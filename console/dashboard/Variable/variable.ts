@@ -125,17 +125,28 @@ export function delete_variable (variable_id: string): number {
 }
 
 
-export function create_variable  () {
+function check_name (id: string, new_name: string) {
+    if (variables.variable_infos.find(variable => variable.name === new_name && variable.id !== id)) 
+        throw new Error(t('该变量名已存在'))
+    else if (new_name.length > 10)
+        throw new Error(t('数变量名长度不能大于10'))
+    else if (new_name.length === 0)
+        throw new Error(t('变量名不能为空'))
+}
+
+
+export function create_variable (new_name: string): string {
     const id = String(genid())
-    const name = `var_${id.slice(0, 4)}` 
+    
+    check_name(id, new_name)
     
     variables.set({ 
-        [id]: { ...new Variable(id, name, name, tmp_deps.get(name) || new Set<string>()) }, 
-        variable_infos: [{ id, name }, ...variables.variable_infos] 
+        [id]: { ...new Variable(id, new_name, new_name, tmp_deps.get(new_name) || new Set<string>()) }, 
+        variable_infos: [{ id, name: new_name }, ...variables.variable_infos] 
     })
     
-    tmp_deps.delete(name)
-    return { id, name, display_name: name }
+    tmp_deps.delete(new_name)
+    return id
 }
 
 
@@ -144,15 +155,9 @@ export function rename_variable (id: string, new_name: string) {
       
     new_name = new_name.trim()
     
-    if (new_name === variable.name)
-        return
-    else if (find_variable_index(new_name, 'name') !== -1)
-        throw new Error(t('该变量名已存在'))
-    else if (new_name.length > 10)
-        throw new Error(t('变量名长度不能大于10'))
-    else if (new_name.length === 0)
-        throw new Error(t('变量名不能为空'))
-    else if (variable.deps.size)
+    check_name(id, new_name)
+    
+    if (variable.deps.size)
         throw new Error(t('此变量已被数据源引用无法修改名称'))
     else {
         variables.variable_infos[find_variable_index(id, 'id')].name = new_name

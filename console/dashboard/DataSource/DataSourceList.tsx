@@ -141,7 +141,7 @@ export function DataSourceList ({
                 title={t('新数据源')}>
                 <Input 
                     value={new_name}
-                    placeholder={t('请输入新数据数据源的名称')}
+                    placeholder={t('请输入新数据源的名称')}
                     onChange={event => { set_new_name(event.target.value) }}
                 />
             </Modal>
