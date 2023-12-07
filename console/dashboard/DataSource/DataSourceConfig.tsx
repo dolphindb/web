@@ -179,7 +179,7 @@ export function DataSourceConfig (props: IProps, ref) {
                                 activeKey={current_data_source.mode} 
                                 items={[
                                     {
-                                        label: t('DolphinDB SQL'),
+                                        label: 'DolphinDB SQL',
                                         key: 'sql',
                                         disabled: loading !== ''
                                     },

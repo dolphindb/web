@@ -53,6 +53,8 @@ export function DashBoard () {
     useEffect(() => {
         (async () => {
             try {
+                if (new URLSearchParams(location.search).has('language'))
+                    return
                 const version = (await model.ddb.call('dashboard_get_version')).value
                 if (version === '1.0.0')
                     set_inited_state(2) 

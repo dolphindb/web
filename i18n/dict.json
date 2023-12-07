@@ -3292,5 +3292,17 @@
     },
     "提示：初始化后请完善相关配置（详见文档），并重启服务器": {
         "en": "Tip: After initialization, please complete the relevant configuration (see the documentation for details) and restart the server"
+    },
+    "新数据源": {
+        "en": "New data source"
+    },
+    "请输入新数据源的名称": {
+        "en": "Please enter a name for the new data source"
+    },
+    "新变量": {
+        "en": "New variable"
+    },
+    "请输入新变量的名称": {
+        "en": "Please enter a name for the new variable"
     }
 }

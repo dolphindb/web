@@ -129,7 +129,7 @@ function check_name (id: string, new_name: string) {
     if (variables.variable_infos.find(variable => variable.name === new_name && variable.id !== id)) 
         throw new Error(t('该变量名已存在'))
     else if (new_name.length > 10)
-        throw new Error(t('数变量名长度不能大于10'))
+        throw new Error(t('变量名长度不能大于10'))
     else if (new_name.length === 0)
         throw new Error(t('变量名不能为空'))
 }

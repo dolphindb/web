@@ -43,7 +43,7 @@ function ControlField ({ variable }: { variable: Variable }) {
     const form = Form.useFormInstance()
     
     useEffect(() => { 
-        form.setFieldValue(id, safe_json_parse(variable_obj[id].value))
+        form.setFieldValue(id, variable_obj[id].mode === 'multiple' ? safe_json_parse(variable_obj[id].value) : variable_obj[id].value)
     }, [variable_obj[id].value, id])
     
     switch (mode) {
