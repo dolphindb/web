@@ -22,6 +22,7 @@ export type TABLE_ACCESS = {
     name: string
     access?: object
     stat?: string
+    tables?: string[]
 }
 
 

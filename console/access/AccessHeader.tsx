@@ -29,10 +29,11 @@ export function AccessHeader ({
             </Button>
             
             {preview ? 
-            <Button  
-                onClick={() => { access.set({ current: { ...access.current, view: 'manage' } }) }}>
-                {t('权限管理')}
-            </Button>  : 
+                <Button  
+                    onClick={() => { access.set({ current: { ...access.current, view: 'manage' } }) }}>
+                    {t('权限管理')}
+                </Button>  
+                    : 
             <>
                 <Button onClick={open}>
                     {t('新增权限')}

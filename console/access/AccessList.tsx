@@ -64,8 +64,9 @@ export function AccessList ({
                 ...category === 'script' ? 
                                 { stat: accesses[name] } 
                                         : 
-                { access: Object.fromEntries(ACCESS_TYPE[category].map(type => 
-                    handle_access(accesses, type, name)
+                { access: Object.fromEntries(
+                            ACCESS_TYPE[category].map(type => 
+                                handle_access(accesses, type, name)
                 )) 
                 },
                 ... typeof item !== 'string' ?
@@ -111,7 +112,7 @@ export function AccessList ({
             columns={cols}
             dataSource={showed_accesses.filter(({ name }) =>
                 name.toLowerCase().includes(search_key.toLowerCase())).
-                    map(tb_access => ({
+                    map((tb_access: TABLE_ACCESS) => ({
                             key:  tb_access.name,
                             name: tb_access.name,
                             ...category === 'database' ? 

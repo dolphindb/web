@@ -59,16 +59,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 return { yAxis: item }
         }) || [ ]
         
-        
         let data = data_source.map(item => item?.[series?.col_name])
-        // console.log('col', series.col_name, data)
-        // if (xAxis.type === AxisType.TIME)  
-        //     data = data_source.map(item => [dayjs(item?.[xAxis.col_name]).format('YYYY-MM-DD HH:mm:ss'), item?.[series.col_name]])
-        
-        // if (xAxis.type === AxisType.VALUE || xAxis.type === AxisType.LOG)  
-        //     data  = data_source.map(item => [item[xAxis.col_name], item[series.col_name]])
-        
-           
         
         return {
             type: series?.type?.toLowerCase(),
