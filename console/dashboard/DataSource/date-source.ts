@@ -287,7 +287,9 @@ export async function execute (source_id: string) {
                         throw new Error(result as string) 
                 }
             } catch (error) {
-                dashboard.message.error(error.message)
+                // 切换 dashboard 会关闭轮询的连接，若该连接中仍有排队的任务，此处会抛出“连接被关闭”的错误，此处手动过滤
+                if (!data_source.auto_refresh || data_source.ddb)
+                    dashboard.message.error(`${error.message} ${data_source.name}`)
                 data_source.set({
                     data: [ ],
                     cols: [ ],
@@ -462,7 +464,7 @@ export async function export_data_sources (): Promise<ExportDataSource[]> {
                 ddb: null,
                 cols: [ ],
                 data: [ ],
-                deps: [ ],
+                deps: Array.from(data_source.deps),
                 variables: [ ]
             }
         }
@@ -475,7 +477,7 @@ export async function import_data_sources (_data_sources: ExportDataSource[]) {
     
     for (let data_source of _data_sources) {
         const import_data_source = new DataSource(data_source.id, data_source.name)
-        Object.assign(import_data_source, data_source, { deps: import_data_source.deps, variables: import_data_source.variables })
+        Object.assign(import_data_source, data_source, { deps: new Set(data_source.deps), variables: import_data_source.variables })
         data_sources.push(import_data_source)
         await save_data_source(import_data_source, import_data_source.code, import_data_source.filter_column, import_data_source.filter_expression)
     }

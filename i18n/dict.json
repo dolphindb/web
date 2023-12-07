@@ -2843,12 +2843,6 @@
     "关闭": {
         "en": "Close"
     },
-    "DolphinDB 脚本 / SQL": {
-        "en": "DolphinDB script / SQL"
-    },
-    "流数据": {
-        "en": "Streaming"
-    },
     "重命名": {
         "en": "Rename"
     },
@@ -2891,11 +2885,11 @@
     "间隔时间": {
         "en": "Interval time"
     },
-    "最大行数": {
-        "en": "Maximum row count"
+    "最大展示行数": {
+        "en": "Maximum display rows"
     },
-    "若该值为空则表示不对最大行数进行限制": {
-        "en": "If this value is empty, it means no maximum row count restriction"
+    "若该值为空则表示不对最大展示行数进行限制": {
+        "en": "If the value is empty, it means that there is no limit on the maximum number of display rows"
     },
     "自定义": {
         "en": "custom"
@@ -3295,5 +3289,8 @@
     },
     "新数据面板": {
         "en": "New dashboard"
+    },
+    "提示：初始化后请完善相关配置（详见文档），并重启服务器": {
+        "en": "Tip: After initialization, please complete the relevant configuration (see the documentation for details) and restart the server"
     }
 }

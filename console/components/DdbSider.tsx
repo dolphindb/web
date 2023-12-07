@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
 
-import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined } from '@ant-design/icons'
+import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
 
 import { isNil, omitBy } from 'lodash'
 
@@ -19,6 +19,7 @@ import SvgJob from '../job.icon.svg'
 import SvgLog from '../log.icon.svg'
 import SvgFactor from '../factor.icon.svg'
 import SvgComputing from '../computing/icons/computing.icon.svg'
+import SvgTools from '../icons/tools.icon.svg'
 import SvgAccess from '../access/icons/access.icon.svg'
 import SvgUser from '../access/icons/user.icon.svg'
 import SvgGroup from '../access/icons/group.icon.svg'
@@ -35,6 +36,7 @@ const svgs = {
     log: SvgLog,
     factor: SvgFactor,
     computing: SvgComputing,
+    tools: SvgTools,
     access: SvgAccess,
     user: SvgUser,
     group: SvgGroup
@@ -63,7 +65,7 @@ export function DdbSider () {
     )
     
     return <Layout.Sider
-        width={135}
+        width={170}
         className='sider'
         theme='light'
         collapsible
@@ -157,6 +159,21 @@ export function DdbSider () {
                     key: 'dashboard',
                     icon: <MenuIcon view='dashboard' />,
                     label: t('数据面板'),
+                },
+                {
+                    key: 'tools',
+                    icon: <MenuIcon view='tools' />,
+                    label: t('运维工具'),
+                    children: [
+                        {
+                            key: 'iot-guide',
+                            label: '物联网库表创建引导'
+                        },
+                        {
+                            key: 'finance-guide',
+                            label: '金融库表创建引导'
+                        }
+                    ]
                 },
                 ... model.dev || model.cdn ? [
                     {
