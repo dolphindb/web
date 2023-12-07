@@ -47,7 +47,7 @@ import SvgPartitionFile from './icons/partition-file.icon.svg'
 import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
-import { QueryGuideModal } from './QueryGuide/index.js'
+import { QueryGuideIcon } from './QueryGuide/index.js'
 
 
 enum TableKind {
@@ -904,9 +904,11 @@ export class Table implements DataNode {
         this.name = path.slice(db.path.length, -1)
         this.title = <div className='table-title'>
             <span> {path.slice(db.path.length, -1)} </span>
-            <Tooltip title={t('进入查询向导')}>
+            {/* <Tooltip title={t('进入查询向导')}>
                 <FileSearchOutlined onClick={async () => NiceModal.show(QueryGuideModal, { database: this.db.path.slice(0, -1), table: this.name }) } className='query-icon'/>
-            </Tooltip>
+            </Tooltip> */}
+            
+            <QueryGuideIcon database={this.db.path.slice(0, -1)} table={this.name} />
         </div>
        
     }

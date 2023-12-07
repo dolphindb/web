@@ -69,7 +69,7 @@ export function QueryGuide (props: IProps) {
             case 0: 
                 return <Button type='primary' onClick={get_query_code}>{t('下一步')}</Button>
             case 1: 
-                return <Button type='primary' onClick={to_next_step}>{t('下一步')}</Button>
+                return <Button type='primary' onClick={to_next_step}>{t('预览数据')}</Button>
             case 2:
                 return <Button type='primary' onClick={download}>{t('导出数据')}</Button>
         }

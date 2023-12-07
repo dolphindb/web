@@ -3316,5 +3316,42 @@
     },
     "提示：初始化后请完善相关配置（详见文档），并重启服务器": {
         "en": "Tip: After initialization, please complete the relevant configuration (see the documentation for details) and restart the server"
+    },
+    "预览数据": {
+        "en": "Preview data"
+    },
+    "导出数据": {
+        "en": "Export data"
+    },
+    "未选查询列": {
+        "en": "Unselected query column"
+    },
+    "已选查询列": {
+        "en": "Selected query column"
+    },
+    "增加查询列": {
+        "en": "Add query column"
+    },
+    "删除查询列": {
+        "en": "Delete query column"
+    },
+    "请选择列名": {
+        "en": "Please select a column name"
+    },
+    "请选择运算符": {
+        "en": "Please select an operator"
+    },
+    "请输入对比值": {
+        "en": "Please enter a comparison value"
+    },
+    "输入值后按回车键，可输入多个值": {
+        "en": "After entering the value, press the Enter key to enter multiple values."
+    },
+    "请选择对比值": {
+        "en": "Please select a comparison value"
     }
+    
+    
+    
+    
 }

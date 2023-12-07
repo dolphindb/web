@@ -46,6 +46,20 @@ export const STRING_OPERATIONS = [
 ]
 
 
+export const IN = 9
+export const NOT_IN = 10
+
+export const IN_OPERATIONS = [{
+        label: '包含(in)',
+        value: IN
+    },
+    {
+        label: '不包含(not in)',
+        value: NOT_IN
+    }]
+
+
+
 export const VALUE_TYPES = ['INT', 'SHORT', 'DOUBLE', 'FLOAT', 'LONG']
 
 
