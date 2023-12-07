@@ -4,7 +4,7 @@ import { Form, Input, InputNumber, Radio, Select, type SelectProps } from 'antd'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { SchemaList } from './SchemaList.js'
 import { GuideType } from '../iot-guide/type.js'
-import { request } from '../utils.js'
+import { check_tb_valid, request } from '../utils.js'
 import { ENUM_TYPES, TIME_TYPES } from '../constant.js'
 import { useMemo } from 'react'
 
@@ -59,7 +59,20 @@ export function BasicInfoFields (props: IProps) {
             <Input addonBefore='dfs://' placeholder='请输入库名'/>
         </Form.Item>
         
-        <Form.Item label='表名' name='tbName' rules={[{ required: true, message: '请输入表名' }]}>
+        <Form.Item
+            label='表名'
+            name='tbName'
+            rules={[
+                { required: true, message: '请输入表名' },
+                {
+                    validator: async (_, value) => { 
+                        if (value && !check_tb_valid(value))
+                            return Promise.reject('表名首字母为数字、"."、"/"和"*"，且不能包含空格')
+                        else
+                            return Promise.resolve()
+                    }
+                }
+            ]}>
             <Input placeholder='请输入表名'/>
         </Form.Item>
         
@@ -154,7 +167,7 @@ export function BasicInfoFields (props: IProps) {
                                         let types = [ ]
                                         for (let i = 0;  i < value.length;  i++) { 
                                             const col = schema.find(item => item.colName === value[i])
-                                            if (!col)
+                                            if (!col && value[i])
                                                 return Promise.reject(`表结构中无 ${value[i]} 列，请修改`)
                                             else
                                                 types.push(col.dataType)

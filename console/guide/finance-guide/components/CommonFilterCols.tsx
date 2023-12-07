@@ -33,7 +33,7 @@ export function CommonFilterCols (props: IProps) {
             return Promise.reject('已配置该常用筛选列，请修改')
         else  
             for (let i = 0;  i < name_list.length;  i++)  
-                if (!schema.find(item => item.colName === name_list[i]))
+                if (name_list[i] && !schema.find(item => item.colName === name_list[i]))
                     return Promise.reject(`表结构中无 ${name_list[i]} 列，请修改}`)
     }, [schema])
     
