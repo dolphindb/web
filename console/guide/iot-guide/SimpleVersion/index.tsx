@@ -24,13 +24,14 @@ export function SimpleVersion () {
     
     const go = useCallback((infos: { info?: SimpleInfos, result?: ExecuteResult, error_msg?: any }) => { 
         const { info, result = ExecuteResult.SUCCESS, error_msg } = infos
-        set_current_step(current_step + 1)
         set_result(result)
         
         if (info)
             set_info(prev => ({ ...prev, ...info }))
         if (error_msg)
             set_error_msg(error_msg.toString())
+        
+        set_current_step(current_step + 1)
     }, [current_step])
     
     

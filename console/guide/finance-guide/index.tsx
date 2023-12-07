@@ -23,9 +23,10 @@ export function FinanceGuide () {
         const { result, error_msg, ...others } = info
         set_info(prev => ({ ...prev, ...others }))
         set_result(result)
-        set_current_step(current_step + 1)
         if (error_msg)
             set_error_msg(error_msg.toString())
+        // 到下一步
+        set_current_step(current_step + 1)
     }, [current_step])
     
     const back = useCallback(() => { 

@@ -1,6 +1,6 @@
 import './index.scss'
 import { Button, Form, Radio, Select, Space, Typography } from 'antd'
-import { type RecommendInfo, type SecondStepInfo, type AdvancedInfos, type ExecuteResult, type IAdvancedCreateDBResp } from '../type.js'
+import { type RecommendInfo, type SecondStepInfo, type AdvancedInfos, type ExecuteResult } from '../type.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { CommonSortCols } from './CommonSortCols.js'

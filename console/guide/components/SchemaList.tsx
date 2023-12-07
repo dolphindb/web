@@ -291,7 +291,7 @@ export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, ne
             {
                 mode === 'finance'
                     ?  `请注意，表结构至少需要一列时间列，时间列类型包括${TIME_TYPES.join('、')}`
-                    :  `请注意，时序数据的表结构至少需要一列时间列与枚举列，非时序数据表结构至少需要一列枚举列，时间列类型包括${TIME_TYPES.join('、')}，枚举列类型包括${ENUM_TYPES.join('、')}。`
+                    :  `请注意，时序数据或总数据量大于200万的非时序数据的表结构至少需要一列时间列与枚举列，其余数据表结构至少需要一列枚举列，时间列类型包括${TIME_TYPES.join('、')}，枚举列类型包括${ENUM_TYPES.join('、')}。`
             }
         </Typography.Text>
         
