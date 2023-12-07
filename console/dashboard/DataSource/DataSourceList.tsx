@@ -113,7 +113,10 @@ export function DataSourceList ({
                 style={{ top: '200px' }}
                 open={add_visible}
                 maskClosable={false}
-                onCancel={add_close}
+                onCancel={() => {
+                    add_close()
+                    set_new_name('')
+                }}
                 onOk={() => {
                     try {
                         const id = create_data_source(new_name)
