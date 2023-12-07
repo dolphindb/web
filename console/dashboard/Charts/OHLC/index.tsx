@@ -2,7 +2,7 @@ import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { useMemo } from 'react'
 
-import { type Widget } from '../../model.js'
+import { dashboard, type Widget } from '../../model.js'
 import { type ISeriesConfig, type IChartConfig } from '../../type.js'
 import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
@@ -338,7 +338,8 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
         [title, with_tooltip, data, xAxis, yAxis, x_datazoom, y_datazoom]
     )
     
-    return <ReactEChartsCore echarts={echarts} option={option} notMerge lazyUpdate theme='ohlc_theme' />
+    // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
+    return <ReactEChartsCore notMerge={dashboard.editing} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme' />
 }
 
 

@@ -1,6 +1,6 @@
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
-import { type Widget } from '../../model.js'
+import { dashboard, type Widget } from '../../model.js'
 import { useMemo } from 'react'
 import { type IOrderBookConfig, type IChartConfig } from '../../type.js'
 import { to_chart_data } from '../../utils.js'
@@ -95,10 +95,10 @@ export function OrderBook (props: IProps) {
     }, [data_source, widget.config])   
     
     
-    
+    // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
     return  <ReactEChartsCore
                 echarts={echarts}
-                notMerge
+                notMerge={dashboard.editing}
                 option={convert_order_config}
                 theme='my-theme'
         />
