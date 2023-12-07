@@ -95,6 +95,7 @@ export function Header () {
         await dashboard.execute(async () => {
             const updated_config = await get_latest_config()
             await dashboard.update_dashboard_config(updated_config)
+            dashboard.set({ save_confirm: false })
             dashboard.message.success(t('数据面板保存成功'))
         }, { json_error: true })
     }
@@ -170,7 +171,7 @@ export function Header () {
     
     function return_to_overview () {
         clear_data_sources()
-        dashboard.set({ config: null })
+        dashboard.set({ config: null, save_confirm: false })
         model.set_query('dashboard', null)
         model.set({ sider: true, header: true })
     }
@@ -183,6 +184,7 @@ export function Header () {
     
     function on_edit () { 
         dashboard.set_editing(true)
+        dashboard.set({ save_confirm: true })
         model.set_query('preview', null)
     }
     
@@ -227,7 +229,7 @@ export function Header () {
                     // if (JSON.stringify(latest_config) === JSON.stringify(server_config)) 
                     //     return_to_overview()
                     // else
-                    if (config.permission === DashboardPermission.view)
+                    if (config.permission === DashboardPermission.view || !dashboard.save_confirm)
                         return_to_overview()
                     else
                         save_open()
@@ -255,10 +257,12 @@ export function Header () {
                     onCancel={add_close}
                     onOk={handle_add}
                     closeIcon={false}
-                    title={t('请输入数据面板的名称')}>
-                    <Input value={new_dashboard_name}
+                    title={t('新数据面板')}>
+                    <Input 
+                        value={new_dashboard_name}
+                        placeholder={t('请输入新数据面板的名称')}
                         onChange={event => { set_new_dashboard_name(event.target.value) }}
-                        />
+                    />
                 </Modal>
             
                 <Modal open={edit_visible}
@@ -303,7 +307,7 @@ export function Header () {
                         onClick={() => {
                             const new_id = genid()
                             set_new_dashboard_id(new_id)                
-                            set_new_dashboard_name(String(new_id).slice(0, 4))
+                            set_new_dashboard_name('')
                             add_open()
                         }}
                     >
@@ -361,9 +365,7 @@ export function Header () {
                                     <EditOutlined />
                                 </Button>
                             </Tooltip>
-                            <Tooltip title={t('分享')}>
-                                <Share dashboard_ids={[dashboard.config?.id]} trigger_type='icon' />
-                            </Tooltip>
+                            <Share dashboard_ids={[dashboard.config?.id]} trigger_type='icon' />
                             <Popconfirm
                                 title={t('删除')}
                                 description={t('确定当前 dashboard 删除吗？')}

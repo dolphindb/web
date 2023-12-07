@@ -1,6 +1,6 @@
 import { default as Webpack, type Stats } from 'webpack'
 
-import { base_config, fpd_out_console, fpd_ramdisk_root, fpd_root, ramdisk, ci } from '../webpack.js'
+import { get_base_config, fpd_out_console, fpd_ramdisk_root, fpd_root, ramdisk, ci } from '../webpack.js'
 
 export const fpd_pre_bundle = `${fpd_root}pre-bundle/`
 
@@ -16,12 +16,12 @@ interface IOptions {
 
 /** 将 pre-bundle/entries/{entry}.ts 打包到 pre-bundle/dist/{entry}.js */
 export async function build_bundle ({ entry, production }: IOptions) {
+    const base_config = get_base_config(production)
+    
     const compiler = Webpack({
         ... base_config,
         
         name: entry,
-        
-        mode: production ? 'production' : 'development',
         
         entry: `${fpd_pre_bundle_entries}${entry}.ts`,
         

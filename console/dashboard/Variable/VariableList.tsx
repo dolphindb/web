@@ -63,9 +63,11 @@ export function VariableList ({
                         }
                     ))
                 )
-                const id = variables.variable_infos[0].id
-                change_current_variable(id)
-                set_current_select(id)
+                const id = variables.variable_infos[0]?.id
+                if (id) {
+                    change_current_variable(id)
+                    set_current_select(id)
+                }
             } catch (error) {
                 dashboard.message.error(error.message)
             }

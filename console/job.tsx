@@ -98,7 +98,7 @@ export function Job () {
             -(l.finishedTasks - r.finishedTasks))
     
     const rjob_rows = filter_job_rows(
-        set_detail_col(rjobs.to_rows().map(compute_status_info), [ 'errorMsg']),
+        set_detail_row(rjobs.to_rows().map(compute_status_info), [ 'errorMsg']),
         query
     ).sort((l, r) => {
         if (l.status !== r.status) {
@@ -295,7 +295,7 @@ function translate_columns (cols: DdbJobColumn[]): DdbJobColumn[] {
         ({ ...item, title: column_names[item.title as string] || item.title }))
 }
 
-function set_detail_col (table: Record<string, any>[], col_names: string[]) {
+function set_detail_row (table: Record<string, any>[], col_names: string[]) {
     return table.map(row => {
         for (let col_name of col_names)
             row[col_name] = <TableCellDetail title={detail_title[col_name]} content={row[col_name]}/>
@@ -449,8 +449,7 @@ function filter_job_rows (jobs: DdbJob[], query: string) {
 
 function compute_status_info (job: DdbJob) {
     const { startTime, endTime, errorMsg } = job
-    
-    if (startTime === nulls.int64) {
+    if (!startTime) {
         job.status = 'queuing'
         return job
     }
@@ -461,7 +460,7 @@ function compute_status_info (job: DdbJob) {
         return job
     }
     
-    if (endTime === nulls.int64) {
+    if (!endTime) {
         job.status = 'running'
         job.theme = 'warning'
         return job

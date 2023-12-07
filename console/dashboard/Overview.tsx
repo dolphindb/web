@@ -50,7 +50,7 @@ export function Overview () {
         if (params.get('create') === '1') {
             const new_id = genid()
             set_new_dashboard_id(new_id)                
-            set_new_dashboard_name(String(new_id).slice(0, 4))
+            set_new_dashboard_name('')
             creator.open()
         }
     }, [ ])
@@ -97,10 +97,11 @@ export function Overview () {
                         creator.close()
                     }, { json_error: true })
                 }
-                title={t('请输入新数据面板的名称')}
+                title={t('新数据面板')}
             >
                 <Input
                     value={new_dashboard_name}
+                    placeholder={t('请输入新数据面板的名称')}
                     onChange={event => {
                         set_new_dashboard_name(event.target.value)
                     }}
@@ -169,7 +170,7 @@ export function Overview () {
                         }
                         
                         const copy_dashboard = dashboard.generate_new_config(genid(), copy_dashboard_name, current_dashboard.data)
-                        await dashboard.add_dashboard_config(copy_dashboard)
+                        await dashboard.add_dashboard_config(copy_dashboard, false)
                         model.message.success(t('创建副本成功'))
                         
                         copyor.close()
@@ -216,6 +217,7 @@ export function Overview () {
                                     const config = configs.find(({ id }) => id === key)
                                     dashboard.set({ config, editing: false })
                                     model.set_query('dashboard', String(config.id))
+                                    model.set_query('preview', '1')
                                     model.set({ header: false, sider: false })
                                 }}
                             >
@@ -241,12 +243,12 @@ export function Overview () {
                         width: 450,
                         render: ({ key, permission }) => <div className='action'>
                             {
-                                permission !== DashboardPermission.view
-                                    ? <>
+                                (permission !== DashboardPermission.view)
+                                    && <>
                                         <a
                                             onClick={() => {
                                                 let config = configs.find(({ id }) => id === key)
-                                                dashboard.set({ config, editing: true })
+                                                dashboard.set({ config, editing: true, save_confirm: true })
                                                 model.set_query('dashboard', String(config.id))
                                                 model.set({ header: false, sider: false })
                                             }}
@@ -271,7 +273,6 @@ export function Overview () {
                                             {t('创建副本')}
                                         </a>
                                     </>
-                                    : <></>
                             }
                             {
                                 permission === DashboardPermission.own 
@@ -353,7 +354,7 @@ export function Overview () {
                                 onClick={() => {
                                     const new_id = genid()
                                     set_new_dashboard_id(new_id)                
-                                    set_new_dashboard_name(String(new_id).slice(0, 4))
+                                    set_new_dashboard_name('')
                                     creator.open()
                                 }}
                             >

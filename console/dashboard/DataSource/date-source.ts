@@ -287,7 +287,9 @@ export async function execute (source_id: string) {
                         throw new Error(result as string) 
                 }
             } catch (error) {
-                dashboard.message.error(error.message)
+                // 切换 dashboard 会关闭轮询的连接，若该连接中仍有排队的任务，此处会抛出“连接被关闭”的错误，此处手动过滤
+                if (!data_source.auto_refresh || data_source.ddb)
+                    dashboard.message.error(`${error.message} ${data_source.name}`)
                 data_source.set({
                     data: [ ],
                     cols: [ ],
@@ -462,7 +464,7 @@ export async function export_data_sources (): Promise<ExportDataSource[]> {
                 ddb: null,
                 cols: [ ],
                 data: [ ],
-                deps: [ ],
+                deps: Array.from(data_source.deps),
                 variables: [ ]
             }
         }
@@ -475,7 +477,7 @@ export async function import_data_sources (_data_sources: ExportDataSource[]) {
     
     for (let data_source of _data_sources) {
         const import_data_source = new DataSource(data_source.id, data_source.name)
-        Object.assign(import_data_source, data_source, { deps: import_data_source.deps, variables: import_data_source.variables })
+        Object.assign(import_data_source, data_source, { deps: new Set(data_source.deps), variables: import_data_source.variables })
         data_sources.push(import_data_source)
         await save_data_source(import_data_source, import_data_source.code, import_data_source.filter_column, import_data_source.filter_expression)
     }
@@ -529,8 +531,11 @@ export async function paste_data_source (event) {
     const { data_source: _data_source } = safe_json_parse((event.clipboardData).getData('text'))
     
     // 先校验，重名不粘贴，不重名且 id 不同的直接粘贴，不重名但 id 相同的重新生成 id 后粘贴
-    if (!_data_source || data_sources.findIndex(data_source => data_source.name === _data_source.name) !== -1)
+    if (!_data_source || data_sources.findIndex(data_source => data_source.name === _data_source.name) !== -1) {
+        dashboard.message.error(`${_data_source.name} ${t('已存在，粘贴失败!')}`)
         return
+    }
+        
     
     if (find_data_source_index(_data_source.id) !== -1)
         _data_source.id = String(genid())

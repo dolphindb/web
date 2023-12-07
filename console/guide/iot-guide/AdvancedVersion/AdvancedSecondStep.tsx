@@ -1,6 +1,6 @@
 import './index.scss'
 import { Button, Form, Radio, Select, Space, Typography } from 'antd'
-import { type RecommendInfo, type SecondStepInfo, type AdvancedInfos, type ExecuteResult, type IAdvancedCreateDBResp } from '../type.js'
+import { type RecommendInfo, type SecondStepInfo, type AdvancedInfos, type ExecuteResult } from '../type.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { CommonSortCols } from './CommonSortCols.js'
@@ -57,11 +57,6 @@ export function AdvancedSecondStep (props: IProps) {
         .map(item => ({ label: item.colName, value: item.colName }))
     }, [ info.first.schema ])
     
-    useEffect(() => { 
-        if (info?.second)
-            form.setFieldsValue(info.second)
-    }, [info?.second])
-    
     const on_submit = useCallback(async values => { 
         set_loading(true)
         const code = await request<string>('DBMSIOT_createDB2', { ...info.first, ...values })
@@ -76,7 +71,9 @@ export function AdvancedSecondStep (props: IProps) {
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 18 }}
         initialValues={info?.second}
-        onValuesChange={(_, values) => { update_info({ second: values }) }}
+        onValuesChange={(_, values) => {
+            update_info({ second: values })
+        }}
     >
         <Form.Item
             label='存储引擎'
@@ -119,8 +116,9 @@ export function AdvancedSecondStep (props: IProps) {
                 { required: true, message: '请选择分区列' },
                 {
                     validator: async (_, cols = [ ]) => {
+                        console.log(recommend_info, cols, 'info')
                         if (cols?.length !== recommend_info.partitionInfo.partitionNum)  
-                            return Promise.reject('您选择的分区列个数与推荐个数不一致，请修改')
+                            return Promise.reject(new Error('您选择的分区列个数与推荐个数不一致，请修改'))
                         
                         const types = [ ]
                         for (let i = 0;  i < cols.length;  i++) { 
@@ -141,7 +139,9 @@ export function AdvancedSecondStep (props: IProps) {
                             // 非时序数据，分区列必须为枚举类型
                             if (types.some(type => !ENUM_TYPES.includes(type)))
                                 return Promise.reject(`分区列的数据类型需为 ${ENUM_TYPES.join('、')}`)
-                    }
+                        return Promise.resolve()
+                    },
+                    validateTrigger: 'onChange'
                 }
             ]}
         >

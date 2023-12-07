@@ -191,7 +191,7 @@ export class DdbModel extends Model<DdbModel> {
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                if (this.dev)
+                if (this.dev || this.cdn)
                     try {
                         await this.login_by_password('admin', '123456')
                     } catch {
@@ -367,7 +367,8 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async is_admin () {
-        this.set({ admin: (await this.ddb.call<DdbObj<DdbObj[]>>('getUserAccess', [ ], { urgent: true })).to_rows()[0].isAdmin })
+        if (this.node_type !== NodeType.computing)
+            this.set({ admin: (await this.ddb.call<DdbObj<DdbObj[]>>('getUserAccess', [ ], { urgent: true })).to_rows()[0].isAdmin })
     }
     
     

@@ -2,7 +2,7 @@ import { Button, Form, Input, Space } from 'antd'
 import { type IFinanceInfo } from './type.js'
 import { SchemaList } from '../components/SchemaList.js'
 import { useCallback, useEffect, useState } from 'react'
-import { request } from '../utils.js'
+import { check_tb_valid, request } from '../utils.js'
 import { PartitionColSelect } from './components/PartitionColSelect.js'
 import { CommonFilterCols } from './components/CommonFilterCols.js'
 import { model } from '../../model.js'
@@ -46,7 +46,9 @@ export function TableInfo (props: IProps) {
     }, [info.table])
     
     
-    const is_table_exist = useCallback(async (_, value) => { 
+    const validate_table = useCallback(async (_, value) => { 
+        if (value && !check_tb_valid(value))
+            return Promise.reject('表名首字母为数字、"."、"/"和"*"，且不能包含空格')
         if (!info.database.isExist)
             return Promise.resolve()
         const res = await model.ddb.eval(`existsTable("dfs://${info.database?.name}", \`${value})`)
@@ -66,7 +68,8 @@ export function TableInfo (props: IProps) {
             name='name'
             rules={[
                 { required: true, message: '请输入表名' },
-                { validator: is_table_exist }]}
+                { validator: validate_table }
+            ]}
         >
             <Input placeholder='请输入表名'/>
         </Form.Item>

@@ -90,20 +90,3 @@ export enum ExecuteResult {
     SUCCESS
 }
 
-
-export interface IAdvancedCreateDBResp { 
-    // 常用筛选列是否通过校验
-    isValid: 0 | 1
-    // 常用筛选列
-    recommendOtherSortKey?: Array<{
-        // 列名
-        colName: string
-        // 唯一值数量
-        uniqueNum: number
-        // 降维桶数
-        hashMapNum: number
-    }>
-    code: string
-}
-
-
