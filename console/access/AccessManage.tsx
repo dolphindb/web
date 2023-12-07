@@ -209,7 +209,6 @@ export function AccessManage ({
                 }}
                 onOk={async () => {
                     model.execute(async () => {
-                        console.log(current.name, add_access_rows.map(rule => rule))
                         await Promise.all(add_access_rows.map(async rule => 
                                 access[rule.type](current.name, rule.access,  rule.name)
                         ))

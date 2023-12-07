@@ -79,7 +79,7 @@ export function DashBoard () {
                         algorithm: theme.darkAlgorithm
                     }}
                 >
-                    <App className='app'>
+                    <App className='app spin-container'>
                         <Spin spinning={loading} delay={500} size='large'>
                             <DashboardInstance />
                         </Spin>
