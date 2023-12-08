@@ -7,7 +7,7 @@ import { downloadZip } from 'client-zip'
 import cn from 'classnames'
 
 
-import { use_modal } from 'react-object-model/modal.js'
+import { use_modal } from 'react-object-model/hooks.js'
 import { genid } from 'xshell/utils.browser.js'
 
 import { model } from '../model.js'

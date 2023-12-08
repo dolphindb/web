@@ -7,7 +7,7 @@ import { Button, Form, Input, Modal, Popconfirm, Select, Switch, Table, Tag, Too
 
 import { t } from '../../i18n/index.js'
 
-import { use_modal } from 'react-object-model/modal'
+import { use_modal } from 'react-object-model/hooks.js'
 import { model } from '../model.js'
 import { access } from './model.js'
 

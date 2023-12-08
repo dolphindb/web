@@ -172,9 +172,9 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async init () {
-        console.log(t('web 开始初始化，当前处于{{mode}}模式，构建时间是 {{time}}', {
+        console.log(t('web 开始初始化，当前处于{{mode}}模式，版本为 {{version}}', {
             mode: this.dev ? t('开发') : t('生产'),
-            time: BUILD_TIME
+            version: WEB_VERSION
         }))
         
         

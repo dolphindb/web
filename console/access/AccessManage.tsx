@@ -1,7 +1,7 @@
 import { Button, Checkbox, Divider, Modal, Radio, Select, Table, TreeSelect, type TableColumnType } from 'antd'
 import { useMemo, useState } from 'react'
 
-import { use_modal } from 'react-object-model/modal'
+import { use_modal } from 'react-object-model/hooks.js'
 import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 

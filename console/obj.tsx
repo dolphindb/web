@@ -1640,14 +1640,16 @@ function Chart ({
                             xField='row'
                             yField='value'
                             seriesField='col'
-                            xAxis={{
-                                title: {
-                                    text: titles.x_axis
-                                }
-                            }}
-                            yAxis={{
-                                title: {
-                                    text: titles.y_axis
+                            axis={{
+                                x: {
+                                    title: {
+                                        text: titles.x_axis
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        text: titles.y_axis
+                                    }
                                 }
                             }}
                             isStack={stacking}
@@ -1658,16 +1660,18 @@ function Chart ({
                             className='chart-body'
                             data={[data, data]}
                             xField='row'
-                            yField={col_labels}
-                            xAxis={{
-                                title: {
-                                    text: titles.x_axis
-                                }
-                            }}
-                            yAxis={{
-                                [col_labels[0]]: {
+                            yField={col_labels as any}
+                            axis={{
+                                x: {
                                     title: {
-                                        text: titles.y_axis
+                                        text: titles.x_axis
+                                    }
+                                },
+                                y: {
+                                    [col_labels[0]]: {
+                                        title: {
+                                            text: titles.y_axis
+                                        }
                                     }
                                 }
                             }}
@@ -1766,17 +1770,19 @@ function Chart ({
                         xField='row'
                         yField='value'
                         seriesField='col'
-                        xAxis={{
-                            title: {
-                                text: titles.x_axis
+                        axis={{
+                            x: {
+                                title: {
+                                    text: titles.x_axis
+                                }
+                            },
+                            y: {
+                                title: {
+                                    text: titles.y_axis
+                                }
                             }
                         }}
-                        yAxis={{
-                            title: {
-                                text: titles.y_axis
-                            }
-                        }}
-                        isStack={stacking}
+                        stack={stacking}
                         padding='auto'
                     />
                 
@@ -1787,14 +1793,16 @@ function Chart ({
                         xField='row'
                         yField='value'
                         colorField='col'
-                        xAxis={{
-                            title: {
-                                text: titles.x_axis
-                            }
-                        }}
-                        yAxis={{
-                            title: {
-                                text: titles.y_axis
+                        axis={{
+                            x: {
+                                title: {
+                                    text: titles.x_axis
+                                }
+                            },
+                            y: {
+                                title: {
+                                    text: titles.y_axis
+                                }
                             }
                         }}
                         shape='circle'
@@ -1807,17 +1815,23 @@ function Chart ({
                         data={data}
                         binField='value'
                         stackField='col'
+                        // 修复类型错误
+                        binNumber={undefined}
                         { ... bin_count ? { binNumber: Number(bin_count.value) } : { } }
-                        xAxis={{
-                            title: {
-                                text: titles.x_axis
+                        axis={{
+                            x: {
+                                title: {
+                                    text: titles.x_axis
+                                }
+                            },
+                            y: {
+                                title: {
+                                    text: titles.y_axis
+                                }
                             }
                         }}
-                        yAxis={{
-                            title: {
-                                text: titles.y_axis
-                            }
-                        }}
+                        // 修复类型错误
+                        binWidth={undefined}
                         padding='auto'
                     />
                 
@@ -1825,7 +1839,7 @@ function Chart ({
                     return <Stock
                         data={data}
                         xField='row'
-                        yField={['open', 'close', 'high', 'low']}
+                        yField={['open', 'close', 'high', 'low'] as any}
                         xAxis={{
                             title: {
                                 text: titles.x_axis
