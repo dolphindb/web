@@ -598,7 +598,7 @@ class ShellModel extends Model<ShellModel> {
             '        t.tableInsert(take(userAccessRow.userId, tablePath.size()), take(action, tablePath.size()))\n' +
             '    }\n' +
             '    return t\n' +
-            '}\n', { urgent: true }
+            '}\n'
         )
         this.set({ get_access_defined: true })
     }
