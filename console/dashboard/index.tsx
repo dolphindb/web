@@ -7,7 +7,6 @@ import 'gridstack/dist/gridstack.css'
 import { useEffect, useRef, useState } from 'react'
 import { App, Button, ConfigProvider, Popconfirm, Result, Spin, theme } from 'antd'
 import * as echarts from 'echarts'
-import { DdbVectorString } from 'dolphindb/browser'
 
 import { DashboardPermission, dashboard } from './model.js'
 import { Sider } from './Sider.js'
@@ -53,7 +52,7 @@ export function DashBoard () {
     useEffect(() => {
         (async () => {
             try {
-                if (new URLSearchParams(location.search).has('language'))
+                if (new URLSearchParams(location.search).has('language') || navigator.language === 'en')
                     return
                 const version = (await model.ddb.call('dashboard_get_version')).value
                 if (version === '1.0.0')
