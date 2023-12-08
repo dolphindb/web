@@ -1,3 +1,11 @@
+
+
+export const LIKE = 7
+export const NOT_LIKE = 8
+export const IN = 9
+export const NOT_IN = 10
+
+
 export const VALUE_OPERATIONS = [
     {
         label: '等于(=)',
@@ -37,17 +45,14 @@ export const STRING_OPERATIONS = [
     },
     {
         label: '匹配(like) ',
-        value: 7
+        value: LIKE
     },
     {
         label: '不匹配(not like)',
-        value: 8
+        value: NOT_LIKE
     }
 ]
 
-
-export const IN = 9
-export const NOT_IN = 10
 
 export const IN_OPERATIONS = [{
         label: '包含(in)',

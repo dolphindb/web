@@ -9,11 +9,14 @@ import { ColSelectTransfer } from './ColSelectTransfer.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { StringDatePicker } from '../../../components/StringDatePicker/index.js'
 import { StringTimePicker } from '../../../components/StringTimePicker.js'
-import { IN, IN_OPERATIONS, NOT_IN, STRING_OPERATIONS, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'
+import { IN, IN_OPERATIONS, LIKE, NOT_IN, NOT_LIKE, STRING_OPERATIONS, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'
 import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { t } from '../../../../i18n/index.js'
-import { type IColumn, type IQueryInfos } from '../type.js'
+import { ENUM_TYPES, type IColumn, type IQueryInfos } from '../type.js'
 import { concat_name_path, safe_json_parse } from '../../../dashboard/utils.js'
+
+import { EnumSelect } from './EnumSelect.js'
+import { EnumAutoComplete } from './EnumAutoComplete.js'
 
 interface IProps { 
     form: FormInstance
@@ -28,6 +31,8 @@ interface IQueryCard {
     name_path?: string
     cols: IColumn[]
     className?: string
+    database: string
+    table: string
 }
 
 export const TIME_COMPONENT = {
@@ -43,7 +48,7 @@ export const TIME_COMPONENT = {
 } 
 
 export function QueryCard (props: IQueryCard) { 
-    const { name, name_path, cols, className, title } = props
+    const { name, name_path, cols, className, title, table, database } = props
     
     return <Form.List name={name} initialValue={[{ }]}>
         {(fields, { add, remove }) => { 
@@ -99,10 +104,15 @@ export function QueryCard (props: IQueryCard) {
                                 const { col, opt } = item
                                 const { data_type } = safe_json_parse(col ?? '{}')
                                 
-                                // 包含运算符
-                                if ([IN, NOT_IN].includes(opt))
+                                // 枚举类型并且运算符不为匹配与包含需要获取枚举值
+                                if (ENUM_TYPES.includes(data_type) && ![LIKE, NOT_LIKE, IN, NOT_IN].includes(opt))
                                     return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请输入对比值' }]}>
-                                        <Select mode='tags' placeholder='输入值后按回车键，可输入多个值'/>
+                                        <EnumAutoComplete table={table} database={database} col={col} />
+                                    </Form.Item>
+                                
+                                if (ENUM_TYPES.includes(data_type) && [IN, NOT_IN].includes(opt))
+                                    return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请输入对比值' }]}>
+                                        <EnumSelect table={table} database={database} col={col}/>
                                     </Form.Item>
                 
                                 if (VALUE_TYPES.includes(data_type)) 
@@ -177,6 +187,8 @@ export function QueryForm (props: IProps) {
                 !!partition_cols?.length && <>
                     <h4>{t('分区列查询条件')}</h4>
                     <QueryCard
+                        table={table}
+                        database={database}
                         cols={cols.filter(item => partition_cols.includes(item.name)) ?? [ ]}
                         className='partition-query-block'
                         name='partitionColQuerys'
@@ -193,25 +205,27 @@ export function QueryForm (props: IProps) {
                             {
                                 field.name !== 0 && 
                                 <Typography.Text className='condition-tip' type='secondary'>{t('或满足')}</Typography.Text>}
-                                    <QueryCard
-                                        className='query-block'
-                                        key={field.name}
-                                        cols={cols.filter(item => !partition_cols.includes(item.name)) ?? [ ]}
-                                        title={
-                                            <div className='query-block-title'>
-                                                <span>{`查询条件 ${field.name + 1}`}</span>
-                                                <Typography.Link
-                                                    className='delete-text'
-                                                    onClick={() => { remove(field.name) }}
-                                                    type='danger'
-                                                >
-                                                    {t('删除')}
-                                                </Typography.Link> 
-                                            </div>
-                                        }
-                                        name={field.name}
-                                        name_path='querys'
-                                    />
+                                <QueryCard
+                                    table={table}
+                                    database={database}
+                                    className='query-block'
+                                    key={field.name}
+                                    cols={cols.filter(item => !partition_cols.includes(item.name)) ?? [ ]}
+                                    title={
+                                        <div className='query-block-title'>
+                                            <span>{`查询条件 ${field.name + 1}`}</span>
+                                            <Typography.Link
+                                                className='delete-text'
+                                                onClick={() => { remove(field.name) }}
+                                                type='danger'
+                                            >
+                                                {t('删除')}
+                                            </Typography.Link> 
+                                        </div>
+                                    }
+                                    name={field.name}
+                                    name_path='querys'
+                                />
                                 </div>)
                         }
                         <Button

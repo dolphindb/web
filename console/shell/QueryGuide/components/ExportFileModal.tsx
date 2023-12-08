@@ -1,10 +1,11 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Modal, Form, Input } from 'antd'
+import { Modal, Form, Input, message } from 'antd'
 import { useCallback } from 'react'
 import { request } from '../../../guide/utils.js'
 import { useBoolean } from 'ahooks'
 
 import { safe_json_parse } from '../../../dashboard/utils.js'
+import { t } from '../../../../i18n/index.js'
 
 interface IProps { 
     table: string
@@ -23,14 +24,20 @@ export const ExportFileModal = NiceModal.create((props: IProps) => {
             action.setTrue()
             await form.validateFields()
             const { name } = form.getFieldsValue()
-            const { csvContent } = safe_json_parse(new TextDecoder().decode((await request('executeQuery', { code }))))
+            const res = await request<any>('executeQuery', { code })
+            let text = ''
+            if (typeof res.csvContent === 'string')  
+                text = res.csvContent
+             else
+                text = (safe_json_parse(new TextDecoder().decode((await request('executeQuery', { code }))))).csvContent
             const link = document.createElement('a')
-            link.href = 'data:application/vnd.ms-excel;charset=utf-8,\uFEFF' + encodeURIComponent(csvContent)
+            link.href = 'data:application/vnd.ms-excel;charset=utf-8,\uFEFF' + encodeURIComponent(text)
             link.download = `${name}.csv`
             link.click()
             link.remove()
             action.setFalse()
             modal.hide()
+            message.success(t('导出成功'))
         } catch { 
             action.setFalse()
         }

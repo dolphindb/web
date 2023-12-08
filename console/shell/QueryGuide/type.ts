@@ -40,3 +40,6 @@ export enum ExportStatus {
     SUCCESS,
     FAILED = -1
 }
+
+
+export const ENUM_TYPES = ['STRING', 'INT', 'SYMBOL', 'CHAR']
