@@ -1,5 +1,3 @@
-import './index.scss'
-
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Modal, Form, Input } from 'antd'
 import { useCallback } from 'react'
@@ -13,39 +11,12 @@ interface IProps {
     code: string
 }
 
-const key = 'export_notification'
-
-// const export_notification_config = {
-//     [ExportStatus.FAILED]: {
-//         icon: <CloseCircleFilled className='export-error-icon' />,
-//         message: t('导出失败') 
-//     },
-//     [ExportStatus.SUCCESS]: {
-//         icon: <CheckCircleFilled className='export-success-icon' />,
-//         message: t('您的数据已导出成功！')
-//     },
-//     [ExportStatus.LOADING]: {
-//         icon: <LoadingOutlined className='export-loading-icon'/>,
-//         description: t('正在导出您查询的数据文件，请耐心等待...'),
-//     }
-// }
 
 export const ExportFileModal = NiceModal.create((props: IProps) => {
     const { table, code } = props
     const modal = useModal()
     const [form] = Form.useForm()
     const [loading, action] = useBoolean(false)
-    
-    // const [api, contextHolder] = notification.useNotification()
-    
-    // const open_notification = useCallback((status: ExportStatus) => {
-    //     api.open({
-    //         key,
-    //         message: t('数据导出'),
-    //         ...export_notification_config[status]
-    //     })
-    // }, [ ])
-    
   
     const download = useCallback(async () => { 
         try { 

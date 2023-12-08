@@ -1,7 +1,7 @@
 import './index.scss'
 import { useCallback, useMemo, useState } from 'react'
 import { t } from '../../../i18n/index.js'
-import { Button, Space, message } from 'antd'
+import { Button, Space, Tooltip, message } from 'antd'
 
 import { QueryDataView } from './components/QueryDataView.js'
 import { Editor } from '../Editor/index.js'
@@ -19,13 +19,15 @@ export function SqlEditGuide (props: IProps) {
     
     const [current_step, set_current_step] = useState(0)
     const [code, set_code] = useState(`SELECT * FROM loadTable("${database}", "${table}")`)
+    // 总数据量大于 50w, 不允许导出数据
+    const [disable_export, set_disable_export] = useState(false)
     
     const view_map = useMemo(() => { 
         return {
             0: <div className='query-code-editor'>
                 <Editor value={code} on_change={code => { set_code(code) }}/>
             </div>,
-            1: <QueryDataView code={code} />,
+            1: <QueryDataView code={code} set_disable_export={set_disable_export} />,
         }
     }, [code])
     
@@ -44,14 +46,21 @@ export function SqlEditGuide (props: IProps) {
             to_next_step()
     }, [ ])
     
+    
     const primary_btn = useMemo(() => { 
         switch (current_step) { 
             case 0: 
                 return <Button type='primary' onClick={on_preview_data}>{t('下一步')}</Button>
             case 1:
-                return <Button type='primary' onClick={async () => NiceModal.show(ExportFileModal, { code, table })}>{t('导出数据')}</Button>
+                return disable_export
+                    ? <Tooltip title={t('总数据量小于 50 万才能使用导出数据功能')}>
+                        <Button type='primary' disabled onClick={async () => NiceModal.show(ExportFileModal, { code, table })}>
+                            {t('导出数据')}
+                        </Button>
+                    </Tooltip>
+                    : <Button type='primary' onClick={async () => NiceModal.show(ExportFileModal, { code, table })}>{t('导出数据')}</Button>
         }
-    }, [ to_next_step, code, table])
+    }, [ to_next_step, code, table, disable_export])
     
     return <>
         {view_map[current_step]}

@@ -28,7 +28,7 @@ export const VALUE_OPERATIONS = [
 
 export const STRING_OPERATIONS = [
     {
-        label: '等于（=）',
+        label: '等于(=)',
         value: 1
     },
     {

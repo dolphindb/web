@@ -21,7 +21,6 @@ export function ColSelectTransfer (props: IProps) {
     }, [ ])
     
     
-    
     return <Transfer
         titles={['未选查询列', '已选查询列']}
         className='col-select-transfer'
