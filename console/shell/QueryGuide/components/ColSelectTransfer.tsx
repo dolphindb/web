@@ -1,6 +1,7 @@
 import { Transfer } from 'antd'
 import { type IColumn } from '../type.js'
 import { useCallback, useMemo, useState } from 'react'
+import { CheckSquareFilled, CloseSquareFilled } from '@ant-design/icons'
 
 interface IProps {
     cols: IColumn[]
@@ -22,7 +23,15 @@ export function ColSelectTransfer (props: IProps) {
     
     
     return <Transfer
-        titles={['未选查询列', '已选查询列']}
+        titles={[
+            <div className='transfer-list-title'>
+                <CloseSquareFilled className='not-selected-icon'/>未选查询列
+            </div>,
+            <div className='transfer-list-title'>
+                <CheckSquareFilled className='selected-icon'/>
+                已选查询列
+            </div>
+        ]}
         className='col-select-transfer'
         showSearch
         onChange={on_value_change}

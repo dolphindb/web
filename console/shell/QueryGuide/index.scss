@@ -27,6 +27,22 @@
             width: 20%;
             align-items: center;
         }
+        
+        .transfer-list-title {
+            display: flex;
+            align-items: center;
+            justify-content: end;
+            
+            .not-selected-icon {
+                margin-right: 4px;
+                color: #FF4D4F;
+            }
+            
+            .selected-icon {
+                margin-right: 4px;
+                color: #1ABC24;
+            }
+        }
     }
     
     .query-item {
