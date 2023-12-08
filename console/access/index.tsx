@@ -37,10 +37,7 @@ function Access ({
     }, [ ])
     
     
-    if (current?.view)
-        return <AccessView/>
-    else if (role === 'group')
-        return <GroupList/>
-    else if (role === 'user')
-        return <UserList/>     
+    return current?.view ? 
+            <AccessView/> : 
+            (role === 'group' ? <GroupList/> : <UserList/>)
 }
