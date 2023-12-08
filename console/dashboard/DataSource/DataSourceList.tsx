@@ -1,7 +1,7 @@
 import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState } from 'react'
 import { Input, Modal, Tree } from 'antd'
 import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
-import { use_modal } from 'react-object-model/modal.js'
+import { use_modal } from 'react-object-model/hooks.js'
 
 import { dashboard } from '../model.js'
 import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType, copy_data_source, paste_data_source } from './date-source.js'

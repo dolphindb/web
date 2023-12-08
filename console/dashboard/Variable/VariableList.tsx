@@ -1,7 +1,7 @@
 import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState } from 'react'
 import { Input, Modal, Tree } from 'antd'
 import { CopyOutlined, DeleteOutlined, EditOutlined, FileOutlined, ToolOutlined } from '@ant-design/icons'
-import { use_modal } from 'react-object-model/modal.js'
+import { use_modal } from 'react-object-model/hooks.js'
 
 import { dashboard } from '../model.js'
 import { create_variable, delete_variable, rename_variable, type Variable, type VariablePropertyType, variables, copy_variables, paste_variables } from './variable.js'
