@@ -4,7 +4,7 @@ import { shell } from '../../model.js'
 import { NodeType, model } from '../../../model.js'
 import {  DdbFunctionType } from 'dolphindb'
 import { isNumber } from 'lodash'
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { ColSelectTransfer } from './ColSelectTransfer.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { StringDatePicker } from '../../../components/StringDatePicker/index.js'
@@ -147,6 +147,11 @@ export function QueryForm (props: IProps) {
     const [partition_cols, set_partition_cols] = useState<string[]>([ ])
     const page_id = useId()
     
+    useEffect(() => { 
+        if (initial_values)
+            form.setFieldsValue(initial_values)
+    }, [ initial_values ])
+    
     const { isLoading } = useSWR(['get_table_schema', table, database, page_id],
         async () => { 
             await shell.define_load_table_schema()
@@ -178,7 +183,7 @@ export function QueryForm (props: IProps) {
     )
     
     return <Spin spinning={isLoading}>
-        <Form form={form} initialValues={initial_values}>
+        <Form form={form}>
             <h4>{t('查询列')}</h4>
             <Form.Item name='queryCols' rules={[{ required: true, message: '请选择查询列' }] }>
                 <ColSelectTransfer cols={cols}/>
@@ -197,7 +202,7 @@ export function QueryForm (props: IProps) {
                 </>
             }
             <h4>{t('查询条件')}</h4>
-            <Form.List name='querys' initialValue={[[{ }]]}>
+            <Form.List name='querys'>
                 {(fields, { add, remove }) => { 
                     return <div className='querys-wrapper'>
                         {
