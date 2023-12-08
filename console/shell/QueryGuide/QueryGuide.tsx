@@ -82,6 +82,7 @@ export function QueryGuide (props: IProps) {
         {view_map[current_step]}
         <div className='btn-wrapper'>
             <Space>
+                <Button onClick={() => { form.resetFields() }}>{t('重置')}</Button>
                 {current_step > 0 && <Button onClick={back}>{t('上一步')}</Button> }
                 {primary_btn}
             </Space>
